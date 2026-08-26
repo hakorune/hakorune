@@ -23,11 +23,12 @@ Related:
   all broad route or engine deletion remain closed. The MirBuilder Call spine
   remains the serial implementation authority.
 - **Next ordered task:** the current row is the force-hv1 fate design stop
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`: review the PHI and
-  provider R0b exceptions and the remaining Stage1/conditional/dynamic rows.
-  Startup, fallback, and Wpre remain closed. The pre-Wpre CoreDirect one-state
-  terminal is closed; `unavailable` remains parked until Wpre owns a family
-  issuer.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`: R0a guard
+  closeout is landed with focused 86/90 census, retired-path disjointness,
+  and direct-leaf preservation green. Review the PHI/provider R0b exceptions
+  and Stage1/conditional/dynamic rows before opening any implementation.
+  Startup, fallback, and Wpre remain closed; CoreDirect `unavailable` remains
+  parked until Wpre owns a family issuer.
 - **Production stop line:** existing VM code or tests never authorize product
   parity, fallback, or a new compatibility route; retirement must not redirect
   incompatible inputs to another parser or executor.

@@ -202,6 +202,36 @@ if state.get("current_execution_row") == "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
     )
     raise SystemExit(0)
 
+if fate.get("direct_historical_delete_r0_status") == "guard_closeout_fast_open":
+    row = "FORCE-HV1-R0A-GUARD-CLOSEOUT-I0"
+    if state.get("work_mode") != "fast" or state.get("current_execution_row") != row:
+        fail("R0a guard closeout requires its scoped fast pointer")
+    if state.get("next_execution_card") != row:
+        fail("R0a guard closeout next execution card drifted")
+    if card.get("status") != "force_hv1_r0a_guard_closeout_fast_open":
+        fail("active card is not marked R0a guard closeout fast-open")
+    if fate.get("direct_historical_delete_r0_implementation_permission") is not True:
+        fail("R0a guard closeout scoped permission is not set")
+    retired = manifest.get("retired_inventory")
+    if not isinstance(retired, dict) or retired.get("status") != "r0a_landed":
+        fail("R0a guard closeout requires the landed retired inventory")
+    if retired.get("retired_leaves") != 30 or retired.get("active_leaves_after_cutover") != 86:
+        fail("R0a guard closeout arithmetic drifted")
+    if len(retired.get("records") or []) != 30:
+        fail("R0a guard closeout requires all 30 retired records")
+    leaf_paths = manifest.get("leaf_paths")
+    observations = manifest.get("observations")
+    if not isinstance(leaf_paths, list) or len(leaf_paths) != 86:
+        fail("R0a guard closeout requires the active 86-leaf inventory")
+    if not isinstance(observations, dict) or set(observations) != set(leaf_paths):
+        fail("R0a guard closeout active observations are incomplete")
+    print(
+        f"[{TAG}] result_class=current-change failure status=pass "
+        "phase=force_hv1_r0a_guard_closeout_i0 active_leaves=86 "
+        "retired=30 implementation=fast_open"
+    )
+    raise SystemExit(0)
+
 if fate.get("direct_historical_delete_r0_status") == "landed":
     row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
     if state.get("work_mode") != "design_stop":

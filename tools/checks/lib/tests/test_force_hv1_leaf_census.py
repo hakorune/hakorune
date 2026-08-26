@@ -21,14 +21,37 @@ class ForceHv1LeafCensusTest(unittest.TestCase):
     def test_checked_in_inventory_matches_reviewed_matrix(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         observations = derive_inventory(ROOT, manifest["leaf_paths"])
-        self.assertEqual(len(observations), 116)
-        self.assertEqual(sum(len(item["sites"]) for item in observations), 120)
+        self.assertEqual(len(observations), 86)
+        self.assertEqual(sum(len(item["sites"]) for item in observations), 90)
         self.assertEqual(
             {
                 key: sum(item["derived"]["route_class"] == key for item in observations)
                 for key in manifest["observed_counts"]["route_class"]
             },
             manifest["observed_counts"]["route_class"],
+        )
+
+    def test_retired_inventory_is_disjoint_and_absent(self) -> None:
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        active_paths = set(manifest["leaf_paths"])
+        retired = manifest["retired_inventory"]
+        retired_paths = {record["path"] for record in retired["records"]}
+        self.assertEqual(retired["status"], "r0a_landed")
+        self.assertEqual(len(retired_paths), 30)
+        self.assertTrue(active_paths.isdisjoint(retired_paths))
+        self.assertTrue(all(not (ROOT / path).exists() for path in retired_paths))
+        direct_paths = {
+            item["path"]
+            for item in derive_inventory(ROOT, manifest["leaf_paths"])
+            if item["derived"]["route_class"] == "DirectForceSealed"
+        }
+        self.assertEqual(
+            direct_paths,
+            {
+                "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
+                "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_primary_rc42_canary_vm.sh",
+                "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh",
+            },
         )
 
     def test_comments_are_not_entry_sites(self) -> None:
