@@ -705,31 +705,59 @@ cannot claim that external mutation complete.
 
 ## Chronic measurement queue (docs-only, parked)
 
-These four observations are one batched census queue, not four production
-cleanup lanes. Each future card must name its finite boundary, owner, observed
-revision, evidence file, and reopen trigger; no code, `allow(dead_code)` removal,
-parser behavior, bridge conversion, or fallback change is authorized while the
-current D1B design stop is active. Keep the queue here instead of adding one
-row per file or repeating it in `CURRENT_STATE.toml`.
+`CHRONIC-MEASUREMENT-REFRESH-D0` is the single refresh gate for the four
+observations below. It is a census, not a production cleanup lane. The current
+evidence revision is HEAD `3a894650901547abd3848de4efc6e4bf72601371`; counts are
+upper bounds until ownership/cfg registration is classified. No code,
+`allow(dead_code)` removal, parser behavior, bridge conversion, or fallback
+change is authorized while the current D1B design stop is active. Do not copy
+these bullets into `CURRENT_STATE.toml` or create one card per file.
 
-- `EXTERN-NAME-PARSE-SINGLE-OWNER-D0` — census every external-name `splitn` /
-  parse owner from ingress to terminal, distinguish duplicate parser owners
-  from compatibility readers, and record one future owner or `ParkedSealed`.
-- `PANIC-SURFACE-CENSUS-D0` — produce a `cfg(test)`-excluded upper-bound
-  inventory of production `panic!` / `unwrap` / `expect` / `todo!`, with fixture,
-  generated, and compatibility exclusions explicit; statistics are not a
-  deletion mandate.
-- `STRING-PLUS-BRIDGE-OWNER-D0` — classify the remaining String-plus-
-  conversion/bridge variants, including typed-port error boundaries, and name
-  one owner per accepted family; do not silently stringify typed errors.
-- `DEAD-CODE-REMEASURE-D0` — remeasure `dead_code` and `#[allow(dead_code)]`
-  by production, test, generated, and retirement-planned owner, replacing the
-  stale baseline before any bounded removal row is proposed.
+Required order: `PANIC-SURFACE-CENSUS-D0` and `DEAD-CODE-REMEASURE-D0` first;
+only after those scopes are reproducible may a guard expectation TSV be pinned
+(the current exact dead-code observation is 334, not an accepted production
+baseline).
 
-Queue acceptance is observation-only: all four rows remain `ParkedSealed`
-behind their own D0 until the census is reproducible and a bounded next slice
-is selected. A later guard may pin expected counts, but a guard pass cannot
-activate a compiler route or prove semantic retirement.
+The future evidence artifact is a single refreshed TSV owned by this queue;
+do not create it from the stale R1 card (`f659d3f941`) or treat that card's
+panic partition as current. The TSV is a measurement output, not a semantic
+receipt or implementation gate.
+
+- `PANIC-SURFACE-CENSUS-D0` — finite boundary is registered
+  `src/mir/builder.rs` plus `src/mir/builder/**/*.rs`, from module roots to
+  each `panic!`/`unwrap`/`expect`/`todo!` owner and terminal. Current lexical
+  observation is panic 358, unwrap 2798, expect 2976, todo 0, and exact
+  `#[allow(dead_code)]` 95. Fixture/generated/compatibility/debug/nonselected
+  paths are included as separate states, not silently counted as release
+  production. The old panic partition 251+84+24=359 disagrees with aggregate
+  358, so no selected-production claim or deletion follows from it.
+- `DEAD-CODE-REMEASURE-D0` — finite boundary is crate/module registration
+  (`src/lib.rs`, MIR roots, and included `module_registry.in.rs`) through each
+  exact or compound `dead_code`/`cfg_attr` allowance to its caller/consumer or
+  retirement owner. Current exact observation is 334 lines/111 files;
+  compound-inclusive is 351/126, `src/mir` contributes 266 exact lines,
+  selected Builder scope 95, and `module_registry.in.rs` 79. A module-aware
+  production-live count is not established yet; stale 210/239 baselines must
+  not be used to authorize deletion.
+- `EXTERN-NAME-PARSE-SINGLE-OWNER-D0` — finite boundary is explicit extern
+  source/legacy ingress and JSON-v0 `externcall`/program-call input through
+  canonical `(iface, method)` / `Callee::Extern` issuance, MIR Call, and the
+  provider/unknown terminal. The four raw dot parse/split sites and three
+  arity/name-normalization families must distinguish the source parser
+  candidate (`extern_calls.rs::split_explicit_extern_name`), compatibility
+  readers, route normalizers, and trace observers; no single owner exists yet.
+- `STRING-PLUS-BRIDGE-OWNER-D0` — use five finite families rather than one
+  broad rewrite: C1 RequiredArgumentProof consumption, C2 ClaimCompletion
+  transport, C3 ArgumentDescent, C4 constructor demand issue/validate, and C5
+  constructor loan consume/complete. C1/C4/C5 are bounded candidates; C2
+  needs a transport-owner split and C3 a producer/partial-effect census.
+  Existing String variants remain explicit boundaries; typed errors must not be
+  silently stringified.
+
+Each child remains `ParkedSealed` behind its D0 until the census is reproducible
+with owner, include/exclude set, evidence path, and reopen trigger. The future
+expectation TSV/guard may pin only refreshed values and may report drift; a
+passing guard cannot activate a compiler route or prove semantic retirement.
 
 ### Non-claims and stop conditions
 
