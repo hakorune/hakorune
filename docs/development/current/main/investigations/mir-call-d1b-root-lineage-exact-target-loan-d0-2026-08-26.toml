@@ -263,6 +263,14 @@ raw_loan_owner = "RawDirectCallDispositionLoanV1 remains under Builder/calls and
 callback_closure = "The C' bridge must be a one-shot, owner-private callback/token surface that accepts the whole installed package and returns only the Builder bundle/result. It must not expose prepare_install, commit, package-only getters, into_parts, Clone, or a second semantic receipt. Exact Rust visibility/token spelling is D0-SIG-CLOSE-F, not an implementation claim."
 rejected_shapes = "Builder bundle plus public pub(crate) package install is rejected; package-owned bundle containing raw lineage/loan is rejected; a bare callback returning InstalledNormalCallableSemanticPackageV1 is rejected unless immediately consumed into the Builder-private bundle within the same one-shot boundary."
 
+[d0_sig_callback]
+bridge_signature = "Conceptual concrete signature: package::with_normal_callable_install_once(self, context: &mut CompilationContext, consume: impl FnOnce(InstalledNormalCallableSemanticPackageV1, BuilderInstallTokenV1) -> Result<ValueId, String>) -> Result<Result<ValueId, String>, NormalCallableSemanticPackageInstallIssueV1>. The nested root result preserves existing lowering errors while the outer result preserves typed package-install failure; no generic R can return a bare package."
+token_rule = "BuilderInstallTokenV1 is created only inside the package bridge, has private fields, no Clone/Copy, and is consumed by BuilderPrivateInstalledCallableBundle::seal(installed, token, raw_loan). A caller cannot fabricate, duplicate, or retain the token after bundle sealing."
+bundle_rule = "BuilderPrivateInstalledCallableBundle owns InstalledNormalCallableSemanticPackageV1 and RawDirectCallDispositionLoanV1 by value, is #[must_use], non-Clone/non-Copy, has no into_parts or package-only getter, and exposes only begin_lowering(&mut self, context) -> adapter plus complete(self)."
+mode_lifetime = "NormalCallableSemanticPackageMode::Installed becomes a mutable borrow of the Builder bundle. The bundle's begin_lowering borrows package immutably for NormalCallableSemanticPackagePortV1 and raw_loan mutably for Option<&mut RawDirectCallDispositionLoanV1>; the adapter and recursive children cannot create a second bundle borrow."
+test_boundary = "Package cfg(test) uses a package-owned closure helper that keeps install, lowering, and completion inside the callback; it never returns InstalledNormalCallableSemanticPackageV1. External reference fixtures migrate after the single production bridge and remain outside the first production cell."
+callback_acceptance = "D0-SIG-CLOSE-F is accepted only when the callback has one production caller, the token/bundle types are private and non-splittable, package-only install call sites are zero outside package/test helper scope, and the compiler can reject a second mutable begin_lowering while the first adapter lives."
+
 [reopen]
 triggers = [
   "a new root lineage or target-loan producer appears",
