@@ -40,11 +40,11 @@ Current capsule:
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — co-seal one issuer-local DirectCallInventoryScratch, map it once to an affine RawDirectCallDispositionLoan, and lend only an existing same-session target relation before argument effects.
+Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — co-seal one issuer-local DirectCallInventoryScratchV1, map it once to an affine RawDirectCallDispositionLoanV1, and lend only an existing same-session target relation before argument effects.
 Source authority + canonical issuer: the same-session Shadow/package owner issues owner/site/source/session/brand disposition. Exact catalog and GC rows are final authorities. The Cataloged first cell preserves landed LocalValue/Extern parity only while moving its issued Callee; future rows cannot generalize it. Raw lineage maps once at the package-to-raw boundary; the consumer calls MirInstruction::call without rerunning the resolver.
 Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
 Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: design-only exact function-signature/lifetime contract for DirectCallInventoryScratch and RawDirectCallDispositionLoan, including pre-install completeness, take-once, residual-zero, and Cataloged-only first-cell stop; no code, profile widening, AST rescan, public receipt, or package field.
+Smallest next slice: design-only D0-SIG for DirectCallInventoryScratchV1 and RawDirectCallDispositionLoanV1: private sealed bundles, pre-adapter mapper timing, scoped &mut raw-port reborrow, pre-install completeness, take-once, residual-zero, and Cataloged-only old-payload deletion; no code, profile widening, AST rescan, public receipt, or package field.
 Non-claims: observation gate implementation, target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
