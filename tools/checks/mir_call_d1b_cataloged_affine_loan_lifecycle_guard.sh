@@ -57,7 +57,7 @@ if not isinstance(registration, dict):
     raise SystemExit("active card guard_registration_row is missing")
 if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
     raise SystemExit("guard-only execution row drifted")
-if registration.get("status") != "selected_fast_guard_only":
+if registration.get("status") != "landed_guard_only":
     raise SystemExit("guard-only status drifted")
 allowed_files = registration.get("allowed_files")
 expected_files = {
