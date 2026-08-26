@@ -49,7 +49,7 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みなので、pre-Wpre force-hv1の33+36/107 callerを分類し、startup bypassとterminalを設計だけで閉じる。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みなので、pre-Wpre force-hv1の116 leaf（78 reacher / 80 invocation / 38 residual）と9 migration blockerを分類し、startup bypassとterminalを設計だけで閉じる。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -246,9 +246,11 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    family issuer. R0 deletes raw probe/child/in-proc reparse/VM fallback.
 
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
-   retire production force-hv1; the finite census is 33 direct verify_v1_inline_file rows
-   plus 36 hv1-capable verify_mir_rc rows across 107 integration files. Migrate, retire,
-   or archive each named caller and supersede the startup guard; standard-v1 reroute is forbidden.
+   retire production force-hv1; corrected census is 116 lexical leaves (33 direct,
+   74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38
+   non-force residual consumers. Fates are HistoricalDelete=69, migration blockers=9,
+   SemanticReference=0; migrate, retire, or archive each named caller and supersede
+   the startup guard; standard-v1 reroute is forbidden.
 
 1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
    strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and

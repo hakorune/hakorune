@@ -128,8 +128,10 @@ removal runs before the Call spine; broad route and engine retirement wait.
    child, in-proc retry, and VM fallback are deleted.
 
 2. FORCE-HV1-CALLER-MIGRATION-R0..Rn
-   close 33 direct + 36 helper rows across the finite 107-file boundary
-   -> delete helper retry and startup bypass; never reinterpret as standard v1
+   first freeze 116 lexical leaves: 33 direct + 74 textual helper + 9 wrapper-only;
+   78 force reachers / 80 invocations, with 38 non-force residual consumers.
+   Fates are HistoricalDelete=69, migration blockers=9, SemanticReference=0;
+   then delete helper retry and startup bypass; never reinterpret as standard v1.
 
 3. WPRE-S0/I0
    one strict root -> one selected decoder -> one terminal; parse/retry once/zero

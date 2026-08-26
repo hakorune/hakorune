@@ -1,0 +1,339 @@
+{
+  "schema": "force-hv1-caller-disposition-manifest-v0",
+  "version": 1,
+  "status": "design_stop_no_implementation",
+  "source_commit": "9090bd1ba0c3e90c825288698cc02ec89d88f98e",
+  "Exception": "machine-consumed stable artifact",
+  "ParentCurrentCard": "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "boundary": {
+    "starts": "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector and its named test-runner callers",
+    "ends": "caller fate and the single selector-alone retirement terminal",
+    "includes": [
+      "verify_v1_inline_file direct callers",
+      "verify_mir_rc textual helper callers",
+      "phase2170 wrapper-only callers",
+      "force startup reader and hv1_inline terminal",
+      "non-force helper residuals needed by the narrow cut"
+    ],
+    "excludes": [
+      "HAKO_VERIFY_PRIMARY and HAKO_ROUTE_HAKOVM adjacent routes",
+      "Wpre selector/decoder",
+      "broad Rust VM and vm-hako internals",
+      "raw-vm-reference, PyVM, HMI, and LLVM internals"
+    ]
+  },
+  "authority": {
+    "selector_reader": "src/main.rs::HAKO_VERIFY_V1_FORCE_HAKOVM",
+    "truthy_policy": "src/config/env/vm_backend_flags.rs::env_bool (1|true|on, case-insensitive)",
+    "direct_issuer": "tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file",
+    "helper_issuer": "tools/smokes/v2/lib/test_runner_builder_helpers.sh::verify_mir_rc",
+    "wrapper_issuer": "tools/smokes/v2/lib/test_runner_stdout_core_helpers.sh::run_verify_mir_via_hakovm_*",
+    "non_authority": [
+      "script names",
+      "numeric rc",
+      "raw 1* JSON shape",
+      "NYASH_VERIFY_JSON payload/presence",
+      "HAKO_VERIFY_PRIMARY=hakovm",
+      "HAKO_ROUTE_HAKOVM=1",
+      "--backend vm"
+    ]
+  },
+  "expected_counts": {
+    "lexical_leaves": 116,
+    "caller_family": {
+      "direct": 33,
+      "textual_helper": 74,
+      "wrapper_only": 9
+    },
+    "force_reachers": 78,
+    "force_invocations": 80,
+    "residual_consumers": 38,
+    "fate": {
+      "HistoricalDelete": 69,
+      "ProductAot": 8,
+      "Stage1ProofAot": 1,
+      "SemanticReference": 0,
+      "ParkedSealedResidual": 38
+    },
+    "migration_blockers": 9,
+    "unclassified": 0
+  },
+  "fate_contract": {
+    "HistoricalDelete": {
+      "successor": null,
+      "successor_status": "not_required",
+      "owner": "force-hv1 retirement",
+      "evidence": "named legacy probe has no product or semantic-reference claim",
+      "reopen_trigger": "explicit new owner Decision only",
+      "non_authority": "standard-v1 reinterpretation"
+    },
+    "ProductAot": {
+      "successor": "source-issued LLVM/EXE/AOT exact-result owner",
+      "successor_status": "blocker",
+      "owner": "phase2170 product successor",
+      "evidence": "current wrapper proves only the old force route",
+      "reopen_trigger": "exact source -> MIR -> LLVM/EXE evidence lands",
+      "non_authority": "Rust VM output or filtered rc"
+    },
+    "Stage1ProofAot": {
+      "successor": "tools/selfhost/gen_v1_from_selfhost_pipeline_min.sh plus exact Stage1/AOT proof",
+      "successor_status": "blocker",
+      "owner": "selfhost Stage1 proof",
+      "evidence": "selfhost_v1_primary_rc42_canary_vm is force-reachable",
+      "reopen_trigger": "exact emit -> AOT execution rc42 with force/broad-VM/fallback zero",
+      "non_authority": "standard-v1 reroute"
+    },
+    "ParkedSealedResidual": {
+      "successor": null,
+      "successor_status": "parked",
+      "owner": "narrow verify_mir_rc residual boundary",
+      "evidence": "non-force explicit-core or schema-less/default helper consumer",
+      "reopen_trigger": "explicit broad verify_mir_rc deletion Decision",
+      "non_authority": "force-hv1 reachability claim"
+    }
+  },
+  "groups": [
+    {
+      "caller_family": "direct",
+      "invocation_count": 1,
+      "reachability": "force_reacher",
+      "residual_kind": "none",
+      "fate": "HistoricalDelete",
+      "fate_contract": "HistoricalDelete",
+      "paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_compare_branch_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_const_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_jump_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_push_size_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_set_stub_rc0_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_three_recv_second_rc0_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_set_size_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_three_recv_second_rc0_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_first_rc1_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_second_rc0_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/if_eq_varvar_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/if_ge_intint_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/if_le_intint_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_intint_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_varvar_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/logical_and_or_cross_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/logical_nested_or_and_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_break_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_continue_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_cast_passthrough_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_false_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_true_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_i64_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_integer_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_string_false_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_binop_add_rc42_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_copy_passthrough_rc7_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_unop_not_rc1_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_else_rc40_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_then_rc44_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh"
+      ]
+    },
+    {
+      "caller_family": "direct",
+      "invocation_count": 1,
+      "reachability": "force_reacher",
+      "residual_kind": "none",
+      "fate": "Stage1ProofAot",
+      "fate_contract": "Stage1ProofAot",
+      "paths": ["tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_primary_rc42_canary_vm.sh"]
+    },
+    {
+      "caller_family": "textual_helper",
+      "invocation_count": 1,
+      "reachability": "force_reacher",
+      "residual_kind": "none",
+      "fate": "HistoricalDelete",
+      "fate_contract": "HistoricalDelete",
+      "paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2037/using_ast_inline_v1_phi_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_extern_provider_emit_stub_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_extern_provider_warn_error_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_array_push_size_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_branch_jump_combo_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_internal_block0_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_branch_multi_combo2_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_else_jump_combo3_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_else_path_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_missing_strict_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_multi_incoming3_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_multi_incoming_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_multi_phi_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_multi_phi_then_jump_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_nested_branch_combo_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_nested_branch_sum_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_simple_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_then_jump_combo3_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_then_jump_combo4_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_then_jump_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_tolerate_missing_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_tolerate_missing_zero2_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_tolerate_missing_zero_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_hakovm_phi_whitespace_flow_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2038/v1_extern_codegen_emit_object_stub_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2038/v1_extern_console_error_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2038/v1_extern_console_warn_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2038/v1_extern_emit_hv1_inline_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2038/v1_extern_emit_stub_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2038/v1_extern_env_get_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_first_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_second_rc_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/hv1_mircall_array_push_size_state_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/hv1_mircall_map_set_size_state_canary_vm.sh"
+      ]
+    },
+    {
+      "caller_family": "textual_helper",
+      "invocation_count": 2,
+      "reachability": "force_reacher",
+      "residual_kind": "none",
+      "fate": "HistoricalDelete",
+      "fate_contract": "HistoricalDelete",
+      "paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_if_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2037/v1_mircall_parity_hakovm_minivm_vm.sh"
+      ]
+    },
+    {
+      "caller_family": "wrapper_only",
+      "invocation_count": 1,
+      "reachability": "force_reacher",
+      "residual_kind": "none",
+      "fate": "ProductAot",
+      "fate_contract": "ProductAot",
+      "paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2170/array_len_alias_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/array_length_alias_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/array_push_size_10_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/array_push_size_5_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/flow_across_blocks_array_size_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/map_set_dup_key_size_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/map_value_state_get_has_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2170/per_recv_per_canary_vm.sh"
+      ]
+    },
+    {
+      "caller_family": "wrapper_only",
+      "invocation_count": 1,
+      "reachability": "force_reacher",
+      "residual_kind": "none",
+      "fate": "HistoricalDelete",
+      "fate_contract": "HistoricalDelete",
+      "paths": ["tools/smokes/v2/profiles/integration/core/phase2170/per_recv_global_canary_vm.sh"]
+    },
+    {
+      "caller_family": "textual_helper",
+      "invocation_count": 1,
+      "reachability": "nonforce_residual",
+      "residual_kind": "explicit_core",
+      "fate": "ParkedSealedResidual",
+      "fate_contract": "ParkedSealedResidual",
+      "paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_loop_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_loop_count_param_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_loop_sum_bc_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_array_get_set_update_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_array_oob_get_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_array_push_size_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_env_get_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_hostbridge_invoke_emit_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_extern_mirbuilder_emit_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_map_has_delete_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_map_set_get_size_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_contains_boundary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_contains_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_indexof_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_lastindexof_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_lastindexof_notfound_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_substring_1arg_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2035/v1_method_string_substring_2args_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_count_param_descend_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_count_param_init_var_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_count_param_limit_var_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_count_param_step2_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_count_param_varstep_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_ne_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_simple_varname_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_sum_bc_ne_else_break_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_sum_bc_swapped_eq_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_swapped_gt_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_swapped_gte_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_swapped_lt_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_loop_swapped_lte_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_match_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_ternary_core_exec_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2211/json_frag_last_index_of_from_canary_vm.sh"
+      ]
+    },
+    {
+      "caller_family": "textual_helper",
+      "invocation_count": 2,
+      "reachability": "nonforce_residual",
+      "residual_kind": "schema_less_default",
+      "fate": "ParkedSealedResidual",
+      "fate_contract": "ParkedSealedResidual",
+      "paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_binop_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_loop_canary_vm.sh"
+      ]
+    },
+    {
+      "caller_family": "textual_helper",
+      "invocation_count": 1,
+      "reachability": "nonforce_residual",
+      "residual_kind": "schema_less_default",
+      "fate": "ParkedSealedResidual",
+      "fate_contract": "ParkedSealedResidual",
+      "paths": ["tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_return_logical_varvar_core_exec_canary_vm.sh"]
+    }
+  ],
+  "owner_inventory": [
+    {"path": "src/main.rs", "role": "selector_reader"},
+    {"path": "src/runner/hv1_inline.rs", "role": "hv1_terminal"},
+    {"path": "src/runner/mod.rs", "role": "runner_boundary"},
+    {"path": "src/lib.rs", "role": "public_entry"},
+    {"path": "tools/smokes/v2/lib/test_runner.sh", "role": "direct_issuer"},
+    {"path": "tools/smokes/v2/lib/test_runner_builder_helpers.sh", "role": "textual_helper_issuer"},
+    {"path": "tools/smokes/v2/lib/test_runner_stdout_core_helpers.sh", "role": "wrapper_issuer"},
+    {"path": "tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh", "role": "wrapper_aggregate"}
+  ],
+  "aggregate_rows": [
+    {
+      "path": "tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh",
+      "members": "wrapper_only",
+      "fate": "update_atomically_with_wrapper_cutover",
+      "status": "blocker"
+    }
+  ],
+  "terminal": {
+    "selector": "HAKO_VERIFY_V1_FORCE_HAKOVM truthy",
+    "stderr": "[force-hv1/retired]\\n",
+    "stdout": "empty",
+    "rc": 1,
+    "payload_parse_execute_retry_fallback": 0,
+    "redirect": "forbidden"
+  },
+  "acceptance": [
+    "116 unique lexical leaves are represented exactly once in groups",
+    "direct/textual_helper/wrapper_only = 33/74/9",
+    "force reachers/invocations = 78/80",
+    "residual consumers = 38 and remain outside the narrow helper deletion",
+    "HistoricalDelete/ProductAot/Stage1ProofAot/SemanticReference/ParkedSealedResidual = 69/8/1/0/38",
+    "unclassified = 0",
+    "implementation_permission remains false until a successor guard consumes this manifest"
+  ],
+  "no_safe_slice": [
+    "any path is omitted, duplicated, or unclassified",
+    "phase2170 wrapper-only callers or run_all aggregate are omitted",
+    "38 residual consumers are treated as force reachers",
+    "force removal falls through to Core or standard-v1",
+    "terminal parses payload, executes, retries, or falls back"
+  ]
+}

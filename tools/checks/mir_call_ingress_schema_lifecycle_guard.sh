@@ -8,16 +8,17 @@ STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 WORKSTREAM="$ROOT_DIR/docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 MANIFEST="$ROOT_DIR/tools/checks/guard_rows.toml"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
+FORCE_MANIFEST="$ROOT_DIR/docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v0.json"
 
 fail() {
   echo "[$TAG] result_class=current-change failure status=fail: $*" >&2
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|wpre_readiness]"
+[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|force_hv1_fate_d0|wpre_readiness]"
 PHASE="${1:-wpre_readiness}"
 case "$PHASE" in
-  wpre_readiness|reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0) ;;
+  wpre_readiness|reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|force_hv1_fate_d0) ;;
   wpre_i0|typed_global_b1|r7_closeout)
     fail "recognized future phase is not landed: $PHASE"
     ;;
@@ -29,6 +30,12 @@ esac
 for file in "$CARD" "$STATE" "$WORKSTREAM" "$MANIFEST" "$INDEX"; do
   [[ -f "$file" ]] || fail "required owner missing: ${file#$ROOT_DIR/}"
 done
+
+if [[ "$PHASE" == "force_hv1_fate_d0" ]]; then
+  python3 "$ROOT_DIR/tools/checks/lib/force_hv1_caller_manifest_guard.py" \
+    "$CARD" "$FORCE_MANIFEST" "$STATE" "$WORKSTREAM"
+  exit 0
+fi
 
 python3 - "$ROOT_DIR" "$CARD" "$STATE" "$WORKSTREAM" "$MANIFEST" "$INDEX" "$PHASE" <<'PY'
 from pathlib import Path
