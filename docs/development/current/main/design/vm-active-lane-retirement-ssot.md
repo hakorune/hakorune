@@ -127,11 +127,25 @@ removal runs before the Call spine; broad route and engine retirement wait.
    stays parked until Wpre owns a family issuer. The six old scripts, raw probe,
    child, in-proc retry, and VM fallback are deleted.
 
-2. FORCE-HV1-CALLER-MIGRATION-R0..Rn
-   first freeze 116 lexical leaves: 33 direct + 74 textual helper + 9 wrapper-only;
-   78 force reachers / 80 invocations, with 38 non-force residual consumers.
-   Fates are HistoricalDelete=69, migration blockers=9, SemanticReference=0;
-   then delete helper retry and startup bypass; never reinterpret as standard v1.
+2. FORCE-HV1-CLEAN-ENV-AUTHORITY-D0 -> FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-D0
+   The old 116-leaf/78-reacher/80-site arithmetic is history, not closure.
+   The body-derived boundary is 116 leaves / 120 lexical sites:
+   33/33 `DirectForceSealed`, 44/45 `HelperForceConditional`,
+   35/35 `ExplicitCoreResidualSealed`, and 4/7 `DynamicArtifactOpen`.
+   The clean-environment owner is the existing smoke entry contract, not the
+   census parser: direct `verify_v1_inline_file` runs under `env -i` with an
+   explicit hv1 selector; helper and wrapper routes must pin the intended
+   primary or explicitly unset competing `HAKO_VERIFY_V1_FORCE_CORE` and
+   `HAKO_VERIFY_PRIMARY` before they can be sealed. `NYASH_VERIFY_JSON` content
+   is payload data, while its presence remains a selector authority until the
+   owner removes that route.
+   The next census reads checked-in leaf/helper bytes only and derives ordered
+   call facts, body digests, artifact gates, and ambient requirements. Fate,
+   rc, stdout, fallback success, and runtime repetition are not derived facts.
+   Missing/duplicate/unknown syntax, unresolved ambient settings, and dynamic
+   artifacts stay `CutoverBlockerOpen`; they may not be relabeled
+   `ParkedSealed`. Only after this pair is accepted may the helper retry and
+   startup bypass be retired; hv1 is never reinterpreted as standard v1.
 
 3. WPRE-S0/I0
    one strict root -> one selected decoder -> one terminal; parse/retry once/zero
