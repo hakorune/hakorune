@@ -374,8 +374,8 @@ decisions = [
   "the bridge consumes an opaque BuilderInstallConsumerV1 and returns only BuilderPrivateInstalledCallableBundleV1; bare InstalledNormalCallableSemanticPackageV1 never escapes production",
   "the pre-adapter mapper remains a private sibling and may only move an already-issued Callee; it cannot scan AST, synthesize name/arity/symbol, or rerun CalleeResolverBox",
   "RawDirectCallDispositionLoanV1 stays Builder-owned and is not introduced until the package bridge and raw-port lifetime seam are ready",
-  "source handoff is a scoped callback loan: with_bound_source must be consumed inside the same one-shot bridge/lowering scope, or source binding must occur before package consumption; Installed packages expose no source_ast getter and no AST/reference is stored in the sealed bundle",
-  "RawInvocationChildPortV1 is the root loan owner; RawStructuredChildScopePortV1 and RawExpressionDispatchPortV1 must forward an explicit scoped capability, never an Option fallback or child ledger",
+  "source handoff is one Builder-private HRTB lowering scope: the scope invokes the existing source loan, constructs the adapter, binds source, lowers, and completes before the callback returns; the sealed bundle stores no AST/reference and Installed exposes no source_ast getter",
+  "RawInvocationChildPortV1 is the root loan owner; a dedicated direct-call capability (with an explicit loan lifetime) is forwarded by RawStructuredChildScopePortV1 and required by RawExpressionDispatchPortV1, while the legacy port returns a typed reject",
 ]
 old_edge_delete_set = [
   "production prepare_install().commit() path at normal_default_root_catalog_lifecycle.rs:429-440",
@@ -388,11 +388,11 @@ acceptance = [
   "consumer/token/bundle are private, non-Clone/non-Copy, non-destructurable, and the token is single-use",
   "the bridge rejects incomplete/foreign/duplicate direct-call inventory before body or argument effects",
   "the future raw loan has one root owner and a short &mut recursive reborrow; no clone, Rc, Arc, RefCell, or child ledger",
-  "the installed source handoff and post-install relay are covered without overlapping an AST borrow with package consumption; no package-only source getter remains",
+  "the installed source handoff and post-install relay run inside the HRTB lowering scope without overlapping an AST borrow with package consumption; no package-only source getter remains",
   "the package issuer/coseal has a named direct-call inventory owner and proves completeness before install; an empty/default inventory is not accepted",
   "Cataloged/GC variant parity remains unchanged and the Cataloged direct payload seam is still a separate follow-up",
 ]
-guard_owner = "A new mir-call-d1b-cataloged-affine-loan guard will own package-only escape, callback/bundle visibility, raw-loan lifetime, Cataloged direct-handoff zero, take_once, and residual-zero checks; it must be registered before implementation permission opens."
+guard_owner = "A new mir-call-d1b-cataloged-affine-loan-lifecycle guard will own package-only escape, callback/bundle visibility, raw-loan lifetime, Cataloged direct-handoff zero, take_once, and residual-zero checks; it must be registered before implementation permission opens."
 source_budget = "Do not append bridge/lifetime code to recursive_child_lowering.rs=590, function_call_preflight_route_tests.rs=739, or raw_invocation_source_transport.rs=778. Use owner-specific siblings and preserve the existing ordinary module topology."
 next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
@@ -402,8 +402,8 @@ code_shelf_commit = "9813d8797c"
 review_source = "three independent read-only follow-up audits (design, adversary, tests) after the recursive facade shelf; no code, fixture, Cargo, profile-gate, or backend change"
 verdict = "NoSafeSlice remains. The shelf is clean, but the package-only production escape and raw loan seam are not closed, and the source handoff currently creates a real package/AST borrow conflict. Keep implementation_permission=false."
 caller_boundary = "The complete production chain is normal_default_root_catalog_lifecycle.rs:429-440 prepare_install().commit(), :507-525 with_bound_source, :572-577 source_ast(), normal_default_root_catalog_post_install.rs:29-46 relay, and program_root_lowering.rs:86-88/:245-266 Installed(&Installed...) plus begin_lowering(&self). Tests/reference fixtures are migration inventory, not production authority."
-source_handoff_decision = "Use one scoped HRTB/source-loan callback inside the one-shot bridge/lowering boundary, or bind the source before consuming the package. Do not keep an AST/reference in the sealed bundle, add an Installed::source_ast getter, clone the AST, or let package and source borrows overlap."
-raw_capability_decision = "RawInvocationChildPortV1 receives the single root-owned Option<&mut RawDirectCallDispositionLoanV1>; reborrow() lends a shorter borrow. RawStructuredChildScopePortV1 and RawExpressionDispatchPortV1 must forward this typed capability explicitly, without fallback, Rc/Arc/RefCell, copied ledgers, or per-child state."
+source_handoff_decision = "Choose one Builder-private HRTB lowering scope: it invokes the existing source loan, constructs the adapter, binds source, lowers, and completes before the callback returns. Do not bind across package consumption, keep an AST/reference in the sealed bundle, add an Installed::source_ast getter, clone the AST, or let package and source borrows overlap."
+raw_capability_decision = "Add a dedicated RawDirectCallDispositionPortV1 capability and an explicit third loan lifetime on RawInvocationChildPortV1. The root owns one Option<&mut RawDirectCallDispositionLoanV1>; reborrow() lends a shorter borrow, RawStructuredChildScopePortV1/RawExpressionDispatchPortV1 forward it explicitly, and RawLegacyChildLoweringPortV1 returns a typed cannot-consume reject. No fallback, Rc/Arc/RefCell, copied ledgers, or per-child state."
 mapper_decision = "The pre-adapter direct-call mapper remains an owner-specific sibling and runs before NormalCallableSemanticPackagePortAdapterV1::new. It validates an existing source/owner/site/session/brand mapping and moves an already-issued Callee; it never rebuilds lineage, name, arity, symbol, or target."
 inventory_gap = "normal_callable_semantic_package/issuer.rs:134-161 and install.rs:269-331 currently have no direct-call inventory product or completeness check. The bridge cannot open until an issuer/coseal owner and pre-install abort for incomplete/foreign/duplicate/mixed-brand rows are named."
 missing_proofs = [
@@ -418,6 +418,13 @@ opening_conditions = [
   "D0-SIG-CLOSE-C: freeze the RawInvocationChildPortV1/RawStructuredChildScopePortV1 lifetime and capability forwarding seam",
   "D0-SIG-CLOSE-D/E: name the package direct-call inventory co-seal owner and register the single reusable guard with positive/negative/parity rows",
   "all touched/new sources remain below 760 lines; raw_invocation_source_transport.rs=778 remains untouched or is split behavior-neutrally first",
+]
+task_queue = [
+  "D0-SIG-CLOSE-A: install.rs owns the C' one-shot bridge; select the Builder-private HRTB lowering scope and remove the package-only source handoff shape from the production caller contract",
+  "D0-SIG-CLOSE-B: close prepare_install/commit/with_bound_source/source_ast/begin_lowering/post-install relay census; no bare Installed package or package-only getter may remain in production",
+  "D0-SIG-CLOSE-C: freeze RawDirectCallDispositionPortV1, the third loan lifetime, structured-child forwarding, legacy typed reject, and failure/rollback completion semantics",
+  "D0-SIG-CLOSE-D: name issuer.rs direct-call scratch/co-seal ownership, install.rs completeness abort, and the exact Cataloged old-payload replacement edge",
+  "D0-SIG-CLOSE-E: register mir-call-d1b-cataloged-affine-loan-lifecycle with readiness and Cataloged-I0 phases plus focused positive/negative/parity proofs",
 ]
 non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
 next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
