@@ -233,7 +233,7 @@ outside = "hv1_inline has a production force route and is not test-only. Stage-A
 
 [wpre_in_scope_blockers]
 rows = [
-  "core_direct_execution | src/runner/core_executor.rs | status=CutoverBlockerOpen | owner=shared-runner execution overlay | reason=raw probe, swallowed error, child retry, and execution re-entry precede a single decoded-module terminal | decision=after successful existing decode, a requested CoreDirect intent returns [core-direct/retired] on stderr with rc=1; decode/wrong-entrance failures keep their existing terminal; unavailable is ParkedSealed until Wpre issuer | non_authority=raw text probe result",
+  "core_direct_execution | src/runner/core_executor.rs | status=landed | owner=shared-runner execution overlay | reason=R0 removed raw probe, swallowed error, child retry, and execution re-entry | decision=after successful existing decode, a requested CoreDirect intent returns [core-direct/retired] on stderr with rc=1; decode/wrong-entrance failures keep their existing terminal; unavailable is ParkedSealed until Wpre issuer | non_authority=raw text probe result",
   "selected_compatibility_transform | src/runner/json_artifact/mod.rs; src/runner/modes/common_util/core_bridge.rs | status=CutoverBlockerOpen | owner=selected compatibility decoder | reason=pre-selection raw transform and ignored error are not a selector profile | signature=apply_selected_compatibility_transform(family, root:&mut Value)->Result<(),WpreError> | non_authority=transform success or error text",
 ]
 
@@ -274,7 +274,6 @@ execution_overlays = [
 ]
 known_inventory_scope = "B0 fingerprints 9 shared runner rows for the bounded Wpre-I0 entrance. Outside rows now have explicit owner, status, reason, reopen trigger, and non-authority; this is not a claim that global all-ingress strictness is closed."
 open_design_blockers = [
-  "CoreDirect six-smoke disposition and no-retry retirement remain implementation-closed",
   "force-hv1 finite caller migration and startup bypass retirement remain implementation-closed",
   "strict duplicate-aware root owner and exact Value-consuming decoder seams remain implementation-closed",
 ]
@@ -375,7 +374,7 @@ observed = [
 successor_candidates = "ProductAot S0: apps/tests/string_substring_in_range_min.hako -> tools/smokes/v2/profiles/integration/apps/string_substring_in_range_exe.sh with exact EXE/AOT output/rc, separate stderr, same MIR SHA, pure-first, and compat_replay=none; five HistoricalDelete rows need no successor."
 delete_set = "Delete six legacy smokes, the core_executor raw probe/in-proc reparse/temporary Hako child/child stdout relay/ordinary VM fallback, and the INPROC selectors; retain the two explicit CoreDirect intent spellings as one grace terminal."
 acceptance = "Six rows are exhausted with exactly one disposition each; ProductAot S0 has an exact release EXE/AOT contract; R0 proves one-state decoded retirement, exact stderr/rc, wrong-entrance preservation, child/retry/fallback=0, and residual-zero old route markers."
-next_row = "CORE-DIRECT-RETIRE-R0"
+next_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 next_blocker = "ProductAot S0 and CoreDirect R0 are landed. Pre-Wpre cannot distinguish unavailable without a named Wpre issuer; force-hv1 fate is the next design stop."
 non_claims = "No language change for charAt/replace, no semantic reference migration, no broad Rust VM deletion, no vm-hako change, and no CoreDirect code deletion in this D0."
 

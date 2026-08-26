@@ -122,11 +122,10 @@ removal runs before the Call spine; broad route and engine retirement wait.
 
 1. CORE-DIRECT-RETIRE-D0 -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 -> R0
    D0 and S0 are landed: ProductAot=1, SemanticReference=0, HistoricalDelete=5.
-   Pre-Wpre R0 then emits
-   one post-decode [core-direct/retired] terminal, rc=1, with decode failures
-   retaining their existing terminal; [core-direct/unavailable] stays parked
-   until Wpre owns a family issuer. Only then delete the six old scripts, raw
-   probe, child, in-proc retry, and VM fallback.
+   Pre-Wpre R0 now emits one post-decode [core-direct/retired] terminal, rc=1,
+   with decode failures retaining their existing terminal; [core-direct/unavailable]
+   stays parked until Wpre owns a family issuer. The six old scripts, raw probe,
+   child, in-proc retry, and VM fallback are deleted.
 
 2. FORCE-HV1-CALLER-MIGRATION-R0..Rn
    close 33 direct + 36 helper rows across the finite 107-file boundary
@@ -182,12 +181,11 @@ SemanticReference = none
 HistoricalDelete = the other five rc-only/unsupported/incorrect-contract scripts
 ```
 
-`CORE-DIRECT-RETIRE-R0` remains a design stop because the old two-terminal contract
-has no pre-Wpre decoded-family issuer. The accepted amendment is one-state:
+`CORE-DIRECT-RETIRE-R0` is landed with the accepted one-state amendment:
 successful decode + explicit request -> `[core-direct/retired]`, rc=1; malformed,
-wrong-entrance, and decoder failures keep their existing terminal. The S0
-successor now exists; once this post-decode proof is landed, one bounded R0 may delete all six
-scripts and the old CoreDirect implementation with retry/fallback zero.
+wrong-entrance, and decoder failures keep their existing terminal. The six scripts
+and old CoreDirect implementation are retired with retry/fallback zero; the
+unavailable state remains parked until Wpre owns a family issuer.
 
 ## Decision
 

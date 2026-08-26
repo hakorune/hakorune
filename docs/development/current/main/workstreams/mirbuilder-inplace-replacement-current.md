@@ -238,12 +238,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    temporary v1 file/readback, and production raw String parses are removed.
 
 1i. CORE-DIRECT-RETIRE-D0 (landed design-only) -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0
-   (landed) -> CORE-DIRECT-RETIRE-R0 (current design stop)
+   (landed) -> CORE-DIRECT-RETIRE-R0 (landed)
    D0 classifies the six active smokes into ProductAot / SemanticReference /
    HistoricalDelete. S0 moves the one product-observable substring case to an
    exact EXE/AOT owner. Pre-Wpre R0 uses one post-decode stderr terminal
    ([core-direct/retired], rc=1); unavailable is ParkedSealed until Wpre owns a
-   family issuer. Only then delete raw probe/child/in-proc reparse/VM fallback.
+   family issuer. R0 deletes raw probe/child/in-proc reparse/VM fallback.
 
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
    retire production force-hv1; the finite census is 33 direct verify_v1_inline_file rows
