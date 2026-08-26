@@ -191,6 +191,19 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
 1. MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0               (now, fast)
    reusable fail-closed guard; phases wpre_readiness/wpre_i0/typed_global_b1/r7
 
+1a. MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0                     (docs-only)
+    inventory every section removed by 9bff1a1ff2 that carried review_source,
+    A/B/C disposition, QualifiedStaticPayloadAbsent, TargetPayloadMissing, or
+    terminal_role_split; map each to the current B0 owner with superseded_by /
+    retained historical token, and record the user-supplied Pro review plus the
+    six read-only audit roles integrated by 45bff917e3. No transcript is invented
+
+1b. MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0             (guard-only)
+    turn the finite family matrix, compiled-consumer owner inventory, Wpre/wire
+    impact table, and exact print/1 attribution into one machine-readable manifest
+    plus reusable fail-closed guard. Unknown owner/family/path and stale manifest
+    fail; this guard is evidence only and grants no Wpre/B1 implementation permission
+
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
    parse JSON root once; select exact v2/v1/MIR-v0/Program-v0 once; delete raw
    substring selection, canonicalize/reload, dispatch-local cascade, swallowed
@@ -418,6 +431,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 - RawCompatibility, bounded GC, Main exact-i64/FullFunction, Brand/special,
   ExplicitExtern, ASTNode::Call, and ArrayElementWrite until their owners select.
 - warning/dead-code/chronic measurement work in the cleanup map.
+  Its fixed order is `CHRONIC-MEASUREMENT-REFRESH-D0` ->
+  `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
+  `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0`: reproduce and classify first, emit one
+  expectation TSV/refresh guard second, then tombstone the stale per-script
+  thresholds. Exact 334 is an observation, never an automatic production ceiling.
 - performance, mimalloc, llvmlite, Hako converter, Loop/M8/M9, and physical-type
   follow-ups until `CURRENT_STATE.toml` reselects them.
 - broad Context/metadata/port/barrel cleanup until Call R7.

@@ -218,7 +218,7 @@ relationless = "Explicit compatibility owner only. Ordinary Resolved is an old e
 
 [task_spine]
 current = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
-next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0"
+next_prerequisite = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0, then MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0; Wpre remains closed until both finish"
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -239,6 +239,24 @@ change = "Add/register/index one reusable fail-closed guard that freezes current
 contract = "No parser, fixture, codec, target, effect, backend, or Call change. Existing D1B lifecycle guard remains independently bridge_ready."
 done = "pilot and quick-static registry entry is unique; wpre_readiness is green; unknown phase fails closed."
 stop = "Return to design if the guard cannot distinguish MIR-v0 from Program-v0 without parsing source semantics or if it requires extending the 777-line canonical corridor guard."
+
+[provenance_tombstone_row]
+task_id = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0"
+status = "queued_docs_only_after_ingress_guard_before_wpre"
+boundary = "9bff1a1ff2^ active-card sections carrying review_source/A-B-C/terminal-role evidence -> current B0 architecture owner and historical archive; includes every removed section, not an assumed count of four files"
+review_source = "The B option came from the user-supplied ChatGPT Pro architecture review and was checked by six read-only audit roles plus adversarial/cutover re-review before 45bff917e3. The external conversation is not a checked-in artifact and must be labeled as such."
+change = "Record the exact removed section inventory, review source, rejected A and retained C rationale, and one superseded_by or retained-history disposition per section. Preserve QualifiedStaticPayloadAbsent as the historical issuer blocker and TargetPayloadMissing as its distinct historical runtime/pre-effect terminal; neither becomes current implementation permission."
+done = "Every removed evidence section is mapped; current B reason and non-authorities link to that map; current docs no longer claim anonymous audits; no current pointer/history duplication or invented transcript."
+non_claims = "No target/schema/parser/source/fixture/guard/backend change and no resurrection of C as the current decision."
+
+[b0_machine_census_guard_row]
+task_id = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
+status = "queued_guard_only_after_provenance_before_wpre"
+inputs = "global_target_b0.family_matrix, compiled_consumer_owner_inventory, wpre_contract.entrance_owner_inventory, exact bounded-v2 wire objects/effect order, and exact print/1 attribution"
+change = "Create one machine-readable B0 census manifest and one reusable fail-closed guard; register/index it once for pilot and quick-static."
+contract = "Every named path exists and has one adapt/delete/isolate disposition; every Global family has one authority/terminal; print means exact print/1 and owner-private nyash.builtin.print compatibility only; unknown/stale/duplicate rows fail."
+done = "Manifest and docs agree, path/family/wire drift fails, current C0 can reuse the inventory, and semantic implementation_permission remains false."
+stop = "Return to design if a production Global family lacks source authority/disposition, if the manifest needs raw String as canonical identity, or if a passing count would be used as semantic proof."
 
 [loan_contract]
 owner = "One root-owned non-empty disposition inventory is provisioned before raw port construction. Package-only BridgeReady bundle never carries an empty or optional loan."
