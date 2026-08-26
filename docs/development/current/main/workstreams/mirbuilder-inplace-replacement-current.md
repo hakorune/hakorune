@@ -251,10 +251,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    non-force residual consumers. Fates are HistoricalDelete=69, migration blockers=9,
    SemanticReference=0; migrate, retire, or archive each named caller and supersede
    the startup guard; standard-v1 reroute is forbidden.
-   Design order: phase2170 two-row ProductAot pilot -> remaining six ProductAot
-   rows + run_all aggregate -> selfhost Stage1Proof/AOT -> 69 HistoricalDelete
-   rows -> narrow helper cut with 38 residuals preserved -> caller-zero guard ->
-   selector-alone startup tombstone and closeout.
+   Design order: phase2170 wrapper-only ProductAot pilot
+   (array_push_size_5_vm.sh + map_set_dup_key_size_canary_vm.sh) -> remaining six
+   ProductAot rows + run_all aggregate -> selfhost Stage1Proof/AOT -> 69
+   HistoricalDelete rows (including the two hv1_mircall duplicates) -> narrow
+   helper cut with 38 residuals preserved -> caller-zero guard -> selector-alone
+   startup tombstone and closeout.
 
 1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
    strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and
