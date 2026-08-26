@@ -368,6 +368,7 @@ production_callers = [
   "normal_default_root_catalog_lifecycle.rs:572-577 reads installed package source_ast()",
   "program_root_lowering.rs:86-88 and :245-266 accept Installed package by shared reference and call begin_lowering(&self)",
   "normal_default_root_catalog_post_install.rs:29-46 relays the installed mode into the shared post-install lowering path",
+  "normal_callable_semantic_loan_port.rs:521-529 -> normal_callable_semantic_package/instance_constructor_loan.rs:23 reads installed.source_ast() during constructor lowering",
 ]
 decisions = [
   "install.rs remains sole owner of semantic prepare/commit and the one-shot bridge",
@@ -381,6 +382,7 @@ old_edge_delete_set = [
   "production prepare_install().commit() path at normal_default_root_catalog_lifecycle.rs:429-440",
   "production package-only with_bound_source/source_ast handoff at normal_default_root_catalog_lifecycle.rs:507-525 and :572-577",
   "shared-reference Installed package/begin_lowering path at program_root_lowering.rs:86-88 and :245-266",
+  "hidden installed source_ast() handoff at normal_callable_semantic_loan_port.rs:521-529 -> normal_callable_semantic_package/instance_constructor_loan.rs:23",
   "any alternate package-only getter, into_parts, Clone/Copy, generic FnOnce callback, or ignored install token",
 ]
 acceptance = [
@@ -402,7 +404,7 @@ audit_input_head = "890737c6be"
 code_shelf_commit = "9813d8797c"
 review_source = "three independent read-only follow-up audits (design, adversary, tests) after the recursive facade shelf, integrated in two docs-only commits; no code, fixture, Cargo, profile-gate, or backend change"
 verdict = "NoSafeSlice remains. The shelf is clean, but the package-only production escape and raw loan seam are not closed, and the source handoff currently creates a real package/AST borrow conflict. Keep implementation_permission=false."
-caller_boundary = "The complete production chain is normal_default_root_catalog_lifecycle.rs:429-440 prepare_install().commit(), :507-525 with_bound_source, :572-577 source_ast(), normal_default_root_catalog_post_install.rs:29-46 relay, and program_root_lowering.rs:86-88/:245-266 Installed(&Installed...) plus begin_lowering(&self). Tests/reference fixtures are migration inventory, not production authority."
+caller_boundary = "The complete production chain is normal_default_root_catalog_lifecycle.rs:429-440 prepare_install().commit(), :507-525 with_bound_source, :572-577 source_ast(), normal_default_root_catalog_post_install.rs:29-46 relay, program_root_lowering.rs:86-88/:245-266 Installed(&Installed...) plus begin_lowering(&self), and normal_callable_semantic_loan_port.rs:521-529 -> normal_callable_semantic_package/instance_constructor_loan.rs:23 installed.source_ast(). Tests/reference fixtures are migration inventory, not production authority."
 source_handoff_decision = "Choose one Builder-private HRTB lowering scope: it invokes the existing source loan, constructs the adapter, binds source, lowers, and completes before the callback returns. Do not bind across package consumption, keep an AST/reference in the sealed bundle, add an Installed::source_ast getter, clone the AST, or let package and source borrows overlap."
 raw_capability_decision = "Add a dedicated RawDirectCallDispositionPortV1 capability and an explicit third loan lifetime on RawInvocationChildPortV1. The root owns one Option<&mut RawDirectCallDispositionLoanV1>; reborrow() lends a shorter borrow, RawStructuredChildScopePortV1/RawExpressionDispatchPortV1 forward it explicitly, and RawLegacyChildLoweringPortV1 returns a typed cannot-consume reject. No fallback, Rc/Arc/RefCell, copied ledgers, or per-child state."
 mapper_decision = "The pre-adapter direct-call mapper remains an owner-specific sibling and runs before NormalCallableSemanticPackagePortAdapterV1::new. It validates an existing source/owner/site/session/brand mapping and moves an already-issued Callee; it never rebuilds lineage, name, arity, symbol, or target."
@@ -415,14 +417,14 @@ missing_proofs = [
   "Cataloged direct Targeted { callee, arguments } payload replacement has an exact delete set and registered guard",
 ]
 opening_conditions = [
-  "D0-SIG-CLOSE-A/B: choose the source handoff shape and close the full direct/indirect production caller census",
+  "D0-SIG-CLOSE-A/B: choose the source handoff shape and close the full direct/indirect production caller census, including the instance-constructor installed.source_ast() relay",
   "D0-SIG-CLOSE-C: freeze the RawInvocationChildPortV1/RawStructuredChildScopePortV1 lifetime and capability forwarding seam",
   "D0-SIG-CLOSE-D/E: name the package direct-call inventory co-seal owner and register the single reusable guard with positive/negative/parity rows",
   "all touched/new sources remain below 760 lines; raw_invocation_source_transport.rs=778 remains untouched or is split behavior-neutrally first",
 ]
 task_queue = [
   "D0-SIG-CLOSE-A: install.rs owns the C' one-shot bridge; the Builder-private HRTB lowering scope is selected and must remove the package-only source handoff shape from the production caller contract",
-  "D0-SIG-CLOSE-B: close prepare_install/commit/with_bound_source/source_ast/begin_lowering/post-install relay census; no bare Installed package or package-only getter may remain in production",
+  "D0-SIG-CLOSE-B: close prepare_install/commit/with_bound_source/source_ast/begin_lowering/post-install and instance-constructor relay census; no bare Installed package or package-only getter may remain in production",
   "D0-SIG-CLOSE-C: freeze RawDirectCallDispositionPortV1, the explicit third loan lifetime, structured-child forwarding, legacy typed reject, and failure/rollback completion semantics",
   "D0-SIG-CLOSE-D: name issuer.rs direct-call scratch/co-seal ownership, install.rs completeness abort, and the exact Cataloged old-payload replacement edge",
   "D0-SIG-CLOSE-E: register mir-call-d1b-cataloged-affine-loan-lifecycle with readiness and Cataloged-I0 phases plus focused positive/negative/parity proofs",
