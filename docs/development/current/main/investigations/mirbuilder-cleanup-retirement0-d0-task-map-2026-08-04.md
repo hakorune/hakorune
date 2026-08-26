@@ -703,6 +703,34 @@ second integration task. Branch protection remains an external parked action
 requiring explicit GitHub authorization and named stable checks. Documentation
 cannot claim that external mutation complete.
 
+## Chronic measurement queue (docs-only, parked)
+
+These four observations are one batched census queue, not four production
+cleanup lanes. Each future card must name its finite boundary, owner, observed
+revision, evidence file, and reopen trigger; no code, `allow(dead_code)` removal,
+parser behavior, bridge conversion, or fallback change is authorized while the
+current D1B design stop is active. Keep the queue here instead of adding one
+row per file or repeating it in `CURRENT_STATE.toml`.
+
+- `EXTERN-NAME-PARSE-SINGLE-OWNER-D0` — census every external-name `splitn` /
+  parse owner from ingress to terminal, distinguish duplicate parser owners
+  from compatibility readers, and record one future owner or `ParkedSealed`.
+- `PANIC-SURFACE-CENSUS-D0` — produce a `cfg(test)`-excluded upper-bound
+  inventory of production `panic!` / `unwrap` / `expect` / `todo!`, with fixture,
+  generated, and compatibility exclusions explicit; statistics are not a
+  deletion mandate.
+- `STRING-PLUS-BRIDGE-OWNER-D0` — classify the remaining String-plus-
+  conversion/bridge variants, including typed-port error boundaries, and name
+  one owner per accepted family; do not silently stringify typed errors.
+- `DEAD-CODE-REMEASURE-D0` — remeasure `dead_code` and `#[allow(dead_code)]`
+  by production, test, generated, and retirement-planned owner, replacing the
+  stale baseline before any bounded removal row is proposed.
+
+Queue acceptance is observation-only: all four rows remain `ParkedSealed`
+behind their own D0 until the census is reproducible and a bounded next slice
+is selected. A later guard may pin expected counts, but a guard pass cannot
+activate a compiler route or prove semantic retirement.
+
 ### Non-claims and stop conditions
 
 - This queue does not change the current MirBuilder design row or authorize a

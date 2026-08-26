@@ -31,7 +31,7 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 ```text
   current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
-  implementation    = G/H/I reviews found no Cataloged Callee relation and no accepted logical Global target representation; C is now the explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park. Only a separately accepted A/B Global Decision may reopen Ic-A..F. BridgeReady is package-only; ordinary observation/inventory/affine loan has no implementation permission
+  implementation    = G/H/I reviews found no Cataloged Callee relation and no accepted logical Global target representation; C is now the explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park (design/issuer blocker versus runtime/pre-effect terminal). Affine consumption is static-structure proof only. Only a separately accepted A/B Global Decision may reopen Ic-A..F. BridgeReady is package-only; ordinary observation/inventory/affine loan has no implementation permission
   mode              = design_stop
   production stop   = preserve finite entrance classification; keep C parked until a separately accepted A/B Callee::Global representation exists, then name the one-way source bridge and fresh per-site bearer. No payload bypass, source/bridge String synthesis, hidden registry, key/name/arity/symbol projection, shared bearer, profile widening, caller=None collapse, cross-cohort index, or second resolver
   exit              = package prepare/install rejects incomplete inventory; owner/site/lineage and target precedence are finite; transient rows consume/drop; zero Resolved/recovery/name-Const/legacy-Call fallthrough
