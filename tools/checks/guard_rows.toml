@@ -187,3 +187,9 @@ id = "mir-call-d1b-targeted-variant-split"
 label = "MIR Call D1B Cataloged/GC Targeted variant split guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_d1b_exact_target_child_guard.sh"]
+
+[[rows]]
+id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
+label = "MIR Call D1B Cataloged affine-loan lifecycle guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"]
