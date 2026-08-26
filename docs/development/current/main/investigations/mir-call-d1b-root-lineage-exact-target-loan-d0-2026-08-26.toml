@@ -5,12 +5,12 @@ observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "bridge_ready"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "Only the reusable ingress-schema guard and manifest registration are authorized. Parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
+permission_scope = "Only the landed ingress-schema guard and the selected B0 machine-census manifest/guard registration are authorized. Parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0"
-completed_execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
-next_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
+execution_row = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
+completed_execution_row = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "Restore B0 provenance/tombstones as a docs-only closeout; no parser or semantic behavior changes."
+smallest_next_slice = "Create/register the reusable B0 machine-census manifest and fail-closed guard; no parser or semantic behavior changes."
 non_claims = "No selector implementation, typed schema code, observer/loan, cross-module feature, Method/receiver, EffectMask, backend parity, or warning cleanup."
 
 [final_architecture]
@@ -217,8 +217,8 @@ unlocated = "Missing source site is typed reject; it is not a generic caller=Non
 relationless = "Explicit compatibility owner only. Ordinary Resolved is an old edge to retire, not a canonical terminal."
 
 [task_spine]
-current = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0"
-next_prerequisite = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0; Wpre remains closed until the provenance map and census guard finish"
+current = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
+next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0; Wpre remains closed until the provenance map and census guard finish"
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -242,21 +242,58 @@ stop = "Return to design if the guard cannot distinguish MIR-v0 from Program-v0 
 
 [provenance_tombstone_row]
 task_id = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0"
-status = "selected_closeout_docs_only_after_ingress_guard_before_wpre"
+status = "landed_docs_only_after_ingress_guard_before_wpre"
 boundary = "9bff1a1ff2^ active-card sections carrying review_source/A-B-C/terminal-role evidence -> current B0 architecture owner and historical archive; includes every removed section, not an assumed count of four files"
 review_source = "The B option came from the user-supplied ChatGPT Pro architecture review and was checked by six read-only audit roles plus adversarial/cutover re-review before 45bff917e3. The external conversation is not a checked-in artifact and must be labeled as such."
+source_commit = "9bff1a1ff2^"
+removed_sections = [
+  "[brief] | evidence=C-park and A/B reopening rule | current_owner=[brief]/[global_target_b0] | disposition=superseded_by MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION; retain as historical C-before-B evidence",
+  "[d0_sig_readiness] | evidence=review_source and package/loan readiness gaps | current_owner=[loan_contract]/[observer_completion_prerequisite] | disposition=superseded_by MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0; retain audit provenance only",
+  "[d0_sig_close_f_readiness_audit_2026_08_26] | evidence=review_source and BridgeReady/package-only boundary | current_owner=[loan_contract]/[ingress_schema_guard_row] | disposition=superseded_by MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0; retain the no-loan readiness rationale",
+  "[cataloged_i0_issuer_facts_reconcile_2026_08_26] | evidence=review_source and NoSafeSlice issuer gap | current_owner=[observer_completion_prerequisite]/[loan_contract] | disposition=superseded_by MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0; retain the missing-issuer finding as historical evidence",
+  "[cataloged_i0_source_observation_audit_2026_08_26] | evidence=review_source and same-traversal observation seam | current_owner=[observer_completion_prerequisite] | disposition=superseded_by MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0; retain the observer-only non-issuer contract",
+  "[cataloged_i0_canonical_issuer_design_2026_08_26] | evidence=review_source and TargetPayloadMissing | current_owner=[global_target_b0]/[loan_contract] | disposition=superseded_by MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION; retain the no-formatting/no-reclassification rule",
+  "[cataloged_i0_target_relation_adversarial_audit_2026_08_26] | evidence=review_source and TargetPayloadMissing bearer boundary | current_owner=[global_target_b0]/[loan_contract] | disposition=superseded_by MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION; retain adversarial negative evidence",
+  "[cataloged_i0_source_bridge_bounded_census_2026_08_26] | evidence=review_source and QualifiedStaticPayloadAbsent/TargetPayloadMissing | current_owner=[global_target_b0]/[loan_contract] | disposition=superseded_by MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION; retain both states as historical distinct roles",
+  "[global_target_representation_prerequisite_2026_08_26] | evidence=review_source, selected_option=C, terminal_role_split | current_owner=[global_target_b0]/[finite_state] | disposition=superseded_by MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION; C remains historical park evidence, not current authority",
+  "[cataloged_i0_arbitration] | evidence=C-park arbitration and A/B reopening gate | current_owner=[task_spine]/[loan_contract] | disposition=superseded_by MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0; retain the rejected per-call-factory rationale",
+]
+review_source_evidence = [
+  "d0_sig_readiness: one follow-up read-only implementation-readiness audit at a9c24d7230; no code, fixture, Cargo, profile-gate, or backend change",
+  "d0_sig_close_f_readiness_audit_2026_08_26: three independent read-only design/adversary/tests follow-ups after the recursive shelf; two docs-only commits; no code, fixture, Cargo, profile-gate, or backend change",
+  "cataloged_i0_issuer_facts_reconcile_2026_08_26: four independent read-only same-traversal/session/raw-port/adversarial audits plus prior design/ingress/lifetime/tests audits; no code, fixture, Cargo, or backend change",
+  "cataloged_i0_source_observation_audit_2026_08_26: source-observation audit plus session/raw-port/adversarial follow-ups; no code, fixture, Cargo, or backend change",
+  "cataloged_i0_canonical_issuer_design_2026_08_26: independent issuer-adversary, guard/delete, and owner-trace audits reconciled with observation/session designs; no code, fixture, Cargo, or backend change",
+  "cataloged_i0_target_relation_adversarial_audit_2026_08_26: follow-up issuer-owner and Callee-adversary audits; no code, fixture, Cargo, backend, or route change",
+  "cataloged_i0_source_bridge_bounded_census_2026_08_26: three independent Ic audits for source payload, one-way bridge/bearer, and guard/delete; no code, fixture, Cargo, backend, or route change",
+  "global_target_representation_prerequisite_2026_08_26: three follow-up design/adversarial/shape reviews of the Cataloged source-owner gap; no code, fixture, Cargo, wire, or schema change",
+]
+rejected_option_a_reason = "A logical-name String issuer was rejected because it would preserve a second canonical String authority and require cross-cutting retirement; the current decision instead types Global structurally and keeps text owner-private at ingress."
+retained_option_c_history = "C was the safe pre-decision park: QualifiedStaticPayloadAbsent names the missing design/issuer, TargetPayloadMissing names the runtime/pre-effect terminal, and the two states never alias or grant implementation permission. C is retained only as historical evidence after B was selected."
+terminal_role_history = "QualifiedStaticPayloadAbsent and TargetPayloadMissing remain distinct historical roles; the current finite state uses TypedRejectBeforeArguments/ParkedCompatibility and never resurrects the old C state as a selector."
+superseded_by = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
+current_b_decision_link = "Current B reason is global_target_b0.reason; current non-authority and forbidden lists are the active replacements for the historical A/B/C and C-park text listed above."
 change = "Record the exact removed section inventory, review source, rejected A and retained C rationale, and one superseded_by or retained-history disposition per section. Preserve QualifiedStaticPayloadAbsent as the historical issuer blocker and TargetPayloadMissing as its distinct historical runtime/pre-effect terminal; neither becomes current implementation permission."
 done = "Every removed evidence section is mapped; current B reason and non-authorities link to that map; current docs no longer claim anonymous audits; no current pointer/history duplication or invented transcript."
 non_claims = "No target/schema/parser/source/fixture/guard/backend change and no resurrection of C as the current decision."
 
 [b0_machine_census_guard_row]
 task_id = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
-status = "queued_guard_only_after_provenance_before_wpre"
+status = "selected_fast_guard_only_after_provenance_before_wpre"
 inputs = "global_target_b0.family_matrix, compiled_consumer_owner_inventory, wpre_contract.entrance_owner_inventory, exact bounded-v2 wire objects/effect order, and exact print/1 attribution"
 change = "Create one machine-readable B0 census manifest and one reusable fail-closed guard; register/index it once for pilot and quick-static."
 contract = "Every named path exists and has one adapt/delete/isolate disposition; every Global family has one authority/terminal; print means exact print/1 and owner-private nyash.builtin.print compatibility only; unknown/stale/duplicate rows fail."
 done = "Manifest and docs agree, path/family/wire drift fails, current C0 can reuse the inventory, and semantic implementation_permission remains false."
 stop = "Return to design if a production Global family lacks source authority/disposition, if the manifest needs raw String as canonical identity, or if a passing count would be used as semantic proof."
+allowed_files = [
+  "tools/checks/manifests/mir_call_global_target_b0_machine_census.toml",
+  "tools/checks/mir_call_global_target_b0_machine_census_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/tools/check-scripts-index.md",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+]
 
 [loan_contract]
 owner = "One root-owned non-empty disposition inventory is provisioned before raw port construction. Package-only BridgeReady bundle never carries an empty or optional loan."

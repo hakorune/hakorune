@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0
+Status: Fast — MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -48,8 +48,9 @@ Fail-fast boundary:
   schemaとtarget関係不足はarguments、MIR、wire/backend effectより前にreject。
 
 Smallest next slice:
-  `MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0`。Ingress guardの完了後に、
-  旧B0判断の証拠とsuperseded_byをdocs-onlyで復元する。
+  `MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0`。Ingress guardと
+  provenance/tombstoneの完了後に、有限family/consumer/wire inventoryを
+  一つのmachine-readable manifestと再利用可能なfail-closed guardへ固定する。
 
 Non-claims:
   schema selector実装、typed Global、observer/loan、Method/receiver、EffectMask、
@@ -191,14 +192,14 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
 1. MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0               (landed)
    reusable fail-closed guard; phases wpre_readiness/wpre_i0/typed_global_b1/r7
 
-1a. MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0                     (now, closeout)
+1a. MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0                     (landed, docs-only)
     inventory every section removed by 9bff1a1ff2 that carried review_source,
     A/B/C disposition, QualifiedStaticPayloadAbsent, TargetPayloadMissing, or
     terminal_role_split; map each to the current B0 owner with superseded_by /
     retained historical token, and record the user-supplied Pro review plus the
     six read-only audit roles integrated by 45bff917e3. No transcript is invented
 
-1b. MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0             (guard-only)
+1b. MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0             (now, fast guard-only)
     turn the finite family matrix, compiled-consumer owner inventory, Wpre/wire
     impact table, and exact print/1 attribution into one machine-readable manifest
     plus reusable fail-closed guard. Unknown owner/family/path and stale manifest
