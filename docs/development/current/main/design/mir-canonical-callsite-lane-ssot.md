@@ -23,9 +23,10 @@ Related:
 - **Current implementation status:** core still stores `Global(String)`,
   `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
   guards are landed; outside fates and Stage1/direct arbitration are closed as
-  design decisions. The reference-child design is accepted, but its private
-  transport I0, canonical-v1 Value seam, core-direct fate, force-hv1 fate, and
-  strict-root seams remain closed before parser implementation.
+  design decisions. Reference-child transport, CanonicalV1 Value flow, and
+  force-hv1 retirement are accepted designs but remain implementation-closed;
+  CoreDirect tag/rc and strict-root seams remain design blockers before parser
+  implementation.
 - **Next ordered task:**
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`;
   its design is recorded but implementation remains closed by the current
@@ -127,7 +128,8 @@ family-tagged object, `args` and `effects` are required, and `func`, `flags`,
 aliases, missing effects, duplicate/unknown/out-of-order effect names are
 rejected. Exact v1.0 and v0 remain owner-private compatibility inputs and must
 resolve text once before canonical MIR. Invalid explicit schema input never
-retries through another parser.
+retries through another parser. The reference child has a separate accepted
+CanonicalV1-to-private-payload design; it is not a Wpre schema variant.
 
 Wpre parses one JSON root and classifies it totally within the shared runner
 family-unknown boundary. Exact `schema_version` `2.0` selects canonical v2,
@@ -278,7 +280,7 @@ finite typed identity and observer/package contract (accepted)
   -> reusable ingress lifecycle guard
   -> finite explicit-CLI arbitration and outside-fate closure
   -> reference child isolation and CoreDirect typed terminal policy
-  -> force-hv1 harness census and explicit compatibility/retirement decision
+  -> force-hv1 finite census and selected retirement
   -> strict recursive root owner and by-value decoder seams
   -> strict one-shot schema selection with cross-parser retry = 0
   -> MirCall/CallFlags transport retirement

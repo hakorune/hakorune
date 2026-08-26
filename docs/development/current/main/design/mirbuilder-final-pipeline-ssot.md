@@ -27,10 +27,10 @@ Related:
 - **Current implementation status:** the package/install bridge and many Call
   writers are closed. B0 census/provenance guards are landed; outside fates and
   Stage1/direct arbitration are accepted design decisions. Shared-runner Wpre
-  remains bounded, while reference-child private transport I0, canonical-v1
-  Value seams, core-direct strategy, force-hv1 fate, and strict-root ownership
-  remain closed. Typed Global, late recovery, receiver ABI, and mandatory-Callee
-  remain closed.
+  remains bounded; reference-child transport, CanonicalV1 Value flow, and
+  force-hv1 retirement are accepted designs but implementation-closed, while
+  CoreDirect tag/rc and strict-root ownership remain design blockers. Typed
+  Global, late recovery, receiver ABI, and mandatory-Callee remain closed.
 - **Next ordered task:** complete
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`
   after its design gate opens, then the canonical-v1 Value seam and ordered Wpre
@@ -137,7 +137,7 @@ typed Global target family / issuer Decision
   -> shared-runner Wpre profile/root/decoder contract
   -> finite explicit-CLI arbitration and outside-fate closure
   -> reference child isolation and CoreDirect typed terminal policy
-  -> force-hv1 harness census and explicit compatibility/retirement decision
+  -> force-hv1 finite census and selected retirement
   -> strict recursive root owner and by-value decoder seams
   -> strict one-shot schema selection with invalid-v1 retry = 0
   -> MirCall/CallFlags transport retirement

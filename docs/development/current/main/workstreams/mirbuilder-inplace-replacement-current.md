@@ -46,8 +46,8 @@ Non-authority:
 Fail-fast boundary:
   共有runnerのentrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
   schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
-  Stage1/direct arbitrationは設計済み。reference-child transport、core-direct fate、
-  force-hv1、strict-root/Value seam未確定は実装前のblocker。
+  Stage1/direct arbitrationとforce-hv1 retirement fateは設計済み。reference-child transport、
+  strict-root/Value seamは実装閉鎖、core-directの旧tag/rc mappingだけ設計blocker。
 
 Smallest next slice:
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`。
@@ -236,23 +236,25 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    Wpre/hv1/Stage1/fallback selectors, pin TOML/VM policy, and migrate the three live
    reference monitors atomically. Code remains closed until implementation permission opens.
 
-1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (queued, design stop)
-   replace ambient v1 env selection and the v1-string reparse with an owner-private explicit
-   CanonicalV1 Value seam; normalize once, subset-check once, and consume the private payload.
+1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (queued, design accepted)
+   after transport I0, emit one explicit CanonicalV1 serde_json::Value, normalize the same
+   owned Value once, subset-check once, and project once. Remove ambient profile selection,
+   temporary v1 file/readback, and production raw String parses; implementation stays closed.
 
 1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design stop)
    use execute_loaded_mir_module once for normal decoded input; requested CoreDirect
-   becomes a family-aware typed retired/unavailable terminal preserving tag/rc. Delete
+   becomes a family-level typed retired/unavailable terminal with no retry. Fix the old
+   tag/rc mapping before implementation, then delete
    raw probe/child/in-proc reparse/VM fallback; compatibility transforms remain Value adapters.
 
-1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design stop)
-   freeze strict_root.rs, recursive duplicate/trailing rejection, owned SelectedIngress,
-   and by-value decoder ownership using the existing NyashRunner context.
+1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
+   strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and
+   non-Clone; decode consumes it and borrows one Value without raw-string reparse or retry.
 
-1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design stop)
-   census verify_v1_inline/verify_mir_rc harness references, then select production
-   retirement or owner-private Value compatibility. Standard-v1 reroute is forbidden;
-   force-hv1 remains CutoverBlockerOpen until the choice is recorded.
+1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
+   retire production force-hv1; the finite census is 33 direct verify_v1_inline_file rows
+   plus 36 hv1-capable verify_mir_rc rows across 107 integration files. Migrate, retire,
+   or archive each named caller and supersede the startup guard; standard-v1 reroute is forbidden.
 
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
    shared runner parses JSON root once; selects exact v2/v1/MIR-v0/Program-v0 once; deletes raw
