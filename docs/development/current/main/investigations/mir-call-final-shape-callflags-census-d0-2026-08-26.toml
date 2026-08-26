@@ -1,6 +1,6 @@
 title = "MIR Call final-shape CallFlags retirement census"
 status = "accepted_design_no_safe_slice"
-observed_commit = "f659d3f941"
+observed_commit = "3c306948d4"
 observed_at = "2026-08-26"
 implementation_permission = false
 queued_fast_candidate = "MIR-CALL-R6-CALLFLAGS-RETIRE-I0: CallFlags-only delete/re-export/fixture closure while MirCall transport remains live; do not select until the current direct-target design stop closes."
@@ -36,7 +36,7 @@ non_authority = [
   "MirCall transport shape as proof that flags have meaning",
 ]
 fail_fast = "If any downstream reader, public contract, fixture, or external crate relies on CallFlags semantics, stop and name that owner; do not delete, default, or silently drop the field. MirCall remains until the physical terminal has an explicit replacement row."
-smallest_next_slice = "Design-only finite census of MirCall transport readers versus CallFlags semantic readers; select either CallFlags-only retirement or a retained owner, without editing code."
+smallest_next_slice = "Design-only feature/public/projection matrix for the CallFlags retirement candidate; classify external obligations and name a retained owner or exact co-update/delete set, without editing code or MirCall transport."
 non_claims = [
   "MirCall is caller-zero (it is not: physical_terminal consumes it)",
   "CallFlags has no semantic reader merely because rg finds no .flags access",
@@ -67,6 +67,32 @@ api_and_projection_rows = [
 ]
 external_disposition = "MirCall remains live through unified_emitter/physical_terminal.rs; CallFlags-only deletion is a later candidate only if the public re-export, generated .hako/.json projections, and parked Python/llvmlite readers are explicitly co-updated or retained with named owners."
 
+[followup_audit_2026_08_26]
+status = "design_stop_no_safe_slice"
+reviewers = [
+  "h_owner_bijection_audit",
+  "h_session_witness_design",
+  "i_callee_issuance_adversary",
+]
+observed_commit = "3c306948d4"
+verdict = "MirCallLiveTransport; Rust CallFlags has no bounded production semantic reader, but public API, generated projections, feature routes, parked Python/llvmlite, and Hako wire flags keep retirement unselected."
+physical_chain = "call_unified::create_mir_call -> unified_emitter::physical_terminal::emit_finalized_generic_call_v1 -> MirInstruction::call(dst, callee, args, effects); flags are dropped at the terminal."
+reader_boundary = "Rust optimizer/backend/physical consumers read dst/callee/args/effects only; Hako JSON flags.optionality is real VM semantics and is a separate wire authority, so the JSON flags envelope cannot be removed in this row."
+public_obligations = [
+  "crates/hakorune_mir_defs crate-root and src/mir/definitions facades publicly re-export CallFlags/MirCall",
+  "RustSubset expected .hako/.json projections and smoke consumer encode the public schema",
+  "Python/llvmlite and feature-gated routes remain external or parked obligations until a matrix is explicit",
+  "Hako mir_call/mir_call_map_ops consume flags.optionality; do not conflate it with Rust CallFlags",
+]
+deferred_task = "MIR-CALL-R6-CALLFLAGS-RETIRE-D0: design-only feature/public/projection matrix; classify every external obligation, name retained owners or an exact co-update/delete set, and keep MirCall transport unchanged."
+implementation_gate = "false: current D1B Cataloged qualified-static-payload design stop is independent and remains selected; no CallFlags code, fixture, wire, or schema edit is authorized."
+safe_shape = "If the matrix reaches CensusExhausted, a later fast row may remove only writer-only Rust CallFlags construction/field/re-export edges while preserving MirCall by-value transport and the single physical terminal. Do not add a replacement schema or private bundle unless a separate selected row requires it."
+no_safe_slice = [
+  "workspace caller-zero is not sufficient while public or external consumers are unresolved",
+  "empty JSON flags and Hako optionality must not be silently dropped or renamed here",
+  "MirCall cannot be retired until the physical terminal has a separately accepted replacement",
+]
+
 [finite_state]
 states = [
   "MirCallLiveTransport",
@@ -74,13 +100,15 @@ states = [
   "CallFlagsSemanticReader",
   "CallFlagsPublicApiObligation",
   "GeneratedProjectionFixture",
+  "HakoWireFlagsSemanticReader",
+  "FeatureMatrixObligation",
   "ExternalSemanticReader",
   "CensusExhausted",
   "CallFlagsRetirementCandidate",
   "RetainWithNamedOwner",
   "NoSafeSlice",
 ]
-terminal_policy = "Only CensusExhausted may select the next row. CallFlagsRetirementCandidate permits a later fast deletion of CallFlags-only construction/re-export edges only after the public API disposition is explicit; GeneratedProjectionFixture is co-updated at deletion and is not a semantic owner; ExternalSemanticReader, CallFlagsSemanticReader, or unresolved CallFlagsPublicApiObligation keeps the row NoSafeSlice. MirCallLiveTransport remains open until a separate physical-terminal replacement."
+terminal_policy = "Only CensusExhausted may select the next row. CallFlagsRetirementCandidate permits a later fast deletion of CallFlags-only construction/re-export edges only after the public API, generated-projection, and feature-matrix dispositions are explicit; GeneratedProjectionFixture is co-updated at deletion and is not a semantic owner; HakoWireFlagsSemanticReader, ExternalSemanticReader, CallFlagsSemanticReader, FeatureMatrixObligation, or unresolved CallFlagsPublicApiObligation keeps the row NoSafeSlice. MirCallLiveTransport remains open until a separate physical-terminal replacement."
 
 [acceptance]
 design = [
@@ -88,6 +116,8 @@ design = [
   "MirCall's live physical-terminal consumer is recorded as preserved, not caller-zero",
   "CallFlags-only construction is distinguished from semantic reads and public API obligations",
   "generated .hako/.json projections are marked co-update obligations, not semantic readers",
+  "Hako flags.optionality is classified as a separate wire semantic owner and is not conflated with Rust CallFlags",
+  "feature-gated and external/parked routes have an explicit matrix disposition before any API deletion",
   "if no CallFlags reader exists, the exact delete set and one focused guard are named without changing MirCall transport",
   "if a reader exists, its authority and a separate bounded owner row are named",
 ]
@@ -104,6 +134,8 @@ focused_checks = [
 ]
 implementation_gate = "false until the bounded census is Exhausted and CURRENT_STATE selects a fast child; this task itself is design-only."
 guard = "a future scoped guard must reject new CallFlags semantic reads/construction outside the selected owner and must assert MirCall remains owned by the existing physical terminal until the schema replacement row lands"
+guard_candidate = "tools/checks/mir_call_r6_mircall_shape_placement_guard.sh: baseline keeps one crate schema owner, one MirCall production edge, one physical MirInstruction::call terminal, and EffectsAnalyzer-only effect authority; cutover may set create_mir_call/create_call_flags/Builder effect shim edges to zero without moving the schema."
+delete_boundary = "later CallFlags-only row may delete writer-only Rust constructors, field/re-export edges, and co-updated RustSubset projections only after public/feature/external disposition; it may not delete MirCall transport, JSON flags envelope, Hako optionality, transitional Call schema, Method(None), or backend/VM behavior."
 
 [reopen]
 triggers = [
