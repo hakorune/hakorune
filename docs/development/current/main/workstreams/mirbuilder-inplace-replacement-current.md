@@ -49,13 +49,15 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-D0`。CoreDirect R0は着地済み。legacy arithmetic snapshotは116 lexical leaves、78 force reachers / 80 invocations、38 non-force residual consumers、migration blockers=9だが、これは意味論的closureではない。leaf本文から120 lexical sitesを再導出し、77/78 definite-force、35/35 explicit-core residual、4/7 unresolved dynamicを固定するまで停止する。phase2170 ProductAot S0は完全一致AOT証拠が無く、試行したArray push/Map sourceがpure-firstのarray_element_writeで停止した。
+  `FORCE-HV1-CLEAN-ENV-AUTHORITY-D0`。CoreDirect R0は着地済み。legacy arithmetic snapshotは116 lexical leaves、78 force reachers / 80 invocations、38 non-force residual consumers、migration blockers=9だが、これは意味論的closureではない。
+  現時点で環境まで封印できるのはdirect 33/33だけで、helper/wrapper 44/45はinherited force-coreまたはambient primary依存のconditional candidate。clean-env contractを先に決め、その後120 lexical sitesから33/33 direct、44/45 conditional、35/35 explicit-core、4/7 unresolvedを再導出するまで停止する。phase2170 ProductAot S0は完全一致AOT証拠が無く、試行したArray push/Map sourceがpure-firstのarray_element_writeで停止した。
 
 Design-only follow-up:
-  force-hv1 censusは各leaf本文からbody_sha256、lexical_entry_sites、route basisを導出し、
-  reviewed fateをowner証拠で別管理する。旧`hv1 failure -> Core fallback` edge、numeric rc、
-  runtime loop repetitionはauthorityから除外する。A④ sentinel/non-growthとD ledger/index/
-  dead-link checksはcleanup task mapへ登録済み。これらは実装許可ではない。
+  force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、
+  lexical_entry_sites、route basis、ambient preemptionを導出し、reviewed fateをowner証拠で
+  別管理する。旧`hv1 failure -> Core fallback` edge、numeric rc、runtime loop repetitionは
+  authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
+  task mapへ登録済み。これらは実装許可ではない。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -254,11 +256,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
    retire production force-hv1; the legacy arithmetic snapshot is 116 lexical leaves (33 direct,
    74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38 non-force
-   residual consumers with migration blockers=9. Body-derived observation is 120 lexical sites:
-   77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved
-   rows are CutoverBlockerOpen and cannot be ParkedSealed. Standard-v1 reroute is forbidden.
-   Design order: per-leaf semantic census schema (old fallback independent) -> one Product claim
-   owner -> Map exact AOT S0 -> Array push pure-first capability D0/I0 -> Array exact AOT S1
+   residual consumers with migration blockers=9. Body/environment observation is 120 lexical sites:
+   33/33 direct-force sealed, 44/45 conditional-force candidate, 35/35 explicit-core residual,
+   and 4/7 unresolved dynamic; conditional/unresolved rows are CutoverBlockerOpen and cannot be
+   ParkedSealed. Standard-v1 reroute is forbidden.
+   Design order: clean-env authority (old fallback independent) -> per-leaf semantic census schema
+   -> one Product claim owner -> Map exact AOT S0 -> Array push pure-first capability D0/I0 -> Array exact AOT S1
    -> Product cutover R0 -> Stage1 Proof/AOT -> HistoricalDelete -> narrow helper cut with
    residuals preserved -> selector-alone startup tombstone and closeout.
 

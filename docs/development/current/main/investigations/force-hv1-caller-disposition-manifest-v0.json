@@ -41,20 +41,21 @@
   },
   "census_contract": {
     "status": "design_only_no_semantic_counts",
-    "derivation": "Read each named leaf body and derive lexical entry sites, route basis, and reachability before assigning a reviewed fate; the existing arithmetic group totals are a legacy snapshot, not semantic evidence.",
+    "derivation": "Read each named leaf body and its sealed environment contract, derive lexical entry sites and route basis, and only then assign a reviewed fate; the existing arithmetic group totals are a legacy snapshot, not semantic evidence.",
     "manifest_attributes": ["path", "caller_family", "body_sha256", "lexical_entry_sites", "derived", "reviewed"],
     "authority": "The named leaf-script body, the single force selector reader, and an explicit reviewed owner for fate; the old helper failure path and runtime repetition are outside the proof boundary.",
     "non_authority": ["hardcoded 78/80/38 constants", "numeric child rc alone", "verify_mir_rc failure -> Core fallback", "filtered or merged output", "script filename claims", "runtime loop repetition"],
     "leaf_schema": {
       "required": ["path", "body_sha256", "derived", "reviewed"],
-      "derived": ["entry_symbol", "lexical_entry_sites", "primary_mode", "artifact_proof", "derived_reachability", "residual_kind"],
+      "derived": ["entry_symbol", "lexical_entry_sites", "primary_mode", "environment_contract", "ambient_preemption", "artifact_proof", "derived_reachability", "residual_kind"],
       "reviewed": ["disposition", "fate_contract_id", "review_owner", "review_source", "reviewed_body_sha256", "successor"],
       "fate_rule": "A script body may be mechanically counted, but fate is accepted only from the named owner and reviewed source; unresolved dynamic paths remain CutoverBlockerOpen."
     },
     "current_observation": {
       "lexical_leaves": 116,
       "lexical_sites": 120,
-      "definite_force": {"leaves": 77, "lexical_sites": 78},
+      "direct_force_sealed": {"leaves": 33, "lexical_sites": 33},
+      "conditional_force_candidate": {"leaves": 44, "lexical_sites": 45},
       "explicit_core_residual": {"leaves": 35, "lexical_sites": 35},
       "unresolved_dynamic": {"leaves": 4, "lexical_sites": 7},
       "potential_force": {"leaves": 81, "lexical_sites": 85},
@@ -64,9 +65,9 @@
         "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_loop_canary_vm.sh",
         "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_return_logical_varvar_core_exec_canary_vm.sh"
       ],
-      "status": "CutoverBlockerOpen_until_schema_sealed"
+      "status": "CutoverBlockerOpen_until_clean_env_authority_sealed"
     },
-    "acceptance": "A future dedicated semantic guard must derive 116 leaves, 120 lexical sites, and 33/74/9 leaf families from bodies, then derive 77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic values. The old fallback edge, runtime rc, and runtime repetition never enter the derivation; mismatch is fail-closed."
+    "acceptance": "A future dedicated semantic guard must derive 116 leaves, 120 lexical sites, and 33/74/9 leaf families from bodies plus sealed environment contracts, then derive 33/33 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic values. Inherited force-core or ambient primary settings must be visible; the old fallback edge, runtime rc, and runtime repetition never enter the derivation; mismatch is fail-closed."
   },
   "cleanup_targets": [
     {
@@ -354,7 +355,8 @@
   ],
   "task_order": [
     "FORCE-HV1-CALLER-DISPOSITION-D0: freeze this named 116-leaf lexical matrix and selector-alone terminal; no implementation",
-    "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-D0: seal body_sha256/derived/reviewed attributes, derive 120 lexical sites and 77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved rows are CutoverBlockerOpen; no implementation",
+    "FORCE-HV1-CLEAN-ENV-AUTHORITY-D0: decide and seal the leaf environment contract; direct 33/33 is the only currently sealed force route, helper/wrapper 44/45 remains conditional under inherited force-core or ambient primary settings; no implementation",
+    "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-D0: seal body_sha256/derived/reviewed plus environment attributes, derive 120 lexical sites and 33/33 direct-force, 44/45 conditional-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved rows are CutoverBlockerOpen; no implementation",
     "PHASE2170-PRODUCT-CLAIM-D0: choose one owner for source-backed collection claims and define non-vacuous flow/per-receiver evidence; no AOT or VM fallback",
     "PHASE2170-MAP-EXACT-AOT-S0: prove one checked-in Map source -> canonical MIR -> pure-first ny-llvmc -> EXE successor for the 2/200 wrapper pair; no fallback",
     "ARRAY-ELEMENT-WRITE-PUSH-PURE-FIRST-D0-I0: name a small native capability owner for array_element_write(kind=push); existing legacy projection and VM routes are non-authority",
@@ -378,7 +380,7 @@
     "116 unique lexical leaves are represented exactly once in groups",
     "direct/textual_helper/wrapper_only = 33/74/9",
     "legacy arithmetic snapshot = 78 force reachers / 80 lexical sites / 38 residual; it is not semantic closure",
-    "semantic observation = 77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved rows block completion",
+    "semantic observation = 33/33 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved/conditional rows block completion",
     "HistoricalDelete/ProductAot/Stage1ProofAot/SemanticReference/ParkedSealedResidual = 69/8/1/0/38 only as the legacy group snapshot until the per-leaf schema is sealed",
     "unclassified = 0",
     "implementation permission remains false after ProductAot S0 NoSafeSlice; old wrappers/run_all, Rust VM/helper routes, and unresolved/residual consumers remain unchanged",
@@ -389,8 +391,8 @@
     "any path is omitted, duplicated, or unclassified",
     "phase2170 wrapper-only callers or run_all aggregate are omitted",
     "78/80/38 legacy arithmetic totals are claimed as semantic closure, or 4 unresolved dynamic rows are ParkedSealed",
-    "the per-leaf body schema or dedicated semantic guard is missing, or derived values do not match reviewed attributes",
-    "35 explicit-core residual sites or 7 unresolved lexical sites are silently reclassified",
+    "the clean environment contract, per-leaf body schema, or dedicated semantic guard is missing, or derived values do not match reviewed attributes",
+    "44 conditional-force sites, 35 explicit-core residual sites, or 7 unresolved lexical sites are silently reclassified",
     "force removal falls through to Core or standard-v1",
     "terminal parses payload, executes, retries, or falls back",
     "Array push or Map ProductAot uses a VM/Core/legacy projection fallback, non-vacuous claim evidence is absent, or a same-artifact AOT successor is not exact"
