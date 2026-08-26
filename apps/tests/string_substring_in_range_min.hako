@@ -1,0 +1,10 @@
+// ProductAot successor for the retired CoreDirect substring smoke.
+// Contract: in-range ASCII substring(2, 5) of "abcdef" is "cde".
+static box Main {
+  method main(args) {
+    local s = "abcdef"
+    local t = s.substring(2, 5)
+    print(t)
+    return 0
+  }
+}

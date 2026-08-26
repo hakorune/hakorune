@@ -28,10 +28,11 @@ Related:
   CoreDirect family-level tag/rc fate, strict-root seams, and Call cutover remain
   closed.
 - **Next ordered task:**
-  `CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0`, selected by `CURRENT_STATE.toml` as
-  the first bounded EXE/AOT successor row. The private child transport and
-  CanonicalV1 Value seam are landed; the amended one-state CoreDirect R0 and
-  remaining pre-Wpre rows follow before Wpre-I0.
+  `CORE-DIRECT-RETIRE-R0`, selected by `CURRENT_STATE.toml` as the current
+  design-stop row. The private child transport, CanonicalV1 Value seam, and
+  exact ProductAot substring successor are landed; R0 must prove its one-state
+  post-decode terminal before any CoreDirect deletion, with remaining pre-Wpre
+  rows following before Wpre-I0.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.

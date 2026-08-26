@@ -2,8 +2,8 @@ date = "2026-08-27"
 development_branch_ssot = "main"
 work_mode = "design_stop"
 current_execution_row = "CORE-DIRECT-RETIRE-R0"
-current_design_stop = "design stop; CORE-DIRECT-RETIRE-D0 is Exhausted. R0 is NoSafeSlice for the old two-terminal contract because no pre-Wpre issuer preserves the decoded-family applicable/unavailable distinction; the exact ProductAot successor also has no landed EXE/AOT evidence."
-current_blocker_token = "CORE-DIRECT-RETIRE-R0: implementation_permission=false; first open the bounded ProductAot substring S0, then use the one-state post-decode retired terminal or move R0 after a named selected-family issuer. No CoreDirect code or script deletion is authorized."
+current_design_stop = "design stop; ProductAot S0 is landed. R0 may not delete CoreDirect until the one-state post-decode terminal is proven; pre-Wpre has no named issuer for a separate unavailable state."
+current_blocker_token = "CORE-DIRECT-RETIRE-R0: ProductAot successor landed; prove one-state post-decode retired terminal and retry/fallback=0 before deletion."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Wpre bypass retirement — CoreDirect no-retry removal after successor evidence"
@@ -15,7 +15,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "CanonicalV1 Value S0 and CoreDirect D0 are landed. R0 remains NoSafeSlice on decoded-family authority and exact ProductAot ownership; broad VM retirement remains later."
+latest_card_summary = "CanonicalV1 Value S0, CoreDirect D0, and ProductAot substring S0 are landed. CoreDirect R0 is the sole design stop; broad VM retirement remains later."
 next_design_card = "CORE-DIRECT-RETIRE-R0"
 next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
   "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and CanonicalV1 Value S0 opened as the sole fast row.",
-  "2026-08-27: CanonicalV1 Value S0 and CoreDirect D0 six-row classification landed; R0 awaits exact AOT substring and decoded terminal evidence before no-retry deletion.",
+  "2026-08-27: ProductAot substring S0 landed with exact release EXE/AOT evidence; CoreDirect R0 remains a one-state post-decode design stop before no-retry deletion.",
 ]

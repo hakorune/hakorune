@@ -34,7 +34,7 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 Decision:
   CanonicalV1 Value S0は着地済み。VM fate監査はRust engineの最終撤退を受理したが、
   MirBuilder本線を優先し、WpreをbypassするCoreDirectとforce-hv1だけを先に閉じる。
-  CoreDirect D0の6行分類も着地し、R0はnamed successor待ち。
+  CoreDirect D0の6行分類とProductAot substring S0は着地し、R0はone-state terminal authorityの証明待ちで止める。
 
 Source authority + canonical issuer:
   各suite ownerがproduct AOT、semantic reference、Stage1 proof、compile-only、retireの
@@ -49,9 +49,8 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0`。旧substring sourceをexact EXE/AOT
-  ownerへ移し、同一MIR・pure-first・stdout/rcを固定する。full R0はpre-Wpreの
-  一状態post-decode retired terminalを証明してから開く。
+  `CORE-DIRECT-RETIRE-R0`。ProductAot successorは着地済みなので、pre-Wpreの
+  one-state post-decode retired terminalとretry/fallback=0だけを証明する。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -240,7 +239,7 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    temporary v1 file/readback, and production raw String parses are removed.
 
 1i. CORE-DIRECT-RETIRE-D0 (landed design-only) -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0
-   (next fast row; full R0 remains NoSafeSlice)
+   (landed) -> CORE-DIRECT-RETIRE-R0 (current design stop)
    D0 classifies the six active smokes into ProductAot / SemanticReference /
    HistoricalDelete. S0 moves the one product-observable substring case to an
    exact EXE/AOT owner. Pre-Wpre R0 uses one post-decode stderr terminal

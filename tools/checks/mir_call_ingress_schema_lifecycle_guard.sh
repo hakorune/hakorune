@@ -14,10 +14,10 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|wpre_readiness]"
+[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|wpre_readiness]"
 PHASE="${1:-wpre_readiness}"
 case "$PHASE" in
-  wpre_readiness|reference_child_i0|canonical_v1_value_s0) ;;
+  wpre_readiness|reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0) ;;
   wpre_i0|typed_global_b1|r7_closeout)
     fail "recognized future phase is not landed: $PHASE"
     ;;
@@ -76,6 +76,111 @@ if state.get("work_mode") not in {"fast", "design_stop", "closeout"}:
     fail("ingress lifecycle row requires CURRENT_STATE work_mode=fast, design_stop, or closeout")
 if state.get("latest_card_path") != str(card_path.relative_to(root)):
     fail("CURRENT_STATE latest_card_path no longer names the active card")
+
+if phase == "core_direct_substring_product_aot_s0":
+    expected_row = "CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0"
+    current_row = state.get("current_execution_row")
+    if state.get("work_mode") not in {"fast", "design_stop", "closeout"}:
+        fail("core_direct_substring_product_aot_s0 requires fast, design_stop, or closeout work mode")
+    if current_row not in {expected_row, "CORE-DIRECT-RETIRE-R0"}:
+        fail("core_direct_substring_product_aot_s0 pointer drifted")
+    if current_row == expected_row and state.get("next_execution_card") != expected_row:
+        fail("core_direct_substring_product_aot_s0 open next execution card drifted")
+    if current_row == "CORE-DIRECT-RETIRE-R0" and not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("landed ProductAot S0 requires a design-stop next execution card")
+    if card.get("implementation_permission") is not False:
+        fail("active card top-level permission must remain false; use scoped S0 permission")
+    smoke_rows = card.get("core_direct_smoke_disposition")
+    if not isinstance(smoke_rows, dict):
+        fail("core_direct_smoke_disposition is missing")
+    s0 = smoke_rows.get("product_aot_s0")
+    if not isinstance(s0, dict):
+        fail("core_direct product_aot_s0 section is missing")
+    status = s0.get("status")
+    if status not in {"fast_open", "landed"}:
+        fail("core_direct product_aot_s0 status is not fast_open or landed")
+    if status == "fast_open" and current_row != expected_row:
+        fail("fast-open ProductAot S0 must remain the current execution row")
+    if status == "landed" and current_row not in {expected_row, "CORE-DIRECT-RETIRE-R0"}:
+        fail("landed ProductAot S0 is outside its closure boundary")
+    if status == "fast_open" and s0.get("implementation_permission") is not True:
+        fail("core_direct product_aot_s0 fast-open permission is not set")
+    if status == "landed" and s0.get("implementation_permission") is not False:
+        fail("landed core_direct product_aot_s0 must close scoped permission")
+    expected_files = {
+        "apps/tests/string_substring_in_range_min.hako",
+        "tools/smokes/v2/profiles/integration/apps/string_substring_in_range_exe.sh",
+        guard_script,
+    }
+    if set(s0.get("allowed_files") or []) != expected_files:
+        fail("core_direct product_aot_s0 allowed file boundary drifted")
+    if status == "landed":
+        source_path = root / "apps/tests/string_substring_in_range_min.hako"
+        smoke_path = root / "tools/smokes/v2/profiles/integration/apps/string_substring_in_range_exe.sh"
+        if not source_path.is_file() or not smoke_path.is_file():
+            fail("landed core_direct product_aot_s0 owner is missing")
+        source = source_path.read_text(encoding="utf-8")
+        smoke = smoke_path.read_text(encoding="utf-8")
+        if 's.substring(2, 5)' not in source:
+            fail("ProductAot source no longer pins substring(2,5)")
+        required_markers = [
+            "emit_mir_route.sh --route direct",
+            "pure_first_route_preflight.py",
+            "compat_replay=none",
+            "NYASH_NYRT_SILENT_RESULT=1",
+            "cmp",
+            "cde",
+        ]
+        missing = [marker for marker in required_markers if marker not in smoke]
+        if missing:
+            fail("ProductAot smoke is missing markers: " + ", ".join(missing))
+        for forbidden in ("2>&1", "filter_noise", "tail -n1", "|| true"):
+            if forbidden in smoke:
+                fail(f"ProductAot smoke uses forbidden evidence shortcut: {forbidden}")
+    print(
+        f"[{guard_id}] result_class=current-change failure status=pass "
+        f"phase={phase} status={status} exact_aot_successor={'landed' if status == 'landed' else 'open'} "
+        "vm_successor=none deletion=forbidden"
+    )
+    raise SystemExit(0)
+
+if phase == "core_direct_retire_r0":
+    expected_row = "CORE-DIRECT-RETIRE-R0"
+    if state.get("work_mode") not in {"design_stop", "closeout"}:
+        fail("core_direct_retire_r0 requires design_stop or closeout work mode")
+    if state.get("current_execution_row") != expected_row:
+        fail("core_direct_retire_r0 pointer drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("core_direct_retire_r0 next execution card must remain none during design stop")
+    if not state.get("current_design_stop"):
+        fail("core_direct_retire_r0 must retain an explicit design stop")
+    if card.get("implementation_permission") is not False:
+        fail("active card top-level permission must remain false during R0 design stop")
+    smoke_rows = card.get("core_direct_smoke_disposition")
+    if not isinstance(smoke_rows, dict):
+        fail("core_direct_smoke_disposition is missing")
+    s0 = smoke_rows.get("product_aot_s0")
+    if not isinstance(s0, dict) or s0.get("status") != "landed":
+        fail("ProductAot S0 must be landed before CoreDirect R0")
+    if s0.get("implementation_permission") is not False:
+        fail("landed ProductAot S0 must have closed scoped permission")
+    terminal = card.get("core_direct_tag_rc_contract")
+    if not isinstance(terminal, dict):
+        fail("core_direct_tag_rc_contract is missing")
+    if terminal.get("status") != "design_accepted_one_state_pre_wpre":
+        fail("CoreDirect R0 terminal contract is not the accepted one-state design")
+    issuer = str(terminal.get("canonical_issuer", ""))
+    if "one terminal" not in issuer or "[core-direct/retired]" not in issuer:
+        fail("CoreDirect R0 one-state retired terminal is not recorded")
+    if "unavailable remains ParkedSealed" not in issuer:
+        fail("CoreDirect R0 unavailable parking rule is missing")
+    print(
+        f"[{guard_id}] result_class=current-change failure status=pass "
+        "phase=core_direct_retire_r0 s0=landed terminal=one_state_pre_wpre "
+        "unavailable=parked deletion=forbidden"
+    )
+    raise SystemExit(0)
+
 if phase in {"reference_child_i0", "canonical_v1_value_s0"}:
     if state.get("work_mode") not in {"fast", "closeout", "design_stop"}:
         fail(f"{phase} requires CURRENT_STATE work_mode=fast, closeout, or design_stop")
