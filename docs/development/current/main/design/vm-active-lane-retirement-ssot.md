@@ -140,12 +140,13 @@ removal runs before the Call spine; broad route and engine retirement wait.
    rc, stdout, fallback success, and runtime repetition are not derived facts.
    Missing/duplicate/unknown syntax, unresolved ambient settings, and dynamic
    artifacts stay `CutoverBlockerOpen`; they may not be relabeled
-   `ParkedSealed`. The 32 direct HistoricalDelete leaves are now a
-   digest-backed R0a candidate review with explicit PHI/provider exceptions in
-   `manifest.fate_review`; deletion permission remains closed until the six
-   aggregate projections and those exceptions are validated atomically. Then
-   close Stage1/Product successors, four dynamic rows, helper retry, and startup
-   bypass in that order; hv1 is never reinterpreted as standard v1.
+   `ParkedSealed`. Thirty direct HistoricalDelete leaves are now a digest-backed
+   R0a candidate review with six aggregate owners in `manifest.fate_review`.
+   The PHI witness and provider route remain explicit R0b exceptions because
+   their successor evidence is not green; deletion permission remains closed
+   until the 30-path projections are validated atomically. Then close the R0b
+   exceptions, Stage1/Product successors, four dynamic rows, helper retry, and
+   startup bypass in that order; hv1 is never reinterpreted as standard v1.
 
 3. WPRE-S0/I0
    one strict root -> one selected decoder -> one terminal; parse/retry once/zero

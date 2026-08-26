@@ -191,19 +191,19 @@
     "owner": "force-hv1-retirement",
     "review_source": ["force_successor_fate_audit (2026-08-27)", "force_design_adversary (2026-08-27)", "active card force_hv1_fate_d0 and body-derived group[0]"],
     "reviewed_family": {
-      "selector": "groups entry caller_family=direct and fate=HistoricalDelete",
-      "path_count": 32,
-      "body_digest_source": "observations[path].body_sha256 for the selected group paths",
-      "body_digest_sha256": "fc3fb516f322e5542f18e0ed0835c6d94cd6b176e09f218726f1b495e5459023",
+      "selector": "groups entry caller_family=direct and fate=HistoricalDelete minus the two explicit exception paths",
+      "path_count": 30,
+      "body_digest_source": "observations[path].body_sha256 for the selected 30 group paths",
+      "body_digest_sha256": "106659fa79dde561717ee6096dedea0c07f9dee1e48959d1744e7a8b8a07e6c3",
       "digest_definition": "sha256(sorted path + NUL + body_sha256 + LF)",
       "disposition": "HistoricalDeleteCandidate",
       "successor": "none_required_for_retirement"
     },
-    "projection_owners": ["tools/smokes/v2/profiles/integration/core/phase2047/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2048/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2049/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2051/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2100/run_engineering_selfhost.sh", "docs/development/current/main/selfhost-integration-limitations.md"],
-    "explicit_exceptions": ["phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh is the only exact checked-in unequal-incoming PHI runtime witness; deletion requires an owner note that the behavior is intentionally hv1-specific or covered elsewhere.", "phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh is a weak SKIP-on-error provider consumer; provider shape and S1/S2 owners remain the evidence, and its projection must be removed atomically."],
-    "excluded_from_r0a": ["phase2051/selfhost_v1_primary_rc42_canary_vm.sh (Stage1ProofAot blocker)", "44/45 HelperForceConditional sites", "35/35 ExplicitCoreResidualSealed sites", "4/7 DynamicArtifactOpen sites", "phase2170 ProductAot and wrapper families"],
-    "planned_observation_delta": "116 leaves/120 sites -> 84 leaves/88 sites; DirectForceSealed 33/33 -> 1/1; potential force 81/85 -> 49/53",
-    "required_before_fast": ["validate both explicit exceptions and all six projection owners", "regenerate manifest groups/observations and body-derived counts in the same change", "preserve retired path/hash inventory so deleted leaves cannot silently reappear", "keep top-level implementation_permission=false and do not touch startup, fallback, or VM code"]
+    "projection_owners": ["tools/smokes/v2/profiles/integration/core/phase2047/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2048/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2049/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2051/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2100/run_engineering_selfhost.sh", "docs/development/current/main/investigations/selfhost-integration-limitations.md"],
+    "explicit_exceptions": ["phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh is the only exact checked-in unequal-incoming PHI runtime witness; it passed, but no alternate AOT owner was found, so it remains excluded for R0b owner proof.", "phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh is a weak SKIP-on-error provider consumer; provider shape and S1/S2 checks currently fail at the freeze boundary, so it remains excluded for R0b successor proof."],
+    "excluded_from_r0a": ["phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh (R0b semantic owner required)", "phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh (R0b provider successor required)", "phase2051/selfhost_v1_primary_rc42_canary_vm.sh (Stage1ProofAot blocker)", "44/45 HelperForceConditional sites", "35/35 ExplicitCoreResidualSealed sites", "4/7 DynamicArtifactOpen sites", "phase2170 ProductAot and wrapper families"],
+    "planned_observation_delta": "116 leaves/120 sites -> 86 leaves/90 sites; DirectForceSealed 33/33 -> 3/3; potential force 81/85 -> 51/55",
+    "required_before_fast": ["validate the 30-path selector and all six projection owners", "regenerate manifest groups/observations and body-derived counts in the same change", "preserve retired path/hash inventory so deleted leaves cannot silently reappear", "keep the two exception leaves active and top-level implementation_permission=false until the scoped row opens"]
   },
   "groups": [
     {
@@ -465,7 +465,7 @@
     "PHASE2170-ARRAY-EXACT-AOT-S1: prove one Array push source -> canonical MIR -> pure-first ny-llvmc -> EXE family with aliases/flow/per-receiver claims; no fallback",
     "FORCE-HV1-PRODUCT-CUTOVER-R0: migrate only ProductAot rows after exact successors and same-artifact evidence are green",
     "FORCE-HV1-SELFHOST-STAGE1-AOT-S0: land the one exact selfhost emit-to-AOT successor for rc42",
-    "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0: after the owner-reviewed 32-path family review, remove only direct HistoricalDelete probes with their six aggregate projections; preserve the Stage1 blocker and unresolved/residual consumers",
+    "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0: after the owner-reviewed 30-path family review, remove only direct HistoricalDelete probes with their six aggregate projections; preserve the PHI/provider exceptions, Stage1 blocker, and unresolved/residual consumers",
     "FORCE-HV1-NARROW-HISTORICAL-DELETE-R0B: review conditional HistoricalDelete candidates separately after clean-environment and successor evidence; no automatic promotion from R0a",
     "FORCE-HV1-NARROW-HELPER-CUT-R1: delete only force reachability, preserve residual helper behavior, and prove the semantic guard's caller-zero result",
     "FORCE-HV1-STARTUP-RETIRE-R2: replace the truthy selector with one stderr tombstone, parse/execute/retry/fallback zero",
