@@ -26,11 +26,14 @@ Related:
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** the package/install bridge and many Call
   writers are closed. B0 census/provenance guards are landed; shared-runner Wpre
-  profile/root/decoder design is the active design stop, while typed Global,
-  late recovery, receiver ABI, and mandatory-Callee remain closed.
+  boundary is bounded but its D0 follow-up blockers remain open: outside fates,
+  Stage1 precedence, core-direct strategy, reference child isolation, and exact
+  strict-root/Value seams. Typed Global, late recovery, receiver ABI, and
+  mandatory-Callee remain closed.
 - **Next ordered task:** complete
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`
-  without semantic implementation, then open only its bounded shared-runner I0.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE` and its ordered
+  D0 design follow-ups without semantic implementation, then open only the
+  bounded shared-runner I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -130,6 +133,9 @@ MirBuilderを移す方法である。replacement cellやstructural measurements�
 typed Global target family / issuer Decision
   -> reusable ingress lifecycle guard
   -> shared-runner Wpre profile/root/decoder contract
+  -> outside-fate and pre-Wpre arbitration closure
+  -> core-direct execution fate and reference child isolation
+  -> strict recursive root owner and by-value decoder seams
   -> strict one-shot schema selection with invalid-v1 retry = 0
   -> MirCall/CallFlags transport retirement
   -> source-owned effect authority for every promoted target family

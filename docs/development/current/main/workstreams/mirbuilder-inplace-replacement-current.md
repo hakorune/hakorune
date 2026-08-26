@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -46,11 +46,12 @@ Non-authority:
 Fail-fast boundary:
   共有runnerのentrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
   schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
+  Stage1 precedence、core-direct fate、strict-root/Value seam未確定は実装前のblocker。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`。
-  B0 guard/censusを閉じ、共有runner入口をboundedにし、profile×root×decoderの
-  有限行列と一回parseのownershipをdocs-onlyで固定する。Stage1等は外部fateを刻む。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE`。
+  9入口のboundednessは確認済みなので、外部fate、Stage1/direct precedence、
+  core-direct strategy、strict-root/Value seamをdocs-onlyで凍結する。I0はまだ閉じる。
 
 Non-claims:
   schema selector実装、parser/fixture/codec、typed Global、observer/loan、
@@ -210,11 +211,31 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     plus reusable fail-closed guard. Unknown owner/family/path and stale manifest
     fail; this guard is evidence only and grants no Wpre/B1 implementation permission
 
-1c. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT (now, design stop)
+1c. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT (design stop)
    bound Wpre-I0 to shared runner family-unknown entrances and freeze profile x root
    matrix, one parsed Value ownership, decoder signatures, strict duplicate-key owner,
-   and exact delete set. Record Stage1/force-hv1/selfhost/runtime/kernel/reference/
-   LLVM/observer/ABI as separate outside fates. No parser or fallback code changes.
+   and exact delete set. No parser or fallback code changes.
+
+1d. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE (now, design stop)
+   split Stage1 arbitration from captured payload, make core-direct an in-scope blocker,
+   add reference child re-entry and actual C-ABI/LLVM/runtime callers, and give every
+   outside row owner/status/reason/reopen/non-authority. No implementation.
+
+1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (design stop)
+   freeze exact precedence before Wpre; captured MIR-v0/Program-v0 stays family-selected
+   compatibility and cannot silently preempt direct --mir-json-file.
+
+1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (design stop)
+   freeze vm-hako child route-environment isolation and v1 emission family; no public
+   Wpre/hv1 re-entry or retry is accepted.
+
+1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design stop)
+   choose decoded-module consumer, raw-child retirement, or typed no-retry terminal;
+   compatibility transforms remain selected-owner Value adapters.
+
+1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design stop)
+   freeze strict_root.rs, recursive duplicate/trailing rejection, owned SelectedIngress,
+   and by-value decoder ownership using the existing NyashRunner context.
 
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
    shared runner parses JSON root once; selects exact v2/v1/MIR-v0/Program-v0 once; deletes raw

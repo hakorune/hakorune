@@ -22,11 +22,13 @@ Related:
   `FreeFunction`/`StaticBoxMethod`; canonical MIR JSON is exact v2.0.
 - **Current implementation status:** core still stores `Global(String)`,
   `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
-  guards are landed; shared-runner Wpre profile/root/decoder design remains open
-  before any parser implementation.
+  guards are landed; the shared-runner Wpre boundary is bounded, but D0 follow-up
+  blockers (outside fates, Stage1 precedence, core-direct strategy, and exact
+  strict-root/Value seams) remain open before any parser implementation.
 - **Next ordered task:**
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`;
-  it is docs-only and keeps parser/semantic behavior closed.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE`;
+  it is docs-only and keeps parser/semantic behavior closed. Wpre-I0 follows only
+  after the ordered D0 follow-up rows are reconciled.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
@@ -272,6 +274,9 @@ rolling workstream. This SSOT fixes the durable dependency shape:
 ```text
 finite typed identity and observer/package contract (accepted)
   -> reusable ingress lifecycle guard
+  -> outside-fate and pre-Wpre arbitration closure
+  -> core-direct execution fate and reference child isolation
+  -> strict recursive root owner and by-value decoder seams
   -> strict one-shot schema selection with cross-parser retry = 0
   -> MirCall/CallFlags transport retirement
   -> source-owned effect authority
