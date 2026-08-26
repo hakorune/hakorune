@@ -499,9 +499,10 @@ evidence = "Read-only workers independently confirmed no non-empty package issue
 next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 
 [bridge_ready_implementation]
-status = "selected_fast_box_shape"
+status = "landed"
 execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 implementation_permission = true
+implementation_commit = "3dd963d330"
 boundary = "Package-only semantic install and source handoff: normal_callable_semantic_package/install.rs prepare/commit -> normal_default_root_catalog_lifecycle.rs -> program_root_lowering.rs and normal_script_a/consumer.rs. This row does not enter ordinary FunctionCall target disposition."
 source_authority = "Existing installed semantic package plus the parser-issued HRTB source loan. The bridge consumes the package once and returns only a Builder-private package-only bundle."
 canonical_issuer = "normal_callable_semantic_package/install.rs::with_normal_callable_install_once; BuilderPrivateInstalledCallablePackageBundleV1 is a lifecycle carrier only and issues no Callee, loan, lineage, effect, or Call."
@@ -539,11 +540,19 @@ acceptance = [
   "touched/new source stays below 760 lines; raw_invocation_source_transport.rs=778 remains untouched",
 ]
 tests = [
-  "bridge_ready_closes_all_production_package_callers",
-  "source_handoff_is_scoped_without_ast_package_borrow_overlap",
-  "sealed_package_bundle_is_single_use_and_non_split",
-  "existing package lifecycle and normal_script_a parity tests",
+  "source_backed_lifecycle_facade_consumes_program_runtime_and_app_once",
+  "source_backed_selected_callable_uses_the_installed_package_port",
+  "parser_scan_package_passes_callable_source_handoff_without_fallback",
+  "normal_callable_semantic_package focused filter: 43 passed",
 ]
+evidence = [
+  "CARGO_BUILD_JOBS=4 cargo check --profile quick: passed; existing warning baseline only (1784 library warnings)",
+  "cargo fmt --all -- --check, git diff --check, TOML parse, and current_state_pointer_guard: passed",
+  "mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh bridge_ready: passed",
+  "source-backed lifecycle/package focused tests: 3/3 and semantic-package filter 43/43 passed",
+  "clean e95c3879b0 baseline normal_default_root_catalog_lifecycle filter reproduced the same 6 passed/4 failed compatibility failures; classified baseline, not this bridge row",
+]
+known_baseline = "The four failures in the broad normal_default_root_catalog_lifecycle filter remain the pre-existing compatibility/work-plan-edge failures reproduced from clean e95c3879b0; they are not attributed to BridgeReady package-only code."
 no_safe_slice = [
   "any direct Callee/loan provisioning is needed to make the bridge compile",
   "a package-only getter, tuple into_parts, Clone/Copy, or AST clone is required",
