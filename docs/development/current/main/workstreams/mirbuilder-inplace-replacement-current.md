@@ -1,5 +1,5 @@
 ---
-Status: Fast — CORE-DIRECT-RETIRE-R0
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -34,7 +34,7 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 Decision:
   CanonicalV1 Value S0は着地済み。VM fate監査はRust engineの最終撤退を受理したが、
   MirBuilder本線を優先し、WpreをbypassするCoreDirectとforce-hv1だけを先に閉じる。
-  CoreDirect D0の6行分類とProductAot substring S0は着地し、R0はone-state post-decode terminalとno-retry deletionを閉じる。
+  CoreDirect D0の6行分類、ProductAot substring S0、R0のone-state post-decode terminal/no-retry deletionは着地し、次はforce-hv1の有限caller fateを設計停止で閉じる。
 
 Source authority + canonical issuer:
   各suite ownerがproduct AOT、semantic reference、Stage1 proof、compile-only、retireの
@@ -49,8 +49,7 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CORE-DIRECT-RETIRE-R0`。ProductAot successorは着地済みなので、pre-Wpreの
-  one-state post-decode retired terminal、retry/fallback=0、旧probe/child削除を閉じる。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みなので、pre-Wpre force-hv1の33+36/107 callerを分類し、startup bypassとterminalを設計だけで閉じる。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、

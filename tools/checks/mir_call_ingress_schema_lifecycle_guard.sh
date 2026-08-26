@@ -149,14 +149,17 @@ if phase == "core_direct_retire_r0":
     mode = state.get("work_mode")
     if mode not in {"fast", "closeout", "design_stop"}:
         fail("core_direct_retire_r0 requires fast, closeout, or design_stop work mode")
-    if state.get("current_execution_row") != expected_row:
+    current_row = state.get("current_execution_row")
+    successor_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
+    landed_closeout = current_row == successor_row and card.get("status") == "core_direct_r0_landed"
+    if current_row != expected_row and not landed_closeout:
         fail("core_direct_retire_r0 pointer drifted")
-    if mode == "design_stop":
+    if mode == "design_stop" and not landed_closeout:
         if not str(state.get("next_execution_card", "")).startswith("none"):
             fail("core_direct_retire_r0 next execution card must remain none during design stop")
         if not state.get("current_design_stop"):
             fail("core_direct_retire_r0 must retain an explicit design stop")
-    else:
+    elif not landed_closeout:
         if state.get("next_execution_card") != expected_row:
             fail("core_direct_retire_r0 fast/closeout pointer drifted")
         if mode == "fast" and state.get("current_design_stop"):
@@ -169,14 +172,14 @@ if phase == "core_direct_retire_r0":
         fail("ProductAot S0 must be landed before CoreDirect R0")
     if s0.get("implementation_permission") is not False:
         fail("landed ProductAot S0 must have closed scoped permission")
-    if mode == "design_stop":
+    if mode == "design_stop" and not landed_closeout:
         if card.get("implementation_permission") is not False:
             fail("active card top-level permission must remain false during R0 design stop")
     else:
-        expected_card_status = "core_direct_r0_fast_open" if mode == "fast" else "core_direct_r0_landed"
+        expected_card_status = "core_direct_r0_fast_open" if mode == "fast" and not landed_closeout else "core_direct_r0_landed"
         if card.get("status") != expected_card_status:
             fail(f"active card status must be {expected_card_status} for R0")
-        expected_permission = mode == "fast"
+        expected_permission = mode == "fast" and not landed_closeout
         if card.get("implementation_permission") is not expected_permission:
             fail("active card implementation permission does not match R0 mode")
         allowed_files = set(card.get("core_direct_tag_rc_contract", {}).get("implementation_allowed_files") or [])
@@ -203,7 +206,13 @@ if phase == "core_direct_retire_r0":
     terminal = card.get("core_direct_tag_rc_contract")
     if not isinstance(terminal, dict):
         fail("core_direct_tag_rc_contract is missing")
-    expected_terminal_status = "design_accepted_one_state_pre_wpre" if mode == "design_stop" else "fast_open_one_state_pre_wpre"
+    expected_terminal_status = (
+        "design_accepted_one_state_pre_wpre"
+        if mode == "design_stop" and not landed_closeout
+        else "fast_open_one_state_pre_wpre"
+        if mode == "fast" and not landed_closeout
+        else "landed_one_state_pre_wpre"
+    )
     if terminal.get("status") != expected_terminal_status:
         fail("CoreDirect R0 terminal contract is not the accepted one-state design")
     issuer = str(terminal.get("canonical_issuer", ""))
@@ -211,7 +220,7 @@ if phase == "core_direct_retire_r0":
         fail("CoreDirect R0 one-state retired terminal is not recorded")
     if "unavailable remains ParkedSealed" not in issuer:
         fail("CoreDirect R0 unavailable parking rule is missing")
-    if mode != "design_stop":
+    if mode != "design_stop" or landed_closeout:
         def read(relative: str) -> str:
             path = root / relative
             if not path.is_file():
@@ -257,7 +266,7 @@ if phase == "core_direct_retire_r0":
                 fail(f"retired CoreDirect smoke remains: {old_script}")
         if "HAKO_CORE_DIRECT_INPROC" in read("tools/selfhost/README.md"):
             fail("selfhost README still advertises the retired in-process route")
-    if mode == "design_stop":
+    if mode == "design_stop" and not landed_closeout:
         print(
             f"[{guard_id}] result_class=current-change failure status=pass "
             "phase=core_direct_retire_r0 s0=landed terminal=one_state_pre_wpre "
@@ -267,7 +276,7 @@ if phase == "core_direct_retire_r0":
         print(
             f"[{guard_id}] result_class=current-change failure status=pass "
             "phase=core_direct_retire_r0 s0=landed terminal=one_state_pre_wpre "
-            "unavailable=parked implementation=fast_open"
+            f"unavailable=parked implementation={'landed' if landed_closeout else 'fast_open'}"
         )
     raise SystemExit(0)
 
@@ -566,9 +575,9 @@ edge_markers = {
     "src/runner/mod.rs": ("execute_mir_json_text", "try_run_json_v0_pipe"),
     "src/runner/dispatch.rs": ("try_parse_v1_to_module", "parse_mir_v0_to_module", "text.contains"),
     "src/runner/core_executor.rs": (
-        "maybe_try_core_direct_for_mir_json",
+        "core_direct_requested",
+        "core_direct_retired",
         "parse_direct_mir_json_text_with_v0_fallback",
-        "falling back to VM interpreter",
     ),
     "src/runner/json_artifact/mir_loader.rs": (
         "try_parse_v1_to_module",

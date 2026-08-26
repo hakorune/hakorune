@@ -28,11 +28,11 @@ Related:
   CoreDirect family-level tag/rc fate, strict-root seams, and Call cutover remain
   closed.
 - **Next ordered task:**
-  `CORE-DIRECT-RETIRE-R0`, selected by `CURRENT_STATE.toml` as the current
-  fast row. The private child transport, CanonicalV1 Value seam, and exact
-  ProductAot substring successor are landed; R0 proves its one-state
-  post-decode terminal and deletes the CoreDirect retry/fallback family, with
-  remaining pre-Wpre rows following before Wpre-I0.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`, selected by
+  `CURRENT_STATE.toml` as the current design-stop row. The private child
+  transport, CanonicalV1 Value seam, exact ProductAot substring successor,
+  and CoreDirect one-state/no-retry R0 are landed; force-hv1 caller fate is
+  the remaining pre-Wpre bypass decision before Wpre-I0.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
