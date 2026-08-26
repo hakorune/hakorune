@@ -44,13 +44,21 @@ if "RawInvocationRootLineageV1::Cataloged(caller)" not in brand_text:
 if preflight_text.count("fn prepare_cataloged_target_v1(") != 1:
     raise SystemExit("cataloged target issuer count drifted")
 for token in (
-    "PreparedRawOrdinaryFunctionCompletionV1::Targeted",
+    "PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted",
+    "PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted",
     "PreparedRawOrdinaryFunctionCompletionV1::Rejected",
     "BareStaticRecoveryDecisionV1::decide",
     "CallTarget::Value(value)",
 ):
     if token not in preflight_text:
         raise SystemExit(f"missing child target contract: {token}")
+generic_targeted = "PreparedRawOrdinaryFunctionCompletionV1::" + "Targeted"
+if generic_targeted in preflight_text:
+    raise SystemExit("generic Targeted completion remains in preflight")
+if preflight_text.count("PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted") != 1:
+    raise SystemExit("CatalogedTargeted producer count drifted")
+if preflight_text.count("PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted") != 1:
+    raise SystemExit("BoundedGcTargeted producer count drifted")
 
 if preflight_text.count("PreparedRawNonBrandRouteOriginV1::InstalledNonBrand") < 2:
     raise SystemExit("InstalledNonBrand origin is not carried through the ordinary preflight")
@@ -66,13 +74,28 @@ for token in (
     if token not in gc_tests_text:
         raise SystemExit(f"missing GC focused evidence: {token}")
 
-target_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::Targeted")
+target_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted")
+gc_target_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted")
 resolved_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::Resolved", target_start)
-target_window = build_text[target_start:resolved_start]
-if target_window.index("drive_call_arguments_v1") > target_window.index("emit_prepared_cataloged_call_v1"):
-    raise SystemExit("targeted child emits before ordered argument descent")
-if any(token in target_window for token in ("build_resolved_function_call", "try_unique_static_method_recovery", "make_name_const_result")):
-    raise SystemExit("targeted child re-entered a late resolver/recovery/name-Const edge")
+for label, start in (("CatalogedTargeted", target_start), ("BoundedGcTargeted", gc_target_start)):
+    end = gc_target_start if label == "CatalogedTargeted" else resolved_start
+    target_window = build_text[start:end]
+    if target_window.count("lower_prepared_targeted_call_v1") != 1:
+        raise SystemExit(f"{label} child handoff count drifted")
+if generic_targeted in build_text:
+    raise SystemExit("generic Targeted completion remains in build")
+if build_text.count("PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted") != 1:
+    raise SystemExit("CatalogedTargeted consumer count drifted")
+if build_text.count("PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted") != 1:
+    raise SystemExit("BoundedGcTargeted consumer count drifted")
+
+helper_start = build_text.index("fn lower_prepared_targeted_call_v1")
+helper_end = build_text.index("impl MirBuilder", helper_start)
+helper_window = build_text[helper_start:helper_end]
+if helper_window.index("drive_call_arguments_v1") > helper_window.index("emit_prepared_cataloged_call_v1"):
+    raise SystemExit("targeted helper emits before ordered argument descent")
+if any(token in helper_window for token in ("build_resolved_function_call", "try_unique_static_method_recovery", "make_name_const_result")):
+    raise SystemExit("targeted helper re-entered a late resolver/recovery/name-Const edge")
 
 emit_start = build_text.index("fn emit_prepared_cataloged_call_v1")
 emit_end = build_text.index("/// Build unified function call", emit_start)

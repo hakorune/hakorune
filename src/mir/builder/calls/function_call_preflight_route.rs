@@ -56,7 +56,11 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     Resolved {
         arguments: Vec<ASTNode>,
     },
-    Targeted {
+    CatalogedTargeted {
+        callee: Callee,
+        arguments: Vec<ASTNode>,
+    },
+    BoundedGcTargeted {
         callee: Callee,
         arguments: Vec<ASTNode>,
     },
@@ -252,14 +256,18 @@ fn prepare_ordinary_function_completion_v1(
         }
     } else if let Some(caller) = caller {
         match prepare_cataloged_target_v1(builder, caller, name, arguments.len()) {
-            Ok(callee) => PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments },
+            Ok(callee) => {
+                PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments }
+            }
             Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
         }
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && is_installed_non_unified_gc_builtin_v1(name)
     {
         match resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned())) {
-            Ok(callee) => PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments },
+            Ok(callee) => {
+                PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted { callee, arguments }
+            }
             Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
         }
     } else {

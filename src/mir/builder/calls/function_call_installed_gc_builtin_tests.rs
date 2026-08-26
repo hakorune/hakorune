@@ -20,7 +20,7 @@ fn installed_gc_names_are_targeted_before_arguments() {
         assert!(matches!(
             prepared.route,
             PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+                completion: PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted {
                     callee: Callee::Global(ref symbol),
                     arguments,
                 }

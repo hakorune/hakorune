@@ -181,3 +181,9 @@ id = "mir-call-d1b-index-none-direct-calls"
 label = "MIR Call D1B index-none direct-call fail-fast guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_d1b_index_none_direct_calls_guard.sh"]
+
+[[rows]]
+id = "mir-call-d1b-targeted-variant-split"
+label = "MIR Call D1B Cataloged/GC Targeted variant split guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_call_d1b_exact_target_child_guard.sh"]

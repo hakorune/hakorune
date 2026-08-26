@@ -85,6 +85,21 @@ impl PreparedRawFromCallV1 {
     }
 }
 
+fn lower_prepared_targeted_call_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    callee: Callee,
+    arguments: Vec<ASTNode>,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
+{
+    let arg_values = drive_call_arguments_v1(builder, port, arguments.as_slice())?;
+    port.with_function_headers(|_lookup| {
+        builder.emit_prepared_cataloged_call_v1(callee, arg_values)
+    })
+}
+
 impl MirBuilder {
     /// Complete the ordinary direct-call route after pre-effect selection.
     pub(super) fn lower_prepared_raw_ordinary_function_completion_with_port_v1<Port>(
@@ -101,11 +116,11 @@ impl MirBuilder {
                 let value = drive_legacy_expression_v1(self, port, argument)?;
                 self.build_str_normalization(value)
             }
-            PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments } => {
-                let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
-                port.with_function_headers(|_lookup| {
-                    self.emit_prepared_cataloged_call_v1(callee, arg_values)
-                })
+            PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } => {
+                lower_prepared_targeted_call_v1(self, port, callee, arguments)
+            }
+            PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted { callee, arguments } => {
+                lower_prepared_targeted_call_v1(self, port, callee, arguments)
             }
             PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
             PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments } => {

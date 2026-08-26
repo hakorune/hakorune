@@ -496,7 +496,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         current_owner.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
                 callee: crate::mir::Callee::Global(ref symbol),
                 ..
             }
@@ -514,7 +514,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         builtin.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
                 callee: crate::mir::Callee::Global(ref symbol),
                 ..
             }
@@ -537,7 +537,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         local_extern.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
                 callee: crate::mir::Callee::Value(value),
                 ..
             }
@@ -555,7 +555,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         unique_other.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
                 callee: crate::mir::Callee::Global(ref symbol),
                 ..
             }
