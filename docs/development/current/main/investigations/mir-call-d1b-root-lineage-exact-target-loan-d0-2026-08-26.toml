@@ -1,14 +1,14 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
-status = "accepted_design_fast_boxshape"
-observed_commit = "4061c21f45"
+status = "accepted_design_no_safe_slice"
+observed_commit = "4532628115"
 observed_at = "2026-08-26"
-implementation_permission = true
-permission_scope = "Fast only: MIR-CALL-D1B-D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT may split the shared Targeted shape into CatalogedTargeted and BoundedGcTargeted, update its named producers/consumer/tests/guard, and make no semantic, lineage, package, loan, resolver, or backend change."
+implementation_permission = false
+permission_scope = "No implementation permission: D0-SIG-CLOSE-DE-S0 Targeted variant split is landed. The next affine-loan cell remains blocked until the package bridge, scoped loan lifetime, Cataloged old-payload seam, and guard evidence are implemented and audited."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT"
-completed_execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-S0-SHELF-SPLIT"
-next_execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+completed_execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT"
+next_execution_row = "none"
 
 [boundary]
 starts = "RawInvocationRootLineageV1::{ScriptRoot, Main, Cataloged, TopLevel, InstanceConstructor, NestedBoxMethod} plus Unlocated/Relationless compatibility at brand_call_authority_v1"
@@ -35,7 +35,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "Fast BoxShape S0: split the shared PreparedRawOrdinaryFunctionCompletionV1::Targeted shape into CatalogedTargeted and BoundedGcTargeted, update only the two named producers, the single consumer, focused tests, and the branch-aware guard. No semantic code, package bridge, lineage transport, or affine loan is allowed in this row."
+smallest_next_slice = "Design-only I0-CATALOGED-AFFINE-LOAN-D0: freeze the package one-shot bridge, scoped raw-port loan lifetime, Cataloged/GC old-payload seam, and reusable guard before any RawDirectCallDispositionLoanV1 code. The Targeted BoxShape split is landed; no affine-loan code yet."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -302,11 +302,11 @@ consumer = "BuilderInstallConsumerV1 is pub(in crate::mir) by type name, constru
 bundle = "BuilderPrivateInstalledCallableBundleV1 is pub(in crate::mir) by type name, with Builder-private fields/constructor, #[must_use], no Clone/Copy/into_parts/package-only getter; begin_lowering and complete are pub(in crate::mir::builder) and enforce the single mutable loan lifetime."
 token = "BuilderInstallTokenV1 is pub(in crate::mir) only as a capability type named by the bridge; construction and fields remain install.rs-private, with no Clone/Copy and one consumption by seal."
 loan = "RawDirectCallDispositionLoanV1 remains Builder-private and is held by the consumer/bundle; it never appears in the package bridge signature, package fields, or a neutral crate."
-next_row = "D0-SIG-CLOSE-F and S0-SHELF-SPLIT are closed. The next bounded design row is I0-CATALOGED-AFFINE-LOAN-D0: enumerate all six root-lineage old edges and wildcard collapses, then freeze the Cataloged old-payload delete/retain matrix before any RawDirectCallDispositionLoanV1 code."
+next_row = "D0-SIG-CLOSE-F, S0-SHELF-SPLIT, and D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT are closed. The next bounded design row is I0-CATALOGED-AFFINE-LOAN-D0: implement only after the package bridge, scoped loan lifetime, Cataloged old-payload seam, and reusable guard are ready."
 
 [d0_sig_close_de]
-status = "accepted_design_fast_boxshape"
-observed_commit = "a06a58c171"
+status = "landed"
+observed_commit = "4532628115"
 decision = "Split the currently shared ordinary completion shape before any affine-loan code: CatalogedTargeted owns the five same-brand catalog precedence outcomes, while BoundedGcTargeted owns only the two landed non-unified GC names. The split is a BoxShape seam, not a new target authority."
 boundary = "function_call_preflight_route.rs completion enum and its two producer arms -> calls/build.rs one consumer -> existing focused tests and the exact-target guard; excludes package install, RawInvocationChildPortV1, lineage mapping, Resolved retirement, Callee movement, and backend behavior."
 old_edge_delete_set = [
@@ -331,6 +331,29 @@ acceptance = [
   "source files touched by the row remain below 760 lines and the hard stop is not approached",
 ]
 non_claims = "This row does not make Cataloged affine, does not remove the old direct Callee payload, does not eliminate wildcard lineage collapse, and does not authorize mandatory-Callee cutover."
+next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+
+[d0_sig_close_de_implementation]
+status = "landed"
+commit = "4532628115"
+scope = "Behavior-neutral BoxShape split only: the shared ordinary completion variant was replaced by CatalogedTargeted and BoundedGcTargeted; producers, the common emitter helper, focused tests, and the branch-aware guard were updated."
+delete_set = [
+  "PreparedRawOrdinaryFunctionCompletionV1::Targeted generic variant",
+  "generic Targeted assertions in the exact-target guard",
+]
+retain_set = [
+  "Cataloged five-level precedence and existing Callee issuance",
+  "non-unified gc_collect/gc_stats pre-effect route as BoundedGcTargeted",
+  "argument order, dst, effects, resolver timing, and MirInstruction::call behavior",
+  "Resolved and late-recovery compatibility as explicit later blockers",
+]
+evidence = [
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick function_call_preflight_route --no-fail-fast: 12 passed",
+  "bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split: ok rows=1",
+  "cargo fmt --all -- --check and git diff --check: ok",
+  "source budgets: build.rs=588, function_call_preflight_route.rs=561, function_call_preflight_route_tests.rs=739",
+]
+non_claims = "No affine loan, package bridge, lineage transport, Resolved retirement, Method(None) change, mandatory-Callee cutover, or backend change."
 next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [s0_implementation]
