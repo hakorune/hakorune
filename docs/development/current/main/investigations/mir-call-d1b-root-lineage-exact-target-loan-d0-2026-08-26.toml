@@ -29,14 +29,14 @@ excludes = [
 ]
 
 [brief]
-decision = "Preserve each live root lineage once, then let one named pre-adapter issuer co-seal an exact static relation and issue one Callee before lending it. TopLevel and InstanceConstructor source keys remain provenance; they never become Global/Value targets by formatting. A missing, duplicate, foreign, or constructor-only relation terminates before argument effects as TypedReject or an explicitly owned ParkedCompatibility state."
+decision = "Preserve each live root lineage once, then let one named pre-adapter issuer co-seal an exact static relation and issue one Callee before lending it. The Global representation prerequisite is currently C-parked: TopLevel and InstanceConstructor source keys remain provenance; they never become Global/Value targets by formatting. A missing, duplicate, foreign, or constructor-only relation terminates before argument effects as TypedReject or an explicitly owned ParkedCompatibility state."
 source_authority = "current_source_context_v1.root plus a same-session exact source relation and the named issuer capable of issuing its Callee. Today only the landed GC builtin rows have a final pre-effect relation; same-brand Cataloged declaration rows are a candidate relation, not yet a call-site issuer. VerifiedCallableIndexV1/ResolvedDirectCallTargetV1 belong to the separate exact-i64 cohort and cannot be lent sideways to general SelectedNormal or InstanceConstructor. General rows first require observation, owner/site/session/brand co-seal and one canonical issuance; otherwise they reject or park before effects. The meaning of Callee::Global(String) is itself unresolved: a logical-name issuer or typed Global target Decision must precede the Cataloged issuer."
 canonical_issuer = "No final non-empty Cataloged issuer exists at the observed HEAD. prepare_cataloged_target_v1 -> CalleeResolverBox is a RetainGuarded transitional per-call reclassifier: it lacks SourceExprSiteV1, catalog brand, and resolver/session witnesses and reads raw variable_map state. A future pre-adapter root owner becomes the canonical issuer only after the Global target representation is accepted, then same-traversal source observation and session/brand co-seal; it must validate the exact static relation with RawInvocationRootLineageV1::Cataloged(caller)/SourceExprSiteV1 and issue one Callee before the affine loan. CallTarget, CanonicalSameModuleCallableKeyV1, name/arity, mir_symbol_projection, and raw-side resolver retry are forbidden loan payloads and are not issuers by themselves."
 non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "D0-SIG-GLOBAL-TARGET-REPRESENTATION-D0: decide whether logical Global naming is an explicit sole issuer, Global becomes a typed target, or Cataloged remains TargetPayloadMissing; keep implementation_permission=false and forbid key/name/arity/symbol projection, hidden registry, and second resolver before Ic/J/K or loan code."
+smallest_next_slice = "C park is accepted by D0-SIG-GLOBAL-TARGET-REPRESENTATION-D0. Reopen only through a separately accepted A sole logical-name issuer or B typed Global identity; keep implementation_permission=false and forbid key/name/arity/symbol projection, hidden registry, and second resolver before Ic/J/K or loan code."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -1117,7 +1117,9 @@ status = "design_stop_no_safe_slice"
 task_id = "MIR-CALL-GLOBAL-TARGET-REPRESENTATION-D0"
 observed_commit = "387e533cde"
 review_source = "Three follow-up read-only design/adversarial/shape reviews of the Cataloged source-owner gap; no code, fixture, Cargo, wire, or schema change."
-verdict = "The current source-authority contract is internally incomplete: Callee::Global(String) needs a named logical-target issuer, a typed target representation, or an explicit missing-payload terminal before Cataloged can issue a Callee without reconstructing a name."
+selected_option = "C: explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park; do not add a Cataloged issuer or loan while the Global representation is unresolved."
+decision_owner = "MIR-CALL-D1B active card; this is a design-only park, not an implementation permission."
+verdict = "C is accepted for the current lane: the source-authority contract is incomplete, so Cataloged has no qualified Global payload and must terminate at an explicit missing-payload state before argument effects. A logical-name issuer or typed target remains a future separately accepted Decision."
 observed_contradiction = "Existing source products stop at key/name/arity or MethodCall-only facts; formatting those facts, hiding a registry, or transporting a prebuilt MIR String would create a second or hidden target authority. An opaque token does not solve this unless its sole issuer and String/materialization boundary are explicitly owned."
 options = [
   "Conditional A: keep Callee::Global(String) and add one named CanonicalLogicalGlobalName issuer with source-level grammar, collision, alias, namespace, and arity policy; the issuer alone may produce the final logical name and all old projections become non-authority.",
@@ -1144,16 +1146,16 @@ finite_states = [
   "TypedRejectBeforeArguments",
 ]
 acceptance = [
-  "Exactly one owner defines whether Global text is a logical MIR target or a typed target identity; backend/JSON/optimizer do not reinterpret it.",
-  "The chosen owner has explicit namespace, alias, arity, collision, and source relation rules and can issue the target before argument effects without key/name/symbol reformatting elsewhere.",
-  "If typed Global is chosen, its schema/lifetime/registry is a separate atomic Decision with no accidental Callee/String bridge in D1B; if no choice is accepted, the missing-payload terminal remains explicit.",
+  "C park has exactly zero accepted Global representation issuers in this lane; backend/JSON/optimizer do not reinterpret the parked state.",
+  "Cataloged missing payload reaches QualifiedStaticPayloadAbsent/TargetPayloadMissing or TypedRejectBeforeArguments before ValueId, argument, EffectMask, block, package, or Call effects.",
+  "Reopening requires a separate accepted A/B Decision with one owner, explicit namespace/alias/arity/collision/source rules, and no key/name/symbol synthesis or hidden registry.",
 ]
 no_safe_slice = [
   "Global(String) semantics remain unnamed or the only route is a formatter, hidden registry, or source-side physical String.",
   "The proposed target token cannot reach the canonical Call without a second issuer, detached getter, or consumer reclassification.",
   "D1B would add a loan/issuer while this representation decision is unresolved."
 ]
-next_task = "D0-SIG-GLOBAL-TARGET-REPRESENTATION-D0: choose Conditional A, Separate B, or explicit C park; do not open Cataloged bearer/loan implementation until the target representation owner is accepted."
+next_task = "Keep C park. Reopen only with a separately accepted A or B Global representation Decision; until then do not open Cataloged bearer/loan, source bridge, resolver, or Call schema implementation."
 
 [cataloged_i0_arbitration]
 status = "accepted_design_no_safe_slice"
@@ -1170,7 +1172,7 @@ task_sequence = [
   "D0-SIG-G: same-traversal direct-call observation; keep SelectedCallableV1's semantic gate closed, place an external sink before its deferred-error drop, move FunctionCall SourceExprSiteV1/name/arity/source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference",
   "D0-SIG-H: resolver-session/catalog co-seal; issue the private non-ambient FunctionSemanticResolverSessionWitnessV1 once, retain it opaquely through package/install, prove identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent",
   "D0-SIG-I: canonical-issuer target-relation census; prove whether an existing source-owned relation carries an authoritative Callee target, and if not, design the single private source-authority co-seal without key/name/arity/symbol projection",
-  "D0-SIG-GLOBAL-TARGET-REPRESENTATION-D0: decide the sole logical Global-name issuer or a typed Global target identity; if neither is accepted, retain QualifiedStaticPayloadAbsent/TargetPayloadMissing. No Cataloged loan or issuer may bypass this representation boundary",
+  "D0-SIG-GLOBAL-TARGET-REPRESENTATION-D0: C park accepted for this lane as QualifiedStaticPayloadAbsent/TargetPayloadMissing; reopen only through a separately accepted A sole logical-name issuer or B typed Global target identity. No Cataloged loan or issuer may bypass this representation boundary",
   "D0-SIG-Ia: select the source relation issuer and exact target payload, or retain NoSafeSlice with a typed missing-payload terminal; only then promote direct_call_handoff.rs from placement candidate to pre-adapter co-seal owner",
   "D0-SIG-Ib: freeze the static-only private move-only target bearer and its consuming issue_callee boundary, or retain TargetPayloadMissing; general catalog Callee storage, key projection, MethodCall/exact-i64 borrowing, and source-layer MIR leakage are forbidden",
   "D0-SIG-Ic: bounded source-bridge census and task set (Ic-A..F): name the source-authority owner or retain QualifiedStaticPayloadAbsent, freeze the one-way bridge, fresh per-site bearer, consuming issue_callee, rejection matrix, and scoped guard/delete set; keep TargetPayloadMissing/NoSafeSlice until this boundary is explicit",
@@ -1178,7 +1180,7 @@ task_sequence = [
   "D0-SIG-K: guard/residual proof; define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, scoped positive/negative/parity checks, and concrete transitional-name bans in the Cataloged guard",
   "I0: replace CatalogedTargeted { callee, arguments } with the root loan take, lower arguments once, publish one canonical Call, and finish residual-zero",
 ]
-permission_gate = "implementation_permission remains false until the Global target representation Decision and D0-SIG-G-Ic-K have named owners, source observation, exact issuer/signatures, session/brand/lineage/site co-seal, per-call-site move-only bearer, one-way source bridge (or typed missing-payload terminal), failure/rollback behavior, structured forwarding evidence, and a non-empty same-session issuer. BridgeReadyPackageOnly stays package-only and must not carry an empty or default loan."
+permission_gate = "implementation_permission remains false under the accepted C park. It may reopen only after a separate A/B Global representation Decision and D0-SIG-G-Ic-K name owners, source observation, exact issuer/signatures, session/brand/lineage/site co-seal, per-call-site move-only bearer, one-way source bridge (or typed missing-payload terminal), failure/rollback behavior, structured forwarding evidence, and a non-empty same-session issuer. BridgeReadyPackageOnly stays package-only and must not carry an empty or default loan."
 guard_scope = "The future cataloged_i0 phase checks issuer=1, root loan non-empty, take_once=1, argument descent after take=1, canonical Call=1, residual=0, CatalogedTargeted=0, Cataloged->Resolved/recovery/name-Const re-entry=0, and package bridge loan contamination=0. It also rejects resolve_catalog_call_target_v1, prepare_cataloged_target_v1, CalleeResolverBox, CallTarget::Value, BareStaticRecoveryDecisionV1, and exact-target child assumptions inside the Cataloged window. It does not require unrelated compatibility Resolved symbols to be globally absent."
 no_safe_slice = [
   "the only issuer is a raw per-call factory or the package/adapter instance rather than the pre-adapter root owner",

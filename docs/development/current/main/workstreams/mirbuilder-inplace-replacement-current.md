@@ -31,9 +31,9 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 ```text
   current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
-  implementation    = G/H/I reviews found no Cataloged Callee relation and no accepted logical Global target representation; the Global-target Decision precedes Ic-A..F. BridgeReady is package-only; ordinary observation/inventory/affine loan has no implementation permission
+  implementation    = G/H/I reviews found no Cataloged Callee relation and no accepted logical Global target representation; C is now the explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park. Only a separately accepted A/B Global Decision may reopen Ic-A..F. BridgeReady is package-only; ordinary observation/inventory/affine loan has no implementation permission
   mode              = design_stop
-  production stop   = preserve finite entrance classification; resolve the Callee::Global(String) representation first, then name the one-way source bridge and fresh per-site bearer. No payload bypass, source/bridge String synthesis, hidden registry, key/name/arity/symbol projection, shared bearer, profile widening, caller=None collapse, cross-cohort index, or second resolver
+  production stop   = preserve finite entrance classification; keep C parked until a separately accepted A/B Callee::Global representation exists, then name the one-way source bridge and fresh per-site bearer. No payload bypass, source/bridge String synthesis, hidden registry, key/name/arity/symbol projection, shared bearer, profile widening, caller=None collapse, cross-cohort index, or second resolver
   exit              = package prepare/install rejects incomplete inventory; owner/site/lineage and target precedence are finite; transient rows consume/drop; zero Resolved/recovery/name-Const/legacy-Call fallthrough
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
@@ -44,7 +44,7 @@ Ib/Ic must choose a source-owned static-only move-only target bearer, fresh per 
 GC stays separate and other precedence arms await their issuer. The consumer emits MirInstruction::call without retry.
 Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
 Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: MIR-CALL-GLOBAL-TARGET-REPRESENTATION-D0: choose the sole logical Global-name issuer, a typed Global target identity, or an explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park. Only after that decision may Ic-A..F name the source-authority owner/one-way bridge and exact static-only move-only payload; do not open J/K or loan code. S0 shelf split landed at 4061c21f45.
+Smallest next slice: C park is accepted in MIR-CALL-GLOBAL-TARGET-REPRESENTATION-D0. Reopen only through a separately accepted A sole logical-name issuer or B typed Global identity; only then may Ic-A..F name the source-authority owner/one-way bridge and exact static-only move-only payload. Do not open J/K or loan code. S0 shelf split landed at 4061c21f45.
 Non-claims: observation gate implementation, unresolved Global target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
