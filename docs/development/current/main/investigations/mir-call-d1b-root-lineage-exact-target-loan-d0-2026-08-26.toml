@@ -397,9 +397,10 @@ source_budget = "Do not append bridge/lifetime code to recursive_child_lowering.
 next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [d0_sig_close_f_readiness_audit_2026_08_26]
-repository_head = "1d133eccf0"
+repository_head = "7cd4917578"
+audit_input_head = "890737c6be"
 code_shelf_commit = "9813d8797c"
-review_source = "three independent read-only follow-up audits (design, adversary, tests) after the recursive facade shelf; no code, fixture, Cargo, profile-gate, or backend change"
+review_source = "three independent read-only follow-up audits (design, adversary, tests) after the recursive facade shelf, integrated in two docs-only commits; no code, fixture, Cargo, profile-gate, or backend change"
 verdict = "NoSafeSlice remains. The shelf is clean, but the package-only production escape and raw loan seam are not closed, and the source handoff currently creates a real package/AST borrow conflict. Keep implementation_permission=false."
 caller_boundary = "The complete production chain is normal_default_root_catalog_lifecycle.rs:429-440 prepare_install().commit(), :507-525 with_bound_source, :572-577 source_ast(), normal_default_root_catalog_post_install.rs:29-46 relay, and program_root_lowering.rs:86-88/:245-266 Installed(&Installed...) plus begin_lowering(&self). Tests/reference fixtures are migration inventory, not production authority."
 source_handoff_decision = "Choose one Builder-private HRTB lowering scope: it invokes the existing source loan, constructs the adapter, binds source, lowers, and completes before the callback returns. Do not bind across package consumption, keep an AST/reference in the sealed bundle, add an Installed::source_ast getter, clone the AST, or let package and source borrows overlap."
@@ -420,12 +421,14 @@ opening_conditions = [
   "all touched/new sources remain below 760 lines; raw_invocation_source_transport.rs=778 remains untouched or is split behavior-neutrally first",
 ]
 task_queue = [
-  "D0-SIG-CLOSE-A: install.rs owns the C' one-shot bridge; select the Builder-private HRTB lowering scope and remove the package-only source handoff shape from the production caller contract",
+  "D0-SIG-CLOSE-A: install.rs owns the C' one-shot bridge; the Builder-private HRTB lowering scope is selected and must remove the package-only source handoff shape from the production caller contract",
   "D0-SIG-CLOSE-B: close prepare_install/commit/with_bound_source/source_ast/begin_lowering/post-install relay census; no bare Installed package or package-only getter may remain in production",
-  "D0-SIG-CLOSE-C: freeze RawDirectCallDispositionPortV1, the third loan lifetime, structured-child forwarding, legacy typed reject, and failure/rollback completion semantics",
+  "D0-SIG-CLOSE-C: freeze RawDirectCallDispositionPortV1, the explicit third loan lifetime, structured-child forwarding, legacy typed reject, and failure/rollback completion semantics",
   "D0-SIG-CLOSE-D: name issuer.rs direct-call scratch/co-seal ownership, install.rs completeness abort, and the exact Cataloged old-payload replacement edge",
   "D0-SIG-CLOSE-E: register mir-call-d1b-cataloged-affine-loan-lifecycle with readiness and Cataloged-I0 phases plus focused positive/negative/parity proofs",
 ]
+design_closure = "A/B: accepted with HRTB source scope and full caller delete set; C: accepted with third-lifetime/dedicated-capability amendment; D/E: accepted owner and guard shape. Implementation permission remains false until the guard is registered and the production bridge seam is mechanically closed."
+guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Readiness phase checks package-only escape, visibility, HRTB borrow closure, one root loan capability, and no empty/default inventory; Cataloged-I0 phase adds old Targeted payload zero, exact-site take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0. Unknown phase fails closed."
 non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
 next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 
