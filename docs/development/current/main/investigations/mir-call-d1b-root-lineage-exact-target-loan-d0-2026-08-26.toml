@@ -216,7 +216,7 @@ design = [
 negative = [
   "no code, fixture, new receipt, target inference, collector-authority change, or backend behavior change",
 ]
-implementation_gate = "false; S0 shelf split is landed with ordinary module wiring, unchanged API/behavior/callers, install.rs=503 and lowering_port.rs=253, fmt/check, quick compile, and focused test 1/1. Before Cataloged I0, the six-lineage old-edge matrix, `_ => None` replacement policy, exact delete/retain set, and focused guard owner must be accepted. RawDirectCallDispositionLoanV1, sealed bundle, bridge, old Targeted payload deletion, semantic observation, and all target/recovery changes remain forbidden."
+implementation_gate = "false; S0 shelf split is landed with ordinary module wiring, unchanged API/behavior/callers, install.rs=499 and lowering_port.rs=253, fmt/check, quick compile, and focused test 1/1. Before Cataloged I0, the six-lineage old-edge matrix, `_ => None` replacement policy, exact delete/retain set, and focused guard owner must be accepted. RawDirectCallDispositionLoanV1, sealed bundle, bridge, old Targeted payload deletion, semantic observation, and all target/recovery changes remain forbidden."
 guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; source-backed ordinary non-GC caller=None and unapproved Resolved fallthrough must be zero, while the two explicitly named non-unified GC BoundedGcPreEffectTargeted rows remain retained evidence outside the affine loan"
 
 [old_edge_delete_set]
@@ -238,8 +238,8 @@ unified_recovery_and_legacy_emit = "Track calls/build.rs, static_resolution.rs, 
 typed_owner_retains = "Retain Script direct-static, Main exact-i64/FullFunction, GC, Brand/special/ExplicitExtern/ASTNode::Call, and raw compatibility owners as separate cohorts; they do not authorize ordinary Cataloged loan widening."
 
 [source_budget]
-observed_lines = "function_call_brand_source_demand.rs=124, function_call_preflight_route.rs=553, calls/build.rs=573, normal_callable_semantic_source.rs=694, raw_expression_dispatch/mod.rs=706, normal_callable_semantic_loan_port.rs=710, recursive_child_lowering.rs=731, raw_invocation_source_transport.rs=778, normal package issuer.rs=356, install.rs=738"
-placement = "S0 landed: install.rs=503 and install/lowering_port.rs=253 after the behavior-neutral port move. Future semantic scratch belongs in a small sibling under normal_callable_semantic_package, raw affine loan in a small builder/calls sibling, mapper in the owner-specific loan-port sibling, and recursive reborrow in a child-lowering sibling. Do not add semantic code to the 778-line transport, 706-line dispatcher, 710-line loan port, 731-line recursive child, or the split install owner; no new #[path] bridge. If the 778-line transport must change, first perform a behavior-neutral path-preserving split. Every touched/new source remains below 760, with 800 as hard stop and no compression escape."
+observed_lines = "function_call_brand_source_demand.rs=124, function_call_preflight_route.rs=553, calls/build.rs=573, normal_callable_semantic_source.rs=694, raw_expression_dispatch/mod.rs=706, normal_callable_semantic_loan_port.rs=710, recursive_child_lowering.rs=590, raw_invocation_source_transport.rs=778, normal package issuer.rs=356, install.rs=499"
+placement = "S0 landed: install.rs=499 and install/lowering_port.rs=253 after the behavior-neutral port move. Future semantic scratch belongs in a small sibling under normal_callable_semantic_package, raw affine loan in a small builder/calls sibling, mapper in the owner-specific loan-port sibling, and recursive reborrow in a child-lowering sibling. Do not add semantic code to the 778-line transport, 706-line dispatcher, 710-line loan port, or the split install owner; no new #[path] bridge. If the 778-line transport must change, first perform a behavior-neutral path-preserving split. Every touched/new source remains below 760, with 800 as hard stop and no compression escape."
 
 [proof_plan]
 positive = "first implementation cell only: Cataloged existing target -> affine loan exact site/owner/session/brand -> take_once -> arguments once -> canonical Call once; landed GC remains BoundedGcPreEffectTargeted parity outside this loan"
@@ -359,7 +359,7 @@ next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN
 
 [d0_sig_close_f_readiness]
 status = "design_stop"
-observed_commit = "b0a5187363"
+observed_commit = "9813d8797c"
 verdict = "NoSafeSlice: D0-SIG-CLOSE-F is the next design row, but current production callers still bypass the sealed package-to-Builder bridge. Do not create an empty loan or default Callee to make the bridge compile."
 boundary = "normal_callable_semantic_package/install.rs prepare_install/commit -> normal_default_root_catalog_lifecycle.rs production install and source handoff -> program_root_lowering.rs begin_lowering/adapter construction; test/reference callers are included for migration inventory but are not production authority."
 production_callers = [
@@ -367,12 +367,15 @@ production_callers = [
   "normal_default_root_catalog_lifecycle.rs:507-525 passes the installed package through with_bound_source",
   "normal_default_root_catalog_lifecycle.rs:572-577 reads installed package source_ast()",
   "program_root_lowering.rs:86-88 and :245-266 accept Installed package by shared reference and call begin_lowering(&self)",
+  "normal_default_root_catalog_post_install.rs:29-46 relays the installed mode into the shared post-install lowering path",
 ]
 decisions = [
   "install.rs remains sole owner of semantic prepare/commit and the one-shot bridge",
   "the bridge consumes an opaque BuilderInstallConsumerV1 and returns only BuilderPrivateInstalledCallableBundleV1; bare InstalledNormalCallableSemanticPackageV1 never escapes production",
   "the pre-adapter mapper remains a private sibling and may only move an already-issued Callee; it cannot scan AST, synthesize name/arity/symbol, or rerun CalleeResolverBox",
   "RawDirectCallDispositionLoanV1 stays Builder-owned and is not introduced until the package bridge and raw-port lifetime seam are ready",
+  "source handoff is a scoped callback loan: with_bound_source must be consumed inside the same one-shot bridge/lowering scope, or source binding must occur before package consumption; Installed packages expose no source_ast getter and no AST/reference is stored in the sealed bundle",
+  "RawInvocationChildPortV1 is the root loan owner; RawStructuredChildScopePortV1 and RawExpressionDispatchPortV1 must forward an explicit scoped capability, never an Option fallback or child ledger",
 ]
 old_edge_delete_set = [
   "production prepare_install().commit() path at normal_default_root_catalog_lifecycle.rs:429-440",
@@ -385,11 +388,39 @@ acceptance = [
   "consumer/token/bundle are private, non-Clone/non-Copy, non-destructurable, and the token is single-use",
   "the bridge rejects incomplete/foreign/duplicate direct-call inventory before body or argument effects",
   "the future raw loan has one root owner and a short &mut recursive reborrow; no clone, Rc, Arc, RefCell, or child ledger",
+  "the installed source handoff and post-install relay are covered without overlapping an AST borrow with package consumption; no package-only source getter remains",
+  "the package issuer/coseal has a named direct-call inventory owner and proves completeness before install; an empty/default inventory is not accepted",
   "Cataloged/GC variant parity remains unchanged and the Cataloged direct payload seam is still a separate follow-up",
 ]
 guard_owner = "A new mir-call-d1b-cataloged-affine-loan guard will own package-only escape, callback/bundle visibility, raw-loan lifetime, Cataloged direct-handoff zero, take_once, and residual-zero checks; it must be registered before implementation permission opens."
-source_budget = "Do not append bridge/lifetime code to recursive_child_lowering.rs=731, function_call_preflight_route_tests.rs=739, or raw_invocation_source_transport.rs=778. Use owner-specific siblings and preserve the existing ordinary module topology."
+source_budget = "Do not append bridge/lifetime code to recursive_child_lowering.rs=590, function_call_preflight_route_tests.rs=739, or raw_invocation_source_transport.rs=778. Use owner-specific siblings and preserve the existing ordinary module topology."
 next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+
+[d0_sig_close_f_readiness_audit_2026_08_26]
+repository_head = "1d133eccf0"
+code_shelf_commit = "9813d8797c"
+review_source = "three independent read-only follow-up audits (design, adversary, tests) after the recursive facade shelf; no code, fixture, Cargo, profile-gate, or backend change"
+verdict = "NoSafeSlice remains. The shelf is clean, but the package-only production escape and raw loan seam are not closed, and the source handoff currently creates a real package/AST borrow conflict. Keep implementation_permission=false."
+caller_boundary = "The complete production chain is normal_default_root_catalog_lifecycle.rs:429-440 prepare_install().commit(), :507-525 with_bound_source, :572-577 source_ast(), normal_default_root_catalog_post_install.rs:29-46 relay, and program_root_lowering.rs:86-88/:245-266 Installed(&Installed...) plus begin_lowering(&self). Tests/reference fixtures are migration inventory, not production authority."
+source_handoff_decision = "Use one scoped HRTB/source-loan callback inside the one-shot bridge/lowering boundary, or bind the source before consuming the package. Do not keep an AST/reference in the sealed bundle, add an Installed::source_ast getter, clone the AST, or let package and source borrows overlap."
+raw_capability_decision = "RawInvocationChildPortV1 receives the single root-owned Option<&mut RawDirectCallDispositionLoanV1>; reborrow() lends a shorter borrow. RawStructuredChildScopePortV1 and RawExpressionDispatchPortV1 must forward this typed capability explicitly, without fallback, Rc/Arc/RefCell, copied ledgers, or per-child state."
+mapper_decision = "The pre-adapter direct-call mapper remains an owner-specific sibling and runs before NormalCallableSemanticPackagePortAdapterV1::new. It validates an existing source/owner/site/session/brand mapping and moves an already-issued Callee; it never rebuilds lineage, name, arity, symbol, or target."
+inventory_gap = "normal_callable_semantic_package/issuer.rs:134-161 and install.rs:269-331 currently have no direct-call inventory product or completeness check. The bridge cannot open until an issuer/coseal owner and pre-install abort for incomplete/foreign/duplicate/mixed-brand rows are named."
+missing_proofs = [
+  "package-only prepare_install/commit and begin_lowering callers are all behind the bridge; bare package escape is impossible",
+  "private non-destructurable bundle/token has single-use proof with no package-only getter or into_parts",
+  "source handoff compiles without overlapping package and AST borrows",
+  "raw structured-child forwarding and recursive reborrow carry one loan, then Cataloged take_once and residual-zero are testable",
+  "Cataloged direct Targeted { callee, arguments } payload replacement has an exact delete set and registered guard",
+]
+opening_conditions = [
+  "D0-SIG-CLOSE-A/B: choose the source handoff shape and close the full direct/indirect production caller census",
+  "D0-SIG-CLOSE-C: freeze the RawInvocationChildPortV1/RawStructuredChildScopePortV1 lifetime and capability forwarding seam",
+  "D0-SIG-CLOSE-D/E: name the package direct-call inventory co-seal owner and register the single reusable guard with positive/negative/parity rows",
+  "all touched/new sources remain below 760 lines; raw_invocation_source_transport.rs=778 remains untouched or is split behavior-neutrally first",
+]
+non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
+next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 
 [recursive_compat_facade_shelf_s0]
 status = "landed"
