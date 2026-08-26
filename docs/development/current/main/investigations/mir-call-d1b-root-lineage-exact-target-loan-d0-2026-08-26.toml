@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE: classify the finite force-hv1 callers and choose one startup-bypass fate; CoreDirect R0 is landed, while force-hv1 ProductAot successors remain design-only."
+smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE: classify the finite force-hv1 callers and choose one startup-bypass fate; CoreDirect R0 is landed, while force-hv1 ProductAot successors remain design-only and have no exact existing AOT proof."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
@@ -343,11 +343,11 @@ manifest_path = "docs/development/current/main/investigations/force-hv1-caller-d
 guard_path = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
 boundary = "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector through verify_v1_inline_file, verify_mir_rc, phase2170 wrapper-only callers, and the startup terminal; adjacent HAKO_VERIFY_PRIMARY/HAKO_ROUTE_HAKOVM, Wpre, and broad VM internals remain separate."
 source_authority = "The single production selector reader plus named checked-in caller bodies; raw 1* payload shape, script names, and numeric rc are non-authority."
-canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, or HistoricalDelete; the truthy force selector issues one grace terminal before payload parse or execution."
+canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, or HistoricalDelete; ProductAot is one combined source-issued collections family (push/Map/alias/flow/receiver/value claims); the truthy force selector issues one grace terminal before payload parse or execution."
 finite_census = "116 lexical leaves = 33 direct + 74 textual helper + 9 wrapper-only; 78 force reachers / 80 invocations; 38 non-force helper consumers remain residual."
 fates = "HistoricalDelete=69; migration_blocker=9 (8 phase2170 ProductAot rows + 1 Stage1Proof/AOT row); SemanticReference=0; residual=38 ParkedSealed."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-CALLER-DISPOSITION-D0: the corrected census, named fates, narrow helper deletion boundary, wrapper aggregate, and selector-alone matrix are sidecar-frozen; keep implementation_permission=false until the 9 successor blockers have exact evidence."
+smallest_next_slice = "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0: design one source-issued collections AOT family for Array pushx5 plus Map duplicate-key size (stdout 5\\n2\\n, empty stderr, rc=0); no exact existing successor is observed, so keep implementation_permission=false until its source/runner boundary is accepted."
 stop = "NoSafeSlice if any of the 116 leaves is unclassified, wrapper-only phase2170 or 38 residuals are omitted, force removal falls through to Core, or a successor requires standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
 
 [core_direct_tag_rc_contract]

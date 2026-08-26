@@ -49,7 +49,7 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みで、116 leafの分類はsidecar/guardで凍結済み。次は8 phase2170 ProductAot＋1 Stage1Proof/AOTの後継証拠を設計だけで閉じ、38 residualを保持したままstartup bypassとterminalを確定する。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みで、116 leafの分類はsidecar/guardで凍結済み。次は既存の完全一致AOT証拠が無い8 phase2170 ProductAotを一つのsource-issued collections familyとして設計し、S0はArray push×5＋Map duplicate-key size（stdout `5\\n2\\n`、stderr空、rc0）に限定する。38 residualは保持する。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
