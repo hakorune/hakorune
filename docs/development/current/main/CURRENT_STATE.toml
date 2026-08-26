@@ -1,9 +1,9 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
-current_design_stop = "design stop; private reference-child transport I0 is landed with its guard and monitor migration. CanonicalV1 Value S0 is the next bounded design/implementation decision; strict root, CoreDirect, force-hv1, Wpre selector, and Call schema rows remain closed."
-current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0: design accepted but implementation_permission=false — define one owned CanonicalV1 Value seam before any profile/parser change; do not reopen the private child or add a second parse."
+current_design_stop = "fast row open; CanonicalV1 Value S0 has one owned MirModule -> Value -> normalize -> subset -> projection seam. Strict root, CoreDirect, force-hv1, Wpre selector, and Call schema rows remain closed."
+current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0: implementation_permission=true only inside the active card's canonical_v1_value_s0 allowed files; no parser/profile fallback, second parse, or new semantic receipt."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "Mir Call R6 — strict ingress selection, typed Global identity, and D1B exact-target ownership"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "B0 machine census/provenance guard, outside-fate/Stage1 arbitration, reference-child transport, CanonicalV1 Value flow, force-hv1 retirement, and CoreDirect family-terminal design are recorded. Private reference transport I0 is landed with a green lifecycle guard; the next bounded row is CanonicalV1 Value S0, while Wpre and all later schema/retirement rows remain closed."
-next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
-next_execution_card = "none (design stop)"
+latest_card_summary = "B0 machine census/provenance guard, outside-fate/Stage1 arbitration, private reference transport I0, and CanonicalV1 Value design are recorded. The bounded CanonicalV1 Value S0 is now the only fast row; Wpre and all later schema/retirement rows remain closed."
+next_design_card = "none (fast row open)"
+next_execution_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-27: ingress lifecycle/B0 guard and provenance evidence landed; Wpre remains bounded and private transport I0 was selected.",
   "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
-  "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and the next row is CanonicalV1 Value S0.",
+  "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and CanonicalV1 Value S0 opened as the sole fast row.",
 ]

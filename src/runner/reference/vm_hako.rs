@@ -1,5 +1,4 @@
 use super::super::NyashRunner;
-#[cfg(test)]
 use serde_json::Value;
 #[cfg(test)]
 use std::collections::HashMap;
@@ -41,7 +40,7 @@ impl NyashRunner {
             }
         };
 
-        let mir_json = match compile_source_to_mir_json_v0(self, filename, &code) {
+        let mut canonical_value = match compile_source_to_canonical_v1(self, filename, &code) {
             Ok(json) => json,
             Err((kind, message)) => {
                 eprintln!(
@@ -52,7 +51,9 @@ impl NyashRunner {
             }
         };
 
-        if let Err((func, bb, op)) = check_vm_hako_subset_json(&mir_json) {
+        normalize_canonical_v1_value(&mut canonical_value);
+
+        if let Err((func, bb, op)) = check_vm_hako_subset_value(&canonical_value) {
             eprintln!(
                 "[vm-hako/unimplemented] phase={} route=subset-check file={} func={} bb={} op={}",
                 VM_HAKO_PHASE, filename, func, bb, op
@@ -60,11 +61,21 @@ impl NyashRunner {
             process::exit(1);
         }
 
-        let payload_json = match extract_main_payload_json(&mir_json) {
+        let payload = match project_main_payload(canonical_value) {
             Ok(v) => v,
             Err(e) => {
                 eprintln!(
                     "[vm-hako/contract-error] phase={} file={} message={}",
+                    VM_HAKO_PHASE, filename, e
+                );
+                process::exit(1);
+            }
+        };
+        let payload_json = match serde_json::to_string(&payload) {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!(
+                    "[vm-hako/contract-error] phase={} file={} message=payload-serialize:{}",
                     VM_HAKO_PHASE, filename, e
                 );
                 process::exit(1);
@@ -86,20 +97,24 @@ impl NyashRunner {
     }
 }
 
-fn compile_source_to_mir_json_v0(
+fn compile_source_to_canonical_v1(
     runner: &NyashRunner,
     filename: &str,
     code: &str,
-) -> Result<String, VmHakoErr> {
-    compile_bridge::compile_source_to_mir_json_v0(runner, filename, code)
+) -> Result<Value, VmHakoErr> {
+    compile_bridge::compile_source_to_canonical_v1(runner, filename, code)
 }
 
 fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i32, VmHakoErr> {
     driver_spawn::run_vm_hako_driver(filename, payload_json)
 }
 
-fn extract_main_payload_json(json_text: &str) -> Result<String, String> {
-    payload_normalize::extract_main_payload_json(json_text)
+fn normalize_canonical_v1_value(root: &mut Value) {
+    payload_normalize::normalize_canonical_v1_value(root)
+}
+
+fn project_main_payload(root: Value) -> Result<Value, String> {
+    payload_normalize::project_main_payload(root)
 }
 
 #[cfg(test)]
@@ -110,6 +125,26 @@ fn parse_print_arg_from_instruction(
     shape_contract::parse_print_arg_from_instruction(inst, handle_by_reg)
 }
 
+fn check_vm_hako_subset_value(root: &Value) -> Result<(), (String, u32, String)> {
+    subset_check::check_vm_hako_subset_value(root)
+}
+
+#[cfg(test)]
+fn compile_source_to_mir_json_v0(
+    runner: &NyashRunner,
+    filename: &str,
+    code: &str,
+) -> Result<String, VmHakoErr> {
+    let value = compile_source_to_canonical_v1(runner, filename, code)?;
+    serde_json::to_string(&value).map_err(|e| ("emit-error", e.to_string()))
+}
+
+#[cfg(test)]
+fn extract_main_payload_json(json_text: &str) -> Result<String, String> {
+    payload_normalize::extract_main_payload_json(json_text)
+}
+
+#[cfg(test)]
 fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, u32, String)> {
     subset_check::check_vm_hako_subset_json(json_text)
 }

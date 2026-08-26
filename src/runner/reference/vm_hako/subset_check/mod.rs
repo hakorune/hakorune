@@ -1,12 +1,13 @@
 use serde_json::Value;
 use std::collections::HashMap;
 
+#[cfg(test)]
+use super::shape_contract::normalize_aliases_in_root;
 use super::shape_contract::{
     call_callee_name, call_callee_type, canonical_barrier_kind, canonical_binop_operation,
     canonical_unop_operation, collect_function_return_models, has_id_method_arg1_model,
-    normalize_aliases_in_root, parse_print_arg_from_instruction,
-    update_handle_bindings_from_const_or_copy, validate_two_arg_call_target,
-    vm_hako_supported_compare_operation,
+    parse_print_arg_from_instruction, update_handle_bindings_from_const_or_copy,
+    validate_two_arg_call_target, vm_hako_supported_compare_operation,
 };
 
 mod boxcalls;
@@ -64,10 +65,15 @@ fn reject_restricted_boxcall_method(box_type: &str, method: &str) -> Option<Stri
     }
 }
 
+#[cfg(test)]
 pub(super) fn check_vm_hako_subset_json(json_text: &str) -> Result<(), (String, u32, String)> {
     let mut root: Value = serde_json::from_str(json_text)
         .map_err(|_| ("<json>".to_string(), 0, "InvalidJson".to_string()))?;
     normalize_aliases_in_root(&mut root);
+    check_vm_hako_subset_value(&root)
+}
+
+pub(super) fn check_vm_hako_subset_value(root: &Value) -> Result<(), (String, u32, String)> {
     let functions = root
         .get("functions")
         .and_then(|v| v.as_array())

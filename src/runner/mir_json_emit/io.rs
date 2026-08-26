@@ -22,6 +22,21 @@ pub fn emit_mir_json_string_for_harness_bin(
     serialize_mir_json_root(&root)
 }
 
+/// Emit the reference lane's canonical v1 root as one owned Value.
+///
+/// This is deliberately separate from the compatibility/harness string
+/// writers: the caller already selected the reference family, so no ambient
+/// profile selector or intermediate JSON string is allowed here.
+pub(crate) fn emit_canonical_v1_value_for_reference(
+    module: &crate::mir::MirModule,
+) -> Result<serde_json::Value, String> {
+    let refreshed = refreshed_export_module(module)?;
+    super::root::build_mir_json_root_with_profile(
+        refreshed.module(),
+        super::root::JsonEgressProfile::CanonicalV1,
+    )
+}
+
 /// Caller-zero export for a final unpublished candidate. Unlike the harness
 /// path, this does not refresh or clone the module, so affine carrier metadata
 /// and its exact CFG image remain one lineage.

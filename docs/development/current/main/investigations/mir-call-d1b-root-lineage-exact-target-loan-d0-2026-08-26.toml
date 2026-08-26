@@ -1,11 +1,11 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "reference_child_i0_landed"
+status = "canonical_v1_value_s0_fast_open"
 observed_commit = "9bff1a1ff2"
 observed_at = "2026-08-27"
 implementation_permission = false
-guard_phase = "reference_child_i0"
-ingress_schema_guard_phase = "reference_child_i0"
-permission_scope = "Only the reference-child private transport I0 is implementation-open: the listed driver, four live monitor paths, and this reusable guard may change. No parser; all Wpre selector, CanonicalV1 Value, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, CoreDirect, force-hv1, and Call schema code remains forbidden."
+guard_phase = "canonical_v1_value_s0"
+ingress_schema_guard_phase = "canonical_v1_value_s0"
+permission_scope = "Only the selected CanonicalV1 Value S0 and its already-landed private reference-child transport may change: explicit egress Value, reference normalization/subset/projection, private driver handoff, focused tests, and reusable guards. No parser, Wpre selector, typed Global, observer, loan, resolver, wire schema, ABI, EffectMask, Method, backend, CoreDirect, force-hv1, or Call schema code may change."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
@@ -470,9 +470,63 @@ script_main_nested = "Retain their existing typed special/constructor/bounded-GC
 unlocated = "Missing source site is typed reject; it is not a generic caller=None success."
 relationless = "Explicit compatibility owner only. Ordinary Resolved is an old edge to retire, not a canonical terminal."
 
+[reference_canonical_v1_value_s0]
+task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
+status = "selected_fast"
+implementation_permission = true
+boundary = "MirModule from the selected vm-hako reference compile -> explicit CanonicalV1 serde_json::Value -> one owner-private alias normalization -> one read-only subset check -> one Value projection -> private MiniVm transport"
+source_authority = "The already compiled MirModule is the sole source; mir_json_emit owns the explicit CanonicalV1 Value issuer. The child environment, profile env, and payload string are non-authority."
+canonical_issuer = "A reference-only emitter API receives the MirModule and returns one owned serde_json::Value under CanonicalV1; the vm-hako runner moves that Value through normalization, subset validation, projection, and private transport without reparsing."
+non_authority = "JsonEgressProfile::from_env, ScopedEnvVar profile selection, temporary JSON file/readback, raw String parsing, child env selectors, optional-function family guessing, and a second alias/target resolver are not authority."
+fail_fast = "Emitter/profile failure, malformed Value shape, alias conflict, subset rejection, projection rejection, missing/empty/conflicting private transport, or transport write/read failure terminates before child spawn; no v0/v1 retry or parser re-entry."
+finite_states = [
+  "CanonicalModuleReady",
+  "CanonicalValueEmitted",
+  "ValueNormalizedOnce",
+  "SubsetAccepted",
+  "SubsetRejected",
+  "MiniVmPayloadProjected",
+  "ProjectionRejected",
+  "PrivateInlineReady",
+  "PrivateFileReady",
+  "MissingOrConflictingTransportRejected",
+  "TransportFailureRejected",
+]
+allowed_files = [
+  "src/runner/mir_json_emit/root.rs",
+  "src/runner/mir_json_emit/io.rs",
+  "src/runner/reference/vm_hako.rs",
+  "src/runner/reference/vm_hako/compile_bridge.rs",
+  "src/runner/reference/vm_hako/payload_normalize.rs",
+  "src/runner/reference/vm_hako/subset_check/mod.rs",
+  "src/runner/reference/vm_hako/tests/",
+  "src/runner/reference/vm_hako/driver_spawn.rs",
+  "src/runner/reference/vm_hako/driver_main.hako",
+  "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+]
+delete_set = [
+  "vm-hako production compile_bridge -> v0 String emitter/readback",
+  "production reference path JsonEgressProfile::from_env and ScopedEnvVar profile selection",
+  "subset_check and payload_normalize raw String parse/duplicate alias normalization",
+  "second v0/v1 parse, temporary v1 file/readback, and any retry/fallback",
+]
+retain_set = [
+  "owner-private CompatibilityV0 APIs for non-selected callers",
+  "CanonicalV1 wire shape and existing subset/payload semantic rules",
+  "private inline/file one-of transport and child env scrub/pins from the landed I0",
+  "test-only String wrappers until their callers are migrated or explicitly archived",
+]
+positive = "The same owned Value reaches normalize, subset, and projection exactly once; CanonicalV1 selected output and private inline/file transport preserve existing accepted MiniVm behavior; no public selector re-enters the child."
+negative = "Malformed canonical Value, alias conflict, unsupported subset, projection failure, raw String reparse, profile env read, v0 fallback, and duplicate normalize each produce a typed terminal before spawn."
+stop = "Return to design if explicit profile issuance cannot be separated from compatibility env selection, any consumer requires raw String reparsing, the same Value cannot be moved/borrowed through all three stages, or a second semantic/codec authority is needed."
+non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
+
 [task_spine]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
-next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0; implementation_permission=false and Wpre-I0 remains closed until the ordered reference/D0 follow-up blockers are reconciled"
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
+next_prerequisite = "After CanonicalV1 Value S0 closeout, run the bounded Wpre D0 follow-ups; typed Global, CoreDirect, force-hv1, and Call schema rows remain closed."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -484,7 +538,7 @@ items = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | design-only | freeze three-way JSON CLI conflict/precedence: explicit Stage1 conflicts, multiple JSON CLIs conflict, one explicit JSON CLI beats ambient Stage1; no parser change",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design-only complete | choose private one-of payload keys, mandatory route scrub/pins, and CanonicalV1 family; no child retry implementation",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | landed | move payload off public NYASH_VERIFY_JSON, isolate route/Program-JSON/Stage1/trace env, and migrate three live monitors plus the active alias probe atomically",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | fast only after transport I0 | replace ambient v1 env/profile and second string parse with one owner-private Value seam",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | selected fast | replace ambient v1 env/profile and second string parse with one owner-private Value seam; no Wpre/schema change",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect has no-retry stderr terminal [core-direct/retired|unavailable], rc=1; old operation tags are historical",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design accepted, implementation-closed | census 33 direct + 36 hv1-capable rows across 107 files; migrate/retire/archive named callers, supersede startup guard, never reroute into standard v1",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted, implementation-closed | strict_root.rs owns recursive duplicate/trailing rejection, owned SelectedIngress, and by-value decode(selected, &NyashRunner); decoder reparses zero times",
@@ -507,8 +561,8 @@ accepted_design = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted | one owned Value, recursive duplicate/trailing reject, by-value selected decoder; implementation remains closed",
 ]
 open = [
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | landed; later rows remain closed",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | landed",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | selected fast",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | implementation-closed retirement row",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | implementation-closed retirement row",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | implementation-closed strict-root row",
@@ -516,9 +570,9 @@ open = [
 
 [ingress_schema_guard_row]
 execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
-status = "landed_guard_only"
+status = "selected_fast_guard_only"
 phase = "reference_child_i0"
-reused_phases = ["wpre_readiness", "reference_child_i0", "wpre_i0", "typed_global_b1", "r7_closeout"]
+reused_phases = ["wpre_readiness", "reference_child_i0", "canonical_v1_value_s0", "wpre_i0", "typed_global_b1", "r7_closeout"]
 future_reference_phase = "reference_child_i0 is the active bounded phase; after closeout the same guard may be reused for later Wpre/B1 phases without widening this implementation scope"
 allowed_files = [
   "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh",
@@ -532,6 +586,23 @@ change = "Reuse one reusable fail-closed guard for the active private reference-
 contract = "Only the active card's listed driver/monitor files and this guard may change. No parser, Wpre selector, fixture, codec, target, effect, backend, or Call schema change."
 done = "pilot and quick-static registry entry is unique; reference_child_i0 is green after the private transport switch; unknown phase fails closed; the row is now landed."
 stop = "Return to design if the guard cannot distinguish MIR-v0 from Program-v0 without parsing source semantics or if it requires extending the 777-line canonical corridor guard."
+
+[canonical_v1_value_guard_row]
+execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
+status = "selected_fast_guard_only"
+phase = "canonical_v1_value_s0"
+allowed_files = [
+  "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/tools/check-scripts-index.md",
+]
+change = "Reuse one reusable fail-closed guard for the selected CanonicalV1 Value S0: explicit profile issuer, one owned Value, one normalization, one subset check, one projection, and zero production raw-string reparse/profile-env selection."
+contract = "Only the canonical-v1 Value owners named by reference_canonical_v1_value_s0 and this guard may change. Private child transport remains landed; No parser, Wpre selector, typed Global, Call schema, or backend change."
+done = "The fast phase is selected with a narrow source boundary and the guard rejects stale v0 production entry, second parse, profile env selection, and duplicate normalization."
+stop = "Return to design if the Value cannot be moved through the reference egress without a second parser, compatibility profile guess, or a new semantic authority."
 
 [provenance_tombstone_row]
 task_id = "MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0"

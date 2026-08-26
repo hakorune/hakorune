@@ -14,10 +14,10 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|wpre_readiness]"
-PHASE="${1:-reference_child_i0}"
+[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|wpre_readiness]"
+PHASE="${1:-canonical_v1_value_s0}"
 case "$PHASE" in
-  wpre_readiness|reference_child_i0) ;;
+  wpre_readiness|reference_child_i0|canonical_v1_value_s0) ;;
   wpre_i0|typed_global_b1|r7_closeout)
     fail "recognized future phase is not landed: $PHASE"
     ;;
@@ -76,16 +76,17 @@ if state.get("work_mode") not in {"fast", "design_stop", "closeout"}:
     fail("ingress lifecycle row requires CURRENT_STATE work_mode=fast, design_stop, or closeout")
 if state.get("latest_card_path") != str(card_path.relative_to(root)):
     fail("CURRENT_STATE latest_card_path no longer names the active card")
-if phase == "reference_child_i0":
+if phase in {"reference_child_i0", "canonical_v1_value_s0"}:
     if state.get("work_mode") not in {"fast", "closeout", "design_stop"}:
-        fail("reference_child_i0 requires CURRENT_STATE work_mode=fast, closeout, or design_stop")
+        fail(f"{phase} requires CURRENT_STATE work_mode=fast, closeout, or design_stop")
 else:
     if state.get("implementation_permission") is True:
         fail("CURRENT_STATE must not expose semantic implementation permission during guard-only phase")
 
-guard_row = card.get("ingress_schema_guard_row")
+guard_row_key = "canonical_v1_value_guard_row" if phase == "canonical_v1_value_s0" else "ingress_schema_guard_row"
+guard_row = card.get(guard_row_key)
 if not isinstance(guard_row, dict):
-    fail("active card ingress_schema_guard_row is missing")
+    fail(f"active card {guard_row_key} is missing")
 if guard_row.get("execution_row") != execution_row:
     fail("active card guard execution row drifted")
 if guard_row.get("phase") != phase:
@@ -267,6 +268,98 @@ if phase == "reference_child_i0":
         "phase=reference_child_i0 private_transport=sealed env_scrub=pinned "
         "spawn=one public_reentry=zero"
     )
+    raise SystemExit(0)
+
+if phase == "canonical_v1_value_s0":
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("canonical_v1_value_s0 requires fast or closeout work mode")
+    if state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0":
+        fail("canonical_v1_value_s0 pointer drifted")
+    if state.get("next_execution_card") != state.get("current_execution_row"):
+        fail("canonical_v1_value_s0 next execution card drifted")
+    value_row = card.get("reference_canonical_v1_value_s0")
+    if not isinstance(value_row, dict):
+        fail("active card reference_canonical_v1_value_s0 section is missing")
+    if card.get("status") not in {"canonical_v1_value_s0_fast_open", "canonical_v1_value_s0_landed"}:
+        fail("active card is not marked CanonicalV1 Value S0 open or landed")
+    if card.get("status") == "canonical_v1_value_s0_fast_open":
+        if value_row.get("implementation_permission") is not True:
+            fail("CanonicalV1 Value S0 fast-open permission is not set")
+    else:
+        if value_row.get("implementation_permission") is not False:
+            fail("landed CanonicalV1 Value S0 must close scoped implementation permission")
+    expected_files = set(value_row.get("allowed_files") or [])
+    required_files = {
+        "src/runner/mir_json_emit/root.rs",
+        "src/runner/mir_json_emit/io.rs",
+        "src/runner/reference/vm_hako.rs",
+        "src/runner/reference/vm_hako/compile_bridge.rs",
+        "src/runner/reference/vm_hako/payload_normalize.rs",
+        "src/runner/reference/vm_hako/subset_check/mod.rs",
+        "src/runner/reference/vm_hako/driver_spawn.rs",
+        "src/runner/reference/vm_hako/driver_main.hako",
+        guard_script,
+    }
+    if not required_files.issubset(expected_files):
+        fail("CanonicalV1 Value S0 allowed file boundary is incomplete")
+
+    def read(relative: str) -> str:
+        path = root / relative
+        if not path.is_file():
+            fail(f"CanonicalV1 Value owner missing: {relative}")
+        return path.read_text(encoding="utf-8")
+
+    root_rs = read("src/runner/mir_json_emit/root.rs")
+    io_rs = read("src/runner/mir_json_emit/io.rs")
+    vm_rs = read("src/runner/reference/vm_hako.rs")
+    compile_rs = read("src/runner/reference/vm_hako/compile_bridge.rs")
+    normalize_rs = read("src/runner/reference/vm_hako/payload_normalize.rs")
+    subset_rs = read("src/runner/reference/vm_hako/subset_check/mod.rs")
+    if "build_mir_json_root_with_profile" not in root_rs:
+        fail("explicit profile root issuer is missing")
+    if "emit_canonical_v1_value_for_reference" not in io_rs:
+        fail("reference CanonicalV1 Value issuer is missing")
+    if "JsonEgressProfile::CanonicalV1" not in io_rs:
+        fail("reference issuer is not pinned to CanonicalV1")
+    vm_prod_marker = "\n#[cfg(test)]\nfn compile_source_to_mir_json_v0"
+    vm_prod = vm_rs.split(vm_prod_marker, 1)[0]
+    if vm_prod == vm_rs:
+        fail("vm-hako test-only legacy wrapper marker is missing")
+    if "compile_source_to_canonical_v1" not in compile_rs or "compile_source_to_mir_json_v0" in vm_prod:
+        fail("production vm-hako path still exposes the v0 String compile entry")
+    if "ScopedEnvVar" in compile_rs or "NYASH_MIR_UNIFIED_CALL" in compile_rs or "NYASH_JSON_SCHEMA_V1" in compile_rs:
+        fail("reference compile bridge still selects profile through ambient env")
+    if "compile_source_to_canonical_v1" not in vm_rs:
+        fail("vm-hako runner does not consume the explicit CanonicalV1 issuer")
+    if "check_vm_hako_subset_value" not in vm_rs or "project_main_payload" not in vm_rs:
+        fail("vm-hako runner does not use Value subset/projection seams")
+    if "normalize_canonical_v1_value" not in vm_rs:
+        fail("vm-hako runner does not normalize the owned Value explicitly")
+    if "check_vm_hako_subset_value" not in subset_rs:
+        fail("subset checker lacks the Value entry")
+    if "project_main_payload" not in normalize_rs:
+        fail("payload projector lacks the Value entry")
+    if "serde_json::from_str" in vm_prod:
+        fail("vm-hako production runner reparses raw JSON")
+    if "serde_json::from_str" in compile_rs:
+        fail("reference compile bridge reparses emitted JSON")
+    if normalize_rs.count("normalize_aliases_in_root") > 1:
+        fail("payload normalization has more than one alias normalization call")
+    subset_prod = subset_rs.split("#[cfg(test)]", 1)[0]
+    if "normalize_aliases_in_root" in subset_prod:
+        fail("subset checker production path reparses or normalizes raw JSON")
+    if card.get("status") == "canonical_v1_value_s0_fast_open":
+        print(
+            f"[{guard_id}] result_class=current-change failure status=pass "
+            "phase=canonical_v1_value_s0 permission=fast_open value=owned "
+            "normalize=one subset=one projection=one raw_reparse=zero"
+        )
+    else:
+        print(
+            f"[{guard_id}] result_class=current-change failure status=pass "
+            "phase=canonical_v1_value_s0 permission=landed value=owned "
+            "normalize=one subset=one projection=one raw_reparse=zero"
+        )
     raise SystemExit(0)
 
 # Wpre is a boundary census, not a parser implementation.  The inventory is

@@ -113,6 +113,19 @@ pub(super) fn build_mir_json_root(
     module: &crate::mir::MirModule,
 ) -> Result<serde_json::Value, String> {
     let profile = JsonEgressProfile::from_env()?;
+    build_mir_json_root_with_profile(module, profile)
+}
+
+/// Build a MIR JSON root under an explicit owner-selected profile.
+///
+/// Reference lanes must use this entry rather than reading the ambient
+/// profile selectors. Compatibility callers retain `build_mir_json_root`,
+/// whose environment-backed selection is intentionally kept private to the
+/// compatibility egress surface.
+pub(super) fn build_mir_json_root_with_profile(
+    module: &crate::mir::MirModule,
+    profile: JsonEgressProfile,
+) -> Result<serde_json::Value, String> {
     let use_v1_schema = profile.is_canonical_v1();
     let boxed_sum_abi_plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
     let mut funs = Vec::new();

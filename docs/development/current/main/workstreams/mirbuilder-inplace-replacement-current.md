@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0
+Status: Fast path — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -52,8 +52,9 @@ Fail-fast boundary:
 
 Smallest next slice:
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`。
-  private reference-child transport I0はlanded。次は同じowned ValueをCanonicalV1
-  egress、normalize、subset、projectionへ一方向に渡す設計を閉じる。実装はまだ閉じたまま。
+  private reference-child transport I0はlanded。実装許可はactive cardの
+  `canonical_v1_value_s0` allowed filesだけに開き、同じowned ValueをCanonicalV1
+  egress、normalize、subset、projectionへ一方向に渡す。
 
 Non-claims:
   schema selector実装、parser/fixture/codec、typed Global、observer/loan、
@@ -238,7 +239,7 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    the three live reference monitors plus the active alias probe atomically. Guard and
    cleanup evidence are closed; no later row opens automatically.
 
-1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (next, design accepted)
+   1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (selected fast)
    after transport I0, emit one explicit CanonicalV1 serde_json::Value, normalize the same
    owned Value once, subset-check once, and project once. Remove ambient profile selection,
    temporary v1 file/readback, and production raw String parses; implementation stays closed.

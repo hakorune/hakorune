@@ -28,13 +28,13 @@ Related:
   writers are closed. B0 census/provenance guards are landed; outside fates and
   Stage1/direct arbitration are accepted design decisions. The bounded
   reference-child private transport I0 is landed with a guarded private one-of
-  handoff; CanonicalV1 Value flow, force-hv1 retirement, CoreDirect family-level
+  handoff; CanonicalV1 Value flow is the selected fast row, while force-hv1 retirement, CoreDirect family-level
   tag/rc fate, and strict-root ownership remain closed. Typed Global, late
   recovery, receiver ABI, and mandatory-Callee remain closed.
-- **Next ordered task:** complete
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`
-  as the next design-closed seam, then the ordered Wpre D0 follow-ups without
-  semantic implementation, and only then open the bounded shared-runner I0.
+- **Next ordered task:** complete the selected fast row
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`,
+  then the ordered Wpre D0 follow-ups without semantic implementation, and only
+  then open the bounded shared-runner I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

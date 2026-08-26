@@ -30,8 +30,9 @@ Related:
 - **Next ordered task:**
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`;
   design the one-owned CanonicalV1 Value seam after the landed private child
-  transport. Wpre-I0 follows only after this seam and the remaining D0 follow-up
-  rows are reconciled.
+  transport. The bounded CanonicalV1 Value S0 is now the selected fast row;
+  Wpre-I0 follows only after this seam and the remaining D0 follow-up rows are
+  reconciled.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.

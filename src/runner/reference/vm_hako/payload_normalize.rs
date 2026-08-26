@@ -8,9 +8,19 @@ use super::shape_contract::{
 };
 use super::{DYNAMIC_METHOD_BRIDGE_FUNC_ID, DYNAMIC_METHOD_FUNC_ID};
 
+#[cfg(test)]
 pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, String> {
     let mut root: Value = serde_json::from_str(json_text).map_err(|e| e.to_string())?;
-    normalize_instruction_aliases_in_root(&mut root);
+    normalize_canonical_v1_value(&mut root);
+    let payload = project_main_payload(root)?;
+    serde_json::to_string(&payload).map_err(|e| e.to_string())
+}
+
+pub(super) fn normalize_canonical_v1_value(root: &mut Value) {
+    normalize_instruction_aliases_in_root(root);
+}
+
+pub(super) fn project_main_payload(root: Value) -> Result<Value, String> {
     let functions = root
         .get("functions")
         .and_then(|v| v.as_array())
@@ -57,7 +67,7 @@ pub(super) fn extract_main_payload_json(json_text: &str) -> Result<String, Strin
     if !reachable_global_functions.is_empty() {
         payload["functions"] = Value::Array(reachable_global_functions);
     }
-    serde_json::to_string(&payload).map_err(|e| e.to_string())
+    Ok(payload)
 }
 
 fn normalize_instruction_aliases_in_root(root: &mut Value) {

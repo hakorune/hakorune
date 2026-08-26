@@ -1,16 +1,17 @@
-use super::{temp_seed, VmHakoErr, VM_HAKO_PHASE};
+use super::VmHakoErr;
 use crate::mir::{
-    MirCompileResult, MirCompiler, MirModule, NormalCompileRequestV1,
-    RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
+    MirCompileResult, MirCompiler, NormalCompileRequestV1, RejectedPostMacroWholeFileProgramV1,
+    VerifiedPostMacroWholeFileProgramV1,
 };
 use crate::runner::NyashRunner;
+use serde_json::Value;
 use std::collections::HashMap;
 
-pub(super) fn compile_source_to_mir_json_v0(
+pub(super) fn compile_source_to_canonical_v1(
     runner: &NyashRunner,
     filename: &str,
     code: &str,
-) -> Result<String, VmHakoErr> {
+) -> Result<Value, VmHakoErr> {
     let (prepared_source, using_imports) =
         prepare_vm_hako_source_and_imports(runner, filename, code)?;
 
@@ -37,7 +38,8 @@ pub(super) fn compile_source_to_mir_json_v0(
         &compile_result.module,
         "vm-hako",
     );
-    emit_mir_json_v0_string(&compile_result.module).map_err(|e| ("emit-error", e))
+    crate::runner::mir_json_emit::emit_canonical_v1_value_for_reference(&compile_result.module)
+        .map_err(|e| ("emit-error", e))
 }
 
 fn compile_post_macro_program(
@@ -77,70 +79,6 @@ fn prepare_vm_hako_source_and_imports(
     );
 
     Ok((prepared.code, prepared.imports))
-}
-
-fn emit_mir_json_v0_string(module: &MirModule) -> Result<String, String> {
-    let path = std::env::temp_dir().join(format!(
-        "vm_hako_{}_mir_{}.json",
-        VM_HAKO_PHASE,
-        temp_seed()
-    ));
-    let _unified_guard = ScopedEnvVar::set("NYASH_MIR_UNIFIED_CALL", "1");
-    let _schema_guard = ScopedEnvVar::set("NYASH_JSON_SCHEMA_V1", "1");
-    let emit_result = crate::runner::mir_json_emit::emit_mir_json_for_harness_bin(module, &path);
-
-    if let Err(e) = emit_result {
-        let _ = std::fs::remove_file(&path);
-        return Err(e);
-    }
-    let out = std::fs::read_to_string(&path).map_err(|e| e.to_string());
-    let _ = std::fs::remove_file(&path);
-    let out = out?;
-
-    if std::env::var("NYASH_EMIT_MIR_TRACE").ok().as_deref() == Some("1") {
-        let dump_path = std::env::temp_dir().join(format!(
-            "vm_hako_{}_mir_dump_{}.json",
-            VM_HAKO_PHASE,
-            temp_seed()
-        ));
-        if let Err(e) = std::fs::write(&dump_path, &out) {
-            eprintln!(
-                "[vm-hako/emit-trace] failed to dump MIR JSON to {}: {}",
-                dump_path.display(),
-                e
-            );
-        } else {
-            eprintln!(
-                "[vm-hako/emit-trace] dumped MIR JSON to {}",
-                dump_path.display()
-            );
-        }
-    }
-
-    Ok(out)
-}
-
-struct ScopedEnvVar {
-    key: &'static str,
-    prev: Option<String>,
-}
-
-impl ScopedEnvVar {
-    fn set(key: &'static str, value: &str) -> Self {
-        let prev = std::env::var(key).ok();
-        std::env::set_var(key, value);
-        Self { key, prev }
-    }
-}
-
-impl Drop for ScopedEnvVar {
-    fn drop(&mut self) {
-        if let Some(v) = &self.prev {
-            std::env::set_var(self.key, v);
-        } else {
-            std::env::remove_var(self.key);
-        }
-    }
 }
 
 #[cfg(test)]
