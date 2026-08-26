@@ -15,7 +15,7 @@ fail() {
 [[ $# -le 1 ]] || fail "usage: $0 [readiness|cataloged_i0]"
 PHASE="${1:-readiness}"
 case "$PHASE" in
-  readiness|cataloged_i0) ;;
+  readiness|bridge_ready|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -57,7 +57,7 @@ if not isinstance(registration, dict):
     raise SystemExit("active card guard_registration_row is missing")
 if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
     raise SystemExit("guard-only execution row drifted")
-if registration.get("status") != "landed_guard_only":
+if registration.get("status") not in {"selected_fast_guard_only", "landed_guard_only"}:
     raise SystemExit("guard-only status drifted")
 allowed_files = registration.get("allowed_files")
 expected_files = {
@@ -133,6 +133,57 @@ elif phase == "cataloged_i0":
     for token in ("resolve_call_target", "try_unique_static_method_recovery", "make_name_const_result"):
         if token in source_text:
             raise SystemExit(f"late recovery/name-Const edge remains: {token}")
+
+elif phase == "bridge_ready":
+    # This phase is opened only after the package-only bridge lands.  It must
+    # prove that the package lifecycle is closed without smuggling in a
+    # not-yet-issued direct-call loan.  The loan and Cataloged payload remain
+    # explicitly pending until cataloged_i0.
+    package_only_bundle = "BuilderPrivateInstalledCallablePackageBundleV1"
+    source_files = [path for path in mir_root.rglob("*.rs")]
+    source_text = "\n".join(path.read_text() for path in source_files)
+    if package_only_bundle not in source_text:
+        raise SystemExit("bridge_ready phase is not landed: package-only bundle is missing")
+    if "with_normal_callable_install_once" not in source_text:
+        raise SystemExit("bridge_ready phase is not landed: one-shot bridge is missing")
+    for token in (
+        "RawDirectCallDispositionLoanV1",
+        "RawDirectCallDispositionPortV1",
+        "WithDirectCalls",
+    ):
+        if token in source_text:
+            raise SystemExit(f"bridge_ready must not provision a direct-call loan: {token}")
+
+    lifecycle_path = mir_root / "builder/normal_default_root_catalog_lifecycle.rs"
+    lowering_path = mir_root / "builder/program_root_lowering.rs"
+    post_install_path = mir_root / "builder/normal_default_root_catalog_post_install.rs"
+    install_path = mir_root / "normal_callable_semantic_package/install.rs"
+    constructor_path = mir_root / "normal_callable_semantic_package/instance_constructor_loan.rs"
+    loan_port_path = mir_root / "builder/normal_callable_semantic_loan_port.rs"
+    lifecycle = lifecycle_path.read_text()
+    lowering = lowering_path.read_text()
+    post_install = post_install_path.read_text()
+    install = install_path.read_text()
+    constructor = constructor_path.read_text()
+    loan_port = loan_port_path.read_text()
+
+    for token in ("prepare_install", "with_bound_source", "source_ast()"):
+        if token in lifecycle:
+            raise SystemExit(f"bridge_ready package-only lifecycle escape remains: {token}")
+    for token in ("NormalCallableSemanticPackageMode::Installed(&", "begin_lowering(&self)"):
+        if token in lowering or token in install:
+            raise SystemExit(f"bridge_ready shared-reference lifecycle remains: {token}")
+    if "NormalCallableSemanticPackageMode::Installed" in post_install:
+        raise SystemExit("bridge_ready post-install still relays a bare Installed package")
+    if "self.installed.source_ast()" in constructor or "self.installed.source_ast()" in loan_port:
+        raise SystemExit("bridge_ready hidden installed source_ast handoff remains")
+    if "source_ast" in install and "fn source_ast" in install:
+        raise SystemExit("bridge_ready Installed::source_ast getter remains")
+    if "with_normal_program_source_loan" not in source_text:
+        raise SystemExit("bridge_ready source HRTB loan is missing")
+    transition = card.get("d0_sig_close_f_transition_amendment_2026_08_26")
+    if not isinstance(transition, dict) or "cataloged_provision_shape" not in transition:
+        raise SystemExit("active card does not keep CatalogedI0 provisioning separate")
 
 print(f"[{guard_id}] phase={phase} ok")
 PY
