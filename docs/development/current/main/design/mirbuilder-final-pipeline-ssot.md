@@ -133,8 +133,9 @@ MirBuilderを移す方法である。replacement cellやstructural measurements�
 typed Global target family / issuer Decision
   -> reusable ingress lifecycle guard
   -> shared-runner Wpre profile/root/decoder contract
-  -> outside-fate and pre-Wpre arbitration closure
-  -> core-direct execution fate and reference child isolation
+  -> finite explicit-CLI arbitration and outside-fate closure
+  -> reference child isolation and CoreDirect typed terminal policy
+  -> force-hv1 harness census and explicit compatibility/retirement decision
   -> strict recursive root owner and by-value decoder seams
   -> strict one-shot schema selection with invalid-v1 retry = 0
   -> MirCall/CallFlags transport retirement

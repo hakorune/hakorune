@@ -274,8 +274,9 @@ rolling workstream. This SSOT fixes the durable dependency shape:
 ```text
 finite typed identity and observer/package contract (accepted)
   -> reusable ingress lifecycle guard
-  -> outside-fate and pre-Wpre arbitration closure
-  -> core-direct execution fate and reference child isolation
+  -> finite explicit-CLI arbitration and outside-fate closure
+  -> reference child isolation and CoreDirect typed terminal policy
+  -> force-hv1 harness census and explicit compatibility/retirement decision
   -> strict recursive root owner and by-value decoder seams
   -> strict one-shot schema selection with cross-parser retry = 0
   -> MirCall/CallFlags transport retirement

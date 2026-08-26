@@ -222,20 +222,27 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    outside row owner/status/reason/reopen/non-authority. No implementation.
 
 1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (design stop)
-   freeze exact precedence before Wpre; captured MIR-v0/Program-v0 stays family-selected
-   compatibility and cannot silently preempt direct --mir-json-file.
+   explicit Stage1 CLI + any JSON CLI conflicts; multiple JSON CLIs conflict; one explicit
+   JSON CLI beats ambient Stage1; no explicit JSON CLI keeps existing Stage1 selection.
+   Captured MIR-v0/Program-v0 stays family-selected compatibility.
 
 1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (design stop)
    freeze vm-hako child route-environment isolation and v1 emission family; no public
    Wpre/hv1 re-entry or retry is accepted.
 
 1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design stop)
-   choose decoded-module consumer, raw-child retirement, or typed no-retry terminal;
-   compatibility transforms remain selected-owner Value adapters.
+   use execute_loaded_mir_module once for normal decoded input; requested CoreDirect
+   becomes a family-aware typed retired/unavailable terminal preserving tag/rc. Delete
+   raw probe/child/in-proc reparse/VM fallback; compatibility transforms remain Value adapters.
 
 1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design stop)
    freeze strict_root.rs, recursive duplicate/trailing rejection, owned SelectedIngress,
    and by-value decoder ownership using the existing NyashRunner context.
+
+1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design stop)
+   census verify_v1_inline/verify_mir_rc harness references, then select production
+   retirement or owner-private Value compatibility. Standard-v1 reroute is forbidden;
+   force-hv1 remains CutoverBlockerOpen until the choice is recorded.
 
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
    shared runner parses JSON root once; selects exact v2/v1/MIR-v0/Program-v0 once; deletes raw
