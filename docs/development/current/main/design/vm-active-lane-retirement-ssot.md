@@ -20,8 +20,10 @@ Related:
   six-row `CORE-DIRECT-RETIRE-D0` census are closed as design-only decisions.
   No route or engine deletion is authorized; the MirBuilder Call spine remains
   the serial implementation authority.
-- **Next ordered task:** `CORE-DIRECT-RETIRE-R0` is a design stop until its one
-  ProductAot substring successor and decoded CoreDirect terminal fixture exist.
+- **Next ordered task:** `CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0` is the first
+  bounded implementation row. Full `CORE-DIRECT-RETIRE-R0` remains a design stop
+  until the one-state post-decode terminal proof is available; pre-Wpre has no
+  issuer for a separate `unavailable` state.
 - **Production stop line:** existing VM code or tests never authorize product
   parity, fallback, or a new compatibility route; retirement must not redirect
   incompatible inputs to another parser or executor.
@@ -52,8 +54,9 @@ Fail-fast boundary:
   A retired selector has one stable terminal and retry/fallback zero. An HMI
   capability miss fails before effects and never retries in Rust.
 Smallest next slice:
-  CORE-DIRECT-RETIRE-R0-D0: freeze the one ProductAot successor and one decoded
-  family-terminal fixture; no implementation or old-script deletion yet.
+  CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0: exact checked-in source -> direct MIR ->
+  pure-first EXE/AOT -> stdout/rc evidence; no CoreDirect deletion. Full R0
+  remains closed until its one-state post-decode terminal proof.
 Non-claims:
   No broad VM/default-mir/engine deletion, no vm-hako enhancement, no HMI
   carrier selection, no PyVM archive deletion, and no llvmlite G3 approval.
@@ -117,11 +120,13 @@ removal runs before the Call spine; broad route and engine retirement wait.
 ```text
 0. VM-RUNTIME-RETIREMENT-FATE-D0                         closed here
 
-1. CORE-DIRECT-RETIRE-D0/R0
+1. CORE-DIRECT-RETIRE-D0 -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 -> R0
    D0 is landed: ProductAot=1, SemanticReference=0, HistoricalDelete=5.
-   R0 first lands the named EXE/AOT substring successor and a decoded-family
-   terminal fixture, then emits [core-direct/retired|unavailable], rc=1 and
-   deletes the six old scripts, raw probe, child, in-proc retry, and VM fallback
+   S0 first lands the exact EXE/AOT substring successor. Pre-Wpre R0 then emits
+   one post-decode [core-direct/retired] terminal, rc=1, with decode failures
+   retaining their existing terminal; [core-direct/unavailable] stays parked
+   until Wpre owns a family issuer. Only then delete the six old scripts, raw
+   probe, child, in-proc retry, and VM fallback.
 
 2. FORCE-HV1-CALLER-MIGRATION-R0..Rn
    close 33 direct + 36 helper rows across the finite 107-file boundary
@@ -178,10 +183,12 @@ HistoricalDelete = the other five rc-only/unsupported/incorrect-contract scripts
 ```
 
 `CORE-DIRECT-RETIRE-R0` remains a design stop because the ProductAot successor
-does not yet have exact output/rc evidence and the family terminal must be
-proven after decoded-family authority, not by a raw substring or second parser.
-Once those two blockers are closed, one bounded R0 may delete all six scripts
-and the old CoreDirect implementation with retry/fallback zero.
+does not yet have exact output/rc evidence, and the old two-terminal contract
+has no pre-Wpre decoded-family issuer. The accepted amendment is one-state:
+successful decode + explicit request -> `[core-direct/retired]`, rc=1; malformed,
+wrong-entrance, and decoder failures keep their existing terminal. Once the S0
+successor and this post-decode proof exist, one bounded R0 may delete all six
+scripts and the old CoreDirect implementation with retry/fallback zero.
 
 ## Decision
 

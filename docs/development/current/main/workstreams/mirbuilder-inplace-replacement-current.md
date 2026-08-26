@@ -49,8 +49,9 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CORE-DIRECT-RETIRE-R0`。substringのEXE/AOT successorとdecoded family-terminal
-  fixtureを先に固定し、その後に6本＋旧probe/fallbackを一括削除する。
+  `CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0`。旧substring sourceをexact EXE/AOT
+  ownerへ移し、同一MIR・pure-first・stdout/rcを固定する。full R0はpre-Wpreの
+  一状態post-decode retired terminalを証明してから開く。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -238,13 +239,13 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    owned Value once, subset-check once, and project once. Ambient profile selection,
    temporary v1 file/readback, and production raw String parses are removed.
 
-1i. CORE-DIRECT-RETIRE-D0 (landed design-only) -> CORE-DIRECT-RETIRE-R0 (design stop)
+1i. CORE-DIRECT-RETIRE-D0 (landed design-only) -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0
+   (next fast row; full R0 remains NoSafeSlice)
    D0 classifies the six active smokes into ProductAot / SemanticReference /
-   HistoricalDelete. The accepted R0 uses
-   execute_loaded_mir_module once for normal decoded input; requested CoreDirect
-   becomes a family-level stderr terminal ([core-direct/retired|unavailable], rc=1)
-   with no retry. Treat old operation tags as historical, then delete
-   raw probe/child/in-proc reparse/VM fallback; compatibility transforms remain Value adapters.
+   HistoricalDelete. S0 moves the one product-observable substring case to an
+   exact EXE/AOT owner. Pre-Wpre R0 uses one post-decode stderr terminal
+   ([core-direct/retired], rc=1); unavailable is ParkedSealed until Wpre owns a
+   family issuer. Only then delete raw probe/child/in-proc reparse/VM fallback.
 
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
    retire production force-hv1; the finite census is 33 direct verify_v1_inline_file rows

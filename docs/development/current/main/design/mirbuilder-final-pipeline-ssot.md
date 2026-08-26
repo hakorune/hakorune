@@ -32,9 +32,9 @@ Related:
   as a later sibling, while CoreDirect and force-hv1 remain the two pre-Wpre
   bypass families. Typed Global, late recovery, receiver ABI, and
   mandatory-Callee remain closed.
-- **Next ordered task:** close the six-smoke `CORE-DIRECT-RETIRE-D0`, then its
-  bounded no-retry R0, force-hv1 caller migration, and strict Value seams before
-  opening the shared-runner Wpre-I0.
+- **Next ordered task:** land `CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0`, then close
+  the amended one-state CoreDirect R0, force-hv1 caller migration, and strict
+  Value seams before opening the shared-runner Wpre-I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

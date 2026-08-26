@@ -28,11 +28,10 @@ Related:
   CoreDirect family-level tag/rc fate, strict-root seams, and Call cutover remain
   closed.
 - **Next ordered task:**
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`;
-  design the one-owned CanonicalV1 Value seam after the landed private child
-  transport. The bounded CanonicalV1 Value S0 is now the selected fast row;
-  Wpre-I0 follows only after this seam and the remaining D0 follow-up rows are
-  reconciled.
+  `CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0`, selected by `CURRENT_STATE.toml` as
+  the first bounded EXE/AOT successor row. The private child transport and
+  CanonicalV1 Value seam are landed; the amended one-state CoreDirect R0 and
+  remaining pre-Wpre rows follow before Wpre-I0.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.

@@ -5,7 +5,7 @@ observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "No implementation is open in this card. CanonicalV1 Value S0 and CORE-DIRECT-RETIRE-D0 are landed design-only; CORE-DIRECT-RETIRE-R0 remains a successor/terminal-evidence design stop, and all Wpre/typed-Global/observer/loan/method/Call-schema work remains closed."
+permission_scope = "No implementation is open in this card. CanonicalV1 Value S0 and CORE-DIRECT-RETIRE-D0 are landed design-only; ProductAot S0 is design-accepted but closed until the pointer opens it, and full R0 remains a NoSafeSlice terminal-authority stop."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "CORE-DIRECT-RETIRE-R0: freeze the one ProductAot substring successor and one decoded-family terminal fixture; no code or deletion until both are evidenced."
+smallest_next_slice = "CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0: create the exact EXE/AOT successor only; full R0 remains closed until its one-state post-decode terminal proof is available."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
@@ -233,7 +233,7 @@ outside = "hv1_inline has a production force route and is not test-only. Stage-A
 
 [wpre_in_scope_blockers]
 rows = [
-  "core_direct_execution | src/runner/core_executor.rs | status=CutoverBlockerOpen | owner=shared-runner execution overlay | reason=raw probe, swallowed error, child retry, and execution re-entry precede a single decoded-module terminal | decision=consume existing execute_loaded_mir_module once; a requested CoreDirect family returns [core-direct/retired] or [core-direct/unavailable] on stderr with rc=1; old operation tags are historical and implementation remains closed | non_authority=raw text probe result",
+  "core_direct_execution | src/runner/core_executor.rs | status=CutoverBlockerOpen | owner=shared-runner execution overlay | reason=raw probe, swallowed error, child retry, and execution re-entry precede a single decoded-module terminal | decision=after successful existing decode, a requested CoreDirect intent returns [core-direct/retired] on stderr with rc=1; decode/wrong-entrance failures keep their existing terminal; unavailable is ParkedSealed until Wpre issuer | non_authority=raw text probe result",
   "selected_compatibility_transform | src/runner/json_artifact/mod.rs; src/runner/modes/common_util/core_bridge.rs | status=CutoverBlockerOpen | owner=selected compatibility decoder | reason=pre-selection raw transform and ignored error are not a selector profile | signature=apply_selected_compatibility_transform(family, root:&mut Value)->Result<(),WpreError> | non_authority=transform success or error text",
 ]
 
@@ -302,7 +302,7 @@ compatibility_owner = "CompatibilityV1, CompatibilityMirV0, and ProgramV0 remain
 
 [wpre_d0_candidate_decisions]
 stage1_direct = "Accept with amendment: explicit Stage1 CLI (--hako-run/--hako-emit-mir-json) plus any explicit execution JSON CLI (--mir-json-file/--json-file/--ny-parser-pipe) is a typed conflict; multiple explicit execution JSON CLIs are a typed conflict; exactly one explicit JSON CLI wins over ambient NYASH_USE_STAGE1_CLI; with no explicit JSON CLI, existing Stage1 selection remains. Macro/REPL/early force ordering is a non-claim."
-core_direct = "Accept final direction: Wpre decodes once and execute_loaded_mir_module is the only normal terminal; requested CoreDirect becomes a family-level stderr terminal ([core-direct/retired] or [core-direct/unavailable], rc=1) with no raw probe, child wrapper, in-proc reparse, or VM fallback. Old operation tags are historical/local-only; no new Core consumer is invented."
+core_direct = "Accept with one-state amendment: after successful existing decode, requested CoreDirect emits [core-direct/retired] on stderr with rc=1; malformed/wrong/decoder failures keep their existing terminal, and [core-direct/unavailable] is ParkedSealed until Wpre owns a family issuer. No raw probe, child wrapper, in-proc reparse, VM fallback, or new Core consumer."
 force_hv1 = "Accept retirement: standard-v1 reroute is forbidden because hv1 has distinct unop/typeop/default semantics. Census is 33 direct verify_v1_inline_file rows plus 36 hv1-capable verify_mir_rc rows across 107 unique integration files; migrate, retire, or archive each named caller, supersede the force startup guard, and park owner-private Value compatibility unless a named active consumer reopens it."
 reference_child = "Accept with amendment: VmRouteAction::VmHako owns a family-preselected CanonicalMirJsonV1 full-module emission, then a private MiniVm payload. The child receives exactly one of HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON or HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE; public NYASH_VERIFY_JSON, HAKO_VERIFY_PRIMARY, HAKO_ROUTE_HAKOVM, force-hv1, Stage1 selectors, VM fallback, and TOML env bootstrap are scrubbed or pinned. Missing/both/empty/unreadable transport, wrong emission family, subset/projection failure, or spawn failure is terminal; no Wpre/hv1/Stage1 retry."
 reference_value = "Accept with amendment: after private transport I0, reference egress receives MirModule and emits one explicit CanonicalV1 serde_json::Value; the same owned Value is alias-normalized once, subset-checked once, and projected once into the private MiniVm payload. Remove ScopedEnvVar/profile selection, temporary v1 file/readback, and production raw String parses; other compatibility emitters may retain their owner-private profile API."
@@ -339,24 +339,19 @@ non_claims = "No strict parser implementation, schema selector code, v2 codec, t
 
 [core_direct_tag_rc_contract]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-TAG-RC-CONTRACT"
-status = "design_accepted_implementation_closed"
+status = "design_accepted_one_state_pre_wpre"
 boundary = "HAKO_CORE_DIRECT and NYASH_CORE_DIRECT shared-runner requests, core_executor overlay, lang/src/vm/core diagnostics, and six active integration/core_direct smokes; Hako engine compatibility callers remain separate rows."
-source_authority = "Wpre-selected decoded MirModule and the explicit CoreDirect execution intent; old Hako diagnostic strings are historical observations, not semantic authority."
-canonical_issuer = "The shared runner emits one family-level terminal after decode: recognized applicable request -> [core-direct/retired], recognized but unavailable family/decoder -> [core-direct/unavailable], both rc=1. Malformed root, wrong entrance, and decoder errors remain Wpre terminals and are never relabeled."
+source_authority = "An existing decoded MirModule plus explicit CoreDirect intent; R0 has no pre-Wpre family issuer, and old Hako diagnostic strings are historical observations only."
+canonical_issuer = "Pre-Wpre R0 has one terminal: after successful decode, explicit CoreDirect intent emits [core-direct/retired] on stderr with rc=1. Decode, wrong-entrance, and selected-decoder failures keep their existing terminal with no CoreDirect tag; unavailable remains ParkedSealed until Wpre owns it."
 non_authority = "The twenty-plus old [core/*] prefixes, dynamic mir_call suffixes, child stdout, raw substring probes, in-proc/child route choice, numeric stdout, and VM fallback are not the terminal contract."
 channel = "New family-level terminal diagnostics go to stderr; rc=1 is stable. Existing Hako Core stdout tags and operation-specific wording are historical/local-only and are not preserved as public compatibility."
-finite_states = [
-  "CoreDirectRequested -> CoreDirectRetired(stderr tag, rc=1)",
-  "CoreDirectRequested + unavailable selected family -> CoreDirectUnavailable(stderr tag, rc=1)",
-  "MalformedRoot / WrongEntrance / SelectedDecoderRejected -> Wpre typed terminal",
-  "NormalIntent -> execute_loaded_mir_module exactly once",
-]
-retirement_rule = "The old operation-tag set is not mapped one-for-one: it is dynamic, route-dependent, and already absent from the Rust in-proc path. Six active smokes assert rc/stdout behavior rather than exact old tags; migrate them to retirement-terminal or ordinary Rust VM parity owners before code removal."
+finite_states = ["CoreDirectRequested + successful existing decode -> CoreDirectRetired(stderr tag, rc=1)", "MalformedRoot / WrongEntrance / SelectedDecoderRejected -> existing terminal with no CoreDirect tag", "NormalIntent -> execute_loaded_mir_module exactly once"]
+retirement_rule = "The old operation-tag set is not mapped one-for-one. Six active smokes are dispositioned separately; R0 deletes the probe and fallback only after the exact AOT successor and one-state decoded terminal proof."
 delete_set = "core_executor raw probe/in-proc reparse/temporary Hako child/child stdout relay/VM fallback; HAKO_CORE_DIRECT aliases; force-specific operation-tag prose and tag-required startup guards after supersession."
 retain_set = "execute_loaded_mir_module, execute_mir_module_quiet_exit, normal JSON ingress façade, Wpre typed errors, explicit CoreDirect intent until retirement, and non-CoreDirect Hako engine compatibility callers pending their own census."
-acceptance = "Old operation tags are historical; family-level retired/unavailable tags and rc=1 channel are documented; six core_direct smokes are classified; no tag parser, new Core consumer, or fallback is required."
-docs_followup = "Supersede the old Core diagnostic/Direct wording in lang/src/vm/README.md and tools/selfhost/README.md; classify each six-smoke entry as retirement-terminal or ordinary Rust VM parity before implementation."
-stop = "NoSafeSlice if external callers require individual old tags, dynamic tag bodies, Hako stdout channel, or a full operation-tag mapping; that would require a separate compatibility owner/Decision."
+acceptance = "One-state post-decode retired terminal and rc=1 channel are documented; unavailable is explicitly parked; six core_direct smokes are classified; no tag parser, new Core consumer, or fallback is required."
+docs_followup = "Supersede old Core diagnostic/Direct wording in lang/src/vm/README.md and tools/selfhost/README.md; the five HistoricalDelete rows need no successor."
+stop = "NoSafeSlice if a pre-Wpre family distinction, individual old tag, dynamic tag body, Hako stdout channel, or second parser is required."
 
 [core_direct_smoke_disposition]
 task_id = "CORE-DIRECT-RETIRE-D0"
@@ -366,7 +361,7 @@ source_authority = "The checked-in script body, its Stage-B helper output, and t
 canonical_issuer = "The successor owner issues either an exact EXE/AOT result or the family-level CoreDirect terminal after a decoded family request."
 non_authority = "Script names, arbitrary nonzero rc, raw functions/blocks substring probes, child stdout, and the old operation-tag vocabulary."
 finite_states = [
-  "ProductAot = 1: core_direct_string_substring_ok_vm.sh -> named EXE/AOT successor required",
+  "ProductAot = 1: core_direct_string_substring_ok_vm.sh -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 exact EXE/AOT successor",
   "SemanticReference = 0: no smoke has a valid reference-only semantic contract",
   "HistoricalDelete = 5: core_direct_array_oob_set_rc_vm.sh, core_direct_map_bad_key_rc_vm.sh, core_direct_string_bounds_rc_vm.sh, core_direct_string_charat_bounds_rc_vm.sh, core_direct_string_replace_ok_vm.sh",
 ]
@@ -376,16 +371,27 @@ observed = [
   "substring(-1,1) conflicts with canonical clamp semantics; charAt is outside the canonical String surface; replace script accepts failure and unresolved first-only semantics.",
   "substring(2,5) expects exact cde and rc=0 and is the only ordinary product-observable row.",
 ]
-successor_candidates = [
-  "ProductAot input candidate: apps/tests/string_ops_basic.hako",
-  "ProductAot execution pattern candidate: tools/smokes/v2/profiles/integration/apps/typed_object_method_min_exe.sh",
-  "No automatic raw-vm-reference successor is claimed for the five historical rows.",
-]
+successor_candidates = "ProductAot S0: apps/tests/string_substring_in_range_min.hako -> tools/smokes/v2/profiles/integration/apps/string_substring_in_range_exe.sh with exact EXE/AOT output/rc, separate stderr, same MIR SHA, pure-first, and compat_replay=none; five HistoricalDelete rows need no successor."
 delete_set = "After the ProductAot successor and a decoded-family terminal fixture land: delete six old scripts, core_executor raw probe/in-proc reparse/temporary Hako child/child stdout relay/ordinary VM fallback, and CORE_DIRECT aliases; retain one explicit intent tombstone during grace."
-acceptance = "Six rows are exhausted with exactly one disposition each; the one ProductAot successor has exact output/rc evidence; a real decoded CoreDirect request has [core-direct/retired|unavailable] on stderr with rc=1; retry/fallback=0; no old script or raw probe remains."
+acceptance = "Six rows are exhausted with exactly one disposition each; ProductAot S0 has an exact EXE/AOT contract; one-state decoded CoreDirect R0 and retry/fallback=0 remain later evidence, not D0 claims."
 next_row = "CORE-DIRECT-RETIRE-R0"
-next_blocker = "ProductAot substring successor is not landed, and the family terminal must be proven after decoded-family authority rather than by a raw substring or second parser."
+next_blocker = "ProductAot S0 is not landed. Full R0 also needs a decoded post-success terminal proof; pre-Wpre cannot distinguish unavailable without a named Wpre issuer."
 non_claims = "No language change for charAt/replace, no semantic reference migration, no broad Rust VM deletion, no vm-hako change, and no CoreDirect code deletion in this D0."
+
+[core_direct_smoke_disposition.product_aot_s0]
+task_id = "CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0"
+status = "design_accepted_implementation_closed"
+implementation_permission = false
+boundary = "checked-in exact source -> direct MIR artifact -> pure-first ny-llvmc EXE -> isolated stdout/stderr/rc"
+source_authority = "The focused source and docs/reference/language/strings.md substring/2 contract; no VM/CoreDirect behavior is authority."
+canonical_issuer = "The named EXE smoke issues exact product evidence: MIR kind/schema/main, unchanged artifact SHA, boundary pure-first with compat_replay=none, stdout cde\\n, empty stderr, rc=0."
+non_authority = "StageB Program-v0, CoreDirect env, Rust MirInterpreter, raw functions/blocks probes, filtered/merged output, tail-line checks, and SKIP are not evidence."
+fail_fast = "Emit, preflight, build, or run nonzero/timeout, artifact drift, replay/unsupported-pure marker, non-executable output, stdout/stderr mismatch, or missing tool is an explicit failure."
+allowed_files = ["apps/tests/string_substring_in_range_min.hako", "tools/smokes/v2/profiles/integration/apps/string_substring_in_range_exe.sh"]
+positive = "Exact ASCII in-range substring result only; no new backend or semantic route."
+negative = "No filter, 2>&1, tail, command substitution, || true, or compatibility fallback may turn a missing/failed AOT tool into green."
+non_claims = "No Unicode, clamp/OOB, substring/1, fault, ownership, TextScan physical route, performance, or VM parity claim."
+stop = "Return to design if direct MIR, preflight, pure-first EXE, exact output/rc, or same-artifact proof cannot be obtained without VM/harness/llvmlite fallback."
 
 [reference_child_reentry]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-REENTRY"
@@ -555,45 +561,25 @@ stop = "Return to design if explicit profile issuance cannot be separated from c
 non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
 
 [task_spine]
-current = "CanonicalV1 Value S0 landed; VM-RUNTIME-RETIREMENT-FATE-D0 and CORE-DIRECT-RETIRE-D0 are closed design-only; CORE-DIRECT-RETIRE-R0 is blocked on its named successors"
-next_prerequisite = "Land the one ProductAot substring successor and a decoded CoreDirect terminal fixture, then execute the bounded no-retry R0. Force-hv1 caller migration and strict Value seams remain next before Wpre-I0."
+current = "CanonicalV1 Value S0 and CoreDirect D0 are landed; CORE-DIRECT-RETIRE-R0 is NoSafeSlice on pre-Wpre family authority, while CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 is the first bounded implementation row."
+next_prerequisite = "Open and land ProductAot S0 first; then use the one-state post-decode retired terminal for R0, or move R0 after a named Wpre selected-family issuer. Force-hv1 caller migration and strict Value seams remain next before Wpre-I0."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
 [wpre_d0_followup_task_order]
 status = "core_direct_d0_landed_r0_design_stop"
 implementation_permission = false
-items = [
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only | split every outside family into owner/status/reason/reopen/non-authority rows; no global all-ingress closure claim",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | design-only | freeze three-way JSON CLI conflict/precedence: explicit Stage1 conflicts, multiple JSON CLIs conflict, one explicit JSON CLI beats ambient Stage1; no parser change",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design-only complete | choose private one-of payload keys, mandatory route scrub/pins, and CanonicalV1 family; no child retry implementation",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | landed | move payload off public NYASH_VERIFY_JSON, isolate route/Program-JSON/Stage1/trace env, and migrate three live monitors plus the active alias probe atomically",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | landed | one owner-private Value seam replaced ambient v1 env/profile and the second string parse; no Wpre/schema change",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect has no-retry stderr terminal [core-direct/retired|unavailable], rc=1; old operation tags are historical",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design accepted, implementation-closed | census 33 direct + 36 hv1-capable rows across 107 files; migrate/retire/archive named callers, supersede startup guard, never reroute into standard v1",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted, implementation-closed | strict_root.rs owns recursive duplicate/trailing rejection, owned SelectedIngress, and by-value decode(selected, &NyashRunner); decoder reparses zero times",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0 | fast only after all preceding rows | one strict root parse, one profile selection, one selected decoder, one terminal; implementation remains closed until this row opens",
-]
-acceptance = "Every row has a finite owner and explicit fate; Stage1 precedence and core-direct strategy are no longer double-classified; strict root and decoder signatures are exact; no retry/reparse/substring selector remains in the bounded I0 delete set. CanonicalV1 Value and the six-row CoreDirect D0 are landed; R0 remains design-stopped on named successor evidence."
+items = ["Outside fate and Stage1 arbitration are design-closed; private transport and CanonicalV1 Value are landed; CoreDirect is amended to one-state pre-Wpre retirement; force-hv1 and strict Value seams remain implementation-closed; Wpre-I0 waits for this frontier."]
+acceptance = "Every follow-up has a finite owner and explicit fate. CanonicalV1 Value and six-row CoreDirect D0 are landed; ProductAot S0 is design-accepted but R0 remains NoSafeSlice until its issuer/evidence boundary is selected."
 stop = "Return to design if any follow-up requires a second raw parse, borrowed root carrier, semantic receipt, implicit route precedence, or a global all-ingress claim without a finite caller census."
 
 [wpre_d0_progress]
-completed = [
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only complete | 17 outside rows carry owner/status/reason/reopen/non-authority; shared Wpre remains a bounded 9-row claim",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | design accepted | explicit Stage1/JSON conflict and ambient-env precedence matrix is fixed; implementation remains closed",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | landed | private one-of payload, selector scrub/pins, and four monitor paths are fixed",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | landed | one owned Value crosses normalize/subset/projection with no String reparse",
-]
-current = "CORE-DIRECT-RETIRE-R0 | design stop | D0 classified ProductAot=1, SemanticReference=0, HistoricalDelete=5; R0 needs the named AOT successor and decoded terminal fixture"
-accepted_design = [
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | no code yet | captured MIR-v0/Program-v0 remains a family-preselected ParkedSealed owner",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design accepted | private one-of payload, route scrub/pins, and CanonicalV1 family are fixed; implementation remains closed",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | D0-CORE-DIRECT-TAG-RC-CONTRACT fixes family-level stderr tags and rc=1; six-smoke disposition is now landed in CORE-DIRECT-RETIRE-D0",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design accepted | retire production force route; 33 direct + 36 indirect rows are the finite caller boundary; compatibility remains ParkedSealed unless reopened by a named consumer",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted | one owned Value, recursive duplicate/trailing reject, by-value selected decoder; implementation remains closed",
-]
+completed = ["Outside fate and Stage1 arbitration are design-closed; private transport I0 and CanonicalV1 Value S0 are landed."]
+current = "CORE-DIRECT-RETIRE-R0 | NoSafeSlice design stop | D0 is Exhausted; pre-Wpre cannot issue the old applicable/unavailable distinction. ProductAot S0 is design-accepted but implementation-closed."
+accepted_design = ["Stage1/direct arbitration; private reference transport; one-state CoreDirect fate; force-hv1 retirement; strict Value seams."]
 open = [
-  "CORE-DIRECT-RETIRE-R0 | selected design stop | ProductAot successor and decoded terminal fixture required before deletion",
+  "CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 | selected next implementation row after pointer switch | exact EXE/AOT evidence; no deletion",
+  "CORE-DIRECT-RETIRE-R0 | NoSafeSlice design stop | one-state terminal decision is accepted, but R0 opens only after S0 and a reusable decoded terminal proof",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | implementation-closed retirement row",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | implementation-closed strict-root row",
 ]
