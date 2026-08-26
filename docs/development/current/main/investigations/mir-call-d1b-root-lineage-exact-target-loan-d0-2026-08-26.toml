@@ -1043,6 +1043,75 @@ no_safe_slice = [
 ]
 next_task = "D0-SIG-Ic: name the source-authority target-bearer owner and one-way bridge boundary, require a fresh non-Clone bearer per exact call site with one consuming issue_callee, or retain the typed TargetPayloadMissing/NoSafeSlice terminal; only after acceptance may D0-SIG-J provision the raw loan."
 
+[cataloged_i0_source_bridge_bounded_census_2026_08_26]
+status = "design_stop_no_safe_slice"
+task_id = "MIR-CALL-D1B-CATALOGED-I0-SOURCE-BRIDGE-IC"
+observed_commit = "a0c6b1f757"
+review_source = "Three independent read-only Ic audits: source-owned payload census, adversarial one-way bridge/bearer review, and scoped guard/delete review. No code, fixture, Cargo, backend, or route change."
+verdict = "QualifiedStaticPayloadAbsent: the current ordinary Cataloged FunctionCall graph has no source-owned qualified static-global payload or opaque equivalent that can issue Callee. Keep TargetPayloadMissing/NoSafeSlice and implementation_permission=false; do not open J/K or affine-loan code."
+candidate_census = [
+  "ParserNormalProgramSourceAuthorityV1 is AST-free source/anchor authority and does not select or own MIR targets.",
+  "VerifiedSameModuleCallableDeclarationV1 and its catalog own canonical key, body facts, and static candidates only; mir_symbol_projection is formatting, not target issuance.",
+  "ResolvedDirectCallTargetV1 owns an exact-site to owner reference, not a qualified Global payload; source_call_target rows are MethodCall-only and key-only.",
+  "VerifiedCallableIndexV1/ResolvedDirectCallTargetV1 exact-i64, Script direct-static, CoreMethod, and physical thunk products are separate cohorts and cannot donate a Cataloged FunctionCall target or session.",
+  "ordinary_new birth claims are optional New-specific products with their own ledger/formatting and cannot become a call target authority.",
+  "VerifiedNormalCallableSemanticPackageV1 and normal_callable_package_bridge.rs currently carry no direct-call inventory or target bearer; direct_call_handoff.rs is only a future placement candidate."
+]
+owner_result = "No accepted sole owner exists at the observed HEAD. The declaration catalog remains source/body-only. A future source/catalog authority may add one private static-only side product, or an explicit one-way source-to-MIR bridge may be named; neither may be inferred by the pre-adapter mapper."
+accepted_boundary = "source owner -> already-qualified/sealed static Global payload -> fresh private non-Clone/non-Copy bearer for one exact (catalog brand, resolver session, Cataloged caller lineage, SourceExprSite) -> pre-adapter validation -> issue_callee(self) once -> root-owned affine loan -> canonical Call. The bridge never selects, formats, reclassifies, retries, or consults a second resolver."
+per_site_rule = "The declaration payload may be immutable across call sites, but every accepted site receives a fresh bearer. Same target text at two sites means two bearers; duplicate or consumed site is a typed terminal. No declaration-level Callee, Clone/Copy, Rc/Arc/RefCell sharing, getter, Vec/BTree/ordinal pairing, or cross-owner reuse."
+import_lifetime_rule = "The source-to-MIR edge is one-way. Source/AST/catalog borrows are consumed inside the existing HRTB/package scope and do not escape into the installed package, loan, or child frame. If a source owner cannot carry the qualified payload without unrelated MIR imports, name one explicit bridge or retain QualifiedStaticPayloadAbsent; do not hide synthesis in the adapter."
+finite_states = [
+  "SourceRelationObserved",
+  "QualifiedStaticPayloadIssued",
+  "AcceptedFreshStaticBearer",
+  "TargetPayloadMissing",
+  "BridgeOwnerMissing",
+  "UnqualifiedOrMalformedPayload",
+  "PayloadReconstructed",
+  "SecondAuthority",
+  "TargetNamespaceNotStatic",
+  "CurrentOwnerArityMismatch",
+  "NoStaticCandidate",
+  "AmbiguousStaticCandidate",
+  "CatalogBrandMismatch",
+  "ResolverSessionMismatch",
+  "LineageOrSiteMismatch",
+  "SiteMissingDuplicateOrReused",
+  "BearerSharedOrExposed",
+  "BorrowEscapedOrLive",
+  "MethodNoneLegacy",
+  "BuiltinGlobalKnownNonDirect",
+  "LocalValueKnownNonDirect",
+  "ExternKnownNonDirect",
+  "TopLevelOrConstructorParked",
+  "TypedRejectBeforeArguments",
+  "HandoffDuplicated",
+]
+task_set = [
+  "Ic-A owner: name exactly one source-side exact-relation owner and exactly one pre-adapter bridge owner; until then record QualifiedStaticPayloadAbsent.",
+  "Ic-B bridge: move only an already-qualified source payload; forbid adapter-to-source callbacks, AST rescans, resolver/reclassification, and key/name/arity/symbol reconstruction.",
+  "Ic-C freshness: mint a private non-Clone/non-Copy bearer per exact site and reject duplicate, cross-owner, shared, or consumed-site reuse.",
+  "Ic-D issuance: make issue_callee(self) the sole payload-to-Callee transition, then move the owned Callee into the root loan with no residual bearer/payload.",
+  "Ic-E acceptance: prove current-owner exact before unique same-brand sibling, wrong-arity-before-sibling, and all zero/multiple/foreign/non-static/missing states before arguments/effects.",
+  "Ic-F guard: extend the existing scoped Cataloged lifecycle guard for one owner/bridge/bearer/issue, source direction, freshness, co-seal, and old-edge absence while retaining unrelated compatibility symbols."
+]
+acceptance = [
+  "One named source owner or an explicit typed QualifiedStaticPayloadAbsent terminal; one named pre-adapter bridge placement; no general catalog Callee field.",
+  "Bearer is private, static-only, already qualified/sealed, fresh per exact site, non-Clone/non-Copy, and exposes no key/name/arity/registry/formatter/getter.",
+  "issue_callee(self) consumes exactly once and moves only the existing payload; no target reconstruction, second authority, borrow escape, or post-argument issuance.",
+  "All brand/session/owner/lineage/site and duplicate/freshness failures terminate before ValueId, argument, effect, block, package publication, or Call emission.",
+  "Scoped guard proves the Cataloged old-edge delete set and leaves GC/generic/compatibility resolver/recovery/name-Const owners outside this boundary."
+]
+no_safe_slice = [
+  "No source owner can issue an already-qualified static payload at the ordinary Cataloged FunctionCall boundary.",
+  "The proposed bridge imports unrelated MIR/physical authority, exposes a String/key/name/arity/symbol projection, or calls a resolver/recovery/methodize path.",
+  "The bearer is declaration-shared, Clone/Copy/shared, getter-bearing, reused across sites, or cannot prove exact session/brand/owner/lineage/site freshness.",
+  "A source/AST/catalog borrow escapes HRTB/package scope, the loan remains live through argument descent, or a child needs a copied/per-call loan.",
+  "The implementation would add only a new scratch/tuple while leaving direct CatalogedTargeted { callee, arguments } or a second issuer in production."
+]
+next_task = "D0-SIG-Ic-A..F: name the source owner or retain QualifiedStaticPayloadAbsent, freeze the one-way bridge and fresh per-site bearer contract, and register the scoped guard/delete set; only then reconsider D0-SIG-J."
+
 [cataloged_i0_arbitration]
 status = "accepted_design_no_safe_slice"
 decision = "Use one root-owned, non-empty Cataloged direct-call inventory/loan. First, a source-owned exact static relation must already issue (or atomically co-seal) the authoritative Callee; then the pre-adapter owner co-seals catalog brand, resolver/session, Cataloged lineage, exact SourceExprSite, and that relation, and places only the issued value in the loan. RawInvocationChildPortV1 receives the same affine loan by &mut reborrow, and the consumer only takes one owned Callee before argument descent."
@@ -1060,7 +1129,7 @@ task_sequence = [
   "D0-SIG-I: canonical-issuer target-relation census; prove whether an existing source-owned relation carries an authoritative Callee target, and if not, design the single private source-authority co-seal without key/name/arity/symbol projection",
   "D0-SIG-Ia: select the source relation issuer and exact target payload, or retain NoSafeSlice with a typed missing-payload terminal; only then promote direct_call_handoff.rs from placement candidate to pre-adapter co-seal owner",
   "D0-SIG-Ib: freeze the static-only private move-only target bearer and its consuming issue_callee boundary, or retain TargetPayloadMissing; general catalog Callee storage, key projection, MethodCall/exact-i64 borrowing, and source-layer MIR leakage are forbidden",
-  "D0-SIG-Ic: name the source-authority owner or one-way bridge, require a fresh bearer per exact catalog site with no copy/share/getter, and record duplicate-site and payload-reconstruction rejection; keep TargetPayloadMissing/NoSafeSlice until this boundary is explicit",
+  "D0-SIG-Ic: bounded source-bridge census and task set (Ic-A..F): name the source-authority owner or retain QualifiedStaticPayloadAbsent, freeze the one-way bridge, fresh per-site bearer, consuming issue_callee, rejection matrix, and scoped guard/delete set; keep TargetPayloadMissing/NoSafeSlice until this boundary is explicit",
   "D0-SIG-J: provision/lifetime; place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus a non-callback structured child operation and &mut reborrow, and define atomic install abort/rollback",
   "D0-SIG-K: guard/residual proof; define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, scoped positive/negative/parity checks, and concrete transitional-name bans in the Cataloged guard",
   "I0: replace CatalogedTargeted { callee, arguments } with the root loan take, lower arguments once, publish one canonical Call, and finish residual-zero",
