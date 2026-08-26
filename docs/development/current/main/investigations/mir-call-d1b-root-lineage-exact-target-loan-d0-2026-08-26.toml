@@ -35,7 +35,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "D0-SIG-CLOSE-F-READINESS design: close the four named production package-only callers, callback/token lifetime, and the raw-port loan seam before opening any Cataloged affine-loan implementation row."
+smallest_next_slice = "D0-SIG-CLOSE-F-READINESS design: close all named production package-only callers, including the normal_script_a facade edge, callback/token lifetime, and the raw-port loan seam before opening any Cataloged affine-loan implementation row."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -269,7 +269,7 @@ mapper_owner_gap = "The current order is package.begin_lowering -> NormalCallabl
 loan_lifetime_gap = "RawInvocationChildPortV1 has no direct-call loan field and reborrow() only forwards existing Rc ledgers. The implementation must prove one root-owned Option<&mut RawDirectCallDispositionLoanV1>, shorter recursive reborrow, structured-child forwarding, no clone/copy/child ledger, exact-site take_once, and residual-zero completion."
 cataloged_delete_gap = "PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } remains the production Callee handoff from prepare_cataloged_target_v1 through build.rs; BoundedGcTargeted is a separate retained GC route. Replacing CatalogedTargeted still requires a private loan storage/take seam before deleting its direct payload, with production/tests/guard census showing zero Cataloged direct handoffs afterward."
 acceptance_gap = "Before fast mode, require Cataloged positive; missing/foreign/duplicate/ambiguous pre-effect negative; no argument/effect/block mutation before rejection; one take_once; zero residual; one canonical Call; zero Resolved re-entry; and package-only install impossible."
-caller_census = "Direct textual census at a9c24d7230: one non-test prepare_install caller at normal_default_root_catalog_lifecycle.rs:433; begin_lowering production use is program_root_lowering.rs:248 plus the same installed package path; the remaining prepare_install/begin_lowering sites are cfg(test) or *_tests/reference fixtures. This boundary includes direct method calls only and excludes indirect facade calls, which require a separate caller audit before API restriction."
+caller_census = "Direct textual census at a9c24d7230: one non-test prepare_install caller at normal_default_root_catalog_lifecycle.rs:433; begin_lowering production use is program_root_lowering.rs:248 plus the same installed package path; normal_script_a/consumer.rs:47-57 is an additional indirect with_normal_program_source_loan edge. The remaining prepare_install/begin_lowering sites are cfg(test) or *_tests/reference fixtures. This boundary now includes the named indirect facade and requires it to close before API restriction."
 next_design_tasks = [
   "D0-SIG-CLOSE-A: choose the package-lifecycle sibling as the sole pre-adapter mapper owner and record its private signature; adapter construction is downstream only",
   "D0-SIG-CLOSE-B: census all prepare_install/commit/begin_lowering production and test callers, then define the private sealed bundle boundary without public package-only escape",
@@ -277,7 +277,7 @@ next_design_tasks = [
   "D0-SIG-CLOSE-D: map the exact Cataloged old Targeted payload delete/replace sites and guard inventory before any code cell",
   "D0-SIG-CLOSE-E: write the focused positive/negative/parity acceptance matrix and register the reusable guard owner",
   "D0-SIG-CLOSE-F: freeze the C' one-shot package-to-Builder callback/token: package-private prepare/commit performs semantic install, callback hands ownership by value into a Builder-private bundle, and no bare Installed package escapes",
-  "D0-SIG-CLOSE-F-READINESS: move the four named production callers behind C', then prove callback/token single-use and raw-loan seam readiness before opening fast mode",
+  "D0-SIG-CLOSE-F-READINESS: move all named production callers behind C', including normal_script_a, then prove callback/token single-use and raw-loan seam readiness before opening fast mode",
 ]
 
 [d0_sig_resolution]
@@ -370,6 +370,7 @@ production_callers = [
   "program_root_lowering.rs:86-88 and :245-266 accept Installed package by shared reference and call begin_lowering(&self)",
   "normal_default_root_catalog_post_install.rs:29-46 relays the installed mode into the shared post-install lowering path",
   "normal_callable_semantic_loan_port.rs:521-529 -> normal_callable_semantic_package/instance_constructor_loan.rs:23 reads installed.source_ast() during constructor lowering",
+  "normal_script_a/consumer.rs:47-57 indirectly calls installed.with_normal_program_source_loan() and must be closed by the same bridge/HRTB scope",
 ]
 decisions = [
   "install.rs remains sole owner of semantic prepare/commit and the one-shot bridge",
@@ -384,6 +385,7 @@ old_edge_delete_set = [
   "production package-only with_bound_source/source_ast handoff at normal_default_root_catalog_lifecycle.rs:507-525 and :572-577",
   "shared-reference Installed package/begin_lowering path at program_root_lowering.rs:86-88 and :245-266",
   "hidden installed source_ast() handoff at normal_callable_semantic_loan_port.rs:521-529 -> normal_callable_semantic_package/instance_constructor_loan.rs:23",
+  "indirect source-loan handoff at normal_script_a/consumer.rs:47-57",
   "any alternate package-only getter, into_parts, Clone/Copy, generic FnOnce callback, or ignored install token",
 ]
 acceptance = [
@@ -458,6 +460,7 @@ allowed_files = [
   "src/mir/builder/normal_default_root_catalog_post_install.rs",
   "src/mir/builder/program_root_lowering.rs",
   "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "src/mir/builder/normal_script_a/consumer.rs",
   "owner-specific bridge/raw-port siblings and focused tests",
 ]
 delete_set = [
