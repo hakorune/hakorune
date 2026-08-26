@@ -4,7 +4,7 @@ guard_id = "mir-call-global-target-b0-machine-census"
 card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 source_of_truth = "The owning card's global_target_b0 and wpre_contract arrays; this manifest is a guard projection, never a target issuer."
 boundary = "production Global issuers -> compiled core-schema consumers -> selected VM/native terminal, plus the Wpre artifact entrances that select one parser"
-wpre_projection_scope = "Known-current entrance rows fingerprinted from the owning card; not an exhaustive caller proof. Wpre D0 must recense production profiles before selector implementation."
+wpre_projection_scope = "Nine shared-runner entrance rows fingerprinted from the owning card; outside compatibility/backend/observer rows are not projected here. This is not an exhaustive caller proof. Wpre D0 must recense production profiles before selector implementation."
 allowed_dispositions = ["adapt", "delete", "isolate"]
 allowed_family_terminals = [
   "typed_target",
@@ -17,7 +17,7 @@ allowed_family_terminals = [
 ]
 family_row_count = 17
 consumer_row_count = 19
-wpre_row_count = 14
+wpre_row_count = 9
 wire_schema_version = "2.0"
 wire_ops = [
   "const",
@@ -399,17 +399,26 @@ disposition = "adapt"
 terminal = "wpre_boundary"
 
 [[wpre_rows]]
-id = "direct_mir_entrances"
+id = "direct_mir_primary"
 card_index = 1
-card_sha256 = "4512e490dbd55fe802551f26fcbc01470e5617802e2ebc11cffac08920a3797d"
-key = "direct_mir_entrances"
-expected_path_count = 3
+card_sha256 = "1b7c973abda57651e19f8146f8cd5409d102a46649e9a1bd9efe6bdb8f4f2dac"
+key = "direct_mir_primary"
+expected_path_count = 1
+disposition = "adapt"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "dispatch_duplicate_selector"
+card_index = 2
+card_sha256 = "ce0d9a35d4cc2249522c289ee71d3fe214b30220d87d84c30263227358a5165d"
+key = "dispatch_duplicate_selector"
+expected_path_count = 1
 disposition = "delete"
 terminal = "wpre_boundary"
 
 [[wpre_rows]]
 id = "artifact_orchestrator"
-card_index = 2
+card_index = 3
 card_sha256 = "09be84815d1ae67c4e0ebc494fa475d01583f04de0187b423a6d4d16faca6d1a"
 key = "artifact_orchestrator"
 expected_path_count = 1
@@ -418,7 +427,7 @@ terminal = "wpre_boundary"
 
 [[wpre_rows]]
 id = "current_mir_selector"
-card_index = 3
+card_index = 4
 card_sha256 = "f62306ff8a979e2c82a45267bf4ce00db0c7f3dae62df7a17c5eeddfb42439d2"
 key = "current_mir_selector"
 expected_path_count = 1
@@ -427,7 +436,7 @@ terminal = "wpre_boundary"
 
 [[wpre_rows]]
 id = "artifact_family_reload"
-card_index = 4
+card_index = 5
 card_sha256 = "807e33451a4368568ac9fe5c83f077c070fb5d6f06ca2264e42cfe8c24fac965"
 key = "artifact_family_reload"
 expected_path_count = 1
@@ -435,82 +444,28 @@ disposition = "delete"
 terminal = "wpre_boundary"
 
 [[wpre_rows]]
-id = "canonicalize_methodize_downconvert"
-card_index = 5
-card_sha256 = "baa789d4076f27b3ffe64efaadb4aede9cb4ab82d37c715e6fff91371a510cc8"
-key = "canonicalize_methodize_downconvert"
-expected_path_count = 1
-disposition = "isolate"
-terminal = "wpre_boundary"
-
-[[wpre_rows]]
-id = "exact_decoders"
+id = "exact_mir_decoders"
 card_index = 6
-card_sha256 = "32eaaa3bf555ac045cadd4a229274081bf8b23679f3fa2a1bbd2e7aba94d68d5"
-key = "exact_decoders"
-expected_path_count = 3
+card_sha256 = "92759a4d085cc41bdeab6a56dbd4fc845c2689ecd19a02b60cbbdb792002cf1b"
+key = "exact_mir_decoders"
+expected_path_count = 2
 disposition = "adapt"
 terminal = "wpre_boundary"
 
 [[wpre_rows]]
-id = "selfhost_compat_selector"
+id = "program_decoder"
 card_index = 7
-card_sha256 = "e27e4153098e8a3d9f6049a98e929348fa4d094414fc00e33481ea8f0257cfe5"
-key = "selfhost_compat_selector"
-expected_path_count = 3
-disposition = "isolate"
+card_sha256 = "cc39edc1615232d89477763938de01d646dfe3b8cab4a2ef7e2ea7067f2e0bd3"
+key = "program_decoder"
+expected_path_count = 1
+disposition = "adapt"
 terminal = "wpre_boundary"
 
 [[wpre_rows]]
-id = "hv1_production_force_route"
+id = "program_import_projection"
 card_index = 8
-card_sha256 = "01be8291927c82a9125dd9ad3d928bad9c4100e1dfffd79627bb36c4b76325ed"
-key = "hv1_production_force_route"
-expected_path_count = 2
-disposition = "isolate"
-terminal = "wpre_boundary"
-
-[[wpre_rows]]
-id = "selfhost_exe_route"
-card_index = 9
-card_sha256 = "4c6c05e1ff3d3cbf88d35667accc809b8f219879f8870dbab7a8744391a11a14"
-key = "selfhost_exe_route"
-expected_path_count = 2
-disposition = "isolate"
-terminal = "wpre_boundary"
-
-[[wpre_rows]]
-id = "runtime_builder_handoff"
-card_index = 10
-card_sha256 = "0d624386f1b3a21f6452e91ce9b251dad59949d8d183212975f6006460a24bc8"
-key = "runtime_builder_handoff"
-expected_path_count = 2
-disposition = "isolate"
-terminal = "wpre_boundary"
-
-[[wpre_rows]]
-id = "core_bridge_and_program_import"
-card_index = 11
-card_sha256 = "49f2c35f3ab4683247a970335cce4941719a87d2923b545bb8819267c5e2314d"
-key = "core_bridge_and_program_import"
-expected_path_count = 2
-disposition = "isolate"
-terminal = "wpre_boundary"
-
-[[wpre_rows]]
-id = "reference_downconvert"
-card_index = 12
-card_sha256 = "c6defbb8c9faf8b98d08439bd24d4b73c48da8756b48abee55363a917e9f4535"
-key = "reference_downconvert"
+card_sha256 = "0286eab13e8b6d0bd0a0db10a4b245a375d690f9728f197b2aa610340c88a5e6"
+key = "program_import_projection"
 expected_path_count = 1
-disposition = "isolate"
-terminal = "wpre_boundary"
-
-[[wpre_rows]]
-id = "host_wire_rewrite"
-card_index = 13
-card_sha256 = "9cb1e720f6b04cef0807119219ff19681c7f04f3a867150f70c6b8749e62adf0"
-key = "host_wire_rewrite"
-expected_path_count = 1
-disposition = "isolate"
+disposition = "adapt"
 terminal = "wpre_boundary"

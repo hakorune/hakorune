@@ -1,13 +1,13 @@
 title = "MIR JSON ingress v1-to-v0 fallback hierarchy design"
-status = "reopened_design_only_no_implementation"
+status = "reconciled_superseded_evidence_no_implementation"
 observed_commit = "fff5eaabb1"
 observed_at = "2026-08-26"
-active_pointer = "selected by MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT; design-only, no parser or fallback implementation permission"
+active_pointer = "superseded by MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT; evidence-only, not a second active owner"
 
 [reopen_reconciliation]
-state = "Reopened"
+state = "Reconciled"
 superseded_by = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT"
-reason = "The active Call lane selected Wpre after the B0 machine census. The former ParkedSealed trigger is satisfied, and the old card's selfhost/hv1/outside claims were corrected by the production caller audit."
+reason = "The active Call lane selected Wpre after the B0 machine census. This card remains the historical fallback finding; its current owner, profile boundary, and no-retry contract are the active Wpre D0 row."
 blocking_findings = [
   "hv1_inline is reachable from the production force route, not test-only",
   "Stage-A MIR-v0 and Program-v0 extraction can alias one line and then reinterpret MIR failure as Program",
@@ -16,8 +16,11 @@ blocking_findings = [
 ]
 required_contract = "One entrance profile and one strict parsed JSON Value select exactly one decoder or typed terminal. Explicit decoder failure never retries through another parser; compatibility canonicalization stays inside the selected owner and never re-enters selection."
 implementation_permission = false
+current_owner = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml#wpre_profile_root_decoder_design_row"
 
 [boundary]
+scope_status = "historical_observation_scope; current shared-runner boundary and outside profiles are owned by the Wpre D0 card"
+current_scope = "Shared runner family-unknown artifact selection is the active Wpre boundary; hv1, Stage1, selfhost, runtime/kernel, reference, LLVM, observer, and C-ABI routes are represented by outside owner/fate rows on the active card."
 starts = "--mir-json-file/core_executor direct MIR text intake"
 ends = "MirModule publication or terminal typed parse error"
 includes = [
@@ -78,14 +81,18 @@ required_before_fast = [
   "v0 compatibility remains available for genuinely unmarked v0 payloads",
   "self-emitter round-trip, malformed-v1, valid-v0, and unsupported-shape parity are recorded",
   "core_bridge/program fallback cannot re-enter the parser owner after a terminal reject",
-  "v1 field disposition and v0 effect disposition are named as observed behavior versus future acceptance conditions",
 ]
 positive = ["valid v1 -> v1 parser", "valid unmarked v0 -> v0 parser", "Program JSON -> Program compatibility owner"]
 negative = ["malformed explicit v1 -> v0 retry = 0", "unsupported shape -> no parser retry", "parse error -> no silent default or profile coercion"]
 guard = "a future guard must be loader-window scoped; it must not global-grep v0/v1 strings or conflate Program(JSON v0) compatibility"
 
+[deferred_owners]
+v1_field_debt = "func=0, flags, certainty/box_kind, missing box_name, Extern effects, and warn/error aliases are observed compatibility behavior; disposition belongs to the later compatibility/wire terminal rows, not Wpre selector D0."
+v0_effect_debt = "missing/null/empty/unknown effect handling and default READ belong to the source/effect authority row after selector closure; Wpre only guarantees selected decoder terminal behavior."
+roundtrip = "self-emitter round-trip parity belongs to bounded v2 B1 codec evidence; it is not a selector D0 acceptance condition."
+
 [disposition]
-state = "Reopened"
-owner = "MIR JSON ingress lane; active design owner is the Wpre profile/root/decoder row on the D1B card"
-reason = "The active Call lane now owns Wpre design, but implementation remains blocked until the entrance profile inventory, one-root value contract, compatibility fates, and order sync are accepted."
+state = "Superseded"
+owner = "MIR JSON ingress lane; current design owner is the Wpre profile/root/decoder row on the D1B card"
+reason = "Historical fallback evidence is reconciled into the active Wpre D0 contract. The card does not authorize implementation or act as a second active owner."
 reopen_trigger = "A new production entrance, bypass, retry, reparse, or compatibility route reopens the design row and requires a census update before implementation."

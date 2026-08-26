@@ -33,24 +33,24 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 Decision:
   B0の機械censusは着地済み。canonical Globalは`Builtin(Print)`または
-  `SameModule(FreeFunction | StaticBoxMethod)`だけとし、Wpre入口選択を設計停止にする。
+  `SameModule(FreeFunction | StaticBoxMethod)`だけとし、共有runner Wpre入口を設計停止にする。
 
 Source authority + canonical issuer:
-  B0のsource contractに加え、Wpre entrance profileがstrict JSON rootを一回parseし、
-  owner-private selectorが選択済みdecoderまたはtyped terminalを一回発行する。
+  B0のsource contractに加え、共有runnerのentrance profileがstrict JSON rootを一回parseし、
+  owner-private selectorが選択済みdecoderまたはtyped terminalを一回発行する。外部compatは別owner。
 
 Non-authority:
   raw text、alias map、physical symbol、function table、EffectMask、registry、
   `caller=None`、methodize、`args[0]`、optimizer/backend repair。
 
 Fail-fast boundary:
-  entrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
+  共有runnerのentrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
   schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
 
 Smallest next slice:
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`。
-  B0 guard/censusを閉じ、known-current入口を補正し、profile×root×decoderの
-  有限行列と一回parseのownershipをdocs-onlyで固定する。
+  B0 guard/censusを閉じ、共有runner入口をboundedにし、profile×root×decoderの
+  有限行列と一回parseのownershipをdocs-onlyで固定する。Stage1等は外部fateを刻む。
 
 Non-claims:
   schema selector実装、parser/fixture/codec、typed Global、observer/loan、
@@ -138,11 +138,15 @@ Global B0
   ExternOrMethodOrConstructionOwner
 
 Ingress Wpre
+  SharedArtifactProfile
+  DirectMirProfile
   CanonicalV2Selected
   CompatibilityV1Selected
   CompatibilityMirV0Selected
   ProgramV0OwnerSelected
   CanonicalV2ParserUnavailableBeforeB1
+  FamilyForbiddenAtEntranceRejected
+  SelectedDecoderRejected
   MalformedJson / MalformedSchema
   ConflictingMarkers / UnsupportedVersionOrShape
   TypedRejectNoRetry
@@ -207,13 +211,13 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     fail; this guard is evidence only and grants no Wpre/B1 implementation permission
 
 1c. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT (now, design stop)
-   reconcile all known compiled entrances, including Stage1 preemption, production
-   force-hv1, selfhost/EXE, runtime/host handoffs, core-direct, and Program import
-   reparse. Freeze profile x root matrix, one parsed Value ownership, compatibility
-   fates, exact delete set, and order sync. No parser or fallback code changes.
+   bound Wpre-I0 to shared runner family-unknown entrances and freeze profile x root
+   matrix, one parsed Value ownership, decoder signatures, strict duplicate-key owner,
+   and exact delete set. Record Stage1/force-hv1/selfhost/runtime/kernel/reference/
+   LLVM/observer/ABI as separate outside fates. No parser or fallback code changes.
 
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
-   parse JSON root once; select exact v2/v1/MIR-v0/Program-v0 once; delete raw
+   shared runner parses JSON root once; selects exact v2/v1/MIR-v0/Program-v0 once; deletes raw
    substring selection, canonicalize/reload, dispatch-local cascade, swallowed
    core-direct error/re-entry, and explicit-v1-error -> v0 retry
 

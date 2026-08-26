@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-26
+Date: 2026-08-27
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -25,12 +25,12 @@ Related:
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** the package/install bridge and many Call
-  writers are closed, but ordinary `FunctionCall` observation, typed Global
-  identity, late recovery, receiver ABI, and the mandatory-Callee schema remain
-  open in that order.
-- **Next ordered task:** close the finite Global-target identity Decision while
-  keeping semantic implementation disabled; then close the observer-only
-  `FunctionCall` completion transition before any loan is introduced.
+  writers are closed. B0 census/provenance guards are landed; shared-runner Wpre
+  profile/root/decoder design is the active design stop, while typed Global,
+  late recovery, receiver ABI, and mandatory-Callee remain closed.
+- **Next ordered task:** complete
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`
+  without semantic implementation, then open only its bounded shared-runner I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -128,16 +128,21 @@ MirBuilderを移す方法である。replacement cellやstructural measurements�
 
 ```text
 typed Global target family / issuer Decision
-  -> observer-only FunctionCall completion contract
-  -> prerequisite behavior-neutral shelves / live transport dispositions
-  -> strict schema selector with invalid-v1 retry = 0
-  -> typed Global common-core and all compiled-consumer cutover
-  -> observer/package completion implementation and install gate
+  -> reusable ingress lifecycle guard
+  -> shared-runner Wpre profile/root/decoder contract
+  -> strict one-shot schema selection with invalid-v1 retry = 0
+  -> MirCall/CallFlags transport retirement
+  -> source-owned effect authority for every promoted target family
+  -> preserve exact free/static/import/compatibility target relations
+  -> JoinIR declaration co-seal and false GC Global retirement
+  -> observer-only FunctionCall completion contract and package install gate
+  -> builtin/Extern disposition and all-lineage late recovery retirement
   -> package-owned pre-effect site/target disposition
   -> one affine raw handoff and direct-payload deletion
-  -> source-owned effect authority for every promoted target family
-  -> source-backed Resolved / late recovery retirement
   -> receiver/argument ABI and Method(None) retirement
+  -> remaining static/CorePlan/operator producer dispositions
+  -> exact touched-owner shelf and finite current-HEAD B1 census
+  -> typed Global common-core and all compiled-consumer cutover
   -> remaining wire / construction / selected-terminal closure
   -> current-HEAD consumer census
   -> mandatory-Callee Call schema + impossible-state guard retirement

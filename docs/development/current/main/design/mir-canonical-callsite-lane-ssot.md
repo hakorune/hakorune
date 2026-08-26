@@ -21,10 +21,12 @@ Related:
 - **Current decision:** canonical Global is `Builtin(Print)` or same-module
   `FreeFunction`/`StaticBoxMethod`; canonical MIR JSON is exact v2.0.
 - **Current implementation status:** core still stores `Global(String)`,
-  `func`, `Option<Callee>`, and optional Method receivers. Ordinary
-  `FunctionCall` package completion and the typed Global cutover remain open.
-- **Next ordered task:** `MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0`; it is
-  guard-only and does not authorize parser or semantic behavior changes.
+  `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
+  guards are landed; shared-runner Wpre profile/root/decoder design remains open
+  before any parser implementation.
+- **Next ordered task:**
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`;
+  it is docs-only and keeps parser/semantic behavior closed.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
@@ -123,12 +125,20 @@ rejected. Exact v1.0 and v0 remain owner-private compatibility inputs and must
 resolve text once before canonical MIR. Invalid explicit schema input never
 retries through another parser.
 
-Wpre parses one JSON root and classifies it totally. Exact `schema_version`
-`2.0` selects canonical v2, exact `1.0` selects compatibility v1, schema-less
-MIR-v0 requires the exact functions/blocks shape, and `version=0, kind=Program`
-belongs only to the Program artifact owner. Mixed markers, any other version,
-or malformed/unsupported shape reject. Until B1 installs the v2 codec, an
-explicit v2 payload reaches a typed parser-unavailable terminal, never v1/v0.
+Wpre parses one JSON root and classifies it totally within the shared runner
+family-unknown boundary. Exact `schema_version` `2.0` selects canonical v2,
+exact `1.0` selects compatibility v1, schema-less MIR-v0 requires the exact
+functions/blocks shape, and `version=0, kind=Program` belongs only to the
+Program artifact owner. Explicit schema plus functions/blocks is validated by
+that decoder, not treated as a root conflict. Mixed legacy markers, any other
+version, or malformed/unsupported shape reject. Until B1 installs the v2 codec,
+an explicit v2 payload reaches a typed parser-unavailable terminal, never v1/v0.
+
+The root owner uses one recursive duplicate-aware serde parse to produce one
+`serde_json::Value`; selector and selected decoders consume that value rather
+than reparsing raw text. Stage1 arbitration, force-hv1, selfhost, runtime/
+kernel, reference, LLVM, observer, and C-ABI paths have separate owner/fate
+rows and are not silently folded into this shared Wpre boundary.
 
 B1 v2 is a bounded Call-corridor profile, not a claim that all current emitter
 ops round-trip. Its exact op set is:
@@ -192,8 +202,9 @@ Fail-fast boundary:
   family/schema/consumer terminates before arguments or effects.
 
 Smallest next slice:
-  reusable ingress-schema lifecycle guard only. It freezes the accepted Wpre
-  boundary before parser behavior changes.
+  Wpre D0 docs-only profile/root/decoder contract. The reusable ingress-schema
+  guard is landed; shared-runner selection stays closed until one parsed Value,
+  strict duplicate-key ownership, decoder signatures, and outside fates agree.
 
 Non-claims:
   selector implementation, typed schema implementation, D1B loan, cross-module

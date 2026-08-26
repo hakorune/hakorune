@@ -183,22 +183,35 @@ d1b_states = [
 terminal_policy = "Only a typed target may cross into argument descent. KnownNonDirect exits through its typed owner; reject and park do not issue a target. Incomplete inventory aborts before install. Resolved fallthrough and residual loan are guard failures, never successful terminals."
 
 [wpre_contract]
-boundary = "all compiled runner MIR/Program JSON artifact entrances, including Stage1/force-hv1/selfhost/core-direct compatibility routes -> exactly one selected parser or typed terminal; one payload only"
+boundary = "shared runner family-unknown MIR/Program JSON artifact entrances -> exactly one selected parser or typed terminal; one parsed payload only. Family-preselected compatibility/backend/observer routes are inventoried separately and remain ParkedSealed or CutoverBlockerOpen until their own fate is fixed."
 entrance_owner_inventory = [
   "public_artifact_entrances | src/main.rs; src/runner/pipe_io.rs | raw JSON enters core_executor::execute_json_artifact | adapt to one Wpre result before decoder/probe",
-  "direct_mir_entrances | src/runner/mod.rs; src/runner/dispatch.rs; src/runner/stage1_bridge/args.rs | execute_mir_json_text plus duplicate v1/v0 selector and Stage1 preemption | delegate to Wpre; delete dispatch selector and make preemption an explicit profile",
+  "direct_mir_primary | src/runner/mod.rs | --mir-json-file direct entrance and direct text handoff | retain primary route and delegate to Wpre",
+  "dispatch_duplicate_selector | src/runner/dispatch.rs | duplicate v1/v0 selector and raw cascade | delete after Wpre owns selection",
   "artifact_orchestrator | src/runner/core_executor.rs | artifact/direct routes converge late; core-direct probes swallow failure then fall through | Wpre first; one decoded module to one terminal; delete execution re-entry",
   "current_mir_selector | src/runner/json_artifact/mir_loader.rs | String marker selection and v1 Err -> v0 retry | consume total Wpre state; delete cross-parser retry",
   "artifact_family_reload | src/runner/json_artifact/mod.rs | optional canonicalize before load, canonicalize and reload after None, then Program-v0 | one root classification and decoder; delete reload loop",
-  "canonicalize_methodize_downconvert | src/runner/modes/common_util/core_bridge.rs | env-selected injection, phi mutation, name methodize | isolate under explicit CompatibilityV0; never run around v2 or re-enter selection",
-  "exact_decoders | src/runner/json_v1_bridge/parse/mod.rs; src/runner/mir_json_v0.rs; src/runner/json_artifact/program_json_v0_loader.rs | overlapping raw routes | one selected Wpre state each; selected decoder error is terminal",
-  "selfhost_compat_selector | src/runner/modes/common_util/selfhost/json.rs; src/runner/modes/common_util/selfhost/stage_a_route.rs; src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs | same-line MIR-v0/Program-v0 scans and MIR failure -> Program route | explicit compatibility profile only; no v2/v1 and no canonical re-entry",
-  "hv1_production_force_route | src/main.rs; src/runner/hv1_inline.rs | HAKO_VERIFY_V1_FORCE_HAKOVM bypasses the normal selector and reparses raw text | classify as explicit force profile; exact v1 terminal only, no test-only claim",
-  "selfhost_exe_route | src/runner/selfhost.rs; src/runner/modes/common_util/selfhost_exe.rs | heuristic Program payload extraction and failure-to-next-route | owner-private legacy profile; census before any Wpre inclusion",
-  "runtime_builder_handoff | src/runtime/mirbuilder_emit.rs; src/host_providers/mir_builder/handoff.rs | compiled compatibility handoff with family-specific reparse/transform | inventory as compatibility owner; no selector re-entry",
-  "core_bridge_and_program_import | src/runner/modes/common_util/core_bridge.rs; src/runner/json_artifact/program_json_v0_loader.rs | transform result can be ignored; Program imports reparse selected root | typed owner disposition required; one parsed root in Wpre",
-  "reference_downconvert | src/runner/reference/vm_hako/payload_normalize.rs | reference-only Global/print normalization | isolate non-selected reference wire; output cannot be v2 input",
-  "host_wire_rewrite | src/host_providers/mir_builder/backend_shape.rs | console spelling rewritten to v1 Global print | isolate compatibility producer; v2 uses shared Builtin Print DTO",
+  "exact_mir_decoders | src/runner/json_v1_bridge/parse/mod.rs; src/runner/mir_json_v0.rs | selected v1/MIR-v0 decoders currently reparse raw text | add parsed-root seams; selected error is terminal",
+  "program_decoder | src/runner/json_v0_bridge/core.rs | Program-v0 decoder currently owns raw parse | add parsed-root seam; keep Program family owner-private",
+  "program_import_projection | src/runner/json_artifact/program_json_v0_loader.rs | Program imports reparse selected raw root | borrow the same parsed root; no second parse",
+]
+outside_owner_inventory = [
+  "stage1_route_arbitration | src/runner/stage1_bridge/mod.rs; src/runner/stage1_bridge/entry_guard.rs; src/runner/stage1_bridge/args.rs; src/runner/stage1_bridge/stub_emit.rs; src/runner/stage1_bridge/stub_emit/parse.rs | child/delegate preemption and captured output framing | ParkedSealed until arbitration and tagged payload fate are explicit",
+  "compatibility_transform | src/runner/modes/common_util/core_bridge.rs | selected compatibility mutation/methodize/downconvert | ParkedSealed inside selected owner; cannot select or re-enter Wpre",
+  "selfhost_capture_route | src/runner/modes/common_util/selfhost/json.rs; src/runner/modes/common_util/selfhost/stage0_capture.rs; src/runner/modes/common_util/selfhost/stage_a_route.rs | same-line dual scans and MIR failure -> Program retry | ParkedSealed until disjoint framing or separate row is accepted",
+  "selfhost_compat_bridge | src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs | Program -> Hako MIR -> Rust bridge fallback | ParkedSealed with explicit compatibility owner and reopen trigger",
+  "hv1_production_force | src/main.rs; src/runner/hv1_inline.rs | force route directly executes raw v1-like text | CutoverBlockerOpen until adapt-to-Value, standard-v1 reroute, or retirement is selected",
+  "selfhost_exe_python_inline | src/runner/selfhost.rs; src/runner/modes/common_util/selfhost_exe.rs | EXE/Python/inline heuristic Program extraction and fallthrough | ParkedSealed per mode; no Wpre selector evidence",
+  "runtime_guest_program | src/runtime/mirbuilder_emit.rs; src/backend/mir_interpreter/handlers/extern_provider/mod.rs; src/runtime/plugin_loader_v2/enabled/extern_functions.rs | guest Program APIs reparse and can swallow Err -> Ok(None) | CutoverBlockerOpen until typed Program error fate is selected",
+  "kernel_public_program | src/host_providers/mir_builder.rs; src/host_providers/mir_builder/handoff.rs; crates/nyash_kernel/src/plugin/module_string_dispatch.rs; crates/nyash_kernel/src/exports/stage1.rs | kernel public Program API and C-export handoff | ParkedSealed as Program-only owner; not shared with runtime guest API",
+  "hako_program_transport | src/main.rs; src/runner/child_env.rs; lang/src/mir/builder/compat/program_json_v0_entry.hako | file/env duplication around preselected Program-v0 | ParkedSealed; transport cannot become selector authority",
+  "reference_vm_hako | src/runner/reference/vm_hako.rs; src/runner/reference/vm_hako/subset_check/mod.rs; src/runner/reference/vm_hako/payload_normalize.rs; src/runner/reference/vm_hako/driver_spawn.rs | reference reparse/normalize/re-entry | ParkedSealed non-selected wire owner",
+  "llvm_mir_compat | src/host_providers/llvm_codegen/mir_json_text_object.rs; src/host_providers/llvm_codegen/normalize.rs; src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs; crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs | raw text/schema guessing and reparse | ParkedSealed compatibility owner",
+  "provider_package_observer | src/cli/provider_package_hako_derived_build/mir_json.rs | semantic observer/derived package handoff | ParkedSealed; cannot prove execution decoder selection",
+  "llvm_backend_binary | crates/nyash-llvm-compiler/src/compile_input.rs; crates/nyash-llvm-compiler/src/native_driver.rs | independent MIR backend ingress | ParkedSealed until explicit backend owner selection",
+  "c_abi_mir_stub | src/abi/nyrt_shim.rs | payload-blind C ABI stub | ParkedSealed non-authority; reopen only when a real decoder is connected",
+  "core_direct_execution_overlay | src/runner/core_executor.rs | raw probe, swallowed error, child retry, and execution re-entry | CutoverBlockerOpen as execution fate, separate from Wpre schema selection",
+  "host_wire_rewrite | src/host_providers/mir_builder/backend_shape.rs | console spelling rewritten to v1 Global print | ParkedSealed compatibility producer; v2 uses shared Builtin Print DTO",
 ]
 old_edges = [
   "raw contains(functions/blocks/schema_version) selectors",
@@ -212,6 +225,7 @@ old_edges = [
   "Stage-A same-line dual extraction and MIR-error -> Program reinterpretation",
   "Program-v0 lowering -> second raw parse for imports",
   "core bridge transform error ignored before compatibility handoff",
+  "plugin/provider Program conversion Err -> Ok(None) error swallow",
 ]
 disposition = "Parse one Value, classify exact v2/v1/MIR-v0/Program-v0 once, then call one parser. A compatibility canonicalizer may run only inside its already-selected owner and may not re-enter selection."
 outside = "hv1_inline has a production force route and is not test-only. Stage-A currently has separate legacy extraction code but same-line aliasing and fallback risk; selfhost, Stage1, core-direct, and host handoffs need explicit profile/fate before Wpre I0. They are not evidence that a single parsed root already exists."
@@ -230,20 +244,33 @@ non_authority = [
   "Stage-A same-line aliases, Program import reparse, hv1 inline interpreter behavior, core-direct probe result, and compatibility output spelling",
 ]
 fail_fast = "Strictly parse JSON once; reject non-object, duplicate root discriminator, malformed/conflicting marker, unsupported explicit schema, entrance/profile mismatch, and selected-decoder failure without another parser. Direct MIR entrance + Program marker is typed wrong-entrance reject; exact v2 before B1 is ParserUnavailable terminal."
-entrance_profiles = [
-  "DirectMirArtifact | --mir-json-file and direct MIR text | v2/v1/MIR-v0 only; Program-v0 is FamilyForbiddenAtEntranceRejected",
-  "ArtifactFamily | file/stdin/umbrella JSON | exact v2/v1/MIR-v0/Program-v0 selection from one root Value",
-  "ForceHv1Production | HAKO_VERIFY_V1_FORCE_HAKOVM | explicit v1 profile only; exact v1 decoder terminal, no raw bypass",
-  "Stage1Preempted | NYASH_USE_STAGE1_CLI=1 and stage1 args | explicit compatibility profile; cannot silently preempt a requested direct JSON profile",
-  "SelfhostLegacy | Stage-A/EXE/Python compatibility | Parked or separately framed; same-line dual slot and MIR->Program retry are not Wpre evidence",
-  "CoreDirectOrBridge | core-direct probe and compatibility downconvert | one owner-private terminal; no swallow/fallthrough/re-entry",
+route_arbitration = [
+  "Stage1 child/delegate versus direct/umbrella JSON is decided before Wpre and carries no JSON root; direct --mir-json-file must not be silently preempted",
+  "core-direct execution intent is decided after a selected module or becomes an explicit no-retry terminal; it is not a schema profile",
 ]
-known_inventory_scope = "B0 fingerprints 10 entrance rows; Wpre D0 expands the known compiled routes with Stage1, force-hv1, selfhost EXE, runtime/host handoffs, core bridge, and Program import reparse. This is a bounded current inventory, not a proof that all production callers are exhausted."
+entrance_profiles = [
+  "SharedArtifactUnknown | normal file/stdin/umbrella JSON | exact v2/v1/MIR-v0/Program-v0 selection from one root Value",
+  "DirectMirExpected | --mir-json-file and direct MIR text | v2/v1/MIR-v0 only; Program-v0 is FamilyForbiddenAtEntranceRejected",
+]
+outside_profiles = [
+  "ProgramV0OnlyInternal | runtime/host/plugin Program handoff | selected Program-v0 decoder with typed error terminal; no raw reparse",
+  "Stage1CapturedMirV0 | Stage1 output framing explicitly marks MIR-v0 | selected compatibility decoder only; not a route-arbitration state",
+  "Stage1CapturedProgramV0 | Stage1 output framing explicitly marks Program-v0 | selected Program decoder only; no MIR retry",
+  "ForceHv1V1Execution | HAKO_VERIFY_V1_FORCE_HAKOVM | disposition A/B/C remains a design blocker; not assumed to be the standard v1 decoder",
+  "SelfhostProgramV0Expected | Stage-A/EXE/Python compatibility | ParkedSealed until disjoint framing and explicit error fate; no same-line dual slot or MIR retry",
+]
+execution_overlays = [
+  "CoreDirectExecution | execution intent/retry owner; choose decoded-module consumer, retired raw child, or explicit no-retry terminal",
+  "CompatibilityTransform | selected CompatibilityV1/MIR-v0/Program-v0 owner may mutate its owned Value before decode; it cannot select or re-enter Wpre",
+]
+known_inventory_scope = "B0 fingerprints 9 shared runner rows for the bounded Wpre-I0 entrance. The outside_owner_inventory records family-preselected Stage1, force-hv1, selfhost, runtime/kernel, reference, LLVM, observer, and ABI routes with explicit parked/open fates; this is not proof that all production callers are exhausted."
 unclassified_entrances = [
   "selfhost Stage-A framing/disjointness and explicit Rust bridge fate",
   "Stage1 preemption ordering relative to direct --mir-json-file",
   "runtime/mirbuilder_emit and host_providers/mir_builder/handoff production ownership",
-  "remaining core-direct and compatibility transform callers discovered by the Wpre production census",
+  "force-hv1 adapt-to-Value versus standard-v1 reroute versus retirement",
+  "core-direct execution fate versus compatibility-transform owner",
+  "remaining core-direct, plugin/provider, and compatibility transform callers discovered by the Wpre production census",
 ]
 root_matrix = [
   "strict JSON parse failure, non-object root, duplicate discriminator -> MalformedRootTypedReject",
@@ -252,13 +279,16 @@ root_matrix = [
   "other or non-string explicit schema -> UnsupportedExplicitSchemaTypedReject",
   "schema absent + version=0 + kind=Program + no functions -> ProgramV0Selected",
   "schema absent + functions array + no Program marker -> CompatibilityMirV0Selected",
-  "schema/Program/functions conflict or partial marker -> ConflictingOrMalformedMarkersTypedReject",
-  "DirectMirArtifact + ProgramV0Selected -> FamilyForbiddenAtEntranceRejected",
+  "explicit schema 1.0/2.0 with functions/blocks -> selected explicit family; body shape is decoder validation, not a root conflict marker",
+  "schema absent + Program marker with functions, or partial legacy marker -> ConflictingOrMalformedMarkersTypedReject",
+  "DirectMirExpected + ProgramV0Selected -> FamilyForbiddenAtEntranceRejected",
   "selected decoder error -> SelectedDecoderRejected; no v1->v0, MIR->Program, or third-parser retry",
   "none of the finite markers -> UnsupportedShapeTypedReject",
 ]
-value_contract = "raw text -> serde_json::Value exactly once -> owner-private total selector carrying that Value -> selected Value-consuming decoder exactly once. Decoders must not reparse &str; Program import extraction borrows the same parsed root. Duplicate-key rejection requires a strict root parser contract, not last-wins Value behavior."
-compatibility_owner = "CompatibilityV1, CompatibilityMirV0, and ProgramV0 remain owner-private decoder families. Canonicalization/downconvert may operate only after selection inside its selected compatibility owner and may not re-enter Wpre. Stage1/selfhost/EXE paths are ParkedCompatibility until their framing and production caller census are closed."
+duplicate_key_owner = "A new owner-private recursive serde Visitor (or equivalent serde deserializer) rejects duplicate object keys at every depth while producing one serde_json::Value. A pre-scan plus ordinary Value parse is not the contract, and analysis-private strict code is not imported across the crate boundary."
+decoder_signatures = "Conceptual owner-private seams: select(profile, root: Value) -> Result<SelectedIngress, WpreError>; decode_v1(root: &Value) -> Result<MirModule, WpreError>; decode_mir_v0(root: &Value) -> Result<MirModule, WpreError>; decode_program_v0(root: &Value, context: &ProgramV0Context) -> Result<MirModule, WpreError>; import extraction borrows the same root. Selected decoder errors are typed terminals."
+value_contract = "raw text -> one recursive duplicate-aware parse -> serde_json::Value exactly once -> owner-private total selector carrying that Value -> selected Value-consuming decoder exactly once. Decoders must not reparse &str; Program import extraction borrows the same parsed root."
+compatibility_owner = "CompatibilityV1, CompatibilityMirV0, and ProgramV0 remain owner-private decoder families. Canonicalization/downconvert may operate only after selection inside its selected compatibility owner and may not re-enter Wpre. Stage1/selfhost/EXE paths remain ParkedCompatibility until framing and production caller census are closed."
 exact_delete_set = [
   "looks_like_mir_v0/raw contains selector",
   "direct v1 Err/None -> v0 fallback",
@@ -266,18 +296,24 @@ exact_delete_set = [
   "json_artifact canonicalize-before-select and load/canonicalize/reload loops",
   "core-direct probe, swallowed error, child retry, and execution re-entry",
   "Program-v0 raw second parse for imports",
-  "same-line Stage-A dual classification and MIR-error -> Program reinterpretation",
-  "force-hv1 selector bypass and arbitrary 1* acceptance",
 ]
-missing_caller_census = "No implementation until each entrance profile has a production owner, exact boundary, and fate. The current 10-row B0 projection is known-current only; Wpre I0 must recense compiled callers including main/pipe, runner/mod/dispatch, Stage1, hv1, selfhost, runtime, host handoff, core bridge, and Program loader."
-order_sync = "Before Wpre I0, synchronize mirbuilder-final-pipeline-ssot, mir-canonical-callsite-lane-ssot, this card, and the workstream so Wpre profile/one-root selection precedes typed Global B1 without contradicting the effect/source/recovery prerequisite order."
+outside_delete_set = [
+  "Stage1 first-line substring extraction, same-line dual classification, and MIR-error -> Program reinterpretation",
+  "force-hv1 selector bypass and arbitrary 1* acceptance",
+  "runtime/plugin/kernel Program marker reparse and Err -> Ok(None) swallow",
+  "reference/LLVM compatibility raw selector, schema guessing, and re-entry",
+]
+missing_caller_census = "No implementation until the 9-row shared runner boundary has exact profile/owner/signature and every outside row has a fixed ParkedSealed or CutoverBlockerOpen fate. The Wpre I0 census must still recense Stage1 parser/framing, hv1, selfhost/EXE/Python, runtime/plugin/kernel/host handoff, core-direct, Program decoder/import, VM-hako, LLVM text, provider observer, nyash_kernel, and C ABI callers."
+order_sync = "Before Wpre I0, synchronize mirbuilder-final-pipeline-ssot, mir-canonical-callsite-lane-ssot, this card, and the workstream so Wpre profile/one-root selection precedes MirCall/CallFlags retirement, effect/source/recovery prerequisites, and typed Global B1 in one durable order."
 allowed_files = [
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
   "docs/development/current/main/investigations/mir-json-ingress-fallback-hierarchy-d0-2026-08-26.toml",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md",
+  "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md",
 ]
-done = "B0 is landed guard-only; Wpre profiles cover every known compiled entrance and label the remaining census boundary; one parsed-root/value contract, finite root matrix, compatibility fates, exact delete set, order sync, and parked-card reconciliation are recorded. No parser or fallback code changes occur."
+done = "B0 is landed guard-only; the shared Wpre-I0 boundary is bounded to 9 known runner rows, outside routes have explicit owners/fates, one parsed-root/value contract and finite root matrix are recorded, and implementation remains forbidden. No parser or fallback code changes occur."
 stop = "NoSafeSlice if one route requires decoder reparse, substring family selection, duplicate-key last-wins, instruction/body semantics for root choice, explicit-error retry, Stage1/hv1 bypass, same-line dual framing, or a new semantic receipt."
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
 
@@ -442,6 +478,7 @@ docs = [
   "current pointer guard",
   "all current TOML parse",
   "Call SSOT stale-pointer scan",
+  "Call SSOT and north-star durable-order sync",
   "workstream/current-card line counts and diff check",
 ]
 existing_guards = [
