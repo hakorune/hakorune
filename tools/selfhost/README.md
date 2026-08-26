@@ -200,7 +200,7 @@ Notes
   the next full-env stop as `BuildBox.emit_program_json_v0/2`, which is Stage1
   authority surface rather than a backend matcher target.
 - raw `selfhost_build.sh --in ...` whole-script output, `--keep-tmp`, and `NYASH_SELFHOST_KEEP_RAW=1` are retired facade routes.
-- Runner executes Core‑Direct in-proc under HAKO_CORE_DIRECT_INPROC=1.
+- The former Core‑Direct in-process/child route is retired; product execution uses the LLVM/AOT owner.
 - PyVM は historical / direct-only 扱い（既定導線は mainline direct/core）。legacy parity が必要な場合は `tools/historical/pyvm/*.sh` を使う。
 - For heavier cases (bundles/alias/require), keep Stage‑B canaries opt‑in in quick profile.
 

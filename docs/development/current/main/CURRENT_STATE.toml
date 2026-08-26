@@ -1,9 +1,9 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "CORE-DIRECT-RETIRE-R0"
-current_design_stop = "design stop; ProductAot S0 is landed. R0 may not delete CoreDirect until the one-state post-decode terminal is proven; pre-Wpre has no named issuer for a separate unavailable state."
-current_blocker_token = "CORE-DIRECT-RETIRE-R0: ProductAot successor landed; prove one-state post-decode retired terminal and retry/fallback=0 before deletion."
+current_design_stop = ""
+current_blocker_token = "CORE-DIRECT-RETIRE-R0: fast row open; after successful existing decode, CoreDirect is one stderr terminal with retry/fallback zero, then old probe/child/in-proc paths are deleted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Wpre bypass retirement — CoreDirect no-retry removal after successor evidence"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "CanonicalV1 Value S0, CoreDirect D0, and ProductAot substring S0 are landed. CoreDirect R0 is the sole design stop; broad VM retirement remains later."
+latest_card_summary = "CanonicalV1 Value S0, CoreDirect D0, and ProductAot substring S0 are landed. CoreDirect R0 is the sole fast row; broad VM retirement remains later."
 next_design_card = "CORE-DIRECT-RETIRE-R0"
-next_execution_card = "none (design stop)"
+next_execution_card = "CORE-DIRECT-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
   "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and CanonicalV1 Value S0 opened as the sole fast row.",
-  "2026-08-27: ProductAot substring S0 landed with exact release EXE/AOT evidence; CoreDirect R0 remains a one-state post-decode design stop before no-retry deletion.",
+  "2026-08-27: ProductAot substring S0 landed with exact release EXE/AOT evidence; CoreDirect R0 opened for one-state post-decode terminal and no-retry deletion.",
 ]

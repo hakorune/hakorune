@@ -29,10 +29,10 @@ Related:
   closed.
 - **Next ordered task:**
   `CORE-DIRECT-RETIRE-R0`, selected by `CURRENT_STATE.toml` as the current
-  design-stop row. The private child transport, CanonicalV1 Value seam, and
-  exact ProductAot substring successor are landed; R0 must prove its one-state
-  post-decode terminal before any CoreDirect deletion, with remaining pre-Wpre
-  rows following before Wpre-I0.
+  fast row. The private child transport, CanonicalV1 Value seam, and exact
+  ProductAot substring successor are landed; R0 proves its one-state
+  post-decode terminal and deletes the CoreDirect retry/fallback family, with
+  remaining pre-Wpre rows following before Wpre-I0.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.

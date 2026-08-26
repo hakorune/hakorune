@@ -146,16 +146,21 @@ if phase == "core_direct_substring_product_aot_s0":
 
 if phase == "core_direct_retire_r0":
     expected_row = "CORE-DIRECT-RETIRE-R0"
-    if state.get("work_mode") not in {"design_stop", "closeout"}:
-        fail("core_direct_retire_r0 requires design_stop or closeout work mode")
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout", "design_stop"}:
+        fail("core_direct_retire_r0 requires fast, closeout, or design_stop work mode")
     if state.get("current_execution_row") != expected_row:
         fail("core_direct_retire_r0 pointer drifted")
-    if not str(state.get("next_execution_card", "")).startswith("none"):
-        fail("core_direct_retire_r0 next execution card must remain none during design stop")
-    if not state.get("current_design_stop"):
-        fail("core_direct_retire_r0 must retain an explicit design stop")
-    if card.get("implementation_permission") is not False:
-        fail("active card top-level permission must remain false during R0 design stop")
+    if mode == "design_stop":
+        if not str(state.get("next_execution_card", "")).startswith("none"):
+            fail("core_direct_retire_r0 next execution card must remain none during design stop")
+        if not state.get("current_design_stop"):
+            fail("core_direct_retire_r0 must retain an explicit design stop")
+    else:
+        if state.get("next_execution_card") != expected_row:
+            fail("core_direct_retire_r0 fast/closeout pointer drifted")
+        if mode == "fast" and state.get("current_design_stop"):
+            fail("core_direct_retire_r0 fast row must not retain a design stop")
     smoke_rows = card.get("core_direct_smoke_disposition")
     if not isinstance(smoke_rows, dict):
         fail("core_direct_smoke_disposition is missing")
@@ -164,21 +169,56 @@ if phase == "core_direct_retire_r0":
         fail("ProductAot S0 must be landed before CoreDirect R0")
     if s0.get("implementation_permission") is not False:
         fail("landed ProductAot S0 must have closed scoped permission")
+    if mode == "design_stop":
+        if card.get("implementation_permission") is not False:
+            fail("active card top-level permission must remain false during R0 design stop")
+    else:
+        if card.get("implementation_permission") is not True:
+            fail("active card top-level permission must be true for the scoped R0 fast row")
+        allowed_files = set(card.get("core_direct_tag_rc_contract", {}).get("implementation_allowed_files") or [])
+        expected_files = {
+            "src/runner/core_executor.rs",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_retire_r0.sh",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_string_substring_ok_vm.sh",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_string_bounds_rc_vm.sh",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_string_charat_bounds_rc_vm.sh",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_map_bad_key_rc_vm.sh",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_string_replace_ok_vm.sh",
+            "tools/smokes/v2/profiles/integration/core_direct/core_direct_array_oob_set_rc_vm.sh",
+            guard_script,
+            "tools/selfhost/README.md",
+            "docs/development/current/main/CURRENT_STATE.toml",
+            "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+            "docs/development/current/main/design/vm-active-lane-retirement-ssot.md",
+            "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md",
+            "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md",
+            "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+        }
+        if allowed_files != expected_files:
+            fail("CoreDirect R0 implementation file boundary drifted")
     terminal = card.get("core_direct_tag_rc_contract")
     if not isinstance(terminal, dict):
         fail("core_direct_tag_rc_contract is missing")
-    if terminal.get("status") != "design_accepted_one_state_pre_wpre":
+    expected_terminal_status = "design_accepted_one_state_pre_wpre" if mode == "design_stop" else "fast_open_one_state_pre_wpre"
+    if terminal.get("status") != expected_terminal_status:
         fail("CoreDirect R0 terminal contract is not the accepted one-state design")
     issuer = str(terminal.get("canonical_issuer", ""))
     if "one terminal" not in issuer or "[core-direct/retired]" not in issuer:
         fail("CoreDirect R0 one-state retired terminal is not recorded")
     if "unavailable remains ParkedSealed" not in issuer:
         fail("CoreDirect R0 unavailable parking rule is missing")
-    print(
-        f"[{guard_id}] result_class=current-change failure status=pass "
-        "phase=core_direct_retire_r0 s0=landed terminal=one_state_pre_wpre "
-        "unavailable=parked deletion=forbidden"
-    )
+    if mode == "design_stop":
+        print(
+            f"[{guard_id}] result_class=current-change failure status=pass "
+            "phase=core_direct_retire_r0 s0=landed terminal=one_state_pre_wpre "
+            "unavailable=parked deletion=forbidden"
+        )
+    else:
+        print(
+            f"[{guard_id}] result_class=current-change failure status=pass "
+            "phase=core_direct_retire_r0 s0=landed terminal=one_state_pre_wpre "
+            "unavailable=parked implementation=fast_open"
+        )
     raise SystemExit(0)
 
 if phase in {"reference_child_i0", "canonical_v1_value_s0"}:

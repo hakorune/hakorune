@@ -21,9 +21,9 @@ Related:
   successor S0 are landed. No route or engine deletion is authorized; the
   MirBuilder Call spine remains the serial implementation authority.
 - **Next ordered task:** the current row is
-  `CORE-DIRECT-RETIRE-R0`, a design stop until the one-state post-decode
-  terminal proof is available; pre-Wpre has no issuer for a separate
-  `unavailable` state.
+  `CORE-DIRECT-RETIRE-R0`, a bounded fast row for the one-state post-decode
+  terminal and no-retry deletion; pre-Wpre has no issuer for a separate
+  `unavailable` state, so that state remains parked.
 - **Production stop line:** existing VM code or tests never authorize product
   parity, fallback, or a new compatibility route; retirement must not redirect
   incompatible inputs to another parser or executor.
