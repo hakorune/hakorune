@@ -173,8 +173,12 @@ if phase == "core_direct_retire_r0":
         if card.get("implementation_permission") is not False:
             fail("active card top-level permission must remain false during R0 design stop")
     else:
-        if card.get("implementation_permission") is not True:
-            fail("active card top-level permission must be true for the scoped R0 fast row")
+        expected_card_status = "core_direct_r0_fast_open" if mode == "fast" else "core_direct_r0_landed"
+        if card.get("status") != expected_card_status:
+            fail(f"active card status must be {expected_card_status} for R0")
+        expected_permission = mode == "fast"
+        if card.get("implementation_permission") is not expected_permission:
+            fail("active card implementation permission does not match R0 mode")
         allowed_files = set(card.get("core_direct_tag_rc_contract", {}).get("implementation_allowed_files") or [])
         expected_files = {
             "src/runner/core_executor.rs",
@@ -207,6 +211,52 @@ if phase == "core_direct_retire_r0":
         fail("CoreDirect R0 one-state retired terminal is not recorded")
     if "unavailable remains ParkedSealed" not in issuer:
         fail("CoreDirect R0 unavailable parking rule is missing")
+    if mode != "design_stop":
+        def read(relative: str) -> str:
+            path = root / relative
+            if not path.is_file():
+                fail(f"CoreDirect R0 implementation owner missing: {relative}")
+            return path.read_text(encoding="utf-8")
+
+        core = read("src/runner/core_executor.rs")
+        smoke = read("tools/smokes/v2/profiles/integration/core_direct/core_direct_retire_r0.sh")
+        required_core = (
+            "fn core_direct_requested()",
+            "fn core_direct_retired()",
+            "core_direct_is_one_state_post_decode_terminal",
+            "core_direct_does_not_relabel_wrong_entrance",
+        )
+        for marker in required_core:
+            if marker not in core:
+                fail(f"CoreDirect R0 core owner is missing marker: {marker}")
+        forbidden_core = (
+            "maybe_try_core_direct_for_mir_json",
+            "looks_like_mir_json_text",
+            "try_run_core_direct",
+            "HAKO_CORE_DIRECT_INPROC",
+            "NYASH_CORE_DIRECT_INPROC",
+            "falling back to VM interpreter",
+            "core_exec_direct.hako",
+            "apply_core_wrapper_env",
+        )
+        for marker in forbidden_core:
+            if marker in core:
+                fail(f"CoreDirect R0 old route marker remains: {marker}")
+        for marker in ("core_direct_retire_r0", "core-direct/retired", "wrong-entrance", "core_exec_direct.hako", "cmp"):
+            if marker not in smoke:
+                fail(f"CoreDirect R0 smoke is missing marker: {marker}")
+        for old_script in (
+            "core_direct_string_substring_ok_vm.sh",
+            "core_direct_string_bounds_rc_vm.sh",
+            "core_direct_string_charat_bounds_rc_vm.sh",
+            "core_direct_map_bad_key_rc_vm.sh",
+            "core_direct_string_replace_ok_vm.sh",
+            "core_direct_array_oob_set_rc_vm.sh",
+        ):
+            if (root / "tools/smokes/v2/profiles/integration/core_direct" / old_script).exists():
+                fail(f"retired CoreDirect smoke remains: {old_script}")
+        if "HAKO_CORE_DIRECT_INPROC" in read("tools/selfhost/README.md"):
+            fail("selfhost README still advertises the retired in-process route")
     if mode == "design_stop":
         print(
             f"[{guard_id}] result_class=current-change failure status=pass "
