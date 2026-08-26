@@ -49,7 +49,7 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0`。routeを変えず、checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出する。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。phase2170 ProductAotはexact successorが無く、Array pushはpure-firstのarray_element_writeで停止中。
+  `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0`。routeを変えず、checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出する。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。legacy non-force residual consumersは旧算術の非authorityであり、phase2170 ProductAotはexact successorが無く、Array pushはpure-firstのarray_element_writeで停止中。
 
 Design-only follow-up:
   force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、
