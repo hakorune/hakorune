@@ -1,13 +1,13 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
-status = "accepted_design_fast_boxshape"
-observed_commit = "5e94031e0b"
+status = "accepted_design_no_safe_slice"
+observed_commit = "9813d8797c"
 observed_at = "2026-08-26"
-implementation_permission = true
-permission_scope = "Fast only: MIR-CALL-D1B-RECURSIVE-COMPAT-FACADE-SHELF-S0 may move the legacy child-port implementations and raw legacy entry helpers into a normal child module with path-preserving re-exports. No loan field/lifetime, package bridge, lineage, resolver, or semantic change."
+implementation_permission = false
+permission_scope = "No implementation permission: the recursive compatibility facade shelf is landed; the next row is D0-SIG-CLOSE-F-READINESS for the package-only caller census, callback/token lifetime, and raw-loan seam."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-RECURSIVE-COMPAT-FACADE-SHELF-S0"
-completed_execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT"
+execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+completed_execution_row = "MIR-CALL-D1B-RECURSIVE-COMPAT-FACADE-SHELF-S0"
 next_execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [boundary]
@@ -35,7 +35,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "Fast BoxShape S0: move the legacy child-port implementations and raw legacy body/statement/expression entry helpers into recursive_child_lowering/legacy_port.rs with ordinary module wiring and path-preserving re-exports. No affine-loan or semantic code."
+smallest_next_slice = "D0-SIG-CLOSE-F-READINESS design: close the four named production package-only callers, callback/token lifetime, and the raw-port loan seam before opening any Cataloged affine-loan implementation row."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -389,11 +389,11 @@ acceptance = [
 ]
 guard_owner = "A new mir-call-d1b-cataloged-affine-loan guard will own package-only escape, callback/bundle visibility, raw-loan lifetime, Cataloged direct-handoff zero, take_once, and residual-zero checks; it must be registered before implementation permission opens."
 source_budget = "Do not append bridge/lifetime code to recursive_child_lowering.rs=731, function_call_preflight_route_tests.rs=739, or raw_invocation_source_transport.rs=778. Use owner-specific siblings and preserve the existing ordinary module topology."
-next_row = "MIR-CALL-D1B-RECURSIVE-COMPAT-FACADE-SHELF-S0"
+next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [recursive_compat_facade_shelf_s0]
-status = "accepted_design_fast_boxshape"
-observed_commit = "5e94031e0b"
+status = "landed"
+observed_commit = "9813d8797c"
 decision = "Create ordinary child-module topology for the legacy compatibility facade so the later direct-call loan can live in a bounded production port. This is a path-preserving BoxShape refactor with no semantic or lifetime change."
 boundary = "src/mir/builder/recursive_child_lowering.rs legacy facade implementations and raw legacy body/statement/expression entry helpers; shared trait definitions, RawInvocationChildPortV1, recursive reborrow, and existing #[path] children remain in the parent."
 move_set = [
@@ -425,7 +425,33 @@ no_safe_slice = [
   "loan lifetime or recursive field changes are mixed into the row",
   "a new #[path] band-aid or semantic behavior change is needed",
 ]
-next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+
+[recursive_compat_facade_shelf_s0_implementation]
+status = "landed"
+commit = "9813d8797c"
+scope = "Behavior-neutral BoxShape-only shelf split. The legacy recursive child port and raw legacy body/statement/expression drivers moved to recursive_child_lowering/legacy_port.rs; the parent retains shared traits and RawInvocationChildPortV1 and re-exports the existing restricted symbols."
+delete_set = [
+  "legacy facade implementations and raw legacy entry helper bodies from recursive_child_lowering.rs",
+  "the parent-side PreparedRawStaticMainBoxCompatibilityV1 import used only by the moved facade",
+]
+retain_set = [
+  "all existing RawLegacyChildLoweringPortV1, driver, trait, lifetime, and caller symbol paths",
+  "shared drive_legacy_* helpers, RawInvocationChildPortV1, recursive reborrow, and existing #[path] children",
+  "all package bridge, direct-call loan, lineage, resolver, fallback, and semantic behavior",
+]
+topology = "recursive_child_lowering.rs now declares ordinary mod legacy_port and re-exports drive_raw_legacy_body_v1, drive_raw_legacy_statement_v1, drive_raw_legacy_expression_v1, and RawLegacyChildLoweringPortV1. No new #[path] attribute or public export was added."
+evidence = [
+  "parent source budget: recursive_child_lowering.rs=590 lines",
+  "child source budget: recursive_child_lowering/legacy_port.rs=161 lines",
+  "cargo fmt --all -- --check and git diff --check: ok",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick function_call_preflight_route --no-fail-fast: 12 passed",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick 'recursive_child_lowering_tests::' --no-fail-fast: 7 passed",
+  "current_state_pointer_guard: ok",
+]
+baseline_note = "The broader recursive_child_lowering filter still reports eight pre-existing RawInvocationChildPortV1 failures at [freeze:contract][raw-invocation/missing-expression-source-receipt]; this shelf does not touch that port or its source-receipt contract."
+non_claims = "No affine loan, package bridge, lineage transport, Resolved retirement, Method(None) change, mandatory-Callee cutover, backend change, or warning cleanup is claimed."
+next_row = "D0-SIG-CLOSE-F-READINESS"
 
 [s0_implementation]
 scope = "BoxShape-only path-preserving refactor. Source boundary is install.rs:504-738; terminal is the same NormalCallableSemanticPackagePortV1 API and all existing callers."
