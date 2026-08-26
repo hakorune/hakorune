@@ -3,12 +3,12 @@ status = "accepted_design_no_safe_slice"
 observed_commit = "9813d8797c"
 observed_at = "2026-08-26"
 implementation_permission = false
-permission_scope = "Guard-only rows landed at 9d8b4be35a and 6469567f80; F transition remains design-only: split BridgeReadyPackageOnly from CatalogedI0Provision before any semantic bridge/loan/lineage/Call implementation_permission opens."
+permission_scope = "Guard-only rows landed at 9d8b4be35a and 6469567f80. The package-only BridgeReady fast row is selected below as a BoxShape implementation; semantic direct-call loan/lineage/Call permission remains false until CatalogedI0Provision has a named non-empty issuer."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
 completed_execution_row = "MIR-CALL-D1B-RECURSIVE-COMPAT-FACADE-SHELF-S0"
-next_execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+next_execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [boundary]
 starts = "RawInvocationRootLineageV1::{ScriptRoot, Main, Cataloged, TopLevel, InstanceConstructor, NestedBoxMethod} plus Unlocated/Relationless compatibility at brand_call_authority_v1"
@@ -497,6 +497,60 @@ next_tasks = [
 non_claims = "This review does not authorize package direct-call maps, general relationless resolution, target repair in guards, empty/default loans, new semantic receipts, backend/VM changes, or implementation_permission=true."
 evidence = "Read-only workers independently confirmed no non-empty package issuer exists today, the only Cataloged Callee issuer is raw prepare_cataloged_target_v1, and the current guard phases/readiness checks are coherent."
 next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+
+[bridge_ready_implementation]
+status = "selected_fast_box_shape"
+execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+implementation_permission = true
+boundary = "Package-only semantic install and source handoff: normal_callable_semantic_package/install.rs prepare/commit -> normal_default_root_catalog_lifecycle.rs -> program_root_lowering.rs and normal_script_a/consumer.rs. This row does not enter ordinary FunctionCall target disposition."
+source_authority = "Existing installed semantic package plus the parser-issued HRTB source loan. The bridge consumes the package once and returns only a Builder-private package-only bundle."
+canonical_issuer = "normal_callable_semantic_package/install.rs::with_normal_callable_install_once; BuilderPrivateInstalledCallablePackageBundleV1 is a lifecycle carrier only and issues no Callee, loan, lineage, effect, or Call."
+non_authority = "RawDirectCallDispositionLoanV1, CatalogedDirectCallProvision, AST/source getter, package AST scan, name/arity/symbol synthesis, Resolved recovery, Method(None), backend/VM, and Call schema remain untouched."
+fail_fast = "Catalog vacancy and source invocation mismatch reject before lowering; the callback closes the HRTB source loan before returning and no bare Installed package can escape."
+allowed_files = [
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/mod.rs",
+  "src/mir/builder/normal_callable_package_bridge.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+  "src/mir/builder/normal_default_root_catalog_post_install.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/normal_callable_semantic_package/instance_constructor_loan.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "src/mir/builder/normal_script_a/consumer.rs",
+  "focused tests, module README, and the existing lifecycle guard/card/pointer",
+]
+delete_set = [
+  "production prepare_install().commit() bypass",
+  "bare Installed package/shared begin_lowering(&self) handoff",
+  "Installed::source_ast() getter and normal_script_a/constructor source_ast relay",
+  "package-only with_bound_source relay outside the HRTB callback",
+]
+retain_set = [
+  "CatalogedTargeted { callee, arguments } and prepare_cataloged_target_v1",
+  "RawDirectCallDispositionLoanV1 and RawDirectCallDispositionPortV1 as later CatalogedI0 work",
+  "Resolved, late recovery, Method(None), mandatory-Callee, JSON/VM/backend, and all non-selected package test fixtures",
+]
+acceptance = [
+  "all named production package callers, including normal_script_a/consumer.rs, enter the one-shot package-only bridge",
+  "bundle/token are private, non-Clone/non-Copy, non-destructurable, #[must_use], and expose no source getter",
+  "HRTB source handoff closes inside the callback without package/AST borrow overlap",
+  "bridge_ready guard passes while cataloged_i0 remains fail-closed for the absent non-empty issuer",
+  "no RawDirectCallDispositionLoanV1, Callee, lineage, resolver, fallback, or Call semantic change is introduced",
+  "touched/new source stays below 760 lines; raw_invocation_source_transport.rs=778 remains untouched",
+]
+tests = [
+  "bridge_ready_closes_all_production_package_callers",
+  "source_handoff_is_scoped_without_ast_package_borrow_overlap",
+  "sealed_package_bundle_is_single_use_and_non_split",
+  "existing package lifecycle and normal_script_a parity tests",
+]
+no_safe_slice = [
+  "any direct Callee/loan provisioning is needed to make the bridge compile",
+  "a package-only getter, tuple into_parts, Clone/Copy, or AST clone is required",
+  "normal_script_a or constructor source handoff cannot be enclosed in the same HRTB scope",
+  "raw_invocation_source_transport.rs or another 760+ source needs semantic additions",
+]
+next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [guard_registration_row]
 status = "landed_guard_only"
