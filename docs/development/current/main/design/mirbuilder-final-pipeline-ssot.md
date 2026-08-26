@@ -28,9 +28,10 @@ Related:
   writers are closed. B0 census/provenance guards are landed; outside fates and
   Stage1/direct arbitration are accepted design decisions. Shared-runner Wpre
   remains bounded; reference-child transport, CanonicalV1 Value flow, and
-  force-hv1 retirement are accepted designs but implementation-closed, while
-  CoreDirect tag/rc and strict-root ownership remain design blockers. Typed
-  Global, late recovery, receiver ABI, and mandatory-Callee remain closed.
+  force-hv1 retirement and the CoreDirect family-level tag/rc fate are accepted
+  designs but implementation-closed, while strict-root ownership remains a
+  design blocker. Typed Global, late recovery, receiver ABI, and
+  mandatory-Callee remain closed.
 - **Next ordered task:** complete
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`
   after its design gate opens, then the canonical-v1 Value seam and ordered Wpre

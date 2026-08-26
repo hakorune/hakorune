@@ -233,7 +233,7 @@ outside = "hv1_inline has a production force route and is not test-only. Stage-A
 
 [wpre_in_scope_blockers]
 rows = [
-  "core_direct_execution | src/runner/core_executor.rs | status=CutoverBlockerOpen | owner=shared-runner execution overlay | reason=raw probe, swallowed error, child retry, and execution re-entry precede a single decoded-module terminal | decision=consume existing execute_loaded_mir_module once; a requested CoreDirect family returns a family-level typed retired/unavailable terminal with no VM fallback; exact old tag/rc mapping remains open | non_authority=raw text probe result",
+  "core_direct_execution | src/runner/core_executor.rs | status=CutoverBlockerOpen | owner=shared-runner execution overlay | reason=raw probe, swallowed error, child retry, and execution re-entry precede a single decoded-module terminal | decision=consume existing execute_loaded_mir_module once; a requested CoreDirect family returns [core-direct/retired] or [core-direct/unavailable] on stderr with rc=1; old operation tags are historical and implementation remains closed | non_authority=raw text probe result",
   "selected_compatibility_transform | src/runner/json_artifact/mod.rs; src/runner/modes/common_util/core_bridge.rs | status=CutoverBlockerOpen | owner=selected compatibility decoder | reason=pre-selection raw transform and ignored error are not a selector profile | signature=apply_selected_compatibility_transform(family, root:&mut Value)->Result<(),WpreError> | non_authority=transform success or error text",
 ]
 
@@ -255,7 +255,7 @@ route_arbitration = [
   "explicit Stage1 CLI (--hako-run, --hako-emit-mir-json) plus any explicit execution JSON CLI (--mir-json-file, --json-file, --ny-parser-pipe) -> typed CLI conflict; multiple explicit execution JSON CLIs -> typed conflict; no code-order winner",
   "exactly one explicit JSON CLI plus ambient NYASH_USE_STAGE1_CLI -> explicit JSON entry wins and Stage1 child invocation is zero; no explicit JSON CLI -> existing Stage1 selection remains",
   "Stage1 captured MIR-v0/Program-v0 payloads are separate ParkedSealed owners and never a route-arbitration state; macro/REPL/early force routes are non-claims",
-  "core-direct execution intent is an in-scope CutoverBlockerOpen overlay; decode once, then use execute_loaded_mir_module once or a family-level typed retired/unavailable terminal with no VM fallback; old operation-tag to stable tag/rc mapping remains the sole design blocker",
+  "core-direct execution intent is an in-scope CutoverBlockerOpen overlay; decode once, then use execute_loaded_mir_module once or a family-level stderr terminal with rc=1 and no VM fallback; old operation tags are historical/local-only",
 ]
 entrance_profiles = [
   "SharedArtifactUnknown | normal file/stdin/umbrella JSON | exact v2/v1/MIR-v0/Program-v0 selection from one root Value",
@@ -275,7 +275,6 @@ execution_overlays = [
 known_inventory_scope = "B0 fingerprints 9 shared runner rows for the bounded Wpre-I0 entrance. Outside rows now have explicit owner, status, reason, reopen trigger, and non-authority; this is not a claim that global all-ingress strictness is closed."
 open_design_blockers = [
   "reference-child private transport I0 and live-monitor migration remain implementation-closed",
-  "core-direct family-level typed retired/unavailable terminal still needs an explicit old tag/rc mapping",
   "strict duplicate-aware root owner and exact Value-consuming decoder seams remain implementation-closed",
 ]
 root_matrix = [
@@ -302,11 +301,11 @@ compatibility_owner = "CompatibilityV1, CompatibilityMirV0, and ProgramV0 remain
 
 [wpre_d0_candidate_decisions]
 stage1_direct = "Accept with amendment: explicit Stage1 CLI (--hako-run/--hako-emit-mir-json) plus any explicit execution JSON CLI (--mir-json-file/--json-file/--ny-parser-pipe) is a typed conflict; multiple explicit execution JSON CLIs are a typed conflict; exactly one explicit JSON CLI wins over ambient NYASH_USE_STAGE1_CLI; with no explicit JSON CLI, existing Stage1 selection remains. Macro/REPL/early force ordering is a non-claim."
-core_direct = "Accept with amendment: Wpre decodes once and execute_loaded_mir_module is the only normal terminal; requested CoreDirect becomes a family-level typed retired/unavailable terminal with no raw probe, child wrapper, in-proc reparse, or VM fallback. The exact mapping from old operation tags to the stable terminal tag/rc remains a design blocker; no new Core consumer is invented."
+core_direct = "Accept final direction: Wpre decodes once and execute_loaded_mir_module is the only normal terminal; requested CoreDirect becomes a family-level stderr terminal ([core-direct/retired] or [core-direct/unavailable], rc=1) with no raw probe, child wrapper, in-proc reparse, or VM fallback. Old operation tags are historical/local-only; no new Core consumer is invented."
 force_hv1 = "Accept retirement: standard-v1 reroute is forbidden because hv1 has distinct unop/typeop/default semantics. Census is 33 direct verify_v1_inline_file rows plus 36 hv1-capable verify_mir_rc rows across 107 unique integration files; migrate, retire, or archive each named caller, supersede the force startup guard, and park owner-private Value compatibility unless a named active consumer reopens it."
 reference_child = "Accept with amendment: VmRouteAction::VmHako owns a family-preselected CanonicalMirJsonV1 full-module emission, then a private MiniVm payload. The child receives exactly one of HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON or HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE; public NYASH_VERIFY_JSON, HAKO_VERIFY_PRIMARY, HAKO_ROUTE_HAKOVM, force-hv1, Stage1 selectors, VM fallback, and TOML env bootstrap are scrubbed or pinned. Missing/both/empty/unreadable transport, wrong emission family, subset/projection failure, or spawn failure is terminal; no Wpre/hv1/Stage1 retry."
 reference_value = "Accept with amendment: after private transport I0, reference egress receives MirModule and emits one explicit CanonicalV1 serde_json::Value; the same owned Value is alias-normalized once, subset-checked once, and projected once into the private MiniVm payload. Remove ScopedEnvVar/profile selection, temporary v1 file/readback, and production raw String parses; other compatibility emitters may retain their owner-private profile API."
-candidate_stop = "NoSafeSlice if direct precedence silently discards an explicit Stage1 request, CoreDirect loses tag/rc or falls back to VM, force-hv1 is mixed into standard v1, or the finite 33+36/107 census cannot classify every caller."
+candidate_stop = "NoSafeSlice if direct precedence silently discards an explicit Stage1 request, CoreDirect loses the family-level tag/rc or falls back to VM, force-hv1 is mixed into standard v1, or the finite 33+36/107 census cannot classify every caller."
 
 exact_delete_set = [
   "looks_like_mir_v0/raw contains selector",
@@ -323,7 +322,7 @@ outside_delete_set = [
   "runtime/plugin/kernel Program marker reparse and Err -> Ok(None) swallow",
   "reference/LLVM compatibility raw selector, schema guessing, and re-entry",
 ]
-missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows, Stage1/direct arbitration, and force-hv1 retirement fate are recorded; the remaining blockers are reference-child private transport I0, canonical-v1 Value implementation, CoreDirect tag/rc mapping, and strict-root/decoder implementation. Wpre-I0 cannot open until the ordered follow-up rows below are reconciled."
+missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows, Stage1/direct arbitration, force-hv1 retirement fate, and the CoreDirect family-level tag/rc contract are recorded; the remaining blockers are reference-child private transport I0, canonical-v1 Value implementation, CoreDirect retirement implementation, and strict-root/decoder implementation. Wpre-I0 cannot open until the ordered follow-up rows below are reconciled."
 order_sync = "Before Wpre I0, synchronize mirbuilder-final-pipeline-ssot, mir-canonical-callsite-lane-ssot, this card, and the workstream so Wpre profile/one-root selection precedes MirCall/CallFlags retirement, effect/source/recovery prerequisites, and typed Global B1 in one durable order."
 allowed_files = [
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
@@ -336,6 +335,27 @@ allowed_files = [
 done = "B0 is landed guard-only; the shared Wpre-I0 boundary is bounded to 9 known runner rows, outside routes are explicitly statused without claiming global closure, and the finite root matrix is recorded. D0 follow-up blockers, exact strict-root/Value seams, order sync, and fallback-card reconciliation are recorded; implementation remains forbidden and no parser/fallback code changed."
 stop = "NoSafeSlice if one route requires decoder reparse, substring family selection, duplicate-key last-wins, instruction/body semantics for root choice, explicit-error retry, Stage1/hv1 bypass, same-line dual framing, or a new semantic receipt."
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
+
+[core_direct_tag_rc_contract]
+task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-TAG-RC-CONTRACT"
+status = "design_accepted_implementation_closed"
+boundary = "HAKO_CORE_DIRECT and NYASH_CORE_DIRECT shared-runner requests, core_executor overlay, lang/src/vm/core diagnostics, and six active integration/core_direct smokes; Hako engine compatibility callers remain separate rows."
+source_authority = "Wpre-selected decoded MirModule and the explicit CoreDirect execution intent; old Hako diagnostic strings are historical observations, not semantic authority."
+canonical_issuer = "The shared runner emits one family-level terminal after decode: recognized applicable request -> [core-direct/retired], recognized but unavailable family/decoder -> [core-direct/unavailable], both rc=1. Malformed root, wrong entrance, and decoder errors remain Wpre terminals and are never relabeled."
+non_authority = "The twenty-plus old [core/*] prefixes, dynamic mir_call suffixes, child stdout, raw substring probes, in-proc/child route choice, numeric stdout, and VM fallback are not the terminal contract."
+channel = "New family-level terminal diagnostics go to stderr; rc=1 is stable. Existing Hako Core stdout tags and operation-specific wording are historical/local-only and are not preserved as public compatibility."
+finite_states = [
+  "CoreDirectRequested -> CoreDirectRetired(stderr tag, rc=1)",
+  "CoreDirectRequested + unavailable selected family -> CoreDirectUnavailable(stderr tag, rc=1)",
+  "MalformedRoot / WrongEntrance / SelectedDecoderRejected -> Wpre typed terminal",
+  "NormalIntent -> execute_loaded_mir_module exactly once",
+]
+retirement_rule = "The old operation-tag set is not mapped one-for-one: it is dynamic, route-dependent, and already absent from the Rust in-proc path. Six active smokes assert rc/stdout behavior rather than exact old tags; migrate them to retirement-terminal or ordinary Rust VM parity owners before code removal."
+delete_set = "core_executor raw probe/in-proc reparse/temporary Hako child/child stdout relay/VM fallback; HAKO_CORE_DIRECT aliases; force-specific operation-tag prose and tag-required startup guards after supersession."
+retain_set = "execute_loaded_mir_module, execute_mir_module_quiet_exit, normal JSON ingress façade, Wpre typed errors, explicit CoreDirect intent until retirement, and non-CoreDirect Hako engine compatibility callers pending their own census."
+acceptance = "Old operation tags are historical; family-level retired/unavailable tags and rc=1 channel are documented; six core_direct smokes are classified; no tag parser, new Core consumer, or fallback is required."
+docs_followup = "Supersede the old Core diagnostic/Direct wording in lang/src/vm/README.md and tools/selfhost/README.md; classify each six-smoke entry as retirement-terminal or ordinary Rust VM parity before implementation."
+stop = "NoSafeSlice if external callers require individual old tags, dynamic tag bodies, Hako stdout channel, or a full operation-tag mapping; that would require a separate compatibility owner/Decision."
 
 [reference_child_reentry]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-REENTRY"
@@ -451,7 +471,7 @@ items = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design-only complete | choose private one-of payload keys, mandatory route scrub/pins, and CanonicalV1 family; no child retry implementation",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | fast only after permission opens | move payload off public NYASH_VERIFY_JSON, isolate route env, and migrate three live monitors atomically",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | fast only after transport I0 | replace ambient v1 env/profile and second string parse with one owner-private Value seam",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted with tag/rc blocker | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect has no-retry family terminal, but old tag/rc mapping must be fixed before implementation",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect has no-retry stderr terminal [core-direct/retired|unavailable], rc=1; old operation tags are historical",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design accepted, implementation-closed | census 33 direct + 36 hv1-capable rows across 107 files; migrate/retire/archive named callers, supersede startup guard, never reroute into standard v1",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted, implementation-closed | strict_root.rs owns recursive duplicate/trailing rejection, owned SelectedIngress, and by-value decode(selected, &NyashRunner); decoder reparses zero times",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0 | fast only after all preceding rows | one strict root parse, one profile selection, one selected decoder, one terminal; implementation remains closed until this row opens",
@@ -468,14 +488,14 @@ current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPO
 accepted_design = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | no code yet | captured MIR-v0/Program-v0 remains a family-preselected ParkedSealed owner",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design accepted | private one-of payload, route scrub/pins, and CanonicalV1 family are fixed; implementation remains closed",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted with tag/rc blocker | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect has no-retry family terminal, but old tag/rc mapping must be fixed before implementation",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | D0-CORE-DIRECT-TAG-RC-CONTRACT fixes family-level stderr tags and rc=1; implementation remains closed until retirement edge and six smoke dispositions land",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design accepted | retire production force route; 33 direct + 36 indirect rows are the finite caller boundary; compatibility remains ParkedSealed unless reopened by a named consumer",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted | one owned Value, recursive duplicate/trailing reject, by-value selected decoder; implementation remains closed",
 ]
 open = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | implementation_permission=false",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | tag/rc mapping remains design-open",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | implementation-closed retirement row",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | implementation-closed retirement row",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | implementation-closed strict-root row",
 ]

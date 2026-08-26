@@ -47,7 +47,8 @@ Fail-fast boundary:
   共有runnerのentrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
   schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
   Stage1/direct arbitrationとforce-hv1 retirement fateは設計済み。reference-child transport、
-  strict-root/Value seamは実装閉鎖、core-directの旧tag/rc mappingだけ設計blocker。
+  strict-root/Value seamは実装閉鎖、core-directのfamily-level tag/rc fateも設計済みで
+  実装閉鎖。残る設計blockerはstrict-rootの実装owner固定だけ。
 
 Smallest next slice:
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`。
@@ -241,10 +242,10 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    owned Value once, subset-check once, and project once. Remove ambient profile selection,
    temporary v1 file/readback, and production raw String parses; implementation stays closed.
 
-1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design stop)
+1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design accepted, implementation closed)
    use execute_loaded_mir_module once for normal decoded input; requested CoreDirect
-   becomes a family-level typed retired/unavailable terminal with no retry. Fix the old
-   tag/rc mapping before implementation, then delete
+   becomes a family-level stderr terminal ([core-direct/retired|unavailable], rc=1) with
+   no retry. Treat old operation tags as historical, then delete
    raw probe/child/in-proc reparse/VM fallback; compatibility transforms remain Value adapters.
 
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)

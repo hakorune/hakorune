@@ -24,9 +24,9 @@ Related:
   `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
   guards are landed; outside fates and Stage1/direct arbitration are closed as
   design decisions. Reference-child transport, CanonicalV1 Value flow, and
-  force-hv1 retirement are accepted designs but remain implementation-closed;
-  CoreDirect tag/rc and strict-root seams remain design blockers before parser
-  implementation.
+  force-hv1 retirement and the CoreDirect family-level tag/rc fate are accepted
+  designs but remain implementation-closed; strict-root seams remain design
+  blockers before parser implementation.
 - **Next ordered task:**
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`;
   its design is recorded but implementation remains closed by the current
