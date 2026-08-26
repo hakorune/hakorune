@@ -503,13 +503,16 @@ next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 status = "design_stop_no_safe_slice"
 task_id = "MIR-CALL-D1B-CATALOGED-I0-ISSUER-FACTS-RECONCILE-D0"
 observed_commit = "712d34f6bd"
-review_source = "Three new independent read-only audits (issuer insertion, lineage/site transport, and adversarial I0) plus the prior five design/ingress/lifetime/tests audits at the current HEAD; no code, fixture, Cargo, or backend change."
+review_source = "Four new independent read-only audits (same-traversal observation, session witness, raw-port lifetime, and adversarial guard) plus the prior design/ingress/lifetime/tests audits at the current HEAD; no code, fixture, Cargo, or backend change."
 verdict = "NoSafeSlice remains. BridgeReadyPackageOnly is landed and its current guard phase is green, but CatalogedI0 still lacks a non-empty exact-site issuer/co-seal and a compiled raw/structured loan seam."
 observed_facts = [
   "The only current Cataloged Callee path is function_call_preflight_route.rs::prepare_cataloged_target_v1; it classifies per call, reads mutable variable_map state, and may reclassify through CalleeResolverBox. It accepts no SourceExprSiteV1, catalog brand, or resolver/session witness, so it is transitional evidence, not the final issuer.",
   "InstalledNormalCallableSemanticPackageV1, the semantic batch/issuer, and RawInvocationChildPortV1 contain no non-empty direct-call inventory and no raw-side same-session resolver token. The package bridge therefore must remain package-only.",
   "RawInvocationRootLineageV1::Cataloged(caller) and source sites exist during raw descent, but function_call_brand_source_demand.rs still folds non-Cataloged families into InstalledNonBrand { caller: None }, and the ordinary structured-child source hook is currently a default no-op.",
   "ShadowResolvedFunctionV0 already records FunctionCall SourceExprSiteV1/name/arity, but SelectedCallableV1 rejects the expression as a semantic input and canonicalize_draft requires a callable index. No source-bound observation side-channel moves those rows into issuer-local scratch before canonicalization, and no resolver/session witness is retained for the package boundary.",
+  "The only complete observation seam is the same shadow resolve_expr invocation before the SelectedCallable rejection; the resolver currently drops on deferred error, so an external issuer-local sink must receive the row without widening the profile or silently emptying direct_calls. Existing FullFunction direct_calls and exact-i64 callable-index products are separate authorities.",
+  "SameModuleCallableCatalogBrandV1 and FunctionOwnerIdV1 are reusable membership/owner facts, but FunctionSemanticResolverSessionV1 issues no standalone session witness. CatalogSealedResolverContinuationV1 is exact-i64-only and cannot be borrowed sideways; a private non-ambient witness remains a D0-SIG-H decision.",
+  "RawInvocationChildPortV1 can carry a third &mut loan lifetime, but RawStructuredChildScopePortV1 and the package adapter cannot forward the current callback source hooks while borrowing their child; the direct-call capability must be a non-callback take or a separately designed child-scoped operation, with no unsafe split.",
   "The physical FunctionCall matcher is single-entry, and the existing Cataloged tests prove target-before-child ordering and one Call publication, but they do not yet prove affine take_once, exact brand/session/site binding, nested forwarding, or residual-zero. MethodCall-only static-publication products and the separate exact-i64 callable index cannot be reused as an ordinary Cataloged FunctionCall issuer without changing their meaning, so that reuse is rejected.",
   "The lifecycle guard is correctly phase-separated: no-argument/bridge_ready is the current package-only check and cataloged_i0 must fail closed until the non-empty loan type is actually present. Global bans on compatibility recovery symbols are out of scope for this Cataloged window."
 ]
@@ -519,23 +522,27 @@ loan_contract = "RawInvocationChildPortV1 is the root loan owner. Add the explic
 lineage_contract = "Preserve Cataloged lineage and exact sites through raw and structured children. TopLevel, InstanceConstructor, Main, ScriptRoot, and NestedBoxMethod remain source identity only unless an independently issued exact relation exists; otherwise they reject or enter an explicitly owned ParkedSealed terminal. No caller=None collapse may authorize ordinary source-backed success."
 task_sequence = [
   "F.1 facts reconcile (closed by this docs-only update): record that no non-empty same-session Cataloged inventory/issuer exists, reject MethodCall/static-publication and exact-i64 reuse, and keep implementation_permission=false.",
-  "D0-SIG-G same-traversal direct-call observation: keep SelectedCallableV1's semantic gate closed, record FunctionCall SourceExprSiteV1/name/arity and source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference.",
-  "D0-SIG-H resolver-session/catalog co-seal: choose a private non-ambient session witness, prove the Selected/Constructor identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent.",
+  "D0-SIG-G same-traversal direct-call observation: keep SelectedCallableV1's semantic gate closed, place an external sink before its deferred-error drop, record FunctionCall SourceExprSiteV1/name/arity and source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference.",
+  "D0-SIG-H resolver-session/catalog co-seal: choose a private non-ambient session witness (no existing session token is reusable), prove the Selected/Constructor identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent.",
   "D0-SIG-I pre-adapter canonical issuer: name the one owner that consumes the exact source-bound static self/sibling relation and issues Callee exactly once; exclude prepare_cataloged_target_v1/CalleeResolverBox, mutable variable_map, env, type registry, UnknownBox, CanonicalSameModuleCallableKey projection, and all consumer target synthesis.",
-  "D0-SIG-J provision/lifetime: place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus RawStructuredChildScopePortV1 forwarding and &mut reborrow, and define atomic install abort/rollback.",
-  "D0-SIG-K guard/residual proof: define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, and scoped positive/negative/parity checks; only then open Cataloged I0 to replace CatalogedTargeted { callee, arguments } with loan take -> arguments once -> Call once."
+  "D0-SIG-J provision/lifetime: place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus RawStructuredChildScopePortV1 forwarding, use a non-callback child-scoped operation for the borrow conflict, and define atomic install abort/rollback.",
+  "D0-SIG-K guard/residual proof: define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, and scoped positive/negative/parity checks; update the exact-target guard to reject resolve_catalog_call_target_v1, prepare_cataloged_target_v1, CalleeResolverBox, CallTarget::Value, and BareStaticRecoveryDecisionV1 before opening Cataloged I0."
 ]
 acceptance = [
   "The active card and pointer say no final Cataloged issuer exists and do not call prepare_cataloged_target_v1 a canonical issuer.",
   "BridgeReadyPackageOnly remains package-only; no empty/default/optional loan or package direct-call map is introduced.",
   "The sole future canonical issuer, exact co-seal key, raw/structured forwarding, failure/rollback, and Cataloged-only guard window are named before implementation_permission can open.",
+  "The future Cataloged guard rejects the concrete transitional names resolve_catalog_call_target_v1, prepare_cataloged_target_v1, CalleeResolverBox, CallTarget::Value, and BareStaticRecoveryDecisionV1 in the cutover window; the existing exact-target child guard must be updated in the same I0 row.",
   "CatalogedI0 remains fail-closed; current bridge_ready, pointer, TOML, and diff checks stay green."
 ]
 no_safe_slice = [
   "An exact static relation exists but no named canonical issuer is selected to issue Callee exactly once.",
   "A non-empty same-session inventory cannot be issued before adapter construction.",
   "The only workable design is a raw consumer/per-call factory, AST/name/arity synthesis, or a second resolver.",
+  "No source observation sink survives the SelectedCallable deferred-error path, or direct_calls can be silently emptied before issuer-local scratch receives them.",
+  "No standalone resolver-session witness exists, or the design substitutes compilation ordinal, FunctionOrigin, catalog brand, or ambient Builder state.",
   "Structured-child source/site forwarding remains a no-op or requires overlapping mutable borrows.",
+  "The direct capability requires the current callback shape, unsafe pointer splitting, or a loan borrow that spans argument descent.",
   "The loan cannot be proven exact-once with foreign/duplicate/residual rejection before effects.",
   "Opening I0 would require changing TopLevel/Constructor acceptance, Resolved compatibility, Method(None), Call schema, or backend behavior."
 ]
@@ -809,7 +816,7 @@ no_safe_slice = [
   "package bridge owns an empty/default loan, or Cataloged direct payload remains alongside the loan",
   "TopLevel/InstanceConstructor/source-only relation is formatted into Global/Value without an independently issued exact target",
 ]
-worker_evidence = "Current independent read-only audits agree on the remaining NoSafeSlice: the Cataloged corridor has target-before-effect ordering, but no non-empty exact-site issuer/co-seal; prepare_cataloged_target_v1 is transitional/reclassifying, (root,site) lacks brand/session, and RawInvocationChildPortV1 has no third loan lifetime or proven structured-child forwarding. The final arbitration accepts the root-shared &mut inventory/loan boundary and rejects a per-call consumer factory."
+worker_evidence = "Current independent read-only audits agree on the remaining NoSafeSlice: the Cataloged corridor has target-before-effect ordering, but no non-empty exact-site issuer/co-seal; same-traversal observation must escape the SelectedCallable deferred-error path, no standalone session witness exists, prepare_cataloged_target_v1 is transitional/reclassifying, (root,site) lacks brand/session, and RawInvocationChildPortV1 has no third loan lifetime or borrow-safe structured forwarding. The final arbitration accepts the root-shared &mut inventory/loan boundary and rejects a per-call consumer factory or callback-based unsafe split."
 next_task = "Keep implementation_permission=false. Complete D0-SIG-G same-traversal observation, H session/catalog co-seal, I canonical issuer, J provision/lifetime, and K guard/rollback design; only then open the I0 implementation cell."
 
 [cataloged_i0_source_observation_design_2026_08_26]
@@ -818,6 +825,9 @@ task_id = "MIR-CALL-D1B-CATALOGED-I0-SOURCE-OBSERVATION-D0"
 observed_commit = "712d34f6bd"
 decision = "Use a same-shadow-traversal observation side-channel for ordinary FunctionCall sites without widening SelectedCallableV1's semantic acceptance gate. Move the observed source row into issuer-local scratch before canonicalize_draft; do not rescan AST after install and do not infer a target from BodyEffect(Call)."
 source_authority = "The existing FunctionSemanticResolverSessionV1 shadow traversal, parser/source identity, and same-module catalog brand. ShadowResolvedFunctionV0 already observes SourceExprSiteV1/name/arity, but the current SelectedCallable path rejects ordinary FunctionCall and canonicalize_draft requires a callable index; the side-channel must preserve those facts without publishing a target."
+traversal_evidence = "The only complete source/site/name/arity point is shadow/expr.rs::resolve_expr. SelectedCallableV1 rejects ordinary FunctionCall at the profile gate before the ordinary branch can record direct_calls; the resolver then drops on deferred error. The observation sink must sit at that same traversal boundary and survive the deferred-error path, while FullFunction direct_calls and exact-i64 index products remain separate authorities."
+sink_boundary = "Use a private external/issuer-local sink around the same resolve_expr traversal, carrying only owner/site/source identity/name/arity until H/I co-seal. Do not reopen SelectedCallableV1, add a second AST walk, or pass a non-empty direct_calls map to canonicalize_draft when callable_index=None."
+duplicate_and_failure = "Reuse the existing exact-site duplicate and arity-overflow rejection semantics (DuplicateDirectCallSite and FunctionCallArityOverflow) at the observation boundary; missing owner/site/source identity, foreign brand/session, unsupported namespace, and absent relation are typed terminals before canonicalization, adapter construction, or effects."
 canonical_issuer = "No Callee is issued in this row. D0-SIG-H/I must select the private pre-adapter issuer that consumes the scratch relation and issues exactly one Callee; prepare_cataloged_target_v1/CalleeResolverBox remains transitional and is not observation authority."
 observation_shape = "Private DirectCallObservationRowV1 may carry owner, exact SourceExprSiteV1, selected/constructor source identity, name, arity, resolver-session witness, and catalog brand for co-seal. It must not carry RawInvocationRootLineageV1, Callee, CallTarget, ValueId, EffectMask, AST, physical symbol, or synthesized target key."
 semantic_gate = "SelectedCallableV1::allows_expression(FunctionCall) remains closed for semantic acceptance. Observation is a sibling sink in the same traversal only; canonicalize_draft receives no direct-call target unless a later named issuer validates and consumes the scratch row."
@@ -837,6 +847,7 @@ finite_states = [
 fail_fast = "Missing owner/site/source identity, arity overflow, duplicate site, foreign brand/session, unsupported namespace, or absent exact relation terminates before canonicalize-side publication, adapter construction, body lowering, or argument effects."
 acceptance = [
   "same traversal records exact FunctionCall site/name/arity/source identity once without SelectedCallable profile widening",
+  "the sink receives ordinary FunctionCall observations before the SelectedCallable rejection/deferred-error drop and never silently empties direct_calls",
   "observed rows are moved into issuer-local scratch before canonicalize_draft and cannot be silently dropped",
   "no post-install AST rescan, BodyEffect-only inference, target key/symbol synthesis, or current CalleeResolverBox call is introduced",
   "missing/foreign/duplicate/ambiguous observations map to one typed terminal and do not allocate ValueId or mutate a block",
@@ -849,6 +860,41 @@ no_safe_slice = [
 ]
 next_task = "D0-SIG-H: choose the private resolver-session witness and co-seal it with catalog brand, source identity, owner, and exact site before selecting the canonical issuer."
 
+[cataloged_i0_source_observation_audit_2026_08_26]
+status = "design_stop_no_safe_slice"
+task_id = "MIR-CALL-D1B-CATALOGED-I0-SOURCE-OBSERVATION-AUDIT-D0"
+observed_commit = "712d34f6bd"
+review_source = "Read-only source-observation audit plus session, raw-port, and adversarial follow-ups; no code, fixture, Cargo, or backend change."
+traversal = "callable_semantic_batch/issuer.rs or instance_constructor_semantic.rs -> owner_resolver.rs -> shadow/entry.rs -> shadow/resolver.rs -> shadow/root_traversal.rs -> shadow/stmt.rs -> shadow/expr.rs::resolve_expr."
+gate = "SelectedCallableV1::allows_expression rejects ordinary ASTNode::FunctionCall before the ordinary branch records direct_calls; the resolver may then return Deferred and drop the resolver on error. Brand catalog expressions are a separate exception and are not this ordinary Cataloged cell."
+observation_seam = "The only point with the exact AST expression, SourceExprSiteV1, name, arity, and Brand precedence is the same resolve_expr invocation. Add a private external/issuer-local observation sink around that invocation before the SelectedCallable rejection is lost; do not widen the semantic profile or add a second AST traversal."
+observation_row = "The row may carry FunctionOwnerIdV1, exact SourceExprSiteV1, SelectedCallableResolverSourceIdentityV1 or ConstructorSourceIdV1, name, arity, and later session/brand witness. It carries no RawInvocationRootLineageV1, Callee, CallTarget, ValueId, EffectMask, AST, physical symbol, or synthesized key."
+canonicalize_barrier = "When callable_index=None, a non-empty direct_calls map must not reach canonicalize_draft and must never be silently emptied. The sink transfers the observation to issuer-local scratch before canonicalization; existing FullFunction direct_calls and exact-i64 ResolvedDirectCallTargetV1 remain separate authorities."
+finite_reject = [
+  "SelectedCallableOrdinaryCallRejectedBeforeObservation",
+  "DeferredObservationSinkUnavailable",
+  "FunctionCallArityOverflow",
+  "DuplicateDirectCallSite",
+  "MissingOwnerOrSourceSite",
+  "ForeignCatalogBrandOrSession",
+  "UnsupportedNamespace",
+  "AbsentExactStaticRelation",
+]
+guard_gap = "The future Cataloged guard must cover the concrete names resolve_catalog_call_target_v1, prepare_cataloged_target_v1, CalleeResolverBox, CallTarget::Value, and BareStaticRecoveryDecisionV1; the current exact-target child guard still assumes the transitional helper and must be updated atomically with I0."
+acceptance = [
+  "ordinary FunctionCall observation survives the SelectedCallable deferred-error path exactly once",
+  "source identity/site/name/arity reaches issuer-local scratch before canonicalize_draft without profile widening or AST rescan",
+  "duplicate/overflow/missing/foreign/ambiguous observations terminate before adapter construction, child descent, ValueId allocation, block mutation, or effects",
+  "no direct target, physical symbol, BodyEffect-only inference, or resolver retry is published by this row",
+]
+no_safe_slice = [
+  "the sink cannot survive the resolver's deferred-error path",
+  "direct_calls are silently emptied, or FullFunction/exact-i64 observer products are reused as ordinary Cataloged authority",
+  "owner/source identity is inferred from ordinal, FunctionOrigin, compilation ordinal, or ambient Builder state",
+  "SelectedCallableV1 is widened or a second AST traversal is introduced",
+]
+next_task = "D0-SIG-H: define and issue the private non-ambient resolver-session witness, then co-seal it with catalog brand, source identity, owner, and exact site."
+
 [cataloged_i0_arbitration]
 status = "accepted_design_no_safe_slice"
 decision = "Use one root-owned, non-empty Cataloged direct-call inventory/loan. The pre-adapter owner co-seals catalog brand, resolver/session, Cataloged lineage, exact SourceExprSite, and exact static relation, issues one Callee, and places only that issued value in the loan; RawInvocationChildPortV1 receives the same affine loan by &mut reborrow, and the consumer only takes one owned Callee before argument descent."
@@ -858,20 +904,23 @@ inventory_shape = "The root capability owns a non-empty finite RawDirectCallDisp
 key_contract = "Every row is co-sealed by SameModuleCallableCatalogBrandV1, the exact resolver/session token, RawInvocationRootLineageV1::Cataloged(caller), and SourceExprSiteV1. name, arity, CallTarget, LegacySymbol, AST, physical symbol, and post-argument ValueId are neither key nor payload."
 lifetime_contract = "RawInvocationChildPortV1 gains a third loan lifetime: root loan -> raw port -> nested child. reborrow() uses as_deref_mut; take_once() returns an owned Callee and its borrow ends lexically before drive_call_arguments_v1. Rc/Arc/RefCell, copied rows, and per-child loans are forbidden."
 structured_child_contract = "RawStructuredChildScopePortV1 must explicitly delegate the scoped loan and call-argument source/site witness before this row can open. Its current default no-op source hook is a blocker; forwarding cannot borrow self.child and the callback simultaneously without a dedicated scoped helper. RawLegacyChildLoweringPortV1 remains typed reject for loan consumption."
+session_witness_contract = "SameModuleCallableCatalogBrandV1 is reusable only as catalog membership and FunctionOwnerIdV1 only as owner identity. D0-SIG-H must name a private non-ambient resolver-session witness; compilation ordinal, FunctionOrigin, raw catalog brand, exact-i64 CatalogSealedResolverContinuationV1, and ambient Builder state are not substitutes."
+direct_capability_contract = "Because the current callback source hooks produce E0499/E0500 when a wrapper borrows child and then reborrows itself, D0-SIG-J must use a non-callback take_direct_call_once_v1 or a child-scoped helper that owns the underlying child borrow. Unsafe pointer splitting and a loan borrow spanning argument descent are forbidden."
 task_sequence = [
-  "D0-SIG-G: same-traversal direct-call observation; keep SelectedCallableV1's semantic gate closed, move FunctionCall SourceExprSiteV1/name/arity/source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference",
-  "D0-SIG-H: resolver-session/catalog co-seal; choose a private non-ambient session witness, prove identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent",
+  "D0-SIG-G: same-traversal direct-call observation; keep SelectedCallableV1's semantic gate closed, place an external sink before its deferred-error drop, move FunctionCall SourceExprSiteV1/name/arity/source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference",
+  "D0-SIG-H: resolver-session/catalog co-seal; choose a private non-ambient session witness because no existing token is reusable, prove identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent",
   "D0-SIG-I: pre-adapter canonical issuer; consume exact source-bound static self/sibling relation facts and issue Callee exactly once, excluding prepare_cataloged_target_v1/CalleeResolverBox, mutable variable_map, env, type registry, UnknownBox, and key/symbol projection",
-  "D0-SIG-J: provision/lifetime; place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus structured forwarding and &mut reborrow, and define atomic install abort/rollback",
-  "D0-SIG-K: guard/residual proof; define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, and scoped positive/negative/parity checks",
+  "D0-SIG-J: provision/lifetime; place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus a non-callback structured child operation and &mut reborrow, and define atomic install abort/rollback",
+  "D0-SIG-K: guard/residual proof; define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, scoped positive/negative/parity checks, and concrete transitional-name bans in the Cataloged guard",
   "I0: replace CatalogedTargeted { callee, arguments } with the root loan take, lower arguments once, publish one canonical Call, and finish residual-zero",
 ]
 permission_gate = "implementation_permission remains false until D0-SIG-G-K have named owners, source observation, exact issuer/signatures, session/brand/lineage/site co-seal, failure/rollback behavior, structured forwarding evidence, and a non-empty same-session issuer. BridgeReadyPackageOnly stays package-only and must not carry an empty or default loan."
-guard_scope = "The future cataloged_i0 phase checks issuer=1, root loan non-empty, take_once=1, argument descent after take=1, canonical Call=1, residual=0, CatalogedTargeted=0, Cataloged->Resolved/recovery/name-Const re-entry=0, and package bridge loan contamination=0. It does not require unrelated compatibility Resolved symbols to be globally absent."
+guard_scope = "The future cataloged_i0 phase checks issuer=1, root loan non-empty, take_once=1, argument descent after take=1, canonical Call=1, residual=0, CatalogedTargeted=0, Cataloged->Resolved/recovery/name-Const re-entry=0, and package bridge loan contamination=0. It also rejects resolve_catalog_call_target_v1, prepare_cataloged_target_v1, CalleeResolverBox, CallTarget::Value, BareStaticRecoveryDecisionV1, and exact-target child assumptions inside the Cataloged window. It does not require unrelated compatibility Resolved symbols to be globally absent."
 no_safe_slice = [
   "the only issuer is a raw per-call factory or the package/adapter instance rather than the pre-adapter root owner",
   "inventory is empty/default/optional, or a row can be issued without exact brand/session/lineage/site co-seal",
   "RawStructuredChildScopePortV1 argument/source forwarding is still a no-op or borrow-conflicted",
+  "the current callback source-hook shape or unsafe pointer split is used to forward the loan/call-site witness",
   "take_once borrow remains live during argument lowering, or nested calls require a copied/child loan",
   "Cataloged direct Callee payload remains beside the loan, or consumer reruns CalleeResolverBox/recovery",
 ]
