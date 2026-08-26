@@ -49,12 +49,13 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みで、116 leafの lexical matrix は sidecar/guard で固定済みだが、意味論的な leaf-derived census は設計中。phase2170 ProductAot S0は完全一致AOT証拠が無く、試行したArray push/Map sourceがpure-firstのarray_element_writeで停止した。次はsource-backed lowering capabilityのownerを設計し、38 residualは保持する。
+  `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-D0`。CoreDirect R0は着地済み。legacy arithmetic snapshotは116 lexical leaves、78 force reachers / 80 invocations、38 non-force residual consumers、migration blockers=9だが、これは意味論的closureではない。leaf本文から120 lexical sitesを再導出し、77/78 definite-force、35/35 explicit-core residual、4/7 unresolved dynamicを固定するまで停止する。phase2170 ProductAot S0は完全一致AOT証拠が無く、試行したArray push/Map sourceがpure-firstのarray_element_writeで停止した。
 
 Design-only follow-up:
-  force-hv1 censusはleaf scriptからper-path属性とderived countを再計算し、旧
-  `hv1 failure -> Core fallback` edgeをauthorityから除外する。A④ sentinel/non-growthと
-  D ledger/index/dead-link checksはcleanup task mapへ登録済み。これらは実装許可ではない。
+  force-hv1 censusは各leaf本文からbody_sha256、lexical_entry_sites、route basisを導出し、
+  reviewed fateをowner証拠で別管理する。旧`hv1 failure -> Core fallback` edge、numeric rc、
+  runtime loop repetitionはauthorityから除外する。A④ sentinel/non-growthとD ledger/index/
+  dead-link checksはcleanup task mapへ登録済み。これらは実装許可ではない。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -251,18 +252,15 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    family issuer. R0 deletes raw probe/child/in-proc reparse/VM fallback.
 
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
-   retire production force-hv1; corrected census is 116 lexical leaves (33 direct,
-   74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38
-   non-force residual consumers. Fates are HistoricalDelete=69, migration blockers=9,
-   SemanticReference=0; migrate, retire, or archive each named caller and supersede
-   the startup guard; standard-v1 reroute is forbidden.
-   Design order: force-hv1 semantic census guard (leaf-derived, old fallback independent)
-   -> phase2170 wrapper-only ProductAot pilot
-   (array_push_size_5_vm.sh + map_set_dup_key_size_canary_vm.sh) -> remaining six
-   ProductAot rows + run_all aggregate -> selfhost Stage1Proof/AOT -> 69
-   HistoricalDelete rows (including the two hv1_mircall duplicates) -> narrow
-   helper cut with 38 residuals preserved -> caller-zero guard -> selector-alone
-   startup tombstone and closeout.
+   retire production force-hv1; the legacy arithmetic snapshot is 116 lexical leaves (33 direct,
+   74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38 non-force
+   residual consumers with migration blockers=9. Body-derived observation is 120 lexical sites:
+   77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved
+   rows are CutoverBlockerOpen and cannot be ParkedSealed. Standard-v1 reroute is forbidden.
+   Design order: per-leaf semantic census schema (old fallback independent) -> one Product claim
+   owner -> Map exact AOT S0 -> Array push pure-first capability D0/I0 -> Array exact AOT S1
+   -> Product cutover R0 -> Stage1 Proof/AOT -> HistoricalDelete -> narrow helper cut with
+   residuals preserved -> selector-alone startup tombstone and closeout.
 
 1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
    strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and

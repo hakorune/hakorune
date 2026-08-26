@@ -2,7 +2,7 @@
   "schema": "force-hv1-caller-disposition-manifest-v0",
   "version": 1,
   "status": "design_stop_no_implementation",
-  "source_commit": "9090bd1ba0c3e90c825288698cc02ec89d88f98e",
+  "source_commit": "de6ebfadaaef30f6c8c9cc6b6a045011f5a90797",
   "Exception": "machine-consumed stable artifact",
   "ParentCurrentCard": "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
   "boundary": {
@@ -24,7 +24,7 @@
   },
   "authority": {
     "selector_reader": "src/main.rs::HAKO_VERIFY_V1_FORCE_HAKOVM",
-    "truthy_policy": "src/config/env/vm_backend_flags.rs::env_bool (1|true|on, case-insensitive)",
+    "truthy_policy": "src/config/env.rs::env_bool (1|true|on, case-insensitive)",
     "direct_issuer": "tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file",
     "helper_issuer": "tools/smokes/v2/lib/test_runner_builder_helpers.sh::verify_mir_rc",
     "wrapper_issuer": "tools/smokes/v2/lib/test_runner_stdout_core_helpers.sh::run_verify_mir_via_hakovm_*",
@@ -40,12 +40,33 @@
     ]
   },
   "census_contract": {
-    "status": "design_only",
-    "derivation": "Re-derive caller-family, reachability, invocation, and fate values from each named leaf script plus the selector reader; do not accept arithmetic constants as semantic evidence.",
-    "manifest_attributes": ["path", "caller_family", "invocation_count", "reachability", "fate"],
-    "authority": "Named leaf-script route text and the force selector reader, with the old helper failure path excluded from the proof boundary.",
-    "non_authority": ["hardcoded 78/80 constants", "numeric child rc alone", "verify_mir_rc failure -> Core fallback", "filtered or merged output", "script filename claims"],
-    "acceptance": "Derived values equal expected_counts, every leaf has a route/fate attribute, and the census remains valid when the deleted fallback edge is absent; mismatch is a fail-closed design result."
+    "status": "design_only_no_semantic_counts",
+    "derivation": "Read each named leaf body and derive lexical entry sites, route basis, and reachability before assigning a reviewed fate; the existing arithmetic group totals are a legacy snapshot, not semantic evidence.",
+    "manifest_attributes": ["path", "caller_family", "body_sha256", "lexical_entry_sites", "derived", "reviewed"],
+    "authority": "The named leaf-script body, the single force selector reader, and an explicit reviewed owner for fate; the old helper failure path and runtime repetition are outside the proof boundary.",
+    "non_authority": ["hardcoded 78/80/38 constants", "numeric child rc alone", "verify_mir_rc failure -> Core fallback", "filtered or merged output", "script filename claims", "runtime loop repetition"],
+    "leaf_schema": {
+      "required": ["path", "body_sha256", "derived", "reviewed"],
+      "derived": ["entry_symbol", "lexical_entry_sites", "primary_mode", "artifact_proof", "derived_reachability", "residual_kind"],
+      "reviewed": ["disposition", "fate_contract_id", "review_owner", "review_source", "reviewed_body_sha256", "successor"],
+      "fate_rule": "A script body may be mechanically counted, but fate is accepted only from the named owner and reviewed source; unresolved dynamic paths remain CutoverBlockerOpen."
+    },
+    "current_observation": {
+      "lexical_leaves": 116,
+      "lexical_sites": 120,
+      "definite_force": {"leaves": 77, "lexical_sites": 78},
+      "explicit_core_residual": {"leaves": 35, "lexical_sites": 35},
+      "unresolved_dynamic": {"leaves": 4, "lexical_sites": 7},
+      "potential_force": {"leaves": 81, "lexical_sites": 85},
+      "unresolved_paths": [
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_if_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_binop_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_loop_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_return_logical_varvar_core_exec_canary_vm.sh"
+      ],
+      "status": "CutoverBlockerOpen_until_schema_sealed"
+    },
+    "acceptance": "A future dedicated semantic guard must derive 116 leaves, 120 lexical sites, and 33/74/9 leaf families from bodies, then derive 77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic values. The old fallback edge, runtime rc, and runtime repetition never enter the derivation; mismatch is fail-closed."
   },
   "cleanup_targets": [
     {
@@ -57,6 +78,7 @@
     }
   ],
   "expected_counts": {
+    "role": "legacy_arithmetic_group_snapshot_only",
     "lexical_leaves": 116,
     "caller_family": {
       "direct": 33,
@@ -331,13 +353,16 @@
     }
   ],
   "task_order": [
-    "FORCE-HV1-CALLER-DISPOSITION-D0: freeze this named 116-leaf matrix and selector-alone terminal; no implementation",
-    "FORCE-HV1-CENSUS-SEMANTIC-GUARD-D0: derive per-leaf route/fate attributes and counts from leaf scripts; remove the old hv1-failure-to-Core edge from census authority; no implementation",
-    "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0-DESIGN: name a source-backed Array/Map lowering capability after the first source shape hit pure-first array_element_write; no VM fallback",
-    "FORCE-HV1-PHASE2170-PRODUCT-AOT-S1: migrate the remaining six ProductAot wrappers and update run_all atomically",
+    "FORCE-HV1-CALLER-DISPOSITION-D0: freeze this named 116-leaf lexical matrix and selector-alone terminal; no implementation",
+    "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-D0: seal body_sha256/derived/reviewed attributes, derive 120 lexical sites and 77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved rows are CutoverBlockerOpen; no implementation",
+    "PHASE2170-PRODUCT-CLAIM-D0: choose one owner for source-backed collection claims and define non-vacuous flow/per-receiver evidence; no AOT or VM fallback",
+    "PHASE2170-MAP-EXACT-AOT-S0: prove one checked-in Map source -> canonical MIR -> pure-first ny-llvmc -> EXE successor for the 2/200 wrapper pair; no fallback",
+    "ARRAY-ELEMENT-WRITE-PUSH-PURE-FIRST-D0-I0: name a small native capability owner for array_element_write(kind=push); existing legacy projection and VM routes are non-authority",
+    "PHASE2170-ARRAY-EXACT-AOT-S1: prove one Array push source -> canonical MIR -> pure-first ny-llvmc -> EXE family with aliases/flow/per-receiver claims; no fallback",
+    "FORCE-HV1-PRODUCT-CUTOVER-R0: migrate only ProductAot rows after exact successors and same-artifact evidence are green",
     "FORCE-HV1-SELFHOST-STAGE1-AOT-S0: land the one exact selfhost emit-to-AOT successor for rc42",
-    "FORCE-HV1-HISTORICAL-DELETE-R0: remove the 69 named direct/helper/wrapper probes (including the two phase2170 hv1_mircall duplicates) without touching 38 residual consumers",
-    "FORCE-HV1-NARROW-HELPER-CUT-R1: delete only force reachability, preserve residual helper behavior, and prove 78/80 caller-zero",
+    "FORCE-HV1-HISTORICAL-DELETE-R0: remove the named HistoricalDelete probes (including the two phase2170 hv1_mircall duplicates) without touching unresolved or residual consumers",
+    "FORCE-HV1-NARROW-HELPER-CUT-R1: delete only force reachability, preserve residual helper behavior, and prove the semantic guard's caller-zero result",
     "FORCE-HV1-STARTUP-RETIRE-R2: replace the truthy selector with one stderr tombstone, parse/execute/retry/fallback zero",
     "WPRE-I0: after force closeout, open strict root/one decoder; MirBuilder Call schema rows follow the durable order"
   ],
@@ -352,19 +377,22 @@
   "acceptance": [
     "116 unique lexical leaves are represented exactly once in groups",
     "direct/textual_helper/wrapper_only = 33/74/9",
-    "force reachers/invocations = 78/80",
-    "residual consumers = 38 and remain outside the narrow helper deletion",
-    "HistoricalDelete/ProductAot/Stage1ProofAot/SemanticReference/ParkedSealedResidual = 69/8/1/0/38",
+    "legacy arithmetic snapshot = 78 force reachers / 80 lexical sites / 38 residual; it is not semantic closure",
+    "semantic observation = 77/78 definite-force, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved rows block completion",
+    "HistoricalDelete/ProductAot/Stage1ProofAot/SemanticReference/ParkedSealedResidual = 69/8/1/0/38 only as the legacy group snapshot until the per-leaf schema is sealed",
     "unclassified = 0",
-    "implementation permission remains false after ProductAot S0 NoSafeSlice; old wrappers/run_all, Rust VM/helper routes, and 38 residual consumers remain unchanged",
-    "semantic census guard remains design-only until per-leaf derivation matches the manifest and does not use hv1 failure -> Core fallback",
+    "implementation permission remains false after ProductAot S0 NoSafeSlice; old wrappers/run_all, Rust VM/helper routes, and unresolved/residual consumers remain unchanged",
+    "semantic census guard remains design-only until per-leaf body derivation is independently registered and does not use hv1 failure -> Core fallback",
     "tmp/core_exec_direct.hako is registered as an ignored cleanup target, not treated as live evidence"
   ],
   "no_safe_slice": [
     "any path is omitted, duplicated, or unclassified",
     "phase2170 wrapper-only callers or run_all aggregate are omitted",
-    "38 residual consumers are treated as force reachers",
+    "78/80/38 legacy arithmetic totals are claimed as semantic closure, or 4 unresolved dynamic rows are ParkedSealed",
+    "the per-leaf body schema or dedicated semantic guard is missing, or derived values do not match reviewed attributes",
+    "35 explicit-core residual sites or 7 unresolved lexical sites are silently reclassified",
     "force removal falls through to Core or standard-v1",
-    "terminal parses payload, executes, retries, or falls back"
+    "terminal parses payload, executes, retries, or falls back",
+    "Array push or Map ProductAot uses a VM/Core/legacy projection fallback, non-vacuous claim evidence is absent, or a same-artifact AOT successor is not exact"
   ]
 }
