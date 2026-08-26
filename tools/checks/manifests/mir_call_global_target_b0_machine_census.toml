@@ -2,8 +2,9 @@ schema_version = 1
 task_id = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
 guard_id = "mir-call-global-target-b0-machine-census"
 card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-source_of_truth = "The active card's global_target_b0 and wpre_contract arrays; this manifest is a guard projection, never a target issuer."
+source_of_truth = "The owning card's global_target_b0 and wpre_contract arrays; this manifest is a guard projection, never a target issuer."
 boundary = "production Global issuers -> compiled core-schema consumers -> selected VM/native terminal, plus the Wpre artifact entrances that select one parser"
+wpre_projection_scope = "Known-current entrance rows fingerprinted from the owning card; not an exhaustive caller proof. Wpre D0 must recense production profiles before selector implementation."
 allowed_dispositions = ["adapt", "delete", "isolate"]
 allowed_family_terminals = [
   "typed_target",
@@ -16,7 +17,7 @@ allowed_family_terminals = [
 ]
 family_row_count = 17
 consumer_row_count = 19
-wpre_row_count = 10
+wpre_row_count = 14
 wire_schema_version = "2.0"
 wire_ops = [
   "const",
@@ -400,9 +401,9 @@ terminal = "wpre_boundary"
 [[wpre_rows]]
 id = "direct_mir_entrances"
 card_index = 1
-card_sha256 = "5fe5ce204fc0ed495e140c2b5717724c0fca14655301e7d1aea6cd957fd31b74"
+card_sha256 = "4512e490dbd55fe802551f26fcbc01470e5617802e2ebc11cffac08920a3797d"
 key = "direct_mir_entrances"
-expected_path_count = 2
+expected_path_count = 3
 disposition = "delete"
 terminal = "wpre_boundary"
 
@@ -454,15 +455,51 @@ terminal = "wpre_boundary"
 [[wpre_rows]]
 id = "selfhost_compat_selector"
 card_index = 7
-card_sha256 = "c2b4e244a89d88aab43854009a16221a8bd5a7796fd71e5de6e692f35e19c52d"
+card_sha256 = "e27e4153098e8a3d9f6049a98e929348fa4d094414fc00e33481ea8f0257cfe5"
 key = "selfhost_compat_selector"
 expected_path_count = 3
 disposition = "isolate"
 terminal = "wpre_boundary"
 
 [[wpre_rows]]
-id = "reference_downconvert"
+id = "hv1_production_force_route"
 card_index = 8
+card_sha256 = "01be8291927c82a9125dd9ad3d928bad9c4100e1dfffd79627bb36c4b76325ed"
+key = "hv1_production_force_route"
+expected_path_count = 2
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "selfhost_exe_route"
+card_index = 9
+card_sha256 = "4c6c05e1ff3d3cbf88d35667accc809b8f219879f8870dbab7a8744391a11a14"
+key = "selfhost_exe_route"
+expected_path_count = 2
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "runtime_builder_handoff"
+card_index = 10
+card_sha256 = "0d624386f1b3a21f6452e91ce9b251dad59949d8d183212975f6006460a24bc8"
+key = "runtime_builder_handoff"
+expected_path_count = 2
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "core_bridge_and_program_import"
+card_index = 11
+card_sha256 = "49f2c35f3ab4683247a970335cce4941719a87d2923b545bb8819267c5e2314d"
+key = "core_bridge_and_program_import"
+expected_path_count = 2
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "reference_downconvert"
+card_index = 12
 card_sha256 = "c6defbb8c9faf8b98d08439bd24d4b73c48da8756b48abee55363a917e9f4535"
 key = "reference_downconvert"
 expected_path_count = 1
@@ -471,7 +508,7 @@ terminal = "wpre_boundary"
 
 [[wpre_rows]]
 id = "host_wire_rewrite"
-card_index = 9
+card_index = 13
 card_sha256 = "9cb1e720f6b04cef0807119219ff19681c7f04f3a867150f70c6b8749e62adf0"
 key = "host_wire_rewrite"
 expected_path_count = 1

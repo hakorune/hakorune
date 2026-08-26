@@ -1,9 +1,9 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
-current_design_stop = "none; B0 Global architecture and the observer/package ownership contract are accepted, while Wpre/B1 readiness remains task-gated. The ingress lifecycle guard and provenance/tombstone closeout are landed; the selected next row is one reusable B0 machine census guard only."
-current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0: guard-only — freeze the finite family/consumer/wire inventory and exact print attribution. No parser behavior, typed Global, observer, loan, resolver, ABI, EffectMask, backend, or Call schema change is authorized."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT"
+current_design_stop = "design stop; B0 machine census/provenance guard is landed. Wpre-I0 is NoSafeSlice until entrance profiles, one parsed Value ownership, compatibility/core-direct fate, and task-order synchronization are fixed."
+current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT: docs-only — no parser, fallback, codec, typed Global, observer, loan, resolver, ABI, EffectMask, backend, or Call schema implementation is authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "Mir Call R6 — strict ingress selection, typed Global identity, and D1B exact-target ownership"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "Canonical Global remains Builtin(Print) or SameModule(FreeFunction/StaticBoxMethod), with every other family Extern/Method/construction/reject. The ingress lifecycle guard and B0 provenance/tombstones are landed; the selected machine-readable family/consumer/wire census guard must close before Wpre; semantic implementation_permission remains false."
-next_design_card = "none"
-next_execution_card = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
+latest_card_summary = "B0 machine census/provenance guard is landed. Wpre is design-stop: profile every known compiled entrance, carry one parsed JSON Value, choose one decoder or typed terminal, reconcile the reopened fallback card, and keep semantic implementation_permission false."
+next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT"
+next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-27: observer/package ownership is accepted without another broad design phase; the bounded ingress guard and provenance closeout remain guard/docs-only.",
   "2026-08-27: ingress schema lifecycle guard landed with frozen selector/retry inventory and typed-v2 surface absence; Wpre remains closed.",
-  "2026-08-27: B0 provenance/tombstone evidence was restored against 9bff1a1ff2^; the reusable machine census guard is the next selected row.",
+  "2026-08-27: B0 provenance/tombstone evidence was restored against 9bff1a1ff2^; the reusable machine census guard was selected next.",
+  "2026-08-27: B0 machine census guard landed; Wpre profile/root/decoder contract is the next docs-only design stop after production caller audit.",
 ]

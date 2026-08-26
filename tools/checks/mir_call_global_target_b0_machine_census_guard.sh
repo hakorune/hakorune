@@ -4,8 +4,6 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="mir-call-global-target-b0-machine-census"
 CARD="$ROOT_DIR/docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
-WORKSTREAM="$ROOT_DIR/docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 REGISTRY="$ROOT_DIR/tools/checks/guard_rows.toml"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 MANIFEST="$ROOT_DIR/tools/checks/manifests/mir_call_global_target_b0_machine_census.toml"
@@ -19,9 +17,9 @@ fail() {
 
 [[ $# -eq 0 ]] || fail "usage: $0"
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$CARD" "$STATE" "$WORKSTREAM" "$REGISTRY" "$INDEX" "$MANIFEST"
+guard_require_files "$TAG" "$CARD" "$REGISTRY" "$INDEX" "$MANIFEST"
 
-python3 - "$ROOT_DIR" "$CARD" "$STATE" "$WORKSTREAM" "$REGISTRY" "$INDEX" "$MANIFEST" <<'PY'
+python3 - "$ROOT_DIR" "$CARD" "$REGISTRY" "$INDEX" "$MANIFEST" <<'PY'
 from __future__ import annotations
 
 import hashlib
@@ -30,9 +28,7 @@ import sys
 import tomllib
 from pathlib import Path
 
-root, card_path, state_path, workstream_path, registry_path, index_path, manifest_path = map(
-    Path, sys.argv[1:]
-)
+root, card_path, registry_path, index_path, manifest_path = map(Path, sys.argv[1:])
 
 
 def fail(message: str) -> None:
@@ -51,10 +47,8 @@ def load(path: Path) -> dict[str, object]:
 
 
 card = load(card_path)
-state = load(state_path)
 registry = load(registry_path)
 manifest = load(manifest_path)
-workstream = workstream_path.read_text(encoding="utf-8")
 index = index_path.read_text(encoding="utf-8")
 
 task_id = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
@@ -69,21 +63,14 @@ if manifest.get("task_id") != task_id or manifest.get("guard_id") != guard_id:
     fail("machine census manifest task/guard identity drifted")
 if manifest.get("card_path") != card_rel:
     fail("machine census manifest card_path drifted")
-if "active card" not in str(manifest.get("source_of_truth", "")):
-    fail("machine census must name the active card as its source of truth")
+if "owning card" not in str(manifest.get("source_of_truth", "")):
+    fail("machine census must name the owning card as its source of truth")
 if "never a target issuer" not in str(manifest.get("source_of_truth", "")):
     fail("machine census must remain a projection, not a target issuer")
+if "not an exhaustive caller proof" not in str(manifest.get("wpre_projection_scope", "")):
+    fail("Wpre projection must be labeled as a known-current list, not completeness proof")
 if manifest.get("allowed_dispositions") != ["adapt", "delete", "isolate"]:
     fail("machine census disposition vocabulary drifted")
-
-if state.get("work_mode") not in {"fast", "closeout"}:
-    fail("B0 machine census guard requires CURRENT_STATE work_mode=fast or closeout")
-if state.get("current_execution_row") != task_id:
-    fail("CURRENT_STATE current_execution_row does not select B0 machine census")
-if state.get("next_execution_card") != task_id:
-    fail("CURRENT_STATE next_execution_card does not select B0 machine census")
-if state.get("latest_card_path") != card_rel:
-    fail("CURRENT_STATE latest_card_path no longer names the active card")
 
 card_row = card.get("b0_machine_census_guard_row")
 if not isinstance(card_row, dict):
@@ -93,8 +80,6 @@ if card_row.get("task_id") != task_id or card_row.get("status") not in {
     "landed_guard_only",
 }:
     fail("active card B0 machine census row is not selected/landed guard-only")
-if card.get("execution_row") != task_id:
-    fail("active card execution_row does not select B0 machine census")
 if card.get("implementation_permission") is not False:
     fail("semantic implementation permission opened during B0 guard-only row")
 expected_allowed_files = {
@@ -127,8 +112,6 @@ if registry_row.get("cmd") != ["bash", guard_script]:
     fail("B0 machine census guard command drifted")
 if guard_script not in index or manifest_rel not in index:
     fail("check-script index does not list the B0 machine census guard and manifest")
-if task_id not in workstream or guard_id not in workstream or manifest_rel not in workstream:
-    fail("active workstream does not name the B0 machine census task, guard, and manifest")
 
 proof_plan = card.get("proof_plan")
 if not isinstance(proof_plan, dict):

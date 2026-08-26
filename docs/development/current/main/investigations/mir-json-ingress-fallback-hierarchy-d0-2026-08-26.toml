@@ -1,8 +1,21 @@
 title = "MIR JSON ingress v1-to-v0 fallback hierarchy design"
-status = "parked_sealed_design_no_safe_slice"
+status = "reopened_design_only_no_implementation"
 observed_commit = "fff5eaabb1"
 observed_at = "2026-08-26"
-active_pointer = "not selected; separate from D1B Row B producer closure"
+active_pointer = "selected by MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT; design-only, no parser or fallback implementation permission"
+
+[reopen_reconciliation]
+state = "Reopened"
+superseded_by = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT"
+reason = "The active Call lane selected Wpre after the B0 machine census. The former ParkedSealed trigger is satisfied, and the old card's selfhost/hv1/outside claims were corrected by the production caller audit."
+blocking_findings = [
+  "hv1_inline is reachable from the production force route, not test-only",
+  "Stage-A MIR-v0 and Program-v0 extraction can alias one line and then reinterpret MIR failure as Program",
+  "Program-v0 import extraction reparses the selected raw root",
+  "Stage1 preemption, core-direct fallthrough, runtime/host handoffs, and transform-error handling need explicit profile/fate",
+]
+required_contract = "One entrance profile and one strict parsed JSON Value select exactly one decoder or typed terminal. Explicit decoder failure never retries through another parser; compatibility canonicalization stays inside the selected owner and never re-enters selection."
+implementation_permission = false
 
 [boundary]
 starts = "--mir-json-file/core_executor direct MIR text intake"
@@ -53,9 +66,9 @@ v1_ready = "schema/version explicitly v1 and typed parse succeeds -> publish v1 
 v1_reject = "explicit v1 shape but typed validation fails -> typed v1 terminal reject; no v0 retry"
 v1_not_applicable = "no v1 discriminator and explicit v0 shape -> owner-local v0 parser"
 v0_ready = "v0 parser succeeds -> publish compatibility MirModule"
-both_reject = "eligible v0 compatibility parse also fails -> one combined diagnostic, no third parser"
+both_reject = "Observed legacy behavior may combine v1/v0 errors; required Wpre behavior is selected-decoder failure -> one typed terminal, with no second parser or third-parser retry"
 unsupported_shape = "neither v1 nor v0 shape -> typed unsupported-shape terminal"
-program_json = "Program(JSON v0) -> separate compatibility loader only after MIR artifact classification returns None"
+program_json = "Observed legacy artifact routing may enter Program(JSON v0) after MIR classification; required Wpre behavior selects Program-v0 only from an explicit ArtifactFamily profile and lends the same parsed root to lowering/import consumers"
 
 [acceptance]
 required_before_fast = [
@@ -72,7 +85,7 @@ negative = ["malformed explicit v1 -> v0 retry = 0", "unsupported shape -> no pa
 guard = "a future guard must be loader-window scoped; it must not global-grep v0/v1 strings or conflate Program(JSON v0) compatibility"
 
 [disposition]
-state = "ParkedSealed"
-owner = "MIR JSON ingress lane, separate from the active D1B Row B card"
-reason = "The finding is classified and bounded but not selected by CURRENT_STATE.toml; implementing it now would mix ingress policy with Builder producer closure."
-reopen_trigger = "the active Call lane selects this ingress row or a new v1/v0 fallback caller appears"
+state = "Reopened"
+owner = "MIR JSON ingress lane; active design owner is the Wpre profile/root/decoder row on the D1B card"
+reason = "The active Call lane now owns Wpre design, but implementation remains blocked until the entrance profile inventory, one-root value contract, compatibility fates, and order sync are accepted."
+reopen_trigger = "A new production entrance, bypass, retry, reparse, or compatibility route reopens the design row and requires a census update before implementation."

@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,29 +32,30 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 ## Current six-line brief
 
 Decision:
-  B0は受理済み。canonical Globalは`Builtin(Print)`または
-  `SameModule(FreeFunction | StaticBoxMethod)`だけとし、旧wireは入口で閉じる。
+  B0の機械censusは着地済み。canonical Globalは`Builtin(Print)`または
+  `SameModule(FreeFunction | StaticBoxMethod)`だけとし、Wpre入口選択を設計停止にする。
 
 Source authority + canonical issuer:
-  `print(expr)`のsource contract、exact same-module関数宣言、または
-  owner-private compatibility resolverが構造targetを一回発行する。
+  B0のsource contractに加え、Wpre entrance profileがstrict JSON rootを一回parseし、
+  owner-private selectorが選択済みdecoderまたはtyped terminalを一回発行する。
 
 Non-authority:
   raw text、alias map、physical symbol、function table、EffectMask、registry、
   `caller=None`、methodize、`args[0]`、optimizer/backend repair。
 
 Fail-fast boundary:
-  schemaはJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
-  schemaとtarget関係不足はarguments、MIR、wire/backend effectより前にreject。
+  entrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
+  schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
 
 Smallest next slice:
-  `MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0`。Ingress guardと
-  provenance/tombstoneの完了後に、有限family/consumer/wire inventoryを
-  一つのmachine-readable manifestと再利用可能なfail-closed guardへ固定する。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT`。
+  B0 guard/censusを閉じ、known-current入口を補正し、profile×root×decoderの
+  有限行列と一回parseのownershipをdocs-onlyで固定する。
 
 Non-claims:
-  schema selector実装、typed Global、observer/loan、Method/receiver、EffectMask、
-  backend parity、performance、Loop/M8/M9、warning/dead-code cleanup。
+  schema selector実装、parser/fixture/codec、typed Global、observer/loan、
+  Method/receiver、EffectMask、backend parity、Stage1/selfhost migration、
+  performance、Loop/M8/M9、warning/dead-code cleanup。
 
 Census boundary:
   production `Callee::Global` issuer -> optimizer/wire/all compiled core-schema
@@ -199,11 +200,17 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     retained historical token, and record the user-supplied Pro review plus the
     six read-only audit roles integrated by 45bff917e3. No transcript is invented
 
-1b. MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0             (now, fast guard-only)
+1b. MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0             (landed, fast guard-only)
     turn the finite family matrix, compiled-consumer owner inventory, Wpre/wire
     impact table, and exact print/1 attribution into one machine-readable manifest
     plus reusable fail-closed guard. Unknown owner/family/path and stale manifest
     fail; this guard is evidence only and grants no Wpre/B1 implementation permission
+
+1c. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT (now, design stop)
+   reconcile all known compiled entrances, including Stage1 preemption, production
+   force-hv1, selfhost/EXE, runtime/host handoffs, core-direct, and Program import
+   reparse. Freeze profile x root matrix, one parsed Value ownership, compatibility
+   fates, exact delete set, and order sync. No parser or fallback code changes.
 
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
    parse JSON root once; select exact v2/v1/MIR-v0/Program-v0 once; delete raw

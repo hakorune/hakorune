@@ -72,8 +72,8 @@ if row.get("cmd") != ["bash", guard_script]:
 if sum(1 for item in rows if isinstance(item, dict) and item.get("id") == guard_id) != 1:
     fail("ingress lifecycle guard id is duplicated")
 
-if state.get("work_mode") not in {"fast", "closeout"}:
-    fail("guard-only row requires CURRENT_STATE work_mode=fast or closeout")
+if state.get("work_mode") not in {"fast", "design_stop", "closeout"}:
+    fail("guard-only row requires CURRENT_STATE work_mode=fast, design_stop, or closeout")
 if state.get("latest_card_path") != str(card_path.relative_to(root)):
     fail("CURRENT_STATE latest_card_path no longer names the active card")
 if state.get("implementation_permission") is True:
