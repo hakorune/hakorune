@@ -36,7 +36,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "D0-SIG-I canonical-issuer target-relation census: keep implementation_permission=false, prove whether an existing source-owned relation already carries an authoritative target payload, and reject key/name/symbol projection until one private issuer can issue Callee exactly once before the loan. G/H remain prerequisites; J/K and implementation stay closed."
+smallest_next_slice = "D0-SIG-Ib source-authority target-bearer decision: keep implementation_permission=false, choose a static-only private move-only payload that is already qualified/sealed or record TargetPayloadMissing; reject general-catalog Callee storage, key/name/symbol projection, cross-cohort reuse, and second resolver before J/K or loan code."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -989,7 +989,54 @@ no_safe_slice = [
   "The issuer cannot prove self-before-sibling precedence, same-brand/session/site co-seal, or typed rejection for zero/multiple/foreign relations.",
   "The raw loan would carry a key/name/CallTarget/recipe instead of the already-issued Callee, or the handoff would expose a second target authority.",
 ]
-next_task = "D0-SIG-Ia: decide and document the target-bearing source relation owner (or keep NoSafeSlice), then return to D0-SIG-J only after the relation can issue one authoritative Callee without projection."
+next_task = "D0-SIG-Ib: choose the source-authority owner and exact static-only target-bearer payload (or keep TargetPayloadMissing/NoSafeSlice), then return to D0-SIG-J only after one authoritative Callee can be issued without projection."
+
+[cataloged_i0_target_relation_adversarial_audit_2026_08_26]
+status = "design_stop_no_safe_slice"
+task_id = "MIR-CALL-D1B-CATALOGED-I0-TARGET-RELATION-ADVERSARIAL-AUDIT-D0"
+observed_commit = "8ce34f93a88634f8ef95f6bd8900d783cbd14f16"
+review_source = "Follow-up read-only issuer-owner and Callee-adversary audits; no code, fixture, Cargo, backend, or route change."
+verdict = "NoSafeSlice remains. Cataloged declaration/source products expose only key/name/arity or MethodCall-only key facts, while Callee::Global(String) is a MIR target with no brand/session/site provenance. The pre-adapter handoff cannot become an issuer by formatting those fields."
+callee_global_boundary = "A valid Cataloged static target must be source-owned and already sealed as a qualified static-global payload. The handoff may consume a private move-only bearer and call one consuming issue_callee operation; it may not build Global from owner/name/arity, CallTarget, LegacySymbol, physical symbol, StaticMethodId, or a resolver retry. The payload must bypass consumer methodize/guard/reclassification and reach the canonical Call terminal directly."
+catalog_callee_rejected = "Do not add a general Callee field to VerifiedSameModuleCallableDeclarationV1 or the declaration catalog: those rows are source/body facts without call-site or session proof, Callee is Clone and can represent ValueId/receiver/box-kind authority, and instance/constructor rows would require optional or sentinel states. A static-only private target bearer is the only conditional source-side shape; it must be non-Clone/non-Copy, have no key/name/arity getter, and expose only one consuming Callee issuance."
+opaque_bearer_contract = "Conditional accepted shape for Ia: a private static-only non-Clone/non-Copy source target bearer containing an already-sealed qualified Global payload plus exact catalog brand, resolver-session witness, caller/site/lineage and static relation. It has no registry/key lookup or formatter; issue_callee(self) moves the payload exactly once. If the source layer cannot own this payload without importing MIR authority, Ia must remain NoSafeSlice rather than add a bridge with hidden synthesis."
+existing_relation_reuse = "Reject direct reuse of src/mir/source_call_target current-owner/qualified rows, Script direct-static rows, and exact-i64 VerifiedCallableIndexV1: they are MethodCall/Script/result-specific, key/representation-only, or session-disjoint. Adapting them in the consumer would create a second ordinary FunctionCall authority."
+precedence_witness = "The source issuer must prove current-owner exact static before sibling search; same-name current-owner wrong arity rejects before sibling lookup; only one same-brand/session static sibling is accepted. Zero, multiple, foreign, instance-only, constructor-only, BuiltinGlobal, LocalValue, Extern, and Method(None) are typed non-success states for this cell."
+finite_states = [
+  "SourceRelationObserved",
+  "StaticTargetBearerIssued",
+  "CurrentOwnerStaticReady",
+  "UniqueSiblingStaticReady",
+  "TargetPayloadMissing",
+  "TargetNamespaceNotStatic",
+  "CurrentOwnerArityMismatch",
+  "NoStaticCandidate",
+  "AmbiguousStaticCandidate",
+  "CatalogBrandMismatch",
+  "ResolverSessionMismatch",
+  "LineageOrSiteMismatch",
+  "MethodNoneLegacy",
+  "BuiltinGlobalKnownNonDirect",
+  "LocalValueKnownNonDirect",
+  "ExternKnownNonDirect",
+  "TopLevelOrConstructorParked",
+  "TypedRejectBeforeArguments",
+  "IssuerCoSealed",
+]
+old_edge_delete = "Only after the target bearer/issuer exists: delete Cataloged prepare_cataloged_target_v1 -> CalleeResolverBox, mir_symbol_projection/name/arity/physical-symbol projection, variable_map/env/type-registry lookup, BareStatic issuance, and direct CatalogedTargeted { callee, arguments }. Do not globally delete shared compatibility owners."
+acceptance = [
+  "One source-owned target relation owner and one consuming pre-adapter handoff owner are named; ordinary declaration catalog remains source/body-only.",
+  "The target bearer is static-only, private, move-only, non-Clone/non-Copy, already qualified/sealed, and exposes no key/name/arity/registry/formatter or cross-cohort getter.",
+  "issue_callee(self) is the single target-to-Callee transition; handoff validates brand/session/lineage/site and moves the result into the affine loan without reclassification.",
+  "Self/sibling precedence and all missing/ambiguous/foreign/namespace/non-direct states reject before arguments/effects; no Method(None) success exists.",
+]
+no_safe_slice = [
+  "The only available target is a Cloneable Callee in the general declaration catalog, a key/name/arity tuple, or a MethodCall/Script/exact-i64 product.",
+  "Issuing the payload requires mir_symbol_projection, StaticMethodId parsing, CallTarget, a registry/formatter, CalleeResolverBox, methodize, guard repair, or post-argument values.",
+  "The bearer can be copied/shared, exposes a target getter, or cannot retain the same session/brand/lineage/site co-seal through one consuming issue.",
+  "The source layer would need to import unrelated MIR/physical authority merely to synthesize a target; stop and name a new source-authority bridge instead.",
+]
+next_task = "D0-SIG-Ib: choose the source-authority owner and exact static-only target-bearer payload (or record the typed TargetPayloadMissing terminal); only after acceptance may D0-SIG-J provision the raw loan."
 
 [cataloged_i0_arbitration]
 status = "accepted_design_no_safe_slice"
@@ -1007,6 +1054,7 @@ task_sequence = [
   "D0-SIG-H: resolver-session/catalog co-seal; issue the private non-ambient FunctionSemanticResolverSessionWitnessV1 once, retain it opaquely through package/install, prove identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent",
   "D0-SIG-I: canonical-issuer target-relation census; prove whether an existing source-owned relation carries an authoritative Callee target, and if not, design the single private source-authority co-seal without key/name/arity/symbol projection",
   "D0-SIG-Ia: select the source relation issuer and exact target payload, or retain NoSafeSlice with a typed missing-payload terminal; only then promote direct_call_handoff.rs from placement candidate to pre-adapter co-seal owner",
+  "D0-SIG-Ib: freeze the static-only private move-only target bearer and its consuming issue_callee boundary, or retain TargetPayloadMissing; general catalog Callee storage, key projection, MethodCall/exact-i64 borrowing, and source-layer MIR leakage are forbidden",
   "D0-SIG-J: provision/lifetime; place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus a non-callback structured child operation and &mut reborrow, and define atomic install abort/rollback",
   "D0-SIG-K: guard/residual proof; define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, scoped positive/negative/parity checks, and concrete transitional-name bans in the Cataloged guard",
   "I0: replace CatalogedTargeted { callee, arguments } with the root loan take, lower arguments once, publish one canonical Call, and finish residual-zero",
