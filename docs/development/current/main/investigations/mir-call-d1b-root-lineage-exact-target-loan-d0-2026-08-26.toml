@@ -3,7 +3,7 @@ status = "accepted_design_no_safe_slice"
 observed_commit = "9813d8797c"
 observed_at = "2026-08-26"
 implementation_permission = false
-permission_scope = "No implementation permission: the recursive compatibility facade shelf is landed; the next row is D0-SIG-CLOSE-F-READINESS for the package-only caller census, callback/token lifetime, and raw-loan seam."
+permission_scope = "Guard-only implementation permission: D0-SIG-CLOSE-E-GUARD-REGISTRATION may add one lifecycle guard and its registry row; semantic bridge/loan/lineage/Call implementation_permission remains false."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
@@ -431,6 +431,24 @@ design_closure = "A/B: accepted with HRTB source scope and full caller delete se
 guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Readiness phase checks package-only escape, visibility, HRTB borrow closure, one root loan capability, and no empty/default inventory; Cataloged-I0 phase adds old Targeted payload zero, exact-site take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0. Unknown phase fails closed."
 non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
 next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+
+[guard_registration_row]
+status = "selected_fast_guard_only"
+execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION"
+scope = "One structural lifecycle guard plus one guard_rows.toml registration. The guard may inspect the active card, registry, source topology, and forbidden semantic surface; it must not issue Callee, loan, lineage, effect, or Call values."
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+phases = [
+  "readiness: assert the package-only escape is still explicitly pending, affine surface is absent rather than partially wired, no generic Targeted drift exists, and the registry/script/card topology is coherent",
+  "cataloged_i0: future phase only; when the affine implementation lands, require take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0",
+]
+fail_closed = "Unknown phase, duplicate/missing registry row, missing script/card, partial semantic surface, generic callback/loan payload, or an accidental production switch exits nonzero. Known baseline warnings and unrelated manifest debt are outside this guard."
+acceptance = "run_row_guard --only mir-call-d1b-cataloged-affine-loan-lifecycle, current_state_pointer_guard, git diff --check, and TOML parse all pass; semantic implementation_permission remains false and the next semantic row remains Cataloged affine-loan I0."
+non_claims = "This row does not implement C', move production callers, add RawDirectCallDispositionLoanV1, delete CatalogedTargeted payload, widen source relations, retire Resolved, change Method(None), or cut over mandatory Callee."
 
 [recursive_compat_facade_shelf_s0]
 status = "landed"
