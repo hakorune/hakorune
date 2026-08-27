@@ -1,0 +1,125 @@
+title = "Chronic measurement generated registry retention D0"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a63ce4d52b"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
+
+[boundary]
+starts = "the 79 dead_code allowance observations in the generated-included src/mir/compiler/module_registry.in.rs receipt cohort"
+ends = "one explicit policy and per-module evidence rule that can issue or withhold successor_status=not_required without using generated status as a default"
+includes = [
+  "the module_registry.in.rs topology/include owner boundary",
+  "per-declaration role and compile-domain review for all 79 receipt rows",
+  "explicit retention policy owner or named successor for each retained/deletion candidate",
+  "split handling for runtime, compatibility, guard, test-support, and disconnected generated modules",
+  "a finite decision that the later owner-map validator can encode without guessed defaults",
+]
+excludes = [
+  "editing module_registry.in.rs or compiler/mod.rs",
+  "removing #[allow(dead_code)], changing module visibility, or deleting source",
+  "expectation TSV, guard registration, caller-zero proof, Git anchor resolution, compiler/MIR/VM/AOT behavior",
+  "blanket Retain or blanket not_required inferred from generated-included, allow attributes, or text absence",
+]
+
+[brief]
+decision = "Treat generated-registry status as a topology fact only. Before the A cohort can enter the owner map, decide whether each declared module is retained by a named policy owner, mapped to a successor, or remains blocked; split non-uniform roles at declaration/range level. No default successor is issued."
+source_authority = "The frozen 79 receipt rows, module_registry.in.rs declarations, compiler/mod.rs include edge, and explicit tracked owner/retirement policy evidence."
+canonical_issuer = "This D0 issues only the retention/successor policy decision for the A cohort; the later site-owner-map D0 remains the sole owner-map input issuer."
+non_authority = [
+  "generated_included or generated_registry labels by themselves",
+  "allow(dead_code), filename/module name, grep caller absence, warning counts, or current build green",
+  "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
+]
+fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner, explicit role evidence, named retention policy or successor, or if a uniform policy is asserted across mixed modules without row-level proof."
+smallest_next_slice = "Read-only census of all 79 module declarations against tracked module files and owner policy; record which rows are policy-ready versus blocked, without editing source or authoring the owner-map TOML."
+non_claims = [
+  "does not claim generated modules are dead or live",
+  "does not create a successor, expectation pin, guard row, or deletion authorization",
+  "does not change the Rust module registry or compiler behavior",
+]
+
+[cohort]
+name = "A_generated_registry"
+receipt_row_count = 79
+canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
+registry_owner_ref = "src/mir/compiler/module_registry.in.rs#range:1-4@d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+include_evidence_ref = "src/mir/compiler/mod.rs#edge:include-module-registry@d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+observed_domain = "generated_included"
+observed_role = "generated_registry"
+policy_rule = "observed role/domain are not retention authority; every row must receive a named policy owner or successor basis"
+
+[finite_state]
+states = [
+  "ReceiptBound",
+  "RegistryOwnerObserved",
+  "DeclarationRoleReviewed",
+  "RetentionPolicyNamed",
+  "SuccessorNamed",
+  "AReadyForMap",
+  "MissingDeclaration",
+  "MixedDeclarationRole",
+  "MissingPolicyOwner",
+  "UnknownSuccessor",
+  "InferredRetention",
+  "PartialCohort",
+]
+terminal = ["AReadyForMap"]
+blocking = [
+  "MissingDeclaration",
+  "MixedDeclarationRole",
+  "MissingPolicyOwner",
+  "UnknownSuccessor",
+  "InferredRetention",
+  "PartialCohort",
+]
+
+[task_steps]
+items = [
+  "1. Bind exactly the 79 A rows from the validated receipt; preserve byte-range identity and do not regenerate scanner output.",
+  "2. Confirm module_registry.in.rs and compiler/mod.rs as topology owner evidence without treating the include as retention policy.",
+  "3. Inspect each declared module's tracked owner/README/registration and classify role independently; split non-uniform declarations.",
+  "4. Name an explicit retention policy owner for rows that remain, or a tracked successor for rows that move; unknown stays blocking.",
+  "5. Record the finite policy and row-level evidence in the parent matrix; only then reopen site-owner-map D0 for map authoring.",
+]
+
+[acceptance]
+positive = [
+  "all 79 canonical A keys are covered exactly once and each has a declaration-level role/evidence status",
+  "the registry/include owner boundary is explicit and separate from retention/successor authority",
+  "every retained row names a policy owner and every moved row names a successor; no row receives a guessed not_required",
+  "mixed generated modules are split by declaration/site evidence rather than blanket-labeled",
+]
+negative = [
+  "no source/module registry edit, allow removal, TSV, guard registration, caller-zero claim, or deletion",
+  "no blanket Retain/not_required from generated-included, module filename, grep absence, or local green",
+  "no partial A cohort is handed to the owner map as complete",
+]
+
+[guard]
+reuse = "Reuse the strict receipt consumer and non-authoritative coverage skeleton; no executable guard row is added by this D0."
+required = "A cohort evidence review must assert exact 79-key coverage, declaration owner presence, explicit policy/successor basis, and zero inferred-retention rows before map authoring."
+no_safe_slice = [
+  "a policy owner cannot be named for all retained rows",
+  "role differs across declarations but is inherited from the generated file",
+  "successor_status=not_required is filled by default",
+  "source or expectation changes are needed to make the policy appear complete",
+]
+
+[worker_receipt]
+agent = "chronic_measurement_scope_audit"
+status = "owner_partial_retention_policy_missing"
+finding = "Generated-registry topology ownership is partially proven, but no tracked policy says all 79 allowance rows require no successor. The safe decision is a per-declaration policy review or an explicit named retention owner; blanket not_required remains blocked."
+evidence = [
+  "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only",
+  "src/mir/compiler/mod.rs:14-17 includes the registry in the compiler module",
+  "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 supplies generated_included/generated_registry observations only",
+  "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
+]
+
+[closeout]
+status = "pending"
+required = "Record an exact 79-row policy/evidence decision. Keep this row in design stop if any declaration lacks a named policy owner or successor; return to the evidence-matrix D0 only after A is policy-ready."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"

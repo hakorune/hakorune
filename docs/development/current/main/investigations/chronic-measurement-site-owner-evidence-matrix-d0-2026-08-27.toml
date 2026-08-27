@@ -5,7 +5,7 @@ observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
-successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+successor_card = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
 
 [boundary]
 starts = "the strictly validated 185-row chronic observation receipt and its frozen canonical site keys"
@@ -48,6 +48,15 @@ generated_registry = "79 rows; candidate evidence is module_registry.in.rs plus 
 runtime = "46 rows; 40 builder rows and 6 non-builder rows; split active/disconnected sites using tracked owner evidence, not builder.rs file role"
 builder_mixed = "60 rows across 38 files; classify each site independently as runtime, guard_evidence, test_support, compatibility, or recovery; preserve unknown blockers"
 overlap_rule = "A/B/C assignments are disjoint and must equal the validated receipt key set exactly once; cohort labels never replace site-level role/domain evidence"
+
+[cohort_a_gate]
+row_count = 79
+source_boundary = "src/mir/compiler/module_registry.in.rs lines 6-248 included by src/mir/compiler/mod.rs:14-17"
+owner_status = "topology/registration owner candidate accepted"
+retention_status = "missing_named_policy"
+successor_rule = "do not issue not_required + none_required for all 79 rows from generated-included status alone; split by declared module role or name a policy owner"
+required_evidence = "module registry topology owner plus per-module runtime/compatibility/test/disconnected role and an explicit retention or successor decision"
+next_card = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
 
 [evidence_contract]
 candidate_owner_ref = "tracked path plus explicit symbol/range/edge anchor and pinned revision, recorded as a candidate only until later A1 resolution"
@@ -170,15 +179,16 @@ no_safe_slice = [
 
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
-status = "design_matrix_required_before_owner_map"
-finding = "At a63ce4d52b, A0 is landed, the coverage skeleton is pinned, and the tracked source remains unchanged from the d9cff5 receipt. All 185 rows still require site-level evidence: 79 generated registry rows need a named retention policy, 46 runtime rows mix active and disconnected owners, and 60 builder rows across 38 files cannot inherit a file-level mixed role."
+status = "a_cohort_policy_missing"
+finding = "At 04b6262b9e/a63ce4d52b, A0 and the coverage skeleton are landed, and the tracked source remains unchanged from the d9cff5 receipt. A=79 generated registry rows have topology ownership evidence but no explicit policy that permits blanket not_required successor status; B=46 and C=60 remain site-level evidence work."
 evidence = [
-  "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 are candidate generated-registry/include evidence, not blanket Retain authority",
+  "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 establish the generated-registry/include owner boundary, not blanket Retain authority",
+  "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 observes compile_domain=generated_included and role=generated_registry, which cannot issue successor_status=not_required",
   "src/lib.rs:119-120, src/mir/mod.rs:214-215, src/mir/compiler/mod.rs:81-98, and named raw-root owner READMEs are candidate runtime evidence",
   "src/mir/builder/callable_declaration_catalog/README.md:1-64, calls/guard.rs, calls/static_resolution.rs, rewrite/known.rs, and legacy/test owners are candidate mixed-site evidence",
   "A0 site_owner_map.rs:100-220 consumes the receipt once; :264-358 rejects invalid classification/reference contracts, so unresolved states cannot be silently accepted",
 ]
-latest_finding = "Do not author the tracked 185-row map yet. First close this docs-only matrix with explicit candidate evidence and unresolved reasons; only a fully reviewed matrix may reopen owner-map authoring and later expectation pinning."
+latest_finding = "Do not author the tracked 185-row map yet. First decide the A-cohort retention/successor policy and split any generated modules whose role is not uniform; then continue the matrix with B/C evidence. A0 validator and the non-authoritative coverage skeleton remain green."
 
 [closeout]
 status = "pending"
