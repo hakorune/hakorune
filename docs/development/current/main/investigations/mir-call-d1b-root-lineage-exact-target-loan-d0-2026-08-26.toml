@@ -1,16 +1,16 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "force_hv1_guard_current_lifecycle_i0_fast_open"
+status = "direct_historical_delete_r0_landed"
 observed_commit = "e3a07434bd"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0 fast-open: only the stable force phase dispatch, body-derived summary helper, registry row, focused census/guard tests, and current owner docs may change; production routes, R0b exceptions, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
+permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 landed: 30 reviewed direct leaves, the stable lifecycle phase, and their phase2047-2050 projections are retired/guarded with residual-zero evidence; zero-match owner packs, PHI/provider exceptions, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0 fast-open: register one explicit force phase, derive the 86/90 summary from checked-in bodies through one helper, and keep R0a/R0b/Stage1 permissions disjoint; no production route or semantic receipt."
+smallest_next_slice = "SMOKE-OWNER-PACK-ZERO-MATCH-D0: design exact owner-pack discovery and nonzero-match evidence before Stage1 AOT or PHI/provider fate; no production route, fixture, fallback, or semantic receipt."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]

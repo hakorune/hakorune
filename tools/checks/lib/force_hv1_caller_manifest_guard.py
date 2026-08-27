@@ -130,7 +130,7 @@ if requested_phase == "force_hv1_guard_current_lifecycle":
             fail("current lifecycle I0 closeout requires no execution card")
         if card.get("status") != "direct_historical_delete_r0_landed":
             fail("current lifecycle I0 closeout requires the landed R0a card")
-        if "current lifecycle I0 is landed" not in workstream:
+        if "`FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed" not in workstream:
             fail("current lifecycle I0 closeout receipt is missing")
     if fate.get("direct_historical_delete_r0_status") != "landed":
         fail("current lifecycle I0 requires the landed R0a inventory")

@@ -22,12 +22,13 @@ Related:
   leaves with active 86/90 body-derived evidence. PHI/provider exceptions and
   all broad route or engine deletion remain closed. The MirBuilder Call spine
   remains the serial implementation authority.
-- **Next ordered task:** `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is the scoped
-  fast row after the landed R0a closeout. It registers one explicit finite
-  phase and derives the active 86/90 summary from checked-in bodies through
-  one helper; it changes no production route. After closeout, design
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`, then the post-emission/execution boundary
-  in `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0`. PHI/provider R0b and
+- **Next ordered task:** the stable `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0`
+  is landed after the R0a closeout: one explicit finite phase and one
+  body-derived 86/90 summary are registry-visible and green, with no
+  production route changed. The current design stop is
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`; only after exact nonzero owner-pack
+  evidence, design the post-emission/execution boundary in
+  `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0`. PHI/provider R0b and
   conditional/dynamic rows remain separate design decisions. Startup, fallback,
   and Wpre remain closed; CoreDirect `unavailable` remains parked until Wpre
   owns a family issuer.
