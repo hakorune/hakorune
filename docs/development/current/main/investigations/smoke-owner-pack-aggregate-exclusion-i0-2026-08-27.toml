@@ -1,9 +1,12 @@
 title = "Smoke phase2050 explicit aggregate discovery exclusion I0"
-status = "fast_open"
+status = "landed"
 observed_commit = "789dbdc181"
 observed_at = "2026-08-27"
-implementation_permission = true
+implementation_permission = false
 current_execution_row = "SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0"
+implementation_row = "SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0"
+implementation_commit = "b67e2b03d2"
+landed_commit = "b67e2b03d2"
 parent_row = "docs/development/current/main/investigations/smoke-owner-pack-aggregate-discovery-d0-2026-08-27.toml"
 
 [boundary]

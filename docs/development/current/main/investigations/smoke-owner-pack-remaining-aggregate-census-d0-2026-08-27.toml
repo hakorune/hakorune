@@ -1,0 +1,82 @@
+title = "Smoke remaining aggregate wrapper census design"
+status = "accepted_but_not_selected"
+observed_commit = "b67e2b03d2"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0"
+parent_row = "docs/development/current/main/investigations/smoke-owner-pack-aggregate-exclusion-i0-2026-08-27.toml"
+
+[boundary]
+starts = "integration profile aggregate wrappers remaining after phase2050 exact exclusion"
+ends = "finite owner/fate/child-discovery policy for each remaining wrapper cohort"
+includes = [
+  "phase2047/2048/2049/2051 filter-driven run_all wrappers",
+  "phase2100 run_all and five role-bucket wrappers",
+  "phase2160 best-effort local aggregate",
+  "phase2170 official aggregate plus weak hv1 split",
+  "integration proof/pure-legacy-cluster aggregate edge",
+  "normal integration discovery and quick-profile zero-match behavior",
+]
+excludes = [
+  "new owner-pack implementation before a cohort policy is selected",
+  "force-hv1, VM, Call, Wpre, Stage1, or leaf semantic changes",
+  "broad basename-based run_all exclusion",
+  "Cargo execution and runtime result classification",
+]
+
+[brief]
+decision = "Keep the phase2050 one-wrapper/one-exact-pack policy closed. Census the remaining wrappers as separate shape cohorts before issuing any more owner packs: filter-driven zero-match, nested role-bucket, best-effort local, split official/hv1, and legacy-cluster. No wrapper fate is inferred from its name."
+source_authority = "Checked-in wrapper bodies, exact nested call edges, profile discovery output, and owner-reviewed child membership are the only facts. Each selected cohort must issue its own explicit aggregate/leaf relation."
+canonical_issuer = "A future cohort-specific aggregate-node or owner-pack manifest, after design selection; this row issues no executable route."
+non_authority = [
+  "run_all.sh basename",
+  "quick-profile zero-match",
+  "echo/skip text",
+  "nested child runtime rc",
+  "historical phase names",
+  "aggregate wrapper shape inferred from a wildcard",
+]
+fail_fast = "Missing/duplicate/foreign child relation, an unclassified wrapper, a post-effect zero-match, or a proposed cross-cohort normalization keeps the corresponding cohort in design_stop."
+smallest_next_slice = "Produce one body-derived census with exact wrapper paths, child edges, owner profile, route/env/timeout effects, and a disposition for each cohort; then select only one bounded successor row."
+non_claims = [
+  "does not change normal integration discovery",
+  "does not make quick filters a production owner",
+  "does not classify the other wrappers as ExplicitOnlyAggregate",
+  "does not retire or promote any VM/AOT route",
+]
+
+[cohorts]
+filter_driven = "phase2047/2048/2049/2051: 38 scripts total, 4 run_all wrappers; quick filter calls are zero-match under the quick tree and may not be promoted without an exact owner relation"
+role_bucket = "phase2100: 31 scripts, 6 wrappers including run_all; role buckets carry timeout/env/cargo/LLVM gates and must not be packed as ordinary leaves"
+best_effort_local = "phase2160: 21 scripts, one run_all plus 20 direct child calls, all child edges use || true and chmod side effects"
+split_official = "phase2170: 12 scripts, one run_all plus 11 leaves; 9 official default canaries and 2 weak hv1 MIR-call canaries have distinct fate owners"
+legacy_cluster = "integration/proof/pure-legacy-cluster/run_all.sh: cross-profile legacy/archive/reference edges; keep outside the core phase pack census until its owner is explicit"
+
+[observed]
+selected_phase_census = "phase2047=15/1-wrapper/14-leaf; phase2048=6/1/5; phase2049=12/1/11; phase2050=6/1/5 before exclusion; phase2051=5/1/4; phase2100=31/6/25; phase2160=21/1/20; phase2170=12/1/11"
+selected_phase_total = "108 scripts, 13 wrappers, 95 non-wrapper leaves before phase2050 exclusion"
+remaining_duplicate_paths = "34 after phase2050 exclusion: phase2100 role wrappers=5, phase2160 direct children=20, phase2170 official children=9"
+normal_discovery = "integration dry-run is 962 after exact phase2050 wrapper exclusion; phase2050 contributes exactly five leaves"
+
+[acceptance]
+positive = [
+  "every wrapper in the bounded census has one owner/fate or an explicit unresolved blocker",
+  "child edges and profile/timeout/env effects are body-derived, not basename-derived",
+  "phase2047/2048/2049/2051 zero-match remains a blocker rather than a passing owner result",
+  "phase2100/2160/2170 are not collapsed into the phase2050 policy",
+]
+negative = [
+  "unknown wrapper or missing child edge is not auto-packed",
+  "a child leaf is not both parent-discovered and nested-executed under a selected policy",
+  "best-effort || true or chmod semantics are not silently upgraded to exact owner packs",
+  "cross-profile legacy/archive calls are not treated as integration leaves",
+]
+guard = "Reuse the existing manifest-runner/pilot guard style after cohort selection; no per-wrapper guard is created during this census row."
+
+[reopen]
+triggers = [
+  "a wrapper body or nested edge changes without census refresh",
+  "quick zero-match is used as positive production evidence",
+  "phase2100/2160/2170 is assigned the phase2050 fate without a new decision",
+  "a child is packed while its aggregate still remains in parent discovery",
+]

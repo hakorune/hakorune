@@ -1,5 +1,5 @@
 ---
-Status: Fast — exact owner-pack selection I0; aggregate discovery fate parked
+Status: Design stop — phase2050 aggregate exclusion landed; remaining aggregate census
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -50,11 +50,11 @@ Fail-fast boundary:
 
 Smallest next slice:
   `FORCE-HV1-R0A-GUARD-CLOSEOUT-I0` is landed: focused 86/90 census tests, retired-path disjointness, three direct exceptions, and future-row dispatch are green; no production route changed. `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed: explicit phase dispatch, one body-derived summary, registry wiring, and focused tests are green; no production route changed.
-  The zero-match D0 is accepted and `SMOKE-OWNER-PACK-EXACT-SELECTION-I0` is now the scoped fast row; its five-entry phase2050 pack is linked to the registry row and aggregate caller. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
-  `SMOKE-OWNER-PACK-AGGREGATE-DISCOVERY-D0` now selects one finite policy: phase2050 `run_all.sh` is `ExplicitOnlyAggregate` in a one-row manifest, excluded only from parent integration discovery; its five leaves remain integration-owned and direct aggregate invocation remains the exact owner pack. The design card is `docs/development/current/main/investigations/smoke-owner-pack-aggregate-discovery-d0-2026-08-27.toml`; implementation remains a separate bounded I0.
+  The zero-match D0, exact-selection I0, and `SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0` are landed: phase2050 discovery is 962 with exactly five leaves, while direct aggregate invocation remains the exact owner pack. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
+  `SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0` is now the design stop. The phase2050 policy is not generalized: phase2100/2160/2170 and the legacy cluster have different nested edges and failure semantics. Its card is `docs/development/current/main/investigations/smoke-owner-pack-remaining-aggregate-census-d0-2026-08-27.toml`.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
   `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0a` is landed: 30 direct HistoricalDelete leaves were retired with body hashes and projection updates. The active body-derived inventory is now 86 leaves / 90 lexical sites (direct 3/3, conditional 44/45, explicit-core 35/35, dynamic 4/7). The PHI witness and provider route remain explicit R0b exceptions; legacy non-force residual consumers are still non-authority.
-  R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. The owner-pack exact-selection I0 is now active; R0b and Stage1 fate remain later blockers.
+  R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. The owner-pack exact-selection and phase2050 exclusion I0 are closed; remaining wrapper cohorts, R0b, and Stage1 fate remain later blockers.
 
 Design-only follow-up:
   force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、
@@ -63,7 +63,7 @@ Design-only follow-up:
   authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`も受理済みで、現在はその exact-selection I0だけを実装する。
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0は着地済み。現在は残るaggregate wrapperの本文・nested edge・owner/fateを再分類せずにcensusする設計停止。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
 `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):
@@ -86,8 +86,10 @@ Design-only follow-up:
   Ordered tasks: D0 landed -> `SMOKE-OWNER-PACK-EXACT-SELECTION-I0`
   runner seam + one exact phase2050 five-entry pack ->
   `SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0` (one explicit phase2050 row;
-  no broad run*.sh change) -> phases2047-2051 packs
-  -> phase2100 packs -> reusable structural guard. Then
+  no broad run*.sh change) ->
+  `SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0` -> one selected cohort
+  implementation row -> phases2047-2051/2100/2160/2170 successor rows.
+  Then
   `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` (post-emission boundary; issuer VM is
   ParkedSealed), Stage1 lifecycle guard, and exact AOT S0. Force-hv1 PHI/
   provider/conditional/dynamic fates follow separately; Wpre waits for their
