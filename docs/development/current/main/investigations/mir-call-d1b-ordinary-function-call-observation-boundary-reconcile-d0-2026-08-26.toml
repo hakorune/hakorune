@@ -1,25 +1,27 @@
 title = "MIR Call D1B ordinary FunctionCall observation boundary reconciliation"
 status = "accepted_design"
-observed_at = "2026-08-26"
-observed_commit = "f64e1730d0"
+observed_at = "2026-08-28"
+observed_commit = "1b1890040d"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-ordinary-function-call-observation-issuer-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0"
-decision = "Reconcile the complete production resolver boundary before profile widening: classify exact-i64/main-direct-call and FullFunction entrances, separate semantic BodyEffect observation from physical argument effects, decide the Raw lineage loan boundary, assign a non-direct disposition owner, and park the old no-brand ingress explicitly."
+decision = "Reconcile the complete production resolver boundary before profile widening: classify the normal Main source-preparation (with exact-i64 as a downstream cohort), target-bearing and facts-only FullFunction entrances, separate semantic BodyEffect observation from physical argument effects, decide the Raw lineage loan boundary, assign a non-direct disposition owner, and park the old no-brand ingress explicitly."
 
 [boundary]
-starts = "all known production and compatibility resolver entrances that can observe or lower ordinary FunctionCall, including source-bound SelectedCallable/InstanceConstructor, canonical main_direct_call_source, FullFunction plans, old no-brand ingress, and the shadow FunctionCall branch"
-ends = "one finite boundary classification and one canonical observation/co-seal contract exists, with exact-i64/FullFunction/out-of-scope rows explicitly excluded or owned before any profile widening"
+starts = "all known production and compatibility resolver, planner, and raw-bridge entrances that can observe or lower ordinary FunctionCall, including source-bound SelectedCallable/InstanceConstructor, normal Main source preparation, target-bearing and facts-only FullFunction plans, post-effect planner producers, old no-brand ingress, and the shadow FunctionCall branch"
+ends = "one finite boundary classification and one canonical observation/co-seal contract exists, with exact-i64/FullFunction/planner/out-of-scope rows explicitly classified or owned before any profile widening"
 includes = [
-  "src/mir/compiler/normal_source_plan/main_direct_call_source.rs exact-i64/main direct-call route",
-  "canonical_core_dispatch/callable.rs, main_resolved_source.rs, and instance_function_plan.rs FullFunction routes",
-  "callable_semantic_batch/issuer.rs SelectedCallable and normal_callable_semantic_package/instance_constructor_semantic.rs",
+  "src/mir/compiler/normal_source_plan/main_direct_call_source.rs normal Main source-preparation route; exact-i64 is a downstream capability/profile cohort",
+  "canonical_core_dispatch/callable.rs, main_resolved_source.rs, instance_function_plan.rs, and resolved_callable_module.rs FullFunction routes (facts-only versus target-bearing split)",
+  "callable_semantic_batch/issuer.rs SelectedCallable (including its catalog-brand exception) and normal_callable_semantic_package/instance_constructor_semantic.rs plus physical constructor admission",
   "builder/normal_callable_semantic_source.rs old no-brand ingress and raw shadow/expr.rs FunctionCall observation branch",
+  "control_flow/plan/normalizer/loop_body_lowering_associated_input.rs and control_flow/plan/features/* post-effect FunctionCall planner producers",
+  "resolved_lowering/trivial_ssa/lowerer.rs post-argument claim_direct_call producer",
   "semantic BodyEffect(Call) versus physical argument EffectMask/block mutation vocabulary",
   "special/builtin/Extern non-direct disposition ownership and RawInvocationRootLineageV1 loan boundary",
 ]
 excludes = [
-  "Callee/target issuance, name/arity/box/symbol synthesis, exact-i64 implementation, post-argument recovery, and raw physical lowering",
+  "Callee/target issuance implementation and name/arity/box/symbol synthesis (existing downstream issuer is named but not changed here), exact-i64 implementation, and raw physical lowering",
   "JSON/VM/backend, Method(None), mandatory-Callee, CallFlags, and warning cleanup",
   "one-line profile gate widening before this census and co-seal contract close",
 ]
@@ -32,7 +34,7 @@ non_authority = [
   "ShadowDirectCallUseV0 name/arity, callable_index=None empty map, raw Builder name policy, post-install ledger, AST re-scan, physical symbol, or second resolver",
   "semantic BodyEffect(Call) treated as physical argument effect, or physical EffectMask used to decide semantic disposition",
 ]
-fail_fast = "Unclassified production entrance, missing Raw lineage bridge, missing special/non-direct owner, closed traversal, or owner/site conflict blocks profile widening and aborts before physical argument effects, package install, block mutation, or Call publication. Semantic BodyEffect is separately classified and never authorizes physical lowering."
+fail_fast = "Unclassified production entrance or planner edge, missing Raw lineage bridge, missing special/non-direct owner, closed traversal, owner/site conflict, or post-effect recovery path blocks profile widening and aborts before physical argument effects, package install, block mutation, or Call publication. Semantic BodyEffect is separately classified and never authorizes physical lowering."
 smallest_next_slice = "Hand the in-boundary Selected/Constructor lineage and exact-target relation to the existing root-lineage exact-target loan design row; keep all parked cohorts outside this observation contract and do not widen a profile gate."
 non_claims = [
   "this row does not implement observation, open a gate, or issue a target/Callee",
@@ -41,12 +43,13 @@ non_claims = [
 ]
 
 [entrance_matrix]
-selected_callable = "production source-bound resolver; ordinary FunctionCall is currently closed by SelectedCallable profile and needs observation/co-seal together."
-instance_constructor = "production constructor resolver; ConstructorSourceIdV1 exists, but raw lineage/site is not in the resolver input and must be bridged or parked."
-main_direct_call = "production exact-i64/main_direct_call_source route through canonical_core_dispatch/callable.rs; explicitly classify as selected cohort or ParkedSealed exact-i64, never silently claim all-resolver coverage."
-full_function = "production FullFunction routes main_resolved_source.rs and instance_function_plan.rs; classify separately from SelectedCallable before any ordinary inventory claim."
+selected_callable = "production source-bound resolver; ordinary FunctionCall is gate-closed, while catalog-brand FunctionCall is an explicit non-ordinary exception; any ordinary observation needs co-seal."
+instance_constructor = "production semantic constructor issuer and separate physical admission; ConstructorSourceIdV1 exists, but raw lineage/site is not in the resolver input and must be bridged or parked."
+main_direct_call = "production normal Main source-preparation through main_direct_call_source.rs and canonical_core_dispatch/callable.rs; exact-i64 is a downstream capability cohort, not the name of the whole entrance."
+full_function = "production FullFunction splits facts-only resolve_forest in main_resolved_source.rs/instance_function_plan.rs from target-bearing resolved_callable_module.rs with callable index; keep both explicit before any ordinary inventory claim."
 legacy_no_brand = "old normal_callable_semantic_source.rs has no confirmed non-test caller; ParkedSealed with reopen trigger is the only safe current classification, not caller-zero."
-raw_bridge = "raw function_call_brand_source_demand.rs and raw_expression_dispatch/mod.rs are physical consumers/bridges, not semantic observer owners; caller=None collapse is forbidden."
+raw_bridge = "raw function_call_brand_source_demand.rs and raw_expression_dispatch/mod.rs consume the callable semantic ledger and bridge to physical lowering; they are not target/observation issuers, and caller=None collapse is forbidden."
+post_effect_planners = "loop_body_lowering_associated_input.rs, control_flow/plan/features/*, and trivial_ssa/lowerer.rs are explicit legacy/planner producers to classify as blockers or outside owners; they cannot silently widen ordinary inventory."
 
 [effect_boundary]
 semantic_body_effect = "shadow/expr.rs BodyEffect(Call) is a semantic observation fact, not physical argument EffectMask or block mutation; its permitted ordering must be explicit and separately guarded."
@@ -58,6 +61,7 @@ forbidden_order = "semantic BodyEffect used as target authority; physical effect
 semantic_input_gap = "SelectedCallableResolverInputV1 and ConstructorSourceIdV1 do not currently carry RawInvocationRootLineageV1; D0 must either define an existing typed loan or keep raw lineage at a separately owned pre-physical boundary."
 allowed = "RawInvocationRootLineageV1 may be borrowed as provenance through an existing typed bridge; it may not be reconstructed from name, arity, box/key, or physical symbol."
 missing = "No bridge is a typed blocker, not caller=None, empty inventory, or a new public semantic receipt."
+sole_mapper = "All RawInvocationRootLineageV1 construction must delegate to one owner-specific mapper; duplicated key-to-lineage matches remain an open old-edge blocker until removed or explicitly delegated."
 
 [finite_state]
 states = [
@@ -68,6 +72,7 @@ states = [
   "FullFunctionEntrance",
   "LegacyNoBrandEntrance",
   "RawBridgeEntrance",
+  "PostEffectPlannerEntrance",
   "SemanticBodyEffectObserved",
   "PhysicalEffectsForbidden",
   "RawLineageLoanMissing",
@@ -77,23 +82,29 @@ states = [
   "SpecialNonDirectParked",
   "LineageLoanPending",
   "LegacyIngressParked",
+  "ParkedSealedTerminal",
+  "OutsideCohortOwnerMissing",
   "OwnerSiteDispositionReady",
   "BoundaryReconciled",
   "PackageAbortBeforeEffects",
 ]
-terminal_policy = "BoundaryReconciled is terminal for this classification row only after every entrance is classified, semantic/physical effect vocabularies are separated, Raw lineage ownership is named, and every outside cohort is ParkedSealed with an owner and reopen trigger. LineageLoanPending remains the downstream blocker; no implementation permission follows from this row."
+successful_terminal = ["BoundaryReconciled"]
+explicit_parked_terminal = ["ExactI64Parked", "FullFunctionParked", "SpecialNonDirectParked", "LegacyIngressParked", "ParkedSealedTerminal"]
+open_blocker = ["BoundaryUnsealed", "RawLineageLoanMissing", "SpecialDispositionOwnerMissing", "LineageLoanPending", "OutsideCohortOwnerMissing"]
+terminal_policy = "BoundaryReconciled is the only successful terminal for this classification row. Explicit parked terminals are outside-cohort ParkedSealed states and require owner, reason, and observable reopen trigger; open blockers never count as terminal. Every entrance and planner edge must be classified, semantic/physical effect vocabularies separated, Raw lineage ownership named, the sole mapper delegated, and post-effect recovery marked for retirement or a named outside owner. No implementation permission follows from this row."
 
 [entrance_disposition]
-selected_callable = "In-boundary ordinary observation candidate. Existing SelectedCallable identity is retained; exact target/lineage co-seal is delegated to the root-lineage exact-target loan row before any physical effects."
+selected_callable = "In-boundary ordinary observation candidate. Existing SelectedCallable identity is retained; ordinary FunctionCall remains gate-closed, catalog-brand calls stay in the Brand owner, and exact target/lineage co-seal is delegated before physical effects."
 instance_constructor = "In-boundary source identity candidate. ConstructorSourceIdV1 is retained; constructor symbols never become ordinary Globals and lineage/target relation remains a downstream blocker."
-main_direct_exact_i64 = "ParkedSealed under VerifiedCallableIndexV1 and main_direct_call_source; exact-i64 is a separate cohort and cannot lend its index to ordinary calls. Reopen when a named ordinary-source relation is added."
-full_function = "ParkedSealed under the FullFunction/resolve_forest owner; callable_index=None with direct_calls is a typed reject, not an empty successful inventory. Reopen only with a same-session FullFunction identity/lineage owner."
+main_direct_exact_i64 = "Normal Main source preparation is in-boundary; its exact-i64 capability/profile is an explicit ParkedSealed cohort under its existing owner and cannot lend an index to ordinary calls. Reopen the parked row only when a named ordinary-source relation is added."
+full_function = "Facts-only resolve_forest and target-bearing resolved_callable_module are separate FullFunction rows; callable_index=None with direct_calls is a typed reject, not an empty successful inventory. Reopen only with a same-session FullFunction identity/lineage owner."
 brand = "KnownNonDirect only when the declared Brand catalog owns the relation; non-Cataloged lineage collapse remains a blocker and never becomes caller=None."
 explicit_extern = "Outside ordinary FunctionCall observation; retain the ExplicitExternCall owner and its source relation."
 ast_node_call = "Outside ordinary FunctionCall observation; retain ASTNode::Call path projection and do not merge it into direct-call inventory."
-special_builtin_extern = "GC/GC-stats retain their landed bounded owner; TypeOp, Math, FastMem, str, console/env, and name-based Extern families remain ParkedSealed under their existing special-namespace/compatibility owners until a source issuer is named."
+special_builtin_extern = "GC/GC-stats retain their landed bounded owner; TypeOp, Math, FastMem, str, console/env, and name-based Extern families remain ParkedSealed under their existing special-namespace/compatibility owners until a source issuer is named, with each owner and reopen trigger explicit."
 legacy_no_brand = "ParkedSealed under the old compatibility/disconnected ingress with a production-caller reopen trigger; absent text callers are not caller-zero proof."
-raw_bridge = "Physical bridge only; it may borrow provenance but cannot issue observation disposition or target authority."
+raw_bridge = "Semantic-ledger consumer and physical bridge; it may borrow provenance but cannot issue observation disposition or target authority, and must not collapse non-Cataloged lineage to caller=None before disposition."
+post_effect_planners = "Classify the loop planner, feature planner, and trivial-SSA post-effect producers as legacy/planner blockers or named outside owners; no ordinary inventory success may be inferred from them."
 
 [subtasks]
 production_census = "Inventory main_direct_call_source, FullFunction, SelectedCallable, InstanceConstructor, old no-brand, and raw bridge entrances with finite production/compatibility/parked classification."
@@ -101,27 +112,38 @@ effect_vocabulary = "Decide and document semantic BodyEffect ordering separately
 lineage_loan = "Choose an existing typed Raw lineage loan or explicitly park the semantic/raw split; caller=None and new public receipts are forbidden."
 special_owner = "Name an existing call-name policy owner for KnownNonDirect or park special/builtin/Extern rows without target synthesis."
 exact_i64_guard = "Explicitly exclude or guard the exact-i64/main-direct-call cohort and FullFunction routes from ordinary inventory claims."
-old_ingress = "Mark old normal_callable_semantic_source as ParkedSealed with a production-caller reopen trigger until its non-test reachability is proven."
+old_ingress = "Mark old normal_callable_semantic_source and the live RawLegacy RelationlessCompatibility bridge as ParkedSealed compatibility with production-caller reopen triggers; do not call either caller-zero without a complete boundary census."
+lineage_mapper = "Name one owner-specific RawInvocationRootLineageV1 mapper and delegate every existing construction site to it; until then lineage duplication and caller=None loss remain blockers."
+late_recovery = "Keep post-argument resolve_call_target, unique-static/tail recovery, name Const, and legacy Call publication as explicit retirement blockers; they are not a valid observation issuer."
 
 [acceptance]
 positive = [
-  "all known production resolver entrances have one explicit classification",
+  "all known production resolver, planner, raw-bridge, and non-ordinary entrances have one explicit classification",
   "semantic BodyEffect and physical effects have separate owners and ordering contracts",
   "Raw lineage boundary is explicit and does not fabricate caller/target identity",
   "special/non-direct disposition owner and exact-i64/FullFunction exclusion are named",
+  "every outside cohort has an owner, reason, and observable reopen trigger, and ParkedSealed is distinct from open blockers",
+  "one sole lineage mapper is named and duplicated construction is an explicit delete/delegate blocker",
 ]
 negative = [
-  "three-entrance census cannot claim all production coverage while main_direct_call_source or FullFunction is unclassified",
+  "ordinary coverage cannot be claimed while main_direct_call_source, either FullFunction owner, planner producer, or raw bridge semantics is unclassified",
   "semantic BodyEffect cannot authorize physical argument descent or Call publication",
   "missing lineage bridge cannot become caller=None, empty map, name lookup, or new public receipt",
   "old no-brand ingress cannot be called caller-zero without evidence",
+  "non-Cataloged lineage cannot become caller=None before disposition, and post-effect recovery cannot issue ordinary target meaning",
 ]
-parity = "Existing exact-i64, FullFunction, SelectedCallable, constructor, Brand, ExplicitExtern, and ASTNode::Call cohort boundaries remain behaviorally unchanged; this row only reconciles ownership and ordering claims."
-guard = "future guard must assert entrance inventory, exact-i64/FullFunction exclusion, semantic-vs-physical effect separation, explicit lineage loan, special owner, old-ingress ParkedSealed trigger, and zero physical effects before reconciliation."
+parity = "Existing Main/exact-i64, facts-only and target-bearing FullFunction, SelectedCallable (including Brand exception), constructor, planner, Brand, ExplicitExtern, and ASTNode::Call cohort boundaries remain behaviorally unchanged; this row only reconciles ownership and ordering claims."
+guard = "future guard must assert finite entrance/planner inventory, explicit successful/parked/open state classes, exact-i64/FullFunction exclusions, semantic-vs-physical effect separation, sole lineage mapper, special owner, old-ingress ParkedSealed trigger, no pre-disposition caller=None, and zero physical effects before reconciliation."
 
 [worker_audit]
-source = "three read-only D1B audits at f64e1730d0; no code, fixture, Cargo, or profile-gate change"
-verdict = "The classification boundary is reconciled: semantic BodyEffect is distinct from physical effects; Main exact-i64, FullFunction, old no-brand, ASTNode::Call, ExplicitExtern, and unowned special families have explicit outside dispositions. Selected/Constructor lineage loan and same-session target co-seal remain downstream NoSafeSlice; implementation_permission stays false."
+source = "read-only D1B entrance, effect/lineage, and adversarial audits at 1b1890040d; no code, fixture, Cargo, or profile-gate change"
+verdict = "The boundary is reconciled only as a design classification: normal Main preparation, facts-only/target-bearing FullFunction, SelectedCallable Brand exception, planner producers, raw semantic-ledger bridge, semantic-versus-physical effects, explicit parked/open states, and the sole-lineage-mapper blocker are named. Selected/Constructor lineage loan, same-session target co-seal, and post-effect recovery retirement remain NoSafeSlice; implementation_permission stays false."
+
+[current_review]
+observed_commit = "1b1890040d"
+finite_boundary = "Main preparation, SelectedCallable/Constructor, FullFunction facts/target owners, planner producers, old RawLegacy, raw semantic bridge, special/non-direct, and semantic/physical effect boundary."
+terminal_contract = "BoundaryReconciled is the only success; ParkedSealed outside cohorts require owner/reason/reopen; lineage or owner gaps are open blockers."
+next_task = "D0-C correction is complete on paper; next design task is the existing root-lineage exact-target loan boundary, with profile widening and code changes still forbidden."
 
 [reopen]
 triggers = [

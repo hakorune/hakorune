@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR Call D1B direct-call source inventory co-seal D0
+Status: Design stop — MIR Call D1B ordinary-call observation boundary reconcile D0
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml
+  - docs/development/current/main/investigations/mir-call-d1b-ordinary-function-call-observation-boundary-reconcile-d0-2026-08-26.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
