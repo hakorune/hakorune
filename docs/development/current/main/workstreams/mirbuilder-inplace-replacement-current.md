@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0` is the selected design stop: classify the three source-bound entrances and design one same-session observation/co-seal issuer before argument descent. The D0 inventory, D1 lineage review, and chronic A2 cleanup remain explicitly parked; no profile widening, target synthesis, caller=None collapse, or deletion authority is implied.
+  `MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0` is the selected design stop: reconcile main/FullFunction, semantic-versus-physical effects, raw lineage loan, special owner, and old-ingress parking before any profile widening. The D0 inventory, D1 lineage review, observation issuer, and chronic A2 cleanup remain explicitly parked; no target synthesis, caller=None collapse, or deletion authority is implied.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
