@@ -221,6 +221,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_global_target_b0_machine_census_guard.sh"]
 
 [[rows]]
+id = "mir-call-global-target-b1-static-method-s0"
+label = "MIR Call B1 structural Global carrier static-method S0"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/b1_global_target_static_method_s0_guard.sh"]
+
+[[rows]]
 id = "smoke-owner-pack-phase2050"
 label = "phase2050 and phase2170 exact owner-pack selection"
 profiles = ["pilot", "quick-static"]

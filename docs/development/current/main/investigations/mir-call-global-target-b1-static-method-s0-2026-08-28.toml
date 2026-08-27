@@ -1,0 +1,106 @@
+title = "MIR Call B1 structural Global carrier static-method S0"
+status = "fast_open"
+observed_commit = "2efd58d369"
+observed_at = "2026-08-28"
+implementation_permission = true
+guard_phase = "b1_carrier_s0"
+permission_scope = "Carrier-only S0: add the serde-free structural carrier and its validation tests/guard. No production caller is connected in this row; the first issuer remains atomic with the D1B Cataloged consumer."
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+decision_id = "MIR-CALL-GLOBAL-TARGET-B1-CARRIER-CONTRACT-D0"
+execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
+completed_execution_row = "none"
+next_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
+
+[brief]
+decision = "Implement only the structural carrier substrate accepted by the parent D1B/B0 design. The carrier is opaque to consumers, its nested shape follows the Call SSOT, and construction remains guarded repository authority. This row does not change Callee::Global, CallTarget, MirInstruction, wire, VM, optimizer, or any production route."
+source_authority = "No source observation or declaration is consumed in this carrier-only row. The future callable-declaration catalog will supply the exact same-module relation; this S0 must not invent an issuer or accept a bare source tuple as proof."
+canonical_issuer = "No production issuer is connected in S0. The eventual sole issuer remains src/mir/builder/callable_declaration_catalog after same-session brand and exact StaticBoxMethod relation checks; S0 exposes only the minimal structural carrier construction surface needed by that future owner."
+non_authority = "Raw String, parser, From<String>, parse, Display/to_string/as_mir_name, owner/name/arity convenience lookup, registry, CallTarget, CalleeResolverBox, physical symbol, wire codec, backend, optimizer, and test-only construction."
+fail_fast = "Empty owner/method/name components reject in the carrier validation tests; nested family construction is explicit, while wrong namespace, duplicate relation, catalog brand, and physical symbol policy remain later owner/projection checks."
+smallest_next_slice = "Add one serde-free CanonicalGlobalTargetV1 module with nested Builtin/SameModule shape, validated static-method constructor/accessors, focused positive/negative tests, and one constructor/literal guard. Keep production constructor count at zero until the atomic issuer row."
+non_claims = "No Callee payload cutover, CallTarget migration, D1B package/loan/lineage/dispatcher change, FreeFunction/Builtin issuer, wire v2 codec, JSON/VM/backend/optimizer change, or full B1 consumer census."
+
+[boundary]
+starts = "The structural target type and its local validation surface"
+ends = "A tested, serde-free carrier module that has no production caller and cannot parse or reconstitute a target"
+includes = [
+  "CanonicalGlobalTargetV1 nested shape: Builtin(Print) and SameModule(FreeFunction/StaticBoxMethod)",
+  "opaque accessors, equality, deterministic debug-free structural identity, and static-method component validation",
+  "owner-local test-only construction and a reusable production constructor/literal guard",
+]
+excludes = [
+  "Callee::Global payload, CallTarget::Global, MirInstruction::Call, MirCall/CallFlags, and all compiled consumers",
+  "Cataloged source observation, package install, lineage mapping, RawDirectCallDispositionLoanV1, raw dispatcher, and fallback/recovery",
+  "physical symbol collision, wire projection, JSON, VM/WASM/native, optimizer, Method/Extern/Value, and compatibility ingress",
+]
+
+[carrier_shape]
+canonical = "CanonicalGlobalTargetV1::Builtin(CanonicalBuiltinGlobalV1::Print) | CanonicalGlobalTargetV1::SameModule(CanonicalSameModuleGlobalTargetV1::{ FreeFunction { name, arity }, StaticBoxMethod { owner, method, arity } })"
+consumer_view = "Consumers may inspect the already-typed nested family and fields but cannot parse a String or obtain a target from a formatter. The carrier is opaque to source/physical authority, not a proof of declaration membership."
+validation = "S0 rejects empty owner/method/name components and preserves the exact u32 arity. Duplicate relation, catalog brand, and physical symbol collision are later owner/projection policies, not S0 inference."
+
+[authority]
+owner = "Structural type: crates/hakorune_mir_defs/src/global_target.rs. Future production issuer: src/mir/builder/callable_declaration_catalog, outside this S0."
+construction = "S0 has no production construction caller. Any non-test constructor or direct enum literal added later must be the one named owner and must pass the registered guard; no type-level sole-issuer claim is made across the crate boundary."
+forbidden_api = [
+  "From<String> or From<&str>",
+  "parse/from_wire/to_string/as_mir_name/Display",
+  "Default/Unknown/Legacy/sentinel",
+  "raw owner/name/arity lookup or registry constructor",
+  "Callee::Global(CanonicalGlobalTargetV1) or CallTarget bridge",
+]
+
+[allowed_files]
+paths = [
+  "crates/hakorune_mir_defs/src/lib.rs",
+  "crates/hakorune_mir_defs/src/global_target.rs",
+  "tools/checks/b1_global_target_static_method_s0_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-global-target-b1-static-method-s0-2026-08-28.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+]
+
+[tests]
+positive = [
+  "nested Builtin(Print) and SameModule(StaticBoxMethod) shape is constructible in the owner-local test",
+  "owner/method/name/arity are retained exactly and equal inputs are deterministic",
+  "carrier has no serde/string conversion or side effect",
+]
+negative = [
+  "empty owner, method, and free-function name reject",
+  "wrong nested namespace cannot be represented as a StaticBoxMethod",
+  "raw String/parse/formatter construction is absent",
+  "production constructor and direct enum literal count remain zero in S0",
+]
+
+[guard]
+id = "mir-call-global-target-b1-static-method-s0"
+phase = "b1_carrier_s0"
+command = ["bash", "tools/checks/b1_global_target_static_method_s0_guard.sh"]
+proof = "The guard checks the allowed-file boundary, nested shape tokens, forbidden conversion APIs, no Callee/CallTarget/consumer edit, and zero production constructor/literal callers."
+
+[acceptance]
+positive = [
+  "cargo test -p hakorune-mir-defs global_target",
+  "nested shape and component validation tests are green",
+  "no production caller or route is changed",
+]
+negative = [
+  "no From<String>, parse, formatter, registry, physical-symbol projection, or target reconstruction",
+  "no Callee/CallTarget/MirInstruction/wire/VM/optimizer/JSON change",
+  "no production issuer is added before the atomic D1B consumer row",
+]
+structural = [
+  "all touched source files remain below 760 lines and none reaches 800",
+  "guard is registered exactly once and the active card is the only permission owner",
+  "the parent D1B package/loan and full B1 cutover remain implementation-closed",
+]
+
+[stop]
+conditions = [
+  "carrier construction needs a raw String/parser/formatter or a public convenience lookup",
+  "a production caller or issuer is needed to make S0 compile",
+  "Callee/CallTarget/consumer/wire/VM/optimizer changes are required",
+  "a new semantic Verified*/Prepared* receipt, registry, or physical symbol policy is needed",
+]
