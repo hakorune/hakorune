@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0: observer-only facts retention and the typed pre-install terminal are the sole open implementation cell; package/issuer/loan/dispatcher and physical Call publication remain closed."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0"
+current_design_stop = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0"
+current_blocker_token = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0: observer I0 is landed; the next design must close the package/issuer/loan ownership chain before any target publication, raw dispatcher switch, fallback retirement, or Call schema cutover."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,10 +15,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "Raw transport BoxShape split landed at 0bd6732792 with 15 focused tests green. D0 is closed enough for the bounded observer I0: retain one-pass Selected FunctionCall name/arity facts and reject any nonempty unissued observation at package admission before install/lowering; target issuer, loan, dispatcher, and Call schema remain closed."
+latest_card_summary = "Raw transport BoxShape split landed at 0bd6732792 with 15 focused tests green. Selected FunctionCall observer I0 landed at 10620955d4: one-pass name/arity facts are retained and any nonempty unissued observation terminates package admission before install/lowering; target issuer, loan, dispatcher, and Call schema remain closed."
 next_design_card = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0"
-next_execution_card = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-27: ProductAot substring S0 and CoreDirect R0 landed with exact release EXE/AOT plus no-retry terminal evidence; force-hv1 fate is next.",
   "2026-08-27: force-hv1 direct HistoricalDelete R0a landed; 30 reviewed leaves retired, active evidence is 86/90, and PHI/provider remain R0b exceptions.",
   "2026-08-28: raw invocation source transport BoxShape split landed at 0bd6732792; ordinary same-path modules and 15 focused tests are green, then D1B observer design stop resumed.",
+  "2026-08-28: D1B Selected FunctionCall observer I0 landed at 10620955d4; facts-only observations and typed package terminal are green, with package/issuer/loan still design-stopped.",
 ]

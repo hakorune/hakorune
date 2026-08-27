@@ -67,7 +67,7 @@ if not isinstance(registration, dict):
 if phase == "observer_i0":
     if registration.get("execution_row") != "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0":
         raise SystemExit("observer execution row drifted")
-    if registration.get("status") != "observer_i0_guard_open":
+    if registration.get("status") not in {"observer_i0_guard_open", "observer_i0_landed"}:
         raise SystemExit("observer status drifted")
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
@@ -105,10 +105,12 @@ if set(allowed_files or []) != expected_files:
     raise SystemExit(f"{registration_key} allowed file boundary drifted")
 
 if phase == "observer_i0":
-    if card.get("implementation_permission") is not True:
-        raise SystemExit("observer implementation permission is not open")
-    if card.get("status") != "observer_i0_fast_open":
+    observer_status = card.get("status")
+    if observer_status not in {"observer_i0_fast_open", "observer_i0_landed"}:
         raise SystemExit("observer card status drifted")
+    expected_permission = observer_status == "observer_i0_fast_open"
+    if card.get("implementation_permission") is not expected_permission:
+        raise SystemExit("observer implementation permission/status drifted")
     if card.get("guard_phase") != "observer_i0":
         raise SystemExit("observer card guard phase drifted")
 else:
