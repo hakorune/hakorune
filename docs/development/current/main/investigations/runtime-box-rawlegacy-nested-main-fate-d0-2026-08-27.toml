@@ -1,0 +1,118 @@
+title = "Runtime Box RawLegacy nested/Main fate and origin census D0"
+status = "design_stop"
+observed_commit = "2956fc541a"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "RAWLEGACY-MAIN-ORIGIN-CENSUS-D0a"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fate-capability-i0-2026-08-27.toml"
+successor_card = "RAWLEGACY-MAIN-ORIGIN-CENSUS-D0a"
+
+[boundary]
+starts = "RawLegacyChildLoweringPortV1 construction/direct facade and the shared raw-expression BoxDeclaration dispatcher"
+ends = "one source-backed origin/fate decision for RawLegacy Main (C), with G/J and the non-Box facade explicitly retained or separately owned"
+includes = [
+  "raw_expression_dispatch/mod.rs:488-525 BoxDeclaration family dispatch",
+  "recursive_child_lowering/legacy_port.rs:18,37-81,83-127,139-160",
+  "raw_static_main_compat_batch.rs Main/helper preparation and publication",
+  "nonmain_static_box_lifecycle.rs and nonmain_static_box_method_batch.rs static G path",
+  "instance_box_declaration_lifecycle.rs, instance_box_constructor_batch.rs, and instance_box_method_batch.rs instance J path",
+  "all production RawLegacy port/facade constructors that can reach a Box arm",
+  "existing RawLegacy and Root I1 boundaries, tests, smoke owners, and direct publication effects",
+]
+excludes = [
+  "phase2160 RawCompatibility F/I/H capability already landed at 7167aee18e",
+  "Root I1 RawCompatibility terminal, SelectedNormal, non-Box RawLegacy semantics, and generic RawInvocation parity",
+  "Call schema, Method(None), VM/AOT/backend, Wpre, force-hv1, route fallback, and broad warning/guard cleanup",
+  "implementation, fixture relabeling, new semantic receipt, or a guessed Main/nested target",
+]
+
+[brief]
+decision = "Do not retire RawLegacy C immediately. The port is zero-sized and source-less, so root Main and nested Main cannot be distinguished without a named origin issuer. First run an exhaustive origin/caller census; keep G/J RetainGuarded because direct compatibility success/failure contracts still exist, and keep the non-Box facade live."
+source_authority = "An existing admitted root/child owner or a newly named typed origin carrier must identify Root Main versus nested Main before prepare/helper/prefix effects. Current RawLegacy port identity, current function name, root_is_app_mode, AST depth, params.len(), and formatted symbols are observations only."
+canonical_issuer = "No safe issuer is available yet for nested RawLegacy Main. D0-A must either name the existing exact origin relation or open a separate typed origin carrier; it must not synthesize a target, symbol, lineage, or collector receipt."
+non_authority = [
+  "RawLegacyChildLoweringPortV1 zero-sized type, caller counts, test names, current_module, current function name, root_is_app_mode, AST nesting depth, params.len(), symbol formatting, and route rc",
+  "phase2160 RawCompatibility fate capability, Root I1 shape/terminal, RawInvocation lineage, RawLegacy retry, or backend/VM fallback",
+]
+fail_fast = "If a Box arm lacks an exact origin/fate before helper preparation, registration, declaration metadata, or instance prefix mutation, return a typed freeze or explicit ParkedSealed disposition. Never reject all RawLegacy unconditionally, retry through RawInvocation/Root I1, or infer root/nested from names."
+smallest_next_slice = "RAWLEGACY-MAIN-ORIGIN-CENSUS-D0a: enumerate every RawLegacy constructor/direct facade and classify C/G/J/non-Box reachability with exact owner and effect boundary; no code or fixture changes."
+non_claims = [
+  "does not claim RawLegacy caller-zero or permit physical deletion of the facade",
+  "does not promote RawLegacy tests to production semantic ownership",
+  "does not reuse the phase2160 F/I/H capability or Root I1 as a fallback",
+  "does not choose G/J fate or alter static/instance behavior before their owner census",
+]
+
+[authority_map]
+dispatcher = "src/mir/builder/raw_expression_dispatch/mod.rs:488-525 is the shared BoxDeclaration dispatcher; it observes C/G/J shape but does not own a root/nested semantic relation."
+c_main = "legacy_port.rs:71-81 -> raw_static_main_compat_batch.rs:87-175; helpers are prepared/lowered before Main publication, so any C retirement must be before helper preparation."
+g_static = "dispatcher static non-Main arm -> nonmain_static_box_lifecycle.rs:43-58 -> nonmain_static_box_method_batch.rs:35-101; registration and formatted owner.method/params.len symbol construction are existing compatibility effects."
+j_instance = "dispatcher instance arm -> instance_box_declaration_lifecycle.rs:114-181 -> constructor/method batches; declared fields/metadata/prefix currently mutate before a loose RawLegacy terminal."
+non_box = "RawLegacyChildLoweringPortV1 and its direct facade are used by production statement/control-flow/call/collection/field/index/async paths; Box fate cannot retire the facade."
+root_i1_boundary = "Root I1 uses RawCompatibilityCallableShapeV1 and its own ScriptRoot/collector terminal; it is not a RawLegacy successor until a separate production switch is proven."
+
+[finite_state]
+legacy_root_main_owned = "Exact Root Main origin and successor owner exist: RetainGuarded or switch to Root I1 in a separate bounded row."
+legacy_nested_main_proven = "Exact nested origin is carried before helper preparation: candidate for C pre-effect Retire/Frozen row."
+legacy_main_origin_unknown = "Current zero-sized/source-less port cannot distinguish root/nested: CutoverBlockerOpen; no name/bool/AST inference."
+legacy_static_direct_owned = "Named G product/reference owner exists: RetainGuarded pending its own success/failure parity."
+legacy_instance_direct_owned = "Named J product/reference owner exists: RetainGuarded as one whole prefix/constructor/method sequence."
+legacy_box_test_only_unowned = "Test intent without a production/reference owner: only a later explicit retirement candidate after caller migration."
+legacy_non_box_facade = "Production non-Box RawLegacy caller remains: RetainGuarded independently of C/G/J."
+cross_port_retry_requested = "Typed reject/NoSafeSlice; no RawLegacy -> RawInvocation/Root I1 retry."
+
+[census_tasks]
+d0a = "Enumerate all RawLegacyChildLoweringPortV1 constructors and direct facade issuers; for each, prove whether a BoxDeclaration can reach C/G/J or only non-Box recursion. Text reference zero is not caller-zero evidence."
+d0b = "For C, identify Root Main versus nested Main origin. Name the sole existing issuer or specify a separate typed origin carrier with RootAllowed/NestedRetire states; keep source identity distinct from target authority."
+d0c = "Record C helper-before-main effects, G register/method effects, and J prefix/constructor/method effects as exact pre-effect boundaries. Mark missing origin as CutoverBlockerOpen."
+g0 = "Census G direct success/failure owners, including static non-App registration and method publication. Decide RetainGuarded versus a separate pre-registration fate row."
+j0 = "Census J as one whole transaction. Do not split prefix, constructor, and method into independent fate rows; any retirement must occur before prefix mutation."
+closeout = "Re-measure Box override callers after any approved successor switch; keep non-Box facade callers separate and prove no cross-port retry."
+
+[delete_set_candidate]
+c_only_after_d0 = [
+  "RawLegacy C nested helper preparation and helper/main publication only after exact NestedMain origin is issued",
+  "any post-helper C reject or implicit root/nested fallback",
+]
+retain_until_census = [
+  "RawLegacyChildLoweringPortV1 and non-Box direct facade",
+  "Root Main C behavior until an exact successor or explicit terminal is selected",
+  "G static and J instance compatibility publication and their existing tests",
+  "phase2160 I0 capability, Root I1 terminal, SelectedNormal, and all VM/AOT routes",
+]
+
+[acceptance]
+positive = [
+  "every RawLegacy constructor/direct facade is assigned exactly one finite owner family",
+  "C root/nested origin is preserved or explicitly marked unknown before helper preparation",
+  "G and J success/failure contracts have named owners and whole-effect boundaries",
+  "non-Box facade production parity remains explicitly retained",
+]
+negative = [
+  "no unconditional RawLegacy Main rejection",
+  "no root/nested inference from current function name, Main name, root_is_app_mode, AST depth, params.len(), or symbol text",
+  "no RawLegacy retry into RawInvocation/Root I1 and no reuse of phase2160 capability",
+  "no post-effect C/G/J rejection, direct publication drift, or silent test relabeling",
+]
+parity = "Existing C Main/helper order, G static publication, J prefix/constructor/method order, non-Box RawLegacy recursion, and Root I1 behavior are compared only within their existing owners."
+
+[guard]
+required = "A later implementation row must derive constructor/direct-facade inventory from code, verify one finite family per entry, reject missing/duplicate/foreign origin, and prove the C/G/J effect boundary. This D0 adds no implementation guard."
+no_safe_slice = [
+  "origin remains source-less or zero-sized and root/nested cannot be distinguished",
+  "a fate requires current function/name, root_is_app_mode, AST depth, params.len(), or symbol synthesis",
+  "RawLegacy must be globally rejected or must retry through RawInvocation/Root I1",
+  "G/J owner migration is absent while success tests are relabeled as negatives",
+  "prefix/helper effects occur before the selected C/G/J fate",
+  "non-Box facade callers would require a broad stateful port rewrite",
+]
+
+[evidence]
+worker_review = "force_successor_fate_audit read-only review at HEAD 2956fc541a: C is NoSafeSlice until exact origin carrier/sole issuer; G/J are RetainGuarded; non-Box RawLegacy facade is live production."
+observed_routes = [
+  "C Main: legacy_port.rs:71-81 -> raw_static_main_compat_batch.rs:87-175; helpers precede Main publication",
+  "G static: nonmain_static_box_lifecycle.rs:43-58 -> nonmain_static_box_method_batch.rs:35-101",
+  "J instance: instance_box_declaration_lifecycle.rs:114-181 -> constructor/method batches; prefix precedes loose terminal",
+  "shared dispatcher: raw_expression_dispatch/mod.rs:488-525",
+]
+next_decision = "D0-A census first; only after origin is exact may a separate C-I0 pre-effect fate row be opened. G/J remain separate RetainGuarded decisions."
