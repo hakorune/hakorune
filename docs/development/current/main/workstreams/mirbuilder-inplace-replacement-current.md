@@ -682,7 +682,7 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0;
   preserve module_postprocess RetainNamed, carry current owner evidence only;
-  issue policy across 11 groups; 5 conditional/47 residual blocked, policy-ready 1/79 before map/deletion.
+  issue policy across 8 groups; 5 conditional/36 residual blocked, 37 candidate rows, policy-ready 1/79 before map/deletion.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner evidence matrix D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "a63ce4d52b"
+observed_commit = "232b5fe2d852fc06a7a5992c59485ceb042e8e42"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "Continue policy binding across the remaining 11 bounded A role groups: preserve the exact module_postprocess RetainNamed row, carry source_view plus a_prime/callable-single-loop/canonical as candidate evidence only, and keep the remaining 47 residual rows blocked without creating per-row cards."
+smallest_next_slice = "Continue policy binding across the remaining 8 bounded A role groups: preserve the exact module_postprocess RetainNamed row, carry source_view plus a_prime/callable-single-loop/canonical/DirectAccum/dynamic-source/generic-G0 as candidate evidence only, and keep the remaining 36 residual rows blocked without creating per-row cards."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -103,17 +103,17 @@ completion_rule = "only all rows reviewed_ready_for_map with explicit successor 
 path = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-v1.tsv"
 status = "candidate_evidence_partial_blocked"
 source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
-sha256 = "sha256:65a3d230a850bf1b8c840fed0488e975b703a0eb251caa57d62d8fd134daa986"
+sha256 = "sha256:348be9efa30e3e5a1c82448e52b939ff3ecc9737d8b3fb045467ae59fa255868"
 header_columns = 20
 site_rows = 185
 cohort_rows = "A=79; B=46; C=60; disjoint total=185"
-review_state_counts = "candidate_evidence=26; reviewed_ready_for_map=1; blocked_successor=58; blocked_mixed_role=100"
-candidate_evidence_rows = 26
+review_state_counts = "candidate_evidence=37; reviewed_ready_for_map=1; blocked_successor=47; blocked_mixed_role=100"
+candidate_evidence_rows = 37
 reviewed_ready_for_map_rows = 1
-empty_candidate_owner_rows = 158
-empty_candidate_evidence_rows = 158
+empty_candidate_owner_rows = 147
+empty_candidate_evidence_rows = 147
 authority = "non-authoritative design input only; it records exact receipt coverage and explicit blockers, never owner/successor/retirement authority"
-generation_note = "read-only receipt projection with 26 candidate-evidence rows and one reviewed_ready_for_map RetainNamed row; source_view, a_prime, callable_single_loop, and canonical remain candidate-only; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
+generation_note = "read-only receipt projection with 37 candidate-evidence rows and one reviewed_ready_for_map RetainNamed row; source_view, a_prime, callable_single_loop, canonical, DirectAccum, dynamic_source, and generic_g0 remain candidate-only; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
 
 [finite_state]
 states = [
@@ -182,29 +182,32 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 agents = [
-  "chronic_measurement_scope_audit (core partition=21; a_prime narrow follow-up)",
-  "aggregate_heavy_cohort_design (loop partition=22; callable_single_loop narrow follow-up)",
-  "chronic_token_scanner_design_audit (raw/entry partition=19; source_view and canonical narrow follow-ups)",
+  "chronic_measurement_scope_audit (core partition=21; a_prime and DirectAccum narrow follow-ups)",
+  "aggregate_heavy_cohort_design (loop partition=22; callable_single_loop and dynamic_source narrow follow-ups)",
+  "chronic_token_scanner_design_audit (raw/entry partition=19; source_view, canonical, and generic_g0 narrow follow-ups)",
 ]
 status = "a_policy_progress_remaining_blocked"
-finding = "At ca3ffeddd8, all 79 A rows are structurally bound; 26 rows carry candidate evidence and the module_postprocess row carries one exact RetainNamed policy binding. Source_view, a_prime, callable_single_loop, and canonical are candidate-only; five conditional rows and the remaining 47 residual rows are blocked because existing evidence does not bind an explicit retain or named successor to their canonical keys. Policy-ready is 1/79; A successor status is unknown for 78 rows; B=46 and C=60 remain site-level evidence work."
+finding = "At 232b5fe2d8, all 79 A rows are structurally bound; 37 rows carry candidate evidence and the module_postprocess row carries one exact RetainNamed policy binding. Source_view, a_prime, callable_single_loop, canonical, DirectAccum, dynamic_source, and generic_g0 are candidate-only; five conditional rows and the remaining 36 residual rows are blocked because existing evidence does not bind an explicit retain or named successor to their canonical keys. Policy-ready is 1/79; A successor status is unknown for 78 rows; B=46 and C=60 remain site-level evidence work."
 evidence = [
   "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 establish the generated-registry/include owner boundary, not blanket Retain authority",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 observes compile_domain=generated_included and role=generated_registry, which cannot issue successor_status=not_required",
-  "chronic-measurement-site-owner-evidence-matrix-v1.tsv records 26 candidate_evidence rows and one reviewed_ready_for_map row with canonical-key joins; 52 A rows remain blocked_successor (the aggregate 58 also includes 6 B rows) and 78 A rows retain unknown successor status",
+  "chronic-measurement-site-owner-evidence-matrix-v1.tsv records 37 candidate_evidence rows and one reviewed_ready_for_map row with canonical-key joins; 41 A rows remain blocked_successor (the aggregate 47 also includes 6 B rows) and 78 A rows retain unknown successor status",
   "Rows 25, 27, 28, 53, and 56 have broad candidate references but no exact row-level retain/successor binding; they remain blocked_successor",
   "src/lib.rs:119-120, src/mir/mod.rs:214-215, src/mir/compiler/mod.rs:81-98, and named raw-root owner READMEs are candidate runtime evidence",
   "src/mir/builder/callable_declaration_catalog/README.md:1-64, calls/guard.rs, calls/static_resolution.rs, rewrite/known.rs, and legacy/test owners are candidate mixed-site evidence",
   "A0 site_owner_map.rs:100-220 consumes the receipt once; :264-358 rejects invalid classification/reference contracts, so unresolved states cannot be silently accepted",
-  "Three read-only partitions covered the residual A rows before policy binding (core=21, loop=22, raw/entry=19); after the exact module_postprocess RetainNamed binding and the a_prime/callable_single_loop/canonical/source_view candidate joins, 47 residual keys remain across 11 bounded roles, with candidate-only=0 for the residual set",
+  "Three read-only partitions covered the residual A rows before policy binding (core=21, loop=22, raw/entry=19); after the exact module_postprocess RetainNamed binding and the a_prime/callable_single_loop/canonical/source_view/DirectAccum/dynamic_source/generic_g0 candidate joins, 36 residual keys remain across 8 bounded roles, with candidate-only=0 for the residual set",
   "Common-v2 sub-audit (rows 53/55/57) confirms role evidence only: admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; non-test references do not issue retention or successor policy",
   "Resolved-callable sub-audit (row 203) identifies the resolver owner and canonical ingress API, but its exact-key caller census is test-centered; neither RetainNamed nor a named successor is issued",
   "Source-view narrow follow-up identifies FunctionSourceViewV1 as the current production source-navigation owner through ResolvedFunctionLoweringInputV1 and located/source navigation; this is candidate evidence only because the exact module allowance still lacks a named RetainNamed policy or successor, and the historical disconnected README wording is not current fate authority",
   "A-prime narrow follow-up identifies the selected-Dynamic issuer and production handoff; this is candidate evidence only because the exact allowance still lacks a named RetainNamed policy or successor, and earlier caller-zero wording is historical",
   "Callable-single-loop narrow follow-up identifies technical logical/source issuers for six exact keys but no production selector; all six remain candidate evidence only with exact-key retention/successor policy unissued",
   "Canonical narrow follow-up identifies current dispatch, source identity, drain, finalization, and physical completion owners; canonical Script A input has no current A consumer, and all six remain candidate evidence only pending exact-key policy reconciliation",
+  "DirectAccum narrow follow-up identifies current non-test capability, prefix, profile, and projection owners plus the resolved cutover path; all four remain candidate evidence only pending exact-key retention/successor policy",
+  "Dynamic-source narrow follow-up identifies the current DynamicFullBodySourceIssuerV1 and non-test package admission/consumer chain; this supersedes historical disconnected wording as current evidence, but physical fate and exact-key policy remain unissued",
+  "Generic-G0 narrow follow-up identifies compiled prephysical source/transport issuers and explicit caller-zero/test boundaries; all six remain candidate evidence only pending exact-key retention/successor policy",
 ]
-latest_finding = "The A matrix records 26 exact candidate joins and one reviewed_ready_for_map RetainNamed binding for module_postprocess; source_view, a_prime, callable_single_loop, and canonical are candidate-only. The five conditional candidates and remaining 47 residual rows remain blocked because their evidence is broad rather than canonical-key bound; policy-ready is 1/79 and 78 A successor statuses remain unknown. Continue with role-group policy binding without creating per-row cards, then B/C evidence."
+latest_finding = "The A matrix records 37 exact candidate joins and one reviewed_ready_for_map RetainNamed binding for module_postprocess; source_view, a_prime, callable_single_loop, canonical, DirectAccum, dynamic_source, and generic_g0 are candidate-only. The five conditional candidates and remaining 36 residual rows remain blocked because their evidence is broad rather than canonical-key bound; policy-ready is 1/79 and 78 A successor statuses remain unknown. Continue with role-group policy binding without creating per-row cards, then B/C evidence."
 
 [closeout]
 status = "pending"
