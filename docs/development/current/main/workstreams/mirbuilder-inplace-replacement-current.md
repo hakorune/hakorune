@@ -63,7 +63,8 @@ Design-only follow-up:
   authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorはadmission-fate D0で既存RawCompatibilityを選定し、I0でcompatibility admissionを着地した。再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。readiness監査で即時/deferred/App Mainのadmissionとsource/symbol lifetimeの未凍結が判明したため、現在はD0b設計停止である。
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorはadmission-fate D0で既存RawCompatibilityを選定し、I0でcompatibility admissionを着地した。
+  再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。readiness再監査でterminal API、family/admission shape、App Main/materialization、source/symbol lifetime、runtime-box scope、child/outer commit単位を明示する必要が出たため、現在はD0b設計停止である。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):

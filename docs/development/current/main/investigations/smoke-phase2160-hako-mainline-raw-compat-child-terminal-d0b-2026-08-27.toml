@@ -47,30 +47,36 @@ non_claims = [
 
 [family_matrix]
 immediate_top_level_static = "program_root_work_plan.rs:516-525 -> explicit RawCompatibility terminal -> capture_static_box_method_pending_v1 -> collector commit; no generic loose-static call"
-raw_instance_constructor = "instance_box_constructor_batch.rs:121-132 and raw_expression_dispatch/mod.rs:503-524 -> explicit RawCompatibility terminal -> capture_normalized_instance_box_method_pending_v1 -> collector commit"
+raw_instance_constructor = "program_root_work_plan.rs:69-76,458-461 and instance_box_constructor_batch.rs:121-132 -> explicit RawCompatibility terminal -> capture_normalized_instance_box_method_pending_v1 -> collector commit"
 deferred_static = "program_root_work_plan.rs:98-101 plus program_root_lowering.rs:415-422 -> carry admission explicitly; RawCompatibility uses compatibility terminal, SelectedNormal keeps lower_normal_with_port_v1"
-app_main_static_child = "decls.rs:69-70 plus module_lifecycle.rs:66-82 -> explicit RawCompatibility child terminal; default lower_static_box_method remains unclassified-input freeze"
-main_materialization = "decls.rs:137-155 plus main_expansion.rs:389-396,414-417 -> use already-issued compatibility symbol/arity; do not synthesize a target from Main name"
-outside_runtime_box = "runtime instance Box declaration paths are included only when their existing RawCompatibility family and collector owner are explicit; otherwise typed freeze and no automatic inclusion"
+app_main_static_child = "decls.rs:69-70 plus module_lifecycle.rs:60-82 -> RawCompatibility uses the dedicated terminal; SelectedNormal keeps its typed adapter; default lower_static_box_method remains unclassified-input freeze"
+main_materialization = "RawCompatibility App Main uses RawEntryMaterializationSourceReceiptV1 -> dedicated terminal -> LegacyReplaceWholePair; SelectedNormal keeps NormalEntryMaterializationSourceReceiptV1 -> existing cataloged path"
+runtime_box_scope = "I1 excludes runtime ASTNode::BoxDeclaration/nested method paths at raw_expression_dispatch/mod.rs:488-524 and instance_box_method_batch.rs:71-95; they receive a separate runtime-box child-terminal D0 and are not silently included here"
 
 [admission_transport]
-immediate = "PreparedProgramRootRuntimeV1 must retain RawCompatibility or SelectedNormal for the child branch; normal_constructor_sources=None is not authority"
-deferred = "deferred work must carry the same explicit admission enum, not only method/name vectors"
-app_main = "Main child/materialization receives explicit compatibility admission or remains source-backed SelectedNormal; no implicit mode conversion"
-source_context = "Borrow the current raw source context for capture; do not issue a new compatibility source identity. Missing context is typed freeze."
-lifetime = "The borrow is scoped to the recursive child call; no Clone, Rc, Arc, RefCell, copied ledger, or sibling child ledger"
+immediate = "PreparedProgramRootInstanceBoxWorkV1 carries a non-optional ProgramRootWorkPlanAdmissionV1 field; normal_constructor_sources remains payload, never the selector"
+deferred = "PreparedProgramDeferredStaticBoxWorkV1 carries the same non-optional admission enum; name/method vectors alone cannot select a lowering route"
+app_main = "lower_program_root_work_plan_with_callable_port_v1 passes admission into App Main child and materialization dispatch; RawCompatibility and SelectedNormal cannot cross-convert"
+source_context = "RawCompatibility terminal borrows the current RawInvocationSourceContextV1 for the scoped capture; it issues no new source identity. Missing context is typed freeze."
+lifetime = "Direct terminal/capture state is borrowed for one recursive child. Clone/Rc/Arc/RefCell/copied ledger are forbidden for that state; the existing active_source metadata clone in RawSourceTransportPortV1 remains outside this direct-loan prohibition and is never target authority."
 
 [terminal_api]
-name = "RawCompatibilityChildTerminalPortV1 (dedicated capability; exact Rust name may be chosen in I1 without changing ownership)"
-raw_invocation = "RawInvocationChildPortV1 owns/reborrows the capability and calls existing capture helpers plus LegacyReplaceWholePair"
-legacy_port = "RawLegacyChildLoweringPortV1 remains a separate existing compatibility implementation; it is not swapped in wholesale"
-other_ports = "All non-selected ports retain typed loose-static/loose-instance freezes"
-commit = "LegacyReplaceWholePair commits one captured replacement pair exactly once; residual pending state must be empty"
+name = "RawCompatibilityChildTerminalPortV1"
+trait_relation = "RootCallableCapturePortV1: RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1 + RawCompatibilityChildTerminalPortV1"
+static_signature = "fn lower_raw_compat_static_child(&mut self, builder: &mut MirBuilder, function_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+instance_signature = "fn lower_raw_compat_instance_child(&mut self, builder: &mut MirBuilder, function_name: String, box_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+app_main_signature = "fn lower_raw_compat_app_main_static_child(&mut self, builder: &mut MirBuilder, child: &VerifiedMainStaticChildV1<'_>) -> Result<(), String>"
+materialization_signature = "fn lower_raw_compat_main_materialization(&mut self, builder: &mut MirBuilder, receipt: RawEntryMaterializationSourceReceiptV1, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+raw_invocation = "RawInvocationChildPortV1 is the only production implementation in this row; it reborrows the capability, borrows source context, calls existing capture helpers, and leaves publication to LegacyReplaceWholePair"
+raw_legacy = "RawLegacyChildLoweringPortV1 keeps its existing direct compatibility implementation and is not swapped in wholesale; it receives typed reject/defaults for the new dedicated capability"
+selected_normal = "NormalCallableSemanticPackagePortAdapterV1 receives a typed reject/default for RawCompatibility methods; its SelectedNormal methods remain unchanged"
+other_ports = "All other ports retain typed loose-static/loose-instance freezes and cannot become compatibility terminals"
+commit = "Each child produces one LegacyReplaceWholePair collection; the enclosing module performs one outer collector drain/commit"
 
 [symbol_arity]
-main = "main_expansion.rs already-issued compatibility symbol/arity is borrowed unchanged"
-top_level = "program_root_work_plan.rs existing name/arity fields are transport only; no new target synthesis"
-instance_constructor = "normal_instance_constructor_admission.rs normalized physical arity (params + 1) is borrowed from its existing owner"
+main = "main_expansion.rs:389-396,414-417 already-issued compatibility symbol/arity is borrowed unchanged"
+top_level = "PreparedProgramRootTopLevelFunctionPartsV1 stores name + params only; I1 introduces an explicit compatibility source-batch symbol/physical-arity product before the terminal, rather than recomputing params.len() in the consumer"
+instance_constructor = "Raw compatibility source batch must issue and retain function symbol + physical arity before lowering; normal_instance_constructor_admission.rs:376-385 is SelectedNormal-only and cannot be borrowed as RawCompatibility authority"
 collector = "recursive_child_lowering.rs commit helper consumes the existing symbol+arity pair; it is not recomputed by the terminal"
 unknown = "missing, conflicting, or foreign symbol/arity -> typed freeze before capture/commit"
 
@@ -83,7 +89,6 @@ child_edges = [
   "src/mir/builder/decls.rs:69-70,137-155",
   "src/mir/builder/module_lifecycle.rs:66-82",
   "src/mir/builder/instance_box_constructor_batch.rs:113-135",
-  "src/mir/builder/raw_expression_dispatch/mod.rs:503-524",
   "src/mir/builder/nonmain_static_box_method_batch.rs:99-143",
 ]
 terminal_owner = [
@@ -92,8 +97,45 @@ terminal_owner = [
 ]
 existing_identity = [
   "src/mir/builder/main_expansion.rs:389-396,414-417",
-  "src/mir/builder/normal_instance_constructor_admission.rs:376-385",
+  "src/mir/builder/entry_materialization.rs:108-157::RawEntryMaterializationSourceReceiptV1",
+  "src/mir/builder/normal_instance_constructor_admission.rs:376-385 is SelectedNormal-only and outside RawCompatibility authority",
 ]
+
+[admission_shapes]
+instance_work = "PreparedProgramRootInstanceBoxWorkV1 { admission: ProgramRootWorkPlanAdmissionV1, ... }; lower_with_port_v1 matches admission explicitly and only RawCompatibility calls the dedicated terminal"
+deferred_work = "PreparedProgramDeferredStaticBoxWorkV1 { admission: ProgramRootWorkPlanAdmissionV1, ... }; into_parts carries admission to the explicit deferred branch"
+app_main = "build_verified_static_main_box_with_port_v1 receives ProgramRootWorkPlanAdmissionV1 and passes it to child/materialization dispatch"
+top_level = "PreparedProgramRootTopLevelFunctionWorkV1 already has RawCompatibility/SelectedNormal variants; RawCompatibility receives the dedicated terminal, SelectedNormal receives its typed admission"
+drift = "Any variant/work/admission mismatch returns the existing typed program-root drift error before child effects"
+
+[app_main_materialization]
+raw_child = "RawCompatibility App Main static child -> lower_raw_compat_app_main_static_child -> existing capture/LegacyReplaceWholePair"
+raw_materialization = "RawCompatibility Main materialization -> RawEntryMaterializationSourceReceiptV1 -> lower_raw_compat_main_materialization -> existing capture/LegacyReplaceWholePair"
+normal_child = "SelectedNormal App Main child -> existing NormalCallableSemanticPackagePortAdapterV1 typed path"
+normal_materialization = "SelectedNormal materialization -> NormalEntryMaterializationSourceReceiptV1 -> existing cataloged normal path"
+forbidden = "RawCompatibility must not issue NormalCatalogedBoxMethodDraftAdmissionV1 or enter lower_cataloged_static_box_method"
+
+[runtime_box_scope]
+decision = "The runtime ASTNode::BoxDeclaration/nested-method paths are explicitly outside I1 and receive a separate design row; no blanket phrase 'runtime Box paths' may be used as an I1 acceptance claim."
+excluded_edges = [
+  "src/mir/builder/raw_expression_dispatch/mod.rs:488-524::ASTNode::BoxDeclaration runtime instance/static arm",
+  "src/mir/builder/instance_box_method_batch.rs:71-95::nested runtime method batch",
+]
+successor = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
+negative = "A runtime Box edge encountered by I1 without an explicit owner remains typed freeze; it is not silently included or routed through the root terminal."
+
+[source_and_commit_unit]
+source_transport = "program_root_lowering.rs:198-212 and raw_invocation_source_transport.rs:135-142 install the existing ScriptRoot transport; the terminal borrows its current context only for the child capture"
+metadata_clone = "RawSourceTransportPortV1::current_source_context_v1 active_source clone at raw_invocation_source_transport.rs:543-560 is existing metadata behavior, not the direct terminal loan and not target authority"
+child_unit = "One child -> one LegacyReplaceWholePair pending capture/collection"
+module_unit = "After all children, program_root_lowering.rs:220-227 performs one outer ModuleDraftCollector drain/commit"
+residual = "Both child pending state and outer module residual must be empty before completion; 'one commit' never means one commit per family only."
+
+[guard_registration]
+id = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-GUARD"
+path = "tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh"
+registry = "tools/checks/guard_rows.toml"
+scope = "explicit admission shape, family matrix, terminal trait/impl, child->capture->LegacyReplaceWholePair edge, outer drain, runtime-box exclusion, and zero direct loose-* success"
 
 [delete_set]
 implicit_edges = [
@@ -126,6 +168,7 @@ retiring = "Route retirement is a separate design row"
 [acceptance]
 positive = [
   "immediate top-level/static, instance-constructor, deferred-static, App Main child, and Main materialization families each have an explicit RawCompatibility branch",
+  "RawCompatibility App Main materialization uses RawEntryMaterializationSourceReceiptV1 and never emits NormalCatalogedBoxMethodDraftAdmissionV1",
   "each selected family uses existing capture/LegacyReplaceWholePair exactly once",
   "admission and source context are carried through recursive/deferred calls without copied ledgers",
   "symbol/arity come from existing owners and are moved/borrowed unchanged",
@@ -135,6 +178,7 @@ negative = [
   "loose-* defaults still reject unclassified input",
   "None/Option no longer silently selects a different admission",
   "missing/foreign/duplicate/mixed source or collector state rejects before child effects",
+  "runtime ASTNode::BoxDeclaration/nested-method edges listed in runtime_box_scope are outside I1 and remain a separate typed-freeze row",
   "no AST/name/arity/box-name target synthesis, fallback, retry, provider, VM, or Wpre re-entry",
   "strict-negative leaf does not whitelist any upstream freeze marker",
 ]
@@ -150,9 +194,11 @@ guard = "A scoped guard must derive explicit admission branches, family-to-captu
 [implementation_gate]
 permission = false
 required_before_fast = [
-  "D0b family matrix and terminal API are accepted as one bounded I1 boundary",
+  "D0b family matrix and exact RawCompatibilityChildTerminalPortV1 signatures are accepted as one bounded I1 boundary",
   "admission is explicit for immediate, deferred, App Main, and materialization paths",
-  "source-context borrow and symbol/arity lifetime are fixed without copied ownership",
+  "source-context borrow, source-batch symbol/physical-arity lifetime, and child/outer commit units are fixed without copied ownership",
+  "runtime Box declaration edges are explicitly excluded and linked to their successor design row",
+  "guard path and guard_rows.toml ID are fixed",
   "all changed owners and any new sibling stay below 760 lines and 800 hard stop",
   "focused positive/negative tests and one reusable guard are named",
 ]
@@ -160,7 +206,7 @@ no_safe_slice = [
   "a new parser/source bridge, semantic receipt, target resolver, or source identity is needed",
   "RawLegacyChildLoweringPortV1 wholesale swap or loose default weakening is required",
   "symbol/arity cannot be borrowed from an existing owner",
-  "App Main or runtime Box fate cannot be classified explicitly",
+  "an excluded runtime Box edge is pulled into I1 without a new accepted boundary",
   "collector capture/commit is not atomic exactly once",
   "the row must touch loop repair, route retirement, VM/backend, or source-backed semantics",
 ]
@@ -177,6 +223,24 @@ evidence = [
   "instance_box_constructor_batch.rs:113-135",
   "raw_expression_dispatch/mod.rs:503-524",
   "recursive_child_lowering.rs:373-414,435-449,482-524,527-548",
+]
+
+[readiness_reaudit]
+decision = "No: the first D0b text still left six implementation choices open. This amendment closes them as design requirements; I1 remains unopened until the amended card is accepted."
+open_points_closed = [
+  "exact RawCompatibilityChildTerminalPortV1 name, trait relation, and four method signatures",
+  "RawCompatibility versus SelectedNormal App Main child/materialization split",
+  "runtime ASTNode::BoxDeclaration/nested method edges explicitly excluded and successor-named",
+  "RawCompatibility symbol/physical-arity product must be issued before consumer lowering; SelectedNormal owner is not reused",
+  "non-optional admission fields for immediate/deferred work and explicit App Main propagation",
+  "child LegacyReplaceWholePair collection once versus outer ModuleDraftCollector drain/commit once",
+]
+worker_no_safe_slice = [
+  "a source bridge, semantic receipt, target resolver, or new source identity is needed",
+  "RawLegacyChildLoweringPortV1 wholesale swap or loose default weakening is required",
+  "symbol/arity cannot be borrowed or pre-issued by an existing compatibility source batch",
+  "runtime Box edges enter I1 despite the explicit exclusion",
+  "collector one-shot/lifetime or line budget cannot be proven",
 ]
 
 [ordered_followups]
