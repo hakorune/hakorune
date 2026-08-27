@@ -1,0 +1,9 @@
+schema_version = 1
+scanner_version = "chronic-rust-token-scanner-v1"
+scope_id = "fixture-chronic-escape-v1"
+
+[[roots]]
+path = "../Cargo.toml"
+kind = "file"
+compile_domain = "production_default"
+role = "runtime"

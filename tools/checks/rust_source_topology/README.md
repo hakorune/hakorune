@@ -48,6 +48,20 @@ slice, FNV-1a diagnostic digest, and callee syntax are neutral observations.
 They are not semantic identity or resolution authority. Source reorder may
 change report-local IDs and ranges.
 
+The chronic observer is a separate read-only surface over the same standalone
+crate:
+
+```bash
+cargo run --manifest-path tools/checks/rust_source_topology/Cargo.toml -- \
+  chronic-scan tools/checks/manifests/chronic_measurement_scope_v1.toml
+```
+
+It parses each manifest-listed Rust file once with `syn` and emits stable
+panic/unwrap/expect/todo, `dead_code` allowance, module/include, and opaque
+macro observations with source ranges and hashes. Unknown or malformed input
+fails closed. The report never decides production role, caller-zero, or
+deletion; expectation TSV pinning and retirement guards belong to later rows.
+
 ## S0a guarantees
 
 ```text

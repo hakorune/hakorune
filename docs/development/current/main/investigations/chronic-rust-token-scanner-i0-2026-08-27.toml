@@ -1,8 +1,8 @@
 title = "Chronic Rust token scanner I0"
-status = "accepted_design_parked"
+status = "accepted_design_implementation_open"
 observed_commit = "fdc1385b29"
 observed_at = "2026-08-27"
-implementation_permission = false
+implementation_permission = true
 current_execution_row = "CHRONIC-RUST-TOKEN-SCANNER-I0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-scope-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
@@ -175,3 +175,19 @@ latest_finding = "Scanner I0 is the next safe implementation cell. It issues neu
 [closeout]
 required = "Record standalone scanner test/CLI results, deterministic hash evidence, changed-file line counts, and the explicit statement that no root Cargo, guard registration, expectation pin, or source deletion ran. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0."
 next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+
+[implementation_gate]
+permission = true
+scope = "Only the standalone rust_source_topology check crate, its chronic-scan scope manifest, and focused local tests/CLI are in scope."
+forbidden = [
+  "root Cargo.toml or production crate dependency changes",
+  "expectation TSV pinning, guard_rows.toml registration, lifecycle guard connection, or stale-threshold edits",
+  "allow/dead_code/panic cleanup, compiler/MIR/VM/AOT changes, fixture behavior changes, or source deletion",
+]
+stop_if = [
+  "syn cannot preserve exact item/range/attribute evidence",
+  "unknown macro/item/token shape would be silently skipped",
+  "feature/role classification would be inferred without explicit manifest/profile evidence",
+  "a changed source can produce a successful partial report",
+  "any changed source reaches 760 lines or the 800-line hard stop",
+]

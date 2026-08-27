@@ -1,0 +1,11 @@
+schema_version = 1
+scanner_version = "chronic-rust-token-scanner-v1"
+scope_id = "fixture-chronic-sample-v1"
+workspace_root = "."
+exclude_prefixes = ["target"]
+
+[[roots]]
+path = "tests/fixtures/chronic_sample.rs"
+kind = "file"
+compile_domain = "production_default"
+role = "mixed"

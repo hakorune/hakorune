@@ -1,0 +1,41 @@
+schema_version = 1
+scanner_version = "chronic-rust-token-scanner-v1"
+scope_id = "mirbuilder-chronic-rust-v1"
+workspace_root = "."
+exclude_prefixes = ["docs", "target", "archive"]
+
+[[roots]]
+path = "src/mir/builder.rs"
+kind = "file"
+compile_domain = "production_default"
+role = "runtime"
+
+[[roots]]
+path = "src/mir/builder"
+kind = "directory"
+compile_domain = "production_default"
+role = "mixed"
+
+[[roots]]
+path = "src/lib.rs"
+kind = "file"
+compile_domain = "production_default"
+role = "runtime"
+
+[[roots]]
+path = "src/mir/mod.rs"
+kind = "file"
+compile_domain = "production_default"
+role = "runtime"
+
+[[roots]]
+path = "src/mir/compiler/mod.rs"
+kind = "file"
+compile_domain = "production_default"
+role = "runtime"
+
+[[roots]]
+path = "src/mir/compiler/module_registry.in.rs"
+kind = "file"
+compile_domain = "generated_included"
+role = "generated_registry"

@@ -1,7 +1,12 @@
+pub mod chronic_measurement;
 mod extract;
 mod model;
 pub mod project;
 
+pub use chronic_measurement::{
+    scan_scope_manifest, scan_scope_manifest_json, ChronicMetricV1, ChronicObservationV1,
+    ChronicScanErrorV1,
+};
 pub use extract::{extract_single_file_source, ExtractErrorV1};
 pub use model::{
     DirectCallExpressionKindV1, DirectCallResolutionV1, DirectCallSiteV1,

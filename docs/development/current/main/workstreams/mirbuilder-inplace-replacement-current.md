@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement token scanner
+Status: Fast — chronic measurement token scanner I0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -56,10 +56,10 @@ Smallest next slice:
   block stayed byte-stable, four explicit tombstones were validated through the
   same inventory owner, and the result is 2,049 live / 4 tombstoned / 0 dangling.
   `CHRONIC-MEASUREMENT-SCOPE-D0` froze the finite token/range boundary and
-  independent compile-domain/role classification. The selected design stop is
-  `CHRONIC-RUST-TOKEN-SCANNER-I0`: use the existing standalone syn-based
-  topology checker for read-only observations with typed fail-closed errors.
-  No expectation pin or deletion is implied by the scanner design.
+  independent compile-domain/role classification. `CHRONIC-RUST-TOKEN-SCANNER-I0`
+  is implementation-open: use the existing standalone syn-based topology
+  checker for read-only observations with typed fail-closed errors. No
+  expectation pin or deletion is implied by this scanner cell.
   D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 froze phase2160-only Retire/Frozen through one private typed scope: issuer at program_root_lowering.rs:321-326, F take after App-before-register, I/H take before prefix, and Box-precheck snapshot delta=0.
   I0 landed at 7167aee18e: the phase2160 scope now retires F/I/H before effects, the four contracts are typed negatives, generic RawInvocation has an explicit unarmed success parity, and one reusable guard is registered. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.
   D0a is complete at e51dab7212 and C I0 landed at 2f11fbf3ef. The shared child dispatcher now queries a zero-payload two-state RawLegacy policy once and retires only C before helper/prepare effects. G/J, non-Box, Root I1, RawInvocation, and explicit root compatibility remain unchanged. The next selected design frontier is the parked guard execution/index and retirement-accounting row.
@@ -721,7 +721,7 @@ Required order:
 4. `CHRONIC-MEASUREMENT-SCOPE-D0` — accepted: finite panic/dead_code
    boundaries, independent compile-domain/role axes, and the shared
    expectation TSV contract are frozen. It does not authorize deletion.
-5. `CHRONIC-RUST-TOKEN-SCANNER-I0` — selected design stop: extend only the
+5. `CHRONIC-RUST-TOKEN-SCANNER-I0` — fast implementation cell: extend only the
    standalone `rust_source_topology` check crate with a syn/span-based,
    read-only observer. Malformed/unsupported/unknown ranges fail closed;
    no expectation pin, guard registration, or deletion is allowed.
