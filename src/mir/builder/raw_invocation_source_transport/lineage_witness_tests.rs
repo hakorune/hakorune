@@ -1,5 +1,8 @@
-use super::*;
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
+    RawUnlocatedPortalV1,
+};
 
 fn static_method_call() -> ASTNode {
     ASTNode::MethodCall {
