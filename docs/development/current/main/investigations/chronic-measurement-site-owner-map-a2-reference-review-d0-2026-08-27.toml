@@ -61,12 +61,13 @@ completed = [
   "A2-R0 census reproduced: 697 candidate owner/evidence occurrences, 550 unique refs, 268 paths, symbol=167, range=501, byte=29, short=10, OOB=20 distinct/37 occurrences across 22 rows, tree=3, missing=2.",
   "A2-R0 provenance roles recorded: receipt source, matrix artifact, explicit review_head, A1 resolver commit, and audit HEAD remain distinct.",
   "A2-R1 structural review recorded: short-SHA expansion and pinned-byte line candidates were inspected; tree, missing-path, and out-of-bounds references remain typed blockers rather than silently repaired anchors.",
+  "A2-R2/R3/R4 semantic worker review recorded: A/B/C role and route candidates, mixed-site boundaries, caller-zero cautions, and successor blockers are explicit observations only; no candidate was promoted to final owner-map authority.",
 ]
 remaining = [
-  "A2-R1 semantic candidate classification and explicit reviewed anchor normalization",
-  "A2-R2 A/B owner/caller/cfg/route role review",
-  "A2-R3 C family role review",
-  "A2-R4 mixed/ambiguous site decomposition and the 16 exact successors",
+  "A2-R1 explicit reviewed anchor normalization for short/byte/tree/missing/out-of-bounds references",
+  "A2-R2 final A/B owner/caller/cfg/route role decisions, including the row21 production blocker and consumer-versus-owner corrections",
+  "A2-R3 final C family role decisions with cfg/feature/route evidence",
+  "A2-R4 mixed-site decomposition and one exact successor for each of the 16 required rows",
 ]
 
 [reference_review]
@@ -170,6 +171,35 @@ known_unresolved = [
 ]
 pin_rule = "The audit HEAD (3be85613d8) is an observation provenance only. Do not replace the explicit review_head 40145ef01c50d0bf6bdcec86493f950dfccd3e84 or receipt source_commit d9cff5b744edee3b6450db5d0ffc74478f32b49a; reconcile provenance by role, not by silently selecting one commit."
 
+[semantic_review]
+status = "worker_review_complete_map_blocked"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+rule = "Worker classifications are bounded semantic observations, not final map rows. A role is accepted only after exact tracked anchor, caller/cfg/route, and successor evidence are reconciled under the explicit review_head."
+a_route_split = "A declaration domain (all rows appear under generated_included module registration) is separate from effective execution route. Raw rows 153-164 and 180-181 use the explicit feature=vm-reference reference route; canonical and reference shared substrates must remain mixed where exact range evidence shows both."
+a_candidate_roles = [
+  "A runtime candidates: 105-109, 116, 118-131, 139, 142-148, 151, 165-171, 182-183.",
+  "A compatibility/reference candidates: 117, 152-164, 178, 180-181; route evidence is required before final role acceptance.",
+  "A mixed candidates: 175 and 177; A test_support candidates: 110-115, 132-138, 140-141, 149-150, 172; A fixture candidate: 176.",
+  "A successor-required rows 173, 174, and 179 remain unresolved; 174 and 179 have multiple successor candidates and 173 still lacks a resolved full reference.",
+]
+b_route_split = "B rows 5-7, 30-37, and 101-104 are live owners of the narrow compile_raw_published_v1/raw-vm-reference route, not evidence that the broad --backend vm product route remains. They must not be caller-zeroed from grep alone."
+b_blockers = [
+  "B row21 is CutoverBlockerOpen: selected_dynamic_physical_emitter/assembly calls commit_cataloged_box_method_completed; successor or explicit RetainNamed is required before collector retirement.",
+  "B rows 2 and 27 are test/disconnected candidates; rows 14, 19, 23, and 26 require symbol/range decomposition because live and test/helper responsibilities coexist.",
+  "B candidate owner refs for rows 1, 3, 4, 6, 7, 9, 10, and 102 point at consumers or navigation shells; exact owner anchors must be corrected before map authoring.",
+  "B rows 21 and 23 cannot use successor labels as role evidence; row23 has two successor candidates and its sole test caller must be confirmed before any retirement.",
+]
+c_candidate_roles = [
+  "C compatibility candidates: 41, 51-53, 85-87; runtime candidates include 42-43, 57-58, 61, 64-66, 71, 79-82, 97-98, and 100; test_support candidates include 46-50, 56, 59-60, 62-63, 67, 70, 72, 75-77, 83, 92, and 99; guard_evidence candidates include 68, 89, and possibly 93-94 pending route proof.",
+  "C mixed sites requiring exact subranges: 44 (catalog versus static recovery), 54 (CompilationContext), 55 (declaration APIs), 88 (BlockScheduleBox), and 90 (LegacyFacade versus Checked policy).",
+  "C rows 45, 69, 73, 74, 78, 84, 91, 93-97, and 100 remain unresolved; caller absence is not caller-zero evidence.",
+]
+c_structural_blockers = [
+  "C tree refs: rows 42, 43, and 47; OOB refs include rows 60, 76, 83, 88, 90, and 96. Do not clip or infer a blob from a directory path.",
+  "C required successor rows 61, 64, 65, 66, 73, 74, 75, 76, 77, 97, and 100 have no single exact full-SHA successor_ref yet; multiple prose candidates remain blocked.",
+]
+closeout_rule = "A2 remains blocked until A1 structural references are resolved or explicitly rejected, all 185 sites have exactly one evidence-backed schema role/domain, and all 16 required successor rows have exactly one exact tracked successor_ref. These worker findings do not authorize owner-map, expectation, guard, source, or allow changes."
+
 [worker_receipt]
 agents = [
   "conditional_policy_adversary_core: A1 facts do not prove semantic ownership; 697 candidates remain map-blocking until reviewed",
@@ -177,6 +207,9 @@ agents = [
   "force_successor_fate_audit: 16 required rows need one exact successor_ref; Candidate remains classification, not deletion permission",
   "guard_index_spec_audit: owner-map -> reconciliation -> expectation refresh -> stale supersede -> caller-zero retirement; no shortcut",
   "conditional_registry_fate_audit: A1 landed; parent/map docs need post-A1 wording and no silent review-head replacement",
+  "a2_semantic_a: A rows split by runtime, raw-vm-reference compatibility, mixed, test_support, and fixture candidates; declaration domain and effective route must remain separate; rows 173/174/179 successor fate unresolved",
+  "a2_semantic_b: B row21 remains a live production CutoverBlockerOpen; rows 2/27 test candidates, 14/19/23/26 mixed or symbol-split; several candidate refs point at consumers; raw-vm-reference rows remain live",
+  "a2_semantic_c: C mixed rows 44/54/55/88/90 require exact subranges; tree/OOB refs and 11 required successors remain blockers; caller absence is not caller-zero",
 ]
 status = "consensus_a1_landed_a2_blocked"
 
