@@ -245,6 +245,14 @@ status = "census_complete_fate_split_no_deletion_authorized"
 observed_head = "e81414b2fd60bdacb375d61db41dfe38449610b5"
 boundary = "src/mir/join_ir/**, src/mir/join_ir_to_mir/**, src/mir/builder/joinir_id_remapper.rs, src/mir/builder/control_flow/joinir/merge/**, src/mir/control_tree/normalized_shadow/**, src/mir/join_ir_ops.rs, crates/hakorune_mir_joinir, and all module/Cargo/feature/test/guard/generated/docs edges"
 result = "The external seven-item deletion claim is not reproducible from tracked evidence. The census found 15 JoinIR core/utility candidate groups, a 13-file join_ir_to_mir family totaling 1,854 observed LOC, and six fate buckets in the builder/normalized-shadow/package area; no production file is deletion-ready without a successor or an explicit terminal decision."
+granularity = "One classification per tracked file or cohesive responsibility family. Exact symbol/range anchors are representative evidence for the file/family owner; this row does not create a function-by-function or reference-by-reference fate ledger."
+stop_line = [
+  "Do not split this census into every function, caller, guard, fixture, or documentation reference. Those edges are summarized as closure evidence for the file/family row only.",
+  "Do not add a second JoinIR owner map, expectation TSV, or per-function retirement card. If a candidate needs deeper semantic proof, open one named implementation/design row for that candidate rather than expanding this census.",
+  "The census is complete when each in-scope file/family has one fate bucket and a named reopen/next-row condition; unresolved internal edges keep the bucket MigrateEvidence or NoSafeSlice.",
+]
+confirmed_retire = "none at the observed head. Merge coordinator, cfg(test) conversion tests, and the hakorune_mir_joinir package are Retire candidates only; each still needs its own bounded fate/edge decision before any fast deletion."
+fast_deletion_gate = "A fast deletion row may open only for one named file/family after exact caller graph closure, successor/terminal proof, guard/fixture/Cargo/docs retargeting, focused parity, and residual-zero. No candidate may be selected from the number seven alone."
 source_authority = "Fixed observed-head Git objects, Cargo manifests, module declarations, explicit callers, cfg/feature/env conditions, guard/fixture/generated edges, and existing JoinIR fate cards. rg absence and stale README prose are non-authority."
 canonical_issuer = "This section issues only a bounded observation/fate split. It does not issue a deletion, owner-map, successor, or backend decision."
 a_core_fates = [
