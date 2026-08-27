@@ -1,12 +1,14 @@
 title = "Chronic measurement observation receipt I0"
-status = "fast_open"
+status = "landed_bounded_child_row"
 observed_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
 observed_at = "2026-08-27"
-implementation_permission = true
+implementation_permission = false
 selected_fast = true
 current_execution_row = "CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+implementation_commit = "2c6927cccbb12de1057ce66c43b59f55f4ae4bfa"
+landed_commit = "2c6927cccbb12de1057ce66c43b59f55f4ae4bfa"
 
 [boundary]
 starts = "one existing scan_scope_manifest call over the frozen mirbuilder-chronic-rust-v1 scope"
@@ -119,6 +121,15 @@ no_safe_slice = [
 ]
 
 [closeout]
-status = "pending"
-required = "Record implementation commit, focused tests, deterministic repeat, tracked JSON path/hash, and green pointer/diff checks. Then move the pointer to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0; owner classification and deletion remain closed until that successor."
+status = "complete"
+focused_evidence = [
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --lib chronic_measurement (4 passed)",
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement (4 passed)",
+  "real scope projection produced exactly 185 DeadCodeAllowance rows from one scan_scope_manifest call",
+  "repeated generation produced identical JSON bytes and receipt_hash=sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d",
+  "tracked artifact tools/checks/manifests/chronic_measurement_observations_v1.json matches the generator and its self-excluded hash",
+  "invalid source_commit, reversed range, duplicate key, and out-of-order key cases fail closed; owner/retirement fields are absent",
+  "new observation_receipt.rs is 394 lines and the workstream remains below the 800-line hard stop",
+]
+closeout_notes = "The neutral observation receipt is landed at 2c6927cccbb12de1057ce66c43b59f55f4ae4bfa. It records only the scanner's 185-row evidence and provenance; owner classification, expectation pinning, guard registration, and deletion remain closed in the site-owner-map successor."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
