@@ -1,0 +1,10 @@
+# Exact phase2170 official reference owner pack. Paths are relative to profiles/integration/.
+core/phase2170/array_push_size_5_vm.sh
+core/phase2170/array_push_size_10_vm.sh
+core/phase2170/array_len_alias_vm.sh
+core/phase2170/array_length_alias_vm.sh
+core/phase2170/per_recv_global_canary_vm.sh
+core/phase2170/per_recv_per_canary_vm.sh
+core/phase2170/map_set_dup_key_size_canary_vm.sh
+core/phase2170/map_value_state_get_has_canary_vm.sh
+core/phase2170/flow_across_blocks_array_size_canary_vm.sh

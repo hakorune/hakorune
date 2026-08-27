@@ -13,9 +13,12 @@ SHARED_RUNNER="$ROOT_DIR/tools/checks/lib/manifest_runner.py"
 ROW_MANIFEST="$ROOT_DIR/tools/checks/guard_rows.toml"
 PROOF_MANIFEST="$ROOT_DIR/tools/checks/proof_apps.toml"
 OWNER_PACK_SUITE="$ROOT_DIR/tools/smokes/v2/suites/integration/phase2050-owner-pack.txt"
+OWNER_PACK_PHASE2170_SUITE="$ROOT_DIR/tools/smokes/v2/suites/integration/phase2170-official-owner-pack.txt"
 AGGREGATE_NODE_MANIFEST="$ROOT_DIR/tools/smokes/v2/suites/integration/aggregate-nodes.txt"
 PHASE2050_RUN_ALL="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh"
 PHASE2050_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2050"
+PHASE2170_RUN_ALL="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh"
+PHASE2170_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2170"
 CARD="$(guard_require_phase293x_card "$TAG" "293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP.md")"
 CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 DEV_GATE="$ROOT_DIR/tools/checks/dev_gate.sh"
@@ -30,8 +33,10 @@ guard_require_files "$TAG" \
   "$ROW_MANIFEST" \
   "$PROOF_MANIFEST" \
   "$OWNER_PACK_SUITE" \
+  "$OWNER_PACK_PHASE2170_SUITE" \
   "$AGGREGATE_NODE_MANIFEST" \
   "$PHASE2050_RUN_ALL" \
+  "$PHASE2170_RUN_ALL" \
   "$CARD" \
   "$CHECK_INDEX" \
   "$DEV_GATE" \
@@ -127,13 +132,22 @@ done
 "$PROOF_RUNNER" --validation-profile scalar-mir --level L2 --dry-run | rg -F -- "--level L2" >/dev/null
 "$ROW_RUNNER" --only current-state-pointer >/dev/null
 
-python3 - "$ROW_MANIFEST" "$OWNER_PACK_SUITE" "$AGGREGATE_NODE_MANIFEST" "$PHASE2050_RUN_ALL" "$PHASE2050_DIR" <<'PY'
+python3 - "$ROW_MANIFEST" "$OWNER_PACK_SUITE" "$AGGREGATE_NODE_MANIFEST" "$PHASE2050_RUN_ALL" "$PHASE2050_DIR" "$OWNER_PACK_PHASE2170_SUITE" "$PHASE2170_RUN_ALL" "$PHASE2170_DIR" <<'PY'
 import pathlib
 import sys
 import tomllib
 
-row_manifest, suite_path, aggregate_manifest, run_all_path, phase_dir = map(pathlib.Path, sys.argv[1:])
-if not phase_dir.is_dir():
+(
+    row_manifest,
+    phase2050_suite_path,
+    aggregate_manifest,
+    phase2050_run_all_path,
+    phase2050_dir,
+    phase2170_suite_path,
+    phase2170_run_all_path,
+    phase2170_dir,
+) = map(pathlib.Path, sys.argv[1:])
+if not phase2050_dir.is_dir():
     raise SystemExit("phase2050 owner-pack directory is missing")
 rows = tomllib.loads(row_manifest.read_text(encoding="utf-8"))["rows"]
 owner_rows = [row for row in rows if row.get("id") == "smoke-owner-pack-phase2050"]
@@ -148,51 +162,116 @@ row = owner_rows[0]
 if row.get("row_kind") != "smoke-owner-pack" or row.get("cmd") != expected_cmd:
     raise SystemExit("phase2050 owner-pack registry row drifted")
 
-suite_entries = [
-    line.strip()
-    for line in suite_path.read_text(encoding="utf-8").splitlines()
-    if line.strip() and not line.lstrip().startswith("#")
-]
-if len(suite_entries) != len(set(suite_entries)) or not suite_entries:
+def read_entries(path: pathlib.Path) -> list[str]:
+    return [
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+phase2050_entries = read_entries(phase2050_suite_path)
+if len(phase2050_entries) != len(set(phase2050_entries)) or not phase2050_entries:
     raise SystemExit("phase2050 owner-pack suite must be non-empty and duplicate-free")
-profile_dir = phase_dir.parents[1]
-live_entries = sorted(
+profile_dir = phase2050_dir.parents[1]
+phase2050_live_entries = sorted(
     str(path.relative_to(profile_dir))
-    for path in phase_dir.glob("*.sh")
+    for path in phase2050_dir.glob("*.sh")
     if path.name != "run_all.sh"
 )
-if sorted(suite_entries) != live_entries:
+if sorted(phase2050_entries) != phase2050_live_entries:
     raise SystemExit("phase2050 owner-pack suite must cover exactly the live leaf scripts")
-
-aggregate_rows = [
-    line.strip()
-    for line in aggregate_manifest.read_text(encoding="utf-8").splitlines()
-    if line.strip() and not line.lstrip().startswith("#")
-]
-if aggregate_rows != ["core/phase2050/run_all.sh|ExplicitOnlyAggregate|phase2050-owner-pack"]:
-    raise SystemExit("phase2050 aggregate-node manifest drifted")
-if suite_path.name != "phase2050-owner-pack.txt" or suite_path.parent.name != "integration":
+if phase2050_suite_path.name != "phase2050-owner-pack.txt" or phase2050_suite_path.parent.name != "integration":
     raise SystemExit("phase2050 owner-pack must remain integration-owned")
-if "core/phase2050/run_all.sh" in suite_entries:
-    raise SystemExit("aggregate wrapper must not be a child leaf")
+if "core/phase2050/run_all.sh" in phase2050_entries:
+    raise SystemExit("phase2050 aggregate wrapper must not be a child leaf")
 
-run_all = run_all_path.read_text(encoding="utf-8")
-owner_invocation = "--profile quick --owner-profile integration --suite phase2050-owner-pack"
-if run_all.count(owner_invocation) != 1 or "--filter" in run_all:
+official_phase2170 = [
+    "core/phase2170/array_push_size_5_vm.sh",
+    "core/phase2170/array_push_size_10_vm.sh",
+    "core/phase2170/array_len_alias_vm.sh",
+    "core/phase2170/array_length_alias_vm.sh",
+    "core/phase2170/per_recv_global_canary_vm.sh",
+    "core/phase2170/per_recv_per_canary_vm.sh",
+    "core/phase2170/map_set_dup_key_size_canary_vm.sh",
+    "core/phase2170/map_value_state_get_has_canary_vm.sh",
+    "core/phase2170/flow_across_blocks_array_size_canary_vm.sh",
+]
+weak_phase2170 = [
+    "core/phase2170/hv1_mircall_array_push_size_state_canary_vm.sh",
+    "core/phase2170/hv1_mircall_map_set_size_state_canary_vm.sh",
+]
+phase2170_entries = read_entries(phase2170_suite_path)
+if phase2170_entries != official_phase2170:
+    raise SystemExit("phase2170 owner-pack suite must match the exact official order")
+phase2170_profile_dir = phase2170_dir.parents[1]
+phase2170_live_entries = sorted(
+    str(path.relative_to(phase2170_profile_dir))
+    for path in phase2170_dir.glob("*.sh")
+    if path.name != "run_all.sh"
+)
+if phase2170_live_entries != sorted(official_phase2170 + weak_phase2170):
+    raise SystemExit("phase2170 live leaves must contain nine official and two weak hv1 scripts")
+if phase2170_suite_path.name != "phase2170-official-owner-pack.txt" or phase2170_suite_path.parent.name != "integration":
+    raise SystemExit("phase2170 owner-pack must remain integration-owned")
+if "core/phase2170/run_all.sh" in phase2170_entries:
+    raise SystemExit("phase2170 aggregate wrapper must not be a child leaf")
+
+aggregate_rows = read_entries(aggregate_manifest)
+expected_aggregate_rows = [
+    "core/phase2050/run_all.sh|ExplicitOnlyAggregate|phase2050-owner-pack",
+    "core/phase2170/run_all.sh|ExplicitOnlyAggregate|phase2170-official-owner-pack",
+]
+if aggregate_rows != expected_aggregate_rows:
+    raise SystemExit("aggregate-node manifest must contain the exact phase2050 and phase2170 rows")
+
+phase2050_run_all = phase2050_run_all_path.read_text(encoding="utf-8")
+phase2050_owner_invocation = "--profile quick --owner-profile integration --suite phase2050-owner-pack"
+if phase2050_run_all.count(phase2050_owner_invocation) != 1 or "--filter" in phase2050_run_all:
     raise SystemExit("phase2050 run_all must use one exact owner-pack invocation and no filter")
-print("[manifest-runner-pilot-guard] phase2050 owner-pack linkage=exact")
+
+phase2170_run_all = phase2170_run_all_path.read_text(encoding="utf-8")
+phase2170_owner_invocation = "--profile integration --owner-profile integration --suite phase2170-official-owner-pack"
+if phase2170_run_all.count(phase2170_owner_invocation) != 1 or "--filter" in phase2170_run_all:
+    raise SystemExit("phase2170 run_all must use one exact owner-pack invocation and no filter")
+if any(weak_path in phase2170_run_all for weak_path in weak_phase2170):
+    raise SystemExit("phase2170 run_all must not re-admit weak hv1 children")
+print("[manifest-runner-pilot-guard] phase2050/phase2170 owner-pack linkage=exact")
 PY
 
-integration_dry_run="$("$ROOT_DIR/tools/smokes/v2/run.sh" --profile integration --dry-run --skip-preflight 2>&1)"
-if ! rg -q "Found 962 test files" <<<"$integration_dry_run"; then
-  guard_fail "$TAG" "integration discovery must find exactly 962 leaves after phase2050 exclusion"
+integration_dry_run="$($ROOT_DIR/tools/smokes/v2/run.sh --profile integration --dry-run --skip-preflight 2>&1)"
+if ! rg -q "Found 961 test files" <<<"$integration_dry_run"; then
+  guard_fail "$TAG" "integration discovery must find exactly 961 leaves after phase2050 and phase2170 exclusions"
 fi
-if rg -q "profiles/integration/core/phase2050/run_all\.sh" <<<"$integration_dry_run"; then
-  guard_fail "$TAG" "phase2050 aggregate wrapper leaked into normal integration discovery"
-fi
+for aggregate_path in \
+  "profiles/integration/core/phase2050/run_all.sh" \
+  "profiles/integration/core/phase2170/run_all.sh"; do
+  if rg -q "$aggregate_path" <<<"$integration_dry_run"; then
+    guard_fail "$TAG" "aggregate wrapper leaked into normal integration discovery: $aggregate_path"
+  fi
+done
 phase2050_count="$(rg -c 'profiles/integration/core/phase2050/' <<<"$integration_dry_run" || true)"
 if [ "$phase2050_count" -ne 5 ]; then
   guard_fail "$TAG" "normal phase2050 discovery must contain exactly five leaves"
 fi
+phase2170_count="$(rg -c 'profiles/integration/core/phase2170/' <<<"$integration_dry_run" || true)"
+if [ "$phase2170_count" -ne 11 ]; then
+  guard_fail "$TAG" "normal phase2170 discovery must contain exactly eleven leaves (nine official plus two weak hv1)"
+fi
+for phase2170_path in \
+  "profiles/integration/core/phase2170/array_push_size_5_vm.sh" \
+  "profiles/integration/core/phase2170/array_push_size_10_vm.sh" \
+  "profiles/integration/core/phase2170/array_len_alias_vm.sh" \
+  "profiles/integration/core/phase2170/array_length_alias_vm.sh" \
+  "profiles/integration/core/phase2170/per_recv_global_canary_vm.sh" \
+  "profiles/integration/core/phase2170/per_recv_per_canary_vm.sh" \
+  "profiles/integration/core/phase2170/map_set_dup_key_size_canary_vm.sh" \
+  "profiles/integration/core/phase2170/map_value_state_get_has_canary_vm.sh" \
+  "profiles/integration/core/phase2170/flow_across_blocks_array_size_canary_vm.sh" \
+  "profiles/integration/core/phase2170/hv1_mircall_array_push_size_state_canary_vm.sh" \
+  "profiles/integration/core/phase2170/hv1_mircall_map_set_size_state_canary_vm.sh"; do
+  if ! rg -q "$phase2170_path" <<<"$integration_dry_run"; then
+    guard_fail "$TAG" "normal phase2170 discovery lost expected leaf: $phase2170_path"
+  fi
+done
 
 echo "[$TAG] ok"

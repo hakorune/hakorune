@@ -214,7 +214,7 @@ cmd = ["bash", "tools/checks/mir_call_global_target_b0_machine_census_guard.sh"]
 
 [[rows]]
 id = "smoke-owner-pack-phase2050"
-label = "phase2050 exact owner-pack selection"
+label = "phase2050 and phase2170 exact owner-pack selection"
 profiles = ["pilot", "quick-static"]
 row_kind = "smoke-owner-pack"
 cmd = [

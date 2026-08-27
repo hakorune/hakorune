@@ -1,2 +1,3 @@
 # path|fate|child-suite; only explicit aggregate wrappers belong here.
 core/phase2050/run_all.sh|ExplicitOnlyAggregate|phase2050-owner-pack
+core/phase2170/run_all.sh|ExplicitOnlyAggregate|phase2170-official-owner-pack

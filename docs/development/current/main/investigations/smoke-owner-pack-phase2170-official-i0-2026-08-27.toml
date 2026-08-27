@@ -1,0 +1,134 @@
+title = "Smoke phase2170 official owner-pack implementation I0"
+status = "implementation_selected"
+observed_commit = "7fcc30285d"
+observed_at = "2026-08-27"
+implementation_permission = true
+current_execution_row = "SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-I0"
+implementation_row = "SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-I0"
+parent_row = "docs/development/current/main/investigations/smoke-owner-pack-phase2170-official-d0-2026-08-27.toml"
+
+[boundary]
+starts = "the checked-in phase2170 aggregate wrapper and its exact official child list"
+ends = "one reusable manifest/runner/guard path that prevents duplicate normal discovery"
+includes = [
+  "tools/smokes/v2/suites/integration/phase2170-official-owner-pack.txt",
+  "the phase2170 aggregate-node manifest row",
+  "phase2170/run_all.sh delegation to one exact owner-pack invocation",
+  "the existing manifest-runner pilot guard extension and integration counts",
+  "phase2170 README membership and explicit weak-hv1 exclusion evidence",
+]
+excludes = [
+  "phase2170 leaf scripts and verify_mir_rc semantics",
+  "phase2100, phase2160, phase2047-2051, phase2050, and pure-legacy cohorts",
+  "CoreDirect, force-hv1, VM, Wpre, Call, MirBuilder, LLVM, or Cargo behavior",
+  "runtime result reclassification, fallback removal, and broad basename exclusion",
+]
+
+[decision]
+summary = "Use the existing owner-pack seam for exactly nine phase2170 official canaries under the integration runtime. Mark only phase2170/run_all.sh as ExplicitOnlyAggregate; leave the nine leaves available to the owner pack and leave the two weak hv1_mircall leaves outside this pack."
+source_authority = "phase2170/run_all.sh body, phase2170/README.md, exact live child paths, and the existing runner discovery output"
+canonical_issuer = "phase2170-official-owner-pack.txt plus aggregate-nodes.txt, consumed by tools/smokes/v2/run.sh; the pilot guard co-seals run_all, manifest, and discovery"
+non_authority = [
+  "run_all.sh basename outside the exact aggregate manifest row",
+  "quick zero-match, echo text, inherited env, and child result rc",
+  "verify_mir_rc hv1/Core fallback as a product or LLVM authority",
+  "weak hv1 duplicate names or README text without exact body/path agreement",
+]
+fail_fast = "Missing/duplicate/foreign/stale suite or aggregate entries, a child selected twice, a run_all filter/retry, a phase2170 wrapper in normal discovery, or a product claim from reference fallback fails the row."
+smallest_next_slice = "Add the exact nine-entry suite and one aggregate row, switch phase2170/run_all.sh to one owner-pack call, extend the existing pilot guard, and prove normal discovery is 961 with eleven phase2170 leaves: nine official plus two weak hv1."
+non_claims = [
+  "does not claim the nine canaries are product/LLVM gates",
+  "does not change any leaf's runtime behavior or fallback helper",
+  "does not generalize the phase2050 exclusion policy",
+  "does not create a new per-leaf guard or a new runner/parser",
+]
+
+[exact_membership]
+suite = "tools/smokes/v2/suites/integration/phase2170-official-owner-pack.txt"
+aggregate_manifest = "tools/smokes/v2/suites/integration/aggregate-nodes.txt"
+aggregate_row = "core/phase2170/run_all.sh|ExplicitOnlyAggregate|phase2170-official-owner-pack"
+run_all = "tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh"
+runtime_profile = "integration"
+official_children = [
+  "core/phase2170/array_push_size_5_vm.sh",
+  "core/phase2170/array_push_size_10_vm.sh",
+  "core/phase2170/array_len_alias_vm.sh",
+  "core/phase2170/array_length_alias_vm.sh",
+  "core/phase2170/per_recv_global_canary_vm.sh",
+  "core/phase2170/per_recv_per_canary_vm.sh",
+  "core/phase2170/map_set_dup_key_size_canary_vm.sh",
+  "core/phase2170/map_value_state_get_has_canary_vm.sh",
+  "core/phase2170/flow_across_blocks_array_size_canary_vm.sh",
+]
+weak_hv1_excluded = [
+  "core/phase2170/hv1_mircall_array_push_size_state_canary_vm.sh",
+  "core/phase2170/hv1_mircall_map_set_size_state_canary_vm.sh",
+]
+
+[state_matrix]
+exact_official = "nine suite entries resolve once and match run_all/README order"
+weak_hv1 = "two live hv1_mircall scripts remain separate legacy proofs and are not selected"
+aggregate = "run_all is excluded only from normal integration discovery and is runnable only through its exact owner pack"
+normal_discovery = "961 total after phase2050 and phase2170 exact wrapper exclusions; phase2170 contributes eleven leaves: nine official plus two separate weak hv1 legacy leaves"
+owner_discovery = "nine entries under --profile integration --owner-profile integration --suite phase2170-official-owner-pack"
+fallback = "verify_mir_rc fallback remains observed non-authority; no route or product claim is changed"
+
+[change_set]
+files = [
+  "tools/smokes/v2/suites/integration/phase2170-official-owner-pack.txt",
+  "tools/smokes/v2/suites/integration/aggregate-nodes.txt",
+  "tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh",
+  "tools/checks/manifest_runner_pilot_guard.sh",
+]
+delete_set = [
+  "phase2170/run_all.sh direct child fan-out",
+  "phase2170 wrapper exposure in normal integration discovery",
+  "implicit membership inferred from phase directory contents",
+]
+preserve_set = [
+  "all nine leaf bodies and their order",
+  "the two weak hv1 scripts as separate legacy files",
+  "phase2050 owner-pack and all other aggregate rows",
+  "existing manifest-runner and owner-pack parser semantics",
+]
+
+[acceptance]
+positive = [
+  "phase2170 suite contains exactly the nine official entries and no weak hv1 child",
+  "aggregate manifest contains the exact phase2170 ExplicitOnlyAggregate row",
+  "run_all.sh invokes the phase2170 owner pack exactly once with integration profile and no filter",
+  "normal integration dry-run reports 961 files, excludes both exact aggregate wrappers, and lists nine official plus two weak hv1 phase2170 leaves",
+  "owner-pack dry-run reports exactly nine entries and rejects missing/filtered/traversal selections",
+  "the existing single pilot guard validates phase2050 and phase2170 linkage without a new per-leaf guard",
+]
+negative = [
+  "missing, duplicate, foreign, stale, or reordered child fails closed",
+  "the two weak hv1 scripts are not silently accepted as official members",
+  "basename-wide run_all exclusion is absent",
+  "phase2100, phase2160, filter-driven, pure-legacy, and phase2050 fate is unchanged",
+  "no Cargo command or runtime semantic test is required by this shell-only row",
+]
+parity = "Preserve exact child order, owner membership, and legacy nested-suite behavior; compare discovery counts before/after only at the wrapper boundary."
+guard = "Extend tools/checks/manifest_runner_pilot_guard.sh and its existing registry row; do not add a second guard family."
+
+[verification]
+static = [
+  "bash -n tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh tools/checks/manifest_runner_pilot_guard.sh",
+  "python3 -m py_compile tools/checks/lib/manifest_runner.py",
+  "python3 -m unittest tools/checks/lib/tests/test_manifest_runner_owner_pack.py -v",
+]
+focused = [
+  "bash tools/checks/manifest_runner_pilot_guard.sh",
+  "bash tools/checks/run_row_guard.sh --only smoke-owner-pack-phase2050",
+  "bash tools/smokes/v2/run.sh --profile integration --dry-run --skip-preflight",
+  "bash tools/smokes/v2/run.sh --profile integration --owner-profile integration --suite phase2170-official-owner-pack --dry-run --skip-preflight",
+]
+resource_rule = "No Cargo, --release, --nocapture, or concurrent top-level build is needed for this row."
+
+[reopen]
+triggers = [
+  "normal integration count is not 961 or phase2170 leaf count is not eleven",
+  "phase2170 run_all, README, or a child changes without exact manifest/guard refresh",
+  "weak hv1 is added to the official pack without a new decision",
+  "the runner needs a basename-wide exclusion, filter, retry, or fallback",
+]

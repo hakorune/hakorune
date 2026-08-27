@@ -15,6 +15,7 @@
 - `flow_across_blocks_array_size_canary_vm.sh`
 
 公式 entry は [run_all.sh](/home/tomoaki/git/hakorune-selfhost/tools/smokes/v2/profiles/integration/core/phase2170/run_all.sh)。
+直接実行時は `phase2170-official-owner-pack` の integration owner pack を一度だけ使用する。
 
 ## Weaker Duplicates
 
