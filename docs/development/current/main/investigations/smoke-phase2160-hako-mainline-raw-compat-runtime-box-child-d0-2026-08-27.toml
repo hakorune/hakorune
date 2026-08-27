@@ -10,7 +10,7 @@ parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-
 starts = "runtime ASTNode::BoxDeclaration encountered inside the raw expression dispatcher"
 ends = "an explicit runtime compatibility child owner or an explicit retirement/freeze decision"
 includes = [
-  "src/mir/builder/raw_expression_dispatch/mod.rs:488-524::ASTNode::BoxDeclaration",
+  "src/mir/builder/raw_expression_dispatch/mod.rs:488-526::ASTNode::BoxDeclaration",
   "src/mir/builder/instance_box_method_batch.rs:71-95::nested runtime method batch",
   "runtime constructor/static/instance child dispatch and its collector edges",
 ]
@@ -33,6 +33,7 @@ non_authority = [
 ]
 fail_fast = "A runtime Box child without an explicit owner/source/collector relation remains typed freeze before child effects; it cannot enter the root I1 terminal by proximity."
 smallest_next_slice = "Census the exact runtime declaration/method batch edges, identify their existing symbol/arity and collector owner, and choose a bounded compatibility terminal or retirement fate."
+census_boundary = "raw_expression_dispatch::ASTNode::BoxDeclaration arm -> recursive runtime module_port commit; includes nested Main, App/non-App static, instance constructor, and instance method edges; excludes root I1 outer collector, SelectedNormal, loop, route, VM, Wpre, and Call."
 non_claims = [
   "does not authorize implementation",
   "does not change raw root admission or source-backed lowering",
@@ -41,18 +42,22 @@ non_claims = [
 
 [finite_state]
 states = [
+  "RuntimeMainNestedReject",
+  "AppStaticDeclarationNoOp",
+  "RuntimeNestedMethodLegacyCaptureCommit",
+  "RuntimeConstructorLooseFreeze",
   "RuntimeBoxOwnerReady",
   "RuntimeBoxCollectorReady",
-  "RuntimeBoxUnclassified",
-  "RuntimeBoxRetiring",
+  "RuntimeRetiring",
 ]
-ready = "An existing runtime owner supplies exact source context, symbol/arity, and collector boundary before child effects."
-collector_ready = "The runtime child has one named capture/commit owner and no root-terminal fallback."
-unclassified = "Missing owner/source/shape/collector -> typed freeze."
-retiring = "Explicit route-retirement row owns deletion; this card does not infer it."
+observed = "The dispatcher currently distinguishes root-only Main rejection, App static no-op, non-App static legacy capture, instance method legacy capture, and instance-constructor loose freeze. These are observations, not permission to add a new success route."
+owner_ready = "A named runtime owner supplies exact source context plus symbol/physical-arity before body effects; AST/name/params.len() recomputation is not an issuer."
+collector_ready = "The runtime child has one named capture/commit owner on the recursive module_port and cannot drain the root outer collector."
+constructor_freeze = "The runtime constructor currently reaches loose-instance-input; keep it a negative state until root/runtime callers and a source/shape owner are separated."
+retiring = "An explicit route-retirement row owns deletion; this card does not infer retirement from caller counts or a loose freeze."
 
 [observed]
-dispatcher = "src/mir/builder/raw_expression_dispatch/mod.rs:488-524"
+dispatcher = "src/mir/builder/raw_expression_dispatch/mod.rs:488-526"
 instance_batch = "src/mir/builder/instance_box_method_batch.rs:71-95"
 root_constructor_edge = "src/mir/builder/instance_box_constructor_batch.rs:113-135 is root work-plan scope and remains separate from these runtime edges"
 runtime_constructor_edge = "src/mir/builder/instance_box_declaration_lifecycle.rs:114-116 -> instance_box_constructor_batch.rs:117-139 is also reachable from runtime raw lifecycle; root and runtime callers must be separated in the next census"
@@ -62,8 +67,8 @@ current_fate = "ParkedSealed; no runtime-box implementation permission. Re-obser
 result = "I1 root terminal remains isolated: runtime ASTNode::BoxDeclaration does not call lower_raw_compat_* and still follows its existing dispatcher-owned branches."
 runtime_edges = [
   "raw_expression_dispatch/mod.rs:488-526::ASTNode::BoxDeclaration",
-  "nonmain_static_box_lifecycle.rs:35-45::App static non-Main no-op",
-  "nonmain_static_box_lifecycle.rs:47-58 -> nonmain_static_box_method_batch.rs:77-101::non-App static batch",
+  "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:35-45::App static non-Main no-op",
+  "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:47-58 -> nonmain_static_box_method_batch.rs:77-101::non-App static batch",
   "instance_box_declaration_lifecycle.rs:114-116 -> instance_box_method_batch.rs:71-95::instance method/constructor split",
   "nested_box_method_source.rs:141-187::NestedBoxMethod lineage and symbol/arity construction",
   "recursive_child_lowering.rs:435-449::runtime module_port collector commit",
