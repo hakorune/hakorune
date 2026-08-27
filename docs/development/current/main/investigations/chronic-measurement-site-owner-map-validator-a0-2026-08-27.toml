@@ -1,0 +1,118 @@
+title = "Chronic measurement site owner map validator A0"
+status = "fast_open"
+observed_commit = "8a66234ad936536b12a6de468d1ee30f154d2a6f"
+observed_at = "2026-08-27"
+implementation_permission = true
+selected_fast = true
+current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-VALIDATOR-A0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "the tracked neutral observation receipt bytes and an in-memory or test-only site-owner-map TOML payload"
+ends = "one typed validated site-owner-map input with exact receipt coverage, canonical map hash, and reference grammar validation"
+includes = [
+  "one call to validate_observation_receipt_json with an explicit expected source revision",
+  "strict TOML parsing of schema/version/provenance and [[sites]] rows with deny_unknown_fields",
+  "exact 185-row canonical-key coverage, order, duplicate, foreign, item/range, and attribute checks",
+  "canonical map_hash projection with map_hash omitted, fixed field order, sorted sites, sorted/deduplicated evidence_refs, and explicit empty values",
+  "tracked-reference syntax validation for owner_ref/evidence_refs/successor_ref without claiming Git anchor resolution",
+]
+excludes = [
+  "authoring a partial tracked owner-map artifact or classifying real sites",
+  "Git revision/anchor lookup (A1), owner/successor evidence judgment, expectation TSV, guard registration, or source deletion",
+  "scanner invocation, scanner scope changes, cross-language hash implementation, compiler/MIR/VM/AOT behavior, or route changes",
+]
+
+[brief]
+decision = "Open a validator-only A0: consume the landed neutral receipt once, strictly parse a site-owner-map payload, and prove provenance plus exact key-set coverage before any real owner row can be authored. This cell issues no owner meaning and does not create a tracked map artifact."
+source_authority = "validate_observation_receipt_json is the sole observation input; the frozen site-owner-map contract in CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 supplies map schema/id/hash and reference grammar."
+canonical_issuer = "site_owner_map.rs owns map parsing, map_hash, exact coverage, and reference syntax; observation_receipt.rs remains the sole receipt schema/hash/range owner."
+non_authority = ["raw scanner output", "map.source_commit as the expected revision", "filenames, warning counts, grep absence, owner guesses, TOML byte layout", "partial map rows or unresolved anchors treated as resolved"]
+fail_fast = "Reject unknown fields, malformed map/schema/version/id/provenance, source revision drift, missing/extra/duplicate/out-of-order/foreign rows, item/range/attribute drift, invalid role/domain/status, malformed references, and map_hash drift before returning a validated map."
+smallest_next_slice = "Implement site_owner_map.rs plus focused in-module tests using a generated test-only 185-row payload; no tracked owner-map artifact, TSV, guard, or source deletion."
+non_claims = [
+  "does not classify any real allowance as live, stale, retained, candidate, or deletable",
+  "does not resolve Git anchors or issue successor authority",
+  "does not change the scanner, receipt artifact, compiler, runtime, or backend",
+]
+census_boundary = "tracked receipt bytes -> one map parser/validator -> typed in-memory map; includes exact 185-row key coverage and map provenance, excludes real owner evidence and later Git anchor resolution"
+
+[contract]
+schema = "chronic-measurement-site-owners-v1"
+schema_version = 1
+map_id = "chronic-measurement-site-owners-v1@d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+map_hash = "sha256:<64-lowercase-hex>; map_hash is omitted from canonical input"
+expected_source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
+hash_rule = "fixed top-level/site field order; sites already in canonical-key order; evidence_refs sorted and duplicate-rejected; empty arrays/strings encoded explicitly; receipt attribute_kind wire spelling reused; compact UTF-8 JSON without trailing newline; SHA-256; TOML formatting excluded"
+coverage_rule = "map canonical keys equal the strict receipt canonical keys exactly once; item_key and line_start/line_end are consistency fields"
+reference_rule = "syntax only in A0: <tracked-path>#<symbol:name|range:start-end|edge:id>@<40-lowercase-hex-revision>; path is repo-relative POSIX and forbids absolute paths, .., backslash, and whitespace; Git existence/anchor resolution is A1"
+
+[implementation]
+module = "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs"
+api = "validate_site_owner_map_toml(map_input, observation_receipt_input, expected_source_commit)"
+receipt_rule = "call validate_observation_receipt_json exactly once; do not scan, parse scanner stdout, or derive expected_source_commit from map input"
+dependency_rule = "reuse existing serde/serde_json/sha2/toml; no new dependency or root Cargo change"
+line_budget = "new module remains below 760 lines; workstream remains below 800 lines"
+
+[finite_state]
+states = [
+  "ReceiptVerified",
+  "MapParsed",
+  "MapProvenanceVerified",
+  "MapCoverageVerified",
+  "MapHashVerified",
+  "MapReferenceSyntaxVerified",
+  "MalformedMap",
+  "UnknownMapField",
+  "MapSchemaDrift",
+  "MapProvenanceDrift",
+  "MapCoverageDrift",
+  "MapReferenceInvalid",
+  "MapHashDrift",
+]
+terminal = ["MapReferenceSyntaxVerified"]
+blocking = ["MalformedMap", "UnknownMapField", "MapSchemaDrift", "MapProvenanceDrift", "MapCoverageDrift", "MapReferenceInvalid", "MapHashDrift"]
+
+[task_steps]
+items = [
+  "1. Add the private strict TOML projection and typed validated map rows; owner fields remain data, not semantic authority.",
+  "2. Consume validate_observation_receipt_json once with the bound d9cff expected source revision and compare all receipt provenance fields.",
+  "3. Validate exact 185 canonical keys/order/uniqueness and item/range/attribute consistency; reject partial, extra, foreign, or mixed rows.",
+  "4. Normalize evidence_refs for canonical hashing (sort and reject duplicates), compute map_hash with map_hash omitted and fixed serde field order, and reject drift.",
+  "5. Validate reference syntax only; leave pinned Git path/anchor resolution to the later A1 row.",
+  "6. Add positive/negative in-module tests with a test-only generated 185-row payload; do not create the tracked owner-map artifact or TSV.",
+  "7. Close A0 with focused evidence and return to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 for real owner evidence authoring design.",
+]
+
+[acceptance]
+positive = [
+  "strict receipt validation is called exactly once and the generated 185-row test payload matches receipt provenance and canonical keys",
+  "map_hash is deterministic, excludes itself, preserves empty values, sorts evidence_refs, and matches the supplied hash",
+  "valid role/domain/status/reference syntax returns one typed in-memory map without scanner or Git execution",
+]
+negative = [
+  "unknown TOML fields, schema/id/source/provenance drift, partial/extra/duplicate/out-of-order/foreign rows, range/attribute mismatch, invalid status, malformed reference, or hash tamper rejects",
+  "map.source_commit cannot replace the explicit expected source revision",
+  "no tracked partial map, owner inference, Git anchor claim, expectation TSV, guard registration, or deletion",
+]
+structural = [
+  "observation_receipt.rs remains the only receipt schema/hash/range owner",
+  "site_owner_map.rs remains below 760 lines and root dependencies are unchanged",
+  "A0 adds no executable guard row and no source/backend changes",
+]
+
+[guard]
+reuse = "Reuse current_state_pointer_guard, chronic_measurement focused tests, and the existing tracked receipt; no new guard_rows entry in A0."
+required = "Closeout records one receipt consumer call, exact 185 coverage, deterministic map hash, reference syntax negatives, unchanged receipt bytes, pointer/tree checks, and no tracked map artifact."
+no_safe_slice = [
+  "validator needs a second receipt parser/scanner or derives expected_source_commit from map input",
+  "map hash requires TOML bytes, unspecified field order, unsorted evidence, or default injection",
+  "partial map is presented as a complete artifact or syntax-only references are claimed resolved",
+]
+
+[closeout]
+status = "pending"
+required = "Record implementation commit and focused evidence, then return the pointer to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop; only that row may authorize real owner-map authoring."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
