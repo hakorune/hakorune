@@ -27,6 +27,7 @@ mod core_method_instance_target;
 mod declared_instance_contract;
 mod declared_query_body_source;
 mod direct_call;
+mod direct_call_inventory_gate;
 mod direct_call_verifier;
 mod enum_match_demand;
 mod enum_variant_demand;
@@ -136,6 +137,7 @@ pub(crate) use direct_call::{
     ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1,
     ResolvedDirectCallVerificationErrorV1,
 };
+pub(crate) use direct_call_inventory_gate::forest_has_unissued_direct_call_observation_v1;
 pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };

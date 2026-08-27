@@ -140,6 +140,7 @@ implementation_status = "landed_fast_bounded_observer; package-terminal ownershi
 implementation_forbidden = "No new AST walk, target issuer, package/loan transport, RawInvocationChildPortV1 change, calls/build.rs change, fallback/retry, Call schema change, or facts-to-target lookup. The next design row must not treat the current duplicate negative checks as a permission to publish a target."
 implementation_allowed_files = [
   "src/mir/resolved_semantics/direct_call.rs",
+  "src/mir/resolved_semantics/direct_call_inventory_gate.rs",
   "src/mir/resolved_semantics/product.rs",
   "src/mir/resolved_semantics/mod.rs",
   "src/mir/resolved_semantics/resolver.rs",
@@ -163,6 +164,7 @@ implementation_allowed_files = [
 ]
 design_files = [
   "src/mir/resolved_semantics/direct_call.rs",
+  "src/mir/resolved_semantics/direct_call_inventory_gate.rs",
   "src/mir/resolved_semantics/product.rs",
   "src/mir/resolved_semantics/resolver.rs",
   "src/mir/resolved_semantics/owner_resolver.rs",
@@ -909,6 +911,7 @@ allowed_files = [
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
   "docs/development/current/main/CURRENT_STATE.toml",
   "src/mir/resolved_semantics/direct_call.rs",
+  "src/mir/resolved_semantics/direct_call_inventory_gate.rs",
   "src/mir/resolved_semantics/product.rs",
   "src/mir/resolved_semantics/mod.rs",
   "src/mir/resolved_semantics/resolver.rs",

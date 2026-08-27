@@ -113,11 +113,12 @@ non_authority = [
 ]
 fail_fast = "If any Function owner in any selected forest contains an unissued direct-call observation, reject before package installation; root-only, nested-only, and mixed-owner cases must agree."
 allowed_files = [
-  "src/mir/resolved_semantics/owner_forest_direct_call_gate.rs (new private helper module)",
+  "src/mir/resolved_semantics/direct_call_inventory_gate.rs (new private helper module)",
   "src/mir/resolved_semantics/mod.rs (module declaration)",
   "src/mir/callable_semantic_batch/issuer.rs (delegate existing check)",
-  "src/mir/normal_callable_semantic_source.rs (delegate existing check)",
+  "src/mir/builder/normal_callable_semantic_source.rs (delegate existing check)",
   "existing resolved-semantics or normal-callable package test files for focused negative coverage",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh (extend existing reusable observer guard)",
 ]
 forbidden_files = [
   "src/mir/builder/calls/build.rs",

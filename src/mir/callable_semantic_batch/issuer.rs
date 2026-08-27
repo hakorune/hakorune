@@ -7,8 +7,8 @@ use crate::mir::compiler::source_projection::{
     SourceNavigationErrorV1, VerifiedSourceProjectionV1,
 };
 use crate::mir::resolved_semantics::{
-    issue_resolved_block_expr_expectation_v1, FunctionSemanticResolverSessionV1,
-    FunctionSyntaxViewV1, ReceiverPolicyV1,
+    forest_has_unissued_direct_call_observation_v1, issue_resolved_block_expr_expectation_v1,
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolvedBlockExpressionExpectationIssueV1, SelectedCallableResolverDeferredBatchV1,
     SelectedCallableResolverInputV1, SemanticOwnerRootProfileV1,
@@ -154,7 +154,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
                 let function = forest
                     .owner(*owner)
                     .ok_or(ResolvedCallableSemanticBatchIssueV1::MissingRoot)?;
-                if function.direct_call_observations().next().is_some() {
+                if forest_has_unissued_direct_call_observation_v1(&forest) {
                     return Err(
                         ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
                     );

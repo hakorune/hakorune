@@ -131,3 +131,33 @@ fn unissued_direct_call_observation_rejects_package_before_install() {
     };
     assert_eq!(reject, ());
 }
+
+#[test]
+fn nested_lambda_direct_call_observation_rejects_package_before_install() {
+    let source = final_source(
+        "function caller() { local f = fn() { return helper() } return 0 }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(97).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        }) => (),
+        other => panic!("expected nested unissued direct-call package terminal, got {other:?}"),
+    };
+    assert_eq!(reject, ());
+}
+
+#[test]
+fn root_and_nested_direct_call_observations_share_one_package_gate() {
+    let source = final_source(
+        "function caller() { local f = fn() { return helper() } return helper() }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(98).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        }) => (),
+        other => panic!("expected mixed-owner package terminal, got {other:?}"),
+    };
+    assert_eq!(reject, ());
+}

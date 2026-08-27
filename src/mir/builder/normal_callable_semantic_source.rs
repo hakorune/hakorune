@@ -5,8 +5,9 @@ use crate::mir::compiler::callable_single_loop_recipe_coseal::VerifiedCallableSi
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    CallableSemanticSourceLedgerView, FunctionOwnerIdV1, FunctionSemanticResolverSessionV1,
-    ResolveSelectedCallableForestsOutcomeV1, VerifiedSemanticOwnerForestV1,
+    forest_has_unissued_direct_call_observation_v1, CallableSemanticSourceLedgerView,
+    FunctionOwnerIdV1, FunctionSemanticResolverSessionV1, ResolveSelectedCallableForestsOutcomeV1,
+    VerifiedSemanticOwnerForestV1,
 };
 
 use super::callable_declaration_catalog::{
@@ -157,11 +158,10 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         if forests.len() != candidates.len() {
             return Err("[freeze:contract][mir/callable-semantic/cardinality]".to_owned());
         }
-        if forests.iter().any(|forest| {
-            forest
-                .owners()
-                .any(|(_, function)| function.direct_call_observations().next().is_some())
-        }) {
+        if forests
+            .iter()
+            .any(forest_has_unissued_direct_call_observation_v1)
+        {
             return Ok(NormalCallableSemanticAdmissionV1::Rejected(
                 NormalCallableSemanticAdmissionRejectV1::UnissuedDirectCallObservation,
             ));

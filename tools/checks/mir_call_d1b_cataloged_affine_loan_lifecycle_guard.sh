@@ -83,7 +83,9 @@ expected_files = {
 }
 if phase == "observer_i0":
     expected_files.update({
+        "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
         "src/mir/resolved_semantics/direct_call.rs",
+        "src/mir/resolved_semantics/direct_call_inventory_gate.rs",
         "src/mir/resolved_semantics/product.rs",
         "src/mir/resolved_semantics/mod.rs",
         "src/mir/resolved_semantics/resolver.rs",
@@ -163,6 +165,17 @@ if phase == "observer_i0":
     source = (mir_root / "builder/normal_callable_semantic_source.rs").read_text()
     if "NormalCallableSemanticAdmissionV1::Rejected" not in source:
         raise SystemExit("package-admission observation terminal is missing")
+    helper = (mir_root / "resolved_semantics/direct_call_inventory_gate.rs").read_text()
+    if ".owners()" not in helper:
+        raise SystemExit("forest-wide observation helper is missing owners() coverage")
+    if "forest.roots()" in helper:
+        raise SystemExit("forest-wide observation helper regressed to roots()")
+    for surface in (
+        mir_root / "callable_semantic_batch/issuer.rs",
+        mir_root / "builder/normal_callable_semantic_source.rs",
+    ):
+        if "forest_has_unissued_direct_call_observation_v1" not in surface.read_text():
+            raise SystemExit(f"forest-wide observation helper is not delegated: {surface}")
     if "direct_call_targets" not in source_text:
         raise SystemExit("direct-call target field census disappeared")
 
