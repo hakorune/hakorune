@@ -92,7 +92,7 @@ resolved = "rc=0 -> failure because the negative blocker disappeared"
 
 [acceptance]
 positive = [
-  "fixed binary and fixture hashes are checked before execution",
+  "fixed target/release/hakorune path and fixture/body hashes are checked before execution",
   "route executes exactly once with explicit no-fallback environment",
   "only the paired diagnostic in one failure window yields ObservedBlocker",
   "successor runs directly and does not depend on phase2160/run_all.sh or chmod",
@@ -139,3 +139,11 @@ reopen_triggers = [
   "diagnostic pair changes or appears in separate output windows only",
   "successor returns to run_all or gains fallback/synthetic/chmod behavior",
 ]
+
+[latest_probe]
+command = "timeout 30s bash tools/smokes/v2/profiles/integration/core/phase2160/hako_mainline_loop_undefined_block_vm.sh"
+observed_rc = 1
+observed_terminal = "WrongFailure"
+observed_marker = "[freeze:contract][mir/instance-constructor-source/cohort-missing]"
+expected_marker = "LowerLoopSimpleBox paired with undefined ValueId/Invalid value"
+disposition = "NoSafeSlice; do not strictify or remove the wrapper edge until the earlier freeze-contract owner is classified or the route is changed by an explicit design decision."
