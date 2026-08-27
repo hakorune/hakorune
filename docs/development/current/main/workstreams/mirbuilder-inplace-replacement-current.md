@@ -1,5 +1,5 @@
 ---
-Status: Design stop — phase2160 hako-mainline RawCompatibility child terminal D0
+Status: Design stop — phase2160 hako-mainline RawCompatibility child terminal D0b
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0b-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -63,7 +63,7 @@ Design-only follow-up:
   authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorはadmission-fate D0で既存RawCompatibilityを選定し、I0でcompatibility admissionを着地した。再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止したため、現在は既存collectorへ子terminalを閉じるD0設計停止である。
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorはadmission-fate D0で既存RawCompatibilityを選定し、I0でcompatibility admissionを着地した。再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。readiness監査で即時/deferred/App Mainのadmissionとsource/symbol lifetimeの未凍結が判明したため、現在はD0b設計停止である。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):
@@ -95,7 +95,8 @@ Design-only follow-up:
   `SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0` ->
   `SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-D0` ->
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0` ->
-  (strict successor re-observation or explicit route retirement) ->
+  `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b` ->
+  (I1 child terminal, then strict successor re-observation or explicit route retirement) ->
   `SMOKE-PHASE2160-AGGREGATE-RETIRE-R0`.
   The other nineteen leaves remain separate design rows (program/EXE, registry, builder, loop, and selfhost families).
   Then

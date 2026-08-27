@@ -174,7 +174,7 @@ evidence = [
 ]
 
 [ordered_followups]
-next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1"
+next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b"
 later = [
   "SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0 reopen only after the route reaches its intended diagnostic boundary",
   "SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0 or explicit route-retirement row",
@@ -187,3 +187,8 @@ reopen_triggers = [
   "target/name/arity reconstruction, fallback, retry, provider, VM, or Wpre re-entry is added",
   "the existing LegacyReplaceWholePair owner cannot provide one-shot atomic publication",
 ]
+
+[amendment]
+row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b"
+reason = "Readiness audit found that immediate/deferred/App Main admission and the symbol/arity/source-context lifetime were not explicit enough to authorize the cross-file I1 implementation."
+status = "CutoverBlockerOpen until D0b is accepted"
