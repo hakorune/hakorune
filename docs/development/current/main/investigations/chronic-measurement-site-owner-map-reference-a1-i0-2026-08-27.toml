@@ -1,0 +1,154 @@
+title = "Chronic measurement site-owner map pinned-reference resolver I0"
+status = "accepted_fast_open"
+observed_commit = "ac7e1db7c0"
+observed_at = "2026-08-27"
+implementation_permission = true
+selected_fast = true
+current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-REFERENCE-A1-I0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "the already-landed site-owner-map validator's syntax/provenance/coverage/hash result and its reviewed tracked-reference fields"
+ends = "one strict validator-family entry point that resolves explicitly pinned Git revisions, tracked blob paths, and allowed anchors with an independent canonical hash golden vector"
+includes = [
+  "explicit repository_root and review_head context",
+  "full lowercase commit validation and ancestor check",
+  "tracked regular-blob lookup at the pinned revision",
+  "1-based inclusive range and exact-one Rust symbol resolution",
+  "typed fail-closed errors carrying the affected reference",
+  "static canonical-JSON/hash golden bytes and digest",
+  "one same-family sibling module while keeping site_owner_map.rs below the 760-line design threshold",
+]
+excludes = [
+  "repairing or rewriting the 697 candidate references",
+  "authoring the tracked 185-row owner map or expectation TSV",
+  "role/successor policy decisions, guard registration, stale-guard supersession, source/allow deletion, or caller-zero claims",
+  "scanner/parser changes, backend/compiler/MIR/VM behavior, network access, or current-HEAD inference",
+]
+
+[brief]
+decision = "Open one bounded BoxCount implementation cell inside the existing site-owner-map validator family. A strict wrapper consumes the existing syntax/provenance result, then resolves only explicit pinned Git references and rejects every ambiguous or unsupported state; it never creates owner policy or silently repairs candidate input."
+source_authority = "The frozen 185-row observation receipt, reviewed matrix references, explicit review_head, and the repository's tracked Git objects at each pinned revision."
+canonical_issuer = "site_owner_map_reference.rs is the sole pinned-reference resolver sibling; site_owner_map.rs remains the schema/coverage/hash orchestrator and the only map result issuer."
+non_authority = [
+  "current HEAD, process cwd, network, grep/substring matches, filename or label inference, short-SHA expansion, path rename repair, and candidate-reference normalization guesses",
+  "the matrix's detailed role labels or prose successor fields as final map policy",
+  "a second scanner, parser, hash implementation, guard manifest, or owner-map artifact",
+]
+fail_fast = "Any invalid/non-commit/non-ancestor revision, missing/non-blob path, non-UTF8 blob, byte anchor, unsupported edge, out-of-range range, missing/ambiguous symbol, or unresolved row reference rejects the strict entry point before a resolved map result is returned."
+smallest_next_slice = "Add the explicit context and strict wrapper, implement the argv-only local Git/blob/anchor resolver in one sibling, add focused positive/negative tests and an independent static golden vector, then run the dedicated Rust test target."
+non_claims = [
+  "does not claim the 697 references are repaired or all ReferenceResolved",
+  "does not author the tracked owner map, expectation TSV, guard row, or retirement decision",
+  "does not alter scanner scope, source files, compiler/MIR/VM/AOT behavior, or public execution routes",
+]
+
+[api]
+context = "SiteOwnerMapReferenceContextV1 { repository_root: &Path, review_head: &str }; both inputs are explicit and non-optional."
+entry = "validate_site_owner_map_toml_with_references_v1(map_input, observation_receipt_input, expected_source_commit, context) -> Result<ChronicSiteOwnerMapV1, ChronicScanErrorV1>"
+order = "strict receipt once -> syntax/provenance/coverage/hash -> unique reference parse -> full commit and ancestor -> tracked regular blob -> exactly one range/symbol/edge anchor -> resolved result"
+old_api = "The syntax-only validator becomes an internal helper; no public syntax-only bypass remains after this cell."
+git_commands = "Use std::process::Command with argv only and git -C repository_root; rev-parse/merge-base/ls-tree/cat-file are the only allowed local queries."
+revision = "Require exactly 40 lowercase hexadecimal characters, commit object kind, and ancestor-of-review_head; never consult current HEAD or expand a short revision."
+path = "Require a tracked regular blob (100644 or 100755) at the pinned revision; reject tree, submodule, symlink, missing, and non-UTF8 content."
+anchors = "range:start-end is 1-based inclusive and in-bounds; symbol:name resolves exactly one Rust item with syn, including qualified impl members; edge:id is typed unsupported unless a concrete unique registration/manifest owner is defined. #byte is never resolved."
+
+[failure_contract]
+variants = [
+  "InvalidReferenceRevision",
+  "ReferenceRevisionNotCommit",
+  "ReferenceRevisionNotAncestor",
+  "ReferenceRepositoryUnavailable",
+  "ReferencePathMissing",
+  "ReferencePathNotBlob",
+  "ReferenceBlobNonUtf8",
+  "ReferenceAnchorUnsupported",
+  "ReferenceRangeOutOfBounds",
+  "ReferenceSymbolMissing",
+  "ReferenceSymbolAmbiguous",
+  "ReferenceEdgeUnsupported",
+  "ReferenceRoleNormalizationMissing",
+  "ReferenceSuccessorNormalizationMissing",
+]
+payload_rule = "Every error includes the affected row/reference and remains a typed ChronicScanErrorV1; no warning/log or fallback path converts failure into acceptance."
+
+[module_budget]
+owner = "Existing rust-source-topology chronic_measurement validator family"
+files = [
+  "src/chronic_measurement/site_owner_map.rs = schema/provenance/coverage/hash orchestration",
+  "src/chronic_measurement/site_owner_map_reference.rs = pinned Git/blob/anchor resolution",
+  "tests/chronic_measurement.rs = focused integration tests",
+  "tests/fixtures/chronic_site_owner_map_hash_golden_v1.toml = independent static golden vector",
+]
+rules = "Do not add a crate, second scanner/parser, duplicate map hash, generic target payload, or guard_rows entry. Split further only if a file would approach 760 lines."
+
+[golden]
+fixture = "tools/checks/rust_source_topology/tests/fixtures/chronic_site_owner_map_hash_golden_v1.toml"
+contract = "The fixture stores a small synthetic canonical JSON byte string/hex and its SHA-256 digest as literal expected values. The expected values are not generated by site_owner_map_hash or the new resolver."
+positive = "The implementation output must match canonical bytes byte-for-byte and then match the independent digest."
+negative = "Changing field order, omission/default behavior, or fixture bytes must fail the golden test."
+
+[tests]
+positive = [
+  "full SHA at review_head resolves to an ancestor commit and a regular tracked blob",
+  "range anchor resolves inside the pinned blob",
+  "bare top-level symbol and qualified impl member resolve exactly once",
+  "strict wrapper returns the same validated map after reference resolution",
+  "independent canonical bytes and SHA-256 golden vector pass",
+]
+negative = [
+  "short/unknown/non-ancestor revision",
+  "missing/tree/submodule/symlink/non-UTF8 path",
+  "zero/reversed/out-of-bounds range",
+  "missing/ambiguous symbol",
+  "#byte and unsupported edge anchor",
+  "current-HEAD or cwd substitution",
+  "old public syntax-only bypass",
+  "tampered golden bytes or digest",
+]
+
+[acceptance]
+positive = [
+  "the strict entry point receives explicit repository_root/review_head and never reads implicit process state",
+  "all Git and anchor failures are typed and fail closed before returning a resolved result",
+  "the implementation lives in one validator-family sibling and site_owner_map.rs remains below 760 lines",
+  "the golden vector uses independent static expected bytes and digest",
+  "existing neutral receipt and syntax/provenance tests remain green",
+]
+negative = [
+  "no candidate reference rewriting, owner-map authoring, expectation pinning, guard registration, or deletion",
+  "no shell/eval/network/current-HEAD fallback or short-SHA auto-repair",
+  "no grep-based symbol/edge inference, byte-anchor grammar extension, or guessed role/successor",
+]
+
+[guard]
+reuse = "Reuse current_state_pointer_guard, git diff --check, the existing chronic receipt/map tests, and the parent validator family; no new executable guard row is added."
+required = "The focused test target must cover the strict wrapper, each finite Git/anchor negative, the old syntax-only bypass removal, and the independent golden vector."
+no_safe_slice = [
+  "the resolver requires a second scanner/parser/hash authority",
+  "repository_root/review_head become optional or current HEAD is consulted",
+  "an unsupported reference is silently repaired or accepted",
+  "site_owner_map.rs would cross the 760-line design threshold",
+  "the implementation attempts to resolve or author the full 185-row map",
+]
+
+[implementation_gate]
+permission = true
+required_before_commit = [
+  "focused Rust tests for positive/negative Git and anchor states plus independent golden pass",
+  "public syntax-only map validation is removed or reduced to an internal helper with no exported bypass",
+  "changed Rust sources remain below 760 lines and no new dependency/guard row is added",
+  "git diff --check and current_state_pointer_guard.sh are green",
+]
+stop_if = [
+  "candidate references need semantic repair rather than typed rejection",
+  "edge anchors require a generic grep resolver",
+  "owner-map/TSV/deletion work becomes necessary to make tests green",
+  "the bounded cell changes compiler/MIR/VM/AOT behavior or execution routes",
+]
+
+[closeout]
+status = "pending"
+required = "Record the implementation commit, focused test command/results, typed negative coverage, golden vector result, changed-file line counts, and explicit proof that owner-map/TSV/guard/deletion boundaries remained untouched."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
