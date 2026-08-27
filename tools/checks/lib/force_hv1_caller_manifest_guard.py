@@ -108,6 +108,9 @@ if state.get("current_execution_row") == "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0":
 if requested_phase == "force_hv1_guard_current_lifecycle":
     row = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0"
     lifecycle_open = state.get("current_execution_row") == row
+    adjacent_owner_pack = (
+        state.get("current_execution_row") == "SMOKE-OWNER-PACK-EXACT-SELECTION-I0"
+    )
     if lifecycle_open:
         if state.get("work_mode") != "fast":
             fail("current lifecycle I0 requires CURRENT_STATE work_mode=fast")
@@ -121,6 +124,24 @@ if requested_phase == "force_hv1_guard_current_lifecycle":
             fail("current lifecycle I0 permission scope is not narrow and explicit")
         if state.get("current_design_stop"):
             fail("current lifecycle I0 fast row must not retain a design stop")
+    elif adjacent_owner_pack:
+        if state.get("work_mode") != "fast":
+            fail("owner-pack adjacent row requires CURRENT_STATE work_mode=fast")
+        if state.get("next_execution_card") != state.get("current_execution_row"):
+            fail("owner-pack adjacent row must be the next execution card")
+        if state.get("current_design_stop"):
+            fail("owner-pack adjacent fast row must not retain a design stop")
+        owner_pack = fate.get("owner_pack_exact_selection_i0")
+        if not isinstance(owner_pack, dict):
+            fail("owner-pack scoped state is missing")
+        if owner_pack.get("status") != "fast_open":
+            fail("owner-pack scoped status is not fast_open")
+        if owner_pack.get("implementation_permission") is not True:
+            fail("owner-pack scoped permission is not set")
+        if owner_pack.get("permission_scope") != (
+            "runner owner-profile seam + phase2050 exact pack; no VM/force/Stage1/Wpre/Call"
+        ):
+            fail("owner-pack scoped permission boundary drifted")
     else:
         if state.get("work_mode") != "design_stop":
             fail("current lifecycle I0 closeout requires design_stop")

@@ -4,13 +4,12 @@ observed_commit = "e3a07434bd"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
-ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 landed: 30 reviewed direct leaves, the stable lifecycle phase, and their phase2047-2050 projections are retired/guarded with residual-zero evidence; zero-match owner packs, PHI/provider exceptions, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
+permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 landed: 30 reviewed direct leaves, the stable lifecycle phase, and their phase2047-2050 projections are retired/guarded with residual-zero evidence; the scoped owner-pack fast row is limited to runner discovery and phase2050 membership; PHI/provider exceptions, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
+next_execution_row = "SMOKE-OWNER-PACK-EXACT-SELECTION-I0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -339,6 +338,7 @@ non_claims = "No strict parser implementation, schema selector code, v2 codec, t
 
 [force_hv1_fate_d0]
 status = "lifecycle_guard_i0_landed"
+owner_pack_exact_selection_i0 = { status = "fast_open", implementation_permission = true, permission_scope = "runner owner-profile seam + phase2050 exact pack; no VM/force/Stage1/Wpre/Call" }
 census_s0_status = "landed"
 census_s0_implementation_permission = false
 direct_historical_delete_r0_status = "landed"

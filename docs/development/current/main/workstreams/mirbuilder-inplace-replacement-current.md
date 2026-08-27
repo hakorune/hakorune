@@ -49,10 +49,11 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `FORCE-HV1-R0A-GUARD-CLOSEOUT-I0` is landed: focused 86/90 census tests, retired-path disjointness, three direct exceptions, and future-row dispatch are green; no production route changed. `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed: explicit phase dispatch, one body-derived summary, registry wiring, and focused tests are green; no production route changed. Next is design-only `SMOKE-OWNER-PACK-ZERO-MATCH-D0`, then Stage1 AOT boundary design and separate PHI/provider R0b fate review.
+  `FORCE-HV1-R0A-GUARD-CLOSEOUT-I0` is landed: focused 86/90 census tests, retired-path disjointness, three direct exceptions, and future-row dispatch are green; no production route changed. `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed: explicit phase dispatch, one body-derived summary, registry wiring, and focused tests are green; no production route changed.
+  The zero-match D0 is accepted and `SMOKE-OWNER-PACK-EXACT-SELECTION-I0` is now the scoped fast row; Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
   `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0a` is landed: 30 direct HistoricalDelete leaves were retired with body hashes and projection updates. The active body-derived inventory is now 86 leaves / 90 lexical sites (direct 3/3, conditional 44/45, explicit-core 35/35, dynamic 4/7). The PHI witness and provider route remain explicit R0b exceptions; legacy non-force residual consumers are still non-authority.
-  R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. Next is the zero-match owner-pack design; R0b and Stage1 fate remain later blockers.
+  R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. The owner-pack exact-selection I0 is now active; R0b and Stage1 fate remain later blockers.
 
 Design-only follow-up:
   force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、
@@ -60,11 +61,11 @@ Design-only follow-up:
   別管理する。旧`hv1 failure -> Core fallback` edge、numeric rc、runtime loop repetitionは
   authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
   task mapへ登録済み。有限phase/summaryを固定する
-  `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。次の設計順は、`quick` 0-matchを証拠にしない
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、その後に post-emission と実行terminalを分離した
-  `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0`。これらは実装許可ではない。
+  `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`も受理済みで、現在はその exact-selection I0だけを実装する。
+  その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
-`SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief:
+`SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):
   Decision: keep `execution_profile=quick` as runtime policy and add an explicit
   `owner_profile=integration` only for exact owner-pack discovery. Reuse the
   existing suite loader; do not create a second filter/glob parser.
@@ -81,7 +82,7 @@ Design-only follow-up:
   Fail-fast boundary: owner-profile vocabulary is closed, cross-profile lookup
   requires `--suite`, every manifest entry resolves exactly once, and partial
   skip/zero match cannot become a passing execution.
-  Ordered tasks: D0 design (this row) -> `SMOKE-OWNER-PACK-EXACT-SELECTION-I0`
+  Ordered tasks: D0 landed -> `SMOKE-OWNER-PACK-EXACT-SELECTION-I0`
   runner seam + one exact phase2050 five-entry pack -> phases2047-2051 packs
   -> phase2100 packs -> reusable structural guard. Then
   `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` (post-emission boundary; issuer VM is
