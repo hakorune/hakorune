@@ -1,5 +1,5 @@
 ---
-Status: Design stop — guard execution index and retirement accounting
+Status: Fast path — guard navigation tombstone validation
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/guard-navigation-tombstone-i0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -52,8 +52,10 @@ Smallest next slice:
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
-  The next design stop is `LEDGER-EXECUTION-INDEX-D0`; no source or guard
-  deletion is implied by the ratchet.
+  `GUARD-NAVIGATION-TOMBSTONE-I0` is the selected bounded follow-up: keep the
+  compatibility block byte-stable, validate four explicit tombstones through the
+  same inventory owner, and report live/tombstoned/dangling names. No source or
+  guard deletion is implied.
   D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 froze phase2160-only Retire/Frozen through one private typed scope: issuer at program_root_lowering.rs:321-326, F take after App-before-register, I/H take before prefix, and Box-precheck snapshot delta=0.
   I0 landed at 7167aee18e: the phase2160 scope now retires F/I/H before effects, the four contracts are typed negatives, generic RawInvocation has an explicit unarmed success parity, and one reusable guard is registered. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.
   D0a is complete at e51dab7212 and C I0 landed at 2f11fbf3ef. The shared child dispatcher now queries a zero-payload two-state RawLegacy policy once and retires only C before helper/prepare effects. G/J, non-Box, Root I1, RawInvocation, and explicit root compatibility remain unchanged. The next selected design frontier is the parked guard execution/index and retirement-accounting row.
@@ -637,7 +639,7 @@ authorizes code until `CURRENT_STATE.toml` selects it.
    finite clone/env census first; only then consider a session snapshot or lazy
    clone removal. Keep this separate from semantic Call and reference transport.
 
-## Parked guard contract and retirement queue (2026-08-27)
+## Guard contract and retirement queue (2026-08-27)
 
 This is the sole successor queue for the existing
 `GUARD-SURFACE-CONSOLIDATION-D0`; do not create one card or shell guard per
@@ -646,9 +648,9 @@ finding. It does not preempt the selected force-hv1 design stop.
 The 2026-08-27 audit's three hygiene findings and the phase2160 accounting
 correction are taskized in
 `docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml`.
-They remain parked behind the current guard execution/index design stop; the
-RawLegacy C I0 itself is landed. The order is
-contract-graph freeze -> existing inventory-row ledger check -> chronic
+The RawLegacy C I0 itself is landed. The selected bounded order is
+contract-graph freeze -> existing inventory-row ledger check -> navigation
+tombstones -> chronic
 dead_code/panic remeasure -> one scope-labeled expectation TSV -> closeout
 guard co-registration -> phase2160 legacy/support LOC attribution. The
 force-hv1 leaf observer stays shell-body-only, no new force-specific TSV or
@@ -675,8 +677,9 @@ Non-authority: raw LOC, filename prefixes, profile names, the hand-written index
 Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
-Smallest next slice: GUARD-CONTRACT-GRAPH-D0, then a structure-only registry
-  ratchet which executes no member guard.
+Smallest next slice: GUARD-NAVIGATION-TOMBSTONE-I0, a current-only navigation
+  tombstone check through the existing inventory owner; it executes no member
+  guard.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```
@@ -707,33 +710,37 @@ Required order:
    `ci_feedback_tier_policy_guard.sh`, rejects new unmapped public guards
    against an explicit PR base, and wires only this structure check to required
    PR CI. It does not run registry member commands or infer `HEAD^`.
-3. `DEAD-CODE-REMEASURE-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
+3. `GUARD-NAVIGATION-TOMBSTONE-I0` — keep the compatibility block byte-stable,
+   add four owner-reviewed tombstones, and make the existing inventory owner
+   reject missing/duplicate/conflicting navigation names. It is current-only,
+   does not enter `guard_rows.toml`, and executes no member guard.
+4. `DEAD-CODE-REMEASURE-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
    `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive
    attribute grammar currently observes 351/126 and is the required D0 scope.
    Remove the 13 obsolete source-wide numeric clauses rather than relaxing them;
    retain living leaf checks, and explicitly supersede ASTCLEAN-007 by
    ASTCLEAN-013 before deleting 007.
-4. `GUARD-MANIFEST-MODEL-R0` -> `GUARD-REGISTRY-HEALTH-R0` — BoxShape-consolidate
+5. `GUARD-MANIFEST-MODEL-R0` -> `GUARD-REGISTRY-HEALTH-R0` — BoxShape-consolidate
    manifest loading, define argv-derived executable semantics, and classify the
    44 non-manifest hako-alloc closeout wrappers as register, consolidate, retire,
    or retain. No mass chmod follows from the current 0644 baseline.
-5. `GUARD-REVERSE-INDEX-I0` — extend
+6. `GUARD-REVERSE-INDEX-I0` — extend
    `tools/docs/guard_surface_inventory.py` with guard/invariant/path queries and
    forward/reverse edge checks. Migrate two existing rows first. Keep
    `check-scripts-index.md` human-facing and keep its legacy compatibility block
    byte-stable until its callers reach zero.
-6. `SOURCE-LINE-BUDGET-CENSUS-D0` -> `SOURCE-LINE-BUDGET-SPEC-I0` — rederive
+7. `SOURCE-LINE-BUDGET-CENSUS-D0` -> `SOURCE-LINE-BUDGET-SPEC-I0` — rederive
    target, threshold, kind, and focused caller group; do not freeze the stale
    estimate of 77 guards. Move one MIRBuilder family to the existing typed-spec
    runner, then make old focused guards delegate exactly once before removing
    their inline `wc`/threshold authority.
-7. `GUARD-FAMILY-RETIREMENT-R0` — process bounded families only. A guard may be
+8. `GUARD-FAMILY-RETIREMENT-R0` — process bounded families only. A guard may be
    removed when its invariant is owned by a named successor or the guarded route
    is physically impossible, all CI/manifest/parent/docs callers are zero, and
    the supersede/retirement edge is recorded. Otherwise it remains
    `unknown_retain`; inactivity and non-registration are not deletion evidence.
-8. `QUICK-STATIC-QUALIFY-D0/I0` — finite-classify all 19 rows for side effects,
+9. `QUICK-STATIC-QUALIFY-D0/I0` — finite-classify all 19 rows for side effects,
    latency, and current green status. Only after qualification may the existing
    anti-wiring contract close and the whole profile become a CI entry.
 

@@ -1,0 +1,173 @@
+title = "Guard navigation tombstone validation I0"
+status = "accepted_design_parked"
+observed_commit = "f120eca539"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "GUARD-NAVIGATION-TOMBSTONE-I0"
+parent_row = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
+successor_card = "GUARD-NAVIGATION-TOMBSTONE-I0-CLOSEOUT"
+
+[boundary]
+starts = "the accepted two-plane guard graph and the existing check-scripts-index.md compatibility block"
+ends = "one current-only, fail-closed validation that every legacy compatibility name resolves to a tracked public path or an explicit tombstone"
+includes = [
+  "the exact legacy-guard-name-compat-begin/end block in docs/tools/check-scripts-index.md",
+  "four observed missing navigation names and their owner-reviewed successor/revision evidence",
+  "a non-execution tombstone manifest under tools/checks/manifests/",
+  "guard_manifest_inventory.py navigation validation reused by the registered registry-ratchet row",
+  "one short index pointer outside the compatibility block and owner-doc superseded_by notes",
+]
+excludes = [
+  "editing or reformatting the 2,000+ line compatibility block",
+  "adding tombstones to guard_rows.toml or making navigation a member-guard execution edge",
+  "running member guards, changing CI profiles, compiling Rust, or changing compiler/backend behavior",
+  "restoring deleted guard files, guessing a successor, or treating historical fixture text as a live caller",
+  "source-code or guard deletion; those require a later caller-zero/retirement row",
+]
+
+[brief]
+decision = "Keep the human compatibility block byte-stable and make its four known dangling names explicit typed tombstones. Reuse guard_manifest_inventory.py in current-only navigation mode; a name is terminal only when it is a tracked public path or has exactly one complete tombstone with owner, reason, observed revision, successor, and reopen trigger. Do not add a new execution row or execute member guards."
+source_authority = "The tracked compatibility block is the finite navigation input; git-tracked paths and git-resolvable observed revisions provide facts; the owner SSOT named by each tombstone provides the disposition reason and successor."
+canonical_issuer = "guard_manifest_inventory.py issues NavigationLive or NavigationTombstoned for the current tree; the tombstone manifest owns only navigation evidence and is not an execution manifest."
+non_authority = [
+  "filename prefixes, stale index prose outside the compatibility block, guard profile declarations, grep-only historical references, executable mode alone, or a missing path silently treated as retired",
+  "the old comma-splitting helper in tools/docs/guard_surface_inventory.py; it is an observation aid and is not promoted to authority by this row",
+  "a successor name or owner inferred from a rename without a checked-in revision and explicit reopen trigger",
+]
+fail_fast = "Missing block markers, malformed or duplicate tombstones, a tombstone for a live/unlisted path, missing required evidence, an unresolvable observed revision/successor, or any compatibility name lacking exactly one live path or tombstone fails before member guards execute."
+smallest_next_slice = "Add the four-row navigation tombstone manifest, extend the existing registry-ratchet inventory command with a robust compatibility-block tokenizer and current-only tombstone validation, add one pointer line outside the block, and record superseded_by on the two renamed perf owner rows."
+non_claims = [
+  "does not claim full guard registry coverage or authorize deletion of the 2,646 currently unmapped public guards",
+  "does not make check-scripts-index.md an execution authority or require navigation names to be registered guard rows",
+  "does not claim any compiler/MIR/VM/AOT retirement, caller-zero result, or semantic equivalence",
+  "does not repair the non-authoritative comma-splitting inventory helper or alter the compatibility block bytes",
+]
+
+[census]
+boundary = "legacy-guard-name-compat-begin marker -> legacy-guard-name-compat-end marker; include non-wildcard tools/checks/* names in that block; exclude wildcard entries, prose outside the block, and nested implementation paths"
+observed_unique_names = 2053
+observed_live_paths = 2049
+observed_tombstones = 4
+observed_dangling = 4
+observed_revision = "f120eca539"
+
+[contract]
+manifest_path = "tools/checks/manifests/guard_navigation_tombstones.toml"
+manifest_role = "navigation evidence only; do not include in guard_rows.toml or execute its rows"
+schema = "schema_version = 0 with [[tombstones]] rows; each row requires path, owner, disposition=superseded, reason, observed_revision, successor, and reopen_trigger"
+tokenizer = "Extract exact tools/checks/<non-whitespace/non-comma token> strings only between the compatibility markers; reject missing/duplicate markers and wildcard tokens are excluded from the finite set."
+resolution = "A compatibility name is valid when exactly one of tracked live path or tombstone row exists. A tombstone path must be absent from the current tree; its successor must be tracked and not tombstoned."
+revision = "observed_revision must resolve to a git commit; the revision is evidence of the observed deletion/rename, not a current execution base"
+execution = "The existing guard-manifest-inventory registry-ratchet command may inspect the index, tombstone TOML, and git tree only. It must not invoke member guard commands or Cargo."
+
+[finite_state]
+states = [
+  "NavigationLive",
+  "NavigationTombstoned",
+  "MissingUnclassified",
+  "LiveAndTombstoned",
+  "TombstoneDuplicate",
+  "OwnerMissing",
+  "RevisionMissing",
+  "SuccessorMissing",
+  "ReopenMissing",
+  "ExecutableCallerReappeared",
+]
+terminal = ["NavigationLive", "NavigationTombstoned"]
+blocking = [
+  "MissingUnclassified",
+  "LiveAndTombstoned",
+  "TombstoneDuplicate",
+  "OwnerMissing",
+  "RevisionMissing",
+  "SuccessorMissing",
+  "ReopenMissing",
+  "ExecutableCallerReappeared",
+]
+
+[tombstone_rows]
+paths = [
+  "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_registry_exact_top_symbol_variability_guard.sh",
+  "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability_guard.sh",
+  "tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh",
+  "tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_token_snapshot_hako_adoption_decision_guard.sh",
+]
+owners = [
+  "docs/development/current/main/design/perf-userbox-link-startup-attribution-ssot.md#PERF-USERBOX-030",
+  "docs/development/current/main/design/perf-userbox-link-startup-attribution-ssot.md#PERF-USERBOX-035",
+  "docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md; docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md",
+  "docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md; docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md",
+]
+successors = [
+  "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability_guard.sh",
+  "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_subkind_variability_guard.sh",
+  "tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh",
+  "tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh",
+]
+observed_revisions = [
+  "80e3d755d6d264c21517823529c89c7097661122",
+  "1b5edd7eec3d6706fb9218d1ec3b284ea67523fa",
+  "13ca2339a3d51dd0d4316913a522b81536449066",
+  "13ca2339a3d51dd0d4316913a522b81536449066",
+]
+
+[task_steps]
+items = [
+  "1. Add the four explicit superseded rows to tools/checks/manifests/guard_navigation_tombstones.toml; keep fields private to the navigation validator and do not register the manifest as an executable guard.",
+  "2. Extend guard_manifest_inventory.py with robust marker-bounded token extraction and complete tombstone validation. Report compatibility, live, tombstoned, and dangling counts; reject every incomplete or conflicting state.",
+  "3. Reuse the existing --registry-ratchet row in current-only mode for navigation validation. Preserve explicit --base comparison as an execution-plane-only ratchet and do not load a base tombstone manifest.",
+  "4. Add one short pointer outside the compatibility block in docs/tools/check-scripts-index.md, preserving the block byte-for-byte. Add superseded_by notes for PERF-USERBOX-029 -> 030 and PERF-USERBOX-034 -> 035 in the owner SSOT.",
+  "5. Run Python syntax checks, the absolute inventory, the registered L0 comparative ratchet, and the existing CI feedback-tier row. Record that no member guard or Cargo command ran.",
+  "6. Close the card only after the four-name census reports live=2049, tombstoned=4, dangling=0 and the current pointer/workstream return to the next design stop.",
+]
+
+[acceptance]
+positive = [
+  "all four observed names resolve to exactly one complete tombstone and every tombstone successor is tracked",
+  "the compatibility block remains byte-stable and a pointer outside it names the tombstone manifest/validator",
+  "current navigation output reports 2,053 names, 2,049 live paths, 4 tombstones, and 0 dangling names",
+  "missing/duplicate markers, duplicate tombstones, live+tombstoned conflicts, missing owner/revision/successor/reopen, and untracked successors fail closed",
+  "the existing registry-ratchet and CI feedback-tier rows remain registered; no new member execution row is added",
+]
+negative = [
+  "no deleted guard is recreated merely to satisfy the index",
+  "no historical grep hit or wildcard entry is treated as a live path",
+  "no navigation tombstone is used as a compiler/backend/source retirement proof",
+  "no base comparison is claimed for navigation and no member guard/Cargo command runs",
+]
+
+[guard]
+reuse = "guard-manifest-inventory.py --registry-ratchet through the existing guard-manifest-inventory row; no new shell guard"
+required = "Navigation validation is current-only and structure-only. The execution-plane base ratchet remains explicit and separate."
+no_safe_slice = [
+  "the compatibility block cannot be tokenized without editing its bytes or guessing prose ownership",
+  "a missing path has no owner-reviewed successor/revision/reopen evidence",
+  "navigation validation would need to execute a member guard or alter guard_rows.toml reachability",
+  "the same tombstone row would be used as a semantic retirement receipt",
+]
+
+[reopen]
+triggers = [
+  "the compatibility block markers or token grammar change",
+  "a new edge kind is needed beyond live path/tombstone navigation resolution",
+  "a tombstoned name reappears as an executable tracked path",
+  "an owner wants to reopen a name without a new explicit successor/revision/reopen decision",
+]
+
+[worker_receipt]
+agent = "guard_index_spec_audit"
+status = "accepted_with_amendments"
+finding = "The four missing names are explicit historical supersessions, not live callers. Reuse the existing inventory owner with a non-execution tombstone manifest and robust marker-bounded tokenizer; do not promote the comma-splitting helper or edit the huge compatibility block."
+evidence = [
+  "docs/tools/check-scripts-index.md compatibility markers and four absent paths",
+  "tools/docs/guard_surface_inventory.py index_sources() comma-splitting observation aid",
+  "git history 80e3d755d6d264c21517823529c89c7097661122, 1b5edd7eec3d6706fb9218d1ec3b284ea67523fa, and 13ca2339a3d51dd0d4316913a522b81536449066",
+  "current HEAD f120eca539 and tracked successor paths",
+]
+latest_finding = "Navigation has four dangling names out of 2,053 non-wildcard compatibility tokens; 2,049 resolve to live tracked paths. All four can be tombstoned with owner/reason/revision/successor/reopen evidence, and no executable/CI/smoke caller remains."
+
+[closeout]
+status = "pending"
+focused_guard = []
+focused_evidence = []
+closeout_notes = "Do not claim source or guard deletion. Record only navigation resolution, current-only counts, and member-execution exclusion."
