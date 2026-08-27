@@ -680,9 +680,9 @@ Non-authority: raw LOC, filename prefixes, profile names, the hand-written index
 Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
-Smallest next slice: CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0;
-  preserve sixty-seven exact RetainNamed bindings, carry seven candidate joins as non-authoritative;
-  resolve the five grouped variable/source-entry blockers; no conditional blockers, policy-ready 67/79 before map/deletion.
+Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0;
+  consume A=79/79 policy-ready, then bind six B successor blockers and 100 C mixed-role blockers;
+  keep owner-map, expectation, guard, and source deletion closed until the 185-row matrix is exact.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

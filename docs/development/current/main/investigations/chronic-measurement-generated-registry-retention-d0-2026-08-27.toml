@@ -1,6 +1,6 @@
 title = "Chronic measurement generated registry retention D0"
-status = "accepted_design_no_safe_slice"
-observed_commit = "8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7"
+status = "accepted_design_ready_for_parent"
+observed_commit = "30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
@@ -34,7 +34,7 @@ non_authority = [
   "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
 ]
 fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner/evidence, explicit policy or successor basis, or if a uniform policy is asserted across mixed modules without row-level proof."
-smallest_next_slice = "Resolve four grouped fate tasks: Generic-G0 six-row policy, recursive callable plan policy, variable-accum pair fate, and source-entry legacy projection trio fate; then reopen the owner map. No code, guard, expectation, or deletion work is authorized in this design stop."
+smallest_next_slice = "A cohort is policy-ready at 79/79. Continue design-only B/C site-owner evidence review; the parent owner-map remains closed until the six B successor blockers and one-hundred mixed-role rows receive exact policies."
 non_claims = [
   "does not claim generated modules are dead or live",
   "does not create a successor, expectation pin, guard row, or deletion authorization",
@@ -42,8 +42,8 @@ non_claims = [
 ]
 
 [census]
-status = "bound_blocked"
-observed_commit = "8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7"
+status = "policy_ready_for_parent"
+observed_commit = "30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d"
 source_snapshot_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
 receipt_rows = 79
 allowance_byte_range_matches = 79
@@ -59,21 +59,13 @@ nested_mod_names = [
   "generic_g0_projection",
   "normal_source_plan",
 ]
-policy_ready_rows = 67
-blocked_rows = 12
+policy_ready_rows = 79
+blocked_rows = 0
 tracked_exact_path_references = 79
 unresolved_exact_path_rows = 0
 policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
-result = "all 79 rows are structurally bound; sixty-seven rows have reviewed RetainNamed policies, seven rows remain candidate-only, and five rows are explicitly blocked on variable-accum/source-entry family fate; no conditional rows remain blocked; unresolved rows stay non-authoritative before owner-map authoring"
-explicit_policy_candidate_rows = [
-  "29:generic_g0_source_parent",
-  "30:generic_g0_storage_lane_source",
-  "31:generic_g0_physical_function_entry_input",
-  "32:generic_g0_function_effect",
-  "33:generic_g0_completion",
-  "34:generic_g0_result_abi",
-  "61:recursive_callable_module_plan",
-]
+result = "all 79 rows are structurally bound and policy-ready: every row has an exact RetainNamed policy or named successor with pinned evidence and reopen conditions; no A candidate, conditional, or successor blocker remains. Parent owner-map authoring is still governed by the unresolved B/C matrix rows."
+explicit_policy_candidate_rows = []
 conditional_candidate_rows = []
 explicit_policy_ready_rows = [
   "1:a_prime_i64_physical_capability",
@@ -104,6 +96,12 @@ explicit_policy_ready_rows = [
   "26:dynamic_full_body_source",
   "27:external_commit",
   "28:generic_g0_projection",
+  "29:generic_g0_source_parent",
+  "30:generic_g0_storage_lane_source",
+  "31:generic_g0_physical_function_entry_input",
+  "32:generic_g0_function_effect",
+  "33:generic_g0_completion",
+  "34:generic_g0_result_abi",
   "35:located",
   "36:loop_cond_break_continue_projection",
   "37:loop_true_break_continue_projection",
@@ -114,6 +112,8 @@ explicit_policy_ready_rows = [
   "42:nested_predicate_projection",
   "43:nested_predicate_source_handoff",
   "44:nested_predicate_topology",
+  "45:variable_accum_break_projection",
+  "46:variable_accum_recurrence_projection",
   "47:nested_predicate_profile",
   "48:normal_source_plan",
   "49:raw_root_callable_main",
@@ -128,6 +128,7 @@ explicit_policy_ready_rows = [
   "58:raw_root_package",
   "59:raw_runtime_inputs",
   "60:raw_source_binding",
+  "61:recursive_callable_module_plan",
   "62:resolved_callable_module",
   "63:resolved_callable_module_preflight",
   "64:resolved_direct_accum_cutover",
@@ -135,22 +136,19 @@ explicit_policy_ready_rows = [
   "66:source_bound_package",
   "67:source_bound_plan",
   "68:source_entry_ny_main",
+  "69:source_entry_physical",
+  "70:source_entry_projection",
   "71:source_entry_published_invocation",
   "72:source_entry_reference",
   "73:source_entry_result",
   "74:source_entry_selection",
+  "75:source_entry_thunk",
   "76:source_entry_vm_invocation",
   "77:source_entry_vm_reference",
   "78:source_projection",
   "79:source_view",
 ]
-explicit_policy_blocked_rows = [
-  "45:variable_accum_break_projection",
-  "46:variable_accum_recurrence_projection",
-  "69:source_entry_physical",
-  "70:source_entry_projection",
-  "75:source_entry_thunk",
-]
+explicit_policy_blocked_rows = []
 conditional_policy_accept_rows = 5
 conditional_policy_blocked_rows = 0
 unresolved_rows = 0
@@ -160,7 +158,7 @@ status = "all_accepted"
 rows = 5
 accepted_rows = 5
 blocked_rows = 0
-decision = "All five conditional rows have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. Their retention is bounded by named owner policy; the seven Generic-G0/recursive rows remain candidate-only, and five variable/source-entry legacy projection rows remain explicitly blocked on family fate."
+decision = "All five conditional rows have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. The complete A cohort now has 79 policy-ready rows; parent matrix B/C work remains separate."
 items = []
 accepted_items = [
   "25:dynamic_full_body_recipe; RetainNamed owner=src/mir/compiler/dynamic_full_body_recipe/mod.rs; reopen on non-test consumer zero or replacement owner",
@@ -173,23 +171,18 @@ next_tasks = []
 binding_rule = "Each conditional row has an exact canonical key, declaration path, independently reviewable owner evidence, explicit RetainNamed policy, and reopen trigger; no conditional row uses a guessed successor or default retention."
 
 [unresolved_review]
-status = "a_policy_partial_candidate_and_grouped_blockers_remaining"
-rows = 12
-policy_ready_rows = 67
-candidate_only_rows = 7
-blocked_rows = 5
-role_group_count = 4
-partition_counts = "generic_g0=6; recursive=1; variable_accum=2; source_entry_legacy_projection=3"
-scope = "A-cohort residual review only; all 79 rows have structural owners/evidence, but candidate and blocked fate is not owner-map authority"
-next_task = "Resolve the four grouped fate tasks below, then reopen CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0; do not create per-row cards."
+status = "a_policy_ready_parent_matrix_remaining"
+rows = 0
+policy_ready_rows = 79
+candidate_only_rows = 0
+blocked_rows = 0
+role_group_count = 0
+partition_counts = "generic_g0=0; recursive=0; variable_accum=0; source_entry_legacy_projection=0"
+scope = "A-cohort review only; all 79 A rows are policy-ready, while the parent 185-row matrix still has B/C evidence blockers"
+next_task = "Continue CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0 for the remaining six B successor blockers and one-hundred mixed-role rows; do not author the global owner map yet."
 canonical_key = "dead_code_allowance + src/mir/compiler/module_registry.in.rs + byte_start + byte_end + outer_allow"
-decision = "Sixty-seven exact rows have RetainNamed bindings with reopen triggers. Seven A rows carry candidate owner/evidence only and remain non-authoritative; five variable/source-entry legacy projection rows are explicitly blocked until family fate is decided."
-grouped_next_tasks = [
-  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: bind exact-key policy for the six prephysical rows",
-  "RESOLVED-CALLABLE-RECURSIVE-PLAN-FATE-D0: bind exact-key policy for recursive_callable_module_plan",
-  "VARIABLE-ACCUM-SOURCE-PROJECTION-FATE-D0: keep break/recurrence projections grouped until an exact successor or TestReference decision lands",
-  "SOURCE-ENTRY-LEGACY-PROJECTION-FATE-D0: decide RetainNamed or named successor for physical/projection/thunk before deletion",
-]
+decision = "All 79 A rows now have exact policy bindings. The generated-registry retention row closes here; parent matrix B/C rows remain outside this card."
+grouped_next_tasks = []
 completed_grouped_tasks = [
   "A-CORE-GENERATED-REGISTRY-FATE-D0: eight exact RetainNamed bindings accepted",
   "RESOLVED-CALLABLE-TOPOLOGY-GENERATED-REGISTRY-FATE-D0: four topology rows accepted under callable graph owners",
@@ -197,7 +190,9 @@ completed_grouped_tasks = [
   "DIRECT-ACCUM-AND-RESOLVED-GENERATED-REGISTRY-FATE-D0: four DirectAccum, normal source plan, and four resolved rows accepted",
   "NESTED-SOURCE-NAVIGATION-GENERATED-REGISTRY-FATE-D0: located, nested-predicate, and source-projection rows accepted",
   "RAW-REFERENCE-GENERATED-REGISTRY-FATE-D0: raw/reference rows accepted under explicit Raw owner boundaries",
-  "VARIABLE-ACCUM-SOURCE-PROJECTION-FATE-D0: two rows remain grouped blocked_successor",
+  "GENERIC-G0-AND-RECURSIVE-GENERATED-REGISTRY-FATE-D0: six Generic-G0 rows and recursive plan accepted with distinct non-test boundary",
+  "VARIABLE-ACCUM-TEST-REFERENCE-FATE-D0: two rows accepted as TestReference RetainNamed; no M8/M9 production successor claimed",
+  "SOURCE-ENTRY-LEGACY-PROJECTION-FATE-D0: three legacy rows mapped to already-landed named successors",
 ]
 
 [policy_binding_a_core]
@@ -620,59 +615,129 @@ binding_rule = "canonical keys, owner references, and evidence references are gr
 reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
 non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
 
+[policy_binding_generic_g0]
+status = "reviewed_ready_for_map"
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2865|2884|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2934|2953|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3009|3028|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3389|3408|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3460|3479|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3526|3545|outer_allow",
+]
+disposition = "RetainNamed"
+policy_owner_refs = [
+  "src/mir/compiler/generic_g0_source_parent.rs#symbol:issue_generic_g0_source_parent_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_storage_lane_source.rs#symbol:issue_generic_g0_storage_lane_source_projection_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_physical_function_entry_input.rs#symbol:issue_generic_g0_physical_function_entry_input_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_function_effect.rs#symbol:issue_generic_g0_no_external_effect_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_completion.rs#symbol:issue_generic_g0_completion_transport_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_result_abi.rs#symbol:issue_generic_g0_result_abi_transport_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+]
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/generic_g0_source_parent.rs#symbol:issue_generic_g0_source_parent_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_source_parent.rs#range:288-357@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_physical_operation_cohort.rs#range:171-179@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_storage_lane_source.rs#symbol:issue_generic_g0_storage_lane_source_projection_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_storage_lane_source.rs#range:177-325@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_source_parent.rs#range:329-336@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_physical_function_entry_input.rs#symbol:issue_generic_g0_physical_function_entry_input_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_physical_function_entry_input.rs#range:129-268@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_physical_operation_cohort/emitter_admission.rs#range:282-286@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_function_effect.rs#symbol:issue_generic_g0_no_external_effect_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_function_effect.rs#range:90-204@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_source_parent.rs#range:316-322@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_completion.rs#symbol:issue_generic_g0_completion_transport_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_completion.rs#range:29-62@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_source_parent.rs#range:314-315@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_result_abi.rs#symbol:issue_generic_g0_result_abi_transport_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_result_abi.rs#range:65-115@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/generic_g0_source_parent.rs#range:308-313@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+]
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
+
+[policy_binding_recursive_callable]
+status = "reviewed_ready_for_map"
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7167|7186|outer_allow",
+]
+disposition = "RetainNamed"
+policy_owner_refs = [
+  "src/mir/compiler/recursive_callable_module_plan.rs#symbol:VerifiedRecursiveCallableModulePlanV1::verify@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+]
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/recursive_callable_module_plan.rs#symbol:VerifiedRecursiveCallableModulePlanV1::verify@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/recursive_callable_module_plan.rs#range:55-120@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/mod.rs#range:478-507@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+]
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
+
 [policy_binding_variable_accum]
-status = "blocked_successor"
+status = "reviewed_ready_for_map"
 canonical_keys = [
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4918|4937|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4994|5013|outer_allow",
 ]
-disposition = "BlockedSuccessor"
-policy_owner_refs = []
-candidate_owner_refs = [
-  "src/mir/compiler/variable_accum_break_projection.rs#symbol:issue_variable_accum_break_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
-  "src/mir/compiler/variable_accum_recurrence_projection.rs#symbol:issue_variable_accum_recurrence_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+disposition = "RetainNamed"
+policy_owner_refs = [
+  "src/mir/compiler/variable_accum_break_projection.rs#symbol:issue_variable_accum_break_source_attempt_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#symbol:issue_variable_accum_recurrence_source_attempt_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
 ]
-successor_ref = "unknown"
+successor_ref = "none_required"
 evidence_refs = [
-  "src/mir/compiler/variable_accum_break_projection.rs#symbol:issue_variable_accum_break_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
-  "src/mir/compiler/variable_accum_break_projection.rs#range:1-74@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
-  "src/mir/compiler/variable_accum_break_projection.rs#range:154-328@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
-  "src/mir/compiler/variable_accum_recurrence_projection.rs#symbol:issue_variable_accum_recurrence_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
-  "src/mir/compiler/variable_accum_recurrence_projection.rs#range:1-74@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
-  "src/mir/compiler/variable_accum_recurrence_projection.rs#range:150-287@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_break_projection.rs#symbol:issue_variable_accum_break_source_attempt_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/variable_accum_break_projection.rs#range:154-328@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/variable_accum_break_projection_tests.rs#range:116-216@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#symbol:issue_variable_accum_recurrence_source_attempt_v1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#range:150-287@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/variable_accum_recurrence_projection_tests.rs#range:173-394@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
 ]
 binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
-reopen_trigger = "Reopen when an exact successor or explicit named retention owner is reviewed; until then this group is not owner-map authority."
-non_claims = "Candidate owners are evidence only; this blocked group does not authorize RetainNamed, successor_status=not_required, source deletion, allow removal, expectation/guard changes, or production changes."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
 
 [policy_binding_source_entry_legacy_projection]
-status = "blocked_successor"
+status = "reviewed_ready_for_map"
 canonical_keys = [
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7787|7806|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7853|7872|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|8197|8216|outer_allow",
 ]
-disposition = "BlockedSuccessor"
-policy_owner_refs = []
-candidate_owner_refs = [
-  "src/mir/compiler/source_entry_physical.rs#symbol:CompletedSourceEntryV1::into_physical@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_projection.rs#symbol:PhysicalSourceEntryCarrierV1::prepare_process_projection@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_thunk.rs#symbol:SelectedSourceEntryV1::begin_thunk@1a1e00d126be4be527a89c94030b1058cd31691b",
+disposition = "NamedSuccessor"
+policy_owner_refs = [
+  "src/mir/compiler/source_entry_physical.rs#symbol:CompletedSourceEntryV1::into_physical@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_projection.rs#symbol:PhysicalSourceEntryCarrierV1::prepare_process_projection@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_thunk.rs#symbol:SelectedSourceEntryV1::begin_thunk@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
 ]
-successor_ref = "unknown"
+successor_ref = "required"
+successor_refs = [
+  "src/mir/compiler/source_entry_published_invocation.rs#symbol:PublishedSourceEntryInvocationV1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_result.rs#symbol:ProcessExitProjectionV1::project_canonical@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_selection.rs#symbol:SelectedSourceEntryContinuationV1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+]
 evidence_refs = [
-  "src/mir/compiler/source_entry_physical.rs#symbol:CompletedSourceEntryV1::into_physical@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_thunk.rs#range:11-65@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_physical.rs#range:12-52@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_projection.rs#symbol:PhysicalSourceEntryCarrierV1::prepare_process_projection@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_projection.rs#range:10-97@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_thunk.rs#symbol:SelectedSourceEntryV1::begin_thunk@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_thunk.rs#range:11-65@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_vm_reference_p0.rs#range:11-22@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_physical.rs#symbol:CompletedSourceEntryV1::into_physical@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_physical.rs#range:12-52@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_published_invocation.rs#range:119-148@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_projection.rs#symbol:PhysicalSourceEntryCarrierV1::prepare_process_projection@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_projection.rs#range:42-61@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_result.rs#range:224-275@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_thunk.rs#symbol:SelectedSourceEntryV1::begin_thunk@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_thunk.rs#range:11-65@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_selection.rs#range:18-70@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_published_invocation.rs#symbol:PublishedSourceEntryInvocationV1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_result.rs#symbol:ProcessExitProjectionV1::project_canonical@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
+  "src/mir/compiler/source_entry_selection.rs#symbol:SelectedSourceEntryContinuationV1@30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d",
 ]
-binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
-reopen_trigger = "Reopen when an exact successor or explicit named retention owner is reviewed; until then this group is not owner-map authority."
-non_claims = "Candidate owners are evidence only; this blocked group does not authorize RetainNamed, successor_status=not_required, source deletion, allow removal, expectation/guard changes, or production changes."
+binding_rule = "Each legacy key names its retiring owner and an already-landed successor; no successor is inferred from a filename or test absence."
+reopen_trigger = "Reopen if the named successor is retired or the old projection regains a non-test caller; current live continuation remains owned by the successor."
+non_claims = "This binding does not authorize deletion of the successor, broad VM retirement, allow removal, expectation/guard changes, or fallback/retry changes."
 
 [cohort]
 name = "A_generated_registry"
@@ -715,23 +780,23 @@ blocking = [
 items = [
   "1. Bind exactly the 79 A rows from the validated receipt; preserve byte-range identity and do not regenerate scanner output.",
   "2. Confirm module_registry.in.rs and compiler/mod.rs as topology owner evidence without treating the include as retention policy.",
-  "3. Preserve sixty-seven exact RetainNamed bindings with current owner/evidence references and explicit reopen triggers.",
-  "4. Keep seven Generic-G0/recursive candidate rows non-authoritative until exact-key fate policy is named.",
-  "5. Keep the variable-accum pair and source-entry legacy projection trio as five explicit grouped blockers; do not infer a successor.",
-  "6. Reopen site-owner-map D0 only after all 79 rows are policy-ready; expectation TSV, guard registration, and deletion remain later rows.",
+  "3. Preserve seventy-nine exact policy bindings: RetainNamed for live/test/reference owners and NamedSuccessor for the three legacy source-entry projections.",
+  "4. Keep Generic-G0 bounded to compiled prephysical/test-reference evidence; keep recursive callable admission separate as a live production ingress owner.",
+  "5. Keep variable-accum as TestReference-only; do not call M8/M9 a production successor. Do not delete source or allowances in this card.",
+  "6. Close this A row and continue the parent matrix for B/C; global owner-map, expectation TSV, guard registration, and deletion remain later rows.",
 ]
 
 [acceptance]
 positive = [
   "all 79 canonical A keys are covered exactly once and each has declaration-level role/evidence status",
-  "sixty-seven rows have named RetainNamed policy owners and five unresolved rows have explicit grouped blockers; no row receives a guessed not_required",
+  "seventy-nine rows have exact RetainNamed policy owners or named successors; no row receives a guessed not_required",
   "the registry/include owner boundary is explicit and separate from retention/successor authority",
   "mixed generated modules are split by declaration/site evidence rather than blanket-labeled",
 ]
 negative = [
   "no source/module registry edit, allow removal, TSV expectation pin, guard registration, caller-zero claim, or deletion",
   "no blanket Retain/not_required from generated-included, module filename, grep absence, or local green",
-  "no partial A cohort is handed to the owner map as complete",
+  "the complete A cohort is handed to the parent matrix only as a bounded policy input; global owner-map readiness is not claimed",
 ]
 
 [guard]
@@ -747,28 +812,26 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 agents = [
-  "conditional_policy_adversary_core (A-prime/canonical/dynamic source; eight exact RetainNamed rows)",
-  "conditional_registry_fate_audit (callable topology and callable single-loop; ten exact RetainNamed rows)",
-  "guard_index_spec_audit (DirectAccum, normal source plan, resolved callable; nine exact RetainNamed rows)",
-  "force_successor_fate_audit (located/nested/source-projection plus variable-accum blocker; eight ready and two blocked)",
-  "conditional_policy_adversary_raw (raw/reference; eleven reviewed rows including Raw owner boundaries)",
-  "conditional_policy_adversary_raw_source_entry (source-entry live substrate; eight ready and three blocked legacy projections)",
-  "conditional_policy_adversary_core_common_v2 (common-v2; three exact RetainNamed rows)",
+  "conditional_policy_adversary_core (A-prime/canonical/Generic-G0; exact RetainNamed boundaries)",
+  "conditional_registry_fate_audit (callable topology and callable single-loop; exact RetainNamed boundaries)",
+  "guard_index_spec_audit (DirectAccum, normal source plan, resolved callable; exact RetainNamed boundaries)",
+  "force_successor_fate_audit (located/nested/source projection; variable-accum TestReference fate)",
+  "conditional_policy_adversary_raw (raw/reference and source projection boundaries)",
+  "conditional_policy_adversary_raw_source_entry (three legacy projections mapped to named successors)",
 ]
-status = "67_exact_policies_accepted_7_candidate_5_grouped_blockers_remaining"
-finding = "At current HEAD 8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7, all 79 A rows remain structurally bound. Exact review accepts 67 RetainNamed rows with pinned owner evidence and reopen triggers; seven Generic-G0/recursive rows remain candidate-only, and variable-accum plus source-entry legacy projection rows are five explicit grouped blockers. No source, registry, guard, or owner-map authoring is authorized while those twelve rows remain unresolved."
+status = "A_79_policy_bindings_complete_parent_BC_remaining"
+finding = "At current HEAD 30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d, all 79 A rows are structurally bound and policy-ready. Generic-G0 six rows are bounded RetainNamed prephysical/test-reference owners; recursive_callable_module_plan is a live production admission owner; variable-accum is grouped TestReference RetainNamed; source_entry_physical/projection/thunk each name an already-landed successor. No source, registry, guard, owner-map, expectation, or deletion authoring is authorized by this card."
 evidence = [
-  "chronic-measurement-site-owner-evidence-matrix-v1.tsv: A=79 rows; all A owner/evidence fields are populated; review_state counts are 67 ready, 7 candidate, 5 blocked",
-  "src/mir/compiler/module_registry.in.rs plus src/mir/compiler/mod.rs provide topology/include evidence only",
-  "A-core and callable topology workers found exact current owners; no default successor or blanket generated retention was issued",
-  "DirectAccum/resolved workers accepted exact owners; direct_accum_prefix is pinned to direct_accum_prefix.rs, not the stale profile name",
-  "source navigation/nested workers accepted located, nested-predicate, and source-projection owners; variable-accum pair remains NoSafeSlice",
-  "raw/reference workers accepted explicit Raw owner boundaries; source-entry physical/projection/thunk remain grouped blockers",
-  "candidate rows remain evidence only; no owner-map, expectation, guard, or deletion authority is issued",
+  "chronic-measurement-site-owner-evidence-matrix-v1.tsv: A=79 rows and all A rows are reviewed_ready_for_map; global matrix remains B/C-blocked",
+  "Generic-G0 worker: six exact issuer symbols, no non-test root ingress, and no physical ABI/layout authority",
+  "Recursive callable worker: VerifiedRecursiveCallableModulePlanV1::verify has a live MirCompiler public ingress",
+  "Variable-accum worker: both issuers have production caller=0 and are retained only as cfg(test) source-to-Facts conformance proof",
+  "Source-entry worker: old physical/projection/thunk modules have only test/P0 callers and map to published/continuation/result successors",
+  "direct_accum_prefix evidence is pinned to direct_accum_prefix.rs; source_projection is canonical source-navigation, not SSA-only",
 ]
-latest_finding = "A is 67/79 policy-ready: 67 exact RetainNamed bindings, 7 candidate-only Generic-G0/recursive rows, and 5 explicit grouped blockers (variable-accum pair plus source-entry legacy projection trio). The owner map remains closed; next design tasks are the four grouped fate tasks above, with no code or deletion permission."
+latest_finding = "A is closed at 79/79 policy-ready. The parent 185-row matrix still has six B successor blockers and one-hundred mixed-role rows; next work is parent B/C evidence, not code or deletion."
 
 [closeout]
-status = "pending"
-required = "Record an exact 79-row policy/evidence decision. Keep this row in design stop while any candidate or blocked A row remains; reopen the tracked owner-map D0 only after all 79 rows are policy-ready."
+status = "ready_for_parent_matrix"
+required = "The A generated-registry policy row is complete at 79/79. Keep implementation_permission=false; continue the parent site-owner evidence matrix for unresolved B/C rows before owner-map authoring."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
