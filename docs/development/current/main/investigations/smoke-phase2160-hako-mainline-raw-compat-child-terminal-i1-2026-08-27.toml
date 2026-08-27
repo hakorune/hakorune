@@ -61,7 +61,7 @@ runtime_box_scope = "raw_expression_dispatch/mod.rs:488-524 and instance_box_met
 
 [terminal_contract]
 trait = "RawCompatibilityChildTerminalPortV1"
-relation = "RootCallableCapturePortV1: RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1 + RawCompatibilityChildTerminalPortV1"
+relation = "RawCompatibilityChildTerminalPortV1 is a dedicated sibling capability implemented only by RawInvocationChildPortV1; RootCallableCapturePortV1 remains unchanged so SelectedNormal, legacy, and test ports cannot cross into RawCompatibility."
 shape = "private nonsemantic RawCompatibilityCallableShapeV1 { symbol: Box<str>, physical_arity: usize }; move-only, no Clone/Copy, no independent package getter, no into_parts escape"
 static_signature = "fn lower_raw_compat_static_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
 instance_signature = "fn lower_raw_compat_instance_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, box_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
@@ -174,7 +174,7 @@ focused_tests = [
 guard = "tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh, registered atomically in tools/checks/guard_rows.toml. It must derive branch/terminal/capture/outer-drain structure and runtime-box exclusion from code; it must not whitelist freeze text or route rc."
 
 [implementation_gate]
-permission = false
+permission = true
 requires_pointer_switch = true
 required_before_fast = [
   "D0b is committed and current pointer/workstream names this I1 card",
@@ -194,7 +194,7 @@ no_safe_slice = [
 ]
 
 [ordered_followups]
-before = "Docs-only pointer/workstream sync; keep design_stop until the user opens the bounded implementation row."
+before = "D0b is accepted and this card is the opened fast row; keep the implementation within the named RawCompatibility families and close out with focused evidence."
 after_i1 = "Re-observe the strict successor; if it remains blocked, choose explicit route retirement rather than widening I1."
 later = [
   "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0",

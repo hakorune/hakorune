@@ -315,6 +315,22 @@ manufacture a source claim. Package completion rejects any unconsumed
 ordinary claim, so source-backed admission has no retry or post-lowering
 target inference.
 
+### RawCompatibility child terminal I1 (2026-08-27)
+
+The phase2160 RawCompatibility root work plan now carries an explicit
+admission through the immediate, deferred, App Main-child, and Main
+materialization families. Each family issues a private, move-only
+`RawCompatibilityCallableShapeV1` before child effects and lends it only to
+the dedicated `RawCompatibilityChildTerminalPortV1` on
+`RawInvocationChildPortV1`. That terminal reuses the existing pending capture
+and `LegacyReplaceWholePair` collector; it does not resolve targets, inspect
+AST names, or enter the SelectedNormal adapter. ScriptRoot source context is
+required, each child commits once, and the outer module collector drains once.
+Runtime Box declarations, SelectedNormal, Wpre, VM, and Call remain outside
+this row. The focused evidence and reusable structural guard are
+`raw_compat_child_terminal_tests` and
+`tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh`.
+
 ## Reading Order
 
 1. `src/mir/README.md`

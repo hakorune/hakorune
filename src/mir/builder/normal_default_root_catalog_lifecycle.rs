@@ -20,10 +20,11 @@ use super::program_root_lowering::NormalCallableSemanticPackageMode;
 use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
 };
+use super::raw_source_projection::OwnedRawRootProjectionV1;
 use super::{
     AdmittedNormalRootExecutionModeV1, CallableMainMaterializationPolicyV1, MirModule,
     ModuleBuilderInvocationSessionV1, NormalEntryMaterializationSourceReceiptV1,
-    NormalRuntimeInputSnapshotV1,
+    NormalRuntimeInputSnapshotV1, RawEntryMaterializationSourceReceiptV1,
 };
 use super::{BuilderInstallConsumerV1, BuilderPrivateInstalledCallablePackageBundleV1};
 use crate::ast::ASTNode;
@@ -473,6 +474,23 @@ impl ModuleBuilderInvocationSessionV1 {
                             &expansion,
                             materialization_policy,
                         );
+                        let raw_materialization = if installed_package.is_none() {
+                            let projection = OwnedRawRootProjectionV1::from_verified(
+                                source_ast,
+                                &expansion,
+                            )
+                            .map_err(|error| {
+                                NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
+                                    format!("[mir/raw-root/projection] {error:?}").into(),
+                                )
+                            })?;
+                            RawEntryMaterializationSourceReceiptV1::seal(
+                                &projection,
+                                materialization_policy,
+                            )
+                        } else {
+                            None
+                        };
                         let lowering_statements = match source_ast.clone() {
                             ASTNode::Program { statements, .. } => statements,
                             _ => unreachable!("root expansion retained a Program"),
@@ -583,7 +601,9 @@ impl ModuleBuilderInvocationSessionV1 {
                                 &runtime_inputs,
                                 brand,
                                 declaration_facts,
-                                NormalCallableSemanticPackageMode::Compatibility,
+                                NormalCallableSemanticPackageMode::Compatibility(
+                                    raw_materialization,
+                                ),
                                 None,
                                 &mut preflight_static_result_publication_owner,
                                 &import_rows,

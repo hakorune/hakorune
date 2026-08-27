@@ -30,6 +30,7 @@ use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmis
 use super::MirBuilder;
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
 
+mod raw_compatibility;
 mod selected_projection_validator;
 #[cfg(test)]
 use selected_projection_validator::validate_selected_normal_top_level_projections;
@@ -67,6 +68,7 @@ pub(super) enum PreparedProgramRootImmediateWorkV1 {
 }
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootInstanceBoxWorkV1 {
+    admission: ProgramRootWorkPlanAdmissionV1,
     name: String,
     methods: crate::ast::BoxMethodInventoryV1,
     fields: Vec<String>,
@@ -96,6 +98,7 @@ pub(super) struct PreparedProgramRootTopLevelFunctionPartsV1 {
 }
 #[derive(Debug)]
 pub(super) struct PreparedProgramDeferredStaticBoxWorkV1 {
+    admission: ProgramRootWorkPlanAdmissionV1,
     name: String,
     methods: crate::ast::BoxMethodInventoryV1,
 }
@@ -623,6 +626,7 @@ fn classify_statement(
             ProgramRootStatementDispositionV1::ImmediateAndRuntime {
                 work: PreparedProgramRootImmediateWorkV1::InstanceBox(
                     PreparedProgramRootInstanceBoxWorkV1 {
+                        admission: work_plan_admission,
                         name: name.clone(),
                         methods: methods.clone(),
                         fields: fields.clone(),
@@ -658,6 +662,7 @@ fn classify_statement(
         } if is_app_mode && name != "Main" => {
             ProgramRootStatementDispositionV1::DeferredAndRuntime {
                 work: PreparedProgramDeferredStaticBoxWorkV1 {
+                    admission: work_plan_admission,
                     name: name.clone(),
                     methods: methods.clone(),
                 },

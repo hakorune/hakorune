@@ -166,10 +166,11 @@ mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound help
 pub(in crate::mir) use raw_root_child_work::{
     RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1,
 };
+mod raw_compatibility_child_terminal;
 mod raw_root_static_child_admission;
 pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
-    NormalEntryMaterializationSourceReceiptV1,
+    NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
 };
 pub(in crate::mir) use normal_root_execution::{
     AdmittedNormalRootExecutionModeV1, ConsumedNormalRootCallableSourceV1,
@@ -619,6 +620,8 @@ mod port_aware_function_draft_impl;
 mod program_declaration_facts; // Normal Program source-only declaration facts
 mod program_root_work_plan; // Normal Program source-only work partition
 mod program_static_table_metadata; // Normal Program paired static-table metadata
+#[cfg(test)]
+mod raw_compat_child_terminal_tests; // phase2160 RawCompatibility terminal evidence
 mod return_type_strategy; // finalization-only return-type strategy
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)

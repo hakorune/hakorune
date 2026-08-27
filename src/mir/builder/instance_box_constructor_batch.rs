@@ -13,7 +13,11 @@ use super::normal_instance_constructor_admission::InstanceConstructorDemandRoleV
 use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
+use super::raw_compatibility_child_terminal::{
+    RawCompatibilityCallableShapeV1, RawCompatibilityChildTerminalPortV1,
+};
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
+use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::MirBuilder;
 
 #[derive(Clone, Debug)]
@@ -122,6 +126,45 @@ impl PreparedInstanceBoxConstructorBatchV1 {
             port.lower_instance_box_method(
                 builder,
                 constructor.function_name,
+                self.owner.clone(),
+                constructor.params,
+                constructor.param_decls,
+                constructor.return_type_name,
+                constructor.body,
+                constructor.uses,
+                constructor.attrs,
+            )?;
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn issue_raw_compat_shapes(
+        &self,
+    ) -> Box<[RawCompatibilityCallableShapeV1]> {
+        self.constructors
+            .iter()
+            .map(|constructor| {
+                RawCompatibilityCallableShapeV1::issue(
+                    constructor.function_name.clone(),
+                    constructor.params.len() + 1,
+                )
+            })
+            .collect()
+    }
+
+    pub(in crate::mir::builder) fn lower_raw_compat_with_shapes(
+        self,
+        builder: &mut MirBuilder,
+        port: &mut RawInvocationChildPortV1<'_, '_>,
+        shapes: Box<[RawCompatibilityCallableShapeV1]>,
+    ) -> Result<(), String> {
+        if self.constructors.len() != shapes.len() {
+            return Err("[freeze:contract][raw-compat-child/shape-count]".to_owned());
+        }
+        for (constructor, shape) in self.constructors.into_vec().into_iter().zip(shapes) {
+            port.lower_raw_compat_instance_child(
+                builder,
+                shape,
                 self.owner.clone(),
                 constructor.params,
                 constructor.param_decls,

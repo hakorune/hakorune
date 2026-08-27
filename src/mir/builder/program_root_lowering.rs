@@ -25,10 +25,11 @@ use super::raw_invocation_source_transport::{
     RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use super::recursive_child_lowering::RawInvocationChildPortV1;
+use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
 use super::BuilderPrivateInstalledCallablePackageBundleV1;
 use super::{
-    MirBuilder, NormalEntryMaterializationSourceReceiptV1, UnpublishedCallableLoopRootScopeV1,
-    ValueId,
+    MirBuilder, NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
+    UnpublishedCallableLoopRootScopeV1, ValueId,
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 
@@ -85,7 +86,7 @@ pub(super) enum NormalScriptRootLoweringMode<'source> {
 
 pub(super) enum NormalCallableSemanticPackageMode<'package> {
     Installed(&'package BuilderPrivateInstalledCallablePackageBundleV1),
-    Compatibility,
+    Compatibility(Option<RawEntryMaterializationSourceReceiptV1>),
 }
 
 impl ProgramDeferredStaticBoxLifecycleV1 {
@@ -119,6 +120,18 @@ impl ProgramDeferredStaticBoxLifecycleV1 {
         builder.trace_compile(format!("lower static box {}", self.methods.owner()));
         ProgramDeferredStaticCompilationContextScopeV1::open(builder)
             .run(|builder| self.methods.lower_root_with_port_v1(builder, callables))
+    }
+
+    pub(in crate::mir::builder) fn lower_raw_compat_with_port_v1(
+        self,
+        builder: &mut MirBuilder,
+        callables: &mut RawInvocationChildPortV1<'_, '_>,
+    ) -> Result<(), String> {
+        builder.trace_compile(format!("lower static box {}", self.methods.owner()));
+        ProgramDeferredStaticCompilationContextScopeV1::open(builder).run(|builder| {
+            self.methods
+                .lower_raw_compat_with_port_v1(builder, callables)
+        })
     }
 }
 
@@ -266,16 +279,67 @@ impl MirBuilder {
                 loan.complete()?;
                 Ok(result)
             }
-            NormalCallableSemanticPackageMode::Compatibility => self
-                .lower_prepared_program_root_with_callable_port_v1(
-                    work,
+            NormalCallableSemanticPackageMode::Compatibility(raw_materialization) => {
+                declaration_facts.install_into(&mut self.comp_ctx);
+                self.prepare_program_root_static_lowering_state_v1(
                     snapshot,
+                    expansion.is_app_mode(),
+                )?;
+                self.lower_prepared_program_root_with_raw_compatibility_port_v1(
+                    work,
                     expansion,
-                    materialization,
+                    raw_materialization,
                     runtime_inputs,
-                    declaration_facts,
                     port,
-                ),
+                )
+            }
+        }
+    }
+
+    fn lower_prepared_program_root_with_raw_compatibility_port_v1(
+        &mut self,
+        work: PreparedProgramRootWorkPlanPartsV1,
+        expansion: &VerifiedRawRootExpansionV1<'_>,
+        materialization: Option<RawEntryMaterializationSourceReceiptV1>,
+        _runtime_inputs: &super::NormalRuntimeInputSnapshotV1,
+        port: &mut RawInvocationChildPortV1<'_, '_>,
+    ) -> Result<ValueId, String> {
+        let PreparedProgramRootWorkPlanPartsV1 {
+            immediate,
+            deferred_static,
+            runtime,
+            terminal,
+            ..
+        } = work;
+        for immediate in immediate {
+            immediate.lower_raw_compat_with_port_v1(self, port)?;
+        }
+        for deferred in deferred_static {
+            deferred.lower_raw_compat_with_port_v1(self, port)?;
+        }
+
+        match (terminal, expansion, runtime) {
+            (
+                ProgramRootTerminalScheduleV1::ScriptRuntime,
+                VerifiedRawRootExpansionV1::Script,
+                PreparedProgramRootRuntimeWorkV1::RawCompatibility(statements),
+            ) => port.lower_body(self, statements.into_vec()),
+            (
+                ProgramRootTerminalScheduleV1::VerifiedAppMain,
+                VerifiedRawRootExpansionV1::App(main),
+                PreparedProgramRootRuntimeWorkV1::RawCompatibility(_),
+            ) => {
+                let receipt = materialization.ok_or_else(|| {
+                    "[freeze:contract][mir/program-root-work-plan/raw-compat-materialization-missing]"
+                        .to_owned()
+                })?;
+                self.build_verified_static_main_box_raw_compat_with_port_v1(port, main, receipt)
+                    .map_err(|error| error.to_string())
+            }
+            _ => Err(
+                "[freeze:contract][mir/program-root-work-plan/raw-compat-terminal-drift]"
+                    .to_owned(),
+            ),
         }
     }
 

@@ -13,6 +13,7 @@ use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
+use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::MirBuilder;
 
 pub(super) struct PreparedInstanceBoxDeclarationLifecycleV1<'source> {
@@ -112,6 +113,19 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     {
         let (constructors, methods) = self.lower_declaration_prefix_v1(builder)?;
         constructors.lower_with_port_v1(builder, port)?;
+        methods.lower_raw_with_port_v1(builder, port)
+    }
+
+    pub(in crate::mir::builder) fn lower_raw_compat_with_port_v1(
+        self,
+        builder: &mut MirBuilder,
+        port: &mut RawInvocationChildPortV1<'_, '_>,
+        constructor_shapes: Box<
+            [super::raw_compatibility_child_terminal::RawCompatibilityCallableShapeV1],
+        >,
+    ) -> Result<(), String> {
+        let (constructors, methods) = self.lower_declaration_prefix_v1(builder)?;
+        constructors.lower_raw_compat_with_shapes(builder, port, constructor_shapes)?;
         methods.lower_raw_with_port_v1(builder, port)
     }
 

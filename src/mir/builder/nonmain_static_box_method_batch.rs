@@ -9,7 +9,11 @@ use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::nested_box_method_source::NestedBoxMethodLoweringInputV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
+use super::raw_compatibility_child_terminal::{
+    RawCompatibilityCallableShapeV1, RawCompatibilityChildTerminalPortV1,
+};
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
+use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, SameModuleCallableNamespaceV1};
 
 pub(super) struct PreparedNonMainStaticBoxMethodBatchV1 {
@@ -91,6 +95,30 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                     method.uses,
                     method.attrs,
                 ),
+            )?;
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn lower_raw_compat_with_port_v1(
+        self,
+        builder: &mut MirBuilder,
+        port: &mut RawInvocationChildPortV1<'_, '_>,
+    ) -> Result<(), String> {
+        for method in self.methods {
+            let shape = RawCompatibilityCallableShapeV1::issue(
+                method.function_name.clone(),
+                method.params.len(),
+            );
+            port.lower_raw_compat_static_child(
+                builder,
+                shape,
+                method.params,
+                method.param_decls,
+                method.return_type_name,
+                method.body,
+                method.uses,
+                method.attrs,
             )?;
         }
         Ok(())

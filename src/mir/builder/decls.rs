@@ -3,10 +3,12 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
+use super::raw_compatibility_child_terminal::RawCompatibilityChildTerminalPortV1;
+use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{
     CallableMainMaterializationTargetV1, MirInstruction, NormalCatalogedBoxMethodDraftAdmissionV1,
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
-    SameModuleCallableNamespaceV1, ValueId,
+    RawEntryMaterializationSourceReceiptV1, SameModuleCallableNamespaceV1, ValueId,
 };
 use crate::ast::ASTNode;
 use serde_json;
@@ -78,6 +80,49 @@ impl super::MirBuilder {
                 .then(|| materialization.target())
                 .flatten(),
             StaticMainScriptArgsSourceV1::NormalSnapshot(runtime_inputs.script_args()),
+        )
+    }
+
+    pub(in crate::mir::builder) fn build_verified_static_main_box_raw_compat_with_port_v1(
+        &mut self,
+        port: &mut RawInvocationChildPortV1<'_, '_>,
+        main: &VerifiedMainExpansionV1<'_>,
+        materialization: RawEntryMaterializationSourceReceiptV1,
+    ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1> {
+        for child in main.static_children() {
+            let shape = super::raw_compatibility_child_terminal::RawCompatibilityCallableShapeV1::from_main_child(child);
+            port.lower_raw_compat_app_main_static_child(self, shape, child)
+                .map_err(|error| CallableMainCompatibilityLoweringErrorV1::Lowering(error))?;
+        }
+        let root = main.to_owned_root_lowering();
+        let (box_name, callable_symbol, params, param_decls, return_type_name, body, uses, attrs) =
+            root.into_parts();
+        if materialization.policy().is_required() {
+            port.lower_raw_compat_main_materialization(
+                self,
+                materialization,
+                params.clone(),
+                param_decls.clone(),
+                return_type_name.clone(),
+                body.clone(),
+                uses.clone(),
+                attrs.clone(),
+            )
+            .map_err(CallableMainCompatibilityLoweringErrorV1::Lowering)?;
+        }
+        self.lower_static_main_function_parts_with_port_v1(
+            port,
+            &box_name,
+            callable_symbol.as_deref(),
+            None,
+            false,
+            StaticMainScriptArgsSourceV1::LegacyEnvironment,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
         )
     }
 
