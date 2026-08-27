@@ -34,7 +34,7 @@ non_authority = [
   "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
 ]
 fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner, explicit role evidence, named retention policy or successor, or if a uniform policy is asserted across mixed modules without row-level proof."
-smallest_next_slice = "Docs-only exact binding of the 12 explicit policy/successor candidates to canonical registry keys in the parent matrix; keep 5 conditional and 62 unresolved rows blocked, and do not author the owner-map TOML."
+smallest_next_slice = "Docs-only audit of the 5 conditional candidates and 62 unresolved rows; keep all successor status unknown until a named row-level policy is issued, and do not author the owner-map TOML."
 non_claims = [
   "does not claim generated modules are dead or live",
   "does not create a successor, expectation pin, guard row, or deletion authorization",
@@ -172,7 +172,7 @@ evidence = [
   "dynamic_full_body_recipe README, post0-publication0 task, generic-loop-source-to-portable-recipe SSOT, declaccess0, and post0-public-cutover task remain conditional for rows 25, 27, 28, 53, and 56",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
 ]
-latest_finding = "The A structural census is complete at 79/79. Existing docs identify 12 explicit candidates and 5 conditional candidates, but policy-ready remains 0/79 and 62 rows are unresolved. Bind the 12 candidates exactly in the parent matrix first; do not author the tracked 185-row map or infer not_required from candidate evidence."
+latest_finding = "The A structural census and the 12 exact candidate joins are complete at 79/79 and 12 rows respectively. Policy-ready remains 0/79 because successor status is unknown for every A row; 5 conditional and 62 unresolved rows still require named policy evidence. Do not author the tracked 185-row map or infer not_required from candidate evidence."
 
 [closeout]
 status = "pending"

@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0,
-  exact-bind 12 candidate rows; 5 conditional and 62 unresolved remain
-  blocked, with policy-ready still 0/79 before owner-map or deletion.
+  audit 5 conditional and 62 unresolved rows; 12 candidate joins are recorded,
+  but policy-ready remains 0/79 before owner-map or deletion.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "Review the tracked coverage skeleton row-by-row and replace its explicit missing-evidence blockers only with independently verified owner/successor evidence; return to the owner-map D0 only when every row is review-ready without hidden inference."
+smallest_next_slice = "Review the 5 conditional A candidates and the remaining 62 unresolved A rows; keep candidate evidence non-authoritative and return to owner-map authoring only when all 185 rows are review-ready without hidden inference."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -101,17 +101,18 @@ completion_rule = "only all rows reviewed_ready_for_map with explicit successor 
 
 [matrix_artifact]
 path = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-v1.tsv"
-status = "coverage_skeleton_blocked"
+status = "candidate_evidence_partial_blocked"
 source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
-sha256 = "sha256:2374839508793b16557f5ab985245da862e8daf0c7f967cab32ff2f7ecd2502a"
+sha256 = "sha256:1e94e01bb735b4b805a5dc788da9d7f974d91e5f9a9f65c02b04ff860609dff8"
 header_columns = 20
 site_rows = 185
 cohort_rows = "A=79; B=46; C=60; disjoint total=185"
-review_state_counts = "blocked_successor=85; blocked_mixed_role=100"
-empty_candidate_owner_rows = 185
-empty_candidate_evidence_rows = 185
+review_state_counts = "candidate_evidence=12; blocked_successor=73; blocked_mixed_role=100"
+candidate_evidence_rows = 12
+empty_candidate_owner_rows = 173
+empty_candidate_evidence_rows = 173
 authority = "non-authoritative design input only; it records exact receipt coverage and explicit blockers, never owner/successor/retirement authority"
-generation_note = "read-only receipt projection; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
+generation_note = "read-only receipt projection with 12 explicitly marked candidate-evidence rows; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
 
 [finite_state]
 states = [
@@ -179,16 +180,17 @@ no_safe_slice = [
 
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
-status = "a_cohort_policy_missing"
-finding = "At 04b6262b9e/a63ce4d52b, A0 and the coverage skeleton are landed, and the tracked source remains unchanged from the d9cff5 receipt. A=79 generated registry rows have topology ownership evidence but no explicit policy that permits blanket not_required successor status; B=46 and C=60 remain site-level evidence work."
+status = "a_candidate_evidence_partial_policy_missing"
+finding = "At e4842f86d6/979bf3af93, all 79 A rows are structurally bound; 12 rows now carry exact candidate evidence in the matrix, while 5 are conditional and 62 remain unresolved. All 79 still have candidate_successor_status=unknown, so policy-ready remains 0/79; B=46 and C=60 remain site-level evidence work."
 evidence = [
   "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 establish the generated-registry/include owner boundary, not blanket Retain authority",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 observes compile_domain=generated_included and role=generated_registry, which cannot issue successor_status=not_required",
+  "chronic-measurement-site-owner-evidence-matrix-v1.tsv records 12 candidate_evidence rows with canonical-key joins; 73 A rows remain blocked_successor and all 79 A rows retain unknown successor status",
   "src/lib.rs:119-120, src/mir/mod.rs:214-215, src/mir/compiler/mod.rs:81-98, and named raw-root owner READMEs are candidate runtime evidence",
   "src/mir/builder/callable_declaration_catalog/README.md:1-64, calls/guard.rs, calls/static_resolution.rs, rewrite/known.rs, and legacy/test owners are candidate mixed-site evidence",
   "A0 site_owner_map.rs:100-220 consumes the receipt once; :264-358 rejects invalid classification/reference contracts, so unresolved states cannot be silently accepted",
 ]
-latest_finding = "Do not author the tracked 185-row map yet. First decide the A-cohort retention/successor policy and split any generated modules whose role is not uniform; then continue the matrix with B/C evidence. A0 validator and the non-authoritative coverage skeleton remain green."
+latest_finding = "The A matrix now records 12 exact candidate joins, but these are non-authoritative and policy-ready remains 0/79 because successor status is unknown for every A row. Audit the 5 conditional candidates and 62 unresolved rows before owner-map authoring; B/C evidence remains separate."
 
 [closeout]
 status = "pending"
