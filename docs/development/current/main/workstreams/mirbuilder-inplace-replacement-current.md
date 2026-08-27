@@ -654,7 +654,7 @@ correction are taskized in
 The RawLegacy C I0 itself is landed. The selected bounded order is
 contract-graph freeze -> existing inventory-row ledger check -> navigation
 tombstones -> chronic scope -> Rust token scanner (landed)
--> scope reconciliation D0 -> site-owner map D0 -> one scope-labeled expectation TSV -> closeout
+-> scope reconciliation D0 -> tracked observation receipt -> site-owner map D0 -> one scope-labeled expectation TSV -> closeout
 guard co-registration -> phase2160 legacy/support LOC attribution. The
 force-hv1 leaf observer stays shell-body-only, no new force-specific TSV or
 God guard is introduced, and none of these rows authorizes compiler, VM, or
@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0, a design-only
-  item/range ownership map; it creates no expectation TSV and executes no member
-  guard.
+  tracked observation receipt plus item/range ownership map; it creates no
+  expectation TSV and executes no member guard.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```
@@ -726,9 +726,9 @@ Required order:
    production baseline and no deletion is implied.
 6. `CHRONIC-MEASUREMENT-RECONCILIATION-D0` ->
    `CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0`
-   — the scope split is measured; first freeze the canonical range/attribute key,
-   provenance, tracked refs, and classification-only states, then assign every
-   site owner/role/successor. No TSV, stale-threshold, or source deletion is allowed here.
+   — scope split measured; track the 185-row observation receipt, then freeze
+   canonical range/attribute key, provenance, tracked refs, and classification-only
+   states before assigning site owners. No TSV, stale-threshold, or source deletion.
 7. `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive
    attribute grammar currently observes 351/126 and is the required D0 scope.
