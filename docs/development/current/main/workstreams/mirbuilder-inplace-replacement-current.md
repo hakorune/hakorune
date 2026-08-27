@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0, a
-  design-only A/B/C evidence census over the validated 185-row receipt; it
-  creates no tracked map, expectation TSV, or source deletion.
+  design-only review of the pinned 185-row A/B/C coverage skeleton; all rows
+  remain explicit blockers until tracked owner/successor evidence is reviewed.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

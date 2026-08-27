@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "Produce the design matrix in three bounded cohorts: A generated registry (79), B runtime (46), and C mixed builder (60), then return to the owner-map D0 only when every row has explicit evidence status and no hidden inference."
+smallest_next_slice = "Review the tracked coverage skeleton row-by-row and replace its explicit missing-evidence blockers only with independently verified owner/successor evidence; return to the owner-map D0 only when every row is review-ready without hidden inference."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -89,6 +89,20 @@ coverage_assertion = "A/B/C are disjoint and total 185; compare canonical key, o
 join_rule = "candidate owner/evidence is joined by canonical key, never by ordinal or item_key alone; any missing, duplicate, foreign, or reordered join is blocking"
 evidence_rule = "record tracked owner/registration candidates and a review state; syntax-only references are candidates, not resolved Git anchors"
 completion_rule = "only all rows reviewed_ready_for_map with explicit successor basis may reopen tracked owner-map authoring; any unresolved row keeps this design stop active"
+
+[matrix_artifact]
+path = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-v1.tsv"
+status = "coverage_skeleton_blocked"
+source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+sha256 = "sha256:2374839508793b16557f5ab985245da862e8daf0c7f967cab32ff2f7ecd2502a"
+header_columns = 20
+site_rows = 185
+cohort_rows = "A=79; B=46; C=60; disjoint total=185"
+review_state_counts = "blocked_successor=85; blocked_mixed_role=100"
+empty_candidate_owner_rows = 185
+empty_candidate_evidence_rows = 185
+authority = "non-authoritative design input only; it records exact receipt coverage and explicit blockers, never owner/successor/retirement authority"
+generation_note = "read-only receipt projection; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
 
 [finite_state]
 states = [

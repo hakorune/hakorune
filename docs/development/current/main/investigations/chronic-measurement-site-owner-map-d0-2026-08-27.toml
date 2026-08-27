@@ -35,7 +35,7 @@ non_authority = [
   "force_hv1 fate/expected_counts, MIR/VM/AOT behavior, or any target/name/string reconstruction",
 ]
 fail_fast = "Every site entering the future TSV must resolve exactly once to an owner_ref, compile_domain, role, successor_status, successor_ref, retirement_status, and evidence_refs under the bound scanner/scope/source hashes. Missing/duplicate/foreign/ambiguous evidence, unknown required successor, or an unclassified site remains blocking and no partial map is accepted."
-smallest_next_slice = "Design-only closeout: the owner-map schema/id/hash and tracked-reference grammar are frozen and validator-only A0 landed at 56dd478a0a. Now design the explicit owner/successor evidence for all 185 rows; do not author the tracked map, expectation TSV, or delete source while implementation_permission is false."
+smallest_next_slice = "Design-only closeout: the owner-map schema/id/hash and tracked-reference grammar are frozen, validator-only A0 landed at 56dd478a0a, and a non-authoritative 185-row coverage skeleton is pinned by the evidence-matrix D0. Now review explicit owner/successor evidence for every row; do not author the tracked map, expectation TSV, or delete source while implementation_permission is false."
 non_claims = [
   "does not claim any allowance is dead, stale, production-live, or deletable",
   "does not change scanner scope, force-hv1 fate, guard behavior, compiler/MIR/VM/AOT code, or source files",
@@ -223,7 +223,7 @@ evidence = [
   "79 generated-registry rows require an explicit registry-retention policy; 46 runtime rows split between builder and non-builder owners; 60 builder rows across 38 files remain mixed and require site-level runtime/guard/test/compatibility/recovery classification",
   "safe evidence candidates include src/mir/compiler/module_registry.in.rs:1-4 plus compiler/mod.rs:14-17, src/abi/text_scan_aot_export_facts.rs:1-5, src/mir/resolved_value_profile/README.md:1-24, callable_declaration_catalog/README.md:1-64, and named calls/guard.rs/static_resolution.rs/rewrite/known.rs owners; these are candidates, not blanket classifications",
 ]
-latest_finding = "A0 is complete at 56dd478a0a and the pointer is back at D0 design stop. The next task is a docs-only A/B/C evidence matrix: A=79 generated registry rows, B=46 runtime rows, C=60 mixed builder rows. Every row needs explicit owner_ref, independent role/domain, successor status, and evidence_refs; unresolved successor or mixed ownership remains blocking."
+latest_finding = "A0 is complete at 56dd478a0a and the evidence-matrix D0 has pinned a non-authoritative 185-row coverage skeleton at sha256:2374839508793b16557f5ab985245da862e8daf0c7f967cab32ff2f7ecd2502a. All 185 rows remain explicitly blocked pending independent owner/role/successor/evidence review; no map, expectation pin, or deletion is authorized."
 
 [design_next]
 row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
