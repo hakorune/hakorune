@@ -162,6 +162,12 @@ items = [
 accepted_items = [
   "56:raw_root_finalization key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|6702|6721|outer_allow; RetainNamed=src/mir/compiler/raw_root_finalization.rs#symbol:RawDrainedInvocationV1::prepare_finalization@cd4cb112baf03425dc89199183add51fe2b8227b; reopen=explicit Raw public/reference callers reach zero or a named replacement finalization owner lands",
 ]
+next_tasks = [
+  "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: choose an exact compiler owner or named successor for dynamic_full_body_recipe without inferring retention from the README",
+  "EXTERNAL-COMMIT-GENERATED-REGISTRY-FATE-D0: separate canonical commit ownership from LegacyPublicationPayload and bind the exact registry row",
+  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: decide whether generic_g0_projection remains a test/reference projector or receives a named successor",
+  "RAW-ROOT-ELIGIBILITY-GENERATED-REGISTRY-FATE-D0: choose the Raw public/reference eligibility owner or successor after route fate is explicit",
+]
 binding_rule = "For each conditional row, record exact canonical key, declaration path, independently reviewable owner evidence, and an explicit retain policy owner or named successor; until all four are present, keep candidate_successor_status=unknown and review_state=blocked_successor."
 
 [unresolved_review]
@@ -178,12 +184,14 @@ decision = "The module_postprocess, source_bound_package, source_bound_plan, loo
 grouped_next_tasks = [
   "DIRECT-ACCUM-GENERATED-REGISTRY-FATE-D0: keep the four current DirectAccum owner candidates blocked until exact-key retention/fate policy is named",
   "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: reconcile the current Dynamic source admission chain with an explicit selected physical fate before policy binding",
+  "EXTERNAL-COMMIT-GENERATED-REGISTRY-FATE-D0: resolve the mixed canonical/legacy external commit owner and name an exact-key retain or successor policy",
   "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: choose an exact-key caller-zero retain owner or named test/reference successor for the six prephysical rows",
   "COMMON-V2-GENERATED-REGISTRY-FATE-D0: bind exact-key retention or successor policy for the three common-v2 transport/admission rows",
   "RESOLVED-CALLABLE-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the four resolved-callable ingress/cutover rows",
   "NESTED-PRODUCTION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the seven nested-predicate production rows",
   "VARIABLE-OBSERVATION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the two variable-observation rows",
   "CHRONIC-MEASUREMENT-RAW-REGISTRY-FATE-D0: bind exact-key fate for the seven raw/reference rows",
+  "RAW-ROOT-ELIGIBILITY-GENERATED-REGISTRY-FATE-D0: decide the exact public/reference eligibility owner or successor after the raw route fate is fixed",
   "SOURCE-ENTRY-GENERATED-REGISTRY-FATE-D0: split test/reference, legacy projection, live substrate, and VM-reference subgroups before exact-key policy binding",
 ]
 completed_grouped_tasks = [
