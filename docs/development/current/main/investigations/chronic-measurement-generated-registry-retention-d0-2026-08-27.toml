@@ -34,7 +34,7 @@ non_authority = [
   "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
 ]
 fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner, explicit role evidence, named retention policy or successor, or if a uniform policy is asserted across mixed modules without row-level proof."
-smallest_next_slice = "Read-only census of all 79 module declarations against tracked module files and owner policy; record which rows are policy-ready versus blocked, without editing source or authoring the owner-map TOML."
+smallest_next_slice = "Docs-only exact binding of the 12 explicit policy/successor candidates to canonical registry keys in the parent matrix; keep 5 conditional and 62 unresolved rows blocked, and do not author the owner-map TOML."
 non_claims = [
   "does not claim generated modules are dead or live",
   "does not create a successor, expectation pin, guard row, or deletion authorization",
@@ -65,6 +65,28 @@ tracked_exact_path_references = 68
 unresolved_exact_path_rows = 11
 policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
 result = "all 79 rows are structurally bound, but none may receive successor_status=not_required until a retention/successor policy is named and reviewed"
+explicit_policy_candidate_rows = [
+  "2:acyclic_callable_graph",
+  "3:acyclic_callable_module_plan",
+  "4:callable_graph_inventory",
+  "5:callable_scc_partition",
+  "61:recursive_callable_module_plan",
+  "35:located",
+  "48:normal_source_plan",
+  "49:raw_root_callable_main",
+  "50:raw_root_children",
+  "51:raw_root_decl_access",
+  "77:source_entry_vm_reference",
+  "78:source_projection",
+]
+conditional_candidate_rows = [
+  "25:dynamic_full_body_recipe",
+  "27:external_commit",
+  "28:generic_g0_projection",
+  "53:raw_root_eligibility",
+  "56:raw_root_finalization",
+]
+unresolved_rows = 62
 
 [cohort]
 name = "A_generated_registry"
@@ -105,8 +127,8 @@ blocking = [
 items = [
   "1. Bind exactly the 79 A rows from the validated receipt; preserve byte-range identity and do not regenerate scanner output.",
   "2. Confirm module_registry.in.rs and compiler/mod.rs as topology owner evidence without treating the include as retention policy.",
-  "3. Inspect each declared module's tracked owner/README/registration and classify role independently; split non-uniform declarations.",
-  "4. Name an explicit retention policy owner for rows that remain, or a tracked successor for rows that move; unknown stays blocking.",
+  "3. Bind the 12 explicit candidate rows to canonical registry keys and their existing tracked owner/successor evidence without upgrading candidate status to policy-ready.",
+  "4. Audit the 5 conditional candidates for exact row-level coverage; keep the 62 unresolved rows blocking until a named policy owner or successor is found.",
   "5. Record the finite policy and row-level evidence in the parent matrix; only then reopen site-owner-map D0 for map authoring.",
 ]
 
@@ -136,16 +158,21 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 status = "owner_partial_retention_policy_missing"
-finding = "At 4bf374e3b2, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Policy-ready=0/79 and blocker=79/79: topology ownership is proven, but no row has a named retention policy owner or successor, so blanket not_required remains blocked."
+finding = "At 979bf3af93, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Existing tracked evidence yields 12 explicit candidates, 5 conditional candidates, and 62 unresolved rows; policy-ready remains 0/79 because candidate evidence is not yet an exact row-level retention/successor decision."
 evidence = [
   "tools/checks/manifests/chronic_measurement_observations_v1.json binds 79 A rows to src/mir/compiler/module_registry.in.rs at source commit d9cff5b744edee3b6450db5d0ffc74478f32b49a",
   "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only; 79/79 following mod declarations and tracked module paths resolve",
   "src/mir/compiler/mod.rs:14-17 includes the registry in the compiler module; this proves registration, not retention",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 supplies generated_included/generated_registry observations only",
   "src/mir/compiler/README.md and tracked module docs provide candidate evidence but no 79-row retention/successor policy",
+  "normal-callable-module0-a0-s0-execution-task-2026-07-26.md and normal-callable-module0-r0-s0-execution-task-2026-07-26.md cover rows 2-5 and 61 as explicit successor candidates",
+  "mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md covers row 35; normal-source-plan0-s0-execution-task-2026-07-26.md covers row 48",
+  "cut0-i0-raw-source0-lower-root-callmain0-s0-execution-task-2026-07-24.md, cut0-i0-raw-source0-lower-root-callchildren0-s0-execution-task-2026-07-24.md, and declaccess0-s0-execution-task-2026-07-24.md cover rows 49-51",
+  "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json and tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json provide candidate evidence for rows 77-78",
+  "dynamic_full_body_recipe README, post0-publication0 task, generic-loop-source-to-portable-recipe SSOT, declaccess0, and post0-public-cutover task remain conditional for rows 25, 27, 28, 53, and 56",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
 ]
-latest_finding = "The A structural census is complete at 79/79, but policy-ready remains 0/79. Do not author the tracked 185-row map yet. First name row-level retention/successor owners and split any non-uniform generated declarations; then continue the matrix with B/C evidence. A0 validator and the non-authoritative coverage skeleton remain green."
+latest_finding = "The A structural census is complete at 79/79. Existing docs identify 12 explicit candidates and 5 conditional candidates, but policy-ready remains 0/79 and 62 rows are unresolved. Bind the 12 candidates exactly in the parent matrix first; do not author the tracked 185-row map or infer not_required from candidate evidence."
 
 [closeout]
 status = "pending"
