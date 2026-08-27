@@ -35,7 +35,7 @@ non_authority = [
   "force_hv1 fate/expected_counts, MIR/VM/AOT behavior, or any target/name/string reconstruction",
 ]
 fail_fast = "Every site entering the future TSV must resolve exactly once to an owner_ref, compile_domain, role, successor_status, successor_ref, retirement_status, and evidence_refs under the bound scanner/scope/source hashes. Missing/duplicate/foreign/ambiguous evidence, unknown required successor, or an unclassified site remains blocking and no partial map is accepted."
-smallest_next_slice = "Design-only: freeze the owner-map schema/id/hash contract and tracked-reference resolution grammar, then open one bounded Phase A to consume the landed strict receipt and classify only rows with explicit evidence. Do not author the expectation TSV or delete source while implementation_permission is false."
+smallest_next_slice = "Design-only closeout: the owner-map schema/id/hash and tracked-reference grammar are frozen; open validator-only CHRONIC-MEASUREMENT-SITE-OWNER-MAP-VALIDATOR-A0 next, then author no map row until its exact-coverage validator is green. Do not author the expectation TSV or delete source while implementation_permission is false."
 non_claims = [
   "does not claim any allowance is dead, stale, production-live, or deletable",
   "does not change scanner scope, force-hv1 fate, guard behavior, compiler/MIR/VM/AOT code, or source files",
@@ -47,8 +47,8 @@ path = "tools/checks/manifests/chronic_measurement_site_owners_v1.toml"
 role = "owner-evidence input; not a measurement expectation or executable guard manifest"
 schema = "chronic-measurement-site-owners-v1"
 schema_version = 1
-map_id_rule = "chronic-measurement-site-owners-v1@<observation-source-commit>; identity is bound to the frozen receipt source revision, while map_hash identifies the owner-map content without a self-referential commit hash"
-map_hash_rule = "omit map_hash; serialize fixed top-level/site field order as compact UTF-8 JSON with no trailing newline, sort sites by canonical key, and SHA-256 the bytes; TOML formatting is not hashed"
+map_id_rule = "chronic-measurement-site-owners-v1@<observation-source-commit>; for this frozen receipt the expected id is chronic-measurement-site-owners-v1@d9cff5b744edee3b6450db5d0ffc74478f32b49a; identity is bound to the receipt source revision, while map_hash identifies owner-map content without a self-referential commit hash"
+map_hash_rule = "omit map_hash; serialize fixed top-level/site field order as compact UTF-8 JSON with no trailing newline, sort sites by canonical key, sort each evidence_refs array and reject duplicate references, encode empty arrays/strings explicitly without omission or default injection, use the receipt's attribute_kind wire spelling, and SHA-256 the bytes; TOML formatting is not hashed"
 map_validator_owner = "one Rust site-owner-map validator consumes validate_observation_receipt_json and owns map schema, map_hash, exact coverage, and tracked-reference resolution; no second scanner or hash implementation"
 schema_shape = "schema/schema_version/map_id/map_hash plus frozen receipt provenance and one [[sites]] row per scanner DeadCodeAllowance observation"
 provenance_fields = [
@@ -120,8 +120,9 @@ canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
 issuer = "the existing syn-based chronic scanner; the receipt is a deterministic projection of its report and adds no owner/successor fields"
 hash_rule = "rows are sorted by canonical_key and receipt_hash is SHA-256 over receipt_hash-omitted canonical compact UTF-8 JSON bytes with fixed field order and no trailing newline; scanner_evidence_hash remains the scanner report evidence hash and is not reused for the receipt"
 consumer_owner = "the site-owner-map I0 validator reuses the receipt owner's schema/hash contract; no second scanner or cross-language hash implementation is authoritative"
-consumer_contract = "strict parse the tracked JSON with validate_observation_receipt_json (landed at 6cd2f6be946cad9f0984a54f23b946e82224193f), verify schema/version, scanner_version, scope_id, frozen scope hashes, source_commit, scanner_evidence_hash, receipt_hash, non-empty ranges, canonical key order/uniqueness, and exactly 185 rows before owner projection"
+consumer_contract = "strict parse the tracked JSON with validate_observation_receipt_json (landed at 6cd2f6be946cad9f0984a54f23b946e82224193f), passing expected_source_commit from this bound observation_input rather than from map input; verify schema/version, scanner_version, scope_id, frozen scope hashes, source_commit, scanner_evidence_hash, receipt_hash, non-empty ranges, canonical key order/uniqueness, and exactly 185 rows before owner projection"
 consumer_status = "landed at 6cd2f6be946cad9f0984a54f23b946e82224193f; owner projection remains blocked until every site has tracked evidence"
+expected_source_commit_rule = "The validator receives d9cff5b744edee3b6450db5d0ffc74478f32b49a from the bound receipt contract as an explicit argument; it never derives the expected revision from map.source_commit, current HEAD, or untrusted JSON."
 frozen_scope = "scope_id=mirbuilder-chronic-rust-v1; scanner_version=chronic-rust-token-scanner-v1; scope_manifest_hash=sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f; source_scope_hash=sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39; scanner_evidence_hash=sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a; row_count=185"
 non_authority = ["raw command stdout, temporary JSON, grep/rg output, warning counts, filename labels, owner guesses, retirement outcomes"]
 
@@ -199,7 +200,7 @@ negative = [
 
 [guard]
 reuse = "Use the landed chronic scanner report and existing registration/owner artifacts; no new executable guard is added by this D0."
-required = "The future validator must strict-parse the map schema, recompute map_hash from canonical JSON, resolve tracked references at their pinned revisions, reject missing/duplicate/foreign site rows, and verify scanner scope/evidence hashes before expectation pinning."
+required = "The future validator must strict-parse the map schema, pass the bound receipt source revision explicitly, recompute map_hash from canonical JSON, resolve tracked references at their pinned revisions, reject missing/duplicate/foreign site rows, and verify scanner scope/evidence hashes before expectation pinning."
 no_safe_slice = [
   "the map schema/id/hash or tracked-reference grammar cannot be fixed without a second authority",
   "the 185 observations cannot be covered exactly once",
@@ -211,17 +212,17 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit + chronic_token_scanner_design_audit"
 status = "no_safe_slice_map_contract_and_owner_evidence_pending"
-finding = "At 80f05d422b, the receipt consumer is landed and strict. Owner-map implementation remains blocked until schema/id/hash, tracked-reference resolution, and exact 185-row coverage are frozen; then every site still needs independently reviewed owner/successor evidence."
+finding = "At 80f05d422b and design amendment 7c1eb6ef50, the receipt consumer is landed and the owner-map schema/id/hash/reference contract is frozen. Validator-only A0 may open with an explicit receipt source revision; full map authoring remains blocked until exact coverage and independently reviewed owner/successor evidence are available."
 evidence = [
-  "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs:192-315 validates the frozen schema/scope/hash/source/range contract without rescanning",
+  "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs:192-315 validates the frozen schema/scope/hash/source/range contract without rescanning; A0 must supply its expected source commit explicitly",
   "tools/checks/rust_source_topology/tests/chronic_measurement.rs:95-197 covers the tracked receipt, unknown fields, scope/source/count/hash drift, and range/order negatives",
   "tools/checks/manifests/chronic_measurement_observations_v1.json is the tracked neutral 185-row receipt and carries no owner or retirement fields",
   "tools/checks/rust_source_topology/src/chronic_measurement/model.rs:31-58 reports file/path/range facts but no owner/successor; scan.rs:71-73 remains file-level for role/domain",
-  "79 generated-registry rows, 46 runtime rows, and 60 mixed builder rows still require explicit owner/successor evidence; mixed file labels cannot be inherited",
+  "79 generated-registry rows, 46 runtime rows, and 60 mixed builder rows still require explicit owner/successor evidence; mixed file labels cannot be inherited, and map rows cannot be partial",
 ]
 latest_finding = "The tracked 185-row observation receipt and provenance are strictly validated by one consumer at 6cd2f6be946cad9f0984a54f23b946e82224193f. Before owner projection, freeze map schema/id/hash/reference resolution and then review explicit evidence for all 185 sites; expectation pin and deletion remain blocked."
 
 [closeout]
 status = "pending"
-required = "The tracked 185-row observation receipt and provenance are strictly consumed by one validator. First freeze the owner-map schema/id/hash/reference contract, then record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states for every row; move to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after the owner map is complete. No expectation TSV or deletion is allowed from this row."
+required = "The tracked 185-row observation receipt and provenance are strictly consumed by one validator. The owner-map schema/id/hash/reference contract is now frozen; next open validator-only A0, then record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states for every row; move to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after the owner map is complete. No expectation TSV or deletion is allowed from this row."
 next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
