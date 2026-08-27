@@ -292,13 +292,13 @@ evidence = [
 ]
 
 [ordered_followups]
-next_after_design = "RUNTIME-BOX-PORT-AND-SEQUENCE-I0 only after this D0b is accepted and source/shape/collector readiness is proven; otherwise retain ParkedSealed or open an explicit retirement row."
+next_after_design = "RUNTIME-BOX-FIH-CALLER-FATE-CENSUS-D0 is the next design-only row; runtime implementation remains closed until F/I/H caller evidence or an explicit pre-effect retirement is accepted."
 steps = [
   "1. Re-run the A-J/K census after any runtime code change and keep the root I1 exclusion guard green.",
-  "2. Decide C/G/J RawLegacy retirement separately from F/I RawInvocation terminal candidates.",
-  "3. Close H by moving fate validation before prefix or retiring/freezing the whole Box operation atomically.",
-  "4. Name one source-owned physical shape issuer and one recursive collector owner for any F/I implementation.",
-  "5. Open one bounded I0 with positive/negative/sequence/partial-commit tests and a reusable guard; do not batch unrelated VM/Call cleanup.",
+  "2. Run RUNTIME-BOX-FIH-CALLER-FATE-CENSUS-D0 for RawInvocation F/I/H only; keep RawLegacy C/G/J separate.",
+  "3. If F/I/H have no semantic claim, select pre-effect whole-declaration Retire/Frozen; if retained, open a source-shape-lineage-collector design.",
+  "4. Close H by moving fate validation before prefix or retiring/freezing the whole Box operation atomically.",
+  "5. Open one bounded runtime I0 only after caller/fate evidence and a reusable guard are accepted; do not batch unrelated VM/Call cleanup.",
   "6. Only after runtime fate is total, revisit broader RawCompatibility retirement and downstream Call/MIR cutovers.",
 ]
 reopen_triggers = [

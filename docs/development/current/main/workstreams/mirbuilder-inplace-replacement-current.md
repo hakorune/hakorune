@@ -1,5 +1,5 @@
 ---
-Status: Design stop — phase2160 hako-mainline RawCompatibility runtime Box port/sequence census D0b
+Status: Design stop — phase2160 hako-mainline RawCompatibility runtime Box F/I/H caller-fate census D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-port-sequence-census-d0b-2026-08-27.toml
+  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-caller-fate-census-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -49,7 +49,7 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1` landed at `684533ba22`: the five root families issue a move-only compatibility shape before effects, use one child capture plus one outer collector drain, and leave runtime Box edges outside the terminal. `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-PORT-SEQUENCE-CENSUS-D0b` is the sole design row; it freezes A-J/K port, mode, and constructor-method sequence fates with implementation permission false.
+  `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1` landed at `684533ba22`: the five root families issue a move-only compatibility shape before effects, use one child capture plus one outer collector drain, and leave runtime Box edges outside the terminal. D0b froze the exhaustive A-J/K port/mode/sequence matrix; the active `RUNTIME-BOX-FIH-CALLER-FATE-CENSUS-D0` now proves RawInvocation F/I/H claims before any retire or successor row, with implementation permission false.
   The zero-match D0, exact-selection I0, and `SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0` are landed: phase2050 discovery is 962 with exactly five leaves, while direct aggregate invocation remains the exact owner pack. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
   `SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0` is complete as a read-only census. The phase2170 official nine-leaf I0 is landed. phase2160's final fate is now selected as wrapper retirement, and its twenty-child leaf owner/fate census is the design stop; phase2047/2048/2049/2051, phase2100, and the legacy cluster retain separate fates and are not generalized.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
@@ -64,7 +64,7 @@ Design-only follow-up:
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorはadmission-fate D0で既存RawCompatibilityを選定し、I0でcompatibility admissionを着地した。
-  再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。D0b設計とI1実装でroot compatibility terminalを閉じた。runtime-boxの再監査でsync reject、RawLegacy/RawInvocation分岐、missing mode、constructor→method順序、prefix後rejectを追加し、D0bで実装前の有限行列へ固定した。
+  再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。D0b設計とI1実装でroot compatibility terminalを閉じ、再監査でsync reject、RawLegacy/RawInvocation分岐、missing mode、constructor→method順序、prefix後rejectを追加した。続くF/I/H caller-fate監査でshape issuer・affine lineage loan・whole-Box atomic collectorが未存在と確定したため、まず保持理由を証明し、無ければpre-effect retire/freezeするD0へ進む。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):

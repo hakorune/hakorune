@@ -1,0 +1,189 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box F/I/H caller and fate census D0"
+status = "accepted_design_no_safe_slice"
+observed_commit = "9b2193ea8c"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FIH-CALLER-FATE-CENSUS-D0"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-port-sequence-census-d0b-2026-08-27.toml"
+code_baseline = "60de7ac91e; later commits are docs-only for this runtime census"
+
+[boundary]
+starts = "RawInvocationChildPortV1 runtime BoxDeclaration branches F/I/H after the exhaustive D0b A-J/K matrix"
+ends = "a separate, evidence-backed Retire/Frozen, RetainGuarded, or NarrowSuccessor fate for each RawInvocation family"
+includes = [
+  "F: non-App static RawInvocation branch and its nested method batch",
+  "I: constructor-zero instance method RawInvocation branch",
+  "H: instance Box with constructors, including prefix mutation and constructor freeze",
+  "production caller graph, fixture/smoke owner, source/shape/lineage/collector claim, and successor route census",
+]
+excludes = [
+  "RawLegacy C/G/J routes, which keep a separate caller/fate row",
+  "root ProgramRootWorkPlan RawCompatibility I1 and its shape/collector",
+  "App static no-op E, sync/Main/missing-mode negatives A/B/D, and empty completion K",
+  "source-backed SelectedNormal, loop, route/run_all, VM/AOT/backend, Wpre, Call, and fallback retirement",
+]
+
+[brief]
+decision = "Do not invent a runtime compatibility terminal merely because F/I/H are reachable. First prove whether each RawInvocation family has a production or reference claim. If no claim exists, choose pre-effect whole-declaration retire/freeze; if a claim exists, open a separate source/shape/lineage/atomic-collector design."
+source_authority = "The concrete RawInvocation caller path, its selected fixture/smoke owner, and an existing successor owner. Text grep alone is not a production claim."
+canonical_issuer = "This census issues only a fate disposition. It does not issue a Callee, target, shape, semantic receipt, or collector product."
+non_authority = [
+  "RawLegacy facade success, root I1 ScriptRoot shape, root outer collector, caller count alone, or a loose freeze marker",
+  "AST/name/params.len()/params.len()+1/format! symbol, NestedBoxMethod lineage as target, or route exit code",
+  "tests that do not name their semantic owner, legacy direct success, or an unproved LLVM/raw-reference migration claim",
+]
+fail_fast = "A family cannot be retired without an owner-local caller/fixture census, and cannot be retained without a named source authority, successor/terminal owner, and no-partial-publication boundary. Missing evidence stays CutoverBlockerOpen."
+smallest_next_slice = "Re-derive concrete F/I/H RawInvocation callers and fixture claims, classify each as production/reference/test-only/unclaimed, and choose Retire/Frozen versus guarded retention. No code change."
+census_boundary = "dispatcher BoxDeclaration -> RawInvocation runtime terminal or freeze, including instance prefix/constructor/method sequence; RawLegacy and root I1 are explicitly separate boundaries."
+non_claims = [
+  "does not prove caller-zero from lexical absence",
+  "does not retire RawLegacyChildLoweringPortV1",
+  "does not authorize a shape issuer, lineage loan, collector transaction, or runtime implementation",
+  "does not change current runtime behavior or root I1",
+]
+
+[finite_state]
+states = [
+  "ObservedProductionClaim",
+  "ObservedReferenceClaim",
+  "ObservedTestOnlyClaim",
+  "NoReachableSemanticClaim",
+  "SuccessorReady",
+  "SuccessorMissing",
+  "RetireCandidate",
+  "RetainGuarded",
+  "CutoverBlockerOpen",
+]
+meaning = "The first four states describe evidence, the next two describe successor readiness, and the last three are dispositions. A lexical caller count never skips directly to RetireCandidate."
+retire_rule = "NoReachableSemanticClaim + an explicit pre-effect owner may select RetireCandidate; the retirement row must preserve root/RawLegacy owners and prove zero effects, retries, and partial publication."
+retain_rule = "ObservedProductionClaim or ObservedReferenceClaim may select RetainGuarded only with a named source/shape/lineage/collector owner; otherwise it remains CutoverBlockerOpen."
+
+[families]
+f_static_nonapp = "RawInvocation static non-App -> nonmain_static_box_method_batch.rs:77-101; current shape is formatted function_name plus later params-derived arity; candidate fate depends on caller evidence and cannot use RawLegacy fallback."
+i_instance_method = "RawInvocation instance methods -> instance_box_method_batch.rs:71-95 -> nested_box_method_source.rs:134-187; reachable only when constructor count is zero; method batch is not an independent fate when constructors exist."
+h_instance_constructor = "RawInvocation instance with constructors -> instance_box_declaration_lifecycle.rs:114-116 -> instance_box_constructor_batch.rs:117-139; current loose-instance-input reject occurs after prefix mutation and is CutoverBlockerOpen."
+
+[source_shape_successor_contract]
+source = "A located RawInvocation parent from current_source_context_v1() must be tied to the concrete caller and fixture owner; missing/foreign parent rejects before child effects."
+shape = "F/I/H have no source-owned symbol+physical_arity issuer at the observed baseline. Do not promote format! or params.len()/+1. If retained, a private move-only nonsemantic shape must be issued before effects by an existing runtime owner or the family stays parked."
+lineage = "NestedBoxMethod from_located_parent is provenance only. Current clone/snapshot behavior is not an affine loan; a retained family needs a closure-scoped borrow or an explicit non-retained fate."
+collector = "RawInvocation capture/commit currently uses recursive module_port per child. A retained F/I/H successor must collect the entire atomic unit (F all methods, I all methods when constructor-zero, H prefix+constructors+methods) without sharing root I1 or partial publication."
+successor = "A successor must be LLVM/AOT, raw-vm-reference, or an owner-local runtime terminal with a named semantic claim. RawLegacy direct lowering is not a successor proof."
+
+[prefix_and_sequence]
+observed_order = "instance_box_declaration_lifecycle.rs:114-116 performs prefix -> constructors -> methods"
+prefix_effect = "prefix mutation is register_user_box_declared_fields/metadata work at instance_box_declaration_lifecycle.rs:165-172"
+constructor_fate = "constructor batch reaches RawBoxMethodChildPortV1::lower_instance_box_method at instance_box_constructor_batch.rs:125-136 and RawInvocation default loose-instance-input at recursive_child_lowering.rs:123-136"
+required_fix = "Before any retain or retire implementation, validate H's fate before prefix or make the entire Box operation one rollback/atomic transaction. Constructor-only and method-only switches are forbidden."
+
+[[caller_fate_census]]
+id = "F-static-nonapp-raw-invocation"
+entry = "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:47-58 -> nonmain_static_box_method_batch.rs:77-101"
+current_route = "RawInvocationChildPortV1 nested capture/commit"
+production_claim = "unproven at D0; concrete caller and fixture owner must be enumerated"
+successor = "none observed; RawLegacy direct lowering is not an accepted successor"
+current_fate = "CutoverBlockerOpen"
+delete_or_retain = "Retire/Frozen if no semantic claim; otherwise open a dedicated narrow terminal design"
+
+[[caller_fate_census]]
+id = "I-instance-method-ctor-zero"
+entry = "instance_box_method_batch.rs:71-95 -> nested_box_method_source.rs:134-187"
+current_route = "RawInvocationChildPortV1 nested capture/commit"
+production_claim = "unproven at D0; method reachability is conditional on constructor-zero sequence"
+successor = "none observed; root I1 shape/collector cannot be reused"
+current_fate = "CutoverBlockerOpen"
+delete_or_retain = "Retire/Frozen if no semantic claim; otherwise retain only as part of an atomic instance successor"
+
+[[caller_fate_census]]
+id = "H-instance-with-constructors"
+entry = "instance_box_declaration_lifecycle.rs:114-116 -> instance_box_constructor_batch.rs:117-139"
+current_route = "RawInvocation prefix then constructor/method sequence"
+production_claim = "unproven at D0; current reject is after prefix mutation"
+successor = "none observed; whole-Box transaction or pre-prefix retire/freeze required"
+current_fate = "CutoverBlockerOpen"
+delete_or_retain = "Never treat loose-instance-input as success; choose whole-Box Retire/Frozen or atomic successor"
+
+[legacy_separation]
+scope = "RawLegacy C/G/J are live compatibility routes through recursive_child_lowering/legacy_port.rs:139-160 and are not counted as F/I/H evidence."
+c = "static Main RawLegacy inline success is a separate high-priority retire candidate after nested-Main root-only policy, corpus, and root parity evidence."
+g = "static non-App RawLegacy direct success remains guarded until F has a successor or an explicit runtime-declaration retirement decision."
+j = "instance RawLegacy success remains guarded until H/I whole-sequence fate is decided; constructor/method partial switches are forbidden."
+facade = "RawLegacyChildLoweringPortV1 itself remains retained for non-Box recursive expression descent; Box success override caller-zero is not facade caller-zero."
+
+[retirement_gate]
+pre_effect = "A selected Retire/Frozen fate executes before runtime prefix, child body descent, capture, collector mutation, or port retry."
+root_non_regression = "Top-level Main/root compatibility and SelectedNormal callers remain on their existing owners; runtime retirement cannot erase root semantics."
+proof = "production/reference/test-only classification, fixture expectation delta, exact caller path, zero effect/module/function delta, retry=0, and no RawLegacy/RawInvocation cross-fallback"
+
+[acceptance]
+positive = [
+  "Every concrete F/I/H RawInvocation caller and semantic fixture owner is listed exactly once",
+  "F, I, and H dispositions are independent where valid, but constructor/method reachability remains one sequence",
+  "NoReachableSemanticClaim is distinguished from SuccessorMissing and CutoverBlockerOpen",
+  "RawLegacy C/G/J evidence is explicitly excluded and linked to its separate fate row",
+  "Root I1 exclusion and top-level Main parity remain intact",
+]
+negative = [
+  "no caller-zero claim from grep absence alone",
+  "no RawLegacy fallback after RawInvocation failure or reverse retry",
+  "no root I1 shape/collector reuse, AST/name/arity synthesis, or loose-freeze success",
+  "no prefix mutation before H fate, per-method partial commit, or constructor/method split switch",
+]
+guard = "A future reusable guard must derive the F/I/H dispatcher-to-terminal caller paths, verify the production/reference/test-only owner field, reject unclassified or mixed-port routes, and prove root I1/RawLegacy separation."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "F/I/H caller and fixture census is complete with an explicit boundary and successor owner",
+  "each selected Retire/Frozen row has pre-effect zero-delta proof and root parity evidence",
+  "each retained row has source-owned shape, located lineage loan, and whole-unit atomic collector design",
+  "H prefix hazard is closed before any implementation permission",
+  "RawLegacy C/G/J remain separate and no cross-port retry is present",
+]
+no_safe_slice = [
+  "caller/fixture evidence is missing or only lexical",
+  "RawLegacy direct success is used as a RawInvocation successor",
+  "runtime shape is fabricated from AST/name/params.len()/+1/format!",
+  "H still rejects after prefix mutation",
+  "F/I per-method collection can partially publish",
+  "root I1, VM, route, Wpre, Call, loop, or source-backed semantics must change",
+]
+
+[[worker_receipt]]
+agent = "aggregate_heavy_cohort_design"
+finding = "F/I/H have no runtime source-owned shape issuer, no affine located-lineage loan, and no whole-unit atomic collector. The clean default is pre-effect whole-declaration retire/freeze, reopened only if a real production/reference claim is proven."
+evidence = [
+  "nonmain_static_box_method_batch.rs:35-70",
+  "instance_box_declaration_lifecycle.rs:106-116,165-172",
+  "instance_box_constructor_batch.rs:63-71,125-136",
+  "nested_box_method_source.rs:141-187",
+  "recursive_child_lowering.rs:435-449",
+]
+
+[[worker_receipt]]
+agent = "force_successor_fate_audit"
+finding = "RawLegacy C is the first bounded retire candidate after nested-Main policy/corpus/root-parity proof; G/J must remain guarded until F/H/I successor or whole-runtime retirement is selected, and the RawLegacy facade itself remains live for non-Box descent."
+evidence = [
+  "recursive_child_lowering/legacy_port.rs:71-127,139-160",
+  "raw_expression_dispatch/mod.rs:503-524",
+  "module_lifecycle_capture_tests.rs:617,669",
+  "raw_expression_dispatch/tests.rs:192-211",
+]
+
+[ordered_followups]
+steps = [
+  "1. Re-derive F/I/H concrete RawInvocation caller paths from dispatcher to terminal; classify production, reference, test-only, or no semantic claim.",
+  "2. Record fixture/smoke expectations and successor owner per family; do not infer product meaning from generic tests or lexical absence.",
+  "3. If no claim exists, open one pre-effect F/I/H retire/freeze I0 with zero-delta and root-parity evidence; keep H whole-Box atomic.",
+  "4. If a claim exists, open a separate source-shape-lineage-collector D0; no implementation from this census card.",
+  "5. Handle C nested-Main RawLegacy retirement as a separate bounded row; keep G/J guarded until F/H/I fate is total.",
+  "6. Only after runtime fate is total, revisit broader RawCompatibility, VM, and Call retirement rows.",
+]
+next_design = "RUNTIME-BOX-RAWLEGACY-NESTED-MAIN-FATE-D0 may follow the F/I/H census for C; G/J remain ParkedSealed/CutoverBlockerOpen."
+reopen_triggers = [
+  "a new RawInvocation Box caller, fixture, or port branch appears",
+  "a runtime shape or lineage issuer is introduced",
+  "constructor prefix order or collector atomicity changes",
+  "a RawLegacy/RawInvocation cross-fallback appears",
+  "root I1 exclusion or top-level Main parity changes",
+]
