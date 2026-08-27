@@ -1,9 +1,9 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "GUARD-NAVIGATION-TOMBSTONE-I0"
-current_design_stop = "GUARD-NAVIGATION-TOMBSTONE-I0"
-current_blocker_token = "GUARD-NAVIGATION-TOMBSTONE-I0: resolve the four navigation dangling names with explicit tombstones; no compatibility-block rewrite, member guard execution, source deletion, or compiler/backend behavior."
+work_mode = "design_stop"
+current_execution_row = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-D0"
+current_design_stop = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-D0"
+current_blocker_token = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-D0: navigation tombstones are landed; next classify scope-aware dead_code/panic measurements before any guard/source deletion or compiler/backend behavior."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "Guard execution graph and retirement accounting hygiene"
@@ -12,13 +12,13 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/guard-navigation-tombstone-i0-2026-08-27.toml"
-latest_card = "guard-navigation-tombstone-i0"
-latest_card_path = "docs/development/current/main/investigations/guard-navigation-tombstone-i0-2026-08-27.toml"
-latest_card_summary = "Fast path: resolve four compatibility-index dangling names with current-only typed tombstones; no member guard or compiler behavior."
-next_design_card = "DEAD-CODE-REMEASURE-D0"
-next_execution_card = "GUARD-NAVIGATION-TOMBSTONE-I0"
-next_execution_card_path = "docs/development/current/main/investigations/guard-navigation-tombstone-i0-2026-08-27.toml"
+current_execution_design = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
+latest_card = "guard-execution-index-force-hv1-nongrowth-closeout-d0"
+latest_card_path = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
+latest_card_summary = "Design stop: navigation tombstones are landed; classify scope-aware dead_code/panic measurements before guard/source deletion."
+next_design_card = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-D0"
+next_execution_card = "none"
+next_execution_card_path = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-27: guard registry structural ratchet I0 landed at 9b49907937 with explicit PR-base comparison, CI feedback-tier registration, and zero new-unmapped/mapping-loss evidence; member guards were not executed.",
+  "2026-08-27: guard registry structural ratchet I0 and navigation tombstone I0 landed at 9b49907937/595882c065 with explicit PR-base comparison, 4 typed tombstones, and zero new-unmapped/mapping-loss/dangling evidence; member guards were not executed.",
   "2026-08-27: ProductAot substring S0 and CoreDirect R0 landed with exact release EXE/AOT plus no-retry terminal evidence; force-hv1 fate is next.",
   "2026-08-27: force-hv1 direct HistoricalDelete R0a landed; 30 reviewed leaves retired, active evidence is 86/90, and PHI/provider remain R0b exceptions.",
 ]

@@ -1,5 +1,5 @@
 ---
-Status: Fast path — guard navigation tombstone validation
+Status: Design stop — guard execution index and retirement accounting
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/guard-navigation-tombstone-i0-2026-08-27.toml
+  - docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -52,10 +52,11 @@ Smallest next slice:
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
-  `GUARD-NAVIGATION-TOMBSTONE-I0` is the selected bounded follow-up: keep the
-  compatibility block byte-stable, validate four explicit tombstones through the
-  same inventory owner, and report live/tombstoned/dangling names. No source or
-  guard deletion is implied.
+  `GUARD-NAVIGATION-TOMBSTONE-I0` landed at `595882c065`: the compatibility
+  block stayed byte-stable, four explicit tombstones were validated through the
+  same inventory owner, and the result is 2,049 live / 4 tombstoned / 0 dangling.
+  The next design stop is scope-aware dead_code/panic measurement; no source or
+  guard deletion is implied by the navigation closeout.
   D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 froze phase2160-only Retire/Frozen through one private typed scope: issuer at program_root_lowering.rs:321-326, F take after App-before-register, I/H take before prefix, and Box-precheck snapshot delta=0.
   I0 landed at 7167aee18e: the phase2160 scope now retires F/I/H before effects, the four contracts are typed negatives, generic RawInvocation has an explicit unarmed success parity, and one reusable guard is registered. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.
   D0a is complete at e51dab7212 and C I0 landed at 2f11fbf3ef. The shared child dispatcher now queries a zero-payload two-state RawLegacy policy once and retires only C before helper/prepare effects. G/J, non-Box, Root I1, RawInvocation, and explicit root compatibility remain unchanged. The next selected design frontier is the parked guard execution/index and retirement-accounting row.
@@ -710,10 +711,10 @@ Required order:
    `ci_feedback_tier_policy_guard.sh`, rejects new unmapped public guards
    against an explicit PR base, and wires only this structure check to required
    PR CI. It does not run registry member commands or infer `HEAD^`.
-3. `GUARD-NAVIGATION-TOMBSTONE-I0` — keep the compatibility block byte-stable,
-   add four owner-reviewed tombstones, and make the existing inventory owner
-   reject missing/duplicate/conflicting navigation names. It is current-only,
-   does not enter `guard_rows.toml`, and executes no member guard.
+3. `GUARD-NAVIGATION-TOMBSTONE-I0` — landed at `595882c065`: the compatibility
+   block stayed byte-stable, four owner-reviewed tombstones resolve the former
+   dangling names, and the inventory owner rejects missing/duplicate/conflicting
+   navigation names without entering `guard_rows.toml` or executing members.
 4. `DEAD-CODE-REMEASURE-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
    `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive

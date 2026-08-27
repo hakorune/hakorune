@@ -1,11 +1,13 @@
 title = "Guard navigation tombstone validation I0"
-status = "accepted_design_parked"
-observed_commit = "f120eca539"
+status = "landed_bounded_child_row"
+observed_commit = "14f5dd2e20"
 observed_at = "2026-08-27"
-implementation_permission = false
+implementation_permission = true
 current_execution_row = "GUARD-NAVIGATION-TOMBSTONE-I0"
 parent_row = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
 successor_card = "GUARD-NAVIGATION-TOMBSTONE-I0-CLOSEOUT"
+implementation_commit = "595882c065"
+landed_commit = "595882c065"
 
 [boundary]
 starts = "the accepted two-plane guard graph and the existing check-scripts-index.md compatibility block"
@@ -167,7 +169,22 @@ evidence = [
 latest_finding = "Navigation has four dangling names out of 2,053 non-wildcard compatibility tokens; 2,049 resolve to live tracked paths. All four can be tombstoned with owner/reason/revision/successor/reopen evidence, and no executable/CI/smoke caller remains."
 
 [closeout]
-status = "pending"
-focused_guard = []
-focused_evidence = []
-closeout_notes = "Do not claim source or guard deletion. Record only navigation resolution, current-only counts, and member-execution exclusion."
+status = "complete"
+focused_guard = [
+  "python3 -m py_compile tools/checks/guard_manifest_inventory.py",
+  "python3 tools/checks/guard_manifest_inventory.py --root . --registry-ratchet",
+  "bash tools/checks/run_row_guard.sh --only guard-manifest-inventory --level l0 --base 14f5dd2e20",
+  "bash tools/checks/run_row_guard.sh --only ci-feedback-tier-policy",
+  "bash tools/checks/current_state_pointer_guard.sh",
+]
+focused_evidence = [
+  "navigation_compatibility_paths=2053",
+  "navigation_live_paths=2049",
+  "navigation_tombstoned_paths=4",
+  "navigation_dangling_paths=0",
+  "navigation_tombstone_rows=4",
+  "registry_new_unmapped=0 and registry_mapping_loss=0 against explicit base 14f5dd2e20",
+  "the legacy compatibility block is byte-stable; no member guard or Cargo command ran",
+  "all four tombstone observed revisions resolve and all successors are tracked",
+]
+closeout_notes = "The four navigation names are now explicit superseded tombstones owned by their successor SSOTs. This closes navigation accounting only; it does not authorize guard/source deletion, compiler/backend behavior, or semantic retirement."
