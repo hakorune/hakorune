@@ -340,6 +340,15 @@ remaining_blockers = [
 ]
 next_task = "A2-C-SUCCESSOR-DECISION-D0"
 
+[parked_handoff]
+status = "intentionally_parked_open_blocker"
+owner = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-A2-REFERENCE-REVIEW-D0"
+return_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-A2-REFERENCE-REVIEW-D0"
+selected_next_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
+reason = "Freeze the A2 review at its existing file/reference boundary while the MirBuilder call spine is selected. The unresolved 697 references, 185 roles, and 16 successors remain unchanged; no owner-map, deletion, expectation, or source authority is issued by this handoff."
+reopen = "Reopen only if the receipt, matrix hash, review head, or A1 input changes; a new owner/site/successor appears; the selected D1B or a retirement/guard gate directly requires this map; or CURRENT_STATE.toml explicitly reselects A2."
+non_claims = "A2 is not complete or map-ready. Its internal rows remain unresolved, and this handoff authorizes no owner map, expectation TSV, guard, allow, or source deletion."
+
 [c_successor_review]
 status = "candidate_successors_narrowed_split_and_parity_blockers_remain"
 review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
