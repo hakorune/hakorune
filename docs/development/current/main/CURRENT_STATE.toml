@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0"
-current_design_stop = ""
-current_blocker_token = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0: close the root-only direct-observation check with one forest-wide helper; package/loan/issuer/dispatcher publication remains closed."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_design_stop = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_blocker_token = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: forest-wide observation gate is landed, but exact Cataloged issuer, lineage mapper, package/loan co-seal, and raw-port handoff remain design-gated."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 latest_card = "mir-call-d1b-direct-call-source-inventory-coseal-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
-latest_card_summary = "D1B observer I0 and B1 structural Global carrier S0 are landed. The current fast row closes the forest-wide direct-observation gate; target publication, package/loan, and dispatcher cutover remain closed."
-next_design_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
-next_execution_card = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0"
+latest_card_summary = "D1B observer I0, B1 structural Global carrier S0, and the forest-wide direct-observation gate are landed. The next design row names the exact Cataloged issuer/lineage/co-seal; target publication and package/loan cutover remain closed."
+next_design_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-28: raw invocation source transport BoxShape split landed at 0bd6732792; ordinary same-path modules and 15 focused tests are green, then D1B observer design stop resumed.",
   "2026-08-28: D1B Selected FunctionCall observer I0 landed at 10620955d4; facts-only observations and typed package terminal are green, with package/issuer/loan still design-stopped.",
   "2026-08-28: B1 structural Global carrier S0 landed at 75c0a6c04e; nested serde-free shape and zero-production-caller guard are green, while D1B issuer/package/loan remains design-stopped.",
+  "2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
 ]

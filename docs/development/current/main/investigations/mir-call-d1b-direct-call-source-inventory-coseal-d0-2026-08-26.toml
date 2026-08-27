@@ -1,9 +1,9 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
-status = "fast_open_forest_wide_observation_gate"
+status = "forest_wide_observation_gate_landed"
 observed_commit = "784f3af770"
 observed_at = "2026-08-26"
-implementation_permission = true
-permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 only; package/loan/issuer/dispatcher publication remains closed"
+implementation_permission = false
+permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; package/loan/issuer/dispatcher publication remains design-gated"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
 safety_child = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-d0-2026-08-26.toml"
@@ -39,7 +39,7 @@ non_authority = [
   "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
 ]
 fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
-smallest_next_slice = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0: add one private forest-wide unissued-observation helper, delegate the package batch and source admission checks to it, and add nested-only/mixed-owner negative coverage. No target, loan, dispatcher, or Call publication."
+smallest_next_slice = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: name the exact Cataloged issuer, lineage/site mapper, and package co-seal boundary. The forest-wide observation gate is landed; no target, loan, dispatcher, or Call publication is open."
 non_claims = [
   "the inventory does not issue a target or generalize the exact-i64 index",
   "lineage preservation does not authorize Global synthesis from names or arity",
@@ -103,6 +103,9 @@ next_task = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
 
 [forest_wide_observation_gate_r0]
 current_execution_row = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0"
+status = "landed"
+implementation_permission = false
+commit = "b176c98276"
 decision = "Make the package batch and source admission use one private forest-wide predicate over every Function owner, including nested lambdas. This closes the root-only inspection gap without issuing a target or changing the lowering route."
 source_authority = "Existing SelectedCallable shadow/resolver forest and its owner-scoped direct_call_observations"
 canonical_issuer = "No issuer is opened by this row; the existing package/source terminals only consume the shared predicate"
@@ -133,6 +136,9 @@ acceptance = [
   "forests without observations preserve the existing success path",
   "no target, loan, CalleeResolverBox, argument lowering, MIR block mutation, or backend behavior changes",
 ]
+tests = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_semantic_package::resolver_deferred_tests: 5 passed, 0 failed; exact nested-only test: 1 passed, 0 failed"
+guard = "bash tools/checks/current_state_pointer_guard.sh: ok; bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle: observer_i0 ok; touched normal_callable_semantic_source.rs remains 730 lines (<760)"
+result = "Root-only, nested-only, and mixed-owner unissued observations now share the same forest-wide package/source gate. Target issuance, package/loan transport, raw dispatcher, and Call publication remain zero."
 no_safe_slice = [
   "the helper requires a second AST traversal or a new semantic receipt",
   "the package batch and source admission cannot share the same owner-wide predicate",

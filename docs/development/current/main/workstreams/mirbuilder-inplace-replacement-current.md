@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR Call D1B forest-wide observation gate
+Status: Design stop — MIR Call D1B owner/lineage/co-seal readiness
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  B1 structural Global carrier S0 is landed at `75c0a6c04e`. The current bounded fast row is `MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0`: one private forest-wide observation predicate, delegated by both package batch and source admission, with nested-only/mixed-owner negatives. No target, loan, dispatcher, or Call publication is open.
+  B1 structural Global carrier S0 and `MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0` are landed (`b176c98276`). The next design row is `MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1`: name the exact Cataloged issuer, lineage/site mapper, and package co-seal before any target, loan, dispatcher, or Call publication.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
