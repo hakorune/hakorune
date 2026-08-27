@@ -34,7 +34,7 @@ non_authority = [
   "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
 ]
 fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner, explicit role evidence, named retention policy or successor, or if a uniform policy is asserted across mixed modules without row-level proof."
-smallest_next_slice = "Continue design-only policy issuance for the 4 conditional rows; preserve six exact RetainNamed bindings, carry 69 candidate-evidence joins as non-authoritative, and keep conditional successor status unknown until each exact key receives a policy owner or named successor."
+smallest_next_slice = "Continue design-only exact policy issuance for the 69 candidate rows across grouped families; preserve ten exact RetainNamed bindings and keep candidate evidence non-authoritative until each exact key receives a policy owner or named successor."
 non_claims = [
   "does not claim generated modules are dead or live",
   "does not create a successor, expectation pin, guard row, or deletion authorization",
@@ -59,12 +59,12 @@ nested_mod_names = [
   "generic_g0_projection",
   "normal_source_plan",
 ]
-policy_ready_rows = 6
-blocked_rows = 73
+policy_ready_rows = 10
+blocked_rows = 69
 tracked_exact_path_references = 68
 unresolved_exact_path_rows = 11
 policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
-result = "all 79 rows are structurally bound; six rows have reviewed RetainNamed policies, 69 rows have current owner/evidence candidates, and the remaining four conditional rows stay blocked until their retention/successor policy is named and reviewed"
+result = "all 79 rows are structurally bound; ten rows have reviewed RetainNamed policies, 69 rows have current owner/evidence candidates, and no conditional rows remain blocked; candidate-only rows still require exact-key policy before owner-map authoring"
 explicit_policy_candidate_rows = [
   "1:a_prime_i64_physical_capability",
   "2:acyclic_callable_graph",
@@ -136,68 +136,64 @@ explicit_policy_candidate_rows = [
   "78:source_projection",
   "79:source_view",
 ]
-conditional_candidate_rows = [
+conditional_candidate_rows = []
+explicit_policy_ready_rows = [
   "25:dynamic_full_body_recipe",
   "27:external_commit",
   "28:generic_g0_projection",
   "53:raw_root_eligibility",
+  "56:raw_root_finalization",
 ]
-explicit_policy_ready_rows = ["56:raw_root_finalization"]
-conditional_policy_accept_rows = 1
-conditional_policy_blocked_rows = 4
+conditional_policy_accept_rows = 5
+conditional_policy_blocked_rows = 0
 unresolved_rows = 0
 
 [conditional_review]
-status = "one_accepted_four_blocked"
+status = "all_accepted"
 rows = 5
-accepted_rows = 1
-blocked_rows = 4
-decision = "raw_root_finalization has an exact RetainNamed owner and reopen trigger; dynamic_full_body_recipe, external_commit, generic_g0_projection, and raw_root_eligibility remain blocked because their evidence does not yet bind an exact-key retain or named successor."
-items = [
-  "25:dynamic_full_body_recipe key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2404|2423|outer_allow; candidate evidence=src/mir/compiler/dynamic_full_body_recipe/README.md:3-20,22-54 and mirbuilder-structure-refactor-queue-d0-2026-08-23.md:583-607; blocker=compiler-owned keep direction is not a row-level retain policy",
-  "27:external_commit key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2591|2610|outer_allow; candidate evidence=src/mir/compiler/external_commit.rs:1-4 and cut0-i0-raw-source0-lower-root-post0-publication0-s0-execution-task-2026-07-24.md:328-350,418-428; blocker=wide Raw retirement condition does not bind this mixed canonical/legacy row",
-  "28:generic_g0_projection key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2799|2818|outer_allow; candidate evidence=compiler README:503-514 and generic-loop-source-to-portable-recipe-ssot.md:1221-1244; blocker=projector role and broad deletion manifest lack exact row disposition",
-  "53:raw_root_eligibility key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|6439|6458|outer_allow; candidate evidence=cut0-i0-raw-source0-lower-root-declaccess0-s0-execution-task-2026-07-24.md:127-160; blocker=multi-module CUT0 condition is not a row-specific successor/retain policy",
-]
+accepted_rows = 5
+blocked_rows = 0
+decision = "All five conditional rows now have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. Their retention remains bounded by the named owner policy; the 69 other A rows remain candidate-only and non-authoritative."
+items = []
 accepted_items = [
+  "25:dynamic_full_body_recipe key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2404|2423|outer_allow; RetainNamed=src/mir/compiler/dynamic_full_body_recipe/mod.rs#symbol:produce_dynamic_full_loop_recipe_v2_with_contract@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=all non-test Dynamic consumers reach zero or a bounded replacement owner lands",
+  "27:external_commit key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2591|2610|outer_allow; RetainNamed=src/mir/compiler/external_commit.rs#symbol:PreparedModuleExternalCommitV1@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=canonical callers reach zero or a replacement owner lands; Raw sibling remains separately owned",
+  "28:generic_g0_projection key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2799|2818|outer_allow; RetainNamed=src/mir/compiler/generic_g0_projection/mod.rs#symbol:issue_generic_g0_source_type_bundle_v1@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=the test/reference projector reaches caller-zero or an explicit replacement/production selector is admitted",
+  "53:raw_root_eligibility key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|6439|6458|outer_allow; RetainNamed=src/mir/compiler/raw_root_eligibility.rs#symbol:RawRootEligibilityV1@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=explicit Raw public/reference eligibility callers reach zero or a replacement eligibility owner lands",
   "56:raw_root_finalization key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|6702|6721|outer_allow; RetainNamed=src/mir/compiler/raw_root_finalization.rs#symbol:RawDrainedInvocationV1::prepare_finalization@cd4cb112baf03425dc89199183add51fe2b8227b; reopen=explicit Raw public/reference callers reach zero or a named replacement finalization owner lands",
 ]
-next_tasks = [
-  "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: choose an exact compiler owner or named successor for dynamic_full_body_recipe without inferring retention from the README",
-  "EXTERNAL-COMMIT-GENERATED-REGISTRY-FATE-D0: separate canonical commit ownership from LegacyPublicationPayload and bind the exact registry row",
-  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: decide whether generic_g0_projection remains a test/reference projector or receives a named successor",
-  "RAW-ROOT-ELIGIBILITY-GENERATED-REGISTRY-FATE-D0: choose the Raw public/reference eligibility owner or successor after route fate is explicit",
-]
-binding_rule = "For each conditional row, record exact canonical key, declaration path, independently reviewable owner evidence, and an explicit retain policy owner or named successor; until all four are present, keep candidate_successor_status=unknown and review_state=blocked_successor."
+next_tasks = []
+binding_rule = "Each conditional row has an exact canonical key, declaration path, independently reviewable owner evidence, explicit RetainNamed policy, and reopen trigger; no conditional row uses a guessed successor or default retention."
 
 [unresolved_review]
-status = "no_residual_rows_conditional_policy_remaining"
+status = "no_residual_rows_candidate_policy_remaining"
 rows = 0
 policy_ready_rows = 0
 candidate_only_rows = 0
 blocked_rows = 0
 role_group_count = 0
 partition_counts = "core=0; loop=0; raw_entry=0"
-next_task = "CHRONIC-MEASUREMENT-A-CONDITIONAL-POLICY-BIND-D0 (grouped section of this card; no per-row cards)"
+next_task = "CHRONIC-MEASUREMENT-A-CANDIDATE-POLICY-BIND-D0 (69 candidate rows; grouped section of this card; no per-row cards)"
 canonical_key = "dead_code_allowance + src/mir/compiler/module_registry.in.rs + byte_start + byte_end + outer_allow"
-decision = "The module_postprocess, source_bound_package, source_bound_plan, loop_cond_break_continue_projection, loop_true_break_continue_projection, and raw_root_finalization rows now have exact RetainNamed bindings with reopen triggers. The remaining four conditional rows stay blocked; 69 other rows carry candidate owner/evidence only and remain non-authoritative until their exact-key policy is issued."
+decision = "Ten exact rows now have RetainNamed bindings with reopen triggers, including the five formerly conditional rows. The remaining 69 A rows carry candidate owner/evidence only and remain non-authoritative until their exact-key policy is issued."
 grouped_next_tasks = [
   "DIRECT-ACCUM-GENERATED-REGISTRY-FATE-D0: keep the four current DirectAccum owner candidates blocked until exact-key retention/fate policy is named",
-  "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: reconcile the current Dynamic source admission chain with an explicit selected physical fate before policy binding",
-  "EXTERNAL-COMMIT-GENERATED-REGISTRY-FATE-D0: resolve the mixed canonical/legacy external commit owner and name an exact-key retain or successor policy",
   "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: choose an exact-key caller-zero retain owner or named test/reference successor for the six prephysical rows",
   "COMMON-V2-GENERATED-REGISTRY-FATE-D0: bind exact-key retention or successor policy for the three common-v2 transport/admission rows",
   "RESOLVED-CALLABLE-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the four resolved-callable ingress/cutover rows",
   "NESTED-PRODUCTION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the seven nested-predicate production rows",
   "VARIABLE-OBSERVATION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the two variable-observation rows",
   "CHRONIC-MEASUREMENT-RAW-REGISTRY-FATE-D0: bind exact-key fate for the seven raw/reference rows",
-  "RAW-ROOT-ELIGIBILITY-GENERATED-REGISTRY-FATE-D0: decide the exact public/reference eligibility owner or successor after the raw route fate is fixed",
   "SOURCE-ENTRY-GENERATED-REGISTRY-FATE-D0: split test/reference, legacy projection, live substrate, and VM-reference subgroups before exact-key policy binding",
 ]
 completed_grouped_tasks = [
   "SOURCE-BOUND-GENERATED-REGISTRY-FATE-D0: source_bound_package and source_bound_plan are RetainNamed with explicit reopen triggers; compatibility re-export remains non-authority",
   "LOOP-OBSERVATION-GENERATED-REGISTRY-FATE-D0: LoopCond is test/reference RetainNamed and LoopTrue is test/reference plus type-facade RetainNamed with explicit reopen triggers",
   "RAW-ROOT-FINALIZATION-GENERATED-REGISTRY-FATE-D0: raw_root_finalization is RetainNamed under RawDrainedInvocationV1::prepare_finalization with explicit Raw public/reference caller-zero reopen trigger",
+  "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: dynamic_full_body_recipe is RetainNamed under produce_dynamic_full_loop_recipe_v2_with_contract with an explicit non-test-consumer reopen trigger",
+  "EXTERNAL-COMMIT-GENERATED-REGISTRY-FATE-D0: external_commit is RetainNamed under PreparedModuleExternalCommitV1; canonical and Raw external-commit owners remain separate",
+  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: generic_g0_projection is RetainNamed as a test/reference projector with an explicit caller-zero or replacement reopen trigger",
+  "RAW-ROOT-ELIGIBILITY-GENERATED-REGISTRY-FATE-D0: raw_root_eligibility is RetainNamed under RawRootEligibilityV1 for explicit Raw public/reference ingress",
 ]
 groups = []
 
@@ -283,6 +279,72 @@ evidence_refs = [
 reopen_trigger = "Reopen if explicit Raw public/reference callers reach zero or a named replacement finalization owner lands."
 non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, broad Raw route retirement, expectation/guard changes, or use of raw-vm-reference as an implicit successor."
 
+[policy_binding_dynamic_full_body_recipe]
+status = "reviewed_ready_for_map"
+canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2404|2423|outer_allow"
+disposition = "RetainNamed"
+policy_owner_ref = "src/mir/compiler/dynamic_full_body_recipe/mod.rs#symbol:produce_dynamic_full_loop_recipe_v2_with_contract@2b8ef0d28b8553f3679430b05f41d8810c3852af"
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/dynamic_full_body_recipe/mod.rs#range:177-210@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/normal_callable_semantic_package/issuer.rs#range:211-325@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs#range:246-269@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/a_prime_i64_physical_capability/issuer.rs#range:29-87@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/assembly.rs#range:1-110@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+]
+reopen_trigger = "Reopen if all non-test Dynamic package-admission, A-prime, and physical consumers reach zero or a bounded replacement source/Recipe owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, generic Dynamic promotion, Builder/MIR/ABI/Home/VM/backend changes, or fallback/retry changes."
+
+[policy_binding_external_commit]
+status = "reviewed_ready_for_map"
+canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2591|2610|outer_allow"
+disposition = "RetainNamed"
+policy_owner_ref = "src/mir/compiler/external_commit.rs#symbol:PreparedModuleExternalCommitV1@2b8ef0d28b8553f3679430b05f41d8810c3852af"
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/external_commit.rs#range:59-87@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/external_commit.rs#range:119-179@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/external_commit.rs#range:239-252@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/mod.rs#range:510-539@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/resolved_direct_accum_cutover.rs#range:19-25@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/resolved_nested_predicate_cutover.rs#range:16-23@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/raw_root_external_commit.rs#range:1-5@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+]
+reopen_trigger = "Reopen if all canonical non-test prepare_module_external_commit/commit_prepared_module callers reach zero or a replacement canonical commit owner lands."
+non_claims = "This binding does not cover Raw external commit fate, treat LegacyPublicationPayload as compatibility, authorize allow/source/fallback/retry/publication/Call/backend changes, or merge the Raw sibling owner."
+
+[policy_binding_generic_g0_projection]
+status = "reviewed_ready_for_map"
+canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2799|2818|outer_allow"
+disposition = "RetainNamed"
+policy_owner_ref = "src/mir/compiler/generic_g0_projection/mod.rs#symbol:issue_generic_g0_source_type_bundle_v1@2b8ef0d28b8553f3679430b05f41d8810c3852af"
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/generic_g0_projection/mod.rs#range:67-175@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_projection/numeric.rs#range:30-47@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_projection/handoff.rs#range:1-58@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_observation.rs#range:1-100@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+]
+reopen_trigger = "Reopen if all cfg(test) projection/source-attempt/handoff consumers reach zero, a replacement test/reference projector lands, or an explicit G0 production selector is admitted."
+non_claims = "This binding is test/reference-only and does not authorize production promotion, Recipe/loop/physical/Builder/MIR/backend changes, allow removal, source deletion, fallback, or retry."
+
+[policy_binding_raw_root_eligibility]
+status = "reviewed_ready_for_map"
+canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6439|6458|outer_allow"
+disposition = "RetainNamed"
+policy_owner_ref = "src/mir/compiler/raw_root_eligibility.rs#symbol:RawRootEligibilityV1@2b8ef0d28b8553f3679430b05f41d8810c3852af"
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/raw_root_eligibility.rs#range:80-208@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/raw_root_eligibility_prepare.rs#range:16-84@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/raw_published_compile.rs#range:188-216@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/source_entry_vm_execution.rs#range:73-103@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/runner/reference/raw_vm_reference.rs#range:1-68@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/raw_public_ingress.rs#range:1-39@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+]
+reopen_trigger = "Reopen if explicit Raw public/reference eligibility callers reach zero or a replacement Raw eligibility owner lands."
+non_claims = "This binding does not authorize broad Raw VM retirement, use of raw-vm-reference as an implicit successor, allow removal, source deletion, expectation/guard changes, or post-eligibility target/finalization changes."
+
 [cohort]
 name = "A_generated_registry"
 receipt_row_count = 79
@@ -323,8 +385,8 @@ items = [
   "1. Bind exactly the 79 A rows from the validated receipt; preserve byte-range identity and do not regenerate scanner output.",
   "2. Confirm module_registry.in.rs and compiler/mod.rs as topology owner evidence without treating the include as retention policy.",
   "3. Bind the 69 current candidate-evidence rows to canonical registry keys and their existing tracked owner/successor evidence without upgrading candidate status to policy-ready.",
-  "4. Bind the 4 remaining conditional candidates to exact row-level retain or successor policy; keep all four blocked if the existing broad evidence cannot be narrowed.",
-  "5. Close the 4 residual source_bound/loop_observation rows and raw_root_finalization with exact RetainNamed bindings and explicit reopen triggers; keep the 4 unresolved conditional rows blocked.",
+  "4. Bind all 5 conditional candidates to exact row-level RetainNamed policy with pinned owner evidence and explicit reopen triggers; no conditional blocker remains.",
+  "5. Preserve the 69 candidate-only rows as non-authoritative and keep their unknown successor status blocking until grouped exact-key policy is issued.",
   "6. Record the finite policy and row-level evidence in the parent matrix; only then reopen site-owner-map D0 for map authoring.",
 ]
 
@@ -357,13 +419,15 @@ agents = [
   "chronic_measurement_scope_audit (common-v2/resolved-callable follow-ups; 7 candidate rows)",
   "aggregate_heavy_cohort_design (nested-production follow-up; 7 candidate rows)",
   "vm_route_retirement_census/phase2170_flow_recv_rows (variable-observation follow-up; 2 candidate rows)",
-  "chronic_token_scanner_design_audit (raw follow-up; 7 candidate rows; raw_root_eligibility remains conditional blocked)",
+  "chronic_token_scanner_design_audit (raw follow-up; 7 candidate rows; raw_root_eligibility RetainNamed binding reviewed)",
   "force_successor_fate_audit (source-entry follow-up; 9 candidate rows)",
   "guard_index_spec_audit (source-bound/loop-observation follow-up; 4 exact RetainNamed bindings reviewed)",
-  "conditional_registry_fate_audit (five conditional rows; raw_root_finalization RetainNamed, four remain NoSafeSlice)",
+  "conditional_registry_fate_audit (five conditional rows; all exact RetainNamed policies reviewed)",
+  "conditional_policy_adversary_core (dynamic_full_body_recipe, external_commit, generic_g0_projection; all three RetainNamed accepted)",
+  "conditional_policy_adversary_raw (raw_root_eligibility; RetainNamed accepted with explicit Raw ingress boundary)",
 ]
-status = "conditional_policy_remaining_blocked"
-finding = "At 7917aa105c, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Current tracked evidence yields 69 candidate rows, 6 reviewed RetainNamed bindings (module_postprocess, source_bound, loop_observation, and raw_root_finalization), and 4 conditional rows that remain blocked; policy-ready is 6/79 and residual rows are zero. Six read-only follow-ups confirmed current owner/consumer evidence for common-v2, resolved-callable, nested-production, variable-observation, raw, and source-entry groups without issuing exact-key retention/successor policy; candidate-only=0 for the six closed bindings and the conditional set remains blocked."
+status = "all_conditional_policies_accepted_candidate_rows_remaining"
+finding = "At 2b8ef0d28b8553f3679430b05f41d8810c3852af, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Current tracked evidence yields 69 candidate-only rows and 10 reviewed RetainNamed bindings, including all five formerly conditional rows; no conditional blocker remains and policy-ready is 10/79. Six read-only follow-ups continue to provide candidate owner/consumer evidence for common-v2, resolved-callable, nested-production, variable-observation, raw, and source-entry groups without issuing exact-key policy; the 69 candidate rows remain non-authoritative and their unknown successor status keeps owner-map authoring blocked."
 evidence = [
   "tools/checks/manifests/chronic_measurement_observations_v1.json binds 79 A rows to src/mir/compiler/module_registry.in.rs at source commit d9cff5b744edee3b6450db5d0ffc74478f32b49a",
   "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only; 79/79 following mod declarations and tracked module paths resolve",
@@ -374,9 +438,9 @@ evidence = [
   "mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md covers row 35; normal-source-plan0-s0-execution-task-2026-07-26.md covers row 48",
   "cut0-i0-raw-source0-lower-root-callmain0-s0-execution-task-2026-07-24.md, cut0-i0-raw-source0-lower-root-callchildren0-s0-execution-task-2026-07-24.md, and declaccess0-s0-execution-task-2026-07-24.md cover rows 49-51",
   "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json and tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json provide candidate evidence for rows 77-78",
-  "dynamic_full_body_recipe README, post0-publication0 task, generic-loop-source-to-portable-recipe SSOT, declaccess0, and post0-public-cutover task remain conditional evidence for rows 25, 27, 28, and 53; row 56 is separately bound to raw_root_finalization RetainNamed",
+  "Rows 25, 27, 28, 53, and 56 now have separate exact RetainNamed bindings; broad README/task references remain evidence only and do not authorize deletion or promotion",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
-  "The residual review initially grouped all 62 exact canonical keys into 16 role groups; after module_postprocess, source_bound, loop_observation, and raw_root_finalization were bound as RetainNamed and the candidate evidence was recorded, the four residual exact keys plus raw_root_finalization were closed with explicit reopen triggers, leaving only four conditional rows blocked",
+  "The residual review initially grouped all 62 exact canonical keys into 16 role groups; after module_postprocess, source_bound, loop_observation, raw_root_finalization, and the four conditional owners were bound as RetainNamed, no conditional A keys remain blocked and the 69 candidate-only rows remain outside policy authority",
   "Initial core partition (21 rows: A-prime/common-v2/canonical/dynamic-source/generic-G0/resolved-callable) found policy-ready=0 and candidate-only=0; the a_prime and canonical follow-ups then recorded candidate evidence only, while each exact row still requires an explicit row-level retain or successor decision",
   "Common-v2 sub-audit (rows 53/55/57) found role evidence only: session admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; non-test type references do not issue retention or successor policy",
   "Resolved-callable sub-audit (row 203) found a named resolver owner and canonical ingress API, but the exact-key production caller census is test-centered; neither RetainNamed nor a named successor is issued",
@@ -393,12 +457,12 @@ evidence = [
   "Resolved-callable follow-up (four rows L203/L206/L208/L210) found live resolver/preflight/cutover owner evidence; all four remain candidate evidence only because no exact-key retention/successor policy is issued",
   "Nested-production follow-up (seven rows L122/L126/L128/L132/L134/L136/L158) found a live compiler capability/profile/producer/lowerer chain; all seven remain candidate evidence only because no exact-key retention/successor policy is issued",
   "Variable-observation follow-up (two rows L138/L140) found source observer and cfg(test) Recipe evidence; both remain candidate evidence only because no exact-key retirement owner is issued",
-  "Raw follow-up (seven rows L179/L183/L185/L190/L192/L197/L199) found the raw-vm-reference ingress and runtime-input/package owners; all seven remain candidate evidence only, raw_root_finalization is now an exact RetainNamed finalization owner, and raw_root_eligibility remains conditional blocked",
-  "Conditional fate follow-up (rows 25/27/28/53/56) found RawDrainedInvocationV1::prepare_finalization as the sole live raw_root_finalization owner at cd4cb112baf03425dc89199183add51fe2b8227b; dynamic_full_body_recipe, external_commit, generic_g0_projection, and raw_root_eligibility remain NoSafeSlice until an exact policy owner or named successor is issued",
+  "Raw follow-up (seven rows L179/L183/L185/L190/L192/L197/L199) found the raw-vm-reference ingress and runtime-input/package owners; raw_root_eligibility and raw_root_finalization now have exact RetainNamed eligibility/finalization owners while the other raw rows remain candidate-only",
+  "Conditional fate follow-up (rows 25/27/28/53/56) and adversarial reviews accepted exact RetainNamed policies for dynamic_full_body_recipe, external_commit, generic_g0_projection, raw_root_eligibility, and raw_root_finalization; each retains an explicit reopen trigger and no deletion authority",
   "Source-entry follow-up (nine rows L217/L219/L221/L223/L225/L227/L229/L231/L236) split test/reference, legacy projection, live substrate, and VM-reference evidence; all nine remain candidate evidence only because exact-key retention/successor policy is unissued",
-  "Source-bound and loop-observation follow-up (four rows L106/L112/L213/L215) records exact RetainNamed owner bindings with reopen triggers; LoopTrue remains a test/reference type facade, and no promotion or deletion is authorized",
+  "Source-bound and loop-observation follow-up (four rows L106/L112/L213/L215) records exact RetainNamed owner bindings with reopen triggers; LoopTrue remains a test/reference type facade, and the conditional review adds four more exact RetainNamed owners; no promotion or deletion is authorized",
 ]
-latest_finding = "The A structural census and the 69 exact candidate joins are complete at 79/79 and 69 rows respectively. Six exact RetainNamed bindings are recorded for module_postprocess, source_bound, loop_observation, and raw_root_finalization; the four conditional rows remain blocked, with no residual rows. Policy-ready is 6/79, 73 A successor statuses remain unknown, and the tracked 185-row map must not be authored from candidate evidence."
+latest_finding = "The A structural census and the 69 exact candidate joins are complete at 79/79 and 69 rows respectively. Ten exact RetainNamed bindings are recorded for module_postprocess, source_bound, loop_observation, raw_root_finalization, and the four formerly conditional owners; no conditional blocker or residual row remains. Policy-ready is 10/79, 69 A successor statuses remain unknown, and the tracked 185-row map must not be authored from candidate evidence."
 
 [closeout]
 status = "pending"
