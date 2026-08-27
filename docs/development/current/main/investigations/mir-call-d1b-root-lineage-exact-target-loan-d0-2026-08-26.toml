@@ -635,7 +635,7 @@ stop = "Return to design if explicit profile issuance cannot be separated from c
 non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
 
 [task_spine]
-current = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 is the only open design row. The observer I0 and B1 structural carrier S0 are landed. Read-only re-audit found the remaining package-only install bypass, no Cataloged exact physical Callee issuer, duplicated lineage construction, and no scoped raw-port loan. An atomic projection into the current transitional Callee or its later structural payload is architecturally allowed only after exact relation checks; symbol formatting or key reconstruction remains forbidden, and no semantic code row is open."
+current = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 is the only open design row. The observer I0 and B1 structural carrier S0 are landed. Read-only re-audit found the remaining package-only install bypass, no Cataloged exact physical Callee issuer, duplicated lineage construction, and no scoped raw-port loan. The active D1 amendment now chooses the strict structural path: no new issuer may project through transitional Callee::Global(String); B1 Callee/CallTarget integration and finite consumer disposition must precede target publication. Symbol formatting or key reconstruction remains forbidden, and no semantic code row is open."
 next_prerequisite = "Freeze one package-owned direct-call inventory terminal, prove or explicitly introduce the sole exact Cataloged physical carrier owner (without a new String authority), one same-session StaticBoxMethod issuer, one Cataloged source/raw lineage mapper, one private sealed package-plus-loan bundle, and one short mutable raw-port reborrow. The next implementation row may open only when package-only install is impossible, the current batch/source duplicate checks have one named owner, and the CatalogedTargeted direct handoff can be deleted atomically. RawCompatibility, BoundedGc, Method(None), and Call schema remain separate rows."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
@@ -652,7 +652,7 @@ canonical_issuer = "The callable-declaration catalog is the intended sole physic
 lineage_mapper = "One owner-specific mapper performs the exact source-to-raw Cataloged lineage/site relation. TopLevel and InstanceConstructor lineage remains source identity only; no name/arity/symbol synthesis and no InstalledNonBrand { caller = None } collapse may cross this boundary."
 sealed_bundle = "A private, non-Clone/non-Copy #[must_use] bundle carries the installed package and RawDirectCallDispositionLoanV1 together. No package-only prepare/commit/begin_lowering API, public fields, getter, into_parts, Default, or retry path is allowed. Validate the complete loan before context mutation."
 raw_port = "The lowering session owns the loan; RawInvocationChildPortV1 receives only a short &mut reborrow. The consumer sequence is take_once(exact site) -> end view -> lower arguments once -> MirInstruction::call once -> finish_empty. Adapter-local storage alone is not a consumer connection."
-carrier_projection = "D1B may not widen or redesign the shared Callee carrier. It may use one exact catalog-owned projection into the current transitional Callee representation or later B1 structural payload only after relation/brand/site checks; CanonicalGlobalTargetV1 is now present but its consumer census and atomic connection remain closed. mir_symbol_projection and any key/name-to-String synthesis are forbidden."
+carrier_projection = "Superseded by the active D1 amendment: D1B may not publish a new target through the current transitional Callee representation. CanonicalGlobalTargetV1 must first be connected atomically to Callee/CallTarget and its finite consumers; mir_symbol_projection and any key/name-to-String synthesis are forbidden."
 carrier_audit = "Read-only issuer audit: VerifiedSameModuleCallableDeclarationCatalogV1 owns declaration identity and brand but emits no Callee; CanonicalSameModuleCallableKeyV1::mir_symbol_projection only formats a String; NormalCatalogedBoxMethodDraftAdmissionV1::physical_symbol is collector metadata, not a call-target issuer; VerifiedCanonicalDirectCallEmissionV1 is exact-i64/FreeStatic-only. B1 now supplies a disconnected structural carrier, but no Cataloged exact physical issuer is connected."
 finite_states = [
   "ObserverOnly",
@@ -669,7 +669,7 @@ acceptance = [
   "one package terminal owns nonempty unissued-observation rejection",
   "forest-wide observation completeness covers root, nested lambda, and mixed owners with identical rejection",
   "one exact Cataloged issuer and one lineage/site mapper are named",
-  "the current Callee carrier is used only as a guarded one-way projection; no new String target authority is introduced",
+  "the current Callee::Global(String) is not used as a new D1 issuer; structural Callee/CallTarget integration precedes publication",
   "package-only bypass caller = 0 for the selected production edge",
   "loan is complete before install and reaches the actual recursive raw port by &mut reborrow",
   "old CatalogedTargeted { callee, arguments } handoff is deleted in the later atomic implementation row",
@@ -678,7 +678,7 @@ forbidden = "No code, fixture, target publication, dispatcher switch, calls/buil
 no_safe_slice = "Return to design if the package terminal cannot be singular, the exact declaration relation is absent, the landed structural carrier cannot be connected without a new String/symbol issuer, the loan requires Clone/Rc/RefCell, the raw port cannot receive a scoped &mut borrow, or any TopLevel/Constructor row needs synthetic target identity."
 ordered_tasks = [
   "Add one private forest-wide direct-call observation helper, delegate the batch/source checks, and pin root-only/nested-only/mixed-owner parity",
-  "Use the landed B1 structural carrier as the target shape; define the one-way Cataloged issuer only with exact relation/brand/site evidence and without name/arity/symbol authority",
+  "Complete the B1 structural Callee/CallTarget consumer boundary; only afterward define the Cataloged issuer with exact relation/brand/site evidence and without name/arity/symbol authority",
   "Centralize Cataloged source/raw lineage-site mapping and reject TopLevel/Constructor relation gaps",
   "Make BuilderInstallConsumerV1 the only package-plus-loan bundle constructor; validate loan completeness before context mutation",
   "Thread one scoped &mut loan capability through the actual RawInvocationChildPortV1 and only then open the Cataloged dispatcher cutover row",
