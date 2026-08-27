@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement scope reconciliation D0
+Status: Design stop — chronic measurement site owner map D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-reconciliation-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -58,7 +58,7 @@ Smallest next slice:
   `CHRONIC-MEASUREMENT-SCOPE-D0` froze the finite token/range boundary and
   independent compile-domain/role classification. `CHRONIC-RUST-TOKEN-SCANNER-I0`
   landed at `8d2bcf0398`: the standalone syn-based topology checker emits deterministic read-only observations with typed fail-closed errors.
-  Its 1434-file/185-allowance report is evidence only. Worker review found that file-level mixed roles do not classify each site, so reconciliation D0 now precedes the shared expectation TSV; no deletion is implied.
+  Its 1434-file/185-allowance report is evidence only. Worker review found that file-level mixed roles do not classify each site; scope reconciliation is recorded, and the site-owner map now precedes the shared expectation TSV. No deletion is implied.
   D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 froze phase2160-only Retire/Frozen through one private typed scope: issuer at program_root_lowering.rs:321-326, F take after App-before-register, I/H take before prefix, and Box-precheck snapshot delta=0.
   I0 landed at 7167aee18e: the phase2160 scope now retires F/I/H before effects, the four contracts are typed negatives, generic RawInvocation has an explicit unarmed success parity, and one reusable guard is registered. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.
   D0a is complete at e51dab7212 and C I0 landed at 2f11fbf3ef. The shared child dispatcher now queries a zero-payload two-state RawLegacy policy once and retires only C before helper/prepare effects. G/J, non-Box, Root I1, RawInvocation, and explicit root compatibility remain unchanged. The next selected design frontier is the parked guard execution/index and retirement-accounting row.
@@ -654,7 +654,7 @@ correction are taskized in
 The RawLegacy C I0 itself is landed. The selected bounded order is
 contract-graph freeze -> existing inventory-row ledger check -> navigation
 tombstones -> chronic scope -> Rust token scanner (landed)
--> scope reconciliation D0 -> one scope-labeled expectation TSV -> closeout
+-> scope reconciliation D0 -> site-owner map D0 -> one scope-labeled expectation TSV -> closeout
 guard co-registration -> phase2160 legacy/support LOC attribution. The
 force-hv1 leaf observer stays shell-body-only, no new force-specific TSV or
 God guard is introduced, and none of these rows authorizes compiler, VM, or
@@ -680,8 +680,8 @@ Non-authority: raw LOC, filename prefixes, profile names, the hand-written index
 Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
-Smallest next slice: GUARD-NAVIGATION-TOMBSTONE-I0, a current-only navigation
-  tombstone check through the existing inventory owner; it executes no member
+Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0, a design-only
+  item/range ownership map; it creates no expectation TSV and executes no member
   guard.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
@@ -725,9 +725,9 @@ Required order:
    malformed/unsupported/unknown ranges fail closed. Its counts are not a
    production baseline and no deletion is implied.
 6. `CHRONIC-MEASUREMENT-RECONCILIATION-D0` ->
-   `CHRONIC-MEASUREMENT-EXPECTATION-I0` — map the 1434-file/185-allowance
-   scope to older 334/351 diagnostics, assign site-level owners, separate
-   source revisions, and freeze the body-derived force receipt projection.
+   `CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0`
+   — the scope split is measured; now assign every site owner/role/successor,
+   separate source revisions, and freeze the body-derived force receipt projection.
    No TSV, stale-threshold, or source deletion is allowed here.
 7. `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive

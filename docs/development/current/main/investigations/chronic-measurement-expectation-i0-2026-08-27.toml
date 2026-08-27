@@ -6,7 +6,7 @@ implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
 parent_row = "docs/development/current/main/investigations/chronic-rust-token-scanner-i0-2026-08-27.toml"
 successor_card = "ASTCLEAN-STALE-GUARD-SUPERSEDE-R0"
-precondition_card = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
+precondition_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
 
 [boundary]
 starts = "the landed chronic-rust-token-scanner report, the frozen scope manifest, and the body-derived force-hv1 leaf receipt"
@@ -184,7 +184,7 @@ next_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
 [reconciliation_gate]
 status = "blocking_precondition"
 required = [
-  "site-level owner and role classification for every allowance/site that would enter the TSV",
+  "site-level owner and role classification for every allowance/site that would enter the TSV, supplied by CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0",
   "path-level inclusion/exclusion table explaining the 185 frozen-scope observations versus 334/351 all-src diagnostics",
   "separate scanner observation revision, force manifest source revision, and TSV measurement source revision",
   "canonical force receipt projection that excludes fate_review and expected_counts",

@@ -1,11 +1,11 @@
 title = "Chronic measurement scope reconciliation D0"
-status = "accepted_design_parked"
+status = "accepted_design_no_safe_slice"
 observed_commit = "f17a496c049590ffd3bbbdaf5bc700f4547134f4"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-expectation-i0-2026-08-27.toml"
-successor_card = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
 
 [boundary]
 starts = "the landed chronic scanner report, its tracked scope manifest, the older all-src diagnostic tuple, and the body-derived force-hv1 manifest"
@@ -34,7 +34,7 @@ non_authority = [
   "scanner report commit or force manifest source_commit used implicitly as the measurement source revision",
 ]
 fail_fast = "Missing path-difference evidence, an allowance without an explicit owner/role, conflated source revisions, a force projection that includes fate authority, or a scope expansion without a new D0 remains blocking. No expectation or deletion may proceed from an unresolved reconciliation."
-smallest_next_slice = "Design-only: enumerate the finite scope difference, provide the site-level classification owner/path, freeze the three revision roles, and freeze the canonical force receipt fields. Do not create the TSV or modify code."
+smallest_next_slice = "NoSafeSlice until a site-owner map supplies item/range owner, role, successor, and retirement_status for every future row. The next design card must also freeze the finite scope difference, three revision roles, and force receipt projection; do not create the TSV or modify code."
 non_claims = [
   "does not claim 185, 334, or 351 is production-live, stale, or deletable",
   "does not authorize guard/source removal, ASTCLEAN supersession, panic cleanup, or force-hv1 fate changes",
@@ -63,6 +63,19 @@ required_difference_table = [
 ]
 classification_rule = "Every future expectation site must have explicit item/range owner and role. A file-level mixed label or scanner unclassified_count=0 cannot fill these cells."
 scope_change_rule = "If the difference table shows the frozen roots omit required production registration edges, open a new scope D0; never mutate the old scope manifest and expectation together."
+
+[observed]
+tracked_src_rust_files = 4304
+frozen_scope_files = 1434
+scope_outside_files = 2870
+historical_exact_frozen = "180 lines / 40 files"
+historical_exact_outside = "154 lines / 71 files"
+historical_inclusive_frozen = "185 lines / 43 files"
+historical_inclusive_outside = "166 lines / 83 files"
+mixed_role_allowances = "60 observations / 38 files"
+generated_registry_allowances = "79 observations in src/mir/compiler/module_registry.in.rs"
+owner_mapping_status = "all 185 scanner observations still lack site-level owner/successor/retirement_status; file-level role=mixed is not sufficient"
+scope_difference_status = "denominator difference is explained numerically; the required path-level table and owner map are not yet tracked"
 
 [revision_roles]
 scanner_observation_revision = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
@@ -110,8 +123,8 @@ blocking = [
 
 [task_steps]
 items = [
-  "1. Reproduce the frozen scanner tuple and enumerate every root/path difference against the historical 334/351 all-src diagnostics; record an explicit reason for each difference.",
-  "2. Map each of the 185 allowance observations that could enter the expectation to item/range owner, compile_domain, role, successor, and retirement_status. Mixed file labels are not sufficient.",
+  "1. Freeze the observed 4304/1434/2870 and 180+154 / 185+166 split, then record the path-level difference table against the historical 334/351 diagnostics.",
+  "2. Open CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 and map each of the 185 allowance observations to item/range owner, compile_domain, role, successor, and retirement_status. Mixed file labels are not sufficient.",
   "3. Separate scanner observation revision, current tree revision, force manifest source revision, and future measurement source revision; reject implicit `source_commit` reuse.",
   "4. Freeze the canonical force receipt projection over body-derived facts only, excluding fate_review and expected_counts; do not issue the hash until the projection is independently reviewable.",
   "5. Confirm the existing force-hv1 lifecycle guard can consume the exact future TSV receipt without a second parser or reclassification. If not, return to design stop rather than patching around it.",
@@ -146,17 +159,17 @@ no_safe_slice = [
 
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
-status = "NoSafeSlice_for_expectation_pin; reconciliation_D0_required"
-finding = "The 1434-file/185 allowance boundary is described consistently, but file-level role=mixed and unclassified_count=0 do not classify each site. Scanner, current tree, and force manifest revisions are distinct, and the force receipt is designed but not consumed."
+status = "NoSafeSlice_for_expectation_pin; site_owner_map_D0_required"
+finding = "The denominator split is reproducible (4304 total Rust files, 1434 frozen, 2870 outside; historical exact 180/154 and inclusive 185/166), but file-level role=mixed and unclassified_count=0 do not classify each site. Scanner, current tree, and force manifest revisions are distinct, and the force receipt is designed but not consumed."
 evidence = [
   "chronic-rust-token-scanner-i0-2026-08-27.toml [observed] and [scope_note]",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml roots and role=mixed declaration",
   "tools/checks/rust_source_topology/src/chronic_measurement/model.rs file-level compile_domain/role fields",
   "tools/checks/lib/force_hv1_caller_manifest_guard.py existing direct manifest recomputation with no TSV consumer",
 ]
-latest_finding = "Complete this reconciliation D0 before pinning CHRONIC-MEASUREMENT-EXPECTATION-I0 or opening any guard/source deletion row."
+latest_finding = "The scope arithmetic is complete; complete CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 before pinning CHRONIC-MEASUREMENT-EXPECTATION-I0 or opening any guard/source deletion row."
 
 [closeout]
 status = "pending"
-required = "Record the path-level difference table, site owner map, separated revisions, and reviewed force projection. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0; no code, TSV, guard edit, or deletion is allowed from this row."
-next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+required = "Record the path-level difference table and separated revisions, then hand the still-missing site owner map to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0. No code, TSV, guard edit, or deletion is allowed from this row."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
