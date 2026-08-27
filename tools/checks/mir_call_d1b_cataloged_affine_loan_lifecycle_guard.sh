@@ -12,13 +12,13 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_i0]"
 # With no explicit argument, the active card owns the current guard phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -41,7 +41,7 @@ with manifest_path.open("rb") as stream:
 
 if not phase:
     phase = card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -60,13 +60,20 @@ if row.get("cmd") != ["bash", guard_script]:
 if sum(1 for item in rows if item.get("id") == guard_id) != 1:
     raise SystemExit("lifecycle guard id is duplicated")
 
-registration = card.get("guard_registration_row")
+registration_key = "observer_guard_registration_row" if phase == "observer_i0" else "guard_registration_row"
+registration = card.get(registration_key)
 if not isinstance(registration, dict):
-    raise SystemExit("active card guard_registration_row is missing")
-if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
-    raise SystemExit("guard-only execution row drifted")
-if registration.get("status") not in {"selected_fast_guard_only", "landed_guard_only"}:
-    raise SystemExit("guard-only status drifted")
+    raise SystemExit(f"active card {registration_key} is missing")
+if phase == "observer_i0":
+    if registration.get("execution_row") != "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0":
+        raise SystemExit("observer execution row drifted")
+    if registration.get("status") != "observer_i0_guard_open":
+        raise SystemExit("observer status drifted")
+else:
+    if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
+        raise SystemExit("guard-only execution row drifted")
+    if registration.get("status") not in {"selected_fast_guard_only", "landed_guard_only"}:
+        raise SystemExit("guard-only status drifted")
 allowed_files = registration.get("allowed_files")
 expected_files = {
     guard_script,
@@ -74,11 +81,39 @@ expected_files = {
     "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
     "docs/development/current/main/CURRENT_STATE.toml",
 }
+if phase == "observer_i0":
+    expected_files.update({
+        "src/mir/resolved_semantics/direct_call.rs",
+        "src/mir/resolved_semantics/product.rs",
+        "src/mir/resolved_semantics/mod.rs",
+        "src/mir/resolved_semantics/resolver.rs",
+        "src/mir/resolved_semantics/owner_resolver.rs",
+        "src/mir/resolved_semantics/shadow/traversal_profile.rs",
+        "src/mir/resolved_semantics/source_site_inventory.rs",
+        "src/mir/resolved_semantics/brand_source_relation_tests.rs",
+        "src/mir/resolved_semantics/tests.rs",
+        "src/mir/resolved_semantics/function_root_tests.rs",
+        "src/mir/resolved_semantics/if_region_tests.rs",
+        "src/mir/resolved_semantics/loop_region_tests.rs",
+        "src/mir/resolved_semantics/block_expr_tests.rs",
+        "src/mir/resolved_semantics/README.md",
+        "src/mir/builder/normal_callable_semantic_source.rs",
+        "src/mir/callable_semantic_batch/issuer.rs",
+        "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+    })
 if set(allowed_files or []) != expected_files:
-    raise SystemExit("guard-only allowed file boundary drifted")
+    raise SystemExit(f"{registration_key} allowed file boundary drifted")
 
-if card.get("implementation_permission") is not False:
-    raise SystemExit("semantic implementation permission opened during guard-only row")
+if phase == "observer_i0":
+    if card.get("implementation_permission") is not True:
+        raise SystemExit("observer implementation permission is not open")
+    if card.get("status") != "observer_i0_fast_open":
+        raise SystemExit("observer card status drifted")
+    if card.get("guard_phase") != "observer_i0":
+        raise SystemExit("observer card guard phase drifted")
+else:
+    if card.get("implementation_permission") is not False:
+        raise SystemExit("semantic implementation permission opened during guard-only row")
 readiness_audit = card.get("d0_sig_close_f_readiness_audit_2026_08_26")
 if not isinstance(readiness_audit, dict):
     raise SystemExit("active card readiness audit is missing")
@@ -86,7 +121,38 @@ spec = readiness_audit.get("guard_spec", "")
 if guard_script not in spec or "Unknown phase fails closed" not in spec:
     raise SystemExit("active card does not name the fail-closed lifecycle guard")
 
-if phase == "readiness":
+if phase == "observer_i0":
+    source_files = [path for path in mir_root.rglob("*.rs")]
+    source_text = "\n".join(path.read_text() for path in source_files)
+    required = (
+        "ResolvedDirectCallObservationV1",
+        "direct_call_observations",
+        "ObserveOnly",
+        "UnissuedDirectCallObservation",
+    )
+    for token in required:
+        if token not in source_text:
+            raise SystemExit(f"observer_i0 is not landed: missing {token}")
+    traversal = (mir_root / "resolved_semantics/shadow/traversal_profile.rs").read_text()
+    if "SelectedCallableV1 => !matches!(expression, ASTNode::FunctionCall" in traversal:
+        raise SystemExit("SelectedCallableV1 still rejects ordinary FunctionCall")
+    for token in (
+        "RawDirectCallDispositionLoanV1",
+        "RawDirectCallDispositionPortV1",
+        "CalleeResolverBox",
+    ):
+        if token in source_text:
+            raise SystemExit(f"observer_i0 crossed its target/loan boundary: {token}")
+    resolver = (mir_root / "resolved_semantics/resolver.rs").read_text()
+    if '"direct calls require a callable index"' not in resolver:
+        raise SystemExit("FullFunction unindexed rejection disappeared")
+    source = (mir_root / "builder/normal_callable_semantic_source.rs").read_text()
+    if "NormalCallableSemanticAdmissionV1::Rejected" not in source:
+        raise SystemExit("package-admission observation terminal is missing")
+    if "direct_call_targets" not in source_text:
+        raise SystemExit("direct-call target field census disappeared")
+
+elif phase == "readiness":
     # This phase freezes the pre-implementation boundary.  It must fail if a
     # partial semantic surface appears before the dedicated implementation row.
     forbidden_semantic_symbols = (

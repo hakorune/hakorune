@@ -1,10 +1,10 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "observer_i0_design_reconcile"
+status = "observer_i0_fast_open"
 observed_commit = "cfe3b13ab4"
 observed_at = "2026-08-28"
-implementation_permission = false
-guard_phase = "bridge_ready"
-permission_scope = "D0 design reconcile only: worker audits confirm the observer-only shape, but the package/install terminal for nonempty unissued observations and the explicit three-state canonicalization policy are not yet closed. No Selected profile change, facts field, package/issuer/loan/dispatcher, fallback, or Call change is open. RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 is already landed at 0bd6732792."
+implementation_permission = true
+guard_phase = "observer_i0"
+permission_scope = "Fast observer I0 only: SelectedCallableV1 may observe ordinary FunctionCall through the existing one-pass branch, store a private facts-only name/arity observation, and terminate any nonempty unissued observation at package admission before projection/install/lowering. No target issuer, package/loan transport, raw dispatcher, fallback, or Call schema change is open. RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 is already landed at 0bd6732792."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
@@ -28,12 +28,12 @@ excludes = [
 ]
 
 [brief]
-decision = "D1B observer I0 remains closed pending one design reconcile: SelectedCallableV1 may eventually observe ordinary FunctionCall through the existing one-pass record_direct_call branch and retain a neutral name/arity fact keyed by SourceExprSiteV1, but a nonempty unissued observation must have a named pre-install typed terminal before the profile can open. B0 structural Global is accepted architecture, not a standalone D1B implementation row."
+decision = "D1B observer I0 is open: SelectedCallableV1 observes ordinary FunctionCall through the existing one-pass record_direct_call branch and retains a neutral name/arity fact keyed by SourceExprSiteV1. A typed package-admission terminal rejects any nonempty unissued observation before source projection/install/lowering. B0 structural Global is accepted architecture, not this implementation row."
 source_authority = "FullFunctionV1 ShadowResolver traversal remains the one-pass source authority for direct-call name/arity observations keyed by SourceExprSiteV1. SelectedCallableV1 still rejects ordinary FunctionCall before that branch, and every unindexed non-Selected path retains the existing callable_index requirement. The design must separate Selected ObserveOnly, indexed RequireCallableIndex, and unindexed RejectUnindexed without a bool/default. The exact Raw site/RawInvocationRootLineageV1 remains provenance, and ResolvedDirectCallTargetV1 remains semantic evidence rather than a physical Callee."
 canonical_issuer = "The first B0 family remains conditional: the retained resolver observation must meet a package-owned selected-cataloged callback-scoped view carrying caller owner/CallableDeclarationIdentity, exact Raw site/lineage, catalog brand, and explicit same-session proof. It must recheck the current catalog brand, co-seal identity plus declaration/source evidence with Raw Cataloged lineage/site, map the observed owner/site/name/arity to one same-brand StaticBoxMethod relation, settle the owned structural Global before arguments, and drop the view before argument borrowing. Shadow observation is facts-only; only the selected package adapter may expose the raw loan. Exact-i64 keeps the VerifiedCallableIndexV1/header_for_callable chain. The affine loan only transports an issued Callee and never reconstructs it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Missing issuer, lineage bridge, site/brand match, current-catalog recheck, identity/site co-seal, precedence decision, complete inventory, or package/loan lifecycle aborts before arguments, MIR, package install, block mutation, wire, or backend effects; no view held across argument borrow, empty loan, package-only bypass, or raw-port bypass."
-smallest_next_slice = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0: name the sole package/install owner and typed terminal for any nonempty unissued observation, freeze the three-state Selected/RequireCallableIndex/RejectUnindexed policy, and prove that a facts-only observer cannot reach install or lowering. Only after this D0 closes may the bounded Selected observer I0 open; package/issuer/loan/dispatcher and production switch remain later rows."
+smallest_next_slice = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0: retain one-pass Selected observations, preserve FullFunction unindexed rejection through an explicit three-state policy, and reject nonempty unissued observations at the package-admission terminal before install/lowering. Package/issuer/loan/dispatcher and production target publication remain later rows."
 non_claims = "No Wpre selector, parser/fixture/codec change, new semantic receipt, target synthesis, consumer resolver, Method/receiver cutover, mandatory-Callee schema, VM/backend change, or warning cleanup."
 
 [final_architecture]
@@ -125,8 +125,8 @@ forbidden = [
 
 [observer_completion_prerequisite]
 task_id = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-status = "observer_i0_design_reconcile_open"
-implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0 remains closed until the named pre-install incomplete-observation terminal and explicit three-state policy are fixed. It precedes the StaticBoxMethod issuer, lineage mapper, package-plus-loan, dispatcher, and old-resolver cutover rows."
+status = "observer_i0_fast_open"
+implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0 is open only for facts-only observation plus the named pre-install incomplete-observation terminal. It precedes the StaticBoxMethod issuer, lineage mapper, package-plus-loan, dispatcher, and old-resolver cutover rows."
 observed_blocker = "The existing ShadowResolver FunctionCall branch already records one-pass name/arity facts through record_direct_call and visits arguments in the same traversal; SourceExprSiteV1 is the BTreeMap key, not a field of ShadowDirectCallUseV0. SelectedCallableV1 rejects that branch, while canonicalize_draft rejects every nonempty direct-call draft when callable_index=None. Before implementation, name the neutral resolved-semantics facts row and map owner, distinguish Selected observer-only construction from FullFunction require-index construction without a caller bool/default, and name the sole package issue/install terminal that rejects a nonempty unissued inventory before install. Without that terminal, allowing the observer can change package reachability even while Callee publication remains zero."
 decision_shape = "Reuse record_direct_call as the only source observer; do not add record_unissued_direct_call or a second traversal. Move or neutralize its row as DirectCallObservationV1 { name: Box<str>, arity: u32 } under resolved_semantics/direct_call, and retain it in ResolvedFunctionDataV1 as BTreeMap<SourceExprSiteV1, DirectCallObservationV1>. A private finite canonicalization policy issued only by the Selected resolver distinguishes ObserveOnly from FullFunction RequireCallableIndex. ObserveOnly retains facts and publishes zero direct_call_targets; RequireCallableIndex keeps the existing unindexed reject. Brand constructors remain on their existing disjoint authority. A nonempty observation map cannot cross package installation until a later disposition owner has issued every exact target or a typed terminal has rejected the package."
 implementation_acceptance = "Selected ordinary FunctionCall reaches the existing observer once, retains exact site/name/arity facts, observes BodyEffect::Call and arguments exactly as before, and publishes zero direct_call_targets/Callee/MIR. FullFunction unindexed direct calls still reject; brand constructor classification and arity rejection are unchanged. Duplicate sites, arity overflow, unsupported shapes, and any nonempty unissued inventory at package install are typed terminals. The Selected early rejection/Deferred edge is the only semantic old edge removed in I0; package/issuer/loan/dispatcher and calls/build.rs stay unchanged."
@@ -135,6 +135,31 @@ policy_states = [
   "ObserveOnly: SelectedCallableV1 with no callable index retains facts and publishes zero direct_call_targets",
   "RequireCallableIndex: indexed FullFunction path resolves the existing exact target rows",
   "RejectUnindexed: every non-Selected callable_index=None path preserves the existing typed reject",
+]
+implementation_status = "open_fast_bounded_observer_and_package_terminal"
+implementation_forbidden = "No new AST walk, target issuer, package/loan transport, RawInvocationChildPortV1 change, calls/build.rs change, fallback/retry, Call schema change, or facts-to-target lookup."
+implementation_allowed_files = [
+  "src/mir/resolved_semantics/direct_call.rs",
+  "src/mir/resolved_semantics/product.rs",
+  "src/mir/resolved_semantics/mod.rs",
+  "src/mir/resolved_semantics/resolver.rs",
+  "src/mir/resolved_semantics/owner_resolver.rs",
+  "src/mir/resolved_semantics/shadow/traversal_profile.rs",
+  "src/mir/resolved_semantics/source_site_inventory.rs",
+  "src/mir/resolved_semantics/brand_source_relation_tests.rs",
+  "src/mir/resolved_semantics/tests.rs",
+  "src/mir/resolved_semantics/function_root_tests.rs",
+  "src/mir/resolved_semantics/if_region_tests.rs",
+  "src/mir/resolved_semantics/loop_region_tests.rs",
+  "src/mir/resolved_semantics/block_expr_tests.rs",
+  "src/mir/resolved_semantics/README.md",
+  "src/mir/builder/normal_callable_semantic_source.rs",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
 ]
 design_files = [
   "src/mir/resolved_semantics/direct_call.rs",
@@ -807,6 +832,33 @@ allowed_files = [
   "tools/checks/guard_rows.toml",
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
   "docs/development/current/main/CURRENT_STATE.toml",
+]
+
+[observer_guard_registration_row]
+execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
+status = "observer_i0_guard_open"
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "src/mir/resolved_semantics/direct_call.rs",
+  "src/mir/resolved_semantics/product.rs",
+  "src/mir/resolved_semantics/mod.rs",
+  "src/mir/resolved_semantics/resolver.rs",
+  "src/mir/resolved_semantics/owner_resolver.rs",
+  "src/mir/resolved_semantics/shadow/traversal_profile.rs",
+  "src/mir/resolved_semantics/source_site_inventory.rs",
+  "src/mir/resolved_semantics/brand_source_relation_tests.rs",
+  "src/mir/resolved_semantics/tests.rs",
+  "src/mir/resolved_semantics/function_root_tests.rs",
+  "src/mir/resolved_semantics/if_region_tests.rs",
+  "src/mir/resolved_semantics/loop_region_tests.rs",
+  "src/mir/resolved_semantics/block_expr_tests.rs",
+  "src/mir/resolved_semantics/README.md",
+  "src/mir/builder/normal_callable_semantic_source.rs",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
 ]
 
 [d0_sig_close_f_readiness_audit_2026_08_26]
