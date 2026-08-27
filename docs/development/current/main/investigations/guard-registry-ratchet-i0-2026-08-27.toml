@@ -1,9 +1,11 @@
 title = "Guard registry structural ratchet I0"
-status = "active_fast"
+status = "landed_bounded_child_row"
 observed_commit = "9cb70398fb"
 observed_at = "2026-08-27"
 implementation_permission = true
 current_execution_row = "GUARD-REGISTRY-RATCHET-I0"
+implementation_commit = "9b49907937"
+landed_commit = "9b49907937"
 parent_row = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
 successor_card = "GUARD-REGISTRY-RATCHET-I0-CLOSEOUT"
 
@@ -135,3 +137,19 @@ evidence = [
   "tools/checks/guard_rows.toml",
   "current HEAD b4edff4c78 baseline tuple",
 ]
+
+[closeout]
+status = "complete"
+focused_guard = [
+  "bash tools/checks/run_row_guard.sh --only ci-feedback-tier-policy",
+  "bash tools/checks/run_row_guard.sh --only guard-manifest-inventory --level l0 --base 7e5801885c",
+]
+focused_evidence = [
+  "ci-feedback-tier-policy remains green through the manifest runner",
+  "comparative result: registry_current_eligible=2740, registry_current_direct_command_targets=20, registry_current_typed_wrapper_aliases=74, registry_current_mapped=94, registry_current_unmapped=2646",
+  "comparative result: registry_new_unmapped=0 and registry_mapping_loss=0 against base 7e5801885c",
+  "absolute mode without --base reports counts only; it does not claim comparative no-growth",
+  "missing base at level l0 and --base on a non-pass_base row both reject before the child command runs",
+  "Python syntax and min-gate YAML parsing passed; the selected L0 inspects manifests/git trees and invokes no member guard or Cargo command",
+]
+closeout_notes = "The registered row and PR-only workflow wiring are landed. Existing default inventory x-bit/closeout health remains a separate known baseline; four navigation dangling names remain LEDGER-EXECUTION-INDEX-D0. No guard or source deletion is authorized by this I0."

@@ -1,5 +1,5 @@
 ---
-Status: Fast path — guard registry structural ratchet
+Status: Design stop — guard execution index and retirement accounting
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/guard-registry-ratchet-i0-2026-08-27.toml
+  - docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -49,7 +49,11 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1` landed at `684533ba22`: the five root families issue a move-only compatibility shape before effects, use one child capture plus one outer collector drain, and leave runtime Box edges outside the terminal.
+  `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
+  owner now performs a structure-only explicit-base ratchet (20 direct targets,
+  74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
+  The next design stop is `LEDGER-EXECUTION-INDEX-D0`; no source or guard
+  deletion is implied by the ratchet.
   D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 froze phase2160-only Retire/Frozen through one private typed scope: issuer at program_root_lowering.rs:321-326, F take after App-before-register, I/H take before prefix, and Box-precheck snapshot delta=0.
   I0 landed at 7167aee18e: the phase2160 scope now retires F/I/H before effects, the four contracts are typed negatives, generic RawInvocation has an explicit unarmed success parity, and one reusable guard is registered. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.
   D0a is complete at e51dab7212 and C I0 landed at 2f11fbf3ef. The shared child dispatcher now queries a zero-payload two-state RawLegacy policy once and retires only C before helper/prepare effects. G/J, non-Box, Root I1, RawInvocation, and explicit root compatibility remain unchanged. The next selected design frontier is the parked guard execution/index and retirement-accounting row.
@@ -685,22 +689,24 @@ the edge kinds are kept separate); 2,647 eligible paths are currently
 unmapped. `quick-static` has 24 declared rows and no profile caller. These are
 different denominators and must not be reported as one coverage percentage;
 the profile name is not execution evidence. The 93/2,647 values are the D0
-baseline; registering `ci-feedback-tier-policy` is an I0 change and would make
-the intended post-row cap 2,646.
+baseline. `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the current
+tuple is now 20 direct targets, 74 typed aliases, 94 mapped paths, and 2,646
+unmapped; the PR-only ratchet reports zero new unmapped paths and zero mapping
+loss against an explicit base. The four navigation dangling names remain a
+separate ledger row.
 
 Required order:
 
-1. `GUARD-CONTRACT-GRAPH-D0` — freeze the two-plane model, the finite public
+1. `GUARD-CONTRACT-GRAPH-D0` — accepted: the two-plane model, finite public
    eligibility set, direct-command versus typed-alias edge kinds, explicit
    PR-base/absolute-measurement behavior, contract-v1 metadata, and the
-   existing six inventory dispositions. Generated reverse output never becomes
-   authority.
-2. `GUARD-REGISTRY-RATCHET-I0` — extend the existing inventory owner, register
-   the already-CI-reachable `ci_feedback_tier_policy_guard.sh`, lower the
-   public-unregistered cap from the D0 baseline 2,647 to the post-registration
-   cap 2,646, reject newly added unregistered public guards relative to an
-   explicit PR base, and wire only this structural check to required CI. It must
-   not run registry member commands or infer `HEAD^` as a base.
+   existing six inventory dispositions are frozen. Generated reverse output
+   never becomes authority.
+2. `GUARD-REGISTRY-RATCHET-I0` — landed at `9b49907937`: the existing
+   inventory owner now registers the already-CI-reachable
+   `ci_feedback_tier_policy_guard.sh`, rejects new unmapped public guards
+   against an explicit PR base, and wires only this structure check to required
+   PR CI. It does not run registry member commands or infer `HEAD^`.
 3. `DEAD-CODE-REMEASURE-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
    `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive
