@@ -235,6 +235,7 @@ b1_consumer_families = [
   "wire/compatibility: v2 structural codec plus owner-private v0/v1 adapters; no schema retry",
   "terminals: LLVM/AOT and any retained reference/wasm route; retired VM paths are isolated rather than adapted by fallback",
   "printer/tests/guards: structural projection and fixture disposition without formatter/reparse authority",
+  "MirCall/CallFlags transport: keep the live MirCall physical terminal; classify CallFlags-only writers, public exports, generated projections, and external/feature obligations in its separate retirement row",
 ]
 lineage_mapper = "Map the located Cataloged raw site to SourceExprSiteV1 exactly once, verify the same owner-link, session brand, observation name/arity, and one-to-one site membership, then move the structural target into the direct-call handoff. TopLevel and InstanceConstructor provenance is preserved but cannot synthesize Global."
 package_boundary = "The existing with_normal_callable_install_once bridge remains the only install authority. Direct-call completeness is checked before prepare_install/commit. The package-only begin_lowering(&self) bypass is replaced in the later atomic row by a consuming lowering scope that owns the package and the direct-call loan together."
@@ -303,6 +304,7 @@ unregistered_calltarget_families = [
   "builtin: stmts/print_stmt.rs",
 ]
 mircall_boundary = "MirCall remains a live transport through unified_emitter/physical_terminal.rs. CallFlags is a separate writer/public/projection retirement candidate; its design row must classify create_mir_call/create_call_flags, public re-exports, generated RustSubset projections, and external/feature obligations before any deletion."
+mircall_prerequisite = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0 is a prerequisite design row, not part of B1 carrier implementation: retain create_mir_call -> physical_terminal -> MirInstruction::call and Hako wire flags.optionality; only writer-only Rust CallFlags edges may later be removed after the public/projection matrix is exhausted."
 required_evidence = [
   "each surviving producer has one owner, one action (adapt/isolate/retire), one successor or typed terminal, and one reopen condition",
   "Callee and CallTarget have no independent Global authority and no parallel legacy variant",
@@ -323,5 +325,7 @@ no_safe_slice = [
   "the only target evidence is name/arity/physical symbol/registry or the existing String projection",
   "a production constructor appears outside the declaration catalog or the construction guard cannot observe it",
   "MirCall transport is deleted or CallFlags semantics are silently dropped before its separate retirement row closes",
+  "CallFlags public/feature/generated obligations remain unresolved but B1 is opened as if they were caller-zero",
 ]
 next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+next_prerequisite_row = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0"
