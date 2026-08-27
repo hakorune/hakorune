@@ -62,6 +62,23 @@ implementation = "RawInvocationChildPortV1 at recursive_child_lowering.rs:527-54
 smoke = "phase2160 run_all.sh:14-33 -> hako_mainline_loop_undefined_block_vm.sh:18-37 -> apps/tests/phase216_mainline_loop_undefined_value_blocker_min.hako:1-10"
 smoke_classification = "Main-only loop negative; quick profile skips it. It is not an F/I/H runtime Box success owner."
 
+[census_closeout]
+entry_inventory = "Exhausted for the bounded path: RawInvocation runtime BoxDeclaration reaches one concrete dispatcher/lifecycle chain; no additional RawInvocation Box success owner was found in tools/smokes, apps fixtures, or test suites outside the four explicit contracts below."
+production_claim = "none named for F/I/H"
+reference_claim = "none named for F/I/H"
+test_claim = "one explicit owner file with four contracts; direct rawport tests without source transport remain test-only and are not production success evidence"
+mainline_claim = "phase2160 hako-mainline is static Main loop-only and quick-skipped; it does not claim F/I/H"
+recommended_fate = "Retire/Frozen is the default for F/I/H because no production/reference owner exists, but it requires an explicit behavior-retirement row and a disposition for every positive test contract."
+open_decision = "If the user/language policy requires nested runtime Box semantics, reopen NarrowSuccessor instead; do not infer that requirement from the four disconnected tests."
+
+[test_contract_migration]
+owner = "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
+f = "301-335 -> successor static batch test, typed negative, or retired behavior; preserve NestedStatic before Outer symbol order/count"
+i = "338-372 -> successor constructor-zero test, typed negative, or retired behavior; preserve NestedInstance before Outer order/count"
+h = "375-410 -> successor whole-instance sequence or typed negative; preserve birth -> run -> outer order/count"
+depth_three = "413-448 -> successor whole-Box transaction test or typed negative; preserve Leaf -> Middle -> Outer order/count"
+disposition_rule = "No test may be silently deleted or relabeled generic. A retirement implementation must record the old acceptance as retired and assert zero prefix/body/capture/collector delta; a successor must own all four contracts."
+
 [[entry_fate_census]]
 id = "F-static-nonapp-raw-invocation"
 path = "raw_expression_dispatch/mod.rs:508-510 -> nonmain_static_box_lifecycle.rs:43-58 -> nonmain_static_box_method_batch.rs:77-101 -> nested_box_method_source.rs:134-164"
@@ -123,6 +140,7 @@ entry = "Every RawInvocation F/I/H production entry and explicit positive test i
 effects = "retire/freeze before body descent, capture, prefix, metadata, collector, module/function/instruction mutation"
 parity = "top-level Main/root I1 and RawLegacy routes remain on their existing owners; no port retry or fallback"
 tests = "four explicit positive contracts are successor-owned, typed-negative, or documented retired behavior"
+inventory_terminal = "Only after production/reference/test-only/unclaimed states are Exhausted and all four test contracts have an explicit disposition may D1 leave CutoverBlockerOpen."
 
 [acceptance]
 positive = [
@@ -177,7 +195,7 @@ evidence = [
 
 [ordered_followups]
 steps = [
-  "1. Re-derive every RawInvocation F/I/H caller and explicit test owner; classify active smoke/source fixtures and require unclassified=0.",
+  "1. Re-derive every RawInvocation F/I/H caller and explicit test owner; classify active smoke/source fixtures and require unclassified=0 (census evidence now recorded).",
   "2. Select Retire/Frozen versus NarrowSuccessor independently for F/I/H, preserving the four explicit test contracts as successor tests, typed negatives, or retired behavior.",
   "3. If Retire/Frozen wins, open one pre-effect F/I/H retirement I0 with whole-Box zero-delta and root-parity evidence; do not add shape/lineage/collector code.",
   "4. If any family is retained, open a separate source-shape-lineage-collector D0 and solve H prefix atomicity before implementation.",
