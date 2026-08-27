@@ -1,6 +1,6 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility child terminal design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "pending-i0-closeout"
+observed_commit = "6d9ddc6578b3ca9c0428c8a5d7306867a9164096"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0"
