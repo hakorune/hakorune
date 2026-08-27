@@ -1,0 +1,121 @@
+title = "Runtime Box RawLegacy nested Main retirement I0"
+status = "fast_open"
+observed_commit = "edd979ea9d"
+observed_at = "2026-08-27"
+implementation_permission = true
+current_execution_row = "RAWLEGACY-NESTED-MAIN-RETIRE-I0"
+parent_row = "docs/development/current/main/investigations/runtime-box-rawlegacy-nested-main-retire-d0-2026-08-27.toml"
+successor_card = "RAWLEGACY-NESTED-MAIN-RETIRE-I0-CLOSEOUT"
+
+[boundary]
+starts = "raw_expression_dispatch/mod.rs:503-507 static Main child branch"
+ends = "RawLegacy C dispatcher success edge retired before helper/prepare effects, with explicit root compatibility and all other Box/non-Box branches unchanged"
+includes = [
+  "RawNestedMainFateV1 two-state policy at RawBoxMethodChildPortV1",
+  "RawLegacyChildLoweringPortV1 Retire override",
+  "one dispatcher query before lower_static_main_box",
+  "C typed-negative tests, explicit root/RawInvocation parity, and one reusable structural guard",
+]
+excludes = [
+  "new origin/source receipt or state on the zero-sized RawLegacy port",
+  "RawLegacy G/J/non-Box, Root I1, RawInvocation default semantics, SelectedNormal, phase2160 I0, VM/AOT/backend, Wpre, Call, or fallback changes",
+  "deletion of raw_static_main_compat_batch.rs or direct explicit-root compatibility callers",
+]
+
+[brief]
+decision = "Use the dispatcher/RawLegacy intersection as the sole C fate boundary. The dispatcher already owns the exact child observation static=true and name=Main; modern root Main bypasses it. Query a zero-payload two-state policy once. RawLegacy returns RetireRawLegacyBeforeEffects; every other port uses ContinueExistingTerminal."
+source_authority = "raw_expression_dispatch/mod.rs:488-507 child AST observation; normal_script_runtime_work.rs:207-228 remains the separate modern Root Main owner."
+canonical_issuer = "RawBoxMethodChildPortV1::nested_main_fate_v1-style policy, overridden only by RawLegacyChildLoweringPortV1. It issues a disposition only; it has no Callee, ValueId, AST, lineage, target, or collector payload."
+non_authority = [
+  "RawLegacy type identity, current function/name, root_is_app_mode, AST depth, params.len(), formatted symbols, caller counts, test names, or exit codes",
+  "RawInvocation/Root I1 outcomes, phase2160 capability, RawInvocationRootLineageV1, or any retry/fallback",
+]
+fail_fast = "For RawLegacy static Main reached through the child dispatcher, return [freeze:contract][raw-legacy/nested-main-retired] before lower_static_main_box and before PreparedRawStaticMainBoxCompatibilityV1::prepare/helper/Main publication."
+smallest_next_slice = "Implement this exact dispatcher policy, add C typed negatives and parity tests in an existing sibling test file, register one structural guard, run one focused quick test, then closeout."
+non_claims = [
+  "does not prove every RawLegacy facade is nested or delete the facade",
+  "does not alter explicit root compatibility direct calls, G/J, non-Box, Root I1, or RawInvocation terminals",
+  "does not claim physical source reduction of phase2160 or broader VM retirement",
+]
+
+[api]
+enum = "RawNestedMainFateV1"
+variants = [
+  "ContinueExistingTerminal",
+  "RetireRawLegacyBeforeEffects",
+]
+trait_method = "RawBoxMethodChildPortV1::nested_main_fate_v1(&mut self) -> RawNestedMainFateV1"
+default = "ContinueExistingTerminal"
+override = "RawLegacyChildLoweringPortV1 only -> RetireRawLegacyBeforeEffects"
+query = "raw_expression_dispatch static Main branch invokes nested_main_fate_v1 exactly once and matches the disposition before lower_static_main_box"
+error_tag = "[freeze:contract][raw-legacy/nested-main-retired]"
+shape_rules = [
+  "zero payload; no source/origin carrier, ValueId, Callee, AST, lineage, Clone, Rc, RefCell, or ambient bool",
+  "policy is private to mir::builder and is not a general semantic receipt",
+  "direct explicit root compatibility does not query the policy because it calls its named owner directly",
+]
+
+[delete_set]
+old_dispatch_edge = "raw_expression_dispatch static Main -> RawLegacy lower_static_main_box success path"
+old_effects = "RawLegacy dispatcher reachability to PreparedRawStaticMainBoxCompatibilityV1::prepare, helper lowering :133-145, Main publication :148-173"
+old_error_family = "nested C helper-order/missing-main/not-function success/error behavior on the retired dispatcher edge"
+retained = "legacy_port.rs direct method, raw_static_main_compat_batch.rs root owner, explicit root order tests, RawInvocation terminal, G/J, non-Box, Root I1"
+
+[tests]
+file = "src/mir/builder/raw_expression_dispatch/tests.rs"
+required = [
+  "raw_legacy_nested_static_main_retires_before_effects",
+  "raw_legacy_nested_static_main_retires_from_body_statement_and_expression_facades",
+  "raw_legacy_explicit_root_compatibility_keeps_existing_order",
+  "raw_invocation_nested_main_keeps_existing_root_only_terminal",
+]
+snapshot = "For the RawLegacy dispatcher negative, compare module/function/instruction/CompilationContext/collector counts immediately before the Box branch; every delta is zero."
+parity = "G static non-Main, J instance, non-Box RawLegacy, and modern typed Root Main remain covered by existing focused tests; no fixture relabeling."
+
+[guard]
+path = "tools/checks/rawlegacy_nested_main_retire_guard.sh"
+registry = "guard_rows.toml row id rawlegacy-nested-main-retire"
+required = [
+  "D0a issuer_classes count remains 20 and direct Root Main issuer remains 0",
+  "RawNestedMainFateV1 has exactly the two variants and RawLegacy is the only Retire override",
+  "dispatcher query appears once in the static Main arm before lower_static_main_box",
+  "modern Root Main, Root I1, phase2160, and G/J owners contain no RawLegacy fate query",
+  "policy/error/test anchors and all changed source files remain below 800 lines",
+]
+no_member_execution = "The guard checks structure and source ordering only; it does not run the full guard registry or change route behavior."
+
+[acceptance]
+positive = [
+  "RawLegacy body/statement/expression facades return the typed C retirement tag before helper/prepare effects",
+  "pre-check module/function/instruction/CompilationContext/collector delta is zero",
+  "explicit root compatibility keeps helper-before-Main order and existing success/error owner",
+  "RawInvocation nested Main keeps its existing root-only terminal",
+  "G/J/non-Box/modern Root Main parity remains unchanged",
+  "policy query count is one for static Main and zero for all other branches",
+]
+negative = [
+  "no RawLegacy global rejection, no root/name/bool/AST/arity inference, no new origin receipt",
+  "no helper/prepare/Main/prefix/register/collector mutation before C rejection",
+  "no RawLegacy -> RawInvocation/Root I1 retry and no phase2160 capability reuse",
+  "no Retire override from RawInvocation, Normal adapter, Recording/root ports, G/J, instance, sync, or non-Box paths",
+]
+
+[implementation_gate]
+permission = true
+required_before_commit = [
+  "focused test names are exact and nonzero",
+  "rawlegacy_nested_main_retire_guard.sh is registered once",
+  "git diff --check, pointer guard, guard itself, and one quick focused cargo test are green",
+  "changed sources stay below 800 lines and no fallback/retry path changed",
+]
+stop_if = [
+  "dispatcher also serves an untyped production root Main path",
+  "policy needs function/name/root_is_app_mode/AST depth/params.len()/symbol inference",
+  "explicit root compatibility or G/J/non-Box behavior changes",
+  "helper/prepare effect occurs before query or snapshot cannot prove zero delta",
+  "any Cargo command is already running or host resource safety is uncertain",
+]
+
+[closeout]
+required = "Record focused test command/result, guard result, changed-file line counts, exact old-edge deletion, and pointer transition. Keep implementation status/evidence update in the closeout boundary; do not weaken the D0 acceptance to make the row green."
+next_row = "RAWLEGACY-NESTED-MAIN-RETIRE-I0-CLOSEOUT"
