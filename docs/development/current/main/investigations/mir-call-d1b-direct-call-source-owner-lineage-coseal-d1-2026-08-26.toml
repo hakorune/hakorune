@@ -87,9 +87,19 @@ parity = "Existing cataloged and constructor source identities remain unchanged;
 guard = "future guard must assert the three mapping paths, zero caller=None collapse for source-backed roots, owner/site uniqueness, same-session brand, scratch drop, and zero package/effect publication before co-seal."
 
 [worker_audit]
-source = "focused read-only owner-lineage audit at f76b80ed26; no code, fixture, or Cargo change"
+source = "focused read-only owner-lineage audit at f76b80ed26 plus two current-head audits at 00edf66eb6; no code, fixture, or Cargo change"
 verdict = "Existing owners can be reused for the mapping, but no current issuer connects raw FunctionCall site to them; implementation remains NoSafeSlice until this design and pre-argument observation are closed."
 next_design_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0: classify the three resolver entrances and design one pre-argument observation/co-seal issuer."
+
+[current_review]
+observed_commit = "00edf66eb6"
+verdict = "Architecture Accept with amendments; implementation remains NoSafeSlice. The existing forest, selected batch/map, constructor batch, source-site inventory, and owner brand can be reused; a sole mapper and observation issuer are still missing."
+mapping = "Cataloged/TopLevel use SelectedNormalCallableKeyV1 -> VerifiedSelectedCallableBatchMapV1 -> VerifiedResolvedCallableSemanticBatchV1 row -> VerifiedSemanticOwnerForestV1 -> VerifiedResolvedSourceSiteInventoryV1 membership. InstanceConstructor uses source_id -> constructor batch forest root -> source-site membership. OwnedExprSiteV1 remains a transient owner/site key."
+lineage = "RawInvocationRootLineageV1 remains raw provenance. Cataloged, TopLevel, and InstanceConstructor must not be collapsed to InstalledNonBrand { caller: None }; missing exact relation is TypedReject or explicit compatibility park, never name/arity/box/symbol synthesis."
+session = "Use the existing same resolver invocation and compilation brand as the session boundary; do not add a public ResolverSessionId or a second semantic receipt merely to prove the join."
+boundary = "The sole mapping/co-seal routine runs after existing owner batches are available and before package prepare_install/body/argument/collector effects. Raw Builder bridges are consumers, not issuers."
+next_step = "Select the existing ordinary FunctionCall observation issuer D0 to classify SelectedCallable, InstanceConstructor, and the older builder ingress; do not widen a profile or open production code until that matrix closes."
+non_claims = "No ordinary FunctionCall observation implementation, target/Callee issuance, Resolved recovery retirement, raw loan transport, Method(None) change, or VM/backend change is authorized by this review."
 
 [reopen]
 triggers = [
