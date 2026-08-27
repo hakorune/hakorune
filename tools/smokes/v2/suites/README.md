@@ -26,3 +26,10 @@ tools/smokes/v2/run.sh --profile quick --owner-profile integration \
 Explicit `--owner-profile` requires an exact suite and rejects `--filter`.
 Every manifest entry must be discovered and selected before the first test
 effect; zero, partial, foreign, duplicate, or stale entries fail closed.
+
+Integration aggregate wrappers are separate from leaf suites. The explicit
+`suites/integration/aggregate-nodes.txt` manifest may list only reviewed
+aggregate nodes; `ExplicitOnlyAggregate` entries are excluded from normal
+integration leaf discovery and must name their exact child suite. The current
+pilot contains only `core/phase2050/run_all.sh`; other wrappers remain
+unchanged until their own fate is designed.

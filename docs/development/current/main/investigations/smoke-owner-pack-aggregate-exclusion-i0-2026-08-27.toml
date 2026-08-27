@@ -1,0 +1,65 @@
+title = "Smoke phase2050 explicit aggregate discovery exclusion I0"
+status = "fast_open"
+observed_commit = "789dbdc181"
+observed_at = "2026-08-27"
+implementation_permission = true
+current_execution_row = "SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0"
+parent_row = "docs/development/current/main/investigations/smoke-owner-pack-aggregate-discovery-d0-2026-08-27.toml"
+
+[boundary]
+starts = "normal integration profile discovery of phase2050 scripts"
+ends = "phase2050 leaves selected once while run_all is explicit-only"
+includes = [
+  "one checked-in aggregate-node manifest row",
+  "tools/smokes/v2/run.sh discovery exclusion seam",
+  "phase2050 owner-pack suite and run_all linkage guard",
+  "focused positive/negative dry-run evidence",
+]
+excludes = [
+  "phase2047/2048/2049/2051/2100/2160/2170 wrappers",
+  "basename-wide run_all exclusion or broad run*.sh conversion",
+  "leaf semantics, force-hv1 fate, VM/Call/Wpre behavior, and Cargo execution",
+]
+
+[brief]
+decision = "Use one explicit aggregate-node row for core/phase2050/run_all.sh with fate ExplicitOnlyAggregate and child_suite phase2050-owner-pack. Normal integration discovery excludes only that exact path; the five child leaves remain normal integration leaves, and direct aggregate execution uses the existing quick runtime plus integration owner-pack."
+source_authority = "The aggregate-node manifest row owns the exclusion path/fate/child-suite relation; the existing five-entry owner-pack owns child membership; the pilot guard co-seals both with the aggregate caller."
+canonical_issuer = "The existing smoke runner's discovery loop issues the leaf list after applying the exact exclusion; no new semantic or runtime executor is introduced."
+non_authority = [
+  "basename run_all.sh alone",
+  "wildcard/filter text",
+  "aggregate echo output",
+  "leaf runtime result",
+  "other phase wrappers inferred by naming",
+]
+fail_fast = "Missing/duplicate/foreign/absolute aggregate rows, child-suite contamination, exclusion of a leaf, or a phase2050 wrapper invocation count other than one fails before any test effect."
+smallest_next_slice = "Add the single aggregate-node data row, load it in the existing discovery helper, skip only the exact phase2050 wrapper in normal integration discovery, and extend the reusable linkage guard."
+non_claims = [
+  "does not decide the fate of the other eight integration aggregates",
+  "does not change quick runtime policy or owner-pack membership",
+  "does not claim execution-green from dry-run evidence",
+]
+
+[acceptance]
+positive = [
+  "normal integration dry-run changes 963 to 962",
+  "phase2050 paths in normal integration are exactly the five leaves",
+  "owner-pack dry-run remains exactly five leaves",
+  "phase2050 run_all.sh invokes the owner pack exactly once",
+  "legacy same-profile nested suites remain unchanged",
+]
+negative = [
+  "unknown/duplicate/foreign aggregate row rejects",
+  "aggregate row naming a child leaf rejects",
+  "phase2050 wrapper reappearing in normal discovery is red",
+  "owner-pack missing/partial/filtered selection remains nonzero",
+]
+guard = "Reuse the manifest-runner pilot guard and owner-pack row-kind guard; add no per-leaf shell guard."
+
+[reopen]
+triggers = [
+  "normal integration count is not 962 after the exact exclusion",
+  "a fifth/sixth phase2050 child appears without suite/guard update",
+  "another phase wrapper is changed in this row",
+  "the runner requires basename-wide or wildcard exclusion",
+]

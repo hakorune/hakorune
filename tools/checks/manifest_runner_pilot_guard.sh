@@ -13,6 +13,7 @@ SHARED_RUNNER="$ROOT_DIR/tools/checks/lib/manifest_runner.py"
 ROW_MANIFEST="$ROOT_DIR/tools/checks/guard_rows.toml"
 PROOF_MANIFEST="$ROOT_DIR/tools/checks/proof_apps.toml"
 OWNER_PACK_SUITE="$ROOT_DIR/tools/smokes/v2/suites/integration/phase2050-owner-pack.txt"
+AGGREGATE_NODE_MANIFEST="$ROOT_DIR/tools/smokes/v2/suites/integration/aggregate-nodes.txt"
 PHASE2050_RUN_ALL="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh"
 PHASE2050_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2050"
 CARD="$(guard_require_phase293x_card "$TAG" "293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP.md")"
@@ -29,6 +30,7 @@ guard_require_files "$TAG" \
   "$ROW_MANIFEST" \
   "$PROOF_MANIFEST" \
   "$OWNER_PACK_SUITE" \
+  "$AGGREGATE_NODE_MANIFEST" \
   "$PHASE2050_RUN_ALL" \
   "$CARD" \
   "$CHECK_INDEX" \
@@ -125,12 +127,12 @@ done
 "$PROOF_RUNNER" --validation-profile scalar-mir --level L2 --dry-run | rg -F -- "--level L2" >/dev/null
 "$ROW_RUNNER" --only current-state-pointer >/dev/null
 
-python3 - "$ROW_MANIFEST" "$OWNER_PACK_SUITE" "$PHASE2050_RUN_ALL" "$PHASE2050_DIR" <<'PY'
+python3 - "$ROW_MANIFEST" "$OWNER_PACK_SUITE" "$AGGREGATE_NODE_MANIFEST" "$PHASE2050_RUN_ALL" "$PHASE2050_DIR" <<'PY'
 import pathlib
 import sys
 import tomllib
 
-row_manifest, suite_path, run_all_path, phase_dir = map(pathlib.Path, sys.argv[1:])
+row_manifest, suite_path, aggregate_manifest, run_all_path, phase_dir = map(pathlib.Path, sys.argv[1:])
 if not phase_dir.is_dir():
     raise SystemExit("phase2050 owner-pack directory is missing")
 rows = tomllib.loads(row_manifest.read_text(encoding="utf-8"))["rows"]
@@ -162,11 +164,35 @@ live_entries = sorted(
 if sorted(suite_entries) != live_entries:
     raise SystemExit("phase2050 owner-pack suite must cover exactly the live leaf scripts")
 
+aggregate_rows = [
+    line.strip()
+    for line in aggregate_manifest.read_text(encoding="utf-8").splitlines()
+    if line.strip() and not line.lstrip().startswith("#")
+]
+if aggregate_rows != ["core/phase2050/run_all.sh|ExplicitOnlyAggregate|phase2050-owner-pack"]:
+    raise SystemExit("phase2050 aggregate-node manifest drifted")
+if suite_path.name != "phase2050-owner-pack.txt" or suite_path.parent.name != "integration":
+    raise SystemExit("phase2050 owner-pack must remain integration-owned")
+if "core/phase2050/run_all.sh" in suite_entries:
+    raise SystemExit("aggregate wrapper must not be a child leaf")
+
 run_all = run_all_path.read_text(encoding="utf-8")
 owner_invocation = "--profile quick --owner-profile integration --suite phase2050-owner-pack"
 if run_all.count(owner_invocation) != 1 or "--filter" in run_all:
     raise SystemExit("phase2050 run_all must use one exact owner-pack invocation and no filter")
 print("[manifest-runner-pilot-guard] phase2050 owner-pack linkage=exact")
 PY
+
+integration_dry_run="$("$ROOT_DIR/tools/smokes/v2/run.sh" --profile integration --dry-run --skip-preflight 2>&1)"
+if ! rg -q "Found 962 test files" <<<"$integration_dry_run"; then
+  guard_fail "$TAG" "integration discovery must find exactly 962 leaves after phase2050 exclusion"
+fi
+if rg -q "profiles/integration/core/phase2050/run_all\.sh" <<<"$integration_dry_run"; then
+  guard_fail "$TAG" "phase2050 aggregate wrapper leaked into normal integration discovery"
+fi
+phase2050_count="$(rg -c 'profiles/integration/core/phase2050/' <<<"$integration_dry_run" || true)"
+if [ "$phase2050_count" -ne 5 ]; then
+  guard_fail "$TAG" "normal phase2050 discovery must contain exactly five leaves"
+fi
 
 echo "[$TAG] ok"

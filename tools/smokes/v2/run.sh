@@ -420,6 +420,7 @@ find_test_files() {
     fi
 
     load_suite_manifest || return 1
+    load_aggregate_nodes || return 1
 
     IFS=':' read -r -a prune_names <<< "$prune_dirs"
     for prune_name in "${prune_names[@]}"; do
@@ -450,6 +451,8 @@ find_test_files() {
                 continue
             fi
             SUITE_DISCOVERED["$relative_path"]=1
+        elif is_explicit_only_aggregate "$relative_path"; then
+            continue
         fi
 
         # フィルタ適用

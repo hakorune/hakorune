@@ -1,6 +1,6 @@
 title = "Smoke owner-pack aggregate discovery policy design"
 status = "accepted_but_not_selected"
-observed_commit = "cf228b01fcdc325e1c7cb3c45bac8fe58e3c9aa6"
+observed_commit = "789dbdc181"
 observed_at = "2026-08-27"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
@@ -21,9 +21,9 @@ excludes = [
 ]
 
 [brief]
-decision = "Before owner-pack closeout, decide whether aggregate run_all.sh wrappers are discoverable leaves, explicit aggregate-only callers, or excluded from parent discovery. Preserve the exact five-entry phase2050 owner pack and never silently allow nested duplicate execution."
-source_authority = "The checked-in integration profile tree, exact owner-pack suite, and aggregate caller body are the sole discovery facts; the selected policy must be co-sealed with the owner-pack registry/linkage guard."
-canonical_issuer = "The existing smoke runner discovery policy, after this design selects one aggregate fate; no new runtime or semantic issuer is created."
+decision = "Treat only phase2050/run_all.sh as an ExplicitOnlyAggregate: a one-row aggregate-node manifest excludes that exact wrapper from normal integration leaf discovery, while its existing five-entry owner pack remains the sole child authority and direct aggregate invocation remains explicit. Do not generalize this rule to the other integration wrappers."
+source_authority = "The checked-in integration profile tree, one aggregate-node manifest row, exact owner-pack suite, and phase2050 aggregate caller body are the sole discovery facts; the selected policy is co-sealed with the owner-pack registry/linkage guard."
+canonical_issuer = "The existing smoke runner discovery policy reads the explicit aggregate-node row; no runtime or semantic issuer is created."
 non_authority = [
   "profile names alone",
   "run_all.sh echo text",
@@ -31,8 +31,8 @@ non_authority = [
   "wildcard/filter strings",
   "a dry-run row as execution-green evidence",
 ]
-fail_fast = "A policy mismatch, duplicate nested member, missing aggregate declaration, or unclassified wrapper remains a design blocker before owner-pack closeout; no broad discovery change is allowed in the current I0."
-smallest_next_slice = "Read-only census and policy comparison for phase2050 plus the other integration aggregates; select one finite rule and its reusable structural guard."
+fail_fast = "A missing/duplicate/absolute/foreign aggregate row, child-suite contamination, wrapper invocation count other than one, leaf exclusion, or unclassified policy remains red before the first child effect; no broad discovery change is allowed."
+smallest_next_slice = "Implement one explicit aggregate-node row for phase2050/run_all.sh and make normal integration discovery exclude only that path; retain the five leaf entries and verify exact-one direct owner-pack invocation."
 non_claims = [
   "does not change default integration discovery yet",
   "does not convert all run_all.sh files",
@@ -45,13 +45,31 @@ observed = [
   "phase2050 run_all.sh invokes that owner pack once",
   "normal integration discovery currently sees 963 files",
   "normal phase2050 discovery includes run_all.sh plus the same five leaves",
+  "the wider census is 108 scripts across phases2047-2051/2100/2160/2170, with 13 wrappers and 95 leaves",
+  "normal discovery duplicates 39 paths through phase2050/2100/2160/2170, but only phase2050 has the one-wrapper/one-exact-pack shape",
 ]
 required = [
-  "aggregate fate is explicit and finite",
+  "aggregate fate is explicit and finite: phase2050/run_all.sh = ExplicitOnlyAggregate",
+  "normal integration discovery changes from 963 to 962 and phase2050 root selection contains exactly five leaves",
   "nested owner-pack members are selected exactly once in the chosen policy",
   "registry row, suite membership, and aggregate caller remain co-sealed",
   "normal legacy nested suites remain unchanged unless the selected policy covers them",
 ]
+
+[selected_policy]
+owner = "integration"
+aggregate_path = "core/phase2050/run_all.sh"
+fate = "ExplicitOnlyAggregate"
+child_suite = "phase2050-owner-pack"
+parent_discovery = "exclude_exact_path"
+direct_invocation = "quick_runtime_plus_integration_owner_pack"
+other_wrappers = "unclassified_and_unchanged"
+
+[implementation_gate]
+permission = false
+next_row = "SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0"
+allowed_scope = "one aggregate-node manifest row, runner/helper exclusion seam, phase2050 structural guard, focused dry-run/negative evidence"
+forbidden_scope = "basename-wide run_all exclusion, other phase wrappers, broad run*.sh conversion, VM/Call/Wpre/force-hv1 semantics"
 
 [reopen]
 triggers = [
