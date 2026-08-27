@@ -28,13 +28,13 @@ excludes = [
 ]
 
 [brief]
-decision = "B0 is landed guard-only: canonical Global has Builtin(Print) and SameModule(FreeFunction/StaticBoxMethod) only; canonical wire is exact v2. Wpre is now a design stop for entrance profiles, one parsed root, and one selected decoder."
-source_authority = "Exact print/1 source contract, exact final-module free/static declaration, co-sealed JoinIR generated declaration, or owner-private compatibility resolution."
-canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
+decision = "D1B is the active design stop: preserve source/site/Raw lineage once, name the sole semantic-to-physical Callee issuer, and make package-plus-loan installation non-bypassable before any ordinary-call profile widening. B0/Wpre remain landed or separately parked owner rows."
+source_authority = "Existing source-bound owner/index relation and exact site from the resolver session; RawInvocationRootLineageV1 remains provenance. ResolvedDirectCallTargetV1 is semantic evidence, not a physical Callee."
+canonical_issuer = "A named owner-specific issuer must convert the already co-sealed semantic target relation to an owned Callee before arguments; the affine loan only transports that issued Callee and never reconstructs it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
-fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "SMOKE-OWNER-PACK-ZERO-MATCH-D0: design exact owner-pack discovery and nonzero-match evidence before Stage1 AOT or PHI/provider fate; no production route, fixture, fallback, or semantic receipt."
-non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
+fail_fast = "Missing issuer, lineage bridge, site/brand match, complete inventory, or package/loan lifecycle aborts before arguments, MIR, package install, block mutation, wire, or backend effects; no empty loan or package-only bypass."
+smallest_next_slice = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0: close the existing semantic-target-to-physical-Callee issuer, sole Raw-lineage mapper, NoDirectCalls terminal, private package-plus-loan bundle, and short raw-port reborrow. No profile widening or production switch yet."
+non_claims = "No Wpre selector, parser/fixture/codec change, new semantic receipt, target synthesis, consumer resolver, Method/receiver cutover, mandatory-Callee schema, VM/backend change, or warning cleanup."
 
 [final_architecture]
 global_target = "Callee::Global(CanonicalGlobalTargetV1), defined serde-free in hakorune_mir_defs/global_target.rs; never an opaque ID, hidden registry key, physical symbol, or Legacy(String)."
@@ -582,8 +582,8 @@ stop = "Return to design if explicit profile issuance cannot be separated from c
 non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
 
 [task_spine]
-current = "CanonicalV1 Value S0, ProductAot substring S0, CoreDirect R0, and force-hv1 direct HistoricalDelete R0a are landed; MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE is the sole design stop on the pre-Wpre bypass family."
-next_prerequisite = "Close SMOKE-OWNER-PACK-ZERO-MATCH-D0 first: separate execution profile from owner-profile discovery and require exact nonempty suite membership. Then design the Stage1 AOT boundary and review PHI/provider R0b exceptions; active force-hv1 evidence is 86 leaves/90 sites with 30 retired records."
+current = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 is the selected design stop after ordinary-call observation-boundary reconciliation; B0/Wpre/force-hv1 rows remain landed or separately parked historical owners."
+next_prerequisite = "Name the semantic-target-to-physical-Callee issuer, preserve Cataloged/TopLevel/InstanceConstructor lineage through one mapper, close package-plus-loan installation and NoDirectCalls terminal, then design the first Cataloged affine cell."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
