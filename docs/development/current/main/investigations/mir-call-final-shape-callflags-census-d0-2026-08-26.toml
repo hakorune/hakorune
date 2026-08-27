@@ -67,6 +67,20 @@ api_and_projection_rows = [
 ]
 external_disposition = "MirCall remains live through unified_emitter/physical_terminal.rs; CallFlags-only deletion is a later candidate only if the public re-export, generated .hako/.json projections, and parked Python/llvmlite readers are explicitly co-updated or retained with named owners."
 
+[current_head_reaudit]
+observed_commit = "6f88c16a91"
+status = "design_stop"
+decision = "Retain MirCall as the live by-value transport and retire Rust CallFlags only as one co-update; do not touch Hako wire flags.optionality or generic mir_call JSON readers."
+classified_edges = [
+  "Retire + co-update: hakorune_mir_defs CallFlags definition/API, MirCall.flags, constructor/closure flag writers, builder create_call_flags, crate/definitions re-exports",
+  "Retain: src/mir/builder/calls/unified_emitter/physical_terminal.rs is the sole MirCall -> MirInstruction::call terminal",
+  "Co-update: RustSubset expected .hako/.json projections and the fourteen lifecycle inventory fixtures; regenerate rather than hand-edit",
+  "Retain out-of-boundary: Hako flags.optionality, mir_json_emit flags envelope, Python/llvmlite JSON readers, VM/reference fixtures",
+]
+external_blocker = "hakorune-mir-defs is a public rlib and local grep cannot prove that workspace-external users are absent. The breaking public-API disposition must be explicitly accepted before selecting the fast deletion row."
+completion = "Not CensusExhausted: the Rust edge matrix is closed enough to name the delete/co-update set, but the public rlib breaking-change decision and one registered reusable guard remain open."
+next_action = "Resolve public API fate in the existing parent decision, then select MIR-CALL-R6-CALLFLAGS-RETIRE-I0 only if breaking retire is accepted; otherwise retain a named compatibility owner."
+
 [followup_audit_2026_08_26]
 status = "design_stop_no_safe_slice"
 reviewers = [
