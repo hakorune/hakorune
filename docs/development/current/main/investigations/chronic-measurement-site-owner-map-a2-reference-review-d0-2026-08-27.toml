@@ -69,6 +69,7 @@ completed = [
   "A2 missing-reference disposition review recorded: ExplicitlyRejectedAtPinnedReviewHead is allowed only per candidate evidence reference; the 185 site rows remain intact and matrix provenance/hash is unchanged.",
   "A2 row-level normalization proposals recorded from the A/B/C semantic workers: candidate roles, route splits, mixed subranges, exact successor candidates, and named blockers remain observations pending strict reconciliation; no matrix row or owner-map authority was changed.",
   "A2-C reference-repair follow-up recorded: C tree/OOB/wrong-owner candidates have exact replacement anchors or candidate-level rejection proposals under the fixed review head; mixed/effective-route and successor blockers remain open.",
+  "A2-C successor follow-up recorded: rows 77 and 97 have exact successor candidates, row100 has a construction successor pending parity, row73 has a fused-terminal candidate pending parity, and rows 61/64-66/74-76 remain split or production-successor blockers.",
 ]
 remaining = [
   "A2-R1-MISSING-BLOB-AND-OOB-CLOSEOUT: record candidate-level disposition for A rows 154/155 and choose an exact-symbol or typed-reject decision for row129",
@@ -337,3 +338,28 @@ remaining_blockers = [
   "No candidate rejection or replacement here changes the 185-row matrix, its hash, or owner-map authority; a future decision must preserve every site row.",
 ]
 next_task = "A2-C-SUCCESSOR-DECISION-D0"
+
+[c_successor_review]
+status = "candidate_successors_narrowed_split_and_parity_blockers_remain"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+matrix_sha256 = "f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04"
+schema = "one_successor_ref_only; split-responsibility rows require reviewed decomposition; no not_required downgrade from disconnection alone"
+conditional_exact_candidates = [
+  "row77: module_lowering_invocation_legacy_term.rs#symbol:commit_legacy_symbol_pending#range:24-47@40145ef01c50d0bf6bdcec86493f950dfccd3e84; old wrapper is a delegating seam and branded terminal remains evidence-only; test-caller migration and error/restore/collector parity are required.",
+  "row97: crates/hakorune_mir_builder/src/type_context.rs#range:69-73@40145ef01c50d0bf6bdcec86493f950dfccd3e84 (TypeContext::set_type); old annotation setter has no caller, while production callers already use FunctionState.type_ctx; retain only after exact write-parity evidence.",
+  "row100: function_lowering_state.rs#range:270-274@40145ef01c50d0bf6bdcec86493f950dfccd3e84 (FunctionScopeStateV1::push_lexical_scope); construction/default stack parity is still required before successor acceptance.",
+  "row73: module_lowering_invocation_resolved_loan.rs#range:8-61@40145ef01c50d0bf6bdcec86493f950dfccd3e84 (complete_resolved_child_with_physical_loan); candidate fused terminal must prove owner/restore/error/collector/physical-loan parity before becoming the one successor.",
+]
+split_or_blocked = [
+  "row61: ExitLeaf recipe vocabulary, exit-only-block fact, and recipe-tree consumer are different layers; split subranges and keep single-successor unresolved.",
+  "rows64-66: fact-session receipts/draft/module candidates have no production successor; keep required CutoverBlockerOpen pending an explicit retirement decision, not a silent not_required.",
+  "row74: capture_resolved_pending and fused terminal are distinct responsibilities; no single successor without a reviewed integration owner.",
+  "row75: generic legacy capture, specialized capture, and reentrant test seam are distinct; decompose before successor assignment.",
+  "row76: with_module_port and with_header_port differ in collector mutation versus header observation; retain both as evidence and keep the row blocked until decomposition.",
+]
+acceptance = [
+  "A required row is closed only by one exact full-SHA tracked successor_ref plus caller/cfg/effective-route/parity evidence.",
+  "Rows without one successor retain CutoverBlockerOpen with a named reopen condition; disconnection, test-only status, or grep absence is insufficient.",
+  "No matrix row is removed, no multi-edge field is introduced, and no owner-map/expectation/guard/source artifact is authored by this review.",
+]
+next_task = "A2-C-SUCCESSOR-DECISION-D1"
