@@ -70,6 +70,7 @@ completed = [
   "A2 row-level normalization proposals recorded from the A/B/C semantic workers: candidate roles, route splits, mixed subranges, exact successor candidates, and named blockers remain observations pending strict reconciliation; no matrix row or owner-map authority was changed.",
   "A2-C reference-repair follow-up recorded: C tree/OOB/wrong-owner candidates have exact replacement anchors or candidate-level rejection proposals under the fixed review head; mixed/effective-route and successor blockers remain open.",
   "A2-C successor follow-up recorded: rows 77 and 97 have exact successor candidates, row100 has a construction successor pending parity, row73 has a fused-terminal candidate pending parity, and rows 61/64-66/74-76 remain split or production-successor blockers.",
+  "A2-B0/B3 follow-up recorded: B owner-versus-consumer anchors were narrowed under the fixed review head; row21 has one successor candidate but remains live-caller blocked, row23 is a test-only seam candidate, row26 is a live legacy owner, and row102 has a wrong-path blocker.",
 ]
 remaining = [
   "A2-R1-MISSING-BLOB-AND-OOB-CLOSEOUT: record candidate-level disposition for A rows 154/155 and choose an exact-symbol or typed-reject decision for row129",
@@ -363,3 +364,29 @@ acceptance = [
   "No matrix row is removed, no multi-edge field is introduced, and no owner-map/expectation/guard/source artifact is authored by this review.",
 ]
 next_task = "A2-C-SUCCESSOR-DECISION-D1"
+
+[b_anchor_successor_review]
+status = "candidate_owner_consumer_repin_recorded_row21_blocked"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+matrix_sha256 = "f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04"
+schema = "owner_ref and evidence_refs remain separate; one successor_ref only when required; proposals do not edit the matrix"
+owner_consumer_corrections = [
+  "row0 owner candidate TEXT_SCAN_AOT_EXPORT_FACTS_V1 in src/abi/text_scan_aot_export_facts.rs; provider/AOT/JSON paths are consumers/evidence, not owner authority.",
+  "row1 owner candidate CanonicalDrainedSinglePhysicalV1 in src/mir/builder/canonical_physical_drain.rs; canonical dispatch/completion ranges are consumers/evidence, not schema owner.",
+  "row3 owner FunctionSignatureLookupV1 in src/mir/builder/function_signature_lookup.rs; entry_target lookup use is consumer evidence.",
+  "row4 owner VerifiedMainExpansionV1::from_program in src/mir/builder/main_expansion.rs; normal-root lifecycle is consumer evidence.",
+  "row6 owner OwnedRawSourceV1::bind in src/mir/builder/raw_source_projection.rs; raw-root physical use is consumer evidence.",
+  "row7 owner PendingMainDraftV1 in src/mir/builder/main_pending_draft.rs; root batch/lifecycle uses are consumer evidence.",
+  "row9 owner prepare_me_lowered_call_v1 in src/mir/builder/me_call_header_observation.rs; static-child admission is consumer evidence.",
+  "row10 owner SealedModuleDeclarationFactsV1 in src/mir/builder/module_declaration_facts.rs; raw environment/physical shells consume the facts.",
+]
+row102_blocker = "The matrix raw_root_package.rs candidate is the wrong path. Candidate owner is src/mir/compiler/raw_root_manifest_package.rs#symbol:ManifestBoundRawRootPackageV1::new@40145ef01c50d0bf6bdcec86493f950dfccd3e84; keep TypedReferenceBlocker until the correction is independently accepted."
+row21 = "role=runtime; successor_status=required; candidate successor src/mir/builder/module_lowering_invocation_resolved_loan.rs#symbol:ModuleLoweringPortV1::complete_resolved_child_with_physical_loan@40145ef01c50d0bf6bdcec86493f950dfccd3e84; old caller assemble_unpublished_selected_dynamic_w6 remains, so parity/old-caller-zero/residual-zero are required before close."
+row23 = "role=test_support; successor_status=not_required; successor_ref=none_required; with_access_port has a test-only caller, while with_module_port and with_header_port are distinct consumer APIs rather than two successors; source deletion remains a later row."
+row26 = "role=runtime; successor_status=not_required; successor_ref=none_required; commit_legacy_symbol_pending remains a live owner across cataloged, constructor, top-level, and recursive branded production routes; do not collapse them to one successor."
+acceptance = [
+  "All proposed owner anchors resolve as full-SHA tracked references at the fixed review head before map use; consumers remain evidence_refs.",
+  "B21 remains CutoverBlockerOpen until adapter/parity, old-caller-zero, and residual-zero evidence are complete; B102 remains a typed path blocker until repin is accepted.",
+  "No owner-map, expectation, guard, source, allow, or production behavior change is authorized by this review.",
+]
+next_task = "CHRONIC-MEASUREMENT-B0-OWNER-ANCHOR-REPIN-D0 then CHRONIC-MEASUREMENT-B3-CATALOGED-HANDOFF-SUCCESSOR-D0"
