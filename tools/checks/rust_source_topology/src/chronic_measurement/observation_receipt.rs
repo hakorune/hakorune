@@ -232,7 +232,7 @@ fn validate_observation_row(
             detail: format!("{path}: empty item_key"),
         });
     }
-    if source_range.byte_start > source_range.byte_end
+    if source_range.byte_start >= source_range.byte_end
         || source_range.start.line == 0
         || source_range.end.line < source_range.start.line
         || (source_range.start.line == source_range.end.line
@@ -347,6 +347,23 @@ mod tests {
             end: PositionV1 { line: 1, column: 0 },
             byte_start: 2,
             byte_end: 1,
+        };
+        assert!(validate_observation_row(
+            "src/lib.rs",
+            "item",
+            &range,
+            ChronicAllowanceKindV1::OuterAllow,
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn range_validation_rejects_zero_length_rows() {
+        let range = SourceRangeV1 {
+            start: PositionV1 { line: 1, column: 0 },
+            end: PositionV1 { line: 1, column: 0 },
+            byte_start: 7,
+            byte_end: 7,
         };
         assert!(validate_observation_row(
             "src/lib.rs",

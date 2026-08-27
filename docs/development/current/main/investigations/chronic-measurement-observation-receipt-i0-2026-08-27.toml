@@ -37,7 +37,7 @@ non_authority = [
   "scanner implementation commit used as a substitute for source_commit, or evidence_hash reused as receipt_hash",
   "any owner/successor/fate/expectation field or downstream lifecycle decision",
 ]
-fail_fast = "Reject missing/non-40-hex source_commit, unsupported command/arguments, non-DeadCode row kind, unknown attribute/range shape, path escape, duplicate or out-of-order canonical key, provenance drift, count drift from 185, or receipt hash mismatch before writing output."
+fail_fast = "Reject missing/non-40-hex source_commit, unsupported command/arguments, non-DeadCode row kind, unknown attribute/range shape, zero-length range, path escape, duplicate or out-of-order canonical key, provenance drift, count drift from 185, or receipt hash mismatch before writing output."
 smallest_next_slice = "Implement only the receipt projection module and its CLI/tests inside tools/checks/rust_source_topology; no owner map, expectation TSV, guard registration, or source cleanup."
 non_claims = [
   "does not claim any allowance is dead, stale, production-live, or deletable",
@@ -52,7 +52,8 @@ schema = "chronic-measurement-observations-v1"
 row_kind = "dead_code_allowance"
 row_fields = ["row_kind", "path", "item_key", "byte_start", "byte_end", "line_start", "line_end", "attribute_kind", "raw_condition"]
 canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
-hash_rule = "receipt_hash is SHA-256 over canonical JSON with receipt_hash omitted; rows are sorted by canonical_key and duplicate keys fail"
+hash_rule = "receipt_hash is SHA-256 over receipt_hash-omitted canonical compact UTF-8 JSON bytes with fixed struct field order and no trailing newline; rows are sorted by canonical_key and duplicate keys fail"
+range_rule = "source byte ranges are non-empty (byte_start < byte_end), ordered, and line/column consistent; zero-length ranges fail closed"
 provenance_fields = ["schema", "schema_version", "scanner_version", "scope_id", "scope_manifest_hash", "source_scope_hash", "source_commit", "scanner_evidence_hash", "receipt_hash"]
 
 [implementation]

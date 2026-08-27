@@ -36,7 +36,7 @@ non_authority = [
   "the scanner's 185 in-scope allowance count treated as the historical 334/351 all-src baseline without an explicit scope reconciliation",
 ]
 fail_fast = "Missing/duplicate observation receipt or TSV rows, missing owner/successor, source/scope/scanner/force/owner-map receipt hash drift, unclassified observations, legacy/support scope mixing, stale force receipt, or a validator that accepts a partial report must fail before any stale-guard or source-retirement decision."
-smallest_next_slice = "NoSafeSlice until CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 supplies a tracked 185-row observation receipt, freezes the canonical range/attribute key, provenance/ref grammar, classification-only states, and exact owner evidence alongside the reconciled 185-versus-334/351 boundary. Only then freeze the TSV union schema and consumer seam; do not create the TSV or edit code while implementation_permission is false."
+smallest_next_slice = "NoSafeSlice until CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 supplies a strict receipt consumer (schema/hash/frozen-scope/non-empty-range validation) and then a tracked 185-row owner map with canonical range/attribute keys, provenance/ref grammar, classification-only states, and exact owner evidence alongside the reconciled 185-versus-334/351 boundary. Only then freeze the TSV union schema and consumer seam; do not create the TSV or edit code while implementation_permission is false."
 non_claims = [
   "does not claim the observed counts are production-live, stale, or deletable",
   "does not authorize ASTCLEAN threshold supersession, dead_code removal, panic cleanup, guard removal, or phase2160 reduction",
@@ -208,6 +208,7 @@ next_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
 status = "blocking_precondition"
 required = [
   "a tracked 185-row observation receipt with canonical keys, raw_condition, receipt_hash, and scanner/scope/source/evidence provenance exists before any owner-map or TSV row",
+  "the single receipt consumer verifies the frozen scope hashes, receipt hash, source revision, canonical order, and non-empty ranges without rescanning or reimplementing hash semantics",
   "site-level owner and role classification for every allowance/site that would enter the TSV, supplied by CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0",
   "site-owner map canonical key, provenance hashes, tracked-reference grammar, and classification-only retirement vocabulary are frozen before TSV rows are authored",
   "path-level inclusion/exclusion table explaining the 185 frozen-scope observations versus 334/351 all-src diagnostics",

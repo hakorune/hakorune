@@ -35,7 +35,7 @@ non_authority = [
   "force_hv1 fate/expected_counts, MIR/VM/AOT behavior, or any target/name/string reconstruction",
 ]
 fail_fast = "Every site entering the future TSV must resolve exactly once to an owner_ref, compile_domain, role, successor_status, successor_ref, retirement_status, and evidence_refs under the bound scanner/scope/source hashes. Missing/duplicate/foreign/ambiguous evidence, unknown required successor, or an unclassified site remains blocking and no partial map is accepted."
-smallest_next_slice = "Design-only: with the tracked receipt now bound, freeze the owner-map evidence rows, tracked-reference grammar, classification-only state vocabulary, and exact coverage of all 185 observations. Do not author the expectation TSV or delete source while implementation_permission is false."
+smallest_next_slice = "Design-only: freeze the single receipt consumer seam (strict parse/hash/frozen-scope/non-empty-range validation), then freeze owner-map evidence rows, tracked-reference grammar, classification-only state vocabulary, and exact coverage of all 185 observations. Do not author the expectation TSV or delete source while implementation_permission is false."
 non_claims = [
   "does not claim any allowance is dead, stale, production-live, or deletable",
   "does not change scanner scope, force-hv1 fate, guard behavior, compiler/MIR/VM/AOT code, or source files",
@@ -88,7 +88,7 @@ retirement_authority_rule = "This map may classify Unknown/Retain/Candidate only
 path = "tools/checks/manifests/chronic_measurement_observations_v1.json"
 status = "bound"
 role = "tracked neutral scanner observation receipt; not owner, expectation, guard, or retirement authority"
-next_card = "CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0"
+bound_by_card = "CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0"
 schema = "chronic-measurement-observations-v1"
 receipt_id = "chronic-measurement-observations-v1@d9cff5b744edee3b6450db5d0ffc74478f32b49a"
 receipt_hash = "sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d"
@@ -109,7 +109,10 @@ required_fields = [
 row_fields = ["row_kind", "path", "item_key", "byte_start", "byte_end", "line_start", "line_end", "attribute_kind", "raw_condition"]
 canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
 issuer = "the existing syn-based chronic scanner; the receipt is a deterministic projection of its report and adds no owner/successor fields"
-hash_rule = "rows are sorted by canonical_key and receipt_hash is SHA-256 over canonical JSON with receipt_hash omitted; scanner_evidence_hash remains the scanner report evidence hash and is not reused for the receipt"
+hash_rule = "rows are sorted by canonical_key and receipt_hash is SHA-256 over receipt_hash-omitted canonical compact UTF-8 JSON bytes with fixed field order and no trailing newline; scanner_evidence_hash remains the scanner report evidence hash and is not reused for the receipt"
+consumer_owner = "the site-owner-map I0 validator reuses the receipt owner's schema/hash contract; no second scanner or cross-language hash implementation is authoritative"
+consumer_contract = "strict parse the tracked JSON, verify schema/version, scanner_version, scope_id, frozen scope hashes, source_commit, scanner_evidence_hash, receipt_hash, non-empty ranges, canonical key order/uniqueness, and exactly 185 rows before owner projection"
+frozen_scope = "scope_id=mirbuilder-chronic-rust-v1; scanner_version=chronic-rust-token-scanner-v1; scope_manifest_hash=sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f; source_scope_hash=sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39; scanner_evidence_hash=sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a; row_count=185"
 non_authority = ["raw command stdout, temporary JSON, grep/rg output, warning counts, filename labels, owner guesses, retirement outcomes"]
 
 [census]
@@ -135,6 +138,10 @@ states = [
   "ObservationMissing",
   "ObservationReceiptMissing",
   "ObservationReceiptDrift",
+  "ReceiptConsumerMissing",
+  "ReceiptScopeDrift",
+  "ReceiptHashDrift",
+  "ZeroLengthRange",
   "SiteKeyReady",
   "OwnerMapped",
   "RetainedWithEvidence",
@@ -149,7 +156,7 @@ states = [
   "ProvenanceDrift",
 ]
 terminal = ["ReadyForExpectation", "RetainedWithEvidence"]
-blocking = ["ObservationMissing", "ObservationReceiptMissing", "ObservationReceiptDrift", "DuplicateSite", "ForeignSite", "MissingOwner", "MissingSuccessorEvidence", "UnknownSuccessorStatus", "UnclassifiedSite", "ScopeDrift", "ProvenanceDrift"]
+blocking = ["ObservationMissing", "ObservationReceiptMissing", "ObservationReceiptDrift", "ReceiptConsumerMissing", "ReceiptScopeDrift", "ReceiptHashDrift", "ZeroLengthRange", "DuplicateSite", "ForeignSite", "MissingOwner", "MissingSuccessorEvidence", "UnknownSuccessorStatus", "UnclassifiedSite", "ScopeDrift", "ProvenanceDrift"]
 
 [task_steps]
 items = [
@@ -198,9 +205,9 @@ evidence = [
   "tools/checks/rust_source_topology/src/chronic_measurement/scan.rs:204-249 rejects duplicate byte ranges, not path/item_key alone",
   "tools/checks/manifests/chronic_measurement_observations_v1.json at 2c6927cccbb12de1057ce66c43b59f55f4ae4bfa is now the tracked neutral 185-row receipt; it carries no owner or retirement fields",
 ]
-latest_finding = "The tracked 185-row observation receipt and provenance are bound. Keep expectation pin and deletion blocked until all rows have independently reviewed tracked owner evidence; the map remains classification-only."
+latest_finding = "The tracked 185-row observation receipt and provenance are bound. Before owner projection, one validator must strict-parse and verify the frozen scope/hash/range contract; keep expectation pin and deletion blocked until all rows have independently reviewed tracked owner evidence."
 
 [closeout]
 status = "pending"
-required = "The tracked 185-row observation receipt and provenance are now bound. Next record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states for every row; move to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after the owner map is complete. No expectation TSV or deletion is allowed from this row."
+required = "The tracked 185-row observation receipt and provenance are now bound. First design the single strict receipt consumer, then record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states for every row; move to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after the owner map is complete. No expectation TSV or deletion is allowed from this row."
 next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"

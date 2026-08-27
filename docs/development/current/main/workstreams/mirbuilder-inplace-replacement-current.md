@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement site owner map D0
+Status: Fast — chronic measurement receipt range hardening I0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-receipt-range-hardening-i0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0` is the only next design cell: use the tracked 185-row neutral receipt to classify every site with explicit owner/role/successor evidence; expectation pinning, guard registration, and deletion remain closed.
+  `CHRONIC-MEASUREMENT-RECEIPT-RANGE-HARDENING-I0` is the only implementation cell: reject zero-length source ranges in the landed neutral receipt validator without changing its 185-row artifact; then return to the owner-map design stop.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

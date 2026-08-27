@@ -1,0 +1,61 @@
+title = "Chronic measurement receipt range hardening I0"
+status = "fast_open"
+observed_commit = "46109971c8"
+observed_at = "2026-08-27"
+implementation_permission = true
+selected_fast = true
+current_execution_row = "CHRONIC-MEASUREMENT-RECEIPT-RANGE-HARDENING-I0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "the landed chronic observation receipt projection and its source-range validator"
+ends = "zero-length source ranges are rejected before receipt publication, with one focused negative test"
+includes = [
+  "change only the source byte-range comparison in observation_receipt.rs",
+  "add a focused zero-length range rejection test",
+  "keep the tracked 185-row JSON bytes and receipt_hash unchanged",
+]
+excludes = [
+  "owner/successor/role classification, strict receipt consumer, expectation TSV, guard registration, or deletion",
+  "scanner scope/parser behavior, artifact regeneration, compiler/MIR/VM/AOT behavior, or route changes",
+]
+
+[brief]
+decision = "Harden the already-landed neutral receipt validator so a zero-length source span cannot be accepted as an observation row. This is a local correctness guard; it issues no semantic or retirement authority."
+source_authority = "The scanner's SourceRangeV1 and the existing receipt projection validator."
+canonical_issuer = "observation_receipt.rs remains the only receipt projection/validation owner; no new parser or consumer is introduced."
+non_authority = ["owner guesses", "warning counts", "receipt artifact edits", "filename or line-only identity"]
+fail_fast = "Reject byte_start >= byte_end before row publication; all other receipt provenance and count rules remain unchanged."
+smallest_next_slice = "One comparison change plus one focused negative test; regenerate nothing because the bound 185 rows are already non-empty."
+non_claims = [
+  "does not classify any row as stale, dead, live, or deletable",
+  "does not open the site-owner map or expectation TSV",
+]
+
+[acceptance]
+positive = [
+  "all existing receipt and chronic scanner tests remain green",
+  "the tracked 185-row artifact remains byte-identical with the same receipt_hash",
+]
+negative = [
+  "a zero-length byte range is rejected with the existing typed observation error",
+  "no owner-map, expectation, guard, source, or backend file changes occur",
+]
+structural = [
+  "observation_receipt.rs stays below 760 lines and the workstream stays below the 800-line hard stop",
+  "no new dependency, public semantic receipt, or second scanner is added",
+]
+
+[guard]
+reuse = "Reuse chronic_measurement focused tests, artifact byte/hash comparison, current_state_pointer_guard, and git diff --check; no new executable guard row."
+required = "Closeout records the one-line validator change, focused negative test, unchanged artifact hash, and pointer/tree checks."
+no_safe_slice = [
+  "the fix requires changing scanner output or the 185-row artifact",
+  "range validity cannot be enforced locally without a second parser",
+]
+
+[closeout]
+status = "pending"
+required = "Record implementation commit and focused evidence, then move the pointer back to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
