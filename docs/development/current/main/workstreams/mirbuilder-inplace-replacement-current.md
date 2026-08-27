@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CHRONIC-MEASUREMENT-RECEIPT-CONSUMER-I0` landed at `6cd2f6be94`: one strict consumer now verifies the tracked 185-row neutral receipt against frozen scope/hash/non-empty-range rules and explicit source revision without rescanning; the next design stop is the site-owner map.
+  `CHRONIC-MEASUREMENT-RECEIPT-CONSUMER-I0` landed at `6cd2f6be94`: one strict consumer now verifies the tracked 185-row neutral receipt against frozen scope/hash/non-empty-range rules and explicit source revision without rescanning; the site-owner map remains a design stop until its own schema/id/hash/reference contract is frozen.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
