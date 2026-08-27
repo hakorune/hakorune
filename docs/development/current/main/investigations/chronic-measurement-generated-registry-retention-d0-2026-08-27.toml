@@ -25,7 +25,7 @@ excludes = [
 ]
 
 [brief]
-decision = "A cohort is closed at 79/79 policy-ready. Every row has an exact RetainNamed policy or named successor; no A candidate or blocker remains. Parent B/C evidence remains blocking."
+decision = "A cohort is closed at 79/79 policy-ready. Every row has an exact RetainNamed policy or named successor; no A candidate or blocker remains. Parent B/C evidence is also closed at 106/106; only the separate owner-map reference/role review remains."
 source_authority = "The frozen 79 receipt rows, module_registry.in.rs declarations, compiler/mod.rs include edge, the reviewed matrix TSV, and exact tracked owner evidence."
 canonical_issuer = "This D0 issues only the retention/successor policy decision for the A cohort; the later site-owner-map D0 remains the sole owner-map input issuer."
 non_authority = [

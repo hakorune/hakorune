@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement site-owner map D0
+Status: Design stop — chronic measurement site-owner map A2 reference review D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-a2-reference-review-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -682,7 +682,7 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0;
-  the 185-row evidence matrix is complete (A=79, B=46, C=60), but A1 must resolve 697 pinned owner/evidence references and normalize roles/successors before map authoring.
+  the 185-row evidence matrix is complete (A=79, B=46, C=60), A1 pinned-reference resolution is landed, and A2 must classify 697 owner/evidence references and normalize roles/successors before map authoring.
   Keep the tracked map, expectation pinning, stale-guard supersession, and source deletion as separate later stages.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.

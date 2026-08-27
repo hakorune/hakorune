@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "All C rows now have explicit policy outcomes: rows 44/54/55 use the catalog/context/declaration subsite RetainNamed family, row 70 is a RetireCandidate, and rows 56/60/84/89/99 retain their prior policies. Reopen CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 for tracked map authoring, then expectation pinning, stale-guard supersession, and successor-backed source retirement as separate stages."
+smallest_next_slice = "All C rows now have explicit policy outcomes: rows 44/54/55 use the catalog/context/declaration subsite RetainNamed family, row 70 is a RetireCandidate, and rows 56/60/84/89/99 retain their prior policies. The matrix is complete at 185/185, but tracked owner-map authoring remains behind the parent A2 reference/role review; expectation pinning, stale-guard supersession, and successor-backed source retirement remain separate later stages."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -56,7 +56,7 @@ owner_status = "topology/registration owner candidate accepted"
 retention_status = "policy_ready_for_parent_map"
 successor_rule = "do not issue not_required + none_required for all 79 rows from generated-included status alone; split by declared module role or name a policy owner"
 required_evidence = "module registry topology owner plus per-module runtime/compatibility/test/disconnected role and an explicit retention or successor decision"
-next_card = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
+next_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
 
 [evidence_contract]
 candidate_owner_ref = "tracked path plus explicit symbol/range/edge anchor and pinned revision, recorded as a candidate only until later A1 resolution"

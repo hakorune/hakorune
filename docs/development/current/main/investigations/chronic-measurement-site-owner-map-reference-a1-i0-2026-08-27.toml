@@ -39,7 +39,7 @@ non_authority = [
   "a second scanner, parser, hash implementation, guard manifest, or owner-map artifact",
 ]
 fail_fast = "Any invalid/non-commit/non-ancestor revision, missing/non-blob path, non-UTF8 blob, byte anchor, unsupported edge, out-of-range range, missing/ambiguous symbol, or unresolved row reference rejects the strict entry point before a resolved map result is returned."
-smallest_next_slice = "Add the explicit context and strict wrapper, implement the argv-only local Git/blob/anchor resolver in one sibling, add focused positive/negative tests and an independent static golden vector, then run the dedicated Rust test target."
+smallest_next_slice = "A1 is landed at 31e1edd457 with explicit context, strict Git/blob/anchor resolution, typed failures, focused tests, and an independent static golden vector. The parent D0 now owns the separate A2 candidate-reference, role, and successor review; no A1 reimplementation or map authoring is implied."
 non_claims = [
   "does not claim the 697 references are repaired or all ReferenceResolved",
   "does not author the tracked owner map, expectation TSV, guard row, or retirement decision",

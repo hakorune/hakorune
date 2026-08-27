@@ -1,0 +1,129 @@
+title = "Chronic measurement site-owner map A2 reference review D0"
+status = "accepted_design_no_safe_slice"
+observed_commit = "d90992de768148b6ad54c41d5ecac5beecb646a3"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-A2-REFERENCE-REVIEW-D0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "the frozen 185-row observation receipt, the reviewed matrix TSV, and the landed A1 strict pinned-reference resolver facts"
+ends = "one reviewed normalization handoff in which every candidate reference, site role, and required successor is explicit enough for later owner-map authoring"
+includes = [
+  "697 candidate owner/evidence reference occurrences and their 550 unique reference strings",
+  "A1 pass-through versus semantic-review versus typed-blocker classification",
+  "seven-role and compile-domain normalization for all 185 sites using tracked owner evidence",
+  "one exact successor_ref for each of the 16 successor-required rows",
+  "explicit review_head/source-commit provenance and a finite no-partial-map close condition",
+]
+excludes = [
+  "creating the tracked chronic_measurement_site_owners_v1.toml owner map",
+  "expectation TSV, reconciliation artifact, guard registration, stale-guard supersession, caller-zero proof, or source/allow deletion",
+  "scanner/parser changes, A1 resolver reimplementation, compiler/MIR/VM/AOT behavior, or backend route changes",
+  "owner or successor inference from filenames, grep absence, warning counts, compile_domain alone, or current HEAD",
+]
+
+[brief]
+decision = "Keep the landed A1 resolver as a facts-only boundary and add one design-only A2 review for candidate semantics, site roles, and required successors. A2 may classify or block input, but it cannot issue the tracked owner map or deletion authority."
+source_authority = "The d9cff5b744edee3b6450db5d0ffc74478f32b49a observation receipt, matrix TSV sha256:f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04, explicit review_head 40145ef01c50d0bf6bdcec86493f950dfccd3e84, and tracked Git objects resolved by A1."
+canonical_issuer = "A2 issues only a reviewed normalization handoff; the later site-owner-map D0 remains the sole owner/successor artifact issuer."
+non_authority = [
+  "A1 anchor existence by itself, matrix prose, current HEAD, cwd, short-SHA expansion, path rename, grep/substring matches, warning counts, and file-wide role labels",
+  "Retain/Candidate labels, candidate successor prose, expectation counts, guard registration, or caller-zero text as deletion authority",
+]
+fail_fast = "Keep A2 blocked if any short revision, #byte, tree/non-blob path, missing path, out-of-bounds range, unresolved/ambiguous symbol, or unsupported edge remains; if any site lacks one explicit schema role; or if a required successor lacks exactly one resolved tracked reference."
+smallest_next_slice = "Refresh the reference census, classify the 697 candidates without silent repair, normalize the 185 roles, and resolve the 16 required successors as one grouped design task. Do not author a partial map."
+non_claims = [
+  "does not claim any candidate reference is repaired until it passes the landed A1 strict resolver",
+  "does not claim the owner map, expectation pin, guard/source retirement, caller-zero, or deletion is ready",
+  "does not reopen MirBuilder or VM implementation while the owner-map evidence boundary is unresolved",
+]
+
+[inputs]
+receipt = "tools/checks/manifests/chronic_measurement_observations_v1.json; 185 canonical rows; source_commit=d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+matrix = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-v1.tsv; 185 rows; 697 candidate owner/evidence occurrences; matrix is non-authoritative input"
+a1_resolver = "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map_reference.rs; landed at 31e1edd457; explicit repository_root/review_head only"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+
+[census]
+candidate_occurrences = 697
+candidate_unique_references = 550
+candidate_unique_paths = 268
+anchor_counts = "symbol=167; range=501; byte=29; edge=0"
+short_revision_occurrences = 10
+range_valid_occurrences = 459
+range_out_of_bounds_distinct = 20
+range_out_of_bounds_occurrences = 37
+range_out_of_bounds_rows = 22
+tree_path_occurrences = 3
+missing_path_occurrences = 2
+affected_rows = 35
+detailed_role_rows = 181
+successor_required_rows = 16
+successor_prose_only_rows = 13
+count_rule = "Candidate counts cover only candidate_owner_ref and candidate_evidence_refs; prose successor context is counted separately and never silently promoted to a map reference. Failure-class counts overlap."
+
+[finite_state]
+states = [
+  "PassThroughReference",
+  "SemanticReviewRequired",
+  "TypedReferenceBlocker",
+  "RoleNormalized",
+  "RoleNormalizationMissing",
+  "SuccessorNormalized",
+  "SuccessorNormalizationMissing",
+  "ReadyForOwnerMap",
+]
+terminal = ["ReadyForOwnerMap"]
+blocking = ["SemanticReviewRequired", "TypedReferenceBlocker", "RoleNormalizationMissing", "SuccessorNormalizationMissing"]
+rule = "Only an A1-resolved reference with explicit site role/domain and, when required, one exact successor_ref can contribute to a future owner map. A partial or guessed result is not terminal."
+
+[ordered_work]
+items = [
+  "1. Recompute and record the candidate census from the matrix, preserving 697 candidate owner/evidence occurrences separately from three prose successor references.",
+  "2. Classify each candidate as A1 pass-through, semantic-review input, or typed blocker; replace short/byte/path/range text only through an explicit reviewed decision, never by current-HEAD or grep repair.",
+  "3. Normalize all 185 sites to exactly one of runtime/test_support/fixture/compatibility/guard_evidence/generated_registry/mixed, independently of compile_domain and filename labels.",
+  "4. Resolve the 16 successor-required rows to one exact full-revision tracked successor_ref each; keep supporting paths in evidence_refs and leave multi-successor prose blocked.",
+  "5. Re-run the landed A1 strict resolver over the fully reviewed input and preserve the independent golden result.",
+  "6. Only after all states are terminal, reopen the parent D0 for one tracked 185-row owner map; expectation/reconciliation/guard/source retirement remain separate rows.",
+]
+
+[acceptance]
+positive = [
+  "all 697 candidate owner/evidence occurrences are accounted for as pass-through, semantic-review, or typed blocker with no silent repairs",
+  "all 185 sites have explicit seven-role/domain decisions backed by tracked owner evidence, including mixed files at site granularity",
+  "all 16 required successors have one exact resolved successor_ref, with supporting evidence kept separate",
+  "the fully reviewed input passes the landed A1 resolver under explicit review_head and the independent hash golden remains green",
+  "no owner-map, expectation, guard, reconciliation, or deletion artifact is created by this design row",
+]
+negative = [
+  "no current-HEAD substitution, short-SHA auto-expansion, path rename repair, byte-anchor acceptance, range clipping, grep symbol proof, or guessed successor",
+  "no role inferred from compile_domain, filename, generated label, warning count, or file-wide mixed role",
+  "no partial owner map, expectation TSV, stale-guard supersession, caller-zero claim, or source deletion",
+]
+
+[guard]
+reuse = "Reuse the landed A1 site-owner-map validator/resolver, neutral receipt consumer, matrix key contract, current_state_pointer_guard, git diff --check, and existing guard registry; add no executable guard row in A2."
+required = "A future owner-map consumer must verify the exact 185-row receipt join, A1-resolved references, explicit role/domain, one required successor, provenance, and map hash before expectation pinning."
+no_safe_slice = [
+  "candidate repair requires an unreviewed semantic guess or a second parser/resolver",
+  "a role is inherited from a file or compile_domain, or a successor is inferred from prose/phase tokens",
+  "any unresolved A1 reference is hidden by a partial map or a new default",
+  "A2 must change Rust/compiler/MIR/VM/AOT code, add a guard row, or delete source to appear green",
+]
+
+[worker_receipt]
+agents = [
+  "conditional_policy_adversary_core: A1 facts do not prove semantic ownership; 697 candidates remain map-blocking until reviewed",
+  "conditional_policy_adversary_raw: 697 occurrences / 550 unique refs; symbol=167, range=501, byte=29; short=10; OOB=20 distinct/37 occurrences; tree=3; missing=2",
+  "force_successor_fate_audit: 16 required rows need one exact successor_ref; Candidate remains classification, not deletion permission",
+  "guard_index_spec_audit: owner-map -> reconciliation -> expectation refresh -> stale supersede -> caller-zero retirement; no shortcut",
+  "conditional_registry_fate_audit: A1 landed; parent/map docs need post-A1 wording and no silent review-head replacement",
+]
+status = "consensus_a1_landed_a2_blocked"
+
+[closeout]
+status = "pending"
+required = "A2 closes only when the candidate census is current, every reference is A1-resolved or explicitly rejected, all 185 roles/domains are normalized, all 16 required successors have one exact resolved ref, and no partial owner map or later retirement artifact was created."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
