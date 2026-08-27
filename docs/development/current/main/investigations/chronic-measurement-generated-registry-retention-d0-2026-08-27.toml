@@ -1,6 +1,6 @@
 title = "Chronic measurement generated registry retention D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "7917aa105cd056d58adac837b5f0bc297da89006"
+observed_commit = "8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
@@ -25,16 +25,16 @@ excludes = [
 ]
 
 [brief]
-decision = "Treat generated-registry status as a topology fact only. Before the A cohort can enter the owner map, decide whether each declared module is retained by a named policy owner, mapped to a successor, or remains blocked; split non-uniform roles at declaration/range level. No default successor is issued."
-source_authority = "The frozen 79 receipt rows, module_registry.in.rs declarations, compiler/mod.rs include edge, and explicit tracked owner/retirement policy evidence."
+decision = "Treat generated-registry status as a topology fact only. Sixty-seven A rows now have exact RetainNamed owner policies; seven Generic-G0/recursive rows remain candidate-only and five variable/source-entry legacy rows remain explicitly blocked. No default successor is issued."
+source_authority = "The frozen 79 receipt rows, module_registry.in.rs declarations, compiler/mod.rs include edge, the reviewed matrix TSV, and exact tracked owner evidence."
 canonical_issuer = "This D0 issues only the retention/successor policy decision for the A cohort; the later site-owner-map D0 remains the sole owner-map input issuer."
 non_authority = [
   "generated_included or generated_registry labels by themselves",
   "allow(dead_code), filename/module name, grep caller absence, warning counts, or current build green",
   "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
 ]
-fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner, explicit role evidence, named retention policy or successor, or if a uniform policy is asserted across mixed modules without row-level proof."
-smallest_next_slice = "Continue design-only exact policy issuance for the 55 candidate rows across grouped families; preserve twenty-one exact RetainNamed bindings, decide the three blocked legacy source-entry projection rows, and keep candidate evidence non-authoritative until each exact key receives a policy owner or named successor."
+fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner/evidence, explicit policy or successor basis, or if a uniform policy is asserted across mixed modules without row-level proof."
+smallest_next_slice = "Resolve four grouped fate tasks: Generic-G0 six-row policy, recursive callable plan policy, variable-accum pair fate, and source-entry legacy projection trio fate; then reopen the owner map. No code, guard, expectation, or deletion work is authorized in this design stop."
 non_claims = [
   "does not claim generated modules are dead or live",
   "does not create a successor, expectation pin, guard row, or deletion authorization",
@@ -43,7 +43,7 @@ non_claims = [
 
 [census]
 status = "bound_blocked"
-observed_commit = "4bf374e3b2"
+observed_commit = "8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7"
 source_snapshot_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
 receipt_rows = 79
 allowance_byte_range_matches = 79
@@ -59,13 +59,23 @@ nested_mod_names = [
   "generic_g0_projection",
   "normal_source_plan",
 ]
-policy_ready_rows = 21
-blocked_rows = 58
-tracked_exact_path_references = 68
-unresolved_exact_path_rows = 11
+policy_ready_rows = 67
+blocked_rows = 12
+tracked_exact_path_references = 79
+unresolved_exact_path_rows = 0
 policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
-result = "all 79 rows are structurally bound; twenty-one rows have reviewed RetainNamed policies, 55 rows have current owner/evidence candidates, and three legacy source-entry projection rows are explicitly blocked on family fate; no conditional rows remain blocked; candidate-only rows still require exact-key policy before owner-map authoring"
+result = "all 79 rows are structurally bound; sixty-seven rows have reviewed RetainNamed policies, seven rows remain candidate-only, and five rows are explicitly blocked on variable-accum/source-entry family fate; no conditional rows remain blocked; unresolved rows stay non-authoritative before owner-map authoring"
 explicit_policy_candidate_rows = [
+  "29:generic_g0_source_parent",
+  "30:generic_g0_storage_lane_source",
+  "31:generic_g0_physical_function_entry_input",
+  "32:generic_g0_function_effect",
+  "33:generic_g0_completion",
+  "34:generic_g0_result_abi",
+  "61:recursive_callable_module_plan",
+]
+conditional_candidate_rows = []
+explicit_policy_ready_rows = [
   "1:a_prime_i64_physical_capability",
   "2:acyclic_callable_graph",
   "3:acyclic_callable_module_plan",
@@ -83,58 +93,45 @@ explicit_policy_candidate_rows = [
   "15:canonical_drain_manifest",
   "16:canonical_finalization",
   "17:canonical_physical_completion",
+  "18:common_v2_session_admission",
+  "19:common_v2_physical_function_entry_input",
+  "20:common_v2_physical_function_skeleton",
   "21:direct_accum_capability",
   "22:direct_accum_prefix",
   "23:direct_accum_profile",
   "24:direct_accum_projection",
+  "25:dynamic_full_body_recipe",
   "26:dynamic_full_body_source",
-  "29:generic_g0_source_parent",
-  "30:generic_g0_storage_lane_source",
-  "31:generic_g0_physical_function_entry_input",
-  "32:generic_g0_function_effect",
-  "33:generic_g0_completion",
-  "34:generic_g0_result_abi",
+  "27:external_commit",
+  "28:generic_g0_projection",
   "35:located",
+  "36:loop_cond_break_continue_projection",
+  "37:loop_true_break_continue_projection",
+  "38:module_postprocess",
   "39:nested_predicate_effect_plan",
   "40:nested_predicate_physical_input",
   "41:nested_predicate_producer",
   "42:nested_predicate_projection",
   "43:nested_predicate_source_handoff",
   "44:nested_predicate_topology",
-  "45:variable_accum_break_projection",
-  "46:variable_accum_recurrence_projection",
   "47:nested_predicate_profile",
   "48:normal_source_plan",
   "49:raw_root_callable_main",
   "50:raw_root_children",
   "51:raw_root_decl_access",
   "52:raw_root_drain",
+  "53:raw_root_eligibility",
   "54:raw_root_eligibility_classifier",
   "55:raw_root_eligibility_prepare",
+  "56:raw_root_finalization",
   "57:raw_root_helper_coverage",
   "58:raw_root_package",
   "59:raw_runtime_inputs",
   "60:raw_source_binding",
-  "61:recursive_callable_module_plan",
   "62:resolved_callable_module",
   "63:resolved_callable_module_preflight",
   "64:resolved_direct_accum_cutover",
   "65:resolved_nested_predicate_cutover",
-  "78:source_projection",
-]
-conditional_candidate_rows = []
-explicit_policy_ready_rows = [
-  "18:common_v2_session_admission",
-  "19:common_v2_physical_function_entry_input",
-  "20:common_v2_physical_function_skeleton",
-  "25:dynamic_full_body_recipe",
-  "27:external_commit",
-  "28:generic_g0_projection",
-  "36:loop_cond_break_continue_projection",
-  "37:loop_true_break_continue_projection",
-  "38:module_postprocess",
-  "53:raw_root_eligibility",
-  "56:raw_root_finalization",
   "66:source_bound_package",
   "67:source_bound_plan",
   "68:source_entry_ny_main",
@@ -144,9 +141,12 @@ explicit_policy_ready_rows = [
   "74:source_entry_selection",
   "76:source_entry_vm_invocation",
   "77:source_entry_vm_reference",
+  "78:source_projection",
   "79:source_view",
 ]
 explicit_policy_blocked_rows = [
+  "45:variable_accum_break_projection",
+  "46:variable_accum_recurrence_projection",
   "69:source_entry_physical",
   "70:source_entry_projection",
   "75:source_entry_thunk",
@@ -160,233 +160,374 @@ status = "all_accepted"
 rows = 5
 accepted_rows = 5
 blocked_rows = 0
-decision = "All five conditional rows now have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. Their retention remains bounded by the named owner policy; the 55 other A rows remain candidate-only and non-authoritative, while three source-entry projection rows are explicitly blocked on family fate."
+decision = "All five conditional rows have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. Their retention is bounded by named owner policy; the seven Generic-G0/recursive rows remain candidate-only, and five variable/source-entry legacy projection rows remain explicitly blocked on family fate."
 items = []
 accepted_items = [
-  "25:dynamic_full_body_recipe key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2404|2423|outer_allow; RetainNamed=src/mir/compiler/dynamic_full_body_recipe/mod.rs#symbol:produce_dynamic_full_loop_recipe_v2_with_contract@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=all non-test Dynamic consumers reach zero or a bounded replacement owner lands",
-  "27:external_commit key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2591|2610|outer_allow; RetainNamed=src/mir/compiler/external_commit.rs#symbol:PreparedModuleExternalCommitV1@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=canonical callers reach zero or a replacement owner lands; Raw sibling remains separately owned",
-  "28:generic_g0_projection key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|2799|2818|outer_allow; RetainNamed=src/mir/compiler/generic_g0_projection/mod.rs#symbol:issue_generic_g0_source_type_bundle_v1@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=the test/reference projector reaches caller-zero or an explicit replacement/production selector is admitted",
-  "53:raw_root_eligibility key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|6439|6458|outer_allow; RetainNamed=src/mir/compiler/raw_root_eligibility.rs#symbol:RawRootEligibilityV1@2b8ef0d28b8553f3679430b05f41d8810c3852af; reopen=explicit Raw public/reference eligibility callers reach zero or a replacement eligibility owner lands",
-  "56:raw_root_finalization key=dead_code_allowance|src/mir/compiler/module_registry.in.rs|6702|6721|outer_allow; RetainNamed=src/mir/compiler/raw_root_finalization.rs#symbol:RawDrainedInvocationV1::prepare_finalization@cd4cb112baf03425dc89199183add51fe2b8227b; reopen=explicit Raw public/reference callers reach zero or a named replacement finalization owner lands",
+  "25:dynamic_full_body_recipe; RetainNamed owner=src/mir/compiler/dynamic_full_body_recipe/mod.rs; reopen on non-test consumer zero or replacement owner",
+  "27:external_commit; RetainNamed owner=src/mir/compiler/external_commit.rs; canonical and Raw siblings remain separate",
+  "28:generic_g0_projection; RetainNamed owner=src/mir/compiler/generic_g0_projection/mod.rs; test/reference boundary only",
+  "53:raw_root_eligibility; RetainNamed owner=src/mir/compiler/raw_root_eligibility.rs; Raw ingress boundary only",
+  "56:raw_root_finalization; RetainNamed owner=src/mir/compiler/raw_root_finalization.rs; Raw finalization boundary only",
 ]
 next_tasks = []
 binding_rule = "Each conditional row has an exact canonical key, declaration path, independently reviewable owner evidence, explicit RetainNamed policy, and reopen trigger; no conditional row uses a guessed successor or default retention."
 
 [unresolved_review]
-status = "conditional_residual_clear_candidate_policy_remaining"
-rows = 0
-policy_ready_rows = 0
-candidate_only_rows = 0
-blocked_rows = 0
-role_group_count = 0
-partition_counts = "core=0; loop=0; raw_entry=0"
-scope = "rows and residual counters remain scoped to the conditional review; A candidate and explicit-blocked totals are recorded below"
-next_task = "CHRONIC-MEASUREMENT-A-CANDIDATE-POLICY-BIND-D0 (55 candidate rows plus SOURCE-ENTRY-LEGACY-PROJECTION-FATE-D0 for 3 blocked rows; grouped section of this card; no per-row cards)"
+status = "a_policy_partial_candidate_and_grouped_blockers_remaining"
+rows = 12
+policy_ready_rows = 67
+candidate_only_rows = 7
+blocked_rows = 5
+role_group_count = 4
+partition_counts = "generic_g0=6; recursive=1; variable_accum=2; source_entry_legacy_projection=3"
+scope = "A-cohort residual review only; all 79 rows have structural owners/evidence, but candidate and blocked fate is not owner-map authority"
+next_task = "Resolve the four grouped fate tasks below, then reopen CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0; do not create per-row cards."
 canonical_key = "dead_code_allowance + src/mir/compiler/module_registry.in.rs + byte_start + byte_end + outer_allow"
-decision = "Twenty-one exact rows now have RetainNamed bindings with reopen triggers. Fifty-five A rows carry candidate owner/evidence only and remain non-authoritative; three source-entry legacy projection rows are explicitly blocked until their family fate is decided."
+decision = "Sixty-seven exact rows have RetainNamed bindings with reopen triggers. Seven A rows carry candidate owner/evidence only and remain non-authoritative; five variable/source-entry legacy projection rows are explicitly blocked until family fate is decided."
 grouped_next_tasks = [
-  "DIRECT-ACCUM-GENERATED-REGISTRY-FATE-D0: keep the four current DirectAccum owner candidates blocked until exact-key retention/fate policy is named",
-  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: choose an exact-key caller-zero retain owner or named test/reference successor for the six prephysical rows",
-  "RESOLVED-CALLABLE-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the four resolved-callable ingress/cutover rows",
-  "NESTED-PRODUCTION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the seven nested-predicate production rows",
-  "VARIABLE-OBSERVATION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the two variable-observation rows",
-  "CHRONIC-MEASUREMENT-RAW-REGISTRY-FATE-D0: bind exact-key fate for the seven raw/reference rows",
-  "SOURCE-ENTRY-LEGACY-PROJECTION-FATE-D0: decide RetainNamed or named successor for source_entry_physical, source_entry_projection, and source_entry_thunk before deletion",
+  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: bind exact-key policy for the six prephysical rows",
+  "RESOLVED-CALLABLE-RECURSIVE-PLAN-FATE-D0: bind exact-key policy for recursive_callable_module_plan",
+  "VARIABLE-ACCUM-SOURCE-PROJECTION-FATE-D0: keep break/recurrence projections grouped until an exact successor or TestReference decision lands",
+  "SOURCE-ENTRY-LEGACY-PROJECTION-FATE-D0: decide RetainNamed or named successor for physical/projection/thunk before deletion",
 ]
 completed_grouped_tasks = [
-  "SOURCE-BOUND-GENERATED-REGISTRY-FATE-D0: source_bound_package and source_bound_plan are RetainNamed with explicit reopen triggers; compatibility re-export remains non-authority",
-  "LOOP-OBSERVATION-GENERATED-REGISTRY-FATE-D0: LoopCond is test/reference RetainNamed and LoopTrue is test/reference plus type-facade RetainNamed with explicit reopen triggers",
-  "RAW-ROOT-FINALIZATION-GENERATED-REGISTRY-FATE-D0: raw_root_finalization is RetainNamed under RawDrainedInvocationV1::prepare_finalization with explicit Raw public/reference caller-zero reopen trigger",
-  "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: dynamic_full_body_recipe is RetainNamed under produce_dynamic_full_loop_recipe_v2_with_contract with an explicit non-test-consumer reopen trigger",
-  "EXTERNAL-COMMIT-GENERATED-REGISTRY-FATE-D0: external_commit is RetainNamed under PreparedModuleExternalCommitV1; canonical and Raw external-commit owners remain separate",
-  "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: generic_g0_projection is RetainNamed as a test/reference projector with an explicit caller-zero or replacement reopen trigger",
-  "RAW-ROOT-ELIGIBILITY-GENERATED-REGISTRY-FATE-D0: raw_root_eligibility is RetainNamed under RawRootEligibilityV1 for explicit Raw public/reference ingress",
-  "COMMON-V2-GENERATED-REGISTRY-FATE-D0: common-v2 session admission, physical-entry input, and skeleton rows are RetainNamed with caller-zero/transport-only boundaries",
-  "SOURCE-ENTRY-LIVE-SUBSTRATE-FATE-D0: eight source-entry/source-view rows are RetainNamed for live substrate, test/reference, source navigation, and VM-reference owners; the legacy projection trio remains separately blocked",
+  "A-CORE-GENERATED-REGISTRY-FATE-D0: eight exact RetainNamed bindings accepted",
+  "RESOLVED-CALLABLE-TOPOLOGY-GENERATED-REGISTRY-FATE-D0: four topology rows accepted under callable graph owners",
+  "CALLABLE-SINGLE-LOOP-GENERATED-REGISTRY-FATE-D0: six single-loop rows accepted under source/recipe owners",
+  "DIRECT-ACCUM-AND-RESOLVED-GENERATED-REGISTRY-FATE-D0: four DirectAccum, normal source plan, and four resolved rows accepted",
+  "NESTED-SOURCE-NAVIGATION-GENERATED-REGISTRY-FATE-D0: located, nested-predicate, and source-projection rows accepted",
+  "RAW-REFERENCE-GENERATED-REGISTRY-FATE-D0: raw/reference rows accepted under explicit Raw owner boundaries",
+  "VARIABLE-ACCUM-SOURCE-PROJECTION-FATE-D0: two rows remain grouped blocked_successor",
 ]
-groups = []
 
-[policy_binding_module_postprocess]
-status = "reviewed_ready_for_map"
-canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4071|4090|outer_allow"
-disposition = "RetainNamed"
-policy_owner_ref = "src/mir/compiler/module_postprocess.rs#symbol:ModulePostprocessOwnerV1@a3d9098f91eef5f9b2189b98037cc96984711740"
-stage_owner_ref = "src/mir/compiler/module_postprocess_stages.rs#symbol:run_postprocess_stages@a3d9098f91eef5f9b2189b98037cc96984711740"
-successor_ref = "none_required"
-evidence_refs = [
-  "src/mir/compiler/module_postprocess.rs#range:301-350@a3d9098f91eef5f9b2189b98037cc96984711740",
-  "src/mir/compiler/module_postprocess_stages.rs#range:16-87@a3d9098f91eef5f9b2189b98037cc96984711740",
-  "src/mir/compiler/resolved_direct_accum_cutover.rs#range:19-26@a3d9098f91eef5f9b2189b98037cc96984711740",
-  "src/mir/compiler/resolved_nested_predicate_cutover.rs#range:16-23@a3d9098f91eef5f9b2189b98037cc96984711740",
-  "src/mir/compiler/raw_published_compile.rs#range:188-250@a3d9098f91eef5f9b2189b98037cc96984711740",
-  "src/mir/compiler/raw_root_postprocess.rs#range:322-329@a3d9098f91eef5f9b2189b98037cc96984711740",
-]
-historical_conflict = "The 2026-07-23 disconnected wording is superseded for this row by c4ecd2843e, 1bdc8d51d9, and fa91cf9e19, which connect current non-test DirectAccum, Nested, and Raw postprocess callers."
-reopen_trigger = "Reopen if all non-test owner callers reach zero or a selected replacement postprocess owner lands."
-non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, or expectation/guard changes."
-
-[policy_binding_source_bound]
+[policy_binding_a_core]
 status = "reviewed_ready_for_map"
 canonical_keys = [
-  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7595|7614|outer_allow",
-  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7660|7679|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|180|199|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1378|1397|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1438|1457|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1560|1579|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1622|1641|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1672|1691|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1739|1758|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2473|2492|outer_allow",
 ]
 disposition = "RetainNamed"
 policy_owner_refs = [
-  "src/mir/compiler/source_bound_package.rs#symbol:SourceBoundCanonicalPackageV1@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/source_bound_plan.rs#symbol:ExactCanonicalPreflightPlanV1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/a_prime_i64_physical_capability/issuer.rs#symbol:issue_selected_a_prime_i64_physical_demand_from_parts@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_core_dispatch.rs#symbol:NormalCanonicalCoreSourcePlanCompilerV1::consume@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_script_source_a_input.rs#symbol:CanonicalScriptSourceAInputTransportV1::from_frontdoor_parts@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_source_identity.rs#symbol:CanonicalSourceBytesDigestV1::from_utf8_bytes@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/source_bound_package.rs#symbol:CanonicalSourceContinuationV1::project_drain_manifest@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_finalization.rs#symbol:CanonicalModuleFinalizerV1::finalize@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_physical_completion.rs#symbol:CollectedCanonicalPhysicalInvocationV1::complete@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/dynamic_full_body_source.rs#symbol:DynamicFullBodySourceIssuerV1::issue@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
 ]
 successor_ref = "none_required"
 evidence_refs = [
-  "src/mir/compiler/source_bound_package.rs#range:476-495@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/source_bound_plan.rs#range:1-84@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/mod.rs#range:304-312@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/mod.rs#range:510-539@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/a_prime_i64_physical_capability/issuer.rs#symbol:issue_selected_a_prime_i64_physical_demand_from_parts@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/a_prime_i64_physical_capability/README.md#range:1-55@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/a_prime_i64_physical_capability/issuer.rs#range:29-42@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_core_dispatch.rs#symbol:NormalCanonicalCoreSourcePlanCompilerV1::consume@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_core_dispatch.rs#range:235-237@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_core_dispatch.rs#range:321-345@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_script_source_a_input.rs#symbol:CanonicalScriptSourceAInputTransportV1::from_frontdoor_parts@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_script_source_a_input.rs#range:1-5@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_script_source_a_input.rs#range:32-74@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_source_identity.rs#symbol:CanonicalSourceBytesDigestV1::from_utf8_bytes@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_source_identity.rs#range:1-16@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/runner/reference/normal_file_vm_frontdoor.rs#range:322-355@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/source_bound_package.rs#symbol:CanonicalSourceContinuationV1::project_drain_manifest@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_drain_manifest.rs#range:73-136@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_physical_completion.rs#range:222-237@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_finalization.rs#symbol:CanonicalModuleFinalizerV1::finalize@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_finalization.rs#range:100-113@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_direct_accum_cutover.rs#range:90-109@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_physical_completion.rs#symbol:CollectedCanonicalPhysicalInvocationV1::complete@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_physical_completion.rs#range:137-211@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/canonical_physical_completion.rs#range:222-237@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/dynamic_full_body_source.rs#symbol:DynamicFullBodySourceIssuerV1::issue@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/dynamic_full_body_source.rs#range:170-497@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/normal_callable_semantic_package/dynamic_admission.rs#range:63-120@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
 ]
-reopen_trigger = "Reopen if all DirectAccum/Nested non-test callers reach zero or a replacement source-bound package/plan lifecycle owner lands."
-non_claims = "This binding does not authorize #[allow(dead_code)] removal, compatibility re-export permanence, source deletion, expectation changes, or production promotion beyond the observed owners."
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
 
-[policy_binding_loop_observation]
+[policy_binding_callable_topology]
 status = "reviewed_ready_for_map"
 canonical_keys = [
-  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3774|3793|outer_allow",
-  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3971|3990|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|256|275|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|323|342|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|396|415|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|524|543|outer_allow",
 ]
 disposition = "RetainNamed"
 policy_owner_refs = [
-  "src/mir/compiler/loop_cond_break_continue_projection.rs#symbol:issue_loop_cond_break_continue_source_projection_v1@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/loop_true_break_continue_projection.rs#symbol:issue_loop_true_break_continue_source_projection_v1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/acyclic_callable_graph.rs#symbol:VerifiedAcyclicCallableGraphV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/acyclic_callable_module_plan.rs#symbol:VerifiedAcyclicCallableModulePlanV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_graph_inventory.rs#symbol:VerifiedCallableGraphInventoryV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_scc_partition.rs#symbol:VerifiedCallableSccPartitionV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
 ]
 successor_ref = "none_required"
 evidence_refs = [
-  "src/mir/compiler/loop_cond_break_continue_projection.rs#range:1-140@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/loop_cond_break_continue_observation.rs#range:1-46@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/loop_true_break_continue_projection.rs#range:1-150@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/compiler/loop_true_break_continue_observation.rs#range:1-46@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/loop_route_policy/loop_true_break_continue.rs#range:1-26@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "src/mir/loop_recipe_contract/loop_true_break_continue_producer.rs#range:1-77@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "docs/development/current/main/design/loop-family-observation-policy-ssot.md#range:292-313@3357b7337706e1a3deb5337b6a420d3aac535e36",
-  "tools/checks/lib/loop_family_observation_contract.sh#range:3-77@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/acyclic_callable_graph.rs#symbol:VerifiedAcyclicCallableGraphV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/normal-callable-module0-a0-s0-execution-task-2026-07-26.md#range:18-19@979bf3af93",
+  "src/mir/compiler/acyclic_callable_module_plan.rs#symbol:VerifiedAcyclicCallableModulePlanV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/normal-callable-module0-a0-s0-execution-task-2026-07-26.md#range:18-19@979bf3af93",
+  "src/mir/compiler/callable_graph_inventory.rs#symbol:VerifiedCallableGraphInventoryV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/normal-callable-module0-r0-s0-execution-task-2026-07-26.md#range:17-19@979bf3af93",
+  "src/mir/compiler/callable_scc_partition.rs#symbol:VerifiedCallableSccPartitionV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/normal-callable-module0-r0-s0-execution-task-2026-07-26.md#range:17-19@979bf3af93",
 ]
-reopen_trigger = "Reopen if test adapters/tests/shared guards or the LoopTrue type-facade imports reach zero, production observation is promoted, or a replacement projector lands."
-non_claims = "This binding does not authorize production promotion, compatibility re-export permanence, #[allow(dead_code)] removal, source deletion, expectation changes, or route/Recipe redesign."
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
 
-[policy_binding_raw_root_finalization]
+[policy_binding_callable_single_loop]
 status = "reviewed_ready_for_map"
-canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6702|6721|outer_allow"
-disposition = "RetainNamed"
-policy_owner_ref = "src/mir/compiler/raw_root_finalization.rs#symbol:RawDrainedInvocationV1::prepare_finalization@cd4cb112baf03425dc89199183add51fe2b8227b"
-successor_ref = "none_required"
-evidence_refs = [
-  "src/mir/compiler/raw_root_finalization.rs#range:1-5@cd4cb112baf03425dc89199183add51fe2b8227b",
-  "src/mir/compiler/raw_root_finalization.rs#range:87-99@cd4cb112baf03425dc89199183add51fe2b8227b",
-  "src/mir/compiler/raw_root_finalization.rs#range:147-174@cd4cb112baf03425dc89199183add51fe2b8227b",
-  "src/mir/compiler/raw_published_compile.rs#range:208-249@cd4cb112baf03425dc89199183add51fe2b8227b",
-  "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-decision-task-map-2026-07-24.md#range:247-258@cd4cb112baf03425dc89199183add51fe2b8227b",
-  "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md#range:72-81@cd4cb112baf03425dc89199183add51fe2b8227b",
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|591|610|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|791|810|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|855|874|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1041|1060|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1109|1128|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1308|1327|outer_allow",
 ]
-reopen_trigger = "Reopen if explicit Raw public/reference callers reach zero or a named replacement finalization owner lands."
-non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, broad Raw route retirement, expectation/guard changes, or use of raw-vm-reference as an implicit successor."
-
-[policy_binding_dynamic_full_body_recipe]
-status = "reviewed_ready_for_map"
-canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2404|2423|outer_allow"
 disposition = "RetainNamed"
-policy_owner_ref = "src/mir/compiler/dynamic_full_body_recipe/mod.rs#symbol:produce_dynamic_full_loop_recipe_v2_with_contract@2b8ef0d28b8553f3679430b05f41d8810c3852af"
-successor_ref = "none_required"
-evidence_refs = [
-  "src/mir/compiler/dynamic_full_body_recipe/mod.rs#range:177-210@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/normal_callable_semantic_package/issuer.rs#range:211-325@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/builder/normal_default_root_catalog_lifecycle.rs#range:246-269@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/a_prime_i64_physical_capability/issuer.rs#range:29-87@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/assembly.rs#range:1-110@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+policy_owner_refs = [
+  "src/mir/compiler/callable_single_loop_operation_effect.rs#symbol:issue_callable_operation_effect_parts_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe.rs#symbol:canonical_callable_single_loop_recipe_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe_coseal.rs#symbol:issue_callable_single_loop_recipe_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_map.rs#symbol:issue_callable_single_loop_source_map_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_shapes.rs#symbol:SourceExprShapeV1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_syntax_facts.rs#symbol:issue_callable_single_loop_syntax_facts_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
 ]
-reopen_trigger = "Reopen if all non-test Dynamic package-admission, A-prime, and physical consumers reach zero or a bounded replacement source/Recipe owner lands."
-non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, generic Dynamic promotion, Builder/MIR/ABI/Home/VM/backend changes, or fallback/retry changes."
-
-[policy_binding_external_commit]
-status = "reviewed_ready_for_map"
-canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2591|2610|outer_allow"
-disposition = "RetainNamed"
-policy_owner_ref = "src/mir/compiler/external_commit.rs#symbol:PreparedModuleExternalCommitV1@2b8ef0d28b8553f3679430b05f41d8810c3852af"
 successor_ref = "none_required"
 evidence_refs = [
-  "src/mir/compiler/external_commit.rs#range:59-87@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/external_commit.rs#range:119-179@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/external_commit.rs#range:239-252@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/mod.rs#range:510-539@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/resolved_direct_accum_cutover.rs#range:19-25@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/resolved_nested_predicate_cutover.rs#range:16-23@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/raw_root_external_commit.rs#range:1-5@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/callable_single_loop_operation_effect.rs#symbol:issue_callable_operation_effect_parts_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_operation_effect.rs#range:1-6@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_operation_effect.rs#range:189-225@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe.rs#symbol:canonical_callable_single_loop_recipe_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe.rs#range:1-15@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe_coseal.rs#range:273-291@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe_coseal.rs#symbol:issue_callable_single_loop_recipe_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe_coseal.rs#range:1-8@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_recipe_coseal.rs#range:273-321@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_map.rs#symbol:issue_callable_single_loop_source_map_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_map.rs#range:1-6@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_map.rs#range:281-364@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_shapes.rs#symbol:SourceExprShapeV1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_shapes.rs#range:1-6@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_source_shapes.rs#range:95-104@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_syntax_facts.rs#symbol:issue_callable_single_loop_syntax_facts_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_syntax_facts.rs#range:1-6@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/callable_single_loop_syntax_facts.rs#range:254-324@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
 ]
-reopen_trigger = "Reopen if all canonical non-test prepare_module_external_commit/commit_prepared_module callers reach zero or a replacement canonical commit owner lands."
-non_claims = "This binding does not cover Raw external commit fate, treat LegacyPublicationPayload as compatibility, authorize allow/source/fallback/retry/publication/Call/backend changes, or merge the Raw sibling owner."
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
 
-[policy_binding_generic_g0_projection]
+[policy_binding_direct_accum_and_resolved]
 status = "reviewed_ready_for_map"
-canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2799|2818|outer_allow"
-disposition = "RetainNamed"
-policy_owner_ref = "src/mir/compiler/generic_g0_projection/mod.rs#symbol:issue_generic_g0_source_type_bundle_v1@2b8ef0d28b8553f3679430b05f41d8810c3852af"
-successor_ref = "none_required"
-evidence_refs = [
-  "src/mir/compiler/generic_g0_projection/mod.rs#range:67-175@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/generic_g0_projection/numeric.rs#range:30-47@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/generic_g0_projection/handoff.rs#range:1-58@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/generic_g0_observation.rs#range:1-100@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2085|2104|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2207|2226|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2271|2290|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2336|2355|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|5999|6018|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7242|7261|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7347|7366|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7426|7445|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7481|7500|outer_allow",
 ]
-reopen_trigger = "Reopen if all cfg(test) projection/source-attempt/handoff consumers reach zero, a replacement test/reference projector lands, or an explicit G0 production selector is admitted."
-non_claims = "This binding is test/reference-only and does not authorize production promotion, Recipe/loop/physical/Builder/MIR/backend changes, allow removal, source deletion, fallback, or retry."
-
-[policy_binding_raw_root_eligibility]
-status = "reviewed_ready_for_map"
-canonical_key = "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6439|6458|outer_allow"
 disposition = "RetainNamed"
-policy_owner_ref = "src/mir/compiler/raw_root_eligibility.rs#symbol:RawRootEligibilityV1@2b8ef0d28b8553f3679430b05f41d8810c3852af"
+policy_owner_refs = [
+  "src/mir/compiler/direct_accum_capability.rs#symbol:probe_direct_accum_source_unit_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_prefix.rs#symbol:issue_direct_accum_prefix_input_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_profile.rs#symbol:issue_direct_accum_plan_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_projection.rs#symbol:issue_direct_accum_facts_from_source_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/normal_source_plan/parser_bound_policy.rs#symbol:NormalSourcePlanClassifierV1::seal_parser_bound@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module.rs#symbol:VerifiedResolvedCallableModuleV1::resolve_retaining@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module_preflight.rs#symbol:VerifiedCallableModulePreflightV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_direct_accum_cutover.rs#symbol:compile_direct_accum_source_bound@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_nested_predicate_cutover.rs#symbol:compile_nested_predicate_source_bound@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+]
 successor_ref = "none_required"
 evidence_refs = [
+  "src/mir/compiler/direct_accum_capability.rs#symbol:probe_direct_accum_source_unit_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_capability.rs#range:28-55@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_capability.rs#range:57-167@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_prefix.rs#symbol:issue_direct_accum_prefix_input_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_profile.rs#range:50-68@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/builder/resolved_lowering/direct_accum_lowerer.rs#range:86-114@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_profile.rs#symbol:issue_direct_accum_plan_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_profile.rs#range:50-158@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/mod.rs#range:525-531@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_projection.rs#symbol:issue_direct_accum_facts_from_source_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_projection.rs#range:52-125@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/direct_accum_profile.rs#range:61-68@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/normal_source_plan/parser_bound_policy.rs#symbol:NormalSourcePlanClassifierV1::seal_parser_bound@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/normal-source-plan0-s0-execution-task-2026-07-26.md#range:102-112@979bf3af93",
+  "src/mir/compiler/resolved_callable_module.rs#symbol:VerifiedResolvedCallableModuleV1::resolve_retaining@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module.rs#range:70-186@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module_input.rs#range:20-30@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module_preflight.rs#symbol:VerifiedCallableModulePreflightV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module_preflight.rs#range:27-87@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_callable_module_preflight_tests.rs#range:75-114@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_direct_accum_cutover.rs#symbol:compile_direct_accum_source_bound@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_direct_accum_cutover.rs#range:19-25@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_direct_accum_cutover.rs#range:76-110@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_nested_predicate_cutover.rs#symbol:compile_nested_predicate_source_bound@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_nested_predicate_cutover.rs#range:16-23@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/resolved_nested_predicate_cutover.rs#range:52-88@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+]
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
+
+[policy_binding_source_navigation_and_nested]
+status = "reviewed_ready_for_map"
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3656|3675|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4373|4392|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4504|4523|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4580|4599|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4700|4719|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4772|4791|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4848|4867|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|5716|5735|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|8755|8774|outer_allow",
+]
+disposition = "RetainNamed"
+policy_owner_refs = [
+  "src/mir/compiler/source_view.rs#symbol:FunctionSourceViewV1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_effect_plan.rs#symbol:issue_nested_binding_execution_claims_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_physical_input.rs#symbol:VerifiedNestedPhysicalBlockProjectionV1::try_new@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_producer.rs#symbol:produce_nested_predicate_recipe_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_projection.rs#symbol:issue_nested_predicate_source_projection_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_source_handoff.rs#symbol:VerifiedNestedPhysicalSourceHandoffV1::issue@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_topology.rs#symbol:issue_nested_predicate_physical_emission_input_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#symbol:probe_nested_predicate_source_unit_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/source_projection.rs#symbol:VerifiedSourceProjectionV1::seal@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+]
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/source_view.rs#symbol:FunctionSourceViewV1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md#range:1-15@979bf3af93",
+  "src/mir/compiler/nested_predicate_effect_plan.rs#symbol:issue_nested_binding_execution_claims_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_effect_plan.rs#range:402-452@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#range:152-158@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_physical_input.rs#symbol:VerifiedNestedPhysicalBlockProjectionV1::try_new@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_physical_input.rs#range:48-124@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_physical_input.rs#range:190-220@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_producer.rs#symbol:produce_nested_predicate_recipe_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_producer.rs#range:78-108@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#range:154-155@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_projection.rs#symbol:issue_nested_predicate_source_projection_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_projection.rs#range:47-165@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#range:152-153@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_source_handoff.rs#symbol:VerifiedNestedPhysicalSourceHandoffV1::issue@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_source_handoff.rs#range:68-95@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_producer.rs#range:83-85@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_topology.rs#symbol:issue_nested_predicate_physical_emission_input_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_topology.rs#range:252-262@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#range:159-160@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#symbol:probe_nested_predicate_source_unit_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/nested_predicate_profile.rs#range:106-186@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/capability.rs#range:92-95@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/source_projection.rs#symbol:VerifiedSourceProjectionV1::seal@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "tools/checks/lib/resolved_binding_ssa_contract.sh#range:10-54@979bf3af93",
+]
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
+
+[policy_binding_raw_reference]
+status = "reviewed_ready_for_map"
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6186|6205|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6253|6272|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6315|6334|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6380|6399|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6439|6458|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6504|6523|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6580|6599|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6702|6721|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6768|6787|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|6837|6856|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7041|7060|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7104|7123|outer_allow",
+]
+disposition = "RetainNamed"
+policy_owner_refs = [
+  "src/mir/compiler/raw_root_callable_main.rs#symbol:RawChildrenCompleteInvocationV1::finish_callable_main@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_children.rs#symbol:RawRootInvocationV1::prepare_children@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_decl_access.rs#symbol:RawCallableMainReadyInvocationV1::declare_environment@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_drain.rs#symbol:RawRootBatchCompleteInvocationV1::prepare_drain@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility.rs#symbol:RawRootEligibilityV1@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/raw_root_eligibility_classifier.rs#symbol:RawScalarControl0ClassifierV1::classify_statements@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility_prepare.rs#symbol:RawRootInvocationV1::prepare_public_eligibility@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_finalization.rs#symbol:RawDrainedInvocationV1::prepare_finalization@cd4cb112baf03425dc89199183add51fe2b8227b",
+  "src/mir/compiler/raw_root_helper_coverage.rs#symbol:RawStaticHelperCoverageV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_package.rs#symbol:SourceBoundRawPackageV1::into_root_package@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_runtime_inputs.rs#symbol:RawRuntimeInputSnapshotV1::capture@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_source_binding.rs#symbol:SourceBoundRawPackageV1::bind@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+]
+successor_ref = "none_required"
+evidence_refs = [
+  "src/mir/compiler/raw_root_callable_main.rs#symbol:RawChildrenCompleteInvocationV1::finish_callable_main@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-callmain0-s0-execution-task-2026-07-24.md#range:265-283@979bf3af93",
+  "src/mir/compiler/raw_root_children.rs#symbol:RawRootInvocationV1::prepare_children@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-callchildren0-s0-execution-task-2026-07-24.md#range:202-221@979bf3af93",
+  "src/mir/compiler/raw_root_decl_access.rs#symbol:RawCallableMainReadyInvocationV1::declare_environment@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "docs/development/current/main/investigations/declaccess0-s0-execution-task-2026-07-24.md#range:127-160@979bf3af93",
+  "src/mir/compiler/raw_root_drain.rs#symbol:RawRootBatchCompleteInvocationV1::prepare_drain@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_drain.rs#range:111-120@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_drain.rs#range:203-230@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility.rs#symbol:RawRootEligibilityV1@2b8ef0d28b8553f3679430b05f41d8810c3852af",
   "src/mir/compiler/raw_root_eligibility.rs#range:80-208@2b8ef0d28b8553f3679430b05f41d8810c3852af",
   "src/mir/compiler/raw_root_eligibility_prepare.rs#range:16-84@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/raw_published_compile.rs#range:188-216@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/source_entry_vm_execution.rs#range:73-103@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/runner/reference/raw_vm_reference.rs#range:1-68@2b8ef0d28b8553f3679430b05f41d8810c3852af",
-  "src/mir/compiler/raw_public_ingress.rs#range:1-39@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/raw_root_eligibility_classifier.rs#symbol:RawScalarControl0ClassifierV1::classify_statements@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility_classifier.rs#range:151-165@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_plan0.rs#range:275-328@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility_prepare.rs#symbol:RawRootInvocationV1::prepare_public_eligibility@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility_prepare.rs#range:16-28@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_published_compile.rs#range:208-213@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_finalization.rs#symbol:RawDrainedInvocationV1::prepare_finalization@cd4cb112baf03425dc89199183add51fe2b8227b",
+  "src/mir/compiler/raw_root_finalization.rs#range:1-5@cd4cb112baf03425dc89199183add51fe2b8227b",
+  "src/mir/compiler/raw_root_finalization.rs#range:87-99@cd4cb112baf03425dc89199183add51fe2b8227b",
+  "src/mir/compiler/raw_root_helper_coverage.rs#symbol:RawStaticHelperCoverageV1::verify@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_helper_coverage.rs#range:63-76@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_eligibility.rs#range:205-249@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_package.rs#symbol:SourceBoundRawPackageV1::into_root_package@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_root_package.rs#range:34-55@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_published_compile.rs#range:208-213@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_runtime_inputs.rs#symbol:RawRuntimeInputSnapshotV1::capture@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_runtime_inputs.rs#range:47-86@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_source_binding.rs#range:165-246@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_source_binding.rs#symbol:SourceBoundRawPackageV1::bind@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/raw_source_binding.rs#range:165-247@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/mod.rs#range:331-350@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
 ]
-reopen_trigger = "Reopen if explicit Raw public/reference eligibility callers reach zero or a replacement Raw eligibility owner lands."
-non_claims = "This binding does not authorize broad Raw VM retirement, use of raw-vm-reference as an implicit successor, allow removal, source deletion, expectation/guard changes, or post-eligibility target/finalization changes."
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
 
-[policy_binding_common_v2]
+[policy_binding_established]
 status = "reviewed_ready_for_map"
 canonical_keys = [
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1848|1867|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|1920|1939|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2004|2023|outer_allow",
-]
-disposition = "RetainNamed"
-policy_owner_refs = [
-  "src/mir/compiler/common_v2_session_admission.rs#symbol:with_loop_v2_canonical_session_admission@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_entry_input.rs#symbol:issue_common_v2_physical_function_entry_input@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_skeleton.rs#symbol:reserve_common_v2_physical_function_skeleton@1a1e00d126be4be527a89c94030b1058cd31691b",
-]
-successor_ref = "none_required"
-evidence_refs = [
-  "src/mir/compiler/common_v2_session_admission.rs#range:148-210@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_skeleton.rs#range:89-120@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_session_admission_tests.rs#range:43-75@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/builder/resolved_lowering/common_v2_session/mod.rs#range:419-454@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_entry_input.rs#range:79-131@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_entry_input.rs#range:309-400@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_skeleton.rs#range:192-269@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/common_v2_physical_function_skeleton.rs#range:298-355@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/builder/pinned_text_invocation_binding.rs#range:154-246@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/builder/resolved_lowering/common_v2_session/s6c_substring_v9_issuer.rs#range:315-398@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/README.md#range:279-316@1a1e00d126be4be527a89c94030b1058cd31691b",
-]
-reopen_trigger = "Reopen if the named session/entry/skeleton owners are explicitly retired or superseded, their scoped consumers reach zero, or replacement owners land."
-non_claims = "These bindings cover Common-V2 session/entry/skeleton retention only; they do not authorize production selection, physical effects, Builder/MIR/CFG/SSA/PHI changes, allow removal, source deletion, or fallback/retry."
-
-[policy_binding_source_entry]
-status = "reviewed_ready_for_map"
-canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2404|2423|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2591|2610|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|2799|2818|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3774|3793|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|3971|3990|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4071|4090|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7595|7614|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7660|7679|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7722|7741|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7921|7940|outer_allow",
   "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7999|8018|outer_allow",
@@ -398,6 +539,17 @@ canonical_keys = [
 ]
 disposition = "RetainNamed"
 policy_owner_refs = [
+  "src/mir/compiler/common_v2_session_admission.rs#symbol:with_loop_v2_canonical_session_admission@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_entry_input.rs#symbol:issue_common_v2_physical_function_entry_input@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_skeleton.rs#symbol:reserve_common_v2_physical_function_skeleton@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/dynamic_full_body_recipe/mod.rs#symbol:produce_dynamic_full_loop_recipe_v2_with_contract@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/external_commit.rs#symbol:PreparedModuleExternalCommitV1@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_projection/mod.rs#symbol:issue_generic_g0_source_type_bundle_v1@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/loop_cond_break_continue_projection.rs#symbol:issue_loop_cond_break_continue_source_projection_v1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/loop_true_break_continue_projection.rs#symbol:issue_loop_true_break_continue_source_projection_v1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/module_postprocess.rs#symbol:ModulePostprocessOwnerV1@a3d9098f91eef5f9b2189b98037cc96984711740",
+  "src/mir/compiler/source_bound_package.rs#symbol:SourceBoundCanonicalPackageV1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/source_bound_plan.rs#symbol:ExactCanonicalPreflightPlanV1@3357b7337706e1a3deb5337b6a420d3aac535e36",
   "src/mir/compiler/source_entry_ny_main.rs#symbol:NyMainCapabilityAdapterV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_published_invocation.rs#symbol:PublishedSourceEntryInvocationV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_reference.rs#range:1-17@1a1e00d126be4be527a89c94030b1058cd31691b",
@@ -409,31 +561,120 @@ policy_owner_refs = [
 ]
 successor_ref = "none_required"
 evidence_refs = [
+  "src/mir/compiler/common_v2_session_admission.rs#symbol:with_loop_v2_canonical_session_admission@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_session_admission.rs#range:148-210@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_skeleton.rs#range:89-120@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_entry_input.rs#symbol:issue_common_v2_physical_function_entry_input@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_entry_input.rs#range:79-131@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_entry_input.rs#range:309-400@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_skeleton.rs#symbol:reserve_common_v2_physical_function_skeleton@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_skeleton.rs#range:89-142@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/common_v2_physical_function_skeleton.rs#range:192-269@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/dynamic_full_body_recipe/mod.rs#symbol:produce_dynamic_full_loop_recipe_v2_with_contract@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/dynamic_full_body_recipe/mod.rs#range:177-210@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/normal_callable_semantic_package/issuer.rs#range:211-325@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/external_commit.rs#symbol:PreparedModuleExternalCommitV1@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/external_commit.rs#range:59-87@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/external_commit.rs#range:119-179@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_projection/mod.rs#symbol:issue_generic_g0_source_type_bundle_v1@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_projection/mod.rs#range:67-175@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/generic_g0_projection/numeric.rs#range:30-47@2b8ef0d28b8553f3679430b05f41d8810c3852af",
+  "src/mir/compiler/loop_cond_break_continue_projection.rs#symbol:issue_loop_cond_break_continue_source_projection_v1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/loop_cond_break_continue_projection.rs#range:1-140@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/loop_cond_break_continue_observation.rs#range:1-46@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/loop_true_break_continue_projection.rs#symbol:issue_loop_true_break_continue_source_projection_v1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/loop_true_break_continue_projection.rs#range:1-150@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/loop_true_break_continue_observation.rs#range:1-46@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/module_postprocess.rs#symbol:ModulePostprocessOwnerV1@a3d9098f91eef5f9b2189b98037cc96984711740",
+  "src/mir/compiler/module_postprocess.rs#range:301-350@a3d9098f91eef5f9b2189b98037cc96984711740",
+  "src/mir/compiler/module_postprocess_stages.rs#symbol:run_postprocess_stages@a3d9098f91eef5f9b2189b98037cc96984711740",
+  "src/mir/compiler/source_bound_package.rs#symbol:SourceBoundCanonicalPackageV1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/source_bound_package.rs#range:476-495@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/mod.rs#range:304-312@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/source_bound_plan.rs#symbol:ExactCanonicalPreflightPlanV1@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/source_bound_plan.rs#range:1-84@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/source_bound_package.rs#range:23-26@3357b7337706e1a3deb5337b6a420d3aac535e36",
+  "src/mir/compiler/source_entry_ny_main.rs#symbol:NyMainCapabilityAdapterV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_ny_main.rs#range:1-53@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_published_invocation.rs#symbol:PublishedSourceEntryInvocationV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_published_invocation.rs#range:119-178@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/canonical_core_dispatch/publication.rs#range:98-162@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_vm_raw_adapter.rs#range:83-155@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_reference.rs#range:1-17@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_result.rs#symbol:ProcessExitProjectionV1::project_canonical@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_result.rs#range:218-306@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_vm_invocation.rs#range:103-113@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/raw_vm_reference_contract.rs#range:97-106@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_selection.rs#symbol:SelectedSourceEntryContinuationV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_selection.rs#range:17-116@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/raw_source_binding.rs#range:230-237@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/raw_root_postprocess.rs#range:90-116@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/raw_root_publication.rs#range:53-104@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_vm_invocation.rs#symbol:PreparedVmReferenceSourceEntryInvocationV1::prepare_vm_reference@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_vm_invocation.rs#range:20-113@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/canonical_core_dispatch.rs#range:531-542@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_vm_reference.rs#symbol:VmReferenceProcessOutcomeV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_entry_vm_reference.rs#range:85-205@1a1e00d126be4be527a89c94030b1058cd31691b",
-  "src/mir/compiler/source_entry_vm_execution.rs#range:73-103@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/canonical_core_dispatch.rs#range:531-542@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_view.rs#symbol:FunctionSourceViewV1@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/source_view.rs#range:41-100@1a1e00d126be4be527a89c94030b1058cd31691b",
   "src/mir/compiler/function_input.rs#range:1-137@1a1e00d126be4be527a89c94030b1058cd31691b",
 ]
-reopen_trigger = "Reopen if the named live/test/reference/source-navigation/VM-reference consumers reach zero, a replacement source-entry owner lands, or the explicit fixture/guard boundary changes."
-non_claims = "These bindings do not authorize deletion of the three blocked legacy projection rows, broad VM retirement, production promotion, allow removal, source deletion, expectation changes, or fallback/retry."
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen if the named owner is retired or superseded, all scoped callers reach zero, or a replacement owner lands."
+non_claims = "This binding does not authorize #[allow(dead_code)] removal, source deletion, expectation/guard changes, production selection, or backend promotion."
+
+[policy_binding_variable_accum]
+status = "blocked_successor"
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4918|4937|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|4994|5013|outer_allow",
+]
+disposition = "BlockedSuccessor"
+policy_owner_refs = []
+candidate_owner_refs = [
+  "src/mir/compiler/variable_accum_break_projection.rs#symbol:issue_variable_accum_break_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#symbol:issue_variable_accum_recurrence_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+]
+successor_ref = "unknown"
+evidence_refs = [
+  "src/mir/compiler/variable_accum_break_projection.rs#symbol:issue_variable_accum_break_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_break_projection.rs#range:1-74@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_break_projection.rs#range:154-328@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#symbol:issue_variable_accum_recurrence_source_attempt_v1@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#range:1-74@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+  "src/mir/compiler/variable_accum_recurrence_projection.rs#range:150-287@8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7",
+]
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen when an exact successor or explicit named retention owner is reviewed; until then this group is not owner-map authority."
+non_claims = "Candidate owners are evidence only; this blocked group does not authorize RetainNamed, successor_status=not_required, source deletion, allow removal, expectation/guard changes, or production changes."
+
+[policy_binding_source_entry_legacy_projection]
+status = "blocked_successor"
+canonical_keys = [
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7787|7806|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|7853|7872|outer_allow",
+  "dead_code_allowance|src/mir/compiler/module_registry.in.rs|8197|8216|outer_allow",
+]
+disposition = "BlockedSuccessor"
+policy_owner_refs = []
+candidate_owner_refs = [
+  "src/mir/compiler/source_entry_physical.rs#symbol:CompletedSourceEntryV1::into_physical@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_projection.rs#symbol:PhysicalSourceEntryCarrierV1::prepare_process_projection@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_thunk.rs#symbol:SelectedSourceEntryV1::begin_thunk@1a1e00d126be4be527a89c94030b1058cd31691b",
+]
+successor_ref = "unknown"
+evidence_refs = [
+  "src/mir/compiler/source_entry_physical.rs#symbol:CompletedSourceEntryV1::into_physical@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_thunk.rs#range:11-65@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_physical.rs#range:12-52@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_projection.rs#symbol:PhysicalSourceEntryCarrierV1::prepare_process_projection@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_projection.rs#range:10-97@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_thunk.rs#symbol:SelectedSourceEntryV1::begin_thunk@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_thunk.rs#range:11-65@1a1e00d126be4be527a89c94030b1058cd31691b",
+  "src/mir/compiler/source_entry_vm_reference_p0.rs#range:11-22@1a1e00d126be4be527a89c94030b1058cd31691b",
+]
+binding_rule = "canonical keys, owner references, and evidence references are grouped by item key; no default is inferred."
+reopen_trigger = "Reopen when an exact successor or explicit named retention owner is reviewed; until then this group is not owner-map authority."
+non_claims = "Candidate owners are evidence only; this blocked group does not authorize RetainNamed, successor_status=not_required, source deletion, allow removal, expectation/guard changes, or production changes."
 
 [cohort]
-
-
 name = "A_generated_registry"
 receipt_row_count = 79
 canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
@@ -457,6 +698,7 @@ states = [
   "UnknownSuccessor",
   "InferredRetention",
   "PartialCohort",
+  "PendingFate",
 ]
 terminal = ["AReadyForMap"]
 blocking = [
@@ -466,27 +708,28 @@ blocking = [
   "UnknownSuccessor",
   "InferredRetention",
   "PartialCohort",
+  "PendingFate",
 ]
 
 [task_steps]
 items = [
   "1. Bind exactly the 79 A rows from the validated receipt; preserve byte-range identity and do not regenerate scanner output.",
   "2. Confirm module_registry.in.rs and compiler/mod.rs as topology owner evidence without treating the include as retention policy.",
-  "3. Bind the 55 current candidate-evidence rows to canonical registry keys; keep the three explicit legacy-projection blockers separate from candidate-only policy.",
-  "4. Bind all 5 conditional candidates to exact row-level RetainNamed policy with pinned owner evidence and explicit reopen triggers; no conditional blocker remains.",
-  "5. Preserve the 55 candidate-only rows as non-authoritative and keep their unknown successor status blocking; resolve the three explicit legacy-projection blockers through their grouped fate task.",
-  "6. Record the finite policy and row-level evidence in the parent matrix; only then reopen site-owner-map D0 for map authoring.",
+  "3. Preserve sixty-seven exact RetainNamed bindings with current owner/evidence references and explicit reopen triggers.",
+  "4. Keep seven Generic-G0/recursive candidate rows non-authoritative until exact-key fate policy is named.",
+  "5. Keep the variable-accum pair and source-entry legacy projection trio as five explicit grouped blockers; do not infer a successor.",
+  "6. Reopen site-owner-map D0 only after all 79 rows are policy-ready; expectation TSV, guard registration, and deletion remain later rows.",
 ]
 
 [acceptance]
 positive = [
-  "all 79 canonical A keys are covered exactly once and each has a declaration-level role/evidence status",
+  "all 79 canonical A keys are covered exactly once and each has declaration-level role/evidence status",
+  "sixty-seven rows have named RetainNamed policy owners and five unresolved rows have explicit grouped blockers; no row receives a guessed not_required",
   "the registry/include owner boundary is explicit and separate from retention/successor authority",
-  "every retained row names a policy owner and every moved row names a successor; no row receives a guessed not_required",
   "mixed generated modules are split by declaration/site evidence rather than blanket-labeled",
 ]
 negative = [
-  "no source/module registry edit, allow removal, TSV, guard registration, caller-zero claim, or deletion",
+  "no source/module registry edit, allow removal, TSV expectation pin, guard registration, caller-zero claim, or deletion",
   "no blanket Retain/not_required from generated-included, module filename, grep absence, or local green",
   "no partial A cohort is handed to the owner map as complete",
 ]
@@ -504,59 +747,28 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 agents = [
-  "chronic_measurement_scope_audit (common-v2/resolved-callable follow-ups; 7 candidate rows)",
-  "aggregate_heavy_cohort_design (nested-production follow-up; 7 candidate rows)",
-  "vm_route_retirement_census/phase2170_flow_recv_rows (variable-observation follow-up; 2 candidate rows)",
-  "chronic_token_scanner_design_audit (raw follow-up; 7 candidate rows; raw_root_eligibility RetainNamed binding reviewed)",
-  "force_successor_fate_audit (source-entry follow-up; 9 candidate rows)",
-  "guard_index_spec_audit (source-bound/loop-observation follow-up; 4 exact RetainNamed bindings reviewed)",
-  "conditional_policy_adversary_core_common_v2 (common-v2 follow-up; 3 exact RetainNamed bindings accepted)",
-  "conditional_policy_adversary_raw_source_entry (source-entry follow-up; 8 exact RetainNamed bindings accepted and 3 legacy projection rows blocked)",
-  "conditional_registry_fate_audit (five conditional rows; all exact RetainNamed policies reviewed)",
-  "conditional_policy_adversary_core (dynamic_full_body_recipe, external_commit, generic_g0_projection; all three RetainNamed accepted)",
-  "conditional_policy_adversary_raw (raw_root_eligibility; RetainNamed accepted with explicit Raw ingress boundary)",
+  "conditional_policy_adversary_core (A-prime/canonical/dynamic source; eight exact RetainNamed rows)",
+  "conditional_registry_fate_audit (callable topology and callable single-loop; ten exact RetainNamed rows)",
+  "guard_index_spec_audit (DirectAccum, normal source plan, resolved callable; nine exact RetainNamed rows)",
+  "force_successor_fate_audit (located/nested/source-projection plus variable-accum blocker; eight ready and two blocked)",
+  "conditional_policy_adversary_raw (raw/reference; eleven reviewed rows including Raw owner boundaries)",
+  "conditional_policy_adversary_raw_source_entry (source-entry live substrate; eight ready and three blocked legacy projections)",
+  "conditional_policy_adversary_core_common_v2 (common-v2; three exact RetainNamed rows)",
 ]
-status = "21_exact_policies_accepted_candidate_and_legacy_projection_rows_remaining"
-finding = "At 2b8ef0d28b8553f3679430b05f41d8810c3852af, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Current tracked evidence yields 55 candidate-only rows, 3 explicit legacy source-entry projection blockers, and 21 reviewed RetainNamed bindings; no conditional blocker remains and policy-ready is 21/79. Common-v2 and eight live/test/source-entry rows now have exact RetainNamed policy, while the 55 candidate rows remain non-authoritative and the three legacy projection rows keep their grouped fate task blocking owner-map authoring."
+status = "67_exact_policies_accepted_7_candidate_5_grouped_blockers_remaining"
+finding = "At current HEAD 8ec6eab90c52c65c922a8eb0590b4ddc6a3fd1d7, all 79 A rows remain structurally bound. Exact review accepts 67 RetainNamed rows with pinned owner evidence and reopen triggers; seven Generic-G0/recursive rows remain candidate-only, and variable-accum plus source-entry legacy projection rows are five explicit grouped blockers. No source, registry, guard, or owner-map authoring is authorized while those twelve rows remain unresolved."
 evidence = [
-  "tools/checks/manifests/chronic_measurement_observations_v1.json binds 79 A rows to src/mir/compiler/module_registry.in.rs at source commit d9cff5b744edee3b6450db5d0ffc74478f32b49a",
-  "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only; 79/79 following mod declarations and tracked module paths resolve",
-  "src/mir/compiler/mod.rs:14-17 includes the registry in the compiler module; this proves registration, not retention",
-  "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 supplies generated_included/generated_registry observations only",
-  "src/mir/compiler/README.md and tracked module docs provide candidate evidence but no 79-row retention/successor policy",
-  "normal-callable-module0-a0-s0-execution-task-2026-07-26.md and normal-callable-module0-r0-s0-execution-task-2026-07-26.md cover rows 2-5 and 61 as explicit successor candidates",
-  "mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md covers row 35; normal-source-plan0-s0-execution-task-2026-07-26.md covers row 48",
-  "cut0-i0-raw-source0-lower-root-callmain0-s0-execution-task-2026-07-24.md, cut0-i0-raw-source0-lower-root-callchildren0-s0-execution-task-2026-07-24.md, and declaccess0-s0-execution-task-2026-07-24.md cover rows 49-51",
-  "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json and tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json provide candidate evidence for rows 77-78",
-  "Rows 25, 27, 28, 53, and 56 now have separate exact RetainNamed bindings; broad README/task references remain evidence only and do not authorize deletion or promotion",
-  "Rows 18/19/20 (common-v2) have exact RetainNamed owners with transport/caller-zero boundaries; they are policy-ready and non-authoritative for production selection or deletion",
-  "Rows 68/71/72/73/74/76/77/79 (source-entry/source-view) have exact RetainNamed owners from the current HEAD follow-up; rows 69/70/75 remain explicit blocked legacy projection fate rows",
-  "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
-  "The residual review initially grouped all 62 exact canonical keys into 16 role groups; after module_postprocess, source_bound, loop_observation, raw_root_finalization, the four conditional owners, common-v2, and eight source-entry/source-view owners were bound as RetainNamed, 55 candidate-only rows remain outside policy authority and three legacy projection rows remain explicitly blocked",
-  "Initial core partition (21 rows: A-prime/common-v2/canonical/dynamic-source/generic-G0/resolved-callable) found policy-ready=0 and candidate-only=0; the a_prime and canonical follow-ups then recorded candidate evidence only, while each exact row still requires an explicit row-level retain or successor decision",
-  "Common-v2 sub-audit (rows 53/55/57; A-local 18/19/20) accepts exact RetainNamed owners: session admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; no production selector or deletion authority is issued",
-  "Resolved-callable sub-audit (row 203) found a named resolver owner and canonical ingress API, but the exact-key production caller census is test-centered; neither RetainNamed nor a named successor is issued",
-  "Initial loop partition (22 rows: callable-single-loop/DirectAccum/nested-production/module-postprocess/loop-observation/variable-observation) found module_postprocess policy-ready after current-caller reconciliation; the callable_single_loop follow-up recorded six candidate rows, while the other 15 residual rows remain blocked by live-vs-test mixing or missing exact disposition",
-  "The initial raw/entry partition (19 rows: raw/source-bound/source-entry/source-view) found policy-ready=0; the source_view narrow follow-up moved one row to candidate evidence only, leaving 18 residual rows blocked before the later raw/source-entry follow-ups",
-  "Source-view narrow follow-up (row source_view L248 [8817-8836]) accepts FunctionSourceViewV1 as the current production source-navigation owner, with consumers through ResolvedFunctionLoweringInputV1 and located/source navigation; the exact row is RetainNamed and remains non-authoritative for deletion",
-  "A-prime narrow follow-up (row a_prime_i64_physical_capability L6 [180-199]) found the selected-Dynamic issuer and production handoff; this is candidate evidence only because the exact allowance has no named RetainNamed policy or successor yet, and earlier caller-zero wording is historical",
-  "Callable-single-loop narrow follow-up (six rows L18/L23/L25/L30/L32/L37) found technical logical/source issuers but no production selector; all six remain candidate evidence only with exact-key retention/successor policy unissued",
-  "Canonical narrow follow-up (six rows L39/L41/L44/L46/L48/L50) found current dispatch, source identity, drain, finalization, and physical completion owners; canonical Script A input has no current A consumer, and all six remain candidate evidence only pending exact-key policy reconciliation",
-  "DirectAccum narrow follow-up (four rows L59/L63/L65/L67) found current non-test capability, prefix, profile, and projection owners plus the resolved cutover path; all four remain candidate evidence only because no exact-key RetainNamed policy or named successor is issued",
-  "Dynamic-source narrow follow-up (row L71 [2473-2492]) found the current DynamicFullBodySourceIssuerV1 and non-test package admission/consumer chain; this supersedes historical disconnected wording as current evidence, but physical fate and exact-key retention/successor policy remain unissued",
-  "Generic-G0 narrow follow-up (six rows L84/L86/L88/L95/L97/L99) found compiled prephysical source/transport issuers and explicit caller-zero/test boundaries; all six remain candidate evidence only because no exact-key RetainNamed policy or named successor is issued",
-  "Common-v2 adversarial follow-up (A-local rows 18/19/20) accepts exact RetainNamed owners for session admission, physical-entry input, and skeleton; no production selector or deletion authority is issued",
-  "Resolved-callable follow-up (four rows L203/L206/L208/L210) found live resolver/preflight/cutover owner evidence; all four remain candidate evidence only because no exact-key retention/successor policy is issued",
-  "Nested-production follow-up (seven rows L122/L126/L128/L132/L134/L136/L158) found a live compiler capability/profile/producer/lowerer chain; all seven remain candidate evidence only because no exact-key retention/successor policy is issued",
-  "Variable-observation follow-up (two rows L138/L140) found source observer and cfg(test) Recipe evidence; both remain candidate evidence only because no exact-key retirement owner is issued",
-  "Raw follow-up (seven rows L179/L183/L185/L190/L192/L197/L199) found the raw-vm-reference ingress and runtime-input/package owners; raw_root_eligibility and raw_root_finalization now have exact RetainNamed eligibility/finalization owners while the other raw rows remain candidate-only",
-  "Conditional fate follow-up (rows 25/27/28/53/56) and adversarial reviews accepted exact RetainNamed policies for dynamic_full_body_recipe, external_commit, generic_g0_projection, raw_root_eligibility, and raw_root_finalization; each retains an explicit reopen trigger and no deletion authority",
-  "Source-entry follow-up (nine rows L217/L219/L221/L223/L225/L227/L229/L231/L236) accepts eight exact RetainNamed owners for test/reference, live substrate, source navigation, and VM-reference rows; source_entry_physical, source_entry_projection, and source_entry_thunk remain explicit blocked fate rows",
-  "Source-bound and loop-observation follow-up (four rows L106/L112/L213/L215) records exact RetainNamed owner bindings with reopen triggers; LoopTrue remains a test/reference type facade, and the conditional review adds four more exact RetainNamed owners; no promotion or deletion is authorized",
+  "chronic-measurement-site-owner-evidence-matrix-v1.tsv: A=79 rows; all A owner/evidence fields are populated; review_state counts are 67 ready, 7 candidate, 5 blocked",
+  "src/mir/compiler/module_registry.in.rs plus src/mir/compiler/mod.rs provide topology/include evidence only",
+  "A-core and callable topology workers found exact current owners; no default successor or blanket generated retention was issued",
+  "DirectAccum/resolved workers accepted exact owners; direct_accum_prefix is pinned to direct_accum_prefix.rs, not the stale profile name",
+  "source navigation/nested workers accepted located, nested-predicate, and source-projection owners; variable-accum pair remains NoSafeSlice",
+  "raw/reference workers accepted explicit Raw owner boundaries; source-entry physical/projection/thunk remain grouped blockers",
+  "candidate rows remain evidence only; no owner-map, expectation, guard, or deletion authority is issued",
 ]
-latest_finding = "The A structural census remains complete at 79/79. The matrix now records 55 exact candidate joins, 3 explicit blocked source-entry legacy projection rows, and 21 reviewed_ready_for_map RetainNamed bindings; no conditional blocker remains. Candidate evidence is still non-authoritative, the three legacy projection rows keep the grouped fate task blocking, and the tracked 185-row map must not be authored until these states are resolved."
+latest_finding = "A is 67/79 policy-ready: 67 exact RetainNamed bindings, 7 candidate-only Generic-G0/recursive rows, and 5 explicit grouped blockers (variable-accum pair plus source-entry legacy projection trio). The owner map remains closed; next design tasks are the four grouped fate tasks above, with no code or deletion permission."
 
 [closeout]
 status = "pending"
-required = "Record an exact 79-row policy/evidence decision. Keep this row in design stop if any declaration lacks a named policy owner or successor; return to the evidence-matrix D0 only after A is policy-ready."
+required = "Record an exact 79-row policy/evidence decision. Keep this row in design stop while any candidate or blocked A row remains; reopen the tracked owner-map D0 only after all 79 rows are policy-ready."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
