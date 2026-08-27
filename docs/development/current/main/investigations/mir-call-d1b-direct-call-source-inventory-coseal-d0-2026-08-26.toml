@@ -284,6 +284,8 @@ decision = "Complete a finite semantic disposition for every compiled Global pro
 boundary = "Starts at every compiled Callee::Global/CallTarget::Global producer or consumer and ends at the selected structural wire/terminal or explicit isolate/retire disposition. Path counts are scope hints only; completion requires owner/action evidence for each family."
 boundary_scope_amendment = "C0 closes the compiled Rust producer/consumer boundary and records explicit dispositions for adjacent wire/fixture/external surfaces. JSON-v0/v1 codecs, Python/llvmlite readers, and apps/selfhost-runtime copies remain outside the compiled carrier cutover as named ParkedSealed owners; they are not silently treated as proof of Rust semantic coverage."
 observed_census = "Current path census: Callee::Global 143 Rust files/272 occurrences (about 68 production-ish files/115 occurrences); CallTarget::Global 20 files/45 occurrences (about 17 production-ish files/36 occurrences). These counts do not prove semantic coverage and must not be used as the completion claim."
+current_head_reaudit = "At HEAD d1dafa83ad (2026-08-28), the source boundary is unchanged by the docs/guard-only tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The existing C0 readiness guard derives only the CallTarget surface; Callee coverage is an explicit remaining blocker."
+dual_surface_coverage_next = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0: derive and classify both Callee::Global and CallTarget::Global across the compiled boundary, while separating test-only, generated, wire, and external ParkedSealed owners. Do not open B1 until both surfaces have observed owner/action/terminal-or-successor/reopen evidence."
 final_shape = "Callee::Global(CanonicalGlobalTargetV1) and CallTarget::Global(CanonicalGlobalTargetV1) are one atomic core decision. CanonicalGlobalTargetV1 remains serde-free and source-proof-free; its sole production construction authority is the exact declaration-backed callable catalog."
 finite_disposition = [
   "Builtin(Print) for exact print/1 only",
@@ -334,12 +336,12 @@ observed_successor_gaps = [
   "The additional compiled surfaces listed in additional_compiled_global_surfaces still need owner/action/terminal/reopen evidence; their presence is a C0 blocker even when no direct CallTarget::Global token is present.",
 ]
 guard_reuse_boundary = "Existing B0 census, B1 S0 carrier, D1B index/target/loan guards, and the canonical corridor guard are useful evidence components but do not prove the family successor/reopen matrix or CallFlags co-update. Do not claim C0 exhausted or open B1 implementation until one reusable guard is selected/registered for the complete boundary."
-c0_guard_spec = "One future C0 guard will consume this card's family/action inventory plus a derived compiled-path list: every in-boundary producer/consumer must resolve to exactly one action, terminal, and reopen tuple; unmatched paths, new String issuers, independent Callee/CallTarget authority, CallFlags field readers, and unregistered projection/external rows fail closed. Existing B0/S0 guards remain component checks, not C0 completion proof."
+c0_guard_spec = "The readiness guard currently derives only the compiled CallTarget::Global path list. The C0 closeout guard must consume this card's family/action inventory plus derived Callee::Global and CallTarget::Global lists: every in-boundary producer/consumer must resolve to exactly one action, terminal, and reopen tuple; unmatched paths, new String issuers, independent Callee/CallTarget authority, CallFlags field readers, and unregistered projection/external rows fail closed. Existing B0/S0 guards remain component checks, not C0 completion proof."
 c0_exit_audit = "A bounded partial-retirement review found no safe code exit before C0: deleting suffix recovery alone leaves unique-static recovery, post-argument lowering, name-Const/legacy Call publication, and the same relationless lifecycle. Without an exact source/catalog relation, converting that lifecycle to pre-effect reject would be a half-connected authority change; keep C0 design-stopped and do not open a tail-only row."
 mircall_flags_census = "At HEAD 25d4235a49 (2026-08-28), bounded Rust source contains CallFlags in 4 files/19 occurrences; the explicitly adjacent generated RustSubset .hako/.json pair and two lifecycle classifiers add 4 files/22 occurrences (8 files/41 occurrences across the Rust plus fixture/tool boundary). MirCall remains live at unified_emitter/physical_terminal.rs; Hako flags.optionality and Python/llvmlite mir_call JSON readers are separate wire/reference owners, not Rust CallFlags readers."
 callflags_public_api_disposition = "Existing D1-A policy is retained: the public hakorune_mir_defs/MIR facade is ParkedSealed as an owner-local transport surface, not deleted or reinterpreted in B1. A future CallFlags-only fast retirement requires an explicitly accepted breaking-API decision; until then, the named reopen trigger is a selected external reader or dependency on non-default fields."
 test_and_external_boundary = "normal_script_direct_static_physical_publication.rs and the RustSubset expected .hako/.json are co-update/isolate obligations, not production target authority. apps/selfhost-runtime copies and Python/llvmlite JSON operation names remain outside the Rust structural carrier boundary unless an explicit owner reopens them."
-completion_status = "C0 remains incomplete: the owner/action table is now finite at family/file scope, but each family still needs observed successor/terminal and reopen evidence. The CallFlags public/projection matrix is explicitly ParkedSealed/retained under the existing D1-A policy; its co-update set and one reusable guard still must be recorded before any implementation row is selected."
+completion_status = "C0 remains incomplete: the readiness guard covers only CallTarget::Global, while the C0 boundary also includes Callee::Global and its Callee-only producers/consumers. Each dual-surface family still needs observed successor/terminal and reopen evidence. The CallFlags public/projection matrix is explicitly ParkedSealed/retained under the existing D1-A policy; its co-update set and one reusable guard still must be recorded before any implementation row is selected."
 mircall_boundary = "MirCall remains a live transport through unified_emitter/physical_terminal.rs. CallFlags is a separate writer/public/projection retirement candidate; its design row must classify create_mir_call/create_call_flags, public re-exports, generated RustSubset projections, and external/feature obligations before any deletion."
 mircall_prerequisite = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0 is a prerequisite design row, not part of B1 carrier implementation: retain create_mir_call -> physical_terminal -> MirInstruction::call and Hako wire flags.optionality; only writer-only Rust CallFlags edges may later be removed after the public/projection matrix is exhausted."
 required_evidence = [
@@ -366,8 +368,50 @@ no_safe_slice = [
   "CallFlags public/feature/generated obligations remain unresolved but B1 is opened as if they were caller-zero",
   "a test/projection copy is treated as a production issuer, or an app/Python JSON operation name is used to justify structural carrier construction",
 ]
-next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+next_row = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0"
 next_prerequisite_row = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0"
+
+[b1_c0_dual_surface_coverage_d0]
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0"
+status = "design_stop"
+implementation_permission = false
+decision = "Close the C0 evidence gap without changing source: derive both Callee::Global and CallTarget::Global surfaces, classify compiled versus test-only/generated/external ownership, and attach one observed owner/action/terminal-or-successor/reopen tuple to every in-boundary producer or consumer. A readiness pass alone must not open B1."
+census_boundary = "Tracked Rust under src/ and crates/ from each Global carrier producer/consumer to its terminal or explicit isolate/retire disposition; includes test-only Rust projections for classification, excludes JSON-v0/v1, Hako wire, Python/llvmlite, apps/selfhost-runtime, and other external surfaces which remain named ParkedSealed owners."
+observed_gap = "Current C0 readiness derives 20 CallTarget::Global files/45 occurrences, but the declared C0 boundary also has 143 Callee::Global files/272 occurrences, including Callee-only producers such as method_resolution.rs and compatibility entrypoints."
+required_evidence = [
+  "derived path/token sets for both Callee::Global and CallTarget::Global, with compiled/test-only classification and no wildcard folding",
+  "exact source-backed owner/action/terminal-or-successor/reopen evidence for every compiled family and every Callee-only producer/consumer",
+  "explicit ParkedSealed owner, non-authority, and reopen trigger for generated, wire, feature, external, and fixture surfaces outside the compiled cutover",
+  "CallFlags/MirCall retained transport and separate retirement prerequisite recorded without silently dropping Hako wire optionality",
+  "C0 closeout guard design that rejects an unlisted dual-surface path and keeps B1 permission false until the evidence inventory is exhausted",
+]
+allowed_work = [
+  "read-only source census and worker audit",
+  "existing active-card and manifest evidence updates",
+  "no new semantic receipt, target issuer, carrier, package, loan, dispatcher, fixture, or fallback",
+]
+forbidden_work = [
+  "src/ or crates/ schema/issuer/consumer edits",
+  "B1 Callee/CallTarget cutover",
+  "CallFlags or MirCall deletion",
+  "new String wrapper, formatter/reparse, methodize, resolver retry, or default terminal",
+]
+finite_states = [
+  "CompiledProducerNeedsSuccessor",
+  "CompiledConsumerNeedsSuccessor",
+  "TestOnlyProjection",
+  "ParkedExternalOwner",
+  "TypedRejectOrRetireTerminal",
+  "EvidenceMissing",
+  "C0Exhausted",
+]
+no_safe_slice = [
+  "a Callee-only producer cannot be assigned an exact successor or explicit isolate/retire owner",
+  "the dual census requires name/arity/physical symbol inference or a wildcard family row",
+  "B1 would change one carrier while the other remains String-based",
+  "a public/generated/wire surface is treated as caller-zero without an owner and reopen trigger",
+]
+next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 
 [b1_c0_guard_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-GUARD-I0"
