@@ -22,13 +22,16 @@ Related:
   leaves with active 86/90 body-derived evidence. PHI/provider exceptions and
   all broad route or engine deletion remain closed. The MirBuilder Call spine
   remains the serial implementation authority.
-- **Next ordered task:** the current row is the force-hv1 fate design stop
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`: R0a guard
-  closeout is landed with focused 86/90 census, retired-path disjointness,
-  and direct-leaf preservation green. Review the PHI/provider R0b exceptions
-  and Stage1/conditional/dynamic rows before opening any implementation.
-  Startup, fallback, and Wpre remain closed; CoreDirect `unavailable` remains
-  parked until Wpre owns a family issuer.
+- **Next ordered task:** the current force-hv1 fate row is at a design stop after
+  the landed R0a guard closeout (focused 86/90 census, retired-path
+  disjointness, and direct-leaf preservation are green). First design
+  `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0` so a finite phase, pointer, and one
+  body-derived summary are co-sealed; then review
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`, followed by the post-emission/execution
+  boundary in `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0`. PHI/provider R0b and
+  conditional/dynamic rows remain separate design decisions. Startup, fallback,
+  and Wpre remain closed; CoreDirect `unavailable` remains parked until Wpre
+  owns a family issuer.
 - **Production stop line:** existing VM code or tests never authorize product
   parity, fallback, or a new compatibility route; retirement must not redirect
   incompatible inputs to another parser or executor.

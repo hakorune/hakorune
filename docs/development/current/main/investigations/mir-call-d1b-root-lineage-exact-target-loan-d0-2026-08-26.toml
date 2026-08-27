@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE: review the two R0b exceptions and remaining Stage1/conditional/dynamic families; R0a retired 30 direct leaves with active 86/90 body-derived evidence, while force-hv1 ProductAot successors remain design-only."
+smallest_next_slice = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0: design one finite force phase dispatch and one body-derived 86/90 summary before zero-match owner-pack review, PHI/provider R0b fate, or Stage1 exact-AOT design; no production route or semantic receipt."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
