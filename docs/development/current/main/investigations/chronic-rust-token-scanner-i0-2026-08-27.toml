@@ -1,0 +1,177 @@
+title = "Chronic Rust token scanner I0"
+status = "accepted_design_parked"
+observed_commit = "fdc1385b29"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-RUST-TOKEN-SCANNER-I0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-scope-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+
+[boundary]
+starts = "the explicit finite Rust roots and module/include observations frozen by CHRONIC-MEASUREMENT-SCOPE-D0"
+ends = "a deterministic, read-only lexical observation report for panic-family tokens and dead_code allowance/item ranges"
+includes = [
+  "src/mir/builder.rs and the recursively registered src/mir/builder/**/*.rs subtree",
+  "the src/lib.rs -> src/mir/mod.rs -> builder/compiler registration chain and generated-included module_registry.in.rs",
+  "panic!, todo!, .unwrap(), and .expect() direct syntax observations",
+  "allow(dead_code), inner allow, and cfg_attr allowance ranges with their target item/range",
+  "mod/path/include/generated observations needed by the later caller-zero census",
+  "per-file digest, deterministic event ordering, scope manifest hash, and scanner version",
+]
+excludes = [
+  "source or guard deletion, warning cleanup, Cargo/build/runtime execution, fixture edits, and retirement permission",
+  "production-live, caller-zero, role, or feature-selection decisions not explicit in the scope/profile input",
+  "macro expansion or a second scan of opaque macro bodies",
+  "new root Cargo dependencies, MirBuilder semantic receipts, or a second force-hv1 TSV",
+]
+
+[brief]
+decision = "Extend the existing standalone tools/checks/rust_source_topology crate with a chronic-scan observer. Parse each explicitly scoped Rust file once with syn, preserve source spans/attributes as neutral observations, and fail closed on malformed or unsupported input. Do not infer deletion readiness from the report."
+source_authority = "The tracked scope manifest, syn parse/token spans, explicit generated-included entries, and stable source/digest ordering."
+canonical_issuer = "The chronic-scan command and its private observer modules issue neutral lexical observations only; CHRONIC-MEASUREMENT-EXPECTATION-I0 later co-seals reviewed counts."
+non_authority = [
+  "raw rg/grep totals, filename suffixes, stale threshold values, warning output, absent textual callers, or local green tests",
+  "the shell comment stripper in force_hv1_leaf_census.py, old ASTCLEAN guards, and the human docs index",
+  "Cargo feature resolution, runtime behavior, compiler/MIR/VM/AOT execution, or any inferred semantic owner",
+]
+fail_fast = "Missing/ambiguous scope roots, path escape or symlink input, non-UTF8 or changed source, syn parse failure, malformed cfg_attr/meta, unsupported token/item shape, duplicate observation, or unclassified range must return a typed error and no successful partial report."
+smallest_next_slice = "Add chronic_measurement modules and a chronic-scan CLI to the existing rust_source_topology check crate, plus one tracked scope manifest and neutral JSON output. Keep the command read-only; do not pin expectations, register a new member guard, or delete any source."
+non_claims = [
+  "does not claim the observed 334/351 allowances or panic totals are production-live",
+  "does not classify feature_nonselected without an explicit profile feature set",
+  "does not authorize stale-guard supersession, source deletion, or guard execution",
+  "does not replace the module topology owner or create a second Rust parser for that owner",
+]
+
+[implementation]
+owner = "tools/checks/rust_source_topology"
+modules = [
+  "src/chronic_measurement/error.rs",
+  "src/chronic_measurement/model.rs",
+  "src/chronic_measurement/manifest.rs",
+  "src/chronic_measurement/scan.rs",
+  "src/chronic_measurement/mod.rs",
+]
+cli = "rust-source-topology-check chronic-scan <scope-manifest>"
+dependency_rule = "Reuse syn 2, proc-macro2 span-locations, serde, sha2, and toml already owned by the standalone check crate. Do not add syn/tree-sitter/rustc_lexer to the root or production crates."
+parse_rule = "Use syn::parse_file once per source file. Existing topology extractors may be reused only for source ranges/attributes; chronic observation remains a separate owner and must not extend extract.rs past the line budget."
+macro_rule = "Record direct panic!/todo! macro invocations and opaque macro-body rows. Do not regex-rescan macro bodies or count generated expansion. Unknown or unparseable macro shape is blocking."
+call_rule = "Record ExprMethodCall method names unwrap/expect and direct panic!/todo! paths. Keep any path-call aliases in a separate explicit metric; do not merge panic_any or arbitrary names into the frozen counters."
+allow_rule = "Record outer/inner allow(dead_code), grouped allow lists, and cfg_attr allowances with attribute span, target item span, syntax path, raw condition syntax, and conditional kind. Meta parse failure is an error, not an ignored row."
+cfg_rule = "Only syntactically visible cfg/cfg_attr facts are observed. feature_nonselected, fixture, compatibility, and guard roles require explicit manifest/profile evidence; filenames never decide them."
+graph_rule = "Observe mod, inline mod, literal/nonliteral path, include, and generated registry membership. Do not expand module reachability or infer caller-zero in I0."
+hash_rule = "Emit scanner_version, scope_manifest_hash, source_scope_hash, per-file source digest, and evidence_hash. Sort all paths/events/ranges by stable keys and reject duplicate site identities."
+
+[finite_state]
+states = [
+  "ScopeMissing",
+  "InvalidManifest",
+  "PathEscape",
+  "SymlinkInput",
+  "NonUtf8Source",
+  "ParseFailed",
+  "MalformedAttribute",
+  "UnsupportedTokenShape",
+  "OpaqueMacroBody",
+  "UnclassifiedRange",
+  "DuplicateObservation",
+  "SourceChangedDuringObservation",
+  "ScopeDrift",
+  "Observed",
+]
+terminal = ["Observed", "OpaqueMacroBody"]
+blocking = [
+  "ScopeMissing",
+  "InvalidManifest",
+  "PathEscape",
+  "SymlinkInput",
+  "NonUtf8Source",
+  "ParseFailed",
+  "MalformedAttribute",
+  "UnsupportedTokenShape",
+  "UnclassifiedRange",
+  "DuplicateObservation",
+  "SourceChangedDuringObservation",
+  "ScopeDrift",
+]
+
+[output]
+format = "stable JSON observation report; expectation TSV is owned by the successor card"
+summary_metrics = [
+  "panic_count",
+  "unwrap_count",
+  "expect_count",
+  "todo_count",
+  "dead_code_allowance_count",
+  "dead_code_allowance_line_count",
+  "unclassified_count",
+]
+site_fields = [
+  "row_kind",
+  "path",
+  "byte_start",
+  "byte_end",
+  "line_start",
+  "line_end",
+  "item_key",
+  "compile_domain",
+  "role",
+  "metric",
+  "owner",
+  "raw_condition",
+]
+classification = "compile_domain and role are independent fields. I0 emits Unknown/Unclassified when the manifest/profile cannot prove a value; it never converts unknown into production_default or runtime."
+
+[task_steps]
+items = [
+  "1. Add a tracked scope manifest containing only the frozen Rust roots, explicit generated-included path, exclusions, profile feature facts, and manifest schema/version; reject path escape, symlink, duplicate, and empty roots.",
+  "2. Add the chronic_measurement observer modules under the standalone rust_source_topology check crate. Keep extract.rs and every new source below the 760-line split threshold and 800-line hard stop.",
+  "3. Implement one-file syn parsing with exact spans, direct panic/unwrap/expect/todo observations, dead_code attribute/item observations, and opaque macro/module/include rows. Never silently skip unsupported syntax.",
+  "4. Add deterministic JSON serialization with scanner/scope/source hashes and explicit finite errors. Re-read or re-digest each file before success so a source change becomes SourceChangedDuringObservation.",
+  "5. Add focused unit fixtures for comments, raw strings, nested block comments, grouped/cfg_attr allows, cfg(test) ranges, literal/nonliteral include, opaque macro bodies, malformed attributes, duplicate sites, and changed-source rejection. Keep fixtures local to the check crate.",
+  "6. Run only the standalone scanner tests/CLI and Python/TOML syntax checks. Do not run Cargo for the root product, pin the expectation TSV, connect a lifecycle guard, or delete code in I0.",
+  "7. Review the report independently, then open CHRONIC-MEASUREMENT-EXPECTATION-I0 for one shared TSV and existing lifecycle receipt consumer; scanner output alone never opens a deletion row.",
+]
+
+[acceptance]
+positive = [
+  "comments, raw strings, nested block comments, and ordinary text do not create false panic/dead_code observations",
+  "panic!/todo! macros, unwrap/expect method calls, and dead_code attributes are emitted with stable item/range spans",
+  "cfg(test) and cfg_attr facts are range-aware; feature/role values without explicit evidence remain unclassified",
+  "module/include/generated observations are present without pretending to prove reachability or caller-zero",
+  "output is deterministic across repeated runs and includes scanner/version/scope/source/evidence hashes",
+  "all malformed, unsupported, duplicate, scope-drift, and source-change cases fail closed before a successful report",
+  "existing rust_source_topology behavior remains unchanged and all changed files stay below the line budget",
+]
+negative = [
+  "no root Cargo dependency or production compiler crate changes",
+  "no regex-only Rust parsing, macro-body rescanning, filename-only role inference, or silent recovery",
+  "no expectation TSV pin, member guard registration, stale threshold relaxation, allow removal, or source deletion",
+  "no production-live/caller-zero claim derived from lexical counts",
+]
+
+[guard]
+reuse = "Use the existing rust-source-topology standalone check/test entry; add no per-file shell guard and no new force-specific manifest. The successor expectation row may consume the scanner's hashes."
+required = "The scanner must be independently reviewable and read-only. A successful report with unclassified or unsupported rows is forbidden; no retirement guard may consume it until the successor co-seals a reviewed TSV."
+no_safe_slice = [
+  "syn cannot preserve the required item/range/attribute evidence without a second parser",
+  "the scope manifest cannot express explicit profile feature facts or generated-included ownership",
+  "unknown macro/item/token shapes would be silently skipped",
+  "the implementation would require root production dependencies or would authorize deletion from counts",
+]
+
+[worker_receipt]
+agent = "chronic_token_scanner_design_audit"
+status = "accepted_with_scope_amendments"
+finding = "Use the existing standalone tools/checks/rust_source_topology crate and syn parser. Keep chronic observation in separate modules, do not extend extract.rs or root Cargo, and make malformed/unsupported/unknown classification fail closed."
+evidence = [
+  "tools/checks/rust_source_topology/Cargo.toml already owns syn 2, proc-macro2 span-locations, serde, sha2, and toml",
+  "src/extract.rs parses one file and preserves item/cfg/range and opaque macro observations; it is already near the line-budget boundary",
+  "existing project/modules traversal requires Cargo/profile evidence and therefore is not reused as I0 semantic classification authority",
+  "CHRONIC-MEASUREMENT-SCOPE-D0 freezes the finite Builder/registration roots and independent compile_domain/role axes",
+]
+latest_finding = "Scanner I0 is the next safe implementation cell. It issues neutral observations only; expectation pinning and guard/source deletion remain later rows."
+
+[closeout]
+required = "Record standalone scanner test/CLI results, deterministic hash evidence, changed-file line counts, and the explicit statement that no root Cargo, guard registration, expectation pin, or source deletion ran. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0."
+next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
