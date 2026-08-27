@@ -1,23 +1,26 @@
 title = "MIR Call B1 structural Global carrier static-method S0"
-status = "fast_open"
+status = "landed_bounded_child_row"
 observed_commit = "2efd58d369"
 observed_at = "2026-08-28"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "75c0a6c04e"
+landed_commit = "75c0a6c04e"
 guard_phase = "b1_carrier_s0"
 permission_scope = "Carrier-only S0: add the serde-free structural carrier and its validation tests/guard. No production caller is connected in this row; the first issuer remains atomic with the D1B Cataloged consumer."
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-GLOBAL-TARGET-B1-CARRIER-CONTRACT-D0"
 execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
-completed_execution_row = "none"
-next_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
+completed_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
+next_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
+successor_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
 
 [brief]
-decision = "Implement only the structural carrier substrate accepted by the parent D1B/B0 design. The carrier is opaque to consumers, its nested shape follows the Call SSOT, and construction remains guarded repository authority. This row does not change Callee::Global, CallTarget, MirInstruction, wire, VM, optimizer, or any production route."
+decision = "S0 landed the structural carrier substrate accepted by the parent D1B/B0 design. The carrier remains opaque to consumers, its nested shape follows the Call SSOT, and construction remains guarded repository authority. No Callee::Global, CallTarget, MirInstruction, wire, VM, optimizer, or production route changed."
 source_authority = "No source observation or declaration is consumed in this carrier-only row. The future callable-declaration catalog will supply the exact same-module relation; this S0 must not invent an issuer or accept a bare source tuple as proof."
 canonical_issuer = "No production issuer is connected in S0. The eventual sole issuer remains src/mir/builder/callable_declaration_catalog after same-session brand and exact StaticBoxMethod relation checks; S0 exposes only the minimal structural carrier construction surface needed by that future owner."
 non_authority = "Raw String, parser, From<String>, parse, Display/to_string/as_mir_name, owner/name/arity convenience lookup, registry, CallTarget, CalleeResolverBox, physical symbol, wire codec, backend, optimizer, and test-only construction."
-fail_fast = "Empty owner/method/name components reject in the carrier validation tests; nested family construction is explicit, while wrong namespace, duplicate relation, catalog brand, and physical symbol policy remain later owner/projection checks."
-smallest_next_slice = "Add one serde-free CanonicalGlobalTargetV1 module with nested Builtin/SameModule shape, validated static-method constructor/accessors, focused positive/negative tests, and one constructor/literal guard. Keep production constructor count at zero until the atomic issuer row."
+fail_fast = "Empty owner/method/name components reject in the carrier validation tests; nested family construction is explicit. Wrong namespace, duplicate relation, catalog brand, and physical symbol policy remain later owner/projection checks."
+smallest_next_slice = "Return to the parent D1B source-inventory/co-seal design row. Keep this carrier disconnected: the first production issuer must remain atomic with the package/loan/consumer cutover."
 non_claims = "No Callee payload cutover, CallTarget migration, D1B package/loan/lineage/dispatcher change, FreeFunction/Builtin issuer, wire v2 codec, JSON/VM/backend/optimizer change, or full B1 consumer census."
 
 [boundary]

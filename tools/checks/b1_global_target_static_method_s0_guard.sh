@@ -47,10 +47,18 @@ expected_allowed = {
     "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
 }
 
-if card.get("status") != "fast_open":
-    raise SystemExit("active B1 S0 card is not fast_open")
-if card.get("implementation_permission") is not True:
-    raise SystemExit("B1 S0 implementation permission is not scoped open")
+status = card.get("status")
+if status not in {"fast_open", "landed", "landed_bounded_child_row"}:
+    raise SystemExit(f"B1 S0 card has unsupported status: {status!r}")
+if status == "fast_open" and card.get("implementation_permission") is not True:
+    raise SystemExit("open B1 S0 card does not have scoped implementation permission")
+if status in {"landed", "landed_bounded_child_row"}:
+    if card.get("implementation_permission") is not False:
+        raise SystemExit("landed B1 S0 card still has implementation permission")
+    if not card.get("landed_commit"):
+        raise SystemExit("landed B1 S0 card is missing landed_commit")
+    if card.get("completed_execution_row") != "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0":
+        raise SystemExit("landed B1 S0 card does not record completion")
 if card.get("guard_phase") != "b1_carrier_s0":
     raise SystemExit("B1 S0 guard phase drifted")
 if card.get("execution_row") != "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0":
@@ -59,14 +67,15 @@ allowed = set(card.get("allowed_files", {}).get("paths", []))
 if allowed != expected_allowed:
     raise SystemExit(f"B1 S0 allowed file boundary drifted: {sorted(allowed)}")
 
-if state.get("work_mode") != "fast":
-    raise SystemExit("CURRENT_STATE work_mode is not fast")
-if state.get("current_execution_row") != card["execution_row"]:
-    raise SystemExit("CURRENT_STATE current row does not select B1 S0")
-if state.get("next_execution_card") != card["execution_row"]:
-    raise SystemExit("CURRENT_STATE next execution card does not select B1 S0")
-if state.get("latest_card_path") != str(card_path.relative_to(root)):
-    raise SystemExit("CURRENT_STATE latest card path does not select B1 S0")
+if status == "fast_open":
+    if state.get("work_mode") != "fast":
+        raise SystemExit("CURRENT_STATE work_mode is not fast")
+    if state.get("current_execution_row") != card["execution_row"]:
+        raise SystemExit("CURRENT_STATE current row does not select B1 S0")
+    if state.get("next_execution_card") != card["execution_row"]:
+        raise SystemExit("CURRENT_STATE next execution card does not select B1 S0")
+    if state.get("latest_card_path") != str(card_path.relative_to(root)):
+        raise SystemExit("CURRENT_STATE latest card path does not select B1 S0")
 
 rows = manifest.get("rows")
 if not isinstance(rows, list):

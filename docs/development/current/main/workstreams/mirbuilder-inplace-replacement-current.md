@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR Call B1 structural Global carrier static-method S0
+Status: Design stop — MIR Call D1B source-inventory/co-seal readiness
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/mir-call-global-target-b1-static-method-s0-2026-08-28.toml
+  - docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0` is the only fast row: add the nested serde-free structural Global carrier, validation tests, and a reusable guard with zero production callers. The parent D1B package/loan/lineage issuer and full B1 consumer cutover remain closed; no target synthesis, caller=None collapse, profile widening, or deletion authority is implied.
+  B1 structural Global carrier S0 is landed at `75c0a6c04e`. The next bounded design row is `MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0`: name the sole Cataloged issuer, exact lineage/site mapper, sealed package-plus-loan handoff, and raw-port reborrow before opening any target publication. No production cutover is open yet.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

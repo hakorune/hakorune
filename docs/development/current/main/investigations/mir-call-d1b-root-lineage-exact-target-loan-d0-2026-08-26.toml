@@ -640,8 +640,10 @@ durable_order_owner = "docs/development/current/main/design/mir-canonical-callsi
 
 [direct_call_source_inventory_coseal_d0]
 task_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
-status = "design_stop"
+status = "landed_bounded_child_row"
 implementation_permission = false
+implementation_commit = "75c0a6c04e"
+landed_commit = "75c0a6c04e"
 decision = "The next row closes ownership, not target behavior: Selected facts remain unissued until a package-owned terminal either records a complete disposition or rejects before install. A first Cataloged target may be published only inside the later atomic loan row."
 source_authority = "The existing one-pass FullFunction/Selected traversal owns SourceExprSiteV1 plus neutral name/arity observations in ResolvedFunctionDataV1. It owns no Callee, RawInvocationRootLineageV1, ValueId, arguments, physical symbol, or target selector."
 package_terminal_owner = "NormalCallableSemanticPackageIssueV1 is the sole future package-install terminal: before prepare_install/commit it consumes the complete direct-call inventory, rejects incomplete/unissued rows, and never downgrades to Deferred. The current callable_semantic_batch negative and source-only VerifiedNormalCallableSemanticSourceV1 negative are observed duplicate checks; the implementation row must delegate/remove them so they cannot become a second package authority."
@@ -695,10 +697,10 @@ acceptance = [
   "StaticBoxMethod carrier shape has no raw String/formatter/parser construction path; the future owner-local issuer will supply the exact same-module relation",
   "direct production constructor count is zero in this carrier-only row, with tests/compatibility counted separately; the first production issuer is atomic with its consumer",
   "no Call/Callee/CallTarget/wire/VM/optimizer/JSON file changes and no new semantic Verified*/Prepared* receipt",
-  "wrong namespace, empty component, foreign-owner, and duplicate-relation inputs reject before publication; physical symbol collision belongs to the later projection row",
+  "empty components reject in the carrier validation surface; wrong namespace is excluded by the nested shape, while foreign-owner, duplicate-relation, and physical collision remain later issuer/projection policies",
 ]
 no_safe_slice = "Return to design if the carrier cannot remain opaque to consumers, if the only construction path is a public raw-string convenience API, if a second production constructor appears, if collision handling is pulled forward from projection, or if this substrate requires changing the canonical Callee payload or compiled consumers."
-next_task = "After this contract is accepted, open MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0 as one atomic owner-local issuer-plus-consumer row; keep the full B1 payload/consumer cutover and the D1B package/loan row closed until then."
+next_task = "Return to MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0: define the exact Cataloged issuer, lineage/site mapper, sealed package-plus-loan handoff, and raw-port reborrow before opening any target publication."
 
 [wpre_d0_followup_task_order]
 status = "core_direct_d0_s0_landed_r0_landed"
