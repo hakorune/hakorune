@@ -1,8 +1,10 @@
 title = "Runtime Box RawLegacy nested Main retirement I0"
-status = "fast_open"
-observed_commit = "edd979ea9d"
+status = "landed_bounded_child_row"
+observed_commit = "2f11fbf3ef"
 observed_at = "2026-08-27"
 implementation_permission = true
+landed_commit = "2f11fbf3ef"
+selected_fast = true
 current_execution_row = "RAWLEGACY-NESTED-MAIN-RETIRE-I0"
 parent_row = "docs/development/current/main/investigations/runtime-box-rawlegacy-nested-main-retire-d0-2026-08-27.toml"
 successor_card = "RAWLEGACY-NESTED-MAIN-RETIRE-I0-CLOSEOUT"
@@ -119,3 +121,22 @@ stop_if = [
 [closeout]
 required = "Record focused test command/result, guard result, changed-file line counts, exact old-edge deletion, and pointer transition. Keep implementation status/evidence update in the closeout boundary; do not weaken the D0 acceptance to make the row green."
 next_row = "RAWLEGACY-NESTED-MAIN-RETIRE-I0-CLOSEOUT"
+
+[evidence]
+implementation = "The shared static Main dispatcher now queries a zero-payload two-state fate once before helper/prepare effects. RawLegacy returns a typed pre-effect retirement; the existing explicit root compatibility owner and RawInvocation root-only terminal remain unchanged."
+focused_results = [
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib raw_legacy_: 5 passed",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib raw_invocation_nested_main_keeps_existing_root_only_terminal: 1 passed",
+]
+guards = [
+  "rawlegacy_nested_main_retire_guard.sh: passed",
+  "run_row_guard.sh --profile quick-static --only rawlegacy-nested-main-retire: passed",
+  "current_state_pointer_guard.sh: passed before closeout transition",
+  "git diff --check: passed",
+]
+line_budget = "recursive_child_lowering.rs 639, legacy_port.rs 168, raw_expression_dispatch/mod.rs 711, raw_expression_dispatch/tests.rs 476, recursive_child_lowering_rawport_tests.rs 591, guard 128; all below the 760 split threshold and 800 hard stop."
+old_edge_deleted = "raw_expression_dispatch static Main -> RawLegacy lower_static_main_box success edge; helper/prepare/Main publication is unreachable on that edge, while direct explicit-root compatibility remains."
+known_baseline = [
+  "The full cargo fmt --all -- --check remains red on pre-existing src/runner/core_executor.rs formatting; changed Rust test files were rustfmt-ed individually.",
+  "The repository warning baseline remains outside this bounded row (the focused compile reported 439 warnings).",
+]
