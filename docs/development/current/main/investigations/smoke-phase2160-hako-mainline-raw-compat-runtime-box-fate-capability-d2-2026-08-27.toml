@@ -1,11 +1,11 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box fate capability D2"
-status = "accepted_design_no_safe_slice"
-observed_commit = "43567198ac"
+status = "accepted_design"
+observed_commit = "d81866059f"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-D2"
 parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-raw-compat-entry-owner-d1-2026-08-27.toml"
-code_baseline = "60de7ac91e; no production code or fixture changes are authorized by this card"
+code_baseline = "60de7ac91e; D2 amendments observed at d81866059f; no production code or fixture changes are authorized by this card"
 
 [boundary]
 starts = "phase2160 RawCompatibility root/capture scope entering RawInvocation runtime Box F/I/H dispatch"
@@ -68,6 +68,28 @@ no_safe_slice = [
   "the capability contains Callee, ValueId, AST, name, arity, symbol, or RawInvocationRootLineageV1",
 ]
 
+[implementation_api]
+issuer_site = "program_root_lowering.rs:321-326 only: the phase2160 RawCompatibility ScriptRuntime arm creates a scoped child; arming the broader 282-294 Compatibility block is forbidden because it would include immediate/deferred root work."
+scoped_entry = "with_phase2160_raw_compat_runtime_box_fate_v1(|scoped| scoped.lower_body(...))-style closure. The parent RawInvocationChildPortV1 is not globally armed; the closure owns the route seal for exactly one lowering scope."
+scope_shape = "private RuntimeBoxFateScopeV1<'scope> = Unarmed | Phase2160(&'scope mut RawCompatibilityRuntimeBoxFateV1). The Phase2160 variant is the only state that can reach F/I/H; it is reborrowed for a shorter recursive child scope without a third lifetime on RawInvocationChildPortV1."
+fate_shape = "private RawCompatibilityRuntimeBoxFateV1 { state: Armed | Consumed }, #[must_use]-equivalent, move-only, no Clone/Copy/into_parts/getter. Retire is a zero-payload marker."
+reborrow = "RawInvocationChildPortV1::reborrow() carries the scoped fate as a short &mut borrow when armed and remains Unarmed otherwise; no Rc/Arc/RefCell, copy, or child ledger is introduced."
+f_consumption = "nonmain_static_box_lifecycle.rs:43-47: preserve App no-op, then consume Retire immediately before register_user_box and before method/body descent."
+i_h_consumption = "raw_expression_dispatch/mod.rs:511-523 dispatches the instance branch into a fate check before lower_raw_with_port_v1; this check precedes register_user_box_declared_fields, metadata, prefix mutation, constructors, methods, and body/capture/collector effects."
+no_capability_consumption = "sync/Main A/B, App E, and empty K keep their existing terminals and do not issue or consume the capability."
+test_sibling = "Move the four existing success-contract tests to a sibling runtime_box_fate_tests.rs behavior-neutrally before converting them to typed negatives; module_lowering_invocation_reentrant_tests.rs is 761 lines and must not receive new semantic code."
+
+[delta_snapshot]
+definition = "Zero-delta is measured from a snapshot taken immediately before the F/I/H fate check, not from an absolute-empty module. Earlier RawCompatibility statements may already have produced root instructions or metadata."
+observables = [
+  "ModuleLoweringPortV1 header symbol/function count",
+  "current module function/block/instruction counts",
+  "comp_ctx user-box/declaration/metadata state",
+  "pending child and outer collector rows",
+]
+retire_result = "Every observable equals the pre-check snapshot after typed Retire/Frozen; no child/body/capture/commit/prefix/metadata/collector/module delta is allowed."
+auxiliary = "Dedicated one-Box tests may additionally assert absolute zero, but that is supplemental and cannot replace the pre-check snapshot contract."
+
 [finite_state]
 states = [
   "UnarmedNonCompatibility",
@@ -122,7 +144,7 @@ completeness = "The route-only delete set covers every F/I/H arm of the phase216
 [guard]
 id = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-GUARD"
 phase = "implementation-row only; do not register or run as a green implementation claim during D2"
-contract = "Derive the phase2160 capture scope and F/I/H entry arms, reject unarmed/foreign/second/mixed capability paths, verify pre-effect zero delta, and assert the four retired tests are explicit typed negatives."
+contract = "Parse the phase2160 capture arm and F/I/H function intervals, prove issuer=1 at program_root_lowering.rs:321-326, verify typed Unarmed/Phase2160 reborrow and no forbidden capability payload, check F after App-before-register and I/H before prefix, reject adapter/RawLegacy/SelectedNormal/root-I1 inheritance, and assert the four retired tests are explicit typed negatives with snapshot zero-delta."
 non_claims = "A text count alone cannot prove route semantics; the guard must distinguish phase2160 RawCompatibility from generic RawInvocation, SelectedNormal, RawLegacy, and root I1."
 
 [acceptance]
@@ -141,10 +163,10 @@ negative = [
 [implementation_gate]
 permission = false
 required_before_fast = [
-  "D2 API/lifetime and private sealed bundle shape are reviewed and frozen",
-  "phase2160-only scope is mechanically distinguishable from generic RawInvocation/SelectedNormal/RawLegacy/root I1",
-  "F/I/H branch matrix and four test-negative conversions are named in the implementation row",
-  "zero-delta pre-effect boundary and route-only delete set are accepted",
+  "D2 API/lifetime, private typed scope, and move-only sealed fate shape are reviewed and frozen",
+  "issuer is confined to program_root_lowering.rs:321-326 and phase2160-only scope is mechanically distinguishable from generic RawInvocation/SelectedNormal/RawLegacy/root I1",
+  "F consumption is after App/no-op and before register_user_box; I/H consumption is before declaration/prefix mutation",
+  "Box-precheck snapshot/delta observables and four test-sibling negative conversions are named in the implementation row",
   "one reusable guard is registered with the implementation row and changed owners remain below 760/800 lines",
 ]
 no_safe_slice = [
