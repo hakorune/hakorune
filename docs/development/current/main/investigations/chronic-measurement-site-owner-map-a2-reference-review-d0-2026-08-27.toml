@@ -67,6 +67,7 @@ completed = [
   "A2 history follow-up recorded: the two A missing paths have no blob or rename in any reachable review-head ancestor; row129 has exact symbol candidates but still needs an explicit normalization decision.",
   "A2 successor schema review recorded: retain the existing single successor_ref contract; keep consumer evidence separate, classify test-only split seams as not_required only with route proof, and do not add a multi-edge handoff schema.",
   "A2 missing-reference disposition review recorded: ExplicitlyRejectedAtPinnedReviewHead is allowed only per candidate evidence reference; the 185 site rows remain intact and matrix provenance/hash is unchanged.",
+  "A2 row-level normalization proposals recorded from the A/B/C semantic workers: candidate roles, route splits, mixed subranges, exact successor candidates, and named blockers remain observations pending strict reconciliation; no matrix row or owner-map authority was changed.",
 ]
 remaining = [
   "A2-R1-MISSING-BLOB-AND-OOB-CLOSEOUT: record candidate-level disposition for A rows 154/155 and choose an exact-symbol or typed-reject decision for row129",
@@ -270,3 +271,40 @@ status = "consensus_a1_landed_a2_blocked"
 status = "pending"
 required = "A2 closes only when the candidate census is current, every reference is A1-resolved or explicitly rejected, all 185 roles/domains are normalized, all 16 required successors have one exact resolved ref, and no partial owner map or later retirement artifact was created."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[normalization_proposal]
+status = "row_level_candidate_proposals_recorded_map_blocked"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+schema = "existing_185_row_owner_map_with_one_successor_ref; no_new_handoff_or_multi_edge_schema"
+authority = "A/B/C worker reports are candidate observations only. The later site-owner-map D0 remains the sole issuer of owner-map roles, evidence joins, and successor authority."
+a_summary = [
+  "A declaration domain generated_included is separate from effective route; proposed runtime rows are 105-109,116,118-131,139,142-148,151,165-171,182-183; compatibility/reference rows are 117,152-164,178,180-181; test/fixture and mixed rows remain explicitly separated.",
+  "A rows 154/155 stay candidate-level ExplicitlyRejectedAtPinnedReviewHead unless a full-SHA tracked replacement with semantic equivalence is approved; row129 must choose one exact symbol/range or reject the out-of-bounds supporting reference, never clip it.",
+  "A successor rows 173/174/179 remain unresolved: ProcessExitProjectionV1 is only the strongest single candidate for 174, while 179 has split route/result ownership and 173 lacks proven replacement equivalence.",
+]
+b_summary = [
+  "B rows 5-7,30-37,101-104 are narrow compile_raw_published_v1/raw-vm-reference owners, not broad --backend vm evidence; no caller-zero inference is allowed.",
+  "B row21 remains CutoverBlockerOpen: ModuleLoweringPortV1::complete_resolved_child_with_physical_loan at the pinned review head is a successor candidate, but selected_dynamic_physical_emitter/assembly still calls commit_cataloged_box_method_completed.",
+  "B row23 is a test-only split seam (with_module_port versus with_header_port); row26 retains named legacy ownership because live production families remain. Rows 1,3,4,6,7,9,10,102 need owner/consumer anchor correction.",
+]
+c_summary = [
+  "C compatibility/runtime/test-support/guard candidates remain route-qualified observations; caller absence is not caller-zero evidence.",
+  "C mixed sites require exact subranges: row44 catalog versus static recovery; row54 CompilationContext ranges; row55 declaration APIs; row88 BlockScheduleBox runtime versus guard; row90 LegacyFacade versus Checked policy.",
+  "C required successors 61,64-66,73-76 remain blocked; 77,97,100 have only conditional candidates pending parity and caller evidence. Tree/OOB rows remain structural blockers until explicitly resolved or rejected.",
+]
+next_tasks = [
+  "A2-R1-MISSING-BLOB-AND-OOB-CLOSEOUT: finalize candidate-only dispositions for A154/A155 and an exact-or-rejected decision for A129.",
+  "A2-B0-OWNER-CONSUMER-ANCHOR-CORRECTION: correct B navigation/consumer anchors and preserve raw-vm-reference route evidence.",
+  "A2-C-REFERENCE-REPAIR-D0: resolve C tree/OOB anchors under the fixed review head without clipping or path guessing.",
+  "A2-C-MIXED-SUBRANGE-D0: record exact C44/C54/C55/C88/C90 role boundaries.",
+  "A2-C-SUCCESSOR-DECISION-D0 and A2-B3-ROW21-SUCCESSOR-CUTOVER-DESIGN: settle one successor_ref or an explicit row disposition; design-only while A2 is active.",
+  "After grouped decisions, rerun the landed A1 resolver and only then author the 185-row owner map; expectation, guard, source, and allow retirement remain later rows.",
+]
+acceptance = [
+  "Every candidate proposal is reconciled against an exact tracked anchor, caller/cfg/effective route, and the fixed review_head before map use.",
+  "All 185 site rows remain present; mixed rows are decomposed only at reviewed ranges; required rows have exactly one full-SHA successor_ref or an explicit reviewed disposition.",
+  "No candidate observation, worker report, filename, compile domain, or prose successor is treated as deletion authority.",
+]
+non_claims = [
+  "This section does not make the matrix authoritative, does not create an owner map, and does not authorize code, guard, expectation, caller-zero, or source deletion changes.",
+]
