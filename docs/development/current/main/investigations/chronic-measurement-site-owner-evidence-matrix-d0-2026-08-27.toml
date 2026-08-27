@@ -56,6 +56,40 @@ successor_status = "required only with a named successor reference; not_required
 mixed_site_rule = "a file-level role=mixed is never inherited by all rows; each source range receives its own evidence status"
 review_state = ["unreviewed", "candidate_evidence", "reviewed_ready_for_map", "blocked_missing_owner", "blocked_mixed_role", "blocked_successor"]
 
+[matrix_schema]
+format = "one-row-per-site TSV; no summary rows; candidate fields are non-authoritative until the later owner-map D0"
+columns = [
+  "ordinal",
+  "row_kind",
+  "path",
+  "byte_start",
+  "byte_end",
+  "attribute_kind",
+  "item_key",
+  "line_start",
+  "line_end",
+  "cohort",
+  "compile_domain",
+  "compile_domain_status",
+  "role",
+  "role_status",
+  "candidate_owner_ref",
+  "candidate_evidence_refs",
+  "owner_evidence_status",
+  "candidate_successor_status",
+  "successor_basis_or_blocker",
+  "review_state",
+]
+empty_rule = "missing evidence is explicit status plus blocker text; empty owner/evidence/successor fields are never silently defaulted"
+
+[generation]
+source = "validate_observation_receipt_json(tracked_receipt, bound_source_commit) exactly once; matrix rows follow receipt canonical-key order"
+cohort_rule = "A=module_registry.in.rs 79; B=src/mir/builder.rs 40 plus six named runtime rows; C=remaining builder mixed 60 across 38 files"
+coverage_assertion = "A/B/C are disjoint and total 185; compare canonical key, order, item_key, and line fields against the receipt; ordinal is display-only"
+join_rule = "candidate owner/evidence is joined by canonical key, never by ordinal or item_key alone; any missing, duplicate, foreign, or reordered join is blocking"
+evidence_rule = "record tracked owner/registration candidates and a review state; syntax-only references are candidates, not resolved Git anchors"
+completion_rule = "only all rows reviewed_ready_for_map with explicit successor basis may reopen tracked owner-map authoring; any unresolved row keeps this design stop active"
+
 [finite_state]
 states = [
   "ReceiptBound",
