@@ -81,12 +81,14 @@ rule = "Only an A1-resolved reference with explicit site role/domain and, when r
 
 [ordered_work]
 items = [
-  "1. Recompute and record the candidate census from the matrix, preserving 697 candidate owner/evidence occurrences separately from three prose successor references.",
-  "2. Classify each candidate as A1 pass-through, semantic-review input, or typed blocker; replace short/byte/path/range text only through an explicit reviewed decision, never by current-HEAD or grep repair.",
-  "3. Normalize all 185 sites to exactly one of runtime/test_support/fixture/compatibility/guard_evidence/generated_registry/mixed, independently of compile_domain and filename labels.",
-  "4. Resolve the 16 successor-required rows to one exact full-revision tracked successor_ref each; keep supporting paths in evidence_refs and leave multi-successor prose blocked.",
-  "5. Re-run the landed A1 strict resolver over the fully reviewed input and preserve the independent golden result.",
-  "6. Only after all states are terminal, reopen the parent D0 for one tracked 185-row owner map; expectation/reconciliation/guard/source retirement remain separate rows.",
+  "1. A2-R0: recompute and record the candidate census from the matrix, preserving 697 candidate owner/evidence occurrences separately from three prose successor references and keeping receipt source_commit, explicit review_head, matrix hash, A1 commit, and audit HEAD as distinct provenance roles.",
+  "2. A2-R1: classify each candidate as A1 pass-through, semantic-review input, or typed blocker; replace short/byte/path/range text only through an explicit reviewed decision, never by current-HEAD or grep repair.",
+  "3. A2-R2: normalize the 79 A declaration rows and 46 B rows by owner/caller/cfg/route evidence; generated-included and retirement-successor labels are observations, not automatic schema roles.",
+  "4. A2-R3: normalize explicit C family rows, prioritizing cfg(test) test_support and unambiguous compatibility/runtime sites; keep raw/legacy and caller-zero seams unresolved until route evidence is pinned.",
+  "5. A2-R4: decompose mixed/ambiguous families at exact site ranges (A raw/source-entry, B raw/legacy, C rows 44/54/55/88/90 and the remaining unresolved rows); map only one of the seven roles when tracked evidence supports it.",
+  "6. Resolve the 16 successor-required rows to one exact full-revision tracked successor_ref each; keep supporting paths in evidence_refs and leave multi-successor prose blocked.",
+  "7. Re-run the landed A1 strict resolver over the fully reviewed input and preserve the independent golden result.",
+  "8. Only after all states are terminal, reopen the parent D0 for one tracked 185-row owner map; expectation/reconciliation/guard/source retirement remain separate rows.",
 ]
 
 [acceptance]
@@ -112,6 +114,17 @@ no_safe_slice = [
   "any unresolved A1 reference is hidden by a partial map or a new default",
   "A2 must change Rust/compiler/MIR/VM/AOT code, add a guard row, or delete source to appear green",
 ]
+
+[role_review]
+status = "candidate_observation_only_not_final_map_policy"
+rule = "Detailed matrix role labels, compile_domain, and filename are not schema roles. A final role requires tracked owner/caller/cfg/route evidence at the exact site; unresolved rows remain RoleNormalizationMissing rather than being filled with mixed."
+candidate_summary = "Worker candidate summary only: A runtime=49, compatibility=17, test_support=13; B runtime=20, test_support=9, compatibility/reference=4, unresolved=13; C runtime=14, compatibility=7, test_support=19, guard_evidence=2, mixed=5, unresolved=13. Counts are overlapping review hypotheses, not accepted map totals."
+known_unresolved = [
+  "A raw/reference and source-entry families require live-route evidence; generated-included never auto-becomes generated_registry and fixture has no evidence yet.",
+  "B builder raw/legacy 11 rows require caller/config/route evidence; rows 21/23 successor labels do not decide role.",
+  "C rows 45, 69, 73, 74, 78, 84, 91, 93-97, and 100 remain unresolved until exact owner/route evidence is pinned; mixed candidates 44, 54, 55, 88, and 90 require range decomposition.",
+]
+pin_rule = "The audit HEAD (b3357c6634) is an observation provenance only. Do not replace the explicit review_head 40145ef01c50d0bf6bdcec86493f950dfccd3e84 or receipt source_commit d9cff5b744edee3b6450db5d0ffc74478f32b49a; reconcile provenance by role, not by silently selecting one commit."
 
 [worker_receipt]
 agents = [
