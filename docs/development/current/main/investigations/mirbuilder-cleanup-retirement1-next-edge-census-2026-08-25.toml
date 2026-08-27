@@ -239,3 +239,45 @@ conditions = [
   "runtime hygiene counts are used without a finite production boundary",
   "active D1N Call consumer scope is modified by cleanup work",
 ]
+
+[joinir_census]
+status = "census_complete_fate_split_no_deletion_authorized"
+observed_head = "e81414b2fd60bdacb375d61db41dfe38449610b5"
+boundary = "src/mir/join_ir/**, src/mir/join_ir_to_mir/**, src/mir/builder/joinir_id_remapper.rs, src/mir/builder/control_flow/joinir/merge/**, src/mir/control_tree/normalized_shadow/**, src/mir/join_ir_ops.rs, crates/hakorune_mir_joinir, and all module/Cargo/feature/test/guard/generated/docs edges"
+result = "The external seven-item deletion claim is not reproducible from tracked evidence. The census found 15 JoinIR core/utility candidate groups, a 13-file join_ir_to_mir family totaling 1,854 observed LOC, and six fate buckets in the builder/normalized-shadow/package area; no production file is deletion-ready without a successor or an explicit terminal decision."
+source_authority = "Fixed observed-head Git objects, Cargo manifests, module declarations, explicit callers, cfg/feature/env conditions, guard/fixture/generated edges, and existing JoinIR fate cards. rg absence and stale README prose are non-authority."
+canonical_issuer = "This section issues only a bounded observation/fate split. It does not issue a deletion, owner-map, successor, or backend decision."
+a_core_fates = [
+  "RetainNamed: JoinIR core (J0), join_ir_ops (J1), carrier/scope/update/error owners (J2-J5), and ConditionEnv (J6 only as a migration boundary) retain live production or public contracts.",
+  "MigrateEvidence: inline-boundary, skip_ws/funcscanner_trim, generic Case-A, loop-to-join routing, JoinValueSpace, canonical names, value-id ranges, and type-inference surfaces (J7-J14) need route/fallback/docs evidence before any fate change.",
+  "NoSafeSlice: hakorune_mir_joinir package (J15) still has a Cargo path edge and crate tests/docs; external Rust import absence is not package caller-zero proof.",
+]
+b_conversion_fates = [
+  "join_ir_to_mir is 13 files / 1,854 observed LOC: block allocator/core/function/module converters retain internal contracts; call_generator/convert/handlers/utils are MigrateEvidence because the old Call shape and PHI/failure evidence remain.",
+  "The parent and child test files are only Retire candidates after an explicit decision to retain them as reference parity or to retarget their fixtures; bridge facade and JoinIrToMirError remain NoSafeSlice until external API/reference fate is decided.",
+  "The README claim for NormalizationExecuteBox has no current source caller and is stale-doc evidence, not deletion proof; feature/env debug logging is not route authority.",
+]
+c_builder_fates = [
+  "joinir_id_remapper is 705 LOC with cfg(test), phase256 tests, merge references, and a guard edge: RetainNamed/MigrateEvidence, not caller-zero.",
+  "merge coordinator is a Retire candidate, but test-bearing helpers and non-test guard-support remain; split coordinator, test helper, and guard-support before any deletion.",
+  "normalized_shadow is 38 files / 7,801 observed LOC with non-test callers through port_aware_function_draft_impl: RetainNamed; its strict/dev error-handling contract drift is a typed blocker.",
+  "hakorune_mir_joinir is 4 files / 163 observed LOC with Cargo and docs edges: Retire candidate only after a separate Cargo/API/docs decision; no package deletion now.",
+]
+external_edges = [
+  "A2 overlap is zero for JoinIR source sites; one A2 evidence string mentions JoinIR docs indirectly and is not a site overlap. Do not route JoinIR fate through the unresolved 185-row map.",
+  "JoinIR README/lowering README contain absent historical paths or overbroad production claims; classify as MigrateEvidence/stale docs and correct only in the named fate closeout.",
+]
+fate_states = [
+  "Retire requires exact owner, successor or physical-impossibility proof, guard/fixture/Cargo/docs retargeting, focused parity, and residual-zero.",
+  "RetainNamed requires owner/evidence/reopen trigger/non-claims; MigrateEvidence requires an explicit evidence handoff before source deletion; unresolved API/Cargo/route remains NoSafeSlice.",
+]
+next_tasks = [
+  "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D1-FATE-SPLIT: split coordinator/test/guard-support and settle core/normalized-shadow fate without deleting source.",
+  "JOINIR-TO-MIR-PUBLIC-FACADE-AND-REFERENCE-FATE-D0: decide public facade/reference retention, retarget two external tests and PHI/failure evidence, or park with a named reopen trigger.",
+  "Do not open a fast deletion row until one exact candidate passes the full caller graph, successor/terminal, evidence-retarget, focused parity, and residual-zero checks; A2 remains independently governed.",
+]
+acceptance = [
+  "The seven-item claim is explicitly rejected as unverified; candidate identity and counts are derived from the fixed observed head.",
+  "Every observed surface has a named fate bucket and reopen/non-authority rule; no production caller-zero claim relies on text absence.",
+  "No Rust/Cargo/guard/fixture/source/map change was made by this census; tree remains clean and A2 pointer is untouched.",
+]
