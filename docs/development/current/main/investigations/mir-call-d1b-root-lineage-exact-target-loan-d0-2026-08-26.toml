@@ -582,7 +582,7 @@ non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global
 
 [task_spine]
 current = "CanonicalV1 Value S0, ProductAot substring S0, CoreDirect R0, and force-hv1 direct HistoricalDelete R0a are landed; MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE is the sole design stop on the pre-Wpre bypass family."
-next_prerequisite = "Review the PHI/provider R0b exceptions and remaining Stage1/conditional/dynamic rows; active force-hv1 evidence is 86 leaves/90 sites with 30 retired records. Strict Value seams remain queued after that decision."
+next_prerequisite = "Close SMOKE-OWNER-PACK-ZERO-MATCH-D0 first: separate execution profile from owner-profile discovery and require exact nonempty suite membership. Then design the Stage1 AOT boundary and review PHI/provider R0b exceptions; active force-hv1 evidence is 86 leaves/90 sites with 30 retired records."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -595,7 +595,7 @@ stop = "Return to design if any follow-up requires a second raw parse, borrowed 
 
 [wpre_d0_progress]
 completed = ["Outside fate and Stage1 arbitration are design-closed; private transport I0, CanonicalV1 Value S0, ProductAot substring S0, and CoreDirect R0 are landed."]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design stop | CoreDirect R0 and force-hv1 R0a are landed; PHI/provider R0b review is next."
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design stop | CoreDirect R0, force-hv1 R0a, and lifecycle guard I0 are landed; zero-match owner-pack contract is next."
 accepted_design = ["Stage1/direct arbitration; private reference transport; one-state CoreDirect fate; force-hv1 retirement; strict Value seams."]
 open = [
   "CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 | landed | exact release EXE/AOT evidence; no deletion",

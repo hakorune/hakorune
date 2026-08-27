@@ -64,6 +64,22 @@ Design-only follow-up:
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、その後に post-emission と実行terminalを分離した
   `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0`。これらは実装許可ではない。
 
+`SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief:
+  Decision: keep `execution_profile=quick` as runtime policy, add an explicit
+  `owner_profile=integration` only for exact owner-pack discovery, and reuse
+  existing nonempty suite manifests instead of inventing a second filter parser.
+  Source authority + canonical issuer: the checked-in suite manifest issues
+  exact owner membership; the runner issues a nonzero discovery result before
+  any test effect. Non-authority: `Done` text, wildcard/filter strings, the old
+  zero-match rc=0, leaf runtime rc, and profile changes that alter timeout/env.
+  Fail-fast boundary: validate profile vocabulary, require `--suite` for a
+  cross-profile lookup, resolve every entry exactly once, and reject empty,
+  missing, duplicate, foreign-profile, or stale packs before execution.
+  Smallest next slice: design the runner seam and an exact phase2050 five-entry
+  pilot; phase2120's three missing names remain explicitly unresolved.
+  Non-claims: no phase semantics, force-hv1 fate, VM/Call/Wpre change, broad
+  `run*.sh` conversion, or fixture resurrection. Implementation remains closed.
+
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
   Method/receiver、Call schema、performance、Loop/M8/M9、warning cleanup。
