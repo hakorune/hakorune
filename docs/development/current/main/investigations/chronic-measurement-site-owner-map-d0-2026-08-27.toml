@@ -199,7 +199,7 @@ negative = [
 ]
 
 [guard]
-reuse = "Use the landed chronic scanner report and existing registration/owner artifacts; no new executable guard is added by this D0."
+reuse = "Use the landed neutral receipt consumer and existing registration/owner artifacts; no new executable guard is added by this D0."
 required = "The future validator must strict-parse the map schema, pass the bound receipt source revision explicitly, recompute map_hash from canonical JSON, resolve tracked references at their pinned revisions, reject missing/duplicate/foreign site rows, and verify scanner scope/evidence hashes before expectation pinning."
 no_safe_slice = [
   "the map schema/id/hash or tracked-reference grammar cannot be fixed without a second authority",
@@ -210,17 +210,38 @@ no_safe_slice = [
 ]
 
 [worker_receipt]
-agent = "chronic_measurement_scope_audit + chronic_token_scanner_design_audit"
-status = "no_safe_slice_map_contract_and_owner_evidence_pending"
-finding = "At 80f05d422b and design amendment 7c1eb6ef50, the receipt consumer is landed and the owner-map schema/id/hash/reference contract is frozen. Validator-only A0 may open with an explicit receipt source revision; full map authoring remains blocked until exact coverage and independently reviewed owner/successor evidence are available."
+agent = "chronic_measurement_scope_audit"
+status = "a0_landed_full_owner_map_no_safe_slice"
+finding = "At 27568a926b, the strict receipt consumer and validator-only A0 are landed, but the real 185-row owner map remains blocked. Generated, runtime, and mixed builder observations need site-level owner/successor evidence; filename, grep absence, or file-wide role labels cannot authorize classification or deletion."
 evidence = [
-  "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs:192-315 validates the frozen schema/scope/hash/source/range contract without rescanning; A0 must supply its expected source commit explicitly",
-  "tools/checks/rust_source_topology/tests/chronic_measurement.rs:95-197 covers the tracked receipt, unknown fields, scope/source/count/hash drift, and range/order negatives",
+  "HEAD 27568a926bb37860e1951ce92b2bbb9fcb5084cd is clean; src is unchanged from the receipt source d9cff5b744edee3b6450db5d0ffc74478f32b49a",
+  "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs:192-315 remains the sole frozen schema/scope/hash/source/range owner; A0 supplies expected_source_commit explicitly",
+  "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:100-220 consumes the receipt once and validates map provenance/coverage; :264-358 rejects invalid role/domain/status/reference contracts",
+  "tools/checks/rust_source_topology/tests/chronic_measurement.rs:95-197 covers the tracked receipt, unknown fields, scope/source/count/hash drift, and range/order negatives; A0 in-module tests cover exact 185-row map positives and map negatives",
   "tools/checks/manifests/chronic_measurement_observations_v1.json is the tracked neutral 185-row receipt and carries no owner or retirement fields",
   "tools/checks/rust_source_topology/src/chronic_measurement/model.rs:31-58 reports file/path/range facts but no owner/successor; scan.rs:71-73 remains file-level for role/domain",
-  "79 generated-registry rows, 46 runtime rows, and 60 mixed builder rows still require explicit owner/successor evidence; mixed file labels cannot be inherited, and map rows cannot be partial",
+  "79 generated-registry rows require an explicit registry-retention policy; 46 runtime rows split between builder and non-builder owners; 60 builder rows across 38 files remain mixed and require site-level runtime/guard/test/compatibility/recovery classification",
+  "safe evidence candidates include src/mir/compiler/module_registry.in.rs:1-4 plus compiler/mod.rs:14-17, src/abi/text_scan_aot_export_facts.rs:1-5, src/mir/resolved_value_profile/README.md:1-24, callable_declaration_catalog/README.md:1-64, and named calls/guard.rs/static_resolution.rs/rewrite/known.rs owners; these are candidates, not blanket classifications",
 ]
-latest_finding = "The tracked 185-row observation receipt and provenance are strictly validated by one consumer, and validator-only A0 landed at 56dd478a0a with exact coverage/hash/reference-syntax checks. Before owner projection, review explicit owner/successor evidence for all 185 sites; Git anchor resolution, expectation pin, and deletion remain blocked."
+latest_finding = "A0 is complete at 56dd478a0a and the pointer is back at D0 design stop. The next task is a docs-only A/B/C evidence matrix: A=79 generated registry rows, B=46 runtime rows, C=60 mixed builder rows. Every row needs explicit owner_ref, independent role/domain, successor status, and evidence_refs; unresolved successor or mixed ownership remains blocking."
+
+[design_next]
+row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
+implementation_permission = false
+scope = "docs-only census and review matrix over the validated 185 receipt rows; no tracked owner-map artifact, TSV, guard registration, or source deletion"
+ordered_work = [
+  "A: review the 79 generated-registry rows against the module_registry include edge and record an explicit retain/successor policy; do not infer not_required from generation alone",
+  "B: split the 46 runtime rows into active/disconnected owners using tracked module/README evidence; builder.rs file labels do not classify individual sites",
+  "C: classify the 60 mixed builder rows at item/range level into runtime, guard, test, compatibility, or recovery, preserving unknown blockers",
+  "D: require tracked owner_ref/evidence_refs and explicit successor_status for all rows; unresolved or duplicate evidence prevents map authoring",
+  "E: only after the matrix is reviewed, open the tracked owner-map authoring cell and then expectation TSV co-seal",
+]
+stop_conditions = [
+  "a filename, grep absence, warning count, allow attribute, or file-wide mixed label is the only evidence",
+  "a generated row is blanket-retained without a named policy owner",
+  "a TopLevel/disconnected/runtime row is assigned a successor by inference",
+  "a partial matrix or partial tracked map is treated as complete",
+]
 
 [closeout]
 status = "pending"
