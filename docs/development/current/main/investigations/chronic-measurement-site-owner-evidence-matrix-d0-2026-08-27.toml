@@ -1,0 +1,138 @@
+title = "Chronic measurement site owner evidence matrix D0"
+status = "accepted_design_no_safe_slice"
+observed_commit = "2395d501e0"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "the strictly validated 185-row chronic observation receipt and its frozen canonical site keys"
+ends = "one reviewed design matrix that records candidate owner/evidence and unresolved successor reasons for every site without authoring the tracked owner map"
+includes = [
+  "non-overlapping A/B/C cohort assignment for all 185 rows",
+  "site-level compile_domain and role candidates backed by tracked owner or registration evidence",
+  "candidate owner_ref/evidence_refs and explicit evidence status without claiming Git anchor resolution",
+  "successor_status questions and blocking reasons for generated, runtime, mixed, compatibility, guard, and test sites",
+  "a finite matrix completeness check against the receipt key set",
+]
+excludes = [
+  "the tracked chronic_measurement_site_owners_v1.toml artifact",
+  "expectation TSV, stale threshold, guard registration, or source deletion",
+  "filename/grep/warning-count ownership inference or file-wide role inheritance",
+  "Git anchor existence resolution, caller-zero proof, retirement authority, compiler/MIR/VM/AOT behavior",
+]
+
+[brief]
+decision = "Use one design-only evidence matrix to review every receipt site before owner-map authoring. The matrix may record a candidate and its evidence status, but only the later strict owner-map artifact can issue the explicit owner/successor input. Any unresolved or mixed site remains blocking."
+source_authority = "The tracked 185-row observation receipt, named tracked owner READMEs/registration edges, and independently reviewed source ownership evidence."
+canonical_issuer = "The future owner-map D0 remains the sole owner/successor input issuer; this matrix only organizes the review and cannot publish a complete map or expectation."
+non_authority = [
+  "filenames, directory names, warning counts, #[allow(dead_code)], grep absence, stale thresholds, generated text, or a file-level mixed label",
+  "the matrix's candidate labels, current HEAD, local tests, or unverified path/anchor strings",
+  "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
+]
+fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
+smallest_next_slice = "Produce the design matrix in three bounded cohorts: A generated registry (79), B runtime (46), and C mixed builder (60), then return to the owner-map D0 only when every row has explicit evidence status and no hidden inference."
+non_claims = [
+  "does not create or validate the tracked owner-map TOML",
+  "does not resolve Git references or authorize any row as deletable",
+  "does not pin expectation counts or change guards/source/runtime code",
+]
+
+[cohorts]
+canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
+receipt_row_count = 185
+generated_registry = "79 rows; candidate evidence is module_registry.in.rs plus its compiler/mod.rs include edge; blanket not_required successor is not allowed without a named retention policy"
+runtime = "46 rows; 40 builder rows and 6 non-builder rows; split active/disconnected sites using tracked owner evidence, not builder.rs file role"
+builder_mixed = "60 rows across 38 files; classify each site independently as runtime, guard_evidence, test_support, compatibility, or recovery; preserve unknown blockers"
+overlap_rule = "A/B/C assignments are disjoint and must equal the validated receipt key set exactly once; cohort labels never replace site-level role/domain evidence"
+
+[evidence_contract]
+candidate_owner_ref = "tracked path plus explicit symbol/range/edge anchor and pinned revision, recorded as a candidate only until later A1 resolution"
+candidate_evidence_refs = "at least one independently reviewable tracked owner or registration edge; no bare path, grep result, or warning count"
+successor_status = "required only with a named successor reference; not_required only with an explicit policy owner; unknown remains blocking"
+mixed_site_rule = "a file-level role=mixed is never inherited by all rows; each source range receives its own evidence status"
+review_state = ["unreviewed", "candidate_evidence", "reviewed_ready_for_map", "blocked_missing_owner", "blocked_mixed_role", "blocked_successor"]
+
+[finite_state]
+states = [
+  "ReceiptBound",
+  "CohortAssigned",
+  "CandidateEvidenceRecorded",
+  "SiteReviewed",
+  "DesignReadyForMap",
+  "MissingReceiptKey",
+  "DuplicateReceiptKey",
+  "ForeignReceiptKey",
+  "MissingOwnerEvidence",
+  "MixedRoleUnresolved",
+  "UnknownSuccessor",
+  "UnreviewedEvidence",
+  "InferredFromFilename",
+  "PartialMatrix",
+]
+terminal = ["DesignReadyForMap"]
+blocking = [
+  "MissingReceiptKey",
+  "DuplicateReceiptKey",
+  "ForeignReceiptKey",
+  "MissingOwnerEvidence",
+  "MixedRoleUnresolved",
+  "UnknownSuccessor",
+  "UnreviewedEvidence",
+  "InferredFromFilename",
+  "PartialMatrix",
+]
+
+[task_steps]
+items = [
+  "1. Bind the matrix to the strict receipt source revision and canonical key set; never rescan or derive a key from a matrix row.",
+  "2. Assign every receipt row exactly once to A generated registry (79), B runtime (46), or C mixed builder (60), retaining known collisions by byte range and attribute kind.",
+  "3. Review A against module_registry.in.rs and compiler/mod.rs include evidence; record the missing retention-policy decision instead of defaulting successor_status.",
+  "4. Review B using the six named module/README owners and split builder active/disconnected sites at item/range level; do not use builder.rs role as a blanket label.",
+  "5. Review C against callable catalog, guard, compatibility/recovery, and test owners; preserve unknown rows when no successor evidence exists.",
+  "6. Require candidate owner/evidence references and a review state for all 185 rows; reject omitted, duplicate, foreign, guessed, or grep-only evidence.",
+  "7. Close the matrix as design-ready only when all blockers are resolved, then return to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 for tracked artifact authoring; expectation TSV and deletion remain later rows.",
+]
+
+[acceptance]
+positive = [
+  "the matrix key set equals the validated receipt's 185 canonical keys exactly once and A/B/C cohort totals are 79/46/60 with no overlap",
+  "each site has independently recorded compile_domain/role evidence status and a named tracked owner or explicit blocking reason",
+  "generated, runtime, and mixed builder sites preserve their distinct evidence boundaries and do not inherit file-level labels",
+  "unknown successor or unresolved anchor remains visibly blocking and cannot become not_required by default",
+]
+negative = [
+  "no tracked partial owner-map artifact, expectation TSV, guard registration, or source deletion",
+  "no owner or successor inferred from filename, grep absence, warning count, allow attribute, local green, or current HEAD",
+  "no Git anchor resolution claim, caller-zero claim, retirement result, or semantic/compiler/runtime change",
+]
+
+[guard]
+reuse = "Reuse the landed receipt validator and the frozen site-owner-map schema/key contract; no executable guard row is added by this design-only matrix."
+required = "Before map authoring, compare matrix keys against the strict receipt, assert disjoint cohort totals, require explicit evidence status for every row, and report unresolved owner/successor evidence as blocking."
+no_safe_slice = [
+  "the matrix needs to invent an owner, successor, or retention policy",
+  "a file-level role or text absence is the only evidence for a site",
+  "a partial or unresolved matrix is presented as a complete owner map",
+  "the matrix becomes an expectation, guard, or deletion authority",
+]
+
+[worker_receipt]
+agent = "chronic_measurement_scope_audit"
+status = "design_matrix_required_before_owner_map"
+finding = "At 27568a926b/2395d501e0, A0 is landed and the tracked source remains unchanged from the d9cff5 receipt. All 185 rows still require site-level evidence: 79 generated registry rows need a named retention policy, 46 runtime rows mix active and disconnected owners, and 60 builder rows across 38 files cannot inherit a file-level mixed role."
+evidence = [
+  "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 are candidate generated-registry/include evidence, not blanket Retain authority",
+  "src/lib.rs:119-120, src/mir/mod.rs:214-215, src/mir/compiler/mod.rs:81-98, and named raw-root owner READMEs are candidate runtime evidence",
+  "src/mir/builder/callable_declaration_catalog/README.md:1-64, calls/guard.rs, calls/static_resolution.rs, rewrite/known.rs, and legacy/test owners are candidate mixed-site evidence",
+  "A0 site_owner_map.rs:100-220 consumes the receipt once; :264-358 rejects invalid classification/reference contracts, so unresolved states cannot be silently accepted",
+]
+latest_finding = "Do not author the tracked 185-row map yet. First close this docs-only matrix with explicit candidate evidence and unresolved reasons; only a fully reviewed matrix may reopen owner-map authoring and later expectation pinning."
+
+[closeout]
+status = "pending"
+required = "Record a reviewed, exact-coverage A/B/C matrix with explicit evidence status for all 185 rows. If any owner, role, or successor remains inferred or unresolved, keep this row blocking and do not create the tracked owner map, TSV, guard entry, or deletion."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"

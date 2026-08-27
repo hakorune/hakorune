@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement site owner map D0
+Status: Design stop — chronic measurement site owner evidence matrix D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -680,8 +680,8 @@ Non-authority: raw LOC, filename prefixes, profile names, the hand-written index
 Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
-Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0, a design-only
-  owner/successor evidence census over the validated 185-row receipt; it
+Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0, a
+  design-only A/B/C evidence census over the validated 185-row receipt; it
   creates no tracked map, expectation TSV, or source deletion.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
