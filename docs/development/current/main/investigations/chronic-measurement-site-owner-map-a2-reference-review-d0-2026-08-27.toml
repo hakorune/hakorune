@@ -262,6 +262,7 @@ agents = [
   "a2_semantic_a_followup: A short-SHA expansion and eight stable anchor candidates recorded; rows 129/154/155 remain explicit decisions or blockers",
   "a2_semantic_b_followup: B row21 is single-ref candidate with live old caller; row23 splits into two test successors; row26 retains live legacy family ownership",
   "a2_semantic_c_followup: C rows 77/97/100 are conditional exact candidates; rows 61/64-66/73-76 remain blocked; mixed subranges and tree/OOB anchors require review",
+  "conditional_policy_adversary_core_followup: candidate-level ExplicitlyRejectedAtPinnedReviewHead is allowed for missing evidence, but all 185 site rows and matrix provenance remain intact; valid surviving refs still need independent semantic proof",
 ]
 status = "consensus_a1_landed_a2_blocked"
 
