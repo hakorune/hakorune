@@ -240,6 +240,7 @@ lineage_mapper = "Map the located Cataloged raw site to SourceExprSiteV1 exactly
 package_boundary = "The existing with_normal_callable_install_once bridge remains the only install authority. Direct-call completeness is checked before prepare_install/commit. The package-only begin_lowering(&self) bypass is replaced in the later atomic row by a consuming lowering scope that owns the package and the direct-call loan together."
 raw_port_boundary = "The lowering scope lends one concrete non-Clone/non-Copy RawDirectCallDispositionLoanV1 to RawInvocationChildPortV1 by short &mut reborrow. No Rc, Arc, RefCell, tuple-splitting, package getter, or second child ledger is allowed."
 required_sequence = [
+  "close the separate MirCall/CallFlags feature/public/projection matrix and retire writer-only edges without deleting the live MirCall physical terminal",
   "B1 structural carrier integration design and finite consumer census",
   "B1 carrier cutover with Callee/CallTarget consumers adapted atomically",
   "D1 exact Cataloged issuer through VerifiedCatalogCallableOwnerLinkV1",
@@ -295,11 +296,19 @@ owner_action_matrix = [
   "LLVM/AOT and retained reference terminals: consume typed families; non-selected VM/WASM paths are explicitly isolated or retired",
   "printer/tests/guards: project structural data for display/fixtures only; never parse or reconstitute a target",
 ]
+unregistered_calltarget_families = [
+  "CallTarget schema/transport: src/mir/builder/calls/call_target.rs and calls/emit.rs",
+  "ordinary/recovery: calls/build.rs, calls/function_call_preflight_route.rs, and calls/static_resolution.rs",
+  "static terminal/publication: calls/method_call_terminal.rs, normal_script_direct_static_physical_publication.rs, and rewrite/known.rs",
+  "builtin: stmts/print_stmt.rs",
+]
+mircall_boundary = "MirCall remains a live transport through unified_emitter/physical_terminal.rs. CallFlags is a separate writer/public/projection retirement candidate; its design row must classify create_mir_call/create_call_flags, public re-exports, generated RustSubset projections, and external/feature obligations before any deletion."
 required_evidence = [
   "each surviving producer has one owner, one action (adapt/isolate/retire), one successor or typed terminal, and one reopen condition",
   "Callee and CallTarget have no independent Global authority and no parallel legacy variant",
   "all wire/backend/optimizer treatment is decided before the atomic cutover; partial compile repair is not a terminal",
   "the structural construction guard names the callable-declaration catalog as the only production issuer",
+  "CallTarget::Global production edges are owner-classified, and the MirCall/CallFlags matrix records the live physical terminal separately from writer-only candidates",
   "C0 inventory is exhausted and all open remediation rows are closed before B1 cutover implementation permission",
 ]
 non_authority = [
@@ -313,5 +322,6 @@ no_safe_slice = [
   "wire/backend/optimizer adaptation is deferred until after a partial carrier cutover",
   "the only target evidence is name/arity/physical symbol/registry or the existing String projection",
   "a production constructor appears outside the declaration catalog or the construction guard cannot observe it",
+  "MirCall transport is deleted or CallFlags semantics are silently dropped before its separate retirement row closes",
 ]
 next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
