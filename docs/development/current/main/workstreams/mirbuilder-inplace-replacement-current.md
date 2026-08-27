@@ -52,7 +52,7 @@ Smallest next slice:
   `FORCE-HV1-R0A-GUARD-CLOSEOUT-I0` is landed: focused 86/90 census tests, retired-path disjointness, three direct exceptions, and future-row dispatch are green; no production route changed. `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed: explicit phase dispatch, one body-derived summary, registry wiring, and focused tests are green; no production route changed. Next is design-only `SMOKE-OWNER-PACK-ZERO-MATCH-D0`, then Stage1 AOT boundary design and separate PHI/provider R0b fate review.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
   `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0a` is landed: 30 direct HistoricalDelete leaves were retired with body hashes and projection updates. The active body-derived inventory is now 86 leaves / 90 lexical sites (direct 3/3, conditional 44/45, explicit-core 35/35, dynamic 4/7). The PHI witness and provider route remain explicit R0b exceptions; legacy non-force residual consumers are still non-authority.
-  R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. Next is design-only R0b/Stage1 fate review.
+  R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. Next is the zero-match owner-pack design; R0b and Stage1 fate remain later blockers.
 
 Design-only follow-up:
   force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、
@@ -65,20 +65,31 @@ Design-only follow-up:
   `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0`。これらは実装許可ではない。
 
 `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief:
-  Decision: keep `execution_profile=quick` as runtime policy, add an explicit
-  `owner_profile=integration` only for exact owner-pack discovery, and reuse
-  existing nonempty suite manifests instead of inventing a second filter parser.
-  Source authority + canonical issuer: the checked-in suite manifest issues
-  exact owner membership; the runner issues a nonzero discovery result before
-  any test effect. Non-authority: `Done` text, wildcard/filter strings, the old
-  zero-match rc=0, leaf runtime rc, and profile changes that alter timeout/env.
-  Fail-fast boundary: validate profile vocabulary, require `--suite` for a
-  cross-profile lookup, resolve every entry exactly once, and reject empty,
-  missing, duplicate, foreign-profile, or stale packs before execution.
-  Smallest next slice: design the runner seam and an exact phase2050 five-entry
-  pilot; phase2120's three missing names remain explicitly unresolved.
+  Decision: keep `execution_profile=quick` as runtime policy and add an explicit
+  `owner_profile=integration` only for exact owner-pack discovery. Reuse the
+  existing suite loader; do not create a second filter/glob parser.
+  Source authority + canonical issuer: one checked-in suite manifest issues
+  exact owner membership; the runner issues the nonzero discovery result before
+  the first test effect. The aggregate caller owns which pack it requests.
+  Non-authority: `Done` text, wildcard/filter strings, old zero-match rc=0,
+  leaf runtime rc, inherited env, and profile changes that alter timeout/config.
+  Finite state: `SameProfileLegacy` preserves old filter behavior;
+  `CrossProfileWithoutSuite` rejects before discovery; `ExactNonEmptyPack`
+  proceeds; `Missing|Empty|Duplicate|Foreign|StalePack` rejects before run;
+  `UnresolvedOwner` (phase2120's three absent names) stays a blocker and is
+  never inferred or resurrected.
+  Fail-fast boundary: owner-profile vocabulary is closed, cross-profile lookup
+  requires `--suite`, every manifest entry resolves exactly once, and partial
+  skip/zero match cannot become a passing execution.
+  Ordered tasks: D0 design (this row) -> `SMOKE-OWNER-PACK-EXACT-SELECTION-I0`
+  runner seam + one exact phase2050 five-entry pack -> phases2047-2051 packs
+  -> phase2100 packs -> reusable structural guard. Then
+  `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` (post-emission boundary; issuer VM is
+  ParkedSealed), Stage1 lifecycle guard, and exact AOT S0. Force-hv1 PHI/
+  provider/conditional/dynamic fates follow separately; Wpre waits for their
+  caller-zero evidence; only then the fixed Call/MirBuilder spine runs.
   Non-claims: no phase semantics, force-hv1 fate, VM/Call/Wpre change, broad
-  `run*.sh` conversion, or fixture resurrection. Implementation remains closed.
+  `run*.sh` conversion, fixture resurrection, or implementation permission.
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、

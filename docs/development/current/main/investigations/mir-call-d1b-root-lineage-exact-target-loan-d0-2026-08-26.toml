@@ -323,7 +323,7 @@ outside_delete_set = [
   "runtime/plugin/kernel Program marker reparse and Err -> Ok(None) swallow",
   "reference/LLVM compatibility raw selector, schema guessing, and re-entry",
 ]
-missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows, Stage1/direct arbitration, force-hv1 R0a retirement, and the CoreDirect family-level tag/rc contract are recorded. Reference-child private transport, CanonicalV1 Value, ProductAot S0, CoreDirect R0, and the force-hv1 body-derived census are landed; the remaining blockers are R0b exception review, unresolved dynamic rows, exact ProductAot successors, and strict-root/decoder implementation."
+missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows, Stage1/direct arbitration, force-hv1 R0a retirement, the CoreDirect family-level tag/rc contract, and the 34 zero-match aggregate calls are recorded. Reference-child private transport, CanonicalV1 Value, ProductAot S0, CoreDirect R0, force-hv1 body-derived census, lifecycle guard I0, and the owner-profile design are landed; the remaining blockers are exact owner-pack selection, R0b exception review, unresolved dynamic rows, exact ProductAot successors, and strict-root/decoder implementation."
 order_sync = "Before Wpre I0, synchronize mirbuilder-final-pipeline-ssot, mir-canonical-callsite-lane-ssot, this card, and the workstream so Wpre profile/one-root selection precedes MirCall/CallFlags retirement, effect/source/recovery prerequisites, and typed Global B1 in one durable order."
 allowed_files = [
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
@@ -338,7 +338,7 @@ stop = "NoSafeSlice if one route requires decoder reparse, substring family sele
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
 
 [force_hv1_fate_d0]
-status = "census_s0_landed"
+status = "lifecycle_guard_i0_landed"
 census_s0_status = "landed"
 census_s0_implementation_permission = false
 direct_historical_delete_r0_status = "landed"
@@ -351,8 +351,8 @@ canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, o
 finite_census = "Legacy arithmetic snapshot is non-authority. S0 parses only tracked leaf/helper bodies with a finite grammar: literal verify_v1_inline_file, literal verify_mir_rc, or the five literal run_verify_mir_via_hakovm_* wrapper callbacks; env/command/eval/pipeline/subshell/background/negation/alias/dynamic source and computed artifacts fail closed. sites[] is the sole lexical counter for the active inventory (90 total): direct-force sealed 3/3, helper-force conditional 44/45, explicit-core residual 35/35, dynamic-artifact open 4/7; 30 retired direct leaves are retained in manifest.retired_inventory and potential-force 51/55 is observation only. Inherited selectors, fallback, rc, stdout, and runtime repetition are recorded as attributes or non-authority, never used to seal fate."
 fates = "Body route matrix: active direct 3/3 retains the PHI/provider R0b exceptions plus one Stage1 AOT blocker; 30 reviewed direct HistoricalDelete leaves are landed in retired_inventory; helper/wrapper 44/45 = CutoverBlockerOpen; explicit-core 35/35 = ParkedSealed candidates with broad verify_mir_rc retirement as reopen trigger; phase2034 dynamic 4/7 = CutoverBlockerOpen. The retired family review and body digest live in manifest.fate_review; legacy 69/9/0/38 totals remain non-authority."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0: design one finite force phase dispatch and one body-derived 86/90 summary before zero-match owner-pack review, PHI/provider R0b fate, or Stage1 exact-AOT design; no production route or semantic receipt."
-stop = "NoSafeSlice if any of the 116 leaves or 120 lexical sites is omitted/duplicated, 78/80/38 is claimed as semantic closure, inherited ambient route settings are hidden, conditional or unresolved rows are ParkedSealed, derived values do not match reviewed attributes, the old fallback edge is used as authority, force removal falls through to Core, or Array/Map successors require standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
+smallest_next_slice = "SMOKE-OWNER-PACK-ZERO-MATCH-D0: freeze execution_profile=quick versus owner_profile=integration, exact nonempty suite membership, and pre-run nonzero discovery before Stage1 AOT or PHI/provider fate; phase2120's three missing names remain unresolved; no production route or semantic receipt."
+stop = "NoSafeSlice if zero-match remains rc=0 evidence, owner/execution profile is conflated, cross-profile lookup lacks an exact suite, a manifest entry is missing/duplicate/foreign/stale, partial skip is accepted, phase2120 is inferred, or the runner seam changes VM/force/Stage1/Wpre/Call semantics."
 
 [core_direct_tag_rc_contract]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-TAG-RC-CONTRACT"
