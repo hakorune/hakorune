@@ -191,3 +191,23 @@ def derive_inventory(root: Path, paths: list[str]) -> list[dict[str, Any]]:
         extra = sorted(set(paths) - set(discovered))
         raise ValueError(f"leaf inventory drifted: missing={missing[:3]} extra={extra[:3]}")
     return [derive_leaf(root, path) for path in paths]
+
+
+def derive_summary(observations: list[dict[str, Any]]) -> dict[str, Any]:
+    """Aggregate only facts already derived from the checked-in leaf bodies."""
+
+    route_class: dict[str, int] = {}
+    route_sites: dict[str, int] = {}
+    lexical_sites = 0
+    for item in observations:
+        route = item["derived"]["route_class"]
+        sites = item["derived"]["lexical_entry_sites"]
+        route_class[route] = route_class.get(route, 0) + 1
+        route_sites[route] = route_sites.get(route, 0) + sites
+        lexical_sites += sites
+    return {
+        "lexical_leaves": len(observations),
+        "lexical_sites": lexical_sites,
+        "route_class": route_class,
+        "route_sites": route_sites,
+    }

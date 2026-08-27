@@ -10,7 +10,7 @@ import sys
 import tomllib
 from pathlib import Path
 
-from force_hv1_leaf_census import derive_inventory
+from force_hv1_leaf_census import derive_inventory, derive_summary
 
 
 TAG = "force-hv1-caller-manifest-guard"
@@ -20,10 +20,11 @@ def fail(message: str) -> None:
     raise SystemExit(f"[{TAG}] result_class=current-change failure status=fail: {message}")
 
 
-if len(sys.argv) != 5:
-    fail("usage: force_hv1_caller_manifest_guard.py CARD MANIFEST STATE WORKSTREAM")
+if len(sys.argv) != 6:
+    fail("usage: force_hv1_caller_manifest_guard.py CARD MANIFEST STATE WORKSTREAM PHASE")
 
-card_path, manifest_path, state_path, workstream_path = map(Path, sys.argv[1:])
+card_path, manifest_path, state_path, workstream_path = map(Path, sys.argv[1:5])
+requested_phase = sys.argv[5]
 for path in (card_path, manifest_path, state_path, workstream_path):
     if not path.is_file():
         fail(f"required owner missing: {path}")
@@ -101,6 +102,115 @@ if state.get("current_execution_row") == "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0":
         "phase=force_hv1_census_s0 leaves=116 sites=120 "
         "direct=33/33 conditional=44/45 explicit_core=35/35 dynamic=4/7 "
         "fate=unmodified implementation=fast_open"
+    )
+    raise SystemExit(0)
+
+if requested_phase == "force_hv1_guard_current_lifecycle":
+    if state.get("current_execution_row") != "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0":
+        fail("current lifecycle I0 guard was invoked outside its explicit phase")
+    row = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0"
+    if state.get("work_mode") != "fast":
+        fail("current lifecycle I0 requires CURRENT_STATE work_mode=fast")
+    if state.get("next_execution_card") != row:
+        fail("current lifecycle I0 next execution card drifted")
+    if card.get("status") != "force_hv1_guard_current_lifecycle_i0_fast_open":
+        fail("active card is not marked current lifecycle I0 fast-open")
+    if "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0 fast-open" not in str(
+        card.get("permission_scope", "")
+    ):
+        fail("current lifecycle I0 permission scope is not narrow and explicit")
+    if state.get("current_design_stop"):
+        fail("current lifecycle I0 fast row must not retain a design stop")
+    if fate.get("direct_historical_delete_r0_status") != "landed":
+        fail("current lifecycle I0 requires the landed R0a inventory")
+
+    retired = manifest.get("retired_inventory")
+    if not isinstance(retired, dict) or retired.get("status") != "r0a_landed":
+        fail("current lifecycle I0 requires the landed retired inventory")
+    records = retired.get("records")
+    if not isinstance(records, list) or len(records) != 30:
+        fail("current lifecycle I0 requires exactly 30 retired records")
+    retired_paths = {record.get("path") for record in records if isinstance(record, dict)}
+    if len(retired_paths) != 30 or None in retired_paths:
+        fail("current lifecycle I0 retired inventory is incomplete or duplicated")
+    if any((root / path).exists() for path in retired_paths):
+        fail("current lifecycle I0 retired path reappeared")
+
+    leaf_paths = manifest.get("leaf_paths")
+    observations = manifest.get("observations")
+    if not isinstance(leaf_paths, list) or len(leaf_paths) != 86:
+        fail("current lifecycle I0 requires the active 86-leaf inventory")
+    if not isinstance(observations, dict) or set(observations) != set(leaf_paths):
+        fail("current lifecycle I0 active observations are incomplete")
+    try:
+        derived = derive_inventory(root, leaf_paths)
+    except ValueError as error:
+        fail(str(error))
+    for item in derived:
+        if observations.get(item["path"]) != item:
+            fail(f"current lifecycle I0 body-derived observation drifted: {item['path']}")
+    summary = derive_summary(derived)
+    expected_summary = {
+        "lexical_leaves": 86,
+        "lexical_sites": 90,
+        "route_class": {
+            "DirectForceSealed": 3,
+            "HelperForceConditional": 44,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 4,
+        },
+        "route_sites": {
+            "DirectForceSealed": 3,
+            "HelperForceConditional": 45,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 7,
+        },
+    }
+    if summary != expected_summary or manifest.get("observed_counts") != summary:
+        fail("current lifecycle I0 body-derived summary drifted")
+    if retired.get("original_active_leaves") != 116 or retired.get("retired_leaves") != 30:
+        fail("current lifecycle I0 retirement arithmetic drifted")
+    if retired.get("active_leaves_after_cutover") != 86 or retired.get("active_sites_after_cutover") != 90:
+        fail("current lifecycle I0 active arithmetic drifted")
+    if retired_paths & set(leaf_paths):
+        fail("current lifecycle I0 active and retired inventories overlap")
+
+    expected_direct = {
+        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_primary_rc42_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh",
+    }
+    direct_paths = {
+        item["path"]
+        for item in derived
+        if item["derived"]["route_class"] == "DirectForceSealed"
+    }
+    if direct_paths != expected_direct:
+        fail("current lifecycle I0 direct exception set drifted")
+    groups = manifest.get("groups")
+    if not isinstance(groups, list):
+        fail("current lifecycle I0 manifest groups are missing")
+    active_group_paths = [
+        path for group in groups if isinstance(group, dict) for path in group.get("paths", [])
+    ]
+    if len(active_group_paths) != 86 or set(active_group_paths) != set(leaf_paths):
+        fail("current lifecycle I0 groups do not cover exactly the active inventory")
+    family_counts: dict[str, int] = {}
+    for group in groups:
+        if not isinstance(group, dict):
+            fail("current lifecycle I0 manifest group is invalid")
+        family = group.get("caller_family")
+        family_counts[family] = family_counts.get(family, 0) + len(group.get("paths", []))
+    if family_counts != {"direct": 3, "textual_helper": 74, "wrapper_only": 9}:
+        fail("current lifecycle I0 caller-family summary drifted")
+    if "SMOKE-OWNER-PACK-ZERO-MATCH-D0" not in workstream:
+        fail("current lifecycle I0 workstream is missing the zero-match design row")
+    if "FORCE-HV1-STAGE1-AOT-BOUNDARY-D0" not in workstream:
+        fail("current lifecycle I0 workstream is missing the Stage1 boundary row")
+    print(
+        f"[{TAG}] result_class=current-change failure status=pass "
+        "phase=force_hv1_guard_current_lifecycle_i0 active_leaves=86 "
+        "active_sites=90 retired=30 direct=3/3 implementation=fast_open"
     )
     raise SystemExit(0)
 

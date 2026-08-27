@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from force_hv1_leaf_census import derive_inventory, derive_leaf
+from force_hv1_leaf_census import derive_inventory, derive_leaf, derive_summary
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -21,15 +21,10 @@ class ForceHv1LeafCensusTest(unittest.TestCase):
     def test_checked_in_inventory_matches_reviewed_matrix(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         observations = derive_inventory(ROOT, manifest["leaf_paths"])
-        self.assertEqual(len(observations), 86)
-        self.assertEqual(sum(len(item["sites"]) for item in observations), 90)
-        self.assertEqual(
-            {
-                key: sum(item["derived"]["route_class"] == key for item in observations)
-                for key in manifest["observed_counts"]["route_class"]
-            },
-            manifest["observed_counts"]["route_class"],
-        )
+        summary = derive_summary(observations)
+        self.assertEqual(summary, manifest["observed_counts"])
+        self.assertEqual(summary["lexical_leaves"], 86)
+        self.assertEqual(summary["lexical_sites"], 90)
 
     def test_retired_inventory_is_disjoint_and_absent(self) -> None:
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))

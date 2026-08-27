@@ -201,6 +201,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh"]
 
 [[rows]]
+id = "force-hv1-caller-lifecycle"
+label = "Force-hv1 body-derived caller lifecycle guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh", "force_hv1_guard_current_lifecycle"]
+
+[[rows]]
 id = "mir-call-global-target-b0-machine-census"
 label = "MIR Call B0 Global target machine census guard"
 profiles = ["pilot", "quick-static"]
