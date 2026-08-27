@@ -1,9 +1,9 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
-status = "forest_wide_observation_gate_landed"
-observed_commit = "784f3af770"
+status = "b1_current_head_c0_design_stop"
+observed_commit = "632c674a76"
 observed_at = "2026-08-26"
 implementation_permission = false
-permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; package/loan/issuer/dispatcher publication remains design-gated"
+permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; B1 current-head disposition and simultaneous Callee/CallTarget cutover remain design-gated; package/loan/issuer/dispatcher publication is closed"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
 safety_child = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-d0-2026-08-26.toml"
@@ -39,7 +39,7 @@ non_authority = [
   "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
 ]
 fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
-smallest_next_slice = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: first settle the B1 structural carrier connection, then name the exact Cataloged issuer, lineage/site mapper, and package co-seal boundary. The forest-wide observation gate is landed; no target, loan, dispatcher, or Call publication is open."
+smallest_next_slice = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0: exhaust the finite Global producer/consumer disposition and freeze the simultaneous Callee/CallTarget structural cutover. The forest-wide observation gate is landed; no target, loan, dispatcher, or Call publication is open."
 non_claims = [
   "the inventory does not issue a target or generalize the exact-i64 index",
   "lineage preservation does not authorize Global synthesis from names or arity",
@@ -271,3 +271,47 @@ no_safe_slice = [
   "package-only install or shared begin_lowering remains the only way to reach the raw dispatcher",
   "lineage or loan transport requires caller=None collapse, Clone/Rc/RefCell, unsafe, or a second resolver",
 ]
+
+[b1_current_head_c0]
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
+status = "design_stop"
+implementation_permission = false
+decision = "Complete a finite semantic disposition for every compiled Global producer and consumer before the structural carrier cutover. Callee and CallTarget change together to the accepted structural shape; no LegacyGlobal/IssuedTarget/Generic wrapper or new String issuer is allowed."
+boundary = "Starts at every compiled Callee::Global/CallTarget::Global producer or consumer and ends at the selected structural wire/terminal or explicit isolate/retire disposition. Path counts are scope hints only; completion requires owner/action evidence for each family."
+observed_census = "Current path census: Callee::Global 143 Rust files/272 occurrences (about 68 production-ish files/115 occurrences); CallTarget::Global 20 files/45 occurrences (about 17 production-ish files/36 occurrences). These counts do not prove semantic coverage and must not be used as the completion claim."
+final_shape = "Callee::Global(CanonicalGlobalTargetV1) and CallTarget::Global(CanonicalGlobalTargetV1) are one atomic core decision. CanonicalGlobalTargetV1 remains serde-free and source-proof-free; its sole production construction authority is the exact declaration-backed callable catalog."
+finite_disposition = [
+  "Builtin(Print) for exact print/1 only",
+  "SameModule(FreeFunction { name, arity }) for an exact final-module declaration",
+  "SameModule(StaticBoxMethod { owner, method, arity }) for an exact final-module declaration",
+  "Extern for an explicit declared provider or the exact panic/1 and exit/1 provider rows",
+  "Method or construction owner when the target is not a Global family",
+  "TypedReject or Retire/ParkedSealed for authority-free, compatibility-only, malformed, or unsupported rows",
+]
+owner_action_matrix = [
+  "core and builder producers: adapt exact issuers or reject/retire; delete formatter, registry, methodize, and resolver repair",
+  "analysis/optimizer/remapper: preserve structural identity and operands; no target issuance or Global-to-Method repair",
+  "wire ingress/egress: one structural v2 codec; v0/v1 are owner-private compatibility projections with no schema retry",
+  "LLVM/AOT and retained reference terminals: consume typed families; non-selected VM/WASM paths are explicitly isolated or retired",
+  "printer/tests/guards: project structural data for display/fixtures only; never parse or reconstitute a target",
+]
+required_evidence = [
+  "each surviving producer has one owner, one action (adapt/isolate/retire), one successor or typed terminal, and one reopen condition",
+  "Callee and CallTarget have no independent Global authority and no parallel legacy variant",
+  "all wire/backend/optimizer treatment is decided before the atomic cutover; partial compile repair is not a terminal",
+  "the structural construction guard names the callable-declaration catalog as the only production issuer",
+  "C0 inventory is exhausted and all open remediation rows are closed before B1 cutover implementation permission",
+]
+non_authority = [
+  "Callee::Global(String), CallTarget::Global(String), mir_symbol_projection, formatter/reparse, registry lookup, or static-candidate cardinality",
+  "a mechanical wrapper around every Global string, a Legacy/Issued/Generic intermediate variant, or a consumer-side retry",
+  "root-only or path-count census, fixture-only acceptance, backend fallback, or optimizer target inference",
+]
+no_safe_slice = [
+  "Callee and CallTarget cannot be changed in one semantic boundary",
+  "an unclassified Global family must be wrapped to keep the tree compiling",
+  "wire/backend/optimizer adaptation is deferred until after a partial carrier cutover",
+  "the only target evidence is name/arity/physical symbol/registry or the existing String projection",
+  "a production constructor appears outside the declaration catalog or the construction guard cannot observe it",
+]
+next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
