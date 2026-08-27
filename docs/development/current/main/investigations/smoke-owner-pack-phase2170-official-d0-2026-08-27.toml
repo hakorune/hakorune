@@ -1,0 +1,122 @@
+title = "Smoke owner pack phase2170 official canaries design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "aed72f9f88"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-D0"
+parent_row = "docs/development/current/main/investigations/smoke-owner-pack-remaining-aggregate-census-d0-2026-08-27.toml"
+
+[boundary]
+starts = "integration profile phase2170 run_all.sh and its checked-in canary children"
+ends = "an exact reference-only owner-pack/discovery policy for the nine official canaries"
+includes = [
+  "phase2170/run_all.sh literal child order and phase2170/README.md membership",
+  "the nine official array/map/receiver/flow canary scripts",
+  "the two weak hv1_mircall scripts and their separate legacy fate",
+  "normal integration discovery versus explicit owner-pack discovery",
+  "verify_mir_rc call-chain and its Core fallback as a non-authority observation",
+]
+excludes = [
+  "phase2100 role buckets and phase2160 best-effort aggregate",
+  "phase2047/2048/2049/2051 filter-driven or cross-cohort edges",
+  "pure-legacy cross-profile aggregate and phase2050 already-landed policy",
+  "VM, force-hv1, Wpre, Call, MirBuilder, LLVM product, or leaf semantic changes",
+  "runtime execution, Cargo, and any owner-pack implementation in this D0",
+]
+
+[brief]
+decision = "Select only the nine official phase2170 canaries as a future exact owner pack. Keep phase2170/run_all.sh as an explicit aggregate node, exclude the two weak hv1_mircall leaves from that pack with a named legacy fate, and do not generalize the phase2050 policy to other cohorts."
+source_authority = "The checked-in phase2170 run_all.sh body, phase2170 README, exact child paths, and the runner's integration discovery are the only observed facts."
+canonical_issuer = "A future phase2170 exact suite manifest plus the existing aggregate-node manifest/runner seam; this design row issues no executable route."
+non_authority = [
+  "phase names or run_all.sh basenames outside the exact path",
+  "quick-profile zero-match, echo text, and inherited environment",
+  "verify_mir_rc numeric result or its hv1/Core fallback branch",
+  "weak hv1 duplicate names, README prose without matching body, and runtime loop count",
+]
+fail_fast = "Missing, duplicate, foreign, stale, reordered, or unclassified child membership; a child discovered both by the selected pack and its aggregate; or a product claim based on the reference fallback keeps this row closed."
+smallest_next_slice = "Freeze the exact nine-entry manifest, the explicit aggregate exclusion, the separate weak-hv1 disposition, and the reference-only contract; only then may one implementation row be selected."
+non_claims = [
+  "does not claim LLVM/AOT product parity",
+  "does not make quick zero-match evidence positive",
+  "does not retire or repair verify_mir_rc, CoreDirect, hv1, or VM code",
+  "does not change phase2100, phase2160, phase2047-2051, phase2050, or pure-legacy fate",
+]
+
+[observed]
+run_all_children = [
+  "array_push_size_5_vm",
+  "array_push_size_10_vm",
+  "array_len_alias_vm",
+  "array_length_alias_vm",
+  "per_recv_global_canary_vm",
+  "per_recv_per_canary_vm",
+  "map_set_dup_key_size_canary_vm",
+  "map_value_state_get_has_canary_vm",
+  "flow_across_blocks_array_size_canary_vm",
+]
+official_count = 9
+weak_hv1_count = 2
+total_phase2170_scripts = 12
+aggregate_edge = "run_all.sh -> the nine official children in the checked-in order"
+weak_edge = "hv1_mircall_array_push_size_state_canary_vm and hv1_mircall_map_set_size_state_canary_vm remain separate legacy hv1_inline proofs"
+normal_discovery_observation = "The future selected policy may exclude only core/phase2170/run_all.sh from normal integration discovery; the nine official leaves remain explicit owner-pack members."
+runtime_profile = "integration profile; reference-only semantics, never a product or LLVM gate"
+helper_observation = "verify_mir_rc and its route helper are existing execution facts; any hv1-to-Core fallback is retained as non-authority until a separate retirement row."
+
+[finite_state]
+exact_official_leaf = "literal child path matches the nine-entry owner manifest and the run_all/README order"
+weak_hv1_legacy = "one of the two excluded hv1_mircall scripts; retained only under its explicit legacy owner and never silently folded into the official pack"
+missing_child = "manifest or run_all child absent -> typed/runner reject before execution"
+duplicate_child = "same path or ordinal repeated -> reject before discovery"
+foreign_child = "phase2170 pack references another cohort or profile -> reject; no cross-cohort import"
+stale_child = "body, README, or manifest changes without a census refresh -> blocker"
+aggregate_residual = "run_all remains explicit-only; a child cannot be both aggregate-discovered and owner-pack executed"
+product_claim = "any LLVM/AOT or broad VM claim is outside this reference-only row"
+
+[acceptance]
+positive = [
+  "run_all.sh and README.md contain exactly the same nine official members in the same order",
+  "the two weak hv1_mircall scripts are explicitly excluded and have a named legacy fate",
+  "all nine official paths resolve exactly once under the integration owner profile",
+  "future normal discovery excludes only this exact run_all.sh and leaves the nine children discoverable by the owner pack",
+  "the existing strict shell sequence is recorded as reference-only without promoting fallback to authority",
+]
+negative = [
+  "quick zero-match is not accepted as execution evidence",
+  "basename-wide run_all exclusion is rejected",
+  "phase2100, phase2160, phase2047-2051, phase2050, and pure-legacy children are not admitted",
+  "missing, duplicate, foreign, stale, reordered, or mixed-fate members fail closed",
+  "weak hv1 or Core fallback is not presented as LLVM product parity",
+]
+parity = "Compare exact membership/order, discovery counts, and duplicate prevention only; runtime result parity remains a separate reference canary concern."
+guard = "Reuse the existing manifest-runner/pilot guard style after the row is selected; one phase2170 aggregate/owner-pack guard is sufficient and no per-leaf guard is created by this design row."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "select an exact nine-entry suite manifest and aggregate-node disposition",
+  "prove weak hv1 exclusion is explicit rather than silent",
+  "prove normal discovery and owner-pack discovery cannot both execute a child",
+  "keep verify_mir_rc fallback non-authoritative and reference-only",
+]
+no_safe_slice = [
+  "runtime profile or owner fate is undecided",
+  "the manifest is inferred from basename/glob or quick zero-match",
+  "the nine leaves require a product/LLVM claim",
+  "the aggregate still has hidden child effects or a second discovery path",
+]
+
+[ordered_followups]
+next_after_design = "SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-I0"
+later = [
+  "SMOKE-OWNER-PACK-PHASE2160-BEST-EFFORT-D0",
+  "SMOKE-OWNER-PACK-PHASE2100-ROLE-BUCKET-D0",
+  "SMOKE-OWNER-PACK-PURE-LEGACY-CROSS-PROFILE-D0",
+]
+reopen_triggers = [
+  "phase2170 run_all, README, or any official child changes without a census refresh",
+  "a weak hv1 child is added to the official pack without a new decision",
+  "a child is executed by both normal discovery and the selected owner pack",
+  "reference fallback is cited as product or LLVM authority",
+]
