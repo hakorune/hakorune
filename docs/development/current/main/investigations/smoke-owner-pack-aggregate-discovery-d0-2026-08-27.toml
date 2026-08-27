@@ -1,0 +1,62 @@
+title = "Smoke owner-pack aggregate discovery policy design"
+status = "accepted_but_not_selected"
+observed_commit = "cf228b01fcdc325e1c7cb3c45bac8fe58e3c9aa6"
+observed_at = "2026-08-27"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+
+[boundary]
+starts = "normal integration profile discovery of aggregate run_all.sh wrappers"
+ends = "one explicit policy that prevents nested owner-pack members from being executed twice"
+includes = [
+  "tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh",
+  "tools/smokes/v2/suites/integration/phase2050-owner-pack.txt",
+  "tools/smokes/v2/run.sh default integration discovery",
+  "SMOKE-OWNER-PACK-EXACT-SELECTION-I0 registry and linkage evidence",
+]
+excludes = [
+  "broad run*.sh discovery conversion",
+  "phase semantics or force-hv1 fate",
+  "test behavior, fixture changes, VM/Call/Wpre changes, and Cargo execution",
+]
+
+[brief]
+decision = "Before owner-pack closeout, decide whether aggregate run_all.sh wrappers are discoverable leaves, explicit aggregate-only callers, or excluded from parent discovery. Preserve the exact five-entry phase2050 owner pack and never silently allow nested duplicate execution."
+source_authority = "The checked-in integration profile tree, exact owner-pack suite, and aggregate caller body are the sole discovery facts; the selected policy must be co-sealed with the owner-pack registry/linkage guard."
+canonical_issuer = "The existing smoke runner discovery policy, after this design selects one aggregate fate; no new runtime or semantic issuer is created."
+non_authority = [
+  "profile names alone",
+  "run_all.sh echo text",
+  "leaf runtime results",
+  "wildcard/filter strings",
+  "a dry-run row as execution-green evidence",
+]
+fail_fast = "A policy mismatch, duplicate nested member, missing aggregate declaration, or unclassified wrapper remains a design blocker before owner-pack closeout; no broad discovery change is allowed in the current I0."
+smallest_next_slice = "Read-only census and policy comparison for phase2050 plus the other integration aggregates; select one finite rule and its reusable structural guard."
+non_claims = [
+  "does not change default integration discovery yet",
+  "does not convert all run_all.sh files",
+  "does not retire any force-hv1 or VM route",
+]
+
+[evidence]
+observed = [
+  "owner-pack dry-run selects exactly five phase2050 leaves",
+  "phase2050 run_all.sh invokes that owner pack once",
+  "normal integration discovery currently sees 963 files",
+  "normal phase2050 discovery includes run_all.sh plus the same five leaves",
+]
+required = [
+  "aggregate fate is explicit and finite",
+  "nested owner-pack members are selected exactly once in the chosen policy",
+  "registry row, suite membership, and aggregate caller remain co-sealed",
+  "normal legacy nested suites remain unchanged unless the selected policy covers them",
+]
+
+[reopen]
+triggers = [
+  "a new aggregate wrapper appears without a declared fate",
+  "phase2050 membership or run_all invocation drifts",
+  "normal discovery executes an owner-pack member both directly and through its aggregate",
+  "a proposed fix broadens run*.sh conversion beyond this boundary",
+]

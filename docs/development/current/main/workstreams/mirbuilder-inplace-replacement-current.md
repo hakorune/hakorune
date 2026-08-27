@@ -1,5 +1,5 @@
 ---
-Status: Design stop — FORCE-HV1 lifecycle guard I0 landed; zero-match owner-pack design
+Status: Fast — exact owner-pack selection I0; aggregate discovery fate parked
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -50,7 +50,8 @@ Fail-fast boundary:
 
 Smallest next slice:
   `FORCE-HV1-R0A-GUARD-CLOSEOUT-I0` is landed: focused 86/90 census tests, retired-path disjointness, three direct exceptions, and future-row dispatch are green; no production route changed. `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed: explicit phase dispatch, one body-derived summary, registry wiring, and focused tests are green; no production route changed.
-  The zero-match D0 is accepted and `SMOKE-OWNER-PACK-EXACT-SELECTION-I0` is now the scoped fast row; Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
+  The zero-match D0 is accepted and `SMOKE-OWNER-PACK-EXACT-SELECTION-I0` is now the scoped fast row; its five-entry phase2050 pack is linked to the registry row and aggregate caller. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
+  A separate `SMOKE-OWNER-PACK-AGGREGATE-DISCOVERY-D0` remains before closeout: normal integration discovery currently sees 963 files, including phase2050 `run_all.sh` plus the same five leaves, so aggregate-wrapper fate must be decided without broad `run*.sh` conversion in this I0. Its design card is `docs/development/current/main/investigations/smoke-owner-pack-aggregate-discovery-d0-2026-08-27.toml`.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
   `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0a` is landed: 30 direct HistoricalDelete leaves were retired with body hashes and projection updates. The active body-derived inventory is now 86 leaves / 90 lexical sites (direct 3/3, conditional 44/45, explicit-core 35/35, dynamic 4/7). The PHI witness and provider route remain explicit R0b exceptions; legacy non-force residual consumers are still non-authority.
   R0a changed only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write. The owner-pack exact-selection I0 is now active; R0b and Stage1 fate remain later blockers.
@@ -83,7 +84,9 @@ Design-only follow-up:
   requires `--suite`, every manifest entry resolves exactly once, and partial
   skip/zero match cannot become a passing execution.
   Ordered tasks: D0 landed -> `SMOKE-OWNER-PACK-EXACT-SELECTION-I0`
-  runner seam + one exact phase2050 five-entry pack -> phases2047-2051 packs
+  runner seam + one exact phase2050 five-entry pack ->
+  `SMOKE-OWNER-PACK-AGGREGATE-DISCOVERY-D0` (decide nested aggregate policy;
+  no broad run*.sh change) -> phases2047-2051 packs
   -> phase2100 packs -> reusable structural guard. Then
   `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` (post-emission boundary; issuer VM is
   ParkedSealed), Stage1 lifecycle guard, and exact AOT S0. Force-hv1 PHI/
@@ -641,7 +644,8 @@ shell lines. The full inventory classifies 92 stable entries, 106 manifest
 command paths, 212 proof-app paths, and 3,338 `unknown_retain` paths. The
 narrow public-guard boundary is 2,741 entries: 91 are manifest-mapped and 2,650
 are not. These are different denominators and must not be reported as one
-coverage percentage. `quick-static` has 19 declared rows and no profile caller;
+coverage percentage. `quick-static` has 21 declared rows (including the exact
+owner-pack data row) and no profile caller;
 the profile name is not execution evidence.
 
 Required order:

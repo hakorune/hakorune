@@ -211,3 +211,21 @@ id = "mir-call-global-target-b0-machine-census"
 label = "MIR Call B0 Global target machine census guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_global_target_b0_machine_census_guard.sh"]
+
+[[rows]]
+id = "smoke-owner-pack-phase2050"
+label = "phase2050 exact owner-pack selection"
+profiles = ["pilot", "quick-static"]
+row_kind = "smoke-owner-pack"
+cmd = [
+  "bash",
+  "tools/smokes/v2/run.sh",
+  "--profile",
+  "quick",
+  "--owner-profile",
+  "integration",
+  "--suite",
+  "phase2050-owner-pack",
+  "--dry-run",
+  "--skip-preflight",
+]

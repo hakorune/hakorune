@@ -9,6 +9,9 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # デフォルト値
 PROFILE="quick"
+OWNER_PROFILE=""
+OWNER_PROFILE_EXPLICIT=false
+OWNER_PACK_MODE=false
 SUITE=""
 FORMAT="text"
 JOBS=1
@@ -49,6 +52,8 @@ log_header() {
     echo -e "${BOLD}$*${NC}" >&2
 }
 
+source "$SCRIPT_DIR/lib/owner_pack.sh"
+
 # ヘルプ表示
 show_help() {
     cat << 'EOF'
@@ -66,7 +71,8 @@ Profiles:
 
 Options:
   --profile PROFILE         Test profile to run
-  --suite SUITE            Optional suite manifest under suites/<profile>/
+  --owner-profile PROFILE   Profile that owns suite discovery (requires --suite)
+  --suite SUITE            Optional suite manifest under suites/<owner-profile>/
   --filter "PATTERN"        Test filter (e.g., "boxes:string")
   --format FORMAT           Output format: text|json|junit
   --jobs N                  Parallel execution count
@@ -112,6 +118,11 @@ parse_arguments() {
         case $1 in
             --profile)
                 PROFILE="$2"
+                shift 2
+                ;;
+            --owner-profile)
+                OWNER_PROFILE="$2"
+                OWNER_PROFILE_EXPLICIT=true
                 shift 2
                 ;;
             --suite)
@@ -177,6 +188,30 @@ parse_arguments() {
             ;;
     esac
 
+    if [ -z "$OWNER_PROFILE" ]; then
+        OWNER_PROFILE="$PROFILE"
+    fi
+    case "$OWNER_PROFILE" in
+        quick|integration|strict|plugins|archive)
+            ;;
+        *)
+            log_error "Invalid owner profile: $OWNER_PROFILE"
+            log_error "Valid owner profiles: quick, integration, strict, plugins, archive"
+            exit 1
+            ;;
+    esac
+    if [ "$OWNER_PROFILE_EXPLICIT" = true ]; then
+        OWNER_PACK_MODE=true
+        if [ -z "$SUITE" ]; then
+            log_error "--owner-profile requires an exact --suite manifest"
+            exit 1
+        fi
+        if [ -n "$FILTER" ]; then
+            log_error "--owner-profile owner packs cannot use --filter"
+            exit 1
+        fi
+    fi
+
     # フォーマット検証
     case "$FORMAT" in
         text|json|junit)
@@ -195,13 +230,15 @@ trim_manifest_line() {
 
 declare -A SUITE_ALLOWLIST=()
 declare -A SUITE_DISCOVERED=()
+declare -A SUITE_SELECTED=()
 
 load_suite_manifest() {
     if [ -z "$SUITE" ]; then
         return 0
     fi
 
-    local manifest="$SCRIPT_DIR/suites/$PROFILE/$SUITE.txt"
+    local manifest
+    manifest="$(owner_pack_manifest_path)" || return 1
     local raw_line=""
     local line=""
     local line_no=0
@@ -213,6 +250,7 @@ load_suite_manifest() {
 
     SUITE_ALLOWLIST=()
     SUITE_DISCOVERED=()
+    SUITE_SELECTED=()
 
     while IFS= read -r raw_line || [ -n "$raw_line" ]; do
         line_no=$((line_no + 1))
@@ -248,7 +286,8 @@ validate_suite_manifest_hits() {
         return 0
     fi
 
-    local manifest="$SCRIPT_DIR/suites/$PROFILE/$SUITE.txt"
+    local manifest
+    manifest="$(owner_pack_manifest_path)" || return 1
     local entry=""
     local missing=()
 
@@ -339,11 +378,11 @@ dump_fail_env() {
 
 # テストファイル検索
 find_test_files() {
-    local profile_dir="$SCRIPT_DIR/profiles/$PROFILE"
+    local profile_dir="$SCRIPT_DIR/profiles/$OWNER_PROFILE"
     local test_files=()
     local prune_dirs=""
     # archive profile keeps the archive root visible; other profiles prune legacy archive buckets.
-    if [ "$PROFILE" = "archive" ]; then
+    if [ "$OWNER_PROFILE" = "archive" ]; then
         if [ -n "$SUITE" ]; then
             prune_dirs="${SMOKES_DISCOVERY_PRUNE_DIRS_WITH_SUITE_FOR_ARCHIVE:-lib:tmp:fixtures}"
         else
@@ -424,10 +463,14 @@ find_test_files() {
             log_warn "Skipping (no LLVM): $file"
             continue
         fi
+        if [ -n "$SUITE" ]; then
+            SUITE_SELECTED["$relative_path"]=1
+        fi
         test_files+=("$file")
     done < <(find "$profile_dir" "${find_expr[@]}")
 
     validate_suite_manifest_hits || return 1
+    validate_owner_pack_selection "${#test_files[@]}" || return 1
 
     if [ ${#test_files[@]} -gt 0 ]; then
         printf '%s\n' "${test_files[@]}"
@@ -477,7 +520,11 @@ run_single_test() {
                 echo -e "${RED}FAIL${NC} (exit=$exit_code, ${duration}s)"
                 dump_fail_env
                 echo -e "${YELLOW}[WARN]${NC} Test file: $test_file"
-                echo -e "${YELLOW}[WARN]${NC} Re-run (runner): ./tools/smokes/v2/run.sh --profile \"$PROFILE\" --filter \"$(basename "$test_file")\""
+                if [ "$OWNER_PACK_MODE" = true ]; then
+                    echo -e "${YELLOW}[WARN]${NC} Re-run (owner pack): ./tools/smokes/v2/run.sh --profile \"$PROFILE\" --owner-profile \"$OWNER_PROFILE\" --suite \"$SUITE\""
+                else
+                    echo -e "${YELLOW}[WARN]${NC} Re-run (runner): ./tools/smokes/v2/run.sh --profile \"$PROFILE\" --filter \"$(basename "$test_file")\""
+                fi
                 echo -e "${YELLOW}[WARN]${NC} Re-run (direct): bash \"$test_file\""
                 local TAIL_N="${SMOKES_NOTIFY_TAIL:-80}"
                 echo "----- LOG (tail -n $TAIL_N) -----"
@@ -548,6 +595,10 @@ run_tests() {
     fi
 
     if [ ${#test_files[@]} -eq 0 ]; then
+        if [ "$OWNER_PACK_MODE" = true ]; then
+            log_error "Owner pack selected zero test files"
+            return 1
+        fi
         log_warn "No test files found for profile: $PROFILE"
         if [ -n "$SUITE" ]; then
             log_warn "Suite applied: $SUITE"
@@ -667,6 +718,9 @@ main() {
     if [ "$FORMAT" = "text" ]; then
         log_header "🔥 Hakorune Smoke Tests v2 - 2-Pillar Testing System"
         log_info "Profile: $PROFILE | Format: $FORMAT | Jobs: $JOBS"
+        if [ "$OWNER_PACK_MODE" = true ]; then
+            log_info "Owner profile: $OWNER_PROFILE"
+        fi
         if [ -n "$SUITE" ]; then
             log_info "Suite: $SUITE"
         fi

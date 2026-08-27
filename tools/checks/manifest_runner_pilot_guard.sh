@@ -12,6 +12,9 @@ PROOF_RUNNER="$ROOT_DIR/tools/checks/run_proof_app.sh"
 SHARED_RUNNER="$ROOT_DIR/tools/checks/lib/manifest_runner.py"
 ROW_MANIFEST="$ROOT_DIR/tools/checks/guard_rows.toml"
 PROOF_MANIFEST="$ROOT_DIR/tools/checks/proof_apps.toml"
+OWNER_PACK_SUITE="$ROOT_DIR/tools/smokes/v2/suites/integration/phase2050-owner-pack.txt"
+PHASE2050_RUN_ALL="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh"
+PHASE2050_DIR="$ROOT_DIR/tools/smokes/v2/profiles/integration/core/phase2050"
 CARD="$(guard_require_phase293x_card "$TAG" "293x-243-D199-MANIFEST-RUNNER-LIBRARY-CLEANUP.md")"
 CHECK_INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 DEV_GATE="$ROOT_DIR/tools/checks/dev_gate.sh"
@@ -25,6 +28,8 @@ guard_require_files "$TAG" \
   "$SHARED_RUNNER" \
   "$ROW_MANIFEST" \
   "$PROOF_MANIFEST" \
+  "$OWNER_PACK_SUITE" \
+  "$PHASE2050_RUN_ALL" \
   "$CARD" \
   "$CHECK_INDEX" \
   "$DEV_GATE" \
@@ -119,5 +124,49 @@ done
 "$PROOF_RUNNER" --closeout-pack segment-map-readiness --dry-run | rg -F "validation_profile=scalar-mir" >/dev/null
 "$PROOF_RUNNER" --validation-profile scalar-mir --level L2 --dry-run | rg -F -- "--level L2" >/dev/null
 "$ROW_RUNNER" --only current-state-pointer >/dev/null
+
+python3 - "$ROW_MANIFEST" "$OWNER_PACK_SUITE" "$PHASE2050_RUN_ALL" "$PHASE2050_DIR" <<'PY'
+import pathlib
+import sys
+import tomllib
+
+row_manifest, suite_path, run_all_path, phase_dir = map(pathlib.Path, sys.argv[1:])
+if not phase_dir.is_dir():
+    raise SystemExit("phase2050 owner-pack directory is missing")
+rows = tomllib.loads(row_manifest.read_text(encoding="utf-8"))["rows"]
+owner_rows = [row for row in rows if row.get("id") == "smoke-owner-pack-phase2050"]
+if len(owner_rows) != 1:
+    raise SystemExit("phase2050 owner-pack registry row must be unique")
+expected_cmd = [
+    "bash", "tools/smokes/v2/run.sh", "--profile", "quick",
+    "--owner-profile", "integration", "--suite", "phase2050-owner-pack",
+    "--dry-run", "--skip-preflight",
+]
+row = owner_rows[0]
+if row.get("row_kind") != "smoke-owner-pack" or row.get("cmd") != expected_cmd:
+    raise SystemExit("phase2050 owner-pack registry row drifted")
+
+suite_entries = [
+    line.strip()
+    for line in suite_path.read_text(encoding="utf-8").splitlines()
+    if line.strip() and not line.lstrip().startswith("#")
+]
+if len(suite_entries) != len(set(suite_entries)) or not suite_entries:
+    raise SystemExit("phase2050 owner-pack suite must be non-empty and duplicate-free")
+profile_dir = phase_dir.parents[1]
+live_entries = sorted(
+    str(path.relative_to(profile_dir))
+    for path in phase_dir.glob("*.sh")
+    if path.name != "run_all.sh"
+)
+if sorted(suite_entries) != live_entries:
+    raise SystemExit("phase2050 owner-pack suite must cover exactly the live leaf scripts")
+
+run_all = run_all_path.read_text(encoding="utf-8")
+owner_invocation = "--profile quick --owner-profile integration --suite phase2050-owner-pack"
+if run_all.count(owner_invocation) != 1 or "--filter" in run_all:
+    raise SystemExit("phase2050 run_all must use one exact owner-pack invocation and no filter")
+print("[manifest-runner-pilot-guard] phase2050 owner-pack linkage=exact")
+PY
 
 echo "[$TAG] ok"

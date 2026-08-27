@@ -1,0 +1,6 @@
+# Exact phase2050 owner pack. Paths are relative to profiles/integration/.
+core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh
+core/phase2050/string_indexof_2args_rc12_vm.sh
+core/phase2050/string_indexof_notfound_rc255_vm.sh
+core/phase2050/string_substring_2args_eq_rc1_vm.sh
+core/phase2050/string_substring_start_beyond_len_rc0_vm.sh

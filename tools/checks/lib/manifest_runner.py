@@ -89,6 +89,47 @@ def command_target(root: pathlib.Path, cmd: list[str]) -> pathlib.Path:
     return resolve_repo_path(root, cmd[0])
 
 
+def validate_row_kind_contract(entry: dict[str, object], tag: str) -> None:
+    """Validate structural argv contracts owned by a manifest row kind."""
+    if entry.get("row_kind") != "smoke-owner-pack":
+        return
+
+    entry_id = str(entry["id"])
+    cmd = list(entry["cmd"])
+    if len(cmd) < 2 or cmd[:2] != ["bash", "tools/smokes/v2/run.sh"]:
+        fail(tag, f"{entry_id} smoke-owner-pack must invoke the v2 smoke runner")
+
+    value_options = {"--profile", "--owner-profile", "--suite"}
+    flag_options = {"--dry-run", "--skip-preflight"}
+    seen_values: dict[str, str] = {}
+    seen_flags: set[str] = set()
+    index = 2
+    while index < len(cmd):
+        option = cmd[index]
+        if option in value_options:
+            if option in seen_values or index + 1 >= len(cmd):
+                fail(tag, f"{entry_id} smoke-owner-pack has an invalid {option} option")
+            value = cmd[index + 1]
+            if not value or value.startswith("-"):
+                fail(tag, f"{entry_id} smoke-owner-pack {option} value is invalid")
+            seen_values[option] = value
+            index += 2
+            continue
+        if option in flag_options:
+            if option in seen_flags:
+                fail(tag, f"{entry_id} smoke-owner-pack repeats {option}")
+            seen_flags.add(option)
+            index += 1
+            continue
+        fail(tag, f"{entry_id} smoke-owner-pack contains unsupported argv: {option}")
+
+    required_values = value_options - set(seen_values)
+    required_flags = flag_options - seen_flags
+    if required_values or required_flags:
+        missing = sorted((*required_values, *required_flags))
+        fail(tag, f"{entry_id} smoke-owner-pack is missing argv: {', '.join(missing)}")
+
+
 def load_manifest_tables(
     root: pathlib.Path,
     manifest_path: pathlib.Path,
@@ -229,6 +270,8 @@ def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
         target = command_target(root, cmd)
         if not target.exists():
             fail(tag, f"{args.item_name} {entry_id} command target missing: {' '.join(cmd)}")
+
+        validate_row_kind_contract(entry, tag)
 
         entries.append(entry)
 
