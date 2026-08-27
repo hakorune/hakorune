@@ -1,11 +1,13 @@
 title = "Chronic Rust token scanner I0"
-status = "accepted_design_implementation_open"
+status = "landed_bounded_child_row"
 observed_commit = "fdc1385b29"
 observed_at = "2026-08-27"
-implementation_permission = true
+implementation_permission = false
 current_execution_row = "CHRONIC-RUST-TOKEN-SCANNER-I0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-scope-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+implementation_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
+landed_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
 
 [boundary]
 starts = "the explicit finite Rust roots and module/include observations frozen by CHRONIC-MEASUREMENT-SCOPE-D0"
@@ -170,14 +172,55 @@ evidence = [
   "existing project/modules traversal requires Cargo/profile evidence and therefore is not reused as I0 semantic classification authority",
   "CHRONIC-MEASUREMENT-SCOPE-D0 freezes the finite Builder/registration roots and independent compile_domain/role axes",
 ]
-latest_finding = "Scanner I0 is the next safe implementation cell. It issues neutral observations only; expectation pinning and guard/source deletion remain later rows."
+latest_finding = "Scanner I0 landed as a neutral, deterministic observer. Its report is evidence for the successor expectation row; it does not pin a baseline or authorize guard/source deletion."
+
+[observed]
+command = "CARGO_BUILD_JOBS=4 cargo run --manifest-path tools/checks/rust_source_topology/Cargo.toml -- chronic-scan tools/checks/manifests/chronic_measurement_scope_v1.toml"
+repeat_command = "the same command redirected twice and cmp -s returned deterministic-json=ok"
+scope_files = 1434
+scope_manifest_hash = "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f"
+source_scope_hash = "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39"
+evidence_hash = "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a"
+sorted_paths = true
+panic_count = 356
+unwrap_count = 2503
+expect_count = 2868
+todo_count = 0
+dead_code_allowance_count = 185
+dead_code_allowance_line_count = 185
+unclassified_count = 0
+changed_file_line_counts = [
+  "src/chronic_measurement/error.rs=102",
+  "src/chronic_measurement/manifest.rs=328",
+  "src/chronic_measurement/mod.rs=11",
+  "src/chronic_measurement/model.rs=96",
+  "src/chronic_measurement/scan.rs=723",
+]
+focused_tests = [
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement (2 passed)",
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement --test single_file (9 passed)",
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --no-run (passed)",
+  "python3 -m py_compile tools/checks/guard_manifest_inventory.py (passed)",
+  "git diff --check (passed)",
+]
+known_baseline = "the standalone crate full suite still has the five pre-existing project/profile inventory failures (feature list, content candidates, inner cfg, and root topology expectations); no new scanner failure was observed"
+scope_note = "The 185 allowance observations are for the frozen scanner roots. Earlier 334/351 all-src diagnostics are a different denominator and remain unpinned until CHRONIC-MEASUREMENT-EXPECTATION-I0 reconciles the finite scope."
 
 [closeout]
-required = "Record standalone scanner test/CLI results, deterministic hash evidence, changed-file line counts, and the explicit statement that no root Cargo, guard registration, expectation pin, or source deletion ran. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0."
+status = "complete"
+focused_evidence = [
+  "scanner implementation and focused tests landed at 8d2bcf03989b8b13013554e4b4065feaa81a5b3a",
+  "real finite scope observed 1434 files with deterministic scope/source/evidence hashes and unclassified_count=0",
+  "panic=356 unwrap=2503 expect=2868 todo=0 and dead_code allowances=185 within this scope",
+  "all changed scanner sources remain below 760 lines; scan.rs is 723 lines and no file reaches 800",
+  "no root Cargo dependency, expectation TSV, guard_rows registration, stale-threshold edit, or source deletion ran",
+  "the five standalone full-suite failures remain known project/profile baseline failures and are not scanner evidence",
+]
+closeout_notes = "The read-only observer is landed. Its report is not a production-live or deletion-ready count; the successor must reconcile scope and co-seal one expectation TSV before any stale guard or source retirement row."
 next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
 
 [implementation_gate]
-permission = true
+permission = false
 scope = "Only the standalone rust_source_topology check crate, its chronic-scan scope manifest, and focused local tests/CLI are in scope."
 forbidden = [
   "root Cargo.toml or production crate dependency changes",

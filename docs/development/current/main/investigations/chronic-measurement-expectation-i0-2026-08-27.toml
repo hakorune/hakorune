@@ -1,0 +1,181 @@
+title = "Chronic measurement expectation TSV I0"
+status = "accepted_design_parked"
+observed_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+parent_row = "docs/development/current/main/investigations/chronic-rust-token-scanner-i0-2026-08-27.toml"
+successor_card = "ASTCLEAN-STALE-GUARD-SUPERSEDE-R0"
+
+[boundary]
+starts = "the landed chronic-rust-token-scanner report, the frozen scope manifest, and the body-derived force-hv1 leaf receipt"
+ends = "one scope-labeled expectation TSV whose hashes, summary rows, site rows, and owner classifications are consumed by the existing force-hv1 lifecycle guard"
+includes = [
+  "the exact scope manifest and scanner report hashes from CHRONIC-RUST-TOKEN-SCANNER-I0",
+  "the body-derived force-hv1 leaf manifest and a deterministic receipt id/hash for its observed facts",
+  "legacy production versus support source/dead_code rows with explicit compile_domain and role",
+  "panic/unwrap/expect/todo summary and per-site observation rows from the scanner",
+  "one fail-closed validator/consumer seam in the existing force-hv1 lifecycle owner",
+]
+excludes = [
+  "source, guard, allow, or stale-threshold deletion; warning cleanup; compiler/MIR/VM/AOT behavior; and force-hv1 fate changes",
+  "a second force-specific TSV, a second Rust parser, a semantic Verified/Prepared receipt, or a global src non-growth claim",
+  "copying the historical 334/351 all-src diagnostic into this finite scope without reconciliation",
+  "treating a pinned count, profile declaration, or local green test as caller-zero or retirement permission",
+]
+
+[brief]
+decision = "Co-seal exactly one expectation TSV from the landed token scanner and the existing body-derived force-hv1 receipt. The artifact records observations and owner classifications only; it never issues target, route, semantic, or retirement authority. Keep the current lifecycle guard as the sole execution consumer and fail closed on any hash/scope/row drift."
+source_authority = "The tracked chronic scope manifest, the deterministic scanner JSON, the checked-in force-hv1 body-derived manifest, and explicit owner-reviewed legacy/support classifications."
+canonical_issuer = "CHRONIC-RUST-TOKEN-SCANNER-I0 issues lexical observations; the CHRONIC-MEASUREMENT-EXPECTATION-I0 owner co-seals the TSV and receipt hash; force_hv1_caller_manifest_guard.py consumes that exact receipt but does not re-scan or reclassify it."
+non_authority = [
+  "raw rg/grep totals, old ASTCLEAN thresholds, total src LOC, filename prefixes, profile names, expected values edited in the same commit, or a hand-written card",
+  "the force-hv1 fate disposition, route selector, Rust VM/AOT behavior, or any target/name/string reconstruction",
+  "the scanner's 185 in-scope allowance count treated as the historical 334/351 all-src baseline without an explicit scope reconciliation",
+]
+fail_fast = "Missing/duplicate TSV rows, missing owner/successor, source/scope/scanner/force receipt hash drift, unclassified observations, legacy/support scope mixing, stale force receipt, or a validator that accepts a partial report must fail before any stale-guard or source-retirement decision."
+smallest_next_slice = "Design-only: freeze the single TSV union schema, canonical force receipt hash inputs, reconciliation of the 185 frozen-scope observations versus the older 334/351 diagnostics, and the exact existing lifecycle consumer seam. Do not create the TSV or edit code while implementation_permission is false."
+non_claims = [
+  "does not claim the observed counts are production-live, stale, or deletable",
+  "does not authorize ASTCLEAN threshold supersession, dead_code removal, panic cleanup, guard removal, or phase2160 reduction",
+  "does not add a force-specific measurement owner or let force-hv1 fate change on measurement mismatch",
+]
+
+[artifact]
+path = "tools/checks/manifests/chronic_measurement_expectations_v1.tsv"
+role = "one shared measurement artifact; not semantic or retirement authority"
+format = "UTF-8 TSV with one fixed union header; row_kind distinguishes summary from site rows and no second file is permitted"
+row_kinds = ["summary", "call_site", "dead_code_allowance", "module_edge", "opaque_macro"]
+required_columns = [
+  "source_commit",
+  "scope_id",
+  "scope_manifest_hash",
+  "scanner_version",
+  "boundary_start",
+  "boundary_end",
+  "force_hv1_receipt_id",
+  "force_hv1_receipt_hash",
+  "legacy_src_lines",
+  "legacy_allow_dead_code",
+  "support_src_lines",
+  "support_allow_dead_code",
+  "panic_count",
+  "unwrap_count",
+  "expect_count",
+  "todo_count",
+  "unclassified_count",
+  "status",
+  "evidence_hash",
+]
+site_columns = [
+  "row_kind",
+  "path",
+  "item_key",
+  "compile_domain",
+  "role",
+  "owner",
+  "metric",
+  "successor",
+  "retirement_status",
+]
+union_header_rule = "The header contains row_kind plus every required/site column exactly once; summary rows leave site-only cells empty and site rows leave summary-only cells empty. Unknown columns, duplicate headers, and mixed row shapes fail closed."
+force_receipt_rule = "force_hv1_receipt_id names the existing body-derived manifest plus source revision; force_hv1_receipt_hash is SHA-256 over a canonical JSON projection of schema, source_commit, leaf_paths, observations, and observed_counts sorted by key. Fate_review/expected_counts are not semantic source facts and are excluded from the receipt."
+
+[reconciliation]
+scanner_scope_files = 1434
+scanner_scope_manifest_hash = "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f"
+scanner_source_scope_hash = "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39"
+scanner_evidence_hash = "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a"
+scanner_summary = "panic=356; unwrap=2503; expect=2868; todo=0; dead_code_allowance=185; unclassified=0"
+historical_diagnostic = "334 exact lines/111 files and 351 inclusive lines/126 files are older all-src diagnostics, not an expectation baseline for this 1434-file frozen scope"
+required_decision = "Before pinning, classify each included root and reconcile whether the expectation scope remains the selected Builder/registration boundary or must be expanded by an explicit new D0. Never silently replace 185 with 334/351."
+force_manifest_source_commit = "3c8db4c6e7985d2f4479203e235d041b7f306258"
+force_observed_counts = "86 active leaves / 90 sites; direct=3/3; conditional=44/45; explicit_core=35/35; dynamic=4/7"
+
+[consumer]
+owner = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
+mode = "receipt consumer only; it may verify exact TSV scope/scanner/force hashes and ratchet fields but may not re-scan Rust or change fate"
+registration = "reuse the existing force-hv1-caller-lifecycle guard row; no new per-metric or force-specific guard row"
+allowed_effect = "a mismatch returns typed/current-change failure before route/test effects; no retry, fallback, or reclassification"
+
+[finite_state]
+measurement = [
+  "ScopeMissing",
+  "Observed",
+  "Reconciled",
+  "Pinned",
+  "Passed",
+  "ExpectedValueDrift",
+  "ScopeDrift",
+  "UnclassifiedObservation",
+  "DuplicateRow",
+  "MissingOwner",
+  "LegacyGrowth",
+  "SupportOnlyGrowth",
+  "ForceReceiptDrift",
+]
+site = [
+  "Unknown",
+  "ProductionLive",
+  "TestOnly",
+  "FixtureSupport",
+  "CompatibilityKeep",
+  "GeneratedIncluded",
+  "GuardEvidence",
+  "RetirementCandidate",
+  "CallerZeroSuccessorReady",
+  "Retired",
+  "ExplicitTombstone",
+]
+terminal = ["Passed", "SupportOnlyGrowth", "CallerZeroSuccessorReady", "Retired", "ExplicitTombstone"]
+blocking = [
+  "ScopeMissing",
+  "ExpectedValueDrift",
+  "ScopeDrift",
+  "UnclassifiedObservation",
+  "DuplicateRow",
+  "MissingOwner",
+  "LegacyGrowth",
+  "ForceReceiptDrift",
+]
+
+[task_steps]
+items = [
+  "1. Reconcile the scanner's 1434-file/185-allowance finite scope with the older 334/351 all-src diagnostics; if the boundary changes, reopen a scope D0 instead of changing an expectation in place.",
+  "2. Freeze the union TSV header, row_kind grammar, owner/successor fields, and canonical force receipt projection; reject duplicate/unknown columns and mixed summary/site rows.",
+  "3. Produce one summary row plus deterministic site rows from the scanner report and body-derived force manifest. Pin source, scope, scanner, force receipt, and evidence hashes only after reconciliation.",
+  "4. Extend only the existing force-hv1 lifecycle consumer seam to validate the exact TSV and legacy/support non-growth fields. It must not re-scan, reclassify, retry, or change force fate.",
+  "5. Add focused positive/negative evidence for missing/duplicate/foreign owner, scope/hash drift, unclassified rows, force receipt drift, legacy growth, and support-only growth. No source or guard deletion in this row.",
+  "6. Close the expectation row, then open ASTCLEAN-STALE-GUARD-SUPERSEDE-R0. Only that successor may classify old numeric guards for tombstone or successor-backed retirement.",
+]
+
+[acceptance]
+positive = [
+  "exactly one shared TSV is produced with deterministic header, rows, scope/scanner/source/force hashes, and unclassified_count=0",
+  "the historical 334/351 values are either explicitly reconciled to the finite boundary or remain diagnostics; no denominator is silently swapped",
+  "force-hv1 body facts are consumed by exact receipt id/hash and mismatch fails before route/test effects",
+  "legacy production growth fails while support-only growth is reported as a distinct terminal state",
+  "site rows have explicit owner, role, compile_domain, successor, and retirement_status; caller-zero is never inferred from text count",
+]
+negative = [
+  "no second force-specific TSV, per-file guard, Rust parser, source deletion, warning cleanup, or stale-threshold relaxation",
+  "no expectation value edited together with its acceptance proof to manufacture green",
+  "no force-hv1 fallback/retry/reclassification or compiler/MIR/VM/AOT behavior change",
+  "no 185/334/351 number is presented as production-live or deletion-ready without owner and successor evidence",
+]
+
+[guard]
+reuse = "Reuse the existing force-hv1-caller-lifecycle row and lifecycle owner; the TSV is a data artifact, not a new executable guard row."
+required = "The expectation consumer must be fail-closed, exact-hash based, and independently reviewable. A green scanner report alone never opens stale-guard or source-retirement work."
+no_safe_slice = [
+  "the finite scanner boundary cannot be reconciled with the prior all-src diagnostics",
+  "the existing force manifest cannot issue a deterministic body-derived receipt hash without including fate/expected-value authority",
+  "the lifecycle guard would need a second parser, route retry, or fate reclassification",
+  "summary/site rows cannot be validated as one fixed union schema",
+  "owner/successor/caller-zero evidence is missing for a proposed deletion",
+]
+
+[closeout]
+status = "pending"
+required = "Record the reconciled scope decision, one TSV path/header, exact scanner/force receipt hashes, validator tests, and the existing lifecycle guard result. Then move the pointer to ASTCLEAN-STALE-GUARD-SUPERSEDE-R0; do not delete source or guards from this row."
+next_row = "ASTCLEAN-STALE-GUARD-SUPERSEDE-R0"
