@@ -1,8 +1,8 @@
 title = "Guard registry structural ratchet I0"
-status = "accepted_design_parked"
-observed_commit = "b4edff4c78"
+status = "active_fast"
+observed_commit = "9cb70398fb"
 observed_at = "2026-08-27"
-implementation_permission = false
+implementation_permission = true
 current_execution_row = "GUARD-REGISTRY-RATCHET-I0"
 parent_row = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
 successor_card = "GUARD-REGISTRY-RATCHET-I0-CLOSEOUT"
