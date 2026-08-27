@@ -1,8 +1,9 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box F/I/H fate capability implementation I0"
-status = "selected_fast"
-observed_commit = "55c84f8d6b"
+status = "landed_bounded_child_row"
+observed_commit = "7167aee18e"
 observed_at = "2026-08-27"
 implementation_permission = true
+landed_commit = "7167aee18e"
 selected_fast = true
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-I0"
 implementation_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-I0"
@@ -116,10 +117,10 @@ reject = "Any generic RawInvocation reject, issuer drift, duplicate capability, 
 hard_stop = 800
 split_threshold = 760
 owners = [
-  "recursive_child_lowering.rs currently 590; add only field/reborrow/trait delegation",
-  "raw_expression_dispatch/mod.rs currently 706; add only the instance gate and keep below 760",
-  "program_root_lowering.rs currently 596; add only the phase2160 scoped closure",
-  "module_lowering_invocation_reentrant_tests.rs currently 761; do not append; move four tests to sibling",
+  "recursive_child_lowering.rs landed at 629; field/reborrow/trait delegation stayed below 760",
+  "raw_expression_dispatch/mod.rs remains 706; only the instance gate was added",
+  "program_root_lowering.rs landed at 598; only the phase2160 scoped closure was added",
+  "module_lowering_invocation_reentrant_tests.rs landed at 574; four tests moved to the sibling",
 ]
 
 [acceptance]
@@ -160,10 +161,28 @@ steps = [
   "4. Add and register the reusable guard, run focused Rust tests plus structural checks, and inspect all changed owners for 760/800 limits.",
   "5. Close out this row with residual-zero evidence; only then open the separate RawLegacy C fate design.",
 ]
-next_execution = "implementation in this card is open; no broader runtime Box, RawLegacy, VM, Wpre, or Call work is authorized."
+next_execution = "I0 is landed and closed as a bounded child row; next execution is the separate RawLegacy C fate design, with no broader runtime Box, VM, Wpre, or Call work authorized."
 reopen_triggers = [
   "issuer moves outside the phase2160 ScriptRuntime arm",
   "generic RawInvocation/SelectedNormal/RawLegacy/root I1 inherits the capability",
   "zero-delta snapshot cannot be observed before each F/I/H effect",
   "a real production/reference owner for nested runtime Box semantics appears",
 ]
+
+[evidence]
+implementation = "Commit 7167aee18e adds the private move-only fate capability, scopes it only to the phase2160 RawCompatibility ScriptRuntime arm, consumes F/I/H before effects, preserves generic unarmed RawInvocation, and registers the reusable guard."
+focused_results = [
+  "runtime_box_fate_tests: 8 passed (four typed-retire cases, scope misuse, and generic unarmed parity)",
+  "module_lowering_invocation_reentrant_tests: 9 passed",
+]
+guards = [
+  "smoke_phase2160_hako_mainline_raw_compat_runtime_box_fate_capability_guard.sh: passed",
+  "smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh: passed",
+  "current_state_pointer_guard.sh, TOML parse, rustfmt, and git diff --check: passed",
+]
+worker_review = "force_successor_fate_audit read-only review passed route isolation and ordering; its evidence gaps were closed by expanded snapshots, ScriptRoot transport, and an unarmed nested-box success test."
+known_baseline = [
+  "cargo test reports the repository's pre-existing warning inventory; no warning suppression or unrelated cleanup was added",
+  "zero-delta observes module/header/function/instruction, CompilationContext, metadata-context, and recursion state; the guard enforces the evidence shape",
+]
+line_budget = "raw_compat_runtime_box_fate.rs 80, runtime_box_fate_tests.rs 359, recursive_child_lowering.rs 629, program_root_lowering.rs 598, raw_expression_dispatch/mod.rs 706, instance_box_declaration_lifecycle.rs 181, and parent reentrant tests 574; all below split/hard-stop limits."
