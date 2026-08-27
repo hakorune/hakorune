@@ -102,10 +102,11 @@ candidate_ref_anchor_counts = "symbol=167; range=491; byte=29"
 blocked_ref_occurrences = 50
 blocked_distinct_refs = 30
 blocked_rows = 35
+blocked_count_method = "failure-class occurrences overlap when one candidate has multiple defects; category counts are not additive"
 short_revision_occurrences = 10
 byte_anchor_occurrences = 29
-range_out_of_bounds_distinct = 20
-range_out_of_bounds_occurrences = 37
+range_out_of_bounds_distinct = 22
+range_out_of_bounds_occurrences = 40
 tree_path_occurrences = 3
 missing_path_occurrences = 2
 matrix_detailed_role_rows = 181
