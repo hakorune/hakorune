@@ -29,7 +29,7 @@ excludes = [
 ]
 
 [brief]
-decision = "Direct-call inventory is a prerequisite to the parent identity-index handoff. The inventory owner is the existing semantic package/resolver issuer; it records source identity and disposition only, and never reconstructs a Callee. A closed traversal or an empty callable index must not silently drop an observed FunctionCall."
+decision = "Direct-call inventory is a prerequisite to the parent identity-index handoff. The inventory owner is the existing semantic package/resolver issuer; it records source identity and disposition only, and never reconstructs a Callee. A closed traversal or an empty callable index must not silently drop an observed FunctionCall. Before a new Cataloged issuer is opened, the B1 structural global carrier must be connected to the canonical Callee/CallTarget shape; issuing a new Callee::Global(String) would recreate the retired String authority."
 source_authority = "parser/source identity plus the same-brand source catalog and resolver compilation session; RawInvocationRootLineageV1 is provenance and remains intact until disposition"
 canonical_issuer = "the existing normal semantic package issuer and its same-session resolver continuation co-seal an owner-qualified direct-call inventory before package publication"
 non_authority = [
@@ -39,7 +39,7 @@ non_authority = [
   "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
 ]
 fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
-smallest_next_slice = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: name the exact Cataloged issuer, lineage/site mapper, and package co-seal boundary. The forest-wide observation gate is landed; no target, loan, dispatcher, or Call publication is open."
+smallest_next_slice = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: first settle the B1 structural carrier connection, then name the exact Cataloged issuer, lineage/site mapper, and package co-seal boundary. The forest-wide observation gate is landed; no target, loan, dispatcher, or Call publication is open."
 non_claims = [
   "the inventory does not issue a target or generalize the exact-i64 index",
   "lineage preservation does not authorize Global synthesis from names or arity",
@@ -218,4 +218,45 @@ triggers = [
   "TopLevel or InstanceConstructor lineage is collapsed to caller=None before disposition",
   "a target is synthesized from a source name, arity, physical symbol, or constructor symbol",
   "inventory is issued by a second resolver continuation or after argument effects",
+]
+
+[d1_owner_lineage_coseal]
+status = "design_stop"
+observed_commit = "a10e294b28"
+decision = "D1 cannot publish a new Cataloged target through the transitional Callee::Global(String). The existing structural CanonicalGlobalTargetV1 is carrier-only and is not yet connected to Callee/CallTarget; that B1 integration is a prerequisite, not a reason to add another String issuer."
+source_authority = "VerifiedCatalogCallableOwnerLinkV1 and the same resolver-session catalog brand prove Cataloged lineage and declaration membership. RawInvocationRootLineageV1 remains provenance; SourceExprSiteV1 is the exact site key."
+canonical_issuer = "After the structural carrier is connected, the existing semantic-package issuer is the sole co-seal owner. It may issue a typed static-box-method target only from the owner-link plus exact site relation; it may not derive a target from name, arity, box name, physical symbol, or registry lookup."
+carrier_prerequisite = "B1 must atomically adapt CanonicalGlobalTargetV1 into the canonical Callee/CallTarget consumers (or the already-accepted equivalent shape) without a parallel String variant, formatter/reparse bridge, fallback, or retry. The carrier constructor checks components only; catalog/session/brand authority stays in the caller."
+lineage_mapper = "Map the located Cataloged raw site to SourceExprSiteV1 exactly once, verify the same owner-link, session brand, observation name/arity, and one-to-one site membership, then move the structural target into the direct-call handoff. TopLevel and InstanceConstructor provenance is preserved but cannot synthesize Global."
+package_boundary = "The existing with_normal_callable_install_once bridge remains the only install authority. Direct-call completeness is checked before prepare_install/commit. The package-only begin_lowering(&self) bypass is replaced in the later atomic row by a consuming lowering scope that owns the package and the direct-call loan together."
+raw_port_boundary = "The lowering scope lends one concrete non-Clone/non-Copy RawDirectCallDispositionLoanV1 to RawInvocationChildPortV1 by short &mut reborrow. No Rc, Arc, RefCell, tuple-splitting, package getter, or second child ledger is allowed."
+required_sequence = [
+  "B1 structural carrier integration design and finite consumer census",
+  "B1 carrier cutover with Callee/CallTarget consumers adapted atomically",
+  "D1 exact Cataloged issuer through VerifiedCatalogCallableOwnerLinkV1",
+  "same-session owner/site bijection and lineage mapper",
+  "private sealed package plus direct-call loan co-seal",
+  "consuming lowering scope and short raw-port reborrow",
+  "exact-site take_once before argument descent, Call once, finish_empty",
+  "delete CatalogedTargeted direct payload and prove old ordinary resolver callers zero",
+]
+non_authority = [
+  "transitional Callee::Global(String) as a new D1 issuer",
+  "function_call_preflight_route.rs, CallTarget, CalleeResolverBox, mir_symbol_projection, registry, or formatter as target authority",
+  "root-only inventory checks, caller=None, TopLevel/Constructor names, or static-candidate uniqueness",
+  "package-only begin_lowering, a splittable tuple, Clone/Rc/Arc/RefCell loan transport, or consumer-side resolver repair",
+]
+acceptance = [
+  "B1 carrier integration has one canonical Callee/CallTarget shape and zero new String target issuers",
+  "Cataloged target issuance is backed by the same-session owner-link, exact site, same brand, and one declaration relation",
+  "missing, foreign, duplicate, ambiguous, wrong-kind, and lineage-mismatch cases abort before package/body/argument effects",
+  "package and loan are one private non-splittable lifecycle; raw recursion receives only a short mutable borrow",
+  "take_once precedes argument descent, arguments are lowered once, MirInstruction::call is emitted once, and residual loan is zero",
+]
+no_safe_slice = [
+  "the current Callee::Global(String) must be used to publish a new D1 target",
+  "B1 requires a parallel transitional variant or a formatter/reparse bridge",
+  "an exact owner/site relation is unavailable and name/arity/physical symbol would be used instead",
+  "package-only install or shared begin_lowering remains the only way to reach the raw dispatcher",
+  "lineage or loan transport requires caller=None collapse, Clone/Rc/RefCell, unsafe, or a second resolver",
 ]
