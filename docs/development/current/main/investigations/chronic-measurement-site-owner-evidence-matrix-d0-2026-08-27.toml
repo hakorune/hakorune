@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner evidence matrix D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "2395d501e0"
+observed_commit = "a63ce4d52b"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
@@ -171,7 +171,7 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 status = "design_matrix_required_before_owner_map"
-finding = "At 27568a926b/2395d501e0, A0 is landed and the tracked source remains unchanged from the d9cff5 receipt. All 185 rows still require site-level evidence: 79 generated registry rows need a named retention policy, 46 runtime rows mix active and disconnected owners, and 60 builder rows across 38 files cannot inherit a file-level mixed role."
+finding = "At a63ce4d52b, A0 is landed, the coverage skeleton is pinned, and the tracked source remains unchanged from the d9cff5 receipt. All 185 rows still require site-level evidence: 79 generated registry rows need a named retention policy, 46 runtime rows mix active and disconnected owners, and 60 builder rows across 38 files cannot inherit a file-level mixed role."
 evidence = [
   "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 are candidate generated-registry/include evidence, not blanket Retain authority",
   "src/lib.rs:119-120, src/mir/mod.rs:214-215, src/mir/compiler/mod.rs:81-98, and named raw-root owner READMEs are candidate runtime evidence",
