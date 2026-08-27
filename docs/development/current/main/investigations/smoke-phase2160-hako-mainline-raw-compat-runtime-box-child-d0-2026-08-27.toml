@@ -1,6 +1,6 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box child fate design"
 status = "accepted_design"
-observed_commit = "cbf761b2ff129663eb53495be9e34baa5276cba8"
+observed_commit = "60de7ac91e"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
@@ -55,7 +55,83 @@ retiring = "Explicit route-retirement row owns deletion; this card does not infe
 dispatcher = "src/mir/builder/raw_expression_dispatch/mod.rs:488-524"
 instance_batch = "src/mir/builder/instance_box_method_batch.rs:71-95"
 root_constructor_edge = "src/mir/builder/instance_box_constructor_batch.rs:113-135 is root work-plan scope and remains separate from these runtime edges"
-current_fate = "ParkedSealed; no runtime-box implementation permission"
+runtime_constructor_edge = "src/mir/builder/instance_box_declaration_lifecycle.rs:114-116 -> instance_box_constructor_batch.rs:117-139 is also reachable from runtime raw lifecycle; root and runtime callers must be separated in the next census"
+current_fate = "ParkedSealed; no runtime-box implementation permission. Re-observed at HEAD 60de7ac91e after root I1 landed."
+
+[reobservation]
+result = "I1 root terminal remains isolated: runtime ASTNode::BoxDeclaration does not call lower_raw_compat_* and still follows its existing dispatcher-owned branches."
+runtime_edges = [
+  "raw_expression_dispatch/mod.rs:488-526::ASTNode::BoxDeclaration",
+  "nonmain_static_box_lifecycle.rs:35-45::App static non-Main no-op",
+  "nonmain_static_box_lifecycle.rs:47-58 -> nonmain_static_box_method_batch.rs:77-101::non-App static batch",
+  "instance_box_declaration_lifecycle.rs:114-116 -> instance_box_method_batch.rs:71-95::instance method/constructor split",
+  "nested_box_method_source.rs:141-187::NestedBoxMethod lineage and symbol/arity construction",
+  "recursive_child_lowering.rs:435-449::runtime module_port collector commit",
+]
+root_exclusion = "The landed RawCompatibilityChildTerminalPortV1 accepts only ScriptRoot and is not a runtime source, shape, or collector authority. Root outer collector drain is distinct from the runtime module_port commit."
+
+[[runtime_family_census]]
+id = "nested-main"
+owner = "recursive_child_lowering.rs:532-539"
+source = "runtime BoxDeclaration under nested Main"
+shape = "not issued; root-only typed reject"
+lineage = "runtime nested Main boundary"
+collector = "none on success"
+fate = "RuntimeMainNestedReject"
+
+[[runtime_family_census]]
+id = "static-nonmain-app"
+owner = "nonmain_static_box_lifecycle.rs:35-45"
+source = "runtime static non-Main in App mode"
+shape = "no child lowering; emit_void terminal"
+lineage = "runtime static declaration"
+collector = "no child collector"
+fate = "AppStaticDeclarationNoOp"
+
+[[runtime_family_census]]
+id = "static-nonmain-nonapp"
+owner = "nonmain_static_box_lifecycle.rs:47-58 -> nonmain_static_box_method_batch.rs:77-101"
+source = "runtime static non-Main outside App mode"
+shape = "currently distributed across method batch function_name/params"
+lineage = "runtime static declaration"
+collector = "recursive runtime module_port"
+fate = "RuntimeNestedMethodLegacyCaptureCommit"
+
+[[runtime_family_census]]
+id = "instance-constructor"
+owner = "instance_box_declaration_lifecycle.rs:114-116 -> instance_box_constructor_batch.rs:117-139"
+source = "runtime instance Box declaration constructor path"
+shape = "currently reaches loose-instance-input freeze; root constructor caller must not be conflated"
+lineage = "runtime instance declaration"
+collector = "recursive runtime module_port"
+fate = "RuntimeConstructorLooseFreeze"
+
+[[runtime_family_census]]
+id = "instance-method"
+owner = "instance_box_method_batch.rs:71-95 -> nested_box_method_source.rs:134-187"
+source = "runtime instance method batch"
+shape = "symbol/arity currently distributed in nested source helper"
+lineage = "NestedBoxMethod"
+collector = "recursive runtime module_port"
+fate = "RuntimeNestedMethodLegacyCaptureCommit"
+
+[next_design]
+smallest_cell = "Census the five runtime families above, co-seal one source/shape/lineage/collector owner per family or choose explicit retirement, and keep App no-op and constructor freeze as negative states."
+required_evidence = [
+  "each BoxDeclaration arm and nested batch edge is listed exactly once",
+  "root/runtime constructor call sites are separated",
+  "symbol and physical arity authority is named without AST/name synthesis",
+  "runtime collector is identified and is not the root outer drain",
+  "RuntimeCompatibilityTerminal versus RuntimeRetiring is selected per family",
+]
+no_safe_slice = [
+  "runtime reuses the landed root RawCompatibility terminal",
+  "NestedBoxMethod or AST/name/arity becomes target authority",
+  "App no-op and non-App lowering share an untyped success terminal",
+  "constructor loose freeze is treated as success without a source/shape owner",
+  "root and runtime constructor callers cannot be separated",
+  "loop, VM, route, Wpre, or Call retirement is required",
+]
 
 [acceptance]
 positive = [
