@@ -64,7 +64,7 @@ blocked_rows = 0
 tracked_exact_path_references = 79
 unresolved_exact_path_rows = 0
 policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
-result = "all 79 rows are structurally bound and policy-ready: every row has an exact RetainNamed policy or named successor with pinned evidence and reopen conditions; no A candidate, conditional, or successor blocker remains. Parent owner-map authoring is still governed by the unresolved B/C matrix rows."
+result = "all 79 rows are structurally bound and policy-ready: every row has an exact RetainNamed policy or named successor with pinned evidence and reopen conditions; no A candidate, conditional, or successor blocker remains. Parent B/C evidence is now complete; owner-map authoring remains behind the separate A1 pinned-reference-resolution gate."
 explicit_policy_candidate_rows = []
 conditional_candidate_rows = []
 explicit_policy_ready_rows = [
@@ -158,7 +158,7 @@ status = "all_accepted"
 rows = 5
 accepted_rows = 5
 blocked_rows = 0
-decision = "All five conditional rows have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. The complete A cohort now has 79 policy-ready rows; parent matrix B/C work remains separate."
+decision = "All five conditional rows have exact RetainNamed owners, pinned evidence, explicit reopen triggers, and no implicit successors. The complete A cohort now has 79 policy-ready rows; parent B/C closure and the later owner-map/A1 work remain separate."
 items = []
 accepted_items = [
   "25:dynamic_full_body_recipe; RetainNamed owner=src/mir/compiler/dynamic_full_body_recipe/mod.rs; reopen on non-test consumer zero or replacement owner",
@@ -171,17 +171,17 @@ next_tasks = []
 binding_rule = "Each conditional row has an exact canonical key, declaration path, independently reviewable owner evidence, explicit RetainNamed policy, and reopen trigger; no conditional row uses a guessed successor or default retention."
 
 [unresolved_review]
-status = "a_policy_ready_parent_matrix_remaining"
+status = "a_policy_ready_parent_map_reference_resolution_remaining"
 rows = 0
 policy_ready_rows = 79
 candidate_only_rows = 0
 blocked_rows = 0
 role_group_count = 0
 partition_counts = "generic_g0=0; recursive=0; variable_accum=0; source_entry_legacy_projection=0"
-scope = "A-cohort review only; all 79 A rows are policy-ready, while the parent 185-row matrix still has B/C evidence blockers"
-next_task = "Continue CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0 for the ten explicit C NoSafeSlice decisions; do not author the global owner map yet."
+scope = "A-cohort review only; all 79 A rows are policy-ready and the parent 185-row matrix is closed at 185/185, while A1 pinned Git reference resolution still blocks owner-map authoring"
+next_task = "Continue CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 at its A1 reference-resolution boundary; do not author the tracked owner map until every reference and role/successor mapping resolves."
 canonical_key = "dead_code_allowance + src/mir/compiler/module_registry.in.rs + byte_start + byte_end + outer_allow"
-decision = "All 79 A rows now have exact policy bindings. The generated-registry retention row closes here; parent matrix B/C rows remain outside this card."
+decision = "All 79 A rows now have exact policy bindings. The generated-registry retention row closes here; parent B/C rows are complete and the remaining owner-map A1 resolution stays outside this card."
 grouped_next_tasks = []
 completed_grouped_tasks = [
   "A-CORE-GENERATED-REGISTRY-FATE-D0: eight exact RetainNamed bindings accepted",
@@ -783,7 +783,7 @@ items = [
   "3. Preserve seventy-nine exact policy bindings: RetainNamed for live/test/reference owners and NamedSuccessor for the three legacy source-entry projections.",
   "4. Keep Generic-G0 bounded to compiled prephysical/test-reference evidence; keep recursive callable admission separate as a live production ingress owner.",
   "5. Keep variable-accum as TestReference-only; do not call M8/M9 a production successor. Do not delete source or allowances in this card.",
-  "6. Close this A row and continue the parent matrix for B/C; global owner-map, expectation TSV, guard registration, and deletion remain later rows.",
+  "6. Close this A row; parent B/C review is complete, while A1 owner-map reference resolution, expectation TSV, guard registration, and deletion remain later ordered stages.",
 ]
 
 [acceptance]
@@ -819,7 +819,7 @@ agents = [
   "conditional_policy_adversary_raw (raw/reference and source projection boundaries)",
   "conditional_policy_adversary_raw_source_entry (three legacy projections mapped to named successors)",
 ]
-status = "A_79_policy_bindings_complete_parent_BC_remaining"
+status = "A_79_policy_bindings_complete_parent_map_a1_remaining"
 finding = "At review HEAD 17df2666374959da4b52bf96bdeb3b3578f57321, all 79 A rows are structurally bound and policy-ready. Generic-G0 six rows are bounded RetainNamed prephysical/test-reference owners; recursive_callable_module_plan is a live production admission owner; variable-accum is grouped TestReference RetainNamed; source_entry_physical/projection/thunk each name an already-landed successor. No source, registry, guard, owner-map, expectation, or deletion authoring is authorized by this card."
 evidence = [
   "chronic-measurement-site-owner-evidence-matrix-v1.tsv: A=79 rows and all A rows are reviewed_ready_for_map; parent matrix now has B=46 ready, C=60 ready, and zero explicit NoSafeSlice rows",
@@ -829,9 +829,9 @@ evidence = [
   "Source-entry worker: old physical/projection/thunk modules have only test/P0 callers and map to published/continuation/result successors",
   "direct_accum_prefix evidence is pinned to direct_accum_prefix.rs; source_projection is canonical source-navigation, not SSA-only",
 ]
-latest_finding = "A is closed at 79/79 policy-ready. The parent 185-row matrix has B=46 ready, C=60 ready, and zero explicit NoSafeSlice rows; next work is tracked owner-map authoring, not code or deletion."
+latest_finding = "A is closed at 79/79 policy-ready. The parent 185-row matrix has B=46 and C=60 ready with zero explicit NoSafeSlice rows; next work is A1 pinned-reference resolution before tracked owner-map authoring, not code or deletion."
 
 [closeout]
-status = "ready_for_parent_matrix"
-required = "The A generated-registry policy row is complete at 79/79. Keep implementation_permission=false; continue the parent site-owner evidence matrix for unresolved B/C rows before owner-map authoring."
-next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
+status = "ready_for_parent_owner_map_a1"
+required = "The A generated-registry policy row is complete at 79/79 and parent B/C evidence is complete at 185/185. Keep implementation_permission=false; resolve A1 pinned Git references and role/successor normalization in the parent site-owner-map D0 before owner-map authoring, expectation pinning, guard registration, or deletion."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
