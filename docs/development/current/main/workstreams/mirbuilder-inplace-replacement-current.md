@@ -1,5 +1,5 @@
 ---
-Status: Design stop — phase2160 hako-mainline RawCompatibility child terminal D0b
+Status: Design stop — D0b accepted; phase2160 hako-mainline RawCompatibility child terminal I1 taskized
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -97,7 +97,8 @@ Design-only follow-up:
   `SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-D0` ->
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0` ->
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b` ->
-  (I1 child terminal, then strict successor re-observation or explicit route retirement) ->
+  `...RAW-COMPAT-CHILD-TERMINAL-I1` (pointer remains design_stop until explicitly opened) ->
+  strict successor re-observation or explicit route retirement ->
   `SMOKE-PHASE2160-AGGREGATE-RETIRE-R0`.
   The other nineteen leaves remain separate design rows (program/EXE, registry, builder, loop, and selfhost families).
   Then

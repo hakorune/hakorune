@@ -1,0 +1,212 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility child terminal implementation I1"
+status = "accepted_design"
+observed_commit = "63d5c75be6504c3105b0bdfbe0af4752a8be0e8a"
+observed_at = "2026-08-27"
+implementation_permission = false
+selected_fast = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1"
+implementation_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0b-2026-08-27.toml"
+
+[boundary]
+starts = "RawCompatibility ProgramRootWorkPlanV1 after explicit admission and before any named child effects"
+ends = "one collector-backed RawCompatibility terminal for every named family, with child and outer residuals empty"
+includes = [
+  "immediate raw top-level/static children",
+  "raw instance-constructor children",
+  "deferred static compatibility work",
+  "App Main static child and Main materialization",
+  "explicit admission propagation through program-root lowering",
+  "existing source-context borrow and pending-capture/LegacyReplaceWholePair seams",
+  "one reusable structural guard and focused positive/negative/parity evidence",
+]
+excludes = [
+  "source-backed SelectedNormal lowering or semantic package changes",
+  "new parser/source bridge, semantic receipt, target resolver, or CallTarget transport",
+  "runtime ASTNode::BoxDeclaration and nested runtime method batch",
+  "strict-negative loop leaf, LowerLoopSimpleBox, undefined-value repair",
+  "route/run_all retirement, VM/AOT/backend, Wpre, Call schema, and fallback policy",
+  "wholesale RawLegacyChildLoweringPortV1 replacement",
+]
+
+[brief]
+decision = "Connect the D0b terminal contract as one bounded implementation row. RawCompatibility and SelectedNormal remain explicit, and only the RawInvocation compatibility terminal may use the existing capture/commit seams."
+source_authority = "ProgramRootWorkPlanAdmissionV1, existing compatibility source context, and existing compatibility source batches that already own symbol/physical-arity."
+canonical_issuer = "Existing compatibility source owner issues RawCompatibilityCallableShapeV1 before effects; RawInvocationChildPortV1 moves it through RawCompatibilityChildTerminalPortV1 to existing capture and LegacyReplaceWholePair."
+non_authority = [
+  "None/Option admission inference",
+  "params.len() or params.len()+1 recomputation in a consumer",
+  "AST/name/arity/box-name target synthesis",
+  "source-backed NormalEntryMaterializationSourceReceiptV1 for a raw root",
+  "RawLegacyChildLoweringPortV1 wholesale substitution",
+  "loose-* freeze markers treated as successful lowering",
+  "route filename, hako output, rc, fallback/retry, provider, VM, or Wpre re-entry",
+]
+fail_fast = "Before child effects, admission, ScriptRoot source context, shape, terminal capability, and collector state must all be present and mutually consistent. Missing, foreign, duplicate, mixed, or residual state returns a typed freeze/reject."
+smallest_next_slice = "Add the private shape transport and dedicated terminal capability in owner-specific siblings, propagate explicit admission through all five root families, then prove one child capture and one outer drain without changing SelectedNormal or runtime-box paths."
+non_claims = [
+  "does not make the strict-negative loop leaf green",
+  "does not generalize RawCompatibility to TopLevel, Cataloged, InstanceConstructor, or NestedBoxMethod lineage",
+  "does not alter source-backed behavior or issue a semantic package receipt",
+  "does not retire hako-mainline, Wpre, VM, backend, or any route",
+]
+
+[family_matrix]
+immediate_top_level_static = "program_root_work_plan.rs:516-525 currently reaches the loose static method default; issue and move a shape, then invoke the dedicated terminal and existing static capture."
+raw_instance_constructor = "program_root_work_plan.rs:69-76,458-461 and instance_box_constructor_batch.rs:121-132 currently reach the loose instance method default; issue one constructor shape before lowering and use the dedicated terminal."
+deferred_static = "program_root_lowering.rs:418-422 currently lowers deferred work unconditionally through the normal path; carry non-optional admission and branch RawCompatibility explicitly."
+app_main_static_child = "decls.rs:69-70 and module_lifecycle.rs:66-82 currently use the default app-main child route; RawCompatibility uses the dedicated terminal while SelectedNormal remains unchanged."
+main_materialization = "decls.rs:137-179 and program_root_lowering.rs:300-305,317-320 currently expose normal/legacy materialization choices; RawCompatibility seals and moves RawEntryMaterializationSourceReceiptV1 before the dedicated terminal."
+runtime_box_scope = "raw_expression_dispatch/mod.rs:488-524 and instance_box_method_batch.rs:71-95 remain outside this row and stay parked under the runtime-box successor D0."
+
+[terminal_contract]
+trait = "RawCompatibilityChildTerminalPortV1"
+relation = "RootCallableCapturePortV1: RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1 + RawCompatibilityChildTerminalPortV1"
+shape = "private nonsemantic RawCompatibilityCallableShapeV1 { symbol: Box<str>, physical_arity: usize }; move-only, no Clone/Copy, no independent package getter, no into_parts escape"
+static_signature = "fn lower_raw_compat_static_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+instance_signature = "fn lower_raw_compat_instance_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, box_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+app_main_signature = "fn lower_raw_compat_app_main_static_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, child: &VerifiedMainStaticChildV1<'_>) -> Result<(), String>"
+materialization_signature = "fn lower_raw_compat_main_materialization(&mut self, builder: &mut MirBuilder, receipt: RawEntryMaterializationSourceReceiptV1, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+production_impl = "RawInvocationChildPortV1 is the only production implementation in this row. It reborrows the capability and current ScriptRoot context, calls existing capture helpers, and leaves publication to LegacyReplaceWholePair."
+other_ports = "RawLegacyChildLoweringPortV1 remains on its existing path; SelectedNormal adapter methods remain unchanged; all other loose methods remain typed negative freezes."
+
+[shape_lifetime]
+top_level = "ProgramRootWorkPlan preparation issues one shape from the existing compatibility symbol encoder and source parameter relation before lower_raw_with_port_v1."
+constructor = "PreparedInstanceBoxConstructorBatchV1::prepare issues one shape per constructor from its normalized constructor source/function owner before lower_with_port_v1."
+deferred = "Deferred static preparation issues an aligned shape row per method before ProgramDeferredStaticBoxLifecycleV1 lowering; the consumer only moves the row."
+app_main = "The shape is the sole publication authority for symbol and physical arity. VerifiedMainStaticChildV1 is an immutable consistency witness; mismatch rejects before capture and is never recomputed into the collector."
+ownership = "Shape moves source batch -> child terminal -> existing collector admission. No Clone, Copy, params.len recomputation, or independent sibling ledger."
+failure = "If a family cannot issue an exact shape before child effects, it is typed freeze/ParkedSealed and I1 stops; no target or symbol is synthesized."
+
+[source_contract]
+allowed = "RawInvocationSourceTransportV1::Located with RawInvocationRootLineageV1::ScriptRoot and a concrete SourceNodeSiteV1 only"
+rejected = "UnlocatedCompatibility, missing current_source_context_v1, or any non-ScriptRoot lineage rejects before capture. Main, TopLevel, Cataloged, InstanceConstructor, and NestedBoxMethod require a separate row."
+loan = "The terminal borrows current RawInvocationSourceContextV1 for one child. Existing active_source metadata cloning remains outside the direct terminal loan and is not target authority."
+
+[admission]
+instance_work = "PreparedProgramRootInstanceBoxWorkV1 carries non-optional ProgramRootWorkPlanAdmissionV1; normal_constructor_sources is payload, never the selector."
+deferred_work = "PreparedProgramDeferredStaticBoxWorkV1 carries the same non-optional admission enum; method/name vectors cannot select a route."
+app_main = "build_verified_static_main_box_with_port_v1 receives admission and passes it to child and materialization dispatch. RawCompatibility and SelectedNormal cannot cross-convert."
+drift = "Any work-plan/admission mismatch returns the existing typed program-root drift error before child effects."
+
+[materialization]
+raw_child = "RawCompatibility App Main child invokes lower_raw_compat_app_main_static_child and existing capture/LegacyReplaceWholePair."
+raw_main = "RawCompatibility Main materialization seals RawEntryMaterializationSourceReceiptV1 with Required policy before effects, moves it to lower_raw_compat_main_materialization, then uses existing capture/LegacyReplaceWholePair."
+normal = "SelectedNormal retains NormalEntryMaterializationSourceReceiptV1 and the existing cataloged normal path."
+forbidden = "RawCompatibility never constructs NormalCatalogedBoxMethodDraftAdmissionV1, enters lower_cataloged_static_box_method, or upgrades a raw root to source-backed."
+
+[collector]
+child = "Each selected child produces exactly one LegacyReplaceWholePair pending capture/collection."
+outer = "After all children, program_root_lowering.rs performs exactly one outer ModuleDraftCollector drain/commit."
+completion = "Child pending state, direct-call loan, and outer module residual must all be empty before the row is complete."
+
+[change_set]
+new_siblings = [
+  "src/mir/builder/raw_compatibility_child_terminal.rs for the private shape, capability, and RawInvocation implementation",
+  "src/mir/builder/program_root_work_plan/raw_compatibility.rs for shape issuance and raw-family dispatch",
+  "src/mir/builder/raw_compat_child_terminal_tests.rs for focused evidence",
+]
+existing_owners = [
+  "src/mir/builder/program_root_work_plan.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/builder/decls.rs",
+  "src/mir/builder/module_lifecycle.rs",
+  "src/mir/builder/instance_box_constructor_batch.rs",
+  "src/mir/builder/nonmain_static_box_method_batch.rs",
+  "src/mir/builder/recursive_child_lowering.rs",
+  "src/mir/builder/module_lowering_invocation_legacy_term.rs",
+]
+delete_set = [
+  "RawCompatibility top-level/static direct handoff to loose lower_static_box_method",
+  "RawCompatibility constructor direct handoff to loose lower_instance_box_method",
+  "deferred compatibility unconditional lower_normal_with_port_v1",
+  "App Main compatibility child and materialization fallthrough to normal/cataloged paths",
+  "consumer-side symbol/physical-arity recomputation",
+  "implicit None/Option admission selection",
+]
+preserve_set = [
+  "SelectedNormal cohort validation and existing source-backed lowering",
+  "loose-* defaults as negative unclassified-input guards",
+  "existing capture_static_box_method_pending_v1",
+  "existing capture_normalized_instance_box_method_pending_v1",
+  "existing commit_legacy_nested_box_method_symbol_pending_v1",
+  "LegacyReplaceWholePair and outer ModuleDraftCollector atomic publication",
+  "runtime BoxDeclaration/nested-method paths and their separate successor card",
+]
+
+[line_budget]
+hard_stop = 800
+split_threshold = 760
+near_limit = [
+  "program_root_work_plan.rs currently 729 lines: only fields and thin delegation may remain; dispatch belongs in the child sibling",
+  "builder.rs currently 741 lines: do not add a #[path] band-aid or unrelated barrel entries",
+  "raw_invocation_source_transport.rs currently 778 lines: do not extend it in I1",
+  "module_lifecycle_capture_tests.rs currently 797 lines: add a new test sibling instead",
+]
+rule = "If an owner or new sibling approaches 760 lines, stop and split by existing module ownership. Never compress lines to evade the threshold."
+
+[acceptance]
+positive = [
+  "all five named families have explicit RawCompatibility admission and reach the dedicated terminal",
+  "only Located(ScriptRoot) with a concrete site is admitted",
+  "RawCompatibilityCallableShapeV1 is issued before child effects and moved once",
+  "App Main publication uses shape authority and only validates child witness metadata",
+  "each child capture/LegacyReplaceWholePair occurs once and the outer collector drains/commits once",
+  "SelectedNormal source-backed behavior and cohort checks remain unchanged",
+  "child, loan, and outer residual checks are empty at completion",
+]
+negative = [
+  "missing/foreign/duplicate/mixed admission, source context, shape, or collector state rejects before child effects",
+  "UnlocatedCompatibility and non-ScriptRoot lineage cannot enter the terminal",
+  "loose-* defaults remain negative freezes and are not success evidence",
+  "raw App Main never enters NormalEntryMaterializationSourceReceiptV1 or cataloged normal publication",
+  "runtime BoxDeclaration/nested method edges remain outside I1",
+  "no resolver, target synthesis, fallback, retry, VM/backend, Wpre re-entry, or RawLegacy wholesale swap appears",
+]
+parity = "Preserve compatibility symbol/arity, pending replacement pair, statement/argument order, module collector output, and source-backed path. Loop-blocker and runtime-box parity are deferred."
+focused_tests = [
+  "raw_compat_child_terminal_tests: immediate top-level/static, instance-constructor, deferred-static, App Main child, and Main materialization positives",
+  "raw_compat_child_terminal_tests: unlocated/non-ScriptRoot, missing/foreign/duplicate shape, mixed admission, and second-take negatives",
+  "program_root_work_plan_tests: explicit admission propagation and SelectedNormal missing-cohort negative",
+  "normal_default_root_catalog_lifecycle_tests: real compatibility root reaches the collector terminal",
+  "recursive_child_lowering_rawport_tests: loose default remains a typed negative freeze",
+]
+guard = "tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh, registered atomically in tools/checks/guard_rows.toml. It must derive branch/terminal/capture/outer-drain structure and runtime-box exclusion from code; it must not whitelist freeze text or route rc."
+
+[implementation_gate]
+permission = false
+requires_pointer_switch = true
+required_before_fast = [
+  "D0b is committed and current pointer/workstream names this I1 card",
+  "implementation is limited to the boundary above and no runtime-box/SelectedNormal/route/VM changes",
+  "all modified owners and test sibling remain below the line budget",
+  "guard script and registry row land in the same implementation slice as the code",
+  "focused positive/negative/parity tests are present and run one Cargo command at a time",
+]
+no_safe_slice = [
+  "a new semantic receipt, parser bridge, target resolver, or source identity is needed",
+  "shape must be reconstructed by a consumer or passed by Clone/Rc/Arc/RefCell",
+  "ScriptRoot is supplemented by name/arity inference for another lineage",
+  "RawCompatibility reaches SelectedNormal/cataloged or loose success",
+  "child capture or outer drain is not exactly once",
+  "runtime Box edges must be pulled into this row",
+  "the line budget requires compression or a #[path] band-aid",
+]
+
+[ordered_followups]
+before = "Docs-only pointer/workstream sync; keep design_stop until the user opens the bounded implementation row."
+after_i1 = "Re-observe the strict successor; if it remains blocked, choose explicit route retirement rather than widening I1."
+later = [
+  "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0",
+  "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
+  "force-hv1/Wpre closure, then Call spine and mandatory-Callee cutover",
+  "VM route retirement after Call R7/POST-CALL closure",
+  "global guard graph/registry/family retirement after semantic cutovers stabilize",
+]
+reopen_triggers = [
+  "a second compatibility terminal or shape authority appears",
+  "any family falls through implicit None/Option or source-backed lowering",
+  "non-ScriptRoot is admitted without a separate row",
+  "child/outer residual or line budget cannot be proven",
+  "I1 success is used as Wpre, Call, VM, or route-retirement permission",
+]
