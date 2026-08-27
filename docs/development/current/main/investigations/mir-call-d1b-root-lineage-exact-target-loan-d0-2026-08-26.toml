@@ -1,13 +1,13 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "d1b_selected_functioncall_observation_design_stop"
+status = "raw_transport_boxshape_split_fast"
 observed_commit = "2690a1c856"
 observed_at = "2026-08-28"
-implementation_permission = false
+implementation_permission = true
 guard_phase = "bridge_ready"
-permission_scope = "D1B remains design-only. This row may close only the existing observer reuse, neutral facts owner, Selected-only canonicalization policy, and pre-install incomplete-observation terminal. Raw transport BoxShape and observer implementation are named successors, not current permission; package/issuer/lineage loan/dispatcher, unrestricted profile widening, fallback, and Call changes remain forbidden. Historical Wpre/force-hv1 rows retain their own landed fates."
+permission_scope = "Only RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 is open: a behavior-neutral same-path module/test split below 760 lines. D1B observer facts, package/issuer/lineage loan/dispatcher, unrestricted profile widening, fallback, and Call changes remain forbidden; after this closeout return to the Selected FunctionCall observer design stop. Historical Wpre/force-hv1 rows retain their own landed fates."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
+execution_row = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0"
 completed_execution_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0"
 next_execution_row = "none"
 
@@ -745,6 +745,14 @@ transport_split_visibility = "Only parent-module visibility may be widened for c
 transport_split_tests = "The existing raw_invocation_source_transport_tests.rs is 797 lines; split it into 2–3 ordinary child test modules (root/control/lambda; scalar/local/source-index; print/if/try/match) before semantic edits so every touched source remains below 760. Keep the 67-line lineage witness tests as an ordinary cfg(test) child."
 transport_split_acceptance = "Outside module path, visibility surface, behavior, and lifetime signatures are unchanged; every new child is below 760 lines; new #[path] directives are zero; existing tests/guards remain the only proof."
 transport_split_stop = "Stop and return to D1B design if the split needs a semantic change, direct-call loan/Callee storage, a third lifetime, lineage remapping, dispatcher changes, ledger ownership changes, raw-route switching, or a new #[path] bandage."
+
+[transport_split_execution]
+task_id = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0"
+status = "accepted_fast"
+change = "Replace the two over-limit raw transport/test files with ordinary same-path child modules: lineage, source scope, context, transport port, child-lowering implementation, and grouped cfg(test) modules."
+contract = "Behavior, external module path, restricted visibility, lifetimes, signatures, test names, and error text remain unchanged. This is BoxShape only; no D1B semantic allowance or direct-call capability is added."
+done = "Every touched child is below 760 lines, no new #[path] directive exists, existing focused tests and current lane guards stay green, and the old monolithic files are gone."
+stop = "Return to the D1B design stop if any semantic edit, new lifetime, loan/Callee field, lineage remap, dispatcher/ledger change, route switch, or path bandage is required."
 
 [reduction_forecast]
 boundary = "Call ordinary-preflight/target/recovery/method/selected-terminal/core-schema families only; excludes broad JSON-v0, JoinIR/Loop, PyVM, and general dead_code."
