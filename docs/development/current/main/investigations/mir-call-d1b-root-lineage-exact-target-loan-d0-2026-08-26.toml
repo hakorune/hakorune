@@ -1,6 +1,6 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
 status = "d1b_root_lineage_loan_design_stop"
-observed_commit = "dde83a6449"
+observed_commit = "fdf4caebd1"
 observed_at = "2026-08-28"
 implementation_permission = false
 guard_phase = "bridge_ready"
@@ -584,7 +584,7 @@ non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global
 
 [task_spine]
 current = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 is the selected design stop after ordinary-call observation-boundary reconciliation; B0/Wpre/force-hv1 rows remain landed or separately parked historical owners."
-next_prerequisite = "First close the package-owned scoped caller relation: reuse selected cataloged lowering input's owner/CallableDeclarationIdentity and catalog brand, preserve exact Raw site/lineage through one mapper, and define an explicit same-session proof. Only then open one atomic B0 row for the three-variant structural carrier, bounded StaticBoxMethod issuer, and all 17-family/19-consumer dispositions; after that close package-plus-loan installation and NoDirectCalls, then design the first Cataloged affine cell."
+next_prerequisite = "First bound the observer-only SelectedCallableV1 FunctionCall profile and retain its one-pass site/name/arity rows in existing ResolvedFunctionDataV1 while callable_index=None publication remains typed-reject. Before semantic edits, split raw_invocation_source_transport.rs behavior-neutrally below 760 lines. Then close the package-owned scoped caller relation: reuse selected cataloged lowering input's owner/CallableDeclarationIdentity and catalog brand, preserve exact Raw site/lineage through one mapper, and define an explicit same-session proof. Only then open one atomic B0 row for the three-variant structural carrier, bounded StaticBoxMethod issuer, and all 17-family/19-consumer dispositions; after that close package-plus-loan installation and NoDirectCalls, then design the first Cataloged affine cell."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
