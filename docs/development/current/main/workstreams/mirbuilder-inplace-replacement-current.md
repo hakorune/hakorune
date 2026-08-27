@@ -1,5 +1,5 @@
 ---
-Status: Design stop — phase2160 leaf fate census
+Status: Design stop — phase2160 hako-mainline strict-negative successor
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/smoke-phase2160-leaf-fate-census-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/smoke-phase2160-leaf-strict-successor-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -63,7 +63,7 @@ Design-only follow-up:
   authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、現在は20本のleaf fate censusだけを設計停止する。
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。現在は最初のhako-mainline strict-negative successorだけを設計停止する。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
 `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):
@@ -91,8 +91,11 @@ Design-only follow-up:
   `SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-D0` ->
   `SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-I0` ->
   `SMOKE-OWNER-PACK-PHASE2160-BEST-EFFORT-D0` ->
-  `SMOKE-PHASE2160-LEAF-FATE-CENSUS-D0` -> one selected leaf successor
-  implementation row -> phase2160/2100/pure-legacy and filter-driven successor rows.
+  `SMOKE-PHASE2160-LEAF-FATE-CENSUS-D0` ->
+  `SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0` ->
+  `SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0` ->
+  `SMOKE-PHASE2160-AGGREGATE-RETIRE-R0`.
+  The other nineteen leaves remain separate design rows (program/EXE, registry, builder, loop, and selfhost families).
   Then
   `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` (post-emission boundary; issuer VM is
   ParkedSealed), Stage1 lifecycle guard, and exact AOT S0. Force-hv1 PHI/

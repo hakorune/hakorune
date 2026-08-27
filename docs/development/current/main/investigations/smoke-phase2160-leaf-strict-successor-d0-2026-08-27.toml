@@ -1,0 +1,141 @@
+title = "Smoke phase2160 hako-mainline strict-negative successor design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "2437f09da4"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-leaf-fate-census-d0-2026-08-27.toml"
+
+[boundary]
+starts = "phase2160 hako_mainline_loop_undefined_block_vm.sh, its exact fixture, and emit_mir_route.sh --route hako-mainline"
+ends = "one direct strict-negative owner with typed prerequisite/error states and no swallowed success"
+includes = [
+  "fixed release binary and fixture identity",
+  "one 10-second route invocation and exact rc/output classification",
+  "paired LowerLoopSimpleBox and undefined-value diagnostic evidence",
+  "explicit environment allowlist and no-fallback contract",
+  "successor registration and the old run_all child-edge deletion",
+]
+excludes = [
+  "phase2160 other nineteen leaves",
+  "phase2160/run_all.sh deletion itself",
+  "VM implementation or loop lowering repair",
+  "phase2050/2170 owner packs, MirBuilder changes, Cargo, and LLVM/AOT policy",
+  "turning a fixed blocker into a product success claim",
+]
+
+[brief]
+decision = "Select hako_mainline_loop_undefined_block_vm.sh as the first strict-negative successor candidate. Keep the current leaf ParkedSealed until a direct owner distinguishes unavailable prerequisites, timeout, wrong failure, mixed output, resolved blocker, and the exact observed blocker."
+source_authority = "apps/tests/phase216_mainline_loop_undefined_value_blocker_min.hako"
+canonical_issuer = "A future leaf-local strict-negative owner invoking the fixed hako-mainline route once"
+non_authority = [
+  "phase2160/run_all.sh and its [PASS] text",
+  "filename, grep matches from separate output windows, inherited environment, and timeout alone",
+  "partial MIR, skip output, fallback output, or synthetic diagnostics",
+]
+fail_fast = "Missing/foreign prerequisites, timeout, rc=0, wrong diagnostic, reason drift, mixed MIR/error, or any route retry is a non-pass terminal; only one non-timeout nonzero execution with the paired diagnostic is ObservedBlocker."
+smallest_next_slice = "Freeze fixture/binary hashes, explicit environment, ten-second timeout, paired diagnostic, and finite outcome states; then open one implementation row without run_all or chmod dependence."
+non_claims = [
+  "does not prove a VM or product success",
+  "does not repair LowerLoopSimpleBox or undefined ValueId",
+  "does not make missing prerequisites green",
+  "does not migrate the other nineteen leaves",
+]
+
+[observed]
+leaf_path = "tools/smokes/v2/profiles/integration/core/phase2160/hako_mainline_loop_undefined_block_vm.sh"
+leaf_body_sha256 = "6a23324dfb8a0e34f9b7e83cd42513e082c7896cb50d3a932b8324742df79cc2"
+fixture_path = "apps/tests/phase216_mainline_loop_undefined_value_blocker_min.hako"
+fixture_sha256 = "98d4d4a44198dacdb4a2b24438443dd00f7819d69eb69393e69ab8b5ddb35c7f"
+route = "tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline"
+current_behavior = "binary/fixture absence or diagnostic drift returns SKIP 0; rc is nonzero before marker checks; run_all swallows the child result"
+current_inherited_env_risk = "NYASH_BIN/HAKO_BIN, HAKO_SELFHOST_TRY_MIN, HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG, HAKO_MIR_BUILDER_BOX, and fallback/force variables can alter the route unless explicitly cleared"
+wrapper_edge = "phase2160/run_all.sh:33 -> hako_mainline_loop_undefined_block_vm.sh"
+
+[strict_contract]
+binary = "repository target/release/hakorune only; do not accept NYASH_BIN/HAKO_BIN alias"
+fixture = "repository fixture path and exact sha256 above"
+timeout = "10 seconds; timeout is Timeout, never ObservedBlocker"
+route_invocations = 1
+expected_success = "rc != 0, not timeout, no canonical MIR mixed with the error, and the same failure window contains one LowerLoopSimpleBox.(try_lower|_lower_from_cmp|_emit_or_build_with_limit)/ marker plus one use of undefined value ValueId|Invalid value marker"
+resolved_blocker = "rc=0 -> fail as blocker resolved unexpectedly"
+reason_drift = "nonzero without the paired markers -> fail, never SKIP"
+missing_prerequisite = "UnavailablePrerequisite non-pass terminal"
+mixed_output = "nonzero plus valid MIR payload -> MixedOutput failure"
+cleanup = "rm temporary files is non-semantic and may tolerate cleanup-only failure"
+
+[strict_contract.environment]
+allowlist = [
+  "PATH required to launch fixed binary and helper",
+  "HAKO_SELFHOST_BUILDER_FIRST=1",
+  "HAKO_SELFHOST_NO_DELEGATE=1",
+  "HAKO_EMIT_MIR_MAINLINE_ONLY=1",
+  "HAKO_SELFHOST_TRY_MIN=0",
+  "HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG=0",
+  "HAKO_MIR_BUILDER_BOX=hako.mir.builder",
+  "NYASH_VM_USE_FALLBACK=0",
+]
+forbidden_inherited = [
+  "NYASH_BIN and HAKO_BIN route aliases",
+  "force/methodize/normalize variables not in the allowlist",
+  "VM fallback, provider retry, min-builder retry, or delegate re-entry",
+]
+
+[finite_state]
+unavailable_prerequisite = "fixed binary or fixture is absent/not executable -> non-pass unavailable terminal"
+invalid_configuration = "route/env/timeout configuration is not exactly the contract -> failure"
+timeout = "timeout command expires -> failure, not blocker evidence"
+mixed_output = "canonical MIR and failure are both present -> failure"
+observed_blocker = "single non-timeout nonzero route with the paired diagnostic markers -> strict-negative success"
+wrong_failure = "nonzero route without the paired markers -> failure"
+resolved = "rc=0 -> failure because the negative blocker disappeared"
+
+[acceptance]
+positive = [
+  "fixed binary and fixture hashes are checked before execution",
+  "route executes exactly once with explicit no-fallback environment",
+  "only the paired diagnostic in one failure window yields ObservedBlocker",
+  "successor runs directly and does not depend on phase2160/run_all.sh or chmod",
+  "after successor lands, the run_all child edge is removed in the same cutover evidence",
+]
+negative = [
+  "missing binary/fixture is not rc=0 success",
+  "timeout, rc=0, wrong failure, reason drift, and mixed output fail",
+  "no command-level || true, retry, fallback, synthetic output, or inherited route alias",
+  "no VM/product parity claim is emitted",
+]
+parity = "Compare the intended negative terminal and exact paired diagnostics only; no positive runtime parity is claimed."
+guard = "A reusable leaf guard must derive the fixed path/hash and reject unknown environment/diagnostic states; it must not count [PASS] text or wrapper return code."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "strict owner shape and exact env allowlist are accepted",
+  "UnavailablePrerequisite, Timeout, MixedOutput, WrongFailure, Resolved, and ObservedBlocker are represented distinctly",
+  "direct execution is independent of run_all and chmod",
+  "old wrapper edge and successor edge are ready for one atomic cutover",
+]
+no_safe_slice = [
+  "diagnostic pair is not stable or cannot be observed in one failure window",
+  "NYASH_BIN/HAKO_BIN or helper fallback is needed to reach the route",
+  "timeout is treated as blocker evidence",
+  "synthetic/force/min-builder behavior is required",
+  "the successor keeps the child under run_all or leaves duplicate execution",
+]
+
+[ordered_followups]
+next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0"
+later = [
+  "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
+  "SMOKE-PHASE2160-PROGRAM-EXE-STRICT-D0",
+  "SMOKE-PHASE2160-REGISTRY-STRICT-D0",
+  "SMOKE-PHASE2160-BUILDER-STRICT-D0",
+  "SMOKE-PHASE2160-LOOP-REFERENCE-FATE-D0",
+  "SMOKE-PHASE2160-SELFHOST-FATE-D0",
+]
+reopen_triggers = [
+  "fixture or route body hash changes",
+  "a new inherited env variable changes route selection",
+  "diagnostic pair changes or appears in separate output windows only",
+  "successor returns to run_all or gains fallback/synthetic/chmod behavior",
+]
