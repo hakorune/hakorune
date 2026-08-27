@@ -1,6 +1,6 @@
 title = "Chronic measurement generated registry retention D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "232b5fe2d852fc06a7a5992c59485ceb042e8e42"
+observed_commit = "7917aa105cd056d58adac837b5f0bc297da89006"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
@@ -34,7 +34,7 @@ non_authority = [
   "the coverage skeleton's empty fields, guessed successor, or a blanket Retain assertion",
 ]
 fail_fast = "A cohort closure fails if any of the 79 rows lacks a declaration-level owner, explicit role evidence, named retention policy or successor, or if a uniform policy is asserted across mixed modules without row-level proof."
-smallest_next_slice = "Continue design-only policy issuance for the 36 residual rows across 8 role groups; preserve module_postprocess as RetainNamed, carry source_view plus a_prime/callable-single-loop/canonical/DirectAccum/dynamic-source/generic-G0 as candidate evidence only, and keep successor status unknown until each remaining canonical key has a named policy owner or successor."
+smallest_next_slice = "Continue design-only policy issuance for the 4 residual rows across 2 role groups; preserve module_postprocess as RetainNamed, carry 69 reviewed candidate-evidence joins as non-authoritative, and keep successor status unknown until source_bound and loop_observation receive an exact-key policy owner or successor."
 non_claims = [
   "does not claim generated modules are dead or live",
   "does not create a successor, expectation pin, guard row, or deletion authorization",
@@ -64,7 +64,7 @@ blocked_rows = 78
 tracked_exact_path_references = 68
 unresolved_exact_path_rows = 11
 policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
-result = "all 79 rows are structurally bound; one row has a reviewed RetainNamed policy, while the remaining 78 stay blocked until their retention/successor policy is named and reviewed"
+result = "all 79 rows are structurally bound; one row has a reviewed RetainNamed policy, 69 rows have current owner/evidence candidates, and the remaining 9 stay blocked until their retention/successor policy is named and reviewed"
 explicit_policy_candidate_rows = [
   "1:a_prime_i64_physical_capability",
   "2:acyclic_callable_graph",
@@ -83,6 +83,9 @@ explicit_policy_candidate_rows = [
   "15:canonical_drain_manifest",
   "16:canonical_finalization",
   "17:canonical_physical_completion",
+  "18:common_v2_session_admission",
+  "19:common_v2_physical_function_entry_input",
+  "20:common_v2_physical_function_skeleton",
   "21:direct_accum_capability",
   "22:direct_accum_prefix",
   "23:direct_accum_profile",
@@ -94,12 +97,41 @@ explicit_policy_candidate_rows = [
   "32:generic_g0_function_effect",
   "33:generic_g0_completion",
   "34:generic_g0_result_abi",
-  "61:recursive_callable_module_plan",
   "35:located",
+  "39:nested_predicate_effect_plan",
+  "40:nested_predicate_physical_input",
+  "41:nested_predicate_producer",
+  "42:nested_predicate_projection",
+  "43:nested_predicate_source_handoff",
+  "44:nested_predicate_topology",
+  "45:variable_accum_break_projection",
+  "46:variable_accum_recurrence_projection",
+  "47:nested_predicate_profile",
   "48:normal_source_plan",
   "49:raw_root_callable_main",
   "50:raw_root_children",
   "51:raw_root_decl_access",
+  "52:raw_root_drain",
+  "54:raw_root_eligibility_classifier",
+  "55:raw_root_eligibility_prepare",
+  "57:raw_root_helper_coverage",
+  "58:raw_root_package",
+  "59:raw_runtime_inputs",
+  "60:raw_source_binding",
+  "61:recursive_callable_module_plan",
+  "62:resolved_callable_module",
+  "63:resolved_callable_module_preflight",
+  "64:resolved_direct_accum_cutover",
+  "65:resolved_nested_predicate_cutover",
+  "68:source_entry_ny_main",
+  "69:source_entry_physical",
+  "70:source_entry_projection",
+  "71:source_entry_published_invocation",
+  "72:source_entry_reference",
+  "73:source_entry_result",
+  "74:source_entry_selection",
+  "75:source_entry_thunk",
+  "76:source_entry_vm_invocation",
   "77:source_entry_vm_reference",
   "78:source_projection",
   "79:source_view",
@@ -113,7 +145,7 @@ conditional_candidate_rows = [
 ]
 conditional_policy_accept_rows = 0
 conditional_policy_blocked_rows = 5
-unresolved_rows = 36
+unresolved_rows = 4
 
 [conditional_review]
 status = "all_blocked"
@@ -132,29 +164,31 @@ binding_rule = "For each conditional row, record exact canonical key, declaratio
 
 [unresolved_review]
 status = "partial_policy_binding_remaining_blocked"
-rows = 36
+rows = 4
 policy_ready_rows = 0
 candidate_only_rows = 0
-blocked_rows = 36
-role_group_count = 8
-partition_counts = "core=7; loop=11; raw_entry=18"
+blocked_rows = 4
+role_group_count = 2
+partition_counts = "core=0; loop=2; raw_entry=2"
 next_task = "CHRONIC-MEASUREMENT-A-UNRESOLVED-POLICY-BIND-D0 (grouped section of this card; no per-row cards)"
 canonical_key = "dead_code_allowance + src/mir/compiler/module_registry.in.rs + byte_start + byte_end + outer_allow"
-decision = "The module_postprocess row is an exact RetainNamed binding; source_view, a_prime, callable_single_loop, canonical, DirectAccum, dynamic_source, and generic_g0 rows now have candidate owner/evidence only. All remaining role descriptions and broad retirement conditions are not canonical-key policy. No additional row is promoted until an explicit retain owner or named successor is tracked against the exact allowance range."
+decision = "The module_postprocess row is an exact RetainNamed binding; 69 rows across a_prime, callable_single_loop, canonical, common_v2, DirectAccum, dynamic_source, generic-G0, nested-production, raw, resolved_callable, source_entry, source_projection, source_view, and variable_observation now have current owner/evidence candidates only. The remaining source_bound and loop_observation rows stay blocked because their evidence does not yet bind an explicit retain owner or named successor to the exact allowance range."
 grouped_next_tasks = [
   "DIRECT-ACCUM-GENERATED-REGISTRY-FATE-D0: keep the four current DirectAccum owner candidates blocked until exact-key retention/fate policy is named",
   "DYNAMIC-SOURCE-GENERATED-REGISTRY-FATE-D0: reconcile the current Dynamic source admission chain with an explicit selected physical fate before policy binding",
   "GENERIC-G0-GENERATED-REGISTRY-FATE-D0: choose an exact-key caller-zero retain owner or named test/reference successor for the six prephysical rows",
+  "COMMON-V2-GENERATED-REGISTRY-FATE-D0: bind exact-key retention or successor policy for the three common-v2 transport/admission rows",
+  "RESOLVED-CALLABLE-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the four resolved-callable ingress/cutover rows",
+  "NESTED-PRODUCTION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the seven nested-predicate production rows",
+  "VARIABLE-OBSERVATION-GENERATED-REGISTRY-FATE-D0: bind exact-key fate for the two variable-observation rows",
+  "CHRONIC-MEASUREMENT-RAW-REGISTRY-FATE-D0: bind exact-key fate for the seven raw/reference rows",
+  "SOURCE-ENTRY-GENERATED-REGISTRY-FATE-D0: split test/reference, legacy projection, live substrate, and VM-reference subgroups before exact-key policy binding",
+  "SOURCE-BOUND-GENERATED-REGISTRY-FATE-D0: name the source-bound package/plan retention or successor owner",
+  "LOOP-OBSERVATION-GENERATED-REGISTRY-FATE-D0: name the loop-observation retirement owner for the two test-only projections",
 ]
 groups = [
-  "common_v2:3; rows=common_v2_* L53/L55/L57; blocker=future-consumer description is not a retention or successor decision",
-  "nested_production:7; rows=nested_predicate_* L122/L126/L128/L132/L134/L136/L158; blocker=live owner candidates have no exact-key retain or successor policy",
   "loop_observation:2; rows=loop_cond_break_continue_projection/loop_true_break_continue_projection L106/L112; blocker=test observation evidence has no retirement owner",
-  "variable_observation:2; rows=variable_accum_break_projection/variable_accum_recurrence_projection L138/L140; blocker=test/recurrence evidence has no retirement owner",
-  "raw:7; rows=raw_root_*/raw_runtime_inputs/raw_source_binding L179/L183/L185/L190/L192/L197/L199; blocker=explicit non-claims do not provide a retain or successor decision",
-  "resolved_callable:4; rows=resolved_* L203/L206/L208/L210; blocker=production census does not authorize retirement or retention",
-  "source_bound:2; rows=source_bound_* L213/L215; blocker=owner evidence exists but fate is not named",
-  "source_entry:9; rows=source_entry_* L217/L219/L221/L223/L225/L227/L229/L231/L236; blocker=publication and legacy retirement are non-claims",
+  "source_bound:2; rows=source_bound_* L213/L215; blocker=owner evidence exists but package/plan fate and compatibility re-export policy are not named",
 ]
 
 [policy_binding_module_postprocess]
@@ -215,9 +249,9 @@ blocking = [
 items = [
   "1. Bind exactly the 79 A rows from the validated receipt; preserve byte-range identity and do not regenerate scanner output.",
   "2. Confirm module_registry.in.rs and compiler/mod.rs as topology owner evidence without treating the include as retention policy.",
-  "3. Bind the 37 explicit candidate rows to canonical registry keys and their existing tracked owner/successor evidence without upgrading candidate status to policy-ready.",
+  "3. Bind the 69 current candidate-evidence rows to canonical registry keys and their existing tracked owner/successor evidence without upgrading candidate status to policy-ready.",
   "4. Bind the 5 conditional candidates to exact row-level retain or successor policy; keep all five blocked if the existing broad evidence cannot be narrowed.",
-  "5. Review the 36 residual rows across 8 role groups, recording an exact policy owner or named successor only where the canonical key is covered; keep all unresolved rows blocked.",
+  "5. Review the 4 residual rows across the source_bound and loop_observation groups, recording an exact policy owner or named successor only where the canonical key is covered; keep all unresolved rows blocked.",
   "6. Record the finite policy and row-level evidence in the parent matrix; only then reopen site-owner-map D0 for map authoring.",
 ]
 
@@ -247,12 +281,15 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 agents = [
-  "chronic_measurement_scope_audit (core partition=21; a_prime and DirectAccum narrow follow-ups)",
-  "aggregate_heavy_cohort_design (loop partition=22; callable_single_loop and dynamic_source narrow follow-ups)",
-  "chronic_token_scanner_design_audit (raw/entry partition=19; source_view, canonical, and generic_g0 narrow follow-ups)",
+  "chronic_measurement_scope_audit (common-v2/resolved-callable follow-ups; 7 candidate rows)",
+  "aggregate_heavy_cohort_design (nested-production follow-up; 7 candidate rows)",
+  "vm_route_retirement_census/phase2170_flow_recv_rows (variable-observation follow-up; 2 candidate rows)",
+  "chronic_token_scanner_design_audit (raw follow-up; 7 candidate rows; two conditional rows remain blocked)",
+  "force_successor_fate_audit (source-entry follow-up; 9 candidate rows)",
+  "guard_index_spec_audit (source-bound/loop-observation stop-line; 4 rows remain blocked)",
 ]
 status = "partial_policy_binding_remaining_blocked"
-finding = "At 232b5fe2d8, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Current tracked evidence yields 37 explicit candidates, 5 conditional candidates, one reviewed RetainNamed binding for module_postprocess, and 36 unresolved rows; policy-ready is 1/79. Three read-only partitions (21/22/19 before follow-ups) plus a_prime, callable_single_loop, source_view, canonical, DirectAccum, dynamic_source, and generic_g0 narrow follow-ups confirmed the residual rows were blocked by role-group evidence without canonical-key policy, not split into per-row cards; candidate-only=0 and blocker=36 for the remaining set."
+finding = "At 7917aa105c, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Current tracked evidence yields 69 candidate rows, 5 conditional candidates, one reviewed RetainNamed binding for module_postprocess, and 4 residual rows across source_bound and loop_observation; policy-ready is 1/79. Six read-only follow-ups confirmed current owner/consumer evidence for common-v2, resolved-callable, nested-production, variable-observation, raw, and source-entry groups without issuing exact-key retention/successor policy; candidate-only=0 and blocker=4 for the remaining set."
 evidence = [
   "tools/checks/manifests/chronic_measurement_observations_v1.json binds 79 A rows to src/mir/compiler/module_registry.in.rs at source commit d9cff5b744edee3b6450db5d0ffc74478f32b49a",
   "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only; 79/79 following mod declarations and tracked module paths resolve",
@@ -265,12 +302,12 @@ evidence = [
   "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json and tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json provide candidate evidence for rows 77-78",
   "dynamic_full_body_recipe README, post0-publication0 task, generic-loop-source-to-portable-recipe SSOT, declaccess0, and post0-public-cutover task remain conditional for rows 25, 27, 28, 53, and 56",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
-  "The residual review initially grouped all 62 exact canonical keys into 16 role groups; after module_postprocess was bound as RetainNamed and source_view, a_prime, callable_single_loop, and canonical were recorded as candidate evidence only, 47 exact keys remain across 11 role groups, with no named retain owner or successor bound to their allowance ranges",
+  "The residual review initially grouped all 62 exact canonical keys into 16 role groups; after module_postprocess was bound as RetainNamed and the first candidate evidence was recorded, 47 exact keys remained across 11 role groups, with no named retain owner or successor bound to their allowance ranges",
   "Initial core partition (21 rows: A-prime/common-v2/canonical/dynamic-source/generic-G0/resolved-callable) found policy-ready=0 and candidate-only=0; the a_prime and canonical follow-ups then recorded candidate evidence only, while each exact row still requires an explicit row-level retain or successor decision",
   "Common-v2 sub-audit (rows 53/55/57) found role evidence only: session admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; non-test type references do not issue retention or successor policy",
   "Resolved-callable sub-audit (row 203) found a named resolver owner and canonical ingress API, but the exact-key production caller census is test-centered; neither RetainNamed nor a named successor is issued",
   "Initial loop partition (22 rows: callable-single-loop/DirectAccum/nested-production/module-postprocess/loop-observation/variable-observation) found module_postprocess policy-ready after current-caller reconciliation; the callable_single_loop follow-up recorded six candidate rows, while the other 15 residual rows remain blocked by live-vs-test mixing or missing exact disposition",
-  "The initial raw/entry partition (19 rows: raw/source-bound/source-entry/source-view) found policy-ready=0; the source_view narrow follow-up moved one row to candidate evidence only, leaving 18 residual rows blocked, and source_entry_vm_invocation remains separate from the 12-row VM-reference candidate cohort",
+  "The initial raw/entry partition (19 rows: raw/source-bound/source-entry/source-view) found policy-ready=0; the source_view narrow follow-up moved one row to candidate evidence only, leaving 18 residual rows blocked before the later raw/source-entry follow-ups",
   "Source-view narrow follow-up (row source_view L248 [8817-8836]) found FunctionSourceViewV1 as the current production source-navigation owner, with production consumers through ResolvedFunctionLoweringInputV1 and located/source navigation; this is candidate evidence only because the exact allowance has no named RetainNamed policy or successor yet, and the historical disconnected README wording is not current fate authority",
   "A-prime narrow follow-up (row a_prime_i64_physical_capability L6 [180-199]) found the selected-Dynamic issuer and production handoff; this is candidate evidence only because the exact allowance has no named RetainNamed policy or successor yet, and earlier caller-zero wording is historical",
   "Callable-single-loop narrow follow-up (six rows L18/L23/L25/L30/L32/L37) found technical logical/source issuers but no production selector; all six remain candidate evidence only with exact-key retention/successor policy unissued",
@@ -278,8 +315,15 @@ evidence = [
   "DirectAccum narrow follow-up (four rows L59/L63/L65/L67) found current non-test capability, prefix, profile, and projection owners plus the resolved cutover path; all four remain candidate evidence only because no exact-key RetainNamed policy or named successor is issued",
   "Dynamic-source narrow follow-up (row L71 [2473-2492]) found the current DynamicFullBodySourceIssuerV1 and non-test package admission/consumer chain; this supersedes historical disconnected wording as current evidence, but physical fate and exact-key retention/successor policy remain unissued",
   "Generic-G0 narrow follow-up (six rows L84/L86/L88/L95/L97/L99) found compiled prephysical source/transport issuers and explicit caller-zero/test boundaries; all six remain candidate evidence only because no exact-key RetainNamed policy or named successor is issued",
+  "Common-v2 follow-up (three rows L53/L55/L57) found current session-admission, physical-entry-input, and skeleton owner evidence; all three remain candidate evidence only because no exact-key retention/successor policy is issued",
+  "Resolved-callable follow-up (four rows L203/L206/L208/L210) found live resolver/preflight/cutover owner evidence; all four remain candidate evidence only because no exact-key retention/successor policy is issued",
+  "Nested-production follow-up (seven rows L122/L126/L128/L132/L134/L136/L158) found a live compiler capability/profile/producer/lowerer chain; all seven remain candidate evidence only because no exact-key retention/successor policy is issued",
+  "Variable-observation follow-up (two rows L138/L140) found source observer and cfg(test) Recipe evidence; both remain candidate evidence only because no exact-key retirement owner is issued",
+  "Raw follow-up (seven rows L179/L183/L185/L190/L192/L197/L199) found the raw-vm-reference ingress and runtime-input/package owners; all seven remain candidate evidence only, while raw_root_eligibility and raw_root_finalization remain conditional blocked rows",
+  "Source-entry follow-up (nine rows L217/L219/L221/L223/L225/L227/L229/L231/L236) split test/reference, legacy projection, live substrate, and VM-reference evidence; all nine remain candidate evidence only because exact-key retention/successor policy is unissued",
+  "Source-bound and loop-observation stop-line (four rows L106/L112/L213/L215) retains blocked_successor until package/plan and test-observation fate policies are named; technical owner evidence alone does not promote them",
 ]
-latest_finding = "The A structural census and the 37 exact candidate joins are complete at 79/79 and 37 rows respectively. One exact module_postprocess RetainNamed binding is recorded; source_view, a_prime, callable_single_loop, canonical, DirectAccum, dynamic_source, and generic_g0 are candidate evidence only, while the five conditional rows and remaining 36 residual rows remain blocked because existing evidence is not canonical-key policy. Policy-ready is 1/79, 78 A successor statuses remain unknown, and the tracked 185-row map must not be authored from candidate evidence."
+latest_finding = "The A structural census and the 69 exact candidate joins are complete at 79/79 and 69 rows respectively. One exact module_postprocess RetainNamed binding is recorded; 69 rows across the reviewed role groups are candidate evidence only, while the five conditional rows and 4 residual rows across source_bound and loop_observation remain blocked because existing evidence is not canonical-key policy. Policy-ready is 1/79, 78 A successor statuses remain unknown, and the tracked 185-row map must not be authored from candidate evidence."
 
 [closeout]
 status = "pending"
