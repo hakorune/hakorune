@@ -1,10 +1,12 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box F/I/H caller and fate census D0"
-status = "accepted_design_no_safe_slice"
+status = "landed_design"
 observed_commit = "9b2193ea8c"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FIH-CALLER-FATE-CENSUS-D0"
 parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-port-sequence-census-d0b-2026-08-27.toml"
+successor_card = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-raw-compat-entry-owner-d1-2026-08-27.toml"
+closeout_reason = "Caller/fate census completed: four RawInvocation tests are explicit success contracts, while no named product/reference F/I/H owner exists. D1 selects the final owner/fate disposition; no implementation permission opened."
 code_baseline = "60de7ac91e; later commits are docs-only for this runtime census"
 
 [boundary]
@@ -171,13 +173,14 @@ evidence = [
 ]
 
 [ordered_followups]
+next_after_design = "RUNTIME-BOX-FIH-RAW-COMPAT-ENTRY-OWNER-D1 is the next design-only row; runtime implementation remains closed until F/I/H entry/fixture ownership and fate are selected."
 steps = [
-  "1. Re-derive F/I/H concrete RawInvocation caller paths from dispatcher to terminal; classify production, reference, test-only, or no semantic claim.",
+  "1. Re-derive F/I/H concrete RawInvocation entry paths and the four explicit positive test owners; classify production, reference, test-only, or unclaimed.",
   "2. Record fixture/smoke expectations and successor owner per family; do not infer product meaning from generic tests or lexical absence.",
-  "3. If no claim exists, open one pre-effect F/I/H retire/freeze I0 with zero-delta and root-parity evidence; keep H whole-Box atomic.",
-  "4. If a claim exists, open a separate source-shape-lineage-collector D0; no implementation from this census card.",
-  "5. Handle C nested-Main RawLegacy retirement as a separate bounded row; keep G/J guarded until F/H/I fate is total.",
-  "6. Only after runtime fate is total, revisit broader RawCompatibility, VM, and Call retirement rows.",
+  "3. Select Retire/Frozen versus NarrowSuccessor while preserving each explicit test contract as successor, typed negative, or retired behavior.",
+  "4. If retained, solve source-shape-lineage-collector and H prefix atomicity; if unclaimed, open one pre-effect whole-Box retirement I0.",
+  "5. Handle C nested-Main RawLegacy fate separately; keep G/J and the RawLegacy facade guarded.",
+  "6. Only after runtime fate is total, revisit broader RawCompatibility retirement and downstream VM/Wpre/Call cutovers.",
 ]
 next_design = "RUNTIME-BOX-RAWLEGACY-NESTED-MAIN-FATE-D0 may follow the F/I/H census for C; G/J remain ParkedSealed/CutoverBlockerOpen."
 reopen_triggers = [
