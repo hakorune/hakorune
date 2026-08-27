@@ -1,0 +1,284 @@
+schema_version = 0
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-GUARD-I0"
+card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
+phase = "c0_readiness"
+source_roots = ["src", "crates"]
+surface_token = "CallTarget::Global"
+required_registry_rows = [
+  "mir-call-global-target-b0-machine-census",
+  "mir-call-global-target-b1-static-method-s0",
+]
+
+[[surface_rows]]
+id = "calls-build"
+path = "src/mir/builder/calls/build.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "ordinary-call route"
+action = "retire"
+terminal = "exact-catalog-target-or-typed-reject"
+successor = "B1/D1 exact declaration relation"
+reopen = "source-backed ordinary relation outside the catalog"
+
+[[surface_rows]]
+id = "calls-call-target"
+path = "src/mir/builder/calls/call_target.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "atomic B1 carrier"
+action = "adapt"
+terminal = "CanonicalGlobalTargetV1"
+successor = "Callee/CallTarget simultaneous structural shape"
+reopen = "a new String target constructor"
+
+[[surface_rows]]
+id = "calls-emit"
+path = "src/mir/builder/calls/emit.rs"
+expected_occurrences = 2
+scope = "compiled"
+owner = "typed call emission"
+action = "adapt"
+terminal = "typed Callee/CallTarget terminal"
+successor = "B1 carrier consumer"
+reopen = "String-only emission remains reachable"
+
+[[surface_rows]]
+id = "calls-preflight"
+path = "src/mir/builder/calls/function_call_preflight_route.rs"
+expected_occurrences = 5
+scope = "compiled"
+owner = "ordinary preflight"
+action = "retire"
+terminal = "TypedRejectBeforeArguments or exact relation"
+successor = "source/catalog co-seal"
+reopen = "an exact caller/site relation is discovered"
+
+[[surface_rows]]
+id = "calls-method-terminal"
+path = "src/mir/builder/calls/method_call_terminal.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "method terminal"
+action = "adapt"
+terminal = "typed Global/Method or reject"
+successor = "declaration-backed method relation"
+reopen = "method target has no source relation"
+
+[[surface_rows]]
+id = "calls-resolver"
+path = "src/mir/builder/calls/resolver.rs"
+expected_occurrences = 4
+scope = "compiled"
+owner = "legacy resolver consumer"
+action = "retire"
+terminal = "no consumer-side target repair"
+successor = "catalog-issued typed target"
+reopen = "a selected resolver reader is proven"
+
+[[surface_rows]]
+id = "calls-static-resolution"
+path = "src/mir/builder/calls/static_resolution.rs"
+expected_occurrences = 3
+scope = "compiled"
+owner = "static recovery"
+action = "retire"
+terminal = "pre-effect typed reject"
+successor = "exact static declaration relation"
+reopen = "a source-backed relation replaces recovery"
+
+[[surface_rows]]
+id = "calls-static-result-publication"
+path = "src/mir/builder/calls/static_result_publication.rs"
+expected_occurrences = 3
+scope = "test-only"
+owner = "static result fixture"
+action = "isolate"
+terminal = "fixture-only projection"
+successor = "typed fixture co-update"
+reopen = "a compiled production caller appears"
+
+[[surface_rows]]
+id = "calls-physical-receipt-tests"
+path = "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs"
+expected_occurrences = 6
+scope = "test-only"
+owner = "physical receipt fixture"
+action = "isolate"
+terminal = "fixture-only projection"
+successor = "typed fixture co-update"
+reopen = "test becomes a production issuer"
+
+[[surface_rows]]
+id = "calls-temporal-witness-tests"
+path = "src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs"
+expected_occurrences = 2
+scope = "test-only"
+owner = "temporal witness fixture"
+action = "isolate"
+terminal = "fixture-only projection"
+successor = "typed fixture co-update"
+reopen = "witness is promoted to production authority"
+
+[[surface_rows]]
+id = "control-flow-effect-emission"
+path = "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "CorePlan effect owner"
+action = "adapt"
+terminal = "exact plan relation or typed reject"
+successor = "typed plan target"
+reopen = "func String is still semantic authority"
+
+[[surface_rows]]
+id = "control-flow-emission-port"
+path = "src/mir/builder/control_flow/plan/lowerer/emission_port.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "CorePlan emission port"
+action = "retire"
+terminal = "no mir_symbol_projection authority"
+successor = "B1 typed carrier"
+reopen = "a source-backed plan relation is added"
+
+[[surface_rows]]
+id = "normal-script-static-fixture"
+path = "src/mir/builder/normal_script_direct_static_physical_publication.rs"
+expected_occurrences = 3
+scope = "test-only"
+owner = "script publication fixture"
+action = "isolate"
+terminal = "fixture-only projection"
+successor = "typed fixture co-update"
+reopen = "a non-test issuer is introduced"
+
+[[surface_rows]]
+id = "ops-arithmetic"
+path = "src/mir/builder/ops/arithmetic.rs"
+expected_occurrences = 2
+scope = "compiled"
+owner = "operator route"
+action = "retire"
+terminal = "typed operator or pre-effect reject"
+successor = "operator declaration owner"
+reopen = "operator Global has a source-backed relation"
+
+[[surface_rows]]
+id = "ops-comparison"
+path = "src/mir/builder/ops/comparison.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "operator route"
+action = "retire"
+terminal = "typed operator or pre-effect reject"
+successor = "operator declaration owner"
+reopen = "operator Global has a source-backed relation"
+
+[[surface_rows]]
+id = "ops-unary"
+path = "src/mir/builder/ops/unary.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "operator route"
+action = "retire"
+terminal = "typed operator or pre-effect reject"
+successor = "operator declaration owner"
+reopen = "operator Global has a source-backed relation"
+
+[[surface_rows]]
+id = "ordinary-new"
+path = "src/mir/builder/ordinary_new_admission.rs"
+expected_occurrences = 2
+scope = "compiled"
+owner = "ordinary New claim"
+action = "isolate"
+terminal = "NewBox claim, never Global"
+successor = "source birth claim/NewBox"
+reopen = "birth is proven to be an ordinary Global call"
+
+[[surface_rows]]
+id = "recursive-port-fixture"
+path = "src/mir/builder/recursive_child_lowering_rawport_header_tests.rs"
+expected_occurrences = 1
+scope = "test-only"
+owner = "recursive-port fixture"
+action = "isolate"
+terminal = "fixture-only projection"
+successor = "typed fixture co-update"
+reopen = "fixture code is compiled as production"
+
+[[surface_rows]]
+id = "rewrite-known"
+path = "src/mir/builder/rewrite/known.rs"
+expected_occurrences = 4
+scope = "compiled"
+owner = "known rewrite"
+action = "retire"
+terminal = "typed rewrite target or reject"
+successor = "declaration-backed rewrite owner"
+reopen = "rewrite proves an independent semantic target owner"
+
+[[surface_rows]]
+id = "print-stmt"
+path = "src/mir/builder/stmts/print_stmt.rs"
+expected_occurrences = 1
+scope = "compiled"
+owner = "builtin print policy"
+action = "adapt"
+terminal = "Builtin(Print) or typed provider/reject"
+successor = "exact print/1 declaration"
+reopen = "print is proven non-builtin"
+
+[[evidence_rows]]
+id = "canonical-direct-call"
+path = "src/mir/canonical_direct_call.rs"
+anchor = "canonical_direct_call"
+owner = "direct-call materializer"
+action = "adapt-or-reject"
+terminal = "exact declaration-backed target"
+reopen = "physical symbol is used as authority"
+
+[[evidence_rows]]
+id = "normal-module-physical-thunk"
+path = "src/mir/builder/normal_module_transaction/physical_thunk.rs"
+anchor = "physical"
+owner = "module physical thunk"
+action = "isolate-or-retain"
+terminal = "named owner/parked terminal"
+reopen = "thunk reconstructs a target from a symbol"
+
+[[evidence_rows]]
+id = "joinir-call-generator"
+path = "src/mir/join_ir_to_mir/call_generator.rs"
+anchor = "Call"
+owner = "JoinIR call generator"
+action = "adapt-or-isolate"
+terminal = "typed Join relation or compatibility projection"
+reopen = "generated name becomes target authority"
+
+[[evidence_rows]]
+id = "coreplan-global-call"
+path = "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs"
+anchor = "GlobalCall"
+owner = "CorePlan"
+action = "adapt-or-reject"
+terminal = "exact plan relation"
+reopen = "func String is reintroduced as authority"
+
+[[evidence_rows]]
+id = "ordinary-new-claim"
+path = "src/mir/builder/ordinary_new_admission.rs"
+anchor = "claim"
+owner = "ordinary New claim"
+action = "retain-boundary"
+terminal = "NewBox"
+reopen = "birth target crosses Global boundary"
+
+[[evidence_rows]]
+id = "public-mircall-global"
+path = "crates/hakorune_mir_defs/src/call_unified.rs"
+anchor = "pub fn global"
+owner = "public MirCall compatibility"
+action = "park-or-breaking-retire"
+terminal = "ParkedSealed API"
+reopen = "selected external reader or breaking API decision"
