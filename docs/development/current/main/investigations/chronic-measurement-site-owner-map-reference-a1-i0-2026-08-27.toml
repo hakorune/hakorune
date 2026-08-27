@@ -1,5 +1,5 @@
 title = "Chronic measurement site-owner map pinned-reference resolver I0"
-status = "accepted_fast_open"
+status = "landed_bounded_child_row"
 observed_commit = "ac7e1db7c0"
 observed_at = "2026-08-27"
 implementation_permission = true
@@ -7,6 +7,8 @@ selected_fast = true
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-REFERENCE-A1-I0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+implementation_commit = "31e1edd45725345184168b8862a3538fb1aba353"
+landed_commit = "31e1edd45725345184168b8862a3538fb1aba353"
 
 [boundary]
 starts = "the already-landed site-owner-map validator's syntax/provenance/coverage/hash result and its reviewed tracked-reference fields"
@@ -149,6 +151,18 @@ stop_if = [
 ]
 
 [closeout]
-status = "pending"
-required = "Record the implementation commit, focused test command/results, typed negative coverage, golden vector result, changed-file line counts, and explicit proof that owner-map/TSV/guard/deletion boundaries remained untouched."
+status = "complete"
+required = "The bounded resolver cell is landed with focused positive/negative Git and anchor tests, an independent canonical hash golden, explicit context, and no owner-map/TSV/guard/deletion changes."
+focused_evidence = [
+  "CARGO_BUILD_JOBS=4 cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --lib chronic_measurement (13 passed)",
+  "CARGO_BUILD_JOBS=4 cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement (6 passed)",
+  "CARGO_BUILD_JOBS=4 cargo check --manifest-path tools/checks/rust_source_topology/Cargo.toml (warning-free)",
+  "independent chronic_site_owner_map_hash_golden_v1.toml matched canonical bytes and SHA-256; qualified impl symbol, range, tree, missing symbol, edge, and invalid review_head cases are covered",
+  "site_owner_map.rs 461 lines; site_owner_map_reference.rs 537 lines; site_owner_map/tests.rs 389 lines; all below the 760-line design threshold",
+  "git diff --check and current_state_pointer_guard.sh passed; tracked owner map, expectation TSV, guard registration, and source/deletion files were untouched",
+]
+known_baseline = [
+  "cargo test --all-targets reaches three pre-existing profile/content-candidate failures: feature expectation includes llvm-boundary/llvmlite-compat and host-test candidate inventory differ from their pinned baselines; no A1 test fails",
+]
+closeout_notes = "The public syntax-only map validator was reduced to an internal helper; validate_site_owner_map_toml_with_references_v1 is now the strict public entry. A1 resolves facts only; the parent D0 still blocks 697 candidate reference normalization and owner-map authoring."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
