@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "C2 is closed for rows 56/60/84/99 and C3 retains row 89 under the COPY-UNKNOWN0 checked-boundary policy. Run CHRONIC-C-MIXED-OWNER-D0 for rows 44/54/55 and CHRONIC-C-ORPHAN-FATE-D0 for row 70; keep owner-map authoring, expectation pinning, stale-guard supersession, and source deletion closed until all four blockers have exact owner/fate evidence."
+smallest_next_slice = "C2 is closed for rows 56/60/84/99 and C3 retains row 89 under the COPY-UNKNOWN0 checked-boundary policy. Run CHRONIC-C-CATALOG-CONTEXT-DECLARATION-SUBSITE-FATE-D0 for rows 44/54/55 and MODULE-COMPLETION-CANDIDATE-FATE-D0 for row 70; keep owner-map authoring, expectation pinning, stale-guard supersession, and source deletion closed until all four blockers have exact owner/fate evidence."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -151,9 +151,9 @@ items = [
   "2. Keep A=79/79 closed with its existing policy bindings; do not reopen the generated-registry card.",
   "3. Batch B1: bind the six non-builder rows (ABI, Raw root, resolved profile) as RetainNamed with explicit owner/evidence and no successor guess.",
   "4. Batch B2: bind the forty builder rows by responsibility family: 29 live production owners, 9 TestReference proofs, and 2 named-successor retirement rows; no file-wide role inheritance.",
-  "5. Batch C1 `CHRONIC-C-MIXED-OWNER-D0`: resolve the remaining mixed-owner rows 44, 54, and 55 by splitting canonical/compatibility/test roles and live-field boundaries; rows 56 and 58 are now explicit policy-ready outcomes; no code or deletion.",
+  "5. Batch C1 `CHRONIC-C-CATALOG-CONTEXT-DECLARATION-SUBSITE-FATE-D0`: resolve rows 44, 54, and 55 by splitting canonical catalog vs late-recovery consumers, CompilationContext field/method owners, and canonical declaration vs no-field compatibility roles; rows 56 and 58 are already policy-ready; no code or deletion.",
   "6. Batch C2 `CHRONIC-C-TEST-FIXTURE-PROVENANCE-D0`: retain the explicit policies for rows 56, 60, 84, and 99 (field-only/caller-zero/TestReference outcomes); no source deletion is implied by this matrix.",
-  "7. Batch C3 `CHRONIC-C-ORPHAN-FATE-D0`: row 89 is RetainNamed under the COPY-UNKNOWN0 checked-boundary policy; resolve row 70 with a named successor/Retain/Retire decision; preserve NoSafeSlice until issuer and terminal contracts are proven.",
+  "7. Batch C3 `MODULE-COMPLETION-CANDIDATE-FATE-D0`: row 89 is RetainNamed under the COPY-UNKNOWN0 checked-boundary policy; resolve row 70 among flat-candidate retirement, TestReference retention, or a landed FactSession/module-transaction successor; preserve NoSafeSlice until issuer and terminal contracts are proven.",
   "8. Batch C4 `CHRONIC-C-MATRIX-CLOSEOUT-D0`: after the remaining four decisions have tracked owner/evidence/fate and pinned refs, move to 185/185 reviewed_ready_for_map; then separately author the tracked owner map, resolve references, co-seal the expectation TSV, supersede stale guards, and only later retire successor-backed source/allow rows.",
 ]
 
@@ -197,10 +197,10 @@ evidence = [
   "B1 worker: rows 0, 101-104, and 184 have explicit ABI/Raw-root/resolved-profile RetainNamed owners; no successor is required",
   "B2 worker: rows 1-40 split into 29 live production owners, 9 TestReference proofs, and 2 named successor retirement rows",
   "C core/raw/force/guard workers: 56 rows have exact owner/fate evidence; four rows remain explicit NoSafeSlice with reopen triggers",
-  "Follow-up audits: rows 56/60/84/89/99 now have explicit policy outcomes; rows 44/54/55 retain the mixed-owner design; row 70 remains the orphan-fate design; no row is promoted by absence alone",
+  "Follow-up audits: rows 56/60/84/89/99 now have explicit policy outcomes; rows 44/54/55 remain the catalog/context/declaration subsite design; row 70 remains the flat-candidate/FactSession fate design; no row is promoted by absence alone",
   "Worker audit HEAD is pinned separately from the frozen receipt source revision; corrected row 54/99 refs remain evidence-only and do not change receipt provenance",
 ]
-latest_finding = "A and B are closed at 125/125 policy-ready; C has 56 reviewed rows and four explicit NoSafeSlice decisions. Next work is C-MIXED-OWNER for 44/54/55 and C-ORPHAN-FATE for row 70, followed by matrix closeout, not code or deletion."
+latest_finding = "A and B are closed at 125/125 policy-ready; C has 56 reviewed rows and four explicit NoSafeSlice decisions. Next work is C-CATALOG-CONTEXT-DECLARATION-SUBSITE-FATE for 44/54/55 and MODULE-COMPLETION-CANDIDATE-FATE for row 70, followed by matrix closeout, not code or deletion."
 
 [closeout]
 status = "pending"

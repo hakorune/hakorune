@@ -681,7 +681,7 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0;
-  C2 is closed for rows 56/60/84/99; C3 retains row 89; run CHRONIC-C-MIXED-OWNER-D0 (44,54,55) and CHRONIC-C-ORPHAN-FATE-D0 (70).
+  C2 is closed for rows 56/60/84/99; C3 retains row 89; run CHRONIC-C-CATALOG-CONTEXT-DECLARATION-SUBSITE-FATE-D0 (44,54,55) and MODULE-COMPLETION-CANDIDATE-FATE-D0 (70).
   Keep owner-map authoring, expectation pinning, stale-guard supersession, and source deletion as separate later stages.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
