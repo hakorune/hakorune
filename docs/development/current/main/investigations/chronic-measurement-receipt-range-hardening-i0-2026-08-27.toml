@@ -1,5 +1,5 @@
 title = "Chronic measurement receipt range hardening I0"
-status = "fast_open"
+status = "landed_bounded_child_row"
 observed_commit = "46109971c8"
 observed_at = "2026-08-27"
 implementation_permission = true
@@ -7,6 +7,8 @@ selected_fast = true
 current_execution_row = "CHRONIC-MEASUREMENT-RECEIPT-RANGE-HARDENING-I0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+implementation_commit = "f0d8b5ab56271607a793ef7ea98112d594b836aa"
+landed_commit = "f0d8b5ab56271607a793ef7ea98112d594b836aa"
 
 [boundary]
 starts = "the landed chronic observation receipt projection and its source-range validator"
@@ -56,6 +58,12 @@ no_safe_slice = [
 ]
 
 [closeout]
-status = "pending"
-required = "Record implementation commit and focused evidence, then move the pointer back to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop."
+status = "complete"
+focused_evidence = [
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --lib chronic_measurement (5 passed)",
+  "cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement (4 passed)",
+  "zero-length SourceRangeV1 is rejected before receipt publication and the tracked 185-row artifact remains byte-identical with receipt_hash=sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d",
+  "observation_receipt.rs remains below 760 lines, workstream remains 799 lines, and pointer/diff checks are green",
+]
+closeout_notes = "The local range validator hardening is landed at f0d8b5ab56271607a793ef7ea98112d594b836aa. The receipt artifact and all owner-map/expectation/deletion boundaries remain unchanged."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"

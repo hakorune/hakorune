@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner map D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "2c6927cccbb12de1057ce66c43b59f55f4ae4bfa"
+observed_commit = "f0d8b5ab56271607a793ef7ea98112d594b836aa"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
