@@ -1,10 +1,12 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box child fate design"
-status = "accepted_design"
+status = "superseded_design"
 observed_commit = "60de7ac91e"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
 parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0b-2026-08-27.toml"
+superseded_by = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-port-sequence-census-d0b-2026-08-27.toml"
+supersession_reason = "The adversarial re-audit found that the five-family table collapsed sync/port/mode branches and the sequential constructor-method prefix hazard. The old card remains historical and grants no implementation permission."
 
 [boundary]
 starts = "runtime ASTNode::BoxDeclaration encountered inside the raw expression dispatcher"

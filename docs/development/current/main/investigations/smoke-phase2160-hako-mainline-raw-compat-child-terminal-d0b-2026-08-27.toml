@@ -150,13 +150,13 @@ excluded_edges = [
   "src/mir/builder/raw_expression_dispatch/mod.rs:488-524::ASTNode::BoxDeclaration runtime instance/static arm",
   "src/mir/builder/instance_box_method_batch.rs:71-95::nested runtime method batch",
 ]
-successor = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
+successor = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-PORT-SEQUENCE-CENSUS-D0b"
 negative = "A runtime Box edge encountered by I1 without an explicit owner remains typed freeze; it is not silently included or routed through the root terminal."
 
 [runtime_successor]
-row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
-card_path = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-child-d0-2026-08-27.toml"
-fate = "ParkedSealed until I1 closes; runtime declaration and nested-method ownership are a separate boundary"
+row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-PORT-SEQUENCE-CENSUS-D0b"
+card_path = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-port-sequence-census-d0b-2026-08-27.toml"
+fate = "ParkedSealed; the post-I1 re-audit expands runtime declaration and nested-method ownership into an exact port/mode/sequence boundary"
 
 [source_and_commit_unit]
 source_transport = "program_root_lowering.rs:198-212 and raw_invocation_source_transport.rs:135-142 install the existing ScriptRoot transport; the terminal borrows its current context only for the child capture"

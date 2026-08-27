@@ -1,0 +1,310 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box port and sequence census D0b"
+status = "accepted_design_no_safe_slice"
+observed_commit = "60de7ac91e"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-PORT-SEQUENCE-CENSUS-D0b"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-child-d0-2026-08-27.toml"
+
+[amendment]
+reason = "The first runtime-box D0 census collapsed distinct ports, modes, and sequential constructor/method edges into five families. Adversarial re-audit found a sync reject, RawLegacy alternatives, a missing-mode state, and a prefix-before-reject partial-mutation hazard. This amendment is the only active runtime-box design boundary."
+prior_card = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-child-d0-2026-08-27.toml"
+code_delta_since_observed = "none; 663c11d50a only refines the prior design card and does not change the observed runtime code"
+
+[boundary]
+starts = "raw_expression_dispatch::ASTNode::BoxDeclaration, including the synchronous reject and every RawInvocation/RawLegacy port branch"
+ends = "one explicit runtime compatibility terminal or one explicit retirement/freeze fate, with source/shape/lineage/collector and sequence ownership named"
+includes = [
+  "src/mir/builder/raw_expression_dispatch/mod.rs:488-526::BoxDeclaration and sync/Main/static dispatch",
+  "src/mir/builder/raw_expression_dispatch/nonmain_static_box_lifecycle.rs:15-58::missing-mode, App no-op, and non-App static branches",
+  "src/mir/builder/instance_box_declaration_lifecycle.rs:114-116::runtime instance prefix and constructor/method sequencing",
+  "src/mir/builder/instance_box_constructor_batch.rs:117-139::runtime constructor batch",
+  "src/mir/builder/instance_box_method_batch.rs:71-95::runtime method batch",
+  "src/mir/builder/nested_box_method_source.rs:134-187::located lineage and symbol/arity construction",
+  "src/mir/builder/recursive_child_lowering.rs:435-449::runtime module_port capture/commit",
+]
+excludes = [
+  "landed ProgramRootWorkPlan RawCompatibility child-terminal I1 and its outer collector",
+  "source-backed SelectedNormal package/cohort lowering",
+  "strict-negative loop and undefined-value repair",
+  "route/run_all, VM/AOT/backend, Wpre, Call schema, and fallback retirement",
+]
+
+[brief]
+decision = "Keep every runtime Box edge outside root RawCompatibility I1 and split the runtime census by port, mode, and lifecycle sequence. No runtime success route is admitted until source identity, physical shape, lineage, and atomic collector ownership are explicit."
+source_authority = "The dispatcher port and its current located RawInvocation source context; runtime lifecycle/batch owners issue only the source relation they already own. RawLegacy remains a separately censused compatibility route."
+canonical_issuer = "A future selected runtime owner must issue a private, move-only runtime disposition before child effects; this D0b issues no Callee, target, or semantic receipt."
+non_authority = [
+  "root RawCompatibility terminal or root outer collector",
+  "caller=None, AST/name/params.len()/params.len()+1, box kind, formatted symbol, route filename, or ambient bool",
+  "NestedBoxMethod lineage as a target or shape issuer",
+  "loose-instance-input freeze treated as success",
+  "post-effect resolver, unique/tail recovery, fallback, retry, VM, Wpre, or backend repair",
+]
+fail_fast = "Synchronous, missing-mode, root-only Main, missing/foreign parent, missing shape, mismatch, duplicate, mixed-port, unavailable collector, or prefix-unsafe constructor states reject/freeze before child effects; no branch may fall through to a different port or family."
+smallest_next_slice = "Complete the A-J runtime matrix and its source/shape/lineage/collector/sequence proof, then choose a bounded terminal or explicit retirement per row. Do not open implementation from this card."
+census_boundary = "dispatcher BoxDeclaration arm -> runtime recursive module_port or direct RawLegacy terminal; includes all port/mode/lifecycle branches and empty-box completion; excludes root I1 and all downstream execution backends."
+non_claims = [
+  "does not authorize runtime compatibility implementation",
+  "does not widen or alter root I1",
+  "does not turn TopLevel/InstanceConstructor source identity into a target",
+  "does not claim runtime Box parity, atomic publication, or hako-mainline success",
+]
+
+[finite_state]
+states = [
+  "A_SyncTypedRejectBeforeEffects",
+  "B_RawInvocationMainRootOnlyReject",
+  "C_RawLegacyMainInlineSuccess",
+  "D_MissingModeTypedReject",
+  "E_AppStaticDeclarationNoOp",
+  "F_RawInvocationStaticNonAppCandidate",
+  "G_RawLegacyStaticDirectSuccess",
+  "H_InstancePrefixThenLooseReject",
+  "I_RawInvocationInstanceMethodCandidateWhenConstructorZero",
+  "J_RawLegacyInstanceDirectSuccess",
+  "K_EmptyBoxVoidCompletion",
+  "OwnerReady",
+  "CollectorReady",
+  "Retiring",
+]
+observed = "The current dispatcher has ten semantically distinct outcomes: sync reject; RawInvocation versus RawLegacy Main; missing mode; App no-op; RawInvocation versus RawLegacy non-App static; sequential instance prefix/constructor/method; and empty completion. These are observations only and do not grant a runtime success route."
+retain = "A, B, and D remain typed negative terminals. K is an explicit void-completion state only after its owner proves no child publication is required."
+retirement_candidates = "C, G, and J are RawLegacy direct/inline routes and need owner-local caller census before retirement; they must not be silently promoted to RawInvocation."
+terminal_candidates = "F and I can become runtime compatibility terminals only after exact source-owned shape, located lineage, and atomic collector ownership are proven."
+blocked = "H is CutoverBlockerOpen: the current constructor path can reject after prefix mutation. It must reject before prefix or retire/freeze the whole Box path; treating the loose marker as success is forbidden."
+
+[sequence]
+order = "BoxDeclaration dispatch -> runtime prefix (field/metadata registration) -> constructors -> methods"
+cardinality = "If one or more constructors exist, the method batch is not an independent fate; if constructor count is zero, method edges may be reached. Empty constructor/method sets require explicit K completion."
+partial_mutation = "The current loose-instance-input constructor reject occurs after prefix mutation. A future implementation must move exact shape/fate validation before prefix or make the entire Box operation an explicit atomic freeze/retirement terminal."
+publication = "RawInvocation method capture uses the recursive module_port collector; RawLegacy direct routes may publish without that collector. A method-N commit followed by method-N+1 failure is not an accepted terminal."
+
+[authority]
+source = "RawInvocationSourceTransportV1::current_source_context_v1() with a Located parent and concrete SourceNodeSiteV1; missing or foreign parent is a typed negative. RawLegacy source is its own compatibility owner."
+shape = "No runtime canonical shape issuer is present in the observed code. A future issuer must provide symbol plus physical arity before effects; params.len(), +1, or formatted names are validation data at most."
+lineage = "PreparedNestedBoxMethodSourceV1::from_located_parent supplies source identity only. It may be carried once, never converted into a target or shape."
+collector = "RawInvocation capture/commit goes through the recursive runtime module_port; the root I1 outer drain is a different owner. RawLegacy direct functions have no permission to borrow the root collector."
+sequence_owner = "instance_box_declaration_lifecycle.rs owns prefix/constructor/method ordering; constructor and method rows cannot be implemented as unrelated siblings."
+
+[[runtime_family_census]]
+id = "A-sync"
+entry = "raw_expression_dispatch/mod.rs:500-502"
+port = "RawInvocation or RawLegacy dispatcher entry"
+source = "synchronous BoxDeclaration rejection"
+shape = "none"
+lineage = "none"
+collector = "none"
+current_fate = "TypedRejectBeforeEffects"
+disposition = "retain negative"
+
+[[runtime_family_census]]
+id = "B-main-raw-invocation"
+entry = "raw_expression_dispatch/mod.rs:503-507 -> recursive_child_lowering.rs:528-539"
+port = "RawInvocationChildPortV1"
+source = "runtime nested Main"
+shape = "not issued"
+lineage = "root-only boundary"
+collector = "none on success"
+current_fate = "RootOnlyTypedReject"
+disposition = "retain negative; never route through root I1"
+
+[[runtime_family_census]]
+id = "C-main-raw-legacy"
+entry = "raw_expression_dispatch/mod.rs:503-507 -> recursive_child_lowering/legacy_port.rs::PreparedRawStaticMainBoxCompatibilityV1"
+port = "RawLegacyChildLoweringPortV1"
+source = "legacy static Main compatibility owner"
+shape = "legacy inline route; exact source owner not yet sealed"
+lineage = "legacy owner-local"
+collector = "direct/legacy owner, not root I1"
+current_fate = "LegacyInlineSuccess"
+disposition = "retirement candidate; caller census required"
+
+[[runtime_family_census]]
+id = "D-static-missing-mode"
+entry = "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:15-19"
+port = "runtime static dispatcher"
+source = "non-Main static with missing root mode"
+shape = "none"
+lineage = "runtime static declaration"
+collector = "none"
+current_fate = "ModeMissingTypedReject"
+disposition = "retain negative"
+
+[[runtime_family_census]]
+id = "E-static-app"
+entry = "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:35-45"
+port = "runtime static dispatcher"
+source = "non-Main static in App mode"
+shape = "no child lowering; emit_void"
+lineage = "runtime static declaration"
+collector = "none"
+current_fate = "DeclarationNoOp"
+disposition = "policy review only; never use as a compatibility success terminal"
+
+[[runtime_family_census]]
+id = "F-static-nonapp-raw-invocation"
+entry = "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:47-58 -> nonmain_static_box_method_batch.rs:77-101"
+port = "RawInvocationChildPortV1"
+source = "non-App static runtime declaration"
+shape = "distributed in method batch function_name/params; no canonical issuer"
+lineage = "runtime static declaration"
+collector = "recursive runtime module_port"
+current_fate = "RuntimeStaticTerminalCandidate"
+disposition = "CutoverBlockerOpen until shape and atomic collector are sealed"
+
+[[runtime_family_census]]
+id = "G-static-nonapp-raw-legacy"
+entry = "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:47-58 -> legacy direct static lowering"
+port = "RawLegacyChildLoweringPortV1"
+source = "non-App static legacy function route"
+shape = "legacy direct route; not a RawInvocation shape issuer"
+lineage = "legacy owner-local"
+collector = "direct/legacy owner"
+current_fate = "LegacyDirectSuccess"
+disposition = "retirement candidate; keep separate from F"
+
+[[runtime_family_census]]
+id = "H-instance-with-constructors"
+entry = "instance_box_declaration_lifecycle.rs:114-116 -> instance_box_constructor_batch.rs:117-139"
+port = "RawInvocationChildPortV1"
+source = "runtime instance Box with one or more constructors"
+shape = "loose-instance-input freeze reached after prefix mutation"
+lineage = "runtime instance declaration"
+collector = "recursive runtime module_port may be reachable, but partial publication is not accepted"
+current_fate = "PrefixThenLooseReject"
+disposition = "CutoverBlockerOpen; pre-prefix reject or whole-Box retirement required"
+
+[[runtime_family_census]]
+id = "I-instance-methods-ctor-zero"
+entry = "instance_box_method_batch.rs:71-95 -> nested_box_method_source.rs:134-187"
+port = "RawInvocationChildPortV1"
+source = "runtime instance method batch only when constructor count is zero"
+shape = "symbol/arity distributed through nested source helper"
+lineage = "NestedBoxMethod from located parent"
+collector = "recursive runtime module_port"
+current_fate = "RuntimeInstanceMethodTerminalCandidate"
+disposition = "CutoverBlockerOpen until sequence, shape, and atomic collector are sealed"
+
+[[runtime_family_census]]
+id = "J-instance-raw-legacy"
+entry = "instance_box_declaration_lifecycle.rs:114-116 -> legacy instance direct route"
+port = "RawLegacyChildLoweringPortV1"
+source = "legacy instance compatibility owner"
+shape = "legacy direct route"
+lineage = "legacy owner-local"
+collector = "direct/legacy owner"
+current_fate = "LegacyDirectSuccess"
+disposition = "retirement candidate; do not merge with I"
+
+[[runtime_family_census]]
+id = "K-empty-box"
+entry = "instance_box_declaration_lifecycle.rs and both batch owners"
+port = "runtime lifecycle owner"
+source = "Box with no constructor and no method child"
+shape = "none required if void completion is proven"
+lineage = "runtime declaration"
+collector = "none"
+current_fate = "EmptyBoxVoidCompletion"
+disposition = "explicit negative/void state; no inferred publication"
+
+[delete_set]
+forbidden_now = [
+  "routing any runtime edge through RawCompatibilityChildTerminalPortV1 or the root outer collector",
+  "collapsing RawInvocation and RawLegacy fates into one family",
+  "collapsing TopLevel/InstanceConstructor source identity into caller=None",
+  "issuing symbol/arity from AST name, params.len(), +1, box kind, or formatted text",
+  "treating loose-instance-input as success",
+  "publishing method N before method N+1 failure is known to be impossible",
+]
+future_retirement_set = [
+  "RawLegacy static Main inline success (C)",
+  "RawLegacy non-App static direct success (G)",
+  "RawLegacy instance direct success (J)",
+  "post-effect runtime recovery or alternate-port retry if found by census",
+]
+
+[fail_fast_matrix]
+before_effect = [
+  "sync reject, missing mode, root-only Main, missing/foreign parent, missing shape, shape mismatch, duplicate claim, mixed port, unavailable collector, and constructor prefix hazard",
+]
+no_fallback = [
+  "RawInvocation failure does not retry through RawLegacy; RawLegacy retirement does not reopen RawInvocation; App no-op does not fall through to non-App lowering",
+]
+partial_commit = [
+  "constructor/method sequence must be validated before prefix or published atomically; residual pending rows and method-N partial commits are failures",
+]
+
+[acceptance]
+positive = [
+  "A-J plus K are listed exactly once by entry, port, source, shape, lineage, collector, sequence, and fate",
+  "root I1 remains unchanged and runtime cannot satisfy its guard by proximity",
+  "source identity is preserved without making it target authority",
+  "constructor/method reachability is represented as a sequence, not independent rows",
+  "RawLegacy retirement candidates have separate caller census owners",
+]
+negative = [
+  "no root/runtime collector sharing",
+  "no caller=None source collapse",
+  "no AST/name/arity/box-kind synthesis",
+  "no loose freeze success, fallback, retry, VM/Wpre re-entry, or partial publication",
+]
+guard = "A future reusable guard must derive every A-J/K entry and port branch, reject unlisted runtime edges, verify constructor-before-method sequencing, and keep root I1 coverage separate. It must not infer success from a freeze marker or route exit code."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "A-J/K matrix and port-specific fates are accepted as the sole runtime census",
+  "source context and located parent ownership are explicit",
+  "a source-owned symbol/physical-arity shape exists before child effects or the row is parked/retired",
+  "constructor prefix hazard is closed before any child capture/commit",
+  "RawInvocation collector atomicity and RawLegacy direct ownership are separate",
+  "a reusable runtime guard covers the exact dispatcher-to-terminal boundary",
+  "all changed owners stay below the 760-line split point and 800-line hard stop",
+]
+no_safe_slice = [
+  "runtime reuses root I1",
+  "RawLegacy and RawInvocation need a shared untyped terminal",
+  "NestedBoxMethod, AST/name, params.len(), or formatted symbol becomes authority",
+  "constructor rejection remains after prefix mutation",
+  "collector can partially publish or require Clone/Rc/RefCell ledger copies",
+  "implementation requires loop, route, VM, Wpre, Call, or source-backed cohort changes",
+]
+
+[[worker_receipt]]
+agent = "aggregate_heavy_cohort_design"
+finding = "Root I1 remains isolated from runtime BoxDeclaration; runtime source/shape/lineage/collector is a distinct boundary and the existing capture/commit owners must not be widened implicitly."
+evidence = [
+  "raw_expression_dispatch/mod.rs:488-526",
+  "instance_box_method_batch.rs:71-95",
+  "recursive_child_lowering.rs:435-449",
+]
+
+[[worker_receipt]]
+agent = "force_successor_fate_audit"
+finding = "The five-family table was incomplete: sync reject, RawLegacy Main/static/instance routes, missing-mode branch, sequential constructor/method reachability, and prefix-before-reject partial mutation must be represented."
+evidence = [
+  "raw_expression_dispatch/mod.rs:500-507",
+  "raw_expression_dispatch/nonmain_static_box_lifecycle.rs:15-58",
+  "instance_box_declaration_lifecycle.rs:114-116",
+  "instance_box_constructor_batch.rs:117-139",
+  "instance_box_method_batch.rs:71-95",
+]
+
+[ordered_followups]
+next_after_design = "RUNTIME-BOX-PORT-AND-SEQUENCE-I0 only after this D0b is accepted and source/shape/collector readiness is proven; otherwise retain ParkedSealed or open an explicit retirement row."
+steps = [
+  "1. Re-run the A-J/K census after any runtime code change and keep the root I1 exclusion guard green.",
+  "2. Decide C/G/J RawLegacy retirement separately from F/I RawInvocation terminal candidates.",
+  "3. Close H by moving fate validation before prefix or retiring/freezing the whole Box operation atomically.",
+  "4. Name one source-owned physical shape issuer and one recursive collector owner for any F/I implementation.",
+  "5. Open one bounded I0 with positive/negative/sequence/partial-commit tests and a reusable guard; do not batch unrelated VM/Call cleanup.",
+  "6. Only after runtime fate is total, revisit broader RawCompatibility retirement and downstream Call/MIR cutovers.",
+]
+reopen_triggers = [
+  "a new dispatcher port or BoxDeclaration arm appears",
+  "RawInvocation/RawLegacy branch behavior changes",
+  "constructor/method sequence or prefix mutation changes",
+  "runtime collector or symbol/arity issuer changes",
+  "root I1 exclusion is weakened or a runtime edge reaches its terminal",
+]

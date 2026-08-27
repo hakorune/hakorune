@@ -198,7 +198,7 @@ no_safe_slice = [
 before = "D0b is accepted and this card is the opened fast row; keep the implementation within the named RawCompatibility families and close out with focused evidence."
 after_i1 = "Re-observe the strict successor; if it remains blocked, choose explicit route retirement rather than widening I1."
 later = [
-  "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0",
+  "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-PORT-SEQUENCE-CENSUS-D0b",
   "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
   "force-hv1/Wpre closure, then Call spine and mandatory-Callee cutover",
   "VM route retirement after Call R7/POST-CALL closure",
