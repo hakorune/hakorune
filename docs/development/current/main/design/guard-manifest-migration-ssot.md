@@ -180,6 +180,30 @@ spec generator. A later row may introduce a declarative guard spec for one guard
 family, but it must consume this inventory instead of starting from an ad hoc
 file list.
 
+## Structural Registry Ratchet
+
+`GUARD-REGISTRY-RATCHET-I0` adds a structure-only L0 command to the existing
+inventory row:
+
+```text
+tools/checks/run_row_guard.sh
+  --only guard-manifest-inventory --level l0 --base <explicit PR base>
+  -> guard_manifest_inventory.py --registry-ratchet --base <same revision>
+```
+
+The finite ratchet surface is the git-tracked immediate-child
+`tools/checks/*_guard.sh` set. Direct command targets and closeout-derived
+typed wrapper aliases are counted as separate edge kinds, then combined only
+for mapping/no-growth decisions. A comparative run requires an explicit base;
+local or workflow-dispatch runs without one report an absolute tuple only and
+never infer `HEAD^`.
+
+The L0 command may inspect manifests and git trees, reject duplicate row IDs,
+invalid command targets, newly unmapped eligible guards, and mapping loss. It
+does not execute any member guard. Existing legacy-unmapped paths remain
+`unknown_retain` until a separate successor/caller-zero decision authorizes a
+bounded retirement.
+
 ## Declarative Guard Spec Pilot
 
 `GUARD-MANIFEST-013` pilots a declarative guard spec for exactly one low-risk

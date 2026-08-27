@@ -36,6 +36,10 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--row-kind", help="run entries with this row_kind field")
     parser.add_argument("--closeout-pack", help="run entries assigned to this closeout_pack field")
     parser.add_argument("--level", help="prefer a level-specific command such as cmd_l2")
+    parser.add_argument(
+        "--base",
+        help="explicit comparative base revision for a row that opts into base forwarding",
+    )
     parser.add_argument("--only", help="comma-separated entry ids to run")
     parser.add_argument("--list", action="store_true", help="list entries instead of running")
     parser.add_argument("--dry-run", action="store_true", help="print selected entries without running")
@@ -241,6 +245,14 @@ def load_manifest(args: argparse.Namespace) -> list[dict[str, object]]:
         if first_pattern is not None:
             entry["first_pattern"] = first_pattern
 
+        pass_base = as_optional_bool(
+            raw_entry.get("pass_base"),
+            f"{args.item_name} {entry_id} pass_base",
+            tag,
+        )
+        if pass_base is not None:
+            entry["pass_base"] = pass_base
+
         for level in ("l0", "l1", "l2", "l3", "l4"):
             field = f"cmd_{level}"
             level_cmd = raw_entry.get(field)
@@ -339,7 +351,7 @@ def select_entries(entries: list[dict[str, object]], args: argparse.Namespace) -
 
 def format_entry(entry: dict[str, object], args: argparse.Namespace) -> str:
     profiles = ",".join(entry["profiles"])
-    cmd = " ".join(command_for_entry(entry, args))
+    cmd = " ".join(command_for_entry(entry, args, require_base=False))
     parts = [
         str(entry["id"]),
         f"profiles={profiles}",
@@ -353,6 +365,7 @@ def format_entry(entry: dict[str, object], args: argparse.Namespace) -> str:
         "first_pattern",
         "exe",
         "exe_skip_reason",
+        "pass_base",
     ]:
         if field in entry:
             parts.append(f"{field}={entry[field]}")
@@ -367,15 +380,37 @@ def format_entry(entry: dict[str, object], args: argparse.Namespace) -> str:
     return "\t".join(parts)
 
 
-def command_for_entry(entry: dict[str, object], args: argparse.Namespace) -> list[str]:
+def command_for_entry(
+    entry: dict[str, object],
+    args: argparse.Namespace,
+    *,
+    require_base: bool = True,
+) -> list[str]:
+    selected_level: str | None = None
     if args.level:
-        level = args.level.lower()
-        if level not in {"l0", "l1", "l2", "l3", "l4"}:
+        selected_level = args.level.lower()
+        if selected_level not in {"l0", "l1", "l2", "l3", "l4"}:
             fail(args.tag, f"unsupported level: {args.level}")
-        level_cmd = entry.get(f"cmd_{level}")
+        level_cmd = entry.get(f"cmd_{selected_level}")
         if level_cmd is not None:
-            return list(level_cmd)
-    return list(entry["cmd"])
+            command = list(level_cmd)
+        else:
+            command = list(entry["cmd"])
+    else:
+        command = list(entry["cmd"])
+
+    pass_base = entry.get("pass_base") is True and selected_level == "l0"
+    if args.base is not None and not pass_base:
+        fail(args.tag, f"{entry['id']} does not accept --base without pass_base at the selected level")
+    if not pass_base:
+        return command
+    if not args.base:
+        if require_base:
+            fail(args.tag, f"{entry['id']} requires an explicit --base for level {args.level}")
+        return command
+    if "--base" in command:
+        fail(args.tag, f"{entry['id']} must not embed --base; the runner owns base forwarding")
+    return [*command, "--base", args.base]
 
 
 def main(argv: Sequence[str] | None = None) -> int:

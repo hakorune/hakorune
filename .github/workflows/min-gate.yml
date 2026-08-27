@@ -20,7 +20,15 @@ jobs:
           fetch-depth: 0
 
       - name: CI feedback tier policy guard
-        run: bash tools/checks/ci_feedback_tier_policy_guard.sh
+        run: bash tools/checks/run_row_guard.sh --only ci-feedback-tier-policy
+
+      - name: Guard registry structural ratchet
+        if: ${{ github.event_name == 'pull_request' }}
+        run: >-
+          bash tools/checks/run_row_guard.sh
+          --only guard-manifest-inventory
+          --level l0
+          --base ${{ github.event.pull_request.base.sha }}
 
       - name: Setup Rust (stable)
         uses: dtolnay/rust-toolchain@stable

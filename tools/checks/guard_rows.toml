@@ -91,6 +91,14 @@ id = "guard-manifest-inventory"
 label = "guard manifest batch migration inventory guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/guard_manifest_inventory_guard.sh"]
+cmd_l0 = ["python3", "tools/checks/guard_manifest_inventory.py", "--registry-ratchet"]
+pass_base = true
+
+[[rows]]
+id = "ci-feedback-tier-policy"
+label = "CI feedback tier policy guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/ci_feedback_tier_policy_guard.sh"]
 
 [[rows]]
 id = "guard-spec-pilot"

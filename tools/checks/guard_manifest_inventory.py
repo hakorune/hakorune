@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path, PurePosixPath
+import subprocess
 import sys
 import tomllib
 from typing import Any
@@ -48,6 +49,226 @@ def load_rows(root: Path, manifest: Path, stack: tuple[Path, ...] = ()) -> list[
             fail(f"row {idx} must be a table")
         result.append(row)
     return result
+
+
+def git_blob(root: Path, revision: str, path: str) -> str:
+    if not revision or revision.startswith("-"):
+        fail("registry ratchet base must be an explicit revision")
+    result = subprocess.run(
+        ["git", "show", f"{revision}:{path}"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or "unknown git error"
+        fail(f"cannot read {path} at base {revision}: {detail}")
+    return result.stdout
+
+
+def load_rows_at_revision(
+    root: Path,
+    revision: str,
+    manifest: str,
+    stack: tuple[str, ...] = (),
+) -> list[dict[str, Any]]:
+    if manifest in stack:
+        cycle = " -> ".join((*stack, manifest))
+        fail(f"base manifest include cycle: {cycle}")
+
+    try:
+        data = tomllib.loads(git_blob(root, revision, manifest))
+    except tomllib.TOMLDecodeError as exc:
+        fail(f"base manifest parse failed: {revision}:{manifest}: {exc}")
+
+    includes = data.get("includes", [])
+    if not isinstance(includes, list) or not all(isinstance(item, str) and item for item in includes):
+        fail(f"base manifest includes must be a list: {revision}:{manifest}")
+
+    result: list[dict[str, Any]] = []
+    for include in includes:
+        include_path = PurePosixPath(include)
+        if include_path.is_absolute() or ".." in include_path.parts:
+            fail(f"base manifest include escapes repository: {revision}:{manifest}: {include}")
+        result.extend(load_rows_at_revision(root, revision, include_path.as_posix(), (*stack, manifest)))
+
+    rows = data.get("rows")
+    if not isinstance(rows, list):
+        fail(f"base manifest must contain [[rows]] entries: {revision}:{manifest}")
+    for idx, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            fail(f"base row {idx} must be a table: {revision}:{manifest}")
+        result.append(row)
+    return result
+
+
+def git_tracked_paths(root: Path, revision: str | None = None) -> set[str]:
+    if revision is None:
+        command = ["git", "ls-files", "-z", "--", "tools/checks"]
+    else:
+        command = ["git", "ls-tree", "-r", "-z", "--name-only", revision, "--", "tools/checks"]
+    result = subprocess.run(command, cwd=root, capture_output=True)
+    if result.returncode != 0:
+        detail = result.stderr.decode(errors="replace").strip() or "unknown git error"
+        fail(f"cannot enumerate tracked paths: {detail}")
+    return {
+        item.decode(errors="strict")
+        for item in result.stdout.split(b"\0")
+        if item
+    }
+
+
+def eligible_public_guards(paths: set[str]) -> set[str]:
+    parent = PurePosixPath("tools/checks")
+    return {
+        path
+        for path in paths
+        if PurePosixPath(path).parent == parent
+        and PurePosixPath(path).name.endswith("_guard.sh")
+    }
+
+
+def command_target_text(command: list[str]) -> str | None:
+    if not command:
+        return None
+    if command[0] in {"bash", "sh", "python", "python3"}:
+        for argument in command[1:]:
+            if not argument.startswith("-"):
+                return argument
+        return None
+    return command[0]
+
+
+def normalized_repo_path(value: str) -> str | None:
+    path = PurePosixPath(value)
+    if path.is_absolute() or ".." in path.parts:
+        return None
+    return path.as_posix()
+
+
+def validate_graph_rows(rows: list[dict[str, Any]]) -> None:
+    seen_ids: set[str] = set()
+    seen_rows: list[dict[str, Any]] = []
+    for idx, row in enumerate(rows, start=1):
+        rid = row_id(row, idx)
+        if rid in seen_ids:
+            fail(f"duplicate flattened row id: {rid}")
+        if row in seen_rows:
+            fail(f"duplicate flattened row: {rid}")
+        seen_ids.add(rid)
+        seen_rows.append(row)
+
+
+def graph_edges(
+    root: Path,
+    rows: list[dict[str, Any]],
+    tracked: set[str],
+    *,
+    validate_current_paths: bool,
+) -> tuple[set[str], set[str], list[str]]:
+    direct: set[str] = set()
+    aliases: set[str] = set()
+    errors: list[str] = []
+
+    for idx, row in enumerate(rows, start=1):
+        rid = row_id(row, idx)
+        profiles = row_profiles(row, rid)
+        command = row_cmd(row, rid)
+        target = command_target_text(command)
+        if target is None:
+            errors.append(f"{rid}: command has no target")
+        elif validate_current_paths:
+            target_path = Path(target)
+            if not target_path.is_absolute() and not (root / target_path).exists():
+                errors.append(f"{rid}: command target missing: {target}")
+
+        if target is not None:
+            normalized = normalized_repo_path(target)
+            if normalized in eligible_public_guards(tracked):
+                direct.add(normalized)
+
+        if CLOSEOUT_PROFILE not in profiles:
+            continue
+        if not (
+            len(command) == 2
+            and command[0] == "bash"
+            and command[1].startswith(IMPL_PREFIX)
+            and command[1].endswith("_closeout_guard.sh")
+        ):
+            errors.append(f"{rid}: closeout row has invalid implementation command")
+            continue
+        wrapper = "tools/checks/" + PurePosixPath(command[1]).name
+        if validate_current_paths and not (root / wrapper).is_file():
+            errors.append(f"{rid}: derived closeout wrapper missing: {wrapper}")
+        if wrapper in eligible_public_guards(tracked):
+            aliases.add(wrapper)
+
+    return direct, aliases, errors
+
+
+def run_registry_ratchet(root: Path, manifest: Path, base: str | None) -> int:
+    rows = load_rows(root, manifest)
+    validate_graph_rows(rows)
+    current_tracked = git_tracked_paths(root)
+    current_eligible = eligible_public_guards(current_tracked)
+    current_direct, current_aliases, errors = graph_edges(
+        root,
+        rows,
+        current_tracked,
+        validate_current_paths=True,
+    )
+    current_mapped = current_direct | current_aliases
+    current_unmapped = current_eligible - current_mapped
+
+    base_eligible: set[str] = set()
+    base_mapped: set[str] = set()
+    base_unmapped: set[str] = set()
+    new_unmapped: set[str] = set()
+    mapping_loss: set[str] = set()
+    mode = "absolute"
+    if base:
+        mode = "comparative"
+        base_rows = load_rows_at_revision(root, base, "tools/checks/guard_rows.toml")
+        validate_graph_rows(base_rows)
+        base_tracked = git_tracked_paths(root, base)
+        base_eligible = eligible_public_guards(base_tracked)
+        base_direct, base_aliases, base_errors = graph_edges(
+            root,
+            base_rows,
+            base_tracked,
+            validate_current_paths=False,
+        )
+        errors.extend(f"base: {error}" for error in base_errors)
+        base_mapped = base_direct | base_aliases
+        base_unmapped = base_eligible - base_mapped
+        new_unmapped = current_unmapped - base_unmapped
+        mapping_loss = (base_mapped & base_eligible & current_eligible) - current_mapped
+
+    output = {
+        "registry_mode": mode,
+        "registry_base": base or "none",
+        "registry_current_eligible": len(current_eligible),
+        "registry_current_direct_command_targets": len(current_direct),
+        "registry_current_typed_wrapper_aliases": len(current_aliases),
+        "registry_current_mapped": len(current_mapped),
+        "registry_current_unmapped": len(current_unmapped),
+        "registry_base_eligible": len(base_eligible),
+        "registry_base_mapped": len(base_mapped),
+        "registry_base_unmapped": len(base_unmapped),
+        "registry_new_unmapped": len(new_unmapped),
+        "registry_mapping_loss": len(mapping_loss),
+    }
+    for key, value in output.items():
+        print(f"{key}={value}")
+    if new_unmapped:
+        errors.append("new unmapped eligible guards: " + ", ".join(sorted(new_unmapped)))
+    if mapping_loss:
+        errors.append("eligible guards lost their mapping: " + ", ".join(sorted(mapping_loss)))
+    if errors:
+        for error in errors:
+            print(f"[{TAG}] ERROR: {error}", file=sys.stderr)
+        return 1
+    return 0
 
 
 def row_id(row: dict[str, Any], idx: int) -> str:
@@ -126,6 +347,15 @@ def collect_closeout_manifest(root: Path, rows: list[dict[str, Any]]) -> tuple[d
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default=".", help="repository root")
+    parser.add_argument(
+        "--registry-ratchet",
+        action="store_true",
+        help="derive the finite public guard graph and compare it with an explicit base",
+    )
+    parser.add_argument(
+        "--base",
+        help="explicit git revision for comparative registry-ratchet mode",
+    )
     parser.add_argument("--min-guard-rows", type=int, default=0)
     parser.add_argument("--min-impl-files", type=int, default=0)
     parser.add_argument("--min-public-k2-wide", type=int, default=0)
@@ -140,6 +370,11 @@ def main() -> int:
     manifest = root / "tools/checks/guard_rows.toml"
     if not manifest.is_file():
         fail(f"required file missing: {manifest.relative_to(root)}")
+
+    if args.base and not args.registry_ratchet:
+        fail("--base requires --registry-ratchet")
+    if args.registry_ratchet:
+        return run_registry_ratchet(root, manifest, args.base)
 
     rows = load_rows(root, manifest)
     impl_files = sorted((root / "tools/checks/impl").glob("*.sh"))
