@@ -1,10 +1,10 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "direct_historical_delete_r0_landed"
-observed_commit = "e3a07434bd"
-observed_at = "2026-08-27"
+status = "d1b_root_lineage_loan_design_stop"
+observed_commit = "a7a703001b"
+observed_at = "2026-08-28"
 implementation_permission = false
-guard_phase = "wpre_readiness"
-permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 landed: 30 reviewed direct leaves, the stable lifecycle phase, and their phase2047-2050 projections are retired/guarded with residual-zero evidence; the scoped owner-pack fast row is limited to runner discovery and phase2050 membership; PHI/provider exceptions, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
+guard_phase = "bridge_ready"
+permission_scope = "D1B root-lineage exact-target loan remains design-only: the package-only bridge is observed, but source-bound inventory, physical Callee issuer, lineage loan, profile widening, and Call changes remain forbidden. Historical Wpre/force-hv1 rows retain their own landed fates."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
@@ -125,9 +125,9 @@ forbidden = [
 
 [observer_completion_prerequisite]
 task_id = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-status = "accepted_design_implementation_queued_before_pre_effect_retirement"
-implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0; runs after source/effect prerequisites and before all-lineage retirement, affine loan, Method closure, and B1"
-observed_blocker = "SelectedCallableV1 profile currently defers ordinary FunctionCall; a Deferred owner tree does not issue the semantic package, so an external scratch/loan would have no lawful package lifecycle."
+status = "accepted_design_implementation_blocked"
+implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0; opens only after source/effect prerequisites and the root-lineage loan boundary, before all-lineage retirement, Method closure, and B1"
+observed_blocker = "SelectedCallableV1 profile currently defers ordinary FunctionCall; the existing semantic target product is owner/index-shaped rather than a physical Callee, so an external scratch/loan would have no lawful issuer or package lifecycle."
 decision_shape = "A profile-gate-adjacent observer-only branch records existing site/name/arity and observes arguments in the same traversal, issues no target, allows owner observation to complete, and requires total disposition before package install."
 implementation_acceptance = "Owner tree reaches Complete, semantic package issuance is possible, incomplete disposition aborts before install, and the selected Deferred edge is deleted. No target or route is accepted by this observer row."
 forbidden = [
@@ -174,12 +174,13 @@ d1b_states = [
   "TypedRejectBeforeArguments",
   "ParkedCompatibility",
   "PackageAbortBeforeInstall",
+  "NoDirectCallsTerminal",
   "RawLoanInstalled",
   "RawLoanConsumed",
   "RawLoanExhausted",
   "ResolvedFallthroughForbidden",
 ]
-terminal_policy = "Only a typed target may cross into argument descent. KnownNonDirect exits through its typed owner; reject and park do not issue a target. Incomplete inventory aborts before install. Resolved fallthrough and residual loan are guard failures, never successful terminals."
+terminal_policy = "Only a typed target may cross into argument descent; a call-free owner exits through explicit NoDirectCallsTerminal rather than an empty loan. KnownNonDirect exits through its typed owner; reject and park do not issue a target. Incomplete inventory aborts before install. Resolved fallthrough, lineage collapse, package-only bypass, and residual loan are guard failures, never successful terminals."
 
 [wpre_contract]
 boundary = "shared runner family-unknown MIR/Program JSON artifact entrances -> exactly one selected parser or typed terminal; one parsed payload only. Family-preselected compatibility/backend/observer routes are inventoried separately and remain ParkedSealed or CutoverBlockerOpen until their own fate is fixed."
@@ -338,7 +339,7 @@ non_claims = "No strict parser implementation, schema selector code, v2 codec, t
 
 [force_hv1_fate_d0]
 status = "lifecycle_guard_i0_landed"
-owner_pack_exact_selection_i0 = { status = "fast_open", implementation_permission = true, permission_scope = "runner owner-profile seam + phase2050 exact pack; no VM/force/Stage1/Wpre/Call" }
+owner_pack_exact_selection_i0 = { status = "parked_not_selected", implementation_permission = false, permission_scope = "historical Wpre owner-pack evidence only; no current implementation permission" }
 census_s0_status = "landed"
 census_s0_implementation_permission = false
 direct_historical_delete_r0_status = "landed"
@@ -696,10 +697,12 @@ allowed_files = [
 ]
 
 [loan_contract]
-owner = "One root-owned non-empty disposition inventory is provisioned before raw port construction. Package-only BridgeReady bundle never carries an empty or optional loan."
-borrow = "RawInvocationChildPortV1 borrows one stack-owned loan by a short mutable lifetime. take_once returns an owned Callee and ends the borrow before argument lowering."
-affine_proof = "Private fields, #[must_use], no Clone/Copy/Rc/Arc/RefCell/into_parts/getter, one consuming scope, success finish_empty, and typed abort on failure. Runtime counts are diagnostics only."
-atomic_delete = "The first Cataloged loan cell deletes CatalogedTargeted { callee, arguments } direct handoff in the same implementation slice."
+owner = "One root-owned source-bound disposition inventory is provisioned before raw port construction. A call-free owner uses explicit NoDirectCallsTerminal, never an empty loan; a package-only BridgeReady bundle cannot bypass inventory completion."
+borrow = "After the existing semantic owner/index product is converted by one named physical Callee issuer, RawInvocationChildPortV1 borrows one stack-owned loan by a short mutable lifetime. take_once moves the already-issued Callee and ends the borrow before argument lowering."
+affine_proof = "Private fields, #[must_use], no Clone/Copy/Rc/Arc/RefCell/into_parts/getter, one consuming package-plus-loan scope, success finish_empty, and typed abort on failure. Runtime counts are diagnostics only."
+atomic_delete = "The first Cataloged loan cell deletes CatalogedTargeted { callee, arguments } direct handoff in the same implementation slice; consumer resolver, name reconstruction, and post-effect recovery remain zero."
+issuer_gap = "ResolvedDirectCallTargetV1 currently carries semantic owner/index facts, not a physical Callee. Naming the sole issuer/adapter and preserving same-session brand/site is a prerequisite; the loan may not manufacture or reinterpret the target."
+lineage_mapper = "All RawInvocationRootLineageV1 construction delegates to one owner-specific mapper; existing inline matches and InstalledNonBrand { caller: None } collapse remain delete/delegate blockers."
 
 [cross_cutting_contracts]
 receiver_abi = "Callee receiver only; source args only. Backend ABI projection happens once. Producer prepend and VM strip/autoscan/args[0] proxy close atomically as one parity family."
