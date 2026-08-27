@@ -140,3 +140,34 @@ known_baseline = [
   "The full cargo fmt --all -- --check remains red on pre-existing src/runner/core_executor.rs formatting; changed Rust test files were rustfmt-ed individually.",
   "The repository warning baseline remains outside this bounded row (the focused compile reported 439 warnings).",
 ]
+
+[post_closeout_hygiene]
+id = "RAWLEGACY-MAIN-CLOSEOUT-HYGIENE-D0"
+status = "queued_after_guard_frontier"
+implementation_permission = false
+observed_commit = "617dc231bb"
+boundary = "This is a same-family closeout follow-up for the landed C I0: synchronize stale capability comments, record the fate-query stop line, and remeasure the remaining lower_static_main_box callers. It does not reopen the retired dispatcher edge."
+confirmed = [
+  "The current dispatcher queries nested_main_fate_v1 before the Continue arm clones name/methods; no query-order code correction is open.",
+  "The RawLegacy nested Main rejection remains before lower_static_main_box and before compatibility prepare/helper/Main publication.",
+]
+tasks = [
+  "Update RawExpressionDispatchPortV1/static Main comments to say Main is root-only, RawLegacy nested dispatch retires before compatibility preparation, and explicit root compatibility remains owned by its named batch.",
+  "Update RawInvocationChildPortV1 documentation to describe an invocation-local recursive capability carrier that forwards borrowed source/ledger/route capabilities without reissuing semantics; remove the inaccurate claim that it has no child-terminal role.",
+  "Record a stop line: nested Main is the only route-fate method added to RawBoxMethodChildPortV1; later G/J/non-Box/constructor fates require an owner-specific caller switch or dedicated capability and must not grow this trait.",
+  "Run a finite caller census after I0 for the lower_static_main_box declaration, RawLegacy implementation, dispatcher, explicit root owner, adapter delegation, and direct test/reference invocations. Classify production/reference/test callers instead of inferring caller-zero from text alone.",
+]
+census_boundary = "RawBoxMethodChildPortV1 declaration -> all implementations -> static Main dispatcher -> normal_script_runtime_work explicit root -> NormalCallableSemanticPackagePortAdapter delegation -> direct test/reference calls; excludes G/J, non-Box, RawInvocation terminal, and unrelated RawLegacy expression facades."
+fail_fast = "A stale comment is a documentation defect, not permission to change behavior. Caller-zero is accepted only with the finite census and owner classification; if a named root/reference caller remains, keep the compatibility method."
+acceptance = [
+  "query-before-clone remains mechanically visible and guarded",
+  "dispatcher and RawInvocation comments match the landed root-only/forwarding behavior",
+  "RawBoxMethodChildPortV1 carries an explicit no-more-fate-methods stop line",
+  "lower_static_main_box callers are classified with production/reference/test evidence",
+  "if the RawLegacy method is caller-zero outside tests, a separate retirement row names the batch owner and deletion edge; otherwise the surviving owner is recorded",
+]
+non_claims = [
+  "does not claim RawLegacy facades, RawInvocation, G/J, non-Box, or explicit root compatibility are retired",
+  "does not delete raw_static_main_compat_batch.rs or direct compatibility tests in this hygiene follow-up",
+  "does not authorize compiler, VM, backend, Call schema, or guard-frontier implementation while design_stop is active",
+]

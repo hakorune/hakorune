@@ -642,13 +642,22 @@ finding. It does not preempt the selected force-hv1 design stop.
 The 2026-08-27 audit's three hygiene findings and the phase2160 accounting
 correction are taskized in
 `docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml`.
-They remain parked behind the active RawLegacy C design stop. The order is
+They remain parked behind the current guard execution/index design stop; the
+RawLegacy C I0 itself is landed. The order is
 contract-graph freeze -> existing inventory-row ledger check -> chronic
 dead_code/panic remeasure -> one scope-labeled expectation TSV -> closeout
 guard co-registration -> phase2160 legacy/support LOC attribution. The
 force-hv1 leaf observer stays shell-body-only, no new force-specific TSV or
 God guard is introduced, and none of these rows authorizes compiler, VM, or
 backend behavior changes.
+
+The landed RawLegacy nested Main C I0 has one queued same-family closeout
+hygiene follow-up in
+`docs/development/current/main/investigations/runtime-box-rawlegacy-nested-main-retire-i0-2026-08-27.toml`:
+the query-before-clone shape is already confirmed; after the guard frontier,
+sync the dispatcher/RawInvocation comments, record the no-more-fate-methods
+stop line, and perform the finite `lower_static_main_box` caller census. This
+follow-up cannot reopen the retired edge or broaden RawLegacy scope.
 
 ```text
 Decision: keep execution authority in guard_rows.toml plus typed specs, keep
