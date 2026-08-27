@@ -1,0 +1,165 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility admission implementation I0"
+status = "landed_bounded_child_row"
+observed_commit = "86fcfc2441fcdb56c1c834aae8c2cbdf84a59f14"
+observed_at = "2026-08-27"
+implementation_permission = true
+landed_commit = "7a36e19be5f300659f696c4852ba362d2efe17ba"
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0"
+implementation_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-admission-fate-d0-2026-08-27.toml"
+
+[boundary]
+starts = "the compatibility branch of complete_normal_default_program_root_catalog_lifecycle_with_target"
+ends = "one PreparedProgramRootWorkPlanV1 admission handed to the existing compatibility lowering terminal"
+includes = [
+  "Program(JSON-v0) compatibility root selection",
+  "ProgramRootWorkPlanAdmissionV1 selection at the existing work-plan call",
+  "selected callable inventory and constructor cohort arguments",
+  "the existing RawCompatibility work-plan owner",
+  "one focused lifecycle regression and the hako-mainline re-observation",
+]
+excludes = [
+  "source-backed parser cohort transport",
+  "TopLevel/InstanceConstructor lineage redesign",
+  "strict-negative leaf body or run_all wrapper",
+  "LowerLoopSimpleBox/undefined-value repair",
+  "fallback/retry, VM, Wpre, Call schema, LLVM/AOT, and Cargo-wide cleanup",
+]
+
+[decision]
+summary = "Compatibility roots must enter ProgramRootWorkPlanAdmissionV1::RawCompatibility. Source-backed roots alone may use SelectedNormal with an issued selected callable inventory and constructor source cohort. The existing lifecycle branch currently forces SelectedNormal for both, causing cohort-missing before the intended hako-mainline diagnostic."
+source_authority = "PreparedNormalDefaultProgramRootV1::Compatibility versus ::Callable, existing RawCompatibility work-plan constructor, and the source-backed semantic package/cohort issuer."
+canonical_issuer = "The lifecycle's installed-package/source branch: None package -> RawCompatibility; Some package -> SelectedNormal with the already-issued inventory/cohort."
+non_authority = [
+  "hako leaf output, [PASS]/SKIP text, wrapper rc, route filename, or grep",
+  "empty/default/synthetic constructor cohort",
+  "AST/name/arity/symbol reconstruction",
+  "cohort-missing marker as loop evidence",
+  "fallback/retry/provider/delegate re-entry",
+]
+fail_fast = "If the compatibility/source branch and work-plan admission disagree, or SelectedNormal lacks its issued inventory/cohort, return the existing typed freeze before lowering; do not reinterpret the root."
+smallest_next_slice = "Select admission from the already-installed package branch, preserve all existing arguments and terminal behavior, add one compatibility lifecycle regression, and re-run the exact hako-mainline leaf once."
+non_claims = [
+  "does not claim the loop blocker is fixed",
+  "does not make the strict-negative leaf green",
+  "does not transport parser provenance into JSON-v0",
+  "does not retire hako-mainline or phase2160/run_all.sh",
+  "does not change source-backed admission policy",
+]
+
+[observed]
+lifecycle = "src/mir/builder/normal_default_root_catalog_lifecycle.rs:470-508"
+compatibility_branch = "installed_package=None, compatibility_source=Some, constructor_source_cohort=None"
+source_backed_branch = "installed_package=Some, selected callable inventory and constructor cohort are issued before lower_with_expansion"
+old_edge = "normal_default_root_catalog_lifecycle.rs:500 always passes SelectedNormal; :501 passes selected inventory even for compatibility; :502 passes a missing cohort"
+successor_edge = "None installed package -> RawCompatibility, None selected inventory, None constructor cohort, None script-root admission"
+existing_owner = "src/mir/builder/program_root_work_plan_production.rs:23-35::prepare_raw_compatibility"
+probe_before = "hako-mainline loop leaf returned rc=1 with [freeze:contract][mir/instance-constructor-source/cohort-missing] and no paired loop diagnostic"
+
+[change_set]
+files = [
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs",
+  "src/mir/builder/program_root_work_plan_tests.rs",
+]
+delete_set = [
+  "compatibility branch's unconditional SelectedNormal admission",
+  "compatibility branch's selected callable inventory handoff",
+  "compatibility branch's constructor cohort demand",
+  "lowering helper's unconditional SelectedNormal runtime-admission handoff",
+]
+preserve_set = [
+  "source-backed SelectedNormal admission and cohort validation",
+  "RawCompatibility work-plan constructor and existing compatibility catalog install",
+  "script-root admission and normal source observation for source-backed roots",
+  "all lowering arguments, terminal schedule, and existing failure staging",
+]
+
+[finite_state]
+compatibility_raw = "No installed semantic package -> RawCompatibility with no selected inventory/cohort and the existing compatibility terminal."
+source_backed_selected = "Installed semantic package -> SelectedNormal with existing selected inventory and issued constructor cohort."
+selected_missing = "SelectedNormal with missing inventory/cohort -> existing typed freeze; this remains a negative state."
+admission_drift = "Branch, package, inventory, cohort, or script-window combination is inconsistent -> existing work-plan edge rejection."
+
+[acceptance]
+positive = [
+  "compatibility root no longer reaches instance-constructor-source/cohort-missing solely because it was admitted",
+  "source-backed lifecycle continues to use SelectedNormal and its issued cohort",
+  "existing compatibility catalog installation and lowering terminal are unchanged",
+  "the lifecycle regression proves compatibility roots use RawCompatibility",
+  "the exact hako-mainline leaf is re-observed once after the code change; output is recorded without assuming success",
+]
+negative = [
+  "SelectedNormal + missing cohort still rejects",
+  "no empty/default/synthetic cohort",
+  "no target reconstruction from source names/arity",
+  "no fallback/retry/delegate/provider re-entry",
+  "no strict-negative leaf or run_all wrapper edit",
+]
+parity = "Compare compatibility/source-backed branch selection, lifecycle stage, existing module terminal, and source-backed cohort validation. Loop-diagnostic parity is only an observation after the switch."
+focused_tests = [
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::verified_expansion_disposition_reaches_script_and_app_root_lowering",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::source_backed_selected_callable_uses_the_installed_package_port",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib mir::builder::program_root_work_plan::tests::selected_normal_without_constructor_cohort_rejects_before_partition",
+]
+guard = "current_state_pointer_guard plus a scoped source assertion that compatibility selects RawCompatibility and the existing lifecycle tests; do not add a broad hako-mainline guard or accept the freeze marker as loop evidence."
+
+[evidence]
+implementation = "The compatibility lifecycle now selects RawCompatibility with no selected inventory/cohort; source-backed lifecycle still selects SelectedNormal with its issued inventory/cohort. The lowering helper derives admission from the prepared runtime instead of reasserting SelectedNormal."
+focused_results = [
+  "verified_expansion_disposition_reaches_script_and_app_root_lowering: 1 passed",
+  "source_backed_selected_callable_uses_the_installed_package_port: 1 passed",
+  "selected_normal_without_constructor_cohort_rejects_before_partition: 1 passed",
+]
+route_reobservation = "After rebuilding target/quick/hakorune, the hako-mainline probe moved past instance-constructor-source/cohort-missing and reached [freeze:contract][raw-box-method/loose-instance-input]. This is the next upstream child-dispatch blocker, not a green strict-negative result."
+out_of_scope_baseline = [
+  "actual_string_helpers_general_result_row_reaches_its_first_loop_carrier: existing MissingTransientType { init: ValueId(3) } failure",
+  "source_backed_package_failure_is_terminal_before_builder_effects: existing RootExpansion versus expected CallableSemanticSeal mismatch",
+]
+hygiene = [
+  "rustfmt --edition 2021 --check on changed Rust files: ok",
+  "quick-profile hakorune binary rebuilt with CARGO_BUILD_JOBS=4: ok",
+]
+
+[next_blocker]
+row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0"
+status = "CutoverBlockerOpen"
+finding = "RawCompatibility admission is selected, but direct compatibility child dispatch still enters the default loose-instance/loose-static freeze instead of the existing collector-backed compatibility terminal."
+non_authority = "Do not make the loose-* marker pass, swap in the raw legacy port wholesale, or synthesize a target/cohort from AST/name/arity."
+
+[implementation_gate]
+permission = true
+resource_rule = "Run one focused quick-profile Cargo test at a time with CARGO_BUILD_JOBS=4; no --release, --nocapture, or concurrent Cargo process."
+stop_if = [
+  "the branch requires a new semantic receipt or parser source bridge",
+  "source-backed tests lose their existing cohort validation",
+  "compatibility needs an empty/default cohort or fallback",
+  "the hako leaf is changed to accept cohort-missing as the intended blocker",
+  "the modified owner reaches 760 lines or the change expands beyond the two listed files",
+]
+
+[verification]
+static = [
+  "git diff --check",
+  "python3 -c 'import tomllib; tomllib.load(open(\"docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-admission-i0-2026-08-27.toml\", \"rb\"))'",
+  "bash tools/checks/current_state_pointer_guard.sh",
+]
+focused = [
+  "the two named lifecycle tests, run separately",
+  "timeout 30s bash tools/smokes/v2/profiles/integration/core/phase2160/hako_mainline_loop_undefined_block_vm.sh",
+]
+evidence_rule = "A post-switch rc=0, timeout, wrong failure, or missing paired diagnostic is not green; record the finite observed state and return to design if the route still stops upstream."
+
+[ordered_followups]
+next_after_i0 = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0"
+later = [
+  "SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0 or explicit route retirement row",
+  "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
+]
+reopen_triggers = [
+  "compatibility still enters SelectedNormal",
+  "source-backed cohort validation changes",
+  "hako-mainline reaches another upstream admission contract",
+  "a fallback/retry or alternate route is added",
+]

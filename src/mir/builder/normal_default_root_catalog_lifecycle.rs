@@ -494,12 +494,27 @@ impl ModuleBuilderInvocationSessionV1 {
                                 }
                                 None => (None, None),
                             };
+                        let (work_plan_admission, selected_callable_sources, constructor_sources,
+                            script_root_admission) = match installed_package.as_ref() {
+                            Some(_) => (
+                                ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+                                Some(declarations.selected_source_inventory()),
+                                constructor_source_cohort.as_ref(),
+                                script_root_admission,
+                            ),
+                            None => (
+                                ProgramRootWorkPlanAdmissionV1::RawCompatibility,
+                                None,
+                                None,
+                                None,
+                            ),
+                        };
                         let work = PreparedProgramRootWorkPlanV1::prepare_with_script_root_admission_and_constructor_sources(
                             lowering_statements,
                             preflight_is_app_mode,
-                            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
-                            Some(declarations.selected_source_inventory()),
-                            constructor_source_cohort.as_ref(),
+                            work_plan_admission,
+                            selected_callable_sources,
+                            constructor_sources,
                             script_root_admission,
                         )
                         .map_err(|error| {

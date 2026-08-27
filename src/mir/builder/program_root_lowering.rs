@@ -356,6 +356,14 @@ impl MirBuilder {
     where
         Port: RootCallableCapturePortV1,
     {
+        let work_plan_admission = match &work.runtime {
+            PreparedProgramRootRuntimeWorkV1::RawCompatibility(_) => {
+                ProgramRootWorkPlanAdmissionV1::RawCompatibility
+            }
+            PreparedProgramRootRuntimeWorkV1::SelectedNormal(_) => {
+                ProgramRootWorkPlanAdmissionV1::SelectedNormal
+            }
+        };
         declaration_facts.install_into(&mut self.comp_ctx);
         self.prepare_program_root_static_lowering_state_v1(snapshot, expansion.is_app_mode())?;
         self.lower_program_root_work_plan_with_callable_port_v1(
@@ -363,7 +371,7 @@ impl MirBuilder {
             expansion,
             materialization,
             runtime_inputs,
-            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+            work_plan_admission,
             callables,
         )
     }

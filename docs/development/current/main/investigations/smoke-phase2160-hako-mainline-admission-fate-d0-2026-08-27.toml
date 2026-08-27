@@ -1,5 +1,5 @@
 title = "Smoke phase2160 hako-mainline admission fate design"
-status = "accepted_design_no_safe_slice"
+status = "accepted_design"
 observed_commit = "678d40732c36ee34fbf10838e83c987e8f2f0819"
 observed_at = "2026-08-27"
 implementation_permission = false
@@ -79,8 +79,13 @@ script_window_admission_mismatch = "The route/leaf expects a strict diagnostic w
 route_retiring = "An explicit retirement decision removes this route from the strict-negative successor and records its replacement/fate."
 
 [decision]
-required = "Choose exactly one route family before implementation: RawCompatibility, SourceBackedCohortReady, or RouteRetiring."
-preferred_constraint = "Do not select SourceBackedCohortReady unless the existing parser/source authority can issue and transport the exact cohort without recomputation."
+selected_route = "RawCompatibility"
+selected_reason = "Program(JSON-v0) -> MIR(JSON-v0) and MirBuilderBox.emit_from_program_json_v0 are existing compatibility/bootstrap ingress owners. The existing RawCompatibility work-plan admission already represents a root without selected source inventory or constructor cohort, so it removes the boundary mismatch without inventing parser provenance."
+selected_issuer = "ProgramRootWorkPlanAdmissionV1::RawCompatibility at the compatibility branch of normal_default_root_catalog_lifecycle.rs"
+deferred_alternatives = [
+  "SourceBackedCohortReady remains parked because this route has no parser-issued same-brand source seal/cohort; adding one would be a new source bridge.",
+  "RouteRetiring remains a separate future route-retirement design because selfhost converter, smoke, proof, and check callers still use hako-mainline.",
+]
 prohibited = [
   "treat cohort-missing as the intended loop blocker",
   "inject an empty/default cohort",
@@ -111,7 +116,7 @@ guard = "A later route-fate guard must derive the selected route and cohort stat
 [implementation_gate]
 permission = false
 required_before_fast = [
-  "one of the three route fates is explicitly accepted",
+  "RawCompatibility is the sole admission for the compatibility branch",
   "the selected issuer and exact source/lineage boundary are named",
   "the successor old-edge delete set is finite",
   "no synthetic cohort or target reconstruction is required",
@@ -125,7 +130,7 @@ no_safe_slice = [
 ]
 
 [ordered_followups]
-next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-I0"
+next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0"
 after_route_choice = [
   "SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0 reopen only after admission fate is resolved",
   "SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0 or explicit route retirement row",
@@ -144,3 +149,16 @@ reopen_triggers = [
   "TopLevel/InstanceConstructor lineage is newly transported or newly collapsed",
   "a route fallback/retry or alternate VM entry is added",
 ]
+
+[route_review]
+agent = "aggregate_heavy_cohort_design"
+observed_sources = [
+  "docs/development/current/main/design/json-v0-route-map-ssot.md:14-19,45-66",
+  "docs/development/current/main/design/selfhost-bootstrap-route-ssot.md:248-253",
+  "lang/src/mir/builder/MirBuilderBox.hako:1-8,132-170",
+  "lang/src/mir/builder/compat/program_json_v0_entry.hako:1-20",
+  "src/mir/builder/program_root_work_plan_production.rs:23-35,46-74",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs:470-508",
+]
+recommendation = "Use the existing RawCompatibility owner. Do not reclassify this route as SourceBacked and do not retire the route in the admission cell."
+next_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0"

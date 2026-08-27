@@ -1,0 +1,189 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility child terminal design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "pending-i0-closeout"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-admission-i0-2026-08-27.toml"
+
+[boundary]
+starts = "RawCompatibility ProgramRootWorkPlanV1 after the hako-mainline JSON-v0 admission has been selected"
+ends = "one explicit compatibility child terminal committed through the existing legacy collector, before any source-backed lowering or route retirement"
+includes = [
+  "compatibility top-level/static child dispatch",
+  "raw instance-constructor child dispatch",
+  "deferred static compatibility work",
+  "the existing pending-capture and LegacyReplaceWholePair collector seams",
+  "explicit admission propagation through deferred program-root lowering",
+]
+excludes = [
+  "source-backed SelectedNormal child lowering",
+  "TopLevel/InstanceConstructor source-lineage transport or new semantic receipts",
+  "strict-negative loop leaf, LowerLoopSimpleBox, or undefined-value repair",
+  "route retirement, run_all, VM/AOT/backend, Wpre, Call schema, and fallback policy",
+  "wholesale RawLegacyChildLoweringPortV1 replacement",
+]
+
+[brief]
+decision = "Keep hako-mainline as the already selected RawCompatibility route. Close its direct child dispatch by making each compatibility family enter an explicit collector-backed terminal; do not let the generic raw port's loose-* default arms become a semantic route."
+source_authority = "Existing JSON-v0 compatibility work-plan admission plus the existing compatibility pending-capture/collector owner; no source-backed catalog or parser cohort is available on this route."
+canonical_issuer = "RawCompatibility work-plan branch -> family-specific pending capture -> existing LegacyReplaceWholePair collector commit."
+non_authority = [
+  "default loose-static/loose-instance freeze markers as acceptance evidence",
+  "RawLegacyChildLoweringPortV1 wholesale swap",
+  "AST/name/arity/box-name/symbol target synthesis",
+  "caller=None as a target or source-authority signal",
+  "new source bridge, empty/default constructor cohort, fallback, retry, provider, VM, or Wpre re-entry",
+]
+fail_fast = "A compatibility child must select its family terminal before child effects. Unclassified loose input, missing collector state, mixed route admission, or collector mismatch is a typed freeze/reject; it is never converted into a successful source-backed lowering."
+smallest_next_slice = "Add one explicit RawCompatibility child-dispatch decision for top-level/static, instance-constructor, and deferred-static families, route each to the existing pending capture/LegacyReplaceWholePair owner, and prove one commit with positive and negative focused tests."
+non_claims = [
+  "does not make the hako-mainline strict-negative leaf green",
+  "does not repair loop or undefined-value semantics",
+  "does not transport parser lineage or issue a constructor cohort",
+  "does not retire hako-mainline, Rust VM, or any other backend",
+  "does not change source-backed SelectedNormal behavior",
+]
+
+[observed]
+route = "tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline"
+probe = "timeout 30s bash tools/smokes/v2/profiles/integration/core/phase2160/hako_mainline_loop_undefined_block_vm.sh"
+observed_terminal = "[freeze:contract][raw-box-method/loose-instance-input]"
+interpretation = "RawCompatibility admission now passes the former cohort-missing boundary, but direct child dispatch still calls an unimplemented loose-instance arm. The marker is an upstream dispatch contract failure, not the intended loop blocker."
+admission_source = "src/mir/builder/program_root_work_plan.rs:439-462,508-526"
+deferred_source = "src/mir/builder/program_root_lowering.rs:418-421"
+default_freeze_source = "src/mir/builder/recursive_child_lowering.rs:75-87,123-136"
+compatibility_terminal_seams = [
+  "src/mir/builder/recursive_child_lowering.rs:373-414::capture_static_box_method_pending_v1",
+  "src/mir/builder/recursive_child_lowering.rs:482-524::capture_normalized_instance_box_method_pending_v1",
+  "src/mir/builder/recursive_child_lowering.rs:435-449::commit_legacy_nested_box_method_symbol_pending_v1",
+  "src/mir/builder/module_lowering_invocation_legacy_term.rs:24-47::LegacyReplaceWholePair",
+]
+other_edges = [
+  "src/mir/builder/instance_box_constructor_batch.rs:113-135 raw constructor -> lower_instance_box_method",
+  "src/mir/builder/nonmain_static_box_method_batch.rs:99-143 deferred static compatibility path",
+  "src/mir/builder/program_root_lowering.rs:418-421 deferred work currently uses lower_normal_with_port_v1",
+]
+
+[authority_map]
+admission = "ProgramRootWorkPlanAdmissionV1::RawCompatibility selected by the installed-package compatibility branch"
+family_classification = "The existing compatibility route/child family identity; it may choose a pending capture owner but may not invent a callable target"
+pending_capture = "Existing capture_static_box_method_pending_v1 or capture_normalized_instance_box_method_pending_v1"
+publication = "Existing LegacyReplaceWholePair collector commit, exactly once"
+negative_guard = "RawInvocationChildPortV1 default loose-* methods remain an unclassified-input freeze"
+non_authority = [
+  "RawInvocationChildPortV1 default implementation as a success path",
+  "RawLegacyChildLoweringPortV1 as a replacement authority",
+  "source-backed semantic package/cohort APIs",
+  "resolver rerun after arguments",
+]
+
+[finite_state]
+states = [
+  "RawCompatibilityChildReady",
+  "CompatibilityChildCaptured",
+  "CompatibilityChildCommitted",
+  "SelectedNormalMissingCohort",
+  "LooseChildUnclassified",
+  "CompatibilityTerminalMismatch",
+  "RouteRetiring",
+]
+raw_ready = "RawCompatibility admission plus an identified compatibility child family enters the explicit family branch before child effects."
+captured = "The family-specific pending capture owns the exact compatibility replacement pair and no direct source-backed Call is published."
+committed = "LegacyReplaceWholePair commits the captured compatibility terminal exactly once; residual pending state is empty."
+selected_missing = "SelectedNormal without its issued inventory/cohort remains the existing typed freeze and is outside this row."
+loose_unclassified = "A direct static/instance child with no explicit compatibility family branch remains a typed freeze; the marker is never accepted as a strict leaf result."
+terminal_mismatch = "Collector owner, route admission, or pending pair disagrees -> typed reject/freeze before publication."
+route_retiring = "Explicit route-retirement design owns removal; this child-terminal row does not silently retire or bypass the route."
+
+[delete_set]
+old_edges = [
+  "program_root_work_plan.rs:458-461 implicit compatibility None -> generic lower_root_with_port_v1 without an explicit child terminal",
+  "program_root_work_plan.rs:508-526 RawCompatibility top-level/static child -> loose lower_static_box_method default",
+  "instance_box_constructor_batch.rs:113-135 raw constructor -> loose lower_instance_box_method default",
+  "nonmain_static_box_method_batch.rs:99-143 deferred static compatibility -> cataloged/source-backed path without explicit RawCompatibility branch",
+  "program_root_lowering.rs:418-421 deferred lowering unconditional lower_normal_with_port_v1",
+]
+preserve = [
+  "recursive_child_lowering.rs loose-* defaults as negative unclassified-input guards",
+  "existing pending-capture helpers and LegacyReplaceWholePair collector owner",
+  "source-backed SelectedNormal path and its constructor cohort validation",
+  "RawCompatibility admission and existing compatibility catalog installation",
+]
+forbidden_replacements = [
+  "direct swap to RawLegacyChildLoweringPortV1",
+  "Callee/CallTarget/name/symbol payload in scratch or compatibility loan",
+  "target reconstruction from AST, name, arity, box kind, or receiver text",
+  "post-argument resolve/retry/fallback/provider re-entry",
+]
+
+[acceptance]
+positive = [
+  "hako-mainline RawCompatibility top-level/static child reaches the existing pending-capture and collector terminal",
+  "raw instance-constructor child reaches the existing normalized-instance pending capture without loose-instance success",
+  "deferred static compatibility work preserves RawCompatibility admission through its explicit branch",
+  "LegacyReplaceWholePair commits exactly once and leaves no residual pending pair",
+  "source-backed SelectedNormal remains unchanged and still requires its issued cohort",
+]
+negative = [
+  "default loose-static/loose-instance arms remain failing for unclassified input",
+  "missing/foreign/duplicate/mixed-brand collector state fails before child effects",
+  "no direct source-backed Call or synthetic target/cohort is published for compatibility",
+  "no fallback, retry, provider, VM, Wpre, or route re-entry is added",
+  "the strict-negative leaf does not accept cohort/loose markers as loop evidence",
+]
+parity = "Preserve existing JSON-v0 compatibility terminal, pending pair contents, argument/statement order, and collector output. No loop diagnostic or product runtime parity is claimed."
+focused_tests = [
+  "one RawCompatibility top-level/static child positive witness",
+  "one RawCompatibility instance-constructor positive witness",
+  "one deferred-static compatibility positive witness",
+  "one loose-unclassified negative witness",
+  "one SelectedNormal-missing-cohort negative witness",
+]
+guard = "A scoped child-terminal guard must require the explicit RawCompatibility branch, the existing capture/LegacyReplaceWholePair symbols, one commit edge, and zero direct loose-* success or source-backed handoff. It must not whitelist the observed freeze marker."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "exact branch ownership for top-level/static, instance-constructor, and deferred-static families is written in one implementation card",
+  "collector pending pair and one-shot commit lifetime are fixed without Clone/Rc/RefCell loan duplication",
+  "source-backed SelectedNormal remains untouched by the change set",
+  "positive/negative focused test homes and a reusable guard are named",
+  "all changed owners remain below the 760-line design threshold and 800-line hard stop",
+]
+no_safe_slice = [
+  "a wholesale RawLegacyChildLoweringPortV1 swap is required",
+  "a new semantic receipt, parser bridge, or target resolver is needed",
+  "the collector cannot commit atomically exactly once",
+  "compatibility needs a default/empty/synthetic cohort or target",
+  "the change must touch source-backed lowering, loop repair, route retirement, or VM/backend policy",
+]
+
+[worker_receipt]
+agent = "aggregate_heavy_cohort_design"
+finding = "The I0 admission choice is correct. The next blocker is child dispatch: RawCompatibility currently reaches the generic port's loose-instance/static defaults, while existing pending-capture and LegacyReplaceWholePair seams provide the compatible terminal."
+recommendation = "Keep RawCompatibility live; connect each compatibility family explicitly to the existing collector-backed terminal before considering strict-leaf successor or route retirement."
+evidence = [
+  "recursive_child_lowering.rs:75-87,123-136,527-548",
+  "program_root_work_plan.rs:439-462,508-526",
+  "program_root_lowering.rs:418-421",
+  "instance_box_constructor_batch.rs:113-135",
+  "nonmain_static_box_method_batch.rs:99-143",
+  "recursive_child_lowering.rs:373-414,435-449,482-524",
+  "module_lowering_invocation_legacy_term.rs:24-47",
+]
+
+[ordered_followups]
+next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1"
+later = [
+  "SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0 reopen only after the route reaches its intended diagnostic boundary",
+  "SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0 or explicit route-retirement row",
+  "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
+]
+reopen_triggers = [
+  "RawCompatibility child dispatch re-enters SelectedNormal or source-backed cohort validation",
+  "a second collector/pending owner is introduced",
+  "loose-* default markers are treated as success or strict-leaf evidence",
+  "target/name/arity reconstruction, fallback, retry, provider, VM, or Wpre re-entry is added",
+  "the existing LegacyReplaceWholePair owner cannot provide one-shot atomic publication",
+]

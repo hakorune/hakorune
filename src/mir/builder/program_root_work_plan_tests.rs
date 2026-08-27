@@ -307,3 +307,25 @@ fn raw_top_level_functions_do_not_issue_selected_receipts() {
         )
     ));
 }
+
+#[test]
+fn selected_normal_without_constructor_cohort_rejects_before_partition() {
+    let statements = vec![literal(1)];
+    let root = ASTNode::Program {
+        statements: statements.clone(),
+        span: Span::unknown(),
+    };
+    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+        .expect("selected callable catalog");
+    let error =
+        PreparedProgramRootWorkPlanV1::prepare_with_script_root_admission_and_constructor_sources(
+            statements,
+            true,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+            Some(catalog.selected_source_inventory()),
+            None,
+            None,
+        )
+        .expect_err("SelectedNormal must not proceed without its constructor cohort");
+    assert!(error.contains("instance-constructor-source/cohort-missing"));
+}
