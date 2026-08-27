@@ -35,12 +35,19 @@ root, card_path, registry_path = map(Path, sys.argv[1:])
 card = tomllib.loads(card_path.read_text())
 registry = tomllib.loads(registry_path.read_text())
 
-if card.get("status") != "in_progress":
-    raise SystemExit("I1 card is not the active in-progress row")
+status = card.get("status")
+if status not in ("in_progress", "landed_bounded_child_row"):
+    raise SystemExit(f"I1 card has unexpected lifecycle status: {status!r}")
 if card.get("implementation_permission") is not True:
     raise SystemExit("I1 implementation permission is not open")
 if card.get("selected_fast") is not True:
     raise SystemExit("I1 is not marked as the selected fast row")
+if status == "landed_bounded_child_row":
+    if not card.get("landed_commit"):
+        raise SystemExit("landed I1 card is missing landed_commit evidence")
+    evidence = card.get("evidence")
+    if not isinstance(evidence, dict) or not evidence.get("implementation"):
+        raise SystemExit("landed I1 card is missing implementation evidence")
 
 guard_id = "smoke-phase2160-hako-mainline-raw-compat-child-terminal"
 guard_script = "tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh"
