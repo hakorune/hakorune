@@ -1,36 +1,141 @@
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SiteOwnerMapReferenceFailureV1 {
+    InvalidRevision,
+    RevisionNotCommit,
+    RevisionNotAncestor,
+    RepositoryUnavailable,
+    PathMissing,
+    PathNotBlob,
+    BlobNonUtf8,
+    AnchorUnsupported,
+    RangeOutOfBounds,
+    SymbolMissing,
+    SymbolAmbiguous,
+    EdgeUnsupported,
+}
+
+impl fmt::Display for SiteOwnerMapReferenceFailureV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let tag = match self {
+            Self::InvalidRevision => "invalid-revision",
+            Self::RevisionNotCommit => "revision-not-commit",
+            Self::RevisionNotAncestor => "revision-not-ancestor",
+            Self::RepositoryUnavailable => "repository-unavailable",
+            Self::PathMissing => "path-missing",
+            Self::PathNotBlob => "path-not-blob",
+            Self::BlobNonUtf8 => "blob-non-utf8",
+            Self::AnchorUnsupported => "anchor-unsupported",
+            Self::RangeOutOfBounds => "range-out-of-bounds",
+            Self::SymbolMissing => "symbol-missing",
+            Self::SymbolAmbiguous => "symbol-ambiguous",
+            Self::EdgeUnsupported => "edge-unsupported",
+        };
+        formatter.write_str(tag)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ChronicScanErrorV1 {
     EmptyManifestPath,
-    ManifestRead { detail: String },
-    ManifestParse { detail: String },
-    InvalidManifest { detail: String },
+    ManifestRead {
+        detail: String,
+    },
+    ManifestParse {
+        detail: String,
+    },
+    InvalidManifest {
+        detail: String,
+    },
     EmptyScope,
-    DuplicateScopePath { path: String },
-    PathEscape { path: String },
-    SymlinkInput { path: String },
-    ScopeEntryMissing { path: String },
-    ScopeEntryKindMismatch { path: String },
-    DirectoryRead { path: String, detail: String },
-    SourceRead { path: String, detail: String },
-    NonUtf8Source { path: String },
-    ParseFailed { path: String, detail: String },
-    MalformedAttribute { path: String, detail: String },
-    UnsupportedTokenShape { path: String, detail: String },
-    DuplicateObservation { path: String, key: String },
-    SourceChangedDuringObservation { path: String },
-    ScopeDrift { detail: String },
-    ReportSerialize { detail: String },
-    InvalidSourceCommit { detail: String },
-    ObservationReceiptInvalid { detail: String },
-    ObservationReceiptDuplicateKey { key: String },
-    ObservationReceiptOutOfOrder { previous: String, current: String },
-    ObservationReceiptCountDrift { expected: usize, actual: usize },
-    ObservationReceiptHashDrift { expected: String, actual: String },
-    SiteOwnerMapInvalid { detail: String },
-    SiteOwnerMapCoverageDrift { detail: String },
-    SiteOwnerMapHashDrift { expected: String, actual: String },
+    DuplicateScopePath {
+        path: String,
+    },
+    PathEscape {
+        path: String,
+    },
+    SymlinkInput {
+        path: String,
+    },
+    ScopeEntryMissing {
+        path: String,
+    },
+    ScopeEntryKindMismatch {
+        path: String,
+    },
+    DirectoryRead {
+        path: String,
+        detail: String,
+    },
+    SourceRead {
+        path: String,
+        detail: String,
+    },
+    NonUtf8Source {
+        path: String,
+    },
+    ParseFailed {
+        path: String,
+        detail: String,
+    },
+    MalformedAttribute {
+        path: String,
+        detail: String,
+    },
+    UnsupportedTokenShape {
+        path: String,
+        detail: String,
+    },
+    DuplicateObservation {
+        path: String,
+        key: String,
+    },
+    SourceChangedDuringObservation {
+        path: String,
+    },
+    ScopeDrift {
+        detail: String,
+    },
+    ReportSerialize {
+        detail: String,
+    },
+    InvalidSourceCommit {
+        detail: String,
+    },
+    ObservationReceiptInvalid {
+        detail: String,
+    },
+    ObservationReceiptDuplicateKey {
+        key: String,
+    },
+    ObservationReceiptOutOfOrder {
+        previous: String,
+        current: String,
+    },
+    ObservationReceiptCountDrift {
+        expected: usize,
+        actual: usize,
+    },
+    ObservationReceiptHashDrift {
+        expected: String,
+        actual: String,
+    },
+    SiteOwnerMapInvalid {
+        detail: String,
+    },
+    SiteOwnerMapCoverageDrift {
+        detail: String,
+    },
+    SiteOwnerMapHashDrift {
+        expected: String,
+        actual: String,
+    },
+    SiteOwnerMapReference {
+        reference: String,
+        failure: SiteOwnerMapReferenceFailureV1,
+        detail: String,
+    },
 }
 
 impl fmt::Display for ChronicScanErrorV1 {
@@ -134,6 +239,14 @@ impl fmt::Display for ChronicScanErrorV1 {
             Self::SiteOwnerMapHashDrift { expected, actual } => write!(
                 formatter,
                 "[chronic-scan/site-owner-map-hash-drift] expected={expected} actual={actual}"
+            ),
+            Self::SiteOwnerMapReference {
+                reference,
+                failure,
+                detail,
+            } => write!(
+                formatter,
+                "[chronic-scan/site-owner-map-reference/{failure}] {reference}: {detail}"
             ),
         }
     }
