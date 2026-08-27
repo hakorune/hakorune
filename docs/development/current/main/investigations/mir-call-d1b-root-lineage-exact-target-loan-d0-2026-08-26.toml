@@ -685,19 +685,20 @@ task_id = "MIR-CALL-GLOBAL-TARGET-B1-CARRIER-CONTRACT-D0"
 status = "design_stop"
 implementation_permission = false
 decision = "Because the issuer audit found no existing Cataloged exact physical carrier, open only the structural carrier contract as a separate prerequisite. This row does not change Callee, CallTarget, MirInstruction, wire, VM, optimizer, or any production route."
-carrier = "The future serde-free CanonicalGlobalTargetV1 has only BuiltinPrint, SameModuleFreeFunction { name, arity }, and SameModuleStaticBoxMethod { owner, method, arity }. It is an opaque structural payload, not source proof; its data is never parsed back into a target."
-authority = "The callable-declaration catalog in src/mir remains the sole guarded production issuer. The defs crate may expose only the minimal structural construction surface required by that issuer; sole production construction is enforced by an owner-specific guard, not by claiming that a cross-crate public API is a semantic authority."
+carrier = "The future serde-free CanonicalGlobalTargetV1 uses the SSOT's nested shape: Builtin(CanonicalBuiltinGlobalV1::Print) or SameModule(CanonicalSameModuleGlobalTargetV1::{ FreeFunction { name, arity }, StaticBoxMethod { owner, method, arity } }). It is an opaque structural payload to consumers, not source proof; its data is never parsed back into a target."
+authority = "The callable-declaration catalog in src/mir remains the sole guarded production issuer. The defs crate exposes only the minimal structural surface required by that owner; because this is a separate crate, sole construction is enforced by an owner-specific repository guard, not claimed as a type-system-only property. Direct enum literals are part of that guard surface."
 api_boundary = "No From<String>, parse, to_string/as_mir_name, Default, Unknown, Legacy, raw owner/name/arity convenience path, registry lookup, or CallTarget::Global bridge. Wire codecs remain runner-owned."
-scope = "Carrier type shape, opaque accessors/equality, static-method input validation, one owner-local issuer seam, focused positive/negative tests, and a reusable constructor-call guard only. No Callee payload cutover and no D1B loan/dispatcher change."
-states = ["CarrierContractUnresolved", "CarrierShapeAccepted", "StaticMethodIssuerReady", "MissingRelation", "WrongNamespace", "EmptyName", "Collision", "ForeignOwner", "TypedReject"]
+issuer_input = "The eventual issuer is owner-local under src/mir/builder/callable_declaration_catalog and accepts only a same-session catalog brand plus an exact existing StaticBoxMethod declaration relation; a bare (owner, method, arity) tuple, CanonicalSameModuleCallableKeyV1 alone, static_candidates cardinality, raw name lookup, or physical symbol is not an issuer input."
+scope = "Carrier type shape, opaque accessors/equality, nested variant tests, and a reusable constructor/enum-literal guard only. No disconnected production issuer, Callee payload cutover, consumer adaptation, or D1B loan/dispatcher change is opened here; the exact issuer is atomic with its first consumer."
+states = ["CarrierContractUnresolved", "CarrierShapeAccepted", "MissingRelation", "WrongNamespace", "EmptyName", "ForeignOwner", "DuplicateRelation", "TypedReject"]
 acceptance = [
-  "StaticBoxMethod carrier shape is created only after an exact same-module relation is supplied by the future owner-local issuer; a raw String or formatter cannot create it",
-  "direct production constructor count is one named owner (zero until the issuer S0 is opened), with tests/compatibility counted separately",
+  "StaticBoxMethod carrier shape has no raw String/formatter/parser construction path; the future owner-local issuer will supply the exact same-module relation",
+  "direct production constructor count is zero in this carrier-only row, with tests/compatibility counted separately; the first production issuer is atomic with its consumer",
   "no Call/Callee/CallTarget/wire/VM/optimizer/JSON file changes and no new semantic Verified*/Prepared* receipt",
-  "collision, wrong namespace, empty component, and foreign-owner inputs reject before publication",
+  "wrong namespace, empty component, foreign-owner, and duplicate-relation inputs reject before publication; physical symbol collision belongs to the later projection row",
 ]
-no_safe_slice = "Return to design if the carrier cannot remain opaque, if the only construction path is a public raw-string convenience API, if a second production constructor appears, or if this substrate requires changing the canonical Callee payload or compiled consumers."
-next_task = "After this contract is accepted, open MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0 for one owner-local guarded issuer only; keep D1B package/loan and the full B1 consumer cutover closed."
+no_safe_slice = "Return to design if the carrier cannot remain opaque to consumers, if the only construction path is a public raw-string convenience API, if a second production constructor appears, if collision handling is pulled forward from projection, or if this substrate requires changing the canonical Callee payload or compiled consumers."
+next_task = "After this contract is accepted, open MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0 as one atomic owner-local issuer-plus-consumer row; keep the full B1 payload/consumer cutover and the D1B package/loan row closed until then."
 
 [wpre_d0_followup_task_order]
 status = "core_direct_d0_s0_landed_r0_landed"
