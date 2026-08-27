@@ -244,6 +244,7 @@ evidence = [
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
   "The residual review initially grouped all 62 exact canonical keys into 16 role groups; after module_postprocess was bound as RetainNamed, 61 exact keys remain across 15 role groups, with no named retain owner or successor bound to their allowance ranges",
   "Core partition (21 rows: A-prime/common-v2/canonical/dynamic-source/generic-G0/resolved-callable) found policy-ready=0 and candidate-only=0; each still requires an explicit row-level retain or successor decision",
+  "Common-v2 sub-audit (rows 53/55/57) found role evidence only: session admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; non-test type references do not issue retention or successor policy",
   "Loop partition (22 rows: callable-single-loop/DirectAccum/nested-production/module-postprocess/loop-observation/variable-observation) found module_postprocess policy-ready after current-caller reconciliation; the other 21 rows remain blocked by live-vs-test mixing or missing exact disposition",
   "Raw/entry partition (19 rows: raw/source-bound/source-entry/source-view) found policy-ready=0; source_entry_vm_invocation remains separate from the 12-row VM-reference candidate cohort",
 ]

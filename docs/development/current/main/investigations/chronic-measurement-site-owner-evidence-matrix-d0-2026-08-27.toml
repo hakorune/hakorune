@@ -197,6 +197,7 @@ evidence = [
   "src/mir/builder/callable_declaration_catalog/README.md:1-64, calls/guard.rs, calls/static_resolution.rs, rewrite/known.rs, and legacy/test owners are candidate mixed-site evidence",
   "A0 site_owner_map.rs:100-220 consumes the receipt once; :264-358 rejects invalid classification/reference contracts, so unresolved states cannot be silently accepted",
   "Three read-only partitions covered the residual A rows before policy binding (core=21, loop=22, raw/entry=19); after the exact module_postprocess RetainNamed binding, 61 residual keys remain across 15 bounded roles, with candidate-only=0 for the residual set",
+  "Common-v2 sub-audit (rows 53/55/57) confirms role evidence only: admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; non-test references do not issue retention or successor policy",
 ]
 latest_finding = "The A matrix records 12 exact candidate joins and one reviewed_ready_for_map RetainNamed binding for module_postprocess. The five conditional candidates and remaining 61 residual rows remain blocked because their evidence is broad rather than canonical-key bound; policy-ready is 1/79 and 78 A successor statuses remain unknown. Continue with role-group policy binding without creating per-row cards, then B/C evidence."
 
