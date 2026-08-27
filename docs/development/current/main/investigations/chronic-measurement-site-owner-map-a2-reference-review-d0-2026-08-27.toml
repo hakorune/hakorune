@@ -46,6 +46,28 @@ matrix = "docs/development/current/main/investigations/chronic-measurement-site-
 a1_resolver = "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map_reference.rs; landed at 31e1edd457; explicit repository_root/review_head only"
 review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
 
+[provenance_audit]
+status = "r0_observed_roles_kept_distinct"
+matrix_artifact_commit = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+matrix_artifact_sha256 = "f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04"
+receipt_artifact_commit = "2c6927cccb"
+receipt_source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+a1_resolver_commit = "31e1edd45725345184168b8862a3538fb1aba353"
+audit_head = "24bc0028bb; docs-only A2 updates are not evidence revisions"
+review_head_rule = "40145ef01c50d0bf6bdcec86493f950dfccd3e84 remains the explicit evidence review head; current audit HEAD, matrix artifact commit, receipt source commit, and A1 implementation commit are recorded by role and are never silently collapsed into one pin."
+
+[progress]
+completed = [
+  "A2-R0 census reproduced: 697 candidate owner/evidence occurrences, 550 unique refs, 268 paths, symbol=167, range=501, byte=29, short=10, OOB=20 distinct/37 occurrences across 22 rows, tree=3, missing=2.",
+  "A2-R0 provenance roles recorded: receipt source, matrix artifact, explicit review_head, A1 resolver commit, and audit HEAD remain distinct.",
+]
+remaining = [
+  "A2-R1 candidate classification and explicit reviewed anchor normalization",
+  "A2-R2 A/B owner/caller/cfg/route role review",
+  "A2-R3 C family role review",
+  "A2-R4 mixed/ambiguous site decomposition and the 16 exact successors",
+]
+
 [census]
 candidate_occurrences = 697
 candidate_unique_references = 550
