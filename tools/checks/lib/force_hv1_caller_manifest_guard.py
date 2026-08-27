@@ -106,21 +106,32 @@ if state.get("current_execution_row") == "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0":
     raise SystemExit(0)
 
 if requested_phase == "force_hv1_guard_current_lifecycle":
-    if state.get("current_execution_row") != "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0":
-        fail("current lifecycle I0 guard was invoked outside its explicit phase")
     row = "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0"
-    if state.get("work_mode") != "fast":
-        fail("current lifecycle I0 requires CURRENT_STATE work_mode=fast")
-    if state.get("next_execution_card") != row:
-        fail("current lifecycle I0 next execution card drifted")
-    if card.get("status") != "force_hv1_guard_current_lifecycle_i0_fast_open":
-        fail("active card is not marked current lifecycle I0 fast-open")
-    if "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0 fast-open" not in str(
-        card.get("permission_scope", "")
-    ):
-        fail("current lifecycle I0 permission scope is not narrow and explicit")
-    if state.get("current_design_stop"):
-        fail("current lifecycle I0 fast row must not retain a design stop")
+    lifecycle_open = state.get("current_execution_row") == row
+    if lifecycle_open:
+        if state.get("work_mode") != "fast":
+            fail("current lifecycle I0 requires CURRENT_STATE work_mode=fast")
+        if state.get("next_execution_card") != row:
+            fail("current lifecycle I0 next execution card drifted")
+        if card.get("status") != "force_hv1_guard_current_lifecycle_i0_fast_open":
+            fail("active card is not marked current lifecycle I0 fast-open")
+        if "FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0 fast-open" not in str(
+            card.get("permission_scope", "")
+        ):
+            fail("current lifecycle I0 permission scope is not narrow and explicit")
+        if state.get("current_design_stop"):
+            fail("current lifecycle I0 fast row must not retain a design stop")
+    else:
+        if state.get("work_mode") != "design_stop":
+            fail("current lifecycle I0 closeout requires design_stop")
+        if state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE":
+            fail("current lifecycle I0 closeout must return to the force-hv1 fate row")
+        if not str(state.get("next_execution_card", "")).startswith("none"):
+            fail("current lifecycle I0 closeout requires no execution card")
+        if card.get("status") != "direct_historical_delete_r0_landed":
+            fail("current lifecycle I0 closeout requires the landed R0a card")
+        if "current lifecycle I0 is landed" not in workstream:
+            fail("current lifecycle I0 closeout receipt is missing")
     if fate.get("direct_historical_delete_r0_status") != "landed":
         fail("current lifecycle I0 requires the landed R0a inventory")
 
@@ -210,7 +221,7 @@ if requested_phase == "force_hv1_guard_current_lifecycle":
     print(
         f"[{TAG}] result_class=current-change failure status=pass "
         "phase=force_hv1_guard_current_lifecycle_i0 active_leaves=86 "
-        "active_sites=90 retired=30 direct=3/3 implementation=fast_open"
+        f"active_sites=90 retired=30 direct=3/3 implementation={'fast_open' if lifecycle_open else 'closed'}"
     )
     raise SystemExit(0)
 
