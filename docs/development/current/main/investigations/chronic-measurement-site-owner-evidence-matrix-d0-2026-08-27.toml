@@ -5,7 +5,7 @@ observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
-successor_card = "CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
 
 [boundary]
 starts = "the strictly validated 185-row chronic observation receipt and its frozen canonical site keys"
@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "A cohort is policy-ready at 79/79. Continue design-only B/C site-owner evidence review: six successor blockers and one-hundred mixed-role rows remain before the global owner map can be authored."
+smallest_next_slice = "B1 six non-builder successor/retention rows and B2 forty builder rows are now policy-ready; C has fifty reviewed rows and ten explicit NoSafeSlice rows. Keep owner-map authoring closed until those ten decisions are resolved."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -101,19 +101,19 @@ completion_rule = "only all rows reviewed_ready_for_map with explicit successor 
 
 [matrix_artifact]
 path = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-v1.tsv"
-status = "A_policy_ready_BC_blocked"
+status = "B46_C50_policy_ready_10_no_safe_slice"
 source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
-sha256 = "sha256:6d169dd6f80166dac438b2c01ae4b73cd666c508ce85dfe7793f521874fc4147"
+sha256 = "sha256:8213c8edbadf28e9fdeba79455e886ccb83db2c6e2c6b9ce29aa3c429e14652e"
 header_columns = 20
 site_rows = 185
 cohort_rows = "A=79; B=46; C=60; disjoint total=185"
-review_state_counts = "candidate_evidence=0; reviewed_ready_for_map=79; blocked_successor=6; blocked_mixed_role=100"
+review_state_counts = "candidate_evidence=0; reviewed_ready_for_map=175; blocked_successor=0; blocked_mixed_role=10"
 candidate_evidence_rows = 0
-reviewed_ready_for_map_rows = 79
-empty_candidate_owner_rows = 106
-empty_candidate_evidence_rows = 106
+reviewed_ready_for_map_rows = 175
+empty_candidate_owner_rows = 10
+empty_candidate_evidence_rows = 0
 authority = "non-authoritative design input only; it records exact receipt coverage and explicit blockers, never owner/successor/retirement authority"
-generation_note = "read-only receipt projection with 79 reviewed_ready_for_map A rows, zero candidate-evidence rows, six remaining B blocked_successor rows, and one-hundred C blocked_mixed_role rows; A policy is complete but global owner-map authoring remains closed by B/C evidence; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
+generation_note = "read-only receipt projection with 175 reviewed_ready_for_map rows (A=79, B=46, C=50), zero candidate-evidence rows, zero blocked_successor rows, and ten explicit C NoSafeSlice rows; owner-map authoring remains closed by those ten unresolved decisions; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
 
 [finite_state]
 states = [
@@ -148,12 +148,12 @@ blocking = [
 [task_steps]
 items = [
   "1. Bind the matrix to the strict receipt source revision and canonical key set; never rescan or derive a key from a matrix row.",
-  "2. Assign every receipt row exactly once to A generated registry (79), B runtime (46), or C mixed builder (60), retaining known collisions by byte range and attribute kind.",
-  "3. Review A against module_registry.in.rs and compiler/mod.rs include evidence; consume the complete seventy-nine-row policy binding without turning topology into retention authority.",
-  "4. Review B using the six named module/README owners and split builder active/disconnected sites at item/range level; do not use builder.rs role as a blanket label.",
-  "5. Review C against callable catalog, guard, compatibility/recovery, and test owners; keep one-hundred mixed-role rows blocking until each site has exact evidence and fate.",
-  "6. Require candidate owner/evidence references and a review state for all 185 rows; reject omitted, duplicate, foreign, guessed, or grep-only evidence.",
-  "7. Close the matrix as design-ready only when all blockers are resolved, then return to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 for tracked artifact authoring; expectation TSV and deletion remain later rows.",
+  "2. Keep A=79/79 closed with its existing policy bindings; do not reopen the generated-registry card.",
+  "3. Batch B1: bind the six non-builder rows (ABI, Raw root, resolved profile) as RetainNamed with explicit owner/evidence and no successor guess.",
+  "4. Batch B2: bind the forty builder rows by responsibility family: 29 live production owners, 9 TestReference proofs, and 2 named-successor retirement rows; no file-wide role inheritance.",
+  "5. Batch C: record 50 reviewed owner/fate rows across callable, control-flow, fact-session, loop, resolved, SSA, type, and guard families; preserve exact evidence per site.",
+  "6. Keep C rows 44, 54-56, 58, 60, 70, 84, 89, and 99 as explicit NoSafeSlice until their named design decisions land; do not convert unknowns into Retain or deletion.",
+  "7. Only after 185/185 rows are reviewed_ready_for_map, author the tracked owner map, resolve anchors, then create the expectation TSV and later retirement rows; no code, guard, or source deletion belongs here.",
 ]
 
 [acceptance]
@@ -182,26 +182,25 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 agents = [
-  "conditional_policy_adversary_core (A-prime/canonical/Generic-G0; exact RetainNamed boundaries)",
-  "conditional_registry_fate_audit (callable topology and callable single-loop; exact RetainNamed boundaries)",
-  "guard_index_spec_audit (DirectAccum, normal source plan, resolved callable; exact RetainNamed boundaries)",
-  "force_successor_fate_audit (located/nested/source projection; variable-accum TestReference fate)",
-  "conditional_policy_adversary_raw (raw/reference and source projection boundaries)",
-  "conditional_policy_adversary_raw_source_entry (three legacy projections mapped to named successors)",
+  "conditional_policy_adversary_core (C callable/catalog/session rows 41-55)",
+  "conditional_policy_adversary_raw (C control-flow/fact-session rows 56-67)",
+  "force_successor_fate_audit (B builder rows 1-40 and C rows 68-79)",
+  "guard_index_spec_audit (C resolved/SSA/type/vars rows 80-100)",
+  "conditional_registry_fate_audit (B non-builder rows 0, 101-104, 184)",
 ]
-status = "A_79_policy_ready_BC_review_remaining"
-finding = "At current HEAD 30e0eb2cd19f24a1f0f04315ebe9568eb1ad0a0d, all 79 A rows are reviewed_ready_for_map. The six B successor blockers and one-hundred C mixed-role rows remain outside this A closure; candidate evidence is not used as global owner-map authority."
+status = "B46_policy_ready_C50_policy_ready_10_no_safe_slice"
+finding = "At review HEAD 17df2666374959da4b52bf96bdeb3b3578f57321, A=79/79 and B=46/46 are reviewed_ready_for_map; C=50/60 are reviewed and ten C rows remain explicit NoSafeSlice. The matrix is exact and non-overlapping, but the owner map remains closed until those ten decisions are resolved."
 evidence = [
-  "chronic-measurement-site-owner-evidence-matrix-v1.tsv: global counts are candidate_evidence=0, reviewed_ready_for_map=79, blocked_successor=6, blocked_mixed_role=100",
+  "chronic-measurement-site-owner-evidence-matrix-v1.tsv: global counts are candidate_evidence=0, reviewed_ready_for_map=175, blocked_successor=0, blocked_mixed_role=10",
   "A generated-registry card: all 79 exact keys have RetainNamed or NamedSuccessor bindings with pinned evidence and reopen conditions",
-  "Generic-G0 worker: six bounded prephysical/test-reference owners; recursive callable plan has a live production ingress",
-  "Variable-accum worker: two issuers have production caller=0 and are retained only as cfg(test) source-to-Facts conformance proof",
-  "Source-entry worker: old physical/projection/thunk modules map to already-landed published/continuation/result successors",
-  "DirectAccum/resolved worker corrected direct_accum_prefix.rs ownership and source_projection canonical source-navigation role",
+  "B1 worker: rows 0, 101-104, and 184 have explicit ABI/Raw-root/resolved-profile RetainNamed owners; no successor is required",
+  "B2 worker: rows 1-40 split into 29 live production owners, 9 TestReference proofs, and 2 named successor retirement rows",
+  "C core/raw/force/guard workers: 50 rows have exact owner/fate evidence; ten rows remain explicit NoSafeSlice with reopen triggers",
+  "Worker audit HEAD is pinned separately from the frozen receipt source revision; evidence refs use the reviewed HEAD without changing receipt provenance",
 ]
-latest_finding = "A is closed at 79/79 policy-ready. The parent matrix is still a design stop for six B successor blockers and one-hundred C mixed-role rows; next work is B/C site-owner evidence, not code or deletion."
+latest_finding = "A and B are closed at 125/125 policy-ready; C has 50 reviewed rows and ten explicit NoSafeSlice decisions. Next work is one grouped C decision batch, not code or deletion."
 
 [closeout]
 status = "pending"
-required = "Record a reviewed, exact-coverage A/B/C matrix with explicit evidence status for all 185 rows. If any owner, role, or successor remains inferred or unresolved, keep this row blocking and do not create the tracked owner map, TSV, guard entry, or deletion."
+required = "Record a reviewed, exact-coverage A/B/C matrix with explicit evidence status for all 185 rows. The current matrix has 175 reviewed rows and ten explicit NoSafeSlice rows; keep this row blocking and do not create the tracked owner map, expectation TSV, guard entry, or deletion until those ten decisions are resolved."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"

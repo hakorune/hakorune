@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement generated registry retention D0
+Status: Design stop — chronic measurement site-owner evidence matrix D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-generated-registry-retention-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0;
-  consume A=79/79 policy-ready, then bind six B successor blockers and 100 C mixed-role blockers;
-  keep owner-map, expectation, guard, and source deletion closed until the 185-row matrix is exact.
+  A=79/79 and B=46/46 are policy-ready, C=50/60 is reviewed, and ten C rows remain explicit NoSafeSlice;
+  keep owner-map, expectation, guard, and source deletion closed until all 185 rows are decided.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```
