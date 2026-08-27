@@ -77,9 +77,9 @@ classified_edges = [
   "Co-update: RustSubset expected .hako/.json projections and the fourteen lifecycle inventory fixtures; regenerate rather than hand-edit",
   "Retain out-of-boundary: Hako flags.optionality, mir_json_emit flags envelope, Python/llvmlite JSON readers, VM/reference fixtures",
 ]
-external_blocker = "hakorune-mir-defs is a public rlib and local grep cannot prove that workspace-external users are absent. The breaking public-API disposition must be explicitly accepted before selecting the fast deletion row."
-completion = "Not CensusExhausted: the Rust edge matrix is closed enough to name the delete/co-update set, but the public rlib breaking-change decision and one registered reusable guard remain open."
-next_action = "Resolve public API fate in the existing parent decision, then select MIR-CALL-R6-CALLFLAGS-RETIRE-I0 only if breaking retire is accepted; otherwise retain a named compatibility owner."
+external_blocker = "hakorune-mir-defs is a public rlib and local grep cannot prove that workspace-external users are absent. The existing D1-A policy therefore remains the safe default: keep the public surface ParkedSealed with a named reopen trigger; a breaking deletion is not selected in this lane."
+completion = "Not CensusExhausted: the Rust edge matrix and retained public disposition are explicit, but the co-update set and one registered reusable guard remain open."
+next_action = "Keep the public MirCall/CallFlags surface ParkedSealed, record the co-update/delete boundary and reusable guard in the selected parent row, then select MIR-CALL-R6-CALLFLAGS-RETIRE-I0 only as a later writer-only candidate."
 
 [followup_audit_2026_08_26]
 status = "design_stop_no_safe_slice"
