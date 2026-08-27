@@ -1,5 +1,5 @@
 ---
-Status: Design stop — D0b accepted; phase2160 hako-mainline RawCompatibility child terminal I1 taskized
+Status: Fast — phase2160 hako-mainline RawCompatibility child terminal I1
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0b-2026-08-27.toml
+  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-i1-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -49,7 +49,7 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `FORCE-HV1-R0A-GUARD-CLOSEOUT-I0` is landed: focused 86/90 census tests, retired-path disjointness, three direct exceptions, and future-row dispatch are green; no production route changed. `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed: explicit phase dispatch, one body-derived summary, registry wiring, and focused tests are green; no production route changed.
+  `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1` is the sole fast row: issue the move-only compatibility shape before effects, propagate explicit admission through five named families, use one child capture plus one outer collector drain, and stop on any runtime-box, SelectedNormal, route, VM, Wpre, or Call expansion.
   The zero-match D0, exact-selection I0, and `SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0` are landed: phase2050 discovery is 962 with exactly five leaves, while direct aggregate invocation remains the exact owner pack. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
   `SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0` is complete as a read-only census. The phase2170 official nine-leaf I0 is landed. phase2160's final fate is now selected as wrapper retirement, and its twenty-child leaf owner/fate census is the design stop; phase2047/2048/2049/2051, phase2100, and the legacy cluster retain separate fates and are not generalized.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
@@ -97,7 +97,7 @@ Design-only follow-up:
   `SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-D0` ->
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-ADMISSION-I0` ->
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b` ->
-  `...RAW-COMPAT-CHILD-TERMINAL-I1` (pointer remains design_stop until explicitly opened) ->
+  `...RAW-COMPAT-CHILD-TERMINAL-I1` (fast; five explicit families only) ->
   strict successor re-observation or explicit route retirement ->
   `SMOKE-PHASE2160-AGGREGATE-RETIRE-R0`.
   The other nineteen leaves remain separate design rows (program/EXE, registry, builder, loop, and selfhost families).
