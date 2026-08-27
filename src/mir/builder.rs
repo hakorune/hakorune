@@ -166,6 +166,7 @@ mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound help
 pub(in crate::mir) use raw_root_child_work::{
     RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1,
 };
+mod raw_compat_runtime_box_fate;
 mod raw_compatibility_child_terminal;
 mod raw_root_static_child_admission;
 pub(in crate::mir) use entry_materialization::{
@@ -357,6 +358,8 @@ mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 mod nonmain_static_box_method_batch;
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
+#[cfg(test)]
+mod runtime_box_fate_tests;
 pub(in crate::mir) use raw_expansion_receipt_ledger::RawCallableMainCompatibilityDispositionV1;
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix

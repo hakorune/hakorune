@@ -323,7 +323,9 @@ impl MirBuilder {
                 ProgramRootTerminalScheduleV1::ScriptRuntime,
                 VerifiedRawRootExpansionV1::Script,
                 PreparedProgramRootRuntimeWorkV1::RawCompatibility(statements),
-            ) => port.lower_body(self, statements.into_vec()),
+            ) => port.with_phase2160_raw_compat_runtime_box_fate_v1(|scoped| {
+                scoped.lower_body(self, statements.into_vec())
+            }),
             (
                 ProgramRootTerminalScheduleV1::VerifiedAppMain,
                 VerifiedRawRootExpansionV1::App(main),

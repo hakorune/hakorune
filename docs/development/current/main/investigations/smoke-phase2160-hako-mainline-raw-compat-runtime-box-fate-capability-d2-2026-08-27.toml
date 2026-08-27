@@ -34,7 +34,7 @@ non_authority = [
   "RawInvocationRootLineageV1 as a target authority, VM/AOT availability, backend behavior, or a test-only success contract without a named owner",
   "ambient bools, downcasts, Clone/Rc/RefCell capability copies, retry from RawInvocation to RawLegacy, and root I1 reuse",
 ]
-fail_fast = "The phase2160 RawCompatibility capture must arm the capability before runtime Box lowering. Missing, foreign, second, or mixed capability use rejects before prefix/body/capture/collector effects. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 are unarmed and unchanged."
+fail_fast = "The phase2160 RawCompatibility capture must arm the capability before runtime Box lowering. Nested or second-take misuse rejects before prefix/body/capture/collector effects; foreign, missing, and mixed capability states are unrepresentable in the private scope sum. A scope with no F/I/H entry may exit Armed normally. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 are unarmed and unchanged."
 smallest_next_slice = "Freeze the capability API, lifetime, branch matrix, zero-delta test conversion, and one reusable guard. Do not implement until a fast row explicitly opens the route-scoped capability."
 census_boundary = "phase2160 RawCompatibility capture -> runtime Box F/I/H pre-effect fate; includes recursive RawInvocation reborrow and four explicit test contracts; excludes RawLegacy, SelectedNormal, root I1, and all downstream execution."
 non_claims = [
@@ -59,7 +59,7 @@ required_properties = [
   "move-only; no Clone or Copy",
   "no Rc, Arc, RefCell, Option-as-authority, or child ledger copies",
   "no public package getter, into_parts, or independently callable install path",
-  "#[must_use] equivalent lifecycle enforcement and explicit second-take rejection",
+  "#[must_use] issuance, explicit second-take/nested-scope rejection, and a normal no-op exit when no F/I/H entry is reached",
 ]
 scope = "with_runtime_box_fate_v1-style closure on the RawCompatibility capture; recursive RawInvocation children receive only a short &mut reborrow and cannot retain it after the scope"
 no_safe_slice = [
@@ -156,7 +156,7 @@ positive = [
   "the four explicit contracts have a recorded typed-negative disposition with zero-delta evidence",
 ]
 negative = [
-  "missing, foreign, second, or mixed capability is a typed reject",
+  "nested/second-take misuse is a typed reject; foreign/missing/mixed capability states are unrepresentable",
   "no ambient bool, downcast, Clone, Rc/Arc/RefCell, copied ledger, RawLegacy retry, or root I1 reuse",
   "no AST/name/arity/params inference, target synthesis, semantic receipt, or downstream backend/VM fallback",
 ]

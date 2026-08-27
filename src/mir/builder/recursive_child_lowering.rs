@@ -21,6 +21,9 @@ use super::module_lowering_invocation::{
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
+use super::raw_compat_runtime_box_fate::{
+    RawCompatibilityRuntimeBoxFateV1, RawRuntimeBoxFateDispositionV1, RuntimeBoxFateScopeV1,
+};
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 pub(in crate::mir::builder) use super::raw_expression_recursion_guard::with_legacy_expression_recursion_guard_v1;
 use super::raw_invocation_source_transport::{
@@ -65,6 +68,10 @@ pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
 }
 
 pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
+    fn take_runtime_box_fate_v1(&mut self) -> Result<RawRuntimeBoxFateDispositionV1, String> {
+        Ok(RawRuntimeBoxFateDispositionV1::Continue)
+    }
+
     fn lower_static_main_box(
         &mut self,
         builder: &mut MirBuilder,
@@ -207,6 +214,7 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// function session and cannot outlive the root callback.
     pub(in crate::mir::builder) callable_loop_root_scope:
         Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
+    pub(in crate::mir::builder) runtime_box_fate: RuntimeBoxFateScopeV1<'port>,
     pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
@@ -257,6 +265,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
+            runtime_box_fate: RuntimeBoxFateScopeV1::Unarmed,
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
@@ -276,9 +285,35 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
+            runtime_box_fate: self.runtime_box_fate.reborrow(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
+    }
+
+    /// Arm one narrowly scoped phase2160 RawCompatibility runtime-Box
+    /// lowering frame.  The capability is local to this callback and is
+    /// reborrowed by recursive children; no generic/raw-legacy route inherits
+    /// it.
+    pub(in crate::mir::builder) fn with_phase2160_raw_compat_runtime_box_fate_v1<R>(
+        &mut self,
+        execute: impl for<'scope> FnOnce(
+            &mut RawInvocationChildPortV1<'scope, 'collector>,
+        ) -> Result<R, String>,
+    ) -> Result<R, String> {
+        if self.runtime_box_fate.is_armed() {
+            return Err("[freeze:contract][raw-compat/runtime-box-fate-scope]".to_owned());
+        }
+        let mut fate = RawCompatibilityRuntimeBoxFateV1::issue_retire();
+        let mut scoped = self.reborrow();
+        scoped.runtime_box_fate = RuntimeBoxFateScopeV1::Phase2160(&mut fate);
+        execute(&mut scoped)
+    }
+
+    pub(in crate::mir::builder) fn take_runtime_box_fate_v1(
+        &mut self,
+    ) -> Result<RawRuntimeBoxFateDispositionV1, String> {
+        self.runtime_box_fate.take_retire()
     }
 
     pub(in crate::mir::builder) fn with_script_deferred_observation<R>(
@@ -525,6 +560,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
 }
 
 impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn take_runtime_box_fate_v1(&mut self) -> Result<RawRuntimeBoxFateDispositionV1, String> {
+        RawInvocationChildPortV1::take_runtime_box_fate_v1(self)
+    }
+
     fn lower_static_main_box(
         &mut self,
         _builder: &mut MirBuilder,

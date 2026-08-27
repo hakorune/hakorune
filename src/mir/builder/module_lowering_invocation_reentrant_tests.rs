@@ -18,7 +18,6 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawBoxMethodChildPortV1, RawInvocationChildPortV1,
     RawLegacyChildLoweringPortV1,
 };
-use crate::mir::builder::RawSourceLocatorV1;
 use crate::mir::{
     BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirInstruction, MirType,
 };
@@ -40,20 +39,6 @@ fn draft(symbol: &str) -> MirFunction {
 fn seeded<'builder>(builder: &'builder mut MirBuilder) -> ModuleLoweringInvocationV1<'builder> {
     builder.enter_function_for_test("reentrant_parent/0".to_owned());
     ModuleLoweringInvocationV1::open(builder)
-}
-
-fn function(name: &str, is_static: bool) -> ASTNode {
-    function_with_body(
-        name,
-        is_static,
-        vec![ASTNode::Return {
-            value: Some(Box::new(ASTNode::Literal {
-                value: LiteralValue::Integer(1),
-                span: Span::unknown(),
-            })),
-            span: Span::unknown(),
-        }],
-    )
 }
 
 fn function_with_body(name: &str, is_static: bool, body: Vec<ASTNode>) -> ASTNode {
@@ -123,19 +108,6 @@ fn function_return_value(value: i64) -> ASTNode {
     }
 }
 
-fn outer_source() -> RawInvocationSourceTransportV1<()> {
-    RawInvocationSourceTransportV1::root(
-        (),
-        RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
-            0,
-            "Main",
-            "run",
-            "Outer.run/0",
-            0,
-        )),
-    )
-}
-
 fn lower_located_loop(
     builder: &mut MirBuilder,
     port: &mut RawInvocationChildPortV1<'_, '_>,
@@ -163,15 +135,6 @@ fn sorted_instruction_debug(builder: &MirBuilder) -> Vec<String> {
         .collect::<Vec<_>>();
     rows.sort();
     rows
-}
-
-fn nested_box_with_constructor(name: &str) -> ASTNode {
-    let mut node = nested_box(name, false);
-    let ASTNode::BoxDeclaration { constructors, .. } = &mut node else {
-        unreachable!()
-    };
-    constructors.insert("birth/0".to_owned(), function("birth", false));
-    node
 }
 
 fn collect_seed(invocation: &mut ModuleLoweringInvocationV1<'_>, symbol: &str) {
@@ -296,156 +259,6 @@ fn capture_failure_never_reaches_commit_terminal() {
         ))
     ));
     invocation.with_header_port(|_builder, headers| assert_eq!(headers.symbol_count(), 0));
-}
-
-#[test]
-fn port_aware_static_body_collects_nested_static_child_before_outer_commit() {
-    let mut builder = MirBuilder::new();
-    let mut invocation = seeded(&mut builder);
-    let body = vec![nested_box("NestedStatic", true)];
-
-    invocation
-        .with_module_port(|builder, module_port| {
-            let pending = {
-                let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
-                    port.capture_static_box_method_pending_v1(
-                        builder,
-                        "Outer.run/0".into(),
-                        Vec::new(),
-                        Vec::new(),
-                        None,
-                        body,
-                        Vec::new(),
-                        DeclarationAttrs::default(),
-                    )
-                })?
-            };
-            module_port.commit_legacy_pending(
-                pending,
-                LegacyChildDraftAdmissionV1::legacy_symbol("Outer.run/0".into(), 0),
-            )
-        })
-        .unwrap();
-
-    invocation.with_header_port(|_builder, headers| {
-        assert!(headers.contains_symbol("NestedStatic.run/0"));
-        assert!(headers.contains_symbol("Outer.run/0"));
-        assert_eq!(headers.symbol_count(), 2);
-    });
-}
-
-#[test]
-fn port_aware_static_body_collects_nested_instance_child_before_outer_commit() {
-    let mut builder = MirBuilder::new();
-    let mut invocation = seeded(&mut builder);
-    let body = vec![nested_box("NestedInstance", false)];
-
-    invocation
-        .with_module_port(|builder, module_port| {
-            let pending = {
-                let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
-                    port.capture_static_box_method_pending_v1(
-                        builder,
-                        "Outer.run/0".into(),
-                        Vec::new(),
-                        Vec::new(),
-                        None,
-                        body,
-                        Vec::new(),
-                        DeclarationAttrs::default(),
-                    )
-                })?
-            };
-            module_port.commit_legacy_pending(
-                pending,
-                LegacyChildDraftAdmissionV1::legacy_symbol("Outer.run/0".into(), 0),
-            )
-        })
-        .unwrap();
-
-    invocation.with_header_port(|_builder, headers| {
-        assert!(headers.contains_symbol("NestedInstance.run/0"));
-        assert!(headers.contains_symbol("Outer.run/0"));
-        assert_eq!(headers.symbol_count(), 2);
-    });
-}
-
-#[test]
-fn port_aware_nested_instance_constructor_uses_the_same_child_terminal() {
-    let mut builder = MirBuilder::new();
-    let mut invocation = seeded(&mut builder);
-    let body = vec![nested_box_with_constructor("NestedCtor")];
-
-    invocation
-        .with_module_port(|builder, module_port| {
-            let pending = {
-                let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
-                    port.capture_static_box_method_pending_v1(
-                        builder,
-                        "Outer.run/0".into(),
-                        Vec::new(),
-                        Vec::new(),
-                        None,
-                        body,
-                        Vec::new(),
-                        DeclarationAttrs::default(),
-                    )
-                })?
-            };
-            module_port.commit_legacy_pending(
-                pending,
-                LegacyChildDraftAdmissionV1::legacy_symbol("Outer.run/0".into(), 0),
-            )
-        })
-        .unwrap();
-
-    invocation.with_header_port(|_builder, headers| {
-        assert!(headers.contains_symbol("NestedCtor.birth/0"));
-        assert!(headers.contains_symbol("NestedCtor.run/0"));
-        assert!(headers.contains_symbol("Outer.run/0"));
-        assert_eq!(headers.symbol_count(), 3);
-    });
-}
-
-#[test]
-fn raw_capture_commit_reaches_static_instance_constructor_depth_three() {
-    let mut builder = MirBuilder::new();
-    let mut invocation = seeded(&mut builder);
-    let leaf = nested_box_with_constructor("Leaf");
-    let middle = nested_box_with_body("Middle", false, vec![leaf, function_return_value(2)]);
-    let body = vec![middle, function_return_value(3)];
-
-    invocation
-        .with_module_port(|builder, module_port| {
-            let pending = {
-                let mut raw_port = RawInvocationChildPortV1::new(module_port);
-                raw_port.with_source_transport_v1(outer_source(), |port, ()| {
-                    port.capture_static_box_method_pending_v1(
-                        builder,
-                        "Outer.run/0".into(),
-                        Vec::new(),
-                        Vec::new(),
-                        None,
-                        body,
-                        Vec::new(),
-                        DeclarationAttrs::default(),
-                    )
-                })?
-            };
-            module_port.commit_legacy_pending(
-                pending,
-                LegacyChildDraftAdmissionV1::legacy_symbol("Outer.run/0".into(), 0),
-            )
-        })
-        .unwrap();
-
-    assert_parent_and_prefix(
-        &mut invocation,
-        &["Leaf.birth/0", "Leaf.run/0", "Middle.run/0", "Outer.run/0"],
-    );
 }
 
 #[test]

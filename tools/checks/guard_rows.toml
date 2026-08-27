@@ -235,3 +235,9 @@ id = "smoke-phase2160-hako-mainline-raw-compat-child-terminal"
 label = "phase2160 RawCompatibility child terminal structure"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh"]
+
+[[rows]]
+id = "smoke-phase2160-hako-mainline-raw-compat-runtime-box-fate-capability"
+label = "phase2160 RawCompatibility runtime Box fate capability"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/smoke_phase2160_hako_mainline_raw_compat_runtime_box_fate_capability_guard.sh"]

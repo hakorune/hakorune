@@ -8,6 +8,7 @@
 use crate::ast::BoxMethodInventoryV1;
 use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
 use crate::mir::builder::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
+use crate::mir::builder::raw_compat_runtime_box_fate::RawRuntimeBoxFateDispositionV1;
 use crate::mir::builder::raw_expression_dispatch::static_box_state::ActiveRawStaticBoxCompilationStateV1;
 use crate::mir::builder::recursive_child_lowering::RawBoxMethodChildPortV1;
 use crate::mir::{MirBuilder, ValueId};
@@ -42,6 +43,10 @@ impl PreparedRawNonMainStaticBoxLifecycleV1 {
     {
         if prepared_root_app_mode_v1(builder)? {
             return crate::mir::builder::emission::constant::emit_void(builder);
+        }
+
+        if port.take_runtime_box_fate_v1()? == RawRuntimeBoxFateDispositionV1::Retire {
+            return Err("[freeze:contract][raw-compat/runtime-box-fate-retired/static]".to_owned());
         }
 
         builder.comp_ctx.register_user_box(self.name);

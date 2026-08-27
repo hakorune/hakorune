@@ -34,7 +34,7 @@ non_authority = [
   "RawInvocationRootLineageV1, Callee, ValueId, EffectMask, or any backend/VM/Wpre result",
   "absolute-empty module assumptions, copied capability/ledger, ambient bool, downcast, retry, or fallback",
 ]
-fail_fast = "A phase2160 F/I/H arm consumes Retire before its first effect. Missing/foreign/second/mixed scope errors are typed; the route never retries through RawLegacy. The generic unarmed port retains its existing behavior outside this route."
+fail_fast = "A phase2160 F/I/H arm consumes Retire before its first effect. Nested scope and second-take misuse are typed rejects; foreign/missing/mixed capability states are unrepresentable in the private scope sum. If no F/I/H arm is entered, the armed local exits normally without a required consume. The route never retries through RawLegacy, and the generic unarmed port retains its existing behavior outside this route."
 smallest_next_slice = "Add the private capability module and scoped RawInvocation field/reborrow, gate F/I/H before effects, move the four tests to a sibling and make them typed negatives, then add the registered guard."
 census_boundary = "phase2160 RawCompatibility capture -> nested runtime Box F/I/H dispatch -> pre-effect fate; excludes all other RawInvocation owners and all downstream execution."
 non_claims = [
@@ -49,7 +49,7 @@ fate = "private RawCompatibilityRuntimeBoxFateV1 { state: Armed | Consumed } wit
 scope = "private RuntimeBoxFateScopeV1<'scope> = Unarmed | Phase2160(&'scope mut RawCompatibilityRuntimeBoxFateV1)"
 entry = "RawInvocationChildPortV1::with_phase2160_raw_compat_runtime_box_fate_v1(|scoped| scoped.lower_body(...))"
 reborrow = "RawInvocationChildPortV1::reborrow() reborrows Phase2160 as a shorter &mut; Unarmed remains Unarmed; no third lifetime is added to RawInvocationChildPortV1"
-consume = "take_runtime_box_fate_v1() returns typed Continue for Unarmed, Retire once for Armed, and typed SecondTakeReject after Consumed"
+consume = "take_runtime_box_fate_v1() returns typed Continue for Unarmed, Retire once for Armed, and typed SecondTakeReject after Consumed; an Armed scope with no F/I/H entry is a normal no-op exit"
 forbidden = [
   "Clone, Copy, into_parts, public getter, Rc, Arc, RefCell, option-as-authority, or child ledger copies",
   "Callee, ValueId, AST, RawInvocationRootLineageV1, name, arity, symbol, or physical shape payload",
@@ -110,7 +110,7 @@ id = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-GUARD
 script = "tools/checks/smoke_phase2160_hako_mainline_raw_compat_runtime_box_fate_capability_guard.sh"
 registry = "tools/checks/guard_rows.toml"
 contract = "Function/arm-aware guard proves issuer=1 at program_root_lowering.rs:321-326, typed Unarmed/Phase2160 scope and recursive reborrow, forbidden payload absence, F/I/H consume ordering, non-inheritance, four typed-negative tests, and snapshot zero-delta evidence."
-reject = "Any generic RawInvocation reject, issuer drift, missing/duplicate/foreign capability, prefix-before-fate, old success assertion, RawLegacy/SelectedNormal/root-I1 inheritance, or line-budget overflow fails closed."
+reject = "Any generic RawInvocation reject, issuer drift, duplicate capability, nested/second-take misuse, prefix-before-fate, old success assertion, RawLegacy/SelectedNormal/root-I1 inheritance, or line-budget overflow fails closed. Foreign/missing/mixed states are rejected by construction because the private scope has no such variant."
 
 [line_budget]
 hard_stop = 800
@@ -130,7 +130,7 @@ positive = [
   "generic RawInvocation, SelectedNormal, RawLegacy, root I1, and existing A/B/E/K terminals remain unchanged",
 ]
 negative = [
-  "second/foreign/mixed/missing scope is typed reject; no retry/fallback or copied ledger",
+  "nested/second-take scope misuse is typed reject; foreign/missing/mixed states are unrepresentable; no retry/fallback or copied ledger",
   "no forbidden payload, target synthesis, ambient state, or new semantic receipt",
   "no old success assertion, partial publication, prefix mutation, or line-budget overflow",
 ]

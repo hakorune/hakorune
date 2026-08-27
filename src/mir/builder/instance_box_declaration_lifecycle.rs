@@ -12,6 +12,7 @@ use super::instance_box_declaration_metadata::PreparedInstanceBoxDeclarationMeta
 use super::instance_box_method_batch::PreparedInstanceBoxMethodBatchV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+use super::raw_compat_runtime_box_fate::RawRuntimeBoxFateDispositionV1;
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::MirBuilder;
@@ -111,6 +112,11 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
     where
         Port: RawBoxMethodChildPortV1,
     {
+        if port.take_runtime_box_fate_v1()? == RawRuntimeBoxFateDispositionV1::Retire {
+            return Err(
+                "[freeze:contract][raw-compat/runtime-box-fate-retired/instance]".to_owned(),
+            );
+        }
         let (constructors, methods) = self.lower_declaration_prefix_v1(builder)?;
         constructors.lower_with_port_v1(builder, port)?;
         methods.lower_raw_with_port_v1(builder, port)
