@@ -60,13 +60,35 @@ review_head_rule = "40145ef01c50d0bf6bdcec86493f950dfccd3e84 remains the explici
 completed = [
   "A2-R0 census reproduced: 697 candidate owner/evidence occurrences, 550 unique refs, 268 paths, symbol=167, range=501, byte=29, short=10, OOB=20 distinct/37 occurrences across 22 rows, tree=3, missing=2.",
   "A2-R0 provenance roles recorded: receipt source, matrix artifact, explicit review_head, A1 resolver commit, and audit HEAD remain distinct.",
+  "A2-R1 structural review recorded: short-SHA expansion and pinned-byte line candidates were inspected; tree, missing-path, and out-of-bounds references remain typed blockers rather than silently repaired anchors.",
 ]
 remaining = [
-  "A2-R1 candidate classification and explicit reviewed anchor normalization",
+  "A2-R1 semantic candidate classification and explicit reviewed anchor normalization",
   "A2-R2 A/B owner/caller/cfg/route role review",
   "A2-R3 C family role review",
   "A2-R4 mixed/ambiguous site decomposition and the 16 exact successors",
 ]
+
+[reference_review]
+status = "r1_structural_review_complete_semantic_review_blocked"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+short_revision = "10 short-SHA occurrences all expand to 979bf3af936a2f38c1947415b7e144580b94ea71; 8 are tracked and in-range under the explicit review head, while 2 remain missing-path blockers."
+missing_paths = [
+  "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-callchildren0-s0-execution-task-2026-07-24.md",
+  "docs/development/current/main/investigations/declaccess0-s0-execution-task-2026-07-24.md",
+]
+byte_anchor = "All 29 byte-anchor occurrences point to src/mir/builder.rs at pinned revision 17df2666374959da4b52bf96bdeb3b3578f57321; mapped line numbers are range candidates only and do not by themselves establish semantic ownership or A1 acceptance."
+byte_candidate_lines = [
+  76, 90, 105, 113, 133, 150, 186, 192, 199, 218, 222, 226, 230, 232, 234,
+  346, 350, 352, 359, 369, 372, 374, 378, 401, 405, 411, 616, 619, 621,
+]
+tree_anchor = [
+  "src/mir/builder/calls/function_session#range:1-320@17df2666374959da4b52bf96bdeb3b3578f57321 (directory-like reference; exact tracked blob/owner still required)",
+  "src/mir/compiler/normal_source_plan#range:1-140@17df2666374959da4b52bf96bdeb3b3578f57321 (directory-like reference; exact tracked blob/owner still required)",
+]
+out_of_bounds = "20 distinct references / 37 occurrences across 22 rows remain out-of-bounds; examples include entry_target.rs 1-240 (actual 55), module_lowering_invocation_access.rs 1-180 (actual 53), main_root_wiring.rs 1-220 (actual 102), port_aware_function_draft_impl.rs 1-240 (actual 151), dispatch_tests.rs 340-352 (actual 348), type_registry.rs 282-295 (actual 294), and selected_dynamic.../assembly.rs 1-110 (actual 98). Do not clip ranges to EOF."
+classification = "Structural pass-through candidates remain semantic-review inputs until exact owner/caller/cfg/route evidence is selected. Missing paths, tree/non-blob anchors, and unresolved or out-of-bounds ranges remain TypedReferenceBlocker; no current-HEAD substitution, path rename, short-SHA auto-repair, or grep-based acceptance is allowed."
+next_action = "Proceed to grouped A2-R2/R3/R4 semantic role review and exact successor resolution; do not author the owner map or alter the matrix until each blocker has an explicit reviewed disposition."
 
 [census]
 candidate_occurrences = 697
@@ -146,7 +168,7 @@ known_unresolved = [
   "B builder raw/legacy 11 rows require caller/config/route evidence; rows 21/23 successor labels do not decide role.",
   "C rows 45, 69, 73, 74, 78, 84, 91, 93-97, and 100 remain unresolved until exact owner/route evidence is pinned; mixed candidates 44, 54, 55, 88, and 90 require range decomposition.",
 ]
-pin_rule = "The audit HEAD (b3357c6634) is an observation provenance only. Do not replace the explicit review_head 40145ef01c50d0bf6bdcec86493f950dfccd3e84 or receipt source_commit d9cff5b744edee3b6450db5d0ffc74478f32b49a; reconcile provenance by role, not by silently selecting one commit."
+pin_rule = "The audit HEAD (3be85613d8) is an observation provenance only. Do not replace the explicit review_head 40145ef01c50d0bf6bdcec86493f950dfccd3e84 or receipt source_commit d9cff5b744edee3b6450db5d0ffc74478f32b49a; reconcile provenance by role, not by silently selecting one commit."
 
 [worker_receipt]
 agents = [
