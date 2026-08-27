@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0` is the selected design stop: name the sole semantic-to-physical Callee issuer, preserve Raw lineage through one mapper, and make package-plus-loan installation/recursive borrowing non-bypassable. The observation-boundary reconciliation, inventory/lineage reviews, and chronic A2 cleanup remain recorded; no target synthesis, caller=None collapse, profile widening, or deletion authority is implied.
+  `MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0` is the selected design stop: connect a same-session callable-index owner to the sole semantic-to-physical Callee issuer, preserve Raw lineage through one mapper, and make package-plus-loan installation/recursive borrowing non-bypassable. The observation-boundary reconciliation, inventory/lineage reviews, and chronic A2 cleanup remain recorded; no target synthesis, caller=None collapse, profile widening, or deletion authority is implied.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

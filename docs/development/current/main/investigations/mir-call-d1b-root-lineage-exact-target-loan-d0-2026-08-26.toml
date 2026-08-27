@@ -1,6 +1,6 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
 status = "d1b_root_lineage_loan_design_stop"
-observed_commit = "a7a703001b"
+observed_commit = "c80df760a3"
 observed_at = "2026-08-28"
 implementation_permission = false
 guard_phase = "bridge_ready"
@@ -30,7 +30,7 @@ excludes = [
 [brief]
 decision = "D1B is the active design stop: preserve source/site/Raw lineage once, name the sole semantic-to-physical Callee issuer, and make package-plus-loan installation non-bypassable before any ordinary-call profile widening. B0/Wpre remain landed or separately parked owner rows."
 source_authority = "Existing source-bound owner/index relation and exact site from the resolver session; RawInvocationRootLineageV1 remains provenance. ResolvedDirectCallTargetV1 is semantic evidence, not a physical Callee."
-canonical_issuer = "A named owner-specific issuer must convert the already co-sealed semantic target relation to an owned Callee before arguments; the affine loan only transports that issued Callee and never reconstructs it."
+canonical_issuer = "A named owner-specific issuer must convert the already co-sealed semantic target relation through the same-session VerifiedCallableIndexV1/header_for_callable chain to an owned Callee before arguments; the affine loan only transports that issued Callee and never reconstructs it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Missing issuer, lineage bridge, site/brand match, complete inventory, or package/loan lifecycle aborts before arguments, MIR, package install, block mutation, wire, or backend effects; no empty loan or package-only bypass."
 smallest_next_slice = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0: close the existing semantic-target-to-physical-Callee issuer, sole Raw-lineage mapper, NoDirectCalls terminal, private package-plus-loan bundle, and short raw-port reborrow. No profile widening or production switch yet."
@@ -127,7 +127,7 @@ forbidden = [
 task_id = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
 status = "accepted_design_implementation_blocked"
 implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0; opens only after source/effect prerequisites and the root-lineage loan boundary, before all-lineage retirement, Method closure, and B1"
-observed_blocker = "SelectedCallableV1 profile currently defers ordinary FunctionCall; the existing semantic target product is owner/index-shaped rather than a physical Callee, so an external scratch/loan would have no lawful issuer or package lifecycle."
+observed_blocker = "SelectedCallableV1 profile currently defers ordinary FunctionCall; the existing semantic target product is owner/index-shaped rather than a physical Callee, and the package has no lawful same-session callable-index owner, so an external scratch/loan would have no lawful issuer or package lifecycle."
 decision_shape = "A profile-gate-adjacent observer-only branch records existing site/name/arity and observes arguments in the same traversal, issues no target, allows owner observation to complete, and requires total disposition before package install."
 implementation_acceptance = "Owner tree reaches Complete, semantic package issuance is possible, incomplete disposition aborts before install, and the selected Deferred edge is deleted. No target or route is accepted by this observer row."
 forbidden = [
@@ -175,12 +175,13 @@ d1b_states = [
   "ParkedCompatibility",
   "PackageAbortBeforeInstall",
   "NoDirectCallsTerminal",
+  "CallableIndexOwnerMissing",
   "RawLoanInstalled",
   "RawLoanConsumed",
   "RawLoanExhausted",
   "ResolvedFallthroughForbidden",
 ]
-terminal_policy = "Only a typed target may cross into argument descent; a call-free owner exits through explicit NoDirectCallsTerminal rather than an empty loan. KnownNonDirect exits through its typed owner; reject and park do not issue a target. Incomplete inventory aborts before install. Resolved fallthrough, lineage collapse, package-only bypass, and residual loan are guard failures, never successful terminals."
+terminal_policy = "Only a typed target may cross into argument descent; a call-free owner exits through explicit NoDirectCallsTerminal rather than an empty loan. KnownNonDirect exits through its typed owner; reject and park do not issue a target. Missing same-session callable-index ownership is CallableIndexOwnerMissing, never an empty map or new receipt. Incomplete inventory aborts before install. Resolved fallthrough, lineage collapse, package-only bypass, and residual loan are guard failures, never successful terminals."
 
 [wpre_contract]
 boundary = "shared runner family-unknown MIR/Program JSON artifact entrances -> exactly one selected parser or typed terminal; one parsed payload only. Family-preselected compatibility/backend/observer routes are inventoried separately and remain ParkedSealed or CutoverBlockerOpen until their own fate is fixed."
@@ -583,7 +584,7 @@ non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global
 
 [task_spine]
 current = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 is the selected design stop after ordinary-call observation-boundary reconciliation; B0/Wpre/force-hv1 rows remain landed or separately parked historical owners."
-next_prerequisite = "Name the semantic-target-to-physical-Callee issuer, preserve Cataloged/TopLevel/InstanceConstructor lineage through one mapper, close package-plus-loan installation and NoDirectCalls terminal, then design the first Cataloged affine cell."
+next_prerequisite = "Name the same-session callable-index-backed semantic-target-to-physical-Callee issuer, preserve Cataloged/TopLevel/InstanceConstructor lineage through one mapper, close package-plus-loan installation and NoDirectCalls terminal, then design the first Cataloged affine cell."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
