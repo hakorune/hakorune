@@ -680,9 +680,9 @@ Non-authority: raw LOC, filename prefixes, profile names, the hand-written index
 Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
-Smallest next slice: CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0, a
-  design-only review of the 79 generated-registry rows; no blanket retention,
-  successor, owner-map, TSV, or source deletion is allowed.
+Smallest next slice: CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0,
+  design-only review bound at 79/79 rows but policy-ready at 0/79; name
+  row-level retention/successor policy before retention, owner-map, TSV, or deletion.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

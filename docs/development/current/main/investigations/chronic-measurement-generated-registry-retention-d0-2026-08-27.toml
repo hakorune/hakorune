@@ -41,6 +41,31 @@ non_claims = [
   "does not change the Rust module registry or compiler behavior",
 ]
 
+[census]
+status = "bound_blocked"
+observed_commit = "4bf374e3b2"
+source_snapshot_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+receipt_rows = 79
+allowance_byte_range_matches = 79
+module_declaration_matches = 79
+tracked_module_paths = 79
+source_include_edges = 79
+module_doc_comments = 79
+flat_rs_modules = 75
+nested_mod_rs_modules = 4
+nested_mod_names = [
+  "a_prime_i64_physical_capability",
+  "dynamic_full_body_recipe",
+  "generic_g0_projection",
+  "normal_source_plan",
+]
+policy_ready_rows = 0
+blocked_rows = 79
+tracked_exact_path_references = 68
+unresolved_exact_path_rows = 11
+policy_ready_rule = "A row is policy-ready only with declaration-level role evidence plus a named retention policy owner or named successor; topology registration alone is insufficient."
+result = "all 79 rows are structurally bound, but none may receive successor_status=not_required until a retention/successor policy is named and reviewed"
+
 [cohort]
 name = "A_generated_registry"
 receipt_row_count = 79
@@ -111,13 +136,16 @@ no_safe_slice = [
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
 status = "owner_partial_retention_policy_missing"
-finding = "Generated-registry topology ownership is partially proven, but no tracked policy says all 79 allowance rows require no successor. The safe decision is a per-declaration policy review or an explicit named retention owner; blanket not_required remains blocked."
+finding = "At 4bf374e3b2, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Policy-ready=0/79 and blocker=79/79: topology ownership is proven, but no row has a named retention policy owner or successor, so blanket not_required remains blocked."
 evidence = [
-  "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only",
-  "src/mir/compiler/mod.rs:14-17 includes the registry in the compiler module",
+  "tools/checks/manifests/chronic_measurement_observations_v1.json binds 79 A rows to src/mir/compiler/module_registry.in.rs at source commit d9cff5b744edee3b6450db5d0ffc74478f32b49a",
+  "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only; 79/79 following mod declarations and tracked module paths resolve",
+  "src/mir/compiler/mod.rs:14-17 includes the registry in the compiler module; this proves registration, not retention",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 supplies generated_included/generated_registry observations only",
+  "src/mir/compiler/README.md and tracked module docs provide candidate evidence but no 79-row retention/successor policy",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
 ]
+latest_finding = "The A structural census is complete at 79/79, but policy-ready remains 0/79. Do not author the tracked 185-row map yet. First name row-level retention/successor owners and split any non-uniform generated declarations; then continue the matrix with B/C evidence. A0 validator and the non-authoritative coverage skeleton remain green."
 
 [closeout]
 status = "pending"
