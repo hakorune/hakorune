@@ -111,6 +111,8 @@ rows = 62
 policy_ready_rows = 0
 candidate_only_rows = 0
 blocked_rows = 62
+role_group_count = 16
+partition_counts = "core=21; loop=22; raw_entry=19"
 next_task = "CHRONIC-MEASUREMENT-A-UNRESOLVED-POLICY-BIND-D0 (grouped section of this card; no per-row cards)"
 canonical_key = "dead_code_allowance + src/mir/compiler/module_registry.in.rs + byte_start + byte_end + outer_allow"
 decision = "Existing role descriptions and broad retirement conditions are not canonical-key policy. No residual row is promoted to candidate evidence until an explicit retain owner or named successor is tracked against the exact allowance range."
@@ -122,7 +124,10 @@ groups = [
   "DirectAccum:4; rows=direct_accum_* L59/L63/L65/L67; blocker=caller-zero evidence has no old-edge retirement authority",
   "dynamic_source:1; rows=dynamic_full_body_source L71 [2473-2492]; blocker=recipe/source responsibility does not decide module retention",
   "generic_g0:6; rows=generic_g0_* L84/L86/L88/L95/L97/L99; blocker=broad manifest and README evidence lack exact disposition",
-  "loop_nested_variable:12; rows=loop_*/nested_predicate_*/variable_accum_*/module_postprocess L106/L112/L115/L122/L126/L128/L132/L134/L136/L138/L140/L158; blocker=recurrence notes do not name an exact policy owner or successor",
+  "nested_production:7; rows=nested_predicate_* L122/L126/L128/L132/L134/L136/L158; blocker=live owner candidates have no exact-key retain or successor policy",
+  "module_postprocess:1; rows=module_postprocess L115; blocker=current code and historical disconnected wording conflict, so fate needs a fresh decision",
+  "loop_observation:2; rows=loop_cond_break_continue_projection/loop_true_break_continue_projection L106/L112; blocker=test observation evidence has no retirement owner",
+  "variable_observation:2; rows=variable_accum_break_projection/variable_accum_recurrence_projection L138/L140; blocker=test/recurrence evidence has no retirement owner",
   "raw:7; rows=raw_root_*/raw_runtime_inputs/raw_source_binding L179/L183/L185/L190/L192/L197/L199; blocker=explicit non-claims do not provide a retain or successor decision",
   "resolved_callable:4; rows=resolved_* L203/L206/L208/L210; blocker=production census does not authorize retirement or retention",
   "source_bound:2; rows=source_bound_* L213/L215; blocker=owner evidence exists but fate is not named",
@@ -200,8 +205,13 @@ no_safe_slice = [
 
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
+agents = [
+  "chronic_measurement_scope_audit (core partition=21)",
+  "aggregate_heavy_cohort_design (loop partition=22)",
+  "chronic_token_scanner_design_audit (raw/entry partition=19)",
+]
 status = "all_residual_rows_blocked"
-finding = "At 979bf3af93, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Existing tracked evidence yields 12 explicit candidates, 5 conditional candidates, and 62 unresolved rows; policy-ready remains 0/79 because candidate evidence is not yet an exact row-level retention/successor decision. The residual 62 are blocked by role-group evidence without canonical-key policy, not split into per-row cards; candidate-only=0 and blocker=62 for this residual set."
+finding = "At 979bf3af93, all 79 A rows bind exactly once to an allow range, the following module declaration, a tracked module path, and the registry/include edge. Existing tracked evidence yields 12 explicit candidates, 5 conditional candidates, and 62 unresolved rows; policy-ready remains 0/79 because candidate evidence is not yet an exact row-level retention/successor decision. Three read-only partitions (21/22/19) confirm the residual 62 are blocked by role-group evidence without canonical-key policy, not split into per-row cards; candidate-only=0 and blocker=62 for this residual set."
 evidence = [
   "tools/checks/manifests/chronic_measurement_observations_v1.json binds 79 A rows to src/mir/compiler/module_registry.in.rs at source commit d9cff5b744edee3b6450db5d0ffc74478f32b49a",
   "src/mir/compiler/module_registry.in.rs:1-4 identifies Cargo/module topology only; 79/79 following mod declarations and tracked module paths resolve",
@@ -214,9 +224,12 @@ evidence = [
   "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json and tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json provide candidate evidence for rows 77-78",
   "dynamic_full_body_recipe README, post0-publication0 task, generic-loop-source-to-portable-recipe SSOT, declaccess0, and post0-public-cutover task remain conditional for rows 25, 27, 28, 53, and 56",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:346-353 validates not_required syntax but cannot issue the policy",
-  "The residual review groups all 62 exact canonical keys into 13 role groups; every group has role/caller/transport evidence only, with no named retain owner or successor bound to its allowance range",
+  "The residual review groups all 62 exact canonical keys into 16 role groups; every group has role/caller/transport evidence only, with no named retain owner or successor bound to its allowance range",
+  "Core partition (21 rows: A-prime/common-v2/canonical/dynamic-source/generic-G0/resolved-callable) found policy-ready=0 and candidate-only=0; each requires an explicit row-level retain or successor decision",
+  "Loop partition (22 rows: callable-single-loop/DirectAccum/nested-production/module-postprocess/loop-observation/variable-observation) found policy-ready=0 and flagged live-vs-test mixing plus module_postprocess documentation drift",
+  "Raw/entry partition (19 rows: raw/source-bound/source-entry/source-view) found policy-ready=0; source_entry_vm_invocation remains separate from the 12-row VM-reference candidate cohort",
 ]
-latest_finding = "The A structural census and the 12 exact candidate joins are complete at 79/79 and 12 rows respectively. The five conditional rows and all 62 residual rows remain blocked because existing evidence is not canonical-key policy; successor status is unknown for every A row and policy-ready remains 0/79. Do not author the tracked 185-row map or infer not_required from candidate evidence."
+latest_finding = "The A structural census and the 12 exact candidate joins are complete at 79/79 and 12 rows respectively. The five conditional rows and all 62 residual rows remain blocked because existing evidence is not canonical-key policy; three role-partition audits cover all 62, successor status is unknown for every A row, and policy-ready remains 0/79. Do not author the tracked 185-row map or infer not_required from candidate evidence."
 
 [closeout]
 status = "pending"
