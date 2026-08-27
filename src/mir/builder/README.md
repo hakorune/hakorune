@@ -190,8 +190,13 @@ does not claim that `PlanVerifier` is effect-free. See the active card in
 
 ### Raw invocation source transport classifier
 
-`raw_invocation_source_transport.rs` owns exact path construction and temporal
-source scopes. Its private
+`raw_invocation_source_transport/` owns exact path construction and temporal
+source scopes. The former over-limit file is now an ordinary same-path module
+with small `lineage`, `context`, `script_scope`, `transport_port`, and
+`child_lowering_impl` children; its grouped `cfg(test)` children keep the
+existing test names and visibility. This was a behavior-neutral BoxShape
+split (landed at `0bd6732792`), and every touched child remains below 760
+lines. Its private
 `raw_invocation_source_statement_classification.rs` child owns only the finite
 statement located/compatibility classification. The split is behavior-neutral:
 bare `FunctionCall` and `MethodCall` remain `CallObject` compatibility rows.

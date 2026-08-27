@@ -1,15 +1,15 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "raw_transport_boxshape_split_fast"
+status = "raw_transport_boxshape_split_landed_design_stop"
 observed_commit = "2690a1c856"
 observed_at = "2026-08-28"
-implementation_permission = true
+implementation_permission = false
 guard_phase = "bridge_ready"
-permission_scope = "Only RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 is open: a behavior-neutral same-path module/test split below 760 lines. D1B observer facts, package/issuer/lineage loan/dispatcher, unrestricted profile widening, fallback, and Call changes remain forbidden; after this closeout return to the Selected FunctionCall observer design stop. Historical Wpre/force-hv1 rows retain their own landed fates."
+permission_scope = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 landed at 0bd6732792 as a behavior-neutral same-path module/test split below 760 lines. D1B observer facts, package/issuer/lineage loan/dispatcher, unrestricted profile widening, fallback, and Call changes remain forbidden; the Selected FunctionCall observer design stop is active. Historical Wpre/force-hv1 rows retain their own landed fates."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0"
-completed_execution_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0"
-next_execution_row = "none"
+execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
+completed_execution_row = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0"
+next_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -748,11 +748,13 @@ transport_split_stop = "Stop and return to D1B design if the split needs a seman
 
 [transport_split_execution]
 task_id = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0"
-status = "accepted_fast"
+status = "landed"
+landed_commit = "0bd6732792"
 change = "Replace the two over-limit raw transport/test files with ordinary same-path child modules: lineage, source scope, context, transport port, child-lowering implementation, and grouped cfg(test) modules."
 contract = "Behavior, external module path, restricted visibility, lifetimes, signatures, test names, and error text remain unchanged. This is BoxShape only; no D1B semantic allowance or direct-call capability is added."
 done = "Every touched child is below 760 lines, no new #[path] directive exists, existing focused tests and current lane guards stay green, and the old monolithic files are gone."
 stop = "Return to the D1B design stop if any semantic edit, new lifetime, loan/Callee field, lineage remap, dispatcher/ledger change, route switch, or path bandage is required."
+proof = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib raw_invocation_source_transport: 15 passed, 0 failed; every touched Rust child is below 760 lines; no new #[path] directive was added."
 
 [reduction_forecast]
 boundary = "Call ordinary-preflight/target/recovery/method/selected-terminal/core-schema families only; excludes broad JSON-v0, JoinIR/Loop, PyVM, and general dead_code."
