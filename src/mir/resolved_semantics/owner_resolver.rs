@@ -16,8 +16,8 @@ use super::owner_forest::{
 };
 use super::owner_forest_payload::VerifiedSemanticOwnerProductV1;
 use super::resolver::{
-    AncestorBindingV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
-    SealedOwnerConstructionV1, SealedScriptConstructionV1,
+    AncestorBindingV1, DirectCallCanonicalizationPolicyV1, FunctionSemanticResolverSessionV1,
+    ResolveFunctionErrorV1, SealedOwnerConstructionV1, SealedScriptConstructionV1,
 };
 use super::script_view::ScriptSyntaxViewV1;
 use super::selected_callable_deferred::{
@@ -172,7 +172,11 @@ impl FunctionSemanticResolverSessionV1 {
             .map(|view| SelectedCallableResolverKernelInputV1 { identity: (), view })
             .collect::<Vec<_>>();
         match self
-            .resolve_selected_callable_kernel(&inputs, brand_catalog)
+            .resolve_selected_callable_kernel(
+                &inputs,
+                brand_catalog,
+                DirectCallCanonicalizationPolicyV1::ObserveOnly,
+            )
             .map_err(|rejected| rejected.error)?
         {
             SelectedCallableResolverKernelOutcomeV1::Complete {
@@ -208,7 +212,11 @@ impl FunctionSemanticResolverSessionV1 {
             })
             .collect::<Vec<_>>();
         match self
-            .resolve_selected_callable_kernel(&kernel_inputs, brand_catalog)
+            .resolve_selected_callable_kernel(
+                &kernel_inputs,
+                brand_catalog,
+                DirectCallCanonicalizationPolicyV1::ObserveOnly,
+            )
             .map_err(|rejected| {
                 SourceBoundSelectedCallableResolverRejectV1::from_parts(
                     rejected.identity,
@@ -254,6 +262,7 @@ impl FunctionSemanticResolverSessionV1 {
         &mut self,
         inputs: &[SelectedCallableResolverKernelInputV1<'source, Identity>],
         brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+        direct_call_policy: DirectCallCanonicalizationPolicyV1,
     ) -> Result<
         SelectedCallableResolverKernelOutcomeV1<Identity>,
         SelectedCallableResolverKernelRejectV1<Identity>,
@@ -307,6 +316,7 @@ impl FunctionSemanticResolverSessionV1 {
                 None,
                 None,
                 None,
+                direct_call_policy,
                 &mut draft,
                 Some(&mut body_shapes),
             ) {
@@ -381,7 +391,16 @@ impl FunctionSemanticResolverSessionV1 {
         let tree = construct_function_owner_tree_v1(root, &BTreeSet::new())
             .map_err(ResolveFunctionErrorV1::Syntax)
             .map_err(ResolveOwnerForestErrorV1::Function)?;
-        self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft, None)?;
+        self.seal_owner_tree(
+            tree,
+            &BTreeMap::new(),
+            None,
+            None,
+            None,
+            DirectCallCanonicalizationPolicyV1::RejectUnindexed,
+            &mut draft,
+            None,
+        )?;
         draft
             .seal()
             .map_err(ResolveOwnerForestErrorV1::Verification)
@@ -408,6 +427,7 @@ impl FunctionSemanticResolverSessionV1 {
             None,
             None,
             None,
+            DirectCallCanonicalizationPolicyV1::RejectUnindexed,
             &mut draft,
             Some(&mut body_shapes),
         )?;
@@ -432,6 +452,7 @@ impl FunctionSemanticResolverSessionV1 {
             None,
             None,
             Some(callable_index),
+            DirectCallCanonicalizationPolicyV1::RequireCallableIndex,
             &mut draft,
             None,
         )?;
@@ -457,6 +478,7 @@ impl FunctionSemanticResolverSessionV1 {
             None,
             Some((origin, owner)),
             Some(callable_index),
+            DirectCallCanonicalizationPolicyV1::RequireCallableIndex,
             &mut draft,
             None,
         )?;
@@ -472,6 +494,7 @@ impl FunctionSemanticResolverSessionV1 {
         parent: Option<PendingParentV1>,
         reserved: Option<(FunctionOriginV1, FunctionOwnerIdV1)>,
         callable_index: Option<&VerifiedCallableIndexV1>,
+        direct_call_policy: DirectCallCanonicalizationPolicyV1,
         draft: &mut SemanticOwnerForestDraftV1,
         mut body_shapes: Option<
             &mut BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
@@ -490,15 +513,25 @@ impl FunctionSemanticResolverSessionV1 {
             scope_ids,
             ordered_capture_demands,
             body_shape,
-        } = match callable_index {
-            Some(index) => self.seal_owner_with_ancestors_and_callable_index(
+        } = match (callable_index, direct_call_policy) {
+            (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => self
+                .seal_owner_with_ancestors_and_callable_index(
+                    owner,
+                    origin,
+                    function,
+                    ancestor_bindings,
+                    index,
+                ),
+            (None, policy) => self.seal_owner_with_ancestors_and_direct_call_policy(
                 owner,
                 origin,
                 function,
                 ancestor_bindings,
-                index,
+                policy,
             ),
-            None => self.seal_owner_with_ancestors(owner, origin, function, ancestor_bindings),
+            (Some(_), _) => Err(ResolveFunctionErrorV1::DraftInvariant(
+                "callable index and direct-call policy mismatch",
+            )),
         }
         .map_err(ResolveOwnerForestErrorV1::Function)?;
         if let Some(shapes) = body_shapes.as_deref_mut() {
@@ -548,6 +581,7 @@ impl FunctionSemanticResolverSessionV1 {
                 Some(child_parent),
                 None,
                 callable_index,
+                direct_call_policy,
                 draft,
                 body_shapes.as_deref_mut(),
             )?;
@@ -600,6 +634,7 @@ impl FunctionSemanticResolverSessionV1 {
                 Some(child_parent),
                 None,
                 None,
+                DirectCallCanonicalizationPolicyV1::RejectUnindexed,
                 draft,
                 None,
             )?;

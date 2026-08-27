@@ -1,4 +1,5 @@
 use crate::mir::builder::NormalRootExecutionConsumerV1;
+use crate::mir::callable_semantic_batch::ResolvedCallableSemanticBatchIssueV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1,
     ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ShadowResolveErrorV0,
@@ -116,4 +117,17 @@ fn constructor_construction_reject_keeps_the_exact_parser_source_id() {
             ShadowResolveErrorV0::BrandConstructorArity { actual: 2, .. }
         ))
     ));
+}
+
+#[test]
+fn unissued_direct_call_observation_rejects_package_before_install() {
+    let source = final_source("function caller() { return helper() }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(96).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        }) => (),
+        other => panic!("expected unissued direct-call package terminal, got {other:?}"),
+    };
+    assert_eq!(reject, ());
 }

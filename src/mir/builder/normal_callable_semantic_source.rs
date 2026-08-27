@@ -110,10 +110,16 @@ impl<'source> VerifiedNormalCallableSourceIngressReceiptV1<'source> {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum NormalCallableSemanticAdmissionRejectV1 {
+    UnissuedDirectCallObservation,
+}
+
 #[derive(Debug)]
 pub(in crate::mir) enum NormalCallableSemanticAdmissionV1<'source> {
     Complete(VerifiedNormalCallableSemanticSourceV1<'source>),
     Deferred,
+    Rejected(NormalCallableSemanticAdmissionRejectV1),
 }
 
 impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
@@ -150,6 +156,15 @@ impl<'source> VerifiedNormalCallableSemanticSourceV1<'source> {
         };
         if forests.len() != candidates.len() {
             return Err("[freeze:contract][mir/callable-semantic/cardinality]".to_owned());
+        }
+        if forests.iter().any(|forest| {
+            forest
+                .owners()
+                .any(|(_, function)| function.direct_call_observations().next().is_some())
+        }) {
+            return Ok(NormalCallableSemanticAdmissionV1::Rejected(
+                NormalCallableSemanticAdmissionRejectV1::UnissuedDirectCallObservation,
+            ));
         }
         let mut rows = Vec::with_capacity(candidates.len());
         for ((key, site, function, view), forest) in candidates.into_iter().zip(forests) {
@@ -559,6 +574,27 @@ mod tests {
             )
             .unwrap(),
             NormalCallableSemanticAdmissionV1::Deferred
+        ));
+    }
+
+    #[test]
+    fn selected_direct_call_observation_is_a_typed_package_terminal() {
+        let program =
+            NyashParser::parse_from_string("function caller() { return helper() }").unwrap();
+        let catalog =
+            VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program).unwrap();
+        let mut resolver = FunctionSemanticResolverSessionV1::new(813).unwrap();
+        assert!(matches!(
+            VerifiedNormalCallableSemanticSourceV1::seal(
+                &program,
+                catalog.selected_source_inventory(),
+                true,
+                &mut resolver,
+            )
+            .unwrap(),
+            NormalCallableSemanticAdmissionV1::Rejected(
+                super::NormalCallableSemanticAdmissionRejectV1::UnissuedDirectCallObservation
+            )
         ));
     }
 

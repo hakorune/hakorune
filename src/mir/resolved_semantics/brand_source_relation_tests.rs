@@ -130,6 +130,33 @@ fn callable_shadow_excludes_constructor_from_direct_calls_and_seals_unwrap() {
 }
 
 #[test]
+fn selected_callable_retains_direct_call_observation_without_issuing_target() {
+    let tree = function(vec![call("helper", vec![int(7)])]);
+    let view = FunctionSyntaxViewV1::from_ast(&tree).unwrap();
+    let mut resolver = FunctionSemanticResolverSessionV1::new(812).unwrap();
+    let outcome = resolver
+        .resolve_selected_callable_forests_with_body_shapes(&[view])
+        .unwrap();
+    let super::ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete { forests, .. } =
+        outcome
+    else {
+        panic!("ordinary FunctionCall observation must complete")
+    };
+    let [forest] = forests.as_ref() else {
+        panic!("one forest")
+    };
+    let [owner] = forest.roots() else {
+        panic!("one owner")
+    };
+    let product = forest.owner(*owner).unwrap();
+    let observations = product.direct_call_observations().collect::<Vec<_>>();
+    assert_eq!(observations.len(), 1);
+    assert_eq!(observations[0].1.name(), "helper");
+    assert_eq!(observations[0].1.arity(), 1);
+    assert!(product.direct_call_targets().next().is_none());
+}
+
+#[test]
 fn script_owner_uses_the_same_catalog_relation() {
     let catalog = catalog();
     let program = ASTNode::Program {

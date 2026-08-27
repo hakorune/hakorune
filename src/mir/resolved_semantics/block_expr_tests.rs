@@ -210,6 +210,7 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
         variable_uses: BTreeMap::new(),
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
+        direct_call_observations: BTreeMap::new(),
         method_calls: BTreeMap::new(),
         expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::new(),

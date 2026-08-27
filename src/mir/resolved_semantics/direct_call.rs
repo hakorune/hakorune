@@ -20,6 +20,29 @@ impl ResolvedDirectCallTargetV1 {
     }
 }
 
+/// Facts observed for one direct-call expression before a callable target is
+/// issued.  This is intentionally not a target, recipe, or physical carrier:
+/// the source site remains the map key owned by `ResolvedFunctionDataV1`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedDirectCallObservationV1 {
+    name: Box<str>,
+    arity: u32,
+}
+
+impl ResolvedDirectCallObservationV1 {
+    pub(super) fn from_parts(name: Box<str>, arity: u32) -> Self {
+        Self { name, arity }
+    }
+
+    pub(crate) fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub(crate) const fn arity(&self) -> u32 {
+        self.arity
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedDirectCallVerificationErrorV1 {
     ForeignCompilation {

@@ -30,6 +30,7 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
         _error: FinalCallableSemanticSyntaxLoanErrorV1,
     },
     SourceCoverage,
+    UnissuedDirectCallObservation,
     Resolver(SourceBoundSelectedCallableResolverRejectV1),
     ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
@@ -153,6 +154,11 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
                 let function = forest
                     .owner(*owner)
                     .ok_or(ResolvedCallableSemanticBatchIssueV1::MissingRoot)?;
+                if function.direct_call_observations().next().is_some() {
+                    return Err(
+                        ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+                    );
+                }
                 let body_shape = body_shapes
                     .remove(owner)
                     .ok_or(ResolvedCallableSemanticBatchIssueV1::BodyShapeMissing)?;

@@ -132,7 +132,10 @@ pub(crate) use declared_query_body_source::{
     DeclaredQueryBodySourceIssueV1, DeclaredQueryBodySourceIssuerV1,
     VerifiedDeclaredQueryBodySourceCatalogV1, VerifiedDeclaredQueryBodySourceRowRefV1,
 };
-pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
+pub(crate) use direct_call::{
+    ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1,
+    ResolvedDirectCallVerificationErrorV1,
+};
 pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };

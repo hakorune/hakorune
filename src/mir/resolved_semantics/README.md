@@ -793,7 +793,11 @@ has no separate one-entry seal, sole-header facade, or callable-forest sidecar.
 `CallableFunctionSyntaxViewV1` derives the header and body views from the same
 function AST for CAT0/MP0 resolution. The Program/catalog source unit owns the index once; each
 `VerifiedResolvedFunctionV1` stores only exact
-`SourceExprSiteV1 -> ResolvedDirectCallTargetV1` identity rows. Full headers,
+`SourceExprSiteV1 -> ResolvedDirectCallTargetV1` identity rows when a callable
+index is available. Selected observer sealing keeps an unissued
+`SourceExprSiteV1 -> ResolvedDirectCallObservationV1` name/arity fact instead;
+that fact is not a target and is rejected at package admission until a later
+issuer exists. Full headers,
 symbols, and signatures are never copied into the function product. The
 body-only resolver remains call-disabled and produces zero direct-call target
 rows.

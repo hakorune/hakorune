@@ -5,7 +5,7 @@ use hakorune_mir_core::BindingId;
 
 use super::body_shape::{VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedMethodCallSourceV1};
 use super::brand_source_relation::VerifiedBrandCallSourceRelationV1;
-use super::direct_call::ResolvedDirectCallTargetV1;
+use super::direct_call::{ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1};
 use super::enum_variant_demand::EnumVariantAdmissionV1;
 use super::explicit_extern_call::ResolvedExplicitExternCallV1;
 use super::expression_source::ResolvedExpressionSourceInventoryV1;
@@ -44,6 +44,8 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
+    pub(crate) direct_call_observations:
+        BTreeMap<SourceExprSiteV1, ResolvedDirectCallObservationV1>,
     pub(crate) brand_call_relations: BTreeMap<SourceExprSiteV1, VerifiedBrandCallSourceRelationV1>,
     pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ResolvedExplicitExternCallV1>,
     pub(crate) method_calls: BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
@@ -302,6 +304,12 @@ impl VerifiedResolvedFunctionV1 {
             .direct_call_targets
             .iter()
             .map(|(site, target)| (site, *target))
+    }
+
+    pub(crate) fn direct_call_observations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedDirectCallObservationV1)> {
+        self.core.data.direct_call_observations.iter()
     }
 
     pub(crate) fn brand_call_relation(

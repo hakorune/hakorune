@@ -142,6 +142,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
             ResolvedAssignmentTargetV1::BindingRebind(binding_ref),
         )]),
         direct_call_targets: BTreeMap::new(),
+        direct_call_observations: BTreeMap::new(),
         method_calls: BTreeMap::new(),
         expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::from([(

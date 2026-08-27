@@ -9,8 +9,8 @@ use crate::ast::ASTNode;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ShadowTraversalProfileV1 {
     FullFunctionV1,
-    /// Selected callable admission. Direct calls and raw-only syntax remain
-    /// operation-owned and defer before child traversal.
+    /// Selected callable admission. Direct calls are observed as facts only;
+    /// target publication remains owned by a later callable relation row.
     SelectedCallableV1,
     ScriptLexicalCoreV1,
     ScriptLambdaLeafV1,
@@ -48,7 +48,7 @@ impl ShadowTraversalProfileV1 {
     pub(super) fn allows_expression(self, expression: &ASTNode) -> bool {
         match self {
             Self::FullFunctionV1 => true,
-            Self::SelectedCallableV1 => !matches!(expression, ASTNode::FunctionCall { .. }),
+            Self::SelectedCallableV1 => true,
             Self::ScriptLexicalCoreV1 | Self::ScriptLambdaLeafV1 => match expression {
                 ASTNode::Literal { .. } | ASTNode::Variable { .. } => true,
                 ASTNode::Lambda { .. } => matches!(self, Self::ScriptLexicalCoreV1),

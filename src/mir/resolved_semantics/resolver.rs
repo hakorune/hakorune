@@ -14,7 +14,7 @@ use super::brand_source_relation::{
     seal_brand_call_source_relations_v1, BrandCallSourceRelationSealErrorV1,
 };
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
-use super::direct_call::ResolvedDirectCallTargetV1;
+use super::direct_call::{ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1};
 use super::expression_source::seal_shadow_expression_source_v1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{
@@ -89,6 +89,17 @@ pub(super) struct SealedScriptConstructionV1 {
 #[derive(Debug, Clone)]
 pub(super) struct AncestorBindingV1 {
     pub(super) reference: BindingRefV1,
+}
+
+/// Explicitly selects how the one shared shadow direct-call row is sealed.
+/// Selected observation retains source facts without issuing a target;
+/// indexed full-function sealing resolves the existing target; every other
+/// unindexed path keeps its typed rejection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum DirectCallCanonicalizationPolicyV1 {
+    ObserveOnly,
+    RequireCallableIndex,
+    RejectUnindexed,
 }
 
 struct CanonicalizedDraftV1 {
@@ -207,7 +218,14 @@ impl FunctionSemanticResolverSessionV1 {
         let enum_match_demands = draft.enum_match_demands.clone();
         let qmark_propagation_sites = draft.qmark_propagation_sites.clone();
         let match_control_sites = draft.match_control_sites.clone();
-        let canonical = canonicalize_draft(owner, origin, draft, &BTreeMap::new(), None)?;
+        let canonical = canonicalize_draft(
+            owner,
+            origin,
+            draft,
+            &BTreeMap::new(),
+            None,
+            DirectCallCanonicalizationPolicyV1::RejectUnindexed,
+        )?;
         let product = VerifiedResolvedScriptV1::from_canonical_data(
             canonical.data,
             canonical.source_sites,
@@ -253,7 +271,25 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
         ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, origin, draft, ancestors, None)?;
+        self.seal_owner_with_ancestors_and_direct_call_policy(
+            owner,
+            origin,
+            draft,
+            ancestors,
+            DirectCallCanonicalizationPolicyV1::RejectUnindexed,
+        )
+    }
+
+    pub(super) fn seal_owner_with_ancestors_and_direct_call_policy(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        origin: FunctionOriginV1,
+        draft: ShadowResolvedFunctionV0,
+        ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
+        direct_call_policy: DirectCallCanonicalizationPolicyV1,
+    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
+        let canonical =
+            canonicalize_draft(owner, origin, draft, ancestors, None, direct_call_policy)?;
         self.seal_canonical_owner(canonical)
     }
 
@@ -265,7 +301,14 @@ impl FunctionSemanticResolverSessionV1 {
         ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, origin, draft, ancestors, Some(callable_index))?;
+        let canonical = canonicalize_draft(
+            owner,
+            origin,
+            draft,
+            ancestors,
+            Some(callable_index),
+            DirectCallCanonicalizationPolicyV1::RequireCallableIndex,
+        )?;
         self.seal_canonical_owner(canonical)
     }
 
@@ -276,8 +319,14 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
         callable_index: &VerifiedCallableIndexV1,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical =
-            canonicalize_draft(owner, origin, draft, &BTreeMap::new(), Some(callable_index))?;
+        let canonical = canonicalize_draft(
+            owner,
+            origin,
+            draft,
+            &BTreeMap::new(),
+            Some(callable_index),
+            DirectCallCanonicalizationPolicyV1::RequireCallableIndex,
+        )?;
         self.seal_canonical_owner(canonical)
     }
 
@@ -306,12 +355,62 @@ fn canonicalize_draft(
     mut draft: ShadowResolvedFunctionV0,
     ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     callable_index: Option<&VerifiedCallableIndexV1>,
+    direct_call_policy: DirectCallCanonicalizationPolicyV1,
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
-    if callable_index.is_none() && !draft.direct_calls.is_empty() {
-        return Err(ResolveFunctionErrorV1::DraftInvariant(
-            "direct calls require a callable index",
-        ));
-    }
+    let (direct_call_targets, direct_call_observations) = match (callable_index, direct_call_policy)
+    {
+        (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => (
+            draft
+                .direct_calls
+                .iter()
+                .map(|(site, call)| {
+                    let header = index
+                        .resolve_free_static_source_call(&call.name, call.arity)
+                        .map_err(ResolveFunctionErrorV1::CallableLookup)?;
+                    Ok((
+                        site.clone(),
+                        ResolvedDirectCallTargetV1::from_resolved(header.callable()),
+                    ))
+                })
+                .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
+            BTreeMap::new(),
+        ),
+        (None, DirectCallCanonicalizationPolicyV1::ObserveOnly) => (
+            BTreeMap::new(),
+            std::mem::take(&mut draft.direct_calls)
+                .into_iter()
+                .map(|(site, call)| {
+                    (
+                        site,
+                        ResolvedDirectCallObservationV1::from_parts(call.name, call.arity),
+                    )
+                })
+                .collect(),
+        ),
+        (None, DirectCallCanonicalizationPolicyV1::RejectUnindexed) => {
+            if !draft.direct_calls.is_empty() {
+                return Err(ResolveFunctionErrorV1::DraftInvariant(
+                    "direct calls require a callable index",
+                ));
+            }
+            (BTreeMap::new(), BTreeMap::new())
+        }
+        (None, DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => {
+            return Err(ResolveFunctionErrorV1::DraftInvariant(
+                "callable index is required by direct-call policy",
+            ));
+        }
+        (Some(_), DirectCallCanonicalizationPolicyV1::ObserveOnly) => {
+            return Err(ResolveFunctionErrorV1::DraftInvariant(
+                "observer-only direct-call policy cannot use a callable index",
+            ));
+        }
+        (Some(_), DirectCallCanonicalizationPolicyV1::RejectUnindexed) => {
+            return Err(ResolveFunctionErrorV1::DraftInvariant(
+                "reject-unindexed direct-call policy cannot use a callable index",
+            ));
+        }
+    };
     let binding_ids = draft
         .bindings
         .keys()
@@ -509,22 +608,6 @@ fn canonicalize_draft(
         })
         .collect();
 
-    let direct_call_targets = match callable_index {
-        Some(index) => draft
-            .direct_calls
-            .iter()
-            .map(|(site, call)| {
-                let header = index
-                    .resolve_free_static_source_call(&call.name, call.arity)
-                    .map_err(ResolveFunctionErrorV1::CallableLookup)?;
-                Ok((
-                    site.clone(),
-                    ResolvedDirectCallTargetV1::from_resolved(header.callable()),
-                ))
-            })
-            .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
-        None => BTreeMap::new(),
-    };
     let brand_call_relations = seal_brand_call_source_relations_v1(
         owner,
         std::mem::take(&mut draft.brand_calls),
@@ -577,6 +660,7 @@ fn canonicalize_draft(
         variable_uses,
         assignment_targets,
         direct_call_targets,
+        direct_call_observations,
         brand_call_relations,
         explicit_extern_calls,
         method_calls,

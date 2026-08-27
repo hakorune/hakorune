@@ -136,12 +136,24 @@ if phase == "observer_i0":
     traversal = (mir_root / "resolved_semantics/shadow/traversal_profile.rs").read_text()
     if "SelectedCallableV1 => !matches!(expression, ASTNode::FunctionCall" in traversal:
         raise SystemExit("SelectedCallableV1 still rejects ordinary FunctionCall")
+    observer_surface_files = [
+        mir_root / "resolved_semantics/direct_call.rs",
+        mir_root / "resolved_semantics/product.rs",
+        mir_root / "resolved_semantics/mod.rs",
+        mir_root / "resolved_semantics/resolver.rs",
+        mir_root / "resolved_semantics/owner_resolver.rs",
+        mir_root / "resolved_semantics/shadow/traversal_profile.rs",
+        mir_root / "resolved_semantics/source_site_inventory.rs",
+        mir_root / "builder/normal_callable_semantic_source.rs",
+        mir_root / "callable_semantic_batch/issuer.rs",
+    ]
+    observer_surface_text = "\n".join(path.read_text() for path in observer_surface_files)
     for token in (
         "RawDirectCallDispositionLoanV1",
         "RawDirectCallDispositionPortV1",
         "CalleeResolverBox",
     ):
-        if token in source_text:
+        if token in observer_surface_text:
             raise SystemExit(f"observer_i0 crossed its target/loan boundary: {token}")
     resolver = (mir_root / "resolved_semantics/resolver.rs").read_text()
     if '"direct calls require a callable index"' not in resolver:
