@@ -1,8 +1,9 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
-status = "accepted_design_no_safe_slice"
-observed_commit = "aeae60a55a"
+status = "fast_open_forest_wide_observation_gate"
+observed_commit = "784f3af770"
 observed_at = "2026-08-26"
-implementation_permission = false
+implementation_permission = true
+permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 only; package/loan/issuer/dispatcher publication remains closed"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
 safety_child = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-d0-2026-08-26.toml"
@@ -38,7 +39,7 @@ non_authority = [
   "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
 ]
 fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
-smallest_next_slice = "Design-only inventory matrix for SelectedNormal self/sibling, InstanceConstructor, known non-direct forms, missing/foreign/ambiguous sites, and the index-none-with-calls failure. No code, fixture, receipt, or production switch."
+smallest_next_slice = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0: add one private forest-wide unissued-observation helper, delegate the package batch and source admission checks to it, and add nested-only/mixed-owner negative coverage. No target, loan, dispatcher, or Call publication."
 non_claims = [
   "the inventory does not issue a target or generalize the exact-i64 index",
   "lineage preservation does not authorize Global synthesis from names or arity",
@@ -46,8 +47,8 @@ non_claims = [
 ]
 
 [observed]
-selected_traversal = "SelectedCallableV1 rejects ordinary FunctionCall before child traversal in src/mir/resolved_semantics/shadow/traversal_profile.rs and shadow/expr.rs; the call is deferred rather than inventoried."
-silent_drop = "resolve_selected_callable_kernel seals callable_index=None, and resolver.rs canonicalize_draft turns a non-empty draft.direct_calls into an empty BTreeMap at the None arm; CallableSemanticSourceLedgerView only sees the already-canonicalized map."
+selected_traversal = "SelectedCallableV1 now permits ordinary FunctionCall traversal in src/mir/resolved_semantics/shadow/traversal_profile.rs and shadow/expr.rs; the call records an unissued observation and visits arguments once."
+silent_drop = "resolver.rs separates ObserveOnly facts from target publication; the remaining package gap is that callable_semantic_batch/issuer.rs checks only forest.roots(), while normal_callable_semantic_source.rs checks every forest owner."
 lineage_collapse = "function_call_brand_source_demand.rs preserves caller only for Cataloged and collapses TopLevel/InstanceConstructor into InstalledNonBrand { caller: None }; RawInvocationRootLineageV1 exists upstream but is lost before disposition."
 package_order = "normal_callable_semantic_package issuer co-seals catalog, selected batch, and constructor batch before prepare_install/commit, but no direct-call inventory field or completeness check exists before install/body lowering."
 late_route = "caller-less ordinary calls still enter PreparedRawOrdinaryFunctionCompletionV1::Resolved and can lower arguments before resolve_call_target, unique-static/tail recovery, and name-Const publication."
@@ -60,7 +61,7 @@ i0_connection = "The landed index-none safety I0 is a typed abort at canonicaliz
 source = "six earlier read-only audits plus three D0-C read-only audits at a01f2bbed9; no code, fixture, or Cargo change"
 verdict = "NoSafeSlice remains: package issuer has no direct-call inventory/co-seal field, SelectedCallable closes ordinary FunctionCall traversal, and TopLevel/InstanceConstructor lineage still collapses to caller=None before disposition."
 next_bounded_design = "D0-C package co-seal boundary census: fix the exact prepare_install/commit boundary, finite SelectedNormal/Constructor/non-direct/missing/foreign/ambiguous/index-none matrix, one owner/site issuance point, and pre-effect abort contract."
-implementation_gate = "Keep implementation_permission=false; do not widen traversal, add a semantic receipt, change target resolution, or alter the active backend until D0-C closes."
+implementation_gate = "Only the forest-wide observation helper row is open; target publication, package/loan transport, lineage mapping, dispatcher changes, and backend changes remain closed."
 next_design_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: reuse existing forest/site authorities for Cataloged, TopLevel, and InstanceConstructor; no target or public receipt."
 
 [d0_c_review]
@@ -99,6 +100,43 @@ no_safe_slice = [
   "The direct inventory can only be completed after argument lowering or commit publication.",
 ]
 next_task = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+
+[forest_wide_observation_gate_r0]
+current_execution_row = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0"
+decision = "Make the package batch and source admission use one private forest-wide predicate over every Function owner, including nested lambdas. This closes the root-only inspection gap without issuing a target or changing the lowering route."
+source_authority = "Existing SelectedCallable shadow/resolver forest and its owner-scoped direct_call_observations"
+canonical_issuer = "No issuer is opened by this row; the existing package/source terminals only consume the shared predicate"
+non_authority = [
+  "forest.roots() as a completeness check",
+  "name/arity lookup, CalleeResolverBox, package inventory, RawInvocationRootLineage, or target synthesis",
+  "new Verified*/Prepared* receipt, loan, dispatcher, or Call publication",
+]
+fail_fast = "If any Function owner in any selected forest contains an unissued direct-call observation, reject before package installation; root-only, nested-only, and mixed-owner cases must agree."
+allowed_files = [
+  "src/mir/resolved_semantics/owner_forest_direct_call_gate.rs (new private helper module)",
+  "src/mir/resolved_semantics/mod.rs (module declaration)",
+  "src/mir/callable_semantic_batch/issuer.rs (delegate existing check)",
+  "src/mir/normal_callable_semantic_source.rs (delegate existing check)",
+  "existing resolved-semantics or normal-callable package test files for focused negative coverage",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/builder/recursive_child_lowering.rs",
+  "crates/hakorune_mir_defs/src/call_unified.rs",
+]
+acceptance = [
+  "one shared helper inspects every Function owner in each forest",
+  "root-only, nested-only, and root-plus-nested observations all reject the existing package batch before install",
+  "forests without observations preserve the existing success path",
+  "no target, loan, CalleeResolverBox, argument lowering, MIR block mutation, or backend behavior changes",
+]
+no_safe_slice = [
+  "the helper requires a second AST traversal or a new semantic receipt",
+  "the package batch and source admission cannot share the same owner-wide predicate",
+  "nested coverage requires changing target publication, package install, or the raw dispatcher",
+]
 
 [boundary_census]
 package_issuer = "src/mir/normal_callable_semantic_package/issuer.rs:134-161 issues instance-constructor, source catalog, resolved batch, and selected mapping; src/mir/normal_callable_semantic_package/model.rs:35-52 has no direct-call inventory field."
