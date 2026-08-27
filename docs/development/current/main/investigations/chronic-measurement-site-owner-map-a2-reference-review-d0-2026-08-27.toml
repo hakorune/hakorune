@@ -66,9 +66,10 @@ completed = [
   "A2 successor follow-up recorded: B row21 has a single successor candidate but a live production caller; A/C rows with split or absent successor ownership remain blocked or require explicit row decomposition.",
   "A2 history follow-up recorded: the two A missing paths have no blob or rename in any reachable review-head ancestor; row129 has exact symbol candidates but still needs an explicit normalization decision.",
   "A2 successor schema review recorded: retain the existing single successor_ref contract; keep consumer evidence separate, classify test-only split seams as not_required only with route proof, and do not add a multi-edge handoff schema.",
+  "A2 missing-reference disposition review recorded: ExplicitlyRejectedAtPinnedReviewHead is allowed only per candidate evidence reference; the 185 site rows remain intact and matrix provenance/hash is unchanged.",
 ]
 remaining = [
-  "A2-R1 explicit reviewed anchor normalization for short/byte/tree/missing/out-of-bounds references, including the missing-evidence disposition for A rows 154/155 and exact-symbol decision for row129",
+  "A2-R1-MISSING-BLOB-AND-OOB-CLOSEOUT: record candidate-level disposition for A rows 154/155 and choose an exact-symbol or typed-reject decision for row129",
   "A2-R2 final A/B owner/caller/cfg/route role decisions, including the row21 production blocker and consumer-versus-owner corrections",
   "A2-R3 final C family role decisions with cfg/feature/route evidence",
   "A2-R4 mixed-site decomposition and one exact successor for each of the 16 required rows",
@@ -221,6 +222,10 @@ missing_path_disposition = "Candidate state remains TypedReferenceBlocker until 
 row_154_variant = "The reachable review history contains the distinct variant cut0-i0-raw-source0-lower-root-children0-s0-execution-task-2026-07-24.md at commit 8cb0dcef8aa874041e02c4fa8597f69b758241d6 (blob 96b5a5a91cdea9a41aee58cfcc00ea7bd9c40311), range 202-221, but no rename/equivalence proof exists."
 row_155_variant = "The reachable review history contains the distinct variant cut0-i0-raw-source0-lower-root-declaccess0-s0-execution-task-2026-07-24.md at commit 540f5b65e73ab259b8b2b3dfb5173fdf732a5b22 (blob cf9f54b599ddf7ec94dc00ce0e3fef57747ef203), range 127-160, but no rename/equivalence proof exists."
 row_129_decision = "At the pinned review head, the selected_dynamic_physical_emitter/assembly.rs blob is 98 lines (not 110) and exposes assemble_unpublished_selected_dynamic_w6 (24-44) plus assemble_unpublished_selected_dynamic_w6_from_parts (46-98). Choose one exact symbol/range anchor explicitly or reject the OOB supporting reference; never clip 1-110 to EOF."
+missing_reference_contract = "ExplicitlyRejectedAtPinnedReviewHead is a candidate-reference disposition only. It records the raw reference, expanded revision, review_head, PathMissing reason, unproven rename/equivalence, and a named reopen trigger. It never removes a scanner site, changes the matrix hash, or makes A2 terminal by itself."
+row_154_disposition = "site_ordinal=154; field=candidate_evidence_refs; raw_ref=docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-callchildren0-s0-execution-task-2026-07-24.md#range:202-221@979bf3af93; expanded_revision=979bf3af936a2f38c1947415b7e144580b94ea71; failure=PathMissing at every reachable review_head ancestor; disposition=ExplicitlyRejectedAtPinnedReviewHead candidate-only; variant cut0-i0-raw-source0-lower-children0-s0-execution-task-2026-07-24.md remains unaccepted; reopen=approved full-SHA tracked replacement with semantic-equivalence evidence."
+row_155_disposition = "site_ordinal=155; field=candidate_evidence_refs; raw_ref=docs/development/current/main/investigations/declaccess0-s0-execution-task-2026-07-24.md#range:127-160@979bf3af93; expanded_revision=979bf3af936a2f38c1947415b7e144580b94ea71; failure=PathMissing at every reachable review_head ancestor; disposition=ExplicitlyRejectedAtPinnedReviewHead candidate-only; variant cut0-i0-raw-source0-lower-root-declaccess0-s0-execution-task-2026-07-24.md remains unaccepted; reopen=approved full-SHA tracked replacement with semantic-equivalence evidence."
+site_row_preservation = "Rows 154 and 155 remain among the exact 185 scanner observations. A future map may use valid owner/evidence refs only after independent caller/cfg/route proof; rejected candidate refs are not copied into owner_ref/evidence_refs/successor_ref, and no site row is dropped."
 
 [successor_review]
 status = "successor_candidates_reviewed_single_ref_not_closed"
