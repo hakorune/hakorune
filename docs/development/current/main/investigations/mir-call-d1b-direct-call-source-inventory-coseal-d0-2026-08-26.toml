@@ -227,6 +227,15 @@ decision = "D1 cannot publish a new Cataloged target through the transitional Ca
 source_authority = "VerifiedCatalogCallableOwnerLinkV1 and the same resolver-session catalog brand prove Cataloged lineage and declaration membership. RawInvocationRootLineageV1 remains provenance; SourceExprSiteV1 is the exact site key."
 canonical_issuer = "After the structural carrier is connected, the existing semantic-package issuer is the sole co-seal owner. It may issue a typed static-box-method target only from the owner-link plus exact site relation; it may not derive a target from name, arity, box name, physical symbol, or registry lookup."
 carrier_prerequisite = "B1 must atomically adapt CanonicalGlobalTargetV1 into the canonical Callee/CallTarget consumers (or the already-accepted equivalent shape) without a parallel String variant, formatter/reparse bridge, fallback, or retry. The carrier constructor checks components only; catalog/session/brand authority stays in the caller."
+carrier_policy = "Use the strict structural path: do not use the existing Callee::Global(String) as a new D1 physical projection. Callee and CallTarget must be changed together, and every surviving Global family must first receive a finite Builtin/SameModule/Extern/Method/retire disposition."
+consumer_census = "Path-based observation only: Callee::Global appears in 143 Rust files/272 occurrences (about 68 files/115 production-ish); CallTarget::Global appears in 20 files/45 occurrences (about 17 files/36 production-ish). This is a B1 scope hint, not semantic completion evidence."
+b1_consumer_families = [
+  "core/producers: call_unified, call_target, resolver, method_resolution, unified_emitter, emit, build, JoinIR, direct-call and physical-thunk paths",
+  "analysis/optimizer: value consumers, escape/ownership/query, remapper, CSE, callsite canonicalization, storage/generic method plans",
+  "wire/compatibility: v2 structural codec plus owner-private v0/v1 adapters; no schema retry",
+  "terminals: LLVM/AOT and any retained reference/wasm route; retired VM paths are isolated rather than adapted by fallback",
+  "printer/tests/guards: structural projection and fixture disposition without formatter/reparse authority",
+]
 lineage_mapper = "Map the located Cataloged raw site to SourceExprSiteV1 exactly once, verify the same owner-link, session brand, observation name/arity, and one-to-one site membership, then move the structural target into the direct-call handoff. TopLevel and InstanceConstructor provenance is preserved but cannot synthesize Global."
 package_boundary = "The existing with_normal_callable_install_once bridge remains the only install authority. Direct-call completeness is checked before prepare_install/commit. The package-only begin_lowering(&self) bypass is replaced in the later atomic row by a consuming lowering scope that owns the package and the direct-call loan together."
 raw_port_boundary = "The lowering scope lends one concrete non-Clone/non-Copy RawDirectCallDispositionLoanV1 to RawInvocationChildPortV1 by short &mut reborrow. No Rc, Arc, RefCell, tuple-splitting, package getter, or second child ledger is allowed."
@@ -256,6 +265,8 @@ acceptance = [
 no_safe_slice = [
   "the current Callee::Global(String) must be used to publish a new D1 target",
   "B1 requires a parallel transitional variant or a formatter/reparse bridge",
+  "Callee and CallTarget are changed separately, or an unclassified Global string family is wrapped mechanically",
+  "wire/backend/optimizer treatment is left to a later retry after a partial B1 cutover",
   "an exact owner/site relation is unavailable and name/arity/physical symbol would be used instead",
   "package-only install or shared begin_lowering remains the only way to reach the raw dispatcher",
   "lineage or loan transport requires caller=None collapse, Clone/Rc/RefCell, unsafe, or a second resolver",

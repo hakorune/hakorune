@@ -383,6 +383,7 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    retaining the Cataloged direct payload for the next affine replacement
 
 13. MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0
+    (unlocked only after the B1 structural Callee/CallTarget cutover below)
     exact site/owner/catalog co-seal -> non-empty stack-owned loan -> take_once
     -> arguments once -> Call once -> residual zero; direct CatalogedTargeted
     payload deleted in the same cell after late recovery is already zero
@@ -407,13 +408,15 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     enumerate the finite surviving exact String publications and every compiled
     consumer by owner/action; arbitrary publisher/recovery/methodize count is zero.
     Any new hole inserts an owner-specific S0/R0, then C0 reruns; only exhausted C0
-    with all remediation rows closed may open B1
+    with all remediation rows closed may open the structural cutover required before
+    D1B target issuance
 
 18. MIR-CALL-GLOBAL-TARGET-B1-CUTOVER
     add the serde-free defs type; atomically change both `Callee::Global` and
     `CallTarget::Global`; type the retained exact publications; add bounded v2
     codec, sole projection and one MirModule lookup; adapt/delete/isolate every
-    compiled consumer without formatter, reparse, registry, fallback, or retry
+    compiled consumer without formatter, reparse, registry, fallback, or retry.
+    This row is a prerequisite for item 13; a new D1 String issuer is forbidden.
 
 19. MIR-CALL-WIRE-CONSTRUCTION-TERMINAL-R0
     close isolated noncanonical compatibility and construction terminals:
