@@ -1,5 +1,5 @@
 ---
-Status: Design stop — RawLegacy Main origin census D0a
+Status: Design stop — RawLegacy nested Main C fate D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/runtime-box-rawlegacy-nested-main-fate-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/runtime-box-rawlegacy-nested-main-retire-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -52,7 +52,7 @@ Smallest next slice:
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1` landed at `684533ba22`: the five root families issue a move-only compatibility shape before effects, use one child capture plus one outer collector drain, and leave runtime Box edges outside the terminal.
   D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 froze phase2160-only Retire/Frozen through one private typed scope: issuer at program_root_lowering.rs:321-326, F take after App-before-register, I/H take before prefix, and Box-precheck snapshot delta=0.
   I0 landed at 7167aee18e: the phase2160 scope now retires F/I/H before effects, the four contracts are typed negatives, generic RawInvocation has an explicit unarmed success parity, and one reusable guard is registered. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.
-  The next design stop is RAWLEGACY-MAIN-ORIGIN-CENSUS-D0a: RawLegacy C is source-less/zero-sized and cannot distinguish Root Main from nested Main. First enumerate every port/facade owner and preserve exact origin; G/J stay RetainGuarded and the non-Box facade stays live.
+  D0a is complete at e51dab7212: 20 production RawLegacy direct issuers are fixed as source-less facade entries, direct Root Main issuers are 0, and C/G/J remain structurally reachable. The next design stop is RAWLEGACY-NESTED-MAIN-RETIRE-D0: observe static Main at the shared child dispatcher, query a zero-payload two-state RawLegacy policy once, and retire only C before helper/prepare effects; G/J, non-Box, Root I1, RawInvocation, and explicit root compatibility remain unchanged.
   The zero-match D0, exact-selection I0, and `SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0` are landed: phase2050 discovery is 962 with exactly five leaves, while direct aggregate invocation remains the exact owner pack. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
   `SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0` is complete as a read-only census. The phase2170 official nine-leaf I0 is landed. phase2160's final fate is now selected as wrapper retirement, and its twenty-child leaf owner/fate census is the design stop; phase2047/2048/2049/2051, phase2100, and the legacy cluster retain separate fates and are not generalized.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。

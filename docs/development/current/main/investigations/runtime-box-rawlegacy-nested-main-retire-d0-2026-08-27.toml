@@ -1,0 +1,160 @@
+title = "Runtime Box RawLegacy nested Main retirement D0"
+status = "accepted_design_no_safe_slice"
+observed_commit = "e51dab7212"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "RAWLEGACY-NESTED-MAIN-RETIRE-D0"
+parent_row = "docs/development/current/main/investigations/runtime-box-rawlegacy-nested-main-fate-d0-2026-08-27.toml"
+successor_card = "RAWLEGACY-NESTED-MAIN-RETIRE-I0"
+
+[boundary]
+starts = "raw_expression_dispatch BoxDeclaration Main branch at mod.rs:503-507, immediately before RawBoxMethodChildPortV1::lower_static_main_box"
+ends = "a C-only pre-effect typed retirement for nested static Main reached through the RawLegacy dispatcher path"
+includes = [
+  "RawBoxMethodChildPortV1 policy query and its RawLegacy implementation",
+  "static Main child observation, exactly once before PreparedRawStaticMainBoxCompatibilityV1::prepare",
+  "RawLegacy C helper/main publication edge and zero-delta negative tests",
+  "explicit root compatibility, Root I1, RawInvocation, G/J, and non-Box separation guards",
+]
+excludes = [
+  "the 20-site RawLegacy facade inventory, already frozen by D0a",
+  "new source/origin receipt, RawInvocationRootLineageV1 transport, AST/name/arity inference, or Callee/target issuance",
+  "RawLegacy G/J, non-Box recursion, Root I1, SelectedNormal, phase2160 I0, VM/AOT/backend, Wpre, Call, or fallback changes",
+  "direct explicit root compatibility calls to PreparedRawStaticMainBoxCompatibilityV1 and their existing order tests",
+]
+
+[brief]
+decision = "Retire only the RawLegacy C success edge when a child BoxDeclaration is observed as static Main at the shared raw-expression dispatcher. Do not add origin state to the source-less zero-sized RawLegacy port. The dispatcher/port intersection supplies a private two-state policy: RawLegacy returns RetireBeforeEffects; other ports continue to their existing terminal."
+source_authority = "raw_expression_dispatch/mod.rs:488-507 owns the exact child observation (static=true, name=Main). The modern root Main path is a separate typed RootCallableCapturePortV1 route and does not pass through this child dispatcher."
+canonical_issuer = "The RawBoxMethodChildPortV1 implementation policy is the sole C-fate issuer at the dispatcher intersection. It issues only a zero-payload disposition, not source identity, target, shape, lineage, Callee, or collector data."
+non_authority = [
+  "RawLegacyChildLoweringPortV1 type identity, current function/name, root_is_app_mode, AST depth, params.len(), formatted symbol, caller count, test name, or route exit code",
+  "RawInvocation/Root I1 result, phase2160 fate capability, RawInvocationRootLineageV1, RawLegacy retry, or backend/VM fallback",
+  "direct calls to lower_static_main_box from explicit root compatibility tests/batches; those remain on their named owner and are not dispatcher evidence",
+]
+fail_fast = "In the static Main child branch, query the typed policy once and, for RetireBeforeEffects, return a stable typed freeze before RawLegacy::lower_static_main_box, PreparedRawStaticMainBoxCompatibilityV1::prepare, helper lowering, Main lowering, or module/function/instruction/comp_ctx mutation. Never retry through RawInvocation or Root I1."
+smallest_next_slice = "RAWLEGACY-NESTED-MAIN-RETIRE-I0: add the dispatcher pre-effect policy query, RawLegacy-only Retire disposition, C typed-negative tests, and a reusable structural guard in one bounded implementation row; implementation remains closed until this card is explicitly opened."
+non_claims = [
+  "does not prove all 20 RawLegacy issuers are nested or permit deleting the RawLegacy facade",
+  "does not alter explicit root compatibility, Root I1, G/J, non-Box recursion, or RawInvocation's existing nested-Main terminal",
+  "does not create a general origin carrier or permit source-less target synthesis",
+  "does not retire raw_static_main_compat_batch.rs; its direct root owner remains until a later caller census",
+]
+
+[authority_chain]
+observation = "The dispatcher sees a child AST BoxDeclaration with is_static=true and name=Main; this is the exact nested-child boundary, not a Builder-wide root inference."
+policy = "RawBoxMethodChildPortV1::nested_main_fate_v1-style private finite disposition. Default ContinueExistingTerminal; RawLegacy implementation returns RetireBeforeEffects."
+consumer = "The dispatcher consumes the disposition once before invoking lower_static_main_box. No child port field, lifetime loan, Clone, Rc, RefCell, or source transport is added."
+terminal = "Typed [freeze:contract][raw-legacy/nested-main-retired] error with pre-effect zero delta for the RawLegacy dispatcher path."
+root_rule = "normal_script_runtime_work.rs:207-228 and explicit PreparedRawStaticMainBoxCompatibilityV1 owners bypass this query; Root Main parity stays with their existing typed route."
+
+[policy_shape]
+enum = "RawNestedMainFateV1"
+variants = [
+  "ContinueExistingTerminal",
+  "RetireRawLegacyBeforeEffects",
+]
+scope = "private to the mir::builder RawBoxMethodChildPortV1 boundary; it contains no payload and no semantic receipt"
+query_rule = "The static Main dispatcher branch queries exactly once. Static non-Main, instance, sync, non-Box, and direct root compatibility paths query zero times."
+implementation_rule = "Only RawLegacyChildLoweringPortV1 may return RetireRawLegacyBeforeEffects in I0; RawInvocationChildPortV1, NormalCallableSemanticPackagePortAdapterV1, and Recording/root test ports return ContinueExistingTerminal."
+no_safe_shape = [
+  "do not add Root/Nested state to RawLegacyChildLoweringPortV1",
+  "do not use Option<bool>, ambient Builder state, downcast, AST cloning, or name/symbol synthesis",
+  "do not make the disposition generic over Callee, target, shape, lineage, or collector",
+]
+
+[finite_state]
+sync_main = "Existing sync rejection occurs first; nested-Main policy is not queried."
+rawlegacy_nested_main = "RetireRawLegacyBeforeEffects; typed negative before helper preparation."
+rawinvocation_nested_main = "ContinueExistingTerminal; preserve the existing root-only RawInvocation terminal."
+explicit_root_compatibility = "No query; PreparedRawStaticMainBoxCompatibilityV1 direct owner retains helper-before-Main success/error order."
+static_non_main = "No query; G static compatibility route remains unchanged."
+instance_box = "No query; J prefix/constructor/method sequence remains unchanged."
+non_box = "No query; RawLegacy facade remains live for non-Box recursion."
+modern_root = "No query; typed RootCallableCapturePortV1 path remains separate."
+
+[effect_boundary]
+query_site = "raw_expression_dispatch/mod.rs:503-507, immediately before port.lower_static_main_box"
+retire_before = [
+  "RawLegacyChildLoweringPortV1::lower_static_main_box",
+  "PreparedRawStaticMainBoxCompatibilityV1::prepare",
+  "raw_static_main_compat_batch.rs:133-145 helper lowering",
+  "raw_static_main_compat_batch.rs:148-173 Main publication",
+  "module/function/instruction/CompilationContext mutation, capture, collector, and retry",
+]
+retained_edges = [
+  "legacy_port.rs:72-81 direct terminal for named explicit root/reference compatibility callers",
+  "raw_static_main_compat_batch.rs root owner and module_lifecycle_capture_tests.rs:577-625 order tests",
+  "Root I1, RawInvocation default, G/J, non-Box facade, and all phase2160/VM/AOT routes",
+]
+
+[delete_set]
+dispatcher_c_success_edge = "Delete only the shared-dispatcher -> RawLegacy lower_static_main_box success edge for nested static Main; replace with the typed pre-effect disposition query."
+legacy_c_effects = "Make helper/Main publication unreachable from the RawLegacy dispatcher path; do not delete the root-owned batch in I0."
+error_semantics = "Delete nested C helper-order/missing-main/not-function success/error semantics on the retired dispatcher edge; replace with one typed pre-effect tag."
+retained = "Keep legacy_port.rs direct method, explicit root compatibility batch/tests, RawInvocation terminal, G/J, non-Box, and Root I1 until their own caller/fate rows close."
+
+[acceptance]
+positive = [
+  "RawLegacy nested static Main through body, statement, and expression facades returns the same typed retirement tag before any helper/Main effect",
+  "module/function/instruction/CompilationContext/collector deltas are zero at the dispatcher pre-check",
+  "explicit root compatibility keeps its existing helper-before-Main positive/error order",
+  "RawInvocation nested Main keeps its existing root-only terminal",
+  "G static non-Main, J instance, non-Box RawLegacy, and modern typed Root Main parity remain green",
+  "dispatcher policy query is exactly once for static Main and zero for all other branches",
+]
+negative = [
+  "no RawLegacy global rejection, no root/name/bool/AST/arity inference, and no new source carrier",
+  "no helper preparation, Main publication, prefix/register effect, collector mutation, or retry before C rejection",
+  "no RawLegacy -> RawInvocation/Root I1 retry and no phase2160 capability reuse",
+  "no Retire disposition from RawInvocation, Normal adapter, Recording/root ports, static non-Main, instance, sync, or non-Box paths",
+  "no silent relabeling of existing C success contracts or deletion of explicit root compatibility owner",
+]
+parity = "Compare only named owners: C typed-negative dispatcher paths, explicit root compatibility order, RawInvocation root-only terminal, G/J lifecycle tests, non-Box reentrant tests, and modern typed Root Main."
+
+[guard]
+required = "A reusable guard must derive the D0a 20-issuer inventory, pin direct Root Main issuer=0 separately from facade reachability, assert one policy query in the dispatcher Main arm before lower_static_main_box, require Retire only from RawLegacy, and prove dispatcher-to-PreparedRawStaticMain reachability is zero while the root-owned batch remains."
+observables = [
+  "production direct RawLegacy issuer inventory and class count",
+  "static Main dispatcher policy query count/order",
+  "RawLegacy nested C typed tag and pre-check zero-delta snapshot",
+  "RawInvocation/Root I1/explicit root/G/J/non-Box route separation",
+  "no fallback/retry, no RawLegacy fate reference in modern root/phase2160 files, and line budget",
+]
+no_safe_slice = [
+  "the dispatcher is found to serve a production root Main path that is not separately typed",
+  "C fate depends on function name, root_is_app_mode, AST depth, params.len(), symbol text, or new source-less state",
+  "RawLegacy must be globally rejected, or C rejection needs RawInvocation/Root I1 fallback",
+  "helper/prepare occurs before the query, or a partial effect cannot be rolled back",
+  "G/J/non-Box behavior changes, explicit root compatibility changes, or a 20-site origin carrier is required",
+]
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "D0-C1 policy enum/method visibility, query count, error tag, and direct-root bypass are frozen",
+  "C typed-negative and explicit-root/RawInvocation parity test shapes are named without changing fixtures",
+  "guard derivation for D0a inventory and C pre-effect order is ready",
+  "all NoSafeSlice conditions are absent and implementation permission is explicitly opened in CURRENT_STATE",
+]
+
+[ordered_followups]
+steps = [
+  "D0-C1: freeze the private two-state disposition and dispatcher intersection; docs only",
+  "S0: derive/register the reusable inventory/order guard without changing production behavior",
+  "I0: dispatcher pre-effect query + RawLegacy C typed retirement + focused positive/negative parity in one bounded row",
+  "closeout: re-census direct legacy_port.rs callers, keep named root/reference owner or ParkedSealed, and prove no C cross-port retry",
+]
+next_row = "RAWLEGACY-NESTED-MAIN-RETIRE-I0"
+next_row_condition = "Only after D0-C1 and S0 evidence are accepted; until then implementation_permission=false."
+
+[worker_receipt]
+agent = "force_successor_fate_audit"
+finding = "The smallest safe C row is the dispatcher/RawLegacy intersection: observe static Main as a child, query a zero-payload two-state policy once, retire RawLegacy before lower_static_main_box/prepare effects, and leave explicit root compatibility, RawInvocation, G/J, and non-Box unchanged. A new origin carrier across the 20 source-less facades is rejected as larger and less authoritative."
+evidence = [
+  "raw_expression_dispatch/mod.rs:503-507",
+  "recursive_child_lowering/legacy_port.rs:71-81",
+  "raw_static_main_compat_batch.rs:87-175",
+  "normal_script_runtime_work.rs:207-228",
+  "D0a exhaustive 20-site census at e51dab7212",
+]
