@@ -677,25 +677,30 @@ Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```
 
-Current source-backed observation is 3,748 tracked check paths and 356,395
-shell lines. The full inventory classifies 92 stable entries, 106 manifest
-command paths, 212 proof-app paths, and 3,338 `unknown_retain` paths. The
-narrow public-guard boundary is 2,741 entries: 91 are manifest-mapped and 2,650
-are not. These are different denominators and must not be reported as one
-coverage percentage. `quick-static` has 21 declared rows (including the exact
-owner-pack data row) and no profile caller;
-the profile name is not execution evidence.
+Current source-backed observation at `b4edff4c78` is 3,754 tracked check paths;
+the finite registry graph has 112 flattened rows. The ratchet-eligible
+immediate-child public surface is 2,740 tracked `*_guard.sh` paths, with 19
+direct command-target edges and 74 typed wrapper-alias edges (93 mapped when
+the edge kinds are kept separate); 2,647 eligible paths are currently
+unmapped. `quick-static` has 24 declared rows and no profile caller. These are
+different denominators and must not be reported as one coverage percentage;
+the profile name is not execution evidence. The 93/2,647 values are the D0
+baseline; registering `ci-feedback-tier-policy` is an I0 change and would make
+the intended post-row cap 2,646.
 
 Required order:
 
-1. `GUARD-CONTRACT-GRAPH-D0` — freeze the two-plane model, contract-v1 metadata,
-   declared-profile versus reachable-gate distinction, and the existing six
-   inventory dispositions. Generated reverse output never becomes authority.
+1. `GUARD-CONTRACT-GRAPH-D0` — freeze the two-plane model, the finite public
+   eligibility set, direct-command versus typed-alias edge kinds, explicit
+   PR-base/absolute-measurement behavior, contract-v1 metadata, and the
+   existing six inventory dispositions. Generated reverse output never becomes
+   authority.
 2. `GUARD-REGISTRY-RATCHET-I0` — extend the existing inventory owner, register
    the already-CI-reachable `ci_feedback_tier_policy_guard.sh`, lower the
-   public-unregistered cap from 2,650 to 2,649, reject newly added unregistered
-   public guards relative to the PR base, and wire only this structural check to
-   required CI. It must not run registry member commands.
+   public-unregistered cap from the D0 baseline 2,647 to the post-registration
+   cap 2,646, reject newly added unregistered public guards relative to an
+   explicit PR base, and wire only this structural check to required CI. It must
+   not run registry member commands or infer `HEAD^` as a base.
 3. `DEAD-CODE-REMEASURE-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
    `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive

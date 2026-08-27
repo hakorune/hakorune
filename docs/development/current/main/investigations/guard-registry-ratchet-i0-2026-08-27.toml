@@ -1,0 +1,137 @@
+title = "Guard registry structural ratchet I0"
+status = "accepted_design_parked"
+observed_commit = "b4edff4c78"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "GUARD-REGISTRY-RATCHET-I0"
+parent_row = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
+successor_card = "GUARD-REGISTRY-RATCHET-I0-CLOSEOUT"
+
+[boundary]
+starts = "the accepted guard execution/navigation graph contract and the existing guard_manifest_inventory.py owner"
+ends = "one structure-only registry ratchet proving that the finite public guard surface does not gain newly unmapped paths relative to an explicit PR base"
+includes = [
+  "register ci_feedback_tier_policy_guard.sh in guard_rows.toml and route its existing CI call through run_row_guard.sh",
+  "manifest_runner base forwarding for the selected structural row only",
+  "current/base derivation of the immediate-child tools/checks/*_guard.sh eligibility set",
+  "separate direct-command-target and typed-wrapper-alias edge counts",
+  "one L0 command on the existing guard-manifest-inventory row; member guard commands remain unexecuted",
+]
+excludes = [
+  "resolving the four hand-written index dangling names (LEDGER-EXECUTION-INDEX-D0)",
+  "running quick-static members or activating the full profile in CI",
+  "mass chmod, wrapper consolidation, or default inventory health repair",
+  "force-hv1 measurement, compiler/MIR/VM/AOT behavior, and source-code deletion",
+  "making docs/tools/guard_surface_inventory.py or check-scripts-index.md execution authority",
+]
+
+[brief]
+decision = "Reuse the existing inventory owner and add a fail-closed, structure-only no-growth mode. The finite eligible surface is the tracked immediate-child tools/checks/*_guard.sh set; direct command targets and typed wrapper aliases are distinct edge kinds. A PR must provide its base SHA explicitly, while local or workflow-dispatch runs may report only an absolute current measurement."
+source_authority = "guard_rows.toml include graph, manifest_runner exact argv, tracked public guard paths, and the existing closeout-wrapper mapping owner. The PR base SHA is an input, not a guessed repository relation."
+canonical_issuer = "guard_manifest_inventory.py --registry-ratchet --base <sha> issues one current/base mapping result; run_row_guard.sh dispatches the registered L0 command. No member guard issues acceptance."
+non_authority = [
+  "filename prefixes outside the finite immediate-child eligibility rule",
+  "profile names, raw LOC, executable mode alone, hand-written index prose, and generated reverse output",
+  "a shared command target treated as a duplicate when its argv differs",
+  "HEAD^ inference, warning-only drift, or an edited baseline",
+]
+fail_fast = "Missing or duplicate row IDs, an invalid command target, missing explicit base for a comparative run, a newly unmapped eligible path, or a mapping loss in the selected edge kinds fails before any member guard executes. Existing legacy-unmapped paths remain unknown_retain and are not mass-deleted by this row."
+smallest_next_slice = "Add the ci-feedback-tier-policy row, add the selected --base/pass_base plumbing, implement the inventory owner's L0 current/base set comparison, and wire only that L0 check to pull-request CI."
+non_claims = [
+  "does not claim full registry coverage or authorize deletion of the 2,647 existing unmapped paths",
+  "does not resolve navigation-plane dangling names",
+  "does not execute or validate the semantics of each member guard",
+  "does not infer a source or compiler retirement decision from registry coverage",
+]
+
+[contract]
+public_eligibility = "git-tracked immediate-child tools/checks/*_guard.sh paths only; nested implementation scripts and non-guard names are outside the ratchet surface unless a later D0 explicitly changes the rule"
+edge_kinds = [
+  "direct_command_target",
+  "typed_hako_wrapper_alias",
+]
+base_rule = "Comparative mode requires --base <commit>. Without a checked-in baseline, a local or workflow-dispatch invocation may emit only the absolute current tuple and must not claim no-growth. HEAD^ is never implicit."
+mapping_rule = "current_unmapped minus base_unmapped is blocking; a formerly mapped eligible path becoming unmapped is also blocking. Existing base-unmapped paths remain retained inventory, not deletion evidence."
+duplicate_rule = "Reject duplicate flattened row IDs and exact duplicate rows. Allow a shared target path when the selected argv differs."
+execution_rule = "The selected L0 command may inspect manifests and git trees only; it must not execute registry member commands or compile the project."
+
+[finite_state]
+states = [
+  "Ready",
+  "MissingBase",
+  "DuplicateRowId",
+  "InvalidCommandTarget",
+  "NewUnmapped",
+  "MappingLoss",
+  "LegacyUnmappedRetained",
+  "AbsoluteMeasurementOnly",
+]
+terminal = [
+  "Ready",
+  "LegacyUnmappedRetained",
+  "AbsoluteMeasurementOnly",
+]
+blocking = [
+  "MissingBase",
+  "DuplicateRowId",
+  "InvalidCommandTarget",
+  "NewUnmapped",
+  "MappingLoss",
+]
+
+[task_steps]
+items = [
+  "1. Add one guard_rows.toml row named ci-feedback-tier-policy for ci_feedback_tier_policy_guard.sh; change its direct min-gate invocation to run_row_guard.sh --only ci-feedback-tier-policy.",
+  "2. Extend manifest_runner.py with explicit --base forwarding for rows that opt into pass_base=true; reject a missing base for that row and reject an ignored base on rows that do not opt in.",
+  "3. Extend guard_manifest_inventory.py with --registry-ratchet --base. Derive current and base eligibility through git-tracked/tree listings, flatten row IDs, and keep direct-target and typed-alias mappings separate.",
+  "4. Add cmd_l0 plus pass_base=true to the existing guard-manifest-inventory row. The L0 check reports the absolute tuple and, when a base is supplied, fails on newly unmapped or lost mapped paths; it does not run member guards.",
+  "5. Add one pull-request-only min-gate step invoking run_row_guard.sh --only guard-manifest-inventory --level l0 --base <github.event.pull_request.base.sha>. Workflow-dispatch remains absolute-measurement-only.",
+  "6. Run Python syntax/fixture checks and the selected L0 guard; record counts, command argv, and no-member-execution evidence in the closeout card before any pointer transition.",
+]
+
+[acceptance]
+positive = [
+  "ci-feedback-tier-policy is registered exactly once and its existing CI policy check remains green through the row runner",
+  "the current D0 tuple is reproduced as 2,740 eligible paths, 19 direct targets, 74 typed aliases, 93 mapped paths, and 2,647 unmapped before the new row",
+  "after registration the intended current tuple is 2,740 eligible, 20 direct targets, 74 typed aliases, 94 mapped, and 2,646 unmapped",
+  "a PR base is passed explicitly and the L0 check fails on a newly added unmapped guard or a mapping loss",
+  "the L0 check performs no member guard execution and no Cargo/build effect",
+]
+negative = [
+  "missing base in comparative mode is not silently treated as HEAD^ or as green",
+  "shared target paths with distinct argv are not rejected as duplicate rows",
+  "existing legacy-unmapped paths are not mass-deleted or converted to semantic authority",
+  "profile declaration, executable bit, or hand-written index entry is not treated as reachability",
+]
+
+[guard]
+reuse = "guard-manifest-inventory row plus manifest_runner; no new shell guard"
+required = "The row and L0 command must be present before the CI wiring is considered complete. The structural check remains independent from member command execution."
+no_safe_slice = [
+  "the finite eligibility rule cannot be derived from tracked paths without filename or index guessing",
+  "the runner cannot distinguish explicit comparative base from absolute measurement",
+  "the inventory owner would need to execute member guards to derive mapping",
+  "the existing default inventory's 0644/x-bit baseline would be changed as part of this I0",
+  "the ratchet requires editing the 2,000+ line normal-root manifest or any compiler/backend file",
+]
+
+[reopen]
+triggers = [
+  "public eligibility expands beyond immediate-child tools/checks/*_guard.sh",
+  "a new edge kind is needed beyond direct target and typed alias",
+  "workflow-dispatch or local runs begin claiming comparative no-growth without a base",
+  "the selected L0 command starts executing member guards",
+  "the current/base mapping tuple cannot be reproduced from git-tracked inputs",
+]
+
+[worker_receipt]
+agent = "guard_index_spec_audit"
+status = "accepted_with_amendments"
+finding = "The two-plane graph and existing inventory owner are sufficient for I0 after freezing public eligibility, edge kinds, and explicit base behavior. Keep the four dangling index names in their separate ledger row; do not repair default x-bit baseline or run member guards in the ratchet."
+evidence = [
+  "tools/checks/guard_manifest_inventory.py:133-278",
+  "tools/checks/lib/manifest_runner.py",
+  ".github/workflows/min-gate.yml:22-23",
+  "tools/checks/guard_rows.toml",
+  "current HEAD b4edff4c78 baseline tuple",
+]

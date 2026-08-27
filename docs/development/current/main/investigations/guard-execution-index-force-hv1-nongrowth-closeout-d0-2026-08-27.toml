@@ -33,7 +33,7 @@ non_authority = [
   "force-hv1 fate review and retirement disposition; those remain separate owner evidence",
 ]
 fail_fast = "Missing/duplicate/dangling registry edges, stale or unscoped expectation rows, a closeout guard absent from the registry, or a card claiming landed without its guard evidence must fail before route/test effects. Unknown paths are never silently tombstoned; they require an explicit tombstone with owner, replacement or retirement reason, and reopen trigger. A navigation omission is not a registry failure, but a written dangling index name is."
-smallest_next_slice = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-I0: extend the existing structural inventory owner with four dangling-name resolution/tombstone checks and closeout co-registration; no member guard execution and no compiler change."
+smallest_next_slice = "GUARD-CONTRACT-GRAPH-D0: freeze the execution/navigation graph, public eligibility, edge kinds, and base-input rule; only then open GUARD-REGISTRY-RATCHET-I0 for the four dangling-name checks and closeout co-registration. No member guard execution or compiler change."
 non_claims = [
   "does not claim the guard registry is fully covered or that all unknown guards are deletable",
   "does not claim phase2160 is a net source reduction; it only separates production legacy-scope accounting from support additions",
@@ -46,6 +46,28 @@ ledger = "guard_rows.toml + included manifests -> flattened row IDs/argv/path gr
 census = "checked-in force-hv1 shell body -> force_hv1_leaf_census.py -> manifest observations/summary"
 measurement = "explicit finite source scope + token-aware allow(dead_code) scanner + rust LOC counter -> one expectation TSV -> existing force-hv1 lifecycle guard"
 closeout = "implementation diff -> guard row and guard evidence present -> card closeout may record landed; registration is checked independently of the implementation author"
+
+[contract_graph]
+status = "accepted_design"
+execution_graph = "guard_rows include DAG -> unique flattened row id -> exact argv -> manifest_runner command target -> tracked existing target; a profile declaration is metadata and is not reachability evidence."
+navigation_graph = "stable index entry -> tracked public path, or an explicit tombstone carrying owner, replacement/retirement reason, observed revision, and reopen trigger; the hand-written index is not execution authority."
+edge_kinds = [
+  "direct_command_target",
+  "typed_hako_wrapper_alias",
+  "closeout_wrapper_implementation_pair",
+  "navigation_live_path",
+  "navigation_tombstone",
+]
+public_eligibility = "For the registry ratchet, the finite eligible surface is the git-tracked immediate-child tools/checks/*_guard.sh set. Naming alone does not authorize deletion or semantic ownership; legacy entries remain unknown_retain until a successor/caller-zero proof exists."
+base_strategy = "A comparative no-growth claim requires an explicit PR base SHA. Local or workflow-dispatch runs may report only an absolute current measurement unless a checked-in baseline is supplied; HEAD^ inference and warning-only drift are forbidden."
+baseline_observation = "At b4edff4c78, 112 flattened rows, 24 quick-static rows with no caller, 2,740 tracked immediate-child public guards, 19 direct command targets, 74 typed wrapper aliases, 93 mapped edges under those separate kinds, and 2,647 unmapped eligible paths were observed. Adding ci-feedback-tier-policy is an I0 action, not part of this D0 baseline."
+no_safe_slice = [
+  "public eligibility is inferred from filename prefixes or index prose",
+  "direct command targets and typed wrapper aliases are counted as one undifferentiated edge",
+  "a PR base or checked-in baseline is guessed for comparative ratchet claims",
+  "existing default inventory red is hidden by weakening x-bit, wrapper, or non-manifest checks",
+  "profile declaration or member guard execution is used as reachability evidence",
+]
 
 [finite_state]
 ledger_states = [
@@ -147,13 +169,14 @@ dependency = "Run after LEDGER-EXECUTION-INDEX-D0 and FORCE-HV1-CENSUS-NONGROWTH
 [ordered_followups]
 steps = [
   "0. GUARD-CONTRACT-GRAPH-D0: freeze execution plane versus navigation projection and the existing six inventory dispositions.",
-  "1. LEDGER-EXECUTION-INDEX-D0: resolve/tombstone the four dangling names and make the flattened graph fail-closed without running member guards.",
-  "2. DEAD-CODE-REMEASURE-D0 + PANIC-SURFACE-CENSUS-D0: reproduce and classify the chronic counts; no force-specific LOC/dead_code observer.",
-  "3. CHRONIC-MEASUREMENT-EXPECTATION-I0: issue the single scope-labeled expectation TSV and receipt/hash consumed by force_hv1 lifecycle.",
-  "4. CLOSEOUT-GUARD-REGISTRATION-D0: enforce registry/evidence co-registration and forbid baseline/acceptance relaxation; same bounded commit remains allowed.",
-  "5. AGGREGATE-RETIRE-R0: remeasure phase2160 with legacy/support split, then choose deletion or RetainGuarded per named cohort.",
+  "1. GUARD-REGISTRY-RATCHET-I0: register the already-CI-reachable feedback-tier guard and add the existing inventory owner's structure-only no-growth check with an explicit PR base; do not run member guards.",
+  "2. LEDGER-EXECUTION-INDEX-D0: resolve/tombstone the four dangling names and make the flattened graph fail-closed without running member guards.",
+  "3. DEAD-CODE-REMEASURE-D0 + PANIC-SURFACE-CENSUS-D0: reproduce and classify the chronic counts; no force-specific LOC/dead_code observer.",
+  "4. CHRONIC-MEASUREMENT-EXPECTATION-I0: issue the single scope-labeled expectation TSV and receipt/hash consumed by force_hv1 lifecycle.",
+  "5. CLOSEOUT-GUARD-REGISTRATION-D0: enforce registry/evidence co-registration and forbid baseline/acceptance relaxation; same bounded commit remains allowed.",
+  "6. AGGREGATE-RETIRE-R0: remeasure phase2160 with legacy/support split, then choose deletion or RetainGuarded per named cohort.",
 ]
-implementation_order = "0 -> 1 -> 2 -> 3 -> 4 -> 5; tasks 0-4 are guard/measurement hygiene, task 5 is accounting and retirement design."
+implementation_order = "0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6; tasks 0-5 are guard/measurement hygiene, task 6 is accounting and retirement design."
 
 [acceptance]
 positive = [
@@ -190,4 +213,11 @@ evidence = [
   "tools/checks/lib/force_hv1_leaf_census.py",
   "tools/checks/lib/force_hv1_caller_manifest_guard.py",
   "mirbuilder-cleanup-retirement0-d0-task-map.md chronic queue",
+]
+latest_finding = "The two-plane design is sound, but GUARD-CONTRACT-GRAPH-D0 remains open until public eligibility, direct-command versus typed-alias edge kinds, and the explicit PR-base/absolute-measurement rule are frozen. GUARD-REGISTRY-RATCHET-I0 must reuse the existing owner, register ci-feedback-tier-policy, and leave member guards unexecuted."
+latest_evidence = [
+  "tools/checks/guard_manifest_inventory.py:133-278, 244-258",
+  ".github/workflows/min-gate.yml:22-23",
+  "docs/tools/check-scripts-index.md:19-38",
+  "current HEAD b4edff4c78: 112 rows, quick-static 24, public guards 2740, mapped edges 93, unmapped eligible paths 2647",
 ]
