@@ -441,7 +441,7 @@ fn canonicalize_rows(
     Ok(())
 }
 
-fn allowance_kind_name(kind: ChronicAllowanceKindV1) -> &'static str {
+pub(crate) fn allowance_kind_name(kind: ChronicAllowanceKindV1) -> &'static str {
     match kind {
         ChronicAllowanceKindV1::OuterAllow => "outer_allow",
         ChronicAllowanceKindV1::InnerAllow => "inner_allow",

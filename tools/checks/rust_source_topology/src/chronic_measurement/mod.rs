@@ -3,6 +3,7 @@ mod manifest;
 mod model;
 mod observation_receipt;
 mod scan;
+mod site_owner_map;
 
 pub use error::ChronicScanErrorV1;
 pub use model::{
@@ -15,3 +16,7 @@ pub use observation_receipt::{
     CHRONIC_OBSERVATION_RECEIPT_SCHEMA_V1,
 };
 pub use scan::{scan_scope_manifest, scan_scope_manifest_json};
+pub use site_owner_map::{
+    validate_site_owner_map_toml, ChronicSiteOwnerMapRowV1, ChronicSiteOwnerMapV1,
+    CHRONIC_SITE_OWNER_MAP_SCHEMA_V1,
+};

@@ -28,6 +28,9 @@ pub enum ChronicScanErrorV1 {
     ObservationReceiptOutOfOrder { previous: String, current: String },
     ObservationReceiptCountDrift { expected: usize, actual: usize },
     ObservationReceiptHashDrift { expected: String, actual: String },
+    SiteOwnerMapInvalid { detail: String },
+    SiteOwnerMapCoverageDrift { detail: String },
+    SiteOwnerMapHashDrift { expected: String, actual: String },
 }
 
 impl fmt::Display for ChronicScanErrorV1 {
@@ -121,6 +124,16 @@ impl fmt::Display for ChronicScanErrorV1 {
             Self::ObservationReceiptHashDrift { expected, actual } => write!(
                 formatter,
                 "[chronic-scan/observation-receipt-hash-drift] expected={expected} actual={actual}"
+            ),
+            Self::SiteOwnerMapInvalid { detail } => {
+                write!(formatter, "[chronic-scan/site-owner-map-invalid] {detail}")
+            }
+            Self::SiteOwnerMapCoverageDrift { detail } => {
+                write!(formatter, "[chronic-scan/site-owner-map-coverage-drift] {detail}")
+            }
+            Self::SiteOwnerMapHashDrift { expected, actual } => write!(
+                formatter,
+                "[chronic-scan/site-owner-map-hash-drift] expected={expected} actual={actual}"
             ),
         }
     }
