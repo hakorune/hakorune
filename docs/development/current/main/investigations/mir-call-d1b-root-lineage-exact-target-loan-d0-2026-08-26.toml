@@ -7,9 +7,9 @@ guard_phase = "bridge_ready"
 permission_scope = "D1B root-lineage exact-target loan remains design-only: the package-only bridge is observed, but source-bound inventory, physical Callee issuer, lineage loan, profile widening, and Call changes remain forbidden. Historical Wpre/force-hv1 rows retain their own landed fates."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
-completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "SMOKE-OWNER-PACK-EXACT-SELECTION-I0"
+execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
+completed_execution_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0"
+next_execution_row = "none"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
