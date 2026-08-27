@@ -1,6 +1,6 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
 status = "d1b_root_lineage_loan_design_stop"
-observed_commit = "fdf4caebd1"
+observed_commit = "427eb589b7"
 observed_at = "2026-08-28"
 implementation_permission = false
 guard_phase = "bridge_ready"
@@ -730,6 +730,19 @@ no_append = [
   "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs = 744; deletion/delegation only",
 ]
 shelf_order = "raw source transport model/port; callable adapter forwarding/root capture; raw dispatcher owner; builder test API. Only the owner touched by the accepted semantic row is split."
+transport_split = "Before any D1B semantic edit, replace raw_invocation_source_transport.rs (778 lines) with a same-path directory and ordinary mod.rs; preserve the external module path, restricted visibility, behavior, and all lifetimes. No direct-call/Callee/loan field or third lifetime belongs in this shape-only row."
+transport_split_modules = [
+  "lineage.rs: RawInvocationRootLineageV1, RawUnlocatedPortalV1, LocatedRawNodeV1, RawInvocationSourceTransportV1, and root/script/unlocated constructors",
+  "script_scope.rs: RawInvocationChildPortV1 script semantic rebind/source scopes only",
+  "context.rs: RawInvocationSourceContextV1 and source/child projection constructors, including unlocated compatibility lineage",
+  "transport_port.rs: RawSourceTransportPortV1 and its RawInvocationChildPortV1 implementation",
+  "child_lowering_impl.rs: RecursiveChildLoweringPortV1 implementation and source transport forwarding",
+  "mod.rs: child declarations, existing restricted re-exports, and ordinary cfg(test) modules only",
+]
+transport_split_visibility = "Only parent-module visibility may be widened for cross-child constructors: allows_bare_function_call_location, LocatedRawNodeV1::new, unlocated_with_expected_lineage, and child_call_argument. Never widen to crate-public."
+transport_split_tests = "The existing raw_invocation_source_transport_tests.rs is 797 lines; split it into 2–3 ordinary child test modules (root/control/lambda; scalar/local/source-index; print/if/try/match) before semantic edits so every touched source remains below 760. Keep the 67-line lineage witness tests as an ordinary cfg(test) child."
+transport_split_acceptance = "Outside module path, visibility surface, behavior, and lifetime signatures are unchanged; every new child is below 760 lines; new #[path] directives are zero; existing tests/guards remain the only proof."
+transport_split_stop = "Stop and return to D1B design if the split needs a semantic change, direct-call loan/Callee storage, a third lifetime, lineage remapping, dispatcher changes, ledger ownership changes, raw-route switching, or a new #[path] bandage."
 
 [reduction_forecast]
 boundary = "Call ordinary-preflight/target/recovery/method/selected-terminal/core-schema families only; excludes broad JSON-v0, JoinIR/Loop, PyVM, and general dead_code."
