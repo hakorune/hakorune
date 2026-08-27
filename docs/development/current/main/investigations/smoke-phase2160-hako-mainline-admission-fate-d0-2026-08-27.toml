@@ -1,0 +1,146 @@
+title = "Smoke phase2160 hako-mainline admission fate design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "678d40732c36ee34fbf10838e83c987e8f2f0819"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-D0"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-leaf-strict-successor-d0-2026-08-27.toml"
+
+[boundary]
+starts = "hako-mainline phase2160 route invocation and its ProgramRootWorkPlan admission input"
+ends = "one explicit route fate before the strict-negative leaf owner is changed"
+includes = [
+  "hako-mainline route classification",
+  "constructor source cohort availability and ownership",
+  "ProgramRootWorkPlanAdmissionV1 selection",
+  "the observed freeze-contract terminal",
+  "a single successor choice: compatibility, source-backed, or retirement",
+]
+excludes = [
+  "LowerLoopSimpleBox repair or undefined-value semantics",
+  "strict-negative leaf implementation",
+  "phase2160/run_all.sh retirement itself",
+  "synthetic/default/empty constructor cohorts",
+  "MIR, VM, LLVM/AOT, Cargo, or broad MirBuilder changes",
+]
+
+[brief]
+decision = "The selected hako-mainline strict-negative leaf cannot be opened yet: its direct probe reaches an upstream instance-constructor-source cohort-missing terminal, not the intended loop blocker. Classify the route once as RawCompatibility, SourceBackedCohortReady, or RouteRetiring; keep implementation stopped until one fate is explicitly accepted."
+source_authority = "Parser/source seal, semantic package admission, and the existing constructor-cohort issuer; ProgramRootWorkPlanAdmissionV1 is the consumer boundary."
+canonical_issuer = "The route owner that explicitly chooses compatibility admission, transports a parser-issued source cohort, or retires the route."
+non_authority = [
+  "hako leaf [PASS]/SKIP text, filename, or wrapper rc",
+  "[freeze:contract][mir/instance-constructor-source/cohort-missing] treated as the loop blocker",
+  "empty/default/synthetic constructor cohort",
+  "AST name, arity, box name, or symbol recomputation",
+  "builder key, route grep, inherited environment, fallback, or retry",
+]
+fail_fast = "A route must be classified before the first child effect. Missing/foreign/drifted source cohort or an undecided route is a design blocker; no route may silently convert SelectedNormal into compatibility or synthesize a cohort."
+smallest_next_slice = "Record the route-fate decision and its single issuer, then open exactly one successor row for the chosen compatibility/source-backed/retirement path."
+non_claims = [
+  "does not prove the LowerLoopSimpleBox blocker",
+  "does not make the hako-mainline leaf green",
+  "does not repair constructor admission",
+  "does not change the other nineteen phase2160 leaves",
+  "does not grant implementation permission",
+]
+
+[observed]
+route = "tools/smokes/v2/lib/emit_mir_route.sh --route hako-mainline"
+leaf = "tools/smokes/v2/profiles/integration/core/phase2160/hako_mainline_loop_undefined_block_vm.sh"
+probe = "timeout 30s bash tools/smokes/v2/profiles/integration/core/phase2160/hako_mainline_loop_undefined_block_vm.sh"
+observed_rc = 1
+observed_terminal = "[freeze:contract][mir/instance-constructor-source/cohort-missing]"
+observed_output = "The route reports MIR compilation error for missing instance-constructor source cohort, then selfhost-first and Program→MIR helper routes fail; the expected LowerLoopSimpleBox plus undefined-ValueId pair is absent."
+intended_terminal = "LowerLoopSimpleBox paired with undefined ValueId/Invalid value in one failure window"
+issuer_path = "src/mir/builder/normal_callable_semantic_package/issuer.rs"
+issuer_symbol = "issue_instance_constructor_semantic_batch_v1"
+admission_consumer = "src/mir/builder/program_root_work_plan_production.rs"
+admission_lifecycle = "src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+admission_rule = "ProgramRootWorkPlanAdmissionV1::SelectedNormal requires constructor_source_cohort; absent cohort emits the observed freeze marker."
+flow = "hako-mainline -> Program JSON-v0/selfhost route -> no semantic package/cohort -> SelectedNormal work plan -> cohort-missing freeze"
+
+[worker_receipt]
+agent = "aggregate_heavy_cohort_design"
+finding = "The observed marker is an upstream admission-contract failure, not evidence of the loop blocker. TopLevel and InstanceConstructor lineage must not be collapsed into caller=None, but lineage alone cannot authorize a target or constructor cohort."
+state = "PrerequisiteUnavailable=false; AdmissionContractMissing=true; ObservedLoopBlocker=false"
+recommended_choices = [
+  "RawCompatibility: classify this route as compatibility and use the explicit compatibility admission owner",
+  "SourceBackedCohortReady: transport an actually parser-issued source seal and constructor cohort through the route",
+  "RouteRetiring: retire the broad hako-mainline route/leaf and do not change MIRBuilder to satisfy it",
+]
+
+[finite_state]
+raw_compatibility_ready = "The route is explicitly a JSON-v0 compatibility ingress with its own owner and no source-backed cohort claim."
+source_backed_cohort_ready = "The route has a parser-issued, same-brand constructor source cohort transported exactly once to SelectedNormal admission."
+selected_normal_cohort_missing = "SelectedNormal is requested without a constructor cohort -> blocking admission error, never a loop success."
+source_cohort_foreign_or_drift = "A cohort exists but owner, brand, source seal, or lifecycle does not match -> typed reject."
+script_window_admission_mismatch = "The route/leaf expects a strict diagnostic window while admission fails earlier -> blocking mismatch."
+route_retiring = "An explicit retirement decision removes this route from the strict-negative successor and records its replacement/fate."
+
+[decision]
+required = "Choose exactly one route family before implementation: RawCompatibility, SourceBackedCohortReady, or RouteRetiring."
+preferred_constraint = "Do not select SourceBackedCohortReady unless the existing parser/source authority can issue and transport the exact cohort without recomputation."
+prohibited = [
+  "treat cohort-missing as the intended loop blocker",
+  "inject an empty/default cohort",
+  "convert TopLevel/InstanceConstructor identity into a synthetic callable target",
+  "retry hako-mainline through another VM/Wpre/fallback route",
+  "strictify the leaf before admission fate is closed",
+]
+
+[acceptance]
+positive = [
+  "route family is named once and has one canonical issuer",
+  "constructor cohort authority and source lineage are kept distinct",
+  "SelectedNormal is used only with an actually issued cohort",
+  "compatibility admission has an explicit owner and terminal",
+  "retirement has a successor/fate and removes the leaf from the strict path",
+  "the next card names the exact old edge and one bounded implementation boundary",
+]
+negative = [
+  "cohort-missing is not accepted as loop-blocker evidence",
+  "no default, empty, synthetic, or guessed cohort",
+  "no AST/name/arity/symbol target synthesis",
+  "no fallback, retry, delegate re-entry, or swallowed failure",
+  "no strict-negative leaf edit while route fate is undecided",
+]
+parity = "Compare route admission/fate only; loop diagnostic parity is deferred until the chosen route reaches the intended leaf boundary."
+guard = "A later route-fate guard must derive the selected route and cohort state from the named issuer/manifest and reject unknown or mixed states; it must not whitelist the freeze token."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "one of the three route fates is explicitly accepted",
+  "the selected issuer and exact source/lineage boundary are named",
+  "the successor old-edge delete set is finite",
+  "no synthetic cohort or target reconstruction is required",
+]
+no_safe_slice = [
+  "route family remains undecided",
+  "SelectedNormal requires a missing/default/empty cohort",
+  "source cohort cannot be transported from an existing parser issuer",
+  "the freeze marker is treated as the loop blocker",
+  "fallback/retry or a second semantic authority is needed",
+]
+
+[ordered_followups]
+next_after_design = "SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-I0"
+after_route_choice = [
+  "SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0 reopen only after admission fate is resolved",
+  "SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0 or explicit route retirement row",
+  "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
+]
+later = [
+  "SMOKE-PHASE2160-PROGRAM-EXE-STRICT-D0",
+  "SMOKE-PHASE2160-REGISTRY-STRICT-D0",
+  "SMOKE-PHASE2160-BUILDER-STRICT-D0",
+  "SMOKE-PHASE2160-LOOP-REFERENCE-FATE-D0",
+  "SMOKE-PHASE2160-SELFHOST-FATE-D0",
+]
+reopen_triggers = [
+  "hako-mainline route, fixture, or admission source changes",
+  "constructor cohort issuer or source seal changes",
+  "TopLevel/InstanceConstructor lineage is newly transported or newly collapsed",
+  "a route fallback/retry or alternate VM entry is added",
+]

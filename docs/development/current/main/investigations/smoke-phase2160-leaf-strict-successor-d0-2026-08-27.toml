@@ -147,3 +147,12 @@ observed_terminal = "WrongFailure"
 observed_marker = "[freeze:contract][mir/instance-constructor-source/cohort-missing]"
 expected_marker = "LowerLoopSimpleBox paired with undefined ValueId/Invalid value"
 disposition = "NoSafeSlice; do not strictify or remove the wrapper edge until the earlier freeze-contract owner is classified or the route is changed by an explicit design decision."
+
+[predecessor_blocker]
+row = "SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-D0"
+status = "CutoverBlockerOpen"
+finding = "The direct probe reaches an upstream ProgramRootWorkPlan admission contract before the intended loop blocker. The hako-mainline route must be classified as RawCompatibility, SourceBackedCohortReady, or RouteRetiring before this strict-negative leaf can be implemented."
+source_owner = "src/mir/builder/normal_callable_semantic_package/issuer.rs::issue_instance_constructor_semantic_batch_v1"
+admission_owner = "src/mir/builder/program_root_work_plan_production.rs and src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+non_authority = "Do not treat cohort-missing as loop evidence, and do not inject an empty/default cohort or recompute a target from source names."
+next_action = "Keep implementation_permission=false; resolve the admission fate in the successor D0 card, then reopen this strict successor only if its exact route boundary remains live."

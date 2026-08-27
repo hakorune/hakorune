@@ -1,5 +1,5 @@
 ---
-Status: Design stop — phase2160 hako-mainline strict-negative successor
+Status: Design stop — phase2160 hako-mainline admission fate
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/smoke-phase2160-leaf-strict-successor-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-admission-fate-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -63,7 +63,7 @@ Design-only follow-up:
   authorityから除外する。A④ sentinel/non-growthとD ledger/index/dead-link checksはcleanup
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
-  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorを直接試したところ、選定したloop blockerより先にfreeze-contract診断で停止したため、現在はその観測差分を設計停止する。
+  `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorを直接試したところ、選定したloop blockerより先にinstance-constructor-source/cohort-missingのadmission診断で停止したため、現在はroute fateを設計停止する。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
 `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):
@@ -93,7 +93,8 @@ Design-only follow-up:
   `SMOKE-OWNER-PACK-PHASE2160-BEST-EFFORT-D0` ->
   `SMOKE-PHASE2160-LEAF-FATE-CENSUS-D0` ->
   `SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0` ->
-  `SMOKE-PHASE2160-HAKO-MAINLINE-NEGATIVE-I0` ->
+  `SMOKE-PHASE2160-HAKO-MAINLINE-ADMISSION-FATE-D0` ->
+  (route-fate successor: compatibility, source-backed, or retirement) ->
   `SMOKE-PHASE2160-AGGREGATE-RETIRE-R0`.
   The other nineteen leaves remain separate design rows (program/EXE, registry, builder, loop, and selfhost families).
   Then
