@@ -1,0 +1,144 @@
+title = "Smoke phase2160 leaf fate and repair census design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "2296e047fb"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-LEAF-FATE-CENSUS-D0"
+parent_row = "docs/development/current/main/investigations/smoke-owner-pack-phase2160-best-effort-d0-2026-08-27.toml"
+
+[boundary]
+starts = "phase2160/run_all.sh and its twenty direct child scripts"
+ends = "a body-derived owner/fate table that permits wrapper retirement without false green or orphaned leaves"
+includes = [
+  "all twenty exact child paths and their direct caller edges",
+  "expected rc/tag, profile, timeout, skip, fallback, synthetic repair, and chmod effects",
+  "shared helper callers such as run_registry_builder_tag_canary, ensure_phase2160_tagged_stdout_contract, synthesize_phase2160_*, and program_to_mir status handling",
+  "the distinction between leaf-specific strict/negative ownership and observation-only probes",
+  "the exact deletion and successor edges for phase2160/run_all.sh",
+]
+excludes = [
+  "phase2160 code or fixture edits",
+  "run_all deletion, new owner-pack implementation, or strictization before the census",
+  "phase2050/2170, phase2100, filter-driven, pure-legacy, VM/AOT/LLVM, Cargo, and MirBuilder changes",
+  "synthetic repair implementation or shared-helper redesign",
+]
+
+[brief]
+decision = "Select final fate B: retire phase2160/run_all.sh as an aggregate authority. Do not make all twenty children one owner pack. After this census, strict positive and strict negative leaves may move to their own owners; synthetic/skip/best-effort leaves remain ParkedSealed or Retired until a real owner exists."
+source_authority = "phase2160/run_all.sh and each checked-in child body, exact shared-helper definitions/callers, and the existing integration/archive profile trees"
+canonical_issuer = "A leaf-specific strict runner/fixture or an explicit typed negative owner after census; the phase2160 aggregate has no canonical issuer and is retired."
+non_authority = [
+  "phase2160/run_all.sh [PASS] text",
+  "|| true, post-swallow rc, skip output, chmod success, or synthetic MIR/tag",
+  "filename/phase name, quick zero-match, inherited environment, and fallback output",
+  "a shared helper name without a caller/owner relation",
+]
+fail_fast = "Any leaf without an owner/fate, exact expected outcome, and duplicate-free successor remains a blocker; wrapper retirement cannot proceed while a child is both aggregate-owned and independently executed."
+smallest_next_slice = "Produce one twenty-row leaf table with body hash, owner candidate, expected rc/tag, runtime conditions, repair/side-effect flags, and a finite fate; then define wrapper delete and successor edges."
+non_claims = [
+  "does not claim any current best-effort green result is valid",
+  "does not add a typed aggregate fate or owner pack",
+  "does not remove synthetic repair, || true, chmod, fallback, or child scripts",
+  "does not promote phase2160 behavior to product/LLVM authority",
+]
+
+[selected_fate]
+aggregate = "Retired after every live child has an explicit successor or ParkedSealed/Retired disposition"
+rejected_alternatives = [
+  "retain a best-effort aggregate as a passing owner pack",
+  "force all twenty heterogeneous leaves into one strict pack",
+]
+reason = "The aggregate converts failed probes into success and mixes registry, builder, selfhost, loop, and hako-mainline responsibilities; leaf ownership is the only path that removes that second authority."
+
+[observed]
+run_all = "tools/smokes/v2/profiles/integration/core/phase2160/run_all.sh"
+child_count = 20
+child_groups = [
+  "program_to_mir: 4",
+  "registry_optin: 7",
+  "builder_min: 5",
+  "loop_scan: 2",
+  "selfhost: 1",
+  "hako_mainline: 1",
+]
+aggregate_edge = "run_all.sh -> twenty direct children; every child edge currently swallows failure"
+repair_edges = "registry/builder probes can synthesize minimal MIR/tag after the real route fails; program_to_mir paths have fallback/rc handling that must be assigned per leaf"
+side_effect_edges = "run_all and/or children chmod non-executable scripts; this is not a semantic success signal"
+profile_scope = "integration tree; any archive or cross-profile successor must be explicit"
+
+[finite_state]
+unclassified = "new or changed child has no reviewed owner/fate/body hash -> CutoverBlockerOpen"
+leaf_owned_strict = "exact source/fixture and expected rc/tag, no swallowed failure, no synthetic replacement, no hidden side effect"
+leaf_owned_negative = "exact unsupported/error outcome is the intended proof and is checked without fallback"
+parked_sealed = "owner relation exists but the leaf is conditional, synthetic, side-effecting, or not yet strict; no execution claim"
+retired = "leaf or aggregate has no live production/proof caller and its deletion/successor is recorded"
+aggregate_retired = "phase2160/run_all.sh is removed from default/explicit discovery only after all twenty child dispositions are closed"
+
+[required_census]
+row_fields = [
+  "path",
+  "body_sha256",
+  "direct_caller",
+  "owner_profile",
+  "runtime_profile",
+  "timeout",
+  "expected_rc_or_tag",
+  "skip_condition",
+  "fallback_or_retry",
+  "synthetic_repair",
+  "chmod_or_workspace_side_effect",
+  "successor",
+  "fate",
+]
+shared_owner_questions = [
+  "is run_registry_builder_tag_canary phase2160-only or shared?",
+  "is ensure_phase2160_tagged_stdout_contract a validator or a success generator?",
+  "which synthesize_phase2160_* callers remain after wrapper retirement?",
+  "does program_to_mir status handling preserve the real child rc exactly once?",
+]
+
+[acceptance]
+positive = [
+  "all twenty child paths appear exactly once with body-derived caller/edge evidence",
+  "each child has one of LeafOwnedStrict, LeafOwnedNegative, ParkedSealed, or Retired, or remains an explicit blocker",
+  "shared helper callers and repair paths are classified separately from leaf names",
+  "phase2160/run_all.sh has an explicit delete edge and no future aggregate owner claim",
+  "integration/archive/profile crossings are visible rather than silently merged",
+]
+negative = [
+  "[PASS], || true, skip, chmod, fallback, and synthetic output cannot close a row",
+  "no child is both retained under run_all and claimed by a successor owner",
+  "no phase2160 child enters the phase2050 or phase2170 owner pack",
+  "no new aggregate fate or runner code is introduced by this D0",
+]
+parity = "Compare exact path/body-hash/owner/fate tables only; runtime parity waits for later leaf-specific rows."
+guard = "Use one generated or reusable census guard after the table is accepted; do not create twenty independent guards during this design row."
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "twenty-row table is complete and body hashes are current",
+  "all shared repair/fallback callers have an owner or explicit blocker",
+  "wrapper delete edge and duplicate-execution proof are recorded",
+  "at least one strict leaf successor is selected separately from best-effort leaves",
+]
+no_safe_slice = [
+  "a synthetic repair is needed to claim positive semantics",
+  "leaf owner is inferred from filename or wrapper order",
+  "wrapper retirement would orphan a child",
+  "profile crossing or skip is hidden as success",
+]
+
+[ordered_followups]
+next_after_design = "SMOKE-PHASE2160-LEAF-STRICT-SUCCESSOR-D0"
+later = [
+  "SMOKE-PHASE2160-AGGREGATE-RETIRE-R0",
+  "SMOKE-OWNER-PACK-PHASE2100-ROLE-BUCKET-D0",
+  "SMOKE-OWNER-PACK-PURE-LEGACY-CROSS-PROFILE-D0",
+]
+reopen_triggers = [
+  "any phase2160 child or shared helper changes without a census refresh",
+  "a child returns to run_all after its successor disposition is recorded",
+  "synthetic repair, || true, chmod, or fallback is cited as positive evidence",
+  "wrapper deletion would leave an ownerless or cross-profile child",
+]

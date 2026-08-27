@@ -24,9 +24,9 @@ excludes = [
 ]
 
 [brief]
-decision = "Keep phase2160 as an explicit design blocker. Its aggregate is not an exact positive owner pack because every child is best-effort (|| true), some paths chmod files, and registry/builder probes can synthesize a passing MIR after the real route fails. Decide a typed fate before changing discovery; never treat current green text as execution proof."
+decision = "Select final fate B: retire phase2160/run_all.sh and return the twenty children to explicit leaf owners. Its aggregate is not an exact positive owner pack because every child is best-effort (|| true), some paths chmod files, and registry/builder probes can synthesize a passing MIR after the real route fails."
 source_authority = "phase2160/run_all.sh, each checked-in child body, exact nested command edges, and the existing runner's discovery behavior"
-canonical_issuer = "A future explicit aggregate/fate manifest and owner-reviewed child inventory; this D0 issues no route or new manifest vocabulary."
+canonical_issuer = "Leaf-specific strict/negative owners after a separate census; phase2160/run_all.sh has no canonical issuer and is retired after successor closure."
 non_authority = [
   "[PASS] echo text after || true",
   "exit status observed after a swallowed failure",
@@ -34,7 +34,7 @@ non_authority = [
   "phase name, run_all basename, quick zero-match, or inherited env",
 ]
 fail_fast = "An implementation remains stopped while child failure is swallowed, synthetic repair can replace the real route, side effects are implicit, or the aggregate fate is not represented by an explicit owner."
-smallest_next_slice = "Freeze the twenty-child body-derived inventory, classify each child as strict/skip/best-effort/synthetic, choose one explicit fate contract, and prove whether normal discovery should retain or exclude only the exact run_all path."
+smallest_next_slice = "Freeze the twenty-child body-derived inventory, classify each child as strict/negative/ParkedSealed/Retired, census shared repair callers, and record the exact wrapper delete/successor edges before any discovery change."
 non_claims = [
   "does not make phase2160 a passing owner pack",
   "does not infer semantics from zero-match or [PASS] output",
@@ -60,9 +60,10 @@ missing_or_unknown = "missing, duplicate, foreign, stale, or unclassified child 
 aggregate_fate_open = "no exact positive owner-pack fate exists until the above states and cleanup policy are decided"
 
 [required_decisions]
-fate_options = [
-  "retain explicit-only best-effort aggregate with a typed non-passing disposition",
-  "retire/replace the wrapper after each child has a strict owner and status contract",
+selected_fate = "Retire phase2160/run_all.sh after all twenty children have an explicit successor or ParkedSealed/Retired disposition."
+fate_options_rejected = [
+  "retain a best-effort aggregate as a passing owner pack",
+  "force all twenty heterogeneous leaves into one strict pack",
 ]
 forbidden_shortcuts = [
   "accept || true as green",
@@ -96,8 +97,12 @@ no_safe_slice = [
   "normal discovery and explicit aggregate membership are both active without a duplicate policy",
 ]
 
+[successor]
+row = "SMOKE-PHASE2160-LEAF-FATE-CENSUS-D0"
+status = "CutoverBlockerOpen until twenty-row owner/fate table and shared-helper census are complete"
+
 [ordered_followups]
-next_after_design = "SMOKE-OWNER-PACK-PHASE2160-BEST-EFFORT-I0"
+next_after_design = "SMOKE-PHASE2160-LEAF-FATE-CENSUS-D0"
 later = [
   "SMOKE-OWNER-PACK-PHASE2100-ROLE-BUCKET-D0",
   "SMOKE-OWNER-PACK-PURE-LEGACY-CROSS-PROFILE-D0",
