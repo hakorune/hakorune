@@ -726,9 +726,9 @@ Required order:
    production baseline and no deletion is implied.
 6. `CHRONIC-MEASUREMENT-RECONCILIATION-D0` ->
    `CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0`
-   — the scope split is measured; now assign every site owner/role/successor,
-   separate source revisions, and freeze the body-derived force receipt projection.
-   No TSV, stale-threshold, or source deletion is allowed here.
+   — the scope split is measured; first freeze the canonical range/attribute key,
+   provenance, tracked refs, and classification-only states, then assign every
+   site owner/role/successor. No TSV, stale-threshold, or source deletion is allowed here.
 7. `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
    per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive
    attribute grammar currently observes 351/126 and is the required D0 scope.

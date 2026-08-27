@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner map D0"
-status = "accepted_design_parked"
-observed_commit = "2caa46d8cd"
+status = "accepted_design_no_safe_slice"
+observed_commit = "7b8bd9134e4fea6c5866ad77fc2348012a5568ec"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
@@ -8,14 +8,14 @@ parent_row = "docs/development/current/main/investigations/chronic-measurement-r
 successor_card = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
 
 [boundary]
-starts = "the 185 allowance observations and site events emitted by the landed chronic Rust scanner within the reconciled 1434-file scope"
+starts = "the 185 DeadCodeAllowance observations emitted by the landed chronic Rust scanner within the reconciled 1434-file scope"
 ends = "one explicit item/range owner map that the future shared expectation TSV can consume without inferring production ownership from filenames or mixed file labels"
 includes = [
-  "allowance/site key = path + item_key + byte/line range + attribute kind",
+  "DeadCodeAllowance site key = row_kind + path + source_range.byte_start + source_range.byte_end + attribute_kind; item_key and line range are consistency fields",
   "compile_domain and role for each site, independent of one another",
-  "named owner, successor, retirement_status, and evidence reference",
-  "generated-included registry rows and compatibility/guard/test-support rows as explicit retained states",
-  "unmapped/duplicate/foreign/ambiguous site detection before expectation pinning",
+  "tracked owner_ref/evidence_refs plus explicit successor_status and successor_ref",
+  "generated-included registry rows and compatibility/guard/test-support rows as explicit classification states",
+  "unmapped/duplicate/foreign/ambiguous site detection and provenance binding before expectation pinning",
 ]
 excludes = [
   "creating the expectation TSV, changing scanner model/parser code, stale-threshold edits, guard registration, or source/guard deletion",
@@ -25,16 +25,16 @@ excludes = [
 ]
 
 [brief]
-decision = "Make site ownership an explicit classification input before expectation pinning. The scanner remains a neutral observation issuer; this map supplies only owner/role/successor evidence for each site and may retain an unresolved site as blocking. It does not issue deletion authority or semantic meaning."
+decision = "Make site ownership an explicit classification input before expectation pinning. The scanner remains a neutral observation issuer; this map supplies only owner/role/successor evidence for each DeadCodeAllowance site and may retain an unresolved site as blocking. It does not issue deletion authority or semantic meaning."
 source_authority = "The deterministic scanner report/ranges, module/path/include registrations, existing owner READMEs/cards, generated registry ownership, and explicit compatibility/test/guard evidence."
-canonical_issuer = "This D0 owns the reviewed site-map artifact; CHRONIC-MEASUREMENT-EXPECTATION-I0 later co-seals its rows with scanner and force hashes. No consumer may synthesize an owner from a filename or warning count."
+canonical_issuer = "This D0 owns the reviewed site-map artifact; its provenance binds scanner_version, scope_id, scope_manifest_hash, source_scope_hash, and evidence_hash. CHRONIC-MEASUREMENT-EXPECTATION-I0 later co-seals these rows with the force receipt. No consumer may synthesize an owner from a filename or warning count."
 non_authority = [
   "file-level compile_domain/role, raw grep/rg totals, filename conventions, stale thresholds, profile declarations, unregistered guards, or local green tests",
   "absence of textual callers without mod/pub use/trait/feature/generated/include/fixture/compatibility analysis",
   "force_hv1 fate/expected_counts, MIR/VM/AOT behavior, or any target/name/string reconstruction",
 ]
-fail_fast = "Every site entering the future TSV must resolve exactly once to an owner, compile_domain, role, successor, and retirement_status. Missing/duplicate/foreign/ambiguous evidence or an unclassified site remains blocking and no partial map is accepted."
-smallest_next_slice = "Design-only: freeze the map key/schema, owner evidence sources, retained-state vocabulary, and exact coverage of the 185 observations. Do not create the map or expectation TSV while implementation_permission is false."
+fail_fast = "Every site entering the future TSV must resolve exactly once to an owner_ref, compile_domain, role, successor_status, successor_ref, retirement_status, and evidence_refs under the bound scanner/scope/source hashes. Missing/duplicate/foreign/ambiguous evidence, unknown required successor, or an unclassified site remains blocking and no partial map is accepted."
+smallest_next_slice = "Design-only: freeze the canonical range/attribute key, provenance binding, tracked-reference grammar, classification-only state vocabulary, and exact coverage of the 185 observations. Do not create the map or expectation TSV while implementation_permission is false."
 non_claims = [
   "does not claim any allowance is dead, stale, production-live, or deletable",
   "does not change scanner scope, force-hv1 fate, guard behavior, compiler/MIR/VM/AOT code, or source files",
@@ -44,8 +44,17 @@ non_claims = [
 [artifact]
 path = "tools/checks/manifests/chronic_measurement_site_owners_v1.toml"
 role = "owner-evidence input; not a measurement expectation or executable guard manifest"
-schema = "schema_version=1 with one [[sites]] row per scanner site; path/item_key/range/attribute_kind is the unique key"
-required_fields = [
+schema = "schema_version=1 with one [[sites]] row per scanner DeadCodeAllowance observation; the canonical key is row_kind + path + source_range.byte_start + source_range.byte_end + attribute_kind, while item_key and line range are consistency fields"
+provenance_fields = [
+  "schema_version",
+  "scanner_version",
+  "scope_id",
+  "scope_manifest_hash",
+  "source_scope_hash",
+  "evidence_hash",
+]
+site_fields = [
+  "row_kind",
   "path",
   "item_key",
   "byte_start",
@@ -55,16 +64,21 @@ required_fields = [
   "attribute_kind",
   "compile_domain",
   "role",
-  "owner",
-  "successor",
+  "owner_ref",
+  "successor_status",
+  "successor_ref",
   "retirement_status",
-  "evidence",
+  "evidence_refs",
 ]
 allowed_roles = ["runtime", "test_support", "fixture", "compatibility", "guard_evidence", "generated_registry", "mixed"]
 allowed_compile_domains = ["production_default", "cfg_test", "feature_nonselected", "generated_included"]
-allowed_retirement_status = ["Unknown", "Retain", "RetirementCandidate", "CallerZeroSuccessorReady", "Retired", "ExplicitTombstone"]
-coverage_rule = "The map must cover every scanner DeadCodeAllowance observation that enters the future TSV exactly once; non-allowance call/module rows remain scanner-only until an owner explicitly selects them."
-evidence_rule = "Evidence names a tracked owner file/section or registration edge; a bare path, warning count, or text-search result is insufficient."
+allowed_retirement_status = ["Unknown", "Retain", "Candidate"]
+successor_status = ["required", "not_required", "unknown"]
+successor_rule = "successor_status=required requires successor_ref in tracked-reference form; successor_status=not_required requires successor_ref=none_required; unknown is blocking and never uses a guessed string."
+tracked_reference_grammar = "<tracked-path>#<stable-anchor>@<revision>; owner_ref and evidence_refs must resolve to tracked files/sections or registration edges."
+coverage_rule = "The map covers exactly the 185 scanner DeadCodeAllowance observations in this frozen boundary; non-allowance call/module rows remain scanner-only."
+evidence_rule = "Evidence names a tracked owner file/section or registration edge using tracked_reference_grammar; a bare path, warning count, filename, or text-search result is insufficient."
+retirement_authority_rule = "This map may classify Unknown/Retain/Candidate only. Caller-zero, Retired, and ExplicitTombstone are issued by a later retirement card, never by this artifact."
 
 [census]
 scanner_scope_files = 1434
@@ -73,6 +87,8 @@ mixed_role_allowances = "60 observations / 38 files"
 generated_registry_allowances = "79 observations in src/mir/compiler/module_registry.in.rs"
 unmapped_site_rows = "185 until the map is authored and reviewed"
 scope_difference = "all src 4304 files; frozen scope 1434; outside 2870; historical exact 180 frozen + 154 outside; inclusive 185 frozen + 166 outside"
+site_key_collisions_observed = "3 path/item_key pairs collide across 6 rows; canonical byte range plus attribute_kind separates them"
+provenance_binding = "scanner_version + scope_id + scope_manifest_hash + source_scope_hash + evidence_hash must match the exact report used to author the map"
 
 [finite_state]
 states = [
@@ -84,32 +100,35 @@ states = [
   "DuplicateSite",
   "ForeignSite",
   "MissingOwner",
-  "MissingSuccessor",
+  "MissingSuccessorEvidence",
+  "UnknownSuccessorStatus",
   "UnclassifiedSite",
   "ScopeDrift",
+  "ProvenanceDrift",
 ]
 terminal = ["ReadyForExpectation", "RetainedWithEvidence"]
-blocking = ["ObservationMissing", "DuplicateSite", "ForeignSite", "MissingOwner", "MissingSuccessor", "UnclassifiedSite", "ScopeDrift"]
+blocking = ["ObservationMissing", "DuplicateSite", "ForeignSite", "MissingOwner", "MissingSuccessorEvidence", "UnknownSuccessorStatus", "UnclassifiedSite", "ScopeDrift", "ProvenanceDrift"]
 
 [task_steps]
 items = [
-  "1. Freeze the unique path/item/range/attribute site key and import the 185 scanner observations without changing scanner scope or parser code.",
-  "2. Classify compile_domain and role independently; use explicit registration/owner evidence for mixed, generated, compatibility, guard, test, and runtime sites.",
-  "3. Assign owner, successor, and retirement_status for every row. Use Retain or Unknown when deletion evidence is absent; never invent a successor.",
-  "4. Validate exact coverage, duplicate/foreign detection, and evidence references. Any missing row keeps this D0 blocking.",
-  "5. Close the map as a non-authority input, then reopen CHRONIC-MEASUREMENT-EXPECTATION-I0 to co-seal one TSV and the force receipt.",
+  "1. Freeze row_kind + path + source byte range + attribute_kind as the canonical key; retain item_key and line range only as consistency fields, and bind the map to scanner/scope/source/evidence hashes.",
+  "2. Import exactly the 185 scanner DeadCodeAllowance observations without changing scanner scope or parser code; reject the three observed path/item_key collisions unless the full canonical key differs.",
+  "3. Classify compile_domain and role independently; use explicit registration/owner evidence for mixed, generated, compatibility, guard, test, and runtime sites.",
+  "4. Assign owner_ref, successor_status/successor_ref, evidence_refs, and classification-only retirement_status for every row; never invent a successor or retirement outcome.",
+  "5. Validate exact coverage, provenance, duplicate/foreign detection, tracked references, and unknown-successor rejection. Any missing row keeps this D0 blocking.",
+  "6. Close the map as a non-authority input, then reopen CHRONIC-MEASUREMENT-EXPECTATION-I0 to co-seal one TSV and the force receipt.",
 ]
 
 [acceptance]
 positive = [
-  "all 185 scanner allowance observations have one unique site key and explicit owner/role/successor/status evidence",
+  "all 185 scanner DeadCodeAllowance observations have one canonical range/attribute site key and explicit owner/role/successor/status evidence",
   "mixed file roles are split at item/range level and generated-included rows remain explicit retained states",
-  "path-level evidence references tracked registration/owner artifacts rather than grep-only absence",
+  "provenance hashes bind the map to the exact scanner/scope/source report and evidence references resolve to tracked registration/owner artifacts rather than grep-only absence",
   "the map is an input to one future TSV and is not registered as an executable guard or semantic receipt",
 ]
 negative = [
   "no owner inferred from filename, warning count, stale threshold, or file-level mixed label",
-  "no partial map, duplicate key, unclassified site, guessed successor, expectation pin, or deletion",
+  "no partial map, duplicate canonical key, unclassified site, guessed successor, unknown required successor, expectation pin, or deletion",
   "no second Rust parser, force-specific TSV, guard/source edit, or backend/compiler behavior change",
 ]
 
@@ -124,18 +143,20 @@ no_safe_slice = [
 ]
 
 [worker_receipt]
-agent = "chronic_measurement_scope_audit"
-status = "accepted_as_next_design_row"
-finding = "The 185 allowance observations are all missing site-level owner/successor/status; 60 are in mixed-role files and 79 are generated-registry rows. A separate owner map is the smallest safe precondition for the expectation TSV."
+agent = "chronic_measurement_scope_audit + chronic_token_scanner_design_audit"
+status = "accepted_with_schema_amendments"
+finding = "The 185 allowance observations are all missing site-level owner/successor/status; 60 are in mixed-role files and 79 are generated-registry rows. The scanner's path/item_key pair is not unique (3 collision pairs / 6 rows), so the map must use the full byte range plus attribute kind and bind exact scanner/scope/source/evidence provenance before expectation pinning."
 evidence = [
   "tools/checks/rust_source_topology/src/chronic_measurement/model.rs:31-58 reports file/path/range facts but no owner/successor",
   "tools/checks/rust_source_topology/src/chronic_measurement/scan.rs:71-73 counts only file-level unknown domain/role",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:13-17 assigns builder directory role=mixed",
   "docs/development/current/main/investigations/chronic-measurement-reconciliation-d0-2026-08-27.toml [observed]",
+  "tools/checks/rust_source_topology/src/chronic_measurement/model.rs:40-58 exposes source ranges/attribute kind while item_key may be <impl>/<field>/<module-body>",
+  "tools/checks/rust_source_topology/src/chronic_measurement/scan.rs:204-249 rejects duplicate byte ranges, not path/item_key alone",
 ]
-latest_finding = "Keep expectation pin and deletion blocked until the site owner map is complete and independently reviewed."
+latest_finding = "Keep expectation pin and deletion blocked until the amended canonical-key/provenance schema is frozen and all 185 rows have independently reviewed tracked owner evidence; the map remains classification-only."
 
 [closeout]
 status = "pending"
-required = "Record exact 185-row coverage, owner evidence, retained states, and scope/hash validation. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0; no expectation TSV or deletion is allowed from this row."
+required = "Record exact 185-row canonical-key coverage, provenance/hash validation, tracked owner evidence, explicit successor status, and classification-only states. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0; no expectation TSV or deletion is allowed from this row."
 next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"

@@ -1,6 +1,6 @@
 title = "Chronic measurement expectation TSV I0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
+observed_commit = "7b8bd9134e4fea6c5866ad77fc2348012a5568ec"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
@@ -28,14 +28,14 @@ excludes = [
 [brief]
 decision = "Co-seal exactly one expectation TSV from the landed token scanner and the existing body-derived force-hv1 receipt. The artifact records observations and owner classifications only; it never issues target, route, semantic, or retirement authority. Keep the current lifecycle guard as the sole execution consumer and fail closed on any hash/scope/row drift."
 source_authority = "The tracked chronic scope manifest, the deterministic scanner JSON, the checked-in force-hv1 body-derived manifest, and explicit owner-reviewed legacy/support classifications."
-canonical_issuer = "CHRONIC-RUST-TOKEN-SCANNER-I0 issues lexical observations; the CHRONIC-MEASUREMENT-EXPECTATION-I0 owner co-seals the TSV and receipt hash; force_hv1_caller_manifest_guard.py consumes that exact receipt but does not re-scan or reclassify it."
+canonical_issuer = "CHRONIC-RUST-TOKEN-SCANNER-I0 issues lexical observations; CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 issues only the reviewed owner/classification rows; the CHRONIC-MEASUREMENT-EXPECTATION-I0 owner co-seals the TSV and receipt hash; force_hv1_caller_manifest_guard.py consumes that exact receipt but does not re-scan or reclassify it."
 non_authority = [
   "raw rg/grep totals, old ASTCLEAN thresholds, total src LOC, filename prefixes, profile names, expected values edited in the same commit, or a hand-written card",
   "the force-hv1 fate disposition, route selector, Rust VM/AOT behavior, or any target/name/string reconstruction",
   "the scanner's 185 in-scope allowance count treated as the historical 334/351 all-src baseline without an explicit scope reconciliation",
 ]
 fail_fast = "Missing/duplicate TSV rows, missing owner/successor, source/scope/scanner/force receipt hash drift, unclassified observations, legacy/support scope mixing, stale force receipt, or a validator that accepts a partial report must fail before any stale-guard or source-retirement decision."
-smallest_next_slice = "NoSafeSlice until CHRONIC-MEASUREMENT-RECONCILIATION-D0 supplies site-level owner classification, explicit 185-versus-334/351 inclusion/exclusion evidence, separated source revisions, and a force receipt projection. Only then freeze the TSV union schema and consumer seam; do not create the TSV or edit code while implementation_permission is false."
+smallest_next_slice = "NoSafeSlice until CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 freezes the canonical range/attribute key, provenance/ref grammar, classification-only states, and exact 185-row owner evidence alongside the reconciled 185-versus-334/351 boundary. Only then freeze the TSV union schema and consumer seam; do not create the TSV or edit code while implementation_permission is false."
 non_claims = [
   "does not claim the observed counts are production-live, stale, or deletable",
   "does not authorize ASTCLEAN threshold supersession, dead_code removal, panic cleanup, guard removal, or phase2160 reduction",
@@ -51,7 +51,10 @@ required_columns = [
   "source_commit",
   "scope_id",
   "scope_manifest_hash",
+  "source_scope_hash",
   "scanner_version",
+  "site_owner_map_id",
+  "site_owner_map_hash",
   "boundary_start",
   "boundary_end",
   "force_hv1_receipt_id",
@@ -72,15 +75,25 @@ site_columns = [
   "row_kind",
   "path",
   "item_key",
+  "byte_start",
+  "byte_end",
+  "line_start",
+  "line_end",
+  "attribute_kind",
   "compile_domain",
   "role",
-  "owner",
+  "owner_ref",
   "metric",
-  "successor",
+  "successor_status",
+  "successor_ref",
   "retirement_status",
+  "evidence_refs",
 ]
-union_header_rule = "The header contains row_kind plus every required/site column exactly once; summary rows leave site-only cells empty and site rows leave summary-only cells empty. Unknown columns, duplicate headers, and mixed row shapes fail closed."
+site_key_rule = "Each site row's canonical key is row_kind + path + byte_start + byte_end + attribute_kind; item_key and line_start/line_end are retained consistency fields. Duplicate canonical keys, range drift, or attribute drift fail closed."
+owner_map_rule = "site_owner_map_id/hash bind every owner_ref, successor_status/successor_ref, retirement_status, and evidence_refs field to the amended owner-map artifact; owner-map statuses are classification-only Unknown/Retain/Candidate."
+union_header_rule = "The header contains row_kind plus every required/site column exactly once; summary rows leave site-only cells empty and site rows leave summary-only cells empty. Unknown columns, duplicate headers, mixed row shapes, missing range/attribute identity, and unbound owner-map provenance fail closed."
 force_receipt_rule = "force_hv1_receipt_id names the existing body-derived manifest plus source revision; force_hv1_receipt_hash is SHA-256 over a canonical JSON projection of schema, source_commit, leaf_paths, observations, and observed_counts sorted by key. Fate_review/expected_counts are not semantic source facts and are excluded from the receipt."
+tracked_reference_rule = "owner_ref/evidence_refs use <tracked-path>#<stable-anchor>@<revision>; successor_status=required requires successor_ref in the same form, while successor_status=not_required requires none_required and unknown is blocking."
 
 [reconciliation]
 scanner_scope_files = 1434
@@ -92,6 +105,8 @@ historical_diagnostic = "334 exact lines/111 files and 351 inclusive lines/126 f
 required_decision = "Before pinning, classify each included root and reconcile whether the expectation scope remains the selected Builder/registration boundary or must be expanded by an explicit new D0. Never silently replace 185 with 334/351."
 force_manifest_source_commit = "3c8db4c6e7985d2f4479203e235d041b7f306258"
 force_observed_counts = "86 active leaves / 90 sites; direct=3/3; conditional=44/45; explicit_core=35/35; dynamic=4/7"
+site_owner_map_artifact = "tools/checks/manifests/chronic_measurement_site_owners_v1.toml"
+site_owner_map_boundary = "185 DeadCodeAllowance observations; canonical key row_kind + path + byte_start + byte_end + attribute_kind"
 
 [consumer]
 owner = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
@@ -124,11 +139,9 @@ site = [
   "GeneratedIncluded",
   "GuardEvidence",
   "RetirementCandidate",
-  "CallerZeroSuccessorReady",
-  "Retired",
-  "ExplicitTombstone",
 ]
-terminal = ["Passed", "SupportOnlyGrowth", "CallerZeroSuccessorReady", "Retired", "ExplicitTombstone"]
+retirement_status = ["Unknown", "Retain", "Candidate"]
+terminal = ["Passed", "SupportOnlyGrowth"]
 blocking = [
   "ScopeMissing",
   "ExpectedValueDrift",
@@ -147,7 +160,7 @@ items = [
   "3. Produce one summary row plus deterministic site rows from the scanner report and body-derived force manifest. Pin source, scope, scanner, force receipt, and evidence hashes only after reconciliation.",
   "4. Extend only the existing force-hv1 lifecycle consumer seam to validate the exact TSV and legacy/support non-growth fields. It must not re-scan, reclassify, retry, or change force fate.",
   "5. Add focused positive/negative evidence for missing/duplicate/foreign owner, scope/hash drift, unclassified rows, force receipt drift, legacy growth, and support-only growth. No source or guard deletion in this row.",
-  "6. Close the expectation row, then open ASTCLEAN-STALE-GUARD-SUPERSEDE-R0. Only that successor may classify old numeric guards for tombstone or successor-backed retirement.",
+  "6. Close the expectation row, then open ASTCLEAN-STALE-GUARD-SUPERSEDE-R0. Only that successor may classify old numeric guards for tombstone or successor-backed retirement; this TSV never issues those outcomes.",
 ]
 
 [acceptance]
@@ -156,7 +169,7 @@ positive = [
   "the historical 334/351 values are either explicitly reconciled to the finite boundary or remain diagnostics; no denominator is silently swapped",
   "force-hv1 body facts are consumed by exact receipt id/hash and mismatch fails before route/test effects",
   "legacy production growth fails while support-only growth is reported as a distinct terminal state",
-  "site rows have explicit owner, role, compile_domain, successor, and retirement_status; caller-zero is never inferred from text count",
+  "site rows have canonical range/attribute identity plus explicit owner_ref, role, compile_domain, successor status/ref, evidence_refs, and classification-only retirement_status; caller-zero is never inferred from text count",
 ]
 negative = [
   "no second force-specific TSV, per-file guard, Rust parser, source deletion, warning cleanup, or stale-threshold relaxation",
@@ -185,6 +198,7 @@ next_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
 status = "blocking_precondition"
 required = [
   "site-level owner and role classification for every allowance/site that would enter the TSV, supplied by CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0",
+  "site-owner map canonical key, provenance hashes, tracked-reference grammar, and classification-only retirement vocabulary are frozen before TSV rows are authored",
   "path-level inclusion/exclusion table explaining the 185 frozen-scope observations versus 334/351 all-src diagnostics",
   "separate scanner observation revision, force manifest source revision, and TSV measurement source revision",
   "canonical force receipt projection that excludes fate_review and expected_counts",
