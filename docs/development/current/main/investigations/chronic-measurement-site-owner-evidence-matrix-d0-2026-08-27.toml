@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "Bind the 5 conditional A candidates to exact row-level retain/successor policy or keep them blocked; then review the remaining 62 unresolved A rows before owner-map authoring."
+smallest_next_slice = "Issue policy only by the 13 existing A role groups: bind an exact retain/successor decision where evidence covers the canonical key, and keep the 62 residual rows blocked without creating per-row cards."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -180,18 +180,18 @@ no_safe_slice = [
 
 [worker_receipt]
 agent = "chronic_measurement_scope_audit"
-status = "a_conditional_policy_missing"
-finding = "At 90fb83b1a8, all 79 A rows are structurally bound and 12 rows carry exact candidate evidence in the matrix. The five conditional rows are all blocked because existing documents do not bind an explicit retain or named successor to their canonical registry keys; 62 rows remain unresolved. All 79 still have candidate_successor_status=unknown, so policy-ready remains 0/79; B=46 and C=60 remain site-level evidence work."
+status = "a_candidate_evidence_partial_policy_missing"
+finding = "At 90fb83b1a8, all 79 A rows are structurally bound and 12 rows carry exact candidate evidence in the matrix. The five conditional rows are all blocked because existing documents do not bind an explicit retain or named successor to their canonical registry keys; the remaining 62 rows are blocked by role-group evidence without canonical-key policy. All 79 still have candidate_successor_status=unknown, so policy-ready remains 0/79; B=46 and C=60 remain site-level evidence work."
 evidence = [
   "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 establish the generated-registry/include owner boundary, not blanket Retain authority",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 observes compile_domain=generated_included and role=generated_registry, which cannot issue successor_status=not_required",
-  "chronic-measurement-site-owner-evidence-matrix-v1.tsv records 12 candidate_evidence rows with canonical-key joins; 73 A rows remain blocked_successor and all 79 A rows retain unknown successor status",
+  "chronic-measurement-site-owner-evidence-matrix-v1.tsv records 12 candidate_evidence rows with canonical-key joins; 67 A rows remain blocked_successor (the aggregate 73 also includes 6 B rows) and all 79 A rows retain unknown successor status",
   "Rows 25, 27, 28, 53, and 56 have broad candidate references but no exact row-level retain/successor binding; they remain blocked_successor",
   "src/lib.rs:119-120, src/mir/mod.rs:214-215, src/mir/compiler/mod.rs:81-98, and named raw-root owner READMEs are candidate runtime evidence",
   "src/mir/builder/callable_declaration_catalog/README.md:1-64, calls/guard.rs, calls/static_resolution.rs, rewrite/known.rs, and legacy/test owners are candidate mixed-site evidence",
   "A0 site_owner_map.rs:100-220 consumes the receipt once; :264-358 rejects invalid classification/reference contracts, so unresolved states cannot be silently accepted",
 ]
-latest_finding = "The A matrix records 12 exact candidate joins; the five conditional candidates were reviewed and all remain blocked because their evidence is broad rather than canonical-key bound. Policy-ready remains 0/79 and 62 A rows are unresolved. Continue with explicit row-level policy binding, then B/C evidence."
+latest_finding = "The A matrix records 12 exact candidate joins; the five conditional candidates and 62 residual rows remain blocked because their evidence is broad rather than canonical-key bound. Policy-ready remains 0/79 and all A successor statuses are unknown. Continue with role-group policy binding without creating per-row cards, then B/C evidence."
 
 [closeout]
 status = "pending"
