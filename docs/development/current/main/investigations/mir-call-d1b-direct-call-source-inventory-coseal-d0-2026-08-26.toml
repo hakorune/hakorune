@@ -371,8 +371,9 @@ next_prerequisite_row = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0"
 
 [b1_c0_guard_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-GUARD-I0"
-status = "fast_guard_only"
-implementation_permission = true
+status = "landed_readiness"
+implementation_permission = false
+commit = "1948f7b76a"
 decision = "Add one reusable readiness guard for the B1 C0 family/action matrix. It derives the compiled CallTarget::Global surface, validates every manifest row has an owner/action/terminal-or-successor/reopen tuple, and records B0/S0 as component dependencies; it does not claim C0 closeout or open production cutover."
 allowed_files = [
   "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
@@ -404,6 +405,8 @@ acceptance = [
   "readiness phase remains fail-closed with C0 incomplete and implementation permission false for B1 cutover",
   "guard-only changes keep all production source files untouched and below the existing size limits",
 ]
+result = "Readiness guard landed and is reusable after closeout: it derives 20 compiled Rust surface files and 45 CallTarget::Global occurrences, validates six additional evidence rows and B0/S0 dependencies, and keeps C0 incomplete."
+verification = "python3 tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py .; bash tools/checks/run_row_guard.sh --only mir-call-global-target-b1-c0-matrix; bash tools/checks/current_state_pointer_guard.sh"
 no_safe_slice = [
   "the guard needs to interpret target meaning or construct a Callee/CallTarget",
   "the manifest must enumerate arbitrary AST/function sites instead of path/token surfaces",
