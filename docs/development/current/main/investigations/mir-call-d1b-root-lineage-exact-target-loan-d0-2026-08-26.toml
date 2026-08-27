@@ -66,7 +66,7 @@ accepted_at = "2026-08-27"
 accepted_head = "9bff1a1ff2"
 selected_option = "B: typed structural Global identity in canonical core. A is retained only as owner-private legacy ingress text; no new canonical String issuer is introduced."
 reason = "Global(String) mixes builtin, qualified static, runtime/helper, and compatibility meanings. A new String issuer would be a transitional second authority and would still require later cross-cutting retirement."
-implementation_gate = "B0 architecture is accepted, but implementation remains closed until an atomic common-core/compiled-consumer row is selected; the guard is evidence only and is not a standalone D1B issuer row."
+implementation_gate = "B0 architecture is accepted, but implementation remains closed until D1B package/index issuer readiness is named and one atomic row covers common core schema, its first source issuer, and all required compiled consumers in the existing 17-family/19-owner boundary; the guard is evidence only and is not a standalone D1B issuer row."
 census = "271 matching lines in 143 .rs files (266 under src, five under crates), plus five matches in two compiled .inc files; boundary is production issuer -> every compiled core consumer -> selected VM/native terminal."
 source_identity_holes = "VerifiedTrivialDirectCallTargetV1 and VerifiedResolvedOwnerHeaderV1 currently retain a physical symbol after dropping the exact free/static source key. MIR-CALL-SAME-MODULE-SOURCE-IDENTITY-PRESERVE-R0 preserves structural identity and deletes parse-back while retaining one guarded old one-way String projector/publication; B1 consumes and types that edge, then deletes/delegates mir_symbol_projection."
 disposition = [
@@ -584,7 +584,7 @@ non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global
 
 [task_spine]
 current = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 is the selected design stop after ordinary-call observation-boundary reconciliation; B0/Wpre/force-hv1 rows remain landed or separately parked historical owners."
-next_prerequisite = "Name the same-session callable-index-backed semantic-target-to-physical-Callee issuer, preserve Cataloged/TopLevel/InstanceConstructor lineage through one mapper, close package-plus-loan installation and NoDirectCalls terminal, then design the first Cataloged affine cell."
+next_prerequisite = "First name the same-session package/index-backed semantic-target-to-physical-Callee issuer and preserve Cataloged/TopLevel/InstanceConstructor lineage through one mapper. Only then can B0 be implemented as one atomic common-core/first-source-issuer/compiled-consumer row; after that close package-plus-loan installation and NoDirectCalls, then design the first Cataloged affine cell."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
