@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use rust_source_topology_check::{
-    scan_scope_manifest, ChronicMetricV1, ChronicObservationV1, ChronicScanErrorV1,
+    observation_receipt_json, scan_scope_manifest, ChronicMetricV1, ChronicObservationV1,
+    ChronicScanErrorV1,
 };
 
 const FIXTURE_ROOT: &str = env!("CARGO_MANIFEST_DIR");
@@ -56,4 +57,37 @@ fn malformed_source_and_path_escape_fail_closed() {
     )
     .unwrap_err();
     assert!(matches!(escaped, ChronicScanErrorV1::PathEscape { .. }));
+}
+
+#[test]
+fn observation_receipt_is_deterministic_and_scope_bound() {
+    let workspace = Path::new(FIXTURE_ROOT).join("../../..");
+    let manifest = workspace.join("tools/checks/manifests/chronic_measurement_scope_v1.toml");
+    let source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a";
+    let first = observation_receipt_json(&manifest, &workspace, source_commit).unwrap();
+    let second = observation_receipt_json(&manifest, &workspace, source_commit).unwrap();
+    assert_eq!(first, second);
+    let receipt: serde_json::Value = serde_json::from_str(&first).unwrap();
+    assert_eq!(receipt["schema"], "chronic-measurement-observations-v1");
+    assert_eq!(receipt["rows"].as_array().unwrap().len(), 185);
+    assert!(receipt["receipt_hash"]
+        .as_str()
+        .unwrap()
+        .starts_with("sha256:"));
+    for row in receipt["rows"].as_array().unwrap() {
+        assert!(row.get("owner_ref").is_none());
+        assert!(row.get("retirement_status").is_none());
+        assert!(row.get("raw_condition").is_some());
+    }
+}
+
+#[test]
+fn observation_receipt_rejects_missing_source_revision_before_scan() {
+    let workspace = Path::new(FIXTURE_ROOT).join("../../..");
+    let manifest = workspace.join("tools/checks/manifests/chronic_measurement_scope_v1.toml");
+    let error = observation_receipt_json(&manifest, &workspace, "missing").unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::InvalidSourceCommit { .. }
+    ));
 }

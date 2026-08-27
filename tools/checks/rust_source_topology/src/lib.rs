@@ -4,8 +4,10 @@ mod model;
 pub mod project;
 
 pub use chronic_measurement::{
-    scan_scope_manifest, scan_scope_manifest_json, ChronicMetricV1, ChronicObservationV1,
-    ChronicScanErrorV1,
+    observation_receipt_json, project_observation_receipt, scan_scope_manifest,
+    scan_scope_manifest_json, ChronicMetricV1, ChronicObservationReceiptRowV1,
+    ChronicObservationReceiptV1, ChronicObservationV1, ChronicScanErrorV1,
+    CHRONIC_OBSERVATION_RECEIPT_SCHEMA_V1,
 };
 pub use extract::{extract_single_file_source, ExtractErrorV1};
 pub use model::{

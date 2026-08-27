@@ -1,0 +1,124 @@
+title = "Chronic measurement observation receipt I0"
+status = "fast_open"
+observed_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+observed_at = "2026-08-27"
+implementation_permission = true
+selected_fast = true
+current_execution_row = "CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "one existing scan_scope_manifest call over the frozen mirbuilder-chronic-rust-v1 scope"
+ends = "tools/checks/manifests/chronic_measurement_observations_v1.json containing only the 185 in-scope DeadCodeAllowance rows with bound provenance and deterministic receipt_hash"
+includes = [
+  "reuse of the syn-based scanner report in memory; no second Rust parser and no second scan",
+  "canonical key = row_kind + path + byte_start + byte_end + attribute_kind",
+  "item_key, line range, and raw_condition as scanner consistency fields",
+  "scanner_version, scope_id, scope_manifest_hash, source_scope_hash, source_commit, scanner_evidence_hash, and receipt_hash",
+  "CLI argument validation requiring an explicit 40-hex source_commit",
+  "focused positive, negative, and deterministic projection tests",
+]
+excludes = [
+  "owner_ref, successor, role, compile_domain, retirement_status, expectation TSV, guard_rows registration, stale thresholds, or any deletion",
+  "full scanner report persistence, raw stdout parsing, temporary JSON as authority, or a second force-specific artifact",
+  "semantic Verified/Prepared receipts, compiler/MIR/VM/AOT behavior, fallback, retry, or route changes",
+  "changing scanner scope, scanner parser behavior, root Cargo dependencies, or the 185/334/351 denominator",
+]
+
+[brief]
+decision = "Add a narrow measurement projection beside the existing chronic scanner. It consumes one in-memory ChronicMeasurementReportV1, filters only DeadCodeAllowance rows, validates and sorts the canonical keys, computes receipt_hash without self-reference, and writes one tracked JSON artifact. The receipt is neutral observation evidence, not ownership or retirement authority."
+source_authority = "The existing scan_scope_manifest implementation and its typed ChronicMeasurementReportV1/ChronicObservationV1 fields; the scope manifest and source snapshot provide the bound provenance."
+canonical_issuer = "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs issues the projection; main.rs only validates argv and writes the returned JSON. Existing scan_scope_manifest remains the sole parser/observer."
+non_authority = [
+  "raw scanner stdout, full report JSON, grep/rg counts, filenames, warning totals, owner guesses, stale thresholds, and retirement cards",
+  "scanner implementation commit used as a substitute for source_commit, or evidence_hash reused as receipt_hash",
+  "any owner/successor/fate/expectation field or downstream lifecycle decision",
+]
+fail_fast = "Reject missing/non-40-hex source_commit, unsupported command/arguments, non-DeadCode row kind, unknown attribute/range shape, path escape, duplicate or out-of-order canonical key, provenance drift, count drift from 185, or receipt hash mismatch before writing output."
+smallest_next_slice = "Implement only the receipt projection module and its CLI/tests inside tools/checks/rust_source_topology; no owner map, expectation TSV, guard registration, or source cleanup."
+non_claims = [
+  "does not claim any allowance is dead, stale, production-live, or deletable",
+  "does not classify owner, role, successor, or retirement outcome",
+  "does not alter scanner observation semantics or create a second parser",
+]
+
+[artifact]
+path = "tools/checks/manifests/chronic_measurement_observations_v1.json"
+role = "tracked neutral observation receipt; not an executable guard or semantic receipt"
+schema = "chronic-measurement-observations-v1"
+row_kind = "dead_code_allowance"
+row_fields = ["row_kind", "path", "item_key", "byte_start", "byte_end", "line_start", "line_end", "attribute_kind", "raw_condition"]
+canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
+hash_rule = "receipt_hash is SHA-256 over canonical JSON with receipt_hash omitted; rows are sorted by canonical_key and duplicate keys fail"
+provenance_fields = ["schema", "schema_version", "scanner_version", "scope_id", "scope_manifest_hash", "source_scope_hash", "source_commit", "scanner_evidence_hash", "receipt_hash"]
+
+[implementation]
+module = "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs"
+cli = "rust-source-topology-check chronic-observation-receipt <scope-manifest> --source-commit <40-hex>"
+observer_call = "scan_scope_manifest(manifest_path, workspace_root) exactly once; project ChronicMeasurementReportV1 in memory"
+json_rule = "serialize only the compact receipt projection; never parse scan_scope_manifest_json stdout"
+dependency_rule = "reuse existing syn/serde_json/sha2/toml dependencies; no root Cargo or new dependency"
+line_budget = "new module <760 lines; 800-line hard stop"
+
+[finite_state]
+states = [
+  "InputReady",
+  "ReportObserved",
+  "ProjectionValidated",
+  "ReceiptHashSealed",
+  "Written",
+  "MissingSourceCommit",
+  "InvalidArgument",
+  "InvalidObservation",
+  "DuplicateCanonicalKey",
+  "ProvenanceDrift",
+  "CountDrift",
+  "ReceiptHashDrift",
+]
+terminal = ["Written"]
+blocking = ["MissingSourceCommit", "InvalidArgument", "InvalidObservation", "DuplicateCanonicalKey", "ProvenanceDrift", "CountDrift", "ReceiptHashDrift"]
+
+[task_steps]
+items = [
+  "1. Add the private projection model and canonical-key/range validation without changing ChronicMeasurementReportV1.",
+  "2. Add a CLI verb that requires an explicit source_commit and calls scan_scope_manifest exactly once; reject extra/unknown arguments.",
+  "3. Filter 185 DeadCodeAllowance observations, preserve raw_condition, sort by canonical key, reject duplicates/count drift, and compute receipt_hash with self-field omitted.",
+  "4. Add focused positive/negative tests for 185 rows, the three path/item collisions, malformed source_commit, duplicate/out-of-order rows, provenance drift, and owner/retirement-field absence.",
+  "5. Generate the tracked compact JSON once from the bound source snapshot, record its hash/command, and close this I0. Do not author owner map or expectation TSV in this row.",
+]
+
+[acceptance]
+positive = [
+  "one scanner pass produces exactly 185 DeadCodeAllowance rows with canonical-key uniqueness and deterministic ordering",
+  "three path/item_key collision pairs remain separate because byte range and attribute_kind are retained",
+  "source_commit is explicit 40-hex and scanner/scope/source/evidence provenance is copied exactly",
+  "repeated same-source generation has identical JSON bytes and receipt_hash",
+  "receipt contains no owner_ref, successor, role, retirement_status, fate, or expectation field",
+]
+negative = [
+  "no full-report/stdout reparse, second scan, second parser, owner inference, or warning-count authority",
+  "no missing/default source_commit, scanner implementation commit substituted for source_commit, or evidence_hash/receipt_hash conflation",
+  "no duplicate/out-of-order key, invalid range/path/attribute, non-DeadCode row, count drift, or hash drift accepted",
+  "no owner map, expectation TSV, guard registration, stale-threshold edit, source deletion, or backend/compiler behavior change",
+]
+structural = [
+  "existing scanner remains the only syn::parse_file observer",
+  "new module stays below 760 lines and root dependency graph is unchanged",
+  "observation receipt is not registered as an executable guard row or semantic Verified/Prepared product",
+]
+
+[guard]
+reuse = "Use existing rust_source_topology focused test entry and current_state_pointer_guard; no new member guard or guard_rows registration in this I0."
+required = "The I0 closeout must record the command, source_commit, receipt hash, row count, and deterministic repeat result. A missing tracked artifact or any provenance mismatch fails closed."
+no_safe_slice = [
+  "the existing report cannot be projected without a second parser or second scan",
+  "source_commit cannot be distinguished from scanner implementation revision",
+  "the projection needs owner/successor/retirement fields or expectation/guard authority",
+  "185 canonical rows cannot be reproduced or the output exceeds the line/resource boundary",
+]
+
+[closeout]
+status = "pending"
+required = "Record implementation commit, focused tests, deterministic repeat, tracked JSON path/hash, and green pointer/diff checks. Then move the pointer to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0; owner classification and deletion remain closed until that successor."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"

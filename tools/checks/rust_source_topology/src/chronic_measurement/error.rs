@@ -22,6 +22,12 @@ pub enum ChronicScanErrorV1 {
     SourceChangedDuringObservation { path: String },
     ScopeDrift { detail: String },
     ReportSerialize { detail: String },
+    InvalidSourceCommit { detail: String },
+    ObservationReceiptInvalid { detail: String },
+    ObservationReceiptDuplicateKey { key: String },
+    ObservationReceiptOutOfOrder { previous: String, current: String },
+    ObservationReceiptCountDrift { expected: usize, actual: usize },
+    ObservationReceiptHashDrift { expected: String, actual: String },
 }
 
 impl fmt::Display for ChronicScanErrorV1 {
@@ -95,6 +101,27 @@ impl fmt::Display for ChronicScanErrorV1 {
             Self::ReportSerialize { detail } => {
                 write!(formatter, "[chronic-scan/report-serialize] {detail}")
             }
+            Self::InvalidSourceCommit { detail } => {
+                write!(formatter, "[chronic-scan/invalid-source-commit] {detail}")
+            }
+            Self::ObservationReceiptInvalid { detail } => {
+                write!(formatter, "[chronic-scan/observation-receipt-invalid] {detail}")
+            }
+            Self::ObservationReceiptDuplicateKey { key } => {
+                write!(formatter, "[chronic-scan/observation-receipt-duplicate-key] {key}")
+            }
+            Self::ObservationReceiptOutOfOrder { previous, current } => write!(
+                formatter,
+                "[chronic-scan/observation-receipt-out-of-order] previous={previous} current={current}"
+            ),
+            Self::ObservationReceiptCountDrift { expected, actual } => write!(
+                formatter,
+                "[chronic-scan/observation-receipt-count-drift] expected={expected} actual={actual}"
+            ),
+            Self::ObservationReceiptHashDrift { expected, actual } => write!(
+                formatter,
+                "[chronic-scan/observation-receipt-hash-drift] expected={expected} actual={actual}"
+            ),
         }
     }
 }

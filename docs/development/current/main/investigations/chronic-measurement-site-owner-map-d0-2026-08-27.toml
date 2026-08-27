@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner map D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "fa7af080bf2440e726b6d52b9ec2eb50331d64e3"
+observed_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
@@ -52,7 +52,10 @@ provenance_fields = [
   "scope_id",
   "scope_manifest_hash",
   "source_scope_hash",
-  "evidence_hash",
+  "source_commit",
+  "scanner_evidence_hash",
+  "observation_receipt_id",
+  "observation_receipt_hash",
 ]
 site_fields = [
   "row_kind",
@@ -85,20 +88,24 @@ retirement_authority_rule = "This map may classify Unknown/Retain/Candidate only
 path = "tools/checks/manifests/chronic_measurement_observations_v1.json"
 status = "required_precondition_missing"
 role = "tracked neutral scanner observation receipt; not owner, expectation, guard, or retirement authority"
+next_card = "CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0"
+schema = "chronic-measurement-observations-v1"
 required_fields = [
+  "schema",
   "schema_version",
   "scanner_version",
   "scope_id",
   "scope_manifest_hash",
   "source_scope_hash",
   "source_commit",
-  "evidence_hash",
+  "scanner_evidence_hash",
+  "receipt_hash",
   "rows",
 ]
-row_fields = ["row_kind", "path", "item_key", "byte_start", "byte_end", "line_start", "line_end", "attribute_kind", "condition"]
+row_fields = ["row_kind", "path", "item_key", "byte_start", "byte_end", "line_start", "line_end", "attribute_kind", "raw_condition"]
 canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
 issuer = "the existing syn-based chronic scanner; the receipt is a deterministic projection of its report and adds no owner/successor fields"
-hash_rule = "rows are sorted by canonical_key and the receipt hash covers schema, scanner, scope, source, and evidence provenance plus every row"
+hash_rule = "rows are sorted by canonical_key and receipt_hash is SHA-256 over canonical JSON with receipt_hash omitted; scanner_evidence_hash remains the scanner report evidence hash and is not reused for the receipt"
 non_authority = ["raw command stdout, temporary JSON, grep/rg output, warning counts, filename labels, owner guesses, retirement outcomes"]
 
 [census]
@@ -106,7 +113,8 @@ scanner_scope_files = 1434
 scanner_allowance_observations = 185
 scanner_version = "chronic-rust-token-scanner-v1"
 scanner_scope_id = "mirbuilder-chronic-rust-v1"
-scanner_source_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
+source_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
+scanner_implementation_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
 scope_manifest_hash = "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f"
 source_scope_hash = "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39"
 scanner_evidence_hash = "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a"
@@ -116,7 +124,7 @@ generated_registry_allowances = "79 observations in src/mir/compiler/module_regi
 unmapped_site_rows = "185 until the map is authored and reviewed"
 scope_difference = "all src 4304 files; frozen scope 1434; outside 2870; historical exact 180 frozen + 154 outside; inclusive 185 frozen + 166 outside"
 site_key_collisions_observed = "3 path/item_key pairs collide across 6 rows; canonical byte range plus attribute_kind separates them"
-provenance_binding = "scanner_version + scope_id + scope_manifest_hash + source_scope_hash + evidence_hash must match the exact report used to author the map"
+provenance_binding = "scanner_version + scope_id + scope_manifest_hash + source_scope_hash + source_commit + scanner_evidence_hash + observation_receipt_hash must match the exact report used to author the map"
 
 [finite_state]
 states = [
@@ -190,5 +198,5 @@ latest_finding = "Keep expectation pin and deletion blocked until the tracked 18
 
 [closeout]
 status = "pending"
-required = "First record the tracked 185-row observation receipt and its provenance/hash validation; then record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states. Move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after both artifacts are complete; no expectation TSV or deletion is allowed from this row."
+required = "First record the tracked 185-row observation receipt and its provenance/hash validation; then record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states. Move the pointer to CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0 only after the receipt design is accepted, and move to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after both artifacts are complete; no expectation TSV or deletion is allowed from this row."
 next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"

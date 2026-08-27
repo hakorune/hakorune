@@ -1,5 +1,5 @@
 ---
-Status: Design stop — chronic measurement site owner map D0
+Status: Fast — chronic measurement observation receipt I0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-observation-receipt-i0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -45,10 +45,10 @@ Non-authority:
   `caller=None`、methodize、`args[0]`、optimizer/backend repair。
 
 Fail-fast boundary:
-  retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの
-  strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
+  retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
+  `CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0` is the only implementation cell: project one existing scanner pass into a deterministic tracked 185-row neutral receipt with bound provenance; owner classification, expectation pinning, guard registration, and deletion remain closed. Successor: accepted site-owner-map D0.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

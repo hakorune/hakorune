@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use rust_source_topology_check::extract_single_file_source;
-use rust_source_topology_check::scan_scope_manifest_json;
+use rust_source_topology_check::{observation_receipt_json, scan_scope_manifest_json};
 
 fn main() {
     if let Err(error) = run() {
@@ -25,6 +25,34 @@ fn run() -> Result<(), String> {
         let output = scan_scope_manifest_json(
             &PathBuf::from(manifest),
             &std::env::current_dir().map_err(|error| error.to_string())?,
+        )
+        .map_err(|error| error.to_string())?;
+        print!("{output}");
+        return Ok(());
+    }
+    if command == "chronic-observation-receipt" {
+        let Some(manifest) = args.next() else {
+            return Err(usage());
+        };
+        let Some(flag) = args.next() else {
+            return Err(usage());
+        };
+        if flag != "--source-commit" {
+            return Err(format!(
+                "[rust-source-topology/unknown-argument] {flag}\n{}",
+                usage()
+            ));
+        }
+        let Some(source_commit) = args.next() else {
+            return Err(usage());
+        };
+        if args.next().is_some() {
+            return Err(usage());
+        }
+        let output = observation_receipt_json(
+            &PathBuf::from(manifest),
+            &std::env::current_dir().map_err(|error| error.to_string())?,
+            &source_commit,
         )
         .map_err(|error| error.to_string())?;
         print!("{output}");
@@ -75,6 +103,7 @@ fn run() -> Result<(), String> {
 
 fn usage() -> String {
     "usage: rust-source-topology-check single-file <path> --module-syntax-path <syntax-path>\n\
-     or: rust-source-topology-check chronic-scan <scope-manifest>"
+     or: rust-source-topology-check chronic-scan <scope-manifest>\n\
+     or: rust-source-topology-check chronic-observation-receipt <scope-manifest> --source-commit <40-hex>"
         .to_string()
 }

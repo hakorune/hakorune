@@ -56,6 +56,7 @@ required_columns = [
   "scope_manifest_hash",
   "source_scope_hash",
   "scanner_version",
+  "scanner_evidence_hash",
   "site_owner_map_id",
   "site_owner_map_hash",
   "boundary_start",
@@ -104,7 +105,7 @@ scanner_scope_manifest_hash = "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da
 scanner_source_scope_hash = "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39"
 scanner_evidence_hash = "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a"
 observation_receipt_artifact = "tools/checks/manifests/chronic_measurement_observations_v1.json"
-observation_receipt_required = "tracked 185-row canonical-key projection; raw scanner stdout is not accepted"
+observation_receipt_required = "tracked 185-row canonical-key projection with raw_condition and receipt_hash; raw scanner stdout is not accepted"
 scanner_summary = "panic=356; unwrap=2503; expect=2868; todo=0; dead_code_allowance=185; unclassified=0"
 historical_diagnostic = "334 exact lines/111 files and 351 inclusive lines/126 files are older all-src diagnostics, not an expectation baseline for this 1434-file frozen scope"
 required_decision = "Before pinning, classify each included root and reconcile whether the expectation scope remains the selected Builder/registration boundary or must be expanded by an explicit new D0. Never silently replace 185 with 334/351."
@@ -206,7 +207,7 @@ next_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
 [reconciliation_gate]
 status = "blocking_precondition"
 required = [
-  "a tracked 185-row observation receipt with canonical keys and scanner/scope/source/evidence provenance exists before any owner-map or TSV row",
+  "a tracked 185-row observation receipt with canonical keys, raw_condition, receipt_hash, and scanner/scope/source/evidence provenance exists before any owner-map or TSV row",
   "site-level owner and role classification for every allowance/site that would enter the TSV, supplied by CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0",
   "site-owner map canonical key, provenance hashes, tracked-reference grammar, and classification-only retirement vocabulary are frozen before TSV rows are authored",
   "path-level inclusion/exclusion table explaining the 185 frozen-scope observations versus 334/351 all-src diagnostics",
