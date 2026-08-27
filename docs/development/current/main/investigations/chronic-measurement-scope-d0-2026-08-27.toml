@@ -1,0 +1,244 @@
+title = "Chronic dead-code and panic measurement scope D0"
+status = "accepted_design_parked"
+observed_commit = "047aa1f54c031067f96576b580ba287571912242"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-MEASUREMENT-SCOPE-D0"
+parent_row = "docs/development/current/main/investigations/guard-execution-index-force-hv1-nongrowth-closeout-d0-2026-08-27.toml"
+successor_card = "CHRONIC-RUST-TOKEN-SCANNER-I0"
+
+[boundary]
+starts = "the tracked Rust module registration roots and the selected MIR Builder source subtree"
+ends = "each panic/dead_code token or allowance owner, with compile domain, role, and owner evidence before any deletion decision"
+includes = [
+  "panic surface: src/mir/builder.rs plus src/mir/builder/**/*.rs, including module declarations and recursive child modules",
+  "dead_code surface: src/lib.rs -> src/mir/mod.rs -> builder/compiler registrations -> included module_registry.in.rs -> each allow attribute/item and its caller/re-export/consumer or retirement owner",
+  "default production, cfg(test), fixture/test support, compatibility/legacy, guard/diagnostic, feature-gated, nonselected, and generated-included code as separately classified observations",
+  "one scope manifest and one future expectation TSV shared by panic and dead_code measurement",
+]
+excludes = [
+  "docs/, target/, archive/, generated artifacts outside compile-included Rust, comments, normal strings, and historical text",
+  "treating path names, grep-only references, or an allow attribute as caller-zero or deletion permission",
+  "Cargo/build execution, compiler/MIR/VM/AOT behavior, fixture changes, and source or guard deletion",
+  "force-hv1-specific observation code or a second force-specific TSV",
+]
+
+[brief]
+decision = "Freeze a finite, scope-aware measurement boundary before removing any guard or source. Use a Rust-token-aware scanner for observations and keep compile_domain separate from role; a single expectation TSV may combine summary and site rows, but it never issues semantic authority or retirement fate."
+source_authority = "The tracked Rust module graph, token-aware scanner output, explicit scope manifest, and owner-reviewed caller/re-export evidence."
+canonical_issuer = "CHRONIC-RUST-TOKEN-SCANNER-I0 will issue lexical observations; CHRONIC-MEASUREMENT-EXPECTATION-I0 will co-seal the reviewed scope/hash/count receipt for the existing lifecycle guard. This D0 issues only the boundary and finite state contract."
+non_authority = [
+  "raw rg/grep totals, stale thresholds 210/203/206, total src LOC, filename conventions, cfg(test) path assumptions, warning transcripts, or a self-edited card",
+  "the existing shell-oriented force_hv1_leaf_census.py comment stripper, old k2_wide_astclean dead-code guards, docs index prose, and local green tests",
+  "absence of textual callers without module registration, pub use, trait, feature, generated/include, fixture, or compatibility analysis",
+]
+fail_fast = "A missing or ambiguous scope root, unsupported Rust token shape, unclassified range, duplicate site/owner row, scope hash drift, or mixed compile domain/role must fail before an expectation is pinned or a deletion is considered."
+smallest_next_slice = "CHRONIC-RUST-TOKEN-SCANNER-I0: implement a read-only Rust-token-aware observer against this frozen boundary; do not delete allows, change source, or connect a retirement route until its output is reviewed."
+non_claims = [
+  "does not claim any current count is production-live or deletion-ready",
+  "does not claim that all 334 exact or 351 inclusive allowances are stale",
+  "does not change the MirBuilder Call/VM/AOT lane or authorize broad warning cleanup",
+  "does not replace the existing manifest inventory owner or create per-file guards",
+]
+
+[census]
+panic_boundary = "src/mir/builder.rs + src/mir/builder/**/*.rs; module declaration/#[path] roots -> each token-aware panic!/unwrap/expect/todo! call site; include all compile domains and roles, exclude docs/target/archive/non-Rust generated text"
+panic_observed_files = 1468
+panic_observed_lines = 325305
+panic_count = 359
+unwrap_count = 2794
+expect_count = 2987
+todo_count = 0
+dead_code_boundary = "src/lib.rs -> src/mir/mod.rs -> builder/compiler registrations and included module_registry.in.rs -> each #[allow(dead_code)]/inner allow/cfg_attr allowance -> caller, re-export, consumer, generated owner, or named retirement owner"
+dead_code_exact_lines = 334
+dead_code_exact_files = 111
+dead_code_inclusive_lines = 351
+dead_code_inclusive_files = 126
+dead_code_src_mir_exact_lines = 266
+dead_code_builder_exact_lines = 95
+dead_code_builder_exact_files = 36
+dead_code_builder_inclusive_lines = 100
+dead_code_builder_inclusive_files = 39
+generated_registry_lines = 249
+generated_registry_exact_allow_lines = 79
+observed_revision = "047aa1f54c031067f96576b580ba287571912242"
+
+[classification]
+axes = ["compile_domain", "role"]
+compile_domain = [
+  "production_default",
+  "cfg_test",
+  "feature_nonselected",
+  "generated_included",
+]
+role = [
+  "runtime",
+  "test_support",
+  "fixture",
+  "compatibility",
+  "guard_evidence",
+  "generated_registry",
+  "mixed",
+]
+rule = "Classification is item/range-aware. cfg(test) is not a file-wide label; cfg_attr(not(test), allow(dead_code)) is a distinct allowance kind. A row may be mixed by role while retaining one compile domain."
+examples = [
+  "fixture: src/mir/builder/field_receiver_provenance/tests/real_fixture.rs",
+  "compatibility: src/mir/builder/recursive_child_lowering/legacy_port.rs and raw_static_main_compat_batch.rs",
+  "guard_evidence: src/mir/builder/calls/guard.rs and raw_expression_recursion_guard.rs",
+  "generated_included: src/mir/compiler/module_registry.in.rs",
+]
+
+[scanner_contract]
+owner = "CHRONIC-RUST-TOKEN-SCANNER-I0"
+reuse = "Reuse existing manifest/receipt patterns from guard_manifest_inventory.py and force_hv1_leaf_census.py only for scope/hash/finite-row shape; do not reuse their shell/Rust comment stripping as a Rust parser."
+requirements = [
+  "token-aware Rust comments, raw strings, nested block comments, attributes, cfg/cfg_attr, macro bodies, and item/range spans",
+  "module registration and include/generated ownership are observable rather than inferred from textual caller absence",
+  "one deterministic scanner version and scope manifest hash are emitted with every result",
+  "summary rows and site rows are distinguishable without adding a semantic receipt type",
+]
+reject = [
+  "comment/string false positives",
+  "whole-file cfg(test) classification when only a range is test-gated",
+  "wildcard path or regex-only item identity",
+  "scanner recovery that silently skips malformed Rust or unknown macro/token shape",
+]
+
+[expectation_tsv]
+owner = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+role = "one shared measurement artifact; not a semantic authority"
+required_columns = [
+  "source_commit",
+  "scope_id",
+  "scope_manifest_hash",
+  "scanner_version",
+  "boundary_start",
+  "boundary_end",
+  "force_hv1_receipt_id",
+  "force_hv1_receipt_hash",
+  "legacy_src_lines",
+  "legacy_allow_dead_code",
+  "support_src_lines",
+  "support_allow_dead_code",
+  "panic_count",
+  "unwrap_count",
+  "expect_count",
+  "todo_count",
+  "unclassified_count",
+  "status",
+  "evidence_hash",
+]
+site_columns = [
+  "row_kind",
+  "path",
+  "item_key",
+  "compile_domain",
+  "role",
+  "owner",
+  "metric",
+  "successor",
+  "retirement_status",
+]
+ratchet = "unclassified_count must be zero, scope/scanner hashes must match, and legacy_src_lines/legacy_allow_dead_code may not increase for a selected retirement scope. Support-only growth is reported separately and is not a deletion failure by itself."
+
+[finite_state]
+measurement = [
+  "ScopeMissing",
+  "Observed",
+  "Classified",
+  "DerivedAndPinned",
+  "Passed",
+  "ExpectedValueDrift",
+  "SourceScopeGrowth",
+  "SupportOnlyGrowth",
+  "UnclassifiedGrowth",
+  "DuplicateRow",
+  "MissingOwner",
+  "ScopeDrift",
+]
+site = [
+  "Unknown",
+  "ProductionLive",
+  "TestOnly",
+  "FixtureSupport",
+  "CompatibilityKeep",
+  "GeneratedIncluded",
+  "GuardEvidence",
+  "RetirementCandidate",
+  "CallerZeroSuccessorReady",
+  "Retired",
+  "ExplicitTombstone",
+]
+terminal = ["Passed", "SupportOnlyGrowth", "CallerZeroSuccessorReady", "Retired", "ExplicitTombstone"]
+blocking = [
+  "ScopeMissing",
+  "ExpectedValueDrift",
+  "SourceScopeGrowth",
+  "UnclassifiedGrowth",
+  "DuplicateRow",
+  "MissingOwner",
+  "ScopeDrift",
+]
+
+[retirement_contract]
+caller_zero = "guard_rows.toml plus included manifests, manifest_runner argv, workflows, wrapper scripts, closeout cards, Rust mod/#[path]/pub use/trait/feature/include/fixture/compat edges, and the named successor must all be checked."
+delete_ready = "Only CallerZeroSuccessorReady with a same-responsibility successor or type-impossible proof, owner, focused positive/negative parity, and registry/CI evidence may open a later bounded deletion row."
+forbidden_shortcuts = [
+  "old or quiet",
+  "rg caller count equals zero",
+  "allow(dead_code) warning alone",
+  "unregistered guard",
+  "support-only growth treated as legacy growth",
+]
+
+[task_order]
+items = [
+  "1. CHRONIC-MEASUREMENT-SCOPE-D0: accept this finite boundary, two-axis classification, and shared TSV contract; no code change.",
+  "2. CHRONIC-RUST-TOKEN-SCANNER-I0: issue deterministic read-only observations and explicit unclassified failures.",
+  "3. CHRONIC-MEASUREMENT-EXPECTATION-I0: co-seal one scope/hash/count TSV and connect only the existing lifecycle receipt consumer.",
+  "4. STALE-GUARD-SUPERSEDE-R0: classify 210/203/206-style thresholds as successor-backed or explicit tombstone; do not relax them to current totals.",
+  "5. DEAD-CODE-RETIREMENT-D0: choose item/module owners and caller-zero/successor evidence; only then open one bounded deletion.",
+  "6. bounded guard/source deletion: one responsibility and one closeout commit at a time, with no new semantic authority.",
+]
+
+[acceptance]
+positive = [
+  "the finite panic and dead_code boundaries are explicit and reproduce the current observation tuple",
+  "compile_domain and role are recorded independently, including item/range-level cfg(test) and generated-included states",
+  "scanner/manifest/TSV ownership is unique and force-hv1 uses the shared receipt rather than a second TSV",
+  "unclassified, duplicate, scope drift, and unsupported token states fail before any deletion decision",
+  "caller-zero proof includes registration, re-export, feature, generated/include, fixture, compatibility, guard/CI, and successor edges",
+]
+negative = [
+  "no current number is presented as production-live without classification",
+  "no stale threshold is relaxed to make a guard green",
+  "no warning cleanup, source deletion, compiler behavior, fixture, or Cargo run occurs in this D0",
+  "no per-file shell guard or new semantic Verified/Prepared receipt is created",
+]
+
+[guard]
+reuse = "Use the existing guard-manifest-inventory owner and one future chronic expectation consumer; do not add one shell guard per metric or per file."
+required = "The D0 is docs-only. Scanner implementation must remain read-only until this card is accepted and its output has an independent review."
+no_safe_slice = [
+  "Rust token/range parsing cannot distinguish comments, raw strings, attributes, cfg, and macro bodies",
+  "module/include/feature/fixture/compat edges cannot be enumerated in the finite boundary",
+  "the shared TSV cannot represent both legacy/support split and site-level owner classification",
+  "a count would be used to delete before successor/caller-zero proof exists",
+]
+
+[worker_receipt]
+agent = "chronic_measurement_scope_audit"
+status = "NoSafeSlice_for_implementation; scope_contract_accepted_for_taskization"
+finding = "Current lexical observations are reproducible but cannot authorize production deletion. Freeze the selected Builder subtree and registration graph, classify compile_domain and role as separate axes, then build a Rust-token-aware scanner before pinning one shared expectation TSV."
+evidence = [
+  "047aa1f54c current tree: Builder scope 1,468 Rust files / 325,305 lines; panic 359, unwrap 2,794, expect 2,987, todo 0",
+  "047aa1f54c current tree: exact dead_code 334 lines / 111 files; inclusive 351 / 126; src/mir 266; Builder exact 95 / 36 and inclusive 100 / 39",
+  "src/mir/compiler/module_registry.in.rs: generated-included 249 lines with 79 exact allow lines",
+  "existing guard_manifest_inventory.py and force_hv1_leaf_census.py are receipt/manifest patterns, not Rust token scanners",
+]
+latest_finding = "No production-live count is established. The next safe row is scope acceptance, followed by a read-only token scanner; deletion remains blocked until owner/successor/caller-zero evidence is complete."
+
+[closeout]
+status = "pending"
+focused_evidence = []
+closeout_notes = "This D0 only freezes measurement scope and task order. Return to design_stop after recording the accepted card; do not open scanner implementation or deletion from a green lexical count alone."
