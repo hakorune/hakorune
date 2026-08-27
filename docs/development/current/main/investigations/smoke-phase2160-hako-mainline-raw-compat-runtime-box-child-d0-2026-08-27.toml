@@ -1,0 +1,88 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box child fate design"
+status = "accepted_but_not_selected"
+observed_commit = "cbf761b2ff129663eb53495be9e34baa5276cba8"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0b-2026-08-27.toml"
+
+[boundary]
+starts = "runtime ASTNode::BoxDeclaration encountered inside the raw expression dispatcher"
+ends = "an explicit runtime compatibility child owner or an explicit retirement/freeze decision"
+includes = [
+  "src/mir/builder/raw_expression_dispatch/mod.rs:488-524::ASTNode::BoxDeclaration",
+  "src/mir/builder/instance_box_method_batch.rs:71-95::nested runtime method batch",
+  "runtime constructor/static/instance child dispatch and its collector edges",
+]
+excludes = [
+  "ProgramRootWorkPlan RawCompatibility I1",
+  "source-backed SelectedNormal package/cohort lowering",
+  "strict-negative loop leaf and undefined-value repair",
+  "route/run_all retirement, VM/AOT/backend, Wpre, Call schema, and fallback policy",
+]
+
+[brief]
+decision = "Keep runtime Box declaration edges outside the selected RawCompatibility root child-terminal I1. They have a separate source/owner/collector boundary and must not be silently absorbed by root compatibility admission."
+source_authority = "The raw expression dispatcher BoxDeclaration arm and the existing runtime instance/static method batch owners."
+canonical_issuer = "A future runtime-box owner must explicitly issue the compatibility child disposition or an explicit retirement terminal before lowering."
+non_authority = [
+  "root RawCompatibility admission alone",
+  "caller=None, AST name, method name, params.len(), box kind, or route filename",
+  "loose-* freeze marker treated as success",
+  "source-backed cohort, target resolver, fallback, retry, or VM route",
+]
+fail_fast = "A runtime Box child without an explicit owner/source/collector relation remains typed freeze before child effects; it cannot enter the root I1 terminal by proximity."
+smallest_next_slice = "Census the exact runtime declaration/method batch edges, identify their existing symbol/arity and collector owner, and choose a bounded compatibility terminal or retirement fate."
+non_claims = [
+  "does not authorize implementation",
+  "does not change raw root admission or source-backed lowering",
+  "does not claim runtime Box parity or hako-mainline success",
+]
+
+[finite_state]
+states = [
+  "RuntimeBoxOwnerReady",
+  "RuntimeBoxCollectorReady",
+  "RuntimeBoxUnclassified",
+  "RuntimeBoxRetiring",
+]
+ready = "An existing runtime owner supplies exact source context, symbol/arity, and collector boundary before child effects."
+collector_ready = "The runtime child has one named capture/commit owner and no root-terminal fallback."
+unclassified = "Missing owner/source/shape/collector -> typed freeze."
+retiring = "Explicit route-retirement row owns deletion; this card does not infer it."
+
+[observed]
+dispatcher = "src/mir/builder/raw_expression_dispatch/mod.rs:488-524"
+instance_batch = "src/mir/builder/instance_box_method_batch.rs:71-95"
+root_constructor_edge = "src/mir/builder/instance_box_constructor_batch.rs:113-135 is root work-plan scope and remains separate from these runtime edges"
+current_fate = "ParkedSealed; no runtime-box implementation permission"
+
+[acceptance]
+positive = [
+  "all runtime BoxDeclaration and nested-method edges are enumerated by exact file/arm",
+  "a future selected row names one source/shape/collector owner or an explicit retirement terminal",
+  "root I1 remains unchanged by this parked row",
+]
+negative = [
+  "runtime edge is not treated as root RawCompatibility success",
+  "no AST/name/arity/box-kind target synthesis",
+  "no loose-* weakening, fallback, retry, provider, VM, or Wpre re-entry",
+]
+guard = "A future guard must fail on unlisted runtime Box edges and must not count the root child-terminal guard as runtime coverage."
+
+[implementation_gate]
+permission = false
+no_safe_slice = [
+  "runtime source/shape/collector authority is not identified",
+  "root I1 must be widened to absorb runtime edges",
+  "a new target resolver or source bridge is required",
+  "runtime path fate is mixed with loop, VM, or route retirement work",
+]
+
+[ordered_followups]
+next_after_design = "Census exact runtime Box owner and choose compatibility terminal versus retirement"
+reopen_triggers = [
+  "root I1 changes its runtime-box exclusion",
+  "a runtime edge is routed through the root compatibility terminal",
+  "runtime owner/symbol/arity/collector changes",
+]

@@ -191,4 +191,5 @@ reopen_triggers = [
 [amendment]
 row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b"
 reason = "Readiness audit found that immediate/deferred/App Main admission and the symbol/arity/source-context lifetime were not explicit enough to authorize the cross-file I1 implementation."
-status = "CutoverBlockerOpen until D0b is accepted"
+status = "accepted"
+resolution = "D0b closes the missing implementation choices; I1 remains a separate selected fast row."

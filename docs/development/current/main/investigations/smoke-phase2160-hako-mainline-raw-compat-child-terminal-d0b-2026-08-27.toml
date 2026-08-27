@@ -1,5 +1,5 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility child terminal design amendment D0b"
-status = "accepted_design_no_safe_slice"
+status = "accepted_design"
 observed_commit = "fca42d17156fe37d0cbfa31611eaef72e553ff2e"
 observed_at = "2026-08-27"
 implementation_permission = false
@@ -63,9 +63,10 @@ lifetime = "Direct terminal/capture state is borrowed for one recursive child. C
 [terminal_api]
 name = "RawCompatibilityChildTerminalPortV1"
 trait_relation = "RootCallableCapturePortV1: RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1 + RawCompatibilityChildTerminalPortV1"
-static_signature = "fn lower_raw_compat_static_child(&mut self, builder: &mut MirBuilder, function_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
-instance_signature = "fn lower_raw_compat_instance_child(&mut self, builder: &mut MirBuilder, function_name: String, box_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
-app_main_signature = "fn lower_raw_compat_app_main_static_child(&mut self, builder: &mut MirBuilder, child: &VerifiedMainStaticChildV1<'_>) -> Result<(), String>"
+shape = "private, nonsemantic RawCompatibilityCallableShapeV1 { symbol: Box<str>, physical_arity: usize }; no Clone/Copy/into_parts getter that permits dropping shape independently"
+static_signature = "fn lower_raw_compat_static_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+instance_signature = "fn lower_raw_compat_instance_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, box_name: String, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
+app_main_signature = "fn lower_raw_compat_app_main_static_child(&mut self, builder: &mut MirBuilder, shape: RawCompatibilityCallableShapeV1, child: &VerifiedMainStaticChildV1<'_>) -> Result<(), String>"
 materialization_signature = "fn lower_raw_compat_main_materialization(&mut self, builder: &mut MirBuilder, receipt: RawEntryMaterializationSourceReceiptV1, params: Vec<String>, param_decls: Vec<ParamDecl>, return_type_name: Option<String>, body: Vec<ASTNode>, uses: Vec<String>, attrs: DeclarationAttrs) -> Result<(), String>"
 raw_invocation = "RawInvocationChildPortV1 is the only production implementation in this row; it reborrows the capability, borrows source context, calls existing capture helpers, and leaves publication to LegacyReplaceWholePair"
 raw_legacy = "RawLegacyChildLoweringPortV1 keeps its existing direct compatibility implementation and is not swapped in wholesale; it receives typed reject/defaults for the new dedicated capability"
@@ -74,11 +75,39 @@ other_ports = "All other ports retain typed loose-static/loose-instance freezes 
 commit = "Each child produces one LegacyReplaceWholePair collection; the enclosing module performs one outer collector drain/commit"
 
 [symbol_arity]
-main = "main_expansion.rs:389-396,414-417 already-issued compatibility symbol/arity is borrowed unchanged"
-top_level = "PreparedProgramRootTopLevelFunctionPartsV1 stores name + params only; I1 introduces an explicit compatibility source-batch symbol/physical-arity product before the terminal, rather than recomputing params.len() in the consumer"
-instance_constructor = "Raw compatibility source batch must issue and retain function symbol + physical arity before lowering; normal_instance_constructor_admission.rs:376-385 is SelectedNormal-only and cannot be borrowed as RawCompatibility authority"
-collector = "recursive_child_lowering.rs commit helper consumes the existing symbol+arity pair; it is not recomputed by the terminal"
+main = "main_expansion.rs:389-396,414-417 supplies the body-side symbol/arity witness; RawCompatibilityCallableShapeV1 is the sole publication authority and the child witness is checked against it"
+top_level = "PreparedProgramRootTopLevelFunctionPartsV1 stores name + params only today; I1's work-plan issuer must create RawCompatibilityCallableShapeV1 once from the existing compatibility symbol encoder and source parameter relation, then move it to the terminal"
+instance_constructor = "PreparedInstanceBoxConstructorBatchV1::prepare must issue RawCompatibilityCallableShapeV1 (function symbol + physical arity) from its existing normalized constructor source owner before lower_with_port_v1; normal_instance_constructor_admission.rs:376-385 is SelectedNormal-only and cannot be reused"
+collector = "recursive_child_lowering.rs commit helper consumes shape.symbol + shape.physical_arity; it is not recomputed by the terminal"
 unknown = "missing, conflicting, or foreign symbol/arity -> typed freeze before capture/commit"
+
+[compatibility_shape_issuer]
+kind = "private nonsemantic transport product, not a Verified/Prepared semantic receipt and not a CallTarget"
+top_level = "ProgramRootWorkPlanV1 preparation issues one RawCompatibilityCallableShapeV1 from the existing JSON-v0 physical symbol encoder plus the source parameter relation before PreparedProgramRootTopLevelFunctionPartsV1::lower_raw_with_port_v1"
+constructor = "PreparedInstanceBoxConstructorBatchV1::prepare issues one RawCompatibilityCallableShapeV1 per constructor from the existing normalized constructor source/function shape before lower_with_port_v1"
+deferred_static = "The deferred static preparation issues an aligned shape row per method before ProgramDeferredStaticBoxLifecycleV1 lowering; the consumer only moves the row"
+fields = "symbol: Box<str> and physical_arity: usize; both are required, opaque to target resolution, and consumed together by the terminal"
+ownership = "shape is move-only from source batch -> child terminal -> existing collector admission; no clone, copy, independent package getter, or consumer params.len()/params.len()+1 recomputation"
+failure = "If an existing compatibility source owner cannot issue an exact shape before child effects, that family is ParkedSealed/typed freeze and is not admitted to I1"
+
+[raw_materialization_handoff]
+issuer = "RawCompatibility ingress owns an existing OwnedRawRootProjectionV1 and calls RawEntryMaterializationSourceReceiptV1::seal(projection, policy) before root lowering"
+required = "RawEntryMaterializationSourceReceiptV1::App with Required policy moves into lower_raw_compat_main_materialization and then existing capture/LegacyReplaceWholePair"
+omitted = "RawEntryMaterializationSourceReceiptV1::Script with Required returns None; omitted materialization performs no child terminal call"
+normal = "SelectedNormal keeps NormalEntryMaterializationSourceReceiptV1 and the existing cataloged normal path"
+forbidden = "RawCompatibility never constructs NormalEntryMaterializationSourceReceiptV1, NormalCatalogedBoxMethodDraftAdmissionV1, or a target from Main name/arity"
+lifetime = "The raw receipt is created once at the compatibility ingress, moved into the scoped terminal call, and is not retained by the package or recursive sibling"
+
+[source_location_contract]
+allowed_roots = ["RawInvocationSourceTransportV1::Located with RawInvocationRootLineageV1::ScriptRoot and a concrete SourceNodeSiteV1"]
+root_policy = "I1's hako-mainline ingress is ScriptRoot only; Main, TopLevel, Cataloged, InstanceConstructor, NestedBoxMethod, or any other root lineage is rejected until a separate row enumerates it"
+unlocated = "RawInvocationSourceTransportV1::UnlocatedCompatibility, expected_lineage=None, non-ScriptRoot lineage, or missing current_source_context_v1 is typed freeze before capture; it is never upgraded to a target"
+clone_boundary = "Existing RawSourceTransportPortV1 metadata reborrow/clone remains outside the direct terminal loan; only terminal/capture ownership is affine"
+
+[app_main_shape_authority]
+publication_authority = "RawCompatibilityCallableShapeV1.symbol + physical_arity"
+child_witness = "VerifiedMainStaticChildV1 symbol/arity is an immutable consistency witness only; mismatch rejects before capture"
+collector_input = "Only the moved RawCompatibilityCallableShapeV1 values reach LegacyReplaceWholePair; the child witness is never recomputed or published"
 
 [source_locations]
 admission = [
@@ -124,9 +153,15 @@ excluded_edges = [
 successor = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
 negative = "A runtime Box edge encountered by I1 without an explicit owner remains typed freeze; it is not silently included or routed through the root terminal."
 
+[runtime_successor]
+row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
+card_path = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-child-d0-2026-08-27.toml"
+fate = "ParkedSealed until I1 closes; runtime declaration and nested-method ownership are a separate boundary"
+
 [source_and_commit_unit]
 source_transport = "program_root_lowering.rs:198-212 and raw_invocation_source_transport.rs:135-142 install the existing ScriptRoot transport; the terminal borrows its current context only for the child capture"
 metadata_clone = "RawSourceTransportPortV1::current_source_context_v1 active_source clone at raw_invocation_source_transport.rs:543-560 is existing metadata behavior, not the direct terminal loan and not target authority"
+source_state = "Located(ScriptRoot) with a concrete SourceNodeSiteV1 is admitted; UnlocatedCompatibility or missing context rejects before capture"
 child_unit = "One child -> one LegacyReplaceWholePair pending capture/collection"
 module_unit = "After all children, program_root_lowering.rs:220-227 performs one outer ModuleDraftCollector drain/commit"
 residual = "Both child pending state and outer module residual must be empty before completion; 'one commit' never means one commit per family only."
@@ -169,6 +204,8 @@ retiring = "Route retirement is a separate design row"
 positive = [
   "immediate top-level/static, instance-constructor, deferred-static, App Main child, and Main materialization families each have an explicit RawCompatibility branch",
   "RawCompatibility App Main materialization uses RawEntryMaterializationSourceReceiptV1 and never emits NormalCatalogedBoxMethodDraftAdmissionV1",
+  "hako-mainline source transport admits only Located(ScriptRoot); other lineage states reject before capture",
+  "RawCompatibilityCallableShapeV1 is the sole App Main symbol/arity publication authority and child metadata is validation-only",
   "each selected family uses existing capture/LegacyReplaceWholePair exactly once",
   "admission and source context are carried through recursive/deferred calls without copied ledgers",
   "symbol/arity come from existing owners and are moved/borrowed unchanged",
@@ -177,6 +214,7 @@ positive = [
 negative = [
   "loose-* defaults still reject unclassified input",
   "None/Option no longer silently selects a different admission",
+  "non-ScriptRoot and UnlocatedCompatibility inputs do not enter the I1 terminal",
   "missing/foreign/duplicate/mixed source or collector state rejects before child effects",
   "runtime ASTNode::BoxDeclaration/nested-method edges listed in runtime_box_scope are outside I1 and remain a separate typed-freeze row",
   "no AST/name/arity/box-name target synthesis, fallback, retry, provider, VM, or Wpre re-entry",
@@ -226,7 +264,7 @@ evidence = [
 ]
 
 [readiness_reaudit]
-decision = "No: the first D0b text still left six implementation choices open. This amendment closes them as design requirements; I1 remains unopened until the amended card is accepted."
+decision = "Yes: the amended D0b now closes the irreversible implementation choices and permits one bounded I1 card to be opened; no code permission is granted by this card itself."
 open_points_closed = [
   "exact RawCompatibilityChildTerminalPortV1 name, trait relation, and four method signatures",
   "RawCompatibility versus SelectedNormal App Main child/materialization split",
@@ -235,7 +273,7 @@ open_points_closed = [
   "non-optional admission fields for immediate/deferred work and explicit App Main propagation",
   "child LegacyReplaceWholePair collection once versus outer ModuleDraftCollector drain/commit once",
 ]
-worker_no_safe_slice = [
+historical_no_safe_slice = [
   "a source bridge, semantic receipt, target resolver, or new source identity is needed",
   "RawLegacyChildLoweringPortV1 wholesale swap or loose default weakening is required",
   "symbol/arity cannot be borrowed or pre-issued by an existing compatibility source batch",
