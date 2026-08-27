@@ -5,6 +5,7 @@ observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-D2"
 parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-raw-compat-entry-owner-d1-2026-08-27.toml"
+successor_card = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fate-capability-i0-2026-08-27.toml"
 code_baseline = "60de7ac91e; D2 amendments observed at d81866059f; no production code or fixture changes are authorized by this card"
 
 [boundary]
@@ -197,8 +198,8 @@ evidence = [
 
 [ordered_followups]
 steps = [
-  "1. Freeze the private capability fields, lifetime/reborrow closure, finite branch matrix, zero-delta contract, and implementation guard; keep implementation_permission=false in D2.",
-  "2. Open one fast row named RUNTIME-BOX-FIH-FATE-CAPABILITY-I0 only after explicit implementation approval; implement the phase2160 RawCompatibility arm and no other RawInvocation arm.",
+  "1. Freeze the private capability fields, lifetime/reborrow closure, finite branch matrix, zero-delta contract, and implementation guard; D2 is now accepted design-only.",
+  "2. Open the linked fast row RUNTIME-BOX-FIH-FATE-CAPABILITY-I0; implement the phase2160 RawCompatibility arm and no other RawInvocation arm.",
   "3. Convert the four explicit positive contracts to typed pre-effect negatives in the same bounded implementation family; record exact zero-delta assertions.",
   "4. Recount the route-only old edges and delete only proven phase2160 F/I/H success publication; retain shared types, RawLegacy, SelectedNormal, and root I1.",
   "5. Close out the implementation row with the reusable guard, then open RUNTIME-BOX-RAWLEGACY-NESTED-MAIN-FATE-D0 for C separately; do not generalize the capability.",
