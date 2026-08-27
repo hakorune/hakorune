@@ -303,6 +303,17 @@ unregistered_calltarget_families = [
   "static terminal/publication: calls/method_call_terminal.rs, normal_script_direct_static_physical_publication.rs, and rewrite/known.rs",
   "builtin: stmts/print_stmt.rs",
 ]
+compiled_owner_action_inventory = [
+  "CallTarget schema/transport (calls/call_target.rs, calls/emit.rs): adapt together with Callee at B1; terminal is the typed structural carrier, and any remaining String API reopens C0",
+  "ordinary/recovery (calls/build.rs, calls/function_call_preflight_route.rs, calls/static_resolution.rs): retire name/arity, mir_symbol_projection, unique-static, and tail recovery; exact relation handoff is a later D1 issuer, otherwise TypedRejectBeforeArguments",
+  "static terminal/publication (calls/method_call_terminal.rs, normal_script_direct_static_physical_publication.rs, rewrite/known.rs): adapt only an exact declaration-backed relation; test-only publication is isolated and unsupported rewrite paths retire",
+  "builtin (stmts/print_stmt.rs): adapt exact print/1 to Builtin(Print); any other bare Global is typed reject or an explicitly named provider row",
+  "MirCall/CallFlags transport (call_unified.rs, unified_emitter/physical_terminal.rs, crate facades, RustSubset projections): keep MirCall and the physical terminal; classify CallFlags-only writers as a separate retirement candidate",
+]
+calltarget_census = "Current compiled CallTarget::Global census is 20 Rust files/45 occurrences (17 production-ish files/36 occurrences). The nine files above are the previously unregistered family members; normal_script_direct_static_physical_publication.rs is test-only and is isolated, while recursive test helpers and apps/selfhost-runtime copies are outside the compiled owner boundary and must not be counted as production issuers."
+mircall_flags_census = "Rust CallFlags references are bounded to the defs schema/constructors, builder create_call_flags, two Rust facades, two lifecycle classifiers, and the generated RustSubset .hako/.json pair. MirCall remains live at unified_emitter/physical_terminal.rs; Hako flags.optionality and Python/llvmlite mir_call JSON readers are separate wire/reference owners, not Rust CallFlags readers."
+test_and_external_boundary = "normal_script_direct_static_physical_publication.rs and the RustSubset expected .hako/.json are co-update/isolate obligations, not production target authority. apps/selfhost-runtime copies and Python/llvmlite JSON operation names remain outside the Rust structural carrier boundary unless an explicit owner reopens them."
+completion_status = "C0 remains incomplete: the owner/action table is now finite at family/file scope, but each family still needs observed successor/terminal and reopen evidence, and the CallFlags public/projection matrix must reach CensusExhausted before any implementation row is selected."
 mircall_boundary = "MirCall remains a live transport through unified_emitter/physical_terminal.rs. CallFlags is a separate writer/public/projection retirement candidate; its design row must classify create_mir_call/create_call_flags, public re-exports, generated RustSubset projections, and external/feature obligations before any deletion."
 mircall_prerequisite = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0 is a prerequisite design row, not part of B1 carrier implementation: retain create_mir_call -> physical_terminal -> MirInstruction::call and Hako wire flags.optionality; only writer-only Rust CallFlags edges may later be removed after the public/projection matrix is exhausted."
 required_evidence = [
@@ -311,6 +322,7 @@ required_evidence = [
   "all wire/backend/optimizer treatment is decided before the atomic cutover; partial compile repair is not a terminal",
   "the structural construction guard names the callable-declaration catalog as the only production issuer",
   "CallTarget::Global production edges are owner-classified, and the MirCall/CallFlags matrix records the live physical terminal separately from writer-only candidates",
+  "test-only fixtures, apps/selfhost-runtime copies, and Python/llvmlite JSON operation names are explicitly outside or co-updated at the named boundary",
   "C0 inventory is exhausted and all open remediation rows are closed before B1 cutover implementation permission",
 ]
 non_authority = [
@@ -326,6 +338,7 @@ no_safe_slice = [
   "a production constructor appears outside the declaration catalog or the construction guard cannot observe it",
   "MirCall transport is deleted or CallFlags semantics are silently dropped before its separate retirement row closes",
   "CallFlags public/feature/generated obligations remain unresolved but B1 is opened as if they were caller-zero",
+  "a test/projection copy is treated as a production issuer, or an app/Python JSON operation name is used to justify structural carrier construction",
 ]
 next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 next_prerequisite_row = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0"
