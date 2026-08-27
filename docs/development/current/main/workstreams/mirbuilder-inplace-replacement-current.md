@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-GENERATED-REGISTRY-RETENTION-D0;
-  preserve module_postprocess RetainNamed and issue policy across 15 groups;
-  5 conditional/61 residual blocked, policy-ready 1/79 before map/deletion.
+  preserve module_postprocess RetainNamed, carry source_view as candidate evidence;
+  issue policy across 14 groups; 5 conditional/60 residual blocked, policy-ready 1/79 before map/deletion.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

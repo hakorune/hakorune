@@ -34,7 +34,7 @@ non_authority = [
   "caller-zero claims, successor guesses, and Retain/Candidate outcomes without named policy evidence",
 ]
 fail_fast = "Reject a matrix that omits, duplicates, reorders, or foreign-maps a receipt key; reject a row with only filename/grep evidence; keep missing owner, mixed role, unknown successor, and unreviewed evidence as blocking rather than filling a default."
-smallest_next_slice = "Continue policy binding across the remaining 15 bounded A role groups: preserve the exact module_postprocess RetainNamed row, and keep the remaining 61 residual rows blocked without creating per-row cards."
+smallest_next_slice = "Continue policy binding across the remaining 14 bounded A role groups: preserve the exact module_postprocess RetainNamed row, carry source_view as candidate evidence only, and keep the remaining 60 residual rows blocked without creating per-row cards."
 non_claims = [
   "does not create or validate the tracked owner-map TOML",
   "does not resolve Git references or authorize any row as deletable",
@@ -103,17 +103,17 @@ completion_rule = "only all rows reviewed_ready_for_map with explicit successor 
 path = "docs/development/current/main/investigations/chronic-measurement-site-owner-evidence-matrix-v1.tsv"
 status = "candidate_evidence_partial_blocked"
 source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
-sha256 = "sha256:1e94e01bb735b4b805a5dc788da9d7f974d91e5f9a9f65c02b04ff860609dff8"
+sha256 = "sha256:ade031ebf52e405f600a231eaa95b386972c440032e03fadf875a06bb6d6dfdf"
 header_columns = 20
 site_rows = 185
 cohort_rows = "A=79; B=46; C=60; disjoint total=185"
-review_state_counts = "candidate_evidence=12; reviewed_ready_for_map=1; blocked_successor=72; blocked_mixed_role=100"
-candidate_evidence_rows = 12
+review_state_counts = "candidate_evidence=13; reviewed_ready_for_map=1; blocked_successor=71; blocked_mixed_role=100"
+candidate_evidence_rows = 13
 reviewed_ready_for_map_rows = 1
-empty_candidate_owner_rows = 172
-empty_candidate_evidence_rows = 172
+empty_candidate_owner_rows = 171
+empty_candidate_evidence_rows = 171
 authority = "non-authoritative design input only; it records exact receipt coverage and explicit blockers, never owner/successor/retirement authority"
-generation_note = "read-only receipt projection with 12 candidate-evidence rows and one reviewed_ready_for_map RetainNamed row; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
+generation_note = "read-only receipt projection with 13 candidate-evidence rows and one reviewed_ready_for_map RetainNamed row; source_view remains candidate-only; no scanner invocation, stdout parse, filename-based owner inference, expectation TSV, guard registration, or source deletion"
 
 [finite_state]
 states = [
@@ -184,10 +184,10 @@ agent = "chronic_measurement_scope_audit"
 agents = [
   "chronic_measurement_scope_audit (core partition=21)",
   "aggregate_heavy_cohort_design (loop partition=22)",
-  "chronic_token_scanner_design_audit (raw/entry partition=19)",
+  "chronic_token_scanner_design_audit (raw/entry partition=19; source_view narrow follow-up)",
 ]
 status = "a_policy_progress_remaining_blocked"
-finding = "At a3d9098f91, all 79 A rows are structurally bound; 12 rows carry candidate evidence and the module_postprocess row carries one exact RetainNamed policy binding. Five conditional rows and the remaining 61 rows are blocked because existing evidence does not bind an explicit retain or named successor to their canonical keys. Policy-ready is 1/79; A successor status is unknown for 78 rows; B=46 and C=60 remain site-level evidence work."
+finding = "At a3d9098f91, all 79 A rows are structurally bound; 13 rows carry candidate evidence and the module_postprocess row carries one exact RetainNamed policy binding. Source_view is candidate-only; five conditional rows and the remaining 60 residual rows are blocked because existing evidence does not bind an explicit retain or named successor to their canonical keys. Policy-ready is 1/79; A successor status is unknown for 78 rows; B=46 and C=60 remain site-level evidence work."
 evidence = [
   "src/mir/compiler/module_registry.in.rs:1-4 and src/mir/compiler/mod.rs:14-17 establish the generated-registry/include owner boundary, not blanket Retain authority",
   "tools/checks/manifests/chronic_measurement_scope_v1.toml:37-41 observes compile_domain=generated_included and role=generated_registry, which cannot issue successor_status=not_required",
@@ -199,8 +199,9 @@ evidence = [
   "Three read-only partitions covered the residual A rows before policy binding (core=21, loop=22, raw/entry=19); after the exact module_postprocess RetainNamed binding, 61 residual keys remain across 15 bounded roles, with candidate-only=0 for the residual set",
   "Common-v2 sub-audit (rows 53/55/57) confirms role evidence only: admission is a caller-zero canary, entry input is transport-only, and skeleton is an unpublished shell; non-test references do not issue retention or successor policy",
   "Resolved-callable sub-audit (row 203) identifies the resolver owner and canonical ingress API, but its exact-key caller census is test-centered; neither RetainNamed nor a named successor is issued",
+  "Source-view narrow follow-up identifies FunctionSourceViewV1 as the current production source-navigation owner through ResolvedFunctionLoweringInputV1 and located/source navigation; this is candidate evidence only because the exact module allowance still lacks a named RetainNamed policy or successor, and the historical disconnected README wording is not current fate authority",
 ]
-latest_finding = "The A matrix records 12 exact candidate joins and one reviewed_ready_for_map RetainNamed binding for module_postprocess. The five conditional candidates and remaining 61 residual rows remain blocked because their evidence is broad rather than canonical-key bound; policy-ready is 1/79 and 78 A successor statuses remain unknown. Continue with role-group policy binding without creating per-row cards, then B/C evidence."
+latest_finding = "The A matrix records 13 exact candidate joins and one reviewed_ready_for_map RetainNamed binding for module_postprocess; source_view is candidate-only. The five conditional candidates and remaining 60 residual rows remain blocked because their evidence is broad rather than canonical-key bound; policy-ready is 1/79 and 78 A successor statuses remain unknown. Continue with role-group policy binding without creating per-row cards, then B/C evidence."
 
 [closeout]
 status = "pending"
