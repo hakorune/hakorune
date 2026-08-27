@@ -36,6 +36,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 - Prefer reusable family guards, `current_state_pointer_guard.sh`, `run_row_guard.sh`, or `run_proof_app.sh` over new row-specific shell scripts.
 - Measurement rows record commands and evidence in the card. Add a guard only if the measurement becomes a stable regression gate.
 - Pointer updates are required for active blocker/lane transitions and behavior-changing rows; do not move current pointers for docs-only exploration rows.
+- Navigation compatibility tombstones are validated by the existing inventory L0 from `tools/checks/manifests/guard_navigation_tombstones.toml`; keep the legacy compatibility block byte-stable.
 
 ## Daily Stable Gates
 

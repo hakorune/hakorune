@@ -1,0 +1,37 @@
+schema_version = 0
+
+[[tombstones]]
+path = "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_registry_exact_top_symbol_variability_guard.sh"
+owner = "docs/development/current/main/design/perf-userbox-link-startup-attribution-ssot.md#PERF-USERBOX-030"
+disposition = "superseded"
+reason = "duplicate build-registry measurement was folded into the registry exact probe"
+observed_revision = "80e3d755d6d264c21517823529c89c7097661122"
+successor = "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_exact_top_symbol_variability_guard.sh"
+reopen_trigger = "Only an owner-reviewed perf decision selecting a distinct exact build-registry output contract may reopen this name."
+
+[[tombstones]]
+path = "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability_guard.sh"
+owner = "docs/development/current/main/design/perf-userbox-link-startup-attribution-ssot.md#PERF-USERBOX-035"
+disposition = "superseded"
+reason = "scope and name generalized from create-default-registry wording to the rebuild-cache subkind probe"
+observed_revision = "1b5edd7eec3d6706fb9218d1ec3b284ea67523fa"
+successor = "tools/checks/k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_rebuild_cache_subkind_variability_guard.sh"
+reopen_trigger = "Only a new owner decision after the successor loses its rebuild-cache contract may reopen this name."
+
+[[tombstones]]
+path = "tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh"
+owner = "docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md; docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+disposition = "superseded"
+reason = "obsolete token-only Hako facade retired after bounded-body snapshot parity; Rust planner Fact remains authoritative"
+observed_revision = "13ca2339a3d51dd0d4316913a522b81536449066"
+successor = "tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh"
+reopen_trigger = "Only a new explicit authority decision for planner adoption or another distinct Fact consumer may reopen this name."
+
+[[tombstones]]
+path = "tools/checks/rust_lifecycle_mirbuilder_loop_feature_facts_token_snapshot_hako_adoption_decision_guard.sh"
+owner = "docs/development/current/main/design/mirbuilder-authority-based-hako-migration-ssot.md; docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+disposition = "superseded"
+reason = "obsolete token-only Hako facade retired after bounded-body snapshot parity; Rust planner Fact remains authoritative"
+observed_revision = "13ca2339a3d51dd0d4316913a522b81536449066"
+successor = "tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh"
+reopen_trigger = "Only a new explicit authority decision for planner adoption or another distinct Fact consumer may reopen this name."

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path, PurePosixPath
+import re
 import subprocess
 import sys
 import tomllib
@@ -17,6 +18,10 @@ CLOSEOUT_PROFILE = "hako-alloc-closeout"
 IMPL_PREFIX = "tools/checks/impl/"
 WRAPPER_PREFIX = "tools/checks/"
 PUBLIC_CLOSEOUT_GLOB = "k2_wide_hako_alloc_*closeout_guard.sh"
+INDEX_PATH = "docs/tools/check-scripts-index.md"
+TOMBSTONE_MANIFEST_PATH = "tools/checks/manifests/guard_navigation_tombstones.toml"
+COMPAT_BEGIN = "<!-- legacy-guard-name-compat-begin"
+COMPAT_END = "legacy-guard-name-compat-end -->"
 
 
 def fail(message: str) -> None:
@@ -206,6 +211,149 @@ def graph_edges(
     return direct, aliases, errors
 
 
+def compatibility_names(root: Path) -> tuple[list[str], list[str]]:
+    index = root / INDEX_PATH
+    if not index.is_file():
+        return [], [f"navigation index missing: {INDEX_PATH}"]
+    text = index.read_text(encoding="utf-8")
+    if text.count(COMPAT_BEGIN) != 1 or text.count(COMPAT_END) != 1:
+        return [], [
+            "navigation compatibility block must have exactly one begin/end marker"
+        ]
+    begin = text.index(COMPAT_BEGIN) + len(COMPAT_BEGIN)
+    end = text.index(COMPAT_END)
+    if begin >= end:
+        return [], ["navigation compatibility block markers are reversed"]
+
+    names: list[str] = []
+    errors: list[str] = []
+    for raw in re.findall(r"tools/checks/[^\s,]+", text[begin:end]):
+        token = raw.rstrip("`.;:)]}")
+        if "*" in token:
+            continue
+        if not token.startswith("tools/checks/") or normalized_repo_path(token) != token:
+            errors.append(f"invalid navigation compatibility token: {raw}")
+            continue
+        if token in names:
+            errors.append(f"duplicate navigation compatibility name: {token}")
+            continue
+        names.append(token)
+    return names, errors
+
+
+def git_revision_exists(root: Path, revision: str) -> bool:
+    if not revision or revision.startswith("-"):
+        return False
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", f"{revision}^{{commit}}"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+def load_navigation_tombstones(root: Path) -> tuple[list[dict[str, str]], list[str]]:
+    path = root / TOMBSTONE_MANIFEST_PATH
+    if not path.is_file():
+        return [], [f"navigation tombstone manifest missing: {TOMBSTONE_MANIFEST_PATH}"]
+    try:
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        return [], [f"navigation tombstone manifest parse failed: {exc}"]
+    if data.get("schema_version") != 0:
+        return [], ["navigation tombstone manifest schema_version must be 0"]
+    rows = data.get("tombstones")
+    if not isinstance(rows, list):
+        return [], ["navigation tombstone manifest must contain [[tombstones]] rows"]
+
+    required = (
+        "path",
+        "owner",
+        "disposition",
+        "reason",
+        "observed_revision",
+        "successor",
+        "reopen_trigger",
+    )
+    result: list[dict[str, str]] = []
+    errors: list[str] = []
+    seen: set[str] = set()
+    for idx, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            errors.append(f"navigation tombstone row {idx} must be a table")
+            continue
+        values: dict[str, str] = {}
+        for field in required:
+            value = row.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"navigation tombstone row {idx} missing {field}")
+                continue
+            values[field] = value
+        if len(values) != len(required):
+            continue
+        tombstone_path = values["path"]
+        if not tombstone_path.startswith("tools/checks/") or normalized_repo_path(tombstone_path) != tombstone_path:
+            errors.append(f"navigation tombstone row {idx} has invalid path: {tombstone_path}")
+        if tombstone_path in seen:
+            errors.append(f"duplicate navigation tombstone path: {tombstone_path}")
+        seen.add(tombstone_path)
+        if values["disposition"] != "superseded":
+            errors.append(
+                f"navigation tombstone row {idx} disposition must be superseded"
+            )
+        result.append(values)
+    return result, errors
+
+
+def validate_navigation(
+    root: Path,
+    tracked: set[str],
+) -> tuple[dict[str, int], list[str]]:
+    names, errors = compatibility_names(root)
+    tombstones, tombstone_errors = load_navigation_tombstones(root)
+    errors.extend(tombstone_errors)
+    names_set = set(names)
+    tombstone_by_path: dict[str, dict[str, str]] = {}
+    for tombstone in tombstones:
+        path = tombstone["path"]
+        if path in tombstone_by_path:
+            continue
+        tombstone_by_path[path] = tombstone
+        if path not in names_set:
+            errors.append(f"tombstone path is not in compatibility index: {path}")
+        if path in tracked:
+            errors.append(f"executable caller reappeared for tombstoned path: {path}")
+        if not git_revision_exists(root, tombstone["observed_revision"]):
+            errors.append(
+                f"tombstone observed revision is not a commit: {path}: "
+                f"{tombstone['observed_revision']}"
+            )
+        successor = tombstone["successor"]
+        if successor not in tracked:
+            errors.append(f"tombstone successor is not tracked: {path}: {successor}")
+        if successor in tombstone_by_path:
+            errors.append(f"tombstone successor is also tombstoned: {path}: {successor}")
+
+    live = {name for name in names if name in tracked}
+    tombstoned = {
+        name for name in names if name not in tracked and name in tombstone_by_path
+    }
+    dangling = {
+        name for name in names if name not in tracked and name not in tombstone_by_path
+    }
+    for name in names:
+        if name in tracked and name in tombstone_by_path:
+            errors.append(f"live compatibility path has tombstone: {name}")
+    return {
+        "navigation_compatibility_paths": len(names),
+        "navigation_live_paths": len(live),
+        "navigation_tombstoned_paths": len(tombstoned),
+        "navigation_dangling_paths": len(dangling),
+        "navigation_tombstone_rows": len(tombstones),
+    }, errors
+
+
 def run_registry_ratchet(root: Path, manifest: Path, base: str | None) -> int:
     rows = load_rows(root, manifest)
     validate_graph_rows(rows)
@@ -217,6 +365,8 @@ def run_registry_ratchet(root: Path, manifest: Path, base: str | None) -> int:
         current_tracked,
         validate_current_paths=True,
     )
+    navigation_output, navigation_errors = validate_navigation(root, current_tracked)
+    errors.extend(navigation_errors)
     current_mapped = current_direct | current_aliases
     current_unmapped = current_eligible - current_mapped
 
@@ -245,6 +395,7 @@ def run_registry_ratchet(root: Path, manifest: Path, base: str | None) -> int:
         mapping_loss = (base_mapped & base_eligible & current_eligible) - current_mapped
 
     output = {
+        **navigation_output,
         "registry_mode": mode,
         "registry_base": base or "none",
         "registry_current_eligible": len(current_eligible),
