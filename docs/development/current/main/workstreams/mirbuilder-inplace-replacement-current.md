@@ -1,5 +1,5 @@
 ---
-Status: Design stop — phase2160 hako-mainline RawCompatibility runtime Box F/I/H entry-owner fate D1
+Status: Design stop — phase2160 hako-mainline RawCompatibility runtime Box fate capability D2
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-raw-compat-entry-owner-d1-2026-08-27.toml
+  - docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fate-capability-d2-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -50,7 +50,7 @@ Fail-fast boundary:
 
 Smallest next slice:
   `SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1` landed at `684533ba22`: the five root families issue a move-only compatibility shape before effects, use one child capture plus one outer collector drain, and leave runtime Box edges outside the terminal.
-  D0b froze the exhaustive A-J/K matrix, and the completed F/I/H census found four explicit RawInvocation test contracts but no named product/reference owner. The active D1 selects Retire/Frozen or NarrowSuccessor with implementation permission false.
+  D0b froze the exhaustive A-J/K matrix, and D1 completed the F/I/H census: four explicit RawInvocation test contracts remain, but no named product/reference owner exists. D2 selects phase2160-only Retire/Frozen through one private scoped fate capability; generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged, with implementation permission false.
   The zero-match D0, exact-selection I0, and `SMOKE-OWNER-PACK-AGGREGATE-EXCLUSION-I0` are landed: phase2050 discovery is 962 with exactly five leaves, while direct aggregate invocation remains the exact owner pack. Stage1 AOT boundary and separate PHI/provider R0b fate remain closed.
   `SMOKE-OWNER-PACK-REMAINING-AGGREGATE-CENSUS-D0` is complete as a read-only census. The phase2170 official nine-leaf I0 is landed. phase2160's final fate is now selected as wrapper retirement, and its twenty-child leaf owner/fate census is the design stop; phase2047/2048/2049/2051, phase2100, and the legacy cluster retain separate fates and are not generalized.
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
@@ -65,7 +65,7 @@ Design-only follow-up:
   task mapへ登録済み。有限phase/summaryを固定する
   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-D0/I0`は着地済み。`quick` 0-matchを証拠にしない
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0`、exact-selection I0、phase2050 exclusion I0、phase2170 official I0は着地済み。phase2160/run_allの退役方針を選定し、20本のleafをbody hash・owner/fate・repair edge付きで固定した。hako-mainline strict-negative successorはadmission-fate D0で既存RawCompatibilityを選定し、I0でcompatibility admissionを着地した。
-  再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。D0b設計とI1実装でroot compatibility terminalを閉じ、再監査でsync reject、RawLegacy/RawInvocation分岐、missing mode、constructor→method順序、prefix後rejectを追加した。F/I/H caller-fate監査ではshape issuer・affine lineage loan・whole-Box atomic collectorが未存在、さらにRawInvocation専用4テストがsuccess contractとして残ると判明。無断削除を避け、D1でentry ownerとRetire/Frozen対NarrowSuccessorを選ぶ。
+  再観測はcohort-missingを越えて`raw-box-method/loose-instance-input`で停止した。D0b設計とI1実装でroot compatibility terminalを閉じ、再監査でsync reject、RawLegacy/RawInvocation分岐、missing mode、constructor→method順序、prefix後rejectを追加した。F/I/H caller-fate監査ではshape issuer・affine lineage loan・whole-Box atomic collectorが未存在、さらにRawInvocation専用4テストがsuccess contractとして残ると判明。D1でentry owner/fateを閉じ、D2でphase2160 RawCompatibility captureだけにmove-only fate capabilityを貸すAPI・lifetime・zero-delta guardを固定する。実装はI0まで禁止。
   その後に post-emission と実行terminalを分離した `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` を開く。
 
   `SMOKE-OWNER-PACK-ZERO-MATCH-D0` design brief (accepted; I0 fast-open):

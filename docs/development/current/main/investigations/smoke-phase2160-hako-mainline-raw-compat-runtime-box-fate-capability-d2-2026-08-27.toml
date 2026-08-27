@@ -1,0 +1,190 @@
+title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box fate capability D2"
+status = "accepted_design_no_safe_slice"
+observed_commit = "43567198ac"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-D2"
+parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-raw-compat-entry-owner-d1-2026-08-27.toml"
+code_baseline = "60de7ac91e; no production code or fixture changes are authorized by this card"
+
+[boundary]
+starts = "phase2160 RawCompatibility root/capture scope entering RawInvocation runtime Box F/I/H dispatch"
+ends = "a route-scoped pre-effect Retire/Frozen capability that makes the unowned F/I/H paths and their four explicit positive contracts terminally typed"
+includes = [
+  "RawCompatibility capture owner and its recursive RawInvocation child reborrow",
+  "F non-App static, I constructor-zero instance, and H constructor-bearing instance paths",
+  "pre-effect ordering before register_user_box, declared fields, prefix mutation, metadata, body, capture, and collector publication",
+  "the four explicit RawInvocation tests at module_lowering_invocation_reentrant_tests.rs:301-335,338-372,375-410,413-448",
+  "a reusable guard proving route scope, capability consumption, and zero-delta retirement",
+]
+excludes = [
+  "generic RawInvocation and SelectedNormal paths",
+  "RawLegacy C/G/J and the retained non-Box RawLegacy facade",
+  "root I1 Main compatibility terminal, sync/Main/missing-mode negatives, App no-op, and empty K",
+  "runtime shape/lineage/collector successor design, loop/route/VM/Wpre/Call, and backend changes",
+]
+
+[brief]
+decision = "F/I/H have no named product or reference owner. Retire/Frozen is selected for the phase2160 RawCompatibility route, but only through one private move-only fate capability scoped to that route. Generic RawInvocation must remain usable by SelectedNormal and other owners."
+source_authority = "The admitted phase2160 RawCompatibility capture scope is the sole issuer of the route seal; F/I/H entry evidence and test contracts are observations, not target or semantic authority."
+canonical_issuer = "A private RawCompatibilityRuntimeBoxFateV1::Retire capability is issued once by the phase2160 capture owner and consumed before any runtime Box effect. It carries no Callee, ValueId, AST, shape, symbol, or lineage."
+non_authority = [
+  "generic RawInvocation type identity, RawLegacy fallback, SelectedNormal forwarding, caller counts, fixture names, AST/name/arity inference, params.len(), format! symbols, loose freeze, and route rc",
+  "RawInvocationRootLineageV1 as a target authority, VM/AOT availability, backend behavior, or a test-only success contract without a named owner",
+  "ambient bools, downcasts, Clone/Rc/RefCell capability copies, retry from RawInvocation to RawLegacy, and root I1 reuse",
+]
+fail_fast = "The phase2160 RawCompatibility capture must arm the capability before runtime Box lowering. Missing, foreign, second, or mixed capability use rejects before prefix/body/capture/collector effects. Generic RawInvocation, SelectedNormal, RawLegacy, and root I1 are unarmed and unchanged."
+smallest_next_slice = "Freeze the capability API, lifetime, branch matrix, zero-delta test conversion, and one reusable guard. Do not implement until a fast row explicitly opens the route-scoped capability."
+census_boundary = "phase2160 RawCompatibility capture -> runtime Box F/I/H pre-effect fate; includes recursive RawInvocation reborrow and four explicit test contracts; excludes RawLegacy, SelectedNormal, root I1, and all downstream execution."
+non_claims = [
+  "does not claim language-level runtime Box semantics are removed everywhere",
+  "does not authorize a new semantic receipt, source shape issuer, lineage loan, collector transaction, or Call schema change",
+  "does not delete the RawLegacy facade, change root Main behavior, or make lexical absence a caller-zero proof",
+]
+
+[authority_chain]
+capture = "phase2160 RawCompatibility root/capture owner"
+capability = "private move-only RawCompatibilityRuntimeBoxFateV1::Retire route seal"
+consumer = "RawInvocation child scope consumes the capability only for F/I/H before declaration/prefix/body/capture/collector"
+terminal = "typed Retire/Frozen rejection with zero module/function/instruction/metadata/collector delta"
+successor_rule = "If a future product/reference owner is proven, open a separate source-shape-lineage-collector design; never repurpose this retirement capability."
+
+[capability_shape]
+fields = [
+  "private route seal proving phase2160 RawCompatibility ownership",
+  "private Retire marker with no payload",
+]
+required_properties = [
+  "move-only; no Clone or Copy",
+  "no Rc, Arc, RefCell, Option-as-authority, or child ledger copies",
+  "no public package getter, into_parts, or independently callable install path",
+  "#[must_use] equivalent lifecycle enforcement and explicit second-take rejection",
+]
+scope = "with_runtime_box_fate_v1-style closure on the RawCompatibility capture; recursive RawInvocation children receive only a short &mut reborrow and cannot retain it after the scope"
+no_safe_slice = [
+  "the capability must be stored in a broad ambient Builder field",
+  "generic RawInvocation or SelectedNormal must be armed to make the route compile",
+  "a child requires Clone/Rc/RefCell or a separate per-child ledger",
+  "the capability contains Callee, ValueId, AST, name, arity, symbol, or RawInvocationRootLineageV1",
+]
+
+[finite_state]
+states = [
+  "UnarmedNonCompatibility",
+  "CompatibilityFateArmed",
+  "FateConsumed",
+  "RetiredBeforeEffects",
+  "MissingCapabilityReject",
+  "ForeignCapabilityReject",
+  "SecondTakeReject",
+  "MixedCapabilityReject",
+  "SelectedNormalNoInheritance",
+  "RawLegacyNoInheritance",
+]
+meaning = "Only the phase2160 RawCompatibility capture can move Unarmed to CompatibilityFateArmed. F/I/H consume exactly once and terminate before effects. All other owners remain unarmed; invalid scope or reuse is a typed reject."
+
+[branch_policy]
+a_sync_reject = "Retain the existing typed sync rejection; no fate capability is needed."
+b_nested_main = "Retain root-only rejection; do not arm F/I/H fate for nested Main."
+e_app_noop = "Retain the existing App no-op and existing owner; no runtime Box capability inheritance."
+f_static_nonapp = "Consume Retire before register_user_box or body descent; no child, outer, symbol, or collector publication."
+i_instance_ctor_zero = "Consume Retire before declaration/metadata/body; no constructor or method child publication."
+h_instance_with_constructors = "Consume Retire before prefix mutation; no prefix, constructor, method, metadata, or collector publication."
+k_empty_box = "Retain existing empty completion owner; no capability is issued or copied."
+cross_route = "RawInvocation cannot retry through RawLegacy, and RawLegacy cannot borrow the phase2160 capability."
+
+[test_contract_retirement]
+owner = "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
+f = "301-335 becomes a typed pre-effect negative: no NestedStatic/Outer child or symbol publication and zero module/collector delta."
+i = "338-372 becomes a typed pre-effect negative: no NestedInstance/Outer publication and zero module/collector delta."
+h = "375-410 becomes a typed pre-effect negative: no prefix, constructor, method, metadata, or collector mutation."
+depth_three = "413-448 becomes a typed pre-effect negative at the first F/I/H edge: no Leaf/Middle/Outer residual publication."
+rule = "Do not silently delete or relabel these tests. A future successor must own all four contracts; retirement records the former acceptance as an explicit retired behavior."
+
+[zero_delta]
+before_fate = "No register_user_box, declared-field registration, prefix mutation, function/block/instruction insertion, metadata update, source capture, child commit, outer collector drain, or module publication."
+after_fate = "The typed Retire/Frozen result is the only observable outcome; residual child/module/function/collector state is empty and root I1/RawLegacy parity is unchanged."
+parity = "Existing phase2160 Main-only smoke, root I1, RawLegacy C/G/J, SelectedNormal, sync/Main/missing-mode, App no-op, and empty K behavior remain byte-for-byte on their existing owners."
+
+[old_edge_delete_set]
+route_only = [
+  "phase2160 RawCompatibility F/I/H RawInvocation success publication",
+  "F per-method child capture/commit and H prefix-before-fate mutation on this route",
+  "the four disconnected positive test assertions as success expectations",
+]
+retain = [
+  "shared runtime Box batch types and source helpers until caller census proves they are route-zero",
+  "RawLegacy C/G/J and facade",
+  "SelectedNormal forwarding and root I1 compatibility terminal",
+]
+completeness = "The route-only delete set covers every F/I/H arm of the phase2160 RawCompatibility capture; any _ arm outside this route is explicitly retained and cannot be folded into Retire/Frozen."
+
+[guard]
+id = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-GUARD"
+phase = "implementation-row only; do not register or run as a green implementation claim during D2"
+contract = "Derive the phase2160 capture scope and F/I/H entry arms, reject unarmed/foreign/second/mixed capability paths, verify pre-effect zero delta, and assert the four retired tests are explicit typed negatives."
+non_claims = "A text count alone cannot prove route semantics; the guard must distinguish phase2160 RawCompatibility from generic RawInvocation, SelectedNormal, RawLegacy, and root I1."
+
+[acceptance]
+positive = [
+  "phase2160 RawCompatibility capture issues one private route seal and recursive RawInvocation receives only a scoped &mut reborrow",
+  "F/I/H consume the seal exactly once before all declaration/prefix/body/capture/collector effects",
+  "generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unarmed and unchanged",
+  "the four explicit contracts have a recorded typed-negative disposition with zero-delta evidence",
+]
+negative = [
+  "missing, foreign, second, or mixed capability is a typed reject",
+  "no ambient bool, downcast, Clone, Rc/Arc/RefCell, copied ledger, RawLegacy retry, or root I1 reuse",
+  "no AST/name/arity/params inference, target synthesis, semantic receipt, or downstream backend/VM fallback",
+]
+
+[implementation_gate]
+permission = false
+required_before_fast = [
+  "D2 API/lifetime and private sealed bundle shape are reviewed and frozen",
+  "phase2160-only scope is mechanically distinguishable from generic RawInvocation/SelectedNormal/RawLegacy/root I1",
+  "F/I/H branch matrix and four test-negative conversions are named in the implementation row",
+  "zero-delta pre-effect boundary and route-only delete set are accepted",
+  "one reusable guard is registered with the implementation row and changed owners remain below 760/800 lines",
+]
+no_safe_slice = [
+  "the implementation needs a generic RawInvocation reject",
+  "a test contract is deleted without typed negative, successor owner, or retired-behavior evidence",
+  "F/I/H still publish per-method or mutate H prefix before fate",
+  "RawLegacy, SelectedNormal, root I1, loop, route, VM, Wpre, or Call changes are required",
+]
+
+[[worker_receipt]]
+agent = "force_successor_fate_audit"
+finding = "Phase2160-only Retire/Frozen is supported, but a route-specific pre-prefix capability is required; generic RawInvocation cannot be globally rejected because SelectedNormal shares the inner type."
+evidence = [
+  "root I1 and D0b explicitly exclude runtime Box/nested batch",
+  "phase2160 smoke is Main-only loop and does not claim F/I/H",
+  "normal_callable_semantic_loan_port.rs:362-378 forwards SelectedNormal through the same inner RawInvocation type",
+]
+
+[[worker_receipt]]
+agent = "aggregate_heavy_cohort_design"
+finding = "F/I/H have no named product/reference owner, no source-owned shape issuer, no affine lineage loan, and no whole-unit atomic collector; pre-effect retirement is the clean default."
+evidence = [
+  "raw_expression_dispatch/mod.rs:488-526",
+  "instance_box_declaration_lifecycle.rs:106-116,165-172",
+  "nested_box_method_source.rs:141-187",
+  "recursive_child_lowering.rs:435-449",
+]
+
+[ordered_followups]
+steps = [
+  "1. Freeze the private capability fields, lifetime/reborrow closure, finite branch matrix, zero-delta contract, and implementation guard; keep implementation_permission=false in D2.",
+  "2. Open one fast row named RUNTIME-BOX-FIH-FATE-CAPABILITY-I0 only after explicit implementation approval; implement the phase2160 RawCompatibility arm and no other RawInvocation arm.",
+  "3. Convert the four explicit positive contracts to typed pre-effect negatives in the same bounded implementation family; record exact zero-delta assertions.",
+  "4. Recount the route-only old edges and delete only proven phase2160 F/I/H success publication; retain shared types, RawLegacy, SelectedNormal, and root I1.",
+  "5. Close out the implementation row with the reusable guard, then open RUNTIME-BOX-RAWLEGACY-NESTED-MAIN-FATE-D0 for C separately; do not generalize the capability.",
+]
+next_execution = "RUNTIME-BOX-FIH-FATE-CAPABILITY-I0 (fast) only after explicit implementation permission; D2 itself is design-only."
+reopen_triggers = [
+  "a new phase2160 F/I/H production or reference owner appears",
+  "SelectedNormal, RawLegacy, or root I1 begins inheriting the capability",
+  "a source-owned runtime shape/lineage/atomic collector is required instead of retirement",
+  "the four tests change semantic owner or the pre-effect zero-delta boundary moves",
+]

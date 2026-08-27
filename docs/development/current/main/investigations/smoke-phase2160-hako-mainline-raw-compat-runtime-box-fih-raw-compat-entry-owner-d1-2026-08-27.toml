@@ -1,11 +1,13 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box F/I/H entry-owner fate D1"
-status = "accepted_design_no_safe_slice"
+status = "landed_design"
 observed_commit = "4e3938b72e"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FIH-RAW-COMPAT-ENTRY-OWNER-D1"
 parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fih-caller-fate-census-d0-2026-08-27.toml"
+successor_card = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-runtime-box-fate-capability-d2-2026-08-27.toml"
 code_baseline = "60de7ac91e; commits through 4e3938b72e only update design/pointer documents"
+closeout_reason = "The F/I/H entry and fixture census is complete: four explicit RawInvocation contracts remain, but no named product/reference owner exists. D2 now selects phase2160-only Retire/Frozen through a scoped capability before implementation; no code or fixture change is authorized by D1."
 
 [boundary]
 starts = "RawInvocationChildPortV1 runtime BoxDeclaration F/I/H entry paths after the exhaustive A-J/K and caller-fate censuses"
@@ -32,7 +34,7 @@ non_authority = [
   "RawLegacy as a successor, VM/AOT availability without an owner claim, or a test that does not identify its semantic owner",
 ]
 fail_fast = "Missing or unclassified entry/fixture owner keeps F/I/H CutoverBlockerOpen. A selected Retire/Frozen fate must run before prefix/body effects; a selected successor must prove source/shape/lineage/collector ownership and atomic publication before effects."
-smallest_next_slice = "Close the entry/fixture inventory and choose a fate per F/I/H. Preserve the four explicit RawInvocation test contracts as successor tests, typed negatives, or a recorded retired behavior; do not implement from this card."
+smallest_next_slice = "D2: freeze a phase2160 RawCompatibility-only fate capability and its zero-delta test/guard contract. Preserve the four explicit RawInvocation test contracts as typed negatives or a named successor; do not implement from D1."
 census_boundary = "RawInvocation runtime BoxDeclaration -> runtime capture/collector or pre-effect fate; includes direct trait calls, recursive descendants, and active smokes; excludes RawLegacy and root I1."
 non_claims = [
   "does not claim caller-zero, product parity, or language-level runtime Box retirement",
@@ -196,13 +198,13 @@ evidence = [
 [ordered_followups]
 steps = [
   "1. Re-derive every RawInvocation F/I/H caller and explicit test owner; classify active smoke/source fixtures and require unclassified=0 (census evidence now recorded).",
-  "2. Select Retire/Frozen versus NarrowSuccessor independently for F/I/H, preserving the four explicit test contracts as successor tests, typed negatives, or retired behavior.",
-  "3. If Retire/Frozen wins, open one pre-effect F/I/H retirement I0 with whole-Box zero-delta and root-parity evidence; do not add shape/lineage/collector code.",
-  "4. If any family is retained, open a separate source-shape-lineage-collector D0 and solve H prefix atomicity before implementation.",
+  "2. Select Retire/Frozen for the unowned phase2160 route while preserving the four explicit test contracts as typed negatives or a named successor.",
+  "3. D2 freezes one phase2160-only capability, pre-effect zero-delta boundary, and reusable guard; generic RawInvocation, SelectedNormal, RawLegacy, and root I1 remain unchanged.",
+  "4. Open the bounded F/I/H implementation row only after D2 implementation permission is explicit; do not add shape/lineage/collector code for retirement.",
   "5. Handle C nested-Main RawLegacy fate as a separate bounded row; keep G/J and the RawLegacy facade guarded.",
   "6. Only after runtime fate is total, revisit broader RawCompatibility, VM, Wpre, and Call retirement rows.",
 ]
-next_design = "RUNTIME-BOX-RAWLEGACY-NESTED-MAIN-FATE-D0 may follow only after F/I/H entry/fate selection; no runtime implementation is opened by this D1."
+next_design = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-FATE-CAPABILITY-D2 is the successor design; RUNTIME-BOX-RAWLEGACY-NESTED-MAIN-FATE-D0 may follow only after F/I/H fate is total."
 reopen_triggers = [
   "a new RawInvocation Box caller, positive test, or active smoke owner appears",
   "the four explicit test contracts change or lose their semantic owner",
