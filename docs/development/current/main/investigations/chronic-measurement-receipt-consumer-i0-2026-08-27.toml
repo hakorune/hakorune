@@ -1,0 +1,112 @@
+title = "Chronic measurement receipt consumer I0"
+status = "fast_open"
+observed_commit = "12d4459f27"
+observed_at = "2026-08-27"
+implementation_permission = true
+selected_fast = true
+current_execution_row = "CHRONIC-MEASUREMENT-RECEIPT-CONSUMER-I0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+
+[boundary]
+starts = "the tracked chronic_measurement_observations_v1.json bytes produced by the landed neutral receipt issuer"
+ends = "one reusable strict parser/validator that verifies the frozen 185-row receipt before any owner-map projection"
+includes = [
+  "serde JSON parsing with deny-unknown-fields for the receipt and row projection",
+  "reuse of the receipt owner's canonical hash computation and row-key/range validation",
+  "frozen scope/version/hash comparison and explicit expected source_commit comparison",
+  "focused positive/negative tests for unknown fields, scope/hash drift, row drift, and source revision drift",
+]
+excludes = [
+  "owner_ref, successor, role, compile_domain, retirement_status, expectation TSV, guard registration, or deletion",
+  "a second scanner/parser, cross-language hash implementation, scanner scope changes, or artifact regeneration",
+  "compiler/MIR/VM/AOT behavior, route/fallback changes, and any semantic receipt",
+]
+
+[brief]
+decision = "Make the existing receipt issuer the sole schema/hash authority and add one strict consumer API for the future site-owner map. The consumer accepts the expected source snapshot explicitly, verifies the frozen scope contract, and returns the neutral observation rows without adding ownership meaning."
+source_authority = "The tracked observation receipt artifact and the receipt issuer's canonical projection/hash rules."
+canonical_issuer = "observation_receipt.rs owns both serialization and validation; the site-owner map may call the validator but may not reparse scanner output or reproduce hash bytes."
+non_authority = ["raw scanner stdout", "grep/rg counts", "current HEAD as implicit source_commit", "owner guesses", "expectation/deletion state"]
+fail_fast = "Reject malformed JSON, unknown fields, wrong schema/version/scanner/scope/hash, source revision mismatch, non-empty-range violations, duplicate/out-of-order/foreign rows, count drift, and receipt_hash drift before returning rows."
+smallest_next_slice = "Add the strict receipt model/validator and focused tests inside the existing chronic_measurement module; do not author owner-map rows."
+non_claims = [
+  "does not claim any allowance is stale, dead, live, or deletable",
+  "does not classify owner/role/successor or issue expectation authority",
+]
+
+[contract]
+schema = "chronic-measurement-observations-v1"
+schema_version = 1
+scanner_version = "chronic-rust-token-scanner-v1"
+scope_id = "mirbuilder-chronic-rust-v1"
+scope_manifest_hash = "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f"
+source_scope_hash = "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39"
+scanner_evidence_hash = "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a"
+row_count = 185
+source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+receipt_hash = "sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d"
+canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
+hash_bytes = "receipt_hash omitted; fixed serde struct field order; compact UTF-8 JSON; no trailing newline; SHA-256"
+
+[implementation]
+module = "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs"
+api = "validate_observation_receipt_json(input, expected_source_commit)"
+parser_rule = "serde_json parses the tracked receipt directly with deny_unknown_fields; no scan_scope_manifest call and no stdout parse"
+dependency_rule = "reuse existing serde/serde_json/sha2; no new dependency or root Cargo change"
+line_budget = "existing module remains below 760 lines; 800-line hard stop"
+
+[finite_state]
+states = [
+  "InputReady",
+  "Parsed",
+  "FrozenScopeVerified",
+  "RowsVerified",
+  "HashVerified",
+  "UnknownField",
+  "MalformedJson",
+  "ScopeDrift",
+  "SourceRevisionDrift",
+  "ObservationDrift",
+  "HashDrift",
+]
+terminal = ["HashVerified"]
+blocking = ["UnknownField", "MalformedJson", "ScopeDrift", "SourceRevisionDrift", "ObservationDrift", "HashDrift"]
+
+[task_steps]
+items = [
+  "1. Add Deserialize/deny-unknown-fields only for the neutral receipt projection and rows; keep owner fields impossible at this boundary.",
+  "2. Reuse the issuer's canonical hash, key, path, and non-empty-range validation; compare all frozen contract fields and explicit source_commit.",
+  "3. Add a strict JSON validator API that returns typed receipt data and never rescans or parses scanner stdout.",
+  "4. Add focused positive/negative tests for the tracked 185-row artifact, unknown owner/retirement fields, scope/source/hash drift, duplicate/order/count/range drift, and deterministic revalidation.",
+  "5. Close this cell without creating owner-map or expectation rows; the successor remains the site-owner-map D0.",
+]
+
+[acceptance]
+positive = [
+  "the tracked receipt parses and validates exactly once against the frozen contract and explicit d9cff source snapshot",
+  "all 185 canonical rows remain sorted, unique, non-empty, and free of owner/retirement fields",
+  "recomputed receipt_hash matches sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d",
+]
+negative = [
+  "unknown top-level/row field, malformed JSON, wrong scope/hash/scanner/version, source revision mismatch, zero range, duplicate/order/count drift, or hash tamper rejects",
+  "no scanner invocation, stdout reparse, cross-language hash copy, owner inference, expectation pin, guard registration, or deletion",
+]
+structural = [
+  "observation_receipt.rs remains the only schema/hash owner",
+  "new consumer code stays under the 760-line module limit and root dependencies are unchanged",
+]
+
+[guard]
+reuse = "Reuse current_state_pointer_guard, chronic_measurement focused tests, and tracked artifact hash comparison; no new executable guard row."
+required = "Closeout records validator tests, frozen-contract comparison, explicit source revision, unchanged artifact hash, and pointer/tree checks."
+no_safe_slice = [
+  "validation needs a second parser or a second hash implementation",
+  "scope/source/hash expectations cannot be supplied explicitly",
+  "owner or retirement fields are needed to parse the neutral receipt",
+]
+
+[closeout]
+status = "pending"
+required = "Record implementation commit and focused evidence, then move the pointer back to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"

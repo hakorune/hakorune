@@ -1,6 +1,6 @@
 use std::path::{Component, Path};
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 use super::error::ChronicScanErrorV1;
@@ -13,6 +13,13 @@ use super::scan::scan_scope_manifest;
 pub const CHRONIC_OBSERVATION_RECEIPT_SCHEMA_V1: &str = "chronic-measurement-observations-v1";
 const EXPECTED_ALLOWANCE_ROWS: usize = 185;
 const SCANNER_VERSION: &str = "chronic-rust-token-scanner-v1";
+const FROZEN_SCOPE_ID: &str = "mirbuilder-chronic-rust-v1";
+const FROZEN_SCOPE_MANIFEST_HASH: &str =
+    "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f";
+const FROZEN_SOURCE_SCOPE_HASH: &str =
+    "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39";
+const FROZEN_SCANNER_EVIDENCE_HASH: &str =
+    "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ChronicObservationReceiptV1 {
@@ -61,6 +68,35 @@ struct ReceiptHashInput {
     source_commit: String,
     scanner_evidence_hash: String,
     rows: Vec<ChronicObservationReceiptRowV1>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ParsedObservationReceiptV1 {
+    schema: String,
+    schema_version: u32,
+    scanner_version: String,
+    scope_id: String,
+    scope_manifest_hash: String,
+    source_scope_hash: String,
+    source_commit: String,
+    scanner_evidence_hash: String,
+    rows: Vec<ParsedObservationReceiptRowV1>,
+    receipt_hash: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ParsedObservationReceiptRowV1 {
+    row_kind: String,
+    path: String,
+    item_key: String,
+    byte_start: usize,
+    byte_end: usize,
+    line_start: usize,
+    line_end: usize,
+    attribute_kind: ChronicAllowanceKindV1,
+    raw_condition: Option<String>,
 }
 
 pub fn observation_receipt_json(
@@ -151,6 +187,131 @@ pub fn project_observation_receipt(
         });
     }
     Ok(receipt)
+}
+
+pub fn validate_observation_receipt_json(
+    input: &str,
+    expected_source_commit: &str,
+) -> Result<ChronicObservationReceiptV1, ChronicScanErrorV1> {
+    validate_source_commit(expected_source_commit)?;
+    let parsed: ParsedObservationReceiptV1 = serde_json::from_str(input).map_err(|error| {
+        ChronicScanErrorV1::ObservationReceiptInvalid {
+            detail: format!("receipt JSON parse failed: {error}"),
+        }
+    })?;
+    validate_frozen_contract(&parsed, expected_source_commit)?;
+    if parsed.rows.len() != EXPECTED_ALLOWANCE_ROWS {
+        return Err(ChronicScanErrorV1::ObservationReceiptCountDrift {
+            expected: EXPECTED_ALLOWANCE_ROWS,
+            actual: parsed.rows.len(),
+        });
+    }
+    let mut rows = Vec::with_capacity(parsed.rows.len());
+    for row in parsed.rows {
+        if row.row_kind != "dead_code_allowance" {
+            return Err(ChronicScanErrorV1::ObservationReceiptInvalid {
+                detail: format!("unsupported row_kind: {}", row.row_kind),
+            });
+        }
+        let source_range = crate::model::SourceRangeV1 {
+            start: crate::model::PositionV1 {
+                line: row.line_start,
+                column: 0,
+            },
+            end: crate::model::PositionV1 {
+                line: row.line_end,
+                column: 0,
+            },
+            byte_start: row.byte_start,
+            byte_end: row.byte_end,
+        };
+        validate_relative_path(&row.path)?;
+        validate_observation_row(&row.path, &row.item_key, &source_range, row.attribute_kind)?;
+        rows.push(ChronicObservationReceiptRowV1 {
+            row_kind: "dead_code_allowance",
+            path: row.path,
+            item_key: row.item_key,
+            byte_start: row.byte_start,
+            byte_end: row.byte_end,
+            line_start: row.line_start,
+            line_end: row.line_end,
+            attribute_kind: row.attribute_kind,
+            raw_condition: row.raw_condition,
+        });
+    }
+    canonicalize_rows(&mut rows)?;
+    let receipt = ChronicObservationReceiptV1 {
+        schema: CHRONIC_OBSERVATION_RECEIPT_SCHEMA_V1,
+        schema_version: 1,
+        scanner_version: parsed.scanner_version,
+        scope_id: parsed.scope_id,
+        scope_manifest_hash: parsed.scope_manifest_hash,
+        source_scope_hash: parsed.source_scope_hash,
+        source_commit: parsed.source_commit,
+        scanner_evidence_hash: parsed.scanner_evidence_hash,
+        rows,
+        receipt_hash: parsed.receipt_hash,
+    };
+    let expected_hash = receipt_hash(&receipt)?;
+    if receipt.receipt_hash != expected_hash {
+        return Err(ChronicScanErrorV1::ObservationReceiptHashDrift {
+            expected: expected_hash,
+            actual: receipt.receipt_hash,
+        });
+    }
+    Ok(receipt)
+}
+
+fn validate_frozen_contract(
+    receipt: &ParsedObservationReceiptV1,
+    expected_source_commit: &str,
+) -> Result<(), ChronicScanErrorV1> {
+    let checks = [
+        (
+            "schema",
+            receipt.schema.as_str(),
+            CHRONIC_OBSERVATION_RECEIPT_SCHEMA_V1,
+        ),
+        (
+            "scanner_version",
+            receipt.scanner_version.as_str(),
+            SCANNER_VERSION,
+        ),
+        ("scope_id", receipt.scope_id.as_str(), FROZEN_SCOPE_ID),
+        (
+            "scope_manifest_hash",
+            receipt.scope_manifest_hash.as_str(),
+            FROZEN_SCOPE_MANIFEST_HASH,
+        ),
+        (
+            "source_scope_hash",
+            receipt.source_scope_hash.as_str(),
+            FROZEN_SOURCE_SCOPE_HASH,
+        ),
+        (
+            "scanner_evidence_hash",
+            receipt.scanner_evidence_hash.as_str(),
+            FROZEN_SCANNER_EVIDENCE_HASH,
+        ),
+        (
+            "source_commit",
+            receipt.source_commit.as_str(),
+            expected_source_commit,
+        ),
+    ];
+    if receipt.schema_version != 1 {
+        return Err(ChronicScanErrorV1::ObservationReceiptInvalid {
+            detail: format!("schema_version must be 1, got {}", receipt.schema_version),
+        });
+    }
+    for (label, actual, expected) in checks {
+        if actual != expected {
+            return Err(ChronicScanErrorV1::ObservationReceiptInvalid {
+                detail: format!("{label} drift: expected={expected} actual={actual}"),
+            });
+        }
+    }
+    Ok(())
 }
 
 fn validate_source_commit(source_commit: &str) -> Result<(), ChronicScanErrorV1> {

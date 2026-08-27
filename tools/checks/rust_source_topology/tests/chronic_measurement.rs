@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use rust_source_topology_check::{
-    observation_receipt_json, scan_scope_manifest, ChronicMetricV1, ChronicObservationV1,
-    ChronicScanErrorV1,
+    observation_receipt_json, scan_scope_manifest, validate_observation_receipt_json,
+    ChronicMetricV1, ChronicObservationV1, ChronicScanErrorV1,
 };
 
 const FIXTURE_ROOT: &str = env!("CARGO_MANIFEST_DIR");
@@ -89,5 +89,109 @@ fn observation_receipt_rejects_missing_source_revision_before_scan() {
     assert!(matches!(
         error,
         ChronicScanErrorV1::InvalidSourceCommit { .. }
+    ));
+}
+
+#[test]
+fn observation_receipt_consumer_verifies_tracked_contract_without_rescanning() {
+    let workspace = Path::new(FIXTURE_ROOT).join("../../..");
+    let receipt_path =
+        workspace.join("tools/checks/manifests/chronic_measurement_observations_v1.json");
+    let receipt_text = std::fs::read_to_string(receipt_path).unwrap();
+    let source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a";
+
+    let receipt = validate_observation_receipt_json(&receipt_text, source_commit).unwrap();
+    assert_eq!(receipt.rows.len(), 185);
+    assert_eq!(receipt.source_commit, source_commit);
+    assert_eq!(
+        receipt.receipt_hash,
+        "sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d"
+    );
+}
+
+#[test]
+fn observation_receipt_consumer_rejects_unknown_fields_and_drift() {
+    let workspace = Path::new(FIXTURE_ROOT).join("../../..");
+    let receipt_path =
+        workspace.join("tools/checks/manifests/chronic_measurement_observations_v1.json");
+    let receipt_text = std::fs::read_to_string(receipt_path).unwrap();
+    let source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a";
+
+    let mut unknown_top_level: serde_json::Value = serde_json::from_str(&receipt_text).unwrap();
+    unknown_top_level
+        .as_object_mut()
+        .unwrap()
+        .insert("owner_ref".into(), serde_json::Value::String("none".into()));
+    let error = validate_observation_receipt_json(
+        &serde_json::to_string(&unknown_top_level).unwrap(),
+        source_commit,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::ObservationReceiptInvalid { .. }
+    ));
+
+    let mut unknown_row: serde_json::Value = serde_json::from_str(&receipt_text).unwrap();
+    unknown_row["rows"][0].as_object_mut().unwrap().insert(
+        "retirement_status".into(),
+        serde_json::Value::String("none".into()),
+    );
+    let error = validate_observation_receipt_json(
+        &serde_json::to_string(&unknown_row).unwrap(),
+        source_commit,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::ObservationReceiptInvalid { .. }
+    ));
+
+    let mut scope_drift: serde_json::Value = serde_json::from_str(&receipt_text).unwrap();
+    scope_drift["scope_id"] = serde_json::Value::String("wrong-scope".into());
+    let error = validate_observation_receipt_json(
+        &serde_json::to_string(&scope_drift).unwrap(),
+        source_commit,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::ObservationReceiptInvalid { .. }
+    ));
+
+    let mut source_drift: serde_json::Value = serde_json::from_str(&receipt_text).unwrap();
+    source_drift["source_commit"] = serde_json::Value::String("a".repeat(40));
+    let error = validate_observation_receipt_json(
+        &serde_json::to_string(&source_drift).unwrap(),
+        source_commit,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::ObservationReceiptInvalid { .. }
+    ));
+
+    let mut count_drift: serde_json::Value = serde_json::from_str(&receipt_text).unwrap();
+    count_drift["rows"].as_array_mut().unwrap().pop();
+    let error = validate_observation_receipt_json(
+        &serde_json::to_string(&count_drift).unwrap(),
+        source_commit,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::ObservationReceiptCountDrift { .. }
+    ));
+
+    let mut hash_drift: serde_json::Value = serde_json::from_str(&receipt_text).unwrap();
+    hash_drift["receipt_hash"] = serde_json::Value::String("sha256:".to_string() + &"0".repeat(64));
+    let error = validate_observation_receipt_json(
+        &serde_json::to_string(&hash_drift).unwrap(),
+        source_commit,
+    )
+    .unwrap_err();
+    assert!(matches!(
+        error,
+        ChronicScanErrorV1::ObservationReceiptHashDrift { .. }
     ));
 }
