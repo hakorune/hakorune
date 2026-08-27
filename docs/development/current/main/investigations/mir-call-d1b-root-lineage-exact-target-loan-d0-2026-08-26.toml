@@ -28,12 +28,12 @@ excludes = [
 ]
 
 [brief]
-decision = "D1B is the active design stop: preserve source/site/Raw lineage once, name the sole semantic-to-physical Callee issuer, and make package-plus-loan installation non-bypassable before any ordinary-call profile widening. B0/Wpre remain landed or separately parked owner rows."
+decision = "D1B remains a design stop: preserve source/site/Raw lineage once, and keep selected ordinary FunctionCall ParkedSealed until one same-session source/index owner can issue Callee. B0 structural Global is accepted architecture, not a standalone D1B implementation row."
 source_authority = "Existing source-bound owner/index relation and exact site from the resolver session; RawInvocationRootLineageV1 remains provenance. ResolvedDirectCallTargetV1 is semantic evidence, not a physical Callee."
 canonical_issuer = "A named owner-specific issuer must convert the already co-sealed semantic target relation through the same-session VerifiedCallableIndexV1/header_for_callable chain to an owned Callee before arguments; the affine loan only transports that issued Callee and never reconstructs it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Missing issuer, lineage bridge, site/brand match, complete inventory, or package/loan lifecycle aborts before arguments, MIR, package install, block mutation, wire, or backend effects; no empty loan or package-only bypass."
-smallest_next_slice = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0: close the existing semantic-target-to-physical-Callee issuer, sole Raw-lineage mapper, NoDirectCalls terminal, private package-plus-loan bundle, and short raw-port reborrow. No profile widening or production switch yet."
+smallest_next_slice = "Design only: name the same-session source/index-to-Callee issuer or retain ParkedSealed; then preserve lineage and close package-plus-loan/NoDirectCalls before Cataloged I0. No profile widening or production switch."
 non_claims = "No Wpre selector, parser/fixture/codec change, new semantic receipt, target synthesis, consumer resolver, Method/receiver cutover, mandatory-Callee schema, VM/backend change, or warning cleanup."
 
 [final_architecture]
@@ -66,7 +66,7 @@ accepted_at = "2026-08-27"
 accepted_head = "9bff1a1ff2"
 selected_option = "B: typed structural Global identity in canonical core. A is retained only as owner-private legacy ingress text; no new canonical String issuer is introduced."
 reason = "Global(String) mixes builtin, qualified static, runtime/helper, and compatibility meanings. A new String issuer would be a transitional second authority and would still require later cross-cutting retirement."
-implementation_gate = "semantic implementation remains false while the selected reusable ingress guard is absent; after it lands, only the ordered bounded rows may open one at a time."
+implementation_gate = "B0 architecture is accepted, but implementation remains closed until an atomic common-core/compiled-consumer row is selected; the guard is evidence only and is not a standalone D1B issuer row."
 census = "271 matching lines in 143 .rs files (266 under src, five under crates), plus five matches in two compiled .inc files; boundary is production issuer -> every compiled core consumer -> selected VM/native terminal."
 source_identity_holes = "VerifiedTrivialDirectCallTargetV1 and VerifiedResolvedOwnerHeaderV1 currently retain a physical symbol after dropping the exact free/static source key. MIR-CALL-SAME-MODULE-SOURCE-IDENTITY-PRESERVE-R0 preserves structural identity and deletes parse-back while retaining one guarded old one-way String projector/publication; B1 consumes and types that edge, then deletes/delegates mir_symbol_projection."
 disposition = [
