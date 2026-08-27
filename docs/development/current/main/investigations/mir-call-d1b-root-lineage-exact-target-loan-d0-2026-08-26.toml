@@ -640,10 +640,8 @@ durable_order_owner = "docs/development/current/main/design/mir-canonical-callsi
 
 [direct_call_source_inventory_coseal_d0]
 task_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
-status = "landed_bounded_child_row"
+status = "design_stop"
 implementation_permission = false
-implementation_commit = "75c0a6c04e"
-landed_commit = "75c0a6c04e"
 decision = "The next row closes ownership, not target behavior: Selected facts remain unissued until a package-owned terminal either records a complete disposition or rejects before install. A first Cataloged target may be published only inside the later atomic loan row."
 source_authority = "The existing one-pass FullFunction/Selected traversal owns SourceExprSiteV1 plus neutral name/arity observations in ResolvedFunctionDataV1. It owns no Callee, RawInvocationRootLineageV1, ValueId, arguments, physical symbol, or target selector."
 package_terminal_owner = "NormalCallableSemanticPackageIssueV1 is the sole future package-install terminal: before prepare_install/commit it consumes the complete direct-call inventory, rejects incomplete/unissued rows, and never downgrades to Deferred. The current callable_semantic_batch negative and source-only VerifiedNormalCallableSemanticSourceV1 negative are observed duplicate checks; the implementation row must delegate/remove them so they cannot become a second package authority."
@@ -684,8 +682,10 @@ ordered_tasks = [
 
 [global_target_b1_carrier_contract_d0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-CARRIER-CONTRACT-D0"
-status = "design_stop"
+status = "landed_bounded_child_row"
 implementation_permission = false
+implementation_commit = "75c0a6c04e"
+landed_commit = "75c0a6c04e"
 decision = "Because the issuer audit found no existing Cataloged exact physical carrier, open only the structural carrier contract as a separate prerequisite. This row does not change Callee, CallTarget, MirInstruction, wire, VM, optimizer, or any production route."
 carrier = "The future serde-free CanonicalGlobalTargetV1 uses the SSOT's nested shape: Builtin(CanonicalBuiltinGlobalV1::Print) or SameModule(CanonicalSameModuleGlobalTargetV1::{ FreeFunction { name, arity }, StaticBoxMethod { owner, method, arity } }). It is an opaque structural payload to consumers, not source proof; its data is never parsed back into a target."
 authority = "The callable-declaration catalog in src/mir remains the sole guarded production issuer. The defs crate exposes only the minimal structural surface required by that owner; because this is a separate crate, sole construction is enforced by an owner-specific repository guard, not claimed as a type-system-only property. Direct enum literals are part of that guard surface."
