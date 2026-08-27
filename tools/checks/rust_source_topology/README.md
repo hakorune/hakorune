@@ -62,6 +62,11 @@ macro observations with source ranges and hashes. Unknown or malformed input
 fails closed. The report never decides production role, caller-zero, or
 deletion; expectation TSV pinning and retirement guards belong to later rows.
 
+The site-owner-map validator is a separate strict consumer of the tracked
+observation receipt. It checks provenance, exact canonical-key coverage, a
+receipt-independent map hash, and tracked-reference syntax, but does not scan,
+resolve Git anchors, infer owners, pin expectations, or authorize deletion.
+
 ## S0a guarantees
 
 ```text

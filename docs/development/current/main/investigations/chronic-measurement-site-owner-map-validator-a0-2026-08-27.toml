@@ -1,12 +1,14 @@
 title = "Chronic measurement site owner map validator A0"
-status = "fast_open"
+status = "landed_bounded_child_row"
 observed_commit = "8a66234ad936536b12a6de468d1ee30f154d2a6f"
 observed_at = "2026-08-27"
-implementation_permission = true
+implementation_permission = false
 selected_fast = true
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-VALIDATOR-A0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+implementation_commit = "56dd478a0a56860e6f01755bbfe7ef5d2445a4a6"
+landed_commit = "56dd478a0a56860e6f01755bbfe7ef5d2445a4a6"
 
 [boundary]
 starts = "the tracked neutral observation receipt bytes and an in-memory or test-only site-owner-map TOML payload"
@@ -113,6 +115,13 @@ no_safe_slice = [
 ]
 
 [closeout]
-status = "pending"
-required = "Record implementation commit and focused evidence, then return the pointer to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop; only that row may authorize real owner-map authoring."
+status = "complete"
+focused_evidence = [
+  "CARGO_BUILD_JOBS=4 cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --lib chronic_measurement (8 passed)",
+  "CARGO_BUILD_JOBS=4 cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement (6 passed)",
+  "site_owner_map.rs strictly consumes validate_observation_receipt_json once, validates the exact 185-row canonical key set, provenance, reference syntax, and map_hash drift",
+  "cargo test emitted no new warnings; the module remains below 760 lines (632), root dependencies and tracked receipt bytes are unchanged",
+  "bash tools/checks/current_state_pointer_guard.sh and git diff --check are green; no tracked owner-map artifact, TSV, guard registration, scanner, or source deletion was added",
+]
+closeout_notes = "The validator-only A0 landed at 56dd478a0a56860e6f01755bbfe7ef5d2445a4a6. It returns a typed in-memory map only after strict receipt reuse and exact test-only coverage/hash/reference checks. Real owner evidence, Git anchor resolution, TSV pinning, guard registration, and deletion remain in the D0 design stop."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"

@@ -1,5 +1,5 @@
 ---
-Status: Fast — chronic measurement site owner map validator A0
+Status: Design stop — chronic measurement site owner map D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-validator-a0-2026-08-27.toml
+  - docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -48,7 +48,7 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CHRONIC-MEASUREMENT-RECEIPT-CONSUMER-I0` landed at `6cd2f6be94`: one strict consumer now verifies the tracked 185-row neutral receipt against frozen scope/hash/non-empty-range rules and explicit source revision without rescanning; the site-owner map contract is frozen and `CHRONIC-MEASUREMENT-SITE-OWNER-MAP-VALIDATOR-A0` is the validator-only bounded cell. Full owner evidence remains a design stop.
+  `CHRONIC-MEASUREMENT-RECEIPT-CONSUMER-I0` landed at `6cd2f6be94`: one strict consumer now verifies the tracked 185-row neutral receipt against frozen scope/hash/non-empty-range rules and explicit source revision without rescanning; the site-owner map contract is frozen. Validator-only `CHRONIC-MEASUREMENT-SITE-OWNER-MAP-VALIDATOR-A0` landed at `56dd478a0a` with exact 185-row coverage, provenance, map hash, and reference-syntax checks. Full owner evidence remains a design stop.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0, a design-only
-  tracked observation receipt plus item/range ownership map; it creates no
-  expectation TSV and executes no member guard.
+  owner/successor evidence census over the validated 185-row receipt; it
+  creates no tracked map, expectation TSV, or source deletion.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```
