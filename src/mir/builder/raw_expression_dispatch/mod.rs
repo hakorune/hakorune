@@ -47,7 +47,8 @@ use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
-    RawLoopChildEntryPortV1, RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
+    RawLoopChildEntryPortV1, RawNestedMainFateV1, RawOrdinaryNewClaimPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::stmts::{
@@ -501,10 +502,14 @@ impl super::MirBuilder {
                     return Err(reject_sync_box_lowering_v1(&name));
                 }
                 if is_static && name == "Main" {
-                    // Main is a root-only entry.  The invocation port rejects
-                    // nested Main before any root-main mutation; the legacy
-                    // adapter preserves the existing inline-main behavior.
-                    port.lower_static_main_box(self, name.clone(), methods.clone())
+                    match port.nested_main_fate_v1() {
+                        RawNestedMainFateV1::ContinueExistingTerminal => {
+                            port.lower_static_main_box(self, name.clone(), methods.clone())
+                        }
+                        RawNestedMainFateV1::RetireRawLegacyBeforeEffects => {
+                            Err("[freeze:contract][raw-legacy/nested-main-retired]".to_owned())
+                        }
+                    }
                 } else if is_static {
                     PreparedRawNonMainStaticBoxLifecycleV1::prepare(name, methods)
                         .lower_with_port_v1(self, port)

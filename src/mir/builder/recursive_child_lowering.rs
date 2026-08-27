@@ -67,9 +67,19 @@ pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
     ) -> R;
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(in crate::mir::builder) enum RawNestedMainFateV1 {
+    ContinueExistingTerminal,
+    RetireRawLegacyBeforeEffects,
+}
+
 pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
     fn take_runtime_box_fate_v1(&mut self) -> Result<RawRuntimeBoxFateDispositionV1, String> {
         Ok(RawRuntimeBoxFateDispositionV1::Continue)
+    }
+
+    fn nested_main_fate_v1(&mut self) -> RawNestedMainFateV1 {
+        RawNestedMainFateV1::ContinueExistingTerminal
     }
 
     fn lower_static_main_box(

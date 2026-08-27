@@ -6,7 +6,10 @@ use hakorune_mir_builder::BoxCompilationContext;
 
 use super::input_view::{RawLegacyBodyInputV1, RawLegacyStatementInputV1};
 use crate::mir::builder::builder_build::PreparedRawNewExpressionV1;
-use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+use crate::mir::builder::module_compat_policy::CallableMainCompatibilityPolicyV1;
+use crate::mir::builder::recursive_child_lowering::{
+    RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::builder::stmts::block_stmt::{
     build_block, build_block_input_view_with_port_v1, build_statement,
     build_statement_input_view_with_port_v1,
@@ -108,6 +111,108 @@ fn assert_static_box_caller_restored(builder: &MirBuilder) {
             .and_then(|context| context.variable_map.get("caller")),
         Some(&ValueId(43))
     );
+}
+
+fn nested_main_snapshot(builder: &MirBuilder) -> (usize, usize, usize, usize, usize) {
+    let module_functions = builder
+        .current_module
+        .as_ref()
+        .expect("module shell")
+        .functions
+        .len();
+    let user_boxes = builder.comp_ctx.user_defined_boxes.len();
+    let instructions = instructions(builder).len();
+    let compilation_bindings = builder
+        .comp_ctx
+        .compilation_context
+        .as_ref()
+        .map_or(0, |context| context.variable_map.len());
+    let slots = builder
+        .comp_ctx
+        .current_slot_registry
+        .as_ref()
+        .map_or(0, |registry| registry.iter_slots().count());
+    (
+        module_functions,
+        user_boxes,
+        instructions,
+        compilation_bindings,
+        slots,
+    )
+}
+
+fn assert_raw_legacy_nested_main_retires(
+    invoke: impl FnOnce(&mut MirBuilder, &mut RawLegacyChildLoweringPortV1) -> Result<ValueId, String>,
+) {
+    let mut builder = seeded_static_box_caller();
+    let before = nested_main_snapshot(&builder);
+    let mut port = RawLegacyChildLoweringPortV1;
+    let error = invoke(&mut builder, &mut port).expect_err("nested RawLegacy Main must retire");
+    assert!(
+        error == "[freeze:contract][raw-legacy/nested-main-retired]"
+            || error.ends_with("[freeze:contract][raw-legacy/nested-main-retired]"),
+        "unexpected nested Main retirement error: {error}"
+    );
+    assert_eq!(nested_main_snapshot(&builder), before);
+    assert_static_box_caller_restored(&builder);
+}
+
+#[test]
+fn raw_legacy_nested_static_main_retires_before_effects() {
+    assert_raw_legacy_nested_main_retires(|builder, port| {
+        builder.build_expression_impl_with_port_v1(
+            port,
+            parsed_box("static box Main { alpha() { return 1 } main() { return 0 } }"),
+        )
+    });
+}
+
+#[test]
+fn raw_legacy_nested_static_main_retires_from_body_statement_and_expression_facades() {
+    assert_raw_legacy_nested_main_retires(|builder, port| {
+        build_block_input_view_with_port_v1(
+            builder,
+            port,
+            RawLegacyBodyInputV1::new(vec![parsed_box(
+                "static box Main { alpha() { return 1 } main() { return 0 } }",
+            )]),
+        )
+    });
+    assert_raw_legacy_nested_main_retires(|builder, port| {
+        build_statement_input_view_with_port_v1(
+            builder,
+            port,
+            RawLegacyStatementInputV1::new(parsed_box(
+                "static box Main { alpha() { return 1 } main() { return 0 } }",
+            )),
+        )
+    });
+    assert_raw_legacy_nested_main_retires(|builder, port| {
+        builder.build_expression_impl_with_port_v1(
+            port,
+            parsed_box("static box Main { alpha() { return 1 } main() { return 0 } }"),
+        )
+    });
+}
+
+#[test]
+fn raw_legacy_explicit_root_compatibility_keeps_existing_order() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let mut builder = seeded_static_box_caller();
+    builder.comp_ctx.callable_main_compatibility_policy =
+        CallableMainCompatibilityPolicyV1::Required;
+    let ASTNode::BoxDeclaration { name, methods, .. } = parsed_box(
+        "static box Main { zeta() { return 2 } alpha() { return 1 } main() { return 0 } }",
+    ) else {
+        panic!("expected static Main");
+    };
+    let mut port = RawLegacyChildLoweringPortV1;
+    port.lower_static_main_box(&mut builder, name, methods)
+        .expect("explicit compatibility root remains available");
+    let module = builder.current_module.as_ref().expect("module shell");
+    assert!(module.functions.contains_key("Main.alpha/0"));
+    assert!(module.functions.contains_key("Main.zeta/0"));
+    assert!(module.functions.contains_key("Main.main/0"));
 }
 
 #[test]

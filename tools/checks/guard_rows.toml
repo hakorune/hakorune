@@ -241,3 +241,9 @@ id = "smoke-phase2160-hako-mainline-raw-compat-runtime-box-fate-capability"
 label = "phase2160 RawCompatibility runtime Box fate capability"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/smoke_phase2160_hako_mainline_raw_compat_runtime_box_fate_capability_guard.sh"]
+
+[[rows]]
+id = "rawlegacy-nested-main-retire"
+label = "RawLegacy nested Main pre-effect retirement"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/rawlegacy_nested_main_retire_guard.sh"]

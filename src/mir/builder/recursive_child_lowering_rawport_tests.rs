@@ -213,6 +213,37 @@ fn raw_invocation_port_collects_static_and_instance_box_methods() {
 }
 
 #[test]
+fn raw_invocation_nested_main_keeps_existing_root_only_terminal() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_nested_main/0".to_owned());
+    let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let error = port
+            .with_source_transport_v1(
+                RawInvocationSourceTransportV1::root((), RawInvocationRootLineageV1::ScriptRoot),
+                |port, ()| {
+                    drive_legacy_expression_v1(
+                        builder,
+                        port,
+                        parsed_box("static box Main { alpha() { return 1 } main() { return 0 } }"),
+                    )
+                },
+            )
+            .expect_err("nested Main must remain a root-only RawInvocation terminal");
+        assert!(
+            error.contains("root-only Main box cannot be lowered as a nested child"),
+            "unexpected RawInvocation nested Main error: {error}"
+        );
+    });
+
+    invocation.with_header_port(|_builder, headers| {
+        assert_eq!(headers.symbol_count(), 0);
+    });
+}
+
+#[test]
 fn raw_invocation_port_preserves_binary_and_unary_children() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_binary_unary/0".to_string());
