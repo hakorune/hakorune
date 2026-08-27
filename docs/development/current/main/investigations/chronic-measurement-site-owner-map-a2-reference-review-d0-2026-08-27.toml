@@ -68,6 +68,7 @@ completed = [
   "A2 successor schema review recorded: retain the existing single successor_ref contract; keep consumer evidence separate, classify test-only split seams as not_required only with route proof, and do not add a multi-edge handoff schema.",
   "A2 missing-reference disposition review recorded: ExplicitlyRejectedAtPinnedReviewHead is allowed only per candidate evidence reference; the 185 site rows remain intact and matrix provenance/hash is unchanged.",
   "A2 row-level normalization proposals recorded from the A/B/C semantic workers: candidate roles, route splits, mixed subranges, exact successor candidates, and named blockers remain observations pending strict reconciliation; no matrix row or owner-map authority was changed.",
+  "A2-C reference-repair follow-up recorded: C tree/OOB/wrong-owner candidates have exact replacement anchors or candidate-level rejection proposals under the fixed review head; mixed/effective-route and successor blockers remain open.",
 ]
 remaining = [
   "A2-R1-MISSING-BLOB-AND-OOB-CLOSEOUT: record candidate-level disposition for A rows 154/155 and choose an exact-symbol or typed-reject decision for row129",
@@ -308,3 +309,31 @@ acceptance = [
 non_claims = [
   "This section does not make the matrix authoritative, does not create an owner map, and does not authorize code, guard, expectation, caller-zero, or source deletion changes.",
 ]
+
+[c_reference_repair]
+status = "candidate_anchor_repair_proposals_recorded_semantic_blockers_remain"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+matrix_sha256 = "f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04"
+rule = "The following are reviewed candidate dispositions only. A candidate replacement is not copied into the matrix or owner map until caller/cfg/effective-route and successor policy are independently reconciled."
+tree_candidates = [
+  "row42: reject the tree reference src/mir/compiler/normal_source_plan#range:1-140@17df2666374959da4b52bf96bdeb3b3578f57321 at the pinned head; candidate owner src/mir/builder/callable_declaration_catalog/catalog.rs#range:12-53@40145ef01c50d0bf6bdcec86493f950dfccd3e84, with live catalog/compilation-context evidence kept separate.",
+  "row43: reject the same tree reference; candidate declaration-accessor anchor src/mir/builder/callable_declaration_catalog/catalog.rs#range:24-53@40145ef01c50d0bf6bdcec86493f950dfccd3e84; source-plan module remains disconnected supporting evidence only.",
+  "row47: reject the tree reference src/mir/builder/calls/function_session#range:1-320@17df2666374959da4b52bf96bdeb3b3578f57321; candidate legacy-session terminal src/mir/builder/calls/function_session/terminal.rs#range:244-260@40145ef01c50d0bf6bdcec86493f950dfccd3e84; caller-zero is not established.",
+]
+oob_candidates = [
+  "row60: reject dispatch_tests.rs#range:340-352@1c2f05f852d96ce4eed5514798885604bc8fecf7 as out-of-bounds; candidate exact test symbol _infallible_is_not_a_located_loop_input@40145ef01c50d0bf6bdcec86493f950dfccd3e84, cfg(test) evidence required.",
+  "row76: reject module_lowering_invocation_access.rs#range:1-180@17df2666374959da4b52bf96bdeb3b3578f57321 as out-of-bounds; candidate owner ranges module_lowering_invocation.rs#range:439-453 and module_lowering_invocation_access.rs#range:12-52 at @40145ef01c50d0bf6bdcec86493f950dfccd3e84; two successor candidates keep the row blocked.",
+  "row83: reject ownership/mod.rs#range:1-140@17df2666374959da4b52bf96bdeb3b3578f57321 as out-of-bounds; exact candidate ownership/mod.rs#range:1-27@40145ef01c50d0bf6bdcec86493f950dfccd3e84; disconnected/test-reference policy remains unresolved.",
+  "row88: reject control_flow/verify/verifier/primitives.rs#range:220-260@17df2666374959da4b52bf96bdeb3b3578f57321 as wrong-owner/out-of-bounds; candidate runtime schedule/block.rs#range:11-89,91-161,163-233 plus guard range 235-293 at @40145ef01c50d0bf6bdcec86493f950dfccd3e84; mixed route remains blocked.",
+  "row90: reject ssa/local/error.rs#range:1-120@17df2666374959da4b52bf96bdeb3b3578f57321 as out-of-bounds; candidate policy range 22-42 and consumer ranges ssa/local.rs 100-113,116-130 at @40145ef01c50d0bf6bdcec86493f950dfccd3e84; LegacyFacade/Checked split remains mixed.",
+  "row96: reject type_registry.rs#range:282-295@17df2666374959da4b52bf96bdeb3b3578f57321 as out-of-bounds; candidate exact symbol clear_all or range 285-293 at the same pinned revision; direct caller absence is not caller-zero proof.",
+]
+corrections = [
+  "row84 owner wording must use return_type_strategy.rs#symbol:classify_return_type_strategy_miss@1c2f05f852d96ce4eed5514798885604bc8fecf7, not infer_return_type_from_phi.",
+  "row100 successor wording must use FunctionScopeStateV1::push_lexical_scope at function_lowering_state.rs#range:270-274@40145ef01c50d0bf6bdcec86493f950dfccd3e84; the prior LexicalScopeFrame representation is not an accepted type anchor.",
+]
+remaining_blockers = [
+  "Rows 61,64-66,73-77,76,83,88,90,96 still need semantic role/effective-route and, where required, exactly one successor_ref; disconnected or test-only evidence is not silently downgraded.",
+  "No candidate rejection or replacement here changes the 185-row matrix, its hash, or owner-map authority; a future decision must preserve every site row.",
+]
+next_task = "A2-C-SUCCESSOR-DECISION-D0"
