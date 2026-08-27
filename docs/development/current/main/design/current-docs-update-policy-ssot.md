@@ -422,6 +422,10 @@ T2  any authority, identity, accepted shape, ABI/schema, publication,
     failure stage, lifetime/concurrency/rollback rule changes or is unknown
 ```
 
+For cleanup, a T0 cell must also have a non-positive `src/` line delta. If it
+adds source, changes behavior/errors/public or Cargo boundaries, or needs a
+new proof/guard, reclassify it as T1/T2; bug fixes are not automatically T0.
+
 A one-line accessor can therefore be T2 when its constructor or foreign-ID
 surface is unclassified, while an `I0`-named private move can be T0. Do not
 infer ceremony from `R0`/`S0`/`I0` spelling.
