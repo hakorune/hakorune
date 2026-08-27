@@ -187,6 +187,29 @@ acceptance = [
 ]
 non_claims = ["no refactor implementation", "no warning cleanup", "no common_v2 relocation"]
 
+[[candidate]]
+id = "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0"
+status = "candidate_design_no_safe_slice"
+kind = "docs_only_retirement_census"
+scope = "src/mir/join_ir/**, src/mir/join_ir_to_mir/**, src/mir/builder/joinir_id_remapper.rs, src/mir/builder/control_flow/joinir/merge/**, src/mir/control_tree/normalized_shadow/**, src/mir/join_ir_ops.rs, crates/hakorune_mir_joinir, and their mod/pub/re-export, cfg/feature, generated, Cargo, test, guard, smoke, and docs edges"
+source_authority = "fixed review-head Git objects, Cargo manifests, module declarations, explicit production/reference/test callers, and existing JoinIR/legacy fate cards; a numeric seven-candidate claim is not an authority"
+canonical_issuer = "none; this row records an exact candidate inventory and fate classification without issuing deletion or successor authority"
+old_edge = "The external seven-candidate deletion claim cannot be reconstructed from tracked evidence. JoinIR surfaces include live production utilities, public/re-export boundaries, test/reference callers, and a Cargo package edge; text-zero or apparent dead_code is insufficient."
+smallest_slice = "Build one bounded census of exact path/symbol/range candidates and classify each as Retire, RetainNamed, MigrateEvidence, or NoSafeSlice. Record owner, caller graph, feature/env, guard/fixture/docs impact, successor or physical-impossibility proof, reopen trigger, and observed LOC. Do not delete or alter the A2 matrix."
+acceptance = [
+  "The number and identity of candidates are derived from fixed tracked evidence; no preselected seven-item list is assumed.",
+  "Cargo dependency, mod/pub/re-export, cfg/feature, generated/include, production/reference/test, guard, smoke, and documentation edges are checked for every candidate.",
+  "Only candidates with exact owner, successor or physical-impossibility proof, residual-zero conditions, and evidence-retarget plan can be classified Retire; all others remain RetainNamed, MigrateEvidence, or NoSafeSlice.",
+  "The census states whether each candidate is inside or outside the 185-row A2 owner-map boundary; A2 is not silently bypassed.",
+  "No Rust, Cargo, guard, fixture, source, or owner-map change is made by this design row.",
+]
+non_claims = [
+  "no seven-item deletion permission",
+  "no caller-zero inference from rg/text absence, package import absence, or stale docs",
+  "no JoinIR crate split, VM/backend change, guard removal, or source deletion",
+  "no parking of A2 without an explicit CURRENT_STATE decision and named reopen trigger",
+]
+
 [selection]
 active_lane = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 remains the next design stop under the direct-target handoff"
 order_after_d1n = [
@@ -202,6 +225,9 @@ order_after_d1n = [
   "MIRBUILDER-WARN-A-IMPORT-PRUNE-S0 (mechanical batch after fast mode opens)",
   "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0 (typed proof row)",
   "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0 (finite panic/todo observation before any hygiene edits)",
+]
+parked_cleanup = [
+  "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0 remains unselected until an explicit lane switch is recorded; it is the lightweight alternative to an unverified seven-item deletion claim.",
 ]
 not_selected = "ArgumentDescent and ClaimCompletion require distinct port rows; compiler/Builder relocation and broad warning/runtime cleanup remain design stops"
 
