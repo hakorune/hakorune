@@ -1,10 +1,20 @@
 title = "Smoke phase2170 official owner-pack implementation I0"
-status = "implementation_selected"
+status = "landed"
 observed_commit = "7fcc30285d"
 observed_at = "2026-08-27"
 implementation_permission = true
 current_execution_row = "SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-I0"
 implementation_row = "SMOKE-OWNER-PACK-PHASE2170-OFFICIAL-I0"
+implementation_commit = "9f63eae622"
+landed_commit = "9f63eae622"
+focused_guard = "bash tools/checks/manifest_runner_pilot_guard.sh"
+focused_evidence = [
+  "manifest-runner pilot guard green for phase2050 and phase2170",
+  "phase2170 owner-pack dry-run: nine official entries",
+  "normal integration dry-run: 961 total; phase2170 has nine official plus two weak hv1 leaves",
+  "owner-profile/filter/missing-suite/traversal negative cases return rc=1",
+  "Python owner-pack unit tests: 5 passed",
+]
 parent_row = "docs/development/current/main/investigations/smoke-owner-pack-phase2170-official-d0-2026-08-27.toml"
 
 [boundary]
