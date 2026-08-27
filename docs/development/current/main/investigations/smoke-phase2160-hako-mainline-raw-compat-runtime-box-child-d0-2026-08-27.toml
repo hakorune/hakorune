@@ -1,9 +1,9 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility runtime Box child fate design"
-status = "accepted_but_not_selected"
+status = "accepted_design"
 observed_commit = "cbf761b2ff129663eb53495be9e34baa5276cba8"
 observed_at = "2026-08-27"
 implementation_permission = false
-current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-D0b"
+current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-RUNTIME-BOX-CHILD-D0"
 parent_row = "docs/development/current/main/investigations/smoke-phase2160-hako-mainline-raw-compat-child-terminal-d0b-2026-08-27.toml"
 
 [boundary]

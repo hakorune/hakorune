@@ -1,8 +1,9 @@
 title = "Smoke phase2160 hako-mainline RawCompatibility child terminal implementation I1"
-status = "in_progress"
-observed_commit = "63d5c75be6504c3105b0bdfbe0af4752a8be0e8a"
+status = "landed_bounded_child_row"
+observed_commit = "684533ba22"
 observed_at = "2026-08-27"
 implementation_permission = true
+landed_commit = "684533ba22"
 selected_fast = true
 current_execution_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1"
 implementation_row = "SMOKE-PHASE2160-HAKO-MAINLINE-RAW-COMPAT-CHILD-TERMINAL-I1"
@@ -210,3 +211,24 @@ reopen_triggers = [
   "child/outer residual or line budget cannot be proven",
   "I1 success is used as Wpre, Call, VM, or route-retirement permission",
 ]
+
+[evidence]
+implementation = "The five named RawCompatibility root families now carry explicit admission into a dedicated RawInvocationChildPortV1 terminal. A private move-only symbol/physical-arity shape is issued before child effects, existing capture and LegacyReplaceWholePair are reused, and the outer collector remains the single final drain."
+focused_results = [
+  "raw_compatibility_root_families_use_the_collector_terminal: passed",
+  "raw_compatibility_source_context_is_script_root_only: passed",
+  "verified_expansion_disposition_reaches_script_and_app_root_lowering: passed",
+  "source_bound_static_result_owner_reaches_the_raw_terminal: passed",
+  "raw_compat_child_terminal test filter: 2 passed",
+]
+guards = [
+  "smoke_phase2160_hako_mainline_raw_compat_child_terminal_guard.sh: passed",
+  "run_row_guard.sh --only smoke-phase2160-hako-mainline-raw-compat-child-terminal: passed",
+  "current_state_pointer_guard.sh: passed",
+  "rustfmt --edition 2021 --check and git diff --check: passed",
+]
+known_baseline = [
+  "program_root_work_plan test filter still has pre-existing constructor-cohort-missing failures in SelectedNormal helpers; no I1-specific route was changed",
+  "existing broad warning inventory remains outside this bounded row",
+]
+line_budget = "builder.rs 744, program_root_work_plan.rs 734, raw_compatibility_child_terminal.rs 255, raw_compatibility.rs 116, and focused test sibling 94; all remain below the 760 split threshold and 800 hard stop."
