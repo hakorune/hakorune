@@ -681,8 +681,8 @@ Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
   edge, stale expectation, missing execution caller, or unproved retirement
   stays red/retained.
 Smallest next slice: CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0;
-  the 185-row evidence matrix is complete (A=79, B=46, C=60); author the tracked map and resolve pinned references.
-  Keep expectation pinning, stale-guard supersession, and source deletion as separate later stages.
+  the 185-row evidence matrix is complete (A=79, B=46, C=60), but A1 must resolve 697 pinned owner/evidence references and normalize roles/successors before map authoring.
+  Keep the tracked map, expectation pinning, stale-guard supersession, and source deletion as separate later stages.
 Non-claims: no full registry migration, quick-static activation, bulk chmod,
   compiler behavior change, or grep/count-authorized deletion.
 ```

@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner map D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "56dd478a0a56860e6f01755bbfe7ef5d2445a4a6"
+observed_commit = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
@@ -35,7 +35,7 @@ non_authority = [
   "force_hv1 fate/expected_counts, MIR/VM/AOT behavior, or any target/name/string reconstruction",
 ]
 fail_fast = "Every site entering the future TSV must resolve exactly once to an owner_ref, compile_domain, role, successor_status, successor_ref, retirement_status, and evidence_refs under the bound scanner/scope/source hashes. Missing/duplicate/foreign/ambiguous evidence, unknown required successor, or an unclassified site remains blocking and no partial map is accepted."
-smallest_next_slice = "Design-only closeout: the owner-map schema/id/hash and tracked-reference grammar are frozen, validator-only A0 landed at 56dd478a0a, and a non-authoritative 185-row coverage skeleton is pinned by the evidence-matrix D0. Now review explicit owner/successor evidence for every row; do not author the tracked map, expectation TSV, or delete source while implementation_permission is false."
+smallest_next_slice = "Design-only closeout: the evidence matrix is complete at 185/185 (A=79, B=46, C=60), while validator-only A0 still proves syntax rather than pinned Git anchors. Freeze CHRONIC-MEASUREMENT-SITE-OWNER-MAP-REFERENCE-A1-D0: normalize the candidate references, resolve revision/path/anchor evidence, and add an independent hash vector before any tracked map authoring. Keep the map, expectation TSV, guard registration, and source deletion closed while implementation_permission is false."
 non_claims = [
   "does not claim any allowance is dead, stale, production-live, or deletable",
   "does not change scanner scope, force-hv1 fate, guard behavior, compiler/MIR/VM/AOT code, or source files",
@@ -49,7 +49,7 @@ schema = "chronic-measurement-site-owners-v1"
 schema_version = 1
 map_id_rule = "chronic-measurement-site-owners-v1@<observation-source-commit>; for this frozen receipt the expected id is chronic-measurement-site-owners-v1@d9cff5b744edee3b6450db5d0ffc74478f32b49a; identity is bound to the receipt source revision, while map_hash identifies owner-map content without a self-referential commit hash"
 map_hash_rule = "omit map_hash; serialize fixed top-level/site field order as compact UTF-8 JSON with no trailing newline, sort sites by canonical key, sort each evidence_refs array and reject duplicate references, encode empty arrays/strings explicitly without omission or default injection, use the receipt's attribute_kind wire spelling, and SHA-256 the bytes; TOML formatting is not hashed"
-map_validator_owner = "one Rust site-owner-map validator consumes validate_observation_receipt_json and owns map schema, map_hash, exact coverage, and tracked-reference resolution; no second scanner or hash implementation"
+map_validator_owner = "one Rust site-owner-map validator family consumes validate_observation_receipt_json and owns map schema, map_hash, exact coverage, and tracked-reference resolution; A0 syntax and the later A1 Git resolver remain one authority family, with no second scanner or hash implementation"
 schema_shape = "schema/schema_version/map_id/map_hash plus frozen receipt provenance and one [[sites]] row per scanner DeadCodeAllowance observation"
 provenance_fields = [
   "map_id",
@@ -89,6 +89,36 @@ successor_status = ["required", "not_required", "unknown"]
 successor_rule = "successor_status=required requires successor_ref in tracked-reference form; successor_status=not_required requires successor_ref=none_required; unknown is blocking and never uses a guessed string."
 tracked_reference_grammar = "<tracked-path>#<stable-anchor>@<40-lowercase-hex-revision>; path is repo-relative POSIX and forbids absolute paths, .., backslashes, and whitespace; anchor is non-empty and excludes #/@/whitespace, and owner_ref/evidence_refs/successor_ref may use explicit symbol:<name>, range:<start>-<end>, or edge:<id> anchors only."
 tracked_reference_resolution = "At the referenced revision, git-tracked path existence is required; symbol/range anchors must resolve within that file and edge anchors must resolve in the named tracked registration/manifest section. A missing path, malformed anchor, unresolved anchor, or untracked revision is blocking; evidence revisions may differ from the frozen receipt source_commit and may not be silently replaced by current HEAD."
+
+[reference_resolution]
+task = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-REFERENCE-A1-D0"
+status = "design_blocked_before_map_authoring"
+review_head = "40145ef01c50d0bf6bdcec86493f950dfccd3e84"
+receipt_source_commit = "d9cff5b744edee3b6450db5d0ffc74478f32b49a"
+candidate_ref_occurrences = 697
+candidate_ref_revision_strings = 13
+candidate_ref_unique_paths = 268
+candidate_ref_anchor_counts = "symbol=167; range=491; byte=29"
+blocked_ref_occurrences = 50
+blocked_distinct_refs = 30
+blocked_rows = 35
+short_revision_occurrences = 10
+byte_anchor_occurrences = 29
+range_out_of_bounds_distinct = 20
+range_out_of_bounds_occurrences = 37
+tree_path_occurrences = 3
+missing_path_occurrences = 2
+matrix_detailed_role_rows = 181
+successor_required_candidate_rows = 16
+successor_prose_only_rows = 13
+role_normalization = "Matrix role labels are detailed, non-authoritative inputs. Each site must be explicitly mapped to one of runtime/test_support/fixture/compatibility/guard_evidence/generated_registry/mixed; filename or label prefix mapping is forbidden."
+successor_normalization = "The matrix candidate fields do not issue a map successor. A map row uses one exact successor_ref only when successor_status=required; concrete supporting paths remain evidence_refs. If successor need is unresolved, no map row is emitted."
+anchor_policy = "Do not extend the frozen map grammar for byte anchors. Replace each #byte: candidate with an explicitly reviewed symbol:, range:, or edge: reference at its pinned revision; if no stable allowed anchor exists, retain the row as unresolved."
+revision_policy = "Require a 40-character lowercase commit revision, resolve it as a commit, and require it to be an ancestor of review_head. Expand short revisions explicitly; never auto-expand or substitute current HEAD."
+path_policy = "At the pinned revision the path must be a tracked blob, not a tree, submodule, symlink, or missing path. A renamed/deleted path requires a new explicitly reviewed evidence reference, not a silent path rewrite."
+anchor_resolution_policy = "range:start-end is 1-based inclusive and within the pinned blob line count; symbol:name resolves exactly one Rust item; edge:id resolves exactly one named registration/manifest edge. Grep/substring matches are not anchor resolution."
+hash_readiness = "Before map authoring, add one independent golden canonical-JSON/hash vector that does not derive its expected bytes by calling the same map_hash implementation."
+close_condition = "All owner/evidence/successor references in the 185-row candidate input are ReferenceResolved, role/domain normalization is explicit, card provenance matches review_head, and the independent hash vector passes. Any unresolved reference keeps owner-map authoring blocked."
 coverage_rule = "The map covers exactly the 185 scanner DeadCodeAllowance observations in this frozen boundary; non-allowance call/module rows remain scanner-only."
 evidence_rule = "Evidence names a tracked owner file/section or registration edge using tracked_reference_grammar; a bare path, warning count, filename, or text-search result is insufficient."
 retirement_authority_rule = "This map may classify Unknown/Retain/Candidate only. Caller-zero, Retired, and ExplicitTombstone are issued by a later retirement card, never by this artifact."
@@ -121,7 +151,7 @@ issuer = "the existing syn-based chronic scanner; the receipt is a deterministic
 hash_rule = "rows are sorted by canonical_key and receipt_hash is SHA-256 over receipt_hash-omitted canonical compact UTF-8 JSON bytes with fixed field order and no trailing newline; scanner_evidence_hash remains the scanner report evidence hash and is not reused for the receipt"
 consumer_owner = "the site-owner-map I0 validator reuses the receipt owner's schema/hash contract; no second scanner or cross-language hash implementation is authoritative"
 consumer_contract = "strict parse the tracked JSON with validate_observation_receipt_json (landed at 6cd2f6be946cad9f0984a54f23b946e82224193f), passing expected_source_commit from this bound observation_input rather than from map input; verify schema/version, scanner_version, scope_id, frozen scope hashes, source_commit, scanner_evidence_hash, receipt_hash, non-empty ranges, canonical key order/uniqueness, and exactly 185 rows before owner projection"
-consumer_status = "landed at 6cd2f6be946cad9f0984a54f23b946e82224193f; validator-only owner-map A0 landed at 56dd478a0a; owner projection remains blocked until every site has tracked evidence"
+consumer_status = "landed at 6cd2f6be946cad9f0984a54f23b946e82224193f; validator-only owner-map A0 landed at 56dd478a0a; matrix owner evidence is reviewed for 185 sites, but projection remains blocked until A1 resolves every pinned reference"
 expected_source_commit_rule = "The validator receives d9cff5b744edee3b6450db5d0ffc74478f32b49a from the bound receipt contract as an explicit argument; it never derives the expected revision from map.source_commit, current HEAD, or untrusted JSON."
 frozen_scope = "scope_id=mirbuilder-chronic-rust-v1; scanner_version=chronic-rust-token-scanner-v1; scope_manifest_hash=sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f; source_scope_hash=sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39; scanner_evidence_hash=sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a; row_count=185"
 non_authority = ["raw command stdout, temporary JSON, grep/rg output, warning counts, filename labels, owner guesses, retirement outcomes"]
@@ -170,9 +200,12 @@ states = [
   "MapHashDrift",
   "MapCoverageDrift",
   "MapReferenceUnresolved",
+  "MapReviewHeadDrift",
+  "MapRoleNormalizationMissing",
+  "MapSuccessorNormalizationMissing",
 ]
 terminal = ["ReadyForExpectation", "RetainedWithEvidence"]
-blocking = ["ObservationMissing", "ObservationReceiptMissing", "ObservationReceiptDrift", "ReceiptConsumerMissing", "ReceiptScopeDrift", "ReceiptHashDrift", "ZeroLengthRange", "DuplicateSite", "ForeignSite", "MissingOwner", "MissingSuccessorEvidence", "UnknownSuccessorStatus", "UnclassifiedSite", "ScopeDrift", "ProvenanceDrift", "MapSchemaMissing", "MapReferenceGrammarMissing", "MapHashDrift", "MapCoverageDrift", "MapReferenceUnresolved"]
+blocking = ["ObservationMissing", "ObservationReceiptMissing", "ObservationReceiptDrift", "ReceiptConsumerMissing", "ReceiptScopeDrift", "ReceiptHashDrift", "ZeroLengthRange", "DuplicateSite", "ForeignSite", "MissingOwner", "MissingSuccessorEvidence", "UnknownSuccessorStatus", "UnclassifiedSite", "ScopeDrift", "ProvenanceDrift", "MapSchemaMissing", "MapReferenceGrammarMissing", "MapHashDrift", "MapCoverageDrift", "MapReferenceUnresolved", "MapReviewHeadDrift", "MapRoleNormalizationMissing", "MapSuccessorNormalizationMissing"]
 
 [task_steps]
 items = [
@@ -180,9 +213,11 @@ items = [
   "2. Consume exactly the 185 scanner DeadCodeAllowance observations through validate_observation_receipt_json without changing scanner scope or parser code; retain the three path/item_key collisions unless the full canonical key differs.",
   "3. Freeze row_kind + path + source byte range + attribute_kind as the canonical key; retain item_key and line range only as consistency fields, and bind the map to scanner/scope/source/evidence hashes.",
   "4. Classify compile_domain and role independently; use explicit registration/owner evidence for mixed, generated, compatibility, guard, test, and runtime sites.",
-  "5. Assign owner_ref, successor_status/successor_ref, evidence_refs, and classification-only retirement_status for every row; never invent a successor or retirement outcome.",
-  "6. Validate exact receipt/map coverage, provenance, duplicate/foreign detection, tracked references, and unknown-successor rejection. Any missing row keeps this D0 blocking.",
-  "7. Close the map as a non-authority input, then reopen CHRONIC-MEASUREMENT-EXPECTATION-I0 to co-seal one TSV and the force receipt.",
+  "5. Before map authoring, run CHRONIC-MEASUREMENT-SITE-OWNER-MAP-REFERENCE-A1-D0: normalize all 697 candidate references to the frozen grammar, bind each revision to review_head, and resolve blob/path/anchor evidence without current-HEAD substitution.",
+  "6. Normalize detailed matrix roles to the seven map roles and represent one exact successor_ref only when successor_status=required; unresolved role or successor need keeps the row blocked.",
+  "7. Add an independent canonical-JSON/hash golden vector; the expected bytes must not be generated by the same map_hash implementation under test.",
+  "8. Only after every reference is resolved, author one tracked 185-row map and validate exact receipt/map coverage, provenance, duplicate/foreign detection, and classification-only retirement status. Any missing row keeps this D0 blocking.",
+  "9. Close the map as a non-authority input, then reopen CHRONIC-MEASUREMENT-EXPECTATION-I0 to co-seal one TSV and the force receipt.",
 ]
 
 [acceptance]
@@ -190,11 +225,14 @@ positive = [
   "a tracked receipt preserves all 185 scanner DeadCodeAllowance observations under one canonical range/attribute site key, and the map adds explicit owner/role/successor/status evidence",
   "mixed file roles are split at item/range level and generated-included rows remain explicit retained states",
   "provenance hashes bind the receipt and map to the exact scanner/scope/source report, and evidence references resolve to tracked registration/owner artifacts rather than grep-only absence",
+  "all owner/evidence/successor references resolve at pinned revisions under one review_head, with explicit role/successor normalization and no byte/short-SHA residue",
+  "an independent canonical-JSON/hash vector detects map hash field-order or omission drift before authoring",
   "the map is an input to one future TSV and is not registered as an executable guard or semantic receipt",
 ]
 negative = [
   "no owner inferred from filename, warning count, stale threshold, or file-level mixed label",
   "no missing receipt, partial map, duplicate canonical key, unclassified site, guessed successor, unknown required successor, expectation pin, or deletion",
+  "no short revision, #byte anchor, tree/non-blob path, missing pinned path, out-of-range range, unresolved symbol/edge, review-head drift, or current-HEAD substitution",
   "no second Rust parser, force-specific TSV, guard/source edit, or backend/compiler behavior change",
 ]
 
@@ -210,40 +248,42 @@ no_safe_slice = [
 ]
 
 [worker_receipt]
-agent = "chronic_measurement_scope_audit"
-status = "a0_landed_full_owner_map_no_safe_slice"
-finding = "At 27568a926b, the strict receipt consumer and validator-only A0 are landed, but the real 185-row owner map remains blocked. Generated, runtime, and mixed builder observations need site-level owner/successor evidence; filename, grep absence, or file-wide role labels cannot authorize classification or deletion."
+agent = "owner_map_reference_resolution_audit"
+status = "matrix_ready_a1_reference_blocked"
+finding = "At review HEAD 40145ef01c50d0bf6bdcec86493f950dfccd3e84, the matrix is complete at 185/185 (A=79, B=46, C=60), but the real owner map remains blocked at the A0/A1 boundary. A0 proves syntax, coverage, provenance, and hash only; 697 candidate references still require pinned Git revision/path/anchor resolution and explicit role/successor normalization."
 evidence = [
-  "HEAD 27568a926bb37860e1951ce92b2bbb9fcb5084cd is clean; src is unchanged from the receipt source d9cff5b744edee3b6450db5d0ffc74478f32b49a",
+  "HEAD 40145ef01c50d0bf6bdcec86493f950dfccd3e84 is clean; src is unchanged from the receipt source d9cff5b744edee3b6450db5d0ffc74478f32b49a",
   "tools/checks/rust_source_topology/src/chronic_measurement/observation_receipt.rs:192-315 remains the sole frozen schema/scope/hash/source/range owner; A0 supplies expected_source_commit explicitly",
   "tools/checks/rust_source_topology/src/chronic_measurement/site_owner_map.rs:100-220 consumes the receipt once and validates map provenance/coverage; :264-358 rejects invalid role/domain/status/reference contracts",
   "tools/checks/rust_source_topology/tests/chronic_measurement.rs:95-197 covers the tracked receipt, unknown fields, scope/source/count/hash drift, and range/order negatives; A0 in-module tests cover exact 185-row map positives and map negatives",
   "tools/checks/manifests/chronic_measurement_observations_v1.json is the tracked neutral 185-row receipt and carries no owner or retirement fields",
   "tools/checks/rust_source_topology/src/chronic_measurement/model.rs:31-58 reports file/path/range facts but no owner/successor; scan.rs:71-73 remains file-level for role/domain",
-  "79 generated-registry rows require an explicit registry-retention policy; 46 runtime rows split between builder and non-builder owners; 60 builder rows across 38 files remain mixed and require site-level runtime/guard/test/compatibility/recovery classification",
-  "safe evidence candidates include src/mir/compiler/module_registry.in.rs:1-4 plus compiler/mod.rs:14-17, src/abi/text_scan_aot_export_facts.rs:1-5, src/mir/resolved_value_profile/README.md:1-24, callable_declaration_catalog/README.md:1-64, and named calls/guard.rs/static_resolution.rs/rewrite/known.rs owners; these are candidates, not blanket classifications",
+  "matrix TSV at sha256:f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04 has 185 canonical rows and 697 candidate owner/evidence references; it is an evidence input, not a resolved map",
+  "reference census: 10 short-SHA occurrences, 29 byte-anchor occurrences, 22 distinct out-of-range ranges (40 occurrences), 3 tree-path occurrences, 2 missing-path occurrences, and 35 affected rows; current-HEAD substitution is forbidden",
+  "worker consensus: role labels require explicit mapping to seven map roles, successor_status=required uses one exact successor_ref, and unresolved references keep owner-map authoring blocked",
 ]
-latest_finding = "A0 is complete at 56dd478a0a and the evidence-matrix D0 has pinned a non-authoritative 185-row coverage skeleton at sha256:2374839508793b16557f5ab985245da862e8daf0c7f967cab32ff2f7ecd2502a. All 185 rows remain explicitly blocked pending independent owner/role/successor/evidence review; no map, expectation pin, or deletion is authorized."
+latest_finding = "A0 is complete at 56dd478a0a and the evidence-matrix D0 is complete at sha256:f146dc57a06f43025289e7a6a5ca45307a5c8cb8aeefe9df2eb7b64a9af3ce04 with 185/185 reviewed rows. The next bounded task is CHRONIC-MEASUREMENT-SITE-OWNER-MAP-REFERENCE-A1-D0: resolve every pinned reference, normalize roles/successors, and add an independent hash vector; no tracked map, expectation pin, guard registration, or deletion is authorized yet."
 
 [design_next]
-row = "CHRONIC-MEASUREMENT-SITE-OWNER-EVIDENCE-MATRIX-D0"
+row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
 implementation_permission = false
-scope = "docs-only census and review matrix over the validated 185 receipt rows; no tracked owner-map artifact, TSV, guard registration, or source deletion"
+scope = "docs-only reference-resolution design over the reviewed 185 receipt rows; no tracked owner-map artifact, TSV, guard registration, or source deletion"
 ordered_work = [
-  "A: review the 79 generated-registry rows against the module_registry include edge and record an explicit retain/successor policy; do not infer not_required from generation alone",
-  "B: split the 46 runtime rows into active/disconnected owners using tracked module/README evidence; builder.rs file labels do not classify individual sites",
-  "C: classify the 60 mixed builder rows at item/range level into runtime, guard, test, compatibility, or recovery, preserving unknown blockers",
-  "D: require tracked owner_ref/evidence_refs and explicit successor_status for all rows; unresolved or duplicate evidence prevents map authoring",
-  "E: only after the matrix is reviewed, open the tracked owner-map authoring cell and then expectation TSV co-seal",
+  "A: carry the frozen observation receipt source_commit d9cff5b744edee3b6450db5d0ffc74478f32b49a separately from review_head 40145ef01c50d0bf6bdcec86493f950dfccd3e84",
+  "B: normalize 697 candidate references; short revisions become explicit full revisions, #byte anchors are replaced by reviewed symbol/range/edge anchors or remain unresolved, and tree/missing/out-of-range references are not silently repaired",
+  "C: require one pinned-commit/path/anchor resolver owner; revision ancestor, tracked blob, inclusive range, unique symbol, and unique named edge are finite fail-closed states",
+  "D: map detailed matrix role labels explicitly to the seven schema roles and bind one exact successor_ref only where successor_status=required; no guessed successor or array expansion",
+  "E: freeze an independent canonical-JSON/hash golden vector and keep owner-map authoring, expectation TSV, guard registration, and source deletion closed until all references resolve",
 ]
 stop_conditions = [
   "a filename, grep absence, warning count, allow attribute, or file-wide mixed label is the only evidence",
-  "a generated row is blanket-retained without a named policy owner",
-  "a TopLevel/disconnected/runtime row is assigned a successor by inference",
-  "a partial matrix or partial tracked map is treated as complete",
+  "a short revision, #byte anchor, tree/non-blob path, missing pinned path, out-of-range range, or unresolved symbol/edge remains",
+  "current HEAD or a path rename is silently substituted for the pinned evidence revision",
+  "a detailed role is mapped by naming convention, a successor is guessed, or multiple successors are smuggled into one field",
+  "a syntax-valid partial map or matrix is presented as a fully resolved owner map",
 ]
 
 [closeout]
 status = "pending"
-required = "The tracked 185-row observation receipt and provenance are strictly consumed by one validator, and validator-only A0 is landed at 56dd478a0a. The owner-map schema/id/hash/reference contract is frozen; next record canonical-key coverage, tracked owner evidence, explicit successor status, and classification-only states for every row; move to CHRONIC-MEASUREMENT-EXPECTATION-I0 only after the owner map is complete. No expectation TSV or deletion is allowed from this row."
-next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+required = "The tracked 185-row observation receipt and provenance are strictly consumed by one validator, and validator-only A0 is landed at 56dd478a0a. The evidence matrix is reviewed at 185/185, but the A1 reference-resolution blockers remain: normalize the frozen grammar, resolve pinned Git references, bind review_head, normalize roles/successors, and add an independent hash vector. Only then author and validate one complete owner map; no expectation TSV, guard registration, or deletion is allowed from this row."
+next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
