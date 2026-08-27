@@ -1,0 +1,193 @@
+title = "Guard execution index, force-hv1 non-growth, and closeout registration D0"
+status = "accepted_design_parked"
+observed_commit = "c355708ca1"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-D0"
+parent_row = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
+successor_card = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-I0"
+
+[boundary]
+starts = "tracked guard registry/index, force-hv1 body-derived census, selected retirement source scope, and closeout card/guard registration"
+ends = "one fail-closed structural execution check, one reproducible force-hv1 measurement tuple, and one closeout registration contract; no compiler or backend behavior"
+includes = [
+  "tools/checks/guard_rows.toml include graph and docs/tools/check-scripts-index.md compatibility names",
+  "tools/checks/guard_manifest_inventory.py and tools/docs/guard_surface_inventory.py as existing observation/validation owners",
+  "tools/checks/lib/force_hv1_leaf_census.py, force-hv1 manifest, lifecycle guard, and a single expectation TSV",
+  "closeout commit/card/guard co-registration and the phase2160 retirement accounting split",
+]
+excludes = [
+  "running every registered guard as part of this row",
+  "bulk guard deletion, quick-static activation, CI policy expansion beyond the selected structural check",
+  "compiler/MIR/VM/AOT behavior, RawLegacy C I0, Call schema, or force-hv1 fate changes",
+  "treating raw src LOC, total panic counts, or a self-edited card as semantic retirement proof",
+]
+
+[brief]
+decision = "Accept the three hygiene findings as one parked, ordered guard program. Extend existing manifest/inventory owners instead of adding per-finding shell guards. First make the ledger graph fail-closed; then pin force-hv1 body facts plus an explicitly scoped source/dead_code measurement tuple; finally require closeout guard registration and evidence before a card may claim landed."
+source_authority = "Git-tracked guard scripts, flattened guard_rows.toml/proof manifests, checked-in force-hv1 leaf bodies, the existing lifecycle guard, and the closeout card/commit diff."
+canonical_issuer = "The existing manifest inventory owner issues graph validity; force_hv1_leaf_census.py issues syntactic leaf observations; the chronic-measurement owner issues one reviewed expectation TSV; closeout registration is checked by the existing inventory row. No owner issues semantic retirement."
+non_authority = [
+  "grep-only counts, arithmetic constants, raw total src LOC, filename prefixes, profile names, hand-written index prose, stale thresholds, or a card changed in the implementation commit",
+  "phase2160 source growth by itself, test/guard/docs additions, child exit codes, or legacy VM reachability",
+  "force-hv1 fate review and retirement disposition; those remain separate owner evidence",
+]
+fail_fast = "Missing/duplicate/dangling registry edges, stale or unscoped expectation rows, a closeout guard absent from the registry, or a card claiming landed without its guard evidence must fail before route/test effects. Unknown paths are never silently tombstoned; they require an explicit tombstone with owner, replacement or retirement reason, and reopen trigger. A navigation omission is not a registry failure, but a written dangling index name is."
+smallest_next_slice = "GUARD-EXECUTION-INDEX-NONGROWTH-CLOSEOUT-I0: extend the existing structural inventory owner with four dangling-name resolution/tombstone checks and closeout co-registration; no member guard execution and no compiler change."
+non_claims = [
+  "does not claim the guard registry is fully covered or that all unknown guards are deletable",
+  "does not claim phase2160 is a net source reduction; it only separates production legacy-scope accounting from support additions",
+  "does not turn the force-hv1 expectation TSV into a backend or route authority",
+  "does not require a global src non-growth rule until a finite legacy source scope is named",
+]
+
+[authority_chain]
+ledger = "guard_rows.toml + included manifests -> flattened row IDs/argv/path graph -> fail-closed execution check; check-scripts-index.md is a navigation projection"
+census = "checked-in force-hv1 shell body -> force_hv1_leaf_census.py -> manifest observations/summary"
+measurement = "explicit finite source scope + token-aware allow(dead_code) scanner + rust LOC counter -> one expectation TSV -> existing force-hv1 lifecycle guard"
+closeout = "implementation diff -> guard row and guard evidence present -> card closeout may record landed; registration is checked independently of the implementation author"
+
+[finite_state]
+ledger_states = [
+  "ResolvedPath",
+  "ExplicitTombstone",
+  "MissingPath",
+  "DuplicateRowId",
+  "DanglingIndexName",
+  "UnregisteredCloseoutGuard",
+]
+measurement_states = [
+  "DerivedAndPinned",
+  "ScopeMissing",
+  "ExpectedValueDrift",
+  "SourceScopeGrowth",
+  "SupportOnlyGrowth",
+  "UnclassifiedGrowth",
+]
+closeout_states = [
+  "GuardRegistered",
+  "GuardEvidenceMissing",
+  "CardSelfScoredBeforeCloseout",
+  "RetirementEvidenceComplete",
+]
+terminal_policy = "Only ResolvedPath, ExplicitTombstone, DerivedAndPinned with a named scope, GuardRegistered, and RetirementEvidenceComplete are terminal. Missing, duplicate, dangling, unscoped, or self-scored states remain blocking."
+
+[task_ledger_execution_index]
+id = "LEDGER-EXECUTION-INDEX-D0"
+owner = "tools/checks/guard_manifest_inventory.py (extended existing owner)"
+precondition = "GUARD-CONTRACT-GRAPH-D0 must first freeze execution-plane versus navigation-plane semantics; this child does not make the hand-written index authoritative."
+scope = "guard_rows.toml includes, row IDs, argv command paths, public check index compatibility names, and closeout wrapper/implementation pairs"
+observed_dangling_names = [
+  "k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_registry_exact_top_symbol_variability_guard.sh",
+  "k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability_guard.sh",
+  "rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh",
+  "rust_lifecycle_mirbuilder_loop_feature_facts_token_snapshot_hako_adoption_decision_guard.sh",
+]
+required_resolution = "Each observed name written in the navigation compatibility block must resolve to a tracked path or an explicit tombstone record naming owner, replacement/retirement reason, observed revision, and reopen trigger. A guard row need not be repeated in the human index. Implicit deletion or warning-only output is forbidden."
+delete_set = [
+  "silent dangling compatibility-name acceptance",
+  "duplicate row IDs and exact duplicate rows (shared command targets with distinct argv remain valid)",
+  "unregistered closeout wrapper/implementation pairs",
+  "index entries that point to neither a live path nor a tombstone",
+]
+duplicate_policy = "Reject duplicate row IDs and exact duplicate rows only. The same command target may be shared by distinct rows when argv differs, as in the ingress/force lifecycle rows."
+command_path_policy = "For bash/python3 argv targets require tracked path existence; require executable mode only for direct execution argv. Reuse manifest_runner.py command-target semantics."
+guard_policy = "Extend the already-registered guard-manifest-inventory row and existing guard_manifest_inventory_guard.sh; do not add a new structural shell row and do not execute member commands in I0."
+
+[task_force_hv1_measurement]
+id = "FORCE-HV1-CENSUS-NONGROWTH-I0"
+owner = "CHRONIC-MEASUREMENT-REFRESH-D0 -> CHRONIC-MEASUREMENT-EXPECTATION-I0; force_hv1_caller_manifest_guard.py is only a receipt consumer"
+precondition = "DEAD-CODE-REMEASURE-D0 and PANIC-SURFACE-CENSUS-D0 must classify cfg(test)/generated/fixture/compat/nonselected scope before an expectation row is pinned."
+scope = "active force-hv1 leaf inventory and one separately named retirement source scope; tests/guards/docs are support scope, not production legacy scope"
+derived_facts = [
+  "leaf paths, body hashes, lexical site count, route class, and route site count remain body-derived",
+  "allow_dead_code_count is token-aware and scope-labeled; cfg(test), generated, fixture, compatibility, and nonselected paths are separate states",
+  "rust_src_lines is counted only for an explicitly named legacy production scope; total src LOC is diagnostic, never the retirement authority",
+]
+expectation_tsv = "The single TSV owned by CHRONIC-MEASUREMENT-EXPECTATION-I0 (path chosen by that owner; no force-specific second TSV). It records source_commit, finite scope_id, force-hv1 leaf receipt id/hash, legacy_src_lines, legacy_allow_dead_code, support_src_lines, and support_allow_dead_code."
+ratchet = "For a selected retirement scope, legacy_src_lines and legacy_allow_dead_code must not increase; support-only additions are reported separately; any unclassified path or scope drift fails closed. force_hv1_caller_manifest_guard.py may consume only the exact TSV receipt id/hash; its leaf observer remains shell-body-only."
+delete_set = [
+  "arithmetic-only hardcoded force-hv1 census acceptance",
+  "global src non-growth assertion with no finite legacy scope",
+  "expectation values edited without a prior observed baseline or scope owner",
+]
+no_fallback = "A census mismatch never changes force-hv1 fate, retries through Core, or reclassifies a leaf; it only fails the guard."
+
+[task_closeout_registration]
+id = "CLOSEOUT-GUARD-REGISTRATION-D0"
+owner = "guard manifest/inventory owner plus current-docs closeout policy"
+scope = "implementation rows that add/change a public guard, lifecycle guard, or retirement guard and their associated card closeout"
+contract = "A closeout cannot mark a row landed unless the guard script/path is present, registered in guard_rows.toml or an included manifest, and its evidence command is recorded; a written index name must be live or explicitly tombstoned. The implementation and closeout may share a bounded commit under current docs policy, but that commit may not relax the baseline, acceptance, or guard to manufacture green evidence."
+positive = [
+  "new guard + registry row + focused evidence are present",
+  "closeout-only card update records the observed commit and guard result",
+  "retired guard has successor/tombstone and caller-zero evidence",
+]
+negative = [
+  "guard script exists but registry/index is absent",
+  "card says landed while guard evidence is missing",
+  "a bounded commit changes both the acceptance decision and the proof it claims, or relaxes a baseline to manufacture green",
+  "warning-only or profile-unreachable registration is treated as execution",
+]
+
+[task_phase2160_accounting]
+id = "AGGREGATE-RETIRE-R0"
+owner = "phase2160 retirement owner, downstream of the three hygiene tasks"
+scope = "phase2160 legacy runtime source cohort only, with support additions classified separately"
+reported_observation = "The audit reports phase2160 src +307, mir_interpreter unchanged at 91 files/18,239 lines, and total src +1,039. These values are provisional until the scope-aware measurement is reproduced."
+required_split = [
+  "legacy production implementation LOC before/after",
+  "tests/guards/docs/support LOC before/after",
+  "deleted legacy paths and reintroduced paths",
+  "unchanged Rust VM/reference core as an explicit retained state",
+]
+completion = "Do not call the wave a code reduction until the named legacy scope loses its old edges or is explicitly RetainGuarded. A support-only increase is not a failure, but an unclassified increase is blocking."
+dependency = "Run after LEDGER-EXECUTION-INDEX-D0 and FORCE-HV1-CENSUS-NONGROWTH-I0 baselines; this is an accounting receipt, not a dependency that blocks semantic phase2160 retirement."
+
+[ordered_followups]
+steps = [
+  "0. GUARD-CONTRACT-GRAPH-D0: freeze execution plane versus navigation projection and the existing six inventory dispositions.",
+  "1. LEDGER-EXECUTION-INDEX-D0: resolve/tombstone the four dangling names and make the flattened graph fail-closed without running member guards.",
+  "2. DEAD-CODE-REMEASURE-D0 + PANIC-SURFACE-CENSUS-D0: reproduce and classify the chronic counts; no force-specific LOC/dead_code observer.",
+  "3. CHRONIC-MEASUREMENT-EXPECTATION-I0: issue the single scope-labeled expectation TSV and receipt/hash consumed by force_hv1 lifecycle.",
+  "4. CLOSEOUT-GUARD-REGISTRATION-D0: enforce registry/evidence co-registration and forbid baseline/acceptance relaxation; same bounded commit remains allowed.",
+  "5. AGGREGATE-RETIRE-R0: remeasure phase2160 with legacy/support split, then choose deletion or RetainGuarded per named cohort.",
+]
+implementation_order = "0 -> 1 -> 2 -> 3 -> 4 -> 5; tasks 0-4 are guard/measurement hygiene, task 5 is accounting and retirement design."
+
+[acceptance]
+positive = [
+  "all four observed ledger names are resolved or tombstoned with owner/reason/reopen evidence",
+  "registry checker rejects missing/duplicate/dangling rows and is itself registered exactly once",
+  "force-hv1 leaf facts are re-derived from bodies and expectation TSV scope is explicit",
+  "legacy source/dead_code pair is non-increasing while support-only growth is reported separately",
+  "a closeout cannot pass without guard registration and independent evidence",
+  "phase2160 accounting distinguishes actual legacy deletion from support additions before any reduction claim",
+]
+negative = [
+  "no warning-only stale guard, no silent dangling link, no zero-match-as-pass, no hardcoded-only census",
+  "no global LOC deletion claim, no guard-per-finding proliferation, no member guard execution in structural I0",
+  "no implementation card self-approval, no force-hv1 fallback/retry change, and no compiler/backend behavior change",
+]
+
+[guard]
+required = "Keep the existing guard-manifest-inventory and force-hv1-caller-lifecycle rows as separate owners. Add at most one direct Python measurement row for the chronic TSV if needed; do not create a God guard that validates graph, force facts, and closeout semantics together."
+no_safe_slice = [
+  "the four dangling names cannot be resolved/tombstoned without guessing ownership",
+  "dead_code/src-line scope mixes tests/support with legacy production and cannot be separated",
+  "the lifecycle guard can only consume hardcoded arithmetic and cannot verify body-derived facts",
+  "closeout registration requires rewriting the 2,000+ line normal-root manifest or another unrelated SSOT",
+  "phase2160 growth cannot be attributed to a finite legacy/support scope",
+]
+
+[worker_receipt]
+agent = "guard_index_spec_audit"
+finding = "Accept with amendments: reuse guard_manifest_inventory.py and the existing guard-manifest-inventory row; keep check-scripts-index.md as navigation only; leave shared command targets valid when argv differs; keep Rust LOC/dead_code in the single chronic-measurement TSV, not force_hv1_leaf_census.py; and separate phase2160 authority retirement from physical LOC reduction."
+evidence = [
+  "tools/checks/guard_manifest_inventory.py:15,77,181",
+  "tools/checks/guard_manifest_inventory_guard.sh",
+  "tools/docs/guard_surface_inventory.py",
+  "tools/checks/lib/force_hv1_leaf_census.py",
+  "tools/checks/lib/force_hv1_caller_manifest_guard.py",
+  "mirbuilder-cleanup-retirement0-d0-task-map.md chronic queue",
+]
