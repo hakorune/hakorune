@@ -71,6 +71,7 @@ external_disposition = "MirCall remains live through unified_emitter/physical_te
 observed_commit = "6f88c16a91"
 status = "design_stop"
 decision = "Retain MirCall as the live by-value transport and retire Rust CallFlags only as one co-update; do not touch Hako wire flags.optionality or generic mir_call JSON readers."
+current_head_census = "At HEAD 25d4235a49 (2026-08-28), bounded Rust source contains CallFlags in 4 files/19 occurrences: crates/hakorune_mir_defs/src/call_unified.rs, crates/hakorune_mir_defs/src/lib.rs, src/mir/definitions/mod.rs, and src/mir/builder/calls/call_unified.rs. The adjacent generated RustSubset fixtures and lifecycle classifiers add 4 files/22 occurrences (8 files/41 occurrences across the explicitly bounded Rust plus fixture/tool surface); docs are excluded."
 classified_edges = [
   "Retire + co-update: hakorune_mir_defs CallFlags definition/API, MirCall.flags, constructor/closure flag writers, builder create_call_flags, crate/definitions re-exports",
   "Retain: src/mir/builder/calls/unified_emitter/physical_terminal.rs is the sole MirCall -> MirInstruction::call terminal",
