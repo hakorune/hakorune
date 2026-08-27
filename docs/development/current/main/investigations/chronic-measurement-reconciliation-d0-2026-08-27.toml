@@ -1,0 +1,162 @@
+title = "Chronic measurement scope reconciliation D0"
+status = "accepted_design_parked"
+observed_commit = "f17a496c049590ffd3bbbdaf5bc700f4547134f4"
+observed_at = "2026-08-27"
+implementation_permission = false
+current_execution_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
+parent_row = "docs/development/current/main/investigations/chronic-measurement-expectation-i0-2026-08-27.toml"
+successor_card = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
+
+[boundary]
+starts = "the landed chronic scanner report, its tracked scope manifest, the older all-src diagnostic tuple, and the body-derived force-hv1 manifest"
+ends = "an explicit reconciliation receipt that names the finite measurement boundary, maps each included observation to an owner/role, separates source revisions, and freezes the canonical force receipt projection; no TSV or deletion is issued here"
+includes = [
+  "the 1434-file scanner root set and its 185 dead_code allowance observations",
+  "the path-level difference between the frozen scope and the older 334/351 all-src diagnostics",
+  "site-level compile_domain, role, owner, successor, and retirement_status inputs for every future TSV row",
+  "scanner implementation/report revision, current tree revision, force manifest source revision, and measurement source revision as separate fields",
+  "the canonical JSON projection used later to hash body-derived force facts",
+]
+excludes = [
+  "creating or pinning chronic_measurement_expectations_v1.tsv, changing guard code, stale-threshold supersession, or source/guard deletion",
+  "treating file-level role=mixed or unclassified_count=0 as proof that each site is legacy/support classified",
+  "using old 334/351 values as a baseline without a path-level inclusion/exclusion explanation",
+  "including force fate_review/expected_counts, route selection, compiler/MIR/VM/AOT behavior, or semantic receipts in measurement authority",
+]
+
+[brief]
+decision = "Split reconciliation from expectation pinning. The scanner's file-level compile_domain/role fields are neutral observations, but they do not classify the 185 allowance sites into legacy production versus support. Before any TSV exists, produce a path-level difference table, explicit site owners, separate source revisions, and a force receipt projection. If the boundary cannot be reconciled, reopen the scope D0 instead of pinning a convenient number."
+source_authority = "The tracked chronic scope manifest, deterministic scanner JSON/hash, older diagnostic inventories as labeled observations, the checked-in force-hv1 body-derived manifest, and owner-reviewed classification inputs."
+canonical_issuer = "This D0 issues only the reconciliation boundary and finite readiness state. CHRONIC-MEASUREMENT-TOKEN-SCANNER-I0 remains the lexical observer; CHRONIC-MEASUREMENT-EXPECTATION-I0 later co-seals the TSV; force_hv1_caller_manifest_guard.py remains a receipt consumer."
+non_authority = [
+  "file-level role=mixed, unclassified_count=0, raw grep totals, total src LOC, filename conventions, stale thresholds, profile names, or a card edited with its proof",
+  "the force-hv1 fate disposition, expected_counts, route selector, backend behavior, or any textual caller count",
+  "scanner report commit or force manifest source_commit used implicitly as the measurement source revision",
+]
+fail_fast = "Missing path-difference evidence, an allowance without an explicit owner/role, conflated source revisions, a force projection that includes fate authority, or a scope expansion without a new D0 remains blocking. No expectation or deletion may proceed from an unresolved reconciliation."
+smallest_next_slice = "Design-only: enumerate the finite scope difference, provide the site-level classification owner/path, freeze the three revision roles, and freeze the canonical force receipt fields. Do not create the TSV or modify code."
+non_claims = [
+  "does not claim 185, 334, or 351 is production-live, stale, or deletable",
+  "does not authorize guard/source removal, ASTCLEAN supersession, panic cleanup, or force-hv1 fate changes",
+  "does not add a second scanner, force-specific TSV, semantic receipt, or runtime fallback",
+]
+
+[scope_reconciliation]
+scanner_scope_id = "mirbuilder-chronic-rust-v1"
+scanner_scope_manifest = "tools/checks/manifests/chronic_measurement_scope_v1.toml"
+scanner_scope_files = 1434
+scanner_allowance_observations = 185
+scanner_scope_manifest_hash = "sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f"
+scanner_source_scope_hash = "sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39"
+scanner_evidence_hash = "sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a"
+historical_exact_diagnostic = "334 lines / 111 files across all src"
+historical_inclusive_diagnostic = "351 lines / 126 files across all src"
+required_difference_table = [
+  "path_or_root",
+  "in_frozen_scanner_scope",
+  "in_historical_all_src_diagnostic",
+  "reason_for_difference",
+  "compile_domain",
+  "role",
+  "owner",
+  "successor",
+]
+classification_rule = "Every future expectation site must have explicit item/range owner and role. A file-level mixed label or scanner unclassified_count=0 cannot fill these cells."
+scope_change_rule = "If the difference table shows the frozen roots omit required production registration edges, open a new scope D0; never mutate the old scope manifest and expectation together."
+
+[revision_roles]
+scanner_observation_revision = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
+current_tree_revision = "f17a496c04e83a0a7d15a6f3b079f12ce91df1d6"
+force_manifest_source_revision = "3c8db4c6e7985d2f4479203e235d041b7f306258"
+measurement_source_revision = "must be explicitly selected at expectation closeout; never inferred from the other three"
+rule = "The TSV source_commit names the measurement snapshot being pinned. Scanner and force revisions remain separate provenance fields; a later closeout may use current_tree_revision only if the report and force receipt are regenerated from that tree."
+
+[force_receipt_projection]
+owner = "existing force-hv1 body-derived manifest owner"
+id_rule = "force-hv1-caller-disposition-manifest-v1:<force_manifest_source_revision>"
+include = ["schema", "version", "source_commit", "leaf_paths", "observations", "observed_counts"]
+exclude = ["fate_review", "expected_counts", "task_order", "acceptance", "no_safe_slice"]
+encoding = "canonical JSON with sorted object keys, stable leaf/observation order, compact separators, then SHA-256"
+status = "projection frozen in design; receipt hash not yet issued or consumed"
+
+[consumer_boundary]
+owner = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
+role = "future exact receipt consumer only; no Rust re-scan, site reclassification, route retry, fallback, or fate mutation"
+registration = "reuse the existing force-hv1-caller-lifecycle row; no new per-metric or force-specific guard row"
+precondition = "reconciliation complete and expectation TSV exists with exact scope/scanner/force hashes"
+
+[finite_state]
+states = [
+  "ScopeObserved",
+  "ScopeDifferenceMapped",
+  "SiteOwnersMapped",
+  "RevisionRolesSeparated",
+  "ForceProjectionReady",
+  "ReconciliationComplete",
+  "ScopeMismatch",
+  "MissingOwner",
+  "UnclassifiedSite",
+  "RevisionConflation",
+  "ProjectionIncludesFate",
+]
+terminal = ["ReconciliationComplete"]
+blocking = [
+  "ScopeMismatch",
+  "MissingOwner",
+  "UnclassifiedSite",
+  "RevisionConflation",
+  "ProjectionIncludesFate",
+]
+
+[task_steps]
+items = [
+  "1. Reproduce the frozen scanner tuple and enumerate every root/path difference against the historical 334/351 all-src diagnostics; record an explicit reason for each difference.",
+  "2. Map each of the 185 allowance observations that could enter the expectation to item/range owner, compile_domain, role, successor, and retirement_status. Mixed file labels are not sufficient.",
+  "3. Separate scanner observation revision, current tree revision, force manifest source revision, and future measurement source revision; reject implicit `source_commit` reuse.",
+  "4. Freeze the canonical force receipt projection over body-derived facts only, excluding fate_review and expected_counts; do not issue the hash until the projection is independently reviewable.",
+  "5. Confirm the existing force-hv1 lifecycle guard can consume the exact future TSV receipt without a second parser or reclassification. If not, return to design stop rather than patching around it.",
+  "6. Close this D0 with a complete reconciliation receipt, then reopen CHRONIC-MEASUREMENT-EXPECTATION-I0 implementation design. No TSV, guard edit, stale-threshold change, or deletion belongs here.",
+]
+
+[acceptance]
+positive = [
+  "the 1434-file/185-observation scope and older 334/351 diagnostics are connected by a path-level inclusion/exclusion table",
+  "every future expectation site has a named owner/role/successor input independent of file-level mixed labels",
+  "scanner, current tree, force manifest, and measurement revisions have distinct meanings and fields",
+  "the force receipt projection is deterministic and excludes fate/expected-value authority",
+  "the existing lifecycle guard remains the sole planned consumer and no new force-specific guard row is needed",
+]
+negative = [
+  "no 185/334/351 value is silently promoted to a deletion baseline",
+  "no expectation TSV or source/guard deletion is created in this D0",
+  "no second parser, force-specific receipt, route fallback, or semantic authority is introduced",
+  "no caller-zero claim is derived from scanner counts or text absence",
+]
+
+[guard]
+reuse = "Use the existing scanner report and force-hv1 lifecycle owner as read-only inputs; no executable guard is added by this D0."
+required = "The reconciliation receipt must be independently reviewable and fail closed. A green scanner report with unresolved site ownership or revision roles is not sufficient."
+no_safe_slice = [
+  "the path-level difference between frozen and historical scopes cannot be explained",
+  "site-level owner/successor evidence cannot be supplied without guessing",
+  "source_commit responsibilities remain conflated",
+  "force receipt hashing would include fate/expected-count authority",
+  "the lifecycle consumer requires a second parser or route behavior change",
+]
+
+[worker_receipt]
+agent = "chronic_measurement_scope_audit"
+status = "NoSafeSlice_for_expectation_pin; reconciliation_D0_required"
+finding = "The 1434-file/185 allowance boundary is described consistently, but file-level role=mixed and unclassified_count=0 do not classify each site. Scanner, current tree, and force manifest revisions are distinct, and the force receipt is designed but not consumed."
+evidence = [
+  "chronic-rust-token-scanner-i0-2026-08-27.toml [observed] and [scope_note]",
+  "tools/checks/manifests/chronic_measurement_scope_v1.toml roots and role=mixed declaration",
+  "tools/checks/rust_source_topology/src/chronic_measurement/model.rs file-level compile_domain/role fields",
+  "tools/checks/lib/force_hv1_caller_manifest_guard.py existing direct manifest recomputation with no TSV consumer",
+]
+latest_finding = "Complete this reconciliation D0 before pinning CHRONIC-MEASUREMENT-EXPECTATION-I0 or opening any guard/source deletion row."
+
+[closeout]
+status = "pending"
+required = "Record the path-level difference table, site owner map, separated revisions, and reviewed force projection. Then move the pointer to CHRONIC-MEASUREMENT-EXPECTATION-I0; no code, TSV, guard edit, or deletion is allowed from this row."
+next_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"

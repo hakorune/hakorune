@@ -1,11 +1,12 @@
 title = "Chronic measurement expectation TSV I0"
-status = "accepted_design_parked"
+status = "accepted_design_no_safe_slice"
 observed_commit = "8d2bcf03989b8b13013554e4b4065feaa81a5b3a"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-EXPECTATION-I0"
 parent_row = "docs/development/current/main/investigations/chronic-rust-token-scanner-i0-2026-08-27.toml"
 successor_card = "ASTCLEAN-STALE-GUARD-SUPERSEDE-R0"
+precondition_card = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
 
 [boundary]
 starts = "the landed chronic-rust-token-scanner report, the frozen scope manifest, and the body-derived force-hv1 leaf receipt"
@@ -34,7 +35,7 @@ non_authority = [
   "the scanner's 185 in-scope allowance count treated as the historical 334/351 all-src baseline without an explicit scope reconciliation",
 ]
 fail_fast = "Missing/duplicate TSV rows, missing owner/successor, source/scope/scanner/force receipt hash drift, unclassified observations, legacy/support scope mixing, stale force receipt, or a validator that accepts a partial report must fail before any stale-guard or source-retirement decision."
-smallest_next_slice = "Design-only: freeze the single TSV union schema, canonical force receipt hash inputs, reconciliation of the 185 frozen-scope observations versus the older 334/351 diagnostics, and the exact existing lifecycle consumer seam. Do not create the TSV or edit code while implementation_permission is false."
+smallest_next_slice = "NoSafeSlice until CHRONIC-MEASUREMENT-RECONCILIATION-D0 supplies site-level owner classification, explicit 185-versus-334/351 inclusion/exclusion evidence, separated source revisions, and a force receipt projection. Only then freeze the TSV union schema and consumer seam; do not create the TSV or edit code while implementation_permission is false."
 non_claims = [
   "does not claim the observed counts are production-live, stale, or deletable",
   "does not authorize ASTCLEAN threshold supersession, dead_code removal, panic cleanup, guard removal, or phase2160 reduction",
@@ -177,5 +178,15 @@ no_safe_slice = [
 
 [closeout]
 status = "pending"
-required = "Record the reconciled scope decision, one TSV path/header, exact scanner/force receipt hashes, validator tests, and the existing lifecycle guard result. Then move the pointer to ASTCLEAN-STALE-GUARD-SUPERSEDE-R0; do not delete source or guards from this row."
-next_row = "ASTCLEAN-STALE-GUARD-SUPERSEDE-R0"
+required = "First close CHRONIC-MEASUREMENT-RECONCILIATION-D0 with explicit scope/owner/revision evidence. Then record the one TSV path/header, exact scanner/force receipt hashes, validator tests, and existing lifecycle guard result. Only after that move the pointer to ASTCLEAN-STALE-GUARD-SUPERSEDE-R0; do not delete source or guards from this row."
+next_row = "CHRONIC-MEASUREMENT-RECONCILIATION-D0"
+
+[reconciliation_gate]
+status = "blocking_precondition"
+required = [
+  "site-level owner and role classification for every allowance/site that would enter the TSV",
+  "path-level inclusion/exclusion table explaining the 185 frozen-scope observations versus 334/351 all-src diagnostics",
+  "separate scanner observation revision, force manifest source revision, and TSV measurement source revision",
+  "canonical force receipt projection that excludes fate_review and expected_counts",
+  "existing lifecycle consumer responsibility fixed without a second parser or force-specific guard",
+]
