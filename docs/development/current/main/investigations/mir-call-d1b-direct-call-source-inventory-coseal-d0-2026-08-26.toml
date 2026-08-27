@@ -298,8 +298,8 @@ owner_action_matrix = [
   "printer/tests/guards: project structural data for display/fixtures only; never parse or reconstitute a target",
 ]
 unregistered_calltarget_families = [
-  "CallTarget schema/transport: src/mir/builder/calls/call_target.rs and calls/emit.rs",
-  "ordinary/recovery: calls/build.rs, calls/function_call_preflight_route.rs, and calls/static_resolution.rs",
+  "CallTarget schema/transport: src/mir/builder/calls/call_target.rs, calls/emit.rs, calls/unified_emitter/compat_entrypoints.rs, and calls/resolver.rs",
+  "ordinary/recovery: calls/build.rs, calls/function_call_preflight_route.rs, calls/static_resolution.rs, and calls/unified_emitter.rs",
   "static terminal/publication: calls/method_call_terminal.rs, normal_script_direct_static_physical_publication.rs, and rewrite/known.rs",
   "builtin: stmts/print_stmt.rs",
 ]
@@ -310,7 +310,7 @@ compiled_owner_action_inventory = [
   "builtin (stmts/print_stmt.rs): owner=builtin declaration policy; action=adapt exact print/1; terminal=Builtin(Print), otherwise typed reject or named provider; reopen=print is proven to have a non-builtin callable meaning",
   "MirCall/CallFlags transport (call_unified.rs, unified_emitter/physical_terminal.rs, crate facades, RustSubset projections): owner=MirCall physical terminal plus separate CallFlags API row; action=retain terminal, co-update/retire writer-only flags; terminal=MirInstruction::call; reopen=any semantic flag reader or second terminal appears",
 ]
-calltarget_census = "Current compiled CallTarget::Global census is 20 Rust files/45 occurrences (17 production-ish files/36 occurrences). The nine files above are the previously unregistered family members; normal_script_direct_static_physical_publication.rs is test-only and is isolated, while recursive test helpers and apps/selfhost-runtime copies are outside the compiled owner boundary and must not be counted as production issuers."
+calltarget_census = "Current compiled CallTarget::Global census is 20 Rust files/45 occurrences (17 production-ish files/36 occurrences). The twelve files above are the previously unregistered family members; normal_script_direct_static_physical_publication.rs is test-only and is isolated, while recursive test helpers and apps/selfhost-runtime copies are outside the compiled owner boundary and must not be counted as production issuers."
 observed_successor_gaps = [
   "calls/unified_emitter/compat_entrypoints.rs:11-29 and calls/resolver.rs:66-75 still publish or reissue Callee::Global(String); no typed successor is implemented.",
   "calls/build.rs:336-370, function_call_preflight_route.rs:257-371, and static_resolution.rs:86-171 still perform post-argument recovery or name/arity Global reconstruction; the TypedRejectBeforeArguments terminal is design-only.",
