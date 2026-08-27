@@ -1,15 +1,15 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "raw_transport_boxshape_split_landed_design_stop"
-observed_commit = "2690a1c856"
+status = "observer_i0_design_reconcile"
+observed_commit = "cfe3b13ab4"
 observed_at = "2026-08-28"
 implementation_permission = false
 guard_phase = "bridge_ready"
-permission_scope = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 landed at 0bd6732792 as a behavior-neutral same-path module/test split below 760 lines. D1B observer facts, package/issuer/lineage loan/dispatcher, unrestricted profile widening, fallback, and Call changes remain forbidden; the Selected FunctionCall observer design stop is active. Historical Wpre/force-hv1 rows retain their own landed fates."
+permission_scope = "D0 design reconcile only: worker audits confirm the observer-only shape, but the package/install terminal for nonempty unissued observations and the explicit three-state canonicalization policy are not yet closed. No Selected profile change, facts field, package/issuer/loan/dispatcher, fallback, or Call change is open. RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 is already landed at 0bd6732792."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
 completed_execution_row = "RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0"
-next_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0"
+next_execution_row = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -28,12 +28,12 @@ excludes = [
 ]
 
 [brief]
-decision = "D1B remains a design stop: preserve source/site/Raw lineage once, and keep selected ordinary FunctionCall ParkedSealed until one same-session source/index owner can issue Callee. B0 structural Global is accepted architecture, not a standalone D1B implementation row."
-source_authority = "FullFunctionV1 ShadowResolver traversal has the one-pass source authority for direct-call name/arity observations keyed by SourceExprSiteV1. SelectedCallableV1 currently rejects ordinary FunctionCall before that record_direct_call branch, and canonicalize_draft also typed-rejects a nonempty direct-call draft when callable_index=None; neither path silently drops facts. A bounded observer-only selected profile must be designed before retaining those facts in existing ResolvedFunctionDataV1. The exact Raw site/RawInvocationRootLineageV1 remains provenance, and ResolvedDirectCallTargetV1 remains semantic evidence rather than a physical Callee."
+decision = "D1B observer I0 remains closed pending one design reconcile: SelectedCallableV1 may eventually observe ordinary FunctionCall through the existing one-pass record_direct_call branch and retain a neutral name/arity fact keyed by SourceExprSiteV1, but a nonempty unissued observation must have a named pre-install typed terminal before the profile can open. B0 structural Global is accepted architecture, not a standalone D1B implementation row."
+source_authority = "FullFunctionV1 ShadowResolver traversal remains the one-pass source authority for direct-call name/arity observations keyed by SourceExprSiteV1. SelectedCallableV1 still rejects ordinary FunctionCall before that branch, and every unindexed non-Selected path retains the existing callable_index requirement. The design must separate Selected ObserveOnly, indexed RequireCallableIndex, and unindexed RejectUnindexed without a bool/default. The exact Raw site/RawInvocationRootLineageV1 remains provenance, and ResolvedDirectCallTargetV1 remains semantic evidence rather than a physical Callee."
 canonical_issuer = "The first B0 family remains conditional: the retained resolver observation must meet a package-owned selected-cataloged callback-scoped view carrying caller owner/CallableDeclarationIdentity, exact Raw site/lineage, catalog brand, and explicit same-session proof. It must recheck the current catalog brand, co-seal identity plus declaration/source evidence with Raw Cataloged lineage/site, map the observed owner/site/name/arity to one same-brand StaticBoxMethod relation, settle the owned structural Global before arguments, and drop the view before argument borrowing. Shadow observation is facts-only; only the selected package adapter may expose the raw loan. Exact-i64 keeps the VerifiedCallableIndexV1/header_for_callable chain. The affine loan only transports an issued Callee and never reconstructs it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Missing issuer, lineage bridge, site/brand match, current-catalog recheck, identity/site co-seal, precedence decision, complete inventory, or package/loan lifecycle aborts before arguments, MIR, package install, block mutation, wire, or backend effects; no view held across argument borrow, empty loan, package-only bypass, or raw-port bypass."
-smallest_next_slice = "D1B-DIRECT-CATALOG-CAPABILITY-D0 (design only): first bound an observer-only SelectedCallableV1 FunctionCall allowance and retain its one-pass source row in existing ResolvedFunctionDataV1 while unindexed publication remains typed-reject; then close the package-owned caller/site/lineage relation and explicit same-session proof, and define the scoped capability that reaches the actual RawInvocationChildPortV1 dispatcher. The callback must settle the owned target, end its view, and hand it once to the stack loan before arguments; only then freeze B0 constructors/issuer and package-plus-loan/NoDirectCalls before Cataloged I0. No unrestricted profile widening or production switch."
+smallest_next_slice = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0: name the sole package/install owner and typed terminal for any nonempty unissued observation, freeze the three-state Selected/RequireCallableIndex/RejectUnindexed policy, and prove that a facts-only observer cannot reach install or lowering. Only after this D0 closes may the bounded Selected observer I0 open; package/issuer/loan/dispatcher and production switch remain later rows."
 non_claims = "No Wpre selector, parser/fixture/codec change, new semantic receipt, target synthesis, consumer resolver, Method/receiver cutover, mandatory-Callee schema, VM/backend change, or warning cleanup."
 
 [final_architecture]
@@ -125,11 +125,34 @@ forbidden = [
 
 [observer_completion_prerequisite]
 task_id = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-status = "design_stop_facts_owner_policy_and_install_terminal_open"
-implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0; opens only after this D0 fixes the facts owner, Selected-only construction policy, and named pre-install incomplete-observation terminal. It precedes the StaticBoxMethod issuer, lineage mapper, package-plus-loan, dispatcher, and old-resolver cutover rows."
+status = "observer_i0_design_reconcile_open"
+implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0 remains closed until the named pre-install incomplete-observation terminal and explicit three-state policy are fixed. It precedes the StaticBoxMethod issuer, lineage mapper, package-plus-loan, dispatcher, and old-resolver cutover rows."
 observed_blocker = "The existing ShadowResolver FunctionCall branch already records one-pass name/arity facts through record_direct_call and visits arguments in the same traversal; SourceExprSiteV1 is the BTreeMap key, not a field of ShadowDirectCallUseV0. SelectedCallableV1 rejects that branch, while canonicalize_draft rejects every nonempty direct-call draft when callable_index=None. Before implementation, name the neutral resolved-semantics facts row and map owner, distinguish Selected observer-only construction from FullFunction require-index construction without a caller bool/default, and name the sole package issue/install terminal that rejects a nonempty unissued inventory before install. Without that terminal, allowing the observer can change package reachability even while Callee publication remains zero."
 decision_shape = "Reuse record_direct_call as the only source observer; do not add record_unissued_direct_call or a second traversal. Move or neutralize its row as DirectCallObservationV1 { name: Box<str>, arity: u32 } under resolved_semantics/direct_call, and retain it in ResolvedFunctionDataV1 as BTreeMap<SourceExprSiteV1, DirectCallObservationV1>. A private finite canonicalization policy issued only by the Selected resolver distinguishes ObserveOnly from FullFunction RequireCallableIndex. ObserveOnly retains facts and publishes zero direct_call_targets; RequireCallableIndex keeps the existing unindexed reject. Brand constructors remain on their existing disjoint authority. A nonempty observation map cannot cross package installation until a later disposition owner has issued every exact target or a typed terminal has rejected the package."
 implementation_acceptance = "Selected ordinary FunctionCall reaches the existing observer once, retains exact site/name/arity facts, observes BodyEffect::Call and arguments exactly as before, and publishes zero direct_call_targets/Callee/MIR. FullFunction unindexed direct calls still reject; brand constructor classification and arity rejection are unchanged. Duplicate sites, arity overflow, unsupported shapes, and any nonempty unissued inventory at package install are typed terminals. The Selected early rejection/Deferred edge is the only semantic old edge removed in I0; package/issuer/loan/dispatcher and calls/build.rs stay unchanged."
+package_terminal = "Before Selected observer I0 opens, VerifiedNormalCallableSemanticSourceV1::seal (or its existing package-admission owner) must name the sole terminal for any nonempty direct_call_observations. That terminal aborts before source projection, package install, lowering, collector, or physical effects; it does not reinterpret facts, manufacture a target, or downgrade to Deferred. The terminal is checked across every selected forest owner, while direct-call-free and brand-only batches retain their existing outcomes."
+policy_states = [
+  "ObserveOnly: SelectedCallableV1 with no callable index retains facts and publishes zero direct_call_targets",
+  "RequireCallableIndex: indexed FullFunction path resolves the existing exact target rows",
+  "RejectUnindexed: every non-Selected callable_index=None path preserves the existing typed reject",
+]
+design_files = [
+  "src/mir/resolved_semantics/direct_call.rs",
+  "src/mir/resolved_semantics/product.rs",
+  "src/mir/resolved_semantics/resolver.rs",
+  "src/mir/resolved_semantics/owner_resolver.rs",
+  "src/mir/resolved_semantics/shadow/traversal_profile.rs",
+  "src/mir/resolved_semantics/source_site_inventory.rs",
+  "src/mir/resolved_semantics/brand_source_relation_tests.rs",
+  "src/mir/resolved_semantics/tests.rs",
+  "src/mir/resolved_semantics/function_root_tests.rs",
+  "src/mir/resolved_semantics/if_region_tests.rs",
+  "src/mir/resolved_semantics/loop_region_tests.rs",
+  "src/mir/resolved_semantics/block_expr_tests.rs",
+  "src/mir/builder/normal_callable_semantic_source.rs",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
 forbidden = [
   "unrestricted semantic profile widening or physical direct-call acceptance",
   "second AST walk, post-Deferred recovery, or package-external scratch",
@@ -585,8 +608,8 @@ stop = "Return to design if explicit profile issuance cannot be separated from c
 non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
 
 [task_spine]
-current = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0 is the selected design stop; it reuses the existing observer and must close the neutral facts owner, Selected-only policy, and package pre-install terminal before any code permission. B0/Wpre/force-hv1 rows remain landed or separately parked historical owners."
-next_prerequisite = "Close this D0 without a new card. Then use two bounded commits: first RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 with behavior/module path/visibility/lifetimes unchanged and every child below 760 lines; second MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0 with facts-only retention, Selected Deferred-edge deletion, existing BodyEffect/argument parity, target publication zero, and an observer_i0 phase in the existing lifecycle guard. After those land, return to design for the package-owned same-session StaticBoxMethod relation, unique source/raw lineage mapping, sealed package-plus-loan bridge, exact-site take_once, and old ordinary resolver deletion. RawCompatibility, BoundedGc, Method(None), and Call schema remain separate rows."
+current = "MIR-CALL-D1B-OBSERVATION-PACKAGE-TERMINAL-D0 is the only open design row. Worker re-audit accepted the facts-only shape but found that opening Selected before a named pre-install terminal could turn an unissued observation into an accidental package success. No semantic code row is open."
+next_prerequisite = "Close the package-terminal owner, the three-state canonicalization policy, and the no-install/no-lowering negative proof in this card without adding a new receipt. Then open MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0 as one bounded code row; package issuer/loan/dispatcher remains later. RawCompatibility, BoundedGc, Method(None), and Call schema remain separate rows."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -724,7 +747,7 @@ retain = "Bounded GC, Brand/special/ExplicitExtern/ASTNode::Call, Main exact-i64
 hard_rule = "Every touched/new source remains below 760 lines after a row; 800 is a hard stop. Files already above 760 require a behavior-neutral owner-specific split before semantic edits."
 no_append = [
   "src/mir/builder.rs = 741",
-  "src/mir/builder/raw_invocation_source_transport.rs = 778",
+  "src/mir/builder/raw_invocation_source_transport/ = split landed; semantic edits remain scoped",
   "src/mir/builder/normal_callable_semantic_loan_port.rs = 710",
   "src/mir/builder/raw_expression_dispatch/mod.rs = 706",
   "src/mir/builder/calls/unified_emitter.rs = 711",
