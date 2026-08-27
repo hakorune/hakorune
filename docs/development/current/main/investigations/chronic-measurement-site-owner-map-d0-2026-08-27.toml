@@ -1,6 +1,6 @@
 title = "Chronic measurement site owner map D0"
 status = "accepted_design_no_safe_slice"
-observed_commit = "f0d8b5ab56271607a793ef7ea98112d594b836aa"
+observed_commit = "6cd2f6be946cad9f0984a54f23b946e82224193f"
 observed_at = "2026-08-27"
 implementation_permission = false
 current_execution_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
@@ -86,7 +86,7 @@ retirement_authority_rule = "This map may classify Unknown/Retain/Candidate only
 
 [observation_input]
 path = "tools/checks/manifests/chronic_measurement_observations_v1.json"
-status = "bound"
+status = "validated_by_consumer"
 role = "tracked neutral scanner observation receipt; not owner, expectation, guard, or retirement authority"
 bound_by_card = "CHRONIC-MEASUREMENT-OBSERVATION-RECEIPT-I0"
 schema = "chronic-measurement-observations-v1"
@@ -111,7 +111,8 @@ canonical_key = "row_kind + path + byte_start + byte_end + attribute_kind"
 issuer = "the existing syn-based chronic scanner; the receipt is a deterministic projection of its report and adds no owner/successor fields"
 hash_rule = "rows are sorted by canonical_key and receipt_hash is SHA-256 over receipt_hash-omitted canonical compact UTF-8 JSON bytes with fixed field order and no trailing newline; scanner_evidence_hash remains the scanner report evidence hash and is not reused for the receipt"
 consumer_owner = "the site-owner-map I0 validator reuses the receipt owner's schema/hash contract; no second scanner or cross-language hash implementation is authoritative"
-consumer_contract = "strict parse the tracked JSON, verify schema/version, scanner_version, scope_id, frozen scope hashes, source_commit, scanner_evidence_hash, receipt_hash, non-empty ranges, canonical key order/uniqueness, and exactly 185 rows before owner projection"
+consumer_contract = "strict parse the tracked JSON with validate_observation_receipt_json, verify schema/version, scanner_version, scope_id, frozen scope hashes, source_commit, scanner_evidence_hash, receipt_hash, non-empty ranges, canonical key order/uniqueness, and exactly 185 rows before owner projection"
+consumer_status = "landed at 6cd2f6be946cad9f0984a54f23b946e82224193f; owner projection remains blocked until every site has tracked evidence"
 frozen_scope = "scope_id=mirbuilder-chronic-rust-v1; scanner_version=chronic-rust-token-scanner-v1; scope_manifest_hash=sha256:be3a81afd0be8a2934b21fabcb0c43cb6d530462da7fdbe87ec1afdae126425f; source_scope_hash=sha256:8d7db05c42c007e556b15bc98fa3fbefbb69c5556b4733d838ccb5fd7cfeca39; scanner_evidence_hash=sha256:cbbf224b2a635851d9502e789597abb7aa50421457ddce720a308d13d902957a; row_count=185"
 non_authority = ["raw command stdout, temporary JSON, grep/rg output, warning counts, filename labels, owner guesses, retirement outcomes"]
 
@@ -205,7 +206,7 @@ evidence = [
   "tools/checks/rust_source_topology/src/chronic_measurement/scan.rs:204-249 rejects duplicate byte ranges, not path/item_key alone",
   "tools/checks/manifests/chronic_measurement_observations_v1.json at 2c6927cccbb12de1057ce66c43b59f55f4ae4bfa is now the tracked neutral 185-row receipt; it carries no owner or retirement fields",
 ]
-latest_finding = "The tracked 185-row observation receipt and provenance are bound. Before owner projection, one validator must strict-parse and verify the frozen scope/hash/range contract; keep expectation pin and deletion blocked until all rows have independently reviewed tracked owner evidence."
+latest_finding = "The tracked 185-row observation receipt and provenance are strictly validated by one consumer at 6cd2f6be946cad9f0984a54f23b946e82224193f. Owner projection still needs independently reviewed tracked evidence for all 185 sites; expectation pin and deletion remain blocked."
 
 [closeout]
 status = "pending"

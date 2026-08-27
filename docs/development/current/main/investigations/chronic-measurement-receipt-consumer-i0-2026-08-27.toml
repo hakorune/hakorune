@@ -1,12 +1,14 @@
 title = "Chronic measurement receipt consumer I0"
-status = "fast_open"
-observed_commit = "12d4459f27"
+status = "landed_bounded_child_row"
+observed_commit = "6cd2f6be946cad9f0984a54f23b946e82224193f"
 observed_at = "2026-08-27"
-implementation_permission = true
+implementation_permission = false
 selected_fast = true
 current_execution_row = "CHRONIC-MEASUREMENT-RECEIPT-CONSUMER-I0"
 parent_row = "docs/development/current/main/investigations/chronic-measurement-site-owner-map-d0-2026-08-27.toml"
 successor_card = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
+implementation_commit = "6cd2f6be946cad9f0984a54f23b946e82224193f"
+landed_commit = "6cd2f6be946cad9f0984a54f23b946e82224193f"
 
 [boundary]
 starts = "the tracked chronic_measurement_observations_v1.json bytes produced by the landed neutral receipt issuer"
@@ -29,7 +31,7 @@ source_authority = "The tracked observation receipt artifact and the receipt iss
 canonical_issuer = "observation_receipt.rs owns both serialization and validation; the site-owner map may call the validator but may not reparse scanner output or reproduce hash bytes."
 non_authority = ["raw scanner stdout", "grep/rg counts", "current HEAD as implicit source_commit", "owner guesses", "expectation/deletion state"]
 fail_fast = "Reject malformed JSON, unknown fields, wrong schema/version/scanner/scope/hash, source revision mismatch, non-empty-range violations, duplicate/out-of-order/foreign rows, count drift, and receipt_hash drift before returning rows."
-smallest_next_slice = "Add the strict receipt model/validator and focused tests inside the existing chronic_measurement module; do not author owner-map rows."
+smallest_next_slice = "Landed: return to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop; classify owner evidence before any expectation pin or deletion."
 non_claims = [
   "does not claim any allowance is stale, dead, live, or deletable",
   "does not classify owner/role/successor or issue expectation authority",
@@ -107,6 +109,13 @@ no_safe_slice = [
 ]
 
 [closeout]
-status = "pending"
-required = "Record implementation commit and focused evidence, then move the pointer back to CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0 design stop."
+status = "complete"
+focused_evidence = [
+  "CARGO_BUILD_JOBS=4 cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --lib chronic_measurement (5 passed)",
+  "CARGO_BUILD_JOBS=4 cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml --test chronic_measurement (6 passed)",
+  "cargo run --quiet --manifest-path tools/checks/rust_source_topology/Cargo.toml -- chronic-observation-receipt tools/checks/manifests/chronic_measurement_scope_v1.toml --source-commit d9cff5b744edee3b6450db5d0ffc74478f32b49a byte-matches the tracked 185-row receipt; receipt_hash=sha256:6be32f799970e883aa37f19a562f188016a06624f493f28bf57b446d27b5c63d",
+  "strict consumer rejects unknown owner/retirement fields, scope/source/count/hash drift, and non-empty-range violations without rescanning",
+  "observation_receipt.rs remains below 760 lines, workstream remains 799 lines, current_state_pointer_guard and git diff --check are green",
+]
+closeout_notes = "The strict consumer landed at 6cd2f6be946cad9f0984a54f23b946e82224193f. It reuses observation_receipt.rs schema/hash/range ownership and returns the neutral 185-row receipt only after frozen-contract validation; owner-map, expectation, guard registration, and deletion remain outside this cell."
 next_row = "CHRONIC-MEASUREMENT-SITE-OWNER-MAP-D0"
