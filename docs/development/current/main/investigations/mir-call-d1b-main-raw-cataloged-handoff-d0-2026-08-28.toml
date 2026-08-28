@@ -1,7 +1,7 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
-observed_commit = "de0e7eff02"
+observed_commit = "77372809ec"
 implementation_permission = false
 guard_phase = "main_raw_cataloged_handoff_d0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
@@ -35,6 +35,7 @@ main_validation = "src/mir/normal_callable_semantic_package/issuer.rs:193-275,39
 normal_root = "src/mir/builder/normal_default_root_catalog_lifecycle.rs:169-220,246-293,428-444,542-582 and src/mir/builder/program_root_lowering.rs:171-227,245-278 currently start normal Main as ScriptRoot or script semantic scope."
 cataloged_children = "src/mir/builder/normal_callable_semantic_loan_port.rs:75-151,427-459 constructs Cataloged lineage for selected children, not the normal Main root."
 raw_compat = "src/mir/builder/recursive_child_lowering.rs:496-525 constructs Main(locator) only for raw compatibility."
+actual_scope_recheck = "Read-only recheck at 77372809ec: App preflight leaves script_source=None (normal_default_root_catalog_lifecycle.rs:169-175,343-352,590-616), so program_root_lowering.rs:197-227 installs RawInvocationSourceTransportV1::script_root(); InstalledNormalCallableSemanticPackageV1 exposes no actual raw-context/root accessor (normal_callable_package_bridge.rs:69-91, install.rs:386-415)."
 missing_witness = "The named root callback is real, but InstalledNormalCallableSemanticPackageV1 has no production accessor that also receives the actual RawInvocationSourceContext; ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() still have no existing common comparison witness, and raw context lacks exact semantic owner/site/body-kind equality."
 root_witness_audit = "Read-only recheck at d57a72fbb2: a private callback can co-seal the existing AppMain/forest products with raw root() function-body/Function evidence in one borrow scope, but the normal production path currently constructs script_root() inside program_root_lowering.rs. A temporary Cataloged projection alone would not prove that live route, so no ScriptRoot-to-Cataloged switch or witness implementation is authorized yet; no public receipt, AST rescan, or third lifetime is justified."
 
