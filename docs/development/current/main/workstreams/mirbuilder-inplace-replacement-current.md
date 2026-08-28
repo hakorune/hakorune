@@ -55,30 +55,23 @@ Smallest next slice:
   `MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1`: preserve exact
   source owner/lineage and co-seal the inventory before opening issuer,
   package, loan, or dispatcher implementation. MirCall/CallFlags, Method(None),
-  legacy recovery, and VM/backend routes remain closed.
+  legacy recovery, and VM/backend routes remain closed. The selected D0 below
+  is the current sub-boundary; it does not open those later consumers.
 
-Next bounded design candidate (not selected while D1 remains active):
-  `MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0`
-  covers only selected-normal App/Main `ScriptRoot` with an unavailable
-  semantic source product. The current edge is not caller-zero: it also
-  serves Cataloged `Absent`, the ordinary façade, and compatibility. Before
-  any deletion, the language authority must first decide whether this cohort
-  is canonical (and name its source-backed owner) or explicitly unsupported /
-  compatibility-only (and name its park owner). The current lifecycle's
-  `Unavailable` state is only missing source admission, not a park. Prove the
-  finite root-mode/ledger matrix after that decision. Generic Cataloged,
-  deferred, RawLegacy, nested, StaticThis, and special-form routes stay
-  excluded; no target inference, fallback, retry, or broad branch removal is
-  allowed. The
-  existing CallFlags retirement card remains parked until this D1 stop is
-  explicitly closed or parked.
-  If canonical is selected, the smallest source owner is the existing
-  `ParserNormalAppExecutionRelationV1.main_callable` identity joined once to
-  its same-session source-backed catalog row and brand, yielding the existing
-  structured `CanonicalSameModuleCallableKeyV1`/Global relation. The raw body
-  may then carry `Cataloged(exact_key)`; synthetic physical `main/0` remains a
-  separate entry. No Main-string, arity, locator, symbol, or synthetic
-  receiver inference is allowed.
+Selected bounded design row:
+  `MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0` is now selected from the
+  accepted language SSOTs: `Main.main` remains an ordinary source method and a
+  qualified MethodCall remains the canonical StaticBoxMethod family. Preserve
+  `ParserNormalAppExecutionRelationV1.main_callable`, join it once to the
+  same-session source-backed catalog row and brand, and retain the existing
+  `CanonicalSameModuleCallableKeyV1` privately. This is an identity/provenance
+  co-seal only: synthetic physical `main/0`, inline root lowering, Call
+  emission, package/loan, dispatcher, fallback, retry, and old-route deletion
+  remain closed. The root key stays out of selected child consumption. No
+  Main-string, arity, locator, symbol, or synthetic receiver inference is
+  allowed. Missing/duplicate/foreign/mixed-brand relations reject before
+  effects; ScriptRoot-unavailable without this exact relation, TopLevel,
+  InstanceConstructor, RawLegacy, and compatibility remain outside the row.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

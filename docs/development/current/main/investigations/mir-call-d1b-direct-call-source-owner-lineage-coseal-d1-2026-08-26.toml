@@ -21,7 +21,7 @@ excludes = [
   "Callee or target issuance, name/arity/box/symbol synthesis, callable-index generalization, and Method(None)",
   "SelectedCallable traversal widening, AST re-scan, second resolver, JSON/VM/backend, and mandatory-Callee cutover",
   "new public Verified*/Prepared* semantic receipt or package field",
-  "ScriptRoot, Main, NestedBoxMethod, RawCompatibility, and special-form implementation; they need explicit reject/park ownership outside this row",
+  "ScriptRoot/Main physical implementation, NestedBoxMethod, RawCompatibility, and special-form implementation; ScriptRoot/Main identity co-seal is selected in a separate bounded row",
 ]
 
 [brief]
@@ -309,7 +309,7 @@ acceptance = [
   "canonical target publication remains zero until an exact source-site relation is proven",
   "if the canonical contract is not approved, typed reject occurs before argument/effect work and compatibility is named/parked rather than silently rerouted",
 ]
-next_row = "Separate exact-authority design row (the existing workstream candidate is MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0; package/loan remains parked)"
+next_row = "Separate exact-authority design row MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0 is selected; bare StaticBoxMethod package/loan remains parked"
 fixture_census = "apps/bare-static-recovery-proof bounded set: 13 bare FunctionCall sites across 15 files — 6 same-owner candidates, 4 other-owner unique candidates, 1 ambiguous, and 2 missing/wrong-arity. All remain legacy compatibility evidence, not canonical target proof."
 closeout = "Language contract, bounded fixture-family census, and reject/park boundary are closed. Canonical bare StaticBoxMethod target issuance remains zero; no package, loan, lineage, dispatcher, or Call-schema implementation is opened by this row."
 no_safe_slice = [
@@ -768,7 +768,7 @@ observed_commit = "4bdebb238a"
 status = "contract_sealed"
 evidence = "Read-only worker audits agree that the nine owner rows cover all 18 textual adapter references; each row now has one finite disposition and an explicit non-authority/reopen rule."
 remaining_blocker = "This is a design-only closure. The adapter still has production users, and exact source-backed successors are not executed yet. D1B actual lineage equality, consuming package-plus-loan, scoped raw reborrow, and Cataloged dispatcher cutover remain closed."
-next_row = "MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0 (design-only candidate recorded in the workstream; not selected)"
+next_row = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0 (selected design-only row; physical root lowering and package/loan remain closed)"
 implementation_permission = false
 
 [d1_implementation_recheck]
@@ -791,19 +791,19 @@ no_safe_slice = [
   "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
   "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
 ]
-next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; the next design candidate is MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0, which first needs an explicit language decision: canonical App/Main source owner/issuer or explicitly unsupported/compatibility-only park owner. Do not reopen package/loan without a new exact source relation."
+next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; the selected next design row is MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0. It must close the exact App/Main identity-to-catalog relation before any package/loan or physical Call implementation is opened."
 
 [qualified_methodcall_scriptroot_unavailable_recheck]
 observed_at = "2026-08-28"
-observed_commit = "bad6e1744d"
-status = "no_safe_slice_language_decision_missing"
-decision = "Do not relabel selected-normal App/Main ScriptRoot with semantic source Unavailable as ParkedSealed from implementation evidence alone. The current Unavailable state records missing source admission; it does not issue a language disposition. A language authority must first choose whether this cohort is canonical qualified MethodCall (then name a source-backed owner/issuer) or explicitly unsupported/compatibility-only (then name a park owner)."
-source_authority = "docs/reference/language/function-call-evaluation.md currently assigns qualified MethodCall to StaticBoxMethod, while NormalScriptRootLoweringMode::Unavailable and RawInvocationRootLineageV1::ScriptRoot only describe the absent source product."
-canonical_issuer = "Missing for this cohort. No App/Main ScriptRoot owner currently issues the source-bound MethodCall relation, result owner, Recipe, or Join needed for a canonical route."
-canonical_option_shape = "If the language authority confirms canonical App/Main qualified MethodCall semantics, add only a private root identity-to-catalog-key co-seal: ParserNormalAppExecutionRelationV1.main_callable identity + the same-session source-backed catalog row + catalog brand -> existing CanonicalSameModuleCallableKeyV1 / structured Global StaticBoxMethod target relation. The raw body scope then uses Cataloged(exact_key); synthetic physical main/0 remains a separate entry and is never used to issue the target."
+observed_commit = "1d8f3f7ca3"
+status = "language_authority_resolved_design_selected"
+decision = "The current language SSOT resolves App/Main semantics: Main.main is an ordinary source method, and a qualified MethodCall is the canonical StaticBoxMethod family. Select a bounded source-owner/co-seal design for the existing ScriptRoot Unavailable edge; do not relabel the missing source product as a park and do not change physical root lowering in this row."
+source_authority = "docs/reference/language/function-call-evaluation.md is the accepted call-shape authority, and docs/reference/language/function-exit-and-entry-result.md is the accepted Main.main/physical-entry authority. NormalScriptRootLoweringMode::Unavailable and RawInvocationRootLineageV1::ScriptRoot remain implementation observations of a missing source product, not semantic dispositions."
+canonical_issuer = "The issuer seam is the existing source-backed callable catalog: ParserNormalAppExecutionRelationV1.main_callable identity must match the same-session catalog row and brand once, then privately retain the existing CanonicalSameModuleCallableKeyV1 relation. No issuer is implemented by this recheck."
+canonical_option_shape = "Add only a private root identity-to-catalog-key co-seal: ParserNormalAppExecutionRelationV1.main_callable identity + the same-session source-backed catalog row + catalog brand -> existing CanonicalSameModuleCallableKeyV1 / structured Global StaticBoxMethod target relation. The raw body scope then uses Cataloged(exact_key); synthetic physical main/0 remains a separate entry and is never used to issue the target."
 canonical_option_non_authority = "Main spelling, source arity, RawSourceLocatorV1, synthetic main/0, static_candidates, symbol parsing, or name/arity lookup cannot issue or repair this relation; Method(None) and a synthetic receiver remain forbidden."
 finite_matrix = [
-  "ScriptRoot + App/Main + Unavailable + no semantic ledger -> language decision required; keep the existing live fallthrough unchanged until decided",
+  "ScriptRoot + App/Main + Unavailable + no semantic ledger -> selected canonical co-seal design; keep the existing live fallthrough unchanged until the exact relation is implemented atomically",
   "ScriptRoot + Complete -> existing exact claimed Script direct-static route; out of scope",
   "Cataloged + Absent -> existing Cataloged branch; out of scope and not evidence for ScriptRoot disposition",
   "ordinary facade or RawLegacy/compatibility -> existing owners; out of scope",
@@ -814,10 +814,51 @@ canonical_option_negative_matrix = [
 ]
 fail_fast_if_unsupported = "Only after an explicit unsupported/compatibility-only language decision may a narrow pre-receiver/argument typed terminal be designed for ScriptRoot + App/Main + Unavailable; it must publish no effects, MIR, or Call and must not remove the shared Cataloged/ordinary/compatibility branch."
 non_claims = [
-  "No ParkedSealed label, source owner, target issuer, fallback removal, or branch deletion is authorized by this recheck.",
+  "No target issuer, package/loan, fallback removal, or branch deletion is authorized by this recheck; those belong to the selected D0/I0 boundary below.",
   "No new AST traversal, name/arity/symbol inference, Method(None) change, Call schema change, JSON, VM, backend, or broad RawLegacy work is authorized.",
 ]
-next_action = "Obtain the explicit language Decision for App/Main inline qualified MethodCall. If canonical, open a source-owner/issuer design; if unsupported/compatibility-only, open a named park-owner design. Until then keep MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0 in design_stop and preserve the live route."
+next_action = "Use MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0 as the selected design row. Keep the ScriptRoot live route unchanged while the exact identity-to-catalog relation, brand/session check, and Cataloged lineage handoff are closed; then open a separate atomic implementation row."
+
+[main_root_identity_catalog_coseal_d0]
+task_id = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0"
+observed_at = "2026-08-28"
+observed_commit = "1d8f3f7ca3"
+status = "accepted_design_no_safe_slice"
+implementation_permission = false
+decision = "Select the smallest canonical source-owner bridge for App/Main qualified MethodCall: preserve ParserNormalAppExecutionRelationV1.main_callable identity, join it once to the same-session source-backed catalog row and brand, and privately retain the existing CanonicalSameModuleCallableKeyV1 relation. The row co-seals identity and provenance only; it does not emit a source Call or alter the synthetic physical entry."
+source_authority = "Accepted language SSOTs define Main.main as an ordinary source method and qualified MethodCall as StaticBoxMethod. ParserNormalAppExecutionRelationV1.main_callable is the parser-issued identity; issue_source_backed_same_module_callable_catalog_v1 is the existing catalog owner that already registers the Main.main key in rows_by_key while intentionally omitting it from selected child consumption."
+canonical_issuer = "Existing source-backed catalog issuer, at the exact main_callable().same_as(row.identity()) match, with a private retained app-main key; a package/root bridge later verifies the parser identity, catalog brand, and same-session relation before exposing RawInvocationRootLineageV1::Cataloged(exact_key)."
+non_authority = [
+  "synthetic physical main/0, Main spelling, source arity, RawSourceLocatorV1, static_candidates, symbol parsing, name/arity lookup, or receiver synthesis",
+  "selected child map membership, inline body order, RawLegacy/compatibility preparation, physical MIR Call emission, and any consumer-side resolver",
+]
+boundary = "ParserNormalAppExecutionRelationV1.main_callable -> source-backed catalog exact identity match -> private CanonicalSameModuleCallableKeyV1/brand relation; ends before physical root materialization, body/argument effects, collector mutation, or Call publication."
+allowed = [
+  "private field/accessor or equivalent bridge in the existing source-backed catalog/package owner",
+  "exact identity, catalog-brand, and same-session equality validation with typed missing/duplicate/foreign/mismatch rejection",
+  "a focused design/guard contract proving the root key is not inserted into selected child consumption and synthetic main/0 remains separate",
+]
+forbidden = [
+  "adding Main.main to selected_identities or changing MainRootWiringPlanV1, synthetic main/0, inline root lowering, or physical entry policy",
+  "new public Verified*/Prepared* semantic receipt, name/arity/symbol target synthesis, Method(None), Call schema, JSON, VM/backend, fallback, retry, or RawLegacy changes",
+]
+finite_matrix = [
+  "App relation and main identity match exactly one source-backed catalog row -> retain exact root key privately; no publication yet",
+  "missing/duplicate App relation or Main identity, parser/catalog mismatch, brand/session mismatch, or target row missing/ambiguous -> typed reject before effects",
+  "root key appears in selected child map, synthetic main/0 is used as target, or Main(locator) is mixed with Cataloged(key) -> typed structural reject",
+  "ScriptRoot source unavailable, nested callable without its own owner relation, TopLevel/InstanceConstructor without exact relation, and RawCompatibility -> remain outside this row",
+]
+acceptance = [
+  "one parser identity maps to one same-session catalog key and brand without name/arity/symbol inference",
+  "Main root remains absent from selected child consumption; synthetic physical main/0 and source Main.main identities stay distinct",
+  "missing/foreign/duplicate/mixed-brand cases fail before body/argument/collector effects, and no target/Callee/Call is emitted",
+]
+no_safe_slice = [
+  "the bridge needs to add the root to selected child maps, create a new public semantic receipt, or infer a key from spelling/arity/symbol",
+  "the exact same-session catalog row or brand cannot be retained without a second parser traversal or a second authority",
+  "the next implementation requires changing synthetic main/0, inline body lowering, Call schema, Method(None), JSON, VM/backend, or broad RawLegacy",
+]
+next_row = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0 (implementation remains closed until this D0 contract is explicitly accepted and the consuming bundle boundary is named)"
 
 [b1_feature_recheck_2026_08_28]
 observed_commit = "d6c7deda3d"
