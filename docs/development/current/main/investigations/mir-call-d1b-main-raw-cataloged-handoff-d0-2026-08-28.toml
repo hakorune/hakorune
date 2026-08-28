@@ -1,7 +1,7 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
-observed_commit = "afb0d79054"
+observed_commit = "de0e7eff02"
 implementation_permission = false
 guard_phase = "main_raw_cataloged_handoff_d0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
@@ -36,12 +36,13 @@ normal_root = "src/mir/builder/normal_default_root_catalog_lifecycle.rs:169-220,
 cataloged_children = "src/mir/builder/normal_callable_semantic_loan_port.rs:75-151,427-459 constructs Cataloged lineage for selected children, not the normal Main root."
 raw_compat = "src/mir/builder/recursive_child_lowering.rs:496-525 constructs Main(locator) only for raw compatibility."
 missing_witness = "The named root callback is real, but ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() still have no existing common comparison witness; raw context also lacks exact semantic owner/site/body-kind equality."
+root_witness_audit = "Read-only recheck at de0e7eff02: existing types cannot be compared as one witness, but a private callback can co-seal the existing AppMain/forest products with raw root() function-body/Function evidence using install/collector checks in one borrow scope; no public receipt, AST rescan, or third lifetime is justified."
 
 [design_tasks]
 route = "Decide and record whether normal App Main root adopts Cataloged(app_main.catalog_key()) as its canonical raw lineage; do not perform that switch here."
-callback = "The existing production root callback is finish_normal_default_root_after_pre_effect_bind (src/mir/builder/normal_default_root_catalog_post_install.rs:29-128), reached from normal_default_root_catalog_lifecycle.rs:590-616. It currently receives package/source/work-plan inputs but no AppMainCatalogCoSealV1-to-raw lineage witness; specify a private one-shot handoff there rather than adding a disconnected comparator/helper."
-witness = "Specify a private same-session/co-brand witness or an existing one-shot owner boundary; do not compare unrelated brand types by value or invent a public session ID."
-raw_exactness = "Identify an existing raw site/body-kind API or design a private comparison boundary; never derive it from Main spelling, arity, symbol, or statement index."
+callback = "Use finish_normal_default_root_after_pre_effect_bind (src/mir/builder/normal_default_root_catalog_post_install.rs:29-128), reached from normal_default_root_catalog_lifecycle.rs:590-616, as the private one-shot callback; extend its scope to borrow the installed Main batch/forest and raw root evidence together rather than adding a disconnected comparator."
+witness = "Existing ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1 are disjoint domains. The next design sub-row must specify a private same-session/co-brand check through installed_in plus collector with_invocation_brand; no value conversion or public session ID."
+raw_exactness = "RawInvocationSourceTransportV1::root can establish Cataloged(key), function-body site, and Function body-kind, but context lacks the semantic comparison accessor. Specify one private DeclaredFunction-to-raw-function/body-kind helper; never derive it from Main spelling, arity, symbol, or statement index."
 nested = "Keep root owner exact; reject nested-only or mixed direct-call observations before effects and never inherit the parent Cataloged lineage across owner transitions."
 compatibility = "Prove ScriptRoot, ProgramRuntime, Main(locator), selected children, and synthetic main/0 remain on their named owners."
 
@@ -63,6 +64,7 @@ conditions = [
 [next]
 task = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0 remains design-only until the callback, witness, and exact raw-site relation are named and accepted."
 implementation_gate = "Only then may a separate root-only implementation row open; it must change one normal App Main edge, prove positive/negative zero-delta behavior, and delete no unrelated compatibility path."
+witness_subrow = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-ROOT-WITNESS-D0: design-only private callback, same-session check, and semantic-to-raw function/body-kind equality; no target, loan, dispatcher, or ScriptRoot-to-Cataloged switch."
 
 [guard_hygiene]
 task_id = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
