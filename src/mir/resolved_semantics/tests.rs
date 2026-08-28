@@ -159,7 +159,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
 }
 
 #[test]
-fn direct_call_verifier_rejects_observation_without_target() {
+fn direct_call_verifier_accepts_observation_without_target() {
     let owner = owner();
     let mut data = sample_data(owner, BindingId::new(0));
     let site = expr(4, SourcePathSegmentV1::Value);
@@ -172,10 +172,7 @@ fn direct_call_verifier_rejects_observation_without_target() {
         ),
     );
 
-    assert!(matches!(
-        super::direct_call_verifier::verify_direct_call_targets(&data),
-        Err(super::ResolvedDirectCallVerificationErrorV1::SiteCoverageMismatch)
-    ));
+    assert!(super::direct_call_verifier::verify_direct_call_targets(&data).is_ok());
 }
 
 pub(super) fn sample_verified_for_owner_forest(

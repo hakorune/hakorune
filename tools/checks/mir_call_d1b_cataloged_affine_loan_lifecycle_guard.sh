@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|observer_i0_verifier_corrective|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|observer_i0_verifier_corrective|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -84,6 +84,8 @@ if not phase:
         phase = "resolved_compatibility_provenance_r2c"
     elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0":
         phase = "resolved_compatibility_unclassified_r2d"
+    elif active_row == "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0":
+        phase = "observer_i0_verifier_corrective"
     elif active_row == "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0":
         r2d = active_card.get("r2d_unclassified_source_fail_closed_2026_08_29")
         if isinstance(r2d, dict) and r2d.get("status") in {"fast_open", "landed"}:
@@ -100,7 +102,7 @@ if not phase:
                     raise SystemExit("active all-lineage row has no explicit current compatibility phase")
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "observer_i0_verifier_corrective", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -122,6 +124,8 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 d1_card = None
 registration_owner = card
 if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d"}:
+    registration_owner = active_card
+if phase == "observer_i0_verifier_corrective":
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -170,6 +174,8 @@ registration_key = (
     if phase == "resolved_compatibility_provenance_r2c"
     else "r2d_unclassified_source_fail_closed_2026_08_29"
     if phase == "resolved_compatibility_unclassified_r2d"
+    else "i0_observation_verifier_regression_repair_d0_2026_08_29"
+    if phase == "observer_i0_verifier_corrective"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -521,6 +527,8 @@ elif phase == "resolved_compatibility_unclassified_r2d":
             raise SystemExit(f"R2d owner reached the 760-line split boundary: {path}")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
+elif phase == "observer_i0_verifier_corrective":
+    pass
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
         raise SystemExit("guard-only execution row drifted")
@@ -567,6 +575,9 @@ if phase == "resolved_compatibility_provenance_r2c":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "resolved_compatibility_unclassified_r2d":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
+if phase == "observer_i0_verifier_corrective":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":
@@ -634,7 +645,16 @@ elif phase == "main_root_identity_coseal_i0":
 if phase != "main_root_identity_coseal_i0" and set(allowed_files or []) != expected_files:
     raise SystemExit(f"{registration_key} allowed file boundary drifted")
 
-if phase == "observer_i0":
+if phase == "observer_i0_verifier_corrective":
+    if active_row != "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0":
+        raise SystemExit("observer verifier corrective current row drifted")
+    corrective_status = registration.get("status")
+    if corrective_status not in {"fast_open", "landed"}:
+        raise SystemExit("observer verifier corrective status drifted")
+    expected_permission = corrective_status == "fast_open"
+    if registration.get("implementation_permission") is not expected_permission:
+        raise SystemExit("observer verifier corrective permission/status drifted")
+elif phase == "observer_i0":
     observer_status = card.get("status")
     if observer_status not in {"observer_i0_fast_open", "observer_i0_landed"}:
         raise SystemExit("observer card status drifted")

@@ -783,13 +783,22 @@ pre_implementation_gate = "Before any new implementation row, close the I0 regre
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
-status = "accepted_design_blocker"
+status = "fast_open"
 task_id = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
 execution_row = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
+observer_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
 parent_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
 observed_commit = "dc99360ecd"
 trigger_commit = "99bdfc856c"
-implementation_permission = false
+implementation_permission = true
+allowed_files = [
+    "src/mir/resolved_semantics/direct_call_verifier.rs",
+    "src/mir/resolved_semantics/tests.rs",
+    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
 decision = "Preserve the intentional observer-only facts shape. Do not rewrite the seven observation/package expectations to reject. The verifier must accept an empty target set with a non-empty self-consistent observation set, while still rejecting target-only and partial site coverage. Indexed co-seal remains bidirectional."
 source_authority = "Direct-call canonicalization policy owns whether a forest is ObserveOnly or RequireCallableIndex; the observer records source-site facts, while the same-session indexed branch co-issues target rows. The package gate owns the later UnissuedDirectCallObservation rejection for an observer product that is not yet publishable."
 canonical_issuer = "RequireCallableIndex co-issues target and observation rows in resolver_canonicalization.rs; ObserveOnly issues observations only. The verifier checks the data-shape invariant and must not manufacture a target or infer the policy from name/arity."
