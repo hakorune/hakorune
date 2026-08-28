@@ -249,3 +249,72 @@ triggers = [
   "transient scratch escapes into a public semantic package product",
   "package install, body lowering, argument effects, or Call publication precedes owner-lineage co-seal",
 ]
+
+[latest_boundary_audit]
+observed_commit = "846cfc7f1f"
+workers = [
+  "source-lineage: actual RawInvocationRootLineageV1 is constructed during lowering, after package issue/install; raw transport remains its sole constructor",
+  "package-loan: package-only open_lowering_port/open_lowering_once bypasses remain, and adapter-local state cannot reach the recursive FunctionCall dispatcher",
+  "transition: the finite authority chain is sound, but target issuer, scoped loan, and dispatcher consumption are still one atomic implementation blocker",
+]
+verdict = "The design stop found a real phase boundary, not an abstract preference. Keep expected Cataloged owner/site/provenance validation before install, then compare the actual raw lineage/site at FunctionCall ingress before argument effects. Do not force actual lineage into the package issuer or invent a public receipt."
+closed_concerns = "The forest-wide owner gate includes nested owners, BridgeReady removes the selected package-only lowering escape from its named bridge, and the default unissued-observation rejection remains fail-closed."
+open_blockers = [
+  "no exact source-site -> owner -> actual RawInvocationRootLineage equality issuer is connected to a physical Callee carrier",
+  "no private package-plus-loan consuming bundle reaches RawInvocationChildPortV1 by a short existing-lifetime &mut reborrow",
+  "CatalogedTargeted direct payload, package-only lowering APIs, and selected resolver/recovery handoffs still need one atomic deletion row",
+]
+design_rule = "Source identity is not target authority: TopLevel and InstanceConstructor remain reject/park without an exact Cataloged relation; name, arity, box/key spelling, and physical symbols never synthesize a target."
+
+[next_atomic_implementation_row]
+task_id = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
+status = "design_ready_implementation_closed"
+implementation_permission = false
+scope = "Cataloged StaticBoxMethod only. Co-seal the existing exact declaration relation and expected owner/site/provenance, validate a complete direct-call disposition before context mutation, carry the issued Callee in a private non-Clone/non-Copy package-plus-loan bundle, compare actual RawInvocationRootLineage/site at raw FunctionCall ingress, then consume take_once -> arguments once -> MirInstruction::call once -> finish_empty."
+source_authority = "Existing selected batch/map, callable declaration catalog and same-session brand; raw_invocation_source_transport is the only actual-lineage constructor. The bridge maps and validates; it does not issue or repair targets."
+canonical_issuer = "One exact same-brand StaticBoxMethod relation issues the typed physical Callee through the already-landed B1 carrier boundary. Missing, ambiguous, foreign, wrong-kind, wrong-arity, or site/lineage mismatch is a typed pre-effect reject."
+ownership = "BuilderInstallConsumerV1 is the only package-plus-loan bundle constructor. The consuming lowering scope owns the loan and creates a temporary package port; RawInvocationChildPortV1 receives only a short reborrow of that loan. No self-reference, third independent lifetime, adapter-local copy, or second ledger."
+old_edge_delete_set = [
+  "package-only open_lowering_port/open_lowering_once production bypass",
+  "PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted direct Callee payload",
+  "selected Cataloged consumer-side CalleeResolverBox/name/arity handoff",
+  "any post-argument target recovery, fallback, or retry on this Cataloged path",
+]
+allowed_files = [
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/builder/normal_callable_package_bridge.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "src/mir/builder/recursive_child_lowering.rs",
+  "src/mir/builder/raw_invocation_source_transport/{context,lineage,mod}.rs",
+  "src/mir/builder/calls/function_call_brand_source_demand.rs",
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/build.rs",
+  "the existing B1 Callee/CallTarget carrier and focused Cataloged tests",
+  "the existing D1 lifecycle guard registration and CURRENT_STATE only",
+]
+forbidden_files = [
+  "TopLevel/InstanceConstructor/ScriptRoot/RawCompatibility families",
+  "BoundedGc, Method(None), JSON, VM/backend, fallback/recovery outside the selected Cataloged edge",
+  "new public Verified*/Prepared* semantic receipts, public package fields, tuple/into_parts/getter APIs",
+  "Call schema func/Option removal, MirCall/CallFlags, unrelated port or builder barrel refactors",
+]
+acceptance = [
+  "complete forest-wide Cataloged inventory and same-session brand are validated before prepare_install/commit",
+  "actual Located(Cataloged(same_key)) root/site equality is checked before argument descent, effects, block/collector mutation, or Call publication",
+  "one exact owned Callee is taken by site, arguments are lowered once, one canonical Call is emitted, and residual loan is zero",
+  "nested child reborrow sees the same affine loan without Clone/Rc/Arc/RefCell/unsafe or a third lifetime",
+  "package-only bypass, CatalogedTargeted payload, selected resolver/recovery handoff, and fallback/retry are zero",
+]
+negative = [
+  "missing/foreign/mixed-brand/duplicate owner-site, wrong session, collapsed caller=None, TopLevel/Constructor without exact relation, and actual lineage mismatch reject before effects",
+  "second take, unknown site, residual loan, argument failure after take, or package/adapter failure cannot retry, rollback, or publish a partial Call",
+]
+no_safe_slice = [
+  "actual lineage must be imported into the package issuer before install, or a new public semantic receipt is required",
+  "the B1 carrier cannot be connected without String/symbol/name reconstruction or a consumer-side resolver",
+  "loan transport requires Clone, Rc/Arc/RefCell, unsafe, self-reference, a third lifetime, or a second ledger",
+  "source/raw equality is checked after argument/effect/collector mutation, or TopLevel/Constructor must be synthesized into an ordinary target",
+  "the atomic row would also change BoundedGc, Method(None), Call schema, VM/backend, or broad RawLegacy behavior",
+]
