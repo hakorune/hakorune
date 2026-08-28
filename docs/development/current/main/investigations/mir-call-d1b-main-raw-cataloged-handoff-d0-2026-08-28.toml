@@ -415,7 +415,7 @@ non_claims = "No code, fixture, target issuer, package+loan, RawInvocationChildP
 [main_raw_freestatic_bridge_recheck_2026_08_28]
 status = "accepted_design_boundary_no_safe_slice"
 observed_commit = "f7874d4135"
-decision = "Three read-only audits select a private source/profile-to-live-raw bridge as the final candidate. Until its exact semantic-site/raw-site/session handoff is closed, retain the existing pre-effect typed park. Do not switch the whole Main production route to canonical-core and do not rebuild a target from name/arity, catalog key, raw lineage, or Builder recovery."
+decision = "Main-to-helper FreeStatic support is selected as the language contract. A transport-only source/profile-to-live-raw bridge is disproven: canonical-core and live normal/default currently issue different resolver-session and FunctionOwner brands. Keep the pre-effect typed park until one live source owner and resolver session co-issue the existing FreeStatic profile and package owner; never rebuild a target from name/arity, catalog key, raw lineage, or Builder recovery."
 source_authority = "NormalMainDirectCallPreflightV1 and VerifiedTrivialDirectCallV1 remain the sole issuer of the exact Main FreeStatic source product; ResolvedDirectCallTargetV1 and the callable index establish the target before raw lowering."
 non_authority = "Main parser/catalog identity, RawInvocationRootLineageV1::Cataloged, FunctionOwnerIdV1 alone, SameModuleCallableCatalogBrandV1, ModuleInvocationBrandV1, name/arity/symbol/static_candidates, CalleeResolverBox, and a canonical-core frontdoor switch cannot issue or repair the target."
 existing_bridge = "normal_source_plan main_direct_call_source/main_direct_call_plan -> normal_callable_transaction_handoff -> resolved_lowering/trivial_ssa; this HRTB bridge does not reach RawInvocationChildPortV1. The parser-retained normal-source surface is borrowable only through its parser owner and is not an existing FreeStatic handoff into the Builder package."
@@ -423,16 +423,16 @@ live_raw_gap = "program_root_lowering -> installed package Main callback -> RawI
 callback_chain_reaudit = "Named live chain is normal_default_root_catalog_lifecycle::complete_normal_default_program_root_catalog_lifecycle_with_target -> finish_normal_default_root_after_pre_effect_bind -> MirBuilder::lower_program_root_after_catalog_install_v1 -> RawInvocationChildPortV1 -> normal_callable_semantic_loan_port::main_root::lower_app_main_root_body_v1; no callback in this chain receives the existing FreeStatic profile and raw scope together."
 package_batch_reaudit = "The live package batch is issued with ObserveForCatalogedValidation and retains only ResolvedDirectCallObservationV1 facts; its inputs have no callable index, argument-site inventory, or existing VerifiedTrivialDirectCallV1 target. Issuing a target from this batch would require a second resolver/AST scan or a new name/arity authority, so it is not a bridge."
 parser_surface_reaudit = "ParserNormalRootExecutionSourceV1 retains callable identities and the normal-source surface, but the live Builder consumes the root execution owner separately and has no source-backed callback that can borrow both that surface-derived FreeStatic plan and the raw Main scope. Reusing whole_source_inventory/static_call_result_publication_owner would cross from qualified MethodCall/result publication into bare FunctionCall and create a second authority."
-next_design_task = "MIR-CALL-D1B-MAIN-RAW-FREESTATIC-BRIDGE-BOUNDARY-D0: specify a private source/profile-to-raw bridge, same-session/brand witness, exact raw site mapping, and typed failure/rollback; if these require a second scan, synthetic key, new public receipt, or name/arity inference, ratify TypedReject/ParkedSealed."
+next_design_task = "MIR-CALL-D1B-MAIN-FREESTATIC-SAME-SESSION-PRODUCER-COSEAL-D2: identify one live source owner and one FunctionSemanticResolverSessionV1 that can issue the package owner, callable index, and existing FreeStatic profile exactly once; transport, loan, dispatcher, and Call remain closed."
 candidate_disposition = [
-    "A selected final candidate: carry the already-issued FreeStatic product through one private bridge into the existing installed App Main raw callback.",
+    "A selected language contract: support Main-to-helper FreeStatic, but issue its existing profile family inside the same live source/resolver ownership chain as the normal/default package; do not carry a foreign-session canonical-core product.",
     "B parked as a separate frontdoor decision: switching Main wholesale to canonical-core would replace the root lifecycle, package installation, collector, compatibility routing, and AOT/EXE entrance in one unbounded row.",
     "C current runtime state only: keep the forest-wide pre-install typed reject until A is proven; C is not the final language contract because Main-to-top-level-helper is an accepted FreeStatic shape.",
 ]
-bridge_contract = "The D0 must co-seal Main FunctionOwnerIdV1, exact SourceExprSiteV1, the already-issued FreeStatic target and target compilation brand, live raw SourceNodeSiteV1/lineage, and one package/session witness. The callback owner must be the existing source-admission/lifecycle boundary and receive the existing product plus raw scope in one HRTB borrow; it may create only an owner-private borrowed view, with no new public semantic receipt, second target issuer, parser seed re-consumption, or AST rescan."
+bridge_contract = "The D2 must first co-issue Main FunctionOwnerIdV1, exact SourceExprSiteV1, ordered argument sites, callable-index target, and package owner from one live source owner and resolver session. Only then may the existing lifecycle callback move that product into an owner-private affine inventory and join it with live raw SourceNodeSiteV1/lineage; no foreign-session product, public semantic receipt, second target issuer, parser seed re-consumption, or AST rescan."
 package_loan_followup = "Only after the bridge is exact: MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 adds a Builder-private #[must_use] package+loan bundle, consuming lowering callback, existing-port-lifetime &mut reborrow, take_once/finish_empty, Aborted/no-retry, and atomically deletes the CatalogedTargeted direct Callee payload plus selected package-only bypass."
 ordered_followups = [
-    "D0: close the private source/profile-to-live-raw bridge or retain TypedReject/ParkedSealed.",
+    "D2 current: close same-live-session producer co-seal for source owner, callable index, FreeStatic profile, and package owner; otherwise retain the pre-effect typed park.",
     "I0: exact issuer projection -> package+affine loan -> raw take_once -> arguments once -> Call once; delete CatalogedTargeted direct payload and selected package-only bypass in the same row.",
     "R2: classify every remaining lineage pre-effect, then remove Resolved, caller=None source collapse, unique/tail recovery, direct name Const, and direct legacy Call edges without touching compatibility-owned siblings.",
     "R3: retire Method(None), methodize, receiver heuristics/repair, and the related VM/optimizer recovery as one Method corridor family.",
@@ -456,24 +456,47 @@ no_safe_slice_conditions = [
     "no named production callback can receive both the existing profile and the live raw Main scope",
     "Cataloged lineage or Main catalog key would have to be treated as a target issuer",
     "nested or compatibility routes must be mixed into the Main bridge",
-    "package+loan/dispatcher implementation or a new guard/document family is required to express the D0",
+    "package+loan/dispatcher implementation or a new guard/document family is required to express the D2",
 ]
-decision_required = "Without an existing-product bridge, the remaining product decision is explicit: add a private lifecycle bridge fed by the canonical FreeStatic issuer (a bounded architecture change to be designed before implementation), or retain Main-to-helper bare FunctionCall as TypedReject/ParkedSealed. Do not silently choose either behavior in code."
+decision_recorded = "The user selected Main-to-helper FreeStatic support. This selects the language behavior, not an unsafe transport: same-live-session producer co-seal must close before implementation, and the current pre-effect typed park remains until then."
 implementation_permission = false
 non_claims = "No target/Callee issuer, package+loan, RawInvocationChildPort field/lifetime, dispatcher, Call schema, Resolved retirement, fallback, retry, or canonical-core-to-raw route change is opened by this recheck."
+
+[main_freestatic_same_session_producer_coseal_d2_2026_08_29]
+task_id = "MIR-CALL-D1B-MAIN-FREESTATIC-SAME-SESSION-PRODUCER-COSEAL-D2"
+status = "design_stop_no_safe_implementation"
+observed_commit = "3b4c64d381"
+implementation_permission = false
+decision = "Reuse the existing NormalMainDirectCallPreflightV1/VerifiedTrivialDirectCallV1 issuer family, but invoke it at most once from the live normal/default source ownership chain. The canonical-core product itself cannot be transported because its FunctionOwnerIdV1 belongs to a different resolver session."
+source_authority = "One consumed normal-program source owner plus one live FunctionSemanticResolverSessionV1 must issue the Main owner, VerifiedCallableIndexV1 relation, exact source/argument sites, existing FreeStatic profile, and semantic package owner in one lifecycle."
+non_authority = "A SourceExprSiteV1 shape match across sessions, FunctionOwner slot equality, name/arity/symbol/static_candidates, canonical-core re-entry, Builder resolver calls, cloned parser source, raw lineage, and catalog brand alone cannot join or reissue the target."
+fail_fast = "Before package install: missing/duplicate/foreign session, owner, source site, ordered argument site, callable-index target, or catalog relation rejects with no retry. Before argument effects: raw Cataloged lineage and exact site parity reject mismatch."
+smallest_next_slice = "Design one live producer callback/bundle that consumes source and resolver once and co-seals package plus the existing profile family. If this needs a second source consumer, resolver, AST traversal, public receipt, Clone/reparse, or inferred target, remain NoSafeSlice."
+acceptance = [
+    "normal source owner count = 1 and resolver session count = 1",
+    "Main package owner and every FreeStatic caller/target owner use the same compilation brand",
+    "exact source call key includes owner plus SourceExprSiteV1 and ordered argument sites",
+    "canonical-core frontdoor re-entry, main_direct_call_source re-execution, Builder resolver call, AST rescan, Clone/reparse, fallback, and retry = 0",
+    "the existing pre-effect typed park remains production behavior until the atomic I0 cutover",
+]
+implementation_followup = "After D2 is exact, use the existing MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 as one atomic production row: private package+loan, short existing-port-lifetime reborrow, take_once before arguments, nested call support, abort/no-retry, Call once, finish_empty, and deletion of the selected CatalogedTargeted/package-only/resolver bypass. Do not create a separate I1 card."
+guard_scope = "Reuse the current D1 lifecycle and exact-target guard families. The future cataloged_i0 global-resolver-zero assertions belong to R2 and must not be claimed as evidence for a partial selected-family cutover."
+boxshape_stop = "Do not add semantic code to normal_callable_semantic_loan_port.rs (748 lines), builder.rs (748 lines), or module_lowering_invocation.rs (743 lines). Use an owner-specific sibling; perform a behavior-neutral split only if a touched source would reach 760 lines, with 800 as hard stop."
+non_claims = "No package+loan type, RawInvocationChildPort capability, dispatcher, target/Callee publication, argument lowering, Call emission, CatalogedTargeted deletion, Resolved recovery retirement, Method(None), Call schema, VM/backend, JSON, JoinIR, or compatibility change is authorized by D2."
 
 [worker_task_synthesis_2026_08_29]
 status = "accepted_finite_plan"
 source = [
-  "d1_lineage_issuer_design: private existing-FreeStatic source/profile-to-live-raw bridge is the only bounded candidate",
+  "d1_lineage_issuer_design: Main FreeStatic support is valid, but the existing canonical product and live package have no production co-location; same-session producer co-seal is required",
   "d1_acceptance_guard_design: package+loan can close with existing owners, one callback, and the existing port lifetime",
   "call_residual_retirement_audit: residual Call spine and caller/owner boundaries are finite and must be retired by family",
+  "freestatic_bridge_adversary + borrow audit: canonical-core and live normal/default use different resolver-session/FunctionOwner brands; transport-only is NoSafeSlice, while existing-port-lifetime affine borrowing is feasible after same-session producer co-seal",
 ]
 definition_of_clean = "MirBuilder ordinary-call meaning is decided once before argument effects, one existing authority issues Callee, one affine handoff reaches the raw consumer, Call is emitted once, and every old resolver/recovery/optional-carrier edge is caller-zero or explicitly compatibility-owned."
 remaining_core_rows = 5
-remaining_core_rows_note = "The current D0 is one design boundary; after it closes, five implementation/retirement rows remain. They are bounded responsibility families, not per-file or per-function ceremonies."
+remaining_core_rows_note = "The current D2 is one design boundary; after it closes, five implementation/retirement rows remain. They are bounded responsibility families, not per-file or per-function ceremonies."
 ordered_rows = [
-  "D0 current: MIR-CALL-D1B-MAIN-RAW-FREESTATIC-BRIDGE-BOUNDARY-D0 — prove or park the exact semantic-site/raw-site/session relation; no code or new receipt.",
+  "D2 current: MIR-CALL-D1B-MAIN-FREESTATIC-SAME-SESSION-PRODUCER-COSEAL-D2 — co-issue source owner, callable index, existing FreeStatic profile, and package owner from one live source/resolver lifecycle; no code or new receipt.",
   "I0: MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 — existing FreeStatic/qualified products -> private package+loan -> raw take_once -> arguments once -> Call once; delete CatalogedTargeted direct callee payload and selected package-only/resolver bypass in the same slice.",
   "R2: MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0 — classify remaining lineages before effects and retire Resolved, post-argument unique/tail recovery, direct name-Const/legacy-Call edges; preserve named compatibility siblings.",
   "R3: MIR-CALL-METHOD-CORRIDOR-R0 — remove Method(None), methodize, receiver autoscan/strip/repair, and related VM/optimizer recovery as one receiver-authority family.",
@@ -488,4 +511,4 @@ post_core_hygiene = [
 ]
 not_in_core = "VM/backend retirement, JSON ingress, JoinIR cleanup, FunctionMetadata sub-owners, and broad guard consolidation remain separate lanes; they do not block the six-row Call spine once their explicit owner gates are satisfied."
 no_new_task_families = "Reuse the existing D1 lifecycle guard and current design card. Do not create a new census/owner-map/guard family for each row."
-implementation_gate = "Keep work_mode=design_stop and implementation_permission=false until D0 names the existing issuer, exact raw bridge callback, same-session witness, and failure/no-retry boundary. Then open only I0; later rows reopen one at a time after closeout."
+implementation_gate = "Keep work_mode=design_stop and implementation_permission=false until D2 names one consumed source owner and one live resolver session that co-issue the existing profile family and package owner, with exact source/argument sites and no second traversal/retry. Then open only the single atomic I0; later rows reopen one at a time after closeout."
