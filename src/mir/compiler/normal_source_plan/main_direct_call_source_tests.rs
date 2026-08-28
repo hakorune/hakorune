@@ -138,6 +138,15 @@ fn main_direct_call_uses_helper_owner_from_the_same_compilation_brand() {
     let [(_, target)] = targets.as_slice() else {
         panic!("expected one direct call")
     };
+    let observations = input
+        .function()
+        .direct_call_observations()
+        .collect::<Vec<_>>();
+    let [(_, observation)] = observations.as_slice() else {
+        panic!("expected the matching direct-call observation")
+    };
+    assert_eq!(observation.name(), "helper");
+    assert_eq!(observation.argument_sites().len(), 1);
 
     assert_eq!(
         input.owner().compilation_brand(),

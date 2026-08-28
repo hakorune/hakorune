@@ -3,8 +3,8 @@
 //! This child keeps canonical draft conversion separate from session lifecycle
 //! so source-bound direct-call co-issuers can remain local.
 
-use super::*;
 use super::super::{FunctionOwnerIdV1, ResolvedExplicitExternCallV1, UpvarRefV1};
+use super::*;
 
 pub(super) fn canonicalize_draft(
     owner: FunctionOwnerIdV1,
@@ -16,22 +16,34 @@ pub(super) fn canonicalize_draft(
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
     let (direct_call_targets, direct_call_observations) = match (callable_index, direct_call_policy)
     {
-        (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => (
-            draft
-                .direct_calls
-                .iter()
-                .map(|(site, call)| {
-                    let header = index
-                        .resolve_free_static_source_call(&call.name, call.arity)
-                        .map_err(ResolveFunctionErrorV1::CallableLookup)?;
-                    Ok((
-                        site.clone(),
-                        ResolvedDirectCallTargetV1::from_resolved(header.callable()),
-                    ))
-                })
-                .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
-            BTreeMap::new(),
-        ),
+        (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => {
+            let mut targets = BTreeMap::new();
+            let mut observations = BTreeMap::new();
+            for (site, call) in std::mem::take(&mut draft.direct_calls) {
+                let header = index
+                    .resolve_free_static_source_call(&call.name, call.arity)
+                    .map_err(ResolveFunctionErrorV1::CallableLookup)?;
+                let target = ResolvedDirectCallTargetV1::from_resolved(header.callable());
+                let observation = ResolvedDirectCallObservationV1::from_parts(
+                    call.name,
+                    call.arity,
+                    call.argument_sites,
+                );
+                if targets.insert(site.clone(), target).is_some()
+                    || observations.insert(site, observation).is_some()
+                {
+                    return Err(ResolveFunctionErrorV1::DraftInvariant(
+                        "direct-call site was issued twice",
+                    ));
+                }
+            }
+            if targets.keys().ne(observations.keys()) {
+                return Err(ResolveFunctionErrorV1::DraftInvariant(
+                    "direct-call target and observation sites differ",
+                ));
+            }
+            (targets, observations)
+        }
         (None, DirectCallCanonicalizationPolicyV1::ObserveOnly) => (
             BTreeMap::new(),
             std::mem::take(&mut draft.direct_calls)
@@ -39,7 +51,11 @@ pub(super) fn canonicalize_draft(
                 .map(|(site, call)| {
                     (
                         site,
-                        ResolvedDirectCallObservationV1::from_parts(call.name, call.arity),
+                        ResolvedDirectCallObservationV1::from_parts(
+                            call.name,
+                            call.arity,
+                            call.argument_sites,
+                        ),
                     )
                 })
                 .collect(),
@@ -274,12 +290,7 @@ pub(super) fn canonicalize_draft(
     let explicit_extern_calls = draft
         .explicit_extern_calls
         .into_iter()
-        .map(|(site, call)| {
-            (
-                site,
-                ResolvedExplicitExternCallV1::from_source(call.symbol),
-            )
-        })
+        .map(|(site, call)| (site, ResolvedExplicitExternCallV1::from_source(call.symbol)))
         .collect();
 
     let mut seen_capture_bindings = std::collections::BTreeSet::new();

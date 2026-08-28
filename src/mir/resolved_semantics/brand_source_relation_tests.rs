@@ -153,7 +153,37 @@ fn selected_callable_retains_direct_call_observation_without_issuing_target() {
     assert_eq!(observations.len(), 1);
     assert_eq!(observations[0].1.name(), "helper");
     assert_eq!(observations[0].1.arity(), 1);
+    assert_eq!(observations[0].1.argument_sites().len(), 1);
     assert!(product.direct_call_targets().next().is_none());
+}
+
+#[test]
+fn selected_callable_keeps_direct_call_argument_sites_in_source_order() {
+    let tree = function(vec![call("helper", vec![int(1), int(2)])]);
+    let view = FunctionSyntaxViewV1::from_ast(&tree).unwrap();
+    let mut resolver = FunctionSemanticResolverSessionV1::new(813).unwrap();
+    let outcome = resolver
+        .resolve_selected_callable_forests_with_body_shapes(&[view])
+        .unwrap();
+    let super::ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete { forests, .. } =
+        outcome
+    else {
+        panic!("ordinary FunctionCall observation must complete")
+    };
+    let [forest] = forests.as_ref() else {
+        panic!("one forest")
+    };
+    let [owner] = forest.roots() else {
+        panic!("one owner")
+    };
+    let product = forest.owner(*owner).unwrap();
+    let observations = product.direct_call_observations().collect::<Vec<_>>();
+    let [(_, observation)] = observations.as_slice() else {
+        panic!("expected one direct-call observation")
+    };
+    let sites = observation.argument_sites();
+    assert_eq!(sites.len(), 2);
+    assert!(sites[0] < sites[1]);
 }
 
 #[test]

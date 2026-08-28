@@ -1,6 +1,7 @@
 //! Closed expression traversal for shadow name resolution.
 
 use crate::ast::ASTNode;
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{ExprChildRoleV1, ReceiverPolicyV1};
 
 use super::path::ShadowSourcePathV0;
@@ -251,10 +252,13 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                         });
                     }
                     self.record_brand_call(path.expr(), draft)?;
+                    self.resolve_arguments(expr, arguments, path)
                 } else {
-                    self.record_direct_call(path.expr(), name, arguments.len())?;
+                    let argument_sites =
+                        self.resolve_arguments_with_sites(expr, arguments, path)?;
+                    self.record_direct_call(path.expr(), name, argument_sites)?;
+                    Ok(())
                 }
-                self.resolve_arguments(expr, arguments, path)
             }
             ASTNode::ExplicitExternCall {
                 target, arguments, ..
@@ -569,6 +573,17 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         arguments: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
+        self.resolve_arguments_with_sites(parent, arguments, path)
+            .map(|_| ())
+    }
+
+    fn resolve_arguments_with_sites(
+        &mut self,
+        parent: &'ast ASTNode,
+        arguments: &'ast [ASTNode],
+        path: &ShadowSourcePathV0,
+    ) -> Result<Box<[SourceExprSiteV1]>, ShadowResolveErrorV0> {
+        let mut argument_sites = Vec::with_capacity(arguments.len());
         for (index, argument) in arguments.iter().enumerate() {
             let ordinal =
                 u32::try_from(index).map_err(|_| ShadowResolveErrorV0::UnsupportedExpression {
@@ -582,8 +597,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(ordinal),
                 argument_path.expr(),
             );
+            argument_sites.push(argument_path.expr());
             self.resolve_expr(argument, &argument_path)?;
         }
-        Ok(())
+        Ok(argument_sites.into_boxed_slice())
     }
 }

@@ -482,13 +482,14 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         &mut self,
         site: SourceExprSiteV1,
         name: &str,
-        arity: usize,
+        argument_sites: Box<[SourceExprSiteV1]>,
     ) -> Result<(), ShadowResolveErrorV0> {
-        let arity = u32::try_from(arity)
+        let arity = u32::try_from(argument_sites.len())
             .map_err(|_| ShadowResolveErrorV0::FunctionCallArityOverflow { site: site.clone() })?;
         let record = ShadowDirectCallUseV0 {
             name: name.into(),
             arity,
+            argument_sites,
         };
         if self.direct_calls.insert(site.clone(), record).is_some() {
             return Err(ShadowResolveErrorV0::DuplicateDirectCallSite { site });

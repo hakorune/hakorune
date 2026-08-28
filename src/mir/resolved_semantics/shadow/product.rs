@@ -165,6 +165,7 @@ pub(crate) struct ShadowExitRecordV0 {
 pub(crate) struct ShadowDirectCallUseV0 {
     pub(crate) name: Box<str>,
     pub(crate) arity: u32,
+    pub(crate) argument_sites: Box<[SourceExprSiteV1]>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

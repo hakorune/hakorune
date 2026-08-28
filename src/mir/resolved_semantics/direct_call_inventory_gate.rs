@@ -9,7 +9,9 @@ use super::VerifiedSemanticOwnerForestV1;
 pub(crate) fn forest_has_unissued_direct_call_observation_v1(
     forest: &VerifiedSemanticOwnerForestV1,
 ) -> bool {
-    forest
-        .owners()
-        .any(|(_, function)| function.direct_call_observations().next().is_some())
+    forest.owners().any(|(_, function)| {
+        function
+            .direct_call_observations()
+            .any(|(site, _)| function.direct_call_target(site).is_none())
+    })
 }

@@ -27,11 +27,20 @@ impl ResolvedDirectCallTargetV1 {
 pub(crate) struct ResolvedDirectCallObservationV1 {
     name: Box<str>,
     arity: u32,
+    argument_sites: Box<[super::source_site::SourceExprSiteV1]>,
 }
 
 impl ResolvedDirectCallObservationV1 {
-    pub(super) fn from_parts(name: Box<str>, arity: u32) -> Self {
-        Self { name, arity }
+    pub(super) fn from_parts(
+        name: Box<str>,
+        arity: u32,
+        argument_sites: Box<[super::source_site::SourceExprSiteV1]>,
+    ) -> Self {
+        Self {
+            name,
+            arity,
+            argument_sites,
+        }
     }
 
     pub(crate) fn name(&self) -> &str {
@@ -41,12 +50,23 @@ impl ResolvedDirectCallObservationV1 {
     pub(crate) const fn arity(&self) -> u32 {
         self.arity
     }
+
+    pub(crate) fn argument_sites(&self) -> &[super::source_site::SourceExprSiteV1] {
+        &self.argument_sites
+    }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolvedDirectCallVerificationErrorV1 {
     ForeignCompilation {
         function: FunctionOwnerIdV1,
         target: FunctionOwnerIdV1,
+    },
+    SiteCoverageMismatch,
+    ArgumentSiteCardinalityMismatch {
+        site: super::source_site::SourceExprSiteV1,
+    },
+    DuplicateArgumentSite {
+        site: super::source_site::SourceExprSiteV1,
     },
 }
