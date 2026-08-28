@@ -782,6 +782,40 @@ owner_census_status = "4/4 named origins classified as ParkedSealed; no function
 pre_implementation_gate = "I0 verifier regression repair is landed with filtered test evidence; before the next implementation row, keep the R2 lineage matrix and named compatibility owners explicit."
 next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 
+[method_corridor_r0_d0_2026_08_29]
+status = "accepted_design_no_safe_slice"
+task_id = "MIR-CALL-METHOD-CORRIDOR-R0"
+execution_row = "MIR-CALL-METHOD-CORRIDOR-R0"
+parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+implementation_permission = false
+decision = "Receiver authority is one-way: an existing source receiver relation yields Method(Some(receiver)); arguments are the source arguments. Method(None), env/profile methodize, name/arity, has_method, args[0], autoscan, and downstream repair are never target authority. The first bounded candidate is only the unified-emitter Global-to-Method(None) reissuer; all other rows remain separately classified."
+source_authority = "Existing source method route plus VerifiedResolvedMethodCallSourceV1/DeclaredInstance relation owns receiver identity; the existing lowering-scope issuer may project an explicit receiver ValueId into Callee::Method(Some) once. Physical MIR helpers, VM tables, JSON text, and optimizer observations do not issue the semantic receiver."
+non_authority = "current_static_box, has_method, name/arity, StaticMethodId text, HAKO_MIR_BUILDER_METHODIZE, type registry/value_origin, receiver autoscan, args[0] surrogate, CalleeGuardBox repair, optimizer/JSON/VM recovery, and Call schema fields."
+fail_fast_boundary = "Before argument/effect descent or block/publication mutation: exact owner/site/brand, declared instance relation, receiver presence/ownership, arity, and ABI shape must agree; missing/foreign/ambiguous/Method(None) inputs typed-reject or remain ParkedSealed with no retry."
+census_boundary = "existing Method(None)/receiver-repair manifest issuer and terminal rows -> selected producer/consumer boundary; includes exactly 5 issuer rows, 3 terminal rows, and 3 adjacent observer rows; excludes shared Resolved retirement, VM/backend retirement, JSON/JoinIR migration, ordinary-new, and Call schema."
+finite_disposition = "Each of the 11 manifest rows is exactly one of DeleteAfterCallerZero, PreserveMethodSome, TypedRejectBeforeEffects, or ParkedSealed. No row is expanded into function-level or backend-wide review."
+owner_inventory = [
+    "5 issuers: builder method_resolution static Method(None); unified_emitter env methodize; MIR-v0 optional receiver; core bridge Const methodize; core bridge singleton/module methodize.",
+    "3 terminals: MIR JSON egress nullable receiver; Rust VM Method(None)/registry/autoscan recovery; selected native C missing/null receiver and plan retry.",
+    "3 adjacent observers: callsite canonicalize receiver rewrite; global-route None observer; JSON-v1 required receiver parity guard.",
+]
+state_matrix = [
+    "Exact declared instance + explicit receiver -> PreserveMethodSome; emit one canonical Method(Some) and keep source arguments unchanged.",
+    "Qualified static exact relation -> PreserveQualifiedGlobal; do not route through Method(None).",
+    "Missing/foreign/ambiguous receiver, owner, arity, or ABI -> TypedRejectBeforeEffects; no fallback or repair.",
+    "Legacy compatibility, non-selected backend, or unresolved receiver repair without an exact issuer -> ParkedSealed with owner and reopen trigger.",
+]
+smallest_next_slice = "MIR-CALL-METHOD-CORRIDOR-METHODIZE-R0: design and, only after a guard phase is registered, disable the unified-emitter env/profile Global -> Method(None) mutation and trace; preserve incoming exact target, args, dst, effects, and result."
+methodize_scope = "First producer candidate only: src/mir/builder/calls/unified_emitter.rs methodize branch and its existing focused parity/negative evidence. Do not touch method_resolution, receiver prepend/strip, VM autoscan, optimizer, JSON/JoinIR, native C, ordinary-new, or Call schema."
+acceptance = "All 11 manifest rows have a current path, owner, disposition, and reopen trigger; the methodize candidate has an exact incoming-target contract and bounded old-edge delete set; no new Method(None) producer is introduced; implementation remains closed until the existing lifecycle guard has a Method phase and touched tests have nonzero filtered evidence."
+no_safe_slice = [
+    "No exact source receiver relation or incoming Global provenance is available for the selected producer.",
+    "The change requires receiver prepend/strip/autoscan/args[0] ABI changes, VM/JSON/native parity, a new semantic receipt, shared Resolved deletion, or Call schema edits.",
+    "unified_emitter.rs would cross the 760/800-line boundary or the guard would need a new family instead of a reusable existing phase.",
+]
+guard_contract = "Reuse the existing call corridor/lifecycle guard; add a Method phase only when this design stop is accepted for implementation. Canonical corridor/index-none baseline failures are not R0 evidence."
+next_row = "MIR-CALL-METHOD-CORRIDOR-METHODIZE-R0"
+
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
 status = "landed"
 task_id = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
