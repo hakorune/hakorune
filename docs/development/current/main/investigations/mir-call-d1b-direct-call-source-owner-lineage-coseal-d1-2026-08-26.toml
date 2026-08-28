@@ -115,14 +115,14 @@ reopen_boundary = "Do not open production target publication until the Cataloged
 task_id = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
 status = "design_candidate"
 implementation_permission = false
-scope = "Cataloged static-box owners only. Reuse the existing forest-wide observation, selected batch/map, source-site inventory, and same-session catalog brand to validate owner/site/lineage before prepare_install; preserve current target-unissued rejection and do not connect a successful direct-call route."
-source_authority = "Existing VerifiedSelectedCallableBatchMapV1, VerifiedResolvedCallableSemanticBatchV1, VerifiedSemanticOwnerForestV1, VerifiedResolvedSourceSiteInventoryV1, RawInvocationRootLineageV1::Cataloged, and the same-session callable catalog brand."
-canonical_issuer = "A private package-issuer validation helper after the existing batch/map products are available and before prepare_install; it co-seals only owner/site/lineage evidence and emits no Callee or target."
+scope = "Cataloged static-box owners only. Reuse the existing forest-wide observation, selected batch/map, source-site inventory, and same-session catalog brand to validate owner/site plus the expected Cataloged provenance relation before prepare_install; preserve current target-unissued rejection and do not connect a successful direct-call route."
+source_authority = "Existing VerifiedSelectedCallableBatchMapV1, VerifiedResolvedCallableSemanticBatchV1, VerifiedSemanticOwnerForestV1, VerifiedResolvedSourceSiteInventoryV1, the Cataloged key relation, and the same-session callable catalog brand. RawInvocationRootLineageV1 is still downstream-only at this boundary."
+canonical_issuer = "A private package-issuer validation helper after the existing batch/map products are available and before prepare_install; it validates owner/site and key-derived expected provenance, emits no Callee or target, then drops its transient result."
 non_authority = [
   "source name, arity, box/key spelling, physical symbol, variable map, collector counts, caller=None, target strings, and any second resolver",
   "TopLevel, InstanceConstructor, NestedBoxMethod, ScriptRoot/Main, RawCompatibility, and successful raw-dispatch publication",
 ]
-fail_fast = "Missing, foreign, duplicate, mixed-brand, wrong-lineage, or source-site-mismatch rows abort before package prepare_install, body lowering, argument effects, collector mutation, or Call publication."
+fail_fast = "Missing, foreign, duplicate, mixed-brand, wrong-owner, wrong-expected-provenance, or source-site-mismatch rows abort before package prepare_install, body lowering, argument effects, collector mutation, or Call publication."
 allowed_files = [
   "existing callable-semantic package/batch issuer modules",
   "one private validation helper under the package owner",
@@ -138,15 +138,26 @@ forbidden_files = [
 ]
 acceptance = [
   "root and nested owners are checked through the whole forest, not only the root",
-  "Cataloged lineage remains typed and is not collapsed to InstalledNonBrand { caller: None }",
+  "Cataloged source provenance is not newly collapsed to InstalledNonBrand { caller: None }; the actual RawInvocationRootLineage bridge remains a later blocker",
   "validation occurs once before prepare_install while direct target publication remains zero",
   "missing/foreign/duplicate/mixed-brand/site-mismatch cases reject before effects",
 ]
 no_safe_slice = [
   "a second AST traversal or resolver is required",
   "validation needs a Callee, target key, RawDirectCallDispositionLoan, or public package field",
+  "the helper must import or transport the actual RawInvocationRootLineageV1 value across its current builder-only visibility boundary",
   "TopLevel/InstanceConstructor must be synthesized into an ordinary target",
   "the old target-unissued behavior cannot remain fail-closed while moving the decision to the package boundary",
+]
+
+[latest_worker_recheck]
+observed_commit = "9ba3ebf915"
+verdict = "Validation-only remains a design candidate, not an implementation permission. Existing package/batch/map/forest/site/brand products close the owner/site evidence, but RawInvocationRootLineageV1 is builder-scoped and no package issuer can currently co-seal its actual value without a new visibility/transport seam."
+batch_reject = "Keep the default callable-semantic batch issuer's UnissuedDirectCallObservation rejection. A package-only observe policy may validate Cataloged owner/site and expected provenance, then fail closed with the existing pre-install error; do not globally remove the batch gate."
+permission_blockers = [
+  "actual source-site -> owner -> RawInvocationRootLineage co-seal issuer is absent",
+  "RawInvocationChildPortV1 has no scoped direct-call loan",
+  "target/Callee publication, package+loan, and dispatcher cutover remain closed",
 ]
 
 [reopen]
