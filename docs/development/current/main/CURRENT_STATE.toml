@@ -2,9 +2,9 @@ date = "2026-08-29"
 development_branch_ssot = "main"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
-current_design_stop = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: R2c landed explicit raw ScriptRoot/Main/RawLegacy compatibility provenance; design must now enumerate remaining Resolved/recovery owners before any target/loan/dispatcher or retirement implementation."
-current_blocker_token = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: App Main exact loan is the only Targeted ordinary owner; semantic ScriptRoot wins, raw ScriptRoot requires both ledgers absent, Main/RawLegacy are type-backed, and all other caller-none lineages remain Reject or named ParkedSealed."
-guard_followup = "Reuse the existing MIR-CALL-D1B lifecycle guard for the landed R2c provenance row; next design must enumerate remaining compatibility/Resolved owners without adding a new guard family."
+current_design_stop = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: R2c named raw ScriptRoot/Main/RawLegacy provenance is landed, but generic Relationless -> Resolved remains a nested/unknown-lineage blocker; R2d is accepted design only until unclassified ordinary calls reject before effects."
+current_blocker_token = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: App Main exact loan is the only Targeted ordinary owner; named semantic/raw compatibility remains explicit, while NestedBoxMethod and other unclassified caller-none lineages are CutoverBlockerOpen rather than ParkedSealed."
+guard_followup = "R2d must reuse the existing MIR-CALL-D1B lifecycle guard, prove named-only Resolved origins and pre-effect unclassified rejection, and add no new guard family."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,7 +16,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
-latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, bounded R2a rejection, R2b semantic ScriptRoot provenance, and R2c raw ScriptRoot/Main/RawLegacy provenance are landed. Remaining Resolved/recovery owners, Method(None), VM/backend, and Call schema remain closed."
+latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, bounded R2a/R2b/R2c provenance slices are landed; R2d is the accepted design to close generic Relationless -> Resolved before any retirement. Method(None), VM/backend, and Call schema remain closed."
 next_design_card = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-29: R2c landed at 52615fa9a2; raw ScriptRoot, raw-root Main, and RawLegacy now carry explicit compatibility provenance, while generic unclassified Relationless -> Resolved remains an R2d blocker.",
 	"2026-08-29: R2b landed at b48a072098; semantic ScriptRoot with no callable target now has explicit compatibility provenance, while unclassified installed paths remain pre-effect rejected and the existing Resolved terminal has no generic fallthrough.",
 	"2026-08-29: bounded R2a landed at 1db9a097ba; InstalledNonBrand caller=None ordinary calls now reject before argument effects with zero child/MIR delta, while explicit compatibility remains owned.",
-	"2026-08-29: selected App Main FreeStatic source relation and affine-loan I0 landed at 99bdfc856c; same-session target/observation, take_once-before-arguments, finish_empty, and typed reject/owner guards are in place.",
 ]

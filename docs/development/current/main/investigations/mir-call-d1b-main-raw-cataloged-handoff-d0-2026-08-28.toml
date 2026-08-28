@@ -635,47 +635,14 @@ decision = "Do not globally delete Resolved yet. First close the finite lineage 
 source_authority = "RawInvocationRootLineageV1 and exact SourceExprSiteV1 provide provenance; the same-session package/catalog issuer provides target authority. Source identity never synthesizes a Callee."
 non_authority = "InstalledNonBrand{caller=None}, name/arity, symbol parsing, static_candidates, variable_map, current_static_box, tail/header suffix scans, env flags, name Const, and legacy Call writers."
 fail_fast_boundary = "For an InstalledNonBrand ordinary FunctionCall with no exact caller/site/brand/loan relation, return a typed Rejected disposition before drive_call_arguments_v1; no resolver, recovery, fallback, or retry may run afterward."
-smallest_next_slice = "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A: reject only ordinary InstalledNonBrand caller=None; preserve App Main, caller-backed Cataloged, earlier special routes, and explicit Relationless compatibility. Caller-none Builtin/Extern-shaped ordinary names are part of the reject boundary."
-non_claims = [
-    "This row does not issue targets for TopLevel, InstanceConstructor, ScriptRoot, Main(locator), NestedBoxMethod, or non-Main Cataloged siblings.",
-    "This row does not remove Method(None), VM/backend routes, JSON/JoinIR, Call schema, or the shared compatibility emit_legacy_call owner.",
-    "Resolved and post-argument recovery are not globally caller-zero until R2b closes compatibility ownership.",
-]
-boundary_includes = [
-    "raw FunctionCall dispatch -> preflight -> ordinary completion for InstalledNonBrand{caller=None}",
-    "Resolved/post-argument unique-static/tail/name-Const/legacy-Call edges and their source-backed callers",
-    "six RawInvocationRootLineageV1 families plus Unlocated/Relationless finite disposition inventory",
-]
-boundary_excludes = [
-    "AppMainTargeted affine loan already landed in 99bdfc856c",
-    "caller-backed non-Main CatalogedTargeted and explicit special/compatibility owners",
-    "Method corridor, VM/backend retirement, and mandatory-Callee schema",
-]
-lineage_disposition_matrix = [
-    "Cataloged App Main = Targeted via exact same-session loan; non-Main Cataloged = named successor/R4 or typed Reject",
-    "TopLevel = typed Reject until an exact ordinary target relation exists",
-    "InstanceConstructor = typed Reject for ordinary FunctionCall; constructor demand stays constructor-owned ParkedSealed",
-    "Main(locator) and ScriptRoot = explicit compatibility ParkedSealed; no ordinary target inference",
-    "NestedBoxMethod = typed Reject unless a named exact relation owner exists; never infer from method spelling",
-    "Unlocated/Relationless = typed Reject for source-backed ordinary calls; explicit compatibility remains ParkedSealed",
-]
-worker_evidence = [
-    "call_residual_retirement_audit at a63f40a6e5: Resolved/post-argument/tail/name-Const/legacy-Call caller graph and shared compatibility owners",
-    "d1_lineage_issuer_design at a63f40a6e5: exact relation matrix and source identity versus target authority boundary",
-    "resolver_coissue_api_audit at a63f40a6e5: R2a smallest safe pre-effect reject and hidden second-resolver census",
-    "freestatic_bridge_adversary at 394cbbf20f: no-ledger semantic ScriptRoot, raw-root Main, program compatibility, and RawLegacy need named compatibility owners; caller-none Builtin/Extern-shaped names currently reject before arguments",
-]
-acceptance = [
-    "R2a has one production preflight branch and typed error; argument descent count and MIR/collector delta are zero on rejection.",
-    "Focused negatives cover TopLevel, InstanceConstructor, located NestedBoxMethod, and Unlocated source-backed ordinary calls; App Main/Cataloged/special/compatibility routes remain unchanged.",
-    "R2 guard is scoped to the selected caller graph; it does not claim global Resolved/name-Const/legacy-Call zero while compatibility owners remain live.",
-    "After R2a, R2b may separate RelationlessCompatibility from source-backed Resolved and remove only caller-zero direct edges in one atomic row; caller-none Builtin/Extern-shaped names are already inside the R2a reject boundary unless a caller-backed or explicit compatibility owner handles them.",
-]
-no_safe_slice = [
-    "ordinary target must be synthesized from name/arity/symbol, caller=None recovery, or a second resolver",
-    "R2a needs Method(None), VM/backend, Call schema, or shared compatibility owner changes",
-    "any lineage remains unclassified or is silently parked without an owner and observable reopen trigger",
-]
+smallest_next_slice = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0: reject unclassified ordinary sources before argument descent; preserve only the four named compatibility owners and existing exact routes."
+non_claims = ["No target issuer for TopLevel/Constructor/ScriptRoot/Main/Nested/non-Main Cataloged; no Method/VM/JSON/JoinIR/Call-schema change; no global Resolved/recovery deletion yet."]
+boundary_includes = ["raw FunctionCall dispatch -> preflight -> ordinary completion; Resolved/recovery/name-Const/legacy-Call producer census; six lineage families plus Unlocated/Relationless disposition."]
+boundary_excludes = ["AppMainTargeted loan, caller-backed Cataloged, special owners, Method corridor, VM/backend, mandatory-Callee schema."]
+lineage_disposition_matrix = ["Cataloged App Main=Targeted; non-Main Cataloged=R4/Parked or Reject; TopLevel/Constructor/Nested=Reject; semantic/raw ScriptRoot, raw Main, RawLegacy=named compatibility; Unlocated/other=Reject unless named."]
+worker_evidence = "Updated read-only audits at b5488deed1: residual caller graph, exact lineage matrix, and adversarial nested-Box counterexample show generic Relationless -> Resolved remains open; R2c named provenance does not cover lineage replacement."
+acceptance = ["R2a/R2b/R2c named routes remain pre-effect and unchanged; unclassified ordinary sources have zero child/header/MIR/collector delta; Resolved is reachable only from the four named compatibility origins; no generic Relationless fallthrough remains."]
+no_safe_slice = ["Reject if nested compatibility must be preserved without an exact root-scope carrier, if special routes cannot be separated before ordinary rejection, or if the row reaches target/loan/dispatcher/recovery/Method/VM/Call schema."]
 
 [installed_nonbrand_pre_effect_reject_r2a]
 status = "landed"
@@ -732,43 +699,20 @@ task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 implementation_permission = false
-guard_phase = "resolved_compatibility_provenance_r2c"
-allowed_files = [
-    "src/mir/builder/calls/function_call_brand_source_demand.rs",
-    "src/mir/builder/calls/function_call_preflight_route.rs",
-    "src/mir/builder/calls/function_call_preflight_route_tests.rs",
-    "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
-    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
-    "tools/checks/guard_rows.toml",
-    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
-    "docs/development/current/main/CURRENT_STATE.toml",
-]
+guard_phase = "resolved_compatibility_provenance_r2b"
+allowed_files = ["src/mir/builder/calls/function_call_brand_source_demand.rs", "src/mir/builder/calls/function_call_preflight_route.rs", "src/mir/builder/calls/function_call_preflight_route_tests.rs", "src/mir/builder/calls/function_call_script_compatibility_tests.rs", "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"]
 decision = "Before deleting any Resolved/recovery edge, preserve explicit compatibility as a named finite owner and prevent source-backed installed paths from falling through the same terminal. Do not globally rename/delete Resolved until every producer is in this owner map."
 source_authority = "The semantic ScriptRoot scope owns its existing compatibility entry; raw ScriptRoot, raw-root Main, and RawLegacy now have separate named provenance owners. Exact App Main/Cataloged issuers remain the only target authorities."
 non_authority = "callable_ledger absence, lineage spelling alone, name/arity, symbol parsing, variable_map, static/header uniqueness, environment flags, name Const, post-argument ValueIds, and a generic Resolved fallback."
 fail_fast_boundary = "FunctionCall brand/source authority selection, after special-form classification and before drive_call_arguments_v1: an installed source with no exact target relation must reject, or enter a named ParkedSealed compatibility owner; it may not enter an unclassified Resolved path."
 acceptance = [
     "Semantic ScriptRoot with no callable target has a named ScriptRootParkedCompatibility provenance; source-backed InstalledNonBrand caller-none remains pre-effect Reject.",
-    "The existing Resolved terminal remains reachable only from explicit RelationlessCompatibility, ScriptRootParkedCompatibility, RawScriptRootParkedCompatibility, RawRootMainParkedCompatibility, or RawLegacyParkedCompatibility origins; no generic fallthrough remains.",
+    "The existing Resolved terminal remains reachable only from named compatibility origins; generic Relationless fallthrough is a known R2d blocker rather than a closed claim.",
     "Named compatibility behavior is unchanged, with no target synthesis, resolver retry, or fallback; the guard does not claim global Resolved zero.",
 ]
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
-[r2b_compatibility_provenance_verification_2026_08_29]
-status = "landed"
-implementation_commit = "b48a072098"
-positive = "Semantic ScriptRoot provenance preserves the existing Resolved compatibility terminal without publishing a target; brand precedence remains unchanged."
-negative = "InstalledNonBrand caller-none remains pre-effect rejected, and non-ScriptRoot/unlocated contexts are not classified as semantic ScriptRoot compatibility."
-focused_checks = [
-    "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib (passed; existing warnings only)",
-    "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib -q (passed; existing warnings only)",
-    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh resolved_compatibility_provenance_r2b (passed)",
-    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh installed_nonbrand_pre_effect_reject_r2a (passed)",
-    "bash tools/checks/current_state_pointer_guard.sh (passed)",
-    "git diff --check (passed)",
-]
-known_limit = "Full cargo test/link was not rerun because the repository's large test binary previously exceeded available memory; the changed test targets were type-checked and the scoped guards were executed. R2b does not claim whole ordinary Call spine retirement."
-closeout = "R2b is complete as a bounded provenance slice. The pointer returns to design_stop at the existing all-lineage row; no target issuer, loan transport, dispatcher, Resolved deletion, Method/VM, or Call-schema change is opened."
+r2b_verification_summary = "b48a072098: quick lib/tests checks, R2b/R2a lifecycle guards, pointer guard, and diff check passed; full test/link remains limited by the known large-binary memory budget."
 
 [r2c_compatibility_provenance_d0_2026_08_29]
 status = "landed"
@@ -781,7 +725,7 @@ allowed_files = ["src/mir/builder/calls/function_call_brand_source_demand.rs", "
 decision = "Name only the remaining raw compatibility provenance at the existing FunctionCall authority boundary. Ledger-less raw ScriptRoot is one compatibility owner for Program/raw-AppMain ordinary calls; Main(locator) and RawLegacy get type-backed owners. All three preserve the existing Resolved terminal and issue no target."
 source_authority = "NormalCallableSemanticPackageMode::Compatibility issues the raw ScriptRoot scope; RawInvocationRootLineageV1::Main identifies raw-root Main; RawLegacyChildLoweringPortV1 is the direct RawLegacy issuer. Existing semantic ScriptRoot provenance remains separate."
 non_authority = "ledger absence alone, ScriptRoot spelling alone, NestedBoxMethod parent loss, name/arity, symbol parsing, variable_map, static/header scans, environment flags, and any compatibility terminal schedule."
-fail_fast_boundary = "Classify the exact source/port provenance before drive_call_arguments_v1. Semantic ScriptRoot must win first; raw ScriptRoot requires both ledgers absent; Main and RawLegacy are type-backed. Missing/foreign/other lineage stays existing Relationless or InstalledNonBrand reject."
+fail_fast_boundary = "Classify the exact source/port provenance before drive_call_arguments_v1. Semantic ScriptRoot must win first; raw ScriptRoot requires both ledgers absent; Main and RawLegacy are type-backed. Missing/foreign/other lineage remains an explicit R2d unclassified-source blocker until it rejects before effects."
 bounded_scope = "BoxShape only in function_call_brand_source_demand.rs and function_call_preflight_route.rs, with one sibling test module and the existing lifecycle guard. Do not change recursive port fields, source transport, build.rs, resolver/recovery, target/loan, dispatcher, Method, VM, or Call schema."
 variants = "ScriptRootParkedCompatibility = semantic ledger + ScriptRoot (R2b); RawScriptRootParkedCompatibility = both-ledgers-absent ScriptRoot; RawRootMainParkedCompatibility = both-ledgers-absent Main(locator); RawLegacyParkedCompatibility = direct RawLegacy issuer."
 required_changes = "Add the three private provenance variants, classify semantic ScriptRoot before the ledger early return, require both ledgers absent for raw ScriptRoot/Main, add focused provenance negatives, and reuse the existing lifecycle guard with one R2c phase."
@@ -791,5 +735,20 @@ worker_inventory = "consumed (read-only current fixtures/cards/ledgers)"
 implementation_commit = "52615fa9a2"
 focused_checks = "cargo check --profile quick --lib; cargo check --profile quick --tests --lib; raw compatibility focused tests; R2c lifecycle guard; current-state pointer guard; git diff --check"
 known_limit = "Full cargo test/link remains unrun because the large test binary exceeds the available memory budget."
-closeout = "R2c landed as a provenance-only BoxShape: raw ScriptRoot, raw-root Main, and RawLegacy now have explicit compatibility owners; no target/loan/dispatcher/Resolved or recovery deletion was opened."
+closeout = "R2c landed as a provenance-only BoxShape: raw ScriptRoot, raw-root Main, and RawLegacy now have explicit compatibility owners. Generic unclassified Relationless -> Resolved remains an identified R2d blocker; no target/loan/dispatcher/Resolved or recovery deletion was opened."
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+
+[r2d_unclassified_source_fail_closed_2026_08_29]
+status = "accepted_design"
+task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0"
+execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0"
+parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+implementation_permission = false
+decision = "Replace generic RelationlessCompatibility with UnclassifiedSource. Preserve TypeOp/Math/FastMem/str special precedence, but ordinary unclassified sources must return a typed pre-effect SourceRejected route; only semantic/raw ScriptRoot, raw Main, and RawLegacy named owners may reach Resolved."
+source_authority = "Named provenance variants issued by semantic ScriptRoot, raw compatibility ScriptRoot, raw-root Main, or RawLegacy. No ledger absence, lineage spelling, nested parent, name, arity, or symbol may authorize compatibility."
+non_authority = "Relationless fallback, NestedBoxMethod inheritance, Brand map probing for unclassified sources, variable/static/header lookup, env tail recovery, name Const, post-argument ValueId, and legacy Call."
+fail_fast_boundary = "After special-form selection and before ordinary argument descent; unclassified ordinary input must have zero child/header/MIR/collector delta and no resolver/recovery entry."
+smallest_next_slice = "Add UnclassifiedSource and a private SourceRejected preflight route; make test-only generic preparation explicitly RawLegacy compatibility; add real-port nested/TopLevel/Constructor/missing negatives and strengthen the existing D1 lifecycle guard."
+acceptance = "Production RelationlessCompatibility caller count is zero; four named compatibility origins remain the only Resolved producers; unclassified ordinary rejection is pre-effect; special routes and AppMain/Cataloged/Constructor owners remain unchanged."
+no_safe_slice = "Return to design_stop if nested raw compatibility is a required supported behavior without an existing exact carrier, or if source rejection cannot be separated from special-form selection without a dispatcher/port redesign."
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
