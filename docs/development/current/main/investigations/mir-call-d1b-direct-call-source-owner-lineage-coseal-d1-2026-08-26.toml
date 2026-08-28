@@ -151,12 +151,14 @@ no_safe_slice = [
 ]
 
 [latest_worker_recheck]
-observed_commit = "9ba3ebf915"
-verdict = "Validation-only remains a design candidate, not an implementation permission. Existing package/batch/map/forest/site/brand products close the owner/site evidence, but RawInvocationRootLineageV1 is builder-scoped and no package issuer can currently co-seal its actual value without a new visibility/transport seam."
+observed_commit = "4278c8d481"
+verdict = "B1 family D0 is SuccessorContractSealed, but D1B remains No-Go. Existing package/batch/map/forest/site/brand products close expected owner/site evidence only; package+loan, actual lineage equality, scoped raw reborrow, and Cataloged dispatcher cutover are absent from the current API."
 batch_reject = "Keep the default callable-semantic batch issuer's UnissuedDirectCallObservation rejection. A package-only observe policy may validate Cataloged owner/site and expected provenance, then fail closed with the existing pre-install error; do not globally remove the batch gate."
 permission_blockers = [
   "actual source-site -> owner -> RawInvocationRootLineage co-seal issuer is absent",
   "RawInvocationChildPortV1 has no scoped direct-call loan",
+  "BuilderInstallConsumerV1 and the lowering scope are package-only and do not have a private consuming bundle",
+  "CatalogedTargeted direct Callee payload and selected resolver/recovery handoff remain in the selected edge",
   "target/Callee publication, package+loan, and dispatcher cutover remain closed",
 ]
 
@@ -251,13 +253,13 @@ triggers = [
 ]
 
 [latest_boundary_audit]
-observed_commit = "846cfc7f1f"
+observed_commit = "4278c8d481"
 workers = [
   "source-lineage: actual RawInvocationRootLineageV1 is constructed during lowering, after package issue/install; raw transport remains its sole constructor",
   "package-loan: package-only open_lowering_port/open_lowering_once bypasses remain, and adapter-local state cannot reach the recursive FunctionCall dispatcher",
-  "transition: the finite authority chain is sound, but target issuer, scoped loan, and dispatcher consumption are still one atomic implementation blocker",
+  "transition: the finite authority chain is sound and B1 family is contract-sealed, but target issuer, scoped loan, and dispatcher consumption are still one atomic implementation blocker",
 ]
-verdict = "The design stop found a real phase boundary, not an abstract preference. Keep expected Cataloged owner/site/provenance validation before install, then compare the actual raw lineage/site at FunctionCall ingress before argument effects. Do not force actual lineage into the package issuer or invent a public receipt."
+verdict = "The B1 family contract is now sealed, but the D1 implementation remains No-Go: keep expected Cataloged owner/site/provenance validation before install, then compare actual raw lineage/site at FunctionCall ingress before argument effects. Do not force actual lineage into the package issuer or invent a public receipt."
 closed_concerns = "The forest-wide owner gate includes nested owners, BridgeReady removes the selected package-only lowering escape from its named bridge, and the default unissued-observation rejection remains fail-closed."
 open_blockers = [
   "no exact source-site -> owner -> actual RawInvocationRootLineage equality issuer is connected to a physical Callee carrier",
@@ -643,3 +645,25 @@ evidence = "Read-only worker audits agree that the nine owner rows cover all 18 
 remaining_blocker = "This is a design-only closure. The adapter still has production users, and exact source-backed successors are not executed yet. D1B actual lineage equality, consuming package-plus-loan, scoped raw reborrow, and Cataloged dispatcher cutover remain closed."
 next_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
 implementation_permission = false
+
+[d1_implementation_recheck]
+observed_at = "2026-08-28"
+observed_commit = "4278c8d481"
+status = "no_go_design_stop"
+implementation_permission = false
+decision = "B1 family closure is a prerequisite contract, not executable permission. Do not fast-open D1B until the package, lineage, loan, and dispatcher seams below are accepted as one bounded implementation row."
+required_before_fast = [
+  "one private non-Clone/non-Copy package-plus-loan bundle validated before commit",
+  "a consuming lowering scope that owns the loan and creates a temporary package port without self-reference",
+  "actual Located(Cataloged(same_key)) plus exact site/brand/session equality at raw FunctionCall ingress",
+  "short existing-lifetime &mut reborrow from the lowering scope into RawInvocationChildPortV1",
+  "atomic deletion of package-only bypass, CatalogedTargeted direct payload, selected resolver/recovery handoff, and fallback/retry",
+]
+no_safe_slice = [
+  "import or publish RawInvocationRootLineageV1 through the package issuer",
+  "use name/arity/symbol/registry/StaticMethodId or a consumer-side resolver to create the target",
+  "transport the loan with Clone, Rc/Arc/RefCell, unsafe, self-reference, a third lifetime, or a second ledger",
+  "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
+  "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
+]
+next_action = "Keep CURRENT_STATE in design_stop. Select the Cataloged StaticBoxMethod row only after these lifecycle seams are implemented as one accepted D1B contract; until then, no builder ingress or dispatcher edits."
