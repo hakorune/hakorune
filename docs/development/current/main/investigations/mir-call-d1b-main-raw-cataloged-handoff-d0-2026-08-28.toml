@@ -150,8 +150,8 @@ ordered_prerequisites = [
 task_id = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0"
 execution_row = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0"
 guard_phase = "main_raw_lineage_handoff_d1"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 observed_commit = "b8e7f350e7"
 decision = "The active CURRENT_STATE row is MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1, but the existing no-argument lifecycle guard has no explicit D1 branch and can select the historical R0 card guard_phase. Treat that as evidence drift, not as D1 proof."
 owner = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"
@@ -175,7 +175,8 @@ acceptance = [
     "D1 design_stop and implementation_permission=false are enforced",
     "the existing pointer/registry guard remains green"
 ]
-closeout = "After this guard-only row lands, the next no-argument run must prove the active D1 design boundary. It does not open any semantic implementation row."
+implementation_commit = "15b7a0c6f1"
+closeout = "bash -n, no-argument lifecycle guard, explicit D1/route phase checks, unknown-phase rejection, pointer guard, and row runner passed; no src/mir or semantic Call files changed. The pointer returned to D1 design_stop and semantic permission remains false."
 
 [main_raw_lineage_witness_harden_2026_08_28]
 task_id = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0"

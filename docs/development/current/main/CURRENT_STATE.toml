@@ -1,10 +1,10 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
 current_design_stop = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
-current_blocker_token = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0: guard-only fast row; the active D1 semantic design stop remains closed, and target publication, package+loan, dispatcher, argument-side recovery, and Call schema remain closed."
-guard_followup = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0 landed at afb0d79054 for the prior D0 card; the active D1 row still needs an explicit no-arg phase branch, with unknown phases failing closed. This is guard hygiene only; semantic D1 permission remains closed."
+current_blocker_token = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: guard phase routing landed at 15b7a0c6f1; exact source-owner/Raw lineage witness remains design-only, while target publication, package+loan, dispatcher, argument-side recovery, and Call schema remain closed."
+guard_followup = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0 landed at 15b7a0c6f1: no-arg dispatch selects the active D1 design phase, explicit historical phases remain selectable, and unknown phases fail closed. Semantic D1 permission remains closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -18,8 +18,8 @@ latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
 latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, FreeStatic handoff, bounded bare-static reject, Main identity/owner/observation co-seal, lifecycle guard hygiene, and the installed App Main Cataloged scope handoff are landed. The next design stop is source-owner/Raw lineage co-seal; target/loan/dispatcher and Call changes remain closed."
 next_design_card = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
-next_execution_card = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-28: D1 lifecycle guard phase routing R0 landed at 15b7a0c6f1; no-arg dispatch now selects active D1 and unknown phases fail closed, with semantic D1 still closed.",
 	"2026-08-28: installed App Main Cataloged scope handoff R0 landed at 46fdf7a4fa; the root body now enters one package-verified function-body scope, with compatibility routes and target/loan/dispatcher unchanged.",
 	"2026-08-28: Main observation corrective R0 landed at 012099e01b; the existing forest-wide helper rejects root, nested, and mixed App Main direct-call observations before parameter contracts/install, with no target/raw-lineage/loan/Call changes.",
-	"2026-08-28: Main owner/forest validation R0 landed at 605cf718d5; package issuer validates Main identity/key/brand against one StaticBoxMethod batch row, its sole root, and every nested forest owner before parameter contracts/install.",
 ]
