@@ -21,6 +21,10 @@ use super::super::brand_constructor_lowering_projection::ProjectedBrandConstruct
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawBrandCallAuthorityV1 {
     RelationlessCompatibility,
+    /// A semantic ScriptRoot has an existing source owner but no callable
+    /// target product.  Preserve its compatibility terminal explicitly;
+    /// absence of a callable ledger is never itself a resolver authority.
+    ScriptRootParkedCompatibility,
     /// The raw call is inside the exact installed App Main owner scope.  The
     /// target itself remains in the package loan; this variant carries no
     /// name/arity or physical symbol and therefore cannot become a resolver.
@@ -70,11 +74,18 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
         else {
             return Ok(RawBrandCallAuthorityV1::RelationlessCompatibility);
         };
+        let context = self.current_source_context_v1();
+        if self.semantic_ledger.is_some()
+            && context
+                .as_ref()
+                .is_some_and(is_semantic_script_root_compatibility_context_v1)
+        {
+            return Ok(RawBrandCallAuthorityV1::ScriptRootParkedCompatibility);
+        }
         let Some(ledger) = self.callable_ledger.clone() else {
             return Ok(RawBrandCallAuthorityV1::RelationlessCompatibility);
         };
-        let context = self
-            .current_source_context_v1()
+        let context = context
             .ok_or_else(|| "[freeze:contract][callable-brand/missing-source-context]".to_owned())?;
         let caller = match &context {
             RawInvocationSourceContextV1::Located {
@@ -99,6 +110,22 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
         };
         validate_constructor_call(&context, &site, call, name, arguments, &row)?;
         Ok(RawBrandCallAuthorityV1::InstalledConstructor(row))
+    }
+}
+
+fn is_semantic_script_root_compatibility_context_v1(
+    context: &RawInvocationSourceContextV1,
+) -> bool {
+    match context {
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::ScriptRoot,
+            ..
+        } => true,
+        RawInvocationSourceContextV1::UnlocatedCompatibility {
+            expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
+            ..
+        } => true,
+        _ => false,
     }
 }
 
@@ -128,4 +155,38 @@ fn validate_constructor_call(
         return Err("[freeze:contract][callable-brand/operand-site-drift]".to_owned());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod script_root_context_tests {
+    use super::*;
+    use crate::mir::builder::raw_invocation_source_transport::RawUnlocatedPortalV1;
+    use crate::mir::resolved_semantics::{SourceBodyKindV1, SourcePathSegmentV1};
+
+    fn located(root: RawInvocationRootLineageV1) -> RawInvocationSourceContextV1 {
+        RawInvocationSourceContextV1::Located {
+            root,
+            site: SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::FunctionBody]),
+            body_kind: Some(SourceBodyKindV1::Function),
+        }
+    }
+
+    #[test]
+    fn only_script_root_lineage_is_named_script_compatibility() {
+        assert!(is_semantic_script_root_compatibility_context_v1(&located(
+            RawInvocationRootLineageV1::ScriptRoot,
+        )));
+        assert!(is_semantic_script_root_compatibility_context_v1(
+            &RawInvocationSourceContextV1::UnlocatedCompatibility {
+                reason: RawUnlocatedPortalV1::CallObject,
+                expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
+            }
+        ));
+        assert!(!is_semantic_script_root_compatibility_context_v1(
+            &RawInvocationSourceContextV1::UnlocatedCompatibility {
+                reason: RawUnlocatedPortalV1::CallObject,
+                expected_lineage: None,
+            }
+        ));
+    }
 }

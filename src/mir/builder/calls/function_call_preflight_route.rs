@@ -49,6 +49,7 @@ enum PreparedRawFunctionPreflightRouteV1 {
 enum PreparedRawNonBrandRouteOriginV1 {
     InstalledNonBrand,
     InstalledAppMain,
+    ScriptRootParkedCompatibility,
     RelationlessCompatibility,
 }
 
@@ -175,6 +176,21 @@ impl PreparedRawFunctionPreflightV1 {
                 None,
                 PreparedRawNonBrandRouteOriginV1::InstalledAppMain,
             ),
+            super::RawBrandCallAuthorityV1::ScriptRootParkedCompatibility => {
+                if builder.comp_ctx.is_brand_declared(&name) {
+                    PreparedRawFunctionPreflightRouteV1::Brand(
+                        PreparedRawBrandConstructorV1::prepare(arguments, false),
+                    )
+                } else {
+                    prepare_non_brand_route(
+                        builder,
+                        &name,
+                        arguments,
+                        None,
+                        PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility,
+                    )
+                }
+            }
             super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
                 if builder.comp_ctx.is_brand_declared(&name) {
                     PreparedRawFunctionPreflightRouteV1::Brand(
@@ -290,8 +306,19 @@ fn prepare_ordinary_function_completion_v1(
                 arguments.len()
             ),
         }
-    } else {
+    } else if matches!(
+        origin,
+        PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility
+            | PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
+    ) {
         PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
+    } else {
+        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+            error: format!(
+                "[freeze:contract][direct-call/unclassified-installed-source] name={name} arity={}",
+                arguments.len()
+            ),
+        }
     }
 }
 

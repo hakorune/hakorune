@@ -740,3 +740,6 @@ mod installed_gc_builtin_tests;
 
 #[path = "function_call_installed_nonbrand_reject_tests.rs"]
 mod installed_nonbrand_reject_tests;
+
+#[path = "function_call_script_compatibility_tests.rs"]
+mod script_compatibility_tests;

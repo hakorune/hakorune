@@ -725,10 +725,22 @@ closeout = "R2a is complete as a bounded pre-effect rejection slice. R2b must fi
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2b_compatibility_provenance_d0_2026_08_29]
-status = "design_stop"
+status = "fast_open"
 task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
+execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
-implementation_permission = false
+implementation_permission = true
+guard_phase = "resolved_compatibility_provenance_r2b"
+allowed_files = [
+    "src/mir/builder/calls/function_call_brand_source_demand.rs",
+    "src/mir/builder/calls/function_call_preflight_route.rs",
+    "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+    "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
+    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
 decision = "Before deleting any Resolved/recovery edge, preserve explicit compatibility as a named finite owner and prevent source-backed installed paths from falling through the same terminal. Do not globally rename/delete Resolved until every producer is in this owner map."
 source_authority = "NormalCallableSemanticPackageMode/ProgramRootWorkPlanAdmission, the semantic ScriptRoot scope, raw-root Main compatibility, and RawLegacy each own their existing compatibility entry; exact App Main/Cataloged target issuers remain the only target authorities."
 non_authority = "callable_ledger absence, lineage spelling alone, name/arity, symbol parsing, variable_map, static/header uniqueness, environment flags, name Const, post-argument ValueIds, and a generic Resolved fallback."
@@ -748,16 +760,15 @@ finite_owner_matrix = [
     "TopLevel, InstanceConstructor, NestedBoxMethod, and foreign/missing contexts = typed Reject until an exact relation owner is named.",
 ]
 required_changes = [
-    "Add one private finite compatibility-owner capability/provenance at the existing source/port boundary; do not add a field to recursive_child_lowering.rs unless the owner map proves it necessary.",
-    "Restrict the existing Resolved consumer and its non-unified/unified late branches to explicit compatibility owners; do not delete those branches in this row.",
-    "Add real-ingress negatives for semantic ScriptRoot, installed/no-ledger, raw-root Main, program compatibility, RawLegacy, unlocated expected-lineage, plus special/Builtin/Extern origin coverage.",
+    "Add one private ScriptRoot compatibility provenance at the existing source/port boundary; do not add a recursive-port field or a family-specific loan.",
+    "Keep the existing Resolved consumer behavior but make its completion reachable only from named compatibility origins; do not delete late branches in this row.",
+    "Add focused provenance and source-origin negatives; preserve special routes and caller-none InstalledNonBrand rejection.",
     "Reuse the existing D1 lifecycle guard with one R2b phase; no new census or per-row shell guard family.",
 ]
 acceptance = [
-    "Every current Resolved producer appears exactly once in the finite owner matrix; an unclassified producer is CutoverBlockerOpen.",
-    "Source-backed installed ordinary calls cannot reach resolver, unique/tail recovery, name Const, or legacy Call after the pre-effect boundary unless the matrix names an explicit compatibility owner.",
-    "Named compatibility owners preserve their current terminal behavior and remain visibly distinct from exact target issuers; no target is synthesized and no retry/fallback is introduced.",
-    "The R2b guard proves owner classification, branch ordering, and absence of silent ledger-drop; it does not claim global Resolved zero.",
+    "Semantic ScriptRoot with no callable target has a named ScriptRootParkedCompatibility provenance; source-backed InstalledNonBrand caller-none remains pre-effect Reject.",
+    "The existing Resolved terminal remains reachable only from explicit RelationlessCompatibility or ScriptRootParkedCompatibility origins; no generic fallthrough remains.",
+    "Named compatibility behavior is unchanged, with no target synthesis, resolver retry, or fallback; the guard does not claim global Resolved zero.",
 ]
 no_safe_slice = [
     "semantic ScriptRoot and explicit compatibility cannot be distinguished from existing source/ledger/context without a language or route decision",
