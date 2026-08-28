@@ -1,18 +1,21 @@
+use std::collections::BTreeSet;
+
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::mir::builder::{
     issue_source_backed_same_module_callable_catalog_v1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, ConsumedNormalRootCallableSourceV1,
-    SourceBackedCallableCatalogIssueV1,
+    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, SourceBackedCallableCatalogIssueV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 #[cfg(test)]
 use crate::mir::builder::{NormalRootExecutionConsumerRejectV1, NormalRootExecutionConsumerV1};
 use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
 };
-use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::callable_semantic_batch::{
-    issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
-    ResolvedCallableSemanticBatchIssueV1, ResolvedCallableSemanticBatchLoanErrorV1,
+    issue_resolved_callable_semantic_batch_with_policy_v1, DirectCallObservationBatchPolicyV1,
+    ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchIssueV1,
+    ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
@@ -52,7 +55,129 @@ use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
 use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
+    VerifiedSelectedCallableBatchMapV1,
 };
+
+/// Validate the expected Cataloged owner/site/provenance relation without
+/// issuing a target.  Actual raw lineage remains a later Builder boundary.
+/// The boolean is a private transient only: callers still fail closed with
+/// the existing unissued-observation issue when any row is present.
+fn validate_cataloged_source_co_seal_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+) -> Result<bool, ResolvedCallableSemanticBatchIssueV1> {
+    let declaration_catalog = catalog.catalog();
+    if !declaration_catalog
+        .brand()
+        .is_same(declaration_catalog.selected_source_inventory().brand())
+    {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    }
+
+    let mut observed = false;
+    let mut owned_sites = BTreeSet::new();
+    for declaration in batch.declarations() {
+        let slot = declaration.batch_slot();
+        let Some(key) = selected.key_for_batch_slot(slot) else {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        };
+        let Some(identity) = selected.identity_for_batch_slot(slot) else {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        };
+        let Some((catalog_key, catalog_identity, _role)) = catalog
+            .selected_identities()
+            .find(|(candidate, _, _)| *candidate == key)
+        else {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        };
+        if !identity.same_as(catalog_identity)
+            || !declaration.same_declaration_identity(catalog_identity)
+        {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        }
+
+        let Some(_source_site) = declaration_catalog
+            .selected_source_inventory()
+            .site(catalog_key)
+        else {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        };
+        let Some(catalog_key) = (match key {
+            SelectedNormalCallableKeyV1::Cataloged(key)
+                if key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod =>
+            {
+                Some(key)
+            }
+            _ => None,
+        }) else {
+            // A non-Cataloged row has no expected source-backed provenance.
+            // It is accepted only when its forest contains no observation.
+            let has_observation = batch
+                .with_lowering_input(slot, |input| {
+                    input
+                        .forest()
+                        .owners()
+                        .any(|(_, function)| function.direct_call_observations().next().is_some())
+                })
+                .map_err(|_| ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?;
+            if has_observation {
+                return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+            }
+            continue;
+        };
+        let Some(declaration_row) = declaration_catalog.declaration(catalog_key) else {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        };
+        let expected_parameter_count =
+            u32::try_from(declaration_row.params().len()).unwrap_or(u32::MAX);
+        if catalog_key.arity() != expected_parameter_count
+            || declaration.parameter_count() != expected_parameter_count
+        {
+            return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        }
+
+        let has_observation = batch
+            .with_lowering_input(slot, |input| {
+                let forest = input.forest();
+                if forest.semantic_owners().any(|(owner, product)| {
+                    product.as_function().is_none() || product.owner() != owner
+                }) {
+                    return None;
+                }
+                let compilation = input.owner().compilation_brand();
+                let mut has_observation = false;
+                for (owner, function) in forest.owners() {
+                    if owner.compilation_brand() != compilation
+                        || function.owner() != owner
+                        || function.source_site_inventory().owner() != owner
+                        || function.source_site_inventory().function_origin()
+                            != function.function_origin()
+                    {
+                        return None;
+                    }
+                    for (site, _observation) in function.direct_call_observations() {
+                        has_observation = true;
+                        if !function.source_site_inventory().contains_expression(site)
+                            || !owned_sites.insert(
+                                crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                                    owner,
+                                    site.clone(),
+                                ),
+                            )
+                        {
+                            return None;
+                        }
+                    }
+                }
+                Some(has_observation)
+            })
+            .map_err(|_| ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?
+            .ok_or(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?;
+        observed |= has_observation;
+    }
+    Ok(observed)
+}
 
 #[derive(Debug)]
 pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
@@ -149,16 +274,24 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         })?;
     let (batch, root_execution) = source
         .consume_into_semantic_package(|source, root_execution| {
-            issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+            issue_resolved_callable_semantic_batch_with_policy_v1(
                 resolver,
                 source,
                 brand_catalog,
+                DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
             )
             .map(|batch| (batch, root_execution))
         })
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
+    if validate_cataloged_source_co_seal_v1(&catalog, &batch, &selected)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?
+    {
+        return Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        });
+    }
     let parameter_contracts = {
         let catalog = issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }

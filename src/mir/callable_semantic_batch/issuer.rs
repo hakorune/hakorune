@@ -47,17 +47,45 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     ParameterCountOverflow,
 }
 
+/// Controls whether unissued direct-call observations remain available to a
+/// package-owned validation boundary.  The default public batch entry keeps
+/// rejecting them; only the Cataloged validation row opts into observation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DirectCallObservationBatchPolicyV1 {
+    RejectUnissued,
+    ObserveForCatalogedValidation,
+}
+
 pub(crate) fn issue_resolved_callable_semantic_batch_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
-    issue_resolved_callable_semantic_batch_with_brand_catalog_v1(resolver, source, None)
+    issue_resolved_callable_semantic_batch_with_policy_v1(
+        resolver,
+        source,
+        None,
+        DirectCallObservationBatchPolicyV1::RejectUnissued,
+    )
 }
 
 pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
+    issue_resolved_callable_semantic_batch_with_policy_v1(
+        resolver,
+        source,
+        brand_catalog,
+        DirectCallObservationBatchPolicyV1::RejectUnissued,
+    )
+}
+
+pub(crate) fn issue_resolved_callable_semantic_batch_with_policy_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    direct_call_policy: DirectCallObservationBatchPolicyV1,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
     let rows = source
         .with_callable_semantic_syntax(|loan| {
@@ -154,7 +182,11 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
                 let function = forest
                     .owner(*owner)
                     .ok_or(ResolvedCallableSemanticBatchIssueV1::MissingRoot)?;
-                if forest_has_unissued_direct_call_observation_v1(&forest) {
+                if matches!(
+                    direct_call_policy,
+                    DirectCallObservationBatchPolicyV1::RejectUnissued
+                ) && forest_has_unissued_direct_call_observation_v1(&forest)
+                {
                     return Err(
                         ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
                     );
