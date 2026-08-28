@@ -725,11 +725,12 @@ closeout = "R2a is complete as a bounded pre-effect rejection slice. R2b must fi
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2b_compatibility_provenance_d0_2026_08_29]
-status = "fast_open"
+status = "landed"
+implementation_commit = "b48a072098"
 task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
-implementation_permission = true
+implementation_permission = false
 guard_phase = "resolved_compatibility_provenance_r2b"
 allowed_files = [
     "src/mir/builder/calls/function_call_brand_source_demand.rs",
@@ -745,7 +746,7 @@ decision = "Before deleting any Resolved/recovery edge, preserve explicit compat
 source_authority = "NormalCallableSemanticPackageMode/ProgramRootWorkPlanAdmission, the semantic ScriptRoot scope, raw-root Main compatibility, and RawLegacy each own their existing compatibility entry; exact App Main/Cataloged target issuers remain the only target authorities."
 non_authority = "callable_ledger absence, lineage spelling alone, name/arity, symbol parsing, variable_map, static/header uniqueness, environment flags, name Const, post-argument ValueIds, and a generic Resolved fallback."
 fail_fast_boundary = "FunctionCall brand/source authority selection, after special-form classification and before drive_call_arguments_v1: an installed source with no exact target relation must reject, or enter a named ParkedSealed compatibility owner; it may not enter an unclassified Resolved path."
-smallest_next_slice = "Design-only finite provenance matrix and owner contract. If the existing semantic ledger/context cannot distinguish semantic ScriptRoot from raw compatibility without changing language behavior, keep that owner ParkedSealed with an observable reopen trigger rather than rejecting or inventing a target."
+smallest_next_slice = "Keep the landed ScriptRoot provenance bounded; next design enumerates raw-root Main, program RawCompatibility, RawLegacy, and unlocated compatibility owners before any Resolved/recovery retirement."
 non_claims = [
     "The App Main loan currently carries a verified emission/disposition whose physical Callee is materialized by the existing one-way emitter after argument lowering; this does not yet claim a physical Callee object is stored in the loan.",
     "No target issuer, package/loan transport, raw dispatcher, Method(None), VM/backend, JSON/JoinIR, or Call.func/Option<Callee> schema change is authorized by this D0.",
@@ -776,4 +777,20 @@ no_safe_slice = [
     "a family-specific loan or recursive-port field is required merely to classify provenance",
     "any change reaches Method(None), VM/backend, Call schema, or the shared compatibility implementation before the owner map is closed",
 ]
-next_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+
+[r2b_compatibility_provenance_verification_2026_08_29]
+status = "landed"
+implementation_commit = "b48a072098"
+positive = "Semantic ScriptRoot provenance preserves the existing Resolved compatibility terminal without publishing a target; brand precedence remains unchanged."
+negative = "InstalledNonBrand caller-none remains pre-effect rejected, and non-ScriptRoot/unlocated contexts are not classified as semantic ScriptRoot compatibility."
+focused_checks = [
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib (passed; existing warnings only)",
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib -q (passed; existing warnings only)",
+    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh resolved_compatibility_provenance_r2b (passed)",
+    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh installed_nonbrand_pre_effect_reject_r2a (passed)",
+    "bash tools/checks/current_state_pointer_guard.sh (passed)",
+    "git diff --check (passed)",
+]
+known_limit = "Full cargo test/link was not rerun because the repository's large test binary previously exceeded available memory; the changed test targets were type-checked and the scoped guards were executed. R2b does not claim whole ordinary Call spine retirement."
+closeout = "R2b is complete as a bounded provenance slice. The pointer returns to design_stop at the existing all-lineage row; no target issuer, loan transport, dispatcher, Resolved deletion, Method/VM, or Call-schema change is opened."

@@ -80,6 +80,12 @@ if not phase:
         phase = "installed_nonbrand_pre_effect_reject_r2a"
     elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0":
         phase = "resolved_compatibility_provenance_r2b"
+    elif active_row == "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0":
+        r2b = active_card.get("r2b_compatibility_provenance_d0_2026_08_29")
+        if isinstance(r2b, dict) and r2b.get("status") in {"fast_open", "landed"}:
+            phase = "resolved_compatibility_provenance_r2b"
+        else:
+            raise SystemExit("active all-lineage row has no explicit current compatibility phase")
     else:
         phase = active_card.get("guard_phase")
     if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "cataloged_i0"}:

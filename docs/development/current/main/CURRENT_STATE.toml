@@ -1,10 +1,10 @@
 date = "2026-08-29"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
-current_design_stop = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0: implementation is open only for the named ScriptRoot compatibility provenance BoxShape; no target issuer, loan transport, Resolved deletion, Method/VM/Call-schema change."
-current_blocker_token = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0: semantic ScriptRoot must be distinguished from explicit compatibility without changing behavior; every other source-backed caller-none path remains pre-effect Reject or a named existing owner."
-guard_followup = "The existing MIR-CALL-D1B lifecycle guard now needs its scoped resolved_compatibility_provenance_r2b phase; it must prove no silent semantic-ledger drop and no generic Resolved fallthrough."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+current_design_stop = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: R2b landed as a named semantic ScriptRoot compatibility provenance; next design must enumerate the remaining raw-root/program/RawLegacy compatibility owners before any Resolved or recovery retirement."
+current_blocker_token = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: App Main exact loan is the only Targeted ordinary owner; every other source-backed caller-none lineage remains Reject or a named ParkedSealed compatibility owner, with no global Resolved-zero claim."
+guard_followup = "The existing MIR-CALL-D1B lifecycle guard covers landed R2b provenance and R2a rejection; the next bounded design must add no new guard family and must keep compatibility owners explicit before opening another implementation row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
-latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, and bounded R2a caller-none pre-effect rejection are landed. R2b is fast-open only for named ScriptRoot compatibility provenance; Resolved/recovery deletion, Method(None), VM/backend, and Call schema remain closed."
+latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, bounded R2a caller-none pre-effect rejection, and named R2b semantic ScriptRoot compatibility provenance are landed. Remaining Resolved/recovery owners, Method(None), VM/backend, and Call schema remain closed."
 next_design_card = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
-next_execution_card = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-29: R2b landed at b48a072098; semantic ScriptRoot with no callable target now has explicit compatibility provenance, while unclassified installed paths remain pre-effect rejected and the existing Resolved terminal has no generic fallthrough.",
 	"2026-08-29: bounded R2a landed at 1db9a097ba; InstalledNonBrand caller=None ordinary calls now reject before argument effects with zero child/MIR delta, while explicit compatibility remains owned.",
-	"2026-08-29: R2b remains design_stop after audit found caller-none Builtin/Extern-shaped names are inside the R2a reject boundary and semantic ScriptRoot/raw compatibility still need named provenance owners; no global Resolved retirement is claimed.",
 	"2026-08-29: selected App Main FreeStatic source relation and affine-loan I0 landed at 99bdfc856c; same-session target/observation, take_once-before-arguments, finish_empty, and typed reject/owner guards are in place.",
 ]
