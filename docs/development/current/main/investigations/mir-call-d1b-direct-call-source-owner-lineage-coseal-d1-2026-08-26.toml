@@ -281,6 +281,39 @@ no_safe_slice = [
   "nested lambda calls must be accepted without a distinct owner, raw lineage, and closure-body session",
 ]
 
+[bare_cataloged_fate_d0]
+task_id = "MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0"
+status = "design_stop"
+observed_commit = "7344ce0676"
+implementation_permission = false
+decision = "A bare AST FunctionCall is not sufficient evidence for a Cataloged StaticBoxMethod target. Before any D1 issuer is opened, decide whether the language/source contract explicitly admits current-owner StaticBoxMethod for this form; absent that contract, canonical ingress is TypedRejectBeforeArguments and named legacy fixtures/compatibility are ParkedSealed."
+evidence = "The AST carries only name and arguments, while current corpus cases mix same-owner static candidates, other-box static candidates, ambiguous/no-candidate calls, local Value calls, builtin calls, and explicit Extern syntax. The bounded recovery-proof corpus contains 13 bare FunctionCall cases in 15 files; candidate counts are evidence of legacy recovery only, not an exact source relation."
+boundary = "Only InstalledNonBrand { caller: Some } -> prepare_cataloged_target_v1 -> CatalogedTargeted/recovery and its named recovery-proof fixtures are classified. Keep this at file/fixture-family level; do not expand into a repository-wide function/reference census."
+canonical_families = "Local Value, explicit Extern, exact builtin policy, and existing FreeStatic relation remain separate families. Qualified MethodCall is outside this bare-call decision. None may be reclassified as StaticBoxMethod from name/arity alone."
+allowed = [
+  "record the source namespace decision in this existing card",
+  "boundedly classify production callers and recovery-proof fixtures as canonical-successor, compatibility-park, or unresolved blocker",
+  "retain implementation_permission=false and reuse the existing D1 lifecycle guard",
+]
+forbidden = [
+  "Callee issuer, package-plus-loan, RawInvocationChildPortV1 loan, dispatcher cutover, or Call publication",
+  "name/arity/static_candidates/variable-map/symbol lookup promoted to source authority",
+  "caller=None collapse, second AST traversal, new public semantic receipt, or live ParkedSealed fallback",
+]
+acceptance = [
+  "one explicit canonical-versus-compatibility decision is recorded for bare Cataloged StaticBoxMethod",
+  "every bounded production/fixture family has one owner, disposition, non-authority, and reopen trigger",
+  "canonical target publication remains zero until an exact source-site relation is proven",
+  "if the canonical contract is not approved, typed reject occurs before argument/effect work and compatibility is named/parked rather than silently rerouted",
+]
+next_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 (only if an exact source relation is approved)"
+no_safe_slice = [
+  "the language contract for bare current-owner StaticBoxMethod remains undecided",
+  "a caller can only be classified by name/arity or candidate uniqueness",
+  "local Value, builtin, Extern, FreeStatic, and StaticBoxMethod meanings cannot be separated before effects",
+  "the bounded census expands beyond files/fixture families or requires a new review matrix",
+]
+
 [d1_nested_owner_boundary]
 status = "sealed_for_initial_cell"
 decision = "The first Cataloged StaticBoxMethod cell accepts only the selected root owner. Nested lambda observations are not the same raw owner: lambda construction issues a distinct FunctionOwnerIdV1, while RawInvocationChildPortV1::reborrow only forwards the active root context and does not issue an owner transition."
@@ -699,4 +732,4 @@ no_safe_slice = [
   "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
   "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
 ]
-next_action = "Keep CURRENT_STATE in design_stop. Select the Cataloged StaticBoxMethod row only after these lifecycle seams are implemented as one accepted D1B contract; until then, no builder ingress or dispatcher edits."
+next_action = "Keep CURRENT_STATE in design_stop. First close MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0: decide the source namespace contract or seal canonical reject/compatibility park. Only an approved exact relation may open the later package-plus-loan/dispatcher row; no builder ingress or dispatcher edits now."
