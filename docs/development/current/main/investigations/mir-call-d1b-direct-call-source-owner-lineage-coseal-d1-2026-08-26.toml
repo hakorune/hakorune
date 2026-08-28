@@ -997,3 +997,36 @@ conditions = [
 
 [freestatic_pre_effect_target_handoff_r0.next]
 after_closeout = "Bare StaticBoxMethod reject/compatibility park is closed. Return only to a separately selected exact-authority lane; reopen D1 package/loan if and only if an approved language decision supplies an exact source-site relation."
+
+[current_head_recheck_0ed784cda0]
+observed_at = "2026-08-28"
+observed_commit = "0ed784cda0"
+status = "design_stop_confirmed"
+decision = "Main raw owner witness is closed, but the next source-site/target issuer question remains unresolved. Keep package-plus-loan and raw dispatcher implementation closed until an existing exact declaration relation is found; do not turn the owner witness or Cataloged provenance into a StaticBoxMethod target by name/arity inference."
+source_authority = "AppMainCatalogCoSealV1, the semantic owner forest, the existing function-body SourceExprSite, the same-session catalog brand, and the live RawInvocationRootLineageV1::Cataloged(existing_key) scope."
+canonical_issuer = "No exact bare Cataloged StaticBoxMethod source-site relation is currently issued. If a relation is found, only its existing declaration/catalog owner may issue one Callee; otherwise the canonical outcome remains TypedRejectBeforeArguments or an explicit compatibility park."
+non_authority = [
+    "name, arity, box/key spelling, StaticMethodId parsing, physical symbols, candidate uniqueness, caller=None, and synthetic main/0",
+    "RawInvocationRootLineageV1 as target authority, package/adapter lookup, consumer resolver, post-argument recovery, and nested-owner inheritance",
+]
+boundary = "Existing Main owner/forest/raw-owner/root-site witness -> exact source-site/declaration relation decision -> typed reject or a later atomic issuer/loan row; no target, argument, effect, collector, or Call publication is part of this design cell."
+finite_states = [
+    "ExactRelationAvailable -> later atomic issuer/loan design may open",
+    "ExactRelationAbsent -> TypedRejectBeforeArguments or ParkedSealed; no guessed target",
+    "Missing/Foreign/Duplicate/Ambiguous/WrongKind/WrongArity/MixedBrand -> typed reject before effects",
+    "NestedOwnerRawScopeUnavailable/TopLevel/InstanceConstructor/ScriptRoot/RawCompatibility -> outside this initial Main cell",
+]
+acceptance = [
+    "the existing live Main callback remains the only raw scope and its owner/key/site/body-kind equality is checked before body effects",
+    "exact source-site relation is either proven through an existing catalog/declaration owner or explicitly remains absent",
+    "no new public Verified*/Prepared* receipt, session id, target issuer, loan, dispatcher field, resolver, fallback, or Call schema change",
+    "existing forest-wide direct-call observation rejection and nested-owner boundary remain unchanged",
+]
+next_design_cell = "MIR-CALL-D1B-MAIN-RAW-EXACT-SOURCE-ISSUER-LOAN-D0"
+implementation_permission = false
+no_safe_slice = [
+    "only name/arity/symbol/candidate uniqueness can identify the target",
+    "the relation must be invented in the package issuer, raw transport, or consumer",
+    "nested lambda calls require parent-root flattening or a missing lambda raw session",
+    "loan wiring requires Clone/Rc/Arc/RefCell/unsafe/a third lifetime or package-only bypass",
+]
