@@ -853,6 +853,19 @@ acceptance = [
   "Main root remains absent from selected child consumption; synthetic physical main/0 and source Main.main identities stay distinct",
   "missing/foreign/duplicate/mixed-brand cases fail before body/argument/collector effects, and no target/Callee/Call is emitted",
 ]
+companion_shape = [
+  "private owner-local AppMainCatalogCoSealV1 holds parser CallableDeclarationIdentityV1, existing CanonicalSameModuleCallableKeyV1, and the existing SameModuleCallableCatalogBrandV1 witness",
+  "fields are private; Clone, Copy, Default, public getters, into_parts, AST, ValueId, Callee, RawInvocationRootLineageV1, and physical symbols are forbidden",
+  "App relation yields exactly one companion; ProgramRuntime yields no companion; App plus missing/duplicate companion is a typed reject, never a default",
+]
+key_lifetime = "The source-backed catalog issuer must retain the companion across into_catalog/package handoff instead of reducing matched_app_main to a boolean and silently dropping the key. The relation is consumed only by the later root bridge in the same session and brand."
+guard_phase = "Reuse mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh with a main_root_identity_coseal_i0 phase; add no new shell guard or registry family. The phase must fail on selected-map insertion, synthetic main/0 reuse, second source scan, or any target/Callee/Call/raw-lineage publication."
+focused_tests = [
+  "main identity maps exactly once to the source-backed catalog key and preserves selected-child exclusion",
+  "missing/duplicate/non-static/foreign-brand/foreign-session/parser-row mismatch rejects before body, argument, collector, or MIR mutation",
+  "synthetic main/0 remains unchanged and Main(locator) is never silently converted to Cataloged(key)",
+]
+implementation_gate = "Only after this shape/lifetime/guard amendment is recorded may a separate MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0 fast row modify the existing source-backed catalog/package owner. That I0 still cannot change program_root_lowering, main_expansion physical policy, raw lineage transport, loan, dispatcher, Call schema, JSON, VM, or backend."
 no_safe_slice = [
   "the bridge needs to add the root to selected child maps, create a new public semantic receipt, or infer a key from spelling/arity/symbol",
   "the exact same-session catalog row or brand cannot be retained without a second parser traversal or a second authority",
