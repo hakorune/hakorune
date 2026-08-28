@@ -351,9 +351,10 @@ next_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0: after this D0 is sel
 
 [qualified_method_target_issuer_i0]
 task_id = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0"
-status = "fast_open"
+status = "landed"
 observed_at = "2026-08-28"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "71b8e240eb"
 guard_phase = "qualified_method_target_issuer_i0"
 parent_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0"
 decision = "Switch only the existing qualified StaticBoxMethod ingress from Builder-side declaration_for(owner, method, arity) reconstruction to a source-keyed take from VerifiedStaticCallResultPublicationOwnerV1. The source owner has already issued the typed handoff; this row changes its consumer, not its meaning."
@@ -386,3 +387,13 @@ acceptance = [
 ]
 closeout = "After focused tests, rustfmt/diff checks, and the reusable lifecycle guard pass, mark this row landed and return to the D1 design stop. Do not claim bare FunctionCall/Main issuer, package+loan, or Call schema completion."
 next_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-R1: only if the source-keyed qualified consumer is landed with zero old ingress reconstruction callers; otherwise return the residual to design_stop."
+
+[qualified_method_target_issuer_i0.receipt]
+status = "landed"
+source = "static_call_result_publication_owner.rs::take_for_source; module_draft_collector/static_result_publication_owner.rs; module_lowering_invocation.rs; static_result_publication_ingress.rs"
+old_edge = "qualified Cataloged ingress reconstructed a StaticBoxMethod target with Builder declaration_for(owner, method, arity) before selecting the source row"
+new_edge = "qualified Cataloged ingress forwards only the exact caller/site key to the existing publication owner, which returns the already-issued handoff"
+focused_tests = "static_call_result_publication_owner:: 5 passed; selected, unselected, wrong-site, foreign-catalog, and second-take outcomes covered"
+guards = "rustfmt changed files, git diff --check, current_state_pointer_guard.sh, and mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh phase=qualified_method_target_issuer_i0 passed"
+source_limits = "static_call_result_publication_owner.rs 225 lines; owner test 254; module_lowering_invocation.rs 743; all below the 760/800 boundary"
+non_claims = "No bare FunctionCall/Main issuer, package+loan, RawInvocationChildPort loan, dispatcher cutover, Resolved recovery retirement, Method(None), Call schema, JSON, VM/backend, fallback, or retry change"
