@@ -875,9 +875,10 @@ next_row = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0 (implementation re
 
 [main_root_identity_catalog_coseal_i0]
 task_id = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0"
-status = "ready_for_fast"
-implementation_permission = true
-change = "Replace the source-backed catalog's matched_app_main boolean-only drop with one private AppMainCatalogCoSealV1 companion that moves with the existing catalog into the package/context owner. Preserve exact parser identity, catalog key, and brand; do not publish a target or change root lowering."
+status = "landed"
+implementation_permission = false
+implementation_commit = "4001f12c37"
+change = "Landed the source-backed catalog's matched_app_main boolean-only replacement as one private AppMainCatalogCoSealV1 companion that moves with the existing catalog into the package/context owner. Exact parser identity, catalog key, and brand are retained without target publication or root-lowering change."
 contract = "One parser source loan and one same-session catalog scan issue the companion. Main remains absent from selected child consumption, synthetic main/0 remains separate, and all missing/duplicate/foreign/mismatch cases reject before body, argument, collector, or MIR effects."
 allowed_files = [
   "src/mir/builder/callable_declaration_catalog/source_backed.rs",
@@ -893,8 +894,8 @@ forbidden_files = [
 ]
 done = [
   "private companion survives into_catalog/context installation without an into_parts or package-only bypass",
-  "positive exact Main identity/key/brand and selected-child exclusion tests pass; missing/duplicate/non-static/foreign/mismatch tests reject before effects",
-  "existing lifecycle guard phase proves no root selected-map insertion, second source scan, synthetic main/0 reuse, or target/Callee/Call/raw-lineage publication",
+  "source-backed positive identity/key/brand and selected-child exclusion test plus ProgramRuntime no-companion negative pass",
+  "main_root_identity_coseal_i0 phase of the existing lifecycle guard proves no root selected-map insertion, second source scan, synthetic main/0 reuse, or target/Callee/Call/raw-lineage publication",
 ]
 stop = [
   "key retention requires a second parser traversal, ambient Builder state, new public receipt, selected-map insertion, or physical root/Call change",

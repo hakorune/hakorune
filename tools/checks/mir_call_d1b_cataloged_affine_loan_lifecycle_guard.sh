@@ -245,10 +245,13 @@ elif phase == "cataloged_source_coseal_validation":
     elif d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened during guard-only row")
 elif phase == "main_root_identity_coseal_i0":
-    if current_state.get("work_mode") != "fast":
-        raise SystemExit("Main identity co-seal I0 requires fast work mode")
-    if active_row != "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
-        raise SystemExit("Main identity co-seal I0 current row drifted")
+    if registration.get("status") == "ready_for_fast":
+        if current_state.get("work_mode") != "fast":
+            raise SystemExit("Main identity co-seal I0 requires fast work mode")
+        if active_row != "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
+            raise SystemExit("Main identity co-seal I0 current row drifted")
+    elif current_state.get("work_mode") not in {"fast", "closeout", "design_stop"}:
+        raise SystemExit("landed Main identity co-seal phase has an invalid work mode")
     if d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 broad semantic implementation permission opened")
 else:
