@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
-current_design_stop = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
-current_blocker_token = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0: implement only the bounded pre-effect reject; package/loan stays parked unless an approved language decision supplies an exact bare StaticBoxMethod relation."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_design_stop = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_blocker_token = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: bare StaticBoxMethod reject is landed; package/loan, actual lineage, and dispatcher remain design-stopped unless an approved language decision supplies an exact source relation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,10 +15,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-direct-call-source-owner-lineage-coseal-d1"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
-latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, and the FreeStatic pre-effect handoff are landed. Bare FunctionCall remains FreeStatic/special; qualified MethodCall owns StaticBoxMethod; bare Cataloged static recovery is compatibility-only without an exact source-site relation. The current fast row is the bounded pre-effect reject for that legacy family. D1B source relation, package+loan, dispatcher, fallback/recovery, and Call schema remain closed."
-next_design_card = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
-next_execution_card = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, FreeStatic handoff, and the bounded bare-static pre-effect reject are landed. Bare FunctionCall remains FreeStatic/special; qualified MethodCall owns StaticBoxMethod; bare Cataloged static recovery is compatibility-only without an exact source-site relation. D1B source relation, package+loan, dispatcher, fallback/recovery, and Call schema remain closed."
+next_design_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
-  "2026-08-28: Cataloged validation R0 landed at e669e1273b; package owner/site/provenance is checked across the full forest before install, while actual lineage, direct-call loan, issuer, and dispatcher remain design-stopped.",
-  "2026-08-28: FreeStatic pre-effect target handoff landed at 244f8fc370; the sealed target is read before argument descent, existing postorder coverage is retained, and canonical Call emission remains single-shot.",
+	"2026-08-28: bounded bare Cataloged StaticBoxMethod recovery now terminates with a pre-effect typed reject at a07a15e485; the registered exact-target guard was repaired to the current Cataloged-only variant contract, with no package/loan/dispatcher changes.",
+	"2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
+	"2026-08-28: Cataloged validation R0 landed at e669e1273b; package owner/site/provenance is checked across the full forest before install, while actual lineage, direct-call loan, issuer, and dispatcher remain design-stopped.",
 ]

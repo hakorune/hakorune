@@ -321,9 +321,11 @@ no_safe_slice = [
 
 [bare_static_reject_r0]
 task_id = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 opened_at = "2026-08-28"
+closed_at = "2026-08-28"
+implementation_commit = "a07a15e485"
 decision = "For InstalledNonBrand { caller: Some } bare StaticBoxMethod candidates, canonical ingress terminates with a typed pre-effect reject because the language contract and current source products provide no exact call-site relation. Named recovery-proof fixtures remain ParkedSealed compatibility evidence; no package, loan, lineage, or dispatcher work is opened."
 boundary = "Only prepare_ordinary_function_completion_v1 -> prepare_cataloged_target_v1 for the bounded bare static-recovery family, before drive_call_arguments_v1. Qualified MethodCall, exact FreeStatic, Local Value, explicit Extern, exact builtin, and non-Cataloged compatibility families are excluded."
 source_authority = "docs/reference/language/function-call-evaluation.md plus the existing bounded source/fixture family contract; absence of an exact source-site -> declaration/owner/brand relation is the disposition."
@@ -333,10 +335,12 @@ non_authority = [
 ]
 fail_fast = "Current-owner static, other-owner static, ambiguous, missing, and wrong-arity bare candidates reject before drive_call_arguments_v1, effect emission, child lowering, collector mutation, or MIR publication."
 allowed_files = [
-  "src/mir/builder/calls/function_call_preflight_route.rs",
-  "src/mir/builder/calls/function_call_preflight_route_tests.rs",
-  "the existing bounded lifecycle guard and this card/CURRENT_STATE only",
-  "apps/bare-static-recovery-proof/README.md only to label the fixtures as legacy compatibility evidence",
+	"src/mir/builder/calls/function_call_preflight_route.rs",
+	"src/mir/builder/calls/function_call_preflight_route_tests.rs",
+	"tools/checks/mir_call_d1b_exact_target_child_guard.sh",
+	"tools/checks/guard_rows.toml",
+	"the existing bounded lifecycle guard and this card/CURRENT_STATE only",
+	"apps/bare-static-recovery-proof/README.md only to label the fixtures as legacy compatibility evidence",
 ]
 forbidden_files = [
   "src/mir/builder/calls/build.rs, static_resolution.rs, recursive raw ports, package/loan bridge, or Call schema",
@@ -354,15 +358,18 @@ acceptance = [
   "no caller=None flattening, target synthesis, or legacy ParkedSealed live fallback is introduced",
 ]
 negative = [
-  "same-owner, other-owner, ambiguous, missing, and wrong-arity fixture rows do not publish a target or descend into arguments",
-  "a missing exact relation never becomes a success merely because candidate count is one",
+	"same-owner, other-owner, ambiguous, missing, and wrong-arity fixture rows do not publish a target or descend into arguments",
+	"a missing exact relation never becomes a success merely because candidate count is one",
 ]
+tests = "CARGO_BUILD_JOBS=2 cargo test --profile quick --lib function_call_preflight_route -- --test-threads=1: 12 passed, 0 failed; touched files rustfmt and git diff --check passed."
+guard = "mir_call_d1b_exact_target_child_guard.sh: ok; mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh bridge_ready: ok; current_state_pointer_guard.sh: ok. The registered exact-target guard was repaired to track the current Cataloged-only variant and bare-static reject contract; no second guard was added."
+known_baseline = "cargo fmt --all -- --check retains the pre-existing unrelated src/runner/core_executor.rs formatting failure; this bounded row did not modify that file."
 no_safe_slice = [
   "distinguishing a surviving non-static family requires name/arity or variable-map inference rather than an existing exact relation",
   "the reject cannot be placed before argument/effect work without changing an excluded family or adding a second matcher",
   "the bounded guard would require a repository-wide census, a new receipt, package/loan transport, or a broad recovery deletion",
 ]
-next = "After this bounded reject closes, select a separate exact FreeStatic or qualified MethodCall retirement row. Reopen D1 package/loan only after an explicit language decision supplies an exact bare StaticBoxMethod source relation."
+next = "Bounded reject is closed. Keep D1 package/loan design-stopped until an explicit language decision supplies an exact bare StaticBoxMethod source relation; select a separate qualified MethodCall or other exact existing-authority row next."
 
 [d1_nested_owner_boundary]
 status = "sealed_for_initial_cell"
