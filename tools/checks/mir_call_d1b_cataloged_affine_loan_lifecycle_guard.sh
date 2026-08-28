@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -74,9 +74,11 @@ if not phase:
         phase = "qualified_method_target_issuer_d0"
     elif active_row == "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0":
         phase = "qualified_method_target_issuer_i0"
+    elif active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0":
+        phase = "cataloged_source_relation_affine_loan_i0"
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -97,7 +99,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0"}:
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0"}:
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -136,6 +138,8 @@ registration_key = (
     if phase == "qualified_method_target_issuer_d0"
     else "qualified_method_target_issuer_i0"
     if phase == "qualified_method_target_issuer_i0"
+    else "cataloged_source_relation_affine_loan_i0"
+    if phase == "cataloged_source_relation_affine_loan_i0"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -233,6 +237,24 @@ elif phase == "qualified_method_target_issuer_i0":
         raise SystemExit("qualified MethodCall target I0 current row drifted")
     if current_state.get("work_mode") not in {"fast", "closeout"}:
         raise SystemExit("qualified MethodCall target I0 requires fast or closeout")
+elif phase == "cataloged_source_relation_affine_loan_i0":
+    if registration.get("task_id") != "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0":
+        raise SystemExit("Cataloged source-relation I0 task id drifted")
+    if registration.get("execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0":
+        raise SystemExit("Cataloged source-relation I0 execution row drifted")
+    if registration.get("guard_phase") != "cataloged_source_relation_affine_loan_i0":
+        raise SystemExit("Cataloged source-relation I0 guard phase drifted")
+    if registration.get("status") not in {"fast_open", "landed"}:
+        raise SystemExit("Cataloged source-relation I0 status drifted")
+    if registration.get("implementation_permission") is not (registration.get("status") == "fast_open"):
+        raise SystemExit("Cataloged source-relation I0 permission/status drifted")
+    if registration.get("status") == "fast_open":
+        if active_row != "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0":
+            raise SystemExit("Cataloged source-relation I0 current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("Cataloged source-relation I0 requires fast or closeout")
+    elif active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0" and current_state.get("work_mode") not in {"closeout", "design_stop"}:
+        raise SystemExit("landed Cataloged source-relation I0 has an invalid work mode")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
@@ -266,6 +288,9 @@ if phase == "qualified_method_target_issuer_d0":
         "docs/development/current/main/CURRENT_STATE.toml",
     }
 if phase == "qualified_method_target_issuer_i0":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
+if phase == "cataloged_source_relation_affine_loan_i0":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":

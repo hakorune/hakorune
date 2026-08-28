@@ -504,6 +504,75 @@ guard_scope = "Reuse the current D1 lifecycle and exact-target guard families. T
 boxshape_stop = "Do not add semantic code to normal_callable_semantic_loan_port.rs (748 lines), builder.rs (748 lines), or module_lowering_invocation.rs (743 lines). Use an owner-specific sibling; perform a behavior-neutral split only if a touched source would reach 760 lines, with 800 as hard stop."
 non_claims = "No package+loan type, RawInvocationChildPort capability, dispatcher, target/Callee publication, argument lowering, Call emission, CatalogedTargeted deletion, Resolved recovery retirement, Method(None), Call schema, VM/backend, JSON, JoinIR, or compatibility change is authorized by D2."
 
+[cataloged_source_relation_affine_loan_i0]
+task_id = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
+execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
+status = "fast_open"
+implementation_permission = true
+guard_phase = "cataloged_source_relation_affine_loan_i0"
+parent_row = "MIR-CALL-D1B-MAIN-FREESTATIC-SAME-SESSION-PRODUCER-COSEAL-D2"
+decision = "Implement the selected App Main FreeStatic family using B-double-prime only: one live source/resolver traversal co-issues exact source/ordered-argument facts and ResolvedDirectCallTargetV1, then a private non-Clone package disposition is consumed by one scoped affine loan. Do not broaden this row to a whole trivial profile or to global resolver retirement."
+source_authority = "complete_normal_default_program_root_catalog_lifecycle_with_target and its consumed normal source own the one FunctionSemanticResolverSessionV1, caller owner, source site, ordered argument sites, and identity-based callable-index target."
+canonical_issuer = "ResolvedDirectCallTargetV1 is issued by that same resolver; VerifiedCallableIndexV1::header_for_callable supplies identity membership and ABI. Existing emission/header projection may be used only after the owned row is taken."
+non_authority = "NormalMainDirectCallPreflightV1, VerifiedTrivialDirectCallV1, value-profile analysis, name/arity/symbol parsing, raw lineage alone, Builder resolver calls, canonical-core re-entry, second traversal, retry, and fallback."
+boundary = "Selected installed App Main FreeStatic source owner -> same-session exact disposition -> package+loan -> RawInvocationChildPort exact take -> arguments -> one Call -> residual-zero; all other lineages and compatibility routes remain outside this row."
+allowed_files = [
+    "src/mir/resolved_semantics/shadow/product.rs",
+    "src/mir/resolved_semantics/shadow/expr.rs",
+    "src/mir/resolved_semantics/shadow/resolver.rs",
+    "src/mir/resolved_semantics/direct_call.rs",
+    "src/mir/resolved_semantics/direct_call_inventory_gate.rs",
+    "src/mir/resolved_semantics/owner_resolver/app_main_free_static.rs",
+    "src/mir/resolved_semantics/resolver.rs",
+    "src/mir/resolved_semantics/owner_resolver.rs",
+    "src/mir/callable_semantic_batch/issuer.rs",
+    "src/mir/normal_callable_semantic_package/issuer.rs",
+    "src/mir/normal_callable_semantic_package/model.rs",
+    "src/mir/normal_callable_semantic_package/install.rs",
+    "src/mir/builder/normal_callable_package_bridge.rs",
+    "src/mir/builder/normal_callable_semantic_loan_port/main_root.rs",
+    "src/mir/builder/recursive_child_lowering/direct_call_loan_scope.rs",
+    "src/mir/builder/calls/cataloged_direct_call.rs",
+    "src/mir/builder/calls/function_call_preflight_route.rs",
+    "src/mir/builder/calls/build.rs",
+    "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+    "src/mir/builder/program_root_lowering.rs",
+    "src/mir/resolved_semantics/*_tests.rs",
+    "src/mir/normal_callable_semantic_package/*_tests.rs",
+    "src/mir/builder/*_tests.rs",
+    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+]
+old_edge_delete_set = [
+    "selected App Main CatalogedTargeted direct Callee payload",
+    "selected package-only lowering/opening bypass",
+    "selected consumer-side resolver/target handoff",
+]
+implementation_steps = [
+    "S0 BoxShape: behavior-neutral split of resolved_semantics/resolver.rs before semantic additions; preserve module path and visibility.",
+    "I0-A: collect ordered argument sites during the existing shadow traversal, co-seal source observations with same-session target/index membership, and install only a complete private CallFree/Exact disposition.",
+    "I0-B: consume package+loan once, reborrow through the existing raw-port lifetime, take the exact row before recursive arguments, validate header ABI, emit one Call, finish_empty, and delete the selected old edges.",
+]
+acceptance = [
+    "one live resolver/session and one AST traversal issue the source facts and target; no canonical-core bridge, profile analyzer, clone, reparse, or second resolver",
+    "source-site set equals target-site set, ordered argument sites are exact, callable-index membership and same compilation brand are proven, and nested lambda owners are rejected rather than inferred",
+    "package disposition is private/non-Clone and inseparable from the loan; unknown/duplicate/foreign/missing/residual rows hard-reject before partial publish",
+    "take_once precedes recursive argument descent; outer(inner()) works without overlapping loan borrows; argument mismatch/failure aborts the candidate session with no restore/retry/fallback",
+    "actual arguments are checked against the target header after lowering and before Call; no unproved InlineI64/result/effect profile is manufactured",
+    "selected old edges have production caller count zero; unrelated CatalogedTargeted/Resolved compatibility siblings remain explicitly owned",
+    "focused positive/negative tests, existing D1 lifecycle guard, exact-target guard, rustfmt, diff check, and quick library checks are green; every touched source stays below 760 lines",
+]
+no_safe_slice = [
+    "the live source/resolver cannot issue exact target rows in the same session",
+    "ordered argument sites require a second traversal or synthetic key",
+    "actual ABI validation needs an invented representation/effect/result receipt",
+    "package-only install remains callable outside the selected consuming scope",
+    "the selected old edge cannot be deleted in the same bounded row",
+    "any change reaches Method(None), global Resolved recovery, VM/backend, JSON, JoinIR, or Call schema",
+]
+
 [worker_task_synthesis_2026_08_29]
 status = "accepted_finite_plan"
 source = [
