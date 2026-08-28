@@ -148,16 +148,19 @@ ordered_prerequisites = [
 
 [guard_phase_drift_2026_08_28]
 task_id = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0"
-status = "design_only_pending"
-implementation_permission = false
+execution_row = "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0"
+guard_phase = "main_raw_lineage_handoff_d1"
+status = "fast_open"
+implementation_permission = true
 observed_commit = "b8e7f350e7"
 decision = "The active CURRENT_STATE row is MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1, but the existing no-argument lifecycle guard has no explicit D1 branch and can select the historical R0 card guard_phase. Treat that as evidence drift, not as D1 proof."
 owner = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"
 scope = "Reuse the existing lifecycle guard family. Resolve current_execution_row to an explicit D1 design phase, read the D1 card from current_execution_design, require design_stop and implementation_permission=false, and keep target/Callee/loan/dispatcher/argument/Call changes at zero."
-allowed = [
-    "the existing lifecycle guard phase resolver",
-    "the existing guard registry row and current-state pointer checks",
-    "the D1 design card and CURRENT_STATE.toml evidence needed for routing"
+allowed_files = [
+    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml"
 ]
 forbidden = [
     "a new guard family",
