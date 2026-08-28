@@ -66,6 +66,8 @@ if not phase:
         phase = "main_root_owner_forest_validation_r0"
     elif active_row == "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0":
         phase = "main_raw_lineage_handoff_d1"
+    elif active_row == "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1":
+        phase = "main_raw_lineage_handoff_d1"
     else:
         phase = active_card.get("guard_phase")
     if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "cataloged_i0"}:
@@ -428,10 +430,16 @@ elif phase == "main_raw_cataloged_route_r0":
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"Main raw Cataloged route owner reached the 760-line split boundary: {path}")
 elif phase == "main_raw_lineage_handoff_d1":
-    if current_state.get("current_execution_row") != "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0":
-        raise SystemExit("D1 phase guard current row drifted")
-    if current_state.get("work_mode") not in {"fast", "closeout"}:
-        raise SystemExit("D1 phase guard requires fast or closeout")
+    if registration.get("status") == "fast_open":
+        if current_state.get("current_execution_row") != "MIR-CALL-D1B-LIFECYCLE-D1-PHASE-DISPATCH-GUARD-R0":
+            raise SystemExit("D1 phase guard current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("D1 phase guard requires fast or closeout")
+    else:
+        if current_state.get("current_execution_row") != "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1":
+            raise SystemExit("landed D1 phase guard must return to the D1 design row")
+        if current_state.get("work_mode") not in {"design_stop", "closeout"}:
+            raise SystemExit("landed D1 phase guard has an invalid work mode")
     if not isinstance(d1_card, dict) or d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened")
 elif phase == "main_raw_cataloged_handoff_d0":
