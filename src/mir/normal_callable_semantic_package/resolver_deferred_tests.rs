@@ -191,7 +191,7 @@ fn cataloged_nested_lambda_direct_call_observation_rejects_before_install() {
 #[test]
 fn app_main_owner_forest_relation_is_validated_before_install() {
     let source = final_source(
-        "static box Main { main() { local f = fn() { return 1 } return 0 } helper() { 2 } }",
+        "static box Main { main() { local f = fn() { return 1 } return 0 } helper(value: i64): i64 { return value } }",
     );
     let mut resolver = FunctionSemanticResolverSessionV1::new(101).unwrap();
     let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
@@ -240,45 +240,89 @@ fn app_main_owner_forest_relation_is_validated_before_install() {
 }
 
 #[test]
-fn app_main_direct_call_observation_rejects_before_install() {
-    let source =
-        final_source("static box Main { main() { return helper() } helper() { return 2 } }");
+fn app_main_direct_call_observation_issues_one_affine_loan() {
+    let source = final_source(
+        "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }",
+    );
     let mut resolver = FunctionSemanticResolverSessionV1::new(102).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("exact App Main direct-call package");
+    assert!(package.has_app_main_direct_call_loan());
+}
+
+#[test]
+fn app_main_direct_call_wrong_arity_rejects_before_install() {
+    let source = final_source(
+        "static box Main { main() { return helper() } helper(value: i64): i64 { return value } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(105).unwrap();
     let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
-        other => panic!("expected App Main direct-call terminal, got {other:?}"),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => reject,
+        other => panic!("expected wrong-arity App Main direct-call terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::AppMainDirectCall(
+            crate::mir::resolved_semantics::AppMainFreeStaticResolverIssueV1::ArityMismatch
+        ))
+    ));
+}
+
+#[test]
+fn app_main_non_freestatic_direct_call_rejects_before_install() {
+    let source =
+        final_source("static box Main { main() { return helper() } helper() { return 1 } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(106).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => reject,
+        other => panic!("expected unsupported App Main direct-call terminal, got {other:?}"),
+    };
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::AppMainDirectCall(
+            crate::mir::resolved_semantics::AppMainFreeStaticResolverIssueV1::TargetMissing
+        ))
+    ));
 }
 
 #[test]
 fn app_main_nested_direct_call_observation_rejects_before_install() {
     let source = final_source(
-        "static box Main { main() { local f = fn() { return helper() } return 0 } helper() { return 2 } }",
+        "static box Main { main() { local f = fn() { return helper(2) } return 0 } helper(value: i64): i64 { return value } }",
     );
     let mut resolver = FunctionSemanticResolverSessionV1::new(103).unwrap();
-    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+    let _reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => assert!(matches!(
+            reject.error(),
+            ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::AppMainDirectCall(
+                crate::mir::resolved_semantics::AppMainFreeStaticResolverIssueV1::NestedOwnerObservation
+            ))
+        )),
         other => panic!("expected nested App Main direct-call terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
 }
 
 #[test]
 fn app_main_root_and_nested_direct_call_observations_reject_before_install() {
     let source = final_source(
-        "static box Main { main() { local f = fn() { return helper() } return helper() } helper() { return 2 } }",
+        "static box Main { main() { local f = fn() { return helper(2) } return helper(2) } helper(value: i64): i64 { return value } }",
     );
     let mut resolver = FunctionSemanticResolverSessionV1::new(104).unwrap();
-    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+    let _reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
         Err(NormalCallableSemanticPackageIssueV1::Batch {
-            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
-        }) => (),
+            _error: ResolvedCallableSemanticBatchIssueV1::Resolver(reject),
+        }) => assert!(matches!(
+            reject.error(),
+            ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::AppMainDirectCall(
+                crate::mir::resolved_semantics::AppMainFreeStaticResolverIssueV1::NestedOwnerObservation
+            ))
+        )),
         other => panic!("expected mixed App Main direct-call terminal, got {other:?}"),
     };
-    assert_eq!(reject, ());
 }

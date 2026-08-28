@@ -4,7 +4,8 @@
 //! It does not descend children or mutate the Builder while selecting a route.
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
+    drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    RawFunctionHeaderLookupPortV1,
 };
 use super::super::{EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
@@ -47,6 +48,7 @@ enum PreparedRawFunctionPreflightRouteV1 {
 #[derive(Clone, Copy)]
 enum PreparedRawNonBrandRouteOriginV1 {
     InstalledNonBrand,
+    InstalledAppMain,
     RelationlessCompatibility,
 }
 
@@ -59,6 +61,12 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     },
     CatalogedTargeted {
         callee: Callee,
+        arguments: Vec<ASTNode>,
+    },
+    /// The exact App Main target is carried by the raw port's affine loan.
+    /// Keeping only syntax here prevents this preflight enum from becoming a
+    /// second target authority.
+    AppMainTargeted {
         arguments: Vec<ASTNode>,
     },
     Rejected {
@@ -160,6 +168,13 @@ impl PreparedRawFunctionPreflightV1 {
                     PreparedRawNonBrandRouteOriginV1::InstalledNonBrand,
                 )
             }
+            super::RawBrandCallAuthorityV1::InstalledAppMain => prepare_non_brand_route(
+                builder,
+                &name,
+                arguments,
+                None,
+                PreparedRawNonBrandRouteOriginV1::InstalledAppMain,
+            ),
             super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
                 if builder.comp_ctx.is_brand_declared(&name) {
                     PreparedRawFunctionPreflightRouteV1::Brand(
@@ -251,6 +266,8 @@ fn prepare_ordinary_function_completion_v1(
                 .next()
                 .expect("exact str/1 route must retain one argument"),
         }
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledAppMain) {
+        PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments }
     } else if let Some(caller) = caller {
         match prepare_cataloged_target_v1(builder, caller, name, arguments.len()) {
             Ok(callee) => {
@@ -423,7 +440,9 @@ pub(in crate::mir::builder) fn lower_prepared_raw_function_preflight_with_port_v
     prepared: PreparedRawFunctionPreflightV1,
 ) -> Result<ValueId, String>
 where
-    Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
+    Port: RawAstChildLoweringPortV1
+        + RawFunctionHeaderLookupPortV1
+        + AppMainDirectCallDispositionPortV1,
 {
     replay_function_call_trace(builder, &prepared.name);
     match prepared.route {

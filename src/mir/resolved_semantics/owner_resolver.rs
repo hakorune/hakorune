@@ -16,8 +16,9 @@ use super::owner_forest::{
 };
 use super::owner_forest_payload::VerifiedSemanticOwnerProductV1;
 use super::resolver::{
-    AncestorBindingV1, DirectCallCanonicalizationPolicyV1, FunctionSemanticResolverSessionV1,
-    ResolveFunctionErrorV1, SealedOwnerConstructionV1, SealedScriptConstructionV1,
+    AncestorBindingV1, AppMainFreeStaticResolverIssueV1, DirectCallCanonicalizationPolicyV1,
+    FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, SealedOwnerConstructionV1,
+    SealedScriptConstructionV1,
 };
 use super::script_view::ScriptSyntaxViewV1;
 use super::selected_callable_deferred::{
@@ -31,6 +32,9 @@ use super::{
     RecordSchemaDemandV1, ScriptResolverDeferredV1, SourceResolverDeferredV1,
     VerifiedScriptRootDemandWindowV1,
 };
+
+#[path = "owner_resolver_app_main.rs"]
+mod app_main;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolveOwnerForestErrorV1 {
@@ -64,6 +68,21 @@ pub(crate) enum ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1
     Complete {
         forests: Box<[VerifiedSemanticOwnerForestV1]>,
         body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    },
+    Deferred(SelectedCallableResolverDeferredBatchV1),
+}
+
+/// Source-bound owner forests plus the callable index issued by the same
+/// resolver session.  The index is deliberately optional: only an exact
+/// source-backed root (currently App Main) may request it.  This keeps the
+/// generic selected-callable path observer-only while giving the bounded I0
+/// one co-issued target authority.
+#[derive(Debug)]
+pub(crate) enum ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1 {
+    Complete {
+        forests: Box<[VerifiedSemanticOwnerForestV1]>,
+        body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+        callable_index: Option<VerifiedCallableIndexV1>,
     },
     Deferred(SelectedCallableResolverDeferredBatchV1),
 }
@@ -522,6 +541,14 @@ impl FunctionSemanticResolverSessionV1 {
                     ancestor_bindings,
                     index,
                 ),
+            (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndexAtRoot) => self
+                .seal_owner_with_ancestors_and_callable_index(
+                    owner,
+                    origin,
+                    function,
+                    ancestor_bindings,
+                    index,
+                ),
             (None, policy) => self.seal_owner_with_ancestors_and_direct_call_policy(
                 owner,
                 origin,
@@ -555,6 +582,18 @@ impl FunctionSemanticResolverSessionV1 {
             })
             .collect::<Vec<_>>();
 
+        // A callable index is scoped to the selected root.  Nested owners
+        // never inherit it: they stay explicitly unindexed and therefore
+        // reject direct-call publication before any child effects.
+        let (child_callable_index, child_direct_call_policy) = if matches!(
+            direct_call_policy,
+            DirectCallCanonicalizationPolicyV1::RequireCallableIndexAtRoot
+        ) {
+            (None, DirectCallCanonicalizationPolicyV1::RejectUnindexed)
+        } else {
+            (callable_index, direct_call_policy)
+        };
+
         if let Some(parent) = parent {
             draft
                 .insert_parent(
@@ -580,8 +619,8 @@ impl FunctionSemanticResolverSessionV1 {
                 &child_bindings,
                 Some(child_parent),
                 None,
-                callable_index,
-                direct_call_policy,
+                child_callable_index,
+                child_direct_call_policy,
                 draft,
                 body_shapes.as_deref_mut(),
             )?;

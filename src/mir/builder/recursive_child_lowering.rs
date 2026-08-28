@@ -1,7 +1,10 @@
-//! Behavior-neutral recursive child-lowering port.
-//! This module owns the typed body, statement, and expression entry boundary.
-//! It owns no source navigation, callable-result plan, location, ledger,
-//! MethodCall route, or result-publication policy.
+//! Recursive child-lowering capability carriers.
+//!
+//! The raw invocation carrier owns one invocation-local borrow of the module
+//! lowering state and forwards source, ledger, route, and cleanup capabilities
+//! into shorter recursive frames. It is not a semantic issuer: it does not
+//! invent source identity, targets, or fallback policy. The small legacy port
+//! below remains a separate compatibility facade.
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::resolved_semantics::{ScriptResolverDeferredV1, SourceNodeSiteV1};
 use crate::mir::{MirBuilder, ValueId};
@@ -46,7 +49,7 @@ pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
-    RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
@@ -74,6 +77,9 @@ pub(in crate::mir::builder) enum RawNestedMainFateV1 {
 }
 
 pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
+    /// These two finite fate queries are the complete route-policy surface of
+    /// this legacy port. Future retirements use an owner-specific caller
+    /// switch or capability instead of adding more policy methods here.
     fn take_runtime_box_fate_v1(&mut self) -> Result<RawRuntimeBoxFateDispositionV1, String> {
         Ok(RawRuntimeBoxFateDispositionV1::Continue)
     }
@@ -199,9 +205,10 @@ where
 ///
 /// Ordinary root lowering now uses this carrier for body, statement, and
 /// expression descent while callable drafts accumulate in one invocation-local
-/// collector. It owns neither a Builder, collector, header view, AST cache, nor
-/// child-terminal authority; all it can do is reborrow the exact invocation
-/// port for a shorter recursive frame.
+/// collector. It owns neither a Builder, collector, header view, nor AST cache.
+/// It does carry finite route capabilities borrowed from their existing owners
+/// (for example the selected App Main direct-call loan and runtime-box fate),
+/// and only reborrows those capabilities for a shorter recursive frame.
 ///
 /// Keeping this wrapper separate from `RawLegacyChildLoweringPortV1` makes the
 /// collector-backed production route and the direct compatibility facade
@@ -224,6 +231,12 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// function session and cannot outlive the root callback.
     pub(in crate::mir::builder) callable_loop_root_scope:
         Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
+    /// Exact App Main direct-call dispositions borrowed from the installed
+    /// package for this invocation only.  Children receive a short reborrow;
+    /// no clone or second inventory is created.
+    pub(in crate::mir::builder) direct_call_loan: Option<
+        &'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1,
+    >,
     pub(in crate::mir::builder) runtime_box_fate: RuntimeBoxFateScopeV1<'port>,
     pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
@@ -261,10 +274,38 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         )
     }
 
+    pub(in crate::mir::builder) fn new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan(
+        module_port: &'port mut ModuleLoweringPortV1<'collector>,
+        cleanup_exit_policy: CleanupExitPolicyV1,
+        callable_loop_root_scope: &'port mut super::UnpublishedCallableLoopRootScopeV1,
+        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1>,
+    ) -> Self {
+        Self::new_with_optional_callable_loop_root_scope_and_direct_call_loan(
+            module_port,
+            cleanup_exit_policy,
+            Some(callable_loop_root_scope),
+            direct_call_loan,
+        )
+    }
+
     fn new_with_optional_callable_loop_root_scope(
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
         callable_loop_root_scope: Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
+    ) -> Self {
+        Self::new_with_optional_callable_loop_root_scope_and_direct_call_loan(
+            module_port,
+            cleanup_exit_policy,
+            callable_loop_root_scope,
+            None,
+        )
+    }
+
+    fn new_with_optional_callable_loop_root_scope_and_direct_call_loan(
+        module_port: &'port mut ModuleLoweringPortV1<'collector>,
+        cleanup_exit_policy: CleanupExitPolicyV1,
+        callable_loop_root_scope: Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
+        direct_call_loan: Option<&'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1>,
     ) -> Self {
         Self {
             module_port,
@@ -275,6 +316,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
+            direct_call_loan,
             runtime_box_fate: RuntimeBoxFateScopeV1::Unarmed,
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
@@ -295,6 +337,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
+            direct_call_loan: self.direct_call_loan.as_deref_mut(),
             runtime_box_fate: self.runtime_box_fate.reborrow(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
@@ -566,6 +609,78 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?
         };
         Ok(pending)
+    }
+
+    pub(in crate::mir::builder) fn is_app_main_direct_call_scope_v1(&self) -> bool {
+        let Some(loan) = self.direct_call_loan.as_deref() else {
+            return false;
+        };
+        let Some(owner) = self.callable_owner_v1() else {
+            return false;
+        };
+        let Some(super::raw_invocation_source_transport::RawInvocationSourceContextV1::Located {
+            root: super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(_),
+            ..
+        }) = self.active_source.as_ref()
+        else {
+            return false;
+        };
+        owner == loan.owner()
+    }
+
+    fn take_app_main_direct_call_disposition_inner_v1(
+        &mut self,
+    ) -> Result<
+        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        String,
+    > {
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][app-main-direct-call/owner-missing]".to_owned())?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][app-main-direct-call/site-missing]".to_owned())?;
+        let loan = self
+            .direct_call_loan
+            .as_deref_mut()
+            .ok_or_else(|| "[freeze:contract][app-main-direct-call/loan-unavailable]".to_owned())?;
+        loan.take_once(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        )
+        .map_err(|error| format!("[freeze:contract][app-main-direct-call/{error:?}]"))
+    }
+}
+
+impl AppMainDirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn take_app_main_direct_call_disposition_v1(
+        &mut self,
+    ) -> Result<
+        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        String,
+    > {
+        if !self.is_app_main_direct_call_scope_v1() {
+            return Err("[freeze:contract][app-main-direct-call/scope-mismatch]".to_owned());
+        }
+        self.take_app_main_direct_call_disposition_inner_v1()
+    }
+
+    fn validate_current_call_argument_site_v1(
+        &self,
+        expected: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<(), String> {
+        let actual = self
+            .current_source_site_v1()
+            .map(crate::mir::resolved_semantics::SourceExprSiteV1::from_node)
+            .ok_or_else(|| {
+                "[freeze:contract][app-main-direct-call/argument-site-missing]".to_owned()
+            })?;
+        if &actual != expected {
+            return Err(
+                "[freeze:contract][app-main-direct-call/argument-site-mismatch]".to_owned(),
+            );
+        }
+        Ok(())
     }
 }
 

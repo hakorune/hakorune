@@ -19,7 +19,9 @@
 // Existing modules (already implemented elsewhere)
 pub mod annotation;
 mod call_argument_descent;
-pub(in crate::mir::builder) use call_argument_descent::drive_call_arguments_v1;
+pub(in crate::mir::builder) use call_argument_descent::{
+    drive_call_arguments_v1, drive_call_arguments_with_expected_sites_v1,
+};
 #[cfg(test)]
 mod call_argument_descent_tests;
 pub mod call_target;

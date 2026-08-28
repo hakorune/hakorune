@@ -13,6 +13,7 @@ use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
 };
 use crate::mir::callable_semantic_batch::{
+    issue_resolved_callable_semantic_batch_with_main_freestatic_targets_v1,
     issue_resolved_callable_semantic_batch_with_policy_v1, DirectCallObservationBatchPolicyV1,
     ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchIssueV1,
     ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
@@ -27,15 +28,18 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicInvocationCleanupProjectionRejectV1,
 };
-use crate::mir::resolved_semantics::{
-    forest_has_unissued_direct_call_observation_v1, FunctionSemanticResolverSessionV1,
-    ReceiverPolicyV1,
-};
+use crate::mir::resolved_semantics::{CallableLookupErrorV1, FunctionSemanticResolverSessionV1};
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
 
+#[path = "app_main_relation.rs"]
+mod app_main_relation;
+
 use super::completion_seed::issue_callable_completion_seed_cohort_v1;
+use super::direct_call_loan::{
+    AppMainDirectCallDispositionLoanV1, AppMainDirectCallDispositionRowV1,
+};
 use super::dynamic_admission::{
     admit_dynamic_callable_v1, issue_dynamic_parameter_contract_v2,
     DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
@@ -60,6 +64,24 @@ use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
     VerifiedSelectedCallableBatchMapV1,
 };
+
+/// Typed failure boundary for the selected App Main direct-call handoff.
+/// Every cause remains observable; none is collapsed into `()` or a generic
+/// package batch rejection before the affine loan is issued.
+#[derive(Debug)]
+pub(crate) enum AppMainDirectCallDispositionIssueV1 {
+    SourceCoverage,
+    NestedOwnerObservation,
+    TargetMissing,
+    HeaderLookup(CallableLookupErrorV1),
+    TargetOwnerMismatch,
+    CompilationBrandMismatch,
+    TargetNameMismatch,
+    ArityMismatch,
+    ArgumentSiteMismatch,
+    BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
+    Loan(super::direct_call_loan::AppMainDirectCallLoanErrorV1),
+}
 
 /// Validate the expected Cataloged owner/site/provenance relation without
 /// issuing a target.  Actual raw lineage remains a later Builder boundary.
@@ -190,89 +212,95 @@ fn validate_cataloged_source_co_seal_v1(
     Ok(observed)
 }
 
-/// Validate the retained App/Main identity against the exact semantic batch
-/// and its complete owner forest before package-side parameter/install work.
-/// This is deliberately provenance-only: it does not construct a raw lineage,
-/// target, loan, or MIR instruction.
-fn validate_app_main_root_owner_relation_v1(
-    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+/// Move the exact App Main direct-call products into a private package loan.
+///
+/// The resolver has already co-issued the source observations and the
+/// callable index.  This helper only joins those existing products by their
+/// owner/site relation; it never resolves a name or emits a new target.
+fn issue_app_main_direct_call_loan_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-) -> Result<(), ResolvedCallableSemanticBatchIssueV1> {
-    let declaration_catalog = catalog.catalog();
-    let Some(app_main) = declaration_catalog.source_backed_app_main() else {
-        return Ok(());
+    app_main_identity: &crate::parser::CallableDeclarationIdentityV1,
+) -> Result<Option<AppMainDirectCallDispositionLoanV1>, AppMainDirectCallDispositionIssueV1> {
+    let Some((main_slot, callable_index)) = batch.main_callable_index() else {
+        return Ok(None);
     };
-    if !declaration_catalog
-        .brand()
-        .is_same(app_main.catalog_brand())
-        || app_main.catalog_key().namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
-    {
-        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
-    }
-    let Some(catalog_declaration) = declaration_catalog.declaration(app_main.catalog_key()) else {
-        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
-    };
-    let expected_arity = u32::try_from(catalog_declaration.params().len())
-        .map_err(|_| ResolvedCallableSemanticBatchIssueV1::ParameterCountOverflow)?;
-    if app_main.catalog_key().arity() != expected_arity {
-        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
-    }
-
     let mut declarations = batch
         .declarations()
-        .filter(|declaration| declaration.identity().same_as(app_main.parser_identity()));
-    let Some(declaration) = declarations.next() else {
-        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        .filter(|declaration| declaration.identity().same_as(app_main_identity));
+    let Some(main) = declarations.next() else {
+        return Err(AppMainDirectCallDispositionIssueV1::SourceCoverage);
     };
     if declarations.next().is_some()
-        || declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
-        || declaration.parameter_count() != expected_arity
+        || main.batch_slot() != main_slot
+        || main.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
     {
-        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        return Err(AppMainDirectCallDispositionIssueV1::SourceCoverage);
     }
-
-    let owner = declaration.owner();
-    let coherent = batch
-        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
-            if !identity.identity().same_as(app_main.parser_identity())
-                || identity.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
-                || identity.owner() != owner
-                || input.owner() != owner
-            {
-                return false;
-            }
-            let forest = input.forest();
-            if forest_has_unissued_direct_call_observation_v1(forest) {
-                return false;
-            }
-            if forest.roots() != std::slice::from_ref(&owner) {
-                return false;
-            }
-            let Some(root) = forest.owner(owner) else {
-                return false;
+    let owner = main.owner();
+    let mut rows = Vec::new();
+    batch
+        .with_lowering_input(main_slot, |input| {
+            let [root] = input.forest().roots() else {
+                return Err(AppMainDirectCallDispositionIssueV1::SourceCoverage);
             };
-            if root.owner() != owner
-                || root.function_origin() != declaration.function_origin()
-                || root.source_site_inventory().owner() != owner
-                || root.source_site_inventory().function_origin() != root.function_origin()
-                || root.root_profile().receiver_policy() != ReceiverPolicyV1::StaticCurrentOwner
-            {
-                return false;
+            if *root != owner {
+                return Err(AppMainDirectCallDispositionIssueV1::SourceCoverage);
             }
-            let compilation = owner.compilation_brand();
-            forest.owners().all(|(candidate, function)| {
-                candidate.compilation_brand() == compilation
-                    && function.owner() == candidate
-                    && function.source_site_inventory().owner() == candidate
-                    && function.source_site_inventory().function_origin()
-                        == function.function_origin()
-            })
+            for (candidate, function) in input.forest().owners() {
+                if candidate != owner {
+                    if function.direct_call_observations().next().is_some() {
+                        return Err(
+                            AppMainDirectCallDispositionIssueV1::NestedOwnerObservation,
+                        );
+                    }
+                    continue;
+                }
+                for (site, observation) in function.direct_call_observations() {
+                    let target = function
+                        .direct_call_target(site)
+                        .ok_or(AppMainDirectCallDispositionIssueV1::TargetMissing)?;
+                    let header = callable_index
+                        .header_for_callable(target.callable())
+                        .map_err(AppMainDirectCallDispositionIssueV1::HeaderLookup)?;
+                    if header.callable().owner() != target.callable().owner() {
+                        return Err(AppMainDirectCallDispositionIssueV1::TargetOwnerMismatch);
+                    }
+                    if header.callable().owner().compilation_brand()
+                        != owner.compilation_brand()
+                    {
+                        return Err(
+                            AppMainDirectCallDispositionIssueV1::CompilationBrandMismatch,
+                        );
+                    }
+                    if header.source_key().name() != observation.name() {
+                        return Err(AppMainDirectCallDispositionIssueV1::TargetNameMismatch);
+                    }
+                    if header.signature().arity() != observation.arity() as usize {
+                        return Err(AppMainDirectCallDispositionIssueV1::ArityMismatch);
+                    }
+                    if header.signature().arity() != observation.argument_sites().len() {
+                        return Err(AppMainDirectCallDispositionIssueV1::ArgumentSiteMismatch);
+                    }
+                    let emission =
+                        crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(header);
+                    rows.push((
+                        site.clone(),
+                        AppMainDirectCallDispositionRowV1::new(
+                            observation.argument_sites().to_vec().into_boxed_slice(),
+                            emission,
+                        ),
+                    ));
+                }
+            }
+            Ok(())
         })
-        .map_err(|_| ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?;
-    if !coherent {
-        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+        .map_err(AppMainDirectCallDispositionIssueV1::BatchLoan)??;
+    if rows.is_empty() {
+        return Ok(None);
     }
-    Ok(())
+    AppMainDirectCallDispositionLoanV1::from_rows(owner, rows)
+        .map(Some)
+        .map_err(AppMainDirectCallDispositionIssueV1::Loan)
 }
 
 #[derive(Debug)]
@@ -308,6 +336,12 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     },
     BatchLoan {
         _error: ResolvedCallableSemanticBatchLoanErrorV1,
+    },
+    AppMainDirectCall {
+        _error: AppMainDirectCallDispositionIssueV1,
+    },
+    AppMainRoot {
+        _error: app_main_relation::AppMainRootRelationIssueV1,
     },
     Dynamic {
         _batch_slot: u32,
@@ -368,15 +402,29 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         issue_source_backed_same_module_callable_catalog_v1(&source).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error }
         })?;
+    let app_main_identity = catalog
+        .catalog()
+        .source_backed_app_main()
+        .map(|main| main.parser_identity().clone());
     let (batch, root_execution) = source
         .consume_into_semantic_package(|source, root_execution| {
-            issue_resolved_callable_semantic_batch_with_policy_v1(
-                resolver,
-                source,
-                brand_catalog,
-                DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
-            )
-            .map(|batch| (batch, root_execution))
+            let batch = match app_main_identity.as_ref() {
+                Some(identity) => {
+                    issue_resolved_callable_semantic_batch_with_main_freestatic_targets_v1(
+                        resolver,
+                        source,
+                        brand_catalog,
+                        identity,
+                    )
+                }
+                None => issue_resolved_callable_semantic_batch_with_policy_v1(
+                    resolver,
+                    source,
+                    brand_catalog,
+                    DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
+                ),
+            }?;
+            Ok((batch, root_execution))
         })
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
@@ -388,8 +436,16 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
         });
     }
-    validate_app_main_root_owner_relation_v1(&catalog, &batch)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
+    app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
+    let app_main_direct_call_loan = match app_main_identity.as_ref() {
+        Some(identity) => {
+            issue_app_main_direct_call_loan_v1(&batch, identity).map_err(|error| {
+                NormalCallableSemanticPackageIssueV1::AppMainDirectCall { _error: error }
+            })?
+        }
+        None => None,
+    };
     let parameter_contracts = {
         let catalog = issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }
@@ -573,6 +629,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
         batch,
+        app_main_direct_call_loan,
         ordinary_new_claims,
         instance_constructors,
         selected,

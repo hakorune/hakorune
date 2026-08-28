@@ -36,6 +36,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
+    pub(super) app_main_direct_call_loan:
+        Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
     pub(super) ordinary_new_claims: Box<[super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1]>,
     pub(super) instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
@@ -118,6 +120,11 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     #[cfg(test)]
     pub(crate) fn batch(&self) -> &VerifiedResolvedCallableSemanticBatchV1 {
         &self.batch
+    }
+
+    #[cfg(test)]
+    pub(crate) fn has_app_main_direct_call_loan(&self) -> bool {
+        self.app_main_direct_call_loan.is_some()
     }
 
     pub(crate) fn selected_callable_sources(

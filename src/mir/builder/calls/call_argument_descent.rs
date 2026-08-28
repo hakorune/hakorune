@@ -11,9 +11,10 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
+use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 pub(in crate::mir::builder) trait CallArgumentDescentPortV1:
     RecursiveChildLoweringPortV1
@@ -53,6 +54,43 @@ where
     for index in 0..port.argument_count(input) {
         preflight_record_value_argument(builder, port, input, index)?;
         let value = port.with_call_argument_source_v1(index, |port| {
+            let expression_input = port.argument_expression_input(input, index)?;
+            drive_legacy_expression_v1(builder, port, expression_input)
+        })?;
+        observe_undefined_argument_value(builder, port, input, index, value);
+        values.push(value);
+    }
+    Ok(values)
+}
+
+/// App Main's exact direct-call consumer uses the same ordered argument
+/// descent, with one additional check that the raw argument scope matches the
+/// source sites sealed by the producer.  No second AST walk or target lookup
+/// is introduced here.
+pub(in crate::mir::builder) fn drive_call_arguments_with_expected_sites_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    input: &Port::ArgumentsInput,
+    expected_sites: &[SourceExprSiteV1],
+) -> Result<Vec<ValueId>, String>
+where
+    Port: CallArgumentDescentPortV1 + AppMainDirectCallDispositionPortV1,
+{
+    validate_argument_inputs(port, input)?;
+    if port.argument_count(input) != expected_sites.len() {
+        return Err(format!(
+            "[freeze:contract][app-main-direct-call/argument-site-cardinality] expected={} actual={}",
+            expected_sites.len(),
+            port.argument_count(input)
+        ));
+    }
+    enforce_moved_same_call_args_contract(port, input)?;
+
+    let mut values = Vec::with_capacity(port.argument_count(input));
+    for (index, expected_site) in expected_sites.iter().enumerate() {
+        preflight_record_value_argument(builder, port, input, index)?;
+        let value = port.with_call_argument_source_v1(index, |port| {
+            port.validate_current_call_argument_site_v1(expected_site)?;
             let expression_input = port.argument_expression_input(input, index)?;
             drive_legacy_expression_v1(builder, port, expression_input)
         })?;

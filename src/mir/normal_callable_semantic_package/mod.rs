@@ -6,6 +6,7 @@
 //! consumption, physical ABI, or fallback route.
 
 mod completion_seed;
+mod direct_call_loan;
 mod dynamic_admission;
 mod install;
 mod instance_constructor_loan;
@@ -50,6 +51,9 @@ mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
 
+pub(crate) use direct_call_loan::{
+    AppMainDirectCallDispositionLoanV1, AppMainDirectCallDispositionRowV1,
+};
 pub(in crate::mir) use install::SelectedCallableSemanticRefV1;
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,

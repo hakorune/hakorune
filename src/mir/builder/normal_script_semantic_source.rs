@@ -147,7 +147,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         &self.continuation
     }
 
-    pub(super) fn source(&self) -> &crate::ast::ASTNode {
+    pub(super) fn source(&self) -> &'source crate::ast::ASTNode {
         self.core.source()
     }
 

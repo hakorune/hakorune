@@ -64,6 +64,25 @@ pub(crate) enum ResolveFunctionErrorV1 {
     Verification(ResolvedFunctionVerificationErrorV1),
     CallableLookup(CallableLookupErrorV1),
     BrandSourceRelation(BrandCallSourceRelationSealErrorV1),
+    AppMainDirectCall(AppMainFreeStaticResolverIssueV1),
+}
+
+/// Typed failures for the bounded App Main FreeStatic co-issue.  These stay
+/// in the resolver layer so the source forest can reject an incomplete or
+/// mismatched relation without collapsing the cause into `()` or a string.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum AppMainFreeStaticResolverIssueV1 {
+    RootCount,
+    RootOwnerMismatch,
+    NestedOwnerObservation,
+    TargetMissing,
+    HeaderMissing,
+    HeaderSeal,
+    IndexSeal,
+    OwnerMismatch,
+    CompilationBrandMismatch,
+    ArityMismatch,
+    ArgumentSiteMismatch,
 }
 
 /// One resolver session per compilation input.
@@ -102,6 +121,10 @@ pub(super) struct AncestorBindingV1 {
 pub(super) enum DirectCallCanonicalizationPolicyV1 {
     ObserveOnly,
     RequireCallableIndex,
+    /// Resolve direct calls only for the current root; nested owners remain
+    /// explicitly unindexed so a root relation cannot be inherited by a
+    /// lambda or another recursive owner.
+    RequireCallableIndexAtRoot,
     RejectUnindexed,
 }
 

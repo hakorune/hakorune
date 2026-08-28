@@ -21,6 +21,10 @@ use super::super::brand_constructor_lowering_projection::ProjectedBrandConstruct
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawBrandCallAuthorityV1 {
     RelationlessCompatibility,
+    /// The raw call is inside the exact installed App Main owner scope.  The
+    /// target itself remains in the package loan; this variant carries no
+    /// name/arity or physical symbol and therefore cannot become a resolver.
+    InstalledAppMain,
     InstalledNonBrand {
         caller: Option<CanonicalSameModuleCallableKeyV1>,
     },
@@ -88,6 +92,9 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             .take_brand_constructor(&site)
             .map_err(|error| format!("[freeze:contract][callable-brand/{error:?}]"))?;
         let Some(row) = row else {
+            if self.is_app_main_direct_call_scope_v1() {
+                return Ok(RawBrandCallAuthorityV1::InstalledAppMain);
+            }
             return Ok(RawBrandCallAuthorityV1::InstalledNonBrand { caller });
         };
         validate_constructor_call(&context, &site, call, name, arguments, &row)?;

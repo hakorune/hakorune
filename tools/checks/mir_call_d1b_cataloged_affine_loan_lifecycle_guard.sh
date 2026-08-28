@@ -951,6 +951,114 @@ elif phase == "qualified_method_target_issuer_i0":
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"qualified MethodCall I0 owner reached the 760-line split boundary: {path}")
 
+elif phase == "cataloged_source_relation_affine_loan_i0":
+    # This is the selected implementation slice, not the future whole
+    # Cataloged cutover.  It must prove that the new App Main inventory is
+    # typed, affine, and actually consumed by the live raw dispatcher.
+    loan_path = mir_root / "normal_callable_semantic_package/direct_call_loan.rs"
+    issuer_path = mir_root / "normal_callable_semantic_package/issuer.rs"
+    install_path = mir_root / "normal_callable_semantic_package/install.rs"
+    lowering_port_path = mir_root / "normal_callable_semantic_package/install/lowering_port.rs"
+    bridge_path = mir_root / "builder/normal_callable_package_bridge.rs"
+    root_lowering_path = mir_root / "builder/program_root_lowering.rs"
+    raw_port_path = mir_root / "builder/recursive_child_lowering.rs"
+    call_build_path = mir_root / "builder/calls/build.rs"
+    package_tests_path = mir_root / "normal_callable_semantic_package/resolver_deferred_tests.rs"
+    owner_resolver_app_main_path = mir_root / "resolved_semantics/owner_resolver_app_main.rs"
+    lifecycle_tests_path = mir_root / "builder/normal_default_root_catalog_lifecycle_tests.rs"
+    loan = loan_path.read_text()
+    issuer = issuer_path.read_text()
+    install = install_path.read_text()
+    lowering_port = lowering_port_path.read_text()
+    bridge = bridge_path.read_text()
+    root_lowering = root_lowering_path.read_text()
+    raw_port = raw_port_path.read_text()
+    call_build = call_build_path.read_text()
+    package_tests = package_tests_path.read_text()
+    app_main_resolver = owner_resolver_app_main_path.read_text()
+    lifecycle_tests = lifecycle_tests_path.read_text()
+
+    if "#[must_use]" not in loan or "struct AppMainDirectCallDispositionLoanV1" not in loan:
+        raise SystemExit("App Main direct-call loan is not must_use")
+    loan_decl = loan[loan.find("struct AppMainDirectCallDispositionLoanV1"):]
+    if "#[derive(Clone" in loan_decl or "#[derive(Copy" in loan_decl:
+        raise SystemExit("App Main direct-call loan must remain move-only")
+    for token in ("fn take_once(", "fn finish_empty(self)", "DuplicateSite", "SiteAlreadyTaken", "ResidualRows"):
+        if token not in loan:
+            raise SystemExit(f"affine loan contract is missing {token}")
+
+    # Every relevant producer failure remains named; no unit error or silent
+    # Ok-pattern is allowed in the selected package/owner implementation.
+    selected_text = "\n".join(
+        (issuer, loan, bridge, root_lowering, raw_port, call_build, app_main_resolver)
+    )
+    for token in (
+        "AppMainDirectCallDispositionIssueV1",
+        "NestedOwnerObservation",
+        "TargetMissing",
+        "HeaderLookup",
+        "TargetNameMismatch",
+        "ArgumentSiteMismatch",
+        "BatchLoan",
+        "Loan(",
+        "AppMainRootRelationIssueV1",
+    ):
+        if token not in issuer:
+            raise SystemExit(f"typed App Main direct-call failure is missing {token}")
+    if "Result<(), ()>" in selected_text or "if let Ok" in selected_text:
+        raise SystemExit("selected direct-call implementation contains collapsed/silent success handling")
+
+    # A loan that is merely transported is not evidence.  The live path must
+    # take it before argument descent and finish the same owned inventory.
+    for token in (
+        "take_app_main_direct_call_loan",
+        "RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan",
+        "take_app_main_direct_call_disposition_v1",
+        "take_once(",
+        "finish_empty()",
+    ):
+        if token not in (bridge + root_lowering + raw_port + call_build):
+            raise SystemExit(f"live direct-call loan consumer is missing {token}")
+    take = call_build.find("take_app_main_direct_call_disposition_v1")
+    args = call_build.find("drive_call_arguments_with_expected_sites_v1", take)
+    emit = call_build.find("emit_instruction", args)
+    if min(take, args, emit) < 0 or not (take < args < emit):
+        raise SystemExit("App Main direct-call consumer order is not take -> arguments -> emit")
+    if "DirectCallLoanNotConsumed" not in install or "DirectCallLoanNotConsumed" not in lowering_port:
+        raise SystemExit("package-only direct-call loan drop is not fail-closed")
+
+    # The selected source relation is forest-wide and its negative witnesses
+    # must be executable, not just named in the card.
+    for test_name in (
+        "app_main_direct_call_observation_issues_one_affine_loan",
+        "app_main_direct_call_wrong_arity_rejects_before_install",
+        "app_main_non_freestatic_direct_call_rejects_before_install",
+        "app_main_nested_direct_call_observation_rejects_before_install",
+        "app_main_root_and_nested_direct_call_observations_reject_before_install",
+    ):
+        if test_name not in package_tests:
+            raise SystemExit(f"App Main source-relation test is missing: {test_name}")
+    if "source_backed_app_main_direct_call_consumes_affine_loan" not in lifecycle_tests:
+        raise SystemExit("App Main raw-consumer positive test is missing")
+    if "OutsideExactProfile" not in app_main_resolver:
+        raise SystemExit("App Main resolver must name the out-of-profile header state")
+    for test_name in (
+        "take_once_rejects_second_take_and_finishes_empty",
+        "take_once_rejects_foreign_owner_without_consuming_row",
+        "finish_empty_rejects_residual_rows",
+        "from_rows_rejects_duplicate_sites",
+    ):
+        if test_name not in loan:
+            raise SystemExit(f"affine loan negative test is missing: {test_name}")
+
+    for path in (loan_path, issuer_path, root_lowering_path, raw_port_path, call_build_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"Cataloged affine-loan owner reached the 760-line split boundary: {path}")
+    owner_resolver = mir_root / "resolved_semantics/owner_resolver.rs"
+    for path in (owner_resolver, owner_resolver_app_main_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"resolver owner reached the 760-line split boundary: {path}")
+
 elif phase == "cataloged_i0":
     # This phase is intentionally future-facing.  Running it before the
     # Cataloged implementation lands must fail closed rather than silently

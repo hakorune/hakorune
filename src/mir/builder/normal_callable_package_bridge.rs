@@ -1,15 +1,16 @@
 //! Builder-private consuming bridge for an installed normal callable package.
 //!
-//! The bridge is deliberately package-only for the BridgeReady row.  It owns
-//! the installed package and exposes only the scoped source/lowering views
-//! needed by the selected normal root.  Direct-call inventory and target
-//! loans belong to a later, separately-issued Cataloged row.
+//! The bridge owns the installed package and exposes only the scoped
+//! source/lowering views needed by the selected normal root.  The selected
+//! App Main direct-call inventory is moved out exactly once and remains
+//! coupled to that lowering scope until the raw consumer finishes it.
 
 use std::cell::Cell;
 
 use crate::mir::normal_callable_semantic_package::{
-    BuilderInstallTokenV1, InstalledNormalCallableSemanticPackageV1,
-    NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
+    AppMainDirectCallDispositionLoanV1, BuilderInstallTokenV1,
+    InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
+    NormalCallableSemanticPackagePortV1,
 };
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
@@ -55,6 +56,7 @@ impl BuilderPrivateInstalledCallablePackageBundleV1 {
     ) -> BuilderPrivateCallableLoweringScopeV1 {
         BuilderPrivateCallableLoweringScopeV1 {
             installed: self.installed,
+            direct_call_loan: None,
             lowering_started: Cell::new(false),
         }
     }
@@ -68,6 +70,7 @@ impl BuilderPrivateInstalledCallablePackageBundleV1 {
 #[must_use]
 pub(in crate::mir) struct BuilderPrivateCallableLoweringScopeV1 {
     installed: InstalledNormalCallableSemanticPackageV1,
+    direct_call_loan: Option<AppMainDirectCallDispositionLoanV1>,
     lowering_started: Cell<bool>,
 }
 
@@ -80,14 +83,39 @@ impl BuilderPrivateCallableLoweringScopeV1 {
     }
 
     pub(in crate::mir::builder) fn open_lowering_once(
-        &self,
+        &mut self,
         context: &CompilationContext,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
         if self.lowering_started.replace(true) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted);
         }
-        self.installed.open_lowering_port(context)
+        if self.direct_call_loan.is_none() {
+            self.direct_call_loan = self.installed.take_app_main_direct_call_loan();
+        }
+        self.installed
+            .open_lowering_port(context, self.direct_call_loan.take())
+    }
+
+    pub(in crate::mir::builder) fn with_lowering_once_and_program_source_loan<R>(
+        &mut self,
+        callback: impl for<'package, 'source> FnOnce(
+            NormalCallableSemanticPackagePortV1<'package>,
+            ParserNormalProgramSourceLoanV1<'source>,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        if self.lowering_started.replace(true) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted);
+        }
+        if self.direct_call_loan.is_none() {
+            self.direct_call_loan = self.installed.take_app_main_direct_call_loan();
+        }
+        let package_port = self
+            .installed
+            .open_lowering_port_after_install(self.direct_call_loan.take())?;
+        self.installed
+            .with_normal_program_source_loan(|source| callback(package_port, source))
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)
     }
 }
 
@@ -122,7 +150,7 @@ mod tests {
         let package = issue_normal_callable_semantic_package_v1(&mut resolver, source())
             .expect("semantic package");
         let mut context = CompilationContext::new();
-        let scope = package
+        let mut scope = package
             .with_normal_callable_install_once(&mut context, BuilderInstallConsumerV1::new())
             .expect("package install")
             .into_lowering_scope();

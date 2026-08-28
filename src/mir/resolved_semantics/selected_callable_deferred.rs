@@ -7,7 +7,9 @@
 
 use crate::parser::{CallableDeclarationIdentityV1, ConstructorSourceIdV1};
 
-use super::{FunctionSyntaxViewV1, SourceResolverDeferredV1};
+use super::{
+    CallableHeaderSyntaxViewV1, FunctionSyntaxViewV1, ReceiverPolicyV1, SourceResolverDeferredV1,
+};
 
 #[derive(Debug, Clone)]
 pub(crate) enum SelectedCallableResolverSourceIdentityV1 {
@@ -27,6 +29,7 @@ pub(crate) enum SelectedCallableResolverSourceIdentityV1 {
 pub(crate) struct SelectedCallableResolverInputV1<'source> {
     source: SelectedCallableResolverSourceIdentityV1,
     view: FunctionSyntaxViewV1<'source>,
+    header: Option<CallableHeaderSyntaxViewV1<'source>>,
 }
 
 impl<'source> SelectedCallableResolverInputV1<'source> {
@@ -36,6 +39,16 @@ impl<'source> SelectedCallableResolverInputV1<'source> {
         diagnostic_name: &str,
         view: FunctionSyntaxViewV1<'source>,
     ) -> Self {
+        Self::callable_with_header(identity, diagnostic_owner, diagnostic_name, view, None)
+    }
+
+    pub(crate) fn callable_with_header(
+        identity: CallableDeclarationIdentityV1,
+        diagnostic_owner: Option<&str>,
+        diagnostic_name: &str,
+        view: FunctionSyntaxViewV1<'source>,
+        header: Option<CallableHeaderSyntaxViewV1<'source>>,
+    ) -> Self {
         Self {
             source: SelectedCallableResolverSourceIdentityV1::Callable {
                 identity,
@@ -43,6 +56,7 @@ impl<'source> SelectedCallableResolverInputV1<'source> {
                 diagnostic_name: diagnostic_name.into(),
             },
             view,
+            header,
         }
     }
 
@@ -59,6 +73,7 @@ impl<'source> SelectedCallableResolverInputV1<'source> {
                 diagnostic_key: diagnostic_key.into(),
             },
             view,
+            header: None,
         }
     }
 
@@ -68,6 +83,32 @@ impl<'source> SelectedCallableResolverInputV1<'source> {
 
     pub(super) const fn view(&self) -> FunctionSyntaxViewV1<'source> {
         self.view
+    }
+
+    pub(super) const fn header(&self) -> Option<CallableHeaderSyntaxViewV1<'source>> {
+        self.header
+    }
+
+    pub(super) fn is_top_level_callable(&self) -> bool {
+        matches!(
+            &self.source,
+            SelectedCallableResolverSourceIdentityV1::Callable {
+                diagnostic_owner: None,
+                ..
+            }
+        )
+    }
+
+    /// Return whether this input may contribute one exact FreeStatic header
+    /// to the App Main index.  The index is intentionally limited to
+    /// top-level and current-owner static functions; declared instance
+    /// methods and lambda owners must never cross this relation boundary.
+    pub(super) fn is_free_static_index_candidate(&self) -> bool {
+        matches!(
+            &self.source,
+            SelectedCallableResolverSourceIdentityV1::Callable { .. }
+        ) && self.view.root_profile().receiver_policy() != ReceiverPolicyV1::DeclaredInstance
+            && self.header.is_some_and(|header| header.name() != "main")
     }
 }
 

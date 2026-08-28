@@ -14,10 +14,12 @@ pub(super) fn verify_direct_call_targets(
         .direct_call_observations
         .keys()
         .collect::<std::collections::BTreeSet<_>>();
-    if !target_sites.is_empty()
-        && !observation_sites.is_empty()
-        && target_sites != observation_sites
-    {
+    // Both directions are part of the co-seal contract.  In particular, an
+    // observation-only row must not be mistaken for a complete target
+    // inventory, and a target-only row must not be accepted as if its source
+    // fact had merely been omitted.  Empty/empty remains the valid no-call
+    // state.
+    if target_sites != observation_sites {
         return Err(ResolvedDirectCallVerificationErrorV1::SiteCoverageMismatch);
     }
     for target in data.direct_call_targets.values().copied() {

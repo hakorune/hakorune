@@ -40,6 +40,12 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
 pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
     pub(super) source: VerifiedFinalCallableProgramSourceV1,
     pub(super) rows: Box<[VerifiedResolvedCallableSemanticRowV1]>,
+    /// The source-unit callable index is scoped to the exact App Main batch
+    /// slot that requested it.  Other lowering inputs must remain
+    /// index-free; sharing this index across the batch would make a root
+    /// relation look valid inside unrelated owners.
+    pub(super) main_callable_index:
+        Option<(u32, crate::mir::resolved_semantics::VerifiedCallableIndexV1)>,
 }
 
 /// Selected-callable identity transport for downstream scoped loans.
@@ -121,6 +127,17 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
             .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)
     }
 
+    pub(crate) fn main_callable_index(
+        &self,
+    ) -> Option<(
+        u32,
+        &crate::mir::resolved_semantics::VerifiedCallableIndexV1,
+    )> {
+        self.main_callable_index
+            .as_ref()
+            .map(|(slot, index)| (*slot, index))
+    }
+
     pub(crate) fn declarations(
         &self,
     ) -> impl ExactSizeIterator<Item = VerifiedResolvedCallableSemanticDeclarationRefV1<'_>> {
@@ -185,11 +202,26 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     .get(index)
                     .filter(|row| row.batch_slot() == batch_slot)
                     .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::SourceCoverage)?;
-                let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
-                    syntax.declaration(),
-                    &semantic.forest,
-                    &semantic.projection,
-                )
+                let input = match self
+                    .main_callable_index
+                    .as_ref()
+                    .filter(|(main_slot, _)| *main_slot == batch_slot)
+                    .map(|(_, index)| index)
+                {
+                    Some(index) => {
+                        ResolvedFunctionLoweringInputV1::from_exact_parts_with_callable_index(
+                            syntax.declaration(),
+                            &semantic.forest,
+                            &semantic.projection,
+                            index,
+                        )
+                    }
+                    None => ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+                        syntax.declaration(),
+                        &semantic.forest,
+                        &semantic.projection,
+                    ),
+                }
                 .map_err(|error| {
                     ResolvedCallableSemanticBatchLoanErrorV1::LoweringInput { _error: error }
                 })?;

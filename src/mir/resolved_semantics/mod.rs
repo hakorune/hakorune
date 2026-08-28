@@ -221,6 +221,7 @@ pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
     ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     SourceBoundSelectedCallableResolverRejectV1,
 };
@@ -261,7 +262,8 @@ pub use records::{
     ScopeOriginV1, SyntheticBindingKindV1,
 };
 pub(crate) use resolver::{
-    FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveScriptOutcomeV1,
+    AppMainFreeStaticResolverIssueV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
+    ResolveScriptOutcomeV1,
 };
 pub(crate) use resolver_core_method_callable_contract::{
     ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,

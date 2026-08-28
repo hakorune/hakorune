@@ -19,7 +19,8 @@ use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
-    RawFunctionHeaderLookupPortV1, RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
+    AppMainDirectCallDispositionPortV1, RawFunctionHeaderLookupPortV1, RawOrdinaryNewClaimPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::static_result_publication_ingress::{
@@ -239,6 +240,27 @@ where
                 })
             }
         }
+    }
+}
+
+impl<Port> AppMainDirectCallDispositionPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: AppMainDirectCallDispositionPortV1,
+{
+    fn take_app_main_direct_call_disposition_v1(
+        &mut self,
+    ) -> Result<
+        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
+        String,
+    > {
+        self.child.take_app_main_direct_call_disposition_v1()
+    }
+
+    fn validate_current_call_argument_site_v1(
+        &self,
+        expected: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<(), String> {
+        self.child.validate_current_call_argument_site_v1(expected)
     }
 }
 

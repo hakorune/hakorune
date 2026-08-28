@@ -29,13 +29,16 @@ use super::static_resolution::BareStaticRecoveryEmissionV1;
 use super::CallTarget;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
-use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::calls::function_call_preflight_route::PreparedRawOrdinaryFunctionCompletionV1;
+use crate::mir::builder::calls::{
+    drive_call_arguments_v1, drive_call_arguments_with_expected_sites_v1,
+};
 use crate::mir::builder::exprs_enum_match::{
     prepare_raw_enum_variant_header_v1, PreparedRawEnumVariantHeaderV1,
 };
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
+    drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
+    RawFunctionHeaderLookupPortV1,
 };
 use crate::mir::policies::call_name_classification::classify_call_name_v1;
 use crate::mir::policies::source_method_typeop_route::{
@@ -110,7 +113,9 @@ impl MirBuilder {
         completion: PreparedRawOrdinaryFunctionCompletionV1,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
+        Port: RawAstChildLoweringPortV1
+            + RawFunctionHeaderLookupPortV1
+            + AppMainDirectCallDispositionPortV1,
     {
         match completion {
             PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { argument } => {
@@ -119,6 +124,9 @@ impl MirBuilder {
             }
             PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } => {
                 lower_prepared_targeted_call_v1(self, port, callee, arguments)
+            }
+            PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments } => {
+                self.lower_prepared_app_main_direct_call_v1(port, arguments)
             }
             PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
             PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments } => {
@@ -137,6 +145,35 @@ impl MirBuilder {
                 })
             }
         }
+    }
+
+    fn lower_prepared_app_main_direct_call_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        arguments: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1
+            + RawFunctionHeaderLookupPortV1
+            + AppMainDirectCallDispositionPortV1,
+    {
+        // Take the owned row first.  Its borrow ends before recursive
+        // argument descent, so nested calls can use the same affine loan.
+        let row = port.take_app_main_direct_call_disposition_v1()?;
+        let expected_sites = row.argument_sites().to_vec();
+        let emission = row.into_emission();
+        let arg_values = drive_call_arguments_with_expected_sites_v1(
+            self,
+            port,
+            arguments.as_slice(),
+            expected_sites.as_slice(),
+        )?;
+        let dst = self.next_value_id();
+        let instruction = emission.materialize(dst, arg_values).map_err(|error| {
+            format!("[freeze:contract][app-main-direct-call/materialization] {error:?}")
+        })?;
+        self.emit_instruction(instruction)?;
+        Ok(dst)
     }
 
     // Build method call: object.method(arguments)

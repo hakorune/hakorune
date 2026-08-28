@@ -71,6 +71,10 @@ fn bind_source<'source, R>(
 }
 
 impl<'source> CanonicalScriptCBoundSourceV1<'source> {
+    pub(in crate::mir::builder) fn source_ast(&self) -> &'source crate::ast::ASTNode {
+        self.source.source()
+    }
+
     /// The sole post-install C consumer.  It returns a lowering wrapper with
     /// a required claim disposition; no parallel optional products are made.
     pub(in crate::mir::builder) fn consume_into_lowering_source(

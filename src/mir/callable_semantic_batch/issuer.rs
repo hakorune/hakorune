@@ -8,7 +8,8 @@ use crate::mir::compiler::source_projection::{
 };
 use crate::mir::resolved_semantics::{
     forest_has_unissued_direct_call_observation_v1, issue_resolved_block_expr_expectation_v1,
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
+    CallableHeaderSyntaxViewV1, FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
+    ReceiverPolicyV1, ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolvedBlockExpressionExpectationIssueV1, SelectedCallableResolverDeferredBatchV1,
     SelectedCallableResolverInputV1, SemanticOwnerRootProfileV1,
@@ -87,7 +88,41 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_policy_v1(
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
     direct_call_policy: DirectCallObservationBatchPolicyV1,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
-    let rows = source
+    issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
+        resolver,
+        source,
+        brand_catalog,
+        direct_call_policy,
+        None,
+    )
+}
+
+/// App Main-specific source-bound batch entry.  The target index is issued by
+/// the same resolver session as the owner forests; all other public batch
+/// entries remain observer-only.
+pub(crate) fn issue_resolved_callable_semantic_batch_with_main_freestatic_targets_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    app_main_identity: &crate::parser::CallableDeclarationIdentityV1,
+) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
+    issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
+        resolver,
+        source,
+        brand_catalog,
+        DirectCallObservationBatchPolicyV1::ObserveForCatalogedValidation,
+        Some(app_main_identity),
+    )
+}
+
+fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    direct_call_policy: DirectCallObservationBatchPolicyV1,
+    app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
+) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
+    let (rows, callable_index) = source
         .with_callable_semantic_syntax(|loan| {
             let mut candidates = Vec::with_capacity(loan.rows().len());
             let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
@@ -121,6 +156,8 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_policy_v1(
                     .map_err(|_| ResolvedCallableSemanticBatchIssueV1::ParameterCountOverflow)?;
                 let view =
                     FunctionSyntaxViewV1::from_borrowed_function_parts(params, body, receiver);
+                let header = CallableHeaderSyntaxViewV1::from_function_ast(syntax.declaration())
+                    .ok_or(ResolvedCallableSemanticBatchIssueV1::SourceCoverage)?;
                 candidates.push((
                     batch_slot,
                     syntax.identity().clone(),
@@ -130,31 +167,58 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_policy_v1(
                     syntax.method_source_observation().cloned(),
                     view,
                 ));
-                resolver_inputs.push(SelectedCallableResolverInputV1::callable(
+                resolver_inputs.push(SelectedCallableResolverInputV1::callable_with_header(
                     syntax.identity().clone(),
                     syntax.owner_name(),
                     name,
                     view,
+                    Some(header),
                 ));
             }
 
-            let (forests, mut body_shapes) = match resolver
-                .resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
-                    &resolver_inputs,
-                    brand_catalog,
-                )
-                .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
+            let (forests, mut body_shapes, callable_index) = if let Some(app_main_identity) =
+                app_main_identity
             {
-                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
-                    forests,
-                    body_shapes,
-                } => (forests, body_shapes),
-                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
-                    deferred,
-                ) => {
-                    return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(
+                match resolver
+                    .resolve_source_bound_selected_callable_forests_with_main_freestatic_targets(
+                        &resolver_inputs,
+                        brand_catalog,
+                        app_main_identity,
+                    )
+                    .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
+                {
+                    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1::Complete {
+                        forests,
+                        body_shapes,
+                        callable_index,
+                    } => (forests, body_shapes, callable_index),
+                    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1::Deferred(
                         deferred,
-                    ))
+                    ) => {
+                        return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(
+                            deferred,
+                        ))
+                    }
+                }
+            } else {
+                match resolver
+                    .resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
+                        &resolver_inputs,
+                        brand_catalog,
+                    )
+                    .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
+                {
+                    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                        forests,
+                        body_shapes,
+                    } => (forests, body_shapes, None),
+                    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
+                        deferred,
+                    ) => {
+                        return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(
+                            deferred,
+                        ))
+                    }
                 }
             };
             if forests.len() != candidates.len() {
@@ -238,9 +302,36 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_policy_v1(
                     method_source_observation,
                 });
             }
-            Ok(resolved.into_boxed_slice())
+            Ok((resolved.into_boxed_slice(), callable_index))
         })
         .map_err(|error| ResolvedCallableSemanticBatchIssueV1::ParserSyntax { _error: error })??;
 
-    Ok(VerifiedResolvedCallableSemanticBatchV1 { source, rows })
+    let main_callable_index = match (app_main_identity, callable_index) {
+        (Some(identity), Some(index)) => {
+            let mut matching = rows.iter().filter(|row| row.identity.same_as(identity));
+            let Some(main) = matching.next() else {
+                return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
+            };
+            if matching.next().is_some()
+                || main.mode != ResolvedCallableDeclarationModeV1::StaticBoxMethod
+            {
+                return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
+            }
+            Some((main.batch_slot, index))
+        }
+        (None, None) => None,
+        // A specialized App Main batch with no exact-i64 free-static headers
+        // simply has no index to lend; direct observations still fail closed
+        // at the package gate. The generic batch must never gain one.
+        (Some(_), None) => None,
+        (None, Some(_)) => {
+            return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
+        }
+    };
+
+    Ok(VerifiedResolvedCallableSemanticBatchV1 {
+        source,
+        rows,
+        main_callable_index,
+    })
 }

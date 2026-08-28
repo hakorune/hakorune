@@ -158,6 +158,26 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
     }
 }
 
+#[test]
+fn direct_call_verifier_rejects_observation_without_target() {
+    let owner = owner();
+    let mut data = sample_data(owner, BindingId::new(0));
+    let site = expr(4, SourcePathSegmentV1::Value);
+    data.direct_call_observations.insert(
+        site,
+        super::ResolvedDirectCallObservationV1::from_parts(
+            "helper".into(),
+            0,
+            Vec::new().into_boxed_slice(),
+        ),
+    );
+
+    assert!(matches!(
+        super::direct_call_verifier::verify_direct_call_targets(&data),
+        Err(super::ResolvedDirectCallVerificationErrorV1::SiteCoverageMismatch)
+    ));
+}
+
 pub(super) fn sample_verified_for_owner_forest(
     owner: FunctionOwnerIdV1,
     binding: BindingId,

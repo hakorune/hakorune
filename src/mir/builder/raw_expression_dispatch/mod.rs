@@ -46,9 +46,9 @@ use super::raw_lambda_capture_lifecycle::RawLambdaCaptureDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
-    RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
-    RawLoopChildEntryPortV1, RawNestedMainFateV1, RawOrdinaryNewClaimPortV1,
-    RecursiveChildLoweringPortV1,
+    AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1, RawBoxMethodChildPortV1,
+    RawFunctionHeaderLookupPortV1, RawLoopChildEntryPortV1, RawNestedMainFateV1,
+    RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
 use super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::stmts::{
@@ -70,9 +70,10 @@ pub(in crate::mir::builder) fn reject_sync_box_lowering_v1(name: &str) -> String
 /// Capability set consumed by the one raw AST expression match tree.
 ///
 /// M0 progressively moves every recursive raw surface into this port. The
-/// legacy implementation remains the only production consumer until that
-/// closure is complete; `RawInvocationChildPortV1` is intentionally not wired
-/// here before all direct helper recursion has a port-aware sibling.
+/// selected App Main direct-call capability is now wired through the live
+/// invocation port; remaining legacy surfaces stay explicit until their own
+/// bounded cutovers. Do not add a second matcher or make this port a target
+/// resolver.
 pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     RecursiveChildLoweringPortV1<
         BodyInput = Vec<ASTNode>,
@@ -96,6 +97,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + QMarkPropagationSourceDemandPortV1
     + ExplicitExternSourcePortV1
     + BrandConstructorSourcePortV1
+    + AppMainDirectCallDispositionPortV1
     + StaticResultPublicationIngressPortV1
 {
 }
@@ -145,6 +147,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + QMarkPropagationSourceDemandPortV1
         + ExplicitExternSourcePortV1
         + BrandConstructorSourcePortV1
+        + AppMainDirectCallDispositionPortV1
         + StaticResultPublicationIngressPortV1
 {
 }

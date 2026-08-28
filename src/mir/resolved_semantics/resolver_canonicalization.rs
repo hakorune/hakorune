@@ -44,6 +44,15 @@ pub(super) fn canonicalize_draft(
             }
             (targets, observations)
         }
+        (Some(index), DirectCallCanonicalizationPolicyV1::RequireCallableIndexAtRoot) => {
+            // The root-only policy is lowered to `RequireCallableIndex` by
+            // the recursive owner resolver.  Reaching this canonicalizer
+            // directly would mean a child/root boundary was lost.
+            let _ = index;
+            return Err(ResolveFunctionErrorV1::DraftInvariant(
+                "root-only direct-call policy must be handled by the owner resolver",
+            ));
+        }
         (None, DirectCallCanonicalizationPolicyV1::ObserveOnly) => (
             BTreeMap::new(),
             std::mem::take(&mut draft.direct_calls)
@@ -71,6 +80,11 @@ pub(super) fn canonicalize_draft(
         (None, DirectCallCanonicalizationPolicyV1::RequireCallableIndex) => {
             return Err(ResolveFunctionErrorV1::DraftInvariant(
                 "callable index is required by direct-call policy",
+            ));
+        }
+        (None, DirectCallCanonicalizationPolicyV1::RequireCallableIndexAtRoot) => {
+            return Err(ResolveFunctionErrorV1::DraftInvariant(
+                "root-only direct-call policy requires a callable index",
             ));
         }
         (Some(_), DirectCallCanonicalizationPolicyV1::ObserveOnly) => {

@@ -5,12 +5,15 @@ use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceExprSiteV1};
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::raw_invocation_source_transport::RawInvocationRootLineageV1;
-use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::recursive_child_lowering::{
+    AppMainDirectCallDispositionPortV1, RecursiveChildLoweringPortV1,
+};
 use super::NormalCallableSemanticPackagePortAdapterV1;
 
 pub(super) fn lower_app_main_root_body_v1(
@@ -100,6 +103,23 @@ fn verify_raw_callable_owner_v1(
         return Err("raw-owner-mismatch");
     }
     Ok(())
+}
+
+impl AppMainDirectCallDispositionPortV1
+    for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
+{
+    fn take_app_main_direct_call_disposition_v1(
+        &mut self,
+    ) -> Result<AppMainDirectCallDispositionRowV1, String> {
+        self.inner.take_app_main_direct_call_disposition_v1()
+    }
+
+    fn validate_current_call_argument_site_v1(
+        &self,
+        expected: &SourceExprSiteV1,
+    ) -> Result<(), String> {
+        self.inner.validate_current_call_argument_site_v1(expected)
+    }
 }
 
 #[cfg(test)]

@@ -9,7 +9,7 @@ use crate::mir::builder::callable_declaration_catalog::{
     CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::builder::recursive_child_lowering::{
-    RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
+    AppMainDirectCallDispositionPortV1, RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::instruction::FastMemRegionId;
@@ -70,6 +70,10 @@ impl RawFunctionHeaderLookupPortV1 for RecordingPortV1 {
         observe(None)
     }
 }
+
+// The test port exercises non-App-Main routes.  Keep the new App-Main
+// capability explicitly unarmed rather than weakening the production bound.
+impl AppMainDirectCallDispositionPortV1 for RecordingPortV1 {}
 
 fn literal(value: LiteralValue) -> ASTNode {
     ASTNode::Literal {

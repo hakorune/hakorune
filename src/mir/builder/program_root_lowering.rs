@@ -193,14 +193,21 @@ impl MirBuilder {
                 VerifiedRawRootExpansionV1::App(_)
             )
         );
+        let mut callable_mode = callable_mode;
+        let mut direct_call_loan = match &mut callable_mode {
+            NormalCallableSemanticPackageMode::Installed(package_port) => {
+                package_port.take_app_main_direct_call_loan()
+            }
+            NormalCallableSemanticPackageMode::Compatibility(_) => None,
+        };
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
-            let mut port =
-                RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
-                    &mut module_port,
-                    runtime_inputs.cleanup_exit_policy(),
-                    callable_loop_root_scope,
-                );
+            let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope_and_direct_call_loan(
+                &mut module_port,
+                runtime_inputs.cleanup_exit_policy(),
+                callable_loop_root_scope,
+                direct_call_loan.as_mut(),
+            );
             match script_mode {
                 NormalScriptRootLoweringMode::Complete(source) => port
                     .with_script_semantic_source_v1(source, |port| {
@@ -250,6 +257,15 @@ impl MirBuilder {
                     },
                 ),
             }
+        };
+        let direct_call_loan_result = direct_call_loan.take().map(|loan| {
+            loan.finish_empty()
+                .map_err(|error| format!("[freeze:contract][app-main-direct-call/{error:?}]"))
+        });
+        let result = match (result, direct_call_loan_result) {
+            (Err(error), _) => Err(error),
+            (Ok(_), Some(Err(error))) => Err(error),
+            (Ok(value), None | Some(Ok(()))) => Ok(value),
         }?;
         let target = self
             .current_module

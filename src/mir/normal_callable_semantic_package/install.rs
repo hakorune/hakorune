@@ -63,6 +63,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     PhysicalSignatureUnavailable,
     CatalogSlotOccupied,
     LoweringAlreadyStarted,
+    DirectCallLoanNotConsumed,
     MainRootUnavailable,
     MainRootRelationMismatch,
     MainRootAlreadyConsumed,
@@ -73,6 +74,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    app_main_direct_call_loan: Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
@@ -269,11 +271,24 @@ pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
 /// The port borrows the whole installed package and never reveals a batch
 /// slot.  It records selected-key consumption and must be completed before
 /// the outer lowering transaction can close.
+#[must_use]
 pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) installed: &'package InstalledNormalCallableSemanticPackageV1,
+    pub(super) app_main_direct_call_loan:
+        Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
     s6c_child_consumed: bool,
     main_root_consumed: bool,
+}
+
+impl NormalCallableSemanticPackagePortV1<'_> {
+    /// Move the package-owned App Main inventory into the root raw session.
+    /// There is no package-only fallback once this succeeds.
+    pub(in crate::mir) fn take_app_main_direct_call_loan(
+        &mut self,
+    ) -> Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1> {
+        self.app_main_direct_call_loan.take()
+    }
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
@@ -312,6 +327,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             root_execution,
             catalog,
             batch,
+            app_main_direct_call_loan,
             ordinary_new_claims,
             instance_constructors,
             selected,
@@ -339,6 +355,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         InstalledNormalCallableSemanticPackageV1 {
             catalog_brand,
             batch,
+            app_main_direct_call_loan,
             ordinary_new_claim_ledger: Rc::new(OrdinaryNewClaimLedgerV1::issue(
                 ordinary_new_claims,
                 ordinary_box_names,
@@ -412,13 +429,30 @@ impl InstalledNormalCallableSemanticPackageV1 {
     pub(crate) fn open_lowering_port(
         &self,
         context: &CompilationContext,
+        app_main_direct_call_loan: Option<
+            super::direct_call_loan::AppMainDirectCallDispositionLoanV1,
+        >,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
         if !self.installed_in(context) {
             return Err(NormalCallableSemanticPackageInstallIssueV1::ForeignCatalog);
         }
+        self.open_lowering_port_after_install(app_main_direct_call_loan)
+    }
+
+    pub(crate) fn open_lowering_port_after_install(
+        &self,
+        app_main_direct_call_loan: Option<
+            super::direct_call_loan::AppMainDirectCallDispositionLoanV1,
+        >,
+    ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
+    {
+        if self.app_main_direct_call_loan.is_some() {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::DirectCallLoanNotConsumed);
+        }
         Ok(NormalCallableSemanticPackagePortV1 {
             installed: self,
+            app_main_direct_call_loan,
             consumed: BTreeSet::new(),
             s6c_child_consumed: false,
             main_root_consumed: false,
@@ -431,7 +465,13 @@ impl InstalledNormalCallableSemanticPackageV1 {
         context: &CompilationContext,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
     {
-        self.open_lowering_port(context)
+        self.open_lowering_port(context, None)
+    }
+
+    pub(in crate::mir) fn take_app_main_direct_call_loan(
+        &mut self,
+    ) -> Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1> {
+        self.app_main_direct_call_loan.take()
     }
 
     fn take_dynamic_physical_header(

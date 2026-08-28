@@ -47,7 +47,7 @@ impl<'source> ScriptSemanticSourceCoreV1<'source> {
         })
     }
 
-    pub(super) fn source(&self) -> &ASTNode {
+    pub(super) fn source(&self) -> &'source ASTNode {
         self.source
     }
 

@@ -119,7 +119,7 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         })
     }
 
-    pub(super) fn from_exact_parts_with_callable_index(
+    pub(crate) fn from_exact_parts_with_callable_index(
         syntax_root: &'a crate::ast::ASTNode,
         forest: &'a VerifiedSemanticOwnerForestV1,
         projection: &'a VerifiedSourceProjectionV1,

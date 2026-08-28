@@ -101,6 +101,36 @@ fn source_backed_app_main_root_uses_cataloged_scope() {
 }
 
 #[test]
+fn source_backed_app_main_direct_call_consumes_affine_loan() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed App Main direct call must consume its loan");
+    let (_, module) = completed.into_parts();
+    let main = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "main")
+        .map(|(_, function)| function)
+        .expect("lowered Main function");
+    let calls = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Call { .. }))
+        .count();
+    assert_eq!(calls, 1);
+}
+
+#[test]
 fn root_expansion_failure_precedes_prepare_and_retains_source() {
     let source = NyashParser::parse_from_string(
         r#"
