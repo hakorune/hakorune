@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -70,9 +70,11 @@ if not phase:
         phase = "main_raw_lineage_handoff_d1"
     elif active_row == "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0":
         phase = "main_raw_lineage_witness_harden_r0"
+    elif active_row == "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0":
+        phase = "qualified_method_target_issuer_d0"
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -93,7 +95,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0"}:
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -128,6 +130,8 @@ registration_key = (
     if phase == "main_raw_lineage_handoff_d1"
     else "main_raw_lineage_witness_harden_2026_08_28"
     if phase == "main_raw_lineage_witness_harden_r0"
+    else "qualified_method_target_issuer_d0"
+    if phase == "qualified_method_target_issuer_d0"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -199,6 +203,19 @@ elif phase == "main_raw_lineage_witness_harden_r0":
         raise SystemExit("Main raw lineage witness status drifted")
     if registration.get("implementation_permission") is not (registration.get("status") == "fast_open"):
         raise SystemExit("Main raw lineage witness permission/status drifted")
+elif phase == "qualified_method_target_issuer_d0":
+    if registration.get("task_id") != "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0":
+        raise SystemExit("qualified MethodCall target D0 task id drifted")
+    if registration.get("guard_phase") != "qualified_method_target_issuer_d0":
+        raise SystemExit("qualified MethodCall target D0 guard phase drifted")
+    if registration.get("status") != "accepted_design_no_safe_slice":
+        raise SystemExit("qualified MethodCall target D0 status drifted")
+    if registration.get("implementation_permission") is not False:
+        raise SystemExit("qualified MethodCall target D0 permission must remain closed")
+    if active_row != "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0":
+        raise SystemExit("qualified MethodCall target D0 current row drifted")
+    if current_state.get("work_mode") != "design_stop":
+        raise SystemExit("qualified MethodCall target D0 requires design_stop")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
@@ -223,6 +240,13 @@ if phase == "main_raw_lineage_witness_harden_r0":
         "docs/development/current/main/CURRENT_STATE.toml",
         "src/mir/builder/normal_callable_semantic_loan_port/main_root.rs",
         "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs",
+    }
+if phase == "qualified_method_target_issuer_d0":
+    expected_files = {
+        guard_script,
+        "tools/checks/guard_rows.toml",
+        "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+        "docs/development/current/main/CURRENT_STATE.toml",
     }
 if phase == "observer_i0":
     expected_files.update({
@@ -460,8 +484,11 @@ elif phase == "main_raw_lineage_handoff_d1":
         if current_state.get("work_mode") not in {"fast", "closeout"}:
             raise SystemExit("D1 phase guard requires fast or closeout")
     else:
-        if current_state.get("current_execution_row") != "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1":
-            raise SystemExit("landed D1 phase guard must return to the D1 design row")
+        if current_state.get("current_execution_row") not in {
+            "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1",
+            "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0",
+        }:
+            raise SystemExit("landed D1 phase guard must leave an active D1 design row")
         if current_state.get("work_mode") not in {"design_stop", "closeout"}:
             raise SystemExit("landed D1 phase guard has an invalid work mode")
     if not isinstance(d1_card, dict) or d1_card.get("implementation_permission") is not False:
@@ -473,8 +500,11 @@ elif phase == "main_raw_lineage_witness_harden_r0":
         if current_state.get("work_mode") not in {"fast", "closeout"}:
             raise SystemExit("Main raw lineage witness requires fast or closeout")
     else:
-        if current_state.get("current_execution_row") != "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1":
-            raise SystemExit("landed Main raw lineage witness must return to the D1 design row")
+        if current_state.get("current_execution_row") not in {
+            "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1",
+            "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0",
+        }:
+            raise SystemExit("landed Main raw lineage witness must leave an active design row")
         if current_state.get("work_mode") not in {"design_stop", "closeout"}:
             raise SystemExit("landed Main raw lineage witness has an invalid work mode")
     if not isinstance(d1_card, dict) or d1_card.get("implementation_permission") is not False:
@@ -499,7 +529,7 @@ elif phase == "main_raw_cataloged_handoff_d0":
     for key, expected in (("task_id", "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"), ("execution_row", "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"), ("guard_phase", "main_raw_cataloged_handoff_d0")):
         if registration.get(key) != expected:
             raise SystemExit(f"Main raw handoff guard-hygiene {key} drifted")
-    if active_card.get("guard_phase") != "main_raw_cataloged_handoff_d0":
+    if registration.get("guard_phase") != "main_raw_cataloged_handoff_d0":
         raise SystemExit("Main raw handoff D0 card guard phase drifted")
     if active_card.get("implementation_permission") is not False:
         raise SystemExit("Main raw handoff D0 semantic permission opened")
@@ -511,7 +541,7 @@ elif phase == "main_raw_cataloged_handoff_d0":
         if guard_open
         else "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
     )
-    if active_row != expected_row:
+    if active_row not in {expected_row, "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0"}:
         raise SystemExit("Main raw handoff D0 current row drifted")
     expected_mode = {"fast", "closeout"} if guard_open else {"design_stop", "closeout"}
     if current_state.get("work_mode") not in expected_mode:

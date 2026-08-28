@@ -302,6 +302,7 @@ task_id = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
 implementation_permission = false
+guard_phase = "qualified_method_target_issuer_d0"
 decision = "For the qualified StaticBoxMethod family, reuse the existing source-side exact products and make the publication owner the sole target issuer. The raw ingress must consume the existing (Cataloged caller, SourceExprSiteV1) handoff; it must not reconstruct a target from receiver/owner/method/arity strings."
 source_authority = "VerifiedSourceMethodCallSiteV1 supplies catalog, caller, declaration, exact source site, receiver site, receiver, method, arguments, and arity. VerifiedQualifiedCallRouteFactsV1 supplies the catalog-branded import/lexical/reserved-route admission. VerifiedSourceStaticCallTargetCatalogV1 maps (caller, site) to the sealed static target."
 canonical_issuer = "VerifiedStaticCallResultPublicationOwnerV1, issued from the existing source target/result catalogs, is the sole issuer. Its selected row already contains the typed target/result handoff; a later consumer may expose an exact-site take without a second declaration lookup."
@@ -328,6 +329,12 @@ design_allowed = [
   "existing source_call_target products and callable_result_representation owner/consumer API shape",
   "static_result_publication_ingress and static_result_publication_physical_bridge handoff boundary",
   "focused source/owner/ingress tests and reuse of the existing D1 lifecycle guard family",
+]
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
 ]
 design_forbidden = [
   "bare FunctionCall or Main package+loan/dispatcher, receiver re-evaluation, dynamic/instance route, Method(None), Call schema, JSON, VM/backend, fallback/recovery, and new guard family",
