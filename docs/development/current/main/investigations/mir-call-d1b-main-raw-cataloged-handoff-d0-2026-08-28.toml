@@ -626,3 +626,51 @@ post_core_hygiene = [
 not_in_core = "VM/backend retirement, JSON ingress, JoinIR cleanup, FunctionMetadata sub-owners, and broad guard consolidation remain separate lanes; they do not block the six-row Call spine once their explicit owner gates are satisfied."
 no_new_task_families = "Reuse the existing D1 lifecycle guard and current design card. Do not create a new census/owner-map/guard family for each row."
 implementation_gate = "D2 and the selected App Main I0 are accepted. The next explicit fast transition may open only MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0; a whole trivial profile, second traversal/resolver, representation guess, or Method/VM/Call-schema change returns to NoSafeSlice. Later rows reopen one at a time after closeout."
+
+[all_lineage_pre_effect_retire_r0_2026_08_29]
+status = "design_accepted_bounded_subrow"
+task_id = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+decision = "Do not globally delete Resolved yet. First close the finite lineage matrix before argument effects: only the existing App Main exact loan is Targeted; source-backed ordinary calls without an exact relation become typed Reject; named compatibility owners remain ParkedSealed."
+source_authority = "RawInvocationRootLineageV1 and exact SourceExprSiteV1 provide provenance; the same-session package/catalog issuer provides target authority. Source identity never synthesizes a Callee."
+non_authority = "InstalledNonBrand{caller=None}, name/arity, symbol parsing, static_candidates, variable_map, current_static_box, tail/header suffix scans, env flags, name Const, and legacy Call writers."
+fail_fast_boundary = "For an InstalledNonBrand ordinary FunctionCall with no exact caller/site/brand/loan relation, return a typed Rejected disposition before drive_call_arguments_v1; no resolver, recovery, fallback, or retry may run afterward."
+smallest_next_slice = "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A: reject only ordinary InstalledNonBrand caller=None; preserve App Main, caller-backed Cataloged, special routes, builtin/Extern, and explicit Relationless compatibility."
+non_claims = [
+    "This row does not issue targets for TopLevel, InstanceConstructor, ScriptRoot, Main(locator), NestedBoxMethod, or non-Main Cataloged siblings.",
+    "This row does not remove Method(None), VM/backend routes, JSON/JoinIR, Call schema, or the shared compatibility emit_legacy_call owner.",
+    "Resolved and post-argument recovery are not globally caller-zero until R2b closes compatibility ownership.",
+]
+boundary_includes = [
+    "raw FunctionCall dispatch -> preflight -> ordinary completion for InstalledNonBrand{caller=None}",
+    "Resolved/post-argument unique-static/tail/name-Const/legacy-Call edges and their source-backed callers",
+    "six RawInvocationRootLineageV1 families plus Unlocated/Relationless finite disposition inventory",
+]
+boundary_excludes = [
+    "AppMainTargeted affine loan already landed in 99bdfc856c",
+    "caller-backed non-Main CatalogedTargeted and explicit special/compatibility owners",
+    "Method corridor, VM/backend retirement, and mandatory-Callee schema",
+]
+lineage_disposition_matrix = [
+    "Cataloged App Main = Targeted via exact same-session loan; non-Main Cataloged = named successor/R4 or typed Reject",
+    "TopLevel = typed Reject until an exact ordinary target relation exists",
+    "InstanceConstructor = typed Reject for ordinary FunctionCall; constructor demand stays constructor-owned ParkedSealed",
+    "Main(locator) and ScriptRoot = explicit compatibility ParkedSealed; no ordinary target inference",
+    "NestedBoxMethod = typed Reject unless a named exact relation owner exists; never infer from method spelling",
+    "Unlocated/Relationless = typed Reject for source-backed ordinary calls; explicit compatibility remains ParkedSealed",
+]
+worker_evidence = [
+    "call_residual_retirement_audit at a63f40a6e5: Resolved/post-argument/tail/name-Const/legacy-Call caller graph and shared compatibility owners",
+    "d1_lineage_issuer_design at a63f40a6e5: exact relation matrix and source identity versus target authority boundary",
+    "resolver_coissue_api_audit at a63f40a6e5: R2a smallest safe pre-effect reject and hidden second-resolver census",
+]
+acceptance = [
+    "R2a has one production preflight branch and typed error; argument descent count and MIR/collector delta are zero on rejection.",
+    "Focused negatives cover TopLevel, InstanceConstructor, located NestedBoxMethod, and Unlocated source-backed ordinary calls; App Main/Cataloged/special/compatibility routes remain unchanged.",
+    "R2 guard is scoped to the selected caller graph; it does not claim global Resolved/name-Const/legacy-Call zero while compatibility owners remain live.",
+    "After R2a, R2b may separate RelationlessCompatibility from source-backed Resolved and remove only caller-zero direct edges in one atomic row.",
+]
+no_safe_slice = [
+    "ordinary target must be synthesized from name/arity/symbol, caller=None recovery, or a second resolver",
+    "R2a needs Method(None), VM/backend, Call schema, or shared compatibility owner changes",
+    "any lineage remains unclassified or is silently parked without an owner and observable reopen trigger",
+]
