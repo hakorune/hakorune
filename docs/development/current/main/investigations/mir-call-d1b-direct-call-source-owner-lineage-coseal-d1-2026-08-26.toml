@@ -318,3 +318,43 @@ no_safe_slice = [
   "source/raw equality is checked after argument/effect/collector mutation, or TopLevel/Constructor must be synthesized into an ordinary target",
   "the atomic row would also change BoundedGc, Method(None), Call schema, VM/backend, or broad RawLegacy behavior",
 ]
+
+[b1_corrective_prerequisite]
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-CORRECTIVE-R0"
+status = "design_stop"
+observed_commit = "a5538199d1"
+implementation_permission = false
+reason = "The B1 structural carrier is present, but the explicitly supported vm-reference feature does not compile against CanonicalGlobalTargetV1, and the transitional selected-symbol adapter still has 18 production references in nine files. D1B issuer/loan/dispatcher work stays closed until this carrier consumer boundary is coherent."
+source_authority = "CanonicalGlobalTargetV1 owns the already-selected structural family; the vm-reference executor may consume its nested variants, while callable declaration catalogs and explicit extern providers remain the only target issuers."
+non_authority = "display_name/source_name, StaticMethodId parsing, arity completion, hostbridge string matching, typed_global_target_from_selected_symbol, classifier names, physical symbols, and VM recovery."
+fail_fast = "A vm-reference build must either structurally consume Builtin(Print)/SameModule or return a typed unsupported error; no target is reconstructed from text. Bare print is accepted only at exact arity one; panic/exit use Extern; bare error/now/math/gc have no Global fallback and reject or use their named owner."
+scope = [
+  "repair the four vm-reference CanonicalGlobalTargetV1 consumer errors in handlers/calls without restoring a String carrier or parser",
+  "freeze the finite Global-family disposition and exact print/1 validation at the current ingress/validator owner",
+  "classify the nine transitional selected-symbol adapter owners and keep each as an explicit migrate/isolate/retire edge; do not add new users",
+  "reconcile the post-B1 C0 census wording and add an explicit vm-reference feature compile gate",
+]
+forbidden = [
+  "D1B source owner/lineage issuer, package-plus-loan bundle, RawInvocationChildPortV1, or Cataloged dispatcher cutover",
+  "new String/formatter/reparse authority, Global fallback, arity completion, or consumer-side resolver",
+  "Call schema, Method(None), MirCall/CallFlags, JSON-v0, broad VM retirement, or unrelated backend parity",
+]
+acceptance = [
+  "cargo check --profile quick --lib --features vm-reference passes (or the feature is explicitly retired in a separate selected row; silent breakage is not allowed)",
+  "vm-reference Global routing matches the structural family and sends provider names through Callee::Extern rather than string Global repair",
+  "print accepts exactly one argument and wrong arity rejects before argument descent on the selected ingress; panic/exit/error/now/math/gc have finite typed dispositions",
+  "typed_global_target_from_selected_symbol has no new production users and every existing user is named with an owner and reopen trigger",
+  "default quick check, B1 carrier guard, C0 matrix guard, and current-state guard remain green; D1 implementation permission remains false",
+]
+negative = [
+  "vm-reference must not compare, format, prefix-match, or pass CanonicalGlobalTargetV1 as &str",
+  "no bare family may silently become SameModule::FreeFunction from name plus fallback arity",
+  "no B1 corrective failure may fall back to v0, legacy resolver, VM retry, or a second parser",
+]
+next_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+no_safe_slice = [
+  "structural vm-reference consumption requires a new target variant or a String projection",
+  "the finite family decision cannot be enforced before effects without changing the D1B source/loan boundary",
+  "adapter classification expands into a whole-repository census or requires a second active card",
+  "the feature is actually unsupported and requires route retirement rather than consumer repair; open that as a separate VM-retirement row",
+]

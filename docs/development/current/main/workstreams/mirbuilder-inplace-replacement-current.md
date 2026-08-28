@@ -423,7 +423,10 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     `CallTarget::Global`; type the retained exact publications; add bounded v2
     codec, sole projection and one MirModule lookup; adapt/delete/isolate every
     compiled consumer without formatter, reparse, registry, fallback, or retry.
-    This row is a prerequisite for item 13; a new D1 String issuer is forbidden.
+    B1 corrective R0 must first keep the explicit `vm-reference` feature
+    compiling, enforce the finite Global-family disposition, and name the nine
+    transitional selected-symbol owners. This row is a prerequisite for item
+    13; a new D1 String issuer is forbidden.
 
 19. MIR-CALL-WIRE-CONSTRUCTION-TERMINAL-R0
     close isolated noncanonical compatibility and construction terminals:
