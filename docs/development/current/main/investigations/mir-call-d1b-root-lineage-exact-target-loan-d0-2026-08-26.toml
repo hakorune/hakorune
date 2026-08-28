@@ -1,15 +1,15 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "bridge_ready_fast_open"
+status = "bridge_ready_landed"
 observed_commit = "10620955d4"
 observed_at = "2026-08-28"
-implementation_permission = true
+implementation_permission = false
 guard_phase = "bridge_ready"
-permission_scope = "Fast BridgeReady R0 only: replace the selected source-backed package's package-only lowering escape with one Builder-private one-shot scoped port opening. No direct-call inventory, target/Callee issuer, loan, raw dispatcher, fallback, or Call schema change is open. The existing observer I0 and forest-wide gate remain unchanged. If the scope needs a third lifetime, Clone/Rc/RefCell/unsafe, a second source walk, or semantic behavior change, return to design_stop."
+permission_scope = "BridgeReady R0 is landed. The next design stop is source-owner/lineage co-seal; no direct-call issuer, loan, raw dispatcher, fallback, or Call schema implementation is open."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
-completed_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-next_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D1"
+execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+completed_execution_row = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
+next_execution_row = "none"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -932,8 +932,8 @@ allowed_files = [
 
 [bridge_ready_execution]
 task_id = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 decision = "Close the selected source-backed package-only lowering escape with a Builder-private one-shot scope. The bridge owns the installed package and opens the existing borrowed package port exactly once from that scope before the lowering consumer receives it; it must not issue direct-call targets, add a loan, change RawInvocationChildPortV1, or alter call behavior."
 source_authority = "The existing installed semantic package remains the sole source/package authority; the bridge only changes ownership and lifetime of the already-issued package port."
 canonical_issuer = "No new issuer. Existing InstalledNormalCallableSemanticPackageV1::begin_lowering logic is renamed/internalized as the scope's temporary package-port construction; the package bridge is the only production caller."
@@ -973,7 +973,7 @@ stop = [
 
 [bridge_ready_registration_row]
 execution_row = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
-status = "bridge_ready_fast_open"
+status = "bridge_ready_landed"
 allowed_files = [
   "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
   "tools/checks/guard_rows.toml",
@@ -987,6 +987,15 @@ allowed_files = [
   "src/mir/normal_callable_semantic_package/install.rs",
   "src/mir/normal_callable_semantic_package/README.md",
 ]
+
+[bridge_ready_closeout]
+status = "landed"
+commit = "540e12ffd2"
+result = "The selected source-backed lifecycle now consumes the installed package into one Builder-private non-Clone lowering scope. Production opens the existing package port once before the lowering consumer; the old package-only begin_lowering reference and bare Installed package mode are absent from that edge. No direct-call inventory, Callee issuer, loan, raw dispatcher, fallback, or Call-schema behavior changed."
+tests = "cargo check --profile quick --lib: passed; normal_callable_semantic_package:: filter: 46 passed, 0 failed; source_backed_selected_callable_uses_the_installed_package_port: passed; parser_scan_package_passes_callable_source_handoff_without_fallback: passed; lowering_scope_rejects_a_second_port_opening: passed."
+guards = "current_state_pointer_guard: ok; mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: phase=bridge_ready ok; rustfmt checks for touched Rust files: ok; git diff --check: ok."
+baseline_red = "The broader normal_default_root_catalog_lifecycle filter retains the pre-existing source_backed_package_failure_is_terminal_before_builder_effects RootExpansion-vs-CallableSemanticSeal failure; the same test fails at parent HEAD bd9f8c9a88 and was not changed by this row."
+next = "Return to design_stop at MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1. The exact source-owner/lineage co-seal, direct-call issuer, package+loan bundle, raw recursive loan, and Cataloged dispatcher cutover remain closed."
 
 [observer_i0_closeout]
 status = "landed"
