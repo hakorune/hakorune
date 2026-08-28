@@ -873,6 +873,34 @@ no_safe_slice = [
 ]
 next_row = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0 (implementation remains closed until this D0 contract is explicitly accepted and the consuming bundle boundary is named)"
 
+[main_root_identity_catalog_coseal_i0]
+task_id = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0"
+status = "ready_for_fast"
+implementation_permission = true
+change = "Replace the source-backed catalog's matched_app_main boolean-only drop with one private AppMainCatalogCoSealV1 companion that moves with the existing catalog into the package/context owner. Preserve exact parser identity, catalog key, and brand; do not publish a target or change root lowering."
+contract = "One parser source loan and one same-session catalog scan issue the companion. Main remains absent from selected child consumption, synthetic main/0 remains separate, and all missing/duplicate/foreign/mismatch cases reject before body, argument, collector, or MIR effects."
+allowed_files = [
+  "src/mir/builder/callable_declaration_catalog/source_backed.rs",
+  "src/mir/builder/callable_declaration_catalog/catalog.rs",
+  "src/mir/builder/callable_declaration_catalog/mod.rs",
+  "src/mir/builder/callable_declaration_catalog/tests.rs",
+  "src/mir/normal_callable_semantic_package/main_static_child_tests.rs",
+  "the existing mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh phase and registry entry only",
+]
+forbidden_files = [
+  "src/mir/builder/program_root_lowering.rs, src/mir/builder/main_expansion/**, raw invocation transport/ports, calls/**, and Call schema",
+  "new public Verified*/Prepared* receipt, RawInvocationRootLineageV1, Callee, ValueId, name/arity/symbol lookup, fallback, retry, JSON, VM, or backend",
+]
+done = [
+  "private companion survives into_catalog/context installation without an into_parts or package-only bypass",
+  "positive exact Main identity/key/brand and selected-child exclusion tests pass; missing/duplicate/non-static/foreign/mismatch tests reject before effects",
+  "existing lifecycle guard phase proves no root selected-map insertion, second source scan, synthetic main/0 reuse, or target/Callee/Call/raw-lineage publication",
+]
+stop = [
+  "key retention requires a second parser traversal, ambient Builder state, new public receipt, selected-map insertion, or physical root/Call change",
+  "the existing catalog/context boundary cannot retain the companion without Clone/Copy/tuple decomposition or a new ledger",
+]
+
 [b1_feature_recheck_2026_08_28]
 observed_commit = "d6c7deda3d"
 status = "structural_consumer_green"

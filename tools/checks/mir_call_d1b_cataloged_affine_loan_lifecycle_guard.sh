@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_root_identity_coseal_i0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_root_identity_coseal_i0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -46,14 +46,16 @@ with current_state_path.open("rb") as stream:
 active_row = current_state.get("current_execution_row")
 
 if not phase:
-    if active_row in {
+    if active_row == "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
+        phase = "main_root_identity_coseal_i0"
+    elif active_row in {
         "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0",
         "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0",
     }:
         phase = "cataloged_source_coseal_validation"
     else:
         phase = card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_root_identity_coseal_i0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -72,6 +74,14 @@ if row.get("cmd") != ["bash", guard_script]:
 if sum(1 for item in rows if item.get("id") == guard_id) != 1:
     raise SystemExit("lifecycle guard id is duplicated")
 
+d1_card = None
+registration_owner = card
+if phase in {"cataloged_source_coseal_validation", "main_root_identity_coseal_i0"}:
+    d1_path = root / "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+    with d1_path.open("rb") as stream:
+        d1_card = tomllib.load(stream)
+    registration_owner = d1_card
+
 registration_key = (
     "observer_guard_registration_row"
     if phase == "observer_i0"
@@ -82,15 +92,10 @@ registration_key = (
     and active_row != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
     else "cataloged_validation_registration_row"
     if phase == "cataloged_source_coseal_validation"
+    else "main_root_identity_catalog_coseal_i0"
+    if phase == "main_root_identity_coseal_i0"
     else "guard_registration_row"
 )
-d1_card = None
-registration_owner = card
-if phase == "cataloged_source_coseal_validation":
-    d1_path = root / "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
-    with d1_path.open("rb") as stream:
-        d1_card = tomllib.load(stream)
-    registration_owner = d1_card
 registration = registration_owner.get(registration_key)
 if not isinstance(registration, dict):
     raise SystemExit(f"active card {registration_key} is missing")
@@ -115,6 +120,11 @@ elif phase == "cataloged_source_coseal_validation":
             raise SystemExit("Cataloged validation guard execution row drifted")
         if registration.get("status") not in {"cataloged_validation_guard_fast_open", "cataloged_validation_guard_landed"}:
             raise SystemExit("Cataloged validation guard status drifted")
+elif phase == "main_root_identity_coseal_i0":
+    if registration.get("task_id") != "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
+        raise SystemExit("Main identity co-seal task id drifted")
+    if registration.get("status") not in {"ready_for_fast", "landed"}:
+        raise SystemExit("Main identity co-seal status drifted")
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
         raise SystemExit("guard-only execution row drifted")
@@ -169,7 +179,15 @@ elif phase == "cataloged_source_coseal_validation":
     })
     if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
         expected_files.add("src/mir/callable_semantic_batch/mod.rs")
-if set(allowed_files or []) != expected_files:
+elif phase == "main_root_identity_coseal_i0":
+    required_allowed_files = {
+        "src/mir/builder/callable_declaration_catalog/source_backed.rs",
+        "src/mir/builder/callable_declaration_catalog/catalog.rs",
+        "src/mir/builder/callable_declaration_catalog/tests.rs",
+    }
+    if not required_allowed_files.issubset(set(allowed_files or [])):
+        raise SystemExit("Main identity co-seal allowed file boundary is incomplete")
+if phase != "main_root_identity_coseal_i0" and set(allowed_files or []) != expected_files:
     raise SystemExit(f"{registration_key} allowed file boundary drifted")
 
 if phase == "observer_i0":
@@ -226,6 +244,13 @@ elif phase == "cataloged_source_coseal_validation":
             raise SystemExit("D1 broad semantic implementation permission opened")
     elif d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened during guard-only row")
+elif phase == "main_root_identity_coseal_i0":
+    if current_state.get("work_mode") != "fast":
+        raise SystemExit("Main identity co-seal I0 requires fast work mode")
+    if active_row != "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
+        raise SystemExit("Main identity co-seal I0 current row drifted")
+    if d1_card.get("implementation_permission") is not False:
+        raise SystemExit("D1 broad semantic implementation permission opened")
 else:
     if card.get("implementation_permission") is not False:
         raise SystemExit("semantic implementation permission opened during guard-only row")
@@ -401,6 +426,47 @@ elif phase == "cataloged_source_coseal_validation":
         ):
             if token not in package_issuer_text:
                 raise SystemExit(f"Cataloged validation owner/site proof is missing: {token}")
+
+elif phase == "main_root_identity_coseal_i0":
+    source_backed_path = mir_root / "builder/callable_declaration_catalog/source_backed.rs"
+    catalog_path = mir_root / "builder/callable_declaration_catalog/catalog.rs"
+    tests_path = mir_root / "builder/callable_declaration_catalog/tests.rs"
+    source_backed = source_backed_path.read_text()
+    catalog = catalog_path.read_text()
+    catalog_tests = tests_path.read_text()
+    required = (
+        "AppMainCatalogCoSealV1",
+        "matched_app_main",
+        "source_backed_app_main",
+        "CallableDeclarationIdentityV1",
+        "SameModuleCallableCatalogBrandV1",
+    )
+    for token in required:
+        if token not in source_backed and token not in catalog:
+            raise SystemExit(f"Main identity co-seal implementation is missing: {token}")
+    if "matched_app_main = Some((row.identity().clone(), key.clone()))" not in source_backed:
+        raise SystemExit("Main identity co-seal does not retain the exact parser/catalog pair")
+    if "matched_app_main = Some((row.identity().clone(), key.clone()));\n                                continue;" not in source_backed:
+        raise SystemExit("Main identity row entered selected child consumption")
+    if source_backed.count("with_callable_semantic_syntax(") != 1:
+        raise SystemExit("Main identity co-seal added a second source scan")
+    if "source_backed_app_main" not in catalog:
+        raise SystemExit("catalog does not retain the source-backed Main companion")
+    if "source_backed_app_main_co_seal_retains_parser_identity_and_catalog_brand" not in catalog_tests:
+        raise SystemExit("Main identity co-seal positive test is missing")
+    forbidden = (
+        "RawInvocationRootLineageV1",
+        "RawDirectCallDispositionLoanV1",
+        "MirInstruction::call(",
+        "ValueId",
+        "Callee::",
+    )
+    for token in forbidden:
+        if token in source_backed or token in catalog or token in catalog_tests:
+            raise SystemExit(f"Main identity co-seal crossed its boundary: {token}")
+    for path in (source_backed_path, catalog_path, tests_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"Main identity co-seal owner reached the 760-line split boundary: {path}")
 
 elif phase == "cataloged_i0":
     # This phase is intentionally future-facing.  Running it before the

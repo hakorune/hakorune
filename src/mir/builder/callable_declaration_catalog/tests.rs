@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, RuneAttr, Span};
+use crate::mir::builder::NormalRootExecutionConsumerV1;
+use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
 use super::*;
 
@@ -98,6 +100,23 @@ fn scalar() -> ASTNode {
         value: LiteralValue::Integer(1),
         span: Span::unknown(),
     }
+}
+
+fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        source,
+        ParserBuildConfig::default(),
+    )
+    .expect("normal callable source");
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact callable transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("fixture must remain source-backed")
+        };
+        source
+    })
 }
 
 #[test]
@@ -442,4 +461,51 @@ fn catalog_session_rejects_missing_and_duplicate_install_without_replacing_first
     let empty = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&scalar()).unwrap();
     context.install_callable_declaration_catalog(empty).unwrap();
     assert!(context.callable_declaration_catalog().unwrap().is_empty());
+}
+
+#[test]
+fn source_backed_app_main_co_seal_retains_parser_identity_and_catalog_brand() {
+    let source = final_source("static box Main { main() { 1 } helper() { 2 } }");
+    let parser_identity = source
+        .normal_root_execution()
+        .ready_source()
+        .expect("preserved root")
+        .app_relation()
+        .expect("App relation")
+        .main_callable()
+        .clone();
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .expect("root execution")
+        .into_consumed_source();
+    let catalog = super::issue_source_backed_same_module_callable_catalog_v1(&source)
+        .expect("source-backed catalog");
+    let co_seal = catalog
+        .catalog()
+        .source_backed_app_main()
+        .expect("App Main identity/catalog co-seal");
+
+    assert!(co_seal.parser_identity().same_as(&parser_identity));
+    assert_eq!(
+        co_seal.catalog_key().namespace(),
+        SameModuleCallableNamespaceV1::StaticBoxMethod
+    );
+    assert_eq!(co_seal.catalog_key().owner(), "Main");
+    assert_eq!(co_seal.catalog_key().name(), "main");
+    assert_eq!(co_seal.catalog_key().arity(), 0);
+    assert!(catalog.catalog().brand().is_same(co_seal.catalog_brand()));
+    assert!(catalog.selected_identities().all(|(key, _, _)| {
+        key != &SelectedNormalCallableKeyV1::Cataloged(co_seal.catalog_key().clone())
+    }));
+}
+
+#[test]
+fn source_backed_program_runtime_has_no_app_main_companion() {
+    let source = final_source("print(1)");
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .expect("program-runtime root")
+        .into_consumed_source();
+    let catalog = super::issue_source_backed_same_module_callable_catalog_v1(&source)
+        .expect("source-backed catalog");
+
+    assert!(catalog.catalog().source_backed_app_main().is_none());
 }

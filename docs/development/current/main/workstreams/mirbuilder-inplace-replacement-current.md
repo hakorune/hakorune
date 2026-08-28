@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR Call D1B source-owner/lineage co-seal (no safe issuer row)
+Status: Fast — MIR Call D1B Main identity/catalog co-seal I0 (private owner only)
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -58,9 +58,9 @@ Smallest next slice:
   legacy recovery, and VM/backend routes remain closed. The selected D0 below
   is the current sub-boundary; it does not open those later consumers.
 
-Selected bounded design row:
-  `MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0` is now selected from the
-  accepted language SSOTs: `Main.main` remains an ordinary source method and a
+Selected bounded design row (I0 is now the active implementation cell):
+  `MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0` is accepted from the
+  language SSOTs, and its bounded I0 is active: `Main.main` remains an ordinary source method and a
   qualified MethodCall remains the canonical StaticBoxMethod family. Preserve
   `ParserNormalAppExecutionRelationV1.main_callable`, join it once to the
   same-session source-backed catalog row and brand, and retain the existing

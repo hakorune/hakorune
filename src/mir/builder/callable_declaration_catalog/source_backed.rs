@@ -15,7 +15,7 @@ use crate::parser::{
 use super::catalog::validate_parameters;
 use super::{
     CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
-    SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
+    SameModuleCallableNamespaceV1, SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
     SelectedNormalCallableSourceSiteV1, SelectedTopLevelFunctionKeyV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
     VerifiedSelectedNormalCallableSourceInventoryV1,
@@ -30,6 +30,48 @@ pub(crate) enum SourceBackedCallableCatalogIssueV1 {
     ArityOverflow,
     DuplicateCanonicalKey,
     DuplicateSelectedKey,
+    AppMainMissing,
+    AppMainDuplicate,
+    AppMainNonStatic,
+}
+
+/// Private source/catalog identity co-seal for the App `Main.main` row.
+///
+/// This is not a target or lowering receipt. The parser-issued identity and
+/// catalog key stay together so `into_catalog()` cannot discard the exact
+/// relation after the source scan. Fields remain private; later root wiring
+/// may borrow this relation only from the same installed catalog.
+#[derive(Debug)]
+pub(crate) struct AppMainCatalogCoSealV1 {
+    parser_identity: CallableDeclarationIdentityV1,
+    catalog_key: CanonicalSameModuleCallableKeyV1,
+    catalog_brand: SameModuleCallableCatalogBrandV1,
+}
+
+impl AppMainCatalogCoSealV1 {
+    fn new(
+        parser_identity: CallableDeclarationIdentityV1,
+        catalog_key: CanonicalSameModuleCallableKeyV1,
+        catalog_brand: SameModuleCallableCatalogBrandV1,
+    ) -> Self {
+        Self {
+            parser_identity,
+            catalog_key,
+            catalog_brand,
+        }
+    }
+
+    pub(in crate::mir) fn parser_identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.parser_identity
+    }
+
+    pub(in crate::mir) fn catalog_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.catalog_key
+    }
+
+    pub(in crate::mir) fn catalog_brand(&self) -> &SameModuleCallableCatalogBrandV1 {
+        &self.catalog_brand
+    }
 }
 
 #[derive(Debug)]
@@ -83,7 +125,7 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
             let mut selected_rows = Vec::new();
             let mut selected_identities = Vec::new();
             let mut selected_keys = BTreeSet::new();
-            let mut matched_app_main = false;
+            let mut matched_app_main = None;
             let mut matched_app_static_children = 0usize;
 
             for row in loan.rows() {
@@ -160,7 +202,18 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                         }
                         let role = if let Some(main) = app_relation {
                             if main.main_callable().same_as(row.identity()) {
-                                matched_app_main = true;
+                                if matched_app_main.is_some() {
+                                    return Err(
+                                        SourceBackedCallableCatalogIssueV1::AppMainDuplicate,
+                                    );
+                                }
+                                if key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+                                {
+                                    return Err(
+                                        SourceBackedCallableCatalogIssueV1::AppMainNonStatic,
+                                    );
+                                }
+                                matched_app_main = Some((row.identity().clone(), key.clone()));
                                 continue;
                             }
                             if main
@@ -226,12 +279,21 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                 });
             }
 
-            if let Some(main) = app_relation {
-                if !matched_app_main || matched_app_static_children != main.static_children().len()
-                {
+            let app_main_co_seal = if let Some(main) = app_relation {
+                if matched_app_static_children != main.static_children().len() {
                     return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
                 }
-            }
+                let Some((parser_identity, catalog_key)) = matched_app_main else {
+                    return Err(SourceBackedCallableCatalogIssueV1::AppMainMissing);
+                };
+                Some(AppMainCatalogCoSealV1::new(
+                    parser_identity,
+                    catalog_key,
+                    brand.clone(),
+                ))
+            } else {
+                None
+            };
 
             let static_keys_by_method_and_arity = static_lookup
                 .into_iter()
@@ -252,6 +314,7 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                     rows_by_key,
                     static_keys_by_method_and_arity,
                     selected_source_inventory,
+                    source_backed_app_main: app_main_co_seal,
                 },
                 selected: selected_identities.into_boxed_slice(),
             })

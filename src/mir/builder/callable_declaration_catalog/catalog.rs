@@ -60,6 +60,7 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
     pub(super) static_keys_by_method_and_arity:
         BTreeMap<(Box<str>, u32), Box<[CanonicalSameModuleCallableKeyV1]>>,
     pub(super) selected_source_inventory: VerifiedSelectedNormalCallableSourceInventoryV1,
+    pub(super) source_backed_app_main: Option<super::source_backed::AppMainCatalogCoSealV1>,
 }
 
 #[cfg_attr(not(test), allow(dead_code))]
@@ -251,6 +252,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                 selected_source_rows,
                 selected_semantic_blockers,
             ),
+            source_backed_app_main: None,
         })
     }
 
@@ -270,6 +272,12 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         &self,
     ) -> &VerifiedSelectedNormalCallableSourceInventoryV1 {
         &self.selected_source_inventory
+    }
+
+    pub(in crate::mir) fn source_backed_app_main(
+        &self,
+    ) -> Option<&super::source_backed::AppMainCatalogCoSealV1> {
+        self.source_backed_app_main.as_ref()
     }
 
     pub(crate) fn declaration(
