@@ -1,7 +1,7 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
-observed_commit = "ca4e3c9687"
+observed_commit = "9f0e34ec6a"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
@@ -34,11 +34,11 @@ main_validation = "src/mir/normal_callable_semantic_package/issuer.rs:193-275,39
 normal_root = "src/mir/builder/normal_default_root_catalog_lifecycle.rs:169-220,246-293,428-444,542-582 and src/mir/builder/program_root_lowering.rs:171-227,245-278 currently start normal Main as ScriptRoot or script semantic scope."
 cataloged_children = "src/mir/builder/normal_callable_semantic_loan_port.rs:75-151,427-459 constructs Cataloged lineage for selected children, not the normal Main root."
 raw_compat = "src/mir/builder/recursive_child_lowering.rs:496-525 constructs Main(locator) only for raw compatibility."
-missing_witness = "ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() have no existing common comparison witness; raw context also lacks exact semantic owner/site/body-kind equality."
+missing_witness = "The named root callback is real, but ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() still have no existing common comparison witness; raw context also lacks exact semantic owner/site/body-kind equality."
 
 [design_tasks]
 route = "Decide and record whether normal App Main root adopts Cataloged(app_main.catalog_key()) as its canonical raw lineage; do not perform that switch here."
-callback = "Name the existing production root callback and carry AppMainCatalogCoSealV1 plus validated forest through a private one-shot scope; a dead comparator/helper is not sufficient."
+callback = "The existing production root callback is finish_normal_default_root_after_pre_effect_bind (src/mir/builder/normal_default_root_catalog_post_install.rs:29-128), reached from normal_default_root_catalog_lifecycle.rs:590-616. It currently receives package/source/work-plan inputs but no AppMainCatalogCoSealV1-to-raw lineage witness; specify a private one-shot handoff there rather than adding a disconnected comparator/helper."
 witness = "Specify a private same-session/co-brand witness or an existing one-shot owner boundary; do not compare unrelated brand types by value or invent a public session ID."
 raw_exactness = "Identify an existing raw site/body-kind API or design a private comparison boundary; never derive it from Main spelling, arity, symbol, or statement index."
 nested = "Keep root owner exact; reject nested-only or mixed direct-call observations before effects and never inherit the parent Cataloged lineage across owner transitions."
