@@ -196,8 +196,13 @@ elif phase == "cataloged_source_coseal_validation":
         current_state = tomllib.load(stream)
     if current_state.get("work_mode") != "fast":
         raise SystemExit("Cataloged validation guard requires fast work mode")
-    if current_state.get("current_execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
-        raise SystemExit("Cataloged validation guard current row drifted")
+    expected_active_row = (
+        "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
+        if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
+        else "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0"
+    )
+    if current_state.get("current_execution_row") != expected_active_row:
+        raise SystemExit("Cataloged validation current row drifted")
     if not isinstance(d1_card, dict):
         raise SystemExit("D1 validation card is missing")
     contract = d1_card.get("validation_guard_contract")
@@ -207,7 +212,19 @@ elif phase == "cataloged_source_coseal_validation":
         raise SystemExit("D1 validation guard execution row drifted")
     if contract.get("status") not in {"guard_fast_open", "guard_landed"}:
         raise SystemExit("D1 validation guard status drifted")
-    if d1_card.get("implementation_permission") is not False:
+    if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
+        next_row = d1_card.get("next_bounded_row")
+        if not isinstance(next_row, dict):
+            raise SystemExit("D1 validation next row is missing")
+        if next_row.get("task_id") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
+            raise SystemExit("D1 validation task id drifted")
+        if next_row.get("status") not in {"fast_open", "landed"}:
+            raise SystemExit("D1 validation next-row status drifted")
+        if next_row.get("implementation_permission") is not True:
+            raise SystemExit("D1 validation implementation permission is not scoped open")
+        if d1_card.get("implementation_permission") is not False:
+            raise SystemExit("D1 broad semantic implementation permission opened")
+    elif d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened during guard-only row")
 else:
     if card.get("implementation_permission") is not False:
@@ -348,6 +365,42 @@ elif phase == "cataloged_source_coseal_validation":
     for path in source_paths:
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"Cataloged validation owner reached the 760-line split boundary: {path}")
+    if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
+        batch_issuer_path = mir_root / "callable_semantic_batch/issuer.rs"
+        batch_mod_path = mir_root / "callable_semantic_batch/mod.rs"
+        package_issuer_path = mir_root / "normal_callable_semantic_package/issuer.rs"
+        batch_issuer = batch_issuer_path.read_text()
+        batch_mod = batch_mod_path.read_text()
+        package_issuer_text = package_issuer_path.read_text()
+        for token in (
+            "DirectCallObservationBatchPolicyV1",
+            "ObserveForCatalogedValidation",
+            "issue_resolved_callable_semantic_batch_with_policy_v1",
+        ):
+            if token not in batch_issuer:
+                raise SystemExit(f"Cataloged validation policy is missing: {token}")
+        if "DirectCallObservationBatchPolicyV1" not in batch_mod:
+            raise SystemExit("Cataloged validation policy is not re-exported")
+        if package_issuer_text.count("validate_cataloged_source_co_seal_v1(") != 2:
+            raise SystemExit("Cataloged validation helper must be defined and called exactly once")
+        helper_order = [
+            package_issuer_text.find("issue_selected_callable_batch_map_v1"),
+            package_issuer_text.find("validate_cataloged_source_co_seal_v1"),
+            package_issuer_text.find("let parameter_contracts"),
+        ]
+        if any(index < 0 for index in helper_order) or helper_order != sorted(helper_order):
+            raise SystemExit("Cataloged validation helper is not between selected map and parameters")
+        for token in (
+            "SelectedNormalCallableKeyV1::Cataloged",
+            "StaticBoxMethod",
+            "source_site_inventory",
+            "with_lowering_input",
+            "semantic_owners",
+            ".owners()",
+            "is_same",
+        ):
+            if token not in package_issuer_text:
+                raise SystemExit(f"Cataloged validation owner/site proof is missing: {token}")
 
 elif phase == "cataloged_i0":
     # This phase is intentionally future-facing.  Running it before the

@@ -113,8 +113,8 @@ reopen_boundary = "Do not open production target publication until the Cataloged
 
 [next_bounded_row]
 task_id = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
-status = "design_candidate"
-implementation_permission = false
+status = "fast_open"
+implementation_permission = true
 scope = "Cataloged static-box owners only. Reuse the existing forest-wide observation, selected batch/map, source-site inventory, and same-session catalog brand to validate owner/site plus the expected Cataloged provenance relation before prepare_install; preserve current target-unissued rejection and do not connect a successful direct-call route."
 source_authority = "Existing VerifiedSelectedCallableBatchMapV1, VerifiedResolvedCallableSemanticBatchV1, VerifiedSemanticOwnerForestV1, VerifiedResolvedSourceSiteInventoryV1, the Cataloged key relation, and the same-session callable catalog brand. RawInvocationRootLineageV1 is still downstream-only at this boundary."
 canonical_issuer = "A private package-issuer validation helper after the existing batch/map products are available and before prepare_install; it validates owner/site and key-derived expected provenance, emits no Callee or target, then drops its transient result."
@@ -162,7 +162,7 @@ permission_blockers = [
 
 [validation_guard_contract]
 phase = "cataloged_source_coseal_validation"
-status = "guard_fast_open"
+status = "guard_landed"
 execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0"
 registry = "Reuse mir-call-d1b-cataloged-affine-loan-lifecycle in guard_rows.toml; add no second script or per-cell guard."
 owner = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"
@@ -206,7 +206,7 @@ allowed_files = [
 
 [cataloged_validation_registration_row]
 execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
-status = "cataloged_validation_design_ready"
+status = "cataloged_validation_fast_open"
 allowed_files = [
   "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
   "tools/checks/guard_rows.toml",
