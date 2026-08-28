@@ -766,7 +766,7 @@ no_safe_slice = [
 observed_commit = "4bdebb238a"
 status = "contract_sealed"
 evidence = "Read-only worker audits agree that the nine owner rows cover all 18 textual adapter references; each row now has one finite disposition and an explicit non-authority/reopen rule."
-remaining_blocker = "This is a design-only closure. The adapter still has production users, and exact source-backed successors are not executed yet. D1B actual lineage equality, consuming package-plus-loan, scoped raw reborrow, and Cataloged dispatcher cutover remain closed."
+remaining_blocker = "This is a design-only closure. The adapter still has production users, and exact source-backed successors are not executed yet. The legacy print validator (CalleeResolverBox::validate_args) remains a named compatibility residual until canonical print/1 ingress owns the check. D1B actual lineage equality, consuming package-plus-loan, scoped raw reborrow, and Cataloged dispatcher cutover remain closed."
 next_row = "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-D0 (selected design-only row; physical root lowering and package/loan remain closed)"
 implementation_permission = false
 
@@ -902,12 +902,12 @@ stop = [
 ]
 
 [b1_feature_recheck_2026_08_28]
-observed_commit = "d6c7deda3d"
+observed_commit = "307a951d76"
 status = "structural_consumer_green"
 command = "CARGO_BUILD_JOBS=2 cargo check --profile quick --lib --features vm-reference"
 result = "passed"
-finding = "The older report's claimed vm-reference type mismatch is stale at this HEAD: backend/mir_interpreter/handlers/calls/global.rs consumes CanonicalGlobalTargetV1 through execute_global_target, and the feature-enabled library check succeeds."
-remaining = "The legacy execute_global_function(&str) entry and selected-symbol typed projection users remain compatibility/transitional edges (including Method(None)); they are not canonical B1 authority and remain later retirement work."
+finding = "The supplied vm-reference type-mismatch report is stale at this HEAD: backend/mir_interpreter/handlers/calls/global.rs consumes CanonicalGlobalTargetV1 through execute_global_target, and the feature-enabled library check is green."
+remaining = "The legacy execute_global_function(&str) entry and selected-symbol typed projection users remain compatibility/transitional edges (including Method(None)); CalleeResolverBox::validate_args(print) still permits one-or-more arguments on the legacy unified path and is a named B1-family residual, not a D1 blocker."
 non_claims = "This recheck does not close D1B source relation, package/loan, raw dispatcher, Call schema, or any separate qualified MethodCall lane. Bare StaticBoxMethod fate is already fixed as canonical reject/compatibility park."
 
 [freestatic_pre_effect_target_handoff_r0]
