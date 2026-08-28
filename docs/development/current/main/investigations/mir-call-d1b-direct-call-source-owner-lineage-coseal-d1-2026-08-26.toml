@@ -410,3 +410,219 @@ no_safe_slice = [
   "the exact function-table projection cannot be implemented as a one-way structural consumer without reopening target selection",
   "feature compilation requires changing builder producers, D1B transport, Method(None), or Call schema",
 ]
+
+[b1_family_d0]
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-FAMILY-D0"
+status = "design_stop"
+observed_at = "2026-08-28"
+observed_commit = "4bdebb238a"
+implementation_permission = false
+parent_row = "MIR-CALL-GLOBAL-TARGET-B1-CORRECTIVE-R0"
+decision = "Freeze a finite disposition for every remaining selected-symbol adapter edge before D1B issuer/loan work. The typed Global carrier is only a carrier; source/declaration owners issue targets, while relationless name/symbol/arity/plan routes reject, isolate, or retire. No new adapter user is permitted."
+
+[b1_family_d0.boundary]
+starts = "the already-landed CanonicalGlobalTargetV1 carrier and the nine-file selected-symbol adapter surface"
+ends = "each adapter occurrence has exactly one named owner, action, terminal-or-successor, non-authority, and reopen trigger; only then may the Cataloged D1B source/lineage/loan row be selected"
+includes = [
+  "18 textual adapter references across nine files (13 call sites plus definition/import anchors)",
+  "Builtin Print, explicit provider Extern, same-module free/static, operator, physical thunk, CorePlan/JoinIR, and compatibility families",
+  "pre-effect rejection or named isolation for relationless edges",
+  "the existing vm-reference structural consumer and C0 carrier census as evidence only",
+]
+excludes = [
+  "D1B target issuance, RawInvocationRootLineage transport, package-plus-loan, raw dispatcher, or Call publication",
+  "Method(None), Resolved/recovery retirement, Call schema, JSON/wire, VM route retirement, and broad RawLegacy changes",
+  "any new String parser, fallback arity, registry lookup, physical-symbol reconstruction, or adapter production user",
+]
+
+[b1_family_d0.brief]
+source_authority = "Existing builtin/provider policy, same-brand callable declaration catalog, exact operator relation, exact thunk/Join relation, or named compatibility owner; selected-symbol text is not an issuer."
+canonical_issuer = "Only an existing exact declaration-backed owner may issue CanonicalGlobalTargetV1; the adapter itself is a temporary carrier bridge and has no authority."
+non_authority = [
+  "name/arity parsing or completion",
+  "physical symbols, registry keys, plan Strings, StaticMethodId parsing, environment flags, and consumer-side resolver/retry",
+]
+fail_fast = "Missing, ambiguous, foreign, wrong-kind, wrong-arity, or relationless family edges reject before argument/effect work; fixture/external edges use a named ParkedSealed owner."
+smallest_next_slice = "Complete this finite nine-owner matrix and the existing C0 dual-closeout check; then open only MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0."
+non_claims = [
+  "This design does not remove the adapter, issue a Callee, or make the vm-reference feature a product route.",
+  "A green matrix/guard is not D1B implementation permission; executable proof remains a later atomic row.",
+]
+
+[b1_family_d0.finite_state]
+states = [
+  "CutoverBlockerOpen",
+  "SuccessorContractSealed",
+  "ParkedSealed",
+  "CutoverBlockerClosed",
+]
+transition = "Every one of the nine adapter-owner rows must be SuccessorContractSealed or explicitly ParkedSealed. CutoverBlockerClosed is reserved for the later executable caller-zero proof. Any unclassified, duplicated, mixed-family, or missing owner remains CutoverBlockerOpen."
+terminal_policy = "A pre-effect typed reject, an exact declaration-backed successor, or a named external/fixture park is terminal for its own edge only. None may be used to synthesize a target for another family."
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/calls/call_target.rs"
+anchors = "definition"
+family = "adapter-definition"
+owner = "selected-symbol compatibility adapter owner"
+action = "retire"
+terminal_kind = "adapter_removed_after_all_users_zero"
+non_authority = "symbol parsing, fallback arity, owner.method splitting, and target construction from text"
+reopen = "a new production caller is added or an exact declaration-backed issuer cannot replace the final caller"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/calls/build.rs"
+anchors = "25,409"
+family = "same-module-free-or-static relationless Resolved"
+owner = "ordinary preflight/call owner"
+action = "retire"
+terminal_kind = "typed_reject_before_arguments"
+non_authority = "post-argument name/arity resolution and unique-static recovery"
+reopen = "an exact same-brand declaration relation is supplied before argument descent"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/calls/static_resolution.rs"
+anchors = "14,134,174"
+family = "tail/header recovery"
+owner = "static recovery owner"
+action = "retire"
+terminal_kind = "typed_reject_before_arguments"
+non_authority = "suffix scan, environment flag, fallback arity, and selected-symbol reconstruction"
+reopen = "an existing exact catalog-key relation is made the sole source-backed route"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/normal_module_transaction/physical_thunk.rs"
+anchors = "6,83"
+family = "physical thunk"
+owner = "sealed Main/thunk relation owner"
+action = "adapt"
+successor_ref = "exact thunk declaration relation"
+non_authority = "source.symbol() parse-back and synthetic arity"
+reopen = "the thunk lacks an exact owner/entry relation or reconstructs a target from a physical symbol"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/ops/arithmetic.rs"
+anchors = "107,177"
+family = "operator"
+owner = "operator declaration/direct BinOp owner"
+action = "retire"
+terminal_kind = "typed_reject_before_effect"
+non_authority = "environment flags and hardcoded operator-box names"
+reopen = "an exact declared operator relation is available before emission"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/ops/comparison.rs"
+anchors = "75"
+family = "operator"
+owner = "operator declaration/direct Compare owner"
+action = "retire"
+terminal_kind = "typed_reject_before_effect"
+non_authority = "environment flags and hardcoded CompareOperator names"
+reopen = "an exact declared comparison relation is available before emission"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/ops/unary.rs"
+anchors = "203"
+family = "operator"
+owner = "operator declaration/direct unary owner"
+action = "retire"
+terminal_kind = "typed_reject_before_effect"
+non_authority = "environment flags and hardcoded unary operator names"
+reopen = "an exact declared unary relation is available before emission"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs"
+anchors = "16,154"
+family = "CorePlan GlobalCall"
+owner = "CoreEffectPlan relation owner"
+action = "isolate"
+terminal_kind = "named_plan_compatibility_or_typed_reject"
+non_authority = "CoreEffectPlan::GlobalCall.func String and physical name projection"
+reopen = "the plan carries an exact declaration-backed relation instead of a raw function string"
+
+[[b1_family_d0.adapter_owner_rows]]
+path = "src/mir/builder/rewrite/known.rs"
+anchors = "204,330,437,554"
+family = "known-call rewrite"
+owner = "rewrite/fixture owner"
+action = "isolate"
+terminal_kind = "rewrite_not_a_production_target_issuer"
+non_authority = "class/name/method/arity heuristics, candidate lookup, and environment flags"
+reopen = "rewrite is explicitly promoted with an exact declaration relation and a named production owner"
+
+[b1_family_d0.family_contracts]
+note = "These are family-level contracts, not new receipts. The nine owner rows above are the finite closure unit."
+
+[[b1_family_d0.family_contracts.rows]]
+family = "BuiltinPrint"
+authority = "builtin policy"
+successor_or_terminal = "Builtin(Print), exact print/1"
+failure = "wrong arity or alias drift -> pre-effect typed reject"
+non_authority = "selected-symbol adapter and provider-name matching"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "ProviderExtern"
+authority = "explicit provider declaration"
+successor_or_terminal = "Extern(panic|exit|other named provider) only when declared"
+failure = "bare error/now/math/gc or wrong arity -> typed reject; no Global fallback"
+non_authority = "Global string prefix matching and VM repair"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "SameModuleFree"
+authority = "same-brand exact final-module declaration"
+successor_or_terminal = "SameModule::FreeFunction"
+failure = "missing/foreign/ambiguous/wrong arity -> typed reject"
+non_authority = "name plus fallback arity"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "SameModuleStatic"
+authority = "exact owner/method/arity declaration relation"
+successor_or_terminal = "SameModule::StaticBoxMethod"
+failure = "missing receiver/relation or foreign brand -> typed reject; never Method(None)"
+non_authority = "owner.method string parsing"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "Operator"
+authority = "exact declared operator relation or direct BinOp/Compare route"
+successor_or_terminal = "typed operator target or direct operation"
+failure = "env/hardcoded-only route -> pre-effect typed reject"
+non_authority = "operator box name and environment flag"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "PhysicalThunk"
+authority = "exact Main/header/entry relation"
+successor_or_terminal = "relation-backed typed target"
+failure = "missing relation -> typed reject or named isolate"
+non_authority = "physical symbol parse-back"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "JoinIR/CorePlan"
+authority = "JoinFuncId/declaration/call co-seal or exact plan relation"
+successor_or_terminal = "typed same-module target"
+failure = "generated name/arity or raw plan String -> compatibility isolate/reject"
+non_authority = "generated symbol and registry lookup"
+
+[[b1_family_d0.family_contracts.rows]]
+family = "Compatibility"
+authority = "named owner-local ingress"
+successor_or_terminal = "one-way typed projection or ParkedSealed external/fixture"
+failure = "parse failure -> typed reject; no schema retry/reclassification"
+non_authority = "compatibility path as canonical source authority"
+
+[b1_family_d0.acceptance]
+positive = [
+  "all nine adapter-owner rows are present exactly once and cover 18 textual references",
+  "each row has one owner, action, terminal-or-successor, non-authority, and reopen trigger",
+  "Builtin/provider, same-module, operator, thunk, plan, and compatibility family contracts are finite and non-overlapping",
+  "existing C0 carrier and vm-reference structural guards remain green without adding adapter users",
+]
+negative = [
+  "unclassified, duplicated, relationless, foreign, mixed-brand, or wrong-arity edges remain CutoverBlockerOpen",
+  "no row may issue a target from name/arity/symbol/registry/plan String or call a consumer-side resolver",
+  "B1 family closure cannot be used to claim D1B source/lineage co-seal, package/loan transport, or Call publication",
+]
+implementation_gate = "After this matrix is contract-sealed, the next executable row is Cataloged StaticBoxMethod only: exact source/owner/site/brand/lineage, private package-plus-affine loan, take_once -> arguments once -> canonical Call once -> residual zero."
+no_safe_slice = [
+  "any owner needs a new generic String-to-target adapter or a fallback arity",
+  "an exact relation is absent and name/symbol/registry lookup would be the only proposed successor",
+  "closing one family requires changing D1B transport, Method(None), Call schema, JSON, VM/backend, or broad RawLegacy",
+]
