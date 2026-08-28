@@ -1,7 +1,7 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
-observed_commit = "77372809ec"
+observed_commit = "fde15501f5"
 implementation_permission = false
 guard_phase = "main_raw_cataloged_handoff_d0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
@@ -87,3 +87,11 @@ forbidden = "No src/mir, fixture, Cargo, production switch, target/Callee/loan/d
 acceptance = "Fast-open no-arg selected this task; unknown phase failed closed; after closeout no-arg selects the active D0 design phase; the already-supported bridge and accepted historical phases remain selectable; pointer guard passes; broad D1 and active semantic permission remain false."
 implementation_commit = "afb0d79054"
 closeout = "bash -n, current_state_pointer_guard, run_row_guard --only mir-call-d1b-cataloged-affine-loan-lifecycle, explicit bridge_ready, and unknown-phase rejection passed; no src/mir or semantic Call files changed; work_mode returned to design_stop and D1 remains implementation-closed."
+
+[external_feedback_reconciliation_2026_08_28]
+status = "reconciled_without_opening_a_second_semantic_row"
+main_observation = "The reported App Main fail-open is already closed by 012099e01b/605cf718d5: the dedicated pre-install validator calls the forest-wide observation helper, and root-only, nested-only, and mixed direct-call negatives are present. No new Main gate task is opened."
+t0_scope = "MIR-CALL-D1B-T0-SCOPE-RECONCILE-D0 is a docs-only follow-up: identity/forest T0/C0/R0 gates are closed, but Main raw Cataloged handoff is not. Keep implementation_permission=false and do not treat T0 as route connection evidence."
+guard_source = "MIR-CALL-D1B-LIFECYCLE-GUARD-CURRENT-CARD-SOURCE-R1 is a later hygiene follow-up: remove the remaining historical readiness-audit dependency from the shared lifecycle guard without adding a guard family or opening D1 semantics."
+diagnostic_payload = "MIR-CALL-D1B-BARE-STATIC-REJECT-DIAGNOSTIC-D0 remains parked: the bare-static route already rejects before arguments/effects, but Rejected.error and its callers still carry String. Typed diagnostic payload requires its own design row and is not part of the raw handoff."
+active_blocker = "The only active D1 blocker remains the live Main raw-scope callback/session witness and exact owner/site/body-kind relation. ScriptRoot-to-Cataloged switching, target/Callee, package+loan, dispatcher, and Call changes remain closed."

@@ -795,7 +795,9 @@ round-trip; and no family migration changes compiler or test semantics.
 
 ## Short closed tail
 
-- normal-root T0/C0/R0 and atomic source-backed cutover are closed.
+- normal-root T0/C0/R0 identity/forest gates are closed; the installed App Main
+  raw Cataloged handoff remains the active D1 design stop, so this line does not
+  claim that the Main raw route or atomic source-backed cutover is connected.
 - JSON-v0 Call target resolution and Program late target rewrite are closed.
 - Callee operand/use/escape/ownership/query projection rows are closed.
 - selected optimizer/Rust VM/printer/JSON/native Call terminal prerequisites are
