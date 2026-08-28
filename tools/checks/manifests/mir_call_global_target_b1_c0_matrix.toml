@@ -1,7 +1,7 @@
 schema_version = 1
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
 card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
-phase = "c0_dual_readiness"
+phase = "c0_dual_closeout"
 source_roots = ["src", "crates"]
 required_registry_rows = [
   "mir-call-global-target-b0-machine-census",
@@ -31,7 +31,7 @@ token_families = ["Callee::Global", "CallTarget::Global"]
 scope = "compiled"
 role = "producer-or-recovery"
 selector = "compiled-builder-calls"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 expected_files = 14
 expected_occurrences = 33
 
@@ -41,7 +41,7 @@ token_families = ["Callee::Global", "CallTarget::Global"]
 scope = "compiled"
 role = "adjacent-owner"
 selector = "compiled-builder-adjacent"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 expected_files = 15
 expected_occurrences = 25
 
@@ -61,7 +61,7 @@ token_families = ["Callee::Global", "CallTarget::Global"]
 scope = "compiled"
 role = "terminal-consumer"
 selector = "compiled-backend"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 expected_files = 3
 expected_occurrences = 7
 
@@ -71,7 +71,7 @@ token_families = ["Callee::Global", "CallTarget::Global"]
 scope = "compiled"
 role = "compatibility-consumer"
 selector = "compiled-runner"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 expected_files = 6
 expected_occurrences = 16
 
@@ -106,11 +106,12 @@ expected_files = 78
 expected_occurrences = 166
 
 [[dispositions]]
-id = "retire-recovery-before-effects"
+id = "pre-effect-reject-contract"
 owner = "ordinary preflight/recovery owner"
 action = "retire"
-terminal_kind = "typed_reject_before_arguments_or_catalog_issued_target"
-state = "CutoverBlockerOpen"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+source_relation_ref = "calls/build.rs + function_call_preflight_route.rs exact pre-effect disposition"
+state = "SuccessorContractSealed"
 reopen = "post-argument recovery or name reconstruction is observed"
 non_authority = "name/arity lookup, physical symbol projection, and consumer-side resolver retry"
 
@@ -119,18 +120,40 @@ id = "typed-carrier-consumer"
 owner = "core Callee/CallTarget schema owner"
 action = "adapt"
 successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
-state = "CutoverBlockerOpen"
+source_relation_ref = "Callee/CallTarget dual structural carrier owner"
+state = "SuccessorContractSealed"
 reopen = "independent Callee or CallTarget authority is observed"
 non_authority = "parallel legacy carrier, formatter/reparse, and String target reconstruction"
 
 [[dispositions]]
-id = "compiled-adjacent-owner"
+id = "compiled-adjacent-successor-contract"
 owner = "existing compiled adjacent owner"
 action = "adapt"
 successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
-state = "CutoverBlockerOpen"
+source_relation_ref = "named direct/static, thunk, JoinIR, CorePlan, terminal, and operator owners"
+state = "SuccessorContractSealed"
 reopen = "new independent String Global authority appears"
 non_authority = "physical symbol, generated name, environment flag, or plan String as target authority"
+
+[[dispositions]]
+id = "ordinary-new-successor-contract"
+owner = "ordinary New claim/NewBox owner"
+action = "retain"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+source_relation_ref = "ordinary_new_admission.rs source claim and NewBox terminal"
+state = "SuccessorContractSealed"
+reopen = "birth target crosses the Global call boundary"
+non_authority = "birth string or header/symbol scan as a callable target"
+
+[[dispositions]]
+id = "rewrite-isolation-successor-contract"
+owner = "known-call rewrite owner"
+action = "isolate"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+source_relation_ref = "rewrite/known.rs explicit fixture or rewrite owner"
+state = "SuccessorContractSealed"
+reopen = "rewrite becomes a production Global issuer"
+non_authority = "rewrite strings are not a declaration-backed callable target"
 
 [[dispositions]]
 id = "isolate-fixture"
@@ -154,50 +177,55 @@ non_authority = "external wire/generated compatibility is outside the Rust core 
 id = "canonical-direct-call"
 path = "src/mir/canonical_direct_call.rs"
 anchor = "canonical_direct_call"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 owner = "direct-call materializer"
 action = "adapt"
 terminal = "exact declaration-backed target"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "physical symbol is used as authority"
 
 [[evidence_rows]]
 id = "normal-module-physical-thunk"
 path = "src/mir/builder/normal_module_transaction/physical_thunk.rs"
 anchor = "physical"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 owner = "module physical thunk"
 action = "adapt"
 terminal = "named owner/parked terminal"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "thunk reconstructs a target from a symbol"
 
 [[evidence_rows]]
 id = "joinir-call-generator"
 path = "src/mir/join_ir_to_mir/call_generator.rs"
 anchor = "Call"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 owner = "JoinIR call generator"
 action = "adapt"
 terminal = "typed Join relation or compatibility projection"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "generated name becomes target authority"
 
 [[evidence_rows]]
 id = "coreplan-global-call"
 path = "src/mir/builder/control_flow/plan/lowerer/effect_emission.rs"
 anchor = "GlobalCall"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 owner = "CorePlan"
 action = "adapt"
 terminal = "exact plan relation"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "func String is reintroduced as authority"
 
 [[evidence_rows]]
 id = "ordinary-new-claim"
 path = "src/mir/builder/ordinary_new_admission.rs"
 anchor = "claim"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "ordinary-new-successor-contract"
 owner = "ordinary New claim"
 action = "retain"
 terminal = "NewBox"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "birth target crosses Global boundary"
 
 [[evidence_rows]]
@@ -218,106 +246,117 @@ disposition_ref = "typed-carrier-consumer"
 owner = "CallTarget schema"
 action = "adapt"
 terminal = "simultaneous typed Callee/CallTarget carrier"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "a second Global carrier or String constructor appears"
 
 [[evidence_rows]]
 id = "legacy-call-emitter"
 path = "src/mir/builder/calls/emit.rs"
 anchor = "emit_legacy_call"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "legacy call emitter"
 action = "retire"
 terminal = "typed terminal or explicit compatibility isolate"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "a production caller requires name-based emission"
 
 [[evidence_rows]]
 id = "compat-global-entrypoint"
 path = "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs"
 anchor = "emit_global_unified"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "unified compatibility entrypoint"
 action = "retire"
 terminal = "typed terminal or explicit compatibility isolate"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "a production caller bypasses the typed terminal"
 
 [[evidence_rows]]
 id = "callee-string-resolver"
 path = "src/mir/builder/calls/resolver.rs"
 anchor = "pub fn resolve"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "legacy Callee resolver"
 action = "retire"
 terminal = "declaration-backed issuer or typed reject"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "a resolver remains a Global String issuer"
 
 [[evidence_rows]]
 id = "ordinary-resolved-call"
 path = "src/mir/builder/calls/build.rs"
 anchor = "build_resolved_function_call"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "ordinary resolved-call builder"
 action = "retire"
 terminal = "pre-effect typed disposition"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "arguments are lowered before target resolution"
 
 [[evidence_rows]]
 id = "ordinary-preflight-route"
 path = "src/mir/builder/calls/function_call_preflight_route.rs"
 anchor = "PreparedRawOrdinaryFunctionCompletionV1::Resolved"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "ordinary FunctionCall preflight"
 action = "retire"
 terminal = "pre-effect typed disposition"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "relationless calls re-enter Resolved"
 
 [[evidence_rows]]
 id = "static-recovery"
 path = "src/mir/builder/calls/static_resolution.rs"
 anchor = "try_unique_static_method_recovery"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "static recovery"
 action = "retire"
 terminal = "exact declaration relation or typed reject"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "unique or tail recovery emits a target"
 
 [[evidence_rows]]
 id = "unified-emitter-recovery"
 path = "src/mir/builder/calls/unified_emitter.rs"
 anchor = "emit_legacy_call"
-disposition_ref = "retire-recovery-before-effects"
+disposition_ref = "pre-effect-reject-contract"
 owner = "unified emitter recovery"
 action = "retire"
 terminal = "typed terminal without methodize"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "environment-gated fallback or Global-to-Method repair remains"
 
 [[evidence_rows]]
 id = "method-terminal-global"
 path = "src/mir/builder/calls/method_call_terminal.rs"
 anchor = "CallTarget::Global"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 owner = "method call terminal"
 action = "adapt"
 terminal = "declaration-backed typed target"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "method terminal reconstructs a target from a symbol"
 
 [[evidence_rows]]
 id = "known-rewrite-global"
 path = "src/mir/builder/rewrite/known.rs"
 anchor = "CallTarget::Global"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "rewrite-isolation-successor-contract"
 owner = "known-call rewrite"
 action = "isolate"
 terminal = "fixture or explicit rewrite owner"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "rewrite becomes a production Global issuer"
 
 [[evidence_rows]]
 id = "print-global-route"
 path = "src/mir/builder/stmts/print_stmt.rs"
 anchor = "CallTarget::Global"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "compiled-adjacent-successor-contract"
 owner = "print statement route"
 action = "adapt"
 terminal = "Builtin(Print) or typed reject"
+successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 reopen = "print acquires a non-builtin callable meaning"
 
 [[evidence_rows]]

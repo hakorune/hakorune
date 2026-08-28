@@ -375,6 +375,11 @@ def check_dual_surface(
             fail(
                 f"dispositions[{index}] SuccessorContractSealed requires successor_ref"
             )
+        if state == "SuccessorContractSealed":
+            nonempty(
+                raw.get("source_relation_ref"),
+                f"dispositions[{index}].source_relation_ref",
+            )
         if state == "CutoverBlockerClosed" and not terminal_present:
             fail(f"dispositions[{index}] closed blocker requires terminal_kind")
         dispositions[row_id] = raw
