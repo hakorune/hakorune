@@ -24,7 +24,7 @@ impl MirInterpreter {
                 Some(Callee::Global(n)) => {
                     crate::runtime::get_global_ring0().log.debug(&format!(
                         "[hb:path] call Callee::Global {} argc={}",
-                        n,
+                        n.display_name(),
                         args.len()
                     ));
                 }
@@ -65,16 +65,6 @@ impl MirInterpreter {
                     "[hb:path] call missing-callee argc={}",
                     args.len()
                 )),
-            }
-        }
-        // SSOT fast-path: route hostbridge.extern_invoke to extern dispatcher regardless of resolution form
-        if let Some(Callee::Global(func_name)) = callee {
-            if func_name == "hostbridge.extern_invoke"
-                || func_name.starts_with("hostbridge.extern_invoke/")
-            {
-                let v = self.execute_extern_function("hostbridge.extern_invoke", args)?;
-                self.write_result(dst, v);
-                return Ok(());
             }
         }
         if let Some(Callee::Method {
@@ -223,7 +213,7 @@ impl MirInterpreter {
         args: &[ValueId],
     ) -> Result<VMValue, VMError> {
         match callee {
-            Callee::Global(func_name) => self.execute_global_function(func_name, args),
+            Callee::Global(target) => self.execute_global_target(target, args),
             Callee::Method {
                 box_name,
                 method,

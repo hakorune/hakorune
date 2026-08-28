@@ -3,6 +3,9 @@ task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
 card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 phase = "c0_dual_closeout"
 source_roots = ["src", "crates"]
+scoped_fast_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+scoped_fast_row_key = "b1_vmref_consumer_i0"
+scoped_fast_task_id = "MIR-CALL-GLOBAL-TARGET-B1-VMREF-CONSUMER-I0"
 required_registry_rows = [
   "mir-call-global-target-b0-machine-census",
   "mir-call-global-target-b1-static-method-s0",
@@ -15,8 +18,8 @@ digest_algorithm = "sha256(path\\0count\\n)"
 id = "callee-global"
 token = "Callee::Global"
 expected_files = 142
-expected_occurrences = 270
-site_digest = "068064612ed9af686eb9cf09a1d15925535b9b9d20e372ad8818e93d8a48e956"
+expected_occurrences = 269
+site_digest = "57a01d0d33008eea8c93222d52f94a97c94202602d3a669bd61f224b9610a92c"
 
 [[token_aggregates]]
 id = "calltarget-global"
@@ -63,7 +66,7 @@ role = "terminal-consumer"
 selector = "compiled-backend"
 disposition_ref = "compiled-adjacent-successor-contract"
 expected_files = 3
-expected_occurrences = 7
+expected_occurrences = 6
 
 [[coverage_buckets]]
 id = "compiled-runner"

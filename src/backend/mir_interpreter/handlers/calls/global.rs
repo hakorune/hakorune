@@ -1,7 +1,75 @@
 use super::*;
 use crate::mir::naming::StaticMethodId;
+use hakorune_mir_defs::{
+    CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1, CanonicalSameModuleGlobalTargetV1,
+};
 
 impl MirInterpreter {
+    /// Consume an already-selected structural Global target.
+    ///
+    /// The function-table key below is a one-way physical projection.  It is
+    /// never parsed, completed from the argument count, or fed back into
+    /// target selection.  The legacy string entry point remains only for the
+    /// still-separate Method(None) compatibility route.
+    pub(super) fn execute_global_target(
+        &mut self,
+        target: &CanonicalGlobalTargetV1,
+        args: &[ValueId],
+    ) -> Result<VMValue, VMError> {
+        match target {
+            CanonicalGlobalTargetV1::Builtin(CanonicalBuiltinGlobalV1::Print) => {
+                if args.len() != 1 {
+                    return Err(self.err_arg_count("print", 1, args.len()));
+                }
+                return self.execute_extern_function("print", args);
+            }
+            CanonicalGlobalTargetV1::SameModule(
+                CanonicalSameModuleGlobalTargetV1::FreeFunction { name, arity },
+            ) => self.execute_structural_function_table_target(
+                &format!("{name}/{arity}"),
+                *arity,
+                args,
+            ),
+            CanonicalGlobalTargetV1::SameModule(
+                CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                    owner,
+                    method,
+                    arity,
+                },
+            ) => self.execute_structural_function_table_target(
+                &format!("{owner}.{method}/{arity}"),
+                *arity,
+                args,
+            ),
+        }
+    }
+
+    fn execute_structural_function_table_target(
+        &mut self,
+        function_key: &str,
+        arity: u32,
+        args: &[ValueId],
+    ) -> Result<VMValue, VMError> {
+        let expected = usize::try_from(arity).map_err(|_| {
+            self.err_invalid(format!(
+                "[vm-reference/global-target/arity-overflow] {function_key}"
+            ))
+        })?;
+        if args.len() != expected {
+            return Err(self.err_arg_count(function_key, expected, args.len()));
+        }
+        let Some(function) = self.functions.get(function_key).cloned() else {
+            return Err(self.err_unsupported(&format!(
+                "[vm-reference/global-target/unsupported] {function_key}"
+            )));
+        };
+        let mut argv = Vec::with_capacity(args.len());
+        for value in args {
+            argv.push(self.reg_load(*value)?);
+        }
+        self.exec_function_inner(&function, Some(&argv))
+    }
+
     pub(super) fn execute_global_function(
         &mut self,
         func_name: &str,
@@ -273,5 +341,92 @@ impl MirInterpreter {
                 Err(self.err_with_context("global function", &err_msg))
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
+    };
+
+    fn void_function(name: &str) -> MirFunction {
+        let entry = BasicBlockId::new(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: name.to_owned(),
+                params: Vec::new(),
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+        function
+            .get_block_mut(entry)
+            .expect("function entry exists")
+            .add_instruction(MirInstruction::Return { value: None });
+        function
+    }
+
+    #[test]
+    fn structural_free_function_uses_exact_table_key() {
+        let mut interpreter = MirInterpreter::new();
+        interpreter
+            .functions
+            .insert("free/0".to_owned(), void_function("free/0"));
+
+        let target = CanonicalGlobalTargetV1::new_free_function("free".into(), 0)
+            .expect("valid free-function target");
+        assert_eq!(
+            interpreter
+                .execute_global_target(&target, &[])
+                .expect("exact free function should execute"),
+            VMValue::Void
+        );
+    }
+
+    #[test]
+    fn structural_static_method_uses_exact_table_key() {
+        let mut interpreter = MirInterpreter::new();
+        interpreter
+            .functions
+            .insert("Helper.run/0".to_owned(), void_function("Helper.run/0"));
+
+        let target =
+            CanonicalGlobalTargetV1::new_static_box_method("Helper".into(), "run".into(), 0)
+                .expect("valid static-method target");
+        assert_eq!(
+            interpreter
+                .execute_global_target(&target, &[])
+                .expect("exact static method should execute"),
+            VMValue::Void
+        );
+    }
+
+    #[test]
+    fn builtin_print_rejects_wrong_arity_before_dispatch() {
+        let mut interpreter = MirInterpreter::new();
+        let target = CanonicalGlobalTargetV1::builtin_print();
+        let error = interpreter
+            .execute_global_target(&target, &[])
+            .expect_err("print/0 must reject");
+        assert!(error.to_string().contains("expects 1 arg"), "{error}");
+    }
+
+    #[test]
+    fn missing_structural_global_is_typed_unsupported() {
+        let mut interpreter = MirInterpreter::new();
+        let target = CanonicalGlobalTargetV1::new_free_function("missing".into(), 0)
+            .expect("valid free-function target");
+        let error = interpreter
+            .execute_global_target(&target, &[])
+            .expect_err("missing function-table entry must reject");
+        assert!(
+            error
+                .to_string()
+                .contains("vm-reference/global-target/unsupported"),
+            "{error}"
+        );
     }
 }

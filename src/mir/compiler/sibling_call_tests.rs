@@ -114,7 +114,7 @@ fn exact_sibling_call_is_order_independent_and_executes() {
             panic!("caller must contain one exact global call")
         };
 
-        assert_eq!(target, "callee/1");
+        assert_eq!(target.display_name(), "callee/1");
         assert_eq!(
             caller.metadata.value_types.get(call_result),
             Some(&MirType::Integer),

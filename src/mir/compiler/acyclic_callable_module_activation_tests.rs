@@ -245,12 +245,12 @@ fn one_call_rhs_branch_preserves_call_phi_and_parity() {
                 callee: Some(crate::mir::Callee::Global(target)),
                 args,
                 ..
-            } => Some((*dst, target.as_str(), args.as_slice())),
+            } => Some((*dst, target.display_name(), args.as_slice())),
             _ => None,
         })
         .collect::<Vec<_>>();
     assert_eq!(calls.len(), 1);
-    let (call_result, target, call_args) = calls[0];
+    let (call_result, target, call_args) = &calls[0];
     assert_eq!(target, "left/1");
     assert_eq!(call_args.len(), 1);
     assert_eq!(
@@ -273,7 +273,7 @@ fn one_call_rhs_branch_preserves_call_phi_and_parity() {
     assert_eq!(phis.len(), 1);
     let (_phi, inputs) = &phis[0];
     assert_eq!(inputs.len(), 2);
-    assert!(inputs.iter().any(|(_, value)| *value == call_result));
+    assert!(inputs.iter().any(|(_, value)| *value == *call_result));
     let merge = branch_function
         .blocks
         .values()
@@ -334,12 +334,12 @@ fn one_call_rhs_implicit_fallthrough_preserves_call_phi_and_baseline() {
                 callee: Some(crate::mir::Callee::Global(target)),
                 args,
                 ..
-            } => Some((*dst, target.as_str(), args.as_slice())),
+            } => Some((*dst, target.display_name(), args.as_slice())),
             _ => None,
         })
         .collect::<Vec<_>>();
     assert_eq!(calls.len(), 1);
-    let (call_result, target, call_args) = calls[0];
+    let (call_result, target, call_args) = &calls[0];
     assert_eq!(target, "left/1");
     assert_eq!(call_args.len(), 1);
     assert_eq!(
@@ -362,7 +362,7 @@ fn one_call_rhs_implicit_fallthrough_preserves_call_phi_and_baseline() {
     assert_eq!(phis.len(), 1);
     let (_phi, inputs) = &phis[0];
     assert_eq!(inputs.len(), 2);
-    assert!(inputs.iter().any(|(_, value)| *value == call_result));
+    assert!(inputs.iter().any(|(_, value)| *value == *call_result));
     let merge = branch_function
         .blocks
         .values()

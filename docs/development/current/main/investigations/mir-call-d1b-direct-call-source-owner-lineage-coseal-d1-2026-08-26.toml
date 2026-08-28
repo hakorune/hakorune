@@ -375,7 +375,11 @@ fail_fast = "A Global target is matched by its structural variant. Builtin(Print
 scope = [
   "src/backend/mir_interpreter/handlers/calls/mod.rs",
   "src/backend/mir_interpreter/handlers/calls/global.rs",
+  "src/backend/mir_interpreter/handlers/calls/README.md",
   "focused vm-reference call-handler tests owned by those modules",
+  "carrier-only assertions in src/mir/compiler/acyclic_callable_module_activation_tests.rs, src/mir/compiler/if_recipe_candidate_abort_d2_tests.rs, src/mir/compiler/sibling_call_tests.rs, and src/tests/mir_stage1_cli_emit_program_min.rs",
+  "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
+  "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
   "the active card and CURRENT_STATE pointer only",
 ]
 forbidden = [

@@ -316,9 +316,12 @@ fn explicit_two_call_rhs_preserves_targets_phi_and_runtime_parity() {
     assert_eq!(
         calls
             .iter()
-            .map(|(target, _)| target.as_str())
+            .map(|(target, _)| target.display_name())
             .collect::<BTreeSet<_>>(),
-        BTreeSet::from(["left_call_abort_d2/1", "right_call_abort_d2/1"])
+        BTreeSet::from([
+            String::from("left_call_abort_d2/1"),
+            String::from("right_call_abort_d2/1"),
+        ])
     );
     assert!(calls
         .iter()

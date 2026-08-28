@@ -11,7 +11,8 @@ Use `super::*` only and call through the interpreter methods.
 
 Files
 - `mod.rs`: entry point and callee routing
-- `global.rs`: global function calls (Callee::Global)
+- `global.rs`: structural global targets (Callee::Global) and the separate
+  legacy Method(None) compatibility entry point
 - `method.rs`: instance/static method calls (Callee::Method)
 - `externs.rs`: extern calls (Callee::Extern)
 
@@ -24,8 +25,18 @@ Removal status (Phase 2 complete)
   R6 atomic schema cutover; they are not runtime target authority here.
 
 Extern SSOT
-- `externs.rs` is the runtime SSOT for provider dispatch. Global calls that are extern-like should delegate here (e.g., `env.get`).
-- Arity suffix normalization: names like `env.get/1` are accepted and normalized to `env.get` before dispatch (both in Global and ExternCall paths).
+- `externs.rs` is the runtime SSOT for provider dispatch. Provider names must
+  arrive as `Callee::Extern`; the structural Global consumer does not repair a
+  provider call from text.
+- The separate compatibility entry point may normalize an arity suffix before
+  dispatch while its Method(None) route remains under retirement.
+
+Structural Global consumer
+- `Callee::Global` is consumed by its `CanonicalGlobalTargetV1` variant. The
+  supported `Builtin(Print)` route requires exactly `print/1`; same-module
+  targets use their sealed arity for one-way function-table lookup. Missing or
+  unsupported structural entries fail without name parsing, arity completion,
+  prefix matching, or retry. Provider routing belongs to `Callee::Extern`.
 
 Layer Guard
 - Scope: call routing only (Global/Method/Extern and missing-Callee

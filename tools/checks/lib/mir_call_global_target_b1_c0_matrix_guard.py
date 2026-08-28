@@ -233,19 +233,42 @@ def check_card_and_state(root: Path, manifest: dict[str, Any]) -> None:
             fail("fast state requires the C0 contract to be sealed")
         if guard_status != "landed_readiness":
             fail("fast B1 state requires the landed C0 contract guard")
-        b1 = card.get("b1_cutover")
-        if not isinstance(b1, dict):
-            fail("fast B1 state requires the active [b1_cutover] section")
-        if b1.get("task_id") != "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER":
-            fail("active B1 cutover task id drifted")
-        if b1.get("status") != "fast_open":
-            fail("active B1 cutover must be status=fast_open")
-        if b1.get("implementation_permission") is not True:
-            fail("active B1 cutover must explicitly permit implementation")
-        if state.get("current_execution_row") != b1["task_id"]:
-            fail("CURRENT_STATE current_execution_row does not select B1 cutover")
-        if state.get("next_execution_card") != b1["task_id"]:
-            fail("CURRENT_STATE next_execution_card does not select B1 cutover")
+        if state.get("current_execution_row") == "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER":
+            b1 = card.get("b1_cutover")
+            if not isinstance(b1, dict):
+                fail("fast B1 state requires the active [b1_cutover] section")
+            if b1.get("task_id") != "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER":
+                fail("active B1 cutover task id drifted")
+            if b1.get("status") != "fast_open":
+                fail("active B1 cutover must be status=fast_open")
+            if b1.get("implementation_permission") is not True:
+                fail("active B1 cutover must explicitly permit implementation")
+            if state.get("next_execution_card") != b1["task_id"]:
+                fail("CURRENT_STATE next_execution_card does not select B1 cutover")
+        else:
+            scoped_path = nonempty(
+                manifest.get("scoped_fast_card_path"), "scoped_fast_card_path"
+            )
+            scoped_key = nonempty(
+                manifest.get("scoped_fast_row_key"), "scoped_fast_row_key"
+            )
+            scoped_task_id = nonempty(
+                manifest.get("scoped_fast_task_id"), "scoped_fast_task_id"
+            )
+            scoped_card = load_toml(root / scoped_path)
+            scoped_row = scoped_card.get(scoped_key)
+            if not isinstance(scoped_row, dict):
+                fail(f"scoped fast card is missing [{scoped_key}]")
+            if scoped_row.get("task_id") != scoped_task_id:
+                fail("scoped fast task id drifted")
+            if scoped_row.get("status") != "fast_open":
+                fail("scoped fast row must be status=fast_open")
+            if scoped_row.get("implementation_permission") is not True:
+                fail("scoped fast row must explicitly permit implementation")
+            if state.get("current_execution_row") != scoped_task_id:
+                fail("CURRENT_STATE current_execution_row does not select scoped fast row")
+            if state.get("next_execution_card") != scoped_task_id:
+                fail("CURRENT_STATE next_execution_card does not select scoped fast row")
     elif work_mode == "design_stop":
         if c0.get("status") not in {"design_stop", "contract_sealed"}:
             fail("design_stop state requires an open or sealed C0 contract")
