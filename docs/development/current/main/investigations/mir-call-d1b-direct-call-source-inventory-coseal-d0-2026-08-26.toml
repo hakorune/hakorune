@@ -1,12 +1,12 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
-status = "b1_current_head_c0_design_stop"
+status = "b1_cutover_fast_open"
 base_observed_commit = "632c674a76"
 base_observed_at = "2026-08-26"
-observed_commit = "5b26b1a917"
+observed_commit = "014ef36628"
 observed_at = "2026-08-28"
-observed_source_delta = "HEAD after a54680b7c7 is docs/guard/manifest-only for C0 source-identity, family-boundary, and contract-close evidence; the compiled dual-surface census remains unchanged."
-implementation_permission = false
-permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; B1 current-head disposition and simultaneous Callee/CallTarget cutover remain design-gated; package/loan/issuer/dispatcher publication is closed"
+observed_source_delta = "HEAD 014ef36628 adds only the C0 contract-close manifest/card/guard evidence after the unchanged B1 S0 source baseline; no B1 carrier consumer has been switched."
+implementation_permission = true
+permission_scope = "Only MIR-CALL-GLOBAL-TARGET-B1-CUTOVER is open: adapt Callee::Global and CallTarget::Global together to the existing CanonicalGlobalTargetV1 carrier. D1B issuer/package/loan/dispatcher, CallFlags, Method(None), and legacy recovery remain closed."
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
 safety_child = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-d0-2026-08-26.toml"
@@ -42,7 +42,7 @@ non_authority = [
   "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
 ]
 fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
-smallest_next_slice = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0: exhaust the finite Global producer/consumer disposition and freeze the simultaneous Callee/CallTarget structural cutover. The forest-wide observation gate is landed; no target, loan, dispatcher, or Call publication is open."
+smallest_next_slice = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER: perform the simultaneous typed Callee/CallTarget carrier cutover within the named compiled owner families, with no new String issuer, formatter/reparse bridge, fallback, or retry."
 non_claims = [
   "the inventory does not issue a target or generalize the exact-i64 index",
   "lineage preservation does not authorize Global synthesis from names or arity",
@@ -279,14 +279,14 @@ no_safe_slice = [
 
 [b1_current_head_c0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-status = "design_stop"
+status = "contract_sealed"
 implementation_permission = false
 decision = "Complete a finite semantic disposition for every compiled Global producer and consumer before the structural carrier cutover. Callee and CallTarget change together to the accepted structural shape; no LegacyGlobal/IssuedTarget/Generic wrapper or new String issuer is allowed."
 boundary = "Starts at every compiled Callee::Global/CallTarget::Global producer or consumer and ends at the selected structural wire/terminal or explicit isolate/retire disposition. Path counts are scope hints only; completion requires owner/action evidence for each family."
 boundary_scope_amendment = "C0 closes the compiled Rust producer/consumer boundary and records explicit dispositions for adjacent wire/fixture/external surfaces. JSON-v0/v1 codecs, Python/llvmlite readers, and apps/selfhost-runtime copies remain outside the compiled carrier cutover as named ParkedSealed owners; they are not silently treated as proof of Rust semantic coverage."
 observed_census = "Current path census: Callee::Global 143 Rust files/272 occurrences (about 68 production-ish files/115 occurrences); CallTarget::Global 20 files/45 occurrences (about 17 production-ish files/36 occurrences). These counts do not prove semantic coverage and must not be used as the completion claim."
-current_head_reaudit = "At the 5b26b1a917 source baseline (2026-08-28), the compiled source boundary remains unchanged after the b8bc5cc105 dual-surface guard and the docs/guard/manifest-only tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The readiness guard derives both aggregates and compact buckets, and the finite successor contracts are sealed in the manifest; executable B1 proof remains pending."
-dual_surface_coverage_next = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0: derive and classify both Callee::Global and CallTarget::Global across the compiled boundary, while separating test-only, generated, wire, and external ParkedSealed owners. Do not open B1 until both surfaces have observed owner/action/terminal-or-successor/reopen evidence."
+current_head_reaudit = "At the 014ef36628 source baseline (2026-08-28), the compiled source boundary remains unchanged after the B1 S0 carrier and C0 contract-close tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The finite successor contracts are sealed in the manifest; executable B1 proof is now the selected implementation row."
+dual_surface_coverage_next = "C0 contract sealed at 014ef36628; retain the dual-surface guard as prerequisite evidence while B1 implements the typed carrier atomically."
 final_shape = "Callee::Global(CanonicalGlobalTargetV1) and CallTarget::Global(CanonicalGlobalTargetV1) are one atomic core decision. CanonicalGlobalTargetV1 remains serde-free and source-proof-free; its sole production construction authority is the exact declaration-backed callable catalog."
 finite_disposition = [
   "Builtin(Print) for exact print/1 only",
@@ -369,7 +369,7 @@ no_safe_slice = [
   "CallFlags public/feature/generated obligations remain unresolved but B1 is opened as if they were caller-zero",
   "a test/projection copy is treated as a production issuer, or an app/Python JSON operation name is used to justify structural carrier construction",
 ]
-next_row = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0"
+next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 next_prerequisite_row = "MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-D0"
 
 [b1_c0_dual_surface_coverage_d0]
@@ -565,4 +565,81 @@ non_claims = [
   "does not implement a typed carrier, issuer, package, loan, dispatcher, or pre-effect terminal",
   "does not treat a successor_ref as proof that successor code already exists",
   "does not reopen the rejected source-identity fast row or add a guard exception",
+]
+
+[b1_cutover]
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+status = "fast_open"
+implementation_permission = true
+opened_after = "014ef36628"
+parent_row = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
+decision = "Connect the already-landed serde-free CanonicalGlobalTargetV1 carrier to Callee::Global and CallTarget::Global in one structural cutover. Both surfaces change together; no parallel String carrier, formatter/reparse bridge, fallback, retry, or target repair is allowed."
+source_authority = "The existing declaration-backed callable catalog and named typed terminal owners remain the only production issuers. This row adapts an already-selected carrier; it does not invent a source relation or issue a new target from a name, arity, symbol, registry, or environment flag."
+canonical_issuer = "Existing source-backed issuer owners are adapted to construct CanonicalGlobalTargetV1 only after their current exact relation/terminal checks. The carrier module remains construction-policy-free; tests and external projections are not issuers."
+non_authority = [
+  "Callee::Global(String) and CallTarget::Global(String) as target authority",
+  "formatter/reparse, physical symbol, registry lookup, methodize, static-candidate cardinality, environment flag, or backend recovery",
+  "D1B facts, package/loan transport, consumer-side resolver retry, and CallFlags semantics",
+]
+fail_fast = "Any compiled Global producer without a named typed successor or explicit terminal, or any consumer that still requires String reconstruction, fails before publication; no partial carrier cutover is accepted."
+smallest_next_slice = "Adapt both Callee and CallTarget payloads to CanonicalGlobalTargetV1, then compile-fix only the named compiled consumers with direct structural forwarding. Keep the change as one semantic row across a few refactor commits and stop before D1B target issuance."
+non_claims = [
+  "does not implement the Cataloged source issuer or RawDirectCallDispositionLoanV1",
+  "does not change MirInstruction::Call, func, Option<Callee>, Method receiver optionality, Constructor/Closure handling, or CallFlags",
+  "does not retire Resolved/unique-static/tail recovery, Method(None), VM/backend routes, JSON-v0/v1, or wire schema",
+]
+
+[b1_cutover.boundary]
+starts = "The existing CanonicalGlobalTargetV1 module and both compiled Global carrier enum payloads"
+ends = "All in-boundary compiled consumers either accept the same structural carrier or are explicitly typed terminal/retirement owners, with no String Global constructor remaining in the switched surface"
+includes = [
+  "crates/hakorune_mir_defs/src/call_unified.rs Callee::Global payload",
+  "src/mir/builder/calls/call_target.rs CallTarget::Global payload",
+  "direct compiled constructors/consumers named by the sealed C0 family matrix",
+  "focused carrier propagation tests and one reusable B1 cutover guard",
+]
+excludes = [
+  "D1B package/loan/lineage/dispatcher publication",
+  "MirCall/CallFlags retirement and public breaking API decisions",
+  "JSON-v0/v1, Python/llvmlite, apps/selfhost-runtime, and generated wire copies",
+  "Method(None), Constructor/Closure, VM/backend, optimizer target inference, and fallback removal outside the switched Global carrier",
+]
+
+[b1_cutover.sequence]
+steps = [
+  "change Callee::Global and CallTarget::Global to carry CanonicalGlobalTargetV1 in the same source boundary",
+  "adapt direct typed constructors/consumers without introducing a second wrapper or conversion authority",
+  "remove only switched-surface String Global constructors and formatter/reparse edges; unresolved producers become typed terminals, not guesses",
+  "run focused positive/negative carrier propagation tests and the reusable B1 guard",
+  "close the row only after both surfaces, consumers, and residual String/fallback/retry counts are green",
+]
+commit_shape = "One semantic cutover row may use 2-5 behavior-preserving compile/refactor commits; no unrelated cleanup or D1B issuer/loan work may enter the series."
+
+[b1_cutover.acceptance]
+positive = [
+  "Callee::Global and CallTarget::Global expose the same CanonicalGlobalTargetV1 structural payload",
+  "Builtin(Print), SameModule(FreeFunction), and SameModule(StaticBoxMethod) carrier shapes preserve their fields and arity",
+  "all switched consumers forward the typed carrier without reparsing or target reclassification",
+  "LLVM/AOT and retained reference terminals keep their existing selected behavior where they are in scope",
+]
+negative = [
+  "no new Callee::Global(String) or CallTarget::Global(String) constructor in the switched compiled surface",
+  "no formatter/reparse, physical-symbol lookup, registry/name fallback, methodize, or retry",
+  "no D1B package/loan/dispatcher, CallFlags, Method(None), Call schema, JSON, VM, or backend expansion",
+]
+structural = [
+  "C0 dual-surface contract guard remains green against its sealed digests and dispositions",
+  "B1 source files stay below the 760-line split threshold and none reaches 800",
+  "one named B1 guard is registered once and checks both payloads plus residual legacy constructors",
+  "focused Cargo check/test is run one process at a time with the quick profile",
+]
+
+[b1_cutover.hard_stops]
+conditions = [
+  "a consumer needs a second Global wrapper, String conversion, or formatter/reparse bridge",
+  "an exact source-backed issuer is missing and the only evidence is name/arity/symbol/registry",
+  "Callee and CallTarget cannot be switched atomically without a parallel legacy payload",
+  "wire/backend/optimizer or CallFlags changes are required to keep the first compile green",
+  "the cutover requires modifying D1B package/loan/dispatcher or changing Call schema",
+  "any touched owner reaches 760 lines or the change begins a broad barrel/cleanup refactor",
 ]

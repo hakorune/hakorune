@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-current_design_stop = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0: finite compiled disposition contracts are sealed for the B1 successor row, but executable typed proof is not landed; no production issuer, package/loan, dispatcher, or fallback may open."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+current_design_stop = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER: C0 contracts are sealed; only the simultaneous typed Callee/CallTarget carrier cutover is open. D1B issuer/package/loan/dispatcher, CallFlags, Method(None), and legacy recovery remain closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 latest_card = "mir-call-d1b-direct-call-source-inventory-coseal-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
-latest_card_summary = "D1B observer I0, B1 structural Global carrier S0, forest-wide direct-observation gate, and the reusable dual-surface C0 readiness guard are landed. The finite compiled C0 successor contracts are now sealed in the existing manifest; executable B1 cutover and D1B target/package/loan publication remain closed."
-next_design_card = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-next_execution_card = "none"
+latest_card_summary = "D1B observer I0, B1 structural Global carrier S0, forest-wide direct-observation gate, and the reusable dual-surface C0 readiness guard are landed. C0 contract evidence is sealed; B1 typed Callee/CallTarget cutover is the only open implementation row, while D1B target/package/loan publication remains closed."
+next_design_card = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+next_execution_card = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-28: B1 structural Global carrier S0 landed at 75c0a6c04e; nested serde-free shape and zero-production-caller guard are green, while D1B issuer/package/loan remains design-stopped.",
   "2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
-  "2026-08-28: B1 C0 dual-surface readiness and finite disposition schema landed at a54680b7c7 (building on 1948f7b76a/b8bc5cc105); 143/272 Callee::Global plus 20/45 CallTarget::Global occurrences remain derived fail-closed, while C0 semantic close remains design-stopped.",
+  "2026-08-28: C0 dual-surface contract sealed at 014ef36628 after the a54680b7c7 guard/manifest sequence; 143/272 Callee::Global plus 20/45 CallTarget::Global occurrences remain fixed, and B1 typed carrier cutover is now the selected fast row.",
 ]

@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR Call B1 current-head producer/consumer disposition
+Status: Fast — MIR Call B1 typed Global carrier cutover
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -48,13 +48,13 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  B1 structural Global carrier S0 and `MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0`
-  are landed (`b176c98276`). The current design row is
-  `MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0`: first classify the unregistered
-  CallTarget families and the separate MirCall/CallFlags writer/public obligations,
-  then exhaust the finite producer/consumer disposition and freeze the simultaneous
-  Callee/CallTarget carrier boundary before any Cataloged issuer, loan, dispatcher,
-  or Call publication. A new `Callee::Global(String)` issuer is forbidden.
+  `MIR-CALL-GLOBAL-TARGET-B1-CUTOVER` is open after C0 contract sealing at
+  `014ef36628`. Adapt `Callee::Global` and `CallTarget::Global` together to the
+  existing `CanonicalGlobalTargetV1` carrier, then prove typed consumer
+  propagation and remove only the switched String/formatter edges. D1B
+  issuer/package/loan/dispatcher, MirCall/CallFlags, Method(None), legacy
+  recovery, and VM/backend routes remain closed; a new `Callee::Global(String)`
+  issuer is forbidden.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

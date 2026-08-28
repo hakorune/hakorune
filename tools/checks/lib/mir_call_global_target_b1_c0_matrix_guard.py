@@ -206,8 +206,11 @@ def check_card_and_state(root: Path, manifest: dict[str, Any]) -> None:
     card = load_toml(card_path)
     c0 = card.get("b1_current_head_c0")
     guard = card.get("b1_c0_guard_i0")
-    if not isinstance(c0, dict) or c0.get("status") != "design_stop":
-        fail("active C0 card must remain status=design_stop")
+    if not isinstance(c0, dict) or c0.get("status") not in {
+        "design_stop",
+        "contract_sealed",
+    }:
+        fail("active C0 card must be design_stop or contract_sealed")
     if c0.get("implementation_permission") is not False:
         fail("active C0 implementation_permission must remain false")
     if not isinstance(guard, dict):
@@ -226,17 +229,26 @@ def check_card_and_state(root: Path, manifest: dict[str, Any]) -> None:
     task_id = nonempty(manifest.get("task_id"), "task_id")
     work_mode = state.get("work_mode")
     if work_mode == "fast":
-        if guard_status != "fast_guard_only":
-            fail("fast state requires the guard-only child to be active")
-        if guard.get("implementation_permission") is not True:
-            fail("active guard-only child must explicitly permit the guard")
-        if state.get("current_execution_row") != task_id:
-            fail("CURRENT_STATE current_execution_row does not select the guard-only row")
-        if state.get("next_execution_card") != task_id:
-            fail("CURRENT_STATE next_execution_card does not select the guard-only row")
-        if "guard-only" not in nonempty(state.get("current_blocker_token"), "current_blocker_token"):
-            fail("CURRENT_STATE blocker must keep the guard-only stop line")
+        if c0.get("status") != "contract_sealed":
+            fail("fast state requires the C0 contract to be sealed")
+        if guard_status != "landed_readiness":
+            fail("fast B1 state requires the landed C0 contract guard")
+        b1 = card.get("b1_cutover")
+        if not isinstance(b1, dict):
+            fail("fast B1 state requires the active [b1_cutover] section")
+        if b1.get("task_id") != "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER":
+            fail("active B1 cutover task id drifted")
+        if b1.get("status") != "fast_open":
+            fail("active B1 cutover must be status=fast_open")
+        if b1.get("implementation_permission") is not True:
+            fail("active B1 cutover must explicitly permit implementation")
+        if state.get("current_execution_row") != b1["task_id"]:
+            fail("CURRENT_STATE current_execution_row does not select B1 cutover")
+        if state.get("next_execution_card") != b1["task_id"]:
+            fail("CURRENT_STATE next_execution_card does not select B1 cutover")
     elif work_mode == "design_stop":
+        if c0.get("status") != "design_stop":
+            fail("design_stop state requires the C0 contract to remain open")
         if guard_status != "landed_readiness":
             fail("design_stop state requires a landed guard-only child")
         if guard.get("implementation_permission") is not False:
