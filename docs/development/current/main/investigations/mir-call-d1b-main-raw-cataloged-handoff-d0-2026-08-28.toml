@@ -613,7 +613,7 @@ remaining_core_rows_note = "D2 and the selected App Main I0 are closed. Four imp
 ordered_rows = [
   "D2 closed: B-double-prime co-issues exact source/ordered-argument facts and ResolvedDirectCallTargetV1 from one live source/resolver lifecycle; it does not issue a whole trivial-value profile.",
   "I0 landed at 99bdfc856c: same-session target disposition -> private package+loan -> raw take_once -> arguments once -> header ABI validation -> Call once; the selected App Main direct handoff/package bypass is closed.",
-  "R2: MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0 — classify remaining lineages before effects and retire Resolved, post-argument unique/tail recovery, direct name-Const/legacy-Call edges; preserve named compatibility siblings (R2a/R2b landed, R2c provenance design next).",
+  "R2: MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0 — classify remaining lineages before effects and retire Resolved, post-argument unique/tail recovery, direct name-Const/legacy-Call edges; preserve named compatibility siblings (R2a/R2b/R2c provenance landed).",
   "R3: MIR-CALL-METHOD-CORRIDOR-R0 — remove Method(None), methodize, receiver autoscan/strip/repair, and related VM/optimizer recovery as one receiver-authority family.",
   "R4: MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 — move every remaining typed_global_target_from_selected_symbol caller to its real owner or typed reject; no new symbol parser authority.",
   "R6: MIR-CALL-CORE-SCHEMA-CUTOVER-R6 — after all writers/readers are ready, atomically remove Call.func, Option<Callee>, INVALID sentinel, and impossible-state guards.",
@@ -732,7 +732,7 @@ task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 implementation_permission = false
-guard_phase = "resolved_compatibility_provenance_r2b"
+guard_phase = "resolved_compatibility_provenance_r2c"
 allowed_files = [
     "src/mir/builder/calls/function_call_brand_source_demand.rs",
     "src/mir/builder/calls/function_call_preflight_route.rs",
@@ -744,15 +744,15 @@ allowed_files = [
     "docs/development/current/main/CURRENT_STATE.toml",
 ]
 decision = "Before deleting any Resolved/recovery edge, preserve explicit compatibility as a named finite owner and prevent source-backed installed paths from falling through the same terminal. Do not globally rename/delete Resolved until every producer is in this owner map."
-source_authority = "The semantic ScriptRoot scope owns its existing compatibility entry; raw compatibility and raw-root Main/RawLegacy remain separate owners until R2c. Exact App Main/Cataloged issuers remain the only target authorities."
+source_authority = "The semantic ScriptRoot scope owns its existing compatibility entry; raw ScriptRoot, raw-root Main, and RawLegacy now have separate named provenance owners. Exact App Main/Cataloged issuers remain the only target authorities."
 non_authority = "callable_ledger absence, lineage spelling alone, name/arity, symbol parsing, variable_map, static/header uniqueness, environment flags, name Const, post-argument ValueIds, and a generic Resolved fallback."
 fail_fast_boundary = "FunctionCall brand/source authority selection, after special-form classification and before drive_call_arguments_v1: an installed source with no exact target relation must reject, or enter a named ParkedSealed compatibility owner; it may not enter an unclassified Resolved path."
 acceptance = [
     "Semantic ScriptRoot with no callable target has a named ScriptRootParkedCompatibility provenance; source-backed InstalledNonBrand caller-none remains pre-effect Reject.",
-    "The existing Resolved terminal remains reachable only from explicit RelationlessCompatibility or ScriptRootParkedCompatibility origins; no generic fallthrough remains.",
+    "The existing Resolved terminal remains reachable only from explicit RelationlessCompatibility, ScriptRootParkedCompatibility, RawScriptRootParkedCompatibility, RawRootMainParkedCompatibility, or RawLegacyParkedCompatibility origins; no generic fallthrough remains.",
     "Named compatibility behavior is unchanged, with no target synthesis, resolver retry, or fallback; the guard does not claim global Resolved zero.",
 ]
-next_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0"
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2b_compatibility_provenance_verification_2026_08_29]
 status = "landed"
