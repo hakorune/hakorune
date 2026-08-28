@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR Call D1B source-owner/lineage co-seal
+Status: Design stop — MIR Call D1B source-owner/lineage co-seal (no safe issuer row)
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml
+  - docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -56,6 +56,16 @@ Smallest next slice:
   source owner/lineage and co-seal the inventory before opening issuer,
   package, loan, or dispatcher implementation. MirCall/CallFlags, Method(None),
   legacy recovery, and VM/backend routes remain closed.
+
+Next bounded design candidate (not selected while D1 remains active):
+  `SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0` is limited to the existing
+  selected-normal `ScriptRoot` direct-static cohort. It may open only after
+  exact owner/source-site/Recipe/Join/claim coverage and caller-zero of the
+  old StaticReceiver fallthrough are evidenced. Generic Cataloged, deferred,
+  compatibility, RawLegacy, nested, StaticThis, and special-form routes stay
+  excluded; no new target inference, fallback, or retry is allowed. The
+  existing CallFlags retirement card remains parked until this D1 stop is
+  explicitly closed or parked.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
