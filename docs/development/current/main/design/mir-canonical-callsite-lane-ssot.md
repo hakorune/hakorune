@@ -28,13 +28,13 @@ Related:
   raw ordinary Call spine still awaits the D1 source-owner/lineage and affine
   loan cutover.
 - **Next ordered task:**
-  `MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0`, selected by
-  `CURRENT_STATE.toml` as the current fast sub-boundary. This package-side
-  row validates the retained Main parser identity/catalog key/brand against
-  exactly one batch declaration, its forest root, nested-owner brand, origin,
-  and source-site inventory before parameter contracts/install. It emits no
-  target, raw lineage, loan, or Call. The following raw-lineage handoff and
-  Cataloged affine-loan cutover remain separate design-stopped rows.
+  `MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1`, selected by
+  `CURRENT_STATE.toml` as the current design stop. The landed package-side
+  Main owner/forest validation is not enough to create a raw lineage: this row
+  must identify an existing production Main raw-scope owner/callback and its
+  exact session relation, or keep the boundary NoSafeSlice. It emits no target,
+  loan, or Call; package/loan and Cataloged dispatcher cutover remain later
+  atomic rows.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
