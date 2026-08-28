@@ -674,3 +674,31 @@ no_safe_slice = [
     "R2a needs Method(None), VM/backend, Call schema, or shared compatibility owner changes",
     "any lineage remains unclassified or is silently parked without an owner and observable reopen trigger",
 ]
+
+[installed_nonbrand_pre_effect_reject_r2a]
+status = "fast_open"
+task_id = "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A"
+implementation_permission = true
+guard_phase = "installed_nonbrand_pre_effect_reject_r2a"
+parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+decision = "For an ordinary FunctionCall admitted as InstalledNonBrand with no exact caller relation, reject before argument descent. Do not issue a target and do not touch App Main, caller-backed Cataloged, special routes, builtin/Extern, or explicit Relationless compatibility."
+allowed_files = [
+    "src/mir/builder/calls/function_call_preflight_route.rs",
+    "src/mir/builder/calls/function_call_installed_nonbrand_reject_tests.rs",
+    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
+fail_fast_boundary = "The new Rejected disposition must be selected before drive_call_arguments_v1, header lookup, resolver/recovery, name Const, or MIR Call publication."
+acceptance = [
+    "InstalledNonBrand caller=None ordinary calls have a named typed terminal and zero child descent/instruction delta.",
+    "GC retirement keeps its existing terminal; AppMain, caller-backed Cataloged, math/typeop/fastmem/str, builtin/Extern, and Relationless compatibility behavior is unchanged.",
+    "Focused negatives cover source-backed TopLevel/InstanceConstructor/Nested/Unlocated callers; no global Resolved or compatibility caller-zero claim is made.",
+    "The scoped lifecycle guard and quick library/test-target type checks pass; the changed production owner remains below 760 lines.",
+]
+no_safe_slice = [
+    "the branch needs name/arity/symbol target construction or a second resolver",
+    "the branch changes AppMain loan, caller-backed Cataloged, Relationless compatibility, Method(None), VM/backend, or Call schema",
+    "pre-effect rejection cannot prove zero argument descent and zero MIR/collector mutation",
+]

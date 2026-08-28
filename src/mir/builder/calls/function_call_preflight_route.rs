@@ -281,6 +281,15 @@ fn prepare_ordinary_function_completion_v1(
         PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!("[freeze:contract][direct-call/gc-global-retired] name={name}"),
         }
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        && caller.is_none()
+    {
+        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+            error: format!(
+                "[freeze:contract][direct-call/installed-source-relation-missing] name={name} arity={}",
+                arguments.len()
+            ),
+        }
     } else {
         PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
     }

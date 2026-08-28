@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -76,9 +76,11 @@ if not phase:
         phase = "qualified_method_target_issuer_i0"
     elif active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0":
         phase = "cataloged_source_relation_affine_loan_i0"
+    elif active_row == "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A":
+        phase = "installed_nonbrand_pre_effect_reject_r2a"
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -99,7 +101,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0"}:
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a"}:
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -140,6 +142,8 @@ registration_key = (
     if phase == "qualified_method_target_issuer_i0"
     else "cataloged_source_relation_affine_loan_i0"
     if phase == "cataloged_source_relation_affine_loan_i0"
+    else "installed_nonbrand_pre_effect_reject_r2a"
+    if phase == "installed_nonbrand_pre_effect_reject_r2a"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -255,6 +259,44 @@ elif phase == "cataloged_source_relation_affine_loan_i0":
             raise SystemExit("Cataloged source-relation I0 requires fast or closeout")
     elif active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0" and current_state.get("work_mode") not in {"closeout", "design_stop"}:
         raise SystemExit("landed Cataloged source-relation I0 has an invalid work mode")
+elif phase == "installed_nonbrand_pre_effect_reject_r2a":
+    route_path = mir_root / "builder/calls/function_call_preflight_route.rs"
+    tests_path = mir_root / "builder/calls/function_call_installed_nonbrand_reject_tests.rs"
+    route = route_path.read_text()
+    tests = tests_path.read_text()
+    if registration.get("task_id") != "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A":
+        raise SystemExit("R2a task id drifted")
+    if registration.get("guard_phase") != "installed_nonbrand_pre_effect_reject_r2a":
+        raise SystemExit("R2a guard phase drifted")
+    if registration.get("status") not in {"fast_open", "landed"}:
+        raise SystemExit("R2a status drifted")
+    if registration.get("implementation_permission") is not (registration.get("status") == "fast_open"):
+        raise SystemExit("R2a permission/status drifted")
+    if registration.get("status") == "fast_open":
+        if active_row != "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A":
+            raise SystemExit("R2a current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("R2a requires fast or closeout")
+    required = (
+        "installed-source-relation-missing",
+        "PreparedRawNonBrandRouteOriginV1::InstalledNonBrand",
+        "caller.is_none()",
+        "installed_nonbrand_caller_none_rejects_before_arguments",
+    )
+    for token in required:
+        if token not in route and token not in tests:
+            raise SystemExit(f"R2a implementation/test token is missing: {token}")
+    rejection = route.find("installed-source-relation-missing")
+    completion = route.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }")
+    if rejection < 0 or completion < 0 or rejection > completion:
+        raise SystemExit("R2a reject must precede the remaining Resolved compatibility arm")
+    if "drive_call_arguments_v1" in route[route.find("fn prepare_ordinary_function_completion_v1"):completion]:
+        raise SystemExit("R2a preflight selection must not descend arguments")
+    if "Method(None)" in route or "resolve_call_target" in route[route.find("fn prepare_ordinary_function_completion_v1"):completion]:
+        raise SystemExit("R2a branch crossed the Method or resolver boundary")
+    for path in (route_path, tests_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"R2a owner reached the 760-line split boundary: {path}")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
@@ -291,6 +333,9 @@ if phase == "qualified_method_target_issuer_i0":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "cataloged_source_relation_affine_loan_i0":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
+if phase == "installed_nonbrand_pre_effect_reject_r2a":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":
