@@ -83,7 +83,8 @@ mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
 pub(crate) use compilation_context::CompilationContext;
 pub(in crate::mir) use normal_callable_package_bridge::{
-    BuilderInstallConsumerV1, BuilderPrivateInstalledCallablePackageBundleV1,
+    BuilderInstallConsumerV1, BuilderPrivateCallableLoweringScopeV1,
+    BuilderPrivateInstalledCallablePackageBundleV1,
 };
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split

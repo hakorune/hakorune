@@ -859,10 +859,12 @@ second `package.source_ast()` source scan for constructor coverage.
 
 The package-only BridgeReady boundary is now consuming: the normal-root
 lifecycle calls `with_normal_callable_install_once`, receives a private
-`BuilderPrivateInstalledCallablePackageBundleV1`, and lends parser source only
-inside `with_normal_program_source_loan`. The bundle exposes no package getter
-or direct-call loan, and the Cataloged affine-loan issuer remains a later
-design-stopped row.
+`BuilderPrivateInstalledCallablePackageBundleV1`, and immediately consumes it
+into a `BuilderPrivateCallableLoweringScopeV1`. Parser source is lent only
+inside `with_normal_program_source_loan`, and the existing package port is
+opened once from that scope before the lowering consumer receives it. The
+scope exposes no package getter or direct-call loan, and the Cataloged
+affine-loan issuer remains a later design-stopped row.
 
 This row is intentionally source-only. The neutral product issues no target,
 candidate/noncandidate, A/C, Recipe/Join, MIR ID, physical, fallback, or

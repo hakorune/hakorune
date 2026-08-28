@@ -26,7 +26,7 @@ use super::{
     ModuleBuilderInvocationSessionV1, NormalEntryMaterializationSourceReceiptV1,
     NormalRuntimeInputSnapshotV1, RawEntryMaterializationSourceReceiptV1,
 };
-use super::{BuilderInstallConsumerV1, BuilderPrivateInstalledCallablePackageBundleV1};
+use super::{BuilderInstallConsumerV1, BuilderPrivateCallableLoweringScopeV1};
 use crate::ast::ASTNode;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_v1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -425,7 +425,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                     })?;
 
-                let installed_package: Option<BuilderPrivateInstalledCallablePackageBundleV1> =
+                let installed_package: Option<BuilderPrivateCallableLoweringScopeV1> =
                     match semantic_package.take() {
                         Some(package) => Some(
                             package.with_normal_callable_install_once(
@@ -440,7 +440,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                         .into(),
                                     )
                                 })
-                                ?,
+                                ?.into_lowering_scope(),
                         ),
                         None => {
                             let source = compatibility_source.as_ref().ok_or_else(|| {
@@ -540,8 +540,18 @@ impl ModuleBuilderInvocationSessionV1 {
                         })?
                         .into_parts();
                         match (installed_package.as_ref(), pre_effect_script_source.take()) {
-                            (Some(package), Some(observation)) => package
-                                .with_normal_program_source_loan(|loan| {
+                            (Some(package), Some(observation)) => {
+                                let package_port = package
+                                    .open_lowering_once(&builder.comp_ctx)
+                                    .map_err(|error| {
+                                        NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                                            format!(
+                                                "[freeze:contract][mir/callable-semantic-package/open] {error:?}"
+                                            )
+                                            .into(),
+                                        )
+                                    })?;
+                                package.with_normal_program_source_loan(|loan| {
                                     observation
                                         .bind_source_loan(loan, |source| {
                                             finish_normal_default_root_after_pre_effect_bind(
@@ -554,7 +564,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                                 brand,
                                                 declaration_facts,
                                                 NormalCallableSemanticPackageMode::Installed(
-                                                    package,
+                                                    package_port,
                                                 ),
                                                 Some(source),
                                                 &mut preflight_static_result_publication_owner,
@@ -575,23 +585,36 @@ impl ModuleBuilderInvocationSessionV1 {
                                         format!("[mir/script-pre-effect/source-loan] {error:?}").into(),
                                     )
                                 })
-                                .and_then(|result| result),
-                            (Some(package), None) => finish_normal_default_root_after_pre_effect_bind(
-                                builder,
-                                work,
-                                source_ast,
-                                &expansion,
-                                &receipt,
-                                &runtime_inputs,
-                                brand,
-                                declaration_facts,
-                                NormalCallableSemanticPackageMode::Installed(package),
-                                None,
-                                &mut preflight_static_result_publication_owner,
-                                &import_rows,
-                                binding,
-                                callable_loop_root_scope,
-                            ),
+                                .and_then(|result| result)
+                            }
+                            (Some(package), None) => {
+                                let package_port = package
+                                    .open_lowering_once(&builder.comp_ctx)
+                                    .map_err(|error| {
+                                        NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                                            format!(
+                                                "[freeze:contract][mir/callable-semantic-package/open] {error:?}"
+                                            )
+                                            .into(),
+                                        )
+                                    })?;
+                                    finish_normal_default_root_after_pre_effect_bind(
+                                        builder,
+                                        work,
+                                        source_ast,
+                                        &expansion,
+                                        &receipt,
+                                        &runtime_inputs,
+                                        brand,
+                                        declaration_facts,
+                                        NormalCallableSemanticPackageMode::Installed(package_port),
+                                        None,
+                                        &mut preflight_static_result_publication_owner,
+                                        &import_rows,
+                                        binding,
+                                        callable_loop_root_scope,
+                                    )
+                            }
                             (None, None) => finish_normal_default_root_after_pre_effect_bind(
                                 builder,
                                 work,

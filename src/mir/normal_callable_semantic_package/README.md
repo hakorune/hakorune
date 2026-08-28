@@ -29,14 +29,19 @@ slot. A complete batch with no Dynamic candidate is a typed valid-unselected
 projection, not an issuer failure or fallback.
 
 The package is non-Clone and non-splittable. Catalog installation is one
-consuming prepare/commit transition. After installation, the only lowering
-surface is an exactly-once package port:
+consuming prepare/commit transition. After installation, the only production
+lowering surface is a one-shot scoped package port:
 
 ```text
-begin_lowering(installed context)
-  -> with_selected_lowering_input(key, callback)
-  -> complete()
+Builder-private package scope
+  -> open_lowering_once(context)
+       -> with_selected_lowering_input(key, callback)
+       -> complete()
 ```
+
+The Builder-private scope owns the installed package and rejects a second
+`open_lowering_once` call. The returned package port is still borrowed from
+that scope; it is not a new package or a direct-call target carrier.
 
 The port never exposes a batch slot, rejects foreign catalog contexts and
 duplicate selected-key consumption, and closes only after complete selected
@@ -57,10 +62,12 @@ no catalog lifetime.
 The selected normal-root production lifecycle now consumes the package through
 `with_normal_callable_install_once`. This one-shot bridge owns the semantic
 `prepare_install`/`commit` transition and returns only a Builder-private,
-non-`Clone` package bundle; a bare installed package cannot escape to the
-caller. Source-backed lowering borrows the parser Program through a scoped HRTB
-loan on that bundle, while compatibility roots keep their explicit compatibility
-source owner. This row carries no direct-call inventory or `Callee` loan;
+non-`Clone` package bundle, then converts it into a Builder-private lowering
+scope; a bare installed package cannot escape to the caller. Source-backed
+lowering borrows the parser Program through a scoped HRTB loan on that scope,
+and opens the existing package port once before the lowering consumer receives
+it, while compatibility roots keep their explicit compatibility source owner.
+This row carries no direct-call inventory or `Callee` loan;
 Cataloged affine direct-call provisioning remains a separate later row.
 
 The normal/default source-backed lifecycle issues this package before Builder

@@ -1,15 +1,15 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "observer_i0_landed"
+status = "bridge_ready_fast_open"
 observed_commit = "10620955d4"
 observed_at = "2026-08-28"
-implementation_permission = false
-guard_phase = "observer_i0"
-permission_scope = "Fast observer I0 only: SelectedCallableV1 may observe ordinary FunctionCall through the existing one-pass branch, store a private facts-only name/arity observation, and terminate any nonempty unissued observation at package admission before projection/install/lowering. No target issuer, package/loan transport, raw dispatcher, fallback, or Call schema change is open. RAW-INVOCATION-SOURCE-TRANSPORT-BOXSHAPE-SPLIT-R0 is already landed at 0bd6732792."
+implementation_permission = true
+guard_phase = "bridge_ready"
+permission_scope = "Fast BridgeReady R0 only: replace the selected source-backed package's package-only lowering escape with one Builder-private one-shot scoped port opening. No direct-call inventory, target/Callee issuer, loan, raw dispatcher, fallback, or Call schema change is open. The existing observer I0 and forest-wide gate remain unchanged. If the scope needs a third lifetime, Clone/Rc/RefCell/unsafe, a second source walk, or semantic behavior change, return to design_stop."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
+execution_row = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
 completed_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-next_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
+next_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D1"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -928,6 +928,64 @@ allowed_files = [
   "src/mir/builder/normal_callable_semantic_source.rs",
   "src/mir/callable_semantic_batch/issuer.rs",
   "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+]
+
+[bridge_ready_execution]
+task_id = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
+status = "fast_open"
+implementation_permission = true
+decision = "Close the selected source-backed package-only lowering escape with a Builder-private one-shot scope. The bridge owns the installed package and opens the existing borrowed package port exactly once from that scope before the lowering consumer receives it; it must not issue direct-call targets, add a loan, change RawInvocationChildPortV1, or alter call behavior."
+source_authority = "The existing installed semantic package remains the sole source/package authority; the bridge only changes ownership and lifetime of the already-issued package port."
+canonical_issuer = "No new issuer. Existing InstalledNormalCallableSemanticPackageV1::begin_lowering logic is renamed/internalized as the scope's temporary package-port construction; the package bridge is the only production caller."
+non_authority = [
+  "direct-call observations, Callee/CallTarget, RawInvocationRootLineageV1, name/arity lookup, resolver continuation, fallback, retry, or backend",
+  "test-only low-level package fixtures as production lifecycle evidence",
+]
+fail_fast = "A second lowering-port opening, foreign catalog, or scope/lifetime mismatch returns a typed package error before Builder/MIR/collector mutation; no retry or fallback is introduced."
+allowed_files = [
+  "src/mir/builder/normal_callable_package_bridge.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+  "src/mir/builder/normal_default_root_catalog_post_install.rs",
+  "src/mir/builder/README.md",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden = [
+  "RawDirectCallDispositionLoanV1, direct-call inventory, target issuer, RawInvocationChildPortV1 field, third lifetime, Clone/Rc/Arc/RefCell/unsafe, AST rescan, resolver/fallback/retry, Call schema, Method(None), VM/backend, or new semantic Verified*/Prepared* receipt",
+]
+acceptance = [
+  "production no longer calls InstalledNormalCallableSemanticPackageV1::begin_lowering(&self) or passes a bare installed-package reference as NormalCallableSemanticPackageMode::Installed",
+  "the selected lifecycle owns one non-Clone Builder-private scope and opens the existing package port once before passing it to the lowering consumer",
+  "parser source HRTB and existing root/selected/constructor/collector order remain behavior-equivalent",
+  "second port opening/foreign catalog paths fail closed; observer I0 remains unchanged; no direct-call loan/target symbols appear",
+  "all focused package and selected-root tests plus current-state and lifecycle guards are green",
+]
+stop = [
+  "borrow checking needs a third lifetime, self-referential field, clone/shared cell for a loan, AST/source re-scan, or semantic route change",
+  "the scope cannot open the package port before existing lowering without changing argument/effect/collector order",
+  "a test-only begin_lowering helper is accidentally reachable from production or the package port becomes a new public bypass",
+]
+
+[bridge_ready_registration_row]
+execution_row = "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0"
+status = "bridge_ready_fast_open"
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "src/mir/builder/normal_callable_package_bridge.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+  "src/mir/builder/normal_default_root_catalog_post_install.rs",
+  "src/mir/builder/README.md",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
 ]
 
 [observer_i0_closeout]

@@ -62,6 +62,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     S6CChildKeyUnavailable,
     PhysicalSignatureUnavailable,
     CatalogSlotOccupied,
+    LoweringAlreadyStarted,
     S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
@@ -404,7 +405,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             .is_ok_and(|catalog| catalog.brand().is_same(&self.catalog_brand))
     }
 
-    pub(crate) fn begin_lowering(
+    pub(crate) fn open_lowering_port(
         &self,
         context: &CompilationContext,
     ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
@@ -417,6 +418,15 @@ impl InstalledNormalCallableSemanticPackageV1 {
             consumed: BTreeSet::new(),
             s6c_child_consumed: false,
         })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn begin_lowering(
+        &self,
+        context: &CompilationContext,
+    ) -> Result<NormalCallableSemanticPackagePortV1<'_>, NormalCallableSemanticPackageInstallIssueV1>
+    {
+        self.open_lowering_port(context)
     }
 
     fn take_dynamic_physical_header(

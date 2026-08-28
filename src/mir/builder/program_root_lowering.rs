@@ -26,7 +26,8 @@ use super::raw_invocation_source_transport::{
 };
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::recursive_child_lowering_port::RecursiveChildLoweringPortV1;
-use super::BuilderPrivateInstalledCallablePackageBundleV1;
+use crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackagePortV1;
+
 use super::{
     MirBuilder, NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
     UnpublishedCallableLoopRootScopeV1, ValueId,
@@ -85,7 +86,7 @@ pub(super) enum NormalScriptRootLoweringMode<'source> {
 }
 
 pub(super) enum NormalCallableSemanticPackageMode<'package> {
-    Installed(&'package BuilderPrivateInstalledCallablePackageBundleV1),
+    Installed(NormalCallableSemanticPackagePortV1<'package>),
     Compatibility(Option<RawEntryMaterializationSourceReceiptV1>),
 }
 
@@ -255,12 +256,9 @@ impl MirBuilder {
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     ) -> Result<ValueId, String> {
         match callable_mode {
-            NormalCallableSemanticPackageMode::Installed(package) => {
+            NormalCallableSemanticPackageMode::Installed(package_port) => {
                 let mut work = work;
                 let constructor_manifest = work.constructor_demand_manifest.take();
-                let package_port = package.begin_lowering(&self.comp_ctx).map_err(|error| {
-                    format!("[freeze:contract][mir/callable-semantic-package/open] {error:?}")
-                })?;
                 let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(
                     port,
                     package_port,

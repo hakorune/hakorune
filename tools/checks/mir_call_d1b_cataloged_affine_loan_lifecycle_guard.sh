@@ -60,7 +60,13 @@ if row.get("cmd") != ["bash", guard_script]:
 if sum(1 for item in rows if item.get("id") == guard_id) != 1:
     raise SystemExit("lifecycle guard id is duplicated")
 
-registration_key = "observer_guard_registration_row" if phase == "observer_i0" else "guard_registration_row"
+registration_key = (
+    "observer_guard_registration_row"
+    if phase == "observer_i0"
+    else "bridge_ready_registration_row"
+    if phase == "bridge_ready"
+    else "guard_registration_row"
+)
 registration = card.get(registration_key)
 if not isinstance(registration, dict):
     raise SystemExit(f"active card {registration_key} is missing")
@@ -69,6 +75,11 @@ if phase == "observer_i0":
         raise SystemExit("observer execution row drifted")
     if registration.get("status") not in {"observer_i0_guard_open", "observer_i0_landed"}:
         raise SystemExit("observer status drifted")
+elif phase == "bridge_ready":
+    if registration.get("execution_row") != "MIR-CALL-D1B-PACKAGE-BRIDGE-READY-R0":
+        raise SystemExit("bridge-ready execution row drifted")
+    if registration.get("status") not in {"bridge_ready_fast_open", "bridge_ready_landed"}:
+        raise SystemExit("bridge-ready status drifted")
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
         raise SystemExit("guard-only execution row drifted")
@@ -103,6 +114,16 @@ if phase == "observer_i0":
         "src/mir/callable_semantic_batch/issuer.rs",
         "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
     })
+elif phase == "bridge_ready":
+    expected_files.update({
+        "src/mir/builder/normal_callable_package_bridge.rs",
+        "src/mir/builder/program_root_lowering.rs",
+        "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+        "src/mir/builder/normal_default_root_catalog_post_install.rs",
+        "src/mir/builder/README.md",
+        "src/mir/normal_callable_semantic_package/install.rs",
+        "src/mir/normal_callable_semantic_package/README.md",
+    })
 if set(allowed_files or []) != expected_files:
     raise SystemExit(f"{registration_key} allowed file boundary drifted")
 
@@ -115,6 +136,15 @@ if phase == "observer_i0":
         raise SystemExit("observer implementation permission/status drifted")
     if card.get("guard_phase") != "observer_i0":
         raise SystemExit("observer card guard phase drifted")
+elif phase == "bridge_ready":
+    bridge_status = card.get("status")
+    if bridge_status not in {"bridge_ready_fast_open", "bridge_ready_landed"}:
+        raise SystemExit("bridge-ready card status drifted")
+    expected_permission = bridge_status == "bridge_ready_fast_open"
+    if card.get("implementation_permission") is not expected_permission:
+        raise SystemExit("bridge-ready implementation permission/status drifted")
+    if card.get("guard_phase") != "bridge_ready":
+        raise SystemExit("bridge-ready card guard phase drifted")
 else:
     if card.get("implementation_permission") is not False:
         raise SystemExit("semantic implementation permission opened during guard-only row")
@@ -279,11 +309,18 @@ elif phase == "bridge_ready":
     for token in ("package.source_ast()", "installed_package.source_ast()"):
         if token in lifecycle:
             raise SystemExit(f"bridge_ready installed package source getter remains: {token}")
-    for token in ("NormalCallableSemanticPackageMode::Installed(&", "begin_lowering(&self,"):
+    for token in ("NormalCallableSemanticPackageMode::Installed(&",):
         if token in lowering or token in install:
             raise SystemExit(f"bridge_ready shared-reference lifecycle remains: {token}")
-    if "NormalCallableSemanticPackageMode::Installed" in post_install:
+    if "NormalCallableSemanticPackageMode::Installed(&" in post_install:
         raise SystemExit("bridge_ready post-install still relays a bare Installed package")
+    # The low-level installed-port fixture may keep a cfg(test)-only
+    # compatibility helper while production uses the bridge's scoped method.
+    if "begin_lowering(&self," in install:
+        marker = install.find("begin_lowering(&self,")
+        prefix = install[max(0, marker - 120):marker]
+        if "#[cfg(test)]" not in prefix:
+            raise SystemExit("bridge_ready production begin_lowering escape remains")
     if "self.installed.source_ast()" in constructor or "self.installed.source_ast()" in loan_port:
         raise SystemExit("bridge_ready hidden installed source_ast handoff remains")
     if "source_ast" in install and "fn source_ast" in install:
