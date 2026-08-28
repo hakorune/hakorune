@@ -689,7 +689,7 @@ compile_checks = [
     "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib -q (passed; existing warnings only)",
 ]
 known_limit = "Full cargo test/link was not rerun because the repository's large test binary previously exceeded available memory; test targets were type-checked and the scoped lifecycle guard was executed."
-closeout = "R2a is complete as a bounded pre-effect rejection slice. R2b must first separate source-backed Resolved from explicit RelationlessCompatibility before any global resolver/recovery deletion claim."
+closeout = "R2a is complete as a bounded pre-effect rejection slice. Generic unclassified provenance was outside this row and was subsequently closed by R2d; named compatibility remains separately owned before any global resolver/recovery deletion claim."
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2b_compatibility_provenance_d0_2026_08_29]
@@ -707,7 +707,7 @@ non_authority = "callable_ledger absence, lineage spelling alone, name/arity, sy
 fail_fast_boundary = "FunctionCall brand/source authority selection, after special-form classification and before drive_call_arguments_v1: an installed source with no exact target relation must reject, or enter a named ParkedSealed compatibility owner; it may not enter an unclassified Resolved path."
 acceptance = [
     "Semantic ScriptRoot with no callable target has a named ScriptRootParkedCompatibility provenance; source-backed InstalledNonBrand caller-none remains pre-effect Reject.",
-    "The existing Resolved terminal remains reachable only from named compatibility origins; generic Relationless fallthrough is a known R2d blocker rather than a closed claim.",
+    "The existing Resolved terminal remains reachable only from named compatibility origins; generic unclassified fallthrough was a known R2d blocker at this point in history.",
     "Named compatibility behavior is unchanged, with no target synthesis, resolver retry, or fallback; the guard does not claim global Resolved zero.",
 ]
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
@@ -735,15 +735,17 @@ worker_inventory = "consumed (read-only current fixtures/cards/ledgers)"
 implementation_commit = "52615fa9a2"
 focused_checks = "cargo check --profile quick --lib; cargo check --profile quick --tests --lib; raw compatibility focused tests; R2c lifecycle guard; current-state pointer guard; git diff --check"
 known_limit = "Full cargo test/link remains unrun because the large test binary exceeds the available memory budget."
-closeout = "R2c landed as a provenance-only BoxShape: raw ScriptRoot, raw-root Main, and RawLegacy now have explicit compatibility owners. Generic unclassified Relationless -> Resolved remains an identified R2d blocker; no target/loan/dispatcher/Resolved or recovery deletion was opened."
+closeout = "R2c landed as a provenance-only BoxShape: raw ScriptRoot, raw-root Main, and RawLegacy now have explicit compatibility owners. Generic unclassified fallthrough was the identified R2d blocker and is handled by the following bounded row; no target/loan/dispatcher/Resolved or recovery deletion was opened."
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2d_unclassified_source_fail_closed_2026_08_29]
-status = "accepted_design"
+status = "landed"
 task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0"
 execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 implementation_permission = false
+guard_phase = "resolved_compatibility_unclassified_r2d"
+allowed_files = ["src/mir/builder/calls/function_call_brand_source_demand.rs", "src/mir/builder/calls/function_call_preflight_route.rs", "src/mir/builder/calls/function_call_preflight_route_tests.rs", "src/mir/builder/calls/function_call_script_compatibility_tests.rs", "src/mir/builder/recursive_child_lowering_rawport_tests.rs", "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "tools/checks/mir_call_d1b_exact_target_child_guard.sh", "tools/checks/brand_constructor_installed_callable_consumer_guard.sh", "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"]
 decision = "Replace generic RelationlessCompatibility with UnclassifiedSource. Preserve TypeOp/Math/FastMem/str special precedence, but ordinary unclassified sources must return a typed pre-effect SourceRejected route; only semantic/raw ScriptRoot, raw Main, and RawLegacy named owners may reach Resolved."
 source_authority = "Named provenance variants issued by semantic ScriptRoot, raw compatibility ScriptRoot, raw-root Main, or RawLegacy. No ledger absence, lineage spelling, nested parent, name, arity, or symbol may authorize compatibility."
 non_authority = "Relationless fallback, NestedBoxMethod inheritance, Brand map probing for unclassified sources, variable/static/header lookup, env tail recovery, name Const, post-argument ValueId, and legacy Call."
@@ -751,4 +753,7 @@ fail_fast_boundary = "After special-form selection and before ordinary argument 
 smallest_next_slice = "Add UnclassifiedSource and a private SourceRejected preflight route; make test-only generic preparation explicitly RawLegacy compatibility; add real-port nested/TopLevel/Constructor/missing negatives and strengthen the existing D1 lifecycle guard."
 acceptance = "Production RelationlessCompatibility caller count is zero; four named compatibility origins remain the only Resolved producers; unclassified ordinary rejection is pre-effect; special routes and AppMain/Cataloged/Constructor owners remain unchanged."
 no_safe_slice = "Return to design_stop if nested raw compatibility is a required supported behavior without an existing exact carrier, or if source rejection cannot be separated from special-form selection without a dispatcher/port redesign."
+implementation_commit = "80681a8cde"
+focused_checks = "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib; cargo test --profile quick --lib unclassified -- (5 passed); R2d lifecycle, exact-target, brand, pointer, TOML, rustfmt, and diff checks passed"
+closeout = "R2d landed: generic unclassified ordinary raw calls now terminate at private SourceRejected before argument/header/MIR effects; special TypeOp/Math/FastMem/str routes and four named compatibility owners remain unchanged. Full cargo test/link was not rerun because the large test binary exceeds the available memory budget. Named Resolved/recovery, target/loan/dispatcher, Method, VM, and Call schema remain outside this row."
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
