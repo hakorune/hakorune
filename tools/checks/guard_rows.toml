@@ -192,7 +192,7 @@ cmd = ["bash", "tools/checks/mir_call_d1b_index_none_direct_calls_guard.sh"]
 
 [[rows]]
 id = "mir-call-d1b-targeted-variant-split"
-label = "MIR Call D1B Cataloged/GC Targeted variant split guard"
+label = "MIR Call D1B Cataloged pre-effect target/reject guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_d1b_exact_target_child_guard.sh"]
 

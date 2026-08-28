@@ -328,18 +328,20 @@ fn prepare_cataloged_target_v1(
         return resolve_catalog_call_target_v1(builder, CallTarget::Global(target));
     }
 
-    if let Some(declaration) = catalog.declaration_for(
-        SameModuleCallableNamespaceV1::StaticBoxMethod,
-        caller.owner(),
-        name,
-        arity,
-    ) {
-        return resolve_catalog_call_target_v1(
-            builder,
-            CallTarget::Global(declaration.key().canonical_global_target_v1().map_err(
-                |error| format!("[freeze:contract][direct-call/global-target/{error}]"),
-            )?),
-        );
+    if catalog
+        .declaration_for(
+            SameModuleCallableNamespaceV1::StaticBoxMethod,
+            caller.owner(),
+            name,
+            arity,
+        )
+        .is_some()
+    {
+        return Err(format!(
+            "[freeze:contract][direct-call/bare-static-method-retired] owner={} name={} arity={arity}",
+            caller.owner(),
+            name,
+        ));
     }
 
     let current_owner_has_method = catalog
@@ -373,13 +375,12 @@ fn prepare_cataloged_target_v1(
     match BareStaticRecoveryDecisionV1::decide(catalog, name, arity)
         .map_err(|error| format!("[freeze:contract][direct-call/{error}]"))?
     {
-        BareStaticRecoveryDecisionV1::Unique(key) => resolve_catalog_call_target_v1(
-            builder,
-            CallTarget::Global(
-                key.canonical_global_target_v1()
-                    .map_err(|error| format!("[freeze:contract][direct-call/global-target/{error}]"))?,
-            ),
-        ),
+        BareStaticRecoveryDecisionV1::Unique(key) => Err(format!(
+            "[freeze:contract][direct-call/bare-static-method-retired] candidate_owner={} name={} arity={}",
+            key.owner(),
+            key.name(),
+            key.arity(),
+        )),
         BareStaticRecoveryDecisionV1::NoRecovery(reason) => Err(match reason {
             BareStaticRecoveryNoRecoveryReasonV1::NoCandidate => format!(
                 "[freeze:contract][direct-call/no-candidate] name={name} arity={arity}"

@@ -496,11 +496,8 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         current_owner.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
-                callee: crate::mir::Callee::Global(ref symbol),
-                ..
-            }
-        } if symbol.display_name() == "BoxA.run/1"
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
+        } if error.contains("bare-static-method-retired")
     ));
 
     let builtin = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
@@ -555,16 +552,13 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         unique_other.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
-                callee: crate::mir::Callee::Global(ref symbol),
-                ..
-            }
-        } if symbol.display_name() == "BoxB.other/1"
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
+        } if error.contains("bare-static-method-retired")
     ));
 }
 
 #[test]
-fn cataloged_target_rejects_before_children_on_missing_or_wrong_arity() {
+fn cataloged_bare_static_rejects_before_children() {
     let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method("BoxA", "caller", 0);
 
     let missing_catalog = MirBuilder::new();
@@ -583,21 +577,21 @@ fn cataloged_target_rejects_before_children_on_missing_or_wrong_arity() {
         }
     ));
 
-    let mut wrong_arity = MirBuilder::new();
-    wrong_arity.enter_function_for_test("BoxA.caller/0".to_owned());
+    let mut bare_static = MirBuilder::new();
+    bare_static.enter_function_for_test("BoxA.caller/0".to_owned());
     install_catalog(
-        &mut wrong_arity,
+        &mut bare_static,
         vec![static_box("BoxA", &[("caller", 0), ("run", 2)])],
     );
-    wrong_arity
+    bare_static
         .function_state
         .variable_ctx
         .variable_map
         .insert("run".to_owned(), ValueId::new(88));
     let rejected = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
-        &wrong_arity,
+        &bare_static,
         "run".to_owned(),
-        vec![integer(1)],
+        vec![integer(1), integer(2)],
         crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
             caller: Some(caller),
         },
@@ -606,11 +600,11 @@ fn cataloged_target_rejects_before_children_on_missing_or_wrong_arity() {
         rejected.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
             completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
-        } if error.contains("current-owner-arity-mismatch")
+        } if error.contains("bare-static-method-retired")
     ));
 
     let foreign = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
-        &wrong_arity,
+        &bare_static,
         "run".to_owned(),
         vec![integer(1), integer(2)],
         crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
@@ -655,7 +649,7 @@ fn cataloged_target_rejects_before_children_on_missing_or_wrong_arity() {
 
     let mut port = RecordingPortV1::default();
     assert!(lower_prepared_raw_function_preflight_with_port_v1(
-        &mut wrong_arity,
+        &mut bare_static,
         &mut port,
         rejected,
     )
@@ -664,14 +658,16 @@ fn cataloged_target_rejects_before_children_on_missing_or_wrong_arity() {
 }
 
 #[test]
-fn cataloged_target_is_consumed_once_before_canonical_call_publication() {
+fn cataloged_local_value_target_is_consumed_once_before_canonical_call_publication() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("BoxA.caller/0".to_owned());
-    install_catalog(
-        &mut builder,
-        vec![static_box("BoxA", &[("caller", 0), ("run", 1)])],
-    );
+    install_catalog(&mut builder, vec![static_box("BoxA", &[("caller", 0)])]);
     let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method("BoxA", "caller", 0);
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("run".to_owned(), ValueId::new(88));
     let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
         &builder,
         "run".to_owned(),
@@ -701,10 +697,10 @@ fn cataloged_target_is_consumed_once_before_canonical_call_publication() {
         calls[0],
         MirInstruction::Call {
             dst: Some(dst),
-            callee: Some(crate::mir::Callee::Global(symbol)),
+            callee: Some(crate::mir::Callee::Value(value)),
             args,
             ..
-        } if *dst == result && symbol.display_name() == "BoxA.run/1" && args.len() == 1
+        } if *dst == result && *value == ValueId::new(88) && args.len() == 1
     ));
 }
 
