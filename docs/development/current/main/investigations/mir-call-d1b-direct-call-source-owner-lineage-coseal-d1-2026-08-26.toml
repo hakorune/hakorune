@@ -747,9 +747,11 @@ non_claims = "This recheck does not close D1B source relation, package/loan, raw
 
 [freestatic_pre_effect_target_handoff_r0]
 task_id = "MIR-CALL-FREESTATIC-PRE-EFFECT-TARGET-HANDOFF-R0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 opened_from = "83ee263b72"
+implementation_commit = "244f8fc370"
+closed_at = "2026-08-28"
 decision = "Use the existing resolver-backed FreeStatic profile as the next independent bounded implementation row. Read the already sealed direct-call target projection before lowering argument effects, preserve the existing postorder coverage claim after arguments, verify the same target, and emit the canonical Call once. This row does not create a new issuer or extend the blocked Cataloged StaticBoxMethod path."
 
 [freestatic_pre_effect_target_handoff_r0.brief]
@@ -809,6 +811,14 @@ structural = [
   "reuse the existing canonical direct-call guard; add no one-off shell guard unless the order cannot be proven by the existing test/guard",
   "all touched source files stay below 760 lines and none reaches 800",
 ]
+
+[freestatic_pre_effect_target_handoff_r0.receipt]
+status = "landed"
+focused_tests = "mir::resolved_value_profile::direct_call_tests:: (7 passed), including consumption_reads_sealed_direct_call_target_without_advancing_coverage and production_analyzer_remains_call_disabled"
+guards = "trivial_canonical_analyzer_mode_guard.sh, current_state_pointer_guard.sh, rustfmt, git diff --check, and a source-order assertion (target read < argument descent < postorder claim < emit): green"
+baseline_guard = "resolved_callable_l0.py and resolved_trivial_owner_profile_v2.py retain pre-existing stale-baseline failures (missing with_resolved_function_draft_session / current_ssa_seam receipt drift); neither guard covers this bounded row"
+parity = "Existing sealed FreeStatic target, argument order, postorder coverage, canonical Call emission, and residual-zero finish remain unchanged; only target readiness moves before argument effects"
+source_risk = "consumption.rs=265 lines, trivial_ssa/lowerer.rs=518 lines, direct_call_tests.rs=256 lines; no package/raw-port/Call-schema files changed"
 
 [freestatic_pre_effect_target_handoff_r0.stop]
 conditions = [

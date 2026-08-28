@@ -95,7 +95,12 @@ profile assumes neither catalog cardinality nor target-equals-caller identity.
 Its call result is represented
 only by `DirectCall(site)`, never by a duplicate generic `Value(site)` row. The
 consumption API returns the whole row so Lower cannot pair target and ABI from
-separate authorities.
+separate authorities. The trivial direct-call lowerer reads that already sealed
+target projection before descending into argument expressions. Coverage
+consumption remains in the existing postorder (nested argument calls before
+their enclosing call), and the claimed row's target is checked against the
+pre-effect projection before the canonical Call is emitted. No target is
+resolved or reconstructed after argument effects.
 
 The finite analyzer records nested calls in execution postorder (argument calls
 before their enclosing call) and uses checked cardinality. Its internal
