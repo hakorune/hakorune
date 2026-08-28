@@ -196,7 +196,7 @@ path = "src/mir/builder/ordinary_new_admission.rs"
 anchor = "claim"
 disposition_ref = "compiled-adjacent-owner"
 owner = "ordinary New claim"
-action = "adapt"
+action = "retain"
 terminal = "NewBox"
 reopen = "birth target crosses Global boundary"
 
