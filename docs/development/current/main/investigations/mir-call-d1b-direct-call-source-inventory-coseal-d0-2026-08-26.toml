@@ -2,7 +2,7 @@ title = "MIR Call D1B direct-call source inventory co-seal design"
 status = "b1_current_head_c0_design_stop"
 base_observed_commit = "632c674a76"
 base_observed_at = "2026-08-26"
-observed_commit = "a30bb7ba6a"
+observed_commit = "a54680b7c7"
 observed_at = "2026-08-28"
 implementation_permission = false
 permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; B1 current-head disposition and simultaneous Callee/CallTarget cutover remain design-gated; package/loan/issuer/dispatcher publication is closed"
@@ -438,10 +438,11 @@ closeout_transition = "After the existing compiled-family evidence is complete a
 
 [b1_c0_guard_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
-status = "fast_guard_only"
-implementation_permission = true
+status = "landed_readiness"
+implementation_permission = false
 prior_readiness_commit = "1948f7b76a"
 commit = "b8bc5cc105"
+implementation_commit = "a54680b7c7"
 decision = "Extend the existing single C0 guard with a finite disposition schema and a reserved c0_dual_closeout phase. Readiness remains the active phase for this guard-only cell; closeout will require terminal/successor exclusivity, explicit non-authority, evidence-to-disposition linkage, and zero open blockers without changing production source."
 allowed_files = [
   "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
@@ -476,7 +477,7 @@ acceptance = [
   "readiness phase remains fail-closed with C0 incomplete and implementation permission false for B1 cutover",
   "guard-only changes keep all production source files untouched and below the existing size limits",
 ]
-result = "Dual readiness guard landed as one extension of the existing C0 guard: it derives 143 Callee::Global files/272 occurrences and 20 CallTarget::Global files/45 occurrences, validates compact selector/disposition coverage and B0/S0 dependencies, and keeps C0 incomplete."
+result = "Dual readiness guard and finite disposition schema landed as one extension of the existing C0 guard: it derives 143 Callee::Global files/272 occurrences and 20 CallTarget::Global files/45 occurrences, validates compact selector/disposition coverage, finite action/state fields, terminal-or-successor exclusivity, evidence linkage, and B0/S0 dependencies, and keeps C0 incomplete."
 verification = "python3 tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py .; bash tools/checks/run_row_guard.sh --only mir-call-global-target-b1-c0-matrix; bash tools/checks/current_state_pointer_guard.sh"
 no_safe_slice = [
   "the guard needs to interpret target meaning or construct a Callee/CallTarget",

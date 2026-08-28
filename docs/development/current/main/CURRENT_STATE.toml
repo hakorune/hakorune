@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
 current_design_stop = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0 guard-only: normalize finite C0 disposition fields and reserve closeout phase; no production issuer, package/loan, dispatcher, or fallback may open."
+current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0: finite disposition schema is guarded, but compiled Global successor evidence is not exhausted; no production issuer, package/loan, dispatcher, or fallback may open."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 latest_card = "mir-call-d1b-direct-call-source-inventory-coseal-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
-latest_card_summary = "D1B observer I0, B1 structural Global carrier S0, forest-wide direct-observation gate, and the reusable dual-surface C0 readiness guard are landed. The current guard-only cell hardens the finite disposition schema and reserves C0 closeout; C0 successor evidence, B1 cutover, and D1B target/package/loan publication remain closed."
+latest_card_summary = "D1B observer I0, B1 structural Global carrier S0, forest-wide direct-observation gate, and the reusable dual-surface C0 readiness guard with finite disposition schema are landed. C0 closeout evidence, B1 cutover, and D1B target/package/loan publication remain closed."
 next_design_card = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-next_execution_card = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-28: B1 structural Global carrier S0 landed at 75c0a6c04e; nested serde-free shape and zero-production-caller guard are green, while D1B issuer/package/loan remains design-stopped.",
   "2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
-  "2026-08-28: B1 C0 readiness guard landed at 1948f7b76a; 20 compiled surface files/45 CallTarget::Global occurrences and six adjacent evidence rows are derived fail-closed, while C0 semantic close remains design-stopped.",
+  "2026-08-28: B1 C0 dual-surface readiness and finite disposition schema landed at a54680b7c7 (building on 1948f7b76a/b8bc5cc105); 143/272 Callee::Global plus 20/45 CallTarget::Global occurrences remain derived fail-closed, while C0 semantic close remains design-stopped.",
 ]
