@@ -439,11 +439,14 @@ c0_remaining_family_blockers = [
   "JoinIR call generator: prove one exact JoinFuncId/declaration/call co-seal owner; do not derive a Global target from generated name or arity.",
   "normal-module physical thunk: prove an exact source/header relation or keep a typed reject; a physical symbol is not target authority.",
   "CorePlan GlobalCall and operator publishers: identify an exact plan/source relation or a pre-effect typed reject; do not retain String repair.",
-  "compiled-other is the feature-gated rc_insertion_selfcheck/cases/basic.rs projection; classify it explicitly as a selfcheck fixture or named compiled owner, never as a wildcard.",
+]
+c0_compiled_other_resolution = "The compiled-other bucket is exhausted by the feature-gated src/bin/rc_insertion_selfcheck/cases/basic.rs projection (one Callee::Global occurrence); its evidence and bucket now share isolate-fixture/ParkedSealed semantics. Any additional path must fail the guard rather than enter a wildcard."
+c0_completed_evidence_steps = [
+  "existing evidence action fields are finite single actions",
+  "rc-insertion-selfcheck-global is an explicit isolate fixture row",
+  "compiled-other bucket metadata matches the selfcheck fixture disposition",
 ]
 c0_followup_task_order = [
-  "normalize the existing evidence action field to one finite action per family; do not create path/function cards",
-  "keep the selfcheck projection as an explicit evidence row with isolate semantics and a production-promotion reopen trigger",
   "when closeout is opened, update the existing guard to allow CutoverBlockerClosed with successor_ref and to validate evidence action vocabulary",
   "resolve the three compiled-family blockers with source-backed owner evidence; if an exact relation is absent, retain NoSafeSlice and keep B1 closed",
   "run the readiness guard and pointer guard; only an exhausted compiled disposition permits the c0_dual_closeout phase",

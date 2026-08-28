@@ -89,9 +89,9 @@ expected_occurrences = 5
 id = "compiled-other"
 token_families = ["Callee::Global", "CallTarget::Global"]
 scope = "compiled"
-role = "unclassified-compiled-family"
+role = "feature-gated-selfcheck-fixture"
 selector = "compiled-other"
-disposition_ref = "compiled-adjacent-owner"
+disposition_ref = "isolate-fixture"
 expected_files = 1
 expected_occurrences = 1
 
