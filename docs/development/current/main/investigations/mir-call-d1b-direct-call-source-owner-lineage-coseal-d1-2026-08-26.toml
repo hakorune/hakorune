@@ -32,7 +32,7 @@ non_authority = [
   "AST re-discovery, a second resolver continuation, target inference, or an empty inventory treated as success",
 ]
 fail_fast = "Expected owner/site/provenance or brand/session conflicts abort before prepare_install; actual raw lineage/key/site mismatch aborts at FunctionCall ingress before argument descent/effects, block mutation, or MIR Call publication."
-smallest_next_slice = "First close the missing exact bare-Cataloged source-site -> StaticBoxMethod relation in the existing declaration/catalog owner, or record a typed pre-effect reject/park as the terminal. Only then may the already-specified actual raw-lineage equality, package+loan ownership, and pre-effect dispatcher boundary open; no implementation is open while the relation is absent."
+smallest_next_slice = "The missing bare-Cataloged source-site -> StaticBoxMethod relation is now recorded as a typed pre-effect reject/park. Keep the actual-lineage/package+loan/dispatcher row parked; select a separate exact existing-authority lane only after its own source relation and caller-zero boundary are proven."
 non_claims = [
   "this row does not observe ordinary FunctionCall nodes, widen traversal, issue a Callee, or remove Resolved/post-argument recovery",
   "ScriptRoot/Main/NestedBoxMethod and compatibility cohorts are not silently accepted by exclusion",
@@ -273,7 +273,7 @@ observed_commit = "d3d43c33bf"
 status = "no_safe_slice_confirmed"
 evidence = "Read-only source/lineage audits found that ResolvedDirectCallObservationV1 stores only name/arity while SourceExprSiteV1 is only its map key. Existing CallableDeclarationIdentity, selected source map, catalog declaration_for/static_candidates, Brand relation, and FreeStatic index do not bind a bare FunctionCall site to one StaticBoxMethod target. Raw Cataloged lineage is constructed later during lowering."
 decision = "Do not promote name/arity lookup, static_candidates, caller identity, or physical symbol parsing into a D1 issuer. Keep bare Cataloged FunctionCall target publication closed; use TypedRejectBeforeArguments or explicit ParkedSealed until an existing declaration/catalog owner can issue an exact site relation."
-next_task = "MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0 is closed as TypedReject/ParkedSealed; the next bounded code-facing row is MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0, while package-plus-loan remains parked."
+next_task = "Bare Cataloged call fate and the bounded pre-effect reject are closed as TypedReject/ParkedSealed. Package-plus-loan remains parked; the next bounded design candidate is a separate exact existing-authority lane."
 non_authority = "RawInvocationChildPortV1, package bridge, consumer resolver, name/arity uniqueness, static recovery, tail recovery, target Const, and parent-root flattening."
 no_safe_slice = [
   "name/arity, static_candidates, caller declaration identity, or symbol parsing is the only available target evidence",
@@ -309,7 +309,7 @@ acceptance = [
   "canonical target publication remains zero until an exact source-site relation is proven",
   "if the canonical contract is not approved, typed reject occurs before argument/effect work and compatibility is named/parked rather than silently rerouted",
 ]
-next_row = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0 (bounded pre-effect reject edge; package/loan remains parked)"
+next_row = "Separate exact-authority design row (the existing workstream candidate is SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0; package/loan remains parked)"
 fixture_census = "apps/bare-static-recovery-proof bounded set: 13 bare FunctionCall sites across 15 files — 6 same-owner candidates, 4 other-owner unique candidates, 1 ambiguous, and 2 missing/wrong-arity. All remain legacy compatibility evidence, not canonical target proof."
 closeout = "Language contract, bounded fixture-family census, and reject/park boundary are closed. Canonical bare StaticBoxMethod target issuance remains zero; no package, loan, lineage, dispatcher, or Call-schema implementation is opened by this row."
 no_safe_slice = [
@@ -756,7 +756,7 @@ negative = [
   "no row may issue a target from name/arity/symbol/registry/plan String or call a consumer-side resolver",
   "B1 family closure cannot be used to claim D1B source/lineage co-seal, package/loan transport, or Call publication",
 ]
-implementation_gate = "The current language contract parks bare Cataloged StaticBoxMethod; the next executable row is MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0. Package-plus-loan remains parked unless a later language decision re-ratifies bare StaticBoxMethod and supplies an exact source relation."
+implementation_gate = "The current language contract parks bare Cataloged StaticBoxMethod and its pre-effect reject is landed. Package-plus-loan remains parked unless a later language decision re-ratifies bare StaticBoxMethod and supplies an exact source relation; any next executable row must be selected independently with its own exact authority."
 no_safe_slice = [
   "any owner needs a new generic String-to-target adapter or a fallback arity",
   "an exact relation is absent and name/symbol/registry lookup would be the only proposed successor",
@@ -768,7 +768,7 @@ observed_commit = "4bdebb238a"
 status = "contract_sealed"
 evidence = "Read-only worker audits agree that the nine owner rows cover all 18 textual adapter references; each row now has one finite disposition and an explicit non-authority/reopen rule."
 remaining_blocker = "This is a design-only closure. The adapter still has production users, and exact source-backed successors are not executed yet. D1B actual lineage equality, consuming package-plus-loan, scoped raw reborrow, and Cataloged dispatcher cutover remain closed."
-next_row = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
+next_row = "SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0 (design-only candidate recorded in the workstream; not selected)"
 implementation_permission = false
 
 [d1_implementation_recheck]
@@ -791,7 +791,7 @@ no_safe_slice = [
   "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
   "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
 ]
-next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census are recorded; the next bounded row is MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0. Open it only by changing CURRENT_STATE to fast with its bounded permission; do not reopen package/loan without a new exact source relation."
+next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; select SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0 or another exact existing-authority design row only after CURRENT_STATE changes explicitly. Do not reopen package/loan without a new exact source relation."
 
 [b1_feature_recheck_2026_08_28]
 observed_commit = "d6c7deda3d"
@@ -800,7 +800,7 @@ command = "CARGO_BUILD_JOBS=2 cargo check --profile quick --lib --features vm-re
 result = "passed"
 finding = "The older report's claimed vm-reference type mismatch is stale at this HEAD: backend/mir_interpreter/handlers/calls/global.rs consumes CanonicalGlobalTargetV1 through execute_global_target, and the feature-enabled library check succeeds."
 remaining = "The legacy execute_global_function(&str) entry and selected-symbol typed projection users remain compatibility/transitional edges (including Method(None)); they are not canonical B1 authority and remain later retirement work."
-non_claims = "This recheck does not close D1B source relation, package/loan, raw dispatcher, bare StaticBoxMethod fate, or Call schema."
+non_claims = "This recheck does not close D1B source relation, package/loan, raw dispatcher, Call schema, or any separate qualified MethodCall lane. Bare StaticBoxMethod fate is already fixed as canonical reject/compatibility park."
 
 [freestatic_pre_effect_target_handoff_r0]
 task_id = "MIR-CALL-FREESTATIC-PRE-EFFECT-TARGET-HANDOFF-R0"
@@ -886,4 +886,4 @@ conditions = [
 ]
 
 [freestatic_pre_effect_target_handoff_r0.next]
-after_closeout = "Return to MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0: keep bare StaticBoxMethod reject/compatibility park until an exact source-site relation is either supplied by an approved language decision or permanently absent."
+after_closeout = "Bare StaticBoxMethod reject/compatibility park is closed. Return only to a separately selected exact-authority lane; reopen D1 package/loan if and only if an approved language decision supplies an exact source-site relation."
