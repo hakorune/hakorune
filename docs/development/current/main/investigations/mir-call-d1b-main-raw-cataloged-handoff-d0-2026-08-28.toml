@@ -1,0 +1,64 @@
+title = "MIR Call D1B Main raw Cataloged handoff design"
+status = "accepted_design_no_safe_slice"
+observed_at = "2026-08-28"
+observed_commit = "ca4e3c9687"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+decision_id = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
+decision = "Main-to-helper direct calls are an established normal-source shape in NormalMainDirectCallPreflightV1, so a permanent park is not the final contract. The required A-style handoff is still design-only: a private, one-shot root callback must co-seal existing Main identity, owner forest, session witness, and exact raw root/site before any target or argument effect. ScriptRoot/Main(locator) compatibility and canonical-core-to-Builder wiring remain separate and unchanged."
+
+[brief]
+decision = "Design the smallest existing-product handoff that makes the normal App Main root raw lineage exact; do not implement the ScriptRoot-to-Cataloged semantic switch in this row."
+source_authority = "AppMainCatalogCoSealV1 owns parser identity/catalog key/brand; VerifiedSemanticOwnerForestV1 owns FunctionOwnerId/root/nested structure; RawInvocationSourceTransportV1 owns raw lineage; the installed package/root callback is only the private co-seal consumer."
+non_authority = "Names, arity, symbols, statement ordinals, ScriptRoot, Main(locator), canonical-core products, selected child maps, and a brand comparison alone cannot synthesize a Cataloged lineage or target."
+fail_fast = "Missing/foreign/mixed identity, owner, session, brand, root, site, or body-kind rejects before package install, body/argument/effect descent, collector mutation, or MIR publication."
+smallest_next_slice = "Specify one private root callback, its exact existing caller, and a same-session witness; root-only is the first supported scope and any nested direct-call observation remains the existing forest-wide typed reject."
+non_claims = "No target/Callee issuer, package+loan bundle, raw dispatcher, Call schema, Resolved recovery retirement, VM/backend change, or canonical-core route connection."
+
+[boundary]
+starts = "source-backed App Main admission, AppMainCatalogCoSealV1, the validated owner forest, and the installed normal root lifecycle"
+ends = "an exact raw root/site/body-kind relation is available to the normal Main callback before effects; otherwise the route remains typed reject/park"
+includes = [
+  "existing Main parser identity, catalog key/brand, forest root, nested-owner observation gate, and raw source context",
+  "one-shot private callback and same-session/co-brand proof without a public session ID",
+  "root-only initial scope and compatibility route separation",
+]
+excludes = [
+  "ScriptRoot or Main(locator) compatibility, ProgramRuntime, selected static children, canonical-core dispatch, target issuance, loan/dispatcher, and argument lowering",
+  "new public Verified*/Prepared* receipt, AST/parser rescan, name/arity/symbol inference, and nested-owner flattening",
+]
+
+[existing_product_evidence]
+main_identity = "src/mir/builder/callable_declaration_catalog/source_backed.rs:38-74,282-317 retains AppMainCatalogCoSealV1 parser identity, catalog key, and catalog brand."
+main_validation = "src/mir/normal_callable_semantic_package/issuer.rs:193-275,391-392 validates Main identity/owner/forest and the forest-wide direct-call gate before install."
+normal_root = "src/mir/builder/normal_default_root_catalog_lifecycle.rs:169-220,246-293,428-444,542-582 and src/mir/builder/program_root_lowering.rs:171-227,245-278 currently start normal Main as ScriptRoot or script semantic scope."
+cataloged_children = "src/mir/builder/normal_callable_semantic_loan_port.rs:75-151,427-459 constructs Cataloged lineage for selected children, not the normal Main root."
+raw_compat = "src/mir/builder/recursive_child_lowering.rs:496-525 constructs Main(locator) only for raw compatibility."
+missing_witness = "ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() have no existing common comparison witness; raw context also lacks exact semantic owner/site/body-kind equality."
+
+[design_tasks]
+route = "Decide and record whether normal App Main root adopts Cataloged(app_main.catalog_key()) as its canonical raw lineage; do not perform that switch here."
+callback = "Name the existing production root callback and carry AppMainCatalogCoSealV1 plus validated forest through a private one-shot scope; a dead comparator/helper is not sufficient."
+witness = "Specify a private same-session/co-brand witness or an existing one-shot owner boundary; do not compare unrelated brand types by value or invent a public session ID."
+raw_exactness = "Identify an existing raw site/body-kind API or design a private comparison boundary; never derive it from Main spelling, arity, symbol, or statement index."
+nested = "Keep root owner exact; reject nested-only or mixed direct-call observations before effects and never inherit the parent Cataloged lineage across owner transitions."
+compatibility = "Prove ScriptRoot, ProgramRuntime, Main(locator), selected children, and synthetic main/0 remain on their named owners."
+
+[acceptance]
+positive = "One source-backed App Main with no direct-call observations yields one exact root owner/site/session relation through an existing production callback; no target/loan/Call is emitted."
+negative = "Missing/duplicate/foreign/mixed identity or brand, wrong owner/root/site/body-kind, nested direct call, ScriptRoot fallback, and Main(locator) reuse all reject or remain explicitly parked before effects."
+structural = "No AST rescan, no name/arity/symbol synthesis, no selected-map insertion, no package-only bypass, no Clone/Rc/RefCell/extra lifetime, and no new public Verified*/Prepared* receipt."
+guard = "Reuse the existing D1 lifecycle guard; add no new guard family. The eventual implementation row must pin the named caller, witness, root-only boundary, zero-delta failure, and compatibility parity."
+
+[no_safe_slice]
+conditions = [
+  "no existing production callback can receive the co-sealed products",
+  "same-session/brand equality needs unrelated-type inference, persistent ambient state, or a public session ID",
+  "raw site/body-kind equality is unavailable without a second parser/AST traversal or synthetic site",
+  "ScriptRoot-to-Cataloged changes other routes, or nested owners inherit the root lineage",
+  "target, loan, dispatcher, argument order, Call schema, fallback, or recovery must be changed in the same row",
+]
+
+[next]
+task = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0 remains design-only until the callback, witness, and exact raw-site relation are named and accepted."
+implementation_gate = "Only then may a separate root-only implementation row open; it must change one normal App Main edge, prove positive/negative zero-delta behavior, and delete no unrelated compatibility path."
