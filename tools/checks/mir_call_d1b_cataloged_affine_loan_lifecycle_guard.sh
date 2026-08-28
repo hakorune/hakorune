@@ -467,10 +467,16 @@ elif phase == "main_raw_lineage_handoff_d1":
     if not isinstance(d1_card, dict) or d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened")
 elif phase == "main_raw_lineage_witness_harden_r0":
-    if current_state.get("current_execution_row") != "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0":
-        raise SystemExit("Main raw lineage witness current row drifted")
-    if current_state.get("work_mode") not in {"fast", "closeout"}:
-        raise SystemExit("Main raw lineage witness requires fast or closeout")
+    if registration.get("status") == "fast_open":
+        if current_state.get("current_execution_row") != "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0":
+            raise SystemExit("Main raw lineage witness current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("Main raw lineage witness requires fast or closeout")
+    else:
+        if current_state.get("current_execution_row") != "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1":
+            raise SystemExit("landed Main raw lineage witness must return to the D1 design row")
+        if current_state.get("work_mode") not in {"design_stop", "closeout"}:
+            raise SystemExit("landed Main raw lineage witness has an invalid work mode")
     if not isinstance(d1_card, dict) or d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened")
     witness_path = mir_root / "builder/normal_callable_semantic_loan_port/main_root.rs"

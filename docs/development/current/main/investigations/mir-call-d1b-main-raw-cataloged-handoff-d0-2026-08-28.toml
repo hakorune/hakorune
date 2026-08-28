@@ -182,8 +182,8 @@ closeout = "bash -n, no-argument lifecycle guard, explicit D1/route phase checks
 task_id = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0"
 execution_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0"
 guard_phase = "main_raw_lineage_witness_harden_r0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 scope = "A validator-only hardening row inside the already-landed installed App Main root callback. Compare the existing VerifiedResolvedCallableSourceIdentityV1::owner() with the active raw callable owner from RawInvocationChildPortV1::callable_owner_v1(), and fail closed before body effects when they differ."
 source_authority = "AppMainCatalogCoSealV1 and the installed semantic batch issue the parser identity, catalog key/brand, and VerifiedResolvedCallableSourceIdentityV1 owner; the active raw callable ledger is the only raw owner witness."
 canonical_issuer = "No new issuer is created. The existing package callback and existing raw scope remain the sole consumers; the row only adds an explicit owner-equality validation at the live Main callback boundary."
@@ -227,6 +227,16 @@ no_safe_slice = [
     "the implementation needs a target, loan, dispatcher, argument, Call, fallback, recovery, or compatibility change"
 ]
 next_after_closeout = "Return to design_stop for the separate exact source-site/target issuer and package+affine-loan dispatcher cutover; this row does not publish a Callee."
+implementation_commit = "2dadcae1c2"
+verification = [
+    "cargo check --profile quick --lib passed",
+    "cargo test --profile quick --lib mir::builder::normal_callable_semantic_loan_port::main_root::tests::raw_callable_owner_witness_rejects_missing_or_foreign_owner -- --exact passed",
+    "cargo test --profile quick --lib mir::builder::normal_default_root_catalog_lifecycle::normal_default_root_catalog_lifecycle_tests::source_backed_app_main_root_uses_cataloged_scope -- --exact passed",
+    "cargo test --profile quick --lib mir::normal_callable_semantic_package::resolver_deferred_tests::app_main_root_and_nested_direct_call_observations_reject_before_install -- --exact passed",
+    "current_state_pointer_guard, row runner, explicit witness phase, and diff/rustfmt checks passed",
+    "existing normal_default_root_catalog_lifecycle baseline retains three unrelated failures recorded before this row"
+]
+closeout = "Owner equality is checked in the live installed App Main callback before source context/body lowering. Missing or foreign raw owners fail closed; no target, loan, dispatcher, argument recovery, or Call schema code changed. The pointer returns to the D1 design stop and semantic implementation permission remains false."
 
 [d14_feedback_reconciliation_2026_08_28]
 status = "accepted_as_design_amendment"
