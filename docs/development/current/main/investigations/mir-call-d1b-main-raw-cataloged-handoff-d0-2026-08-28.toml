@@ -457,3 +457,31 @@ no_safe_slice_conditions = [
 ]
 implementation_permission = false
 non_claims = "No target/Callee issuer, package+loan, RawInvocationChildPort field/lifetime, dispatcher, Call schema, Resolved retirement, fallback, retry, or canonical-core-to-raw route change is opened by this recheck."
+
+[worker_task_synthesis_2026_08_29]
+status = "accepted_finite_plan"
+source = [
+  "d1_lineage_issuer_design: private existing-FreeStatic source/profile-to-live-raw bridge is the only bounded candidate",
+  "d1_acceptance_guard_design: package+loan can close with existing owners, one callback, and the existing port lifetime",
+  "call_residual_retirement_audit: residual Call spine and caller/owner boundaries are finite and must be retired by family",
+]
+definition_of_clean = "MirBuilder ordinary-call meaning is decided once before argument effects, one existing authority issues Callee, one affine handoff reaches the raw consumer, Call is emitted once, and every old resolver/recovery/optional-carrier edge is caller-zero or explicitly compatibility-owned."
+remaining_core_rows = 5
+remaining_core_rows_note = "The current D0 is one design boundary; after it closes, five implementation/retirement rows remain. They are bounded responsibility families, not per-file or per-function ceremonies."
+ordered_rows = [
+  "D0 current: MIR-CALL-D1B-MAIN-RAW-FREESTATIC-BRIDGE-BOUNDARY-D0 — prove or park the exact semantic-site/raw-site/session relation; no code or new receipt.",
+  "I0: MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 — existing FreeStatic/qualified products -> private package+loan -> raw take_once -> arguments once -> Call once; delete CatalogedTargeted direct callee payload and selected package-only/resolver bypass in the same slice.",
+  "R2: MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0 — classify remaining lineages before effects and retire Resolved, post-argument unique/tail recovery, direct name-Const/legacy-Call edges; preserve named compatibility siblings.",
+  "R3: MIR-CALL-METHOD-CORRIDOR-R0 — remove Method(None), methodize, receiver autoscan/strip/repair, and related VM/optimizer recovery as one receiver-authority family.",
+  "R4: MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 — move every remaining typed_global_target_from_selected_symbol caller to its real owner or typed reject; no new symbol parser authority.",
+  "R6: MIR-CALL-CORE-SCHEMA-CUTOVER-R6 — after all writers/readers are ready, atomically remove Call.func, Option<Callee>, INVALID sentinel, and impossible-state guards.",
+]
+row_exit_rule = "Each implementation row is at most one active card, one bounded production switch, focused positive/negative evidence, reusable guard, and one closeout; no per-observation child cards. A row is not complete while its old authority edge remains live."
+expected_shape = "D0 is docs-only; I0 may temporarily add a small private loan owner; R2/R3/R4/R6 are the net source-line reduction points. Do not use temporary line growth as a completion metric; measure old-edge/caller counts and residual-zero instead."
+post_core_hygiene = [
+  "H1 optional: delete caller-zero compatibility helpers and stale guards only with successor/caller-zero proof.",
+  "H2 optional: split remaining integration hubs (CompilationContext/Raw port/adapter) by BoxShape after Call semantics are closed; do not reopen Call authority.",
+]
+not_in_core = "VM/backend retirement, JSON ingress, JoinIR cleanup, FunctionMetadata sub-owners, and broad guard consolidation remain separate lanes; they do not block the six-row Call spine once their explicit owner gates are satisfied."
+no_new_task_families = "Reuse the existing D1 lifecycle guard and current design card. Do not create a new census/owner-map/guard family for each row."
+implementation_gate = "Keep work_mode=design_stop and implementation_permission=false until D0 names the existing issuer, exact raw bridge callback, same-session witness, and failure/no-retry boundary. Then open only I0; later rows reopen one at a time after closeout."
