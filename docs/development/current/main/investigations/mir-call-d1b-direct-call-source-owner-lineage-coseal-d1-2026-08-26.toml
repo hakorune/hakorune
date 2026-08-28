@@ -800,11 +800,17 @@ status = "no_safe_slice_language_decision_missing"
 decision = "Do not relabel selected-normal App/Main ScriptRoot with semantic source Unavailable as ParkedSealed from implementation evidence alone. The current Unavailable state records missing source admission; it does not issue a language disposition. A language authority must first choose whether this cohort is canonical qualified MethodCall (then name a source-backed owner/issuer) or explicitly unsupported/compatibility-only (then name a park owner)."
 source_authority = "docs/reference/language/function-call-evaluation.md currently assigns qualified MethodCall to StaticBoxMethod, while NormalScriptRootLoweringMode::Unavailable and RawInvocationRootLineageV1::ScriptRoot only describe the absent source product."
 canonical_issuer = "Missing for this cohort. No App/Main ScriptRoot owner currently issues the source-bound MethodCall relation, result owner, Recipe, or Join needed for a canonical route."
+canonical_option_shape = "If the language authority confirms canonical App/Main qualified MethodCall semantics, add only a private root identity-to-catalog-key co-seal: ParserNormalAppExecutionRelationV1.main_callable identity + the same-session source-backed catalog row + catalog brand -> existing CanonicalSameModuleCallableKeyV1 / structured Global StaticBoxMethod target relation. The raw body scope then uses Cataloged(exact_key); synthetic physical main/0 remains a separate entry and is never used to issue the target."
+canonical_option_non_authority = "Main spelling, source arity, RawSourceLocatorV1, synthetic main/0, static_candidates, symbol parsing, or name/arity lookup cannot issue or repair this relation; Method(None) and a synthetic receiver remain forbidden."
 finite_matrix = [
   "ScriptRoot + App/Main + Unavailable + no semantic ledger -> language decision required; keep the existing live fallthrough unchanged until decided",
   "ScriptRoot + Complete -> existing exact claimed Script direct-static route; out of scope",
   "Cataloged + Absent -> existing Cataloged branch; out of scope and not evidence for ScriptRoot disposition",
   "ordinary facade or RawLegacy/compatibility -> existing owners; out of scope",
+]
+canonical_option_negative_matrix = [
+  "missing/duplicate App relation or Main identity, catalog-row mismatch, brand/session mismatch, synthetic main/0 confusion, and Main(locator) versus Cataloged(key) lineage mixing -> typed reject before body/argument effects",
+  "nested callable site without its own exact owner relation -> typed reject; no parent-root flattening",
 ]
 fail_fast_if_unsupported = "Only after an explicit unsupported/compatibility-only language decision may a narrow pre-receiver/argument typed terminal be designed for ScriptRoot + App/Main + Unavailable; it must publish no effects, MIR, or Call and must not remove the shared Cataloged/ordinary/compatibility branch."
 non_claims = [

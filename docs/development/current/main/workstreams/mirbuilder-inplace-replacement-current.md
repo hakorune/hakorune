@@ -72,6 +72,13 @@ Next bounded design candidate (not selected while D1 remains active):
   allowed. The
   existing CallFlags retirement card remains parked until this D1 stop is
   explicitly closed or parked.
+  If canonical is selected, the smallest source owner is the existing
+  `ParserNormalAppExecutionRelationV1.main_callable` identity joined once to
+  its same-session source-backed catalog row and brand, yielding the existing
+  structured `CanonicalSameModuleCallableKeyV1`/Global relation. The raw body
+  may then carry `Cataloged(exact_key)`; synthetic physical `main/0` remains a
+  separate entry. No Main-string, arity, locator, symbol, or synthetic
+  receiver inference is allowed.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.
