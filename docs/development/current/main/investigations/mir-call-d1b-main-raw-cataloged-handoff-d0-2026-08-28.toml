@@ -1,8 +1,9 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
-observed_commit = "9f0e34ec6a"
+observed_commit = "c97aac2b3b"
 implementation_permission = false
+guard_phase = "main_raw_cataloged_handoff_d0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
 decision = "Main-to-helper direct calls are an established normal-source shape in NormalMainDirectCallPreflightV1, so a permanent park is not the final contract. The required A-style handoff is still design-only: a private, one-shot root callback must co-seal existing Main identity, owner forest, session witness, and exact raw root/site before any target or argument effect. ScriptRoot/Main(locator) compatibility and canonical-core-to-Builder wiring remain separate and unchanged."
@@ -62,3 +63,19 @@ conditions = [
 [next]
 task = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0 remains design-only until the callback, witness, and exact raw-site relation are named and accepted."
 implementation_gate = "Only then may a separate root-only implementation row open; it must change one normal App Main edge, prove positive/negative zero-delta behavior, and delete no unrelated compatibility path."
+
+[guard_hygiene]
+task_id = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
+execution_row = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
+guard_phase = "main_raw_cataloged_handoff_d0"
+status = "fast_open"
+implementation_permission = true
+scope = "Reuse the existing lifecycle guard only: no-arg dispatch must select the current D0 guard phase, never fall back to historical bridge_ready; explicit historical phases remain available."
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden = "No src/mir, fixture, Cargo, production switch, target/Callee/loan/dispatcher, raw lineage, argument, fallback/recovery, new guard family, or D1 semantic permission."
+acceptance = "fast-open no-arg selects this task; unknown phase fails closed; after closeout no-arg selects the active D0 design phase; the already-supported bridge and accepted historical phases remain selectable; pointer guard passes; broad D1 and active semantic permission remain false."

@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -44,9 +44,14 @@ current_state_path = root / "docs/development/current/main/CURRENT_STATE.toml"
 with current_state_path.open("rb") as stream:
     current_state = tomllib.load(stream)
 active_row = current_state.get("current_execution_row")
+active_card_path = root / current_state.get("latest_card_path", "")
+with active_card_path.open("rb") as stream:
+    active_card = tomllib.load(stream)
 
 if not phase:
-    if active_row == "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
+    if active_row in {"MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0", "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"}:
+        phase = "main_raw_cataloged_handoff_d0"
+    elif active_row == "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
         phase = "main_root_identity_coseal_i0"
     elif active_row in {
         "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0",
@@ -58,8 +63,8 @@ if not phase:
     elif active_row == "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0":
         phase = "main_root_owner_forest_validation_r0"
     else:
-        phase = card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "cataloged_i0"}:
+        phase = active_card.get("guard_phase")
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -80,11 +85,14 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0"}:
+if phase == "main_raw_cataloged_handoff_d0":
+    registration_owner = active_card
+if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0"}:
     d1_path = root / "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
     with d1_path.open("rb") as stream:
         d1_card = tomllib.load(stream)
-    registration_owner = d1_card
+    if phase != "main_raw_cataloged_handoff_d0":
+        registration_owner = d1_card
 
 registration_key = (
     "observer_guard_registration_row"
@@ -100,6 +108,8 @@ registration_key = (
     if phase in {"main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0"}
     else "main_root_identity_catalog_coseal_i0"
     if phase == "main_root_identity_coseal_i0"
+    else "guard_hygiene"
+    if phase == "main_raw_cataloged_handoff_d0"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -149,18 +159,17 @@ elif phase == "main_root_identity_coseal_i0":
         raise SystemExit("Main identity co-seal task id drifted")
     if registration.get("status") not in {"ready_for_fast", "landed"}:
         raise SystemExit("Main identity co-seal status drifted")
+elif phase == "main_raw_cataloged_handoff_d0":
+    pass
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
         raise SystemExit("guard-only execution row drifted")
     if registration.get("status") not in {"selected_fast_guard_only", "landed_guard_only"}:
         raise SystemExit("guard-only status drifted")
 allowed_files = registration.get("allowed_files")
-expected_files = {
-    guard_script,
-    "tools/checks/guard_rows.toml",
-    "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
-    "docs/development/current/main/CURRENT_STATE.toml",
-}
+expected_files = {guard_script, "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml", "docs/development/current/main/CURRENT_STATE.toml"}
+if phase == "main_raw_cataloged_handoff_d0":
+    expected_files = {guard_script, "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"}
 if phase == "observer_i0":
     expected_files.update({
         "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
@@ -326,6 +335,32 @@ elif phase == "main_root_identity_coseal_i0":
         raise SystemExit("landed Main identity co-seal phase has an invalid work mode")
     if d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 broad semantic implementation permission opened")
+elif phase == "main_raw_cataloged_handoff_d0":
+    for key, expected in (("task_id", "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"), ("execution_row", "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"), ("guard_phase", "main_raw_cataloged_handoff_d0")):
+        if registration.get(key) != expected:
+            raise SystemExit(f"Main raw handoff guard-hygiene {key} drifted")
+    if active_card.get("guard_phase") != "main_raw_cataloged_handoff_d0":
+        raise SystemExit("Main raw handoff D0 card guard phase drifted")
+    if active_card.get("implementation_permission") is not False:
+        raise SystemExit("Main raw handoff D0 semantic permission opened")
+    if d1_card.get("implementation_permission") is not False:
+        raise SystemExit("D1 broad semantic implementation permission opened")
+    guard_open = active_row == "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
+    expected_row = (
+        "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
+        if guard_open
+        else "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
+    )
+    if active_row != expected_row:
+        raise SystemExit("Main raw handoff D0 current row drifted")
+    expected_mode = {"fast", "closeout"} if guard_open else {"design_stop", "closeout"}
+    if current_state.get("work_mode") not in expected_mode:
+        raise SystemExit("Main raw handoff D0 work mode drifted")
+    expected_status = "fast_open" if guard_open else "landed"
+    if registration.get("status") != expected_status:
+        raise SystemExit("Main raw handoff guard-hygiene status drifted")
+    if registration.get("implementation_permission") is not guard_open:
+        raise SystemExit("Main raw handoff guard-hygiene permission drifted")
 else:
     if card.get("implementation_permission") is not False:
         raise SystemExit("semantic implementation permission opened during guard-only row")
