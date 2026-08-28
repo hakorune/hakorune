@@ -411,3 +411,14 @@ fail_fast = "The existing forest-wide direct-call observation gate rejects Main 
 smallest_next_slice = "Design-only premise audit for an explicit FreeStatic source/profile-to-Builder bridge: name the issuer, session/brand witness, raw site mapping, package/loan owner, and failure/rollback contract. If those cannot be named from existing owners, ratify the bare Main park rather than adding a compatibility adapter."
 acceptance = "One compact authority decision distinguishes canonical FreeStatic production from raw Builder consumption; all required products, live caller, exact site relation, and ownership/lifetime boundary are either proven or recorded as NoSafeSlice."
 non_claims = "No code, fixture, target issuer, package+loan, RawInvocationChildPort field/lifetime, dispatcher, Resolved retirement, Method(None), Call schema, JSON, VM/backend, fallback, or retry change. Qualified MethodCall I0 remains the only newly landed ingress switch."
+
+[main_raw_freestatic_bridge_recheck_2026_08_28]
+status = "reconciled_design_stop"
+observed_commit = "7f51b2b647"
+decision = "Two read-only audits agree: the existing VerifiedTrivialDirectCallV1 FreeStatic issuer is consumed only by the canonical normal_source_plan/resolved lowering route; no production bridge carries that product into the live Main raw Builder callback. Keep bare Main target publication closed rather than rebuilding a target from name/arity, catalog key, or raw lineage."
+existing_bridge = "normal_source_plan main_direct_call_source/main_direct_call_plan -> normal_callable_transaction_handoff -> resolved_lowering/trivial_ssa; this HRTB bridge does not reach RawInvocationChildPortV1."
+live_raw_gap = "program_root_lowering -> installed package Main callback -> RawInvocationChildPortV1 has no FreeStatic profile/site cursor or exact source-to-raw handoff input. The package issuer still rejects any unissued direct-call observation before install."
+next_design_task = "MIR-CALL-D1B-MAIN-RAW-FREESTATIC-BRIDGE-BOUNDARY-D0: specify a private source/profile-to-raw bridge, same-session/brand witness, exact raw site mapping, and typed failure/rollback; if these require a second scan, synthetic key, new public receipt, or name/arity inference, ratify TypedReject/ParkedSealed."
+package_loan_followup = "Only after an exact issuer/bridge exists: MIR-CALL-D1B-MAIN-RAW-PACKAGE-LOAN-D0 fixes a private package+loan bundle, consuming lowering callback, existing-port-lifetime &mut reborrow, take_once/finish_empty, and Aborted/no-retry."
+implementation_permission = false
+non_claims = "No target/Callee issuer, package+loan, RawInvocationChildPort field/lifetime, dispatcher, Call schema, Resolved retirement, fallback, retry, or canonical-core-to-raw route change is opened by this recheck."
