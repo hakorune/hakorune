@@ -283,13 +283,15 @@ no_safe_slice = [
 
 [bare_cataloged_fate_d0]
 task_id = "MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0"
-status = "design_stop"
+status = "accepted_language_contract_compatibility_census_pending"
 observed_commit = "7344ce0676"
 implementation_permission = false
-decision = "A bare AST FunctionCall is not sufficient evidence for a Cataloged StaticBoxMethod target. Before any D1 issuer is opened, decide whether the language/source contract explicitly admits current-owner StaticBoxMethod for this form; absent that contract, canonical ingress is TypedRejectBeforeArguments and named legacy fixtures/compatibility are ParkedSealed."
-evidence = "The AST carries only name and arguments, while current corpus cases mix same-owner static candidates, other-box static candidates, ambiguous/no-candidate calls, local Value calls, builtin calls, and explicit Extern syntax. The bounded recovery-proof corpus contains 13 bare FunctionCall cases in 15 files; candidate counts are evidence of legacy recovery only, not an exact source relation."
+decision = "Adopt docs/reference/language/function-call-evaluation.md as the current language contract: bare FunctionCall is direct FreeStatic or an explicitly owned special form; qualified MethodCall owns StaticBoxMethod. Bare current-owner/other-owner StaticBoxMethod recovery is compatibility-only. Until an exact canonical source relation exists, canonical ingress is TypedRejectBeforeArguments and named legacy fixtures/compatibility are ParkedSealed."
+evidence = "The AST carries only name and arguments, while current corpus cases mix same-owner static candidates, other-box static candidates, ambiguous/no-candidate calls, local Value calls, builtin calls, and explicit Extern syntax. The bounded recovery-proof corpus contains 13 bare FunctionCall cases in 15 files; candidate counts are evidence of legacy recovery only, not an exact source relation. The language reference fixes target-before-arguments and explicitly excludes bare static recovery from canonical authority."
 boundary = "Only InstalledNonBrand { caller: Some } -> prepare_cataloged_target_v1 -> CatalogedTargeted/recovery and its named recovery-proof fixtures are classified. Keep this at file/fixture-family level; do not expand into a repository-wide function/reference census."
 canonical_families = "Local Value, explicit Extern, exact builtin policy, and existing FreeStatic relation remain separate families. Qualified MethodCall is outside this bare-call decision. None may be reclassified as StaticBoxMethod from name/arity alone."
+source_contract = "docs/reference/language/function-call-evaluation.md and docs/development/current/main/investigations/function-call-callee-binding-and-evaluation-order-d0.md are the durable authority; old callable-catalog recovery cards are compatibility history unless explicitly re-ratified."
+user_reopen = "Only an explicit language decision to ratify bare current-owner StaticBoxMethod as canonical may reopen an exact-relation design; absent that decision, do not preserve the old extension as a live canonical route."
 allowed = [
   "record the source namespace decision in this existing card",
   "boundedly classify production callers and recovery-proof fixtures as canonical-successor, compatibility-park, or unresolved blocker",
@@ -301,17 +303,17 @@ forbidden = [
   "caller=None collapse, second AST traversal, new public semantic receipt, or live ParkedSealed fallback",
 ]
 acceptance = [
-  "one explicit canonical-versus-compatibility decision is recorded for bare Cataloged StaticBoxMethod",
+  "the current language contract records bare FunctionCall as FreeStatic/special and qualified MethodCall as StaticBoxMethod",
   "every bounded production/fixture family has one owner, disposition, non-authority, and reopen trigger",
   "canonical target publication remains zero until an exact source-site relation is proven",
   "if the canonical contract is not approved, typed reject occurs before argument/effect work and compatibility is named/parked rather than silently rerouted",
 ]
-next_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 (only if an exact source relation is approved)"
+next_row = "FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0 (existing language-contract migration row); D1B package/loan remains closed"
 no_safe_slice = [
-  "the language contract for bare current-owner StaticBoxMethod remains undecided",
   "a caller can only be classified by name/arity or candidate uniqueness",
   "local Value, builtin, Extern, FreeStatic, and StaticBoxMethod meanings cannot be separated before effects",
   "the bounded census expands beyond files/fixture families or requires a new review matrix",
+  "bare current-owner StaticBoxMethod is re-ratified without an exact source-site relation and a new bounded design decision",
 ]
 
 [d1_nested_owner_boundary]
