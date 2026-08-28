@@ -84,7 +84,7 @@ fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
 }
 
 #[test]
-fn ucm1_rewrites_user_box_global_method_call_to_canonical_method_shape() {
+fn ucm1_keeps_typed_user_box_global_target_without_method_repair() {
     let mut module = MirModule::new("ucm1_global".to_string());
     module
         .metadata
@@ -109,7 +109,9 @@ fn ucm1_rewrites_user_box_global_method_call_to_canonical_method_shape() {
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId(4)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Counter.step/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Counter.step/0".to_string(),
+        ))),
         args: vec![ValueId(1)],
         effects: EffectMask::PURE,
     });
@@ -120,7 +122,7 @@ fn ucm1_rewrites_user_box_global_method_call_to_canonical_method_shape() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("ucm1_global/0")
@@ -134,20 +136,12 @@ fn ucm1_rewrites_user_box_global_method_call_to_canonical_method_shape() {
         MirInstruction::Call {
             dst: Some(ValueId(4)),
             func,
-            callee: Some(Callee::Method {
-                box_name,
-                method,
-                receiver: Some(receiver),
-                certainty: TypeCertainty::Known,
-                box_kind: CalleeBoxKind::UserDefined,
-            }),
+            callee: Some(Callee::Global(name)),
             args,
             effects,
         } if *func == ValueId::INVALID
-            && box_name == "Counter"
-            && method == "step"
-            && *receiver == ValueId(1)
-            && args.is_empty()
+            && name.display_name() == "Counter.step/0"
+            && args == &vec![ValueId(1)]
             && *effects == EffectMask::PURE
     ));
 }

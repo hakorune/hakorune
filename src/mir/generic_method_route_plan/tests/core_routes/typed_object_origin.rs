@@ -243,9 +243,9 @@ fn records_array_get_result_origin_from_typed_object_collection_push_param_flow(
     put_block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(
+        callee: Some(Callee::Global(crate::mir::test_global_target(
             "unsupported_side_effect_probe/0".to_string(),
-        )),
+        ))),
         args: Vec::new(),
         effects: EffectMask::PURE,
     });

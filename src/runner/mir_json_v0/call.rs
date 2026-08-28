@@ -1,5 +1,6 @@
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 use serde_json::{Map, Value};
 use std::fmt;
 
@@ -28,7 +29,11 @@ impl fmt::Display for JsonV0CallInputError {
 }
 
 impl JsonV0CallInput {
-    fn resolve(self, catalog: &JsonV0FunctionCatalog) -> Result<Callee, JsonV0CallInputError> {
+    fn resolve(
+        self,
+        catalog: &JsonV0FunctionCatalog,
+        args_len: usize,
+    ) -> Result<Callee, JsonV0CallInputError> {
         match self {
             Self::Explicit(Callee::Constructor { .. }) => Err(
                 "[freeze:contract][mir-json-v0/constructor-call-requires-newbox]"
@@ -36,19 +41,27 @@ impl JsonV0CallInput {
                     .into(),
             ),
             Self::Explicit(callee) => Ok(callee),
-            Self::LegacyName(name) => Ok(Callee::Global(name.into_string())),
+            Self::LegacyName(name) => Ok(Callee::Global(
+                project_legacy_global_target(&name, args_len).map_err(JsonV0CallInputError)?,
+            )),
             Self::LegacyFunc(value_id) => {
                 let target = catalog.resolve(value_id).map_err(JsonV0CallInputError)?;
-                Ok(Callee::Global(target.to_string()))
+                Ok(Callee::Global(
+                    project_legacy_global_target(target, args_len).map_err(JsonV0CallInputError)?,
+                ))
             }
         }
     }
 }
 
 fn parse_call_input(node: &Value) -> Result<JsonV0CallInput, JsonV0CallInputError> {
+    let args_len = node
+        .get("args")
+        .and_then(Value::as_array)
+        .map_or(0, Vec::len);
     if let Some(callee_obj) = node.get("callee") {
         return Ok(JsonV0CallInput::Explicit(parse_explicit_callee(
-            callee_obj,
+            callee_obj, args_len,
         )?));
     }
 
@@ -75,7 +88,7 @@ fn parse_call_input(node: &Value) -> Result<JsonV0CallInput, JsonV0CallInputErro
         .into())
 }
 
-fn parse_explicit_callee(callee_obj: &Value) -> Result<Callee, String> {
+fn parse_explicit_callee(callee_obj: &Value, args_len: usize) -> Result<Callee, String> {
     let callee_obj = callee_obj
         .as_object()
         .ok_or_else(|| "call callee must be an object".to_string())?;
@@ -84,10 +97,9 @@ fn parse_explicit_callee(callee_obj: &Value) -> Result<Callee, String> {
         .and_then(Value::as_str)
         .ok_or_else(|| "call callee missing type".to_string())?;
     match callee_type {
-        "Global" => Ok(Callee::Global(required_object_string(
-            callee_obj,
-            "name",
-            "call callee Global",
+        "Global" => Ok(Callee::Global(project_legacy_global_target(
+            &required_object_string(callee_obj, "name", "call callee Global")?,
+            args_len,
         )?)),
         "Extern" => Ok(Callee::Extern(required_object_string(
             callee_obj,
@@ -257,7 +269,6 @@ pub(super) fn build_call_instruction(
     catalog: &JsonV0FunctionCatalog,
 ) -> Result<(MirInstruction, Option<ValueId>), String> {
     let input = parse_call_input(call_node).map_err(|error| error.to_string())?;
-    let callee = input.resolve(catalog).map_err(|error| error.to_string())?;
     let dst_opt = inst
         .get("dst")
         .or_else(|| call_node.get("dst"))
@@ -265,11 +276,44 @@ pub(super) fn build_call_instruction(
         .map(|v| ValueId::new(v as u32));
     let arg_ctx = format!("{} arg", op_label);
     let args = super::helpers::parse_value_id_array(call_node, "args", &arg_ctx)?;
+    let callee = input
+        .resolve(catalog, args.len())
+        .map_err(|error| error.to_string())?;
     let effects = parse_call_effects(call_node)?;
     Ok((
         MirInstruction::call(dst_opt, callee, args, effects),
         dst_opt,
     ))
+}
+
+/// JSON-v0 is an owner-local compatibility ingress.  Once the wire spelling
+/// has been accepted, project it into the structural carrier exactly once;
+/// this helper performs no catalog lookup, retry, or target repair.
+fn project_legacy_global_target(
+    name: &str,
+    args_len: usize,
+) -> Result<CanonicalGlobalTargetV1, String> {
+    if name.is_empty() {
+        return Err("call Global name must not be empty".to_string());
+    }
+    if name == "print" {
+        return Ok(CanonicalGlobalTargetV1::builtin_print());
+    }
+    let (base, arity) = match name.rsplit_once('/') {
+        Some((base, encoded)) => (
+            base,
+            encoded
+                .parse::<u32>()
+                .map_err(|_| format!("call Global name has malformed arity: {name}"))?,
+        ),
+        None => (name, args_len as u32),
+    };
+    if let Some((owner, method)) = base.rsplit_once('.') {
+        return CanonicalGlobalTargetV1::new_static_box_method(owner.into(), method.into(), arity)
+            .map_err(|error| format!("call Global target is invalid: {error:?}"));
+    }
+    CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
+        .map_err(|error| format!("call Global target is invalid: {error:?}"))
 }
 
 fn parse_call_effects(node: &Value) -> Result<EffectMask, String> {

@@ -284,7 +284,7 @@ fn infer_fact_from_instruction(inst: &MirInstruction) -> Option<(ValueId, String
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
-        } => infer_from_canonical_global(name).map(|fact| (*dst, fact)),
+        } => infer_from_canonical_global(&name.display_name()).map(|fact| (*dst, fact)),
         _ => super::string_corridor_compat::infer_compat_fact_from_instruction(inst),
     }
 }

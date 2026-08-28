@@ -102,7 +102,7 @@ impl BuilderRegistryDispatchFacts {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if args.len() == 1 && name.ends_with(".try_lower/1") => {
+            } if args.len() == 1 && name.display_name().ends_with(".try_lower/1") => {
                 self.try_lower_calls += 1;
             }
             MirInstruction::Return { value: Some(_), .. } => self.returns_value = true,

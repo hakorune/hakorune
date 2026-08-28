@@ -133,7 +133,7 @@ fn refresh_instruction_fact(
             callee: Some(Callee::Global(name)),
             ..
         } => {
-            if let Some(fact) = return_facts.get(name).cloned() {
+            if let Some(fact) = return_facts.get(&name.display_name()).cloned() {
                 facts.insert(*dst, fact);
             }
         }
@@ -329,7 +329,9 @@ mod tests {
         entry.add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("make/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "make/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });

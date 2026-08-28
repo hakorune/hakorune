@@ -16,7 +16,7 @@ fn integer_passthrough_with_global_child(child_name: &str) -> MirFunction {
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(child_name.to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(child_name))),
         args: vec![],
         effects: EffectMask::PURE,
     });

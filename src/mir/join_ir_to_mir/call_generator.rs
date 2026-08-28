@@ -27,6 +27,29 @@
 
 use crate::ast::Span;
 use crate::mir::{ConstValue, EffectMask, MirInstruction, ValueId};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
+
+/// JoinIR has already selected the generated function symbol.  Keep this
+/// compatibility projection local to the JoinIR bridge; it is not a source
+/// resolver and it never retries or searches a catalog.
+fn selected_joinir_global_target(symbol: &str, fallback_arity: usize) -> CanonicalGlobalTargetV1 {
+    if symbol == "print" {
+        return CanonicalGlobalTargetV1::builtin_print();
+    }
+    let (base, arity) = match symbol.rsplit_once('/') {
+        Some((base, encoded)) => (
+            base,
+            encoded.parse::<u32>().unwrap_or(fallback_arity as u32),
+        ),
+        None => (symbol, fallback_arity as u32),
+    };
+    if let Some((owner, method)) = base.rsplit_once('.') {
+        return CanonicalGlobalTargetV1::new_static_box_method(owner.into(), method.into(), arity)
+            .expect("JoinIR generated static target components are non-empty");
+    }
+    CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
+        .expect("JoinIR generated function target name is non-empty")
+}
 
 /// Emit Const + Call instruction pair
 ///
@@ -74,7 +97,7 @@ pub fn emit_call_pair(
         dst: Some(call_result_id),
         func: func_name_id,
         callee: Some(crate::mir::definitions::Callee::Global(
-            func_name.to_string(),
+            selected_joinir_global_target(func_name, args.len()),
         )),
         args: args.to_vec(),
         effects: EffectMask::PURE,
@@ -151,7 +174,7 @@ mod tests {
             assert_eq!(
                 *callee,
                 Some(crate::mir::definitions::Callee::Global(
-                    "test_func".to_string()
+                    selected_joinir_global_target("test_func", 2),
                 ))
             );
             assert_eq!(args, &[ValueId(1), ValueId(2)]);

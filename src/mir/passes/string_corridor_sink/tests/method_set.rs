@@ -61,7 +61,9 @@ fn rewrite_method_set_value_rejects_finite_non_method_set_shapes() {
             MirInstruction::Call {
                 dst: Some(ValueId(9)),
                 func: ValueId(99),
-                callee: Some(Callee::Global("array.set/2".to_string())),
+                callee: Some(Callee::Global(crate::mir::test_global_target(
+                    "array.set/2".to_string(),
+                ))),
                 args: base_args.clone(),
                 effects: EffectMask::READ,
             },

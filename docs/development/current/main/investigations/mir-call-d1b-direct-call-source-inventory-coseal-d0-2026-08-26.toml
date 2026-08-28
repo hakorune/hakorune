@@ -42,7 +42,7 @@ non_authority = [
   "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
 ]
 fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
-smallest_next_slice = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER: perform the simultaneous typed Callee/CallTarget carrier cutover within the named compiled owner families, with no new String issuer, formatter/reparse bridge, fallback, or retry."
+smallest_next_slice = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER: perform the simultaneous typed Callee/CallTarget carrier cutover within the named compiled owner families. No new String issuer, formatter/reparse authority, fallback, or retry may be introduced; pre-existing owner-local compatibility projections remain explicitly transitional and are not issuers."
 non_claims = [
   "the inventory does not issue a target or generalize the exact-i64 index",
   "lineage preservation does not authorize Global synthesis from names or arity",
@@ -229,7 +229,7 @@ observed_commit = "a10e294b28"
 decision = "D1 cannot publish a new Cataloged target through the transitional Callee::Global(String). The existing structural CanonicalGlobalTargetV1 is carrier-only and is not yet connected to Callee/CallTarget; that B1 integration is a prerequisite, not a reason to add another String issuer."
 source_authority = "VerifiedCatalogCallableOwnerLinkV1 and the same resolver-session catalog brand prove Cataloged lineage and declaration membership. RawInvocationRootLineageV1 remains provenance; SourceExprSiteV1 is the exact site key."
 canonical_issuer = "After the structural carrier is connected, the existing semantic-package issuer is the sole co-seal owner. It may issue a typed static-box-method target only from the owner-link plus exact site relation; it may not derive a target from name, arity, box name, physical symbol, or registry lookup."
-carrier_prerequisite = "B1 must atomically adapt CanonicalGlobalTargetV1 into the canonical Callee/CallTarget consumers (or the already-accepted equivalent shape) without a parallel String variant, formatter/reparse bridge, fallback, or retry. The carrier constructor checks components only; catalog/session/brand authority stays in the caller."
+carrier_prerequisite = "B1 must atomically adapt CanonicalGlobalTargetV1 into the canonical Callee/CallTarget consumers (or the already-accepted equivalent shape) without a parallel String variant, new formatter/reparse authority, fallback, or retry. Existing owner-local compatibility projections are transitional egress only and do not issue or reclassify targets. The carrier constructor checks components only; catalog/session/brand authority stays in the caller."
 carrier_policy = "Use the strict structural path: do not use the existing Callee::Global(String) as a new D1 physical projection. Callee and CallTarget must be changed together, and every surviving Global family must first receive a finite Builtin/SameModule/Extern/Method/retire disposition."
 consumer_census = "Path-based observation only: Callee::Global appears in 143 Rust files/272 occurrences (about 68 files/115 production-ish); CallTarget::Global appears in 20 files/45 occurrences (about 17 files/36 production-ish). This is a B1 scope hint, not semantic completion evidence."
 b1_consumer_families = [
@@ -573,12 +573,12 @@ status = "fast_open"
 implementation_permission = true
 opened_after = "014ef36628"
 parent_row = "MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0"
-decision = "Connect the already-landed serde-free CanonicalGlobalTargetV1 carrier to Callee::Global and CallTarget::Global in one structural cutover. Both surfaces change together; no parallel String carrier, formatter/reparse bridge, fallback, retry, or target repair is allowed."
+decision = "Connect the already-landed serde-free CanonicalGlobalTargetV1 carrier to Callee::Global and CallTarget::Global in one structural cutover. Both surfaces change together; no parallel String carrier, new formatter/reparse authority, fallback, retry, or target repair is allowed. Existing owner-local compatibility projections may remain only as explicitly named transitional edges."
 source_authority = "The existing declaration-backed callable catalog and named typed terminal owners remain the only production issuers. This row adapts an already-selected carrier; it does not invent a source relation or issue a new target from a name, arity, symbol, registry, or environment flag."
 canonical_issuer = "Existing source-backed issuer owners are adapted to construct CanonicalGlobalTargetV1 only after their current exact relation/terminal checks. The carrier module remains construction-policy-free; tests and external projections are not issuers."
 non_authority = [
   "Callee::Global(String) and CallTarget::Global(String) as target authority",
-  "formatter/reparse, physical symbol, registry lookup, methodize, static-candidate cardinality, environment flag, or backend recovery",
+  "new formatter/reparse authority, physical symbol, registry lookup, methodize, static-candidate cardinality, environment flag, or backend recovery",
   "D1B facts, package/loan transport, consumer-side resolver retry, and CallFlags semantics",
 ]
 fail_fast = "Any compiled Global producer without a named typed successor or explicit terminal, or any consumer that still requires String reconstruction, fails before publication; no partial carrier cutover is accepted."
@@ -601,7 +601,7 @@ includes = [
 excludes = [
   "D1B package/loan/lineage/dispatcher publication",
   "MirCall/CallFlags retirement and public breaking API decisions",
-  "JSON-v0/v1, Python/llvmlite, apps/selfhost-runtime, and generated wire copies",
+  "JSON-v0/v1 schema or semantic changes, Python/llvmlite, apps/selfhost-runtime, and generated wire copies (compatibility owners may perform mechanical typed-carrier adaptation only)",
   "Method(None), Constructor/Closure, VM/backend, optimizer target inference, and fallback removal outside the switched Global carrier",
 ]
 
@@ -609,7 +609,7 @@ excludes = [
 steps = [
   "change Callee::Global and CallTarget::Global to carry CanonicalGlobalTargetV1 in the same source boundary",
   "adapt direct typed constructors/consumers without introducing a second wrapper or conversion authority",
-  "remove only switched-surface String Global constructors and formatter/reparse edges; unresolved producers become typed terminals, not guesses",
+  "remove only switched-surface String Global constructors and any new formatter/reparse edges; pre-existing owner-local compatibility projections remain named and non-authoritative until their retirement rows",
   "run focused positive/negative carrier propagation tests and the reusable B1 guard",
   "close the row only after both surfaces, consumers, and residual String/fallback/retry counts are green",
 ]
@@ -619,24 +619,24 @@ commit_shape = "One semantic cutover row may use 2-5 behavior-preserving compile
 positive = [
   "Callee::Global and CallTarget::Global expose the same CanonicalGlobalTargetV1 structural payload",
   "Builtin(Print), SameModule(FreeFunction), and SameModule(StaticBoxMethod) carrier shapes preserve their fields and arity",
-  "all switched consumers forward the typed carrier without reparsing or target reclassification",
+  "all canonical switched consumers forward the typed carrier without reparsing or target reclassification; compatibility egress remains an explicitly named projection only",
   "LLVM/AOT and retained reference terminals keep their existing selected behavior where they are in scope",
 ]
 negative = [
   "no new Callee::Global(String) or CallTarget::Global(String) constructor in the switched compiled surface",
-  "no formatter/reparse, physical-symbol lookup, registry/name fallback, methodize, or retry",
+  "no new formatter/reparse authority, physical-symbol lookup, registry/name fallback, methodize, or retry",
   "no D1B package/loan/dispatcher, CallFlags, Method(None), Call schema, JSON, VM, or backend expansion",
 ]
 structural = [
   "C0 dual-surface contract guard remains green against its sealed digests and dispositions",
   "B1 source files stay below the 760-line split threshold and none reaches 800",
-  "one named B1 guard is registered once and checks both payloads plus residual legacy constructors",
+  "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py is registered once and checks both payloads plus residual legacy constructors",
   "focused Cargo check/test is run one process at a time with the quick profile",
 ]
 
 [b1_cutover.hard_stops]
 conditions = [
-  "a consumer needs a second Global wrapper, String conversion, or formatter/reparse bridge",
+  "a new consumer needs a second Global wrapper, String conversion, or formatter/reparse bridge",
   "an exact source-backed issuer is missing and the only evidence is name/arity/symbol/registry",
   "Callee and CallTarget cannot be switched atomically without a parallel legacy payload",
   "wire/backend/optimizer or CallFlags changes are required to keep the first compile green",

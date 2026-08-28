@@ -219,85 +219,85 @@ fn allowed_fastmem_escape_use(inst: &MirInstruction, kind: MemOpKind, value: Val
             MemOpKind::TableIndex,
             MirInstruction::Copy { src, .. }
         ) if *src == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::TableIndex,
-            MirInstruction::Call {
-                callee: Some(crate::mir::Callee::Extern(name) | crate::mir::Callee::Global(name)),
-                args,
-                ..
-            }
-        ) if name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::OwnerEq,
-            MirInstruction::Call {
-                callee: Some(crate::mir::Callee::Extern(name) | crate::mir::Callee::Global(name)),
-                args,
-                ..
-            }
-        ) if name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::TableIndex,
-            MirInstruction::Phi { inputs, .. }
-        ) if inputs.iter().any(|(_, input)| *input == value)
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AddrOf,
-            MirInstruction::BinOp { lhs, rhs, .. }
-        ) if *lhs == value || *rhs == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AddrOf,
-            MirInstruction::Compare { lhs, rhs, .. }
-        ) if *lhs == value || *rhs == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AddrOf,
-            MirInstruction::Copy { src, .. }
-        ) if *src == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AtomicRemoteHeadDrain,
-            MirInstruction::FieldGet { base, .. }
-        ) if *base == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AtomicRemoteHeadDrain,
-            MirInstruction::FieldSet { base, .. }
-        ) if *base == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AtomicRemoteHeadDrain,
-            MirInstruction::Copy { src, .. }
-        ) if *src == value
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AtomicRemoteHeadDrain,
-            MirInstruction::Call {
-                callee: Some(crate::mir::Callee::Extern(name) | crate::mir::Callee::Global(name)),
-                args,
-                ..
-            }
-        ) if name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
-    ) || matches!(
-        (kind, inst),
-        (
-            MemOpKind::AtomicRemoteHeadDrain,
-            MirInstruction::Phi { inputs, .. }
-        ) if inputs.iter().any(|(_, input)| *input == value)
-    )
+    ) || (kind == MemOpKind::TableIndex && is_mem_call_with_arg(inst, value))
+        || (kind == MemOpKind::OwnerEq && is_mem_call_with_arg(inst, value))
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::TableIndex,
+                MirInstruction::Phi { inputs, .. }
+            ) if inputs.iter().any(|(_, input)| *input == value)
+        )
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AddrOf,
+                MirInstruction::BinOp { lhs, rhs, .. }
+            ) if *lhs == value || *rhs == value
+        )
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AddrOf,
+                MirInstruction::Compare { lhs, rhs, .. }
+            ) if *lhs == value || *rhs == value
+        )
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AddrOf,
+                MirInstruction::Copy { src, .. }
+            ) if *src == value
+        )
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AtomicRemoteHeadDrain,
+                MirInstruction::FieldGet { base, .. }
+            ) if *base == value
+        )
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AtomicRemoteHeadDrain,
+                MirInstruction::FieldSet { base, .. }
+            ) if *base == value
+        )
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AtomicRemoteHeadDrain,
+                MirInstruction::Copy { src, .. }
+            ) if *src == value
+        )
+        || (kind == MemOpKind::AtomicRemoteHeadDrain && is_mem_call_with_arg(inst, value))
+        || matches!(
+            (kind, inst),
+            (
+                MemOpKind::AtomicRemoteHeadDrain,
+                MirInstruction::Phi { inputs, .. }
+            ) if inputs.iter().any(|(_, input)| *input == value)
+        )
+}
+
+fn is_mem_call_with_arg(inst: &MirInstruction, value: ValueId) -> bool {
+    let MirInstruction::Call {
+        callee: Some(callee),
+        args,
+        ..
+    } = inst
+    else {
+        return false;
+    };
+    let name = match callee {
+        crate::mir::Callee::Extern(name) => name.as_str(),
+        crate::mir::Callee::Global(target) => {
+            return target.display_name().starts_with("mem.")
+                && args.iter().any(|arg| *arg == value);
+        }
+        _ => return false,
+    };
+    name.starts_with("mem.") && args.iter().any(|arg| *arg == value)
 }
 
 fn memop_escape_tracked_kind(kind: MemOpKind) -> bool {

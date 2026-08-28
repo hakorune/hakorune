@@ -43,9 +43,10 @@ pub(crate) fn emit_unified_mir_call(
     // Generate Callee-specific mir_call structure
     match callee {
         Callee::Global(name) => {
+            let wire_name = name.display_name();
             call_obj["mir_call"]["callee"] = json!({
                 "type": "Global",
-                "name": name
+                "name": wire_name
             });
         }
         Callee::Method {

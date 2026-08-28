@@ -21,14 +21,18 @@ fn generic_i64_body_accepts_hako_mem_alloc_free_extern_routes() {
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("MemCoreBox.alloc_i64/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "MemCoreBox.alloc_i64/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::IO,
         },
         MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("MemCoreBox.free_i64/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "MemCoreBox.free_i64/1".to_string(),
+            ))),
             args: vec![ValueId::new(2)],
             effects: EffectMask::IO,
         },

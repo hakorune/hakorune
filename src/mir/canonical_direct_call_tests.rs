@@ -66,7 +66,12 @@ fn materializes_exact_callee_without_legacy_resolution() {
     };
     assert_eq!(dst, Some(ValueId::new(9)));
     assert_eq!(func, ValueId::INVALID);
-    assert_eq!(callee, Some(Callee::Global("countdown/1".to_string())));
+    assert_eq!(
+        callee,
+        Some(Callee::Global(crate::mir::test_global_target(
+            "countdown/1".to_string()
+        )))
+    );
     assert_eq!(args, vec![ValueId::new(3)]);
     assert_eq!(effects, expected_effects);
     assert!(effects.contains(Effect::Barrier));

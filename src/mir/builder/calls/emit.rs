@@ -9,6 +9,7 @@ use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::definitions::call_unified::TypeCertainty;
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 impl MirBuilder {
     /// Unified call emission - delegates to UnifiedCallEmitterBox
@@ -82,9 +83,9 @@ impl MirBuilder {
 
                 self.emit_extern_call_with_effects(&iface, &method, args, dst, EffectMask::IO)
             }
-            CallTarget::Global(name) => {
+            CallTarget::Global(target) => {
                 super::unified_emitter::UnifiedCallEmitterBox::emit_global_unified(
-                    self, dst, name, args,
+                    self, dst, target, args,
                 )
             }
             CallTarget::Value(func_val) => {
@@ -116,10 +117,10 @@ impl MirBuilder {
     pub fn emit_global_call(
         &mut self,
         dst: Option<ValueId>,
-        name: String,
+        target: CanonicalGlobalTargetV1,
         args: Vec<ValueId>,
     ) -> Result<(), String> {
-        self.emit_unified_call(dst, CallTarget::Global(name), args)
+        self.emit_unified_call(dst, CallTarget::Global(target), args)
     }
 
     /// Emit a method call (box.method)

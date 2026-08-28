@@ -129,7 +129,12 @@ fn transaction_commits_exact_source_main_and_physical_thunk() {
                 panic!("physical entry must contain one exact call")
             };
             assert_eq!(func, &crate::mir::ValueId::INVALID);
-            assert_eq!(callee, &Some(Callee::Global("main/0".to_owned())));
+            assert_eq!(
+                callee,
+                &Some(Callee::Global(crate::mir::test_global_target(
+                    "main/0".to_owned()
+                )))
+            );
             assert!(args.is_empty());
             let MirInstruction::Return { value } =
                 block.terminator.as_ref().expect("physical return")

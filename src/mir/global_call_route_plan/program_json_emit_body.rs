@@ -120,7 +120,7 @@ impl ProgramJsonEmitBodyState {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } => self.observe_global_call(name, *dst, args),
+            } => self.observe_global_call(&name.display_name(), *dst, args),
             MirInstruction::Branch { condition, .. } => {
                 let condition = self.resolve(*condition);
                 if !self.freeze_bool_values.contains(&condition) {
@@ -306,7 +306,7 @@ impl Stage1RawProgramJsonEmitBodyState {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if name == "BuildBox.emit_program_json_v0/2" => {
+            } if name.display_name() == "BuildBox.emit_program_json_v0/2" => {
                 if self.emit_result.is_some()
                     || args.len() != 2
                     || self.resolve(args[0]) != self.source_param

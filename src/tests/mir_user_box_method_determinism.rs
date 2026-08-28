@@ -67,7 +67,7 @@ mod tests {
                         MirInstruction::Call {
                             callee: Some(Callee::Global(name)),
                             ..
-                        } if name == "Counter.step/0"
+                        } if name.display_name() == "Counter.step/0"
                     )
                 })
             });

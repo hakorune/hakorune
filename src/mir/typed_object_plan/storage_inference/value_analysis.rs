@@ -506,7 +506,7 @@ fn box_origin_for_call_return(
     match callee {
         Callee::Global(symbol) => box_origin_for_global_return(
             module,
-            symbol,
+            &symbol.display_name(),
             field_box_origins,
             param_box_origins,
             visiting_functions,

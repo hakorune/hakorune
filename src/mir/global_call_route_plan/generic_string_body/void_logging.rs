@@ -143,13 +143,13 @@ fn generic_string_void_logging_has_logging_call(
                     MirInstruction::Call {
                         callee: Some(Callee::Global(name)),
                         ..
-                    } if name == "print"
+                    } if name.display_name() == "print"
                 ) || matches!(
                     instruction,
                     MirInstruction::Call {
                         callee: Some(Callee::Global(name)),
                         ..
-                    } if super::super::lookup_global_call_target(name, targets)
+                    } if super::super::lookup_global_call_target(&name.display_name(), targets)
                         .map(|target| {
                             target.return_contract()
                                 == Some(GlobalCallReturnContract::VoidSentinelI64Zero)

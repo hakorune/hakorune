@@ -91,9 +91,10 @@ fn same_module_instruction_supported(
             callee: Some(Callee::Global(name)),
             ..
         } => {
-            name == &function.signature.name
-                || supported_backend_global(name)
-                || global_target_supported(name, block_id, instruction_index)
+            let name = name.display_name();
+            name == function.signature.name
+                || supported_backend_global(&name)
+                || global_target_supported(&name, block_id, instruction_index)
                 || function.metadata.global_call_routes.iter().any(|route| {
                     route.block() == block_id
                         && route.instruction_index() == instruction_index

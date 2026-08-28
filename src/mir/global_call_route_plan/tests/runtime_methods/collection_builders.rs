@@ -338,7 +338,9 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_pure_string_body()
         MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(3)],
             effects: EffectMask::IO,
         },

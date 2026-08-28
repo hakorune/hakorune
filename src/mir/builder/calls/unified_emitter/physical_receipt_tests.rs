@@ -34,7 +34,9 @@ fn generic_value_call_receipt_matches_the_emitted_final_destination() {
         let receipt = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
             &mut builder,
             destination,
-            CallTarget::Global("physical_receipt_probe/0".to_string()),
+            CallTarget::Global(crate::mir::test_global_target(
+                "physical_receipt_probe/0".to_string(),
+            )),
             vec![],
             None,
         )
@@ -57,7 +59,9 @@ fn failed_generic_call_emission_issues_no_receipt() {
         let error = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
             &mut builder,
             destination,
-            CallTarget::Global("physical_receipt_probe/0".to_string()),
+            CallTarget::Global(crate::mir::test_global_target(
+                "physical_receipt_probe/0".to_string(),
+            )),
             vec![],
             None,
         )
@@ -86,7 +90,9 @@ fn unified_depth_overflow_restores_entry_depth_without_publication() {
         let error = UnifiedCallEmitterBox::emit_unified_call(
             &mut builder,
             None,
-            CallTarget::Global("depth_overflow_probe/0".to_string()),
+            CallTarget::Global(crate::mir::test_global_target(
+                "depth_overflow_probe/0".to_string(),
+            )),
             vec![],
         )
         .expect_err("unified depth overflow must reject");
@@ -104,7 +110,9 @@ fn generic_call_without_destination_has_no_value_receipt() {
     let outcome = UnifiedCallEmitterBox::emit_unified_call_outcome_impl_with_lookup_and_map_replay(
         &mut builder,
         None,
-        CallTarget::Global("physical_receipt_probe/0".to_string()),
+        CallTarget::Global(crate::mir::test_global_target(
+            "physical_receipt_probe/0".to_string(),
+        )),
         vec![],
         None,
         None,
@@ -187,7 +195,9 @@ fn receipt_requirement_rejects_unified_disabled_without_legacy_fallback() {
         let error = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
             &mut receipt_builder,
             destination,
-            CallTarget::Global("physical_receipt_probe/0".to_string()),
+            CallTarget::Global(crate::mir::test_global_target(
+                "physical_receipt_probe/0".to_string(),
+            )),
             vec![],
             None,
         )
@@ -201,7 +211,9 @@ fn receipt_requirement_rejects_unified_disabled_without_legacy_fallback() {
         UnifiedCallEmitterBox::emit_unified_call(
             &mut ordinary_builder,
             Some(ordinary_destination),
-            CallTarget::Global("physical_receipt_probe/0".to_string()),
+            CallTarget::Global(crate::mir::test_global_target(
+                "physical_receipt_probe/0".to_string(),
+            )),
             vec![],
         )
         .expect("ordinary compatibility facade retains legacy behavior");

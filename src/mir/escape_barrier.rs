@@ -241,7 +241,7 @@ mod tests {
     fn targetless_typed_callees_add_no_target_barrier() {
         let arg = ValueId::new(40);
         let callees = [
-            crate::mir::Callee::Global("global".to_string()),
+            crate::mir::Callee::Global(crate::mir::test_global_target("global".to_string())),
             crate::mir::Callee::Extern("env.test".to_string()),
             crate::mir::Callee::Constructor {
                 box_type: "Point".to_string(),

@@ -96,7 +96,9 @@ fn assert_property_read_uses_getter(
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if name.ends_with(&global_suffix) && args.len() == 1 => Some((args[0], args[0])),
+            } if name.display_name().ends_with(&global_suffix) && args.len() == 1 => {
+                Some((args[0], args[0]))
+            }
             _ => None,
         })
         .collect::<Vec<_>>();

@@ -516,14 +516,15 @@ fn refresh_function_global_call_routes_with_targets(
             else {
                 continue;
             };
+            let name = name.display_name();
             let lowering_override =
-                classify_global_call_lowering_override(name, args, &const_null_sentinels);
+                classify_global_call_lowering_override(&name, args, &const_null_sentinels);
             let route = GlobalCallRoute::new(
                 GlobalCallRouteSite::new(block_id, instruction_index),
-                name,
+                &name,
                 args.len(),
                 *dst,
-                lookup_global_call_target(name, targets)
+                lookup_global_call_target(&name, targets)
                     .cloned()
                     .unwrap_or_else(GlobalCallTargetFacts::missing),
             )
@@ -532,7 +533,7 @@ fn refresh_function_global_call_routes_with_targets(
                 args.first()
                     .and_then(|arg0| receiver_origin_box_name(function, &def_map, *arg0)),
             );
-            if supported_backend_global(name) {
+            if supported_backend_global(&name) {
                 if route.is_builtin_print() {
                     builtin_routes.push(route);
                 }

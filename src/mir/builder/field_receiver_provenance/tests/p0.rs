@@ -111,7 +111,9 @@ fn p0_rejects_every_unsupported_value_definition_family() {
                 MirInstruction::Call {
                     dst: Some(dst),
                     func: fixture.receiver(),
-                    callee: Some(Callee::Global("probe/0".to_string())),
+                    callee: Some(Callee::Global(crate::mir::test_global_target(
+                        "probe/0".to_string(),
+                    ))),
                     args: Vec::new(),
                     effects: EffectMask::PURE,
                 },

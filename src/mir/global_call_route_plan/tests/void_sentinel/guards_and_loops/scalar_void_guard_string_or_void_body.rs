@@ -64,7 +64,9 @@ fn refresh_module_global_call_routes_accepts_scalar_void_guard_in_string_or_void
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.read_bool/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.read_bool/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },

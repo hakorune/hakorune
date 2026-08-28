@@ -285,7 +285,9 @@ mod tests {
             vec![MirInstruction::Call {
                 dst: None,
                 func: ValueId::new(1),
-                callee: Some(Callee::Global("Main.helper/0".to_string())),
+                callee: Some(Callee::Global(crate::mir::test_global_target(
+                    "Main.helper/0".to_string(),
+                ))),
                 args: vec![],
                 effects: EffectMask::PURE,
             }],
@@ -309,7 +311,9 @@ mod tests {
             vec![MirInstruction::Call {
                 dst: None,
                 func: ValueId::new(1),
-                callee: Some(Callee::Global("Main.helper/0".to_string())),
+                callee: Some(Callee::Global(crate::mir::test_global_target(
+                    "Main.helper/0".to_string(),
+                ))),
                 args: vec![],
                 effects: EffectMask::PURE,
             }],

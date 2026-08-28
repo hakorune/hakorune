@@ -15,6 +15,7 @@ use crate::mir::builder::callable_declaration_catalog::{
 use crate::mir::builder::calls::resolver::CalleeResolverBox;
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::{Callee, TypeOpKind};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 use super::CallTarget;
 
@@ -57,10 +58,6 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
         arguments: Vec<ASTNode>,
     },
     CatalogedTargeted {
-        callee: Callee,
-        arguments: Vec<ASTNode>,
-    },
-    BoundedGcTargeted {
         callee: Callee,
         arguments: Vec<ASTNode>,
     },
@@ -264,11 +261,8 @@ fn prepare_ordinary_function_completion_v1(
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && is_installed_non_unified_gc_builtin_v1(name)
     {
-        match resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned())) {
-            Ok(callee) => {
-                PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted { callee, arguments }
-            }
-            Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
+        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+            error: format!("[freeze:contract][direct-call/gc-global-retired] name={name}"),
         }
     } else {
         PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
@@ -320,7 +314,18 @@ fn prepare_cataloged_target_v1(
         classification,
         crate::mir::policies::call_name_classification::CallNameCalleeClassV1::BuiltinGlobal
     ) {
-        return resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned()));
+        let target = if name == "print" {
+            CanonicalGlobalTargetV1::builtin_print()
+        } else {
+            CanonicalGlobalTargetV1::new_free_function(
+                name.into(),
+                u32::try_from(arity).map_err(|_| {
+                    "[freeze:contract][direct-call/global-target/arity-overflow]".to_owned()
+                })?,
+            )
+            .map_err(|error| format!("[freeze:contract][direct-call/global-target/{error:?}]"))?
+        };
+        return resolve_catalog_call_target_v1(builder, CallTarget::Global(target));
     }
 
     if let Some(declaration) = catalog.declaration_for(
@@ -331,7 +336,9 @@ fn prepare_cataloged_target_v1(
     ) {
         return resolve_catalog_call_target_v1(
             builder,
-            CallTarget::Global(declaration.key().mir_symbol_projection()),
+            CallTarget::Global(declaration.key().canonical_global_target_v1().map_err(
+                |error| format!("[freeze:contract][direct-call/global-target/{error}]"),
+            )?),
         );
     }
 
@@ -360,7 +367,7 @@ fn prepare_cataloged_target_v1(
         classification,
         crate::mir::policies::call_name_classification::CallNameCalleeClassV1::Extern
     ) {
-        return resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned()));
+        return resolve_catalog_call_target_v1(builder, CallTarget::Extern(name.to_owned()));
     }
 
     match BareStaticRecoveryDecisionV1::decide(catalog, name, arity)
@@ -368,7 +375,10 @@ fn prepare_cataloged_target_v1(
     {
         BareStaticRecoveryDecisionV1::Unique(key) => resolve_catalog_call_target_v1(
             builder,
-            CallTarget::Global(key.mir_symbol_projection()),
+            CallTarget::Global(
+                key.canonical_global_target_v1()
+                    .map_err(|error| format!("[freeze:contract][direct-call/global-target/{error}]"))?,
+            ),
         ),
         BareStaticRecoveryDecisionV1::NoRecovery(reason) => Err(match reason {
             BareStaticRecoveryNoRecoveryReasonV1::NoCandidate => format!(

@@ -103,7 +103,11 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         let name = "AddOperator.apply/2".to_string();
         builder.emit_legacy_call(
             Some(dst),
-            super::super::CallTarget::Global(name),
+            super::super::CallTarget::Global(
+                super::super::calls::call_target::typed_global_target_from_selected_symbol(
+                    &name, 2,
+                )?,
+            ),
             vec![lhs, rhs],
         )?;
         // Phase 196: TypeFacts SSOT - AddOperator call type annotation
@@ -169,7 +173,11 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
             if !in_guard {
                 builder.emit_legacy_call(
                     Some(dst),
-                    super::super::CallTarget::Global(name.to_string()),
+                    super::super::CallTarget::Global(
+                        super::super::calls::call_target::typed_global_target_from_selected_symbol(
+                            name, 2,
+                        )?,
+                    ),
                     vec![lhs, rhs],
                 )?;
                 // 型注釈: 算術はおおむね整数（Addは上で注釈済み）

@@ -75,10 +75,12 @@ pub fn refresh_function_hotcore_method_summaries(function: &mut MirFunction) {
                             provider_call_count += usize::from(is_provider_like_name(name));
                         }
                         Some(Callee::Global(name)) => {
-                            provider_call_count += usize::from(is_provider_like_name(name));
-                            public_observer_count += usize::from(is_observer_like_name(name));
+                            provider_call_count +=
+                                usize::from(is_provider_like_name(&name.display_name()));
+                            public_observer_count +=
+                                usize::from(is_observer_like_name(&name.display_name()));
                             result_capsule_materialization_count +=
-                                usize::from(is_result_capsule_like_name(name));
+                                usize::from(is_result_capsule_like_name(&name.display_name()));
                         }
                         Some(Callee::Method {
                             box_name,

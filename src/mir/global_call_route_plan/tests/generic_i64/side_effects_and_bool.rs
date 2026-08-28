@@ -23,7 +23,9 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
         MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::IO,
         },
@@ -68,7 +70,9 @@ fn refresh_module_global_call_routes_accepts_print_dead_dst_in_generic_i64_body(
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::IO,
         },
@@ -113,7 +117,9 @@ fn refresh_module_global_call_routes_rejects_print_used_dst_in_generic_i64_body(
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::IO,
         },
@@ -212,7 +218,9 @@ fn refresh_module_global_call_routes_preserves_bool_dst_from_generic_i64_global_
     entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.is_blank/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.is_blank/1".to_string(),
+        ))),
         args: vec![ValueId::new(1)],
         effects: EffectMask::PURE,
     });

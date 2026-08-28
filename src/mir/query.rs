@@ -238,7 +238,10 @@ mod tests {
         let function = query_function();
         let query = MirQueryBox::new(&function);
         let cases = [
-            (Callee::Global("global/2".to_string()), vec![]),
+            (
+                Callee::Global(crate::mir::test_global_target("global/2".to_string())),
+                vec![],
+            ),
             (Callee::Extern("env.global/2".to_string()), vec![]),
             (
                 Callee::Constructor {
@@ -301,7 +304,9 @@ mod tests {
         let function = query_function();
         let query = MirQueryBox::new(&function);
         for callee in [
-            Some(Callee::Global("global/0".to_string())),
+            Some(Callee::Global(crate::mir::test_global_target(
+                "global/0".to_string(),
+            ))),
             Some(Callee::Value(ValueId::new(20))),
             None,
         ] {

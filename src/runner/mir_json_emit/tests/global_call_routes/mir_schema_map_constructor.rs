@@ -87,7 +87,9 @@ fn build_mir_json_root_emits_direct_plan_for_mir_schema_map_constructor_contract
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(30)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("MirSchemaBox.i/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "MirSchemaBox.i/1".to_string(),
+            ))),
             args: vec![ValueId::new(20)],
             effects: EffectMask::PURE,
         });

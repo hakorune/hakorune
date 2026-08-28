@@ -11,6 +11,7 @@ use crate::mir::builder::recursive_child_lowering::{
     RawOrdinaryNewClaimPortV1,
 };
 use crate::mir::slot_registry::resolve_slot_by_type_name;
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 pub(in crate::mir::builder) fn lower_ordinary_raw_new_with_port_v1<Port>(
     builder: &mut MirBuilder,
@@ -45,11 +46,17 @@ where
         .insert(dst, class.to_owned());
 
     if let Some(claim) = claim {
-        if let Some(birth) = claim.birth() {
+        if claim.birth().is_some() {
             let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arg_values.len());
             argv.push(dst);
             argv.extend(arg_values.iter().copied());
-            builder.emit_legacy_call(None, CallTarget::Global(birth.to_owned()), argv)?;
+            let target = CanonicalGlobalTargetV1::new_static_box_method(
+                class.into(),
+                "birth".into(),
+                arg_values.len() as u32,
+            )
+            .map_err(|error| format!("[freeze:contract][ordinary-new/birth/{error:?}]"))?;
+            builder.emit_legacy_call(None, CallTarget::Global(target), argv)?;
         }
         return Ok(dst);
     }
@@ -72,7 +79,13 @@ where
             let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
             argv.push(dst);
             argv.extend(arg_values.iter().copied());
-            builder.emit_legacy_call(None, CallTarget::Global(lowered), argv)?;
+            let target = CanonicalGlobalTargetV1::new_static_box_method(
+                class.into(),
+                "birth".into(),
+                arity as u32,
+            )
+            .map_err(|error| format!("[freeze:contract][ordinary-new/birth/{error:?}]"))?;
+            builder.emit_legacy_call(None, CallTarget::Global(target), argv)?;
         } else {
             let is_user_box = builder.comp_ctx.user_defined_boxes.contains_key(class);
             let allow_builtin_birth = crate::config::env::builder_birth_inject_builtins();

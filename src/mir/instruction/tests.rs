@@ -118,7 +118,10 @@ fn typed_call_used_values_project_callee_operands_before_args() {
     let typed_func_sentinel = ValueId::new(99);
     let args = vec![ValueId::new(40), ValueId::new(41)];
     let cases = vec![
-        (Callee::Global("global".to_string()), vec![]),
+        (
+            Callee::Global(crate::mir::test_global_target("global".to_string())),
+            vec![],
+        ),
         (Callee::Extern("env.extern".to_string()), vec![]),
         (
             Callee::Constructor {

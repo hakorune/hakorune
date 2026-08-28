@@ -5,13 +5,14 @@
 //! consumed by both the disconnected value profile and the later materializer.
 
 use crate::mir::resolved_semantics::{
-    CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
-    VerifiedCallableHeaderV1,
+    CanonicalCallableKeyV1, CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1,
+    ResolvedCallableRefV1, VerifiedCallableHeaderV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedTrivialDirectCallTargetV1 {
     callable: ResolvedCallableRefV1,
+    source_key: CanonicalCallableKeyV1,
     symbol: CanonicalCallableSymbolV1,
     signature: ExactTrivialCallableSignatureV1,
 }
@@ -20,6 +21,7 @@ impl VerifiedTrivialDirectCallTargetV1 {
     pub(crate) fn from_header(header: &VerifiedCallableHeaderV1) -> Self {
         Self {
             callable: header.callable(),
+            source_key: header.source_key().clone(),
             symbol: header.symbol().clone(),
             signature: header.signature().clone(),
         }
@@ -31,6 +33,10 @@ impl VerifiedTrivialDirectCallTargetV1 {
 
     pub(crate) const fn symbol(&self) -> &CanonicalCallableSymbolV1 {
         &self.symbol
+    }
+
+    pub(crate) const fn source_key(&self) -> &CanonicalCallableKeyV1 {
+        &self.source_key
     }
 
     pub(crate) const fn signature(&self) -> &ExactTrivialCallableSignatureV1 {

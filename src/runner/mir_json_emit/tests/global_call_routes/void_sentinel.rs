@@ -12,7 +12,9 @@ fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -112,7 +114,9 @@ fn build_mir_json_root_emits_substring_string_or_void_sentinel_direct_route() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.slice_or_null/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.slice_or_null/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         });
@@ -214,7 +218,9 @@ fn build_mir_json_root_emits_child_blocker_for_string_or_void_sentinel_candidate
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -231,7 +237,9 @@ fn build_mir_json_root_emits_child_blocker_for_string_or_void_sentinel_candidate
     entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.flag/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.flag/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -321,7 +329,9 @@ fn build_mir_json_root_emits_void_sentinel_const_shape_reason() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.flag/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.flag/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         });
@@ -386,7 +396,9 @@ fn build_mir_json_root_emits_object_return_abi_shape_reason() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.map/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.map/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -440,7 +452,9 @@ fn build_mir_json_root_emits_method_blocker_after_null_guard() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.preview/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.preview/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         });

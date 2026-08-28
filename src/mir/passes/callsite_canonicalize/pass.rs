@@ -7,10 +7,7 @@ use crate::mir::ssot::closure_call::{classify_closure_call_shape, ClosureCallSha
 use crate::mir::ssot::method_call::method_call;
 use crate::mir::{Callee, MirInstruction, MirModule, MirType, ValueId};
 
-use super::helpers::{
-    canonicalize_legacy_global_name, collect_known_user_boxes, known_runtime_box_name_from_value,
-    known_user_box_name_from_value, parse_user_box_method_global_name, runtime_box_accepts_method,
-};
+use super::helpers::{collect_known_user_boxes, known_user_box_name_from_value};
 use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 
 /// Canonicalize call-site instructions.
@@ -24,7 +21,6 @@ pub(super) fn canonicalize_callsites_for_site(module: &mut MirModule) -> usize {
     let mut rewritten = 0usize;
     let mut closure_bodies = std::mem::take(&mut module.metadata.closure_bodies);
     let mut next_closure_body_id = module.metadata.next_closure_body_id;
-    let function_names = module.functions.keys().cloned().collect::<BTreeSet<_>>();
     let known_user_boxes = collect_known_user_boxes(module);
 
     for func in module.functions.values_mut() {
@@ -34,7 +30,6 @@ pub(super) fn canonicalize_callsites_for_site(module: &mut MirModule) -> usize {
             for inst in &mut block.instructions {
                 rewritten += canonicalize_callsite_instruction(
                     inst,
-                    &function_names,
                     &value_types,
                     &known_user_boxes,
                     &mut closure_bodies,
@@ -44,7 +39,6 @@ pub(super) fn canonicalize_callsites_for_site(module: &mut MirModule) -> usize {
             if let Some(term) = block.terminator.as_mut() {
                 rewritten += canonicalize_callsite_instruction(
                     term,
-                    &function_names,
                     &value_types,
                     &known_user_boxes,
                     &mut closure_bodies,
@@ -63,7 +57,6 @@ pub(super) fn canonicalize_callsites_for_site(module: &mut MirModule) -> usize {
 
 fn canonicalize_callsite_instruction(
     inst: &mut MirInstruction,
-    function_names: &BTreeSet<String>,
     value_types: &BTreeMap<ValueId, MirType>,
     known_user_boxes: &BTreeSet<String>,
     closure_bodies: &mut BTreeMap<ClosureBodyId, Vec<ASTNode>>,
@@ -145,64 +138,13 @@ fn canonicalize_callsite_instruction(
             );
             1
         }
+        // A typed Global is already an admitted target.  This post-pass is
+        // deliberately not a second resolver: it must not parse a display
+        // name, append an arity, or turn a Global into a Method.
         MirInstruction::Call {
-            callee: Some(Callee::Global(name)),
-            dst,
-            args,
-            effects,
+            callee: Some(Callee::Global(_)),
             ..
-        } => {
-            let canonical_name = canonicalize_legacy_global_name(name, args.len(), function_names);
-            let rewritten_name = canonical_name != *name;
-            if rewritten_name {
-                *name = canonical_name;
-            }
-            let Some((box_name, method_name, explicit_arity)) =
-                parse_user_box_method_global_name(name)
-            else {
-                return usize::from(rewritten_name);
-            };
-            let Some(receiver) = args.first().copied() else {
-                return usize::from(rewritten_name);
-            };
-            if let Some(runtime_box_name) = known_runtime_box_name_from_value(value_types, receiver)
-            {
-                if explicit_arity == args.len().saturating_sub(1)
-                    && runtime_box_accepts_method(runtime_box_name, method_name)
-                {
-                    *inst = method_call(
-                        *dst,
-                        receiver,
-                        runtime_box_name.to_string(),
-                        method_name.to_string(),
-                        args[1..].to_vec(),
-                        *effects,
-                        TypeCertainty::Known,
-                        CalleeBoxKind::RuntimeData,
-                    );
-                    return 1;
-                }
-            }
-            let Some(known_box_name) =
-                known_user_box_name_from_value(value_types, known_user_boxes, receiver)
-            else {
-                return usize::from(rewritten_name);
-            };
-            if box_name != known_box_name || explicit_arity != args.len().saturating_sub(1) {
-                return usize::from(rewritten_name);
-            }
-            *inst = method_call(
-                *dst,
-                receiver,
-                known_box_name.to_string(),
-                method_name.to_string(),
-                args[1..].to_vec(),
-                *effects,
-                TypeCertainty::Known,
-                CalleeBoxKind::UserDefined,
-            );
-            1
-        }
+        } => 0,
         MirInstruction::Call { .. } => 0,
         _ => 0,
     }

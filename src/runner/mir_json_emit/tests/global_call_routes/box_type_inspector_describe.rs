@@ -123,9 +123,9 @@ fn build_mir_json_root_emits_direct_plan_for_box_type_inspector_describe_contrac
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(30)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
+            callee: Some(Callee::Global(crate::mir::test_global_target(
                 "BoxTypeInspectorBox._describe/1".to_string(),
-            )),
+            ))),
             args: vec![ValueId::new(20)],
             effects: EffectMask::PURE,
         });

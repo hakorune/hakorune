@@ -90,7 +90,12 @@ fn qualified_static_method_issues_canonical_global_without_target_const() {
     };
     assert!(dst.is_some());
     assert_eq!(*func, ValueId::INVALID);
-    assert_eq!(callee, &Some(Callee::Global("Helper.id/1".to_string())));
+    assert_eq!(
+        callee,
+        &Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.id/1".to_string()
+        )))
+    );
     assert_eq!(*effects, EffectMask::READ);
     assert_eq!(args.len(), 1);
     assert_integer_def(&instructions, args[0], 7);
@@ -152,7 +157,12 @@ fn qualified_instance_method_keeps_me_arg_and_issues_canonical_global_without_ta
     };
     assert!(dst.is_some());
     assert_eq!(*func, ValueId::INVALID);
-    assert_eq!(callee, &Some(Callee::Global("Helper.id/2".to_string())));
+    assert_eq!(
+        callee,
+        &Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.id/2".to_string()
+        )))
+    );
     assert_eq!(*effects, EffectMask::READ);
     assert_eq!(args.len(), 2);
     assert!(instructions.iter().any(|instruction| {
@@ -203,7 +213,12 @@ fn generic_unqualified_call_uses_unique_local_name_and_arity() {
         unreachable!()
     };
     assert_eq!(*func, ValueId::INVALID);
-    assert_eq!(callee, &Some(Callee::Global("Helper.id/1".to_string())));
+    assert_eq!(
+        callee,
+        &Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.id/1".to_string()
+        )))
+    );
     assert_eq!(args.len(), 1);
     assert_no_target_const(&instructions, "Helper.id/1");
 }
@@ -240,7 +255,12 @@ fn generic_qualified_unsuffixed_call_uses_local_arity_once() {
             _ => None,
         })
         .expect("main contains the generic call");
-    assert_eq!(call, &Some(Callee::Global("Helper.id/1".to_string())));
+    assert_eq!(
+        call,
+        &Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.id/1".to_string()
+        )))
+    );
     assert_no_target_const(&instructions, "Helper.id/1");
 }
 
@@ -293,7 +313,7 @@ fn generic_unknown_name_is_an_exact_global_terminal() {
                 func,
                 callee: Some(Callee::Global(name)),
                 ..
-            } if *func == ValueId::INVALID && name == "unknown/0"
+            } if *func == ValueId::INVALID && name.display_name() == "unknown/0"
         )
     }));
 }

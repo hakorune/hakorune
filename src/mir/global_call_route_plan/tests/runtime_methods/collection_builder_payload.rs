@@ -79,7 +79,9 @@ fn refresh_module_semantic_metadata_accepts_array_push_write_any_payload_in_stri
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("hostbridge.extern_invoke/3".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "hostbridge.extern_invoke/3".to_string(),
+            ))),
             args: vec![ValueId::new(8), ValueId::new(9), ValueId::new(5)],
             effects: EffectMask::IO,
         },

@@ -357,7 +357,9 @@ mod tests {
             MirInstruction::Call {
                 dst: Some(ValueId::new(56)),
                 func: stale_func,
-                callee: Some(crate::mir::Callee::Global("global".to_string())),
+                callee: Some(crate::mir::Callee::Global(crate::mir::test_global_target(
+                    "global".to_string(),
+                ))),
                 args: vec![],
                 effects: EffectMask::PURE,
             },

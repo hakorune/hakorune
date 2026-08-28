@@ -5,14 +5,14 @@
 //! not prove declaration membership and it never parses or formats a target.
 
 /// Builtin global targets admitted by the canonical call contract.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CanonicalBuiltinGlobalV1 {
     /// The exact builtin print/1 route.
     Print,
 }
 
 /// Same-module global target families.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CanonicalSameModuleGlobalTargetV1 {
     /// A same-module free function selected by its exact source name/arity.
     FreeFunction { name: Box<str>, arity: u32 },
@@ -29,7 +29,7 @@ pub enum CanonicalSameModuleGlobalTargetV1 {
 /// Consumers should treat this as an opaque, already-typed carrier.  Source
 /// declaration membership and the sole production construction authority live
 /// outside this crate and are enforced by the owner-specific repository guard.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CanonicalGlobalTargetV1 {
     Builtin(CanonicalBuiltinGlobalV1),
     SameModule(CanonicalSameModuleGlobalTargetV1),
@@ -49,6 +49,45 @@ pub enum CanonicalGlobalTargetConstructionErrorV1 {
 }
 
 impl CanonicalGlobalTargetV1 {
+    /// A display-only projection for diagnostics and legacy wire adapters.
+    /// It never participates in target selection or reconstruction.
+    pub fn display_name(&self) -> String {
+        match self {
+            Self::Builtin(CanonicalBuiltinGlobalV1::Print) => "print".to_owned(),
+            Self::SameModule(CanonicalSameModuleGlobalTargetV1::FreeFunction { name, arity }) => {
+                format!("{name}/{arity}")
+            }
+            Self::SameModule(CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                owner,
+                method,
+                arity,
+            }) => format!("{owner}.{method}/{arity}"),
+        }
+    }
+
+    /// Borrow the source-facing name for diagnostics/lookup after a target is
+    /// already selected.  Callers must not use this projection to issue a new
+    /// target or to retry resolution.
+    pub fn source_name(&self) -> &str {
+        match self {
+            Self::Builtin(CanonicalBuiltinGlobalV1::Print) => "print",
+            Self::SameModule(CanonicalSameModuleGlobalTargetV1::FreeFunction { name, .. }) => name,
+            Self::SameModule(CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                method, ..
+            }) => method,
+        }
+    }
+
+    pub const fn arity(&self) -> Option<u32> {
+        match self {
+            Self::Builtin(_) => Some(1),
+            Self::SameModule(CanonicalSameModuleGlobalTargetV1::FreeFunction { arity, .. })
+            | Self::SameModule(CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                arity, ..
+            }) => Some(*arity),
+        }
+    }
+
     /// Build the static-method carrier after the caller has validated the
     /// exact declaration relation.  This checks only structural components;
     /// catalog/session/brand authority remains with the caller.

@@ -500,7 +500,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
                 callee: crate::mir::Callee::Global(ref symbol),
                 ..
             }
-        } if symbol == "BoxA.run/1"
+        } if symbol.display_name() == "BoxA.run/1"
     ));
 
     let builtin = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
@@ -518,7 +518,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
                 callee: crate::mir::Callee::Global(ref symbol),
                 ..
             }
-        } if symbol == "print"
+        } if symbol.display_name() == "print"
     ));
 
     builder
@@ -559,7 +559,7 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
                 callee: crate::mir::Callee::Global(ref symbol),
                 ..
             }
-        } if symbol == "BoxB.other/1"
+        } if symbol.display_name() == "BoxB.other/1"
     ));
 }
 
@@ -704,7 +704,7 @@ fn cataloged_target_is_consumed_once_before_canonical_call_publication() {
             callee: Some(crate::mir::Callee::Global(symbol)),
             args,
             ..
-        } if *dst == result && symbol == "BoxA.run/1" && args.len() == 1
+        } if *dst == result && symbol.display_name() == "BoxA.run/1" && args.len() == 1
     ));
 }
 

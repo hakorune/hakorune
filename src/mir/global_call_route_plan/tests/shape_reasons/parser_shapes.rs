@@ -236,9 +236,9 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
         MirInstruction::Call {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
+            callee: Some(Callee::Global(crate::mir::test_global_target(
                 "BuildBox.emit_program_json_v0/2".to_string(),
-            )),
+            ))),
             args: vec![ValueId::new(2), ValueId::new(3)],
             effects: EffectMask::PURE,
         },

@@ -649,7 +649,7 @@ mod tests {
         let from = ValueId::new(1);
         let to = ValueId::new(2);
         let mut shapes = vec![
-            Callee::Global("f".to_string()),
+            Callee::Global(crate::mir::test_global_target("f".to_string())),
             Callee::Extern("env.f".to_string()),
             Callee::Constructor {
                 box_type: "Box".to_string(),

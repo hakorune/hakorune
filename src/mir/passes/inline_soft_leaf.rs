@@ -191,7 +191,7 @@ fn inlineable_call(inst: &MirInstruction) -> Option<InlineCall> {
     };
     match callee {
         Callee::Global(name) => Some(InlineCall {
-            callee_name: name.clone(),
+            callee_name: name.display_name(),
             dst: *dst,
             args: args.clone(),
         }),

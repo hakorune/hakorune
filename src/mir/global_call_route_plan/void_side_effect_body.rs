@@ -149,7 +149,8 @@ fn void_side_effect_instruction_supported(
             callee: Some(Callee::Global(name)),
             ..
         } => {
-            let supported = lookup_global_call_target(name, targets)
+            let name = name.display_name();
+            let supported = lookup_global_call_target(&name, targets)
                 .map(|target| target.return_contract().is_some())
                 .unwrap_or(false);
             if supported {

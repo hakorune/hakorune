@@ -165,7 +165,7 @@ mod tests {
             PreparedMapWriteReplayV1::prepare(&map_callee("get", 1), &[ValueId::new(2)]).is_none()
         );
         assert!(PreparedMapWriteReplayV1::prepare(
-            &Callee::Global("MapBox.set".to_string()),
+            &Callee::Global(crate::mir::test_global_target("MapBox.set".to_string())),
             &[ValueId::new(2), ValueId::new(3)],
         )
         .is_none());

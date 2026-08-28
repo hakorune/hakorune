@@ -73,6 +73,38 @@ pub(crate) mod raw_vm_reference_contract;
 pub(crate) mod shared_loop_source_window;
 #[cfg(test)]
 pub(crate) mod test_support;
+
+/// Test-only projection for legacy MIR fixtures.  Production callers must use
+/// a declaration-backed constructor or an owner-local compatibility adapter;
+/// fixtures should still make the structural Global shape explicit.
+#[cfg(test)]
+pub(crate) fn test_global_target<S: AsRef<str>>(
+    symbol: S,
+) -> hakorune_mir_defs::CanonicalGlobalTargetV1 {
+    let symbol = symbol.as_ref();
+    if symbol == "print" {
+        return hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print();
+    }
+    let (base, arity) = match symbol.rsplit_once('/') {
+        Some((base, encoded)) => (
+            base,
+            encoded
+                .parse::<u32>()
+                .expect("test global target fixture must use numeric arity"),
+        ),
+        None => (symbol, 0),
+    };
+    if let Some((owner, method)) = base.rsplit_once('.') {
+        return hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+            owner.into(),
+            method.into(),
+            arity,
+        )
+        .expect("test global target fixture must use non-empty components");
+    }
+    hakorune_mir_defs::CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
+        .expect("test global target fixture must use a non-empty name")
+}
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCallableDispatchStageV1, CanonicalCoreDispatchStageV1,

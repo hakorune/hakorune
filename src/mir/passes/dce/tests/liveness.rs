@@ -531,7 +531,9 @@ fn test_dce_prunes_pure_no_dst_call_and_its_dead_operand_chain() {
         bb0.instructions.push(MirInstruction::Call {
             dst: None,
             func: ValueId(999),
-            callee: Some(Callee::Global("noop".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "noop".to_string(),
+            ))),
             args: vec![v1],
             effects: EffectMask::PURE,
         });

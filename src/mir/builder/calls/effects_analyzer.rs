@@ -36,7 +36,7 @@ impl EffectsAnalyzerBox {
     /// - WriteHeap: ヒープ書き込み
     pub fn compute_call_effects(callee: &Callee) -> EffectMask {
         match callee {
-            Callee::Global(name) => match name.as_str() {
+            Callee::Global(target) => match target.source_name() {
                 "print" | "error" => EffectMask::IO,
                 "panic" | "exit" => EffectMask::IO.add(Effect::Control),
                 "gc_collect" => EffectMask::IO.add(Effect::Alloc),
@@ -133,7 +133,7 @@ mod tests {
 
     #[test]
     fn test_compute_effects_global() {
-        let callee = Callee::Global("print".to_string());
+        let callee = Callee::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print());
         let effects = EffectsAnalyzerBox::compute_call_effects(&callee);
         assert_eq!(effects, EffectMask::IO);
     }

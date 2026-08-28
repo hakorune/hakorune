@@ -263,14 +263,15 @@ pub(super) fn generic_pure_string_call_reject_reason(
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if supported_backend_global(name) => None,
+        } if supported_backend_global(&name.display_name()) => None,
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
             args,
             ..
-        } if !supported_backend_global(name) => {
-            if is_hostbridge_extern_invoke_symbol(name, args.len()) {
+        } if !supported_backend_global(&name.display_name()) => {
+            let name = name.display_name();
+            if is_hostbridge_extern_invoke_symbol(&name, args.len()) {
                 if let Some(dst) = dst {
                     *ctx.has_string_surface = true;
                     set_proven_flow_value_class(
@@ -282,7 +283,8 @@ pub(super) fn generic_pure_string_call_reject_reason(
                 }
                 return None;
             }
-            if generic_pure_string_global_name_is_self(name, ctx.function.signature.name.as_str()) {
+            if generic_pure_string_global_name_is_self(&name, ctx.function.signature.name.as_str())
+            {
                 if let Some(dst) = dst {
                     *ctx.has_string_surface = true;
                     set_proven_flow_value_class(
@@ -294,17 +296,17 @@ pub(super) fn generic_pure_string_call_reject_reason(
                 }
                 return None;
             }
-            let Some(target) = super::super::lookup_global_call_target(name, ctx.targets) else {
+            let Some(target) = super::super::lookup_global_call_target(&name, ctx.targets) else {
                 return Some(GenericPureStringReject::with_blocker(
                     GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing,
-                    crate::mir::naming::normalize_static_global_name(name),
+                    crate::mir::naming::normalize_static_global_name(&name),
                     None,
                 ));
             };
             let Some(contract) = target.return_contract() else {
                 return Some(GenericPureStringReject::with_shape_blocker(
                     GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
-                    propagated_unknown_global_target_blocker(name, target),
+                    propagated_unknown_global_target_blocker(&name, target),
                 ));
             };
             match contract {

@@ -16,6 +16,7 @@ use crate::mir::definitions::call_unified::Callee;
 use crate::mir::policies::callee_box_kind::{
     classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
 };
+use hakorune_mir_defs::{CanonicalGlobalTargetV1, CanonicalSameModuleGlobalTargetV1};
 
 /// 統一Call発行専用箱
 ///
@@ -384,56 +385,74 @@ impl UnifiedCallEmitterBox {
         let mut callee = resolver.resolve(target.clone())?;
 
         // 🎯 Phase 21.7: Methodization (HAKO_MIR_BUILDER_METHODIZE=1)
-        // Convert lowered static-method globals to Method calls only for
-        // runtime data boxes. User-defined/static helper boxes must stay
-        // Global("Box.method/arity"), otherwise they become Method{recv=None}
-        // and break both VM and LLVM routes.
+        // Convert an already-typed static-method carrier to Method calls only
+        // for runtime data boxes.  This preserves the legacy route for now,
+        // but deliberately avoids reparsing a display string as a target.
         let methodize_on = match crate::config::env::builder_methodize_mode().as_deref() {
             // 明示的に "0" が指定されたときだけ無効化。
             Some("0") => false,
             _ => true,
         };
         if methodize_on {
-            if let Callee::Global(ref name) = callee {
-                let name_clone = name.clone(); // Clone to avoid borrow checker issues
-                                               // 🎯 Phase 21.7++ Phase 3: StaticMethodId SSOT 実装
-                if let Some(id) = crate::mir::naming::StaticMethodId::parse(&name_clone) {
-                    // Check if arity matches provided args (arity may be None if not specified)
-                    let arity_matches = id.arity.map_or(true, |a| a == args.len());
-                    if arity_matches {
-                        let box_name = &id.box_name;
-                        let method = &id.method;
-                        let box_kind = classify_callee_box_kind_v1(
-                            CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler,
-                            box_name,
-                        );
+            let static_method = match &callee {
+                Callee::Global(CanonicalGlobalTargetV1::SameModule(
+                    CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                        owner,
+                        method,
+                        arity,
+                    },
+                )) => Some((owner.clone(), method.clone(), *arity)),
+                _ => None,
+            };
+            if let Some((owner, method, arity)) = static_method {
+                if arity as usize == args.len() {
+                    let box_kind = classify_callee_box_kind_v1(
+                        CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler,
+                        &owner,
+                    );
+                    if box_kind == crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData
+                    {
+                        callee = Callee::Method {
+                            box_name: owner.to_string(),
+                            method: method.to_string(),
+                            receiver: None,
+                            certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
+                            box_kind,
+                        };
 
-                        if box_kind
-                            == crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData
-                        {
-                            callee = Callee::Method {
-                                box_name: box_name.to_string(),
-                                method: method.to_string(),
-                                receiver: None,
-                                certainty:
-                                    crate::mir::definitions::call_unified::TypeCertainty::Known,
-                                box_kind,
-                            };
-
-                            if crate::config::env::builder_methodize_trace() {
-                                let ring0 = crate::runtime::get_global_ring0();
-                                ring0.log.debug(&format!(
-                                    "[methodize] Global({}) → Method{{{}.{}, recv=None}} kind={:?}",
-                                    name_clone, box_name, method, box_kind
-                                ));
-                            }
-                        } else if crate::config::env::builder_methodize_trace() {
+                        if crate::config::env::builder_methodize_trace() {
                             let ring0 = crate::runtime::get_global_ring0();
                             ring0.log.debug(&format!(
-                                "[methodize] keep Global({}) for non-runtime static method {}.{} kind={:?}",
-                                name_clone, box_name, method, box_kind
+                                "[methodize] Global({}) → Method{{{}.{}, recv=None}} kind={:?}",
+                                CanonicalGlobalTargetV1::SameModule(
+                                    CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                                        owner: owner.clone(),
+                                        method: method.clone(),
+                                        arity,
+                                    },
+                                )
+                                .display_name(),
+                                owner,
+                                method,
+                                box_kind
                             ));
                         }
+                    } else if crate::config::env::builder_methodize_trace() {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "[methodize] keep Global({}) for non-runtime static method {}.{} kind={:?}",
+                            CanonicalGlobalTargetV1::SameModule(
+                                CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+                                    owner: owner.clone(),
+                                    method: method.clone(),
+                                    arity,
+                                },
+                            )
+                            .display_name(),
+                            owner,
+                            method,
+                            box_kind
+                        ));
                     }
                 }
             }
@@ -531,7 +550,8 @@ impl UnifiedCallEmitterBox {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[call-resolve] Global name='{}' args={:?}",
-                        name, args
+                        name.display_name(),
+                        args
                     ));
                 }
                 Callee::Constructor { box_type, .. } => {

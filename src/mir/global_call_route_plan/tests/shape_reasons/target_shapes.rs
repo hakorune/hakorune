@@ -18,7 +18,9 @@ fn refresh_module_global_call_routes_marks_unknown_child_target_shape_reason() {
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.pending/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.pending/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

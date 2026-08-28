@@ -20,7 +20,9 @@ fn proves_mir_json_numeric_value_field_runtime_data_get() {
     block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("StringHelpers.to_i64/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "StringHelpers.to_i64/1".to_string(),
+        ))),
         args: vec![ValueId::new(4)],
         effects: EffectMask::PURE,
     });
@@ -69,7 +71,9 @@ fn rejects_mir_json_numeric_value_field_get_outside_owner() {
     block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("StringHelpers.to_i64/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "StringHelpers.to_i64/1".to_string(),
+        ))),
         args: vec![ValueId::new(3)],
         effects: EffectMask::PURE,
     });

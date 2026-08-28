@@ -162,7 +162,7 @@ fn make_registry_dispatch(child_name: &str) -> MirFunction {
         MirInstruction::Call {
             dst: Some(ValueId::new(9)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(child_name.to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(child_name))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },

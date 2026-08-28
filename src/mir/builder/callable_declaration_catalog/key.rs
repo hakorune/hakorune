@@ -51,6 +51,24 @@ impl CanonicalSameModuleCallableKeyV1 {
         format!("{}.{}/{}", self.owner, self.name, self.arity)
     }
 
+    /// Project an already catalog-selected static declaration into the
+    /// structural global carrier.  This is deliberately limited to the
+    /// declaration key owner; callers cannot manufacture a target by
+    /// reparsing a MIR symbol string.
+    pub(crate) fn canonical_global_target_v1(
+        &self,
+    ) -> Result<hakorune_mir_defs::CanonicalGlobalTargetV1, String> {
+        if self.namespace != SameModuleCallableNamespaceV1::StaticBoxMethod {
+            return Err("only static box methods have a global target".to_owned());
+        }
+        hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+            self.owner.clone(),
+            self.name.clone(),
+            self.arity,
+        )
+        .map_err(|error| format!("invalid catalog global target: {error:?}"))
+    }
+
     #[cfg(test)]
     pub(crate) fn test_static_box_method(owner: &str, name: &str, arity: usize) -> Self {
         Self::static_box_method(owner, name, arity as u32)

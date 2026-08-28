@@ -128,7 +128,9 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
             args,
             effects,
             ..
-        } if args.len() == 1 && is_lowered_len_global(name) => Some((*dst, args[0], *effects)),
+        } if args.len() == 1 && is_lowered_len_global(&name.display_name()) => {
+            Some((*dst, args[0], *effects))
+        }
         _ => None,
     }
 }

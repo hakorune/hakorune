@@ -14,16 +14,16 @@ digest_algorithm = "sha256(path\\0count\\n)"
 [[token_aggregates]]
 id = "callee-global"
 token = "Callee::Global"
-expected_files = 143
-expected_occurrences = 272
-site_digest = "17417d3f872d919fc19a43a00f93f4100742095d8c7ff2528325913a3a3817c0"
+expected_files = 142
+expected_occurrences = 270
+site_digest = "068064612ed9af686eb9cf09a1d15925535b9b9d20e372ad8818e93d8a48e956"
 
 [[token_aggregates]]
 id = "calltarget-global"
 token = "CallTarget::Global"
 expected_files = 20
-expected_occurrences = 45
-site_digest = "efb250186b4718d951d7bd252cfc254dd8fb8949550ab71810228a58f7573cc6"
+expected_occurrences = 42
+site_digest = "5ddec5a496ad2feca964be6aab3e78733b15c18e9d257de7a43d7a0e0c912f82"
 
 [[coverage_buckets]]
 id = "compiled-builder-calls"
@@ -33,7 +33,7 @@ role = "producer-or-recovery"
 selector = "compiled-builder-calls"
 disposition_ref = "pre-effect-reject-contract"
 expected_files = 14
-expected_occurrences = 33
+expected_occurrences = 30
 
 [[coverage_buckets]]
 id = "compiled-builder-adjacent"
@@ -53,7 +53,7 @@ role = "core-consumer-or-producer"
 selector = "compiled-mir-core"
 disposition_ref = "typed-carrier-consumer"
 expected_files = 43
-expected_occurrences = 64
+expected_occurrences = 62
 
 [[coverage_buckets]]
 id = "compiled-backend"
@@ -102,7 +102,7 @@ scope = "test-only"
 role = "fixture"
 selector = "test-fixture"
 disposition_ref = "isolate-fixture"
-expected_files = 78
+expected_files = 77
 expected_occurrences = 166
 
 [[dispositions]]

@@ -53,7 +53,9 @@ fn make_main_calling_add1() -> MirFunction {
     entry.add_instruction(MirInstruction::Call {
         dst: Some(result),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Main.add1/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Main.add1/1".to_string(),
+        ))),
         args: vec![arg],
         effects: EffectMask::PURE,
     });
@@ -204,7 +206,9 @@ fn make_main_calling_implicit_reset() -> MirFunction {
     entry.add_instruction(MirInstruction::Call {
         dst: None,
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Main.resetImplicit/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Main.resetImplicit/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::WRITE,
     });
@@ -230,7 +234,9 @@ fn make_main_calling_reset() -> MirFunction {
     entry.add_instruction(MirInstruction::Call {
         dst: None,
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Main.reset/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Main.reset/1".to_string(),
+        ))),
         args: vec![receiver],
         effects: EffectMask::WRITE,
     });
@@ -373,7 +379,9 @@ fn inline_soft_leaf_keeps_recursive_call() {
         .push(MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Main.main/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Main.main/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });

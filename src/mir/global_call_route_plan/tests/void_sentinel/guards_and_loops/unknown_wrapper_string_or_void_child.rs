@@ -60,7 +60,9 @@ fn refresh_module_global_call_routes_accepts_unknown_wrapper_returning_string_or
     wrapper_entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.child/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.child/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

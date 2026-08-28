@@ -17,7 +17,7 @@ fn refresh_function_extern_call_routes_records_hostbridge_extern_invoke_global_s
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(10)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("hostbridge.extern_invoke/3".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target("hostbridge.extern_invoke/3".to_string()))),
         args: vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)],
         effects: EffectMask::IO,
     });

@@ -135,7 +135,9 @@ fn refresh_module_global_call_routes_publishes_print_need_kind() {
         .push(MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(7)],
             effects: EffectMask::IO,
         });
@@ -177,7 +179,9 @@ fn build_mir_json_root_emits_target_shape_reason_for_existing_unsupported_target
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.pending/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.pending/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -249,7 +253,9 @@ fn build_mir_json_root_emits_target_return_type_for_return_abi_blocker() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });

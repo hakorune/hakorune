@@ -30,7 +30,9 @@ fn refresh_module_global_call_routes_propagates_return_child_blocker_transitivel
     text_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.wrapper/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.wrapper/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -58,7 +60,9 @@ fn refresh_module_global_call_routes_propagates_return_child_blocker_transitivel
     wrapper_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.map/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.map/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -486,7 +490,9 @@ fn refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_b
     get_value_entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.make_map/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.make_map/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

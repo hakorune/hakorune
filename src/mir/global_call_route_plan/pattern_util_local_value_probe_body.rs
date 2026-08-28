@@ -104,7 +104,12 @@ impl PatternUtilLocalValueProbeFacts {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } => self.observe_global_call(current_function_name, name, args.len(), targets),
+            } => self.observe_global_call(
+                current_function_name,
+                &name.display_name(),
+                args.len(),
+                targets,
+            ),
             MirInstruction::Return { value: Some(_), .. } => self.returns_value = true,
             _ => {}
         }

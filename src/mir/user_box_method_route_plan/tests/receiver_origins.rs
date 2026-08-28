@@ -434,7 +434,9 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
     main_block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("JsonNode.create_object/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "JsonNode.create_object/0".to_string(),
+        ))),
         args: Vec::new(),
         effects: EffectMask::PURE,
     });
@@ -445,7 +447,9 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
     main_block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("JsonNode.create_object/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "JsonNode.create_object/0".to_string(),
+        ))),
         args: Vec::new(),
         effects: EffectMask::PURE,
     });

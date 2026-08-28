@@ -43,7 +43,9 @@ fn refresh_module_global_call_routes_accepts_unknown_return_generic_i64_wrapper(
         MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.find_unescaped/3".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.find_unescaped/3".to_string(),
+            ))),
             args: vec![ValueId::new(0), ValueId::new(2), ValueId::new(1)],
             effects: EffectMask::PURE,
         },
@@ -134,7 +136,9 @@ fn refresh_module_global_call_routes_accepts_string_or_void_child_null_guard_in_
         MirInstruction::Call {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         },

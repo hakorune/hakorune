@@ -167,7 +167,9 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_pure_string_
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.rec_digits/4".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.rec_digits/4".to_string(),
+            ))),
             args: vec![
                 ValueId::new(1),
                 ValueId::new(7),

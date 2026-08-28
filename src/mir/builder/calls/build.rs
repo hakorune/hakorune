@@ -22,6 +22,7 @@ use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
+use super::call_target::typed_global_target_from_selected_symbol;
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
 use super::static_resolution::BareStaticRecoveryEmissionV1;
@@ -117,9 +118,6 @@ impl MirBuilder {
                 self.build_str_normalization(value)
             }
             PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } => {
-                lower_prepared_targeted_call_v1(self, port, callee, arguments)
-            }
-            PreparedRawOrdinaryFunctionCompletionV1::BoundedGcTargeted { callee, arguments } => {
                 lower_prepared_targeted_call_v1(self, port, callee, arguments)
             }
             PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
@@ -408,7 +406,10 @@ impl MirBuilder {
         let dst = self.next_value_id();
         self.emit_unified_call_with_lookup(
             Some(dst),
-            CallTarget::Global(name),
+            CallTarget::Global(typed_global_target_from_selected_symbol(
+                &name,
+                arg_values.len(),
+            )?),
             arg_values,
             lookup,
         )?;

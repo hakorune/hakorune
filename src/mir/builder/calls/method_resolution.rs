@@ -12,6 +12,7 @@ use crate::mir::policies::callee_box_kind::{
     classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
 };
 use crate::mir::{Callee, ValueId};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 use std::collections::BTreeMap; // Phase 25.1: 決定性確保
 
 /// Resolve function call target to type-safe Callee
@@ -25,7 +26,12 @@ pub fn resolve_call_target(
 
     // 1. Check for built-in/global functions first
     if name_classification.callee_class() == CallNameCalleeClassV1::BuiltinGlobal {
-        return Ok(Callee::Global(name.to_string()));
+        if name == "print" {
+            return Ok(Callee::Global(CanonicalGlobalTargetV1::builtin_print()));
+        }
+        return Err(format!(
+            "unsupported builtin global target without a typed issuer: {name}"
+        ));
     }
 
     // 2. Check for static box method in current context
@@ -133,7 +139,8 @@ mod tests {
 
         assert!(matches!(
             resolve_call_target("print", &static_box, &variables).unwrap(),
-            Callee::Global(name) if name == "print"
+            Callee::Global(target)
+                if target == CanonicalGlobalTargetV1::builtin_print()
         ));
         assert!(matches!(
             resolve_call_target("length", &static_box, &variables).unwrap(),

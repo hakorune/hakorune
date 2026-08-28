@@ -188,7 +188,7 @@ fn storage_from_origin_instruction(
             ..
         } => storage_for_global_return(
             module,
-            name,
+            &name.display_name(),
             inferred,
             field_box_origins,
             param_storages,

@@ -377,7 +377,9 @@ mod tests {
             &call_for(
                 None,
                 ValueId::INVALID,
-                Some(Callee::Global("Pair.sum/0".to_string())),
+                Some(Callee::Global(crate::mir::test_global_target(
+                    "Pair.sum/0".to_string()
+                ))),
                 vec![ValueId::new(11)],
             ),
             &aliases,
@@ -400,7 +402,9 @@ mod tests {
             &call_for(
                 None,
                 ValueId::new(1),
-                Some(Callee::Global("Pair.sum/0".to_string())),
+                Some(Callee::Global(crate::mir::test_global_target(
+                    "Pair.sum/0".to_string()
+                ))),
                 vec![],
             ),
             &aliases,

@@ -27,7 +27,7 @@ fn make_function_with_global_call_args(
     block.instructions.push(MirInstruction::Call {
         dst,
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(name.to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(name))),
         args,
         effects: EffectMask::PURE,
     });

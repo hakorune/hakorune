@@ -24,7 +24,7 @@ fn generic_string_return_profile_cache_key(
     targets: &BTreeMap<String, GlobalCallTargetFacts>,
 ) -> String {
     let mut key = function.signature.name.clone();
-    let mut callees = BTreeSet::<&str>::new();
+    let mut callees = BTreeSet::<String>::new();
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
             if let MirInstruction::Call {
@@ -32,14 +32,14 @@ fn generic_string_return_profile_cache_key(
                 ..
             } = instruction
             {
-                callees.insert(name.as_str());
+                callees.insert(name.display_name());
             }
         }
     }
     for callee in callees {
         key.push('|');
-        key.push_str(callee);
-        match lookup_global_call_target(callee, targets) {
+        key.push_str(&callee);
+        match lookup_global_call_target(&callee, targets) {
             Some(target) => {
                 let _ = write!(
                     key,

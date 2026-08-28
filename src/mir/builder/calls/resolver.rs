@@ -15,13 +15,11 @@
 use crate::mir::builder::type_registry::TypeRegistry;
 use crate::mir::builder::CallTarget;
 use crate::mir::definitions::call_unified::TypeCertainty;
-use crate::mir::policies::call_name_classification::{
-    classify_call_name_v1, CallNameCalleeClassV1,
-};
 use crate::mir::policies::callee_box_kind::{
     classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
 };
 use crate::mir::{Callee, MirType, ValueId};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 use std::collections::BTreeMap;
 
 /// Callee解決専用箱
@@ -64,16 +62,7 @@ impl<'a> CalleeResolverBox<'a> {
         let use_registry = crate::config::env::builder_use_type_registry();
 
         match target {
-            CallTarget::Global(name) => {
-                let classification = classify_call_name_v1(&name);
-                match classification.callee_class() {
-                    CallNameCalleeClassV1::Extern => Ok(Callee::Extern(name)),
-                    CallNameCalleeClassV1::BuiltinGlobal | CallNameCalleeClassV1::Ordinary => {
-                        // Module-local or static lowered function (e.g., "Box.method/N")
-                        Ok(Callee::Global(name))
-                    }
-                }
-            }
+            CallTarget::Global(target) => Ok(Callee::Global(target)),
 
             CallTarget::Method {
                 box_type,
@@ -164,22 +153,17 @@ impl<'a> CalleeResolverBox<'a> {
     /// 既知の関数/メソッドについてarity等を検証
     pub fn validate_args(&self, callee: &Callee, args: &[ValueId]) -> Result<(), String> {
         match callee {
-            Callee::Global(name) => {
+            Callee::Global(target) => {
                 // Check known global functions
-                match name.as_str() {
-                    "print" | "error" | "panic" => {
+                match target {
+                    CanonicalGlobalTargetV1::Builtin(
+                        hakorune_mir_defs::CanonicalBuiltinGlobalV1::Print,
+                    ) => {
                         if args.is_empty() {
-                            return Err(format!("{} requires at least one argument", name));
+                            return Err("print requires at least one argument".to_owned());
                         }
                     }
-                    "exit" => {
-                        if args.len() != 1 {
-                            return Err(
-                                "exit requires exactly one argument (exit code)".to_string()
-                            );
-                        }
-                    }
-                    _ => {} // Unknown functions pass through
+                    CanonicalGlobalTargetV1::SameModule(_) => {}
                 }
             }
 
@@ -307,18 +291,22 @@ mod tests {
         let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
 
         for name in ["print", "isType", "gc_collect", "ordinary"] {
+            let target = if name == "print" {
+                CanonicalGlobalTargetV1::builtin_print()
+            } else {
+                CanonicalGlobalTargetV1::new_free_function(name.into(), 0).unwrap()
+            };
+            let expected = target.clone();
             assert!(matches!(
                 resolver
-                    .resolve(CallTarget::Global(name.to_string()))
+                    .resolve(CallTarget::Global(target))
                     .unwrap(),
-                Callee::Global(actual) if actual == name
+                Callee::Global(actual) if actual == expected
             ));
         }
         for name in ["nyash.fs.read", "env.console.log", "system.clock"] {
             assert!(matches!(
-                resolver
-                    .resolve(CallTarget::Global(name.to_string()))
-                    .unwrap(),
+                resolver.resolve(CallTarget::Extern(name.to_string())).unwrap(),
                 Callee::Extern(actual) if actual == name
             ));
         }
@@ -345,7 +333,9 @@ mod tests {
         let value_types = BTreeMap::new();
         let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
         let targets = [
-            CallTarget::Global("ordinary/0".to_string()),
+            CallTarget::Global(
+                CanonicalGlobalTargetV1::new_free_function("ordinary".into(), 0).unwrap(),
+            ),
             CallTarget::Method {
                 box_type: Some("StringBox".to_string()),
                 method: "length".to_string(),

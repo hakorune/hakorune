@@ -12,7 +12,9 @@ fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.wrapper/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.wrapper/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -33,7 +35,9 @@ fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.pending/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.pending/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -95,7 +99,9 @@ fn build_mir_json_root_emits_void_sentinel_return_child_blocker() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -125,7 +131,9 @@ fn build_mir_json_root_emits_void_sentinel_return_child_blocker() {
     text_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.pending/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.pending/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -196,7 +204,9 @@ fn build_mir_json_root_emits_transitive_void_sentinel_return_child_blocker() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -226,7 +236,9 @@ fn build_mir_json_root_emits_transitive_void_sentinel_return_child_blocker() {
     text_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.wrapper/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.wrapper/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -256,7 +268,9 @@ fn build_mir_json_root_emits_transitive_void_sentinel_return_child_blocker() {
     wrapper_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.map/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.map/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

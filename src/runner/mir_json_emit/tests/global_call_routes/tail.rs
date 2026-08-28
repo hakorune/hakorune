@@ -12,7 +12,9 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.add/2".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.add/2".to_string(),
+            ))),
             args: vec![ValueId::new(1), ValueId::new(2)],
             effects: EffectMask::PURE,
         });
@@ -113,7 +115,9 @@ fn build_mir_json_root_keeps_callee_name_and_emits_canonical_target_symbol() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("main._helper/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "main._helper/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -169,7 +173,9 @@ fn build_mir_json_root_emits_direct_plan_for_generic_pure_string_global_call() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.normalize/2".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.normalize/2".to_string(),
+            ))),
             args: vec![ValueId::new(1), ValueId::new(2)],
             effects: EffectMask::PURE,
         });

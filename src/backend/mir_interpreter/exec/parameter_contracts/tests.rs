@@ -62,7 +62,7 @@ fn caller_of(callee: &str, argument: ConstValue) -> MirFunction {
     block.add_instruction(MirInstruction::Call {
         dst: Some(result_id),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(callee.to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(callee))),
         args: vec![argument_id],
         effects: EffectMask::PURE,
     });
@@ -228,7 +228,9 @@ fn recursive_mir_call_rechecks_the_final_callee_contract() {
     block.add_instruction(MirInstruction::Call {
         dst: Some(result),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Main.identity/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Main.identity/1".to_string(),
+        ))),
         args: vec![bad_argument],
         effects: EffectMask::PURE,
     });

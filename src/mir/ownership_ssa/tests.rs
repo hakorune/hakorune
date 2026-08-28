@@ -447,7 +447,7 @@ fn managed_call_shape_without_abi_witness_is_rejected() {
 #[test]
 fn typed_targetless_call_ignores_legacy_func() {
     let shapes = [
-        Callee::Global("owner/0".to_string()),
+        Callee::Global(crate::mir::test_global_target("owner/0".to_string())),
         Callee::Extern("env.owner/0".to_string()),
         Callee::Constructor {
             box_type: "OwnerBox".to_string(),
@@ -572,7 +572,9 @@ fn typed_call_arguments_keep_the_existing_trivial_only_policy() {
         .add_instruction(MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("owner/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "owner/1".to_string(),
+            ))),
             args: vec![value(0)],
             effects: EffectMask::PURE,
         });

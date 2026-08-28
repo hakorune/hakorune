@@ -71,7 +71,11 @@ impl super::super::MirBuilder {
             let name = "CompareOperator.apply/3".to_string();
             self.emit_legacy_call(
                 Some(dst),
-                super::super::CallTarget::Global(name),
+                super::super::CallTarget::Global(
+                    super::super::calls::call_target::typed_global_target_from_selected_symbol(
+                        &name, 3,
+                    )?,
+                ),
                 vec![op_const, lhs, rhs],
             )?;
             self.function_state

@@ -478,7 +478,9 @@ mod tests {
         debug_entry.add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.coerce/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         });
@@ -498,7 +500,9 @@ mod tests {
         debug_entry.add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.coerce/1".to_string(),
+            ))),
             args: vec![ValueId::new(3)],
             effects: EffectMask::PURE,
         });
@@ -598,7 +602,9 @@ mod tests {
         caller_entry.add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.parse/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.parse/1".to_string(),
+            ))),
             args: vec![ValueId::new(6)],
             effects: EffectMask::PURE,
         });

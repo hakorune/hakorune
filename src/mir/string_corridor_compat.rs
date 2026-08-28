@@ -33,7 +33,7 @@ pub(crate) fn infer_compat_fact_from_instruction(
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
-        } => infer_compat_from_global(name).map(|fact| (*dst, fact)),
+        } => infer_compat_from_global(&name.display_name()).map(|fact| (*dst, fact)),
         MirInstruction::Call {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),

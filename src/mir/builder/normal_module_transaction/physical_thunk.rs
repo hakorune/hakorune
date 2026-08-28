@@ -3,6 +3,7 @@
 //! This box performs no source lookup and owns no process-exit policy.  It
 //! materializes only the call/return relation already fixed by the thunk plan.
 
+use crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol;
 use crate::mir::builder::emission::value_lifecycle_definition::{
     verify_completed_draft_typed_value_definitions_v1, CompletedDraftTypedValueDefinitionErrorV1,
 };
@@ -78,7 +79,12 @@ impl VerifiedNormalMainPhysicalThunkDraftV1 {
             .expect("MirFunction::new installs its entry block");
         block.add_instruction(MirInstruction::call(
             returned,
-            Callee::Global(source.symbol().as_mir_name().to_owned()),
+            Callee::Global(
+                typed_global_target_from_selected_symbol(source.symbol().as_mir_name(), 0)
+                    .map_err(|_| NormalMainPhysicalThunkErrorV1::SourceArityMismatch {
+                        actual: source.arity(),
+                    })?,
+            ),
             Vec::new(),
             effects,
         ));

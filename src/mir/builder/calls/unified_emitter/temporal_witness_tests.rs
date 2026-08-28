@@ -402,7 +402,7 @@ fn unified_call_publishes_after_successful_call_commit() {
     UnifiedCallEmitterBox::emit_unified_call_impl(
         &mut builder,
         Some(dst),
-        CallTarget::Global(CALL_TARGET.to_string()),
+        CallTarget::Global(crate::mir::test_global_target(CALL_TARGET)),
         Vec::new(),
     )
     .unwrap();
@@ -426,7 +426,7 @@ fn unified_call_failure_publishes_no_signature_annotation_residual() {
     let error = UnifiedCallEmitterBox::emit_unified_call_impl(
         &mut builder,
         Some(dst),
-        CallTarget::Global(CALL_TARGET.to_string()),
+        CallTarget::Global(crate::mir::test_global_target(CALL_TARGET)),
         Vec::new(),
     )
     .unwrap_err();

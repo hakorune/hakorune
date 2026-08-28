@@ -12,7 +12,9 @@ fn build_mir_json_root_emits_direct_plan_for_generic_i64_global_call() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.debug/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.debug/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -35,7 +37,9 @@ fn build_mir_json_root_emits_direct_plan_for_generic_i64_global_call() {
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.flag/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.flag/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },

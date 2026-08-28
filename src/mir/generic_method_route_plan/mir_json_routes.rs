@@ -648,7 +648,7 @@ fn value_reaches_stringhelpers_to_i64(
             else {
                 continue;
             };
-            if name == "StringHelpers.to_i64/1"
+            if name.display_name() == "StringHelpers.to_i64/1"
                 && args.len() == 1
                 && value_depends_on(function, def_map, args[0], source)
             {

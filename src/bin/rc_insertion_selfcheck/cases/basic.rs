@@ -1,4 +1,5 @@
 use crate::helpers::*;
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 use nyash_rust::ast::Span;
 use nyash_rust::mir::types::ConstValue;
 use nyash_rust::mir::{BasicBlock, BasicBlockId, Callee, EffectMask, MirInstruction, ValueId};
@@ -75,7 +76,10 @@ pub(super) fn run() {
         MirInstruction::Call {
             dst: Some(v_new),
             func: call_func,
-            callee: Some(Callee::Global("selfcheck.phase2.queue_call".to_string())),
+            callee: Some(Callee::Global(
+                CanonicalGlobalTargetV1::new_free_function("selfcheck.phase2.queue_call".into(), 0)
+                    .expect("selfcheck global target must be valid"),
+            )),
             args: vec![],
             effects: EffectMask::PURE,
         },

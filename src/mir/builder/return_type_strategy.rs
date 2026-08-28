@@ -201,7 +201,9 @@ fn resolve_known_callee_return_type(callee: &crate::mir::Callee) -> Option<MirTy
             method,
             None,
         ),
-        crate::mir::Callee::Global(name) => crate::mir::builder::infer_known_return_type(name),
+        crate::mir::Callee::Global(name) => {
+            crate::mir::builder::infer_known_return_type(&name.display_name())
+        }
         _ => None,
     }
 }

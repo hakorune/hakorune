@@ -36,9 +36,9 @@ fn build_mir_json_root_emits_direct_plan_for_static_string_array_contract() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
+            callee: Some(Callee::Global(crate::mir::test_global_target(
                 "PatternRegistryBox.candidates/0".to_string(),
-            )),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });

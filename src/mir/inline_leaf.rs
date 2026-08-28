@@ -261,7 +261,7 @@ fn classify_unsupported_instruction(
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if name == &function.signature.name => InlineLeafViolation::instruction(
+        } if name.display_name() == function.signature.name => InlineLeafViolation::instruction(
             "recursive-cycle",
             function,
             block,

@@ -43,7 +43,9 @@ fn refresh_module_global_call_routes_accepts_unknown_return_string_or_void_wrapp
         MirInstruction::Call {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.child/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.child/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },
@@ -159,7 +161,9 @@ fn refresh_module_global_call_routes_accepts_string_typed_string_or_void_passthr
         MirInstruction::Call {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.child/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.child/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },

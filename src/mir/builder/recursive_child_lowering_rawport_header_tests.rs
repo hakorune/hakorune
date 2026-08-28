@@ -144,7 +144,7 @@ fn explicit_header_authority_survives_unified_call_post_success() {
         builder
             .emit_unified_call_with_lookup(
                 Some(dst),
-                super::calls::CallTarget::Global(symbol.to_owned()),
+                super::calls::CallTarget::Global(crate::mir::test_global_target(symbol)),
                 vec![arg],
                 Some(headers),
             )

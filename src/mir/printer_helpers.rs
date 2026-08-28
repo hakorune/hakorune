@@ -43,7 +43,7 @@ pub(crate) fn format_call_target(
         .join(", ");
 
     match callee {
-        Some(Callee::Global(name)) => format!("call_global {}({})", name, args_str),
+        Some(Callee::Global(name)) => format!("call_global {}({})", name.display_name(), args_str),
         Some(Callee::Method {
             box_name,
             method,

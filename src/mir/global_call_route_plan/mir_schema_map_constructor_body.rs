@@ -216,7 +216,7 @@ impl MirSchemaMapWrapperCandidateFacts {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if target_may_return_mir_schema_map(name, targets) => {
+            } if target_may_return_mir_schema_map(&name.display_name(), targets) => {
                 self.insert_map(*dst, changed);
                 if args.iter().any(|arg| self.arrays.contains(arg)) {
                     self.insert_array_wrapped_map(*dst, changed);
@@ -461,8 +461,9 @@ impl MirSchemaMapConstructorFacts {
                 args,
                 ..
             } => {
-                let Some(class) = self.global_call_value_class(name, targets) else {
-                    let blocker = self.global_call_blocker(name, targets);
+                let name = name.display_name();
+                let Some(class) = self.global_call_value_class(&name, targets) else {
+                    let blocker = self.global_call_blocker(&name, targets);
                     return Some(GenericPureStringReject::with_shape_blocker(
                         GlobalCallTargetShapeReason::GenericStringGlobalTargetShapeUnknown,
                         blocker,

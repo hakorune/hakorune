@@ -446,14 +446,15 @@ pub(super) fn generic_i64_body_refine_instruction(
             callee: Some(Callee::Global(name)),
             args,
             ..
-        } if supported_backend_global(name) => {
-            generic_i64_accepts_backend_global_call(function, name, dst, args)
+        } if supported_backend_global(&name.display_name()) => {
+            let name = name.display_name();
+            generic_i64_accepts_backend_global_call(function, &name, dst, args)
         }
         MirInstruction::Call {
             dst,
             callee: Some(Callee::Global(name)),
             ..
-        } if name == &function.signature.name => {
+        } if name.display_name() == function.signature.name => {
             if let Some(dst) = dst {
                 set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)
             } else {
@@ -465,7 +466,8 @@ pub(super) fn generic_i64_body_refine_instruction(
             callee: Some(Callee::Global(name)),
             ..
         } => {
-            let Some(target) = lookup_global_call_target(name, targets) else {
+            let name = name.display_name();
+            let Some(target) = lookup_global_call_target(&name, targets) else {
                 return false;
             };
             let Some(contract) = target.return_contract() else {

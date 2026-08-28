@@ -24,7 +24,9 @@ fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_e
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.flag/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.flag/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },

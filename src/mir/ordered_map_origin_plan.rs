@@ -48,7 +48,8 @@ fn refresh_function_ordered_map_get_result_origins(function: &mut MirFunction) {
             };
 
             if let Some(Callee::Global(symbol)) = callee {
-                seed_carrier_info_output_schema(function, &def_map, &mut schema, symbol, args);
+                let symbol = symbol.display_name();
+                seed_carrier_info_output_schema(function, &def_map, &mut schema, &symbol, args);
                 continue;
             }
 
@@ -381,7 +382,9 @@ mod tests {
         push_call(
             entry,
             10,
-            Callee::Global("CarrierInfoApi.from_snapshot/4".to_string()),
+            Callee::Global(crate::mir::test_global_target(
+                "CarrierInfoApi.from_snapshot/4".to_string(),
+            )),
             vec![1, 2, 3],
             EffectMask::IO,
         );
@@ -475,7 +478,9 @@ mod tests {
         push_call(
             entry,
             10,
-            Callee::Global("CarrierInfoApi.with_explicit_carriers_from_snapshot/5".to_string()),
+            Callee::Global(crate::mir::test_global_target(
+                "CarrierInfoApi.with_explicit_carriers_from_snapshot/5".to_string(),
+            )),
             vec![1, 2, 99, 3, 4],
             EffectMask::IO,
         );

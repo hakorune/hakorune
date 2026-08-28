@@ -344,7 +344,7 @@ impl BoxTypeInspectorDescribeFacts {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if name == "print" && args.len() == 1 => {
+            } if name.display_name() == "print" && args.len() == 1 => {
                 if let Some(dst) = dst {
                     self.set_value(*dst, InspectorValueClass::Scalar, changed);
                 }

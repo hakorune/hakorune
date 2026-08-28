@@ -288,7 +288,11 @@ pub(in crate::mir::builder) fn build_print_from_value(
 
     if use_unified {
         // Unified path: treat print as global function.
-        builder.emit_unified_call(None, CallTarget::Global("print".to_string()), vec![value])?;
+        builder.emit_unified_call(
+            None,
+            CallTarget::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print()),
+            vec![value],
+        )?;
     } else {
         // Compatibility path when unified calls are disabled.
         builder.emit_extern_call("env.console", "log", vec![value], None)?;

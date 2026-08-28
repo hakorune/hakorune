@@ -711,7 +711,7 @@ fn match_dead_text_len_call(inst: &MirInstruction) -> Option<(ValueId, Vec<Value
             callee: Some(Callee::Global(name)),
             args,
             ..
-        } if args.len() == 1 && is_lowered_len_global(name) => {
+        } if args.len() == 1 && is_lowered_len_global(&name.display_name()) => {
             Some((*dst, args.iter().copied().collect::<Vec<_>>()))
         }
         _ => None,

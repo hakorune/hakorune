@@ -200,9 +200,17 @@ pub(in crate::mir::builder) fn try_known_rewrite_with_lookup(
         return Some(Err(e));
     }
     let dst = builder.next_value_id();
+    let global_target =
+        match crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol(
+            &fname,
+            call_args.len(),
+        ) {
+            Ok(target) => target,
+            Err(e) => return Some(Err(e)),
+        };
     if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(dst),
-        crate::mir::builder::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(global_target),
         call_args,
         lookup,
     ) {
@@ -318,9 +326,17 @@ pub(in crate::mir::builder) fn try_known_rewrite_to_dst_with_lookup(
         return Some(Err(e));
     }
     let actual_dst = want_dst.unwrap_or_else(|| builder.next_value_id());
+    let global_target =
+        match crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol(
+            &fname,
+            call_args.len(),
+        ) {
+            Ok(target) => target,
+            Err(e) => return Some(Err(e)),
+        };
     if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(actual_dst),
-        crate::mir::builder::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(global_target),
         call_args,
         lookup,
     ) {
@@ -417,9 +433,17 @@ pub(in crate::mir::builder) fn try_unique_suffix_rewrite_with_lookup(
         return Some(Err(e));
     }
     let dst = builder.next_value_id();
+    let global_target =
+        match crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol(
+            &fname,
+            call_args.len(),
+        ) {
+            Ok(target) => target,
+            Err(e) => return Some(Err(e)),
+        };
     if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(dst),
-        crate::mir::builder::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(global_target),
         call_args,
         lookup,
     ) {
@@ -526,9 +550,17 @@ pub(in crate::mir::builder) fn try_unique_suffix_rewrite_to_dst_with_lookup(
         return Some(Err(e));
     }
     let actual_dst = want_dst.unwrap_or_else(|| builder.next_value_id());
+    let global_target =
+        match crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol(
+            &fname,
+            call_args.len(),
+        ) {
+            Ok(target) => target,
+            Err(e) => return Some(Err(e)),
+        };
     if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(actual_dst),
-        crate::mir::builder::CallTarget::Global(fname.clone()),
+        crate::mir::builder::CallTarget::Global(global_target),
         call_args,
         lookup,
     ) {

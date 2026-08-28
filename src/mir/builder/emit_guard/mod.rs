@@ -32,7 +32,7 @@ fn format_value_ids(values: &[ValueId]) -> String {
 
 fn callee_label(callee: &Callee) -> String {
     match callee {
-        Callee::Global(name) => format!("Global({})", name),
+        Callee::Global(name) => format!("Global({})", name.display_name()),
         Callee::Method {
             box_name, method, ..
         } => format!("Method({}.{})", box_name, method),

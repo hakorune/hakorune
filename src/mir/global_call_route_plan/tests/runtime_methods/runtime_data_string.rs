@@ -50,7 +50,9 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method()
         MirInstruction::Call {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.coerce/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },
@@ -70,7 +72,9 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method()
         MirInstruction::Call {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.coerce/1".to_string(),
+            ))),
             args: vec![ValueId::new(3)],
             effects: EffectMask::PURE,
         },
@@ -458,7 +462,9 @@ fn refresh_module_global_call_routes_accepts_string_or_void_null_guarded_length_
         MirInstruction::Call {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         },

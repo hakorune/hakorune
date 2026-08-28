@@ -137,7 +137,11 @@ fn infer_call_param_box_origins(
                     continue;
                 };
                 match callee {
-                    Callee::Global(symbol) if module.functions.contains_key(symbol) => {
+                    Callee::Global(symbol) => {
+                        let symbol = symbol.display_name();
+                        if !module.functions.contains_key(&symbol) {
+                            continue;
+                        }
                         for (arg_index, arg) in args.iter().enumerate() {
                             let Some(origin_box) =
                                 origin_queries.box_origin_for_value(function, &def_map, *arg)
@@ -338,7 +342,11 @@ fn infer_call_param_storages(
                     continue;
                 };
                 match callee {
-                    Callee::Global(symbol) if module.functions.contains_key(symbol) => {
+                    Callee::Global(symbol) => {
+                        let symbol = symbol.display_name();
+                        if !module.functions.contains_key(&symbol) {
+                            continue;
+                        }
                         for (arg_index, arg) in args.iter().enumerate() {
                             let Some(storage) =
                                 storage_queries.storage_for_value(function, def_map, *arg)

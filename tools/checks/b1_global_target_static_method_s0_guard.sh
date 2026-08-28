@@ -48,7 +48,7 @@ expected_allowed = {
 }
 
 status = card.get("status")
-if status not in {"fast_open", "landed", "landed_bounded_child_row"}:
+if status not in {"fast_open", "landed", "landed_bounded_child_row", "superseded"}:
     raise SystemExit(f"B1 S0 card has unsupported status: {status!r}")
 if status == "fast_open" and card.get("implementation_permission") is not True:
     raise SystemExit("open B1 S0 card does not have scoped implementation permission")
@@ -59,6 +59,11 @@ if status in {"landed", "landed_bounded_child_row"}:
         raise SystemExit("landed B1 S0 card is missing landed_commit")
     if card.get("completed_execution_row") != "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0":
         raise SystemExit("landed B1 S0 card does not record completion")
+if status == "superseded":
+    if card.get("implementation_permission") is not False:
+        raise SystemExit("superseded B1 S0 card still has implementation permission")
+    if card.get("superseded_by") != "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER":
+        raise SystemExit("superseded B1 S0 card does not name the B1 successor")
 if card.get("guard_phase") != "b1_carrier_s0":
     raise SystemExit("B1 S0 guard phase drifted")
 if card.get("execution_row") != "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0":
@@ -88,6 +93,17 @@ if row.get("profiles") != ["pilot", "quick-static"]:
     raise SystemExit("B1 S0 guard profiles drifted")
 if row.get("cmd") != ["bash", "tools/checks/b1_global_target_static_method_s0_guard.sh"]:
     raise SystemExit("B1 S0 guard command drifted")
+
+if status == "superseded":
+    successor = card_path.parent / "mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
+    if not successor.is_file():
+        raise SystemExit("B1 S0 successor card is missing")
+    successor_data = load(successor)
+    b1 = successor_data.get("b1_cutover")
+    if not isinstance(b1, dict) or b1.get("task_id") != "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER":
+        raise SystemExit("B1 S0 successor card does not expose the B1 cutover row")
+    print(f"[{row_id}] historical carrier-only row superseded by MIR-CALL-GLOBAL-TARGET-B1-CUTOVER")
+    raise SystemExit(0)
 
 if sum(1 for _ in carrier_path.open()) >= 760:
     raise SystemExit("carrier source reached the 760-line split threshold")

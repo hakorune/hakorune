@@ -194,7 +194,9 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_i64_body() {
         MirInstruction::Call {
             dst: Some(ValueId::new(9)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.seek_step/3".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.seek_step/3".to_string(),
+            ))),
             args: vec![ValueId::new(0), ValueId::new(7), ValueId::new(8)],
             effects: EffectMask::PURE,
         },

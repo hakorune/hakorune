@@ -11,8 +11,9 @@ pub(in super::super) fn callee_sig_name(callee: &Callee, arity: usize) -> Option
     match callee {
         Callee::Global(name) => {
             // Global: if already has /arity, keep as-is; otherwise append it
+            let name = name.display_name();
             if name.contains('/') {
-                Some(name.clone())
+                Some(name)
             } else {
                 Some(format!("{}/{}", name, arity))
             }

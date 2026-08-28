@@ -184,7 +184,7 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if name == "TerminalCatalogOwner.call/2" => Some((*dst, args.clone())),
+            } if name.display_name() == "TerminalCatalogOwner.call/2" => Some((*dst, args.clone())),
             _ => None,
         })
         .collect::<Vec<_>>();
@@ -238,7 +238,7 @@ fn static_global_receipt_matches_the_successful_physical_call_destination() {
                     dst,
                     callee: Some(Callee::Global(name)),
                     ..
-                } if name == "TerminalCatalogOwner.call/2" => *dst,
+                } if name.display_name() == "TerminalCatalogOwner.call/2" => *dst,
                 _ => None,
             })
             .expect("exact physical global Call");

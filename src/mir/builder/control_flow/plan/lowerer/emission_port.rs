@@ -146,7 +146,11 @@ fn emit_selected_exact_i64(
         .collect();
     builder.emit_unified_call(
         Some(*dst),
-        CallTarget::Global(target.mir_symbol_projection()),
+        CallTarget::Global(
+            target
+                .canonical_global_target_v1()
+                .map_err(|error| format!("[freeze:contract][callable_result/global/{error}]"))?,
+        ),
         args,
     )?;
     builder
@@ -233,13 +237,13 @@ mod tests {
         assert!(block.instructions.iter().any(|instruction| {
             matches!(instruction,
                 MirInstruction::Call { callee: Some(Callee::Global(symbol)), .. }
-                    if symbol == &target.mir_symbol_projection()
+                    if symbol.display_name() == target.mir_symbol_projection()
             )
         }));
         assert!(block.instructions.iter().all(|instruction| {
             !matches!(instruction,
                 MirInstruction::Call { callee: Some(Callee::Global(symbol)), .. }
-                    if symbol == "forbidden.raw.target/999"
+                    if symbol.display_name() == "forbidden.raw.target/999"
             )
         }));
         assert_eq!(

@@ -18,7 +18,9 @@ fn refresh_module_global_call_routes_marks_void_sentinel_child_blocker() {
     entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.flag/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.flag/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -112,7 +114,9 @@ fn refresh_module_global_call_routes_marks_void_sentinel_return_child_blocker() 
     text_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.pending/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.pending/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -197,7 +201,9 @@ fn refresh_module_global_call_routes_marks_void_typed_call_result_child_blocker(
     child_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.pending/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.pending/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -280,7 +286,9 @@ fn string_return_blocker_ignores_direct_string_child_targets() {
     text_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.text/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.text/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -374,7 +382,9 @@ fn refresh_module_global_call_routes_uses_direct_child_route_over_void_metadata(
         MirInstruction::Call {
             dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.child/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.child/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         },

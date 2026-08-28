@@ -12,7 +12,9 @@ fn build_mir_json_root_emits_direct_plan_for_void_logging_contract() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.log/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.log/1".to_string(),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::IO,
         });
@@ -42,7 +44,9 @@ fn build_mir_json_root_emits_direct_plan_for_void_logging_contract() {
         MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(3)],
             effects: EffectMask::IO,
         },

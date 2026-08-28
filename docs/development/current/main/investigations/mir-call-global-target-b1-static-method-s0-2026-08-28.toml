@@ -1,5 +1,5 @@
 title = "MIR Call B1 structural Global carrier static-method S0"
-status = "landed_bounded_child_row"
+status = "superseded"
 observed_commit = "2efd58d369"
 observed_at = "2026-08-28"
 implementation_permission = false
@@ -13,6 +13,7 @@ execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
 completed_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-STATIC-METHOD-S0"
 next_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
 successor_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0"
+superseded_by = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 
 [brief]
 decision = "S0 landed the structural carrier substrate accepted by the parent D1B/B0 design. The carrier remains opaque to consumers, its nested shape follows the Call SSOT, and construction remains guarded repository authority. No Callee::Global, CallTarget, MirInstruction, wire, VM, optimizer, or production route changed."

@@ -17,6 +17,7 @@ use crate::mir::builder::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
 };
 use crate::mir::{MirBuilder, MirInstruction, MirType, TypeOpKind, ValueId};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1 {
     fn emit_typeop_value_terminal(
@@ -350,9 +351,15 @@ impl PreparedGlobalValueCallRequestV1 {
         arguments: Vec<ValueId>,
     ) -> Self {
         let symbol = format!("{owner}.{method}/{checked_source_arity}");
+        let target = CanonicalGlobalTargetV1::new_static_box_method(
+            owner.into(),
+            method.into(),
+            checked_source_arity,
+        )
+        .expect("validated static call owner/method must be non-empty");
         Self {
             destination: builder.next_value_id(),
-            target: CallTarget::Global(symbol.clone()),
+            target: CallTarget::Global(target),
             symbol,
             arguments,
         }

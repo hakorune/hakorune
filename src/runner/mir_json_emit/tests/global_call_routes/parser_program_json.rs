@@ -14,7 +14,9 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("BuildBox._parse_program_json/2".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "BuildBox._parse_program_json/2".to_string(),
+            ))),
             args: vec![ValueId::new(1), ValueId::new(2)],
             effects: EffectMask::PURE,
         });
@@ -160,9 +162,9 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
+            callee: Some(Callee::Global(crate::mir::test_global_target(
                 "Stage1SourceProgramAuthorityBox._emit_program_json_from_source_raw/1".to_string(),
-            )),
+            ))),
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         });
@@ -187,9 +189,9 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
         MirInstruction::Call {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
+            callee: Some(Callee::Global(crate::mir::test_global_target(
                 "BuildBox.emit_program_json_v0/2".to_string(),
-            )),
+            ))),
             args: vec![ValueId::new(1), ValueId::new(2)],
             effects: EffectMask::PURE,
         },
@@ -284,9 +286,9 @@ fn build_mir_json_root_emits_runtime_plan_for_buildbox_emit_program_json_null_op
             MirInstruction::Call {
                 dst: Some(ValueId::new(3)),
                 func: ValueId::INVALID,
-                callee: Some(Callee::Global(
+                callee: Some(Callee::Global(crate::mir::test_global_target(
                     "BuildBox.emit_program_json_v0/2".to_string(),
-                )),
+                ))),
                 args: vec![ValueId::new(1), ValueId::new(2)],
                 effects: EffectMask::PURE,
             },

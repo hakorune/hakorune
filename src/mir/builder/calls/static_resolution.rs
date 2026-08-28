@@ -11,6 +11,7 @@
 //! - try_tail_based_resolver: experimental dev-only suffix resolver
 
 use super::super::{MirBuilder, ValueId};
+use super::call_target::typed_global_target_from_selected_symbol;
 use super::CallTarget;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::{
@@ -86,11 +87,14 @@ impl MirBuilder {
         match decision {
             BareStaticRecoveryDecisionV1::Unique(key) => {
                 let dst = self.next_value_id();
-                let func_name = key.mir_symbol_projection();
                 // Emit unified global call to the lowered static method function
                 self.emit_unified_call_with_lookup(
                     Some(dst),
-                    CallTarget::Global(func_name),
+                    CallTarget::Global(
+                        key.canonical_global_target_v1().map_err(|error| {
+                            format!("[freeze:contract][static-recovery/{error}]")
+                        })?,
+                    ),
                     arg_values.to_vec(),
                     lookup,
                 )?;
@@ -127,7 +131,10 @@ impl MirBuilder {
                     let dst = self.next_value_id();
                     self.emit_legacy_call(
                         Some(dst),
-                        CallTarget::Global(func_name),
+                        CallTarget::Global(typed_global_target_from_selected_symbol(
+                            &func_name,
+                            arg_values.len(),
+                        )?),
                         arg_values.to_vec(),
                     )?;
                     return Ok(Some(dst));
@@ -164,7 +171,10 @@ impl MirBuilder {
         let dst = self.next_value_id();
         self.emit_unified_call_with_lookup(
             Some(dst),
-            CallTarget::Global(func_name),
+            CallTarget::Global(typed_global_target_from_selected_symbol(
+                &func_name,
+                arg_values.len(),
+            )?),
             arg_values.to_vec(),
             Some(headers),
         )?;

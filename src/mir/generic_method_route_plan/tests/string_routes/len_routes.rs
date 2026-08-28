@@ -354,7 +354,9 @@ fn records_runtime_data_string_len_from_generic_global_call_origin() {
     block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.coerce/1".to_string(),
+        ))),
         args: vec![ValueId::new(0)],
         effects: EffectMask::PURE,
     });
@@ -412,9 +414,9 @@ fn records_runtime_data_array_len_from_static_array_global_contract() {
     block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(
+        callee: Some(Callee::Global(crate::mir::test_global_target(
             "PatternRegistryBox.candidates/0".to_string(),
-        )),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

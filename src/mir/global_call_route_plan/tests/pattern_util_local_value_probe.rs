@@ -46,7 +46,7 @@ fn push_global_call(block: &mut BasicBlock, dst: u32, name: &str, args: Vec<Valu
     block.instructions.push(MirInstruction::Call {
         dst: Some(dst),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(name.to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(name))),
         args,
         effects: EffectMask::PURE,
     });

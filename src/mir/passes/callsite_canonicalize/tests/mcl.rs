@@ -160,9 +160,9 @@ fn stage1_buildbox_emit_program_json_null_opts_stays_global_call() {
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId(3)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(
+        callee: Some(Callee::Global(crate::mir::test_global_target(
             "BuildBox.emit_program_json_v0/2".to_string(),
-        )),
+        ))),
         args: vec![ValueId(1), ValueId(2)],
         effects: EffectMask::PURE,
     });
@@ -193,14 +193,14 @@ fn stage1_buildbox_emit_program_json_null_opts_stays_global_call() {
             effects,
         } if *dst == Some(ValueId(3))
             && *func == ValueId::INVALID
-            && name == "BuildBox.emit_program_json_v0/2"
+            && name.display_name() == "BuildBox.emit_program_json_v0/2"
             && args == &vec![ValueId(1), ValueId(2)]
             && *effects == EffectMask::PURE
     ));
 }
 
 #[test]
-fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
+fn mcl5_keeps_typed_global_callee_without_suffix_repair() {
     let mut module = MirModule::new("mcl5_global_suffix".to_string());
     let callee_sig = FunctionSignature {
         name: "RewriteKnownMini.run/1".to_string(),
@@ -230,7 +230,9 @@ fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId(3)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("RewriteKnownMini.run".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "RewriteKnownMini.run".to_string(),
+        ))),
         args: vec![ValueId(2)],
         effects: EffectMask::PURE,
     });
@@ -241,7 +243,7 @@ fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("mcl5_global_suffix/0")
@@ -256,12 +258,12 @@ fn mcl5_suffixes_existing_global_callee_when_matching_arity_exists() {
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if name == "RewriteKnownMini.run/1"
+        } if name.display_name() == "RewriteKnownMini.run/0"
     ));
 }
 
 #[test]
-fn mcl6_rewrites_speculative_user_global_to_runtime_method_when_receiver_type_is_runtime_data() {
+fn mcl6_keeps_typed_global_target_without_runtime_method_repair() {
     let mut module = MirModule::new("mcl6_runtime_receiver".to_string());
     let user_callee_sig = FunctionSignature {
         name: "JsonNodeInstance.length/0".to_string(),
@@ -289,7 +291,9 @@ fn mcl6_rewrites_speculative_user_global_to_runtime_method_when_receiver_type_is
     block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId(11)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("JsonNodeInstance.length/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "JsonNodeInstance.length/0".to_string(),
+        ))),
         args: vec![ValueId(10)],
         effects: EffectMask::PURE,
     });
@@ -300,7 +304,7 @@ fn mcl6_rewrites_speculative_user_global_to_runtime_method_when_receiver_type_is
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("main/0")
@@ -315,24 +319,13 @@ fn mcl6_rewrites_speculative_user_global_to_runtime_method_when_receiver_type_is
         MirInstruction::Call {
             dst,
             func,
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    certainty,
-                    box_kind,
-                }),
+            callee: Some(Callee::Global(name)),
             args,
             effects,
         } if *dst == Some(ValueId(11))
             && *func == ValueId::INVALID
-            && box_name == "ArrayBox"
-            && method == "length"
-            && *receiver == ValueId(10)
-            && *certainty == TypeCertainty::Known
-            && *box_kind == CalleeBoxKind::RuntimeData
-            && args.is_empty()
+            && name.display_name() == "JsonNodeInstance.length/0"
+            && args == &vec![ValueId(10)]
             && *effects == EffectMask::PURE
     ));
 }

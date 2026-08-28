@@ -7,6 +7,8 @@
 
 use hakorune_mir_core::{Effect, EffectMask, ValueId};
 
+use crate::global_target::CanonicalGlobalTargetV1;
+
 /// Certainty of callee type information for method calls
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TypeCertainty {
@@ -34,9 +36,11 @@ pub enum CalleeBoxKind {
 /// Replaces runtime string-based resolution with compile-time typed targets
 #[derive(Debug, Clone, PartialEq)]
 pub enum Callee {
-    /// Global function call (e.g., nyash.builtin.print)
-    /// Resolves to built-in or global functions at compile time
-    Global(String),
+    /// Global function call selected by the declaration-backed catalog.
+    ///
+    /// The structural carrier is intentionally separate from source names and
+    /// physical symbols.  Callers must provide an already-selected target.
+    Global(CanonicalGlobalTargetV1),
 
     /// Box method call with explicit receiver
     /// Enables static resolution of box.method() patterns
@@ -212,6 +216,7 @@ impl Default for CallFlags {
 #[cfg(test)]
 mod tests {
     use super::{Callee, CalleeBoxKind, TypeCertainty};
+    use crate::global_target::CanonicalGlobalTargetV1;
     use hakorune_mir_core::ValueId;
 
     #[test]
@@ -252,7 +257,7 @@ mod tests {
     #[test]
     fn callee_rewrite_value_operands_is_empty_for_targetless_and_missing_receiver_shapes() {
         let mut shapes = vec![
-            Callee::Global("f".to_string()),
+            Callee::Global(CanonicalGlobalTargetV1::new_free_function("f".into(), 0).unwrap()),
             Callee::Extern("env.f".to_string()),
             Callee::Constructor {
                 box_type: "Box".to_string(),
@@ -294,7 +299,7 @@ mod tests {
     #[test]
     fn callee_for_each_value_operand_is_empty_for_targetless_and_missing_receiver_shapes() {
         let shapes = vec![
-            Callee::Global("f".to_string()),
+            Callee::Global(CanonicalGlobalTargetV1::new_free_function("f".into(), 0).unwrap()),
             Callee::Extern("env.f".to_string()),
             Callee::Constructor {
                 box_type: "Box".to_string(),
@@ -336,8 +341,12 @@ impl MirCall {
         }
     }
 
-    pub fn global(dst: Option<ValueId>, name: String, args: Vec<ValueId>) -> Self {
-        MirCall::new(dst, Callee::Global(name), args)
+    pub fn global(
+        dst: Option<ValueId>,
+        target: CanonicalGlobalTargetV1,
+        args: Vec<ValueId>,
+    ) -> Self {
+        MirCall::new(dst, Callee::Global(target), args)
     }
 
     pub fn method(

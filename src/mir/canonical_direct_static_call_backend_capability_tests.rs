@@ -65,7 +65,9 @@ fn legacy_generic_call_does_not_create_the_capability() {
         .add_instruction(MirInstruction::Call {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("legacy/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "legacy/0".to_string(),
+            ))),
             args: Vec::new(),
             effects: EffectMask::IO,
         });

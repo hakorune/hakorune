@@ -72,10 +72,12 @@ pub(in crate::mir::builder) fn annotate_missing_result_types_from_calls_and_awai
                     let inferred = match callee {
                         Some(callee) => match callee {
                             Callee::Global(name) => lookup
-                                .signature(name)
+                                .signature(&name.display_name())
                                 .map(|signature| signature.return_type.clone())
                                 .or_else(|| {
-                                    crate::mir::builder::types::annotation::infer_return_type(name)
+                                    crate::mir::builder::types::annotation::infer_return_type(
+                                        &name.display_name(),
+                                    )
                                 })
                                 .unwrap_or(MirType::Unknown),
                             Callee::Constructor { box_type } => {

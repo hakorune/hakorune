@@ -106,7 +106,9 @@ fn refresh_module_user_box_method_routes_rejects_unsupported_birth_body() {
     birth_block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("helper".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "helper".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

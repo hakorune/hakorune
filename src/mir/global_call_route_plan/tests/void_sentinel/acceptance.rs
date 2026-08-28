@@ -188,7 +188,9 @@ fn refresh_module_global_call_routes_accepts_string_or_void_child_forward_phi_bo
     wrapper_entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.maybe_text/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.maybe_text/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });
@@ -357,7 +359,9 @@ fn refresh_module_global_call_routes_accepts_void_typed_direct_sentinel_child_re
     parent_text_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.child/0".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.child/0".to_string(),
+        ))),
         args: vec![],
         effects: EffectMask::PURE,
     });

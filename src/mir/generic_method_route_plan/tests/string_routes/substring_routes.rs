@@ -10,7 +10,9 @@ fn records_runtime_data_substring_from_generic_global_call_phi_origin() {
     entry.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Helper.coerce/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Helper.coerce/1".to_string(),
+        ))),
         args: vec![ValueId::new(0)],
         effects: EffectMask::PURE,
     });

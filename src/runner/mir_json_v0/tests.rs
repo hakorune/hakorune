@@ -173,7 +173,7 @@ fn parse_call_accepts_top_level_name_as_global_callee_without_func() {
             dst: Some(dst),
             ..
         } if *func == ValueId::INVALID
-            && name == "id"
+            && name.display_name() == "id/0"
             && args.is_empty()
             && *dst == ValueId::new(1)
     ));
@@ -440,7 +440,7 @@ fn parse_legacy_func_resolves_exact_local_string_const() {
             func,
             callee: Some(Callee::Global(name)),
             ..
-        } if *func == ValueId::INVALID && name == "target"
+        } if *func == ValueId::INVALID && name.display_name() == "target/0"
     ));
 }
 
@@ -464,7 +464,7 @@ fn parse_legacy_func_resolves_const_from_later_block() {
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if name == "later"
+        } if name.display_name() == "later/0"
     ));
 }
 
@@ -486,7 +486,7 @@ fn parse_nested_legacy_mir_call_uses_same_catalog_and_outer_dst() {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
-        } if *dst == ValueId::new(4) && name == "nested"
+        } if *dst == ValueId::new(4) && name.display_name() == "nested/0"
     ));
 }
 
@@ -508,7 +508,7 @@ fn parse_explicit_callee_ignores_legacy_decoration() {
             func,
             callee: Some(Callee::Global(name)),
             ..
-        } if *func == ValueId::INVALID && name == "exact"
+        } if *func == ValueId::INVALID && name.display_name() == "exact/0"
     ));
 }
 

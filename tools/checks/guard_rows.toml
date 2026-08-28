@@ -237,6 +237,16 @@ cmd = [
 ]
 
 [[rows]]
+id = "mir-call-global-target-b1-cutover"
+label = "MIR Call B1 typed Global carrier cutover"
+profiles = ["pilot", "quick-static"]
+cmd = [
+  "python3",
+  "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py",
+  ".",
+]
+
+[[rows]]
 id = "smoke-owner-pack-phase2050"
 label = "phase2050 and phase2170 exact owner-pack selection"
 profiles = ["pilot", "quick-static"]

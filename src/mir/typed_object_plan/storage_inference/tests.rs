@@ -545,7 +545,9 @@ fn build_typed_object_plans_infers_handle_from_same_module_string_like_global_re
     seal_block.add_instruction(MirInstruction::Call {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Hasher.digest/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Hasher.digest/1".to_string(),
+        ))),
         args: vec![ValueId::new(1)],
         effects: EffectMask::PURE,
     });

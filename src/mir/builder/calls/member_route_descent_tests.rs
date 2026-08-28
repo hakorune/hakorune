@@ -606,7 +606,7 @@ fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
-            } if name == "RouteOwner.routeMethod/2" => Some(args),
+            } if name.display_name() == "RouteOwner.routeMethod/2" => Some(args),
             _ => None,
         })
         .expect("lowered me terminal must emit the module global");

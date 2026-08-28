@@ -124,11 +124,11 @@ fn generic_string_void_sentinel_instruction_may_apply(
             callee: Some(Callee::Global(name)),
             args,
             ..
-        } if is_hostbridge_extern_invoke_symbol(name, args.len()) => true,
+        } if is_hostbridge_extern_invoke_symbol(&name.display_name(), args.len()) => true,
         MirInstruction::Call {
             callee: Some(Callee::Global(name)),
             ..
-        } if !supported_backend_global(name) => lookup_global_call_target(name, targets)
+        } if !supported_backend_global(&name.display_name()) => lookup_global_call_target(&name.display_name(), targets)
             .map(|target| {
                 matches!(
                     target.return_contract(),
@@ -533,10 +533,11 @@ fn refine_generic_string_return_value_class(
             args,
             ..
         } => {
-            let class = if is_hostbridge_extern_invoke_symbol(name, args.len()) {
+            let name = name.display_name();
+            let class = if is_hostbridge_extern_invoke_symbol(&name, args.len()) {
                 GenericStringReturnValueClass::String
             } else {
-                lookup_global_call_target(name, targets)
+                lookup_global_call_target(&name, targets)
                     .map(|target| match target.return_contract() {
                         Some(GlobalCallReturnContract::StringHandle) => {
                             GenericStringReturnValueClass::String
@@ -599,17 +600,18 @@ fn refine_generic_string_return_blocker(
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
-        } if !supported_backend_global(name) => {
-            let blocker = match lookup_global_call_target(name, targets) {
+        } if !supported_backend_global(&name.display_name()) => {
+            let name = name.display_name();
+            let blocker = match lookup_global_call_target(&name, targets) {
                 Some(target)
                     if target.shape() == GlobalCallTargetShape::Unknown
                         && target.return_contract().is_none() =>
                 {
-                    Some(propagated_unknown_global_target_blocker(name, target))
+                    Some(propagated_unknown_global_target_blocker(&name, target))
                 }
                 Some(_) => None,
                 None => Some(GlobalCallShapeBlocker {
-                    symbol: crate::mir::naming::normalize_static_global_name(name),
+                    symbol: crate::mir::naming::normalize_static_global_name(&name),
                     reason: Some(GlobalCallTargetShapeReason::GenericStringGlobalTargetMissing),
                 }),
             };

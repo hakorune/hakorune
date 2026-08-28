@@ -185,13 +185,15 @@ pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
                 continue;
             };
             let name = match callee {
-                Callee::Extern(name) => name.as_str(),
-                Callee::Global(name) if is_hostbridge_extern_invoke_symbol(name, args.len()) => {
-                    name.as_str()
+                Callee::Extern(name) => name.clone(),
+                Callee::Global(target)
+                    if is_hostbridge_extern_invoke_symbol(&target.display_name(), args.len()) =>
+                {
+                    target.display_name()
                 }
                 _ => continue,
             };
-            let Some(kind) = classify_extern_call_route(name, args.len()) else {
+            let Some(kind) = classify_extern_call_route(&name, args.len()) else {
                 continue;
             };
             if kind == ExternCallRouteKind::HakoMemFree {
@@ -211,7 +213,7 @@ pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             routes.push(ExternCallRoute::new(
                 ExternCallRouteSite::new(block_id, instruction_index),
                 kind,
-                name,
+                &name,
                 key_value,
                 value_value,
                 dst.unwrap_or(ValueId::INVALID),

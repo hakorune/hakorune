@@ -37,7 +37,9 @@ fn refresh_module_global_call_routes_accepts_debug_string_concat_in_generic_i64_
         MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("print".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             args: vec![ValueId::new(3)],
             effects: EffectMask::IO,
         },
@@ -157,7 +159,9 @@ fn refresh_module_global_call_routes_accepts_mir_json_numeric_value_field_proof(
         MirInstruction::Call {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("StringHelpers.to_i64/1".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "StringHelpers.to_i64/1".to_string(),
+            ))),
             args: vec![ValueId::new(9)],
             effects: EffectMask::PURE,
         },

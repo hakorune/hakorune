@@ -13,6 +13,7 @@
 //! - Used by body_processing and loop_lowering
 
 use super::{debug_ctx, debug_tags, LoopFrame};
+use crate::mir::builder::calls::call_target::typed_global_target_from_selected_symbol;
 use crate::mir::builder::calls::CallTarget;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
 use crate::mir::builder::MirBuilder;
@@ -148,7 +149,11 @@ impl super::PlanLowerer {
             } => {
                 let args: Vec<ValueId> =
                     args.iter().copied().map(|a| builder.local_arg(a)).collect();
-                builder.emit_unified_call(*dst, CallTarget::Global(func.clone()), args)?;
+                builder.emit_unified_call(
+                    *dst,
+                    CallTarget::Global(typed_global_target_from_selected_symbol(func, args.len())?),
+                    args,
+                )?;
             }
             CoreEffectPlan::ValueCall {
                 dst,

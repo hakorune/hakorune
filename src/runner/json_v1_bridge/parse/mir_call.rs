@@ -1,6 +1,7 @@
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::definitions::Callee;
 use crate::mir::{EffectMask, MirInstruction, ValueId};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 use serde_json::Value;
 
 fn bump_max_value_id_from_call(block: &crate::mir::BasicBlock, max_value_id: &mut u32) {
@@ -87,10 +88,11 @@ pub(super) fn parse_v1_mir_call(
                     ));
                 }
             };
+            let target = project_global_target(&mapped, argv.len())?;
             block_ref.add_instruction(MirInstruction::Call {
                 dst: dst_opt,
                 func: ValueId::new(0),
-                callee: Some(Callee::Global(mapped)),
+                callee: Some(Callee::Global(target)),
                 args: argv,
                 effects,
             });
@@ -386,4 +388,31 @@ pub(super) fn parse_v1_mir_call(
     }
 
     Ok(())
+}
+
+/// v1 is a compatibility ingress.  Its accepted wire spelling is projected
+/// into the structural carrier here, once, after the wire family is known.
+/// This helper does not perform catalog lookup or fallback.
+fn project_global_target(name: &str, args_len: usize) -> Result<CanonicalGlobalTargetV1, String> {
+    if name.is_empty() {
+        return Err("mir_call Global name must not be empty".to_string());
+    }
+    if name == "print" {
+        return Ok(CanonicalGlobalTargetV1::builtin_print());
+    }
+    let (base, arity) = match name.rsplit_once('/') {
+        Some((base, encoded)) => (
+            base,
+            encoded
+                .parse::<u32>()
+                .map_err(|_| format!("mir_call Global name has malformed arity: {name}"))?,
+        ),
+        None => (name, args_len as u32),
+    };
+    if let Some((owner, method)) = base.rsplit_once('.') {
+        return CanonicalGlobalTargetV1::new_static_box_method(owner.into(), method.into(), arity)
+            .map_err(|error| format!("mir_call Global target is invalid: {error:?}"));
+    }
+    CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
+        .map_err(|error| format!("mir_call Global target is invalid: {error:?}"))
 }

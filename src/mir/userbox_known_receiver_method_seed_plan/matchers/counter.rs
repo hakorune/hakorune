@@ -452,7 +452,7 @@ fn match_counter_step_chain_forward_method(
                 call_result = Some(*dst);
             }
             Callee::Global(name)
-                if name == leaf_function_name
+                if name.display_name() == leaf_function_name
                     && args.len() == 1
                     && copy_root(args[0], &copy_parent) == ValueId::new(0) =>
             {

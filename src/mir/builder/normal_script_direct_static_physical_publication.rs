@@ -96,7 +96,7 @@ mod tests {
             let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
                 &mut builder,
                 destination,
-                CallTarget::Global("Helpers.run/1".to_owned()),
+                CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
                 vec![],
                 None,
             )
@@ -122,7 +122,7 @@ mod tests {
             let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
                 &mut builder,
                 destination,
-                CallTarget::Global("Helpers.run/1".to_owned()),
+                CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
                 vec![],
                 None,
             )
@@ -153,7 +153,7 @@ mod tests {
             let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
                 &mut builder,
                 destination,
-                CallTarget::Global("Helpers.run/1".to_owned()),
+                CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
                 vec![],
                 None,
             )

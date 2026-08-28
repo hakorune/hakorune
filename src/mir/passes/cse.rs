@@ -137,11 +137,15 @@ mod tests {
     #[test]
     fn cse_call_key_uses_typed_callee_and_ignores_stale_func() {
         let typed_a = call(
-            Some(Callee::Global("target/1".to_string())),
+            Some(Callee::Global(crate::mir::test_global_target(
+                "target/1".to_string(),
+            ))),
             ValueId::new(10),
         );
         let typed_b = call(
-            Some(Callee::Global("target/1".to_string())),
+            Some(Callee::Global(crate::mir::test_global_target(
+                "target/1".to_string(),
+            ))),
             ValueId::new(11),
         );
         assert_eq!(instruction_key(&typed_a), instruction_key(&typed_b));

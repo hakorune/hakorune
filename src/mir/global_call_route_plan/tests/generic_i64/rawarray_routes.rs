@@ -45,9 +45,9 @@ fn generic_i64_body_accepts_any_handle_live_and_array_slot_append_extern_routes(
     ensure_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(21)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(
+        callee: Some(Callee::Global(crate::mir::test_global_target(
             "OwnershipLike._handle_live_i64/1".to_string(),
-        )),
+        ))),
         args: vec![ValueId::new(20)],
         effects: EffectMask::IO,
     });
@@ -92,16 +92,18 @@ fn generic_i64_body_accepts_any_handle_live_and_array_slot_append_extern_routes(
         MirInstruction::Call {
             dst: Some(ValueId::new(42)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global(
+            callee: Some(Callee::Global(crate::mir::test_global_target(
                 "OwnershipLike.ensure_handle_writable_i64/1".to_string(),
-            )),
+            ))),
             args: vec![ValueId::new(40)],
             effects: EffectMask::IO,
         },
         MirInstruction::Call {
             dst: Some(ValueId::new(43)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("PtrLike.slot_append_any/2".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "PtrLike.slot_append_any/2".to_string(),
+            ))),
             args: vec![ValueId::new(40), ValueId::new(41)],
             effects: EffectMask::IO,
         },
@@ -195,7 +197,9 @@ fn generic_i64_body_accepts_array_slot_len_extern_route() {
     wrapper_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(21)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("PtrLike.slot_len_i64/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "PtrLike.slot_len_i64/1".to_string(),
+        ))),
         args: vec![ValueId::new(20)],
         effects: EffectMask::IO,
     });
@@ -278,7 +282,9 @@ fn generic_i64_body_accepts_array_slot_load_extern_route() {
     wrapper_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(22)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("PtrLike.slot_load_i64/2".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "PtrLike.slot_load_i64/2".to_string(),
+        ))),
         args: vec![ValueId::new(20), ValueId::new(21)],
         effects: EffectMask::IO,
     });
@@ -361,7 +367,9 @@ fn generic_i64_body_accepts_array_slot_store_extern_route() {
     wrapper_block.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(23)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("PtrLike.slot_store_i64/3".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "PtrLike.slot_store_i64/3".to_string(),
+        ))),
         args: vec![ValueId::new(20), ValueId::new(21), ValueId::new(22)],
         effects: EffectMask::IO,
     });

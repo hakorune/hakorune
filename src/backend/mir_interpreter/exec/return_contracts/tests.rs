@@ -158,7 +158,9 @@ fn nested_ignored_result_still_uses_final_callee_return_owner() {
         .add_instruction(MirInstruction::Call {
             dst: None,
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Main.value/0".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Main.value/0".to_string(),
+            ))),
             args: vec![],
             effects: EffectMask::PURE,
         });
@@ -251,7 +253,9 @@ fn recursive_call_checks_the_innermost_final_return() {
     recurse_block.add_instruction(MirInstruction::Call {
         dst: Some(nested),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("Main.recur/1".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "Main.recur/1".to_string(),
+        ))),
         args: vec![next],
         effects: EffectMask::PURE,
     });

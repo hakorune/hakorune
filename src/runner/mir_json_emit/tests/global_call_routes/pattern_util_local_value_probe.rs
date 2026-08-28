@@ -44,7 +44,7 @@ fn push_global_call(block: &mut BasicBlock, dst: u32, name: &str, args: Vec<Valu
     block.instructions.push(MirInstruction::Call {
         dst: Some(dst),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(name.to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(name))),
         args,
         effects: EffectMask::PURE,
     });
@@ -125,7 +125,9 @@ fn build_mir_json_root_emits_direct_plan_for_pattern_util_local_value_probe_cont
         .push(MirInstruction::Call {
             dst: Some(ValueId::new(40)),
             func: ValueId::INVALID,
-            callee: Some(Callee::Global("Helper.find_local_int_before/3".to_string())),
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.find_local_int_before/3".to_string(),
+            ))),
             args: vec![ValueId::new(1), ValueId::new(2), ValueId::new(3)],
             effects: EffectMask::PURE,
         });

@@ -26,7 +26,7 @@ fn global_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
     MirInstruction::Call {
         dst: Some(dst),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global(name.to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(name))),
         args,
         effects: EffectMask::PURE,
     }

@@ -75,14 +75,15 @@ pub(crate) fn emit_call(
                 Some(obj)
             }
             Callee::Global(name) => {
-                if name == "print" || name == "println" {
+                let wire_name = name.display_name();
+                if wire_name == "print" || wire_name == "println" {
                     // Keep v0 print route stable for vm_hako / parity scripts.
                     Some(emit_externcall_with_name(dst, "nyash.console.log", args))
                 } else {
                     Some(emit_call_with_callee_v0(
                         dst,
                         args,
-                        json!({"type":"Global","name":name}),
+                        json!({"type":"Global","name":wire_name}),
                     ))
                 }
             }
@@ -226,7 +227,9 @@ mod tests {
         let v = emit_call(
             &Some(ValueId::new(3)),
             &ValueId::new(99),
-            Some(&Callee::Global("my_func/0".to_string())),
+            Some(&Callee::Global(crate::mir::test_global_target(
+                "my_func/0".to_string(),
+            ))),
             &[ValueId::new(1)],
             &EffectMask::PURE,
             compatibility_v0(false),
@@ -249,7 +252,7 @@ mod tests {
     #[test]
     fn v0_typed_call_variants_ignore_stale_numeric_func_decoration() {
         let typed = vec![
-            Callee::Global("worker/0".to_string()),
+            Callee::Global(crate::mir::test_global_target("worker/0".to_string())),
             Callee::Constructor {
                 box_type: "WorkerBox".to_string(),
             },
@@ -318,7 +321,9 @@ mod tests {
         let v = emit_call(
             &None,
             &ValueId::INVALID,
-            Some(&Callee::Global("print".to_string())),
+            Some(&Callee::Global(crate::mir::test_global_target(
+                "print".to_string(),
+            ))),
             &[ValueId::new(7)],
             &EffectMask::IO,
             compatibility_v0(false),

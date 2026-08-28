@@ -274,7 +274,7 @@ static box Main {
                 MirInstruction::Call {
                     callee: Some(Callee::Global(name)),
                     ..
-                } if name == "AllocFastProof.size_to_bin/1"
+                } if name.display_name() == "AllocFastProof.size_to_bin/1"
             )
         })
     });

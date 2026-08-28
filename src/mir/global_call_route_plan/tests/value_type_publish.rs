@@ -25,7 +25,9 @@ fn refresh_module_global_call_routes_publishes_string_handle_args_to_target_para
     caller_entry.instructions.push(MirInstruction::Call {
         dst: Some(ValueId::new(4)),
         func: ValueId::INVALID,
-        callee: Some(Callee::Global("JsonLine.stringField/2".to_string())),
+        callee: Some(Callee::Global(crate::mir::test_global_target(
+            "JsonLine.stringField/2".to_string(),
+        ))),
         args: vec![ValueId::new(2), ValueId::new(3)],
         effects: EffectMask::PURE,
     });

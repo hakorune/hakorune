@@ -1,5 +1,6 @@
 use super::super::ast::FuncDefV0;
 use crate::mir::Callee;
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 use std::collections::{BTreeMap, BTreeSet};
 
 /// Immutable source-bound target facts for generic Program JSON-v0 calls.
@@ -45,28 +46,54 @@ impl ProgramCallTargetCatalog {
         }
 
         if has_explicit_arity(name) {
-            return Ok(Callee::Global(name.to_string()));
+            return Ok(Callee::Global(selected_global_target(name, args_len)?));
         }
 
         if name.contains('.') {
             let qualified = format!("{name}/{args_len}");
             if self.qualified_names.contains(&qualified) {
-                return Ok(Callee::Global(qualified));
+                return Ok(Callee::Global(selected_global_target(
+                    &qualified, args_len,
+                )?));
             }
-            return Ok(Callee::Global(name.to_string()));
+            return Ok(Callee::Global(selected_global_target(name, args_len)?));
         }
 
         if let Some(candidates) = self.by_short_arity.get(&(name.to_string(), args_len)) {
             return match candidates.as_slice() {
-                [qualified] => Ok(Callee::Global(qualified.clone())),
+                [qualified] => Ok(Callee::Global(selected_global_target(qualified, args_len)?)),
                 _ => Err(format!(
                     "[json-v0/call-target/ambiguous-name] name={name} arity={args_len} candidates={}",
                     candidates.join(",")
                 )),
             };
         }
-        Ok(Callee::Global(name.to_string()))
+        Ok(Callee::Global(selected_global_target(name, args_len)?))
     }
+}
+
+/// Project an already-selected JSON-v0 compatibility spelling into the
+/// structural carrier.  This is deliberately local to the compatibility
+/// bridge: it does not consult another resolver or retry a failed route.
+fn selected_global_target(name: &str, args_len: usize) -> Result<CanonicalGlobalTargetV1, String> {
+    if name == "print" {
+        return Ok(CanonicalGlobalTargetV1::builtin_print());
+    }
+    let (base, arity) = match name.rsplit_once('/') {
+        Some((base, encoded)) => (
+            base,
+            encoded
+                .parse::<u32>()
+                .map_err(|_| format!("[json-v0/call-target/malformed-arity] {name}"))?,
+        ),
+        None => (name, args_len as u32),
+    };
+    if let Some((owner, method)) = base.rsplit_once('.') {
+        return CanonicalGlobalTargetV1::new_static_box_method(owner.into(), method.into(), arity)
+            .map_err(|error| format!("[json-v0/call-target/invalid-global] {error:?}"));
+    }
+    CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
+        .map_err(|error| format!("[json-v0/call-target/invalid-global] {error:?}"))
 }
 
 pub(super) fn is_stageb_entry_def(def: &FuncDefV0) -> bool {

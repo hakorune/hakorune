@@ -4,6 +4,7 @@ use super::VarScope;
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, ValueId,
 };
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 pub(super) fn lower_call_expr<S: VarScope>(
     env: &BridgeEnv,
@@ -352,7 +353,14 @@ fn lower_stageb_static_call_for_box<S: VarScope>(
     if let Some(bb) = f.get_block_mut(cur2) {
         bb.add_instruction(MirInstruction::call(
             Some(dst),
-            Callee::Global(qualified),
+            Callee::Global(
+                CanonicalGlobalTargetV1::new_static_box_method(
+                    box_name.into(),
+                    method.into(),
+                    args.len() as u32,
+                )
+                .map_err(|error| format!("[json-v0/static-call/invalid-target] {error:?}"))?,
+            ),
             arg_ids,
             EffectMask::READ,
         ));
@@ -388,7 +396,14 @@ fn lower_stageb_instance_call_for_box<S: VarScope>(
     if let Some(bb) = f.get_block_mut(cur2) {
         bb.add_instruction(MirInstruction::call(
             Some(dst),
-            Callee::Global(qualified),
+            Callee::Global(
+                CanonicalGlobalTargetV1::new_static_box_method(
+                    box_name.into(),
+                    method.into(),
+                    (args.len() + 1) as u32,
+                )
+                .map_err(|error| format!("[json-v0/instance-call/invalid-target] {error:?}"))?,
+            ),
             arg_ids,
             EffectMask::READ,
         ));
