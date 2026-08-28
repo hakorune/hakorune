@@ -2,8 +2,9 @@ title = "MIR Call D1B direct-call source inventory co-seal design"
 status = "b1_current_head_c0_design_stop"
 base_observed_commit = "632c674a76"
 base_observed_at = "2026-08-26"
-observed_commit = "a54680b7c7"
+observed_commit = "8af6eb73bc"
 observed_at = "2026-08-28"
+observed_source_delta = "HEAD after a54680b7c7 is docs-only for C0 source-identity/family-boundary evidence; the compiled dual-surface census remains unchanged."
 implementation_permission = false
 permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; B1 current-head disposition and simultaneous Callee/CallTarget cutover remain design-gated; package/loan/issuer/dispatcher publication is closed"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
@@ -518,4 +519,32 @@ no_safe_slice = [
   "the manifest must enumerate arbitrary AST/function sites instead of path/token surfaces",
   "a missing successor is hidden by a default, String projection, or fallback",
   "the guard is used as proof of C0 closeout before all family evidence is observed",
+]
+
+[c0_closeout_readiness_reaudit_2026_08_28]
+status = "design_stop"
+source = "Three independent read-only audits at HEAD 8af6eb73bc; no source edit and no Cargo run."
+decision = "The forest-wide observation gap is closed, but C0 closeout is not ready. Existing compiled disposition rows still conflate incompatible terminals and successor actions, and no adjacent compiled family can be ParkedSealed by prose alone."
+resolved_since_prior_review = "The root-only direct-call check is no longer a blocker: direct_call_inventory_gate.rs inspects every owner in every forest, and the package/source gates share that predicate with root-only, nested-only, and mixed-owner coverage."
+remaining_blockers = [
+  "retire-recovery-before-effects must split pre-effect typed reject from catalog-issued successor; a combined 'reject or issuer' terminal is not a finite state",
+  "compiled-adjacent-owner must split direct/static, physical thunk, JoinIR, CorePlan/operator/emission, ordinary-New, rewrite, and print owners because their actions and terminals differ",
+  "the C0 closeout guard must accept CutoverBlockerClosed with successor_ref when the decision is sealed for B1, and must validate the finite evidence action vocabulary plus evidence/disposition consistency",
+  "occurrence-level normalized use-shape, unclassified/overlap failure, and explicit external owner/non-authority/reopen evidence remain closeout requirements",
+  "the source identity/brand gaps remain real: canonical direct, script/cataloged static, StaticReceiver/StaticThis/me, and print have no typed carrier issuer at their physical terminal",
+  "package-only begin_lowering(&self) and a RawInvocationChildPortV1 without a direct-call loan remain real pre-D1B blockers",
+]
+compiled_family_rule = "Physical thunk, JoinIR, CorePlan/operator/emission, ordinary-New, print, and direct/static Global families remain CutoverBlockerOpen until each has one named source-backed owner, one finite action, one executable typed successor or pre-effect typed terminal, and one reopen condition. No wildcard or external scan omission may close them."
+task_order = [
+  "preserve exact source identity and same catalog brand through each direct/static handoff without putting a target into Facts",
+  "give source-backed families a typed successor or turn authority-free branches into executable pre-effect typed reject/isolation; do not infer from name, arity, symbol, ValueId, or String",
+  "amend the existing C0 manifest/guard for the split finite dispositions, successor_ref closeout, evidence action validation, and current-head provenance",
+  "run the existing C0 and pointer guards; only then switch the same active card/CURRENT_STATE atomically to the B1 typed carrier row",
+  "after C0, implement B1 Callee/CallTarget together, then D1B package/loan/dispatcher; keep Resolved/recovery/Method(None)/Call schema as later rows",
+]
+no_safe_slice = [
+  "closing C0 while a compiled Global emitter still has only String/name/physical-symbol authority",
+  "marking the adjacent family ParkedSealed without an executable isolation or retirement boundary",
+  "opening B1 or D1B while package-only installation, absent loan transport, or a post-argument resolver remains",
+  "using the green readiness guard as implementation permission without closeout evidence",
 ]
