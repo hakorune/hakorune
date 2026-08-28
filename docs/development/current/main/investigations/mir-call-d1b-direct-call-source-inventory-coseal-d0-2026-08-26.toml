@@ -284,7 +284,7 @@ decision = "Complete a finite semantic disposition for every compiled Global pro
 boundary = "Starts at every compiled Callee::Global/CallTarget::Global producer or consumer and ends at the selected structural wire/terminal or explicit isolate/retire disposition. Path counts are scope hints only; completion requires owner/action evidence for each family."
 boundary_scope_amendment = "C0 closes the compiled Rust producer/consumer boundary and records explicit dispositions for adjacent wire/fixture/external surfaces. JSON-v0/v1 codecs, Python/llvmlite readers, and apps/selfhost-runtime copies remain outside the compiled carrier cutover as named ParkedSealed owners; they are not silently treated as proof of Rust semantic coverage."
 observed_census = "Current path census: Callee::Global 143 Rust files/272 occurrences (about 68 production-ish files/115 occurrences); CallTarget::Global 20 files/45 occurrences (about 17 production-ish files/36 occurrences). These counts do not prove semantic coverage and must not be used as the completion claim."
-current_head_reaudit = "At HEAD d1dafa83ad (2026-08-28), the source boundary is unchanged by the docs/guard-only tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The existing C0 readiness guard derives only the CallTarget surface; Callee coverage is an explicit remaining blocker."
+current_head_reaudit = "At HEAD b8bc5cc105 (2026-08-28), the compiled source boundary remains unchanged by the docs/guard-only tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The dual-surface readiness guard now derives both aggregates and compact buckets, but C0 successor evidence remains open."
 dual_surface_coverage_next = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0: derive and classify both Callee::Global and CallTarget::Global across the compiled boundary, while separating test-only, generated, wire, and external ParkedSealed owners. Do not open B1 until both surfaces have observed owner/action/terminal-or-successor/reopen evidence."
 final_shape = "Callee::Global(CanonicalGlobalTargetV1) and CallTarget::Global(CanonicalGlobalTargetV1) are one atomic core decision. CanonicalGlobalTargetV1 remains serde-free and source-proof-free; its sole production construction authority is the exact declaration-backed callable catalog."
 finite_disposition = [
@@ -435,9 +435,10 @@ next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 
 [b1_c0_guard_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
-status = "fast_guard_only"
-implementation_permission = true
+status = "landed_readiness"
+implementation_permission = false
 prior_readiness_commit = "1948f7b76a"
+commit = "b8bc5cc105"
 decision = "Extend the existing single C0 readiness guard to a compact dual-surface coverage check. It derives Callee::Global and CallTarget::Global aggregates, assigns each occurrence to exactly one bounded selector bucket and shared disposition, and keeps C0 incomplete and B1 implementation closed."
 allowed_files = [
   "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
@@ -470,7 +471,7 @@ acceptance = [
   "readiness phase remains fail-closed with C0 incomplete and implementation permission false for B1 cutover",
   "guard-only changes keep all production source files untouched and below the existing size limits",
 ]
-result = "Dual readiness guard is being implemented as one extension of the existing C0 guard: it will derive 143 Callee::Global files/272 occurrences and 20 CallTarget::Global files/45 occurrences, validate compact selector/disposition coverage and B0/S0 dependencies, and keep C0 incomplete."
+result = "Dual readiness guard landed as one extension of the existing C0 guard: it derives 143 Callee::Global files/272 occurrences and 20 CallTarget::Global files/45 occurrences, validates compact selector/disposition coverage and B0/S0 dependencies, and keeps C0 incomplete."
 verification = "python3 tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py .; bash tools/checks/run_row_guard.sh --only mir-call-global-target-b1-c0-matrix; bash tools/checks/current_state_pointer_guard.sh"
 no_safe_slice = [
   "the guard needs to interpret target meaning or construct a Callee/CallTarget",
