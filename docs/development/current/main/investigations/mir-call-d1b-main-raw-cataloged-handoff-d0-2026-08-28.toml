@@ -779,18 +779,19 @@ owner_census = [
     "RawLegacyParkedCompatibility: RawLegacyChildLoweringPortV1 issuer at src/mir/builder/recursive_child_lowering/legacy_port.rs:56-62, production drivers at :148-170 and src/mir/builder/calls/lowering.rs:378-441; preserves the broad legacy facade and named Resolved terminal, with no common successor; reopens only through an owner-specific replacement.",
 ]
 owner_census_status = "4/4 named origins classified as ParkedSealed; no function-level or guard-level expansion; R2E remains docs-only until its lifecycle routing is explicit."
-pre_implementation_gate = "Before any new implementation row, close the I0 regression repair below: the current HEAD reproduces seven red direct-call observation tests, and type-check-only evidence is insufficient for a landed row."
+pre_implementation_gate = "I0 verifier regression repair is landed with filtered test evidence; before the next implementation row, keep the R2 lineage matrix and named compatibility owners explicit."
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
 execution_row = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
 observer_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
 parent_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
 observed_commit = "dc99360ecd"
 trigger_commit = "99bdfc856c"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "e382a00923"
 allowed_files = [
     "src/mir/resolved_semantics/direct_call_verifier.rs",
     "src/mir/resolved_semantics/tests.rs",
@@ -827,6 +828,22 @@ acceptance = [
 ]
 macro_compatibility_status = "Current HEAD normal_callable_transform filter is green (7/7). Keep the two CompatibilityLoss expectations unchanged unless a named failing test is reproduced on the same HEAD."
 row_exit_rule_amendment = "Prospective rule: any implementation row that touches test code must run a focused cargo test covering every touched test name/module, record the command and nonzero count in its card, and treat 0 tests or any failure as blocking. Filtered evidence is required even when cargo check passes; no second Cargo process may run concurrently."
+filtered_test_evidence = [
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed, 7477 filtered out.",
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed, 0 failed, 7480 filtered out.",
+]
+guards = [
+    "bash tools/checks/current_state_pointer_guard.sh: passed",
+    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: phase=observer_i0_verifier_corrective ok",
+    "bash -n tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: passed",
+    "git diff --check: passed",
+]
+compile_checks = [
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib: passed; existing warnings only.",
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib -q: passed; existing warnings only.",
+]
+known_limit = "Full cargo test/link was not rerun because the repository's large test binary previously exceeded available memory; focused tests and test-target type checks are green."
+closeout = "I0 verifier correction landed in e382a00923. ObserveOnly facts (target set empty, self-consistent observations) now pass verification; target-only and partial coverage still fail closed, indexed rows remain bidirectional, and no package/loan/dispatcher/Call/VM/Method authority changed."
 historical_allowed_files_audit = "The 99bdfc856c I0 commit changed 40 paths while its declared allowed_files patterns matched 21; 19 paths were outside the declaration. Record this as retrospective scope evidence; do not rewrite the landed history or treat the existing guard's name-only check as proof of git-diff closure."
 historical_undeclared_paths = [
     "src/mir/builder/calls/call_argument_descent.rs",
@@ -854,4 +871,4 @@ no_safe_slice = [
     "Return to design_stop if the verifier must distinguish ObserveOnly from indexed data without an explicit policy or canonicalizer boundary; do not infer mode from an empty target set in a new authority.",
     "Return to design_stop if the fix needs a package/loan/dispatcher/Call schema change, a second traversal, a new receipt, or a compatibility behavior drop.",
 ]
-next_row = "MIR-CALL-D1B-NAMED-COMPATIBILITY-FATE-CENSUS-R2E-D0"
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"

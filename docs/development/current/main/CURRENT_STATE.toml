@@ -1,10 +1,10 @@
 date = "2026-08-29"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0: repair the existing ObserveOnly verifier contract and its contradictory unit expectation; no package, loan, dispatcher, VM, Method, or Call-schema work is open."
-guard_followup = "Use the existing observer_i0 lifecycle guard for this corrective reopen. The row must record a nonzero filtered direct_call_observation test result; cargo check alone cannot close it."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+current_design_stop = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: the I0 verifier regression is repaired and green; the next bounded decision is how to retire or preserve the four named Resolved compatibility owners without reopening target/loan/dispatcher work."
+current_blocker_token = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: R2d fail-closed unclassified ordinary calls and R2E 4/4 named owner census are landed; named compatibility behavior remains ParkedSealed until a successor or explicit backend decision exists."
+guard_followup = "Reuse the existing D1 lifecycle/exact-target/brand guards. R2 design must keep the four named compatibility owners finite and must not reopen Method, VM/backend, or Call-schema work."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
-latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, and R2a/R2b/R2c/R2d provenance slices are landed; generic unclassified ordinary calls reject pre-effect. The scoped observer_i0 corrective row now owns the 7 reproduced ObserveOnly verifier failures; only the existing verifier/test contract may change. R2E compatibility owners, Method(None), VM/backend, and Call schema remain closed."
-next_design_card = "none"
-next_execution_card = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
+latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, R2a/R2b/R2c/R2d provenance slices, and the I0 ObserveOnly verifier correction are landed; direct_call_observation is 10/10 and normal_callable_transform is 7/7. Next is the finite R2 lineage retirement decision; Method(None), VM/backend, and Call schema remain closed."
+next_design_card = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-29: I0 verifier correction landed at e382a00923; ObserveOnly facts now pass, target-only/partial site coverage remains fail-closed, and filtered direct-call observation tests are 10/10.",
 	"2026-08-29: R2d landed at 80681a8cde; generic unclassified ordinary raw calls now fail closed before argument effects, while named compatibility Resolved/recovery remains for the next bounded row.",
 	"2026-08-29: R2c landed at 52615fa9a2; raw ScriptRoot, raw-root Main, and RawLegacy now carry explicit compatibility provenance, while generic unclassified Relationless -> Resolved remains an R2d blocker.",
-	"2026-08-29: R2b landed at b48a072098; semantic ScriptRoot with no callable target now has explicit compatibility provenance, while unclassified installed paths remain pre-effect rejected and the existing Resolved terminal has no generic fallthrough.",
 ]
