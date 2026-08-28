@@ -432,9 +432,9 @@ no_safe_slice = [
   "a public/generated/wire surface is treated as caller-zero without an owner and reopen trigger",
 ]
 next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
-closeout_guard_design = "Reuse this single guard with a c0_dual_closeout phase. Keep the existing dual aggregate/digest and selector buckets, normalize the shared disposition dictionary to a finite action/state vocabulary, require exactly one terminal_kind or successor_ref, and connect every evidence row to one disposition_ref. Do not add an AST scanner, per-occurrence card, new guard, or semantic target inference."
+closeout_guard_design = "Reuse this single guard with a c0_dual_closeout phase. Keep the existing dual aggregate/digest and selector buckets, normalize the shared disposition dictionary to a finite action/state vocabulary, require exactly one terminal_kind or successor_ref, and connect every evidence row to one disposition_ref. The 17 evidence rows are bounded to family/file anchors; they do not expand into function- or occurrence-level cards. Do not add an AST scanner, new guard, or semantic target inference."
 closeout_disposition_schema = "action ∈ {adapt, isolate, retire, retain}; state ∈ {CutoverBlockerOpen, CutoverBlockerClosed, ParkedSealed}; exactly one of terminal_kind/successor_ref is non-empty; non_authority and reopen are explicit; ParkedSealed requires a named owner and non-authority. Readiness may retain open blockers; closeout rejects any CutoverBlockerOpen row."
-closeout_transition = "After the existing compiled-family evidence is complete and the closeout phase passes, update the same card and CURRENT_STATE atomically to the B1 cutover row. A guard pass alone never grants B1."
+closeout_transition = "After the existing compiled-family evidence is complete and the closeout phase passes, update the same card and CURRENT_STATE atomically to the B1 cutover row. A guard pass alone never grants B1; all compiled dispositions currently remain CutoverBlockerOpen."
 
 [b1_c0_guard_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
@@ -477,7 +477,7 @@ acceptance = [
   "readiness phase remains fail-closed with C0 incomplete and implementation permission false for B1 cutover",
   "guard-only changes keep all production source files untouched and below the existing size limits",
 ]
-result = "Dual readiness guard and finite disposition schema landed as one extension of the existing C0 guard: it derives 143 Callee::Global files/272 occurrences and 20 CallTarget::Global files/45 occurrences, validates compact selector/disposition coverage, finite action/state fields, terminal-or-successor exclusivity, evidence linkage, and B0/S0 dependencies, and keeps C0 incomplete."
+result = "Dual readiness guard and finite disposition schema landed as one extension of the existing C0 guard: it derives 143 Callee::Global files/272 occurrences and 20 CallTarget::Global files/45 occurrences, validates compact selector/disposition coverage, finite action/state fields, terminal-or-successor exclusivity, 17 bounded family/file evidence links, and B0/S0 dependencies, and keeps C0 incomplete."
 verification = "python3 tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py .; bash tools/checks/run_row_guard.sh --only mir-call-global-target-b1-c0-matrix; bash tools/checks/current_state_pointer_guard.sh"
 no_safe_slice = [
   "the guard needs to interpret target meaning or construct a Callee/CallTarget",
