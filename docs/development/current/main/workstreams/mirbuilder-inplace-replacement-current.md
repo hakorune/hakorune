@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR Call B1 typed Global carrier cutover
+Status: Design stop — MIR Call D1B source-owner/lineage co-seal
 Date: 2026-08-28
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -48,13 +48,14 @@ Fail-fast boundary:
   retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-GLOBAL-TARGET-B1-CUTOVER` is open after C0 contract sealing at
-  `014ef36628`. Adapt `Callee::Global` and `CallTarget::Global` together to the
-  existing `CanonicalGlobalTargetV1` carrier, then prove typed consumer
-  propagation and remove only the switched String/formatter edges. D1B
-  issuer/package/loan/dispatcher, MirCall/CallFlags, Method(None), legacy
-  recovery, and VM/backend routes remain closed; a new `Callee::Global(String)`
-  issuer is forbidden.
+  `MIR-CALL-GLOBAL-TARGET-B1-CUTOVER` landed at `d044ab1b16`:
+  `Callee::Global` and `CallTarget::Global` now share the existing
+  `CanonicalGlobalTargetV1` carrier, with the reusable B1 guard green and no
+  new `Global(String)` issuer. The active design stop is
+  `MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1`: preserve exact
+  source owner/lineage and co-seal the inventory before opening issuer,
+  package, loan, or dispatcher implementation. MirCall/CallFlags, Method(None),
+  legacy recovery, and VM/backend routes remain closed.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
   owner now performs a structure-only explicit-base ratchet (20 direct targets,
   74 typed aliases, 94 mapped, 2,646 unmapped) without executing member guards.

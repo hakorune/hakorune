@@ -92,12 +92,19 @@ def main() -> int:
         fail("active card does not select the B1 cutover")
     if b1.get("status") not in {"fast_open", "landed", "closeout"}:
         fail(f"B1 cutover status is not closed: {b1.get('status')!r}")
-    if b1.get("status") == "fast_open" and b1.get("implementation_permission") is not True:
-        fail("fast B1 cutover does not have scoped implementation permission")
-    if state.get("work_mode") not in {"fast", "closeout"}:
-        fail("CURRENT_STATE must remain fast or closeout for B1")
-    if state.get("current_execution_row") != b1["task_id"]:
-        fail("CURRENT_STATE current_execution_row does not select B1")
+    state_mode = state.get("work_mode")
+    if b1.get("status") == "fast_open":
+        if b1.get("implementation_permission") is not True:
+            fail("fast B1 cutover does not have scoped implementation permission")
+        if state_mode not in {"fast", "closeout"}:
+            fail("open B1 cutover requires fast or closeout work mode")
+        if state.get("current_execution_row") != b1["task_id"]:
+            fail("CURRENT_STATE current_execution_row does not select open B1")
+    else:
+        if b1.get("implementation_permission") is not False:
+            fail("landed B1 cutover must close implementation permission")
+        if state_mode not in {"fast", "design_stop", "closeout"}:
+            fail("landed B1 evidence requires a supported work mode")
 
     rows = registry.get("rows")
     if not isinstance(rows, list):

@@ -247,16 +247,16 @@ def check_card_and_state(root: Path, manifest: dict[str, Any]) -> None:
         if state.get("next_execution_card") != b1["task_id"]:
             fail("CURRENT_STATE next_execution_card does not select B1 cutover")
     elif work_mode == "design_stop":
-        if c0.get("status") != "design_stop":
-            fail("design_stop state requires the C0 contract to remain open")
+        if c0.get("status") not in {"design_stop", "contract_sealed"}:
+            fail("design_stop state requires an open or sealed C0 contract")
         if guard_status != "landed_readiness":
             fail("design_stop state requires a landed guard-only child")
         if guard.get("implementation_permission") is not False:
             fail("landed guard-only child must close its implementation permission")
-        if state.get("current_execution_row") != c0.get("task_id"):
+        if c0.get("status") == "design_stop" and state.get("current_execution_row") != c0.get("task_id"):
             fail("CURRENT_STATE design stop must return to the C0 row")
         if state.get("next_execution_card") != "none":
-            fail("C0 design stop must not retain an execution card")
+            fail("design stop must not retain an execution card")
     else:
         fail("CURRENT_STATE work_mode must be fast or design_stop for this guard")
 
@@ -611,7 +611,7 @@ def main() -> int:
             )
         print(
             f"[{TAG}] contract-close phase: {surface_summary} / {evidence} "
-            "evidence rows; C0 successor contracts sealed, B1 executable proof remains pending"
+            "evidence rows; C0 contract evidence remains valid, executable B1 proof is checked by the B1 cutover guard"
         )
     else:
         print(

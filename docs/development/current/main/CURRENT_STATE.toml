@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
-current_design_stop = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
-current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER: C0 contracts are sealed; only the simultaneous typed Callee/CallTarget carrier cutover is open. D1B issuer/package/loan/dispatcher, CallFlags, Method(None), and legacy recovery remain closed."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_design_stop = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_blocker_token = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: B1 typed Global carrier landed at d044ab1b16; exact source-owner, session-brand, and RawInvocationRootLineage co-seal remains unresolved. Do not open issuer/package/loan/dispatcher or infer targets from name, arity, symbol, or String."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 latest_card = "mir-call-d1b-direct-call-source-inventory-coseal-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
-latest_card_summary = "D1B observer I0, B1 structural Global carrier S0, forest-wide direct-observation gate, and the reusable dual-surface C0 readiness guard are landed. C0 contract evidence is sealed; B1 typed Callee/CallTarget cutover is the only open implementation row, while D1B target/package/loan publication remains closed."
-next_design_card = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
-next_execution_card = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+latest_card_summary = "D1B observer I0, forest-wide direct-observation gate, C0 dual-surface contract evidence, and B1 typed Global carrier cutover are landed. The active design stop is exact source-owner/lineage co-seal; D1B issuer/package/loan/dispatcher, CallFlags, Method(None), and legacy recovery remain closed."
+next_design_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-28: B1 structural Global carrier S0 landed at 75c0a6c04e; nested serde-free shape and zero-production-caller guard are green, while D1B issuer/package/loan remains design-stopped.",
+  "2026-08-28: B1 typed Callee/CallTarget Global carrier cutover landed at d044ab1b16; raw Global(String) constructors are absent and compatibility projections remain named transitional edges.",
   "2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
-  "2026-08-28: C0 dual-surface contract sealed at 014ef36628 after the a54680b7c7 guard/manifest sequence; 143/272 Callee::Global plus 20/45 CallTarget::Global occurrences remain fixed, and B1 typed carrier cutover is now the selected fast row.",
+  "2026-08-28: C0 dual-surface contract sealed at 014ef36628 after the a54680b7c7 guard/manifest sequence; 143/272 Callee::Global plus 20/45 CallTarget::Global occurrences remain the reusable post-B1 evidence surface.",
 ]
