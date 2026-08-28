@@ -308,7 +308,7 @@ acceptance = [
   "canonical target publication remains zero until an exact source-site relation is proven",
   "if the canonical contract is not approved, typed reject occurs before argument/effect work and compatibility is named/parked rather than silently rerouted",
 ]
-next_row = "FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0 (existing language-contract migration row); D1B package/loan remains closed"
+next_row = "MIR-CALL-FREESTATIC-PRE-EFFECT-TARGET-HANDOFF-R0 (independent existing-profile implementation row); D1B package/loan remains closed"
 no_safe_slice = [
   "a caller can only be classified by name/arity or candidate uniqueness",
   "local Value, builtin, Extern, FreeStatic, and StaticBoxMethod meanings cannot be separated before effects",
@@ -734,4 +734,88 @@ no_safe_slice = [
   "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
   "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
 ]
-next_action = "Keep CURRENT_STATE in design_stop. First close MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0: decide the source namespace contract or seal canonical reject/compatibility park. Only an approved exact relation may open the later package-plus-loan/dispatcher row; no builder ingress or dispatcher edits now."
+next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census are now recorded; the next independently selectable code-facing row is MIR-CALL-FREESTATIC-PRE-EFFECT-TARGET-HANDOFF-R0, which uses the existing sealed FreeStatic profile only. Open that row only by changing CURRENT_STATE to fast with its bounded permission; after its closeout return to the D1B bare-call reject/compatibility park and exact-relation blocker."
+
+[b1_feature_recheck_2026_08_28]
+observed_commit = "d6c7deda3d"
+status = "structural_consumer_green"
+command = "CARGO_BUILD_JOBS=2 cargo check --profile quick --lib --features vm-reference"
+result = "passed"
+finding = "The older report's claimed vm-reference type mismatch is stale at this HEAD: backend/mir_interpreter/handlers/calls/global.rs consumes CanonicalGlobalTargetV1 through execute_global_target, and the feature-enabled library check succeeds."
+remaining = "The legacy execute_global_function(&str) entry and selected-symbol typed projection users remain compatibility/transitional edges (including Method(None)); they are not canonical B1 authority and remain later retirement work."
+non_claims = "This recheck does not close D1B source relation, package/loan, raw dispatcher, bare StaticBoxMethod fate, or Call schema."
+
+[freestatic_pre_effect_target_handoff_r0]
+task_id = "MIR-CALL-FREESTATIC-PRE-EFFECT-TARGET-HANDOFF-R0"
+status = "accepted_bounded_next_row"
+implementation_permission = false
+decision = "Use the existing resolver-backed FreeStatic profile as the next independent bounded implementation row. Read the already sealed direct-call target projection before lowering argument effects, preserve the existing postorder coverage claim after arguments, verify the same target, and emit the canonical Call once. This row does not create a new issuer or extend the blocked Cataloged StaticBoxMethod path."
+
+[freestatic_pre_effect_target_handoff_r0.brief]
+source_authority = "Existing VerifiedCallableIndexV1 -> ResolvedDirectCallTargetV1 -> VerifiedTrivialDirectCallV1/VerifiedTrivialDirectCallTargetV1 profile; the profile's target is already co-sealed from exact source site, owner, header, and arity."
+canonical_issuer = "Existing resolver/profile owners only. TrivialProfileConsumptionV1 may expose an owner-local exact-site target-read/accessor; it must not resolve names, consult Builder state, or issue a second target."
+non_authority = [
+  "normal_callable_semantic_package and RawInvocationChildPortV1",
+  "name/arity lookup, StaticMethodId, display_name, variable_map, static recovery, tail resolver, CalleeResolverBox, and any compatibility adapter",
+  "target Clone as a new semantic product; if the existing sealed projection cannot be borrowed or locally copied without changing authority, return to design_stop",
+]
+fail_fast = "Missing site, callable index/header, owner, arity, or target/profile mismatch rejects before the first argument lowering effect; an argument failure publishes no Call and performs no retry/fallback."
+smallest_next_slice = "In resolved_lowering/trivial_ssa only, add an exact-site accessor for the existing sealed target, read it before the argument loop, retain claim_direct_call in its existing postorder position, compare the claimed row target, then reuse direct_call::emit."
+non_claims = [
+  "No new Verified*/Prepared* semantic receipt, package/loan, lineage mapper, raw recursive lifetime, Cataloged issuer, or bare-call language change",
+  "No change to Resolved compatibility route, Method(None), Call.func/Option<Callee>, JSON, VM/backend selection, or broad VM retirement",
+]
+
+[freestatic_pre_effect_target_handoff_r0.boundary]
+starts = "resolved_value_profile TrivialProfileConsumptionV1 for an already sealed direct-call row"
+ends = "resolved_lowering/trivial_ssa lowerer performs TargetReady -> argument lowering once -> postorder claim -> target equality -> canonical MirInstruction::call -> existing profile finish"
+includes = [
+  "root and nested direct calls already represented in the existing trivial profile coverage order",
+  "exact FreeStatic target projection and existing conservative direct-call effect",
+  "focused profile, activation, sibling, and nested-call tests",
+]
+excludes = [
+  "normal package/Cataloged StaticBoxMethod, parser lexical classification, special namespaces, RawLegacy, BoundedGc, and relationless Resolved recovery",
+  "new target issuer, new target carrier, package+loan, raw port, and global Call schema",
+]
+
+[freestatic_pre_effect_target_handoff_r0.order]
+expected = [
+  "TargetReady(outer)",
+  "TargetReady(inner)",
+  "LowerArgument(inner)",
+  "ClaimDirectCall(inner)",
+  "EmitCall(inner)",
+  "ClaimDirectCall(outer)",
+  "EmitCall(outer)",
+]
+rule = "Target readiness is checked before argument descent; coverage claims remain postorder because the existing profile cursor owns nested traversal order. No target is reconstructed after effects."
+
+[freestatic_pre_effect_target_handoff_r0.acceptance]
+positive = [
+  "exact FreeStatic target is available before the first argument effect",
+  "each argument and nested call is lowered once, with existing coverage order preserved",
+  "claimed target equals the pre-effect target projection and MirInstruction::call is emitted once",
+  "profile finish remains residual-zero for single, sibling, and nested direct-call rows",
+]
+negative = [
+  "missing target/site/index/header/owner/arity rejects before argument descent",
+  "target/profile mismatch, duplicate/wrong-order coverage, and argument failure publish no Call",
+  "resolve_call_target, unique/tail recovery, name Const, CalleeResolverBox, fallback, and retry remain absent from this row",
+]
+structural = [
+  "touch only resolved_value_profile/consumption.rs and resolved_lowering/trivial_ssa/lowerer.rs plus existing focused tests/README evidence",
+  "reuse the existing canonical direct-call guard; add no one-off shell guard unless the order cannot be proven by the existing test/guard",
+  "all touched source files stay below 760 lines and none reaches 800",
+]
+
+[freestatic_pre_effect_target_handoff_r0.stop]
+conditions = [
+  "the existing profile target cannot be read before arguments without a new semantic receipt or second traversal",
+  "a target must be recreated from source name/arity/symbol or a compatibility resolver",
+  "nested coverage requires changing the profile owner rather than preserving its existing cursor",
+  "the implementation touches normal package/raw ports, Cataloged StaticBoxMethod, or Call schema",
+]
+
+[freestatic_pre_effect_target_handoff_r0.next]
+after_closeout = "Return to MIR-CALL-D1B-CATALOGED-BARE-CALL-FATE-D0: keep bare StaticBoxMethod reject/compatibility park until an exact source-site relation is either supplied by an approved language decision or permanently absent."
