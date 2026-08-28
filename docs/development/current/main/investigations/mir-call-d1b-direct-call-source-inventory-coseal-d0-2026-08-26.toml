@@ -432,14 +432,17 @@ no_safe_slice = [
   "a public/generated/wire surface is treated as caller-zero without an owner and reopen trigger",
 ]
 next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
+closeout_guard_design = "Reuse this single guard with a c0_dual_closeout phase. Keep the existing dual aggregate/digest and selector buckets, normalize the shared disposition dictionary to a finite action/state vocabulary, require exactly one terminal_kind or successor_ref, and connect every evidence row to one disposition_ref. Do not add an AST scanner, per-occurrence card, new guard, or semantic target inference."
+closeout_disposition_schema = "action ∈ {adapt, isolate, retire, retain}; state ∈ {CutoverBlockerOpen, CutoverBlockerClosed, ParkedSealed}; exactly one of terminal_kind/successor_ref is non-empty; non_authority and reopen are explicit; ParkedSealed requires a named owner and non-authority. Readiness may retain open blockers; closeout rejects any CutoverBlockerOpen row."
+closeout_transition = "After the existing compiled-family evidence is complete and the closeout phase passes, update the same card and CURRENT_STATE atomically to the B1 cutover row. A guard pass alone never grants B1."
 
 [b1_c0_guard_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
-status = "landed_readiness"
-implementation_permission = false
+status = "fast_guard_only"
+implementation_permission = true
 prior_readiness_commit = "1948f7b76a"
 commit = "b8bc5cc105"
-decision = "Extend the existing single C0 readiness guard to a compact dual-surface coverage check. It derives Callee::Global and CallTarget::Global aggregates, assigns each occurrence to exactly one bounded selector bucket and shared disposition, and keeps C0 incomplete and B1 implementation closed."
+decision = "Extend the existing single C0 guard with a finite disposition schema and a reserved c0_dual_closeout phase. Readiness remains the active phase for this guard-only cell; closeout will require terminal/successor exclusivity, explicit non-authority, evidence-to-disposition linkage, and zero open blockers without changing production source."
 allowed_files = [
   "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
   "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
@@ -456,6 +459,8 @@ forbidden_files = [
 ]
 guard_phase = "c0_dual_readiness"
 guard_contract = "Fail closed on an unlisted, overlapping, or ambiguous Callee::Global/CallTarget::Global occurrence, aggregate count/digest drift, malformed bucket/disposition tuple, missing B0/S0 registry dependency, or active-card boundary drift. Readiness output must keep C0 incomplete and B1 implementation permission closed."
+reserved_closeout_phase = "c0_dual_closeout"
+closeout_contract = "The same guard will accept c0_dual_closeout only when all disposition rows use the finite schema, each evidence row references one disposition, no compiled blocker remains open, every parked row names non-authority/reopen, and the dual inventory remains unchanged. Closeout still does not alter source or open B1 by itself."
 scope = "All tracked Rust files under src/ and crates/ for dual Global surface derivation; JSON-v0/v1, Python/llvmlite, apps/selfhost-runtime, and generated wire copies remain explicit out-of-boundary ParkedSealed surfaces recorded by the C0 card."
 non_claims = [
   "no Callee or CallTarget schema change",
