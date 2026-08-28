@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -72,9 +72,11 @@ if not phase:
         phase = "main_raw_lineage_witness_harden_r0"
     elif active_row == "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0":
         phase = "qualified_method_target_issuer_d0"
+    elif active_row == "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0":
+        phase = "qualified_method_target_issuer_i0"
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -95,7 +97,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0"}:
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0"}:
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -132,6 +134,8 @@ registration_key = (
     if phase == "main_raw_lineage_witness_harden_r0"
     else "qualified_method_target_issuer_d0"
     if phase == "qualified_method_target_issuer_d0"
+    else "qualified_method_target_issuer_i0"
+    if phase == "qualified_method_target_issuer_i0"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -216,6 +220,19 @@ elif phase == "qualified_method_target_issuer_d0":
         raise SystemExit("qualified MethodCall target D0 current row drifted")
     if current_state.get("work_mode") != "design_stop":
         raise SystemExit("qualified MethodCall target D0 requires design_stop")
+elif phase == "qualified_method_target_issuer_i0":
+    if registration.get("task_id") != "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0":
+        raise SystemExit("qualified MethodCall target I0 task id drifted")
+    if registration.get("guard_phase") != "qualified_method_target_issuer_i0":
+        raise SystemExit("qualified MethodCall target I0 guard phase drifted")
+    if registration.get("status") not in {"fast_open", "landed"}:
+        raise SystemExit("qualified MethodCall target I0 status drifted")
+    if registration.get("implementation_permission") is not (registration.get("status") == "fast_open"):
+        raise SystemExit("qualified MethodCall target I0 permission/status drifted")
+    if active_row != "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0":
+        raise SystemExit("qualified MethodCall target I0 current row drifted")
+    if current_state.get("work_mode") not in {"fast", "closeout"}:
+        raise SystemExit("qualified MethodCall target I0 requires fast or closeout")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
@@ -248,6 +265,9 @@ if phase == "qualified_method_target_issuer_d0":
         "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
         "docs/development/current/main/CURRENT_STATE.toml",
     }
+if phase == "qualified_method_target_issuer_i0":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":
     expected_files.update({
         "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
@@ -854,6 +874,57 @@ elif phase == "main_root_identity_coseal_i0":
     for path in (source_backed_path, catalog_path, tests_path):
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"Main identity co-seal owner reached the 760-line split boundary: {path}")
+
+elif phase == "qualified_method_target_issuer_i0":
+    owner_path = mir_root / "callable_result_representation/static_call_result_publication_owner.rs"
+    owner_tests_path = mir_root / "callable_result_representation/tests/static_call_result_publication_owner.rs"
+    collector_path = mir_root / "builder/module_draft_collector/static_result_publication_owner.rs"
+    lowering_path = mir_root / "builder/module_lowering_invocation.rs"
+    ingress_path = mir_root / "builder/static_result_publication_ingress.rs"
+    owner = owner_path.read_text()
+    owner_tests = owner_tests_path.read_text()
+    collector = collector_path.read_text()
+    lowering = lowering_path.read_text()
+    ingress = ingress_path.read_text()
+    required = (
+        "pub(crate) fn take_for_source(",
+        "StaticCallResultPublicationTakeV1::Selected",
+        "take_for_source(declarations, caller, site)",
+        "take_static_result_publication_handoff(declarations, &caller, &site)",
+        "issuer_keeps_exact_source_row_and_consumes_it_once",
+        "source_keyed_take_rejects_wrong_site_and_foreign_catalog",
+        "exact_source_target_without_an_i64_result_stays_unselected",
+    )
+    combined = "\n".join((owner, collector, lowering, ingress, owner_tests))
+    for token in required:
+        if token not in combined:
+            raise SystemExit(f"qualified MethodCall I0 is missing {token}")
+    take_error_start = owner.find("pub(crate) enum StaticCallResultPublicationOwnerTakeErrorV1")
+    take_error_end = owner.find("\n}\n\n#[derive", take_error_start)
+    if take_error_start < 0 or take_error_end < 0:
+        raise SystemExit("qualified MethodCall owner take-error boundary is missing")
+    if "TargetMismatch" in owner[take_error_start:take_error_end]:
+        raise SystemExit("qualified MethodCall owner still accepts consumer target mismatch")
+    for token in (
+        "declaration_for(",
+        "SameModuleCallableNamespaceV1",
+        "TargetUnavailable",
+    ):
+        if token in ingress:
+            raise SystemExit(f"qualified MethodCall ingress still reconstructs target: {token}")
+    for token in (
+        "target: &CanonicalSameModuleCallableKeyV1",
+        "target: &crate::mir::builder::CanonicalSameModuleCallableKeyV1",
+    ):
+        if token in collector or token in lowering:
+            raise SystemExit(f"qualified MethodCall handoff still accepts target: {token}")
+    if ".take(&declarations" in owner_tests:
+        raise SystemExit("qualified MethodCall tests still use target-taking owner API")
+    if "take_for_source(&declarations, &caller, &call_site())" not in owner_tests:
+        raise SystemExit("qualified MethodCall selected source-keyed test is missing")
+    for path in (owner_path, owner_tests_path, collector_path, lowering_path, ingress_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"qualified MethodCall I0 owner reached the 760-line split boundary: {path}")
 
 elif phase == "cataloged_i0":
     # This phase is intentionally future-facing.  Running it before the

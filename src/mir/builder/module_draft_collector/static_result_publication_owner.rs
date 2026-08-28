@@ -24,12 +24,11 @@ impl ModuleDraftCollectorV1 {
         declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
-        target: &CanonicalSameModuleCallableKeyV1,
     ) -> Result<StaticCallResultPublicationTakeV1, StaticCallResultPublicationOwnerTakeErrorV1>
     {
         let Some(owner) = self.static_result_publication_owner.as_mut() else {
             return Err(StaticCallResultPublicationOwnerTakeErrorV1::OwnerUnavailable);
         };
-        owner.take(declarations, caller, site, target)
+        owner.take_for_source(declarations, caller, site)
     }
 }

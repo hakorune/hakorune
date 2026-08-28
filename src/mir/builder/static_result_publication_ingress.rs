@@ -8,8 +8,7 @@
 use std::fmt;
 
 use crate::mir::builder::callable_declaration_catalog::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1,
+    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawSourceTransportPortV1,
@@ -46,7 +45,6 @@ pub(in crate::mir::builder) enum StaticResultPublicationIngressErrorV1 {
     ForeignLineage,
     OwnerUnavailable,
     DeclarationCatalogUnavailable,
-    TargetUnavailable,
     HandoffTake(StaticCallResultPublicationOwnerTakeErrorV1),
 }
 
@@ -81,12 +79,6 @@ impl fmt::Display for StaticResultPublicationIngressErrorV1 {
                 formatter,
                 "[freeze:contract][static-result-ingress/declaration-catalog-unavailable]"
             ),
-            Self::TargetUnavailable => {
-                write!(
-                    formatter,
-                    "[freeze:contract][static-result-ingress/target-unavailable]"
-                )
-            }
             Self::HandoffTake(error) => {
                 write!(
                     formatter,
@@ -159,27 +151,18 @@ fn take_cataloged_publication_v1(
     port: &mut RawInvocationChildPortV1<'_, '_>,
     source: StaticResultPublicationSourceClassV1,
     declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,
-    owner: &str,
-    method: &str,
-    argument_count: usize,
+    _owner: &str,
+    _method: &str,
+    _argument_count: usize,
 ) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
     let StaticResultPublicationSourceClassV1::Cataloged { caller, site } = source else {
         return Ok(StaticResultPublicationIngressV1::Unavailable);
     };
     let declarations =
         declarations.ok_or(StaticResultPublicationIngressErrorV1::DeclarationCatalogUnavailable)?;
-    let target = declarations
-        .declaration_for(
-            SameModuleCallableNamespaceV1::StaticBoxMethod,
-            owner,
-            method,
-            argument_count,
-        )
-        .map(|declaration| declaration.key().clone())
-        .ok_or(StaticResultPublicationIngressErrorV1::TargetUnavailable)?;
     let decision = port
         .module_port
-        .take_static_result_publication_handoff(declarations, &caller, &site, &target)
+        .take_static_result_publication_handoff(declarations, &caller, &site)
         .map_err(|error| match error {
             StaticCallResultPublicationOwnerTakeErrorV1::OwnerUnavailable => {
                 StaticResultPublicationIngressErrorV1::OwnerUnavailable

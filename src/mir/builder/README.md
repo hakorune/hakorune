@@ -997,8 +997,10 @@ error. A Cataloged `expected_lineage` demoted to `UnlocatedCompatibility` is
 therefore never treated as ordinary `None`.
 
 The `StaticReceiver` route head and lowered static `me` route invoke this
-ingress before receiver/argument effects. A selected row reuses the existing
-ordered argument driver, generic Call receipt emitter, and
+ingress before receiver/argument effects. For the qualified Cataloged path,
+the ingress selects the existing handoff by `(caller, SourceExprSiteV1)`;
+owner/method/arity strings are route metadata only. A selected row reuses the
+existing ordered argument driver, generic Call receipt emitter, and
 `PreparedStaticCallResultPublicationV1`; no second target resolver, Call
 emitter, publication owner, AST matcher, or late terminal hook exists. Only
 the exact no-row `Absent` state may continue through the ordinary terminal.

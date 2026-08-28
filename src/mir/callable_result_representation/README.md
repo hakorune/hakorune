@@ -57,8 +57,9 @@ receipt, and commits either `MirType::Integer` or the exact
 `MirType::Box(class)` through the sole source-bound publisher. Its receipt
 emitter suppresses the legacy signature annotation, so the two result
 authorities cannot double-write the destination. Selected
-missing/consumed/foreign/target-mismatch rows freeze; only genuinely
-unselected source calls retain the ordinary terminal.
+missing/consumed/foreign source-keyed rows freeze; only genuinely unselected
+source calls retain the ordinary terminal. The raw consumer supplies the
+sealed caller/site key, never a target reconstructed from route strings.
 
 This production connection does not add result inference, name lookup,
 GenericLoop defaults, local-copy policy, Completion meaning, retry, fallback,

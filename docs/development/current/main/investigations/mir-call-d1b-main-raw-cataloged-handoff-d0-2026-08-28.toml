@@ -348,3 +348,41 @@ no_safe_slice = [
   "take-once, failure abort, or residual-zero cannot be represented without Clone/Rc/RefCell/unsafe/a third lifetime/package bypass",
 ]
 next_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0: after this D0 is selected in CURRENT_STATE, connect the existing exact handoff at ingress and delete only the qualified static string-rebuild edge; implementation permission remains separately scoped."
+
+[qualified_method_target_issuer_i0]
+task_id = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0"
+status = "fast_open"
+observed_at = "2026-08-28"
+implementation_permission = true
+guard_phase = "qualified_method_target_issuer_i0"
+parent_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0"
+decision = "Switch only the existing qualified StaticBoxMethod ingress from Builder-side declaration_for(owner, method, arity) reconstruction to a source-keyed take from VerifiedStaticCallResultPublicationOwnerV1. The source owner has already issued the typed handoff; this row changes its consumer, not its meaning."
+source_authority = "VerifiedSourceMethodCallSiteV1 and VerifiedQualifiedCallRouteFactsV1 already establish the exact Cataloged caller/site relation; VerifiedStaticCallResultPublicationOwnerV1 remains the sole typed target/result issuer."
+canonical_consumer = "static_result_publication_ingress -> ModuleLoweringPortV1 -> ModuleDraftCollectorV1 -> VerifiedStaticCallResultPublicationOwnerV1::take_for_source; the existing physical bridge consumes the returned handoff before receiver/argument descent."
+non_authority = [
+  "owner/method/arity strings, resolve_static_receiver_box_name, plan_member_call_route, declaration_for in the Builder consumer, StaticMethodId parsing, CalleeResolverBox, and any target reconstruction",
+  "bare FunctionCall, Main package/loan/dispatcher, dynamic/instance/me/EnvMethod routes, Method(None), Call schema, JSON, VM/backend, fallback, retry, and unrelated compatibility paths",
+]
+boundary = "Existing qualified Cataloged MethodCall source context -> exact source-keyed publication owner handoff -> existing static physical bridge; only the ingress lookup edge is replaced."
+allowed_files = [
+  "src/mir/callable_result_representation/static_call_result_publication_owner.rs",
+  "src/mir/callable_result_representation/tests/static_call_result_publication_owner.rs",
+  "src/mir/callable_result_representation/README.md",
+  "src/mir/builder/module_draft_collector/static_result_publication_owner.rs",
+  "src/mir/builder/module_lowering_invocation.rs",
+  "src/mir/builder/static_result_publication_ingress.rs",
+  "src/mir/builder/README.md",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden = "No new receipt, package/loan, RawInvocationChildPort field/lifetime, second AST scan, target/argument re-evaluation, resolver/recovery, direct Call writer, or changes to bare/Main/instance/dynamic/compatibility routes."
+acceptance = [
+  "The existing owner exposes one crate-private source-keyed take and no longer requires a consumer-supplied target.",
+  "Collector and module lowering port forward caller/site only; static_result_publication_ingress contains no declaration_for, StaticBoxMethod namespace lookup, or TargetUnavailable reconstruction edge.",
+  "Selected qualified handoff consumption still precedes receiver/argument descent, the existing bridge emits exactly once, absent/unavailable/foreign/consumed rows remain distinct, and no retry/re-entry is added.",
+  "Focused owner tests cover selected, absent, wrong-site, foreign-brand, and second-take outcomes; existing D1 lifecycle and line-count guards remain green.",
+]
+closeout = "After focused tests, rustfmt/diff checks, and the reusable lifecycle guard pass, mark this row landed and return to the D1 design stop. Do not claim bare FunctionCall/Main issuer, package+loan, or Call schema completion."
+next_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-R1: only if the source-keyed qualified consumer is landed with zero old ingress reconstruction callers; otherwise return the residual to design_stop."

@@ -45,12 +45,6 @@ pub(crate) enum StaticCallResultPublicationOwnerErrorV1 {
 pub(crate) enum StaticCallResultPublicationOwnerTakeErrorV1 {
     OwnerUnavailable,
     CatalogBrandMismatch,
-    TargetMismatch {
-        caller: CanonicalSameModuleCallableKeyV1,
-        site: SourceExprSiteV1,
-        expected: CanonicalSameModuleCallableKeyV1,
-        actual: CanonicalSameModuleCallableKeyV1,
-    },
     SelectedRowAlreadyConsumed {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceExprSiteV1,
@@ -67,8 +61,8 @@ pub(crate) enum StaticCallResultPublicationTakeV1 {
 /// One candidate-local owner for all currently provable exact static rows.
 ///
 /// Rows are keyed by the source identity that was sealed before lowering.  A
-/// consumer must provide the already-resolved canonical target; this owner
-/// never selects by source text or method name.
+/// consumer selects only by that exact source key; this owner never selects
+/// by source text or method name.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedStaticCallResultPublicationOwnerV1 {
     catalog_identity: usize,
@@ -178,12 +172,11 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         self.rows.len()
     }
 
-    pub(crate) fn take(
+    pub(crate) fn take_for_source(
         &mut self,
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
-        target: &CanonicalSameModuleCallableKeyV1,
     ) -> Result<StaticCallResultPublicationTakeV1, StaticCallResultPublicationOwnerTakeErrorV1>
     {
         if self.catalog_identity != declarations as *const _ as usize {
@@ -193,21 +186,12 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         let Some(expected) = self.selected_targets.get(&key) else {
             return Ok(StaticCallResultPublicationTakeV1::Unselected);
         };
-        if expected != target {
-            return Err(
-                StaticCallResultPublicationOwnerTakeErrorV1::TargetMismatch {
-                    caller: caller.clone(),
-                    site: site.clone(),
-                    expected: expected.clone(),
-                    actual: target.clone(),
-                },
-            );
-        }
+        let expected = expected.clone();
         let handoff = self.rows.remove(&key).ok_or_else(|| {
             StaticCallResultPublicationOwnerTakeErrorV1::SelectedRowAlreadyConsumed {
                 caller: caller.clone(),
                 site: site.clone(),
-                target: target.clone(),
+                target: expected,
             }
         })?;
         Ok(StaticCallResultPublicationTakeV1::Selected(handoff))

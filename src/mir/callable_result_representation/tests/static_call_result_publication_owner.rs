@@ -60,19 +60,8 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
 
     let caller = key(&declarations, "StringHelpers", "int_to_str", 1);
     let target = key(&declarations, "StringHelpers", "to_i64", 1);
-    assert_eq!(
-        owner.take(&declarations, &caller, &call_site(), &caller),
-        Err(
-            StaticCallResultPublicationOwnerTakeErrorV1::TargetMismatch {
-                caller: caller.clone(),
-                site: call_site(),
-                expected: target.clone(),
-                actual: caller.clone(),
-            }
-        )
-    );
     let decision = owner
-        .take(&declarations, &caller, &call_site(), &target)
+        .take_for_source(&declarations, &caller, &call_site())
         .expect("branded take must verify");
     let StaticCallResultPublicationTakeV1::Selected(handoff) = decision else {
         panic!("exact row must be selected")
@@ -80,7 +69,7 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
     assert_eq!(handoff.caller(), &caller);
     assert_eq!(handoff.target(), &target);
     assert_eq!(
-        owner.take(&declarations, &caller, &call_site(), &target),
+        owner.take_for_source(&declarations, &caller, &call_site()),
         Err(
             StaticCallResultPublicationOwnerTakeErrorV1::SelectedRowAlreadyConsumed {
                 caller,
@@ -89,6 +78,47 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
             }
         )
     );
+}
+
+#[test]
+fn source_keyed_take_rejects_wrong_site_and_foreign_catalog() {
+    let declarations = declarations(SOURCE);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "StringHelpers",
+            caller_name: "int_to_str",
+            caller_arity: 1,
+            site: call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("source-bound owner must issue exact rows");
+    let caller = key(&declarations, "StringHelpers", "int_to_str", 1);
+
+    assert_eq!(
+        owner
+            .take_for_source(&declarations, &caller, &digit_call_site())
+            .expect("wrong-site lookup remains well-formed"),
+        StaticCallResultPublicationTakeV1::Unselected
+    );
+
+    let foreign_declarations = super::support::declarations(SOURCE);
+    assert_eq!(
+        owner.take_for_source(&foreign_declarations, &caller, &call_site()),
+        Err(StaticCallResultPublicationOwnerTakeErrorV1::CatalogBrandMismatch)
+    );
+
+    assert!(matches!(
+        owner
+            .take_for_source(&declarations, &caller, &call_site())
+            .expect("original branded row must remain available"),
+        StaticCallResultPublicationTakeV1::Selected(_)
+    ));
 }
 
 #[test]
@@ -129,7 +159,7 @@ fn issuer_projects_actual_string_helpers_general_row_into_the_same_owner() {
         VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
             .expect("general and bounded rows must share one owner");
     let decision = owner
-        .take(&declarations, &caller, &call_site(), &target)
+        .take_for_source(&declarations, &caller, &call_site())
         .expect("general row take must verify");
     let StaticCallResultPublicationTakeV1::Selected(handoff) = decision else {
         panic!("general exact row must be selected")
@@ -162,13 +192,12 @@ fn exact_nominal_box_row_reaches_the_owned_publication_handoff() {
     );
     let results = seal_with_targets(&declarations, &targets);
     let caller = key(&declarations, "ProductFactoryV1", "forward", 0);
-    let target = key(&declarations, "ProductFactoryV1", "make", 0);
     let mut owner =
         VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
             .expect("exact Box row must issue through the existing owner");
 
     let StaticCallResultPublicationTakeV1::Selected(handoff) = owner
-        .take(&declarations, &caller, &return_call_site(), &target)
+        .take_for_source(&declarations, &caller, &return_call_site())
         .expect("exact Box row must select")
     else {
         panic!("exact Box row must not become unselected")
@@ -208,7 +237,6 @@ fn exact_source_target_without_an_i64_result_stays_unselected() {
     );
     let results = seal_with_targets(&declarations, &targets);
     let caller = key(&declarations, "TextOwner", "caller", 0);
-    let target = key(&declarations, "TextOwner", "text", 0);
     let call_site = site(vec![
         SourcePathSegmentV1::Body(0),
         SourcePathSegmentV1::Value,
@@ -219,7 +247,7 @@ fn exact_source_target_without_an_i64_result_stays_unselected() {
 
     assert_eq!(
         owner
-            .take(&declarations, &caller, &call_site, &target)
+            .take_for_source(&declarations, &caller, &call_site)
             .expect("unselected lookup remains well-formed"),
         StaticCallResultPublicationTakeV1::Unselected
     );
