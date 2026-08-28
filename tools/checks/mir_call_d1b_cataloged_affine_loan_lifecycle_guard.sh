@@ -129,9 +129,13 @@ elif phase == "cataloged_source_coseal_validation":
 elif phase == "main_observation_gate_corrective_r0":
     if registration.get("task_id") != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
         raise SystemExit("Main observation corrective task id drifted")
-    if registration.get("status") not in {"ready_for_fast", "fast_open", "landed"}:
+    registration_status = registration.get("status")
+    if registration_status not in {"ready_for_fast", "fast_open", "landed"}:
         raise SystemExit("Main observation corrective status drifted")
-    if registration.get("implementation_permission") is not True:
+    if registration_status == "landed":
+        if registration.get("implementation_permission") is not False:
+            raise SystemExit("landed Main observation corrective permission must be closed")
+    elif registration.get("implementation_permission") is not True:
         raise SystemExit("Main observation corrective permission is not scoped open")
 elif phase == "main_root_owner_forest_validation_r0":
     if registration.get("task_id") != "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0":
@@ -277,17 +281,25 @@ elif phase == "cataloged_source_coseal_validation":
     elif d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened during guard-only row")
 elif phase == "main_observation_gate_corrective_r0":
-    if current_state.get("work_mode") not in {"fast", "closeout"}:
-        raise SystemExit("Main observation corrective requires fast or closeout work mode")
-    if active_row != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
-        raise SystemExit("Main observation corrective current row drifted")
     next_row = d1_card.get("next_bounded_row")
     if not isinstance(next_row, dict) or next_row.get("task_id") != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
         raise SystemExit("Main observation corrective next row drifted")
-    if next_row.get("status") not in {"ready_for_fast", "fast_open", "landed"}:
-        raise SystemExit("Main observation corrective next-row status drifted")
-    if next_row.get("implementation_permission") is not True:
-        raise SystemExit("Main observation corrective next-row permission is closed")
+    if registration_status == "landed":
+        if current_state.get("work_mode") not in {"fast", "closeout", "design_stop"}:
+            raise SystemExit("landed Main observation corrective has an invalid work mode")
+        if next_row.get("status") != "landed":
+            raise SystemExit("landed Main observation corrective next-row status drifted")
+        if next_row.get("implementation_permission") is not False:
+            raise SystemExit("landed Main observation corrective next-row permission must be closed")
+    else:
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("Main observation corrective requires fast or closeout work mode")
+        if active_row != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
+            raise SystemExit("Main observation corrective current row drifted")
+        if next_row.get("status") not in {"ready_for_fast", "fast_open", "landed"}:
+            raise SystemExit("Main observation corrective next-row status drifted")
+        if next_row.get("implementation_permission") is not True:
+            raise SystemExit("Main observation corrective next-row permission is closed")
     if d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 broad semantic implementation permission opened")
 elif phase == "main_root_owner_forest_validation_r0":

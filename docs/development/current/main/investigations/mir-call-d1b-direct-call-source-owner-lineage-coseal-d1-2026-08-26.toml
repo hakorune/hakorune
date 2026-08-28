@@ -112,8 +112,8 @@ remaining_blockers = [
 reopen_boundary = "Do not open production target publication until the Cataloged-only owner/site/lineage validation contract is accepted and one later atomic row closes the source co-seal and scoped loan blockers without name/arity/symbol inference, a second resolver, or a public semantic receipt."
 [next_bounded_row]
 task_id = "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 scope = "Main package pre-install observation gate only. Reuse the existing forest-wide direct-call observation helper inside the dedicated Main owner/forest validator; preserve no-call Main success and reject root, nested, or mixed observations before parameter contracts/install."
 source_authority = "ResolvedCallableSemanticBatchV1 forest owners and their existing direct-call observations; forest_has_unissued_direct_call_observation_v1 is the sole all-owner predicate, and UnissuedDirectCallObservation remains the existing typed batch terminal."
 canonical_issuer = "The existing validate_app_main_root_owner_relation_v1 validator, called once before parameter contracts/install, invokes the existing forest-wide helper and returns the existing UnissuedDirectCallObservation issue. No new issue variant or receipt is issued."
@@ -146,10 +146,11 @@ no_safe_slice = [
   "a target, Callee, RawDirectCallDispositionLoan, Call, effect, package+loan bypass, fallback, or retry is introduced",
 ]
 following_atomic_row = "After this corrective row closes, return to MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: identify an existing Main raw-scope caller/session relation before any target, package+loan, or dispatcher implementation."
+closeout = "Landed in 012099e01b: existing forest-wide observation gate now rejects Main root/nested/mixed direct-call observations before parameter contracts/install; focused app_main filter is 4 passed and the lifecycle/pointer guards are green."
 
 [latest_worker_recheck]
-observed_commit = "9c6ec641c1"
-verdict = "Main owner/forest validation R0 is landed before parameter contracts/install. The limited current-head audit found no production Main raw-scope callback supplying exact RawInvocationRootLineage equality: normal_default_root_catalog_lifecycle.rs:169-220/428-470/542-582/644-658 reaches program_root_lowering.rs:186-227/258-278, where normal Main uses ScriptRoot or an unavailable script scope; RawInvocationRootLineageV1::Cataloged(main_key) is constructed only for selected children, while Main(locator) is compatibility-only. Package/loan and dispatcher remain NoSafeSlice, with target publication closed."
+observed_commit = "012099e01b"
+verdict = "Main observation corrective R0 is landed before parameter contracts/install. The existing forest-wide helper now covers root, nested, and mixed owners; the focused package tests pass 4/4. No production Main raw-scope callback supplies exact RawInvocationRootLineage equality: normal_default_root_catalog_lifecycle.rs:169-220/428-470/542-582/644-658 reaches program_root_lowering.rs:186-227/258-278, where normal Main uses ScriptRoot or an unavailable script scope; RawInvocationRootLineageV1::Cataloged(main_key) is constructed only for selected children, while Main(locator) is compatibility-only. Package/loan and dispatcher remain NoSafeSlice, with target publication closed."
 session_witness = "ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() remain distinct and have no existing shared comparison witness; do not invent a public session id or helper without a production caller."
 batch_reject = "Keep the default callable-semantic batch issuer's UnissuedDirectCallObservation rejection. A package-only observe policy may validate Cataloged owner/site and expected provenance, then fail closed with the existing pre-install error; do not globally remove the batch gate."
 permission_blockers = [
