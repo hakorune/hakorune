@@ -771,22 +771,13 @@ known_limit = "Full cargo test/link was not rerun because the repository's large
 closeout = "R2b is complete as a bounded provenance slice. The pointer returns to design_stop at the existing all-lineage row; no target issuer, loan transport, dispatcher, Resolved deletion, Method/VM, or Call-schema change is opened."
 
 [r2c_compatibility_provenance_d0_2026_08_29]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0"
 execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
-implementation_permission = true
+implementation_permission = false
 guard_phase = "resolved_compatibility_provenance_r2c"
-allowed_files = [
-    "src/mir/builder/calls/function_call_brand_source_demand.rs",
-    "src/mir/builder/calls/function_call_preflight_route.rs",
-    "src/mir/builder/calls/function_call_preflight_route_tests.rs",
-    "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
-    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
-    "tools/checks/guard_rows.toml",
-    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
-    "docs/development/current/main/CURRENT_STATE.toml",
-]
+allowed_files = ["src/mir/builder/calls/function_call_brand_source_demand.rs", "src/mir/builder/calls/function_call_preflight_route.rs", "src/mir/builder/calls/function_call_preflight_route_tests.rs", "src/mir/builder/calls/function_call_script_compatibility_tests.rs", "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"]
 decision = "Name only the remaining raw compatibility provenance at the existing FunctionCall authority boundary. Ledger-less raw ScriptRoot is one compatibility owner for Program/raw-AppMain ordinary calls; Main(locator) and RawLegacy get type-backed owners. All three preserve the existing Resolved terminal and issue no target."
 source_authority = "NormalCallableSemanticPackageMode::Compatibility issues the raw ScriptRoot scope; RawInvocationRootLineageV1::Main identifies raw-root Main; RawLegacyChildLoweringPortV1 is the direct RawLegacy issuer. Existing semantic ScriptRoot provenance remains separate."
 non_authority = "ledger absence alone, ScriptRoot spelling alone, NestedBoxMethod parent loss, name/arity, symbol parsing, variable_map, static/header scans, environment flags, and any compatibility terminal schedule."
@@ -796,6 +787,9 @@ variants = "ScriptRootParkedCompatibility = semantic ledger + ScriptRoot (R2b); 
 required_changes = "Add the three private provenance variants, classify semantic ScriptRoot before the ledger early return, require both ledgers absent for raw ScriptRoot/Main, add focused provenance negatives, and reuse the existing lifecycle guard with one R2c phase."
 acceptance = "Only the named raw compatibility sources receive the labels; semantic ScriptRoot, Cataloged, TopLevel, Constructor, Nested, and missing/foreign contexts are not misclassified. Existing brand/special/R2a behavior is unchanged; no target/Callee/loan, resolver rerun, or global Resolved-zero claim is introduced."
 no_safe_slice = "Stop if raw provenance needs an ambient flag/recursive carrier, Main/RawLegacy needs name/arity inference or a new semantic receipt, or the row reaches nested inheritance, target/loan/dispatcher, late resolver deletion, Method/VM, or Call schema."
-worker_inventory = "consumed"
-worker_inventory_scope = "read_only_current_fixtures_cards_ledgers"
-next_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0"
+worker_inventory = "consumed (read-only current fixtures/cards/ledgers)"
+implementation_commit = "52615fa9a2"
+focused_checks = "cargo check --profile quick --lib; cargo check --profile quick --tests --lib; raw compatibility focused tests; R2c lifecycle guard; current-state pointer guard; git diff --check"
+known_limit = "Full cargo test/link remains unrun because the large test binary exceeds the available memory budget."
+closeout = "R2c landed as a provenance-only BoxShape: raw ScriptRoot, raw-root Main, and RawLegacy now have explicit compatibility owners; no target/loan/dispatcher/Resolved or recovery deletion was opened."
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
