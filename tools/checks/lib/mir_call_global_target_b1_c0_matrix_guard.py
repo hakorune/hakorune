@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Readiness guard for the finite B1 Global-target disposition matrix.
+"""Readiness/closeout guard for the finite B1 Global-target disposition matrix.
 
 This guard deliberately checks topology and documentation, not call meaning.
 It is the single C0 readiness surface: source paths are derived from the
@@ -20,6 +20,13 @@ from typing import Any
 
 TAG = "mir-call-global-target-b1-c0-matrix"
 DUAL_SURFACE_TOKENS = ("Callee::Global", "CallTarget::Global")
+ALLOWED_PHASES = {"c0_dual_readiness", "c0_dual_closeout"}
+ALLOWED_DISPOSITION_ACTIONS = {"adapt", "isolate", "retire", "retain"}
+ALLOWED_DISPOSITION_STATES = {
+    "CutoverBlockerOpen",
+    "CutoverBlockerClosed",
+    "ParkedSealed",
+}
 REQUIRED_REGISTRY_ROWS = {
     "mir-call-global-target-b0-machine-census",
     "mir-call-global-target-b1-static-method-s0",
@@ -28,6 +35,7 @@ REQUIRED_EVIDENCE_FIELDS = {
     "id",
     "path",
     "anchor",
+    "disposition_ref",
     "owner",
     "action",
     "terminal",
@@ -54,9 +62,9 @@ REQUIRED_DISPOSITION_FIELDS = {
     "id",
     "owner",
     "action",
-    "terminal",
-    "successor",
+    "state",
     "reopen",
+    "non_authority",
 }
 
 BUCKET_SELECTORS = {
@@ -240,7 +248,9 @@ def check_card_and_state(root: Path, manifest: dict[str, Any]) -> None:
         fail("CURRENT_STATE work_mode must be fast or design_stop for this guard")
 
 
-def check_dual_surface(root: Path, manifest: dict[str, Any]) -> tuple[int, int, int]:
+def check_dual_surface(
+    root: Path, manifest: dict[str, Any]
+) -> tuple[int, int, int, dict[str, dict[str, Any]]]:
     raw_aggregates = manifest.get("token_aggregates")
     if not isinstance(raw_aggregates, list) or not raw_aggregates:
         fail("token_aggregates must be a non-empty array")
@@ -341,8 +351,27 @@ def check_dual_surface(root: Path, manifest: dict[str, Any]) -> tuple[int, int, 
         row_id = nonempty(raw.get("id"), f"dispositions[{index}].id")
         if row_id in dispositions:
             fail(f"duplicate disposition: {row_id}")
-        for field in ("owner", "action", "terminal", "successor", "reopen"):
+        action = nonempty(raw.get("action"), f"dispositions[{index}].action")
+        if action not in ALLOWED_DISPOSITION_ACTIONS:
+            fail(f"dispositions[{index}].action is not closed: {action}")
+        state = nonempty(raw.get("state"), f"dispositions[{index}].state")
+        if state not in ALLOWED_DISPOSITION_STATES:
+            fail(f"dispositions[{index}].state is not closed: {state}")
+        for field in ("owner", "reopen", "non_authority"):
             nonempty(raw.get(field), f"dispositions[{index}].{field}")
+        terminal_kind = raw.get("terminal_kind")
+        successor_ref = raw.get("successor_ref")
+        terminal_present = isinstance(terminal_kind, str) and bool(terminal_kind.strip())
+        successor_present = isinstance(successor_ref, str) and bool(successor_ref.strip())
+        if terminal_present == successor_present:
+            fail(
+                f"dispositions[{index}] must provide exactly one non-empty "
+                "terminal_kind or successor_ref"
+            )
+        if state == "ParkedSealed" and not terminal_present:
+            fail(f"dispositions[{index}] ParkedSealed requires terminal_kind")
+        if state == "CutoverBlockerClosed" and not terminal_present:
+            fail(f"dispositions[{index}] closed blocker requires terminal_kind")
         dispositions[row_id] = raw
     for bucket_id, raw in buckets.items():
         ref = raw["disposition_ref"]
@@ -384,10 +413,12 @@ def check_dual_surface(root: Path, manifest: dict[str, Any]) -> tuple[int, int, 
                 f"coverage bucket {bucket_id} expected {expected_occurrences} occurrences, observed {occurrences}"
             )
 
-    return len(aggregates), total_sites, len(buckets)
+    return len(aggregates), total_sites, len(buckets), dispositions
 
 
-def check_evidence_rows(root: Path, manifest: dict[str, Any]) -> int:
+def check_evidence_rows(
+    root: Path, manifest: dict[str, Any], dispositions: dict[str, dict[str, Any]]
+) -> int:
     raw_rows = manifest.get("evidence_rows")
     if not isinstance(raw_rows, list) or not raw_rows:
         fail("evidence_rows must be a non-empty array")
@@ -402,6 +433,14 @@ def check_evidence_rows(root: Path, manifest: dict[str, Any]) -> int:
         if row_id in seen:
             fail(f"duplicate evidence id: {row_id}")
         seen.add(row_id)
+        disposition_ref = nonempty(
+            raw.get("disposition_ref"), f"evidence_rows[{index}].disposition_ref"
+        )
+        if disposition_ref not in dispositions:
+            fail(
+                f"evidence_rows[{index}] references unknown disposition: "
+                f"{disposition_ref}"
+            )
         relative = Path(nonempty(raw.get("path"), f"evidence_rows[{index}].path"))
         if relative.is_absolute() or ".." in relative.parts:
             fail(f"evidence_rows[{index}] path escapes repository: {relative}")
@@ -433,25 +472,40 @@ def main() -> int:
     if schema_version != 1:
         fail("manifest schema_version must be 1")
     phase = manifest.get("phase")
-    if phase != "c0_dual_readiness":
-        fail("manifest phase must remain c0_dual_readiness")
+    if phase not in ALLOWED_PHASES:
+        fail(f"manifest phase is not closed: {phase}")
     source_roots = manifest.get("source_roots")
     if source_roots != ["src", "crates"]:
         fail("source_roots must remain [src, crates]")
 
     check_card_and_state(root, manifest)
     check_registry_dependencies(root, set(manifest.get("required_registry_rows", [])))
-    aggregates, occurrences, buckets = check_dual_surface(root, manifest)
+    aggregates, occurrences, buckets, dispositions = check_dual_surface(root, manifest)
     surface_summary = (
         f"{aggregates} dual token aggregates / {occurrences} Global occurrences / "
         f"{buckets} coverage buckets"
     )
-    evidence = check_evidence_rows(root, manifest)
-    print(
-        f"[{TAG}] readiness phase: {surface_summary} / {evidence} "
-        "additional evidence rows; "
-        "C0 remains design-stopped"
-    )
+    evidence = check_evidence_rows(root, manifest, dispositions)
+    if phase == "c0_dual_closeout":
+        open_rows = [
+            row_id
+            for row_id, row in dispositions.items()
+            if row.get("state") == "CutoverBlockerOpen"
+        ]
+        if open_rows:
+            fail(
+                "c0_dual_closeout has open dispositions: "
+                + ", ".join(sorted(open_rows))
+            )
+        print(
+            f"[{TAG}] closeout phase: {surface_summary} / {evidence} "
+            "additional evidence rows; C0 disposition inventory exhausted"
+        )
+    else:
+        print(
+            f"[{TAG}] readiness phase: {surface_summary} / {evidence} "
+            "additional evidence rows; C0 remains design-stopped"
+        )
     return 0
 
 
