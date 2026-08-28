@@ -268,6 +268,22 @@ open_blockers = [
 ]
 design_rule = "Source identity is not target authority: TopLevel and InstanceConstructor remain reject/park without an exact Cataloged relation; name, arity, box/key spelling, and physical symbols never synthesize a target."
 
+[d1_nested_owner_boundary]
+status = "sealed_for_initial_cell"
+decision = "The first Cataloged StaticBoxMethod cell accepts only the selected root owner. Nested lambda observations are not the same raw owner: lambda construction issues a distinct FunctionOwnerIdV1, while RawInvocationChildPortV1::reborrow only forwards the active root context and does not issue an owner transition."
+accept = [
+  "root-owner Cataloged relation whose actual raw root is Located(Cataloged(expected_key))",
+  "exact root SourceExprSiteV1, owner, catalog brand, and session equality before install/effects",
+]
+reject_before_install = [
+  "nested-only direct-call observation",
+  "root plus nested direct-call observations in one initial package",
+  "lambda-body direct call that would inherit the parent Cataloged root by child_expression site extension",
+]
+reject_reason = "NestedOwnerRawScopeUnavailable"
+non_authority = "A parent-root clone, relative lambda path, or reborrowed ledger cannot prove nested owner identity."
+future_row = "A later dedicated nested-lambda row must provide lambda FunctionOwnerIdV1, lambda-specific RawInvocationRootLineage, and a closure-body lowering session; it is outside D1 initial scope."
+
 [next_atomic_implementation_row]
 task_id = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
 status = "design_ready_implementation_closed"
@@ -304,6 +320,7 @@ forbidden_files = [
 ]
 acceptance = [
   "complete forest-wide Cataloged inventory and same-session brand are validated before prepare_install/commit",
+  "the initial executable cell is root-owner only; nested-only or root+nested direct-call observations reject before install",
   "actual Located(Cataloged(same_key)) root/site equality is checked before argument descent, effects, block/collector mutation, or Call publication",
   "one exact owned Callee is taken by site, arguments are lowered once, one canonical Call is emitted, and residual loan is zero",
   "nested child reborrow sees the same affine loan without Clone/Rc/Arc/RefCell/unsafe or a third lifetime",
@@ -311,10 +328,12 @@ acceptance = [
 ]
 negative = [
   "missing/foreign/mixed-brand/duplicate owner-site, wrong session, collapsed caller=None, TopLevel/Constructor without exact relation, and actual lineage mismatch reject before effects",
+  "NestedOwnerRawScopeUnavailable rejects nested-only and root+nested direct-call observations before package install; no parent-root flattening is allowed",
   "second take, unknown site, residual loan, argument failure after take, or package/adapter failure cannot retry, rollback, or publish a partial Call",
 ]
 no_safe_slice = [
   "actual lineage must be imported into the package issuer before install, or a new public semantic receipt is required",
+  "accepting nested lambda calls in this cell would require a lambda owner transition, lambda-specific raw lineage, or closure-body session",
   "the B1 carrier cannot be connected without String/symbol/name reconstruction or a consumer-side resolver",
   "loan transport requires Clone, Rc/Arc/RefCell, unsafe, self-reference, a third lifetime, or a second ledger",
   "source/raw equality is checked after argument/effect/collector mutation, or TopLevel/Constructor must be synthesized into an ordinary target",
