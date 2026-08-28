@@ -27,7 +27,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicInvocationCleanupProjectionRejectV1,
 };
-use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, ReceiverPolicyV1};
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
@@ -77,7 +77,15 @@ fn validate_cataloged_source_co_seal_v1(
 
     let mut observed = false;
     let mut owned_sites = BTreeSet::new();
+    let app_main_identity = declaration_catalog
+        .source_backed_app_main()
+        .map(|main| main.parser_identity());
     for declaration in batch.declarations() {
+        if app_main_identity.is_some_and(|identity| declaration.identity().same_as(identity)) {
+            // App Main has no selected catalog row.  Its exact owner/forest
+            // relation is validated by the dedicated pre-install gate below.
+            continue;
+        }
         let slot = declaration.batch_slot();
         let Some(key) = selected.key_for_batch_slot(slot) else {
             return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
@@ -177,6 +185,88 @@ fn validate_cataloged_source_co_seal_v1(
         observed |= has_observation;
     }
     Ok(observed)
+}
+
+/// Validate the retained App/Main identity against the exact semantic batch
+/// and its complete owner forest before package-side parameter/install work.
+/// This is deliberately provenance-only: it does not construct a raw lineage,
+/// target, loan, or MIR instruction.
+fn validate_app_main_root_owner_relation_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+) -> Result<(), ResolvedCallableSemanticBatchIssueV1> {
+    let declaration_catalog = catalog.catalog();
+    let Some(app_main) = declaration_catalog.source_backed_app_main() else {
+        return Ok(());
+    };
+    if !declaration_catalog
+        .brand()
+        .is_same(app_main.catalog_brand())
+        || app_main.catalog_key().namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+    {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    }
+    let Some(catalog_declaration) = declaration_catalog.declaration(app_main.catalog_key()) else {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    };
+    let expected_arity = u32::try_from(catalog_declaration.params().len())
+        .map_err(|_| ResolvedCallableSemanticBatchIssueV1::ParameterCountOverflow)?;
+    if app_main.catalog_key().arity() != expected_arity {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    }
+
+    let mut declarations = batch
+        .declarations()
+        .filter(|declaration| declaration.identity().same_as(app_main.parser_identity()));
+    let Some(declaration) = declarations.next() else {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    };
+    if declarations.next().is_some()
+        || declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
+        || declaration.parameter_count() != expected_arity
+    {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    }
+
+    let owner = declaration.owner();
+    let coherent = batch
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            if !identity.identity().same_as(app_main.parser_identity())
+                || identity.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
+                || identity.owner() != owner
+                || input.owner() != owner
+            {
+                return false;
+            }
+            let forest = input.forest();
+            if forest.roots() != std::slice::from_ref(&owner) {
+                return false;
+            }
+            let Some(root) = forest.owner(owner) else {
+                return false;
+            };
+            if root.owner() != owner
+                || root.function_origin() != declaration.function_origin()
+                || root.source_site_inventory().owner() != owner
+                || root.source_site_inventory().function_origin() != root.function_origin()
+                || root.root_profile().receiver_policy() != ReceiverPolicyV1::StaticCurrentOwner
+            {
+                return false;
+            }
+            let compilation = owner.compilation_brand();
+            forest.owners().all(|(candidate, function)| {
+                candidate.compilation_brand() == compilation
+                    && function.owner() == candidate
+                    && function.source_site_inventory().owner() == candidate
+                    && function.source_site_inventory().function_origin()
+                        == function.function_origin()
+            })
+        })
+        .map_err(|_| ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?;
+    if !coherent {
+        return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+    }
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -292,6 +382,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
         });
     }
+    validate_app_main_root_owner_relation_v1(&catalog, &batch)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     let parameter_contracts = {
         let catalog = issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }

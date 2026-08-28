@@ -110,44 +110,46 @@ remaining_blockers = [
   "The validation-only package boundary now checks Cataloged owner/site/provenance before returning the existing unissued-observation terminal; actual lineage and target publication remain closed.",
 ]
 reopen_boundary = "Do not open production target publication until the Cataloged-only owner/site/lineage validation contract is accepted and one later atomic row closes the source co-seal and scoped loan blockers without name/arity/symbol inference, a second resolver, or a public semantic receipt."
-
 [next_bounded_row]
-task_id = "MIR-CALL-D1B-MAIN-ROOT-SOURCE-OWNER-LINEAGE-COSEAL-R0"
-status = "accepted_design_no_safe_slice"
-implementation_permission = false
-scope = "Main source provenance only. Reuse the landed parser identity/catalog companion, batch owner, forest root, and the existing raw lineage constructor to validate one expected Cataloged(exact_key) relation without changing the live Main body route. This row emits no Callee, loan, Call, or physical target."
-source_authority = "ParserNormalAppExecutionRelationV1.main_callable, AppMainCatalogCoSealV1, the existing source-backed catalog key/brand, the selected batch row, and VerifiedSemanticOwnerForestV1. RawInvocationRootLineageV1 remains provenance and is compared only through the existing raw transport owner."
-canonical_issuer = "A private route-neutral Main owner/lineage validator after the existing catalog/batch products are available and before body/argument/effect/collector work; it retains expected Cataloged(exact_key), checks actual raw lineage equality where already observable, then consumes/drops transient validation state."
+task_id = "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0"
+status = "fast_open"
+implementation_permission = true
+scope = "Package-side Main owner/forest validation only. Reuse the landed parser identity/catalog companion, batch declaration, compilation brand, and forest to verify one exact Main relation before parameter contracts and install. This row emits no Callee, RawInvocationRootLineage, loan, Call, or physical target."
+source_authority = "AppMainCatalogCoSealV1, the existing source-backed catalog declaration/key/brand, the matching VerifiedResolvedCallableSemanticBatchV1 row, and its VerifiedSemanticOwnerForestV1. RawInvocationRootLineageV1 is outside this package-side row because no live Main raw handoff exists yet."
+canonical_issuer = "One private validator in the existing normal_callable_semantic_package issuer, called once after catalog/batch/selected products and before parameter contracts; it checks parser identity, StaticBoxMethod mode, catalog key/declaration, owner/root, function origin, source-site inventory, and compilation brand, then fails closed with the existing batch issue."
 non_authority = [
   "Main spelling, source arity, locator, synthetic main/0, box/key spelling, physical symbol, static_candidates, caller=None, target strings, and any second resolver",
-  "TopLevel, InstanceConstructor, nested lambda owner transitions, RawCompatibility, live Main-body route replacement, and successful raw-dispatch publication",
+  "RawInvocationRootLineageV1 construction/equality, TopLevel, InstanceConstructor, nested lambda owner transitions, RawCompatibility, live Main-body route replacement, and successful raw-dispatch publication",
 ]
-fail_fast = "Missing, foreign, duplicate, mixed-brand, identity/key/owner/forest mismatch, or actual-vs-expected lineage mismatch abort before Main body lowering, argument effects, collector mutation, or Call publication."
+fail_fast = "Missing, foreign, duplicate, mixed-brand, identity/key/mode/arity/owner/forest/origin mismatch abort before parameter contracts, package install, body lowering, argument effects, collector mutation, or Call publication."
 allowed_files = [
-  "existing callable_declaration_catalog source-backed owner and its private companion accessor",
-  "one private route-neutral Main owner/lineage validation helper in the existing package/raw-transport owners",
-  "focused Main identity/owner/lineage positive and negative tests",
-  "the existing D1 lifecycle guard phase and registry entry only",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
 ]
 forbidden_files = [
-  "src/mir/builder/calls/**, src/mir/builder/program_root_lowering.rs, src/mir/builder/main_expansion/**",
-  "RawInvocationChildPortV1 loan fields, package+loan consuming bundle, live Main lineage switch, or nested-owner flattening",
+  "src/mir/builder/calls/**, src/mir/builder/program_root_lowering.rs, src/mir/builder/main_expansion/**, src/mir/builder/raw_invocation_source_transport/**",
+  "RawInvocationChildPortV1 loan fields, package+loan consuming bundle, RawInvocationRootLineageV1 handoff, or nested-owner flattening",
   "Call schema, JSON, VM/backend, fallback/recovery, target/Callee issuance, and public Verified*/Prepared* receipts",
 ]
 acceptance = [
-  "parser Main identity maps exactly once to the retained catalog key, brand, batch owner, and forest root",
-  "expected Cataloged(exact_key) lineage is compared to an already observable raw lineage without changing the live Main body route",
-  "Main remains absent from selected child consumption and synthetic main/0 remains separate",
-  "missing/foreign/duplicate/mixed-brand/owner/forest/lineage cases reject before effects with target, loan, Call, and MIR publication at zero",
+  "ProgramRuntime with no App Main companion remains a no-op; an App companion matches exactly one batch identity",
+  "the matching row is StaticBoxMethod, its catalog key is the same namespace/declaration/arity, and its owner is the sole forest root",
+  "root and every nested forest owner retain one compilation brand, matching owner/function origin/source-site inventory, and the static current-owner profile",
+  "the validator runs once before parameter contracts/install; no RawLineage, target, loan, Call, effect, or MIR publication is introduced",
+  "existing Main identity/catalog, selected-child exclusion, synthetic main/0, and live Main lowering remain unchanged",
 ]
 no_safe_slice = [
   "a second parser/AST traversal, resolver, or synthetic root site is required",
-  "Main body lineage replacement changes ordinary FunctionCall routing or requires a live Main-body switch",
-  "actual RawInvocationRootLineageV1 cannot be compared without a broad raw-port change, a new public receipt, a third lifetime, or an affine loan",
+  "actual RawInvocationRootLineageV1 comparison is requested without a live raw Main handoff and would require a broad raw-port change, a new public receipt, a third lifetime, or an affine loan",
   "nested lambda owners must be flattened into Main, or TopLevel/InstanceConstructor must be synthesized into an ordinary target",
-  "any Callee, target key, RawDirectCallDispositionLoan, Call, effect, or package-only bypass is introduced",
+  "any Callee, target key, RawDirectCallDispositionLoan, Call, effect, package+loan bypass, or target publication is introduced",
 ]
-following_atomic_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0: only after this route-neutral provenance row is accepted and package/loan/dispatcher lifetime is fixed; Cataloged-only target-before-arguments cutover then deletes the direct payload atomically."
+following_atomic_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: remains NoSafeSlice until a live Main raw context/owner transition supplies actual RawInvocationRootLineage equality. The later Cataloged source-relation + affine-loan row stays atomic: issuer, sealed package/loan, scoped raw take_once, target-before-arguments, and direct payload deletion."
 
 [latest_worker_recheck]
 observed_commit = "f1ec01bcd3"

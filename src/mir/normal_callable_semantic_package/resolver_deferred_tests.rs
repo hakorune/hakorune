@@ -187,3 +187,54 @@ fn cataloged_nested_lambda_direct_call_observation_rejects_before_install() {
     };
     assert_eq!(reject, ());
 }
+
+#[test]
+fn app_main_owner_forest_relation_is_validated_before_install() {
+    let source = final_source(
+        "static box Main { main() { local f = fn() { return 1 } return 0 } helper() { 2 } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(101).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("valid App Main package");
+    let app_main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .expect("App Main companion");
+    let batch = package.batch();
+    let (batch_slot, owner, function_origin, identity) = {
+        let mut declarations = batch
+            .declarations()
+            .filter(|declaration| declaration.identity().same_as(app_main.parser_identity()));
+        let declaration = declarations.next().expect("exact Main batch row");
+        assert!(declarations.next().is_none());
+        assert_eq!(
+            declaration.mode(),
+            crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod
+        );
+        assert_eq!(
+            declaration.parameter_count(),
+            app_main.catalog_key().arity()
+        );
+        (
+            declaration.batch_slot(),
+            declaration.owner(),
+            declaration.function_origin(),
+            declaration.identity().clone(),
+        )
+    };
+    let coherent = batch
+        .with_lowering_input_and_source_identity(batch_slot, |input, observed| {
+            let forest_owner_count = input.forest().owners().count();
+            observed.identity().same_as(&identity)
+                && observed.owner() == owner
+                && input.owner() == owner
+                && input.forest().roots() == std::slice::from_ref(&owner)
+                && forest_owner_count >= 2
+                && input.function().owner() == owner
+                && input.function().function_origin() == function_origin
+                && input.function().source_site_inventory().owner() == owner
+                && input.function().source_site_inventory().function_origin() == function_origin
+        })
+        .expect("Main owner/forest relation");
+    assert!(coherent);
+}
