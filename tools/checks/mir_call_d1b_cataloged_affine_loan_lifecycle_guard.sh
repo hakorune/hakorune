@@ -40,11 +40,16 @@ with card_path.open("rb") as stream:
 with manifest_path.open("rb") as stream:
     manifest = tomllib.load(stream)
 
+current_state_path = root / "docs/development/current/main/CURRENT_STATE.toml"
+with current_state_path.open("rb") as stream:
+    current_state = tomllib.load(stream)
+active_row = current_state.get("current_execution_row")
+
 if not phase:
-    current_state_path = root / "docs/development/current/main/CURRENT_STATE.toml"
-    with current_state_path.open("rb") as stream:
-        current_state = tomllib.load(stream)
-    if current_state.get("current_execution_row") == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
+    if active_row in {
+        "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0",
+        "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0",
+    }:
         phase = "cataloged_source_coseal_validation"
     else:
         phase = card.get("guard_phase")
@@ -74,6 +79,9 @@ registration_key = (
     if phase == "bridge_ready"
     else "cataloged_validation_guard_registration_row"
     if phase == "cataloged_source_coseal_validation"
+    and active_row != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
+    else "cataloged_validation_registration_row"
+    if phase == "cataloged_source_coseal_validation"
     else "guard_registration_row"
 )
 d1_card = None
@@ -97,10 +105,16 @@ elif phase == "bridge_ready":
     if registration.get("status") not in {"bridge_ready_fast_open", "bridge_ready_landed"}:
         raise SystemExit("bridge-ready status drifted")
 elif phase == "cataloged_source_coseal_validation":
-    if registration.get("execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
-        raise SystemExit("Cataloged validation guard execution row drifted")
-    if registration.get("status") not in {"cataloged_validation_guard_fast_open", "cataloged_validation_guard_landed"}:
-        raise SystemExit("Cataloged validation guard status drifted")
+    if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
+        if registration.get("execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
+            raise SystemExit("Cataloged validation execution row drifted")
+        if registration.get("status") not in {"cataloged_validation_design_ready", "cataloged_validation_fast_open", "cataloged_validation_landed"}:
+            raise SystemExit("Cataloged validation status drifted")
+    else:
+        if registration.get("execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
+            raise SystemExit("Cataloged validation guard execution row drifted")
+        if registration.get("status") not in {"cataloged_validation_guard_fast_open", "cataloged_validation_guard_landed"}:
+            raise SystemExit("Cataloged validation guard status drifted")
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
         raise SystemExit("guard-only execution row drifted")
@@ -153,6 +167,8 @@ elif phase == "cataloged_source_coseal_validation":
         "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
         "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
     })
+    if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
+        expected_files.add("src/mir/callable_semantic_batch/mod.rs")
 if set(allowed_files or []) != expected_files:
     raise SystemExit(f"{registration_key} allowed file boundary drifted")
 

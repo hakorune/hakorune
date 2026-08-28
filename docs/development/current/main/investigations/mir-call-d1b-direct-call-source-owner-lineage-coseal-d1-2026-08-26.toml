@@ -204,6 +204,21 @@ allowed_files = [
   "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
 ]
 
+[cataloged_validation_registration_row]
+execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0"
+status = "cataloged_validation_design_ready"
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/callable_semantic_batch/mod.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+]
+
 [reopen]
 triggers = [
   "a producer derives owner or target from name, arity, box/key, or physical symbol",
