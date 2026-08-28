@@ -322,9 +322,9 @@ no_safe_slice = [
 [b1_corrective_prerequisite]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-CORRECTIVE-R0"
 status = "design_stop"
-observed_commit = "a5538199d1"
+observed_commit = "8e0e7c4cd5"
 implementation_permission = false
-reason = "The B1 structural carrier is present, but the explicitly supported vm-reference feature does not compile against CanonicalGlobalTargetV1, and the transitional selected-symbol adapter still has 18 production references in nine files. D1B issuer/loan/dispatcher work stays closed until this carrier consumer boundary is coherent."
+reason = "The bounded vm-reference consumer now compiles against CanonicalGlobalTargetV1 and consumes Builtin(Print)/SameModule structurally. The transitional selected-symbol adapter still has 18 production references in nine files, so its finite family disposition remains the next design row; D1B issuer/loan/dispatcher work stays closed."
 source_authority = "CanonicalGlobalTargetV1 owns the already-selected structural family; the vm-reference executor may consume its nested variants, while callable declaration catalogs and explicit extern providers remain the only target issuers."
 non_authority = "display_name/source_name, StaticMethodId parsing, arity completion, hostbridge string matching, typed_global_target_from_selected_symbol, classifier names, physical symbols, and VM recovery."
 fail_fast = "A vm-reference build must either structurally consume Builtin(Print)/SameModule or return a typed unsupported error; no target is reconstructed from text. Bare print is accepted only at exact arity one; panic/exit use Extern; bare error/now/math/gc have no Global fallback and reject or use their named owner."
@@ -351,7 +351,7 @@ negative = [
   "no bare family may silently become SameModule::FreeFunction from name plus fallback arity",
   "no B1 corrective failure may fall back to v0, legacy resolver, VM retry, or a second parser",
 ]
-next_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+next_row = "MIR-CALL-GLOBAL-TARGET-B1-FAMILY-D0"
 no_safe_slice = [
   "structural vm-reference consumption requires a new target variant or a String projection",
   "the finite family decision cannot be enforced before effects without changing the D1B source/loan boundary",
@@ -361,9 +361,11 @@ no_safe_slice = [
 
 [b1_vmref_consumer_i0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B1-VMREF-CONSUMER-I0"
-status = "fast_open"
-observed_commit = "4391c63635"
-implementation_permission = true
+status = "landed"
+observed_commit = "8e0e7c4cd5"
+implementation_permission = false
+landed_commit = "8e0e7c4cd5"
+landed_at = "2026-08-28"
 parent_row = "MIR-CALL-GLOBAL-TARGET-B1-CORRECTIVE-R0"
 decision = "Repair the explicitly supported vm-reference consumer without reopening target selection: consume CanonicalGlobalTargetV1 structurally, project only an exact function-table key after the target is already selected, and return typed unsupported errors for families not yet owned by a provider or declaration-backed table."
 source_authority = "CanonicalGlobalTargetV1 is the already-issued carrier. The vm-reference call handler is a terminal consumer only; it does not issue, classify, parse, complete, or repair a target."
@@ -394,6 +396,9 @@ acceptance = [
   "focused tests cover print exact-one, wrong print arity, exact free-function lookup, exact static-method lookup, and unsupported target rejection",
   "default quick check, B1 carrier guard, C0 matrix guard, and current-state guard pass; D1B implementation permission remains false",
 ]
+result = "The vm-reference feature now consumes CanonicalGlobalTargetV1 structurally: Builtin(Print) enforces exact print/1, SameModule targets use an exact arity-qualified function-table key, and missing entries return typed unsupported errors. No String Global carrier or provider-name repair was added."
+verification = "CARGO_BUILD_JOBS=2 cargo check --profile quick --lib; CARGO_BUILD_JOBS=2 cargo check --profile quick --lib --features vm-reference; CARGO_BUILD_JOBS=2 cargo test --profile quick --lib --features vm-reference 'handlers::calls::global::tests::' -- --test-threads=1; python3 tools/checks/lib/mir_call_global_target_b1_cutover_guard.py .; python3 tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py .; bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh; bash tools/checks/current_state_pointer_guard.sh"
+closeout = "B1 VM-reference consumer row is closed. The remaining finite provider-family disposition and selected-symbol adapter references stay in the next B1 family design row; D1B target issuer, source lineage co-seal, package/loan, raw dispatcher, fallback/recovery, and Call schema remain closed."
 negative = [
   "no CanonicalGlobalTargetV1 comparison with str, formatting-based classification, prefix matching, or passing the carrier to a &str API",
   "no provider behavior is inferred from a SameModule name; provider migration remains a later finite-disposition row",
