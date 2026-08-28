@@ -296,3 +296,48 @@ next_design_forbidden = [
   "new public Verified*/Prepared* receipt, AST rescan, or a new guard family",
 ]
 decision = "Keep the current D1 design_stop and implementation_permission=false. Record the qualified MethodCall D0 as the only clean exact-authority candidate; do not claim that it resolves the bare FunctionCall/Main blocker until its string-rebuild ingress is designed and accepted."
+
+[qualified_method_target_issuer_d0]
+task_id = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0"
+status = "accepted_design_no_safe_slice"
+observed_at = "2026-08-28"
+implementation_permission = false
+decision = "For the qualified StaticBoxMethod family, reuse the existing source-side exact products and make the publication owner the sole target issuer. The raw ingress must consume the existing (Cataloged caller, SourceExprSiteV1) handoff; it must not reconstruct a target from receiver/owner/method/arity strings."
+source_authority = "VerifiedSourceMethodCallSiteV1 supplies catalog, caller, declaration, exact source site, receiver site, receiver, method, arguments, and arity. VerifiedQualifiedCallRouteFactsV1 supplies the catalog-branded import/lexical/reserved-route admission. VerifiedSourceStaticCallTargetCatalogV1 maps (caller, site) to the sealed static target."
+canonical_issuer = "VerifiedStaticCallResultPublicationOwnerV1, issued from the existing source target/result catalogs, is the sole issuer. Its selected row already contains the typed target/result handoff; a later consumer may expose an exact-site take without a second declaration lookup."
+live_consumer = "The existing raw MethodCall path is raw_expression_dispatch -> member_route -> static_result_publication_ingress -> static_result_publication_physical_bridge. The bridge already consumes a sealed handoff before argument descent; only the ingress target reconstruction must be designed away."
+non_authority = [
+  "resolve_static_receiver_box_name, plan_member_call_route, raw receiver spelling, owner/method/arity strings, declaration_for in the Builder consumer, StaticMethodId parsing, CalleeResolverBox, and legacy MethodCall lowering",
+  "bare FunctionCall, receiver evaluation, dynamic/instance/member dispatch, EnvMethod, me, reserved routes, Main package/loan, and Call schema",
+  "AST rescan, physical symbol, fallback/retry, or a new public Verified*/Prepared* receipt",
+]
+boundary = "Existing source MethodCall site/route facts and source target/result owner -> exact (Cataloged caller, SourceExprSiteV1) handoff or typed Absent -> qualified static ingress consumes the handoff before receiver/argument descent; standard and compatibility routes remain outside."
+finite_states = [
+  "Exact source row + same catalog/import brand + selected handoff -> consume once and enter the existing static physical bridge",
+  "Exact source row but no selected handoff -> Absent; do not enter the target issuer or synthesize a target",
+  "missing/unlocated/foreign raw context, catalog/import mismatch, missing caller/site, duplicate site, target/result brand mismatch, or already-consumed handoff -> typed reject before receiver/argument effects",
+  "reserved, dynamic, instance, EnvMethod, me, bare FunctionCall, RawCompatibility, and nested callable boundary -> existing owner or explicit unavailable/park; no qualified-target promotion",
+]
+acceptance = [
+  "two positive source cases (unshadowed canonical owner and imported alias) resolve one exact caller/site row with one typed handoff",
+  "ingress no longer calls Builder-side declaration_for or rebuilds target from owner/method/arity; the existing publication owner remains the only issuer",
+  "handoff consumption precedes receiver/argument descent, receiver/arguments are lowered once, the existing terminal/Call is emitted once, and failures do not retry or re-enter legacy lowering",
+  "missing/foreign/duplicate/ambiguous/wrong-kind/wrong-arity/reserved/dynamic/instance cases remain typed negative outcomes and no unrelated route changes",
+]
+design_allowed = [
+  "existing source_call_target products and callable_result_representation owner/consumer API shape",
+  "static_result_publication_ingress and static_result_publication_physical_bridge handoff boundary",
+  "focused source/owner/ingress tests and reuse of the existing D1 lifecycle guard family",
+]
+design_forbidden = [
+  "bare FunctionCall or Main package+loan/dispatcher, receiver re-evaluation, dynamic/instance route, Method(None), Call schema, JSON, VM/backend, fallback/recovery, and new guard family",
+  "name/arity/symbol target synthesis, second AST traversal, target Clone as authority, or a new public semantic receipt",
+]
+no_safe_slice = [
+  "the live qualified caller cannot provide exact caller/site without an AST rescan or synthetic site",
+  "same catalog/import brand cannot be proven at the existing owner/ingress boundary",
+  "consumer must retain declaration_for/string lookup to select the target",
+  "qualified static cannot be isolated from standard/instance/dynamic routes",
+  "take-once, failure abort, or residual-zero cannot be represented without Clone/Rc/RefCell/unsafe/a third lifetime/package bypass",
+]
+next_row = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-I0: after this D0 is selected in CURRENT_STATE, connect the existing exact handoff at ingress and delete only the qualified static string-rebuild edge; implementation permission remains separately scoped."
