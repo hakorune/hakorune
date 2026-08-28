@@ -12,13 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_i0]"
-# With no explicit argument, the active card owns the current guard phase.
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|cataloged_i0]"
+# With no explicit argument, the active CURRENT_STATE row selects the current
+# phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -40,8 +41,14 @@ with manifest_path.open("rb") as stream:
     manifest = tomllib.load(stream)
 
 if not phase:
-    phase = card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_i0"}:
+    current_state_path = root / "docs/development/current/main/CURRENT_STATE.toml"
+    with current_state_path.open("rb") as stream:
+        current_state = tomllib.load(stream)
+    if current_state.get("current_execution_row") == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
+        phase = "cataloged_source_coseal_validation"
+    else:
+        phase = card.get("guard_phase")
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -65,9 +72,18 @@ registration_key = (
     if phase == "observer_i0"
     else "bridge_ready_registration_row"
     if phase == "bridge_ready"
+    else "cataloged_validation_guard_registration_row"
+    if phase == "cataloged_source_coseal_validation"
     else "guard_registration_row"
 )
-registration = card.get(registration_key)
+d1_card = None
+registration_owner = card
+if phase == "cataloged_source_coseal_validation":
+    d1_path = root / "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+    with d1_path.open("rb") as stream:
+        d1_card = tomllib.load(stream)
+    registration_owner = d1_card
+registration = registration_owner.get(registration_key)
 if not isinstance(registration, dict):
     raise SystemExit(f"active card {registration_key} is missing")
 if phase == "observer_i0":
@@ -80,6 +96,11 @@ elif phase == "bridge_ready":
         raise SystemExit("bridge-ready execution row drifted")
     if registration.get("status") not in {"bridge_ready_fast_open", "bridge_ready_landed"}:
         raise SystemExit("bridge-ready status drifted")
+elif phase == "cataloged_source_coseal_validation":
+    if registration.get("execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
+        raise SystemExit("Cataloged validation guard execution row drifted")
+    if registration.get("status") not in {"cataloged_validation_guard_fast_open", "cataloged_validation_guard_landed"}:
+        raise SystemExit("Cataloged validation guard status drifted")
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
         raise SystemExit("guard-only execution row drifted")
@@ -124,6 +145,14 @@ elif phase == "bridge_ready":
         "src/mir/normal_callable_semantic_package/install.rs",
         "src/mir/normal_callable_semantic_package/README.md",
     })
+elif phase == "cataloged_source_coseal_validation":
+    expected_files.update({
+        "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+        "src/mir/callable_semantic_batch/issuer.rs",
+        "src/mir/normal_callable_semantic_package/issuer.rs",
+        "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+        "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
+    })
 if set(allowed_files or []) != expected_files:
     raise SystemExit(f"{registration_key} allowed file boundary drifted")
 
@@ -145,6 +174,25 @@ elif phase == "bridge_ready":
         raise SystemExit("bridge-ready implementation permission/status drifted")
     if card.get("guard_phase") != "bridge_ready":
         raise SystemExit("bridge-ready card guard phase drifted")
+elif phase == "cataloged_source_coseal_validation":
+    current_state_path = root / "docs/development/current/main/CURRENT_STATE.toml"
+    with current_state_path.open("rb") as stream:
+        current_state = tomllib.load(stream)
+    if current_state.get("work_mode") != "fast":
+        raise SystemExit("Cataloged validation guard requires fast work mode")
+    if current_state.get("current_execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
+        raise SystemExit("Cataloged validation guard current row drifted")
+    if not isinstance(d1_card, dict):
+        raise SystemExit("D1 validation card is missing")
+    contract = d1_card.get("validation_guard_contract")
+    if not isinstance(contract, dict) or contract.get("phase") != "cataloged_source_coseal_validation":
+        raise SystemExit("D1 validation guard contract is missing")
+    if contract.get("execution_row") != "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0":
+        raise SystemExit("D1 validation guard execution row drifted")
+    if contract.get("status") not in {"guard_fast_open", "guard_landed"}:
+        raise SystemExit("D1 validation guard status drifted")
+    if d1_card.get("implementation_permission") is not False:
+        raise SystemExit("D1 semantic implementation permission opened during guard-only row")
 else:
     if card.get("implementation_permission") is not False:
         raise SystemExit("semantic implementation permission opened during guard-only row")
@@ -242,6 +290,48 @@ elif phase == "readiness":
 
     if "RawDirectCallDispositionLoanV1" not in readiness_audit.get("raw_capability_decision", ""):
         raise SystemExit("active card no longer names the raw loan boundary")
+
+elif phase == "cataloged_source_coseal_validation":
+    # This phase freezes the validation-only boundary before the first target
+    # or loan implementation. It is intentionally stronger than a prose
+    # registration, but weaker than cataloged_i0: no actual raw-lineage
+    # transport or successful direct-call publication is allowed here.
+    source_paths = [
+        mir_root / "callable_semantic_batch/issuer.rs",
+        mir_root / "normal_callable_semantic_package/issuer.rs",
+        mir_root / "normal_callable_semantic_package/resolver_deferred_tests.rs",
+    ]
+    source_text = "\n".join(path.read_text() for path in source_paths)
+    required = (
+        "forest_has_unissued_direct_call_observation_v1",
+        "UnissuedDirectCallObservation",
+    )
+    for token in required:
+        if token not in source_text:
+            raise SystemExit(f"Cataloged validation prerequisite is missing: {token}")
+    package_issuer = (mir_root / "normal_callable_semantic_package/issuer.rs").read_text()
+    if "RawInvocationRootLineageV1" in package_issuer:
+        raise SystemExit("package issuer must not import actual raw lineage")
+    forbidden = (
+        "RawDirectCallDispositionLoanV1",
+        "RawDirectCallDispositionPortV1",
+        "MirInstruction::call(",
+        "CanonicalGlobalTargetV1",
+    )
+    for token in forbidden:
+        if token in source_text:
+            raise SystemExit(f"Cataloged validation guard crossed its boundary: {token}")
+    batch_issuer = (mir_root / "callable_semantic_batch/issuer.rs").read_text()
+    if "ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation" not in batch_issuer:
+        raise SystemExit("default batch unissued-observation reject disappeared")
+    d1_contract = d1_card.get("validation_guard_contract") if isinstance(d1_card, dict) else None
+    if not isinstance(d1_contract, dict):
+        raise SystemExit("D1 validation guard contract is missing")
+    if "default batch UnissuedDirectCallObservation rejection remains fail-closed" not in d1_contract.get("must_prove", []):
+        raise SystemExit("D1 validation guard contract lost default reject requirement")
+    for path in source_paths:
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"Cataloged validation owner reached the 760-line split boundary: {path}")
 
 elif phase == "cataloged_i0":
     # This phase is intentionally future-facing.  Running it before the

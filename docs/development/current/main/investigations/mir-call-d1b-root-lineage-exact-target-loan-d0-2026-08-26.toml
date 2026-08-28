@@ -1007,7 +1007,7 @@ baseline_red = "A broader direct_call filter still reports two pre-existing call
 next = "Return to design_stop for MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0; target issuer, package/loan transport, raw dispatcher, fallback/recovery retirement, and mandatory-Callee schema remain closed."
 
 [d0_sig_close_f_readiness_audit_2026_08_26]
-guard_spec = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh owns readiness, bridge_ready, and cataloged_i0. Unknown phase fails closed."
+guard_spec = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh owns readiness, bridge_ready, cataloged_source_coseal_validation, and cataloged_i0. Unknown phase fails closed."
 raw_capability_decision = "RawDirectCallDispositionLoanV1 remains a future stack-owned affine capability; it is absent from BridgeReady package-only state and has no implementation permission. The only permitted connection is selected package adapter -> one-shot package/loan bridge -> RawInvocationChildPortV1 field tied to the existing port lifetime -> short reborrow() via as_deref_mut() -> existing FunctionCall preflight. No long-lived third field lifetime is added. The adapter is not a dispatcher and the raw port is not an issuer. package-only prepare_install/commit/begin_lowering callers must be classified and closed before loan installation; NoDirectCallsTerminal is a distinct call-free terminal, never an empty-loan success. Missing/foreign/duplicate/incomplete inventory aborts before install. No Clone/Copy/Rc/Arc/RefCell/into_parts/getter."
 
 [d0_sig_close_f_transition_amendment_2026_08_26]

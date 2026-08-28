@@ -162,11 +162,21 @@ permission_blockers = [
 
 [validation_guard_contract]
 phase = "cataloged_source_coseal_validation"
-status = "design_required"
+status = "guard_fast_open"
 execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0"
 registry = "Reuse mir-call-d1b-cataloged-affine-loan-lifecycle in guard_rows.toml; add no second script or per-cell guard."
 owner = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"
 required_registration = "The existing D1 card registration must name MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0 and remain implementation_permission=false until this phase is landed."
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+]
 must_prove = [
   "private Cataloged validation runs exactly once after batch/map products and before prepare_install",
   "all forest owners and owner-qualified source sites are checked, including nested owners",
@@ -179,6 +189,20 @@ must_not_prove = [
   "target issuance, loan transport, raw dispatcher, fallback/recovery, or Call schema",
 ]
 phase_failure = "Unknown phase, missing registration, duplicate registry row, helper-after-prepare, missing owner coverage, or any target/loan/Call symbol makes the guard fail closed."
+
+[cataloged_validation_guard_registration_row]
+execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-GUARD-R0"
+status = "cataloged_validation_guard_fast_open"
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+]
 
 [reopen]
 triggers = [
