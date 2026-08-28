@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: MIR Call target authority, compatibility ingress, and core retirement order
 Decision: finite typed structural Global and exact MIR JSON v2 accepted
-Updated: 2026-08-27
+Updated: 2026-08-28
 Related:
 - docs/development/current/main/CURRENT_STATE.toml
 - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
@@ -20,19 +20,20 @@ Related:
 
 - **Current decision:** canonical Global is `Builtin(Print)` or same-module
   `FreeFunction`/`StaticBoxMethod`; canonical MIR JSON is exact v2.0.
-- **Current implementation status:** core still stores `Global(String)`,
-  `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
-  guards are landed; outside fates and Stage1/direct arbitration are closed as
-  design decisions. The bounded reference-child private transport I0 is landed
-  with private env isolation; CanonicalV1 Value flow, force-hv1 retirement,
-  CoreDirect family-level tag/rc fate, strict-root seams, and Call cutover remain
-  closed.
+- **Current implementation status:** the B1 structural Global carrier is landed
+  and the explicit `vm-reference` feature check is green. The MIR Call core
+  still stores `func`, `Option<Callee>`, and transitional optional Method
+  receivers. Observer facts, forest-wide package admission, FreeStatic
+  pre-effect handoff, and Main identity/catalog co-seal I0 are landed; the
+  raw ordinary Call spine still awaits the D1 source-owner/lineage and affine
+  loan cutover.
 - **Next ordered task:**
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`, selected by
-  `CURRENT_STATE.toml` as the current design-stop row. The private child
-  transport, CanonicalV1 Value seam, exact ProductAot substring successor,
-  and CoreDirect one-state/no-retry R0 are landed; force-hv1 caller fate is
-  the remaining pre-Wpre bypass decision before Wpre-I0.
+  `MIR-CALL-D1B-MAIN-ROOT-SOURCE-OWNER-LINEAGE-COSEAL-R0`, selected by
+  `CURRENT_STATE.toml` as the current design-stop sub-boundary. This row is
+  provenance-only: retain the exact Main identity, catalog key/brand, batch
+  owner, forest root, and expected `Cataloged(exact_key)` lineage without
+  changing the live Main route or issuing a target. The following atomic row
+  is `MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0`.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
