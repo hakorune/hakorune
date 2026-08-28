@@ -194,7 +194,8 @@ policy authority.
 
 Decision:
   Typed structural B is accepted with the three shapes above. String is only
-  compatibility input; B0 changed no production code.
+  compatibility input; B1 now carries the structural form through the
+  selected MIR consumers.
 
 Source authority + canonical issuer:
   exact print/source-declaration/generated-declaration or owner-private ingress
@@ -203,7 +204,7 @@ Source authority + canonical issuer:
 Non-authority:
   `CanonicalSameModuleCallableKeyV1` by itself, `mir_symbol_projection`, raw
   name/arity, `ModuleInvocationBrand`, physical symbol, registry lookup,
-  `EffectMask`, and existing `Global(String)` consumers.
+  `EffectMask`, and legacy text consumers.
 
 Fail-fast boundary:
   missing, foreign, duplicate, collision, wrong namespace/arity, unsupported
