@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -53,11 +53,13 @@ if not phase:
         "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0",
     }:
         phase = "cataloged_source_coseal_validation"
+    elif active_row == "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
+        phase = "main_observation_gate_corrective_r0"
     elif active_row == "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0":
         phase = "main_root_owner_forest_validation_r0"
     else:
         phase = card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -78,7 +80,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"cataloged_source_coseal_validation", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0"}:
+if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0"}:
     d1_path = root / "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
     with d1_path.open("rb") as stream:
         d1_card = tomllib.load(stream)
@@ -95,7 +97,7 @@ registration_key = (
     else "cataloged_validation_registration_row"
     if phase == "cataloged_source_coseal_validation"
     else "next_bounded_row"
-    if phase == "main_root_owner_forest_validation_r0"
+    if phase in {"main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0"}
     else "main_root_identity_catalog_coseal_i0"
     if phase == "main_root_identity_coseal_i0"
     else "guard_registration_row"
@@ -124,6 +126,13 @@ elif phase == "cataloged_source_coseal_validation":
             raise SystemExit("Cataloged validation guard execution row drifted")
         if registration.get("status") not in {"cataloged_validation_guard_fast_open", "cataloged_validation_guard_landed"}:
             raise SystemExit("Cataloged validation guard status drifted")
+elif phase == "main_observation_gate_corrective_r0":
+    if registration.get("task_id") != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
+        raise SystemExit("Main observation corrective task id drifted")
+    if registration.get("status") not in {"ready_for_fast", "fast_open", "landed"}:
+        raise SystemExit("Main observation corrective status drifted")
+    if registration.get("implementation_permission") is not True:
+        raise SystemExit("Main observation corrective permission is not scoped open")
 elif phase == "main_root_owner_forest_validation_r0":
     if registration.get("task_id") != "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0":
         raise SystemExit("Main owner/forest validation task id drifted")
@@ -190,6 +199,12 @@ elif phase == "cataloged_source_coseal_validation":
     })
     if active_row == "MIR-CALL-D1B-CATALOGED-SOURCE-COSEAL-VALIDATION-R0":
         expected_files.add("src/mir/callable_semantic_batch/mod.rs")
+elif phase == "main_observation_gate_corrective_r0":
+    expected_files.update({
+        "src/mir/normal_callable_semantic_package/issuer.rs",
+        "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+        "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
+    })
 elif phase == "main_root_owner_forest_validation_r0":
     expected_files.update({
         "src/mir/normal_callable_semantic_package/issuer.rs",
@@ -261,6 +276,20 @@ elif phase == "cataloged_source_coseal_validation":
             raise SystemExit("D1 broad semantic implementation permission opened")
     elif d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 semantic implementation permission opened during guard-only row")
+elif phase == "main_observation_gate_corrective_r0":
+    if current_state.get("work_mode") not in {"fast", "closeout"}:
+        raise SystemExit("Main observation corrective requires fast or closeout work mode")
+    if active_row != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
+        raise SystemExit("Main observation corrective current row drifted")
+    next_row = d1_card.get("next_bounded_row")
+    if not isinstance(next_row, dict) or next_row.get("task_id") != "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0":
+        raise SystemExit("Main observation corrective next row drifted")
+    if next_row.get("status") not in {"ready_for_fast", "fast_open", "landed"}:
+        raise SystemExit("Main observation corrective next-row status drifted")
+    if next_row.get("implementation_permission") is not True:
+        raise SystemExit("Main observation corrective next-row permission is closed")
+    if d1_card.get("implementation_permission") is not False:
+        raise SystemExit("D1 broad semantic implementation permission opened")
 elif phase == "main_root_owner_forest_validation_r0":
     if current_state.get("work_mode") not in {"fast", "closeout"}:
         raise SystemExit("Main owner/forest validation requires fast or closeout work mode")
@@ -500,9 +529,53 @@ elif phase == "main_root_owner_forest_validation_r0":
             raise SystemExit(f"Main owner/forest validation crossed its boundary: {token}")
     if "app_main_owner_forest_relation_is_validated_before_install" not in tests_text:
         raise SystemExit("Main owner/forest validation positive test is missing")
+
+elif phase == "main_observation_gate_corrective_r0":
+    package_issuer_path = mir_root / "normal_callable_semantic_package/issuer.rs"
+    tests_path = mir_root / "normal_callable_semantic_package/resolver_deferred_tests.rs"
+    package_issuer_text = package_issuer_path.read_text()
+    tests_text = tests_path.read_text()
+    validator_start = package_issuer_text.find("fn validate_app_main_root_owner_relation_v1")
+    validator_end = package_issuer_text.find("\n}\n\n#[derive", validator_start)
+    if validator_start < 0 or validator_end < 0:
+        raise SystemExit("Main owner/forest validator boundary is missing")
+    validator_text = package_issuer_text[validator_start:validator_end]
+    if "forest_has_unissued_direct_call_observation_v1(forest)" not in validator_text:
+        raise SystemExit("Main validator does not apply the forest-wide observation gate")
+    if package_issuer_text.count("forest_has_unissued_direct_call_observation_v1") < 2:
+        raise SystemExit("Main observation helper import/call is incomplete")
+    helper_order = [
+        validator_start,
+        package_issuer_text.find(
+            "forest_has_unissued_direct_call_observation_v1(forest)", validator_start
+        ),
+        package_issuer_text.find("let parameter_contracts", validator_end),
+    ]
+    if any(index < 0 for index in helper_order) or helper_order != sorted(helper_order):
+        raise SystemExit("Main observation gate is not before parameter contracts")
+    for test_name in (
+        "app_main_owner_forest_relation_is_validated_before_install",
+        "app_main_direct_call_observation_rejects_before_install",
+        "app_main_nested_direct_call_observation_rejects_before_install",
+        "app_main_root_and_nested_direct_call_observations_reject_before_install",
+    ):
+        if test_name not in tests_text:
+            raise SystemExit(f"Main observation test is missing: {test_name}")
+    forbidden = (
+        "RawInvocationRootLineageV1",
+        "RawDirectCallDispositionLoanV1",
+        "RawInvocationChildPortV1",
+        "MirInstruction::call(",
+        "CanonicalGlobalTargetV1",
+    )
+    for token in forbidden:
+        if token in package_issuer_text:
+            raise SystemExit(f"Main observation corrective row crossed its boundary: {token}")
+    if package_issuer_text.count("ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation") < 1:
+        raise SystemExit("existing typed Main observation reject disappeared")
     for path in (package_issuer_path, tests_path):
         if sum(1 for _ in path.open()) >= 760:
-            raise SystemExit(f"Main owner/forest validation owner reached the 760-line split boundary: {path}")
+            raise SystemExit(f"Main observation owner reached the 760-line split boundary: {path}")
 
 elif phase == "main_root_identity_coseal_i0":
     source_backed_path = mir_root / "builder/callable_declaration_catalog/source_backed.rs"

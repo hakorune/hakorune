@@ -111,37 +111,41 @@ remaining_blockers = [
 ]
 reopen_boundary = "Do not open production target publication until the Cataloged-only owner/site/lineage validation contract is accepted and one later atomic row closes the source co-seal and scoped loan blockers without name/arity/symbol inference, a second resolver, or a public semantic receipt."
 [next_bounded_row]
-task_id = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
-status = "accepted_design_no_safe_slice"
-implementation_permission = false
-scope = "Design-only Main raw-scope handoff. Determine whether the existing normal Main root lowering can supply an exact RawInvocationSourceContextV1/RawInvocationRootLineageV1 relation to the already validated AppMainCatalogCoSealV1 and semantic batch owner without changing target publication, argument lowering, or the live route."
-source_authority = "RawInvocationSourceTransportV1 is the sole lineage constructor; AppMainCatalogCoSealV1 and VerifiedResolvedCallableSemanticBatchV1 remain the source/owner authorities. A shared consuming lowering scope may be the session boundary, but no new session witness is assumed."
-canonical_issuer = "No issuer is accepted yet. The design row must name one existing Main raw-scope owner/callback and its exact caller, or explicitly retain NoSafeSlice; a context comparison helper without a production caller is not sufficient."
+task_id = "MIR-CALL-D1B-MAIN-OBSERVATION-GATE-CORRECTIVE-R0"
+status = "fast_open"
+implementation_permission = true
+scope = "Main package pre-install observation gate only. Reuse the existing forest-wide direct-call observation helper inside the dedicated Main owner/forest validator; preserve no-call Main success and reject root, nested, or mixed observations before parameter contracts/install."
+source_authority = "ResolvedCallableSemanticBatchV1 forest owners and their existing direct-call observations; forest_has_unissued_direct_call_observation_v1 is the sole all-owner predicate, and UnissuedDirectCallObservation remains the existing typed batch terminal."
+canonical_issuer = "The existing validate_app_main_root_owner_relation_v1 validator, called once before parameter contracts/install, invokes the existing forest-wide helper and returns the existing UnissuedDirectCallObservation issue. No new issue variant or receipt is issued."
 non_authority = [
-  "name/arity/box/symbol target synthesis, caller=None collapse, Main(locator) or ScriptRoot reclassification, nested-lambda lineage fabrication, TopLevel/InstanceConstructor, target/Callee/loan/Call, and any second resolver",
+  "Main raw-lineage reclassification, name/arity/box/symbol target synthesis, caller=None collapse, nested-lambda lineage fabrication, TopLevel/InstanceConstructor, target/Callee/loan/Call, and any second resolver",
 ]
-fail_fast = "If an exact raw context, root site, owner, key, brand/session boundary, or one-to-one relation is unavailable, remain NoSafeSlice; any future handoff must reject before body/argument/effect/collector/MIR publication."
+fail_fast = "Any direct-call observation in any App Main forest owner rejects with UnissuedDirectCallObservation before parameter contracts/install; a no-call nested owner remains valid. No body/argument/effect/collector/MIR publication changes."
 allowed_files = [
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml",
-  "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md",
 ]
 forbidden_files = [
-  "all Rust/source/fixture/guard/route changes until an exact issuer and caller are accepted",
+  "all source/fixture/route changes outside issuer.rs and resolver_deferred_tests.rs",
   "Main lowering reclassification, RawInvocationChildPortV1 loan fields, package+loan bundle, target/Callee issuance, argument lowering, Call schema, JSON, VM/backend, fallback/recovery, and public Verified*/Prepared* receipts",
 ]
 acceptance = [
-  "name one existing production Main raw-scope owner/callback and finite caller boundary, or preserve NoSafeSlice without inventing a helper",
-  "preserve AppMainCatalogCoSealV1, exact semantic batch owner/forest, and RawInvocationRootLineageV1 as separate authorities; no caller=None collapse",
-  "root-owner scope is explicit; nested lambda, raw compatibility Main(locator), ScriptRoot, TopLevel, and Constructor are separate or rejected",
-  "define the same-session/brand relation and fail-fast point before body/argument/effect/collector/MIR work; no target or Call is published",
+  "existing Main owner/forest identity checks remain unchanged and the observation helper is called over every forest owner",
+  "no-call Main with a nested lambda remains accepted, while root-only, nested-only, and root+nested direct-call observations reject before install",
+  "all outcomes use existing UnissuedDirectCallObservation; no new issue hierarchy, target, lineage, loan, Call, or effect is added",
+  "existing lifecycle guard proves helper use/order, focused tests cover positive and three negatives, and touched source/check files stay below 760 lines",
 ]
 no_safe_slice = [
-  "no existing Main raw-scope caller supplies the context, or comparison requires a dead helper, second traversal, synthetic site, guessed session token, or new public receipt",
-  "Main would be reclassified from ScriptRoot/compatibility without an explicit owner and route decision, or nested owners would inherit the parent lineage",
+  "the existing forest helper cannot be reused without a second traversal, new semantic receipt, or new issue hierarchy",
+  "the Main validator must reclassify ScriptRoot/compatibility or flatten nested owners to pass the gate",
   "a target, Callee, RawDirectCallDispositionLoan, Call, effect, package+loan bypass, fallback, or retry is introduced",
 ]
-following_atomic_row = "MIR-CALL-D1B-MAIN-RAW-SCOPE-I0 only after this design identifies an existing production caller and exact handoff; then PACKAGE-LOAN-COSEAL-I1 and RAW-DISPATCHER-CUTOVER-I2 remain atomic with target-before-arguments and direct payload deletion."
+following_atomic_row = "After this corrective row closes, return to MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: identify an existing Main raw-scope caller/session relation before any target, package+loan, or dispatcher implementation."
 
 [latest_worker_recheck]
 observed_commit = "9c6ec641c1"

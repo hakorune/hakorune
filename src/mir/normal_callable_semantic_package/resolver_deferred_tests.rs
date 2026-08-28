@@ -238,3 +238,47 @@ fn app_main_owner_forest_relation_is_validated_before_install() {
         .expect("Main owner/forest relation");
     assert!(coherent);
 }
+
+#[test]
+fn app_main_direct_call_observation_rejects_before_install() {
+    let source =
+        final_source("static box Main { main() { return helper() } helper() { return 2 } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(102).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        }) => (),
+        other => panic!("expected App Main direct-call terminal, got {other:?}"),
+    };
+    assert_eq!(reject, ());
+}
+
+#[test]
+fn app_main_nested_direct_call_observation_rejects_before_install() {
+    let source = final_source(
+        "static box Main { main() { local f = fn() { return helper() } return 0 } helper() { return 2 } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(103).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        }) => (),
+        other => panic!("expected nested App Main direct-call terminal, got {other:?}"),
+    };
+    assert_eq!(reject, ());
+}
+
+#[test]
+fn app_main_root_and_nested_direct_call_observations_reject_before_install() {
+    let source = final_source(
+        "static box Main { main() { local f = fn() { return helper() } return helper() } helper() { return 2 } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(104).unwrap();
+    let reject = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
+        Err(NormalCallableSemanticPackageIssueV1::Batch {
+            _error: ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation,
+        }) => (),
+        other => panic!("expected mixed App Main direct-call terminal, got {other:?}"),
+    };
+    assert_eq!(reject, ());
+}

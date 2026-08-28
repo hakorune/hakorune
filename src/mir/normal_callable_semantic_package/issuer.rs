@@ -27,7 +27,10 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierLifecycleProgramRejectV1,
     DynamicInvocationCleanupProjectionRejectV1,
 };
-use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, ReceiverPolicyV1};
+use crate::mir::resolved_semantics::{
+    forest_has_unissued_direct_call_observation_v1, FunctionSemanticResolverSessionV1,
+    ReceiverPolicyV1,
+};
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
@@ -239,6 +242,9 @@ fn validate_app_main_root_owner_relation_v1(
                 return false;
             }
             let forest = input.forest();
+            if forest_has_unissued_direct_call_observation_v1(forest) {
+                return false;
+            }
             if forest.roots() != std::slice::from_ref(&owner) {
                 return false;
             }
