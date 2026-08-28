@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -82,19 +82,25 @@ if not phase:
         phase = "resolved_compatibility_provenance_r2b"
     elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0":
         phase = "resolved_compatibility_provenance_r2c"
+    elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0":
+        phase = "resolved_compatibility_unclassified_r2d"
     elif active_row == "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0":
-        r2c = active_card.get("r2c_compatibility_provenance_d0_2026_08_29")
-        if isinstance(r2c, dict) and r2c.get("status") in {"fast_open", "landed"}:
-            phase = "resolved_compatibility_provenance_r2c"
+        r2d = active_card.get("r2d_unclassified_source_fail_closed_2026_08_29")
+        if isinstance(r2d, dict) and r2d.get("status") in {"fast_open", "landed"}:
+            phase = "resolved_compatibility_unclassified_r2d"
         else:
-            r2b = active_card.get("r2b_compatibility_provenance_d0_2026_08_29")
-            if isinstance(r2b, dict) and r2b.get("status") in {"fast_open", "landed"}:
-                phase = "resolved_compatibility_provenance_r2b"
+            r2c = active_card.get("r2c_compatibility_provenance_d0_2026_08_29")
+            if isinstance(r2c, dict) and r2c.get("status") in {"fast_open", "landed"}:
+                phase = "resolved_compatibility_provenance_r2c"
             else:
-                raise SystemExit("active all-lineage row has no explicit current compatibility phase")
+                r2b = active_card.get("r2b_compatibility_provenance_d0_2026_08_29")
+                if isinstance(r2b, dict) and r2b.get("status") in {"fast_open", "landed"}:
+                    phase = "resolved_compatibility_provenance_r2b"
+                else:
+                    raise SystemExit("active all-lineage row has no explicit current compatibility phase")
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -115,7 +121,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c"}:
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d"}:
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -162,6 +168,8 @@ registration_key = (
     if phase == "resolved_compatibility_provenance_r2b"
     else "r2c_compatibility_provenance_d0_2026_08_29"
     if phase == "resolved_compatibility_provenance_r2c"
+    else "r2d_unclassified_source_fail_closed_2026_08_29"
+    if phase == "resolved_compatibility_unclassified_r2d"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -361,7 +369,7 @@ elif phase == "resolved_compatibility_provenance_r2b":
         raise SystemExit("R2b selection must remain pre-effect")
     if "else {\n        PreparedRawOrdinaryFunctionCompletionV1::Resolved" in route[prepare_fn:]:
         raise SystemExit("R2b left a generic Resolved fallthrough")
-    if "PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility" not in route or "PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility" not in route:
+    if "PreparedRawNonBrandRouteOriginV1::UnclassifiedSource" not in route or "PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility" not in route:
         raise SystemExit("R2b explicit compatibility completion arm is missing")
     if "function_call_script_compatibility_tests" not in parent_tests:
         raise SystemExit("R2b sibling test is not registered")
@@ -438,6 +446,79 @@ elif phase == "resolved_compatibility_provenance_r2c":
     for path in (brand_path, route_path, parent_tests_path, tests_path):
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"R2c owner reached the 760-line split boundary: {path}")
+elif phase == "resolved_compatibility_unclassified_r2d":
+    brand_path = mir_root / "builder/calls/function_call_brand_source_demand.rs"
+    route_path = mir_root / "builder/calls/function_call_preflight_route.rs"
+    parent_tests_path = mir_root / "builder/calls/function_call_preflight_route_tests.rs"
+    tests_path = mir_root / "builder/calls/function_call_script_compatibility_tests.rs"
+    rawport_tests_path = mir_root / "builder/recursive_child_lowering_rawport_tests.rs"
+    brand = brand_path.read_text()
+    route = route_path.read_text()
+    parent_tests = parent_tests_path.read_text()
+    tests = tests_path.read_text()
+    rawport_tests = rawport_tests_path.read_text()
+    if registration.get("task_id") != "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0":
+        raise SystemExit("R2d task id drifted")
+    if registration.get("execution_row") != "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0":
+        raise SystemExit("R2d execution row drifted")
+    if registration.get("guard_phase") != "resolved_compatibility_unclassified_r2d":
+        raise SystemExit("R2d guard phase drifted")
+    r2d_status = registration.get("status")
+    if r2d_status not in {"fast_open", "landed"}:
+        raise SystemExit("R2d status drifted")
+    if registration.get("implementation_permission") is not (r2d_status == "fast_open"):
+        raise SystemExit("R2d permission/status drifted")
+    if r2d_status == "fast_open":
+        if active_row != "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0":
+            raise SystemExit("R2d current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("R2d requires fast or closeout")
+    elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-UNCLASSIFIED-FAIL-CLOSED-R2D-D0" and current_state.get("work_mode") not in {"closeout", "design_stop"}:
+        raise SystemExit("landed R2d has an invalid work mode")
+
+    required = (
+        "UnclassifiedSource",
+        "SourceRejected",
+        "unclassified_source_rejects_ordinary_call_before_arguments",
+        "unclassified_source_keeps_special_route_precedence",
+        "nested_box_lineage_is_unclassified_before_ordinary_call_arguments",
+    )
+    for token in required:
+        if token not in brand and token not in route and token not in tests and token not in rawport_tests:
+            raise SystemExit(f"R2d implementation/test token is missing: {token}")
+    if "RelationlessCompatibility" in brand or "RelationlessCompatibility" in route:
+        raise SystemExit("generic Relationless compatibility provenance remains")
+    if "PreparedRawNonBrandRouteOriginV1::UnclassifiedSource" not in route:
+        raise SystemExit("unclassified route origin is missing")
+    if "PreparedRawFunctionPreflightRouteV1::SourceRejected" not in route:
+        raise SystemExit("unclassified source rejection terminal is missing")
+    prepare_fn = route.find("fn prepare_ordinary_function_completion_v1")
+    resolved = route.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }", prepare_fn)
+    if prepare_fn < 0 or resolved < 0:
+        raise SystemExit("R2d ordinary completion owner is missing")
+    selection = route[prepare_fn:resolved]
+    if "UnclassifiedSource" not in selection or "direct-call/unclassified-source" not in selection:
+        raise SystemExit("R2d unclassified ordinary rejection is not before Resolved")
+    if "drive_call_arguments_v1" in selection or "resolve_call_target" in selection:
+        raise SystemExit("R2d selection must remain pre-effect")
+    resolved_tail = route[resolved:]
+    for origin in (
+        "ScriptRootParkedCompatibility",
+        "RawScriptRootParkedCompatibility",
+        "RawRootMainParkedCompatibility",
+        "RawLegacyParkedCompatibility",
+    ):
+        if origin not in route[:resolved]:
+            raise SystemExit(f"R2d named Resolved compatibility origin is missing: {origin}")
+    if "PreparedRawNonBrandRouteOriginV1::UnclassifiedSource" in resolved_tail:
+        raise SystemExit("R2d unclassified source still reaches Resolved")
+    if "NestedBoxMethodParkedCompatibility" in route or "CalleeResolverBox" in brand:
+        raise SystemExit("R2d introduced an unapproved compatibility authority")
+    if "function_call_script_compatibility_tests" not in parent_tests:
+        raise SystemExit("R2d sibling test is not registered")
+    for path in (brand_path, route_path, parent_tests_path, tests_path, rawport_tests_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"R2d owner reached the 760-line split boundary: {path}")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
@@ -483,6 +564,9 @@ if phase == "resolved_compatibility_provenance_r2b":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "resolved_compatibility_provenance_r2c":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
+if phase == "resolved_compatibility_unclassified_r2d":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":

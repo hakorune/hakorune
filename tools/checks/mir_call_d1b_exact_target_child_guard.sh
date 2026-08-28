@@ -61,8 +61,8 @@ if preflight_text.count("PreparedRawNonBrandRouteOriginV1::InstalledNonBrand") <
     raise SystemExit("InstalledNonBrand origin is not carried through the ordinary preflight")
 if preflight_text.count('"gc_collect" | "gc_stats"') != 1:
     raise SystemExit("GC exact two-name cohort drifted")
-if "PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility" not in preflight_text:
-    raise SystemExit("RawCompatibility origin boundary disappeared")
+if "PreparedRawNonBrandRouteOriginV1::UnclassifiedSource" not in preflight_text:
+    raise SystemExit("unclassified source boundary disappeared")
 
 target_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted")
 resolved_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::Resolved", target_start)

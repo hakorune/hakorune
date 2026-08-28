@@ -20,7 +20,9 @@ use super::super::brand_constructor_lowering_projection::ProjectedBrandConstruct
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawBrandCallAuthorityV1 {
-    RelationlessCompatibility,
+    /// The source/port has no named compatibility or exact callable owner.
+    /// This is never a resolver authority; ordinary calls must fail closed.
+    UnclassifiedSource,
     /// A semantic ScriptRoot has an existing source owner but no callable
     /// target product.  Preserve its compatibility terminal explicitly;
     /// absence of a callable ledger is never itself a resolver authority.
@@ -81,7 +83,7 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             name, arguments, ..
         } = call
         else {
-            return Ok(RawBrandCallAuthorityV1::RelationlessCompatibility);
+            return Ok(RawBrandCallAuthorityV1::UnclassifiedSource);
         };
         let context = self.current_source_context_v1();
         if self.semantic_ledger.is_some()
@@ -106,7 +108,7 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             }
         }
         let Some(ledger) = self.callable_ledger.clone() else {
-            return Ok(RawBrandCallAuthorityV1::RelationlessCompatibility);
+            return Ok(RawBrandCallAuthorityV1::UnclassifiedSource);
         };
         let context = context
             .ok_or_else(|| "[freeze:contract][callable-brand/missing-source-context]".to_owned())?;

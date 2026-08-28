@@ -1,3 +1,7 @@
+use super::calls::{
+    lower_prepared_raw_function_preflight_with_port_v1, BrandConstructorSourcePortV1,
+    PreparedRawFunctionPreflightV1, RawBrandCallAuthorityV1,
+};
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
 };
@@ -9,6 +13,7 @@ use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, RawInvocationChildPortV1,
 };
 use crate::ast::{ASTNode, BinaryOperator, CatchClause, CheckItem, FieldDecl, LiteralValue, Span};
+use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1};
 use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
     MirInstruction, MirType,
@@ -596,5 +601,35 @@ fn raw_invocation_port_descends_nested_program_body_once() {
                 .count(),
             2
         );
+    });
+}
+
+#[test]
+fn nested_box_lineage_is_unclassified_before_ordinary_call_arguments() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("nested_box_unclassified/0".to_owned());
+    with_port!(builder, port, {
+        let parent_site = SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::FunctionBody]);
+        let transport = RawInvocationSourceTransportV1::root(
+            (),
+            RawInvocationRootLineageV1::nested_box_method(parent_site, "Outer.run/0".to_owned()),
+        );
+        port.with_source_transport_v1(transport, |port, ()| {
+            let call = function_call("helper", vec![int(1)]);
+            let authority = port
+                .brand_call_authority_v1(&call)
+                .expect("nested Box lineage must be classified");
+            assert_eq!(authority, RawBrandCallAuthorityV1::UnclassifiedSource);
+            let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+                builder,
+                "helper".to_owned(),
+                vec![int(1)],
+                authority,
+            );
+            let error = lower_prepared_raw_function_preflight_with_port_v1(builder, port, prepared)
+                .expect_err("unclassified nested Box calls must reject before arguments");
+            assert!(error.contains("unclassified-source"));
+        });
+        assert!(instructions(builder).is_empty());
     });
 }

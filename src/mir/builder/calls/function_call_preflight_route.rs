@@ -40,6 +40,9 @@ enum PreparedRawFunctionPreflightRouteV1 {
         arguments: Vec<ASTNode>,
         intrinsic: crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1,
     },
+    SourceRejected {
+        error: String,
+    },
     Ordinary {
         completion: PreparedRawOrdinaryFunctionCompletionV1,
     },
@@ -53,7 +56,7 @@ enum PreparedRawNonBrandRouteOriginV1 {
     RawScriptRootParkedCompatibility,
     RawRootMainParkedCompatibility,
     RawLegacyParkedCompatibility,
-    RelationlessCompatibility,
+    UnclassifiedSource,
 }
 
 pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
@@ -138,6 +141,7 @@ impl PreparedRawExplicitExternCallV1 {
 }
 
 impl PreparedRawFunctionPreflightV1 {
+    #[cfg(test)]
     pub(in crate::mir::builder) fn prepare(
         builder: &MirBuilder,
         name: String,
@@ -147,7 +151,7 @@ impl PreparedRawFunctionPreflightV1 {
             builder,
             name,
             arguments,
-            super::RawBrandCallAuthorityV1::RelationlessCompatibility,
+            super::RawBrandCallAuthorityV1::RawLegacyParkedCompatibility,
         )
     }
 
@@ -211,24 +215,33 @@ impl PreparedRawFunctionPreflightV1 {
                     PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility,
                 )
             }
-            super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
-                if builder.comp_ctx.is_brand_declared(&name) {
-                    PreparedRawFunctionPreflightRouteV1::Brand(
-                        PreparedRawBrandConstructorV1::prepare(arguments, false),
-                    )
-                } else {
-                    prepare_non_brand_route(
-                        builder,
-                        &name,
-                        arguments,
-                        None,
-                        PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility,
-                    )
-                }
-            }
+            super::RawBrandCallAuthorityV1::UnclassifiedSource => prepare_non_brand_route(
+                builder,
+                &name,
+                arguments,
+                None,
+                PreparedRawNonBrandRouteOriginV1::UnclassifiedSource,
+            ),
         };
         Self { name, route }
     }
+}
+
+fn prepare_ordinary_route(
+    builder: &MirBuilder,
+    name: &str,
+    arguments: Vec<ASTNode>,
+    caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
+    origin: PreparedRawNonBrandRouteOriginV1,
+) -> PreparedRawFunctionPreflightRouteV1 {
+    let completion =
+        prepare_ordinary_function_completion_v1(builder, name, arguments, caller, origin);
+    if matches!(origin, PreparedRawNonBrandRouteOriginV1::UnclassifiedSource) {
+        if let PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } = completion {
+            return PreparedRawFunctionPreflightRouteV1::SourceRejected { error };
+        }
+    }
+    PreparedRawFunctionPreflightRouteV1::Ordinary { completion }
 }
 
 fn prepare_compatibility_route(
@@ -280,26 +293,10 @@ fn prepare_non_brand_route(
                 intrinsic,
             }
         } else {
-            PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: prepare_ordinary_function_completion_v1(
-                    builder,
-                    name,
-                    arguments,
-                    caller.as_ref(),
-                    origin,
-                ),
-            }
+            prepare_ordinary_route(builder, name, arguments, caller.as_ref(), origin)
         }
     } else {
-        PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: prepare_ordinary_function_completion_v1(
-                builder,
-                name,
-                arguments,
-                caller.as_ref(),
-                origin,
-            ),
-        }
+        prepare_ordinary_route(builder, name, arguments, caller.as_ref(), origin)
     }
 }
 
@@ -341,10 +338,16 @@ fn prepare_ordinary_function_completion_v1(
                 arguments.len()
             ),
         }
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::UnclassifiedSource) {
+        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+            error: format!(
+                "[freeze:contract][direct-call/unclassified-source] name={name} arity={}",
+                arguments.len()
+            ),
+        }
     } else if matches!(
         origin,
-        PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility
-            | PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
+        PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
             | PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
             | PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility
             | PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility
@@ -546,6 +549,7 @@ where
                 builder, region, intrinsic, arguments, port,
             )
         }
+        PreparedRawFunctionPreflightRouteV1::SourceRejected { error } => Err(error),
         PreparedRawFunctionPreflightRouteV1::Ordinary { completion } => builder
             .lower_prepared_raw_ordinary_function_completion_with_port_v1(
                 port,

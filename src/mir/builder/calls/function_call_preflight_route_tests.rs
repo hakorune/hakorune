@@ -340,8 +340,8 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         compatibility_externcall,
     )
     .is_err());
-    // Relationless compatibility has no pre-effect target product; its legacy
-    // route still descends the argument before the unresolved terminal.
+    // Explicit RawLegacy compatibility has no pre-effect target product; its
+    // legacy route still descends the argument before the unresolved terminal.
     assert_eq!(port.expression_count, 1);
 
     for (name, arguments) in [

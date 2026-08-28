@@ -19,7 +19,7 @@ PREFLIGHT=src/mir/builder/calls/function_call_preflight_route.rs
 STATE=src/mir/builder/normal_callable_semantic_lowering_state.rs
 CARD=docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md
 
-require_text "$PORT" "RelationlessCompatibility"
+require_text "$PORT" "UnclassifiedSource"
 require_text "$PORT" "InstalledNonBrand"
 require_text "$PORT" "take_brand_constructor"
 require_text "$PORT" "operand-site-drift"
