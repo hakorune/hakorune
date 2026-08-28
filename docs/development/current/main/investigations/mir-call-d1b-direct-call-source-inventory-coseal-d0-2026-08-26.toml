@@ -435,20 +435,25 @@ next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 closeout_guard_design = "Reuse this single guard with a c0_dual_closeout phase. Keep the existing dual aggregate/digest and selector buckets, normalize the shared disposition dictionary to a finite action/state vocabulary, require exactly one terminal_kind or successor_ref, and connect every evidence row to one disposition_ref. The 18 evidence rows are bounded to family/file anchors; they do not expand into function- or occurrence-level cards. Do not add an AST scanner, new guard, or semantic target inference."
 closeout_disposition_schema = "action ∈ {adapt, isolate, retire, retain}; state ∈ {CutoverBlockerOpen, CutoverBlockerClosed, ParkedSealed}; exactly one of terminal_kind/successor_ref is non-empty; non_authority and reopen are explicit; ParkedSealed requires a named owner and non-authority. A closed disposition may carry successor_ref when its decision is sealed for the next implementation row; readiness may retain open blockers; closeout rejects any CutoverBlockerOpen row. Before opening closeout, the existing guard must enforce the same finite action vocabulary on evidence rows."
 closeout_transition = "After the existing compiled-family evidence is complete and the closeout phase passes, update the same card and CURRENT_STATE atomically to the B1 cutover row. A guard pass alone never grants B1; all compiled dispositions currently remain CutoverBlockerOpen."
+c0_boundary_decision = "Do not narrow C0 to the canonical Call corridor. The compiled adjacent routes still have reachable production emitters; ParkedSealed without an executable isolation/retirement boundary would leave competing Global authorities. Only the public MirCall compatibility constructor is currently parkable under its named external-owner policy."
 c0_remaining_family_blockers = [
-  "JoinIR call generator: prove one exact JoinFuncId/declaration/call co-seal owner; do not derive a Global target from generated name or arity.",
-  "normal-module physical thunk: prove an exact source/header relation or keep a typed reject; a physical symbol is not target authority.",
-  "CorePlan GlobalCall and operator publishers: identify an exact plan/source relation or a pre-effect typed reject; do not retain String repair.",
+  "direct/static terminal cluster (canonical_direct_call.rs, method_call_terminal.rs, print_stmt.rs): issue a typed target from an exact declaration relation or fail before effect; a physical/name projection is not authority.",
+  "normal-module physical thunk: prove source-header and catalog declaration identity in one brand, or install an explicit owner-local isolation/retirement terminal; a physical symbol is not authority.",
+  "JoinIR declaration/call cluster: co-seal JoinFuncId, declaration, and call relation in the existing JoinIR owner; generated name/arity and Const String cannot issue a target.",
+  "CorePlan/operator/emission cluster: split exact source-backed relation from unlocated/env/name branches; exact branches adapt to typed Global and the rest reject before effect.",
+  "ordinary-New boundary: keep NewBox/birth claim as its owner terminal and remove or typed-reject fallback Global publication.",
 ]
+c0_family_exit_rule = "Every compiled family above stays CutoverBlockerOpen until it has one source-backed owner, one finite action, one executable typed successor or pre-effect terminal, and one reopen condition. A textual ParkedSealed label is insufficient; no family may be hidden by a wildcard or by narrowing the C0 boundary."
 c0_compiled_other_resolution = "The compiled-other bucket is exhausted by the feature-gated src/bin/rc_insertion_selfcheck/cases/basic.rs projection (one Callee::Global occurrence); its evidence and bucket now share isolate-fixture/ParkedSealed semantics. Any additional path must fail the guard rather than enter a wildcard."
 c0_completed_evidence_steps = [
   "existing evidence action fields are finite single actions",
   "rc-insertion-selfcheck-global is an explicit isolate fixture row",
   "compiled-other bucket metadata matches the selfcheck fixture disposition",
+  "canonical-Call-only boundary narrowing was rejected because compiled adjacent production emitters remain reachable",
 ]
 c0_followup_task_order = [
   "when closeout is opened, update the existing guard to allow CutoverBlockerClosed with successor_ref and to validate evidence action vocabulary",
-  "resolve the three compiled-family blockers with source-backed owner evidence; if an exact relation is absent, retain NoSafeSlice and keep B1 closed",
+  "resolve each compiled responsibility cluster with source-backed owner evidence; if an exact relation is absent, use an executable pre-effect typed reject or an explicit owner-local retirement terminal and keep B1 closed",
   "run the readiness guard and pointer guard; only an exhausted compiled disposition permits the c0_dual_closeout phase",
 ]
 
