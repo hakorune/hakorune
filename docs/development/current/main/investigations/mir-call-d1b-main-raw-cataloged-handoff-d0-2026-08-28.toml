@@ -1,8 +1,9 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
-status = "accepted_design_no_safe_slice"
+status = "accepted_route_design"
 observed_at = "2026-08-28"
-observed_commit = "fde15501f5"
-implementation_permission = false
+observed_commit = "a9cb2d289a"
+implementation_permission = true
+permission_scope = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0 only; target issuer, loan, dispatcher, argument order, Call schema, and recovery remain closed."
 guard_phase = "main_raw_cataloged_handoff_d0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
@@ -65,10 +66,56 @@ conditions = [
 ]
 
 [next]
-task = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0 remains design-only until the callback, witness, and exact raw-site relation are named and accepted."
-implementation_gate = "Only then may a separate root-only implementation row open; it must change one normal App Main edge, prove positive/negative zero-delta behavior, and delete no unrelated compatibility path."
+task = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0: implement only the accepted root-only scope handoff at the live App Main body boundary."
+implementation_gate = "The route row may change one installed App Main root body edge, prove positive/negative zero-delta behavior, and delete no unrelated compatibility path."
 witness_subrow = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-ROOT-WITNESS-D0: design-only private callback at the live raw-scope boundary, same-session check, and semantic-to-raw function/body-kind equality; a detached Cataloged shape probe is insufficient; no target, loan, dispatcher, or ScriptRoot-to-Cataloged switch."
-route_subrow = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0: separate root-only implementation row after the live witness is accepted; it may switch only the installed App Main root scope and must keep compatibility routes unchanged."
+route_subrow = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0: selected implementation row; it switches only the installed App Main root body scope and keeps compatibility routes unchanged."
+
+[route_r0_decision_2026_08_28]
+status = "accepted_bounded_implementation"
+source_authority = "AppMainCatalogCoSealV1, installed package batch/forest, and the parser-issued Main identity already carried by VerifiedMainStaticChildV1."
+canonical_issuer = "The installed package port privately verifies the existing Main relation and lends its existing batch lowering input; the RootCallableCapturePort body hook consumes that relation without issuing a target."
+raw_witness = "At the live root lowering boundary, create one RawInvocationSourceTransportV1::root((), Cataloged(existing_key)) and require Located(FunctionBody) with function-body site; use a private predicate/accessor, never a detached probe or name/arity/symbol synthesis."
+borrow_order = "Borrow compilation context only for relation validation, release it, then enter the HRTB batch input callback; install semantic state and Cataloged raw scope for the body callback only, restore both once."
+allowed = [
+    "private package-port App Main relation/input callback",
+    "RootCallableCapturePortV1 body-only hook with a default lower_body delegation",
+    "installed App Main branch omits the outer ScriptRoot wrapper so the body hook is the sole Cataloged root scope",
+    "private raw context exact FunctionBody predicate/accessor",
+    "focused positive/negative zero-delta tests and the existing D1 lifecycle guard",
+]
+forbidden = [
+    "Callee/target issuer, RawDirectCallDispositionLoanV1, RawInvocationChildPortV1 field or lifetime, dispatcher, argument descent, Call writer, Resolved recovery, or Call schema",
+    "AST rescan, public receipt/session ID, ScriptRoot/Main(locator) compatibility changes, nested lineage inheritance, or selected-map insertion",
+]
+acceptance = "Installed source-backed App Main body alone enters Cataloged scope once; parser identity, catalog key/brand, semantic root owner/forest, raw FunctionBody site/kind all match; mismatch/foreign/duplicate/nested cases reject before body effects; static children and non-App/compatibility routes remain unchanged."
+non_claims = "This row does not support Main direct-call publication; the existing pre-install forest gate still rejects direct-call observations. It does not open package+loan, raw dispatcher, target-before-arguments, or Call retirement."
+
+[route_r0]
+task_id = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0"
+execution_row = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0"
+status = "fast_open"
+implementation_permission = true
+allowed_files = [
+  "src/mir/builder/decls.rs",
+  "src/mir/builder/module_lifecycle.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/builder/raw_invocation_source_transport/context.rs",
+  "src/mir/builder/raw_invocation_source_transport/lineage_witness_tests.rs",
+  "src/mir/builder/raw_static_main_compat_batch.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port/main_root.rs",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/install/lowering_port.rs",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden = "No target/Callee issuer, direct-call loan, RawInvocationChildPort field/lifetime, dispatcher, argument-order change, Call writer/schema, resolver/recovery, AST rescan, compatibility-route change, or D1 broad permission."
+acceptance = "The installed source-backed App Main body is entered through one package-verified Cataloged function-body scope; exact root/site/body-kind checks are tested; raw transport focused tests, pointer guard, lifecycle guard, cargo check, and focused lifecycle tests are green."
+closeout = "After tests and guard evidence land, mark this row landed and return the active pointer to the next design stop; do not claim direct-call publication or loan/dispatcher cutover."
 
 [guard_hygiene]
 task_id = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"

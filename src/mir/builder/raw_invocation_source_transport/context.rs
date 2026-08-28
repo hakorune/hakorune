@@ -99,6 +99,24 @@ impl RawInvocationSourceContextV1 {
         }
     }
 
+    /// True only for the exact function-body root issued by a Cataloged
+    /// callable scope.  A ScriptRoot, child site, or compatibility context is
+    /// never accepted as the installed App Main body witness.
+    pub(in crate::mir::builder) fn is_exact_function_root(
+        &self,
+        expected_root: &RawInvocationRootLineageV1,
+    ) -> bool {
+        matches!(
+            self,
+            Self::Located {
+                root,
+                site,
+                body_kind: Some(SourceBodyKindV1::Function),
+            } if root == expected_root
+                && site == &SourcePathV1::function_body().node()
+        )
+    }
+
     pub(in crate::mir::builder) fn is_exact_loop_condition(&self) -> bool {
         matches!(
             self,

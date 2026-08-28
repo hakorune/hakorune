@@ -161,6 +161,7 @@ impl PreparedRawStaticMainBoxCompatibilityV1 {
                     &box_name,
                     None,
                     None,
+                    None,
                     true,
                     super::decls::StaticMainScriptArgsSourceV1::LegacyEnvironment,
                     params,

@@ -1,9 +1,13 @@
 use std::rc::Rc;
 
 use crate::mir::builder::{
-    NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1,
-    VerifiedMainStaticChildV1,
+    CanonicalSameModuleCallableKeyV1, NormalCatalogedBoxMethodDraftAdmissionV1,
+    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, VerifiedMainStaticChildV1,
 };
+use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_semantics::ReceiverPolicyV1;
+use crate::parser::CallableDeclarationIdentityV1;
 
 use super::super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1;
 use super::super::s6c_child::S6CSemanticChildRefV1;
@@ -15,6 +19,87 @@ use super::{
 };
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    /// Lend the installed package's source-backed App Main root input once.
+    ///
+    /// The catalog relation is copied only as an opaque comparison witness;
+    /// the batch remains the sole issuer of the lowering input.  This row is
+    /// intentionally target-free and does not consume a direct-call loan.
+    pub(crate) fn with_app_main_root_lowering_input<R>(
+        &mut self,
+        expected_key: &CanonicalSameModuleCallableKeyV1,
+        expected_identity: &CallableDeclarationIdentityV1,
+        callback: impl for<'source> FnOnce(
+            ResolvedFunctionLoweringInputV1<'source>,
+            crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV1,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        if self.main_root_consumed {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootAlreadyConsumed);
+        }
+
+        if expected_key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch);
+        }
+        let parser_identity = expected_identity.clone();
+
+        let batch_slot = self
+            .installed
+            .batch
+            .with_declaration_semantics(|batch| {
+                let mut declarations = batch
+                    .declarations()
+                    .iter()
+                    .filter(|declaration| declaration.identity().same_as(&parser_identity));
+                let declaration = declarations
+                    .next()
+                    .ok_or(NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch)?;
+                if declarations.next().is_some()
+                    || declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
+                    || u32::try_from(
+                        declaration
+                            .parameters()
+                            .map_or(0, |parameters| parameters.len()),
+                    )
+                    .ok()
+                        != Some(expected_key.arity())
+                {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
+                    );
+                }
+                Ok(declaration.batch_slot())
+            })
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)??;
+
+        self.main_root_consumed = true;
+        let result = self
+            .installed
+            .batch
+            .with_lowering_input_and_source_identity(batch_slot, |input, source_identity| {
+                let owner = input.owner();
+                let Some(root) = input.forest().owner(owner) else {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
+                    );
+                };
+                if !source_identity.identity().same_as(&parser_identity)
+                    || source_identity.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
+                    || source_identity.owner() != owner
+                    || input.forest().roots() != std::slice::from_ref(&owner)
+                    || root.owner() != owner
+                    || root.source_site_inventory().owner() != owner
+                    || root.root_profile().receiver_policy() != ReceiverPolicyV1::StaticCurrentOwner
+                {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
+                    );
+                }
+                Ok(callback(input, source_identity))
+            })
+            .map_err(|_| NormalCallableSemanticPackageInstallIssueV1::BatchLoan)??;
+        Ok(result)
+    }
+
     pub(crate) fn ordinary_box_is_covered(&self, class: &str) -> bool {
         self.installed.ordinary_box_is_covered(class)
     }

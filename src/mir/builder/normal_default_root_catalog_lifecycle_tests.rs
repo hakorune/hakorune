@@ -80,6 +80,27 @@ fn source_backed_lifecycle_facade_consumes_program_runtime_and_app_once() {
 }
 
 #[test]
+fn source_backed_app_main_root_uses_cataloged_scope() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "static box Main { main() { return 0 } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed App Main root must lower through its package scope");
+    let (_, module) = completed.into_parts();
+    assert!(module
+        .functions
+        .iter()
+        .any(|(_, function)| function.signature.name == "main"));
+}
+
+#[test]
 fn root_expansion_failure_precedes_prepare_and_retains_source() {
     let source = NyashParser::parse_from_string(
         r#"

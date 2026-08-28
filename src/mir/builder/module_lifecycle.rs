@@ -60,6 +60,19 @@ use super::type_hint_providers;
 pub(in crate::mir::builder) trait RootCallableCapturePortV1:
     RawBoxMethodChildPortV1 + RawAstChildLoweringPortV1
 {
+    /// Lower the source-backed App Main root body inside its exact callable
+    /// source scope.  Compatibility ports keep the existing body lowering;
+    /// the installed semantic-package adapter overrides this hook so the
+    /// root body does not inherit a ScriptRoot lineage.
+    fn lower_app_main_root_body_v1(
+        &mut self,
+        builder: &mut super::MirBuilder,
+        _identity: &crate::parser::CallableDeclarationIdentityV1,
+        body: Vec<ASTNode>,
+    ) -> Result<ValueId, String> {
+        self.lower_body(builder, body)
+    }
+
     /// Lower one source-backed App Main static child.  The package adapter
     /// overrides this with its typed same-cohort admission; raw ports retain
     /// their compatibility-only direct child terminal.

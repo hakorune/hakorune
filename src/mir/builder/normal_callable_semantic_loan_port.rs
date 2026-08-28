@@ -8,10 +8,12 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, ExprChildRoleV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
 use crate::mir::{MirBuilder, ValueId};
+use crate::parser::CallableMethodSourceObservationV1;
 
 use super::callable_declaration_catalog::{
     SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
@@ -36,6 +38,9 @@ use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
 };
+
+#[path = "normal_callable_semantic_loan_port/main_root.rs"]
+mod main_root;
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     'package,
@@ -241,8 +246,6 @@ fn with_selected_source_scope<'port, 'collector, R>(
         super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
     ) -> Result<R, String>,
 ) -> Result<R, String> {
-    let transport =
-        super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root((), lineage);
     let dynamic_source = match input.semantic() {
         crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic {
             source,
@@ -252,8 +255,35 @@ fn with_selected_source_scope<'port, 'collector, R>(
             None
         }
     };
-    let state = super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
+    with_callable_source_scope(
+        inner,
+        lineage,
         input.source(),
+        dynamic_source,
+        input.method_source_observation().cloned(),
+        ordinary_new_claim_ledger,
+        execute,
+    )
+}
+
+fn with_callable_source_scope<'port, 'collector, R>(
+    inner: &mut RawInvocationChildPortV1<'port, 'collector>,
+    lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    dynamic_source: Option<Rc<crate::mir::builder::VerifiedSourceBackedDynamicCallableV1>>,
+    observation: Option<CallableMethodSourceObservationV1>,
+    ordinary_new_claim_ledger: Rc<
+        crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    >,
+    execute: impl FnOnce(
+        &mut RawInvocationChildPortV1<'port, 'collector>,
+        super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
+    ) -> Result<R, String>,
+) -> Result<R, String> {
+    let transport =
+        super::raw_invocation_source_transport::RawInvocationSourceTransportV1::root((), lineage);
+    let state = super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
+        input,
         dynamic_source,
     )?;
     let state = Rc::new(RefCell::new(state));
@@ -262,7 +292,6 @@ fn with_selected_source_scope<'port, 'collector, R>(
     let parent_ordinary_new_claim_ledger = inner
         .ordinary_new_claim_ledger
         .replace(ordinary_new_claim_ledger);
-    let observation = input.method_source_observation().cloned();
     let result = inner
         .with_callable_method_source_observation(observation, |inner| execute(inner, transport));
     inner.callable_ledger = parent_callable;
@@ -425,6 +454,15 @@ impl RawFunctionHeaderLookupPortV1
 }
 
 impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
+    fn lower_app_main_root_body_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        expected_identity: &crate::parser::CallableDeclarationIdentityV1,
+        body: Vec<ASTNode>,
+    ) -> Result<ValueId, String> {
+        main_root::lower_app_main_root_body_v1(self, builder, expected_identity, body)
+    }
+
     fn lower_app_main_static_child(
         &mut self,
         builder: &mut MirBuilder,

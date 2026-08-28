@@ -1,0 +1,85 @@
+use std::rc::Rc;
+
+use crate::ast::ASTNode;
+use crate::mir::builder::normal_callable_binding_materialization_port::{
+    CallableBindingMaterializationPortV1, CallableEntryShapeV1,
+};
+use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
+use crate::mir::{MirBuilder, ValueId};
+use crate::parser::CallableDeclarationIdentityV1;
+
+use super::super::raw_invocation_source_transport::RawInvocationRootLineageV1;
+use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::NormalCallableSemanticPackagePortAdapterV1;
+
+pub(super) fn lower_app_main_root_body_v1(
+    adapter: &mut NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>,
+    builder: &mut MirBuilder,
+    expected_identity: &CallableDeclarationIdentityV1,
+    body: Vec<ASTNode>,
+) -> Result<ValueId, String> {
+    let catalog_key = {
+        let catalog = builder
+            .comp_ctx
+            .callable_declaration_catalog()
+            .map_err(|_| {
+                super::package_issue(
+                    super::NormalCallableSemanticPackageInstallIssueV1::ForeignCatalog,
+                )
+            })?;
+        let app_main = catalog.source_backed_app_main().ok_or_else(|| {
+            super::package_issue(
+                super::NormalCallableSemanticPackageInstallIssueV1::MainRootUnavailable,
+            )
+        })?;
+        if !app_main.parser_identity().same_as(expected_identity) {
+            return Err(super::package_issue(
+                super::NormalCallableSemanticPackageInstallIssueV1::MainRootRelationMismatch,
+            ));
+        }
+        app_main.catalog_key().clone()
+    };
+    let inner = &mut *adapter.inner;
+    let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
+    adapter
+        .package
+        .with_app_main_root_lowering_input(&catalog_key, expected_identity, |input, identity| {
+            let lineage = RawInvocationRootLineageV1::Cataloged(catalog_key.clone());
+            let expected_lineage = lineage.clone();
+            super::with_callable_source_scope(
+                inner,
+                lineage,
+                input,
+                None,
+                identity.method_source_observation().cloned(),
+                Rc::clone(&ordinary_new_claim_ledger),
+                |inner, transport| {
+                    inner.with_source_transport_v1(transport, |inner, ()| {
+                        let context = inner.current_source_context_v1().ok_or_else(|| {
+                            "[freeze:contract][mir/callable-main/raw-context-missing]".to_owned()
+                        })?;
+                        if !context.is_exact_function_root(&expected_lineage) {
+                            return Err(
+                                "[freeze:contract][mir/callable-main/raw-root-mismatch]".to_owned()
+                            );
+                        }
+                        let parameter_count = builder
+                            .function_state
+                            .current_function
+                            .as_ref()
+                            .map(|function| function.params.len())
+                            .ok_or_else(|| {
+                                "[freeze:contract][mir/callable-main/current-function-missing]"
+                                    .to_owned()
+                            })?;
+                        inner.adopt_callable_entry_values_v1(
+                            builder,
+                            CallableEntryShapeV1::Static { parameter_count },
+                        )?;
+                        inner.lower_body(builder, body)
+                    })
+                },
+            )
+        })
+        .map_err(super::package_issue)?
+}

@@ -68,3 +68,36 @@ fn compatibility_unlocated_context_has_no_lineage_witness() {
         }
     ));
 }
+
+#[test]
+fn exact_function_root_witness_accepts_only_the_issued_cataloged_root() {
+    let root = RawInvocationRootLineageV1::Cataloged(
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "Main", "main", 0,
+        ),
+    );
+    let (_, context) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root.clone()),
+    );
+
+    assert!(context.is_exact_function_root(&root));
+}
+
+#[test]
+fn exact_function_root_witness_rejects_script_and_descendant_contexts() {
+    let root = RawInvocationRootLineageV1::Cataloged(
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "Main", "main", 0,
+        ),
+    );
+    let (_, script_root) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::script_root(Vec::<ASTNode>::new()),
+    );
+    assert!(!script_root.is_exact_function_root(&root));
+
+    let (_, function_root) = RawInvocationSourceContextV1::from_transport(
+        RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root.clone()),
+    );
+    let child = function_root.child_call_argument(0);
+    assert!(!child.is_exact_function_root(&root));
+}

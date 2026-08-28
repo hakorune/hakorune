@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -49,7 +49,9 @@ with active_card_path.open("rb") as stream:
     active_card = tomllib.load(stream)
 
 if not phase:
-    if active_row in {"MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0", "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"}:
+    if active_row == "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
+        phase = "main_raw_cataloged_route_r0"
+    elif active_row in {"MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0", "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"}:
         phase = "main_raw_cataloged_handoff_d0"
     elif active_row == "MIR-CALL-D1B-MAIN-ROOT-IDENTITY-CATALOG-COSEAL-I0":
         phase = "main_root_identity_coseal_i0"
@@ -64,7 +66,7 @@ if not phase:
         phase = "main_root_owner_forest_validation_r0"
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -85,13 +87,13 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase == "main_raw_cataloged_handoff_d0":
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     registration_owner = active_card
-if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0"}:
+if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     d1_path = root / "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
     with d1_path.open("rb") as stream:
         d1_card = tomllib.load(stream)
-    if phase != "main_raw_cataloged_handoff_d0":
+    if phase not in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
         registration_owner = d1_card
 
 registration_key = (
@@ -110,6 +112,8 @@ registration_key = (
     if phase == "main_root_identity_coseal_i0"
     else "guard_hygiene"
     if phase == "main_raw_cataloged_handoff_d0"
+    else "route_r0"
+    if phase == "main_raw_cataloged_route_r0"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -159,7 +163,7 @@ elif phase == "main_root_identity_coseal_i0":
         raise SystemExit("Main identity co-seal task id drifted")
     if registration.get("status") not in {"ready_for_fast", "landed"}:
         raise SystemExit("Main identity co-seal status drifted")
-elif phase == "main_raw_cataloged_handoff_d0":
+elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
     if registration.get("execution_row") != "MIR-CALL-D1B-D0-SIG-CLOSE-E-GUARD-REGISTRATION":
@@ -170,6 +174,9 @@ allowed_files = registration.get("allowed_files")
 expected_files = {guard_script, "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml", "docs/development/current/main/CURRENT_STATE.toml"}
 if phase == "main_raw_cataloged_handoff_d0":
     expected_files = {guard_script, "tools/checks/guard_rows.toml", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"}
+if phase == "main_raw_cataloged_route_r0":
+    expected_files = set(registration_owner.get("route_r0", {}).get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":
     expected_files.update({
         "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
@@ -335,6 +342,65 @@ elif phase == "main_root_identity_coseal_i0":
         raise SystemExit("landed Main identity co-seal phase has an invalid work mode")
     if d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 broad semantic implementation permission opened")
+elif phase == "main_raw_cataloged_route_r0":
+    if active_row != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
+        raise SystemExit("Main raw Cataloged route current row drifted")
+    if current_state.get("work_mode") not in {"fast", "closeout"}:
+        raise SystemExit("Main raw Cataloged route requires fast or closeout work mode")
+    if registration.get("task_id") != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
+        raise SystemExit("Main raw Cataloged route task id drifted")
+    if registration.get("execution_row") != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
+        raise SystemExit("Main raw Cataloged route execution row drifted")
+    if registration.get("status") not in {"fast_open", "landed"}:
+        raise SystemExit("Main raw Cataloged route status drifted")
+    if registration.get("implementation_permission") is not True:
+        raise SystemExit("Main raw Cataloged route permission is not scoped open")
+    if d1_card.get("implementation_permission") is not False:
+        raise SystemExit("D1 broad semantic implementation permission opened")
+
+    route_files = [
+        mir_root / "builder/decls.rs",
+        mir_root / "builder/module_lifecycle.rs",
+        mir_root / "builder/program_root_lowering.rs",
+        mir_root / "builder/raw_invocation_source_transport/context.rs",
+        mir_root / "builder/raw_invocation_source_transport/lineage_witness_tests.rs",
+        mir_root / "builder/raw_static_main_compat_batch.rs",
+        mir_root / "builder/normal_callable_semantic_loan_port.rs",
+        mir_root / "builder/normal_callable_semantic_loan_port/main_root.rs",
+        mir_root / "normal_callable_semantic_package/install.rs",
+        mir_root / "normal_callable_semantic_package/install/lowering_port.rs",
+    ]
+    route_text = "\n".join(path.read_text() for path in route_files)
+    for token in (
+        "lower_app_main_root_body_v1",
+        "installed_app_main_root",
+        "with_app_main_root_lowering_input",
+        "is_exact_function_root",
+        "with_source_transport_v1",
+        "MainRootAlreadyConsumed",
+    ):
+        if token not in route_text:
+            raise SystemExit(f"Main raw Cataloged route is missing {token}")
+    for token in (
+        "RawDirectCallDispositionLoanV1",
+        "MirInstruction::call(",
+        "resolve_call_target",
+        "try_unique_static_method_recovery",
+        "make_name_const_result",
+    ):
+        if token in route_text:
+            raise SystemExit(f"Main raw Cataloged route crossed its boundary: {token}")
+    if "exact_function_root_witness_accepts_only_the_issued_cataloged_root" not in (
+        mir_root / "builder/raw_invocation_source_transport/lineage_witness_tests.rs"
+    ).read_text():
+        raise SystemExit("Main raw Cataloged positive witness test is missing")
+    if "exact_function_root_witness_rejects_script_and_descendant_contexts" not in (
+        mir_root / "builder/raw_invocation_source_transport/lineage_witness_tests.rs"
+    ).read_text():
+        raise SystemExit("Main raw Cataloged negative witness test is missing")
+    for path in route_files:
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"Main raw Cataloged route owner reached the 760-line split boundary: {path}")
 elif phase == "main_raw_cataloged_handoff_d0":
     for key, expected in (("task_id", "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"), ("execution_row", "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"), ("guard_phase", "main_raw_cataloged_handoff_d0")):
         if registration.get(key) != expected:

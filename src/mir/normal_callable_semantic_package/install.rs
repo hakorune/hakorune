@@ -63,6 +63,9 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     PhysicalSignatureUnavailable,
     CatalogSlotOccupied,
     LoweringAlreadyStarted,
+    MainRootUnavailable,
+    MainRootRelationMismatch,
+    MainRootAlreadyConsumed,
     S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
@@ -270,6 +273,7 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) installed: &'package InstalledNormalCallableSemanticPackageV1,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
     s6c_child_consumed: bool,
+    main_root_consumed: bool,
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
@@ -417,6 +421,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             installed: self,
             consumed: BTreeSet::new(),
             s6c_child_consumed: false,
+            main_root_consumed: false,
         })
     }
 

@@ -186,6 +186,13 @@ impl MirBuilder {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         callable_loop_root_scope.validate_collector(&collector)?;
         collector.install_static_result_publication_owner(static_result_publication_owner)?;
+        let installed_app_main_root = matches!(
+            (&callable_mode, expansion),
+            (
+                NormalCallableSemanticPackageMode::Installed(_),
+                VerifiedRawRootExpansionV1::App(_)
+            )
+        );
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
             let mut port =
@@ -209,6 +216,23 @@ impl MirBuilder {
                             target_binding,
                         )
                     }),
+                NormalScriptRootLoweringMode::Unavailable if installed_app_main_root => {
+                    // Installed App Main owns its exact Cataloged root scope
+                    // in the body hook.  Do not wrap the whole lowering in a
+                    // ScriptRoot lineage and let that compatibility context
+                    // become the root witness.
+                    self.lower_prepared_program_root_with_callable_mode_v1(
+                        work,
+                        snapshot,
+                        expansion,
+                        materialization,
+                        runtime_inputs,
+                        declaration_facts,
+                        callable_mode,
+                        &mut port,
+                        target_binding,
+                    )
+                }
                 NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {

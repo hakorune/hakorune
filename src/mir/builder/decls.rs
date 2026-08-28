@@ -1,6 +1,8 @@
 // Declarations lowering: static boxes and box declarations
 use super::calls::CanonicalFunctionSessionErrorV1;
-use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
+use super::main_expansion::{
+    OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1, VerifiedMainStaticChildV1,
+};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::raw_compatibility_child_terminal::RawCompatibilityChildTerminalPortV1;
@@ -11,6 +13,7 @@ use super::{
     RawEntryMaterializationSourceReceiptV1, SameModuleCallableNamespaceV1, ValueId,
 };
 use crate::ast::ASTNode;
+use crate::parser::CallableDeclarationIdentityV1;
 use serde_json;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -71,9 +74,14 @@ impl super::MirBuilder {
         for child in main.static_children() {
             port.lower_app_main_static_child(self, child)?;
         }
+        let root_identity = main
+            .callable_main_compat()
+            .and_then(VerifiedMainStaticChildV1::parser_identity)
+            .map(|identity| identity.clone());
         self.lower_verified_static_main_root_with_port_v1(
             port,
             main.to_owned_root_lowering(),
+            root_identity.as_ref(),
             materialization
                 .policy()
                 .is_required()
@@ -115,6 +123,7 @@ impl super::MirBuilder {
             &box_name,
             callable_symbol.as_deref(),
             None,
+            None,
             false,
             StaticMainScriptArgsSourceV1::LegacyEnvironment,
             params,
@@ -130,6 +139,7 @@ impl super::MirBuilder {
         &mut self,
         port: &mut Port,
         root: OwnedVerifiedMainRootLoweringV1,
+        root_identity: Option<&CallableDeclarationIdentityV1>,
         materialization: Option<&CallableMainMaterializationTargetV1>,
         script_args: StaticMainScriptArgsSourceV1<'_>,
     ) -> Result<ValueId, CallableMainCompatibilityLoweringErrorV1>
@@ -142,6 +152,7 @@ impl super::MirBuilder {
             port,
             &box_name,
             callable_symbol.as_deref(),
+            root_identity,
             materialization,
             false,
             script_args,
@@ -159,6 +170,7 @@ impl super::MirBuilder {
         port: &mut Port,
         box_name: &str,
         verified_callable_symbol: Option<&str>,
+        root_identity: Option<&CallableDeclarationIdentityV1>,
         materialization: Option<&CallableMainMaterializationTargetV1>,
         use_legacy_materialization_policy: bool,
         script_args_source: StaticMainScriptArgsSourceV1<'_>,
@@ -297,8 +309,13 @@ impl super::MirBuilder {
             self.set_current_function_runes(&attrs);
             self.set_current_function_declared_capability_uses(&uses);
 
-            // Lower statements in order to preserve def→use
-            let lowered = port.lower_body(self, body.clone());
+            // Lower statements in order to preserve def→use.  The installed
+            // source-backed App Main root gets one exact body-scope hook;
+            // raw compatibility keeps the existing generic body route.
+            let lowered = match root_identity {
+                Some(identity) => port.lower_app_main_root_body_v1(self, identity, body.clone()),
+                None => port.lower_body(self, body.clone()),
+            };
 
             // Phase 200-C: Clear fn_body_ast after main() lowering
             self.function_state.compilation.fn_body_ast = None;
