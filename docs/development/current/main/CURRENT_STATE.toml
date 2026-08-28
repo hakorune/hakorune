@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0: package-side Main parser/catalog/batch/forest owner relation is the only open implementation cell; actual RawInvocationRootLineage handoff, target publication, package/loan, dispatcher, and argument-side recovery remain closed."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_design_stop = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+current_blocker_token = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: Main owner/forest validation R0 is landed; actual RawInvocationRootLineage handoff, target publication, consuming package/loan, scoped raw dispatcher, and argument-side recovery remain unresolved and closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -15,10 +15,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-direct-call-source-owner-lineage-coseal-d1"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
-latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, FreeStatic handoff, bounded bare-static pre-effect reject, and Main identity/catalog co-seal I0 are landed. The fast cell is now package-side Main owner/forest validation before parameter contracts/install; actual raw-lineage handoff, target publication, package/loan, dispatcher cutover, fallback/recovery retirement, and Call schema remain closed."
+latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, FreeStatic handoff, bounded bare-static pre-effect reject, Main identity/catalog co-seal I0, and Main owner/forest validation R0 are landed. The next design stop is actual raw-lineage handoff plus consuming package/loan and scoped dispatcher cutover; target publication, fallback/recovery retirement, and Call schema remain closed."
 next_design_card = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
-next_execution_card = "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-28: Main owner/forest validation R0 landed at 605cf718d5; package issuer now validates Main identity/key/brand against one StaticBoxMethod batch row, its sole root, and every nested forest owner before parameter contracts/install, with target/raw-lineage/loan/Call publication unchanged.",
 	"2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
 	"2026-08-28: Cataloged validation R0 landed at e669e1273b; package owner/site/provenance is checked across the full forest before install, while actual lineage, direct-call loan, issuer, and dispatcher remain design-stopped.",
-	"2026-08-28: Main identity/catalog co-seal I0 landed at 4001f12c37; exact parser identity, Main.main catalog key, and brand are retained in the existing catalog owner, with selected child maps and physical root lowering unchanged.",
 ]

@@ -92,7 +92,7 @@ verdict = "Existing owners can be reused for the mapping, but no current issuer 
 next_design_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: close actual raw-lineage equality and the scoped loan/dispatcher contract before any target issuer."
 
 [current_review]
-observed_commit = "8d9a338663e7"
+observed_commit = "605cf718d5"
 verdict = "Architecture Accept with amendments; implementation remains NoSafeSlice. The existing forest, selected batch/map, constructor batch, source-site inventory, and owner brand can be reused; the forest-wide observation gate and BridgeReady package-only lowering boundary are landed, but a sole mapper and owner/lineage co-seal issuer are still missing."
 mapping = "Cataloged/TopLevel use SelectedNormalCallableKeyV1 -> VerifiedSelectedCallableBatchMapV1 -> VerifiedResolvedCallableSemanticBatchV1 row -> VerifiedSemanticOwnerForestV1 -> VerifiedResolvedSourceSiteInventoryV1 membership. InstanceConstructor uses source_id -> constructor batch forest root -> source-site membership. OwnedExprSiteV1 remains a transient owner/site key."
 lineage = "RawInvocationRootLineageV1 remains raw provenance. Cataloged, TopLevel, and InstanceConstructor must not be collapsed to InstalledNonBrand { caller: None }; missing exact relation is TypedReject or explicit compatibility park, never name/arity/box/symbol synthesis."
@@ -102,18 +102,18 @@ next_step = "The Cataloged-only expected owner/site/provenance validation is lan
 non_claims = "No target/Callee issuance, Resolved recovery retirement, raw loan transport, Method(None) change, mandatory-Callee schema, or VM/backend change is authorized by this review."
 
 [current_head_recheck]
-observed_commit = "8d9a338663e7"
+observed_commit = "605cf718d5"
 resolved_feedback = "The older root-only nested-owner concern is closed at the current head: forest_has_unissued_direct_call_observation_v1 walks every forest owner, and package tests cover nested-only plus root-and-nested observations. BridgeReady also closes the package-only lowering escape. Neither is an open D1 blocker."
 remaining_blockers = [
   "No exact source-site -> owner -> RawInvocationRootLineage co-seal issuer exists before prepare_install.",
   "RawInvocationChildPortV1 has no scoped &mut direct-call loan, so the physical dispatcher cannot consume a target exactly once.",
-  "The validation-only package boundary now checks Cataloged owner/site/provenance before returning the existing unissued-observation terminal; actual lineage and target publication remain closed.",
+  "The package-side Main owner/forest validation is landed before parameter contracts/install; actual raw lineage equality, target publication, and affine loan/dispatcher handoff remain closed.",
 ]
 reopen_boundary = "Do not open production target publication until the Cataloged-only owner/site/lineage validation contract is accepted and one later atomic row closes the source co-seal and scoped loan blockers without name/arity/symbol inference, a second resolver, or a public semantic receipt."
 [next_bounded_row]
 task_id = "MIR-CALL-D1B-MAIN-OWNER-FOREST-VALIDATION-R0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 scope = "Package-side Main owner/forest validation only. Reuse the landed parser identity/catalog companion, batch declaration, compilation brand, and forest to verify one exact Main relation before parameter contracts and install. This row emits no Callee, RawInvocationRootLineage, loan, Call, or physical target."
 source_authority = "AppMainCatalogCoSealV1, the existing source-backed catalog declaration/key/brand, the matching VerifiedResolvedCallableSemanticBatchV1 row, and its VerifiedSemanticOwnerForestV1. RawInvocationRootLineageV1 is outside this package-side row because no live Main raw handoff exists yet."
 canonical_issuer = "One private validator in the existing normal_callable_semantic_package issuer, called once after catalog/batch/selected products and before parameter contracts; it checks parser identity, StaticBoxMethod mode, catalog key/declaration, owner/root, function origin, source-site inventory, and compilation brand, then fails closed with the existing batch issue."
@@ -152,8 +152,8 @@ no_safe_slice = [
 following_atomic_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: remains NoSafeSlice until a live Main raw context/owner transition supplies actual RawInvocationRootLineage equality. The later Cataloged source-relation + affine-loan row stays atomic: issuer, sealed package/loan, scoped raw take_once, target-before-arguments, and direct payload deletion."
 
 [latest_worker_recheck]
-observed_commit = "f1ec01bcd3"
-verdict = "Main identity/catalog co-seal I0 is landed, and the forest-wide gate is closed. D1B remains No-Go for live raw lineage and target publication: package+loan, actual lineage equality, scoped raw reborrow, and Cataloged dispatcher cutover are absent from the current API. The immediate task is route-neutral Main provenance validation; the later Cataloged affine-loan cutover remains atomic."
+observed_commit = "605cf718d5"
+verdict = "Main owner/forest validation R0 is landed before parameter contracts/install. The private gate validates the retained Main identity/key/brand against one StaticBoxMethod batch row, its sole root, and every nested forest owner without issuing a target, raw lineage, loan, or Call. D1B remains No-Go for live raw lineage and target publication."
 batch_reject = "Keep the default callable-semantic batch issuer's UnissuedDirectCallObservation rejection. A package-only observe policy may validate Cataloged owner/site and expected provenance, then fail closed with the existing pre-install error; do not globally remove the batch gate."
 permission_blockers = [
   "actual source-site -> owner -> RawInvocationRootLineage co-seal issuer is absent",
