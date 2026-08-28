@@ -676,9 +676,10 @@ no_safe_slice = [
 ]
 
 [installed_nonbrand_pre_effect_reject_r2a]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-D1B-INSTALLED-NONBRAND-PRE-EFFECT-REJECT-R2A"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "1db9a097ba"
 guard_phase = "installed_nonbrand_pre_effect_reject_r2a"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 decision = "For an ordinary FunctionCall admitted as InstalledNonBrand with no exact caller relation, reject before argument descent. Do not issue a target and do not touch App Main, caller-backed Cataloged, special routes, builtin/Extern, or explicit Relationless compatibility."
@@ -694,7 +695,7 @@ fail_fast_boundary = "The new Rejected disposition must be selected before drive
 acceptance = [
     "InstalledNonBrand caller=None ordinary calls have a named typed terminal and zero child descent/instruction delta.",
     "GC retirement keeps its existing terminal; AppMain, caller-backed Cataloged, math/typeop/fastmem/str, builtin/Extern, and Relationless compatibility behavior is unchanged.",
-    "Focused negatives cover source-backed TopLevel/InstanceConstructor/Nested/Unlocated callers; no global Resolved or compatibility caller-zero claim is made.",
+    "The shared caller=None terminal has a focused pre-effect negative; the R2 lineage matrix maps TopLevel/InstanceConstructor/Nested/Unlocated source-backed paths to that terminal without claiming global Resolved zero.",
     "The scoped lifecycle guard and quick library/test-target type checks pass; the changed production owner remains below 760 lines.",
 ]
 no_safe_slice = [
@@ -702,3 +703,22 @@ no_safe_slice = [
     "the branch changes AppMain loan, caller-backed Cataloged, Relationless compatibility, Method(None), VM/backend, or Call schema",
     "pre-effect rejection cannot prove zero argument descent and zero MIR/collector mutation",
 ]
+
+[installed_nonbrand_pre_effect_reject_r2a_verification_2026_08_29]
+status = "landed"
+implementation_commit = "1db9a097ba"
+positive = "InstalledNonBrand caller=None ordinary FunctionCall now selects a named Rejected disposition before child descent; the existing App Main loan, caller-backed Cataloged, special, builtin/Extern, and Relationless paths remain outside the branch."
+negative = "The focused test records zero child expressions, zero header events, and zero emitted Call instructions for the source-backed caller-none terminal."
+guards = [
+    "bash -n tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "bash tools/checks/current_state_pointer_guard.sh",
+    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh installed_nonbrand_pre_effect_reject_r2a",
+    "git diff --check",
+]
+compile_checks = [
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib (passed; existing warnings only)",
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib -q (passed; existing warnings only)",
+]
+known_limit = "Full cargo test/link was not rerun because the repository's large test binary previously exceeded available memory; test targets were type-checked and the scoped lifecycle guard was executed."
+closeout = "R2a is complete as a bounded pre-effect rejection slice. R2b must first separate source-backed Resolved from explicit RelationlessCompatibility before any global resolver/recovery deletion claim."
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
