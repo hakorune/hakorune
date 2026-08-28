@@ -3,6 +3,7 @@
 //! This ledger does not discover representation facts. It only proves that
 //! Lower consumed every pre-Builder claim exactly once.
 
+use crate::mir::canonical_direct_call_contract::VerifiedTrivialDirectCallTargetV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
@@ -80,6 +81,28 @@ impl TrivialProfileConsumptionV1 {
             })?;
         self.claim(TrivialProfileCoverageSubjectV1::DirectCall(site.clone()))?;
         Ok(row)
+    }
+
+    /// Read the already sealed target before lowering argument effects.
+    ///
+    /// Coverage consumption intentionally remains postorder so nested calls
+    /// keep their existing cursor discipline.  This accessor only projects
+    /// the target from the sealed profile; it performs no source lookup and
+    /// issues no new target.
+    pub(crate) fn direct_call_target(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Result<VerifiedTrivialDirectCallTargetV1, String> {
+        self.product
+            .direct_calls()
+            .iter()
+            .find(|row| row.site() == site)
+            .map(|row| row.target().clone())
+            .ok_or_else(|| {
+                format!(
+                    "[freeze:contract][trivial_profile/direct_call_target_missing] site={site:?}"
+                )
+            })
     }
 
     pub(crate) fn claim_declaration(

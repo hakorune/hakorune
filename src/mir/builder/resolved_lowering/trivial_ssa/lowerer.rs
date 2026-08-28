@@ -340,6 +340,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 (result.0, Some(result.1))
             }
             ASTNode::FunctionCall { arguments, .. } => {
+                let expected_target = self.profile.direct_call_target(expression.site())?;
                 let mut argument_values = Vec::with_capacity(arguments.len());
                 let mut argument_sites = Vec::with_capacity(arguments.len());
                 for index in 0..arguments.len() {
@@ -367,6 +368,9 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                     return Err(
                         "[freeze:contract][canonical_direct_call/argument_site_drift]".to_string(),
                     );
+                }
+                if row.target() != &expected_target {
+                    return Err("[freeze:contract][canonical_direct_call/target_drift]".to_string());
                 }
                 return super::direct_call::emit(self.builder, self.input, &row, argument_values);
             }

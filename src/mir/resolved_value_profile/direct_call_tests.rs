@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::canonical_direct_call_contract::VerifiedDirectCallEffectV1;
-use crate::mir::compiler::{VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
+use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
 use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_with_direct_call_v1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
@@ -88,8 +88,13 @@ fn analyze(
             TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls,
         )
     } else {
-        let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-        let input = unit.root_function_input().unwrap();
+        let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
+            statements: vec![root],
+            span: Span::unknown(),
+        })
+        .unwrap();
+        let key = source.module().functions_by_key().keys().next().unwrap();
+        let input = source.module().function_input(key).unwrap();
         let completion = verify_function_completion_v1(input).unwrap();
         let if_control =
             verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
@@ -180,6 +185,17 @@ fn consumption_claims_arguments_then_one_whole_direct_call_row() {
         .claim_terminal_explicit_value(&statement, &value)
         .unwrap();
     ledger.finish().unwrap();
+}
+
+#[test]
+fn consumption_reads_sealed_direct_call_target_without_advancing_coverage() {
+    let product = admitted(function(1, call(vec![variable("p0")])));
+    let row = product.direct_calls()[0].clone();
+    let mut ledger = TrivialProfileConsumptionV1::new(product);
+
+    let target = ledger.direct_call_target(row.site()).unwrap();
+    assert_eq!(&target, row.target());
+    assert!(ledger.claim_direct_call(row.site()).is_err());
 }
 
 #[test]
