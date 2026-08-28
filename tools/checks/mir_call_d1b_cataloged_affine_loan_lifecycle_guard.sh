@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -80,15 +80,21 @@ if not phase:
         phase = "installed_nonbrand_pre_effect_reject_r2a"
     elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2B-D0":
         phase = "resolved_compatibility_provenance_r2b"
+    elif active_row == "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0":
+        phase = "resolved_compatibility_provenance_r2c"
     elif active_row == "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0":
-        r2b = active_card.get("r2b_compatibility_provenance_d0_2026_08_29")
-        if isinstance(r2b, dict) and r2b.get("status") in {"fast_open", "landed"}:
-            phase = "resolved_compatibility_provenance_r2b"
+        r2c = active_card.get("r2c_compatibility_provenance_d0_2026_08_29")
+        if isinstance(r2c, dict) and r2c.get("status") in {"fast_open", "landed"}:
+            phase = "resolved_compatibility_provenance_r2c"
         else:
-            raise SystemExit("active all-lineage row has no explicit current compatibility phase")
+            r2b = active_card.get("r2b_compatibility_provenance_d0_2026_08_29")
+            if isinstance(r2b, dict) and r2b.get("status") in {"fast_open", "landed"}:
+                phase = "resolved_compatibility_provenance_r2b"
+            else:
+                raise SystemExit("active all-lineage row has no explicit current compatibility phase")
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -109,7 +115,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 
 d1_card = None
 registration_owner = card
-if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b"}:
+if phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c"}:
     registration_owner = active_card
 if phase in {"cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0"}:
     d1_path = (
@@ -154,6 +160,8 @@ registration_key = (
     if phase == "installed_nonbrand_pre_effect_reject_r2a"
     else "r2b_compatibility_provenance_d0_2026_08_29"
     if phase == "resolved_compatibility_provenance_r2b"
+    else "r2c_compatibility_provenance_d0_2026_08_29"
+    if phase == "resolved_compatibility_provenance_r2c"
     else "guard_registration_row"
 )
 registration = registration_owner.get(registration_key)
@@ -360,6 +368,76 @@ elif phase == "resolved_compatibility_provenance_r2b":
     for path in (brand_path, route_path, parent_tests_path, tests_path):
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"R2b owner reached the 760-line split boundary: {path}")
+elif phase == "resolved_compatibility_provenance_r2c":
+    brand_path = mir_root / "builder/calls/function_call_brand_source_demand.rs"
+    route_path = mir_root / "builder/calls/function_call_preflight_route.rs"
+    parent_tests_path = mir_root / "builder/calls/function_call_preflight_route_tests.rs"
+    tests_path = mir_root / "builder/calls/function_call_script_compatibility_tests.rs"
+    brand = brand_path.read_text()
+    route = route_path.read_text()
+    tests = tests_path.read_text()
+    parent_tests = parent_tests_path.read_text()
+    if registration.get("task_id") != "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0":
+        raise SystemExit("R2c task id drifted")
+    if registration.get("execution_row") != "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0":
+        raise SystemExit("R2c execution row drifted")
+    if registration.get("guard_phase") != "resolved_compatibility_provenance_r2c":
+        raise SystemExit("R2c guard phase drifted")
+    if registration.get("status") not in {"fast_open", "landed"}:
+        raise SystemExit("R2c status drifted")
+    if registration.get("implementation_permission") is not (registration.get("status") == "fast_open"):
+        raise SystemExit("R2c permission/status drifted")
+    if registration.get("status") == "fast_open":
+        if active_row != "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0":
+            raise SystemExit("R2c current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("R2c requires fast or closeout")
+    required = (
+        "RawScriptRootParkedCompatibility",
+        "RawRootMainParkedCompatibility",
+        "RawLegacyParkedCompatibility",
+        "is_raw_script_root_compatibility_context_v1",
+        "is_raw_root_main_compatibility_context_v1",
+        "raw_compatibility_provenance_preserves_resolved_terminal",
+    )
+    for token in required:
+        if token not in brand and token not in route and token not in tests and token not in parent_tests:
+            raise SystemExit(f"R2c implementation/test token is missing: {token}")
+    semantic = brand.find("is_semantic_script_root_compatibility_context_v1")
+    raw_script = brand.find("is_raw_script_root_compatibility_context_v1")
+    ledger = brand.find("let Some(ledger)")
+    if min(semantic, raw_script, ledger) < 0 or not (semantic < raw_script < ledger):
+        raise SystemExit("R2c semantic/raw ScriptRoot ordering is not explicit")
+    if "self.semantic_ledger.is_none() && self.callable_ledger.is_none()" not in brand:
+        raise SystemExit("R2c raw compatibility must require both ledgers absent")
+    prepare_fn = route.find("fn prepare_ordinary_function_completion_v1")
+    resolved = route.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }", prepare_fn)
+    if prepare_fn < 0 or resolved < 0:
+        raise SystemExit("R2c ordinary completion owner is missing")
+    selection = route[prepare_fn:resolved]
+    if "drive_call_arguments_v1" in selection or "resolve_call_target" in selection:
+        raise SystemExit("R2c selection must remain pre-effect")
+    for origin in (
+        "PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility",
+        "PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility",
+        "PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility",
+    ):
+        if origin not in route:
+            raise SystemExit(f"R2c explicit origin is missing: {origin}")
+    for origin in (
+        "RawScriptRootParkedCompatibility",
+        "RawRootMainParkedCompatibility",
+        "RawLegacyParkedCompatibility",
+    ):
+        if origin not in route[:resolved]:
+            raise SystemExit(f"R2c compatibility completion arm is missing: {origin}")
+    if "function_call_script_compatibility_tests" not in parent_tests:
+        raise SystemExit("R2c sibling test is not registered")
+    if "CalleeResolverBox" in brand:
+        raise SystemExit("R2c brand provenance owner must not resolve targets")
+    for path in (brand_path, route_path, parent_tests_path, tests_path):
+        if sum(1 for _ in path.open()) >= 760:
+            raise SystemExit(f"R2c owner reached the 760-line split boundary: {path}")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 else:
@@ -402,6 +480,9 @@ if phase == "installed_nonbrand_pre_effect_reject_r2a":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "resolved_compatibility_provenance_r2b":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
+if phase == "resolved_compatibility_provenance_r2c":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0":

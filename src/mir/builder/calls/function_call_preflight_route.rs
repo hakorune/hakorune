@@ -50,6 +50,9 @@ enum PreparedRawNonBrandRouteOriginV1 {
     InstalledNonBrand,
     InstalledAppMain,
     ScriptRootParkedCompatibility,
+    RawScriptRootParkedCompatibility,
+    RawRootMainParkedCompatibility,
+    RawLegacyParkedCompatibility,
     RelationlessCompatibility,
 }
 
@@ -177,19 +180,36 @@ impl PreparedRawFunctionPreflightV1 {
                 PreparedRawNonBrandRouteOriginV1::InstalledAppMain,
             ),
             super::RawBrandCallAuthorityV1::ScriptRootParkedCompatibility => {
-                if builder.comp_ctx.is_brand_declared(&name) {
-                    PreparedRawFunctionPreflightRouteV1::Brand(
-                        PreparedRawBrandConstructorV1::prepare(arguments, false),
-                    )
-                } else {
-                    prepare_non_brand_route(
-                        builder,
-                        &name,
-                        arguments,
-                        None,
-                        PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility,
-                    )
-                }
+                prepare_compatibility_route(
+                    builder,
+                    &name,
+                    arguments,
+                    PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility,
+                )
+            }
+            super::RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility => {
+                prepare_compatibility_route(
+                    builder,
+                    &name,
+                    arguments,
+                    PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility,
+                )
+            }
+            super::RawBrandCallAuthorityV1::RawRootMainParkedCompatibility => {
+                prepare_compatibility_route(
+                    builder,
+                    &name,
+                    arguments,
+                    PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility,
+                )
+            }
+            super::RawBrandCallAuthorityV1::RawLegacyParkedCompatibility => {
+                prepare_compatibility_route(
+                    builder,
+                    &name,
+                    arguments,
+                    PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility,
+                )
             }
             super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
                 if builder.comp_ctx.is_brand_declared(&name) {
@@ -208,6 +228,21 @@ impl PreparedRawFunctionPreflightV1 {
             }
         };
         Self { name, route }
+    }
+}
+
+fn prepare_compatibility_route(
+    builder: &MirBuilder,
+    name: &str,
+    arguments: Vec<ASTNode>,
+    origin: PreparedRawNonBrandRouteOriginV1,
+) -> PreparedRawFunctionPreflightRouteV1 {
+    if builder.comp_ctx.is_brand_declared(name) {
+        PreparedRawFunctionPreflightRouteV1::Brand(PreparedRawBrandConstructorV1::prepare(
+            arguments, false,
+        ))
+    } else {
+        prepare_non_brand_route(builder, name, arguments, None, origin)
     }
 }
 
@@ -310,6 +345,9 @@ fn prepare_ordinary_function_completion_v1(
         origin,
         PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility
             | PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
+            | PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
+            | PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility
+            | PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility
     ) {
         PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
     } else {

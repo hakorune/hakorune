@@ -771,11 +771,22 @@ known_limit = "Full cargo test/link was not rerun because the repository's large
 closeout = "R2b is complete as a bounded provenance slice. The pointer returns to design_stop at the existing all-lineage row; no target issuer, loan transport, dispatcher, Resolved deletion, Method/VM, or Call-schema change is opened."
 
 [r2c_compatibility_provenance_d0_2026_08_29]
-status = "accepted_design"
+status = "fast_open"
 task_id = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0"
 execution_row = "MIR-CALL-D1B-RESOLVED-COMPATIBILITY-PROVENANCE-R2C-A-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
-implementation_permission = false
+implementation_permission = true
+guard_phase = "resolved_compatibility_provenance_r2c"
+allowed_files = [
+    "src/mir/builder/calls/function_call_brand_source_demand.rs",
+    "src/mir/builder/calls/function_call_preflight_route.rs",
+    "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+    "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
+    "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
 decision = "Name only the remaining raw compatibility provenance at the existing FunctionCall authority boundary. Ledger-less raw ScriptRoot is one compatibility owner for Program/raw-AppMain ordinary calls; Main(locator) and RawLegacy get type-backed owners. All three preserve the existing Resolved terminal and issue no target."
 source_authority = "NormalCallableSemanticPackageMode::Compatibility issues the raw ScriptRoot scope; RawInvocationRootLineageV1::Main identifies raw-root Main; RawLegacyChildLoweringPortV1 is the direct RawLegacy issuer. Existing semantic ScriptRoot provenance remains separate."
 non_authority = "ledger absence alone, ScriptRoot spelling alone, NestedBoxMethod parent loss, name/arity, symbol parsing, variable_map, static/header scans, environment flags, and any compatibility terminal schedule."

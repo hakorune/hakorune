@@ -25,6 +25,15 @@ pub(in crate::mir::builder) enum RawBrandCallAuthorityV1 {
     /// target product.  Preserve its compatibility terminal explicitly;
     /// absence of a callable ledger is never itself a resolver authority.
     ScriptRootParkedCompatibility,
+    /// A ledger-less raw ScriptRoot is an explicit compatibility source for
+    /// ordinary Program/AppMain calls.  It carries no target authority.
+    RawScriptRootParkedCompatibility,
+    /// A ledger-less raw-root Main(locator) is kept distinct from ScriptRoot
+    /// so its compatibility provenance cannot be inferred from absence.
+    RawRootMainParkedCompatibility,
+    /// The direct legacy facade is an explicit compatibility owner.  It has
+    /// no source ledger and never becomes a target resolver.
+    RawLegacyParkedCompatibility,
     /// The raw call is inside the exact installed App Main owner scope.  The
     /// target itself remains in the package loan; this variant carries no
     /// name/arity or physical symbol and therefore cannot become a resolver.
@@ -47,7 +56,7 @@ impl BrandConstructorSourcePortV1 for RawLegacyChildLoweringPortV1 {
         &mut self,
         _call: &ASTNode,
     ) -> Result<RawBrandCallAuthorityV1, String> {
-        Ok(RawBrandCallAuthorityV1::RelationlessCompatibility)
+        Ok(RawBrandCallAuthorityV1::RawLegacyParkedCompatibility)
     }
 }
 
@@ -81,6 +90,20 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
                 .is_some_and(is_semantic_script_root_compatibility_context_v1)
         {
             return Ok(RawBrandCallAuthorityV1::ScriptRootParkedCompatibility);
+        }
+        if self.semantic_ledger.is_none() && self.callable_ledger.is_none() {
+            if context
+                .as_ref()
+                .is_some_and(is_raw_script_root_compatibility_context_v1)
+            {
+                return Ok(RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility);
+            }
+            if context
+                .as_ref()
+                .is_some_and(is_raw_root_main_compatibility_context_v1)
+            {
+                return Ok(RawBrandCallAuthorityV1::RawRootMainParkedCompatibility);
+            }
         }
         let Some(ledger) = self.callable_ledger.clone() else {
             return Ok(RawBrandCallAuthorityV1::RelationlessCompatibility);
@@ -123,6 +146,34 @@ fn is_semantic_script_root_compatibility_context_v1(
         } => true,
         RawInvocationSourceContextV1::UnlocatedCompatibility {
             expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
+            ..
+        } => true,
+        _ => false,
+    }
+}
+
+fn is_raw_script_root_compatibility_context_v1(context: &RawInvocationSourceContextV1) -> bool {
+    match context {
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::ScriptRoot,
+            ..
+        }
+        | RawInvocationSourceContextV1::UnlocatedCompatibility {
+            expected_lineage: Some(RawInvocationRootLineageV1::ScriptRoot),
+            ..
+        } => true,
+        _ => false,
+    }
+}
+
+fn is_raw_root_main_compatibility_context_v1(context: &RawInvocationSourceContextV1) -> bool {
+    match context {
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Main(_),
+            ..
+        }
+        | RawInvocationSourceContextV1::UnlocatedCompatibility {
+            expected_lineage: Some(RawInvocationRootLineageV1::Main(_)),
             ..
         } => true,
         _ => false,
@@ -188,5 +239,20 @@ mod script_root_context_tests {
                 expected_lineage: None,
             }
         ));
+        assert!(is_raw_script_root_compatibility_context_v1(&located(
+            RawInvocationRootLineageV1::ScriptRoot,
+        )));
+        assert!(is_raw_root_main_compatibility_context_v1(&located(
+            RawInvocationRootLineageV1::Main(crate::mir::builder::RawSourceLocatorV1::for_test(
+                0,
+                "Main",
+                "main",
+                "Main.main/0",
+                0,
+            )),
+        )));
+        assert!(!is_raw_root_main_compatibility_context_v1(&located(
+            RawInvocationRootLineageV1::ScriptRoot,
+        )));
     }
 }
