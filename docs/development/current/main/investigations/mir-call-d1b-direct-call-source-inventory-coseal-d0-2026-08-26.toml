@@ -2,9 +2,9 @@ title = "MIR Call D1B direct-call source inventory co-seal design"
 status = "b1_current_head_c0_design_stop"
 base_observed_commit = "632c674a76"
 base_observed_at = "2026-08-26"
-observed_commit = "8af6eb73bc"
+observed_commit = "ff5510c50f"
 observed_at = "2026-08-28"
-observed_source_delta = "HEAD after a54680b7c7 is docs-only for C0 source-identity/family-boundary evidence; the compiled dual-surface census remains unchanged."
+observed_source_delta = "HEAD after a54680b7c7 is docs/guard-only for C0 source-identity, family-boundary, and contract-close evidence; the compiled dual-surface census remains unchanged."
 implementation_permission = false
 permission_scope = "MIR-CALL-D1B-FOREST-WIDE-OBSERVATION-GATE-R0 is closed; B1 current-head disposition and simultaneous Callee/CallTarget cutover remain design-gated; package/loan/issuer/dispatcher publication is closed"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
@@ -285,7 +285,7 @@ decision = "Complete a finite semantic disposition for every compiled Global pro
 boundary = "Starts at every compiled Callee::Global/CallTarget::Global producer or consumer and ends at the selected structural wire/terminal or explicit isolate/retire disposition. Path counts are scope hints only; completion requires owner/action evidence for each family."
 boundary_scope_amendment = "C0 closes the compiled Rust producer/consumer boundary and records explicit dispositions for adjacent wire/fixture/external surfaces. JSON-v0/v1 codecs, Python/llvmlite readers, and apps/selfhost-runtime copies remain outside the compiled carrier cutover as named ParkedSealed owners; they are not silently treated as proof of Rust semantic coverage."
 observed_census = "Current path census: Callee::Global 143 Rust files/272 occurrences (about 68 production-ish files/115 occurrences); CallTarget::Global 20 files/45 occurrences (about 17 production-ish files/36 occurrences). These counts do not prove semantic coverage and must not be used as the completion claim."
-current_head_reaudit = "At HEAD a30bb7ba6a (2026-08-28), the compiled source boundary remains unchanged after the b8bc5cc105 dual-surface guard and the docs-only tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The readiness guard derives both aggregates and compact buckets, but C0 successor evidence remains open."
+current_head_reaudit = "At HEAD ff5510c50f (2026-08-28), the compiled source boundary remains unchanged after the b8bc5cc105 dual-surface guard and the docs/guard-only tail: Callee::Global remains 143 Rust files/272 occurrences and CallTarget::Global remains 20 files/45 occurrences. The readiness guard derives both aggregates and compact buckets, but C0 successor contracts are not yet sealed."
 dual_surface_coverage_next = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-COVERAGE-D0: derive and classify both Callee::Global and CallTarget::Global across the compiled boundary, while separating test-only, generated, wire, and external ParkedSealed owners. Do not open B1 until both surfaces have observed owner/action/terminal-or-successor/reopen evidence."
 final_shape = "Callee::Global(CanonicalGlobalTargetV1) and CallTarget::Global(CanonicalGlobalTargetV1) are one atomic core decision. CanonicalGlobalTargetV1 remains serde-free and source-proof-free; its sole production construction authority is the exact declaration-backed callable catalog."
 finite_disposition = [
@@ -434,8 +434,8 @@ no_safe_slice = [
 ]
 next_row = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
 closeout_guard_design = "Reuse this single guard with a c0_dual_closeout phase. Keep the existing dual aggregate/digest and selector buckets, normalize the shared disposition dictionary to a finite action/state vocabulary, require exactly one terminal_kind or successor_ref, and connect every evidence row to one disposition_ref. The 18 evidence rows are bounded to family/file anchors; they do not expand into function- or occurrence-level cards. Do not add an AST scanner, new guard, or semantic target inference."
-closeout_disposition_schema = "action ∈ {adapt, isolate, retire, retain}; state ∈ {CutoverBlockerOpen, CutoverBlockerClosed, ParkedSealed}; exactly one of terminal_kind/successor_ref is non-empty; non_authority and reopen are explicit; ParkedSealed requires a named owner and non-authority. A closed disposition may carry successor_ref when its decision is sealed for the next implementation row; readiness may retain open blockers; closeout rejects any CutoverBlockerOpen row. Before opening closeout, the existing guard must enforce the same finite action vocabulary on evidence rows."
-closeout_transition = "After the existing compiled-family evidence is complete and the closeout phase passes, update the same card and CURRENT_STATE atomically to the B1 cutover row. A guard pass alone never grants B1; all compiled dispositions currently remain CutoverBlockerOpen."
+closeout_disposition_schema = "action ∈ {adapt, isolate, retire, retain}; state ∈ {CutoverBlockerOpen, SuccessorContractSealed, CutoverBlockerClosed, ParkedSealed}; exactly one of terminal_kind/successor_ref is non-empty; non_authority and reopen are explicit; SuccessorContractSealed requires successor_ref and represents a design-only contract for B1; ParkedSealed requires a named owner and non-authority; CutoverBlockerClosed is reserved for executable post-B1 proof. Readiness may retain open blockers; contract close rejects any CutoverBlockerOpen row and does not claim successor execution."
+closeout_transition = "After the finite compiled-family contracts are sealed and the contract-close phase passes, update the same card and CURRENT_STATE atomically to the B1 cutover row. B1 then proves executable typed successors and may only later mark them CutoverBlockerClosed; a guard pass never silently changes source or grants a partial carrier cutover."
 c0_boundary_decision = "Do not narrow C0 to the canonical Call corridor. The compiled adjacent routes still have reachable production emitters; ParkedSealed without an executable isolation/retirement boundary would leave competing Global authorities. Only the public MirCall compatibility constructor is currently parkable under its named external-owner policy."
 c0_remaining_family_blockers = [
   "direct/static terminal cluster (canonical_direct_call.rs, method_call_terminal.rs, print_stmt.rs): issue a typed target from an exact declaration relation or fail before effect; a physical/name projection is not authority.",
@@ -444,7 +444,7 @@ c0_remaining_family_blockers = [
   "CorePlan/operator/emission cluster: split exact source-backed relation from unlocated/env/name branches; exact branches adapt to typed Global and the rest reject before effect.",
   "ordinary-New boundary: keep NewBox/birth claim as its owner terminal and remove or typed-reject fallback Global publication.",
 ]
-c0_family_exit_rule = "Every compiled family above stays CutoverBlockerOpen until it has one source-backed owner, one finite action, one executable typed successor or pre-effect terminal, and one reopen condition. A textual ParkedSealed label is insufficient; no family may be hidden by a wildcard or by narrowing the C0 boundary."
+c0_family_exit_rule = "Every compiled family above stays CutoverBlockerOpen until it has one source-backed owner, one finite action, one sealed successor contract or executable pre-effect terminal, and one reopen condition. A textual ParkedSealed label is insufficient; no family may be hidden by a wildcard or by narrowing the C0 boundary. B1 must turn a sealed successor contract into executable typed proof before CutoverBlockerClosed."
 c0_direct_static_source_identity = [
   "canonical-direct-call: VerifiedCallableCatalogV1/Index/Header is the upstream issuer, but VerifiedTrivialDirectCallTargetV1 drops source_key before physical materialization; preserve same-unit/session, FreeStatic namespace, exact SourceExprSiteV1, header callable, and arity before issuing typed Global, otherwise reject before argument descent.",
   "script direct-static claim: the one-shot claim ledger already checks catalog brand, parser window, call/receiver/argument sites, StaticBoxMethod declaration, and result contract; the physical bridge drops that brand and rebuilds owner/name/arity String, so the next row must carry the branded relation into the typed carrier issuer.",
@@ -478,7 +478,7 @@ implementation_permission = false
 prior_readiness_commit = "1948f7b76a"
 commit = "b8bc5cc105"
 implementation_commit = "a54680b7c7"
-decision = "Extend the existing single C0 guard with a finite disposition schema and a reserved c0_dual_closeout phase. Readiness remains the active phase for this guard-only cell; closeout will require terminal/successor exclusivity, explicit non-authority, evidence-to-disposition linkage, and zero open blockers without changing production source."
+decision = "Extend the existing single C0 guard with a finite disposition schema and a reserved c0_dual_closeout contract-close phase. Readiness remains the active phase for this guard-only cell; contract close seals successor contracts without claiming executable code, while B1 remains the owner of executable typed proof."
 allowed_files = [
   "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
   "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
@@ -496,7 +496,7 @@ forbidden_files = [
 guard_phase = "c0_dual_readiness"
 guard_contract = "Fail closed on an unlisted, overlapping, or ambiguous Callee::Global/CallTarget::Global occurrence, aggregate count/digest drift, malformed bucket/disposition tuple, missing B0/S0 registry dependency, or active-card boundary drift. Readiness output must keep C0 incomplete and B1 implementation permission closed."
 reserved_closeout_phase = "c0_dual_closeout"
-closeout_contract = "The same guard will accept c0_dual_closeout only when all disposition rows use the finite schema, each evidence row references one disposition, no compiled blocker remains open, every parked row names non-authority/reopen, and the dual inventory remains unchanged. Closeout still does not alter source or open B1 by itself."
+closeout_contract = "The same guard will accept c0_dual_closeout only when all compiled disposition rows are SuccessorContractSealed or executable ParkedSealed, each evidence row references one disposition and agrees with its action/successor, every parked row names non-authority/reopen, and the dual inventory remains unchanged. This is a design-only contract close; it does not alter source or claim that B1 successors already execute."
 scope = "All tracked Rust files under src/ and crates/ for dual Global surface derivation; JSON-v0/v1, Python/llvmlite, apps/selfhost-runtime, and generated wire copies remain explicit out-of-boundary ParkedSealed surfaces recorded by the C0 card."
 non_claims = [
   "no Callee or CallTarget schema change",
@@ -547,4 +547,22 @@ no_safe_slice = [
   "marking the adjacent family ParkedSealed without an executable isolation or retirement boundary",
   "opening B1 or D1B while package-only installation, absent loan transport, or a post-argument resolver remains",
   "using the green readiness guard as implementation permission without closeout evidence",
+]
+
+[c0_contract_close_transition_2026_08_28]
+status = "design_stop"
+source = "One read-only transition audit after the C0 readiness re-audit; no source or fixture edit."
+decision = "Separate C0 contract closure from post-B1 executable proof. C0 may seal a complete successor contract, but it must not label an unimplemented successor CutoverBlockerClosed."
+state_machine = [
+  "Observed -> SuccessorContractSealed when owner, finite action, exact successor_ref or executable pre-effect terminal, non-authority, and reopen are all sealed",
+  "Observed -> ParkedSealed only for named fixture/external owners with an explicit terminal, non-authority, and reopen",
+  "SuccessorContractSealed -> B1 typed implementation -> CutoverBlockerClosed only after executable proof",
+  "Unclassified, overlapping, missing issuer, mixed-family, or unresolved authority remains CutoverBlockerOpen/NoSafeSlice",
+]
+guard_rule = "The existing c0_dual_closeout phase is a contract-close check: dual digests and one-to-one buckets remain fixed; SuccessorContractSealed requires successor_ref; ParkedSealed requires terminal_kind; evidence action and successor/terminal fields agree with the referenced disposition. CutoverBlockerClosed is reserved for the later executable B1 proof and is not used to bypass source implementation."
+transition = "Keep CURRENT_STATE work_mode=design_stop and implementation_permission=false while C0 rows are open. Once the finite compiled contracts are sealed, run the same guard in c0_dual_closeout, then atomically select MIR-CALL-GLOBAL-TARGET-B1-CUTOVER for the implementation row."
+non_claims = [
+  "does not implement a typed carrier, issuer, package, loan, dispatcher, or pre-effect terminal",
+  "does not treat a successor_ref as proof that successor code already exists",
+  "does not reopen the rejected source-identity fast row or add a guard exception",
 ]

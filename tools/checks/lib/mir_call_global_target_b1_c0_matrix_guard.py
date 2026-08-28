@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Readiness/closeout guard for the finite B1 Global-target disposition matrix.
+"""Readiness/contract-close guard for the finite B1 Global-target matrix.
 
 This guard deliberately checks topology and documentation, not call meaning.
 It is the single C0 readiness surface: source paths are derived from the
@@ -24,6 +24,7 @@ ALLOWED_PHASES = {"c0_dual_readiness", "c0_dual_closeout"}
 ALLOWED_DISPOSITION_ACTIONS = {"adapt", "isolate", "retire", "retain"}
 ALLOWED_DISPOSITION_STATES = {
     "CutoverBlockerOpen",
+    "SuccessorContractSealed",
     "CutoverBlockerClosed",
     "ParkedSealed",
 }
@@ -370,6 +371,10 @@ def check_dual_surface(
             )
         if state == "ParkedSealed" and not terminal_present:
             fail(f"dispositions[{index}] ParkedSealed requires terminal_kind")
+        if state == "SuccessorContractSealed" and not successor_present:
+            fail(
+                f"dispositions[{index}] SuccessorContractSealed requires successor_ref"
+            )
         if state == "CutoverBlockerClosed" and not terminal_present:
             fail(f"dispositions[{index}] closed blocker requires terminal_kind")
         dispositions[row_id] = raw
@@ -455,6 +460,85 @@ def check_evidence_rows(
     return len(seen)
 
 
+def check_contract_close_consistency(
+    manifest: dict[str, Any], dispositions: dict[str, dict[str, Any]]
+) -> None:
+    """Validate evidence/disposition agreement only at the contract-close phase.
+
+    Readiness intentionally permits open rows and descriptive evidence while the
+    finite owner map is being assembled.  Contract close is stricter: the C0
+    state is a sealed successor contract, not proof that the successor code has
+    already landed.  Executable proof belongs to the B1 implementation guard.
+    """
+
+    raw_rows = manifest.get("evidence_rows")
+    if not isinstance(raw_rows, list):
+        fail("evidence_rows must be an array for contract-close consistency")
+    evidence_by_disposition: dict[str, int] = {
+        disposition_id: 0 for disposition_id in dispositions
+    }
+    for index, raw in enumerate(raw_rows, start=1):
+        if not isinstance(raw, dict):
+            fail(f"evidence_rows[{index}] must be a table")
+        disposition_ref = nonempty(
+            raw.get("disposition_ref"), f"evidence_rows[{index}].disposition_ref"
+        )
+        disposition = dispositions.get(disposition_ref)
+        if disposition is None:
+            fail(
+                f"evidence_rows[{index}] references unknown disposition: "
+                f"{disposition_ref}"
+            )
+        evidence_by_disposition[disposition_ref] += 1
+        evidence_action = nonempty(
+            raw.get("action"), f"evidence_rows[{index}].action"
+        )
+        disposition_action = nonempty(
+            disposition.get("action"),
+            f"disposition {disposition_ref}.action",
+        )
+        if evidence_action != disposition_action:
+            fail(
+                f"evidence_rows[{index}] action {evidence_action!r} disagrees with "
+                f"disposition {disposition_ref} action {disposition_action!r}"
+            )
+        disposition_state = nonempty(
+            disposition.get("state"), f"disposition {disposition_ref}.state"
+        )
+        disposition_successor = disposition.get("successor_ref")
+        if disposition_state == "SuccessorContractSealed":
+            if not isinstance(disposition_successor, str) or not disposition_successor.strip():
+                fail(
+                    f"disposition {disposition_ref} successor contract lacks successor_ref"
+                )
+            evidence_successor = nonempty(
+                raw.get("successor_ref"),
+                f"evidence_rows[{index}].successor_ref",
+            )
+            if evidence_successor != disposition_successor:
+                fail(
+                    f"evidence_rows[{index}] successor_ref does not match "
+                    f"disposition {disposition_ref}"
+                )
+        elif disposition_state == "ParkedSealed":
+            nonempty(raw.get("terminal"), f"evidence_rows[{index}].terminal")
+        else:
+            fail(
+                f"contract-close disposition {disposition_ref} has non-sealed state: "
+                f"{disposition_state}"
+            )
+    missing = sorted(
+        disposition_id
+        for disposition_id, count in evidence_by_disposition.items()
+        if count == 0
+    )
+    if missing:
+        fail(
+            "contract-close dispositions without evidence: "
+            + ", ".join(missing)
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", default=".")
@@ -487,6 +571,7 @@ def main() -> int:
     )
     evidence = check_evidence_rows(root, manifest, dispositions)
     if phase == "c0_dual_closeout":
+        check_contract_close_consistency(manifest, dispositions)
         open_rows = [
             row_id
             for row_id, row in dispositions.items()
@@ -497,9 +582,19 @@ def main() -> int:
                 "c0_dual_closeout has open dispositions: "
                 + ", ".join(sorted(open_rows))
             )
+        non_contract_rows = [
+            row_id
+            for row_id, row in dispositions.items()
+            if row.get("state") not in {"SuccessorContractSealed", "ParkedSealed"}
+        ]
+        if non_contract_rows:
+            fail(
+                "c0_dual_closeout requires sealed successor/parked states, found: "
+                + ", ".join(sorted(non_contract_rows))
+            )
         print(
-            f"[{TAG}] closeout phase: {surface_summary} / {evidence} "
-            "additional evidence rows; C0 disposition inventory exhausted"
+            f"[{TAG}] contract-close phase: {surface_summary} / {evidence} "
+            "evidence rows; C0 successor contracts sealed, B1 executable proof remains pending"
         )
     else:
         print(
