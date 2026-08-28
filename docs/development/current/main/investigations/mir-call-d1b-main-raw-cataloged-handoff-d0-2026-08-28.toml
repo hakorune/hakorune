@@ -40,7 +40,7 @@ missing_witness = "The named root callback is real, but InstalledNormalCallableS
 root_witness_audit = "Read-only recheck at d57a72fbb2: a private callback can co-seal the existing AppMain/forest products with raw root() function-body/Function evidence in one borrow scope, but the normal production path currently constructs script_root() inside program_root_lowering.rs. A temporary Cataloged projection alone would not prove that live route, so no ScriptRoot-to-Cataloged switch or witness implementation is authorized yet; no public receipt, AST rescan, or third lifetime is justified."
 
 [design_tasks]
-route = "Decide and record whether normal App Main root adopts Cataloged(app_main.catalog_key()) as its canonical raw lineage; do not perform that switch here."
+route = "Design decision: once the actual installed App Main raw scope is available, that root will use Cataloged(app_main.catalog_key()) as its canonical raw lineage; ScriptRoot remains the named compatibility route. Record the decision here but do not perform the switch in this D0."
 callback = "Use finish_normal_default_root_after_pre_effect_bind (src/mir/builder/normal_default_root_catalog_post_install.rs:29-128), reached from normal_default_root_catalog_lifecycle.rs:590-616, as the private one-shot callback; extend its scope to borrow the installed Main batch/forest and raw root evidence together rather than adding a disconnected comparator."
 witness = "Existing ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1 are disjoint domains. The next design sub-row must specify a private same-session/co-brand check through installed_in plus collector with_invocation_brand; no value conversion or public session ID."
 raw_exactness = "RawInvocationSourceTransportV1::root can establish Cataloged(key), function-body site, and Function body-kind, but context lacks the semantic comparison accessor. Specify one private DeclaredFunction-to-raw-function/body-kind helper; never derive it from Main spelling, arity, symbol, or statement index."
@@ -53,6 +53,7 @@ positive = "One source-backed App Main with no direct-call observations yields o
 negative = "Missing/duplicate/foreign/mixed identity or brand, wrong owner/root/site/body-kind, nested direct call, ScriptRoot fallback, and Main(locator) reuse all reject or remain explicitly parked before effects."
 structural = "No AST rescan, no name/arity/symbol synthesis, no selected-map insertion, no package-only bypass, no Clone/Rc/RefCell/extra lifetime, and no new public Verified*/Prepared* receipt."
 guard = "Reuse the existing D1 lifecycle guard; add no new guard family. The eventual implementation row must pin the named caller, witness, root-only boundary, zero-delta failure, and compatibility parity."
+route_acceptance = "The Cataloged root route is accepted only for installed source-backed App Main after a live raw-scope witness; Complete script, RawCompatibility, Main(locator), selected children, and synthetic main/0 retain their existing owners."
 
 [no_safe_slice]
 conditions = [
@@ -67,6 +68,7 @@ conditions = [
 task = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0 remains design-only until the callback, witness, and exact raw-site relation are named and accepted."
 implementation_gate = "Only then may a separate root-only implementation row open; it must change one normal App Main edge, prove positive/negative zero-delta behavior, and delete no unrelated compatibility path."
 witness_subrow = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-ROOT-WITNESS-D0: design-only private callback at the live raw-scope boundary, same-session check, and semantic-to-raw function/body-kind equality; a detached Cataloged shape probe is insufficient; no target, loan, dispatcher, or ScriptRoot-to-Cataloged switch."
+route_subrow = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0: separate root-only implementation row after the live witness is accepted; it may switch only the installed App Main root scope and must keep compatibility routes unchanged."
 
 [guard_hygiene]
 task_id = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
