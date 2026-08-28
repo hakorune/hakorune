@@ -358,3 +358,46 @@ no_safe_slice = [
   "adapter classification expands into a whole-repository census or requires a second active card",
   "the feature is actually unsupported and requires route retirement rather than consumer repair; open that as a separate VM-retirement row",
 ]
+
+[b1_vmref_consumer_i0]
+task_id = "MIR-CALL-GLOBAL-TARGET-B1-VMREF-CONSUMER-I0"
+status = "fast_open"
+observed_commit = "4391c63635"
+implementation_permission = true
+parent_row = "MIR-CALL-GLOBAL-TARGET-B1-CORRECTIVE-R0"
+decision = "Repair the explicitly supported vm-reference consumer without reopening target selection: consume CanonicalGlobalTargetV1 structurally, project only an exact function-table key after the target is already selected, and return typed unsupported errors for families not yet owned by a provider or declaration-backed table."
+source_authority = "CanonicalGlobalTargetV1 is the already-issued carrier. The vm-reference call handler is a terminal consumer only; it does not issue, classify, parse, complete, or repair a target."
+non_authority = [
+  "raw function names, StaticMethodId parsing, fallback arity, prefix matching, display/source projections as selectors, environment flags, and provider-name string repair",
+  "the transitional selected-symbol adapter and all D1B source/lineage/package/loan authorities",
+]
+fail_fast = "A Global target is matched by its structural variant. Builtin(Print) requires exactly one argument; SameModule targets require their sealed arity and an exact function-table entry; unsupported structural families return a typed VM error with no retry or string re-resolution."
+scope = [
+  "src/backend/mir_interpreter/handlers/calls/mod.rs",
+  "src/backend/mir_interpreter/handlers/calls/global.rs",
+  "focused vm-reference call-handler tests owned by those modules",
+  "the active card and CURRENT_STATE pointer only",
+]
+forbidden = [
+  "builder ingress, call_name_classification, selected-symbol adapter census changes, Callee issuer, package/loan/lineage, RawInvocationChildPortV1, or Call schema",
+  "restoring Global(String), implementing Display for CanonicalGlobalTargetV1, StaticMethodId parsing, arity completion, prefix matching, or Global-to-Extern repair in the VM consumer",
+  "broad VM route retirement or unrelated backend behavior changes",
+]
+acceptance = [
+  "cargo check --profile quick --lib --features vm-reference passes",
+  "Callee::Global dispatch matches Builtin(Print) and SameModule variants structurally, with exact arity and one-way function-table projection only",
+  "missing/unsupported structural entries return a typed VM error; no string Global fallback, retry, or second resolver is entered",
+  "focused tests cover print exact-one, wrong print arity, exact free-function lookup, exact static-method lookup, and unsupported target rejection",
+  "default quick check, B1 carrier guard, C0 matrix guard, and current-state guard pass; D1B implementation permission remains false",
+]
+negative = [
+  "no CanonicalGlobalTargetV1 comparison with str, formatting-based classification, prefix matching, or passing the carrier to a &str API",
+  "no provider behavior is inferred from a SameModule name; provider migration remains a later finite-disposition row",
+  "no changes outside the bounded VM consumer files are required to make the feature compile",
+]
+next_row = "MIR-CALL-GLOBAL-TARGET-B1-FAMILY-D0"
+no_safe_slice = [
+  "an existing supported vm-reference behavior requires provider-name inference from a Global target rather than an explicit Extern or function-table entry",
+  "the exact function-table projection cannot be implemented as a one-way structural consumer without reopening target selection",
+  "feature compilation requires changing builder producers, D1B transport, Method(None), or Call schema",
+]
