@@ -275,3 +275,24 @@ t0_scope = "MIR-CALL-D1B-T0-SCOPE-RECONCILE-D0 is a docs-only follow-up: identit
 guard_source = "MIR-CALL-D1B-LIFECYCLE-GUARD-CURRENT-CARD-SOURCE-R1 is a later hygiene follow-up: remove the remaining historical readiness-audit dependency from the shared lifecycle guard without adding a guard family or opening D1 semantics."
 diagnostic_payload = "MIR-CALL-D1B-BARE-STATIC-REJECT-DIAGNOSTIC-D0 remains parked: the bare-static route already rejects before arguments/effects, but Rejected.error and its callers still carry String. Typed diagnostic payload requires its own design row and is not part of the raw handoff."
 active_blocker = "The only active D1 blocker remains the live Main raw-scope callback/session witness and exact owner/site/body-kind relation. ScriptRoot-to-Cataloged switching, target/Callee, package+loan, dispatcher, and Call changes remain closed."
+
+[d14_feedback_recheck_2026_08_28]
+status = "reconciled_against_current_head"
+observed_commit = "a73c10c055"
+verdict = "The reported App Main install fail-open is stale at this HEAD: issuer.rs applies the existing forest-wide observation predicate to every owner, and root-only, nested-only, and mixed App Main direct-call negatives reject before install. Do not add a second Main gate or new issue hierarchy."
+main_witness = "The old 'Main raw-scope caller absent' statement is also stale: the installed App Main Cataloged root scope landed at 46fdf7a4fa and the live raw callable-owner witness landed at 2dadcae1c2. The remaining D1 question is the exact source-site-to-target issuer, not another owner check."
+t0_scope = "T0 has no recorded execution, but it belongs to parked cleanup/guard hygiene. It is not D1 source authority and must not be promoted into a semantic implementation row or used as evidence for Main target publication."
+bare_static_diagnostic = "Bare StaticBoxMethod remains a pre-effect typed terminal, while its diagnostic payload still uses String. Keep MIR-CALL-D1B-BARE-STATIC-REJECT-DIAGNOSTIC-D0 separate; do not mix it into lineage, target, loan, or dispatcher work."
+qualified_methodcall_audit = "A read-only audit found an existing exact qualified MethodCall source-site/caller/declaration/receiver/arity inventory and a source-owned static target/result issuer with a live raw caller. Its ingress still re-derives the target from owner/method/arity strings before consuming the handoff, so this is a separate design candidate, not a completed cutover."
+next_design_candidate = "MIR-CALL-D1B-QUALIFIED-METHOD-TARGET-ISSUER-D0"
+next_design_scope = [
+  "specify the existing (Cataloged caller, exact SourceExprSiteV1) -> selected typed handoff or Absent API",
+  "make the existing publication owner the sole issuer and keep raw receiver spelling, plan_member_call_route, and declaration_for non-authoritative",
+  "consume the already issued target before receiver/argument descent at the existing qualified MethodCall ingress",
+  "enumerate missing/unlocated/foreign source, catalog/import mismatch, absent/already-consumed handoff, and target/result-brand mismatch as typed outcomes",
+]
+next_design_forbidden = [
+  "bare FunctionCall, Main package+loan/dispatcher, receiver re-evaluation, dynamic/instance member dispatch, name/arity target synthesis, fallback/recovery, Method(None), Call schema, JSON, VM, or backend changes",
+  "new public Verified*/Prepared* receipt, AST rescan, or a new guard family",
+]
+decision = "Keep the current D1 design_stop and implementation_permission=false. Record the qualified MethodCall D0 as the only clean exact-authority candidate; do not claim that it resolves the bare FunctionCall/Main blocker until its string-rebuild ingress is designed and accepted."
