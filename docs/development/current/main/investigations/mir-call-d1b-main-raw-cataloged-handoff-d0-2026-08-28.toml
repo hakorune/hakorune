@@ -1,10 +1,10 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
-status = "accepted_route_design"
+status = "landed_route"
 observed_at = "2026-08-28"
 observed_commit = "a9cb2d289a"
-implementation_permission = true
+implementation_permission = false
 permission_scope = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0 only; target issuer, loan, dispatcher, argument order, Call schema, and recovery remain closed."
-guard_phase = "main_raw_cataloged_handoff_d0"
+guard_phase = "main_raw_cataloged_route_r0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
 decision = "Main-to-helper direct calls are an established normal-source shape in NormalMainDirectCallPreflightV1, so a permanent park is not the final contract. The required A-style handoff is still design-only: a private, one-shot root callback must co-seal existing Main identity, owner forest, session witness, and exact raw root/site before any target or argument effect. ScriptRoot/Main(locator) compatibility and canonical-core-to-Builder wiring remain separate and unchanged."
@@ -94,8 +94,9 @@ non_claims = "This row does not support Main direct-call publication; the existi
 [route_r0]
 task_id = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0"
 execution_row = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
+implementation_commit = "46fdf7a4fa"
 allowed_files = [
   "src/mir/builder/decls.rs",
   "src/mir/builder/module_lifecycle.rs",
@@ -116,6 +117,29 @@ allowed_files = [
 forbidden = "No target/Callee issuer, direct-call loan, RawInvocationChildPort field/lifetime, dispatcher, argument-order change, Call writer/schema, resolver/recovery, AST rescan, compatibility-route change, or D1 broad permission."
 acceptance = "The installed source-backed App Main body is entered through one package-verified Cataloged function-body scope; exact root/site/body-kind checks are tested; raw transport focused tests, pointer guard, lifecycle guard, cargo check, and focused lifecycle tests are green."
 closeout = "After tests and guard evidence land, mark this row landed and return the active pointer to the next design stop; do not claim direct-call publication or loan/dispatcher cutover."
+
+[route_r0_verification_2026_08_28]
+status = "landed"
+implementation_commit = "46fdf7a4fa"
+positive = "source_backed_app_main_root_uses_cataloged_scope passed; the installed App Main body entered the package-owned Cataloged function-body scope once."
+negative = "exact_function_root_witness_rejects_script_and_descendant_contexts passed; compatibility lifecycle baseline remains unchanged (the three pre-existing fixture failures reproduce on the parent HEAD)."
+focused_tests = [
+  "cargo test --profile quick --lib source_backed_app_main_root_uses_cataloged_scope (1 passed)",
+  "cargo test --profile quick --lib normal_callable_semantic_package::resolver_deferred_tests (11 passed)",
+  "cargo test --profile quick --lib raw_invocation_source_transport (17 passed)",
+]
+guards = [
+  "cargo check --profile quick --lib (passed)",
+  "current_state_pointer_guard.sh (passed)",
+  "mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh (passed)",
+]
+known_baseline = "cargo test --profile quick --lib normal_default_root_catalog_lifecycle reports 7 passed and 3 pre-existing fixture failures on both the parent HEAD and this row; those failures are outside the installed App Main scope handoff."
+
+[next_design_stop]
+task_id = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
+status = "design_stop"
+implementation_permission = false
+scope = "Design-only source owner/Raw lineage co-seal and same-session witness. Target publication, package+loan bundle, raw dispatcher, argument order, recovery, and Call schema remain closed."
 
 [guard_hygiene]
 task_id = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"

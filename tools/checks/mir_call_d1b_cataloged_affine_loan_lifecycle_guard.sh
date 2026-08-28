@@ -343,18 +343,23 @@ elif phase == "main_root_identity_coseal_i0":
     if d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 broad semantic implementation permission opened")
 elif phase == "main_raw_cataloged_route_r0":
-    if active_row != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
-        raise SystemExit("Main raw Cataloged route current row drifted")
-    if current_state.get("work_mode") not in {"fast", "closeout"}:
-        raise SystemExit("Main raw Cataloged route requires fast or closeout work mode")
+    route_status = registration.get("status")
+    if route_status not in {"fast_open", "landed"}:
+        raise SystemExit("Main raw Cataloged route status drifted")
+    if route_status == "fast_open":
+        if active_row != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
+            raise SystemExit("Main raw Cataloged route current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("Main raw Cataloged route requires fast or closeout work mode")
+    else:
+        if current_state.get("work_mode") not in {"closeout", "design_stop"}:
+            raise SystemExit("landed Main raw Cataloged route has an invalid work mode")
     if registration.get("task_id") != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
         raise SystemExit("Main raw Cataloged route task id drifted")
     if registration.get("execution_row") != "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0":
         raise SystemExit("Main raw Cataloged route execution row drifted")
-    if registration.get("status") not in {"fast_open", "landed"}:
-        raise SystemExit("Main raw Cataloged route status drifted")
-    if registration.get("implementation_permission") is not True:
-        raise SystemExit("Main raw Cataloged route permission is not scoped open")
+    if registration.get("implementation_permission") is not (route_status == "fast_open"):
+        raise SystemExit("Main raw Cataloged route permission/status drifted")
     if d1_card.get("implementation_permission") is not False:
         raise SystemExit("D1 broad semantic implementation permission opened")
 

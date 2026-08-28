@@ -1,9 +1,9 @@
 date = "2026-08-28"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0"
-current_design_stop = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
-current_blocker_token = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0: switch only the installed App Main root body from ScriptRoot to the package-verified Cataloged scope; target publication, package+loan, dispatcher, argument-side recovery, and Call schema remain closed."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
+current_design_stop = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
+current_blocker_token = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: the installed App Main Cataloged scope handoff landed at 46fdf7a4fa; exact source-owner/Raw lineage co-seal remains design-only, while target publication, package+loan, dispatcher, argument-side recovery, and Call schema remain closed."
 guard_followup = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0 landed at afb0d79054: no-arg dispatch selects the active D0 phase; explicit historical phases remain selectable; semantic D1 permission remains closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,13 +13,13 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
+current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
-latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, FreeStatic handoff, bounded bare-static pre-effect reject, Main identity/catalog co-seal I0, Main owner/forest validation R0, Main observation corrective R0, and lifecycle no-arg guard hygiene R0 are landed. The accepted fast slice is the root-only installed App Main Cataloged scope handoff; target/loan/dispatcher and Call changes remain closed."
-next_design_card = "MIR-CALL-D1B-MAIN-RAW-CATALOGED-HANDOFF-D0"
-next_execution_card = "MIR-CALL-D1B-MAIN-RAW-SCOPE-CATALOGED-ROUTE-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
+latest_card_summary = "Observer I0, forest-wide observation gate, C0 evidence, B1 typed Global carrier, vm-reference structural consumption, B1 family disposition, FreeStatic handoff, bounded bare-static reject, Main identity/owner/observation co-seal, lifecycle guard hygiene, and the installed App Main Cataloged scope handoff are landed. The next design stop is source-owner/Raw lineage co-seal; target/loan/dispatcher and Call changes remain closed."
+next_design_card = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-28: Main observation corrective R0 landed at 012099e01b; the existing forest-wide helper now rejects root, nested, and mixed App Main direct-call observations before parameter contracts/install, with no target/raw-lineage/loan/Call changes.",
-	"2026-08-28: Main owner/forest validation R0 landed at 605cf718d5; package issuer now validates Main identity/key/brand against one StaticBoxMethod batch row, its sole root, and every nested forest owner before parameter contracts/install, with target/raw-lineage/loan/Call publication unchanged.",
-	"2026-08-28: D1B forest-wide observation gate landed at b176c98276; package batch and source admission now share one all-owner helper with root/nested/mixed negative coverage, while issuer/package/loan/dispatcher remains design-stopped.",
+	"2026-08-28: installed App Main Cataloged scope handoff R0 landed at 46fdf7a4fa; the root body now enters one package-verified function-body scope, with compatibility routes and target/loan/dispatcher unchanged.",
+	"2026-08-28: Main observation corrective R0 landed at 012099e01b; the existing forest-wide helper rejects root, nested, and mixed App Main direct-call observations before parameter contracts/install, with no target/raw-lineage/loan/Call changes.",
+	"2026-08-28: Main owner/forest validation R0 landed at 605cf718d5; package issuer validates Main identity/key/brand against one StaticBoxMethod batch row, its sole root, and every nested forest owner before parameter contracts/install.",
 ]
