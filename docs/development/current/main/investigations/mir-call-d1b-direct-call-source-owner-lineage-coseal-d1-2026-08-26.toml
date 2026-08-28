@@ -1,7 +1,7 @@
 title = "MIR Call D1B direct-call source owner-lineage co-seal design"
 status = "accepted_design_no_safe_slice"
-observed_at = "2026-08-26"
-observed_commit = "f76b80ed26"
+observed_at = "2026-08-28"
+observed_commit = "5353c66d46"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
@@ -32,7 +32,7 @@ non_authority = [
   "AST re-discovery, a second resolver continuation, target inference, or an empty inventory treated as success",
 ]
 fail_fast = "Expected owner/site/provenance or brand/session conflicts abort before prepare_install; actual raw lineage/key/site mismatch aborts at FunctionCall ingress before argument descent/effects, block mutation, or MIR Call publication."
-smallest_next_slice = "Main owner/forest validation R0 is landed. The next design-only slice must identify an existing production Main raw-scope owner/callback and exact session/lineage relation; keep raw handoff, package+loan, dispatcher, and target publication parked until that authority exists."
+smallest_next_slice = "Main owner/forest validation and observation corrective R0 are landed. The next design-only slice must decide whether an existing production Main raw-scope callback/session witness can carry exact lineage; if not, retain typed reject/park rather than fabricate Cataloged lineage. Keep raw handoff, package+loan, dispatcher, and target publication parked until that authority exists."
 non_claims = [
   "this row does not observe ordinary FunctionCall nodes, widen traversal, issue a Callee, or remove Resolved/post-argument recovery",
   "ScriptRoot/Main/NestedBoxMethod and compatibility cohorts are not silently accepted by exclusion",
@@ -102,8 +102,8 @@ next_step = "The Cataloged-only expected owner/site/provenance validation is lan
 non_claims = "No target/Callee issuance, Resolved recovery retirement, raw loan transport, Method(None) change, mandatory-Callee schema, or VM/backend change is authorized by this review."
 
 [current_head_recheck]
-observed_commit = "9c6ec641c1"
-resolved_feedback = "The older root-only nested-owner concern is closed at the current head: forest_has_unissued_direct_call_observation_v1 walks every forest owner, and package tests cover nested-only plus root-and-nested observations. BridgeReady also closes the package-only lowering escape. The remaining blocker is the actual Main raw-scope handoff: normal_default_root_catalog_lifecycle.rs:169-220 -> program_root_lowering.rs:186-227 starts ScriptRoot or script semantic scope, while Cataloged(main_key) exists only on selected children."
+observed_commit = "5353c66d46"
+resolved_feedback = "The Main observation fail-open is closed: forest_has_unissued_direct_call_observation_v1 walks every forest owner and package tests cover no-call nested plus root-only, nested-only, and mixed observations before install. BridgeReady still closes the package-only lowering escape. The remaining blocker is the actual Main raw-scope handoff: normal_default_root_catalog_lifecycle.rs:169-220 -> program_root_lowering.rs:186-227 starts ScriptRoot or script semantic scope, while Cataloged(main_key) exists only on selected children. The reusable lifecycle guard's no-arg invocation still falls back to bridge_ready after the pointer moves to D1; track that as separate guard hygiene, not semantic implementation."
 remaining_blockers = [
   "No exact source-site -> owner -> RawInvocationRootLineage co-seal issuer exists before prepare_install.",
   "RawInvocationChildPortV1 has no scoped &mut direct-call loan, so the physical dispatcher cannot consume a target exactly once.",
@@ -149,8 +149,9 @@ following_atomic_row = "After this corrective row closes, return to MIR-CALL-D1B
 closeout = "Landed in 012099e01b: existing forest-wide observation gate now rejects Main root/nested/mixed direct-call observations before parameter contracts/install; focused app_main filter is 4 passed and the lifecycle/pointer guards are green."
 
 [latest_worker_recheck]
-observed_commit = "012099e01b"
-verdict = "Main observation corrective R0 is landed before parameter contracts/install. The existing forest-wide helper now covers root, nested, and mixed owners; the focused package tests pass 4/4. No production Main raw-scope callback supplies exact RawInvocationRootLineage equality: normal_default_root_catalog_lifecycle.rs:169-220/428-470/542-582/644-658 reaches program_root_lowering.rs:186-227/258-278, where normal Main uses ScriptRoot or an unavailable script scope; RawInvocationRootLineageV1::Cataloged(main_key) is constructed only for selected children, while Main(locator) is compatibility-only. Package/loan and dispatcher remain NoSafeSlice, with target publication closed."
+observed_commit = "5353c66d46"
+verdict = "Main observation corrective R0 is landed before parameter contracts/install. Two current-head read-only audits agree that identity/forest/catalog products exist but no production Main raw-scope callback supplies exact RawInvocationRootLineage equality or a shared session/brand witness: normal_default_root_catalog_lifecycle.rs:169-220/428-470/542-582/644-658 reaches program_root_lowering.rs:186-227/258-278, where normal Main uses ScriptRoot or an unavailable script scope; RawInvocationRootLineageV1::Cataloged(main_key) is constructed only for selected children, while Main(locator) is compatibility-only. Package/loan and dispatcher remain NoSafeSlice, with target publication closed."
+guard_routing = "Separate hygiene task: no-arg mir_call_d1b_cataloged_affine_loan_lifecycle currently resolves the historical root card's bridge_ready phase after the pointer moves to D1; explicit phase checks remain fail-closed and no semantic implementation permission is implied."
 session_witness = "ModuleInvocationBrandV1, SameModuleCallableCatalogBrandV1, and FunctionOwnerIdV1::compilation_brand() remain distinct and have no existing shared comparison witness; do not invent a public session id or helper without a production caller."
 batch_reject = "Keep the default callable-semantic batch issuer's UnissuedDirectCallObservation rejection. A package-only observe policy may validate Cataloged owner/site and expected provenance, then fail closed with the existing pre-install error; do not globally remove the batch gate."
 permission_blockers = [
