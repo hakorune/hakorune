@@ -32,7 +32,7 @@ non_authority = [
   "AST re-discovery, a second resolver continuation, target inference, or an empty inventory treated as success",
 ]
 fail_fast = "Expected owner/site/provenance or brand/session conflicts abort before prepare_install; actual raw lineage/key/site mismatch aborts at FunctionCall ingress before argument descent/effects, block mutation, or MIR Call publication."
-smallest_next_slice = "The missing bare-Cataloged source-site -> StaticBoxMethod relation is now recorded as a typed pre-effect reject/park. Keep the actual-lineage/package+loan/dispatcher row parked; select a separate exact existing-authority lane only after its own source relation and caller-zero boundary are proven."
+smallest_next_slice = "Main owner/forest validation R0 is landed. The next design-only slice must identify an existing production Main raw-scope owner/callback and exact session/lineage relation; keep raw handoff, package+loan, dispatcher, and target publication parked until that authority exists."
 non_claims = [
   "this row does not observe ordinary FunctionCall nodes, widen traversal, issue a Callee, or remove Resolved/post-argument recovery",
   "ScriptRoot/Main/NestedBoxMethod and compatibility cohorts are not silently accepted by exclusion",
@@ -89,7 +89,7 @@ guard = "future guard must assert the three mapping paths, zero caller=None coll
 [worker_audit]
 source = "focused read-only owner-lineage audit at f76b80ed26 plus two current-head audits at 00edf66eb6; no code, fixture, or Cargo change"
 verdict = "Existing owners can be reused for the mapping, but no current issuer connects raw FunctionCall site to them; implementation remains NoSafeSlice until this design and pre-argument observation are closed."
-next_design_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: close actual raw-lineage equality and the scoped loan/dispatcher contract before any target issuer."
+next_design_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1: identify an existing production Main raw-scope caller and exact session/lineage relation before any implementation or target issuer."
 
 [current_review]
 observed_commit = "c1fcf489bd"
