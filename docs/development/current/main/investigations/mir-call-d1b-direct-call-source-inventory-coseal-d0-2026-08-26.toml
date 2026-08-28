@@ -444,6 +444,18 @@ c0_remaining_family_blockers = [
   "ordinary-New boundary: keep NewBox/birth claim as its owner terminal and remove or typed-reject fallback Global publication.",
 ]
 c0_family_exit_rule = "Every compiled family above stays CutoverBlockerOpen until it has one source-backed owner, one finite action, one executable typed successor or pre-effect terminal, and one reopen condition. A textual ParkedSealed label is insufficient; no family may be hidden by a wildcard or by narrowing the C0 boundary."
+c0_direct_static_source_identity = [
+  "canonical-direct-call: VerifiedCallableCatalogV1/Index/Header is the upstream issuer, but VerifiedTrivialDirectCallTargetV1 drops source_key before physical materialization; preserve same-unit/session, FreeStatic namespace, exact SourceExprSiteV1, header callable, and arity before issuing typed Global, otherwise reject before argument descent.",
+  "script direct-static claim: the one-shot claim ledger already checks catalog brand, parser window, call/receiver/argument sites, StaticBoxMethod declaration, and result contract; the physical bridge drops that brand and rebuilds owner/name/arity String, so the next row must carry the branded relation into the typed carrier issuer.",
+  "cataloged static publication: ingress has an exact Cataloged(caller, site) declaration relation, but the selected physical bridge keeps only numeric identity/target pieces and lets Absent or Unavailable fall through to String emission; absence must become a pre-effect typed reject, never relationless re-entry.",
+  "ordinary StaticReceiver/StaticThis and me-lowered globals: syntax, current box, generated header, me ValueId, or arity do not issue a Global; exact catalog relation is required before lower_all, and an instance method must use typed Method or reject rather than static Global.",
+  "general print: PreparedRawPrintV1 proves AST shape only; Builtin(Print) or an explicit Extern provider has no source-backed issuer at this boundary, so the route must reject before child expression effects until that policy is named.",
+]
+c0_direct_static_task_order = [
+  "preserve source identity and catalog brand through the direct-static handoff without adding a target to Facts",
+  "connect the branded Cataloged/static claim to one typed carrier issuer, with Absent/Unavailable terminating before argument descent",
+  "separate ordinary/static fallback, me-lowered, and print branches into exact relation or pre-effect typed reject; do not classify from generated headers, names, arity, or ValueId",
+]
 c0_compiled_other_resolution = "The compiled-other bucket is exhausted by the feature-gated src/bin/rc_insertion_selfcheck/cases/basic.rs projection (one Callee::Global occurrence); its evidence and bucket now share isolate-fixture/ParkedSealed semantics. Any additional path must fail the guard rather than enter a wildcard."
 c0_completed_evidence_steps = [
   "existing evidence action fields are finite single actions",
@@ -452,8 +464,9 @@ c0_completed_evidence_steps = [
   "canonical-Call-only boundary narrowing was rejected because compiled adjacent production emitters remain reachable",
 ]
 c0_followup_task_order = [
+  "complete the direct/static source-identity tasks above as one responsibility family; keep missing issuer cases at NoSafeSlice",
+  "resolve the normal-module thunk, JoinIR declaration/call, and CorePlan/operator/emission clusters with source-backed owner evidence; if an exact relation is absent, use an executable pre-effect typed reject or explicit owner-local retirement terminal and keep B1 closed",
   "when closeout is opened, update the existing guard to allow CutoverBlockerClosed with successor_ref and to validate evidence action vocabulary",
-  "resolve each compiled responsibility cluster with source-backed owner evidence; if an exact relation is absent, use an executable pre-effect typed reject or an explicit owner-local retirement terminal and keep B1 closed",
   "run the readiness guard and pointer guard; only an exhausted compiled disposition permits the c0_dual_closeout phase",
 ]
 
