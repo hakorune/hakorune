@@ -747,8 +747,9 @@ non_claims = "This recheck does not close D1B source relation, package/loan, raw
 
 [freestatic_pre_effect_target_handoff_r0]
 task_id = "MIR-CALL-FREESTATIC-PRE-EFFECT-TARGET-HANDOFF-R0"
-status = "accepted_bounded_next_row"
-implementation_permission = false
+status = "fast_open"
+implementation_permission = true
+opened_from = "83ee263b72"
 decision = "Use the existing resolver-backed FreeStatic profile as the next independent bounded implementation row. Read the already sealed direct-call target projection before lowering argument effects, preserve the existing postorder coverage claim after arguments, verify the same target, and emit the canonical Call once. This row does not create a new issuer or extend the blocked Cataloged StaticBoxMethod path."
 
 [freestatic_pre_effect_target_handoff_r0.brief]
