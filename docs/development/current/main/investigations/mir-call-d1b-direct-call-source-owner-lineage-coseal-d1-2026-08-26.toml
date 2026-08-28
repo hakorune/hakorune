@@ -791,7 +791,27 @@ no_safe_slice = [
   "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
   "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
 ]
-next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; the next design candidate is MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0, which must first name an App/Main source owner or typed park because the old edge is not caller-zero. Do not reopen package/loan without a new exact source relation."
+next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; the next design candidate is MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0, which first needs an explicit language decision: canonical App/Main source owner/issuer or explicitly unsupported/compatibility-only park owner. Do not reopen package/loan without a new exact source relation."
+
+[qualified_methodcall_scriptroot_unavailable_recheck]
+observed_at = "2026-08-28"
+observed_commit = "bad6e1744d"
+status = "no_safe_slice_language_decision_missing"
+decision = "Do not relabel selected-normal App/Main ScriptRoot with semantic source Unavailable as ParkedSealed from implementation evidence alone. The current Unavailable state records missing source admission; it does not issue a language disposition. A language authority must first choose whether this cohort is canonical qualified MethodCall (then name a source-backed owner/issuer) or explicitly unsupported/compatibility-only (then name a park owner)."
+source_authority = "docs/reference/language/function-call-evaluation.md currently assigns qualified MethodCall to StaticBoxMethod, while NormalScriptRootLoweringMode::Unavailable and RawInvocationRootLineageV1::ScriptRoot only describe the absent source product."
+canonical_issuer = "Missing for this cohort. No App/Main ScriptRoot owner currently issues the source-bound MethodCall relation, result owner, Recipe, or Join needed for a canonical route."
+finite_matrix = [
+  "ScriptRoot + App/Main + Unavailable + no semantic ledger -> language decision required; keep the existing live fallthrough unchanged until decided",
+  "ScriptRoot + Complete -> existing exact claimed Script direct-static route; out of scope",
+  "Cataloged + Absent -> existing Cataloged branch; out of scope and not evidence for ScriptRoot disposition",
+  "ordinary facade or RawLegacy/compatibility -> existing owners; out of scope",
+]
+fail_fast_if_unsupported = "Only after an explicit unsupported/compatibility-only language decision may a narrow pre-receiver/argument typed terminal be designed for ScriptRoot + App/Main + Unavailable; it must publish no effects, MIR, or Call and must not remove the shared Cataloged/ordinary/compatibility branch."
+non_claims = [
+  "No ParkedSealed label, source owner, target issuer, fallback removal, or branch deletion is authorized by this recheck.",
+  "No new AST traversal, name/arity/symbol inference, Method(None) change, Call schema change, JSON, VM, backend, or broad RawLegacy work is authorized.",
+]
+next_action = "Obtain the explicit language Decision for App/Main inline qualified MethodCall. If canonical, open a source-owner/issuer design; if unsupported/compatibility-only, open a named park-owner design. Until then keep MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0 in design_stop and preserve the live route."
 
 [b1_feature_recheck_2026_08_28]
 observed_commit = "d6c7deda3d"

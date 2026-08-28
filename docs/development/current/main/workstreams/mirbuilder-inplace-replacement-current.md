@@ -62,10 +62,14 @@ Next bounded design candidate (not selected while D1 remains active):
   covers only selected-normal App/Main `ScriptRoot` with an unavailable
   semantic source product. The current edge is not caller-zero: it also
   serves Cataloged `Absent`, the ordinary façade, and compatibility. Before
-  any deletion, name a source-backed App/Main owner or an explicit typed park,
-  then prove the finite root-mode/ledger matrix. Generic Cataloged, deferred,
-  RawLegacy, nested, StaticThis, and special-form routes stay excluded; no
-  target inference, fallback, retry, or broad branch removal is allowed. The
+  any deletion, the language authority must first decide whether this cohort
+  is canonical (and name its source-backed owner) or explicitly unsupported /
+  compatibility-only (and name its park owner). The current lifecycle's
+  `Unavailable` state is only missing source admission, not a park. Prove the
+  finite root-mode/ledger matrix after that decision. Generic Cataloged,
+  deferred, RawLegacy, nested, StaticThis, and special-form routes stay
+  excluded; no target inference, fallback, retry, or broad branch removal is
+  allowed. The
   existing CallFlags retirement card remains parked until this D1 stop is
   explicitly closed or parked.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory
