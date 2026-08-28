@@ -413,13 +413,29 @@ acceptance = "One compact authority decision distinguishes canonical FreeStatic 
 non_claims = "No code, fixture, target issuer, package+loan, RawInvocationChildPort field/lifetime, dispatcher, Resolved retirement, Method(None), Call schema, JSON, VM/backend, fallback, or retry change. Qualified MethodCall I0 remains the only newly landed ingress switch."
 
 [main_raw_freestatic_bridge_recheck_2026_08_28]
-status = "reconciled_design_stop"
-observed_commit = "1cfc3cb614aa"
-decision = "Two read-only audits agree: the existing VerifiedTrivialDirectCallV1 FreeStatic issuer is consumed only by the canonical normal_source_plan/resolved lowering route; no production bridge carries that product into the live Main raw Builder callback. Keep bare Main target publication closed rather than rebuilding a target from name/arity, catalog key, or raw lineage."
+status = "accepted_design_boundary_no_safe_slice"
+observed_commit = "d7b4bf1ba1"
+decision = "Three read-only audits select a private source/profile-to-live-raw bridge as the final candidate. Until its exact semantic-site/raw-site/session handoff is closed, retain the existing pre-effect typed park. Do not switch the whole Main production route to canonical-core and do not rebuild a target from name/arity, catalog key, raw lineage, or Builder recovery."
+source_authority = "NormalMainDirectCallPreflightV1 and VerifiedTrivialDirectCallV1 remain the sole issuer of the exact Main FreeStatic source product; ResolvedDirectCallTargetV1 and the callable index establish the target before raw lowering."
+non_authority = "Main parser/catalog identity, RawInvocationRootLineageV1::Cataloged, FunctionOwnerIdV1 alone, SameModuleCallableCatalogBrandV1, ModuleInvocationBrandV1, name/arity/symbol/static_candidates, CalleeResolverBox, and a canonical-core frontdoor switch cannot issue or repair the target."
 existing_bridge = "normal_source_plan main_direct_call_source/main_direct_call_plan -> normal_callable_transaction_handoff -> resolved_lowering/trivial_ssa; this HRTB bridge does not reach RawInvocationChildPortV1."
 live_raw_gap = "program_root_lowering -> installed package Main callback -> RawInvocationChildPortV1 has no FreeStatic profile/site cursor or exact source-to-raw handoff input. The package issuer still rejects any unissued direct-call observation before install."
 next_design_task = "MIR-CALL-D1B-MAIN-RAW-FREESTATIC-BRIDGE-BOUNDARY-D0: specify a private source/profile-to-raw bridge, same-session/brand witness, exact raw site mapping, and typed failure/rollback; if these require a second scan, synthetic key, new public receipt, or name/arity inference, ratify TypedReject/ParkedSealed."
-package_loan_followup = "Only after an exact issuer/bridge exists: MIR-CALL-D1B-MAIN-RAW-PACKAGE-LOAN-D0 fixes a private package+loan bundle, consuming lowering callback, existing-port-lifetime &mut reborrow, take_once/finish_empty, and Aborted/no-retry."
+candidate_disposition = [
+    "A selected final candidate: carry the already-issued FreeStatic product through one private bridge into the existing installed App Main raw callback.",
+    "B parked as a separate frontdoor decision: switching Main wholesale to canonical-core would replace the root lifecycle, package installation, collector, compatibility routing, and AOT/EXE entrance in one unbounded row.",
+    "C current runtime state only: keep the forest-wide pre-install typed reject until A is proven; C is not the final language contract because Main-to-top-level-helper is an accepted FreeStatic shape.",
+]
+bridge_contract = "The D0 must co-seal Main FunctionOwnerIdV1, exact SourceExprSiteV1, the already-issued FreeStatic target and target compilation brand, live raw SourceNodeSiteV1/lineage, and one package/session witness. It may create only an owner-private borrowed view; no new public semantic receipt or second target issuer."
+package_loan_followup = "Only after the bridge is exact: MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 adds a Builder-private #[must_use] package+loan bundle, consuming lowering callback, existing-port-lifetime &mut reborrow, take_once/finish_empty, Aborted/no-retry, and atomically deletes the CatalogedTargeted direct Callee payload plus selected package-only bypass."
+ordered_followups = [
+    "D0: close the private source/profile-to-live-raw bridge or retain TypedReject/ParkedSealed.",
+    "I0: exact issuer projection -> package+affine loan -> raw take_once -> arguments once -> Call once; delete CatalogedTargeted direct payload and selected package-only bypass in the same row.",
+    "R2: classify every remaining lineage pre-effect, then remove Resolved, caller=None source collapse, unique/tail recovery, direct name Const, and direct legacy Call edges without touching compatibility-owned siblings.",
+    "R3: retire Method(None), methodize, receiver heuristics/repair, and the related VM/optimizer recovery as one Method corridor family.",
+    "R4: dispose every remaining typed_global_target_from_selected_symbol caller by its source owner or typed reject.",
+    "R6: atomically remove Call.func, Option<Callee>, and INVALID target sentinels after all production writers/readers are mandatory-Callee ready.",
+]
 finite_states = [
     "ExactReady: existing FreeStatic profile, semantic owner, source site, raw site/lineage, and same-session/catalog brand are all uniquely co-sealed; this is only the prerequisite for a later issuer row.",
     "NoExactRelation: the FreeStatic product exists only on the canonical resolved route or cannot be joined to the live raw site; remain NoSafeSlice and do not publish a target.",
@@ -429,8 +445,8 @@ finite_states = [
     "WrongKindOrArity: relation is not the exact FreeStatic family or arity does not match; reject without repair.",
     "UnsupportedRoute: nested owner, TopLevel/Constructor, RawCompatibility, or compatibility Main route lacks an exact relation; keep its named owner as ParkedSealed and do not borrow Main meaning.",
 ]
-guard_contract = "Reuse the existing mir-call-d1b-cataloged-affine-loan-lifecycle guard only. While this D0 is open, work_mode=design_stop, implementation_permission=false, target issuer=0, package/loan/dispatcher changes=0, and fallback/retry=0."
-acceptance = "The bridge D0 is complete only when the exact caller, source/raw site mapping, same-session/brand witness, issuer owner, and failure/no-retry boundary are named from existing owners or the family is explicitly ratified TypedReject/ParkedSealed. A worker audit or local green test cannot open implementation."
+guard_contract = "Reuse the existing mir-call-d1b-cataloged-affine-loan-lifecycle guard and keep its current main_raw_lineage_handoff_d1 phase; create no new guard family or phase merely for this design subtask. While D0 is open, work_mode=design_stop, implementation_permission=false, package/loan/dispatcher changes=0, and fallback/retry=0."
+acceptance = "The bridge D0 is complete only when the existing source product, exact caller, semantic/raw site bijection, same-session witness, private callback owner, and failure/no-retry boundary are named from existing owners or the family is explicitly retained TypedReject/ParkedSealed. A worker audit or local green test cannot open implementation."
 no_safe_slice_conditions = [
     "name/arity/symbol/static candidates are the only available relation evidence",
     "a second AST/source traversal or synthetic site/key is required",
