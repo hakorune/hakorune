@@ -16,7 +16,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
-latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, R2a/R2b/R2c/R2d provenance slices, and the I0 ObserveOnly verifier correction are landed; direct_call_observation is 10/10 and normal_callable_transform is 7/7. Four named Resolved compatibility origins and the one-owner fate D0 are explicitly ParkedSealed; next is the independent Method corridor, with VM/backend and Call schema still closed."
+latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, App Main FreeStatic affine-loan I0, R2a/R2b/R2c/R2d provenance slices, and the I0 ObserveOnly verifier correction are landed; direct_call_observation is 10/10 and normal_callable_transform is 7/7. Four named Resolved compatibility origins and the one-owner fate D0 are explicitly ParkedSealed; Method corridor is design-only, with Stage1 methodize=1 compatibility, VM/backend, and Call schema still closed."
 next_design_card = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
