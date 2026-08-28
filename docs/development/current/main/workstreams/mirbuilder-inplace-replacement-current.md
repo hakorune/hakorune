@@ -58,12 +58,14 @@ Smallest next slice:
   legacy recovery, and VM/backend routes remain closed.
 
 Next bounded design candidate (not selected while D1 remains active):
-  `SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0` is limited to the existing
-  selected-normal `ScriptRoot` direct-static cohort. It may open only after
-  exact owner/source-site/Recipe/Join/claim coverage and caller-zero of the
-  old StaticReceiver fallthrough are evidenced. Generic Cataloged, deferred,
-  compatibility, RawLegacy, nested, StaticThis, and special-form routes stay
-  excluded; no new target inference, fallback, or retry is allowed. The
+  `MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0`
+  covers only selected-normal App/Main `ScriptRoot` with an unavailable
+  semantic source product. The current edge is not caller-zero: it also
+  serves Cataloged `Absent`, the ordinary façade, and compatibility. Before
+  any deletion, name a source-backed App/Main owner or an explicit typed park,
+  then prove the finite root-mode/ledger matrix. Generic Cataloged, deferred,
+  RawLegacy, nested, StaticThis, and special-form routes stay excluded; no
+  target inference, fallback, retry, or broad branch removal is allowed. The
   existing CallFlags retirement card remains parked until this D1 stop is
   explicitly closed or parked.
   `GUARD-REGISTRY-RATCHET-I0` landed at `9b49907937`: the existing inventory

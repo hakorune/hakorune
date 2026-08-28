@@ -309,7 +309,7 @@ acceptance = [
   "canonical target publication remains zero until an exact source-site relation is proven",
   "if the canonical contract is not approved, typed reject occurs before argument/effect work and compatibility is named/parked rather than silently rerouted",
 ]
-next_row = "Separate exact-authority design row (the existing workstream candidate is SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0; package/loan remains parked)"
+next_row = "Separate exact-authority design row (the existing workstream candidate is MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0; package/loan remains parked)"
 fixture_census = "apps/bare-static-recovery-proof bounded set: 13 bare FunctionCall sites across 15 files — 6 same-owner candidates, 4 other-owner unique candidates, 1 ambiguous, and 2 missing/wrong-arity. All remain legacy compatibility evidence, not canonical target proof."
 closeout = "Language contract, bounded fixture-family census, and reject/park boundary are closed. Canonical bare StaticBoxMethod target issuance remains zero; no package, loan, lineage, dispatcher, or Call-schema implementation is opened by this row."
 no_safe_slice = [
@@ -768,7 +768,7 @@ observed_commit = "4bdebb238a"
 status = "contract_sealed"
 evidence = "Read-only worker audits agree that the nine owner rows cover all 18 textual adapter references; each row now has one finite disposition and an explicit non-authority/reopen rule."
 remaining_blocker = "This is a design-only closure. The adapter still has production users, and exact source-backed successors are not executed yet. D1B actual lineage equality, consuming package-plus-loan, scoped raw reborrow, and Cataloged dispatcher cutover remain closed."
-next_row = "SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0 (design-only candidate recorded in the workstream; not selected)"
+next_row = "MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0 (design-only candidate recorded in the workstream; not selected)"
 implementation_permission = false
 
 [d1_implementation_recheck]
@@ -791,7 +791,7 @@ no_safe_slice = [
   "check lineage after argument/effect/collector mutation or leave a partial Call on failure",
   "mix TopLevel, InstanceConstructor, RawCompatibility, BoundedGc, Method(None), Call schema, JSON, VM, or broad RawLegacy into this row",
 ]
-next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; select SCRIPT-DIRECT-STATIC-CALL-RAW-EDGE-RETIRE-D0 or another exact existing-authority design row only after CURRENT_STATE changes explicitly. Do not reopen package/loan without a new exact source relation."
+next_action = "Keep the D1B Cataloged bare StaticBoxMethod package/loan/dispatcher closed. The language contract and bounded compatibility census plus pre-effect reject are recorded; the next design candidate is MIR-CALL-QUALIFIED-METHODCALL-SCRIPTROOT-UNAVAILABLE-EDGE-CENSUS-D0, which must first name an App/Main source owner or typed park because the old edge is not caller-zero. Do not reopen package/loan without a new exact source relation."
 
 [b1_feature_recheck_2026_08_28]
 observed_commit = "d6c7deda3d"
