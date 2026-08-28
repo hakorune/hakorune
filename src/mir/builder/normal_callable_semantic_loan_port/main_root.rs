@@ -5,6 +5,7 @@ use crate::mir::builder::normal_callable_binding_materialization_port::{
     CallableBindingMaterializationPortV1, CallableEntryShapeV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
 
@@ -55,6 +56,10 @@ pub(super) fn lower_app_main_root_body_v1(
                 Rc::clone(&ordinary_new_claim_ledger),
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
+                        verify_raw_callable_owner_v1(identity.owner(), inner.callable_owner_v1())
+                            .map_err(|error| {
+                                format!("[freeze:contract][mir/callable-main/{error}]")
+                            })?;
                         let context = inner.current_source_context_v1().ok_or_else(|| {
                             "[freeze:contract][mir/callable-main/raw-context-missing]".to_owned()
                         })?;
@@ -82,4 +87,39 @@ pub(super) fn lower_app_main_root_body_v1(
             )
         })
         .map_err(super::package_issue)?
+}
+
+fn verify_raw_callable_owner_v1(
+    expected: FunctionOwnerIdV1,
+    actual: Option<FunctionOwnerIdV1>,
+) -> Result<(), &'static str> {
+    let Some(actual) = actual else {
+        return Err("raw-owner-missing");
+    };
+    if actual != expected {
+        return Err("raw-owner-mismatch");
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+
+    #[test]
+    fn raw_callable_owner_witness_rejects_missing_or_foreign_owner() {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("brand");
+        let expected = issuer.issue().expect("expected owner");
+        let foreign = issuer.issue().expect("foreign owner");
+
+        assert!(super::verify_raw_callable_owner_v1(expected, Some(expected)).is_ok());
+        assert_eq!(
+            super::verify_raw_callable_owner_v1(expected, None),
+            Err("raw-owner-missing")
+        );
+        assert_eq!(
+            super::verify_raw_callable_owner_v1(expected, Some(foreign)),
+            Err("raw-owner-mismatch")
+        );
+    }
 }

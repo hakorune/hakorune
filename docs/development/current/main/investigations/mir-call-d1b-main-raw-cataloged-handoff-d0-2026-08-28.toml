@@ -180,8 +180,10 @@ closeout = "bash -n, no-argument lifecycle guard, explicit D1/route phase checks
 
 [main_raw_lineage_witness_harden_2026_08_28]
 task_id = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0"
-status = "design_ready_pending_guard"
-implementation_permission = false
+execution_row = "MIR-CALL-D1B-MAIN-RAW-LINEAGE-WITNESS-HARDEN-R0"
+guard_phase = "main_raw_lineage_witness_harden_r0"
+status = "fast_open"
+implementation_permission = true
 scope = "A validator-only hardening row inside the already-landed installed App Main root callback. Compare the existing VerifiedResolvedCallableSourceIdentityV1::owner() with the active raw callable owner from RawInvocationChildPortV1::callable_owner_v1(), and fail closed before body effects when they differ."
 source_authority = "AppMainCatalogCoSealV1 and the installed semantic batch issue the parser identity, catalog key/brand, and VerifiedResolvedCallableSourceIdentityV1 owner; the active raw callable ledger is the only raw owner witness."
 canonical_issuer = "No new issuer is created. The existing package callback and existing raw scope remain the sole consumers; the row only adds an explicit owner-equality validation at the live Main callback boundary."
@@ -193,7 +195,6 @@ non_authority = [
 fail_fast = "If the existing semantic owner is absent or differs from the active raw callable owner, return the existing typed/freeze relation rejection before body/argument/effect, collector, or MIR publication."
 allowed_files = [
     "src/mir/builder/normal_callable_semantic_loan_port/main_root.rs",
-    "src/mir/builder/normal_callable_semantic_loan_port.rs",
     "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs",
     "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
     "tools/checks/guard_rows.toml",
@@ -215,7 +216,7 @@ negative = [
 ]
 acceptance = [
     "the check runs in the existing live Main callback, not in a detached shape probe",
-    "positive and owner-mismatch zero-delta tests cover body/instruction/collector state",
+    "the positive live route and owner-mismatch validator test cover the callback gate; body/effect work is reached only after the check",
     "all existing compatibility routes remain unchanged",
     "no target, loan, dispatcher, argument-order, recovery, or Call schema behavior changes",
     "the source/check files remain below the 760-line design boundary"
