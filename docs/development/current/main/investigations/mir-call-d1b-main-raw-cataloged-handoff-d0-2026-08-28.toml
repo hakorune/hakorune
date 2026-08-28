@@ -635,7 +635,7 @@ decision = "Do not globally delete Resolved yet. First close the finite lineage 
 source_authority = "RawInvocationRootLineageV1 and exact SourceExprSiteV1 provide provenance; the same-session package/catalog issuer provides target authority. Source identity never synthesizes a Callee."
 non_authority = "InstalledNonBrand{caller=None}, name/arity, symbol parsing, static_candidates, variable_map, current_static_box, tail/header suffix scans, env flags, name Const, and legacy Call writers."
 fail_fast_boundary = "For an InstalledNonBrand ordinary FunctionCall with no exact caller/site/brand/loan relation, return a typed Rejected disposition before drive_call_arguments_v1; no resolver, recovery, fallback, or retry may run afterward."
-smallest_next_slice = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0: choose exactly one named compatibility owner for a successor-or-park decision; do not delete shared Resolved/recovery while the other three remain live."
+smallest_next_slice = "MIR-CALL-METHOD-CORRIDOR-R0: keep the four named Resolved compatibility owners ParkedSealed and design the receiver-authority cleanup as an independent bounded family; do not delete shared Resolved/recovery in R2."
 non_claims = ["No target issuer for TopLevel/Constructor/ScriptRoot/Main/Nested/non-Main Cataloged; no Method/VM/JSON/JoinIR/Call-schema change; no global Resolved/recovery deletion yet."]
 boundary_includes = ["raw FunctionCall dispatch -> preflight -> ordinary completion; Resolved/recovery/name-Const/legacy-Call producer census; six lineage families plus Unlocated/Relationless disposition."]
 boundary_excludes = ["AppMainTargeted loan, caller-backed Cataloged, special owners, Method corridor, VM/backend, mandatory-Callee schema."]
@@ -769,7 +769,7 @@ source_authority = "Each existing compatibility ingress is its own owner: semant
 non_authority = "name/arity, raw lineage spelling, variable/static/header scans, tail recovery, name Const, legacy Call, consumer-side resolver, and App Main loan generalization."
 fail_fast_boundary = "UnclassifiedSource rejects after special-form selection and before argument descent; named compatibility keeps its existing terminal until an explicit behavior or backend decision is recorded."
 census_boundary = "raw FunctionCall brand authority -> preflight -> shared Resolved consumer; includes exactly the four named origins and their production ingress/fixtures, excludes AppMain/Cataloged exact routes, Constructor, Method corridor, VM/backend, and Call schema."
-smallest_next_slice = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0: decide the fate of exactly one named origin with its exact ingress, preserved behavior, successor/owner, and observable reopen trigger; do not start another census."
+smallest_next_slice = "MIR-CALL-METHOD-CORRIDOR-R0: with all four named origins explicitly ParkedSealed, design the independent receiver-authority family without reopening the R2 census."
 acceptance = "4/4 named owners are classified; generic UnclassifiedSource cannot reach Resolved; no target is synthesized from name/arity/symbol; no supported source behavior is dropped; no new loan, resolver, or guard family is created."
 no_safe_slice = "Return to design_stop if any owner requires a new target issuer, source/raw carrier, or unapproved behavior drop; do not force a global Resolved deletion claim."
 owner_census = [
@@ -780,7 +780,7 @@ owner_census = [
 ]
 owner_census_status = "4/4 named origins classified as ParkedSealed; no function-level or guard-level expansion; the next bounded D0 chooses one owner fate and does not imply global Resolved retirement."
 pre_implementation_gate = "I0 verifier regression repair is landed with filtered test evidence; before the next implementation row, keep the R2 lineage matrix and named compatibility owners explicit."
-next_row = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0"
+next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
 status = "landed"
@@ -874,12 +874,12 @@ no_safe_slice = [
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2_one_named_owner_fate_d0_2026_08_29]
-status = "accepted_design_no_safe_slice"
+status = "accepted_design_parked"
 task_id = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0"
 execution_row = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 implementation_permission = false
-decision = "The four named compatibility origins remain ParkedSealed until one owner has an exact successor or an explicitly approved pre-effect retirement. Do not globally delete shared Resolved, recovery, name-Const, or legacy-Call edges while the other named owners remain live."
+decision = "No named compatibility origin has an exact source-backed successor or an approved pre-effect behavior drop. Close this D0 with all four origins explicitly ParkedSealed; do not globally delete shared Resolved, recovery, name-Const, or legacy-Call edges."
 source_authority = "Existing named ingress owns the source fact: semantic ScriptRoot, raw ScriptRoot, raw-root Main, or RawLegacy. A selected owner may advance only from an exact source-backed relation and its existing terminal; no App Main loan, name/arity, symbol, or backend inference supplies a successor."
 non_authority = "Shared Resolved helper counts, name/arity lookup, symbol parsing, static/header/tail recovery, consumer resolver, methodize/receiver repair, VM/backend routes, and Call-schema state are not owner decisions."
 fail_fast_boundary = "For the one selected owner, decide its fate before argument descent: use an exact existing successor or an explicitly approved pre-effect terminal; otherwise keep that owner ParkedSealed and leave the other three unchanged."
@@ -890,9 +890,12 @@ owner_fate_matrix = [
     "RawRootMain: ParkedSealed; raw-root Main lacks the exact relation required to borrow the App Main loan.",
     "RawLegacy: ParkedSealed; the broad legacy child facade has no common successor, while independent subedges may retire separately with caller-zero evidence.",
 ]
-selection_rule = "Choose one owner only when an exact successor or approved behavior decision is named from existing authority; otherwise close this D0 as an explicit park and move to the independent Method-corridor lane. Never invent a fifth provenance or infer a target from a shared helper."
+selection_rule = "A one-owner promotion is allowed only after an exact successor or approved behavior decision is named from existing authority. This audit found none, so all four remain parked and the next lane is the independent Method corridor. Never invent a fifth provenance or infer a target from a shared helper."
 allowed_scope = "Design stop permits only the active card, CURRENT_STATE.toml, and existing guard-contract text: record the one-owner fate and reopen trigger. No Rust, fixture, production switch, semantic receipt, new guard, or global Resolved deletion is allowed."
-acceptance = "Exactly one named owner is selected for a fate or all four remain explicitly ParkedSealed; the remaining owners and shared helper stay unchanged; no global caller-zero claim is made; any future guard-phase amendment waits until an implementation row opens."
+acceptance = "All four named owners remain explicitly ParkedSealed with exact ingress, preserved behavior, and observable reopen triggers; shared helper and remaining owners are unchanged; no global caller-zero claim is made; any future guard-phase amendment waits until an implementation row opens."
+reopen_trigger = "Reopen one owner only when its existing source authority names an exact successor or an explicitly approved pre-effect retirement; a grep-only caller-zero result, a new loan/carrier, or a backend preference is not sufficient."
+guard_contract = "No new R2 guard phase is added during design_stop. If a later implementation row opens, amend the existing lifecycle guard before code and require the selected owner plus the other three parked owners to remain explicit."
+closeout = "R2 one-owner fate D0 is explicitly parked: read-only successor/owner audits found no safe owner-specific cutover. The next bounded design lane is MIR-CALL-METHOD-CORRIDOR-R0; shared Resolved/recovery remains protected."
 no_safe_slice = [
     "No exact source-backed successor or approved behavior decision exists for the selected owner.",
     "The proposed change needs a new loan/carrier/issuer, shared-helper deletion, Method/VM/Call-schema work, a new semantic receipt, or grep-only caller-zero evidence.",
