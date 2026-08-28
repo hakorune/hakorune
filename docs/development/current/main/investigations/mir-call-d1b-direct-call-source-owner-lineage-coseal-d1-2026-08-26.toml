@@ -92,14 +92,24 @@ verdict = "Existing owners can be reused for the mapping, but no current issuer 
 next_design_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0: classify the three resolver entrances and design one pre-argument observation/co-seal issuer."
 
 [current_review]
-observed_commit = "00edf66eb6"
-verdict = "Architecture Accept with amendments; implementation remains NoSafeSlice. The existing forest, selected batch/map, constructor batch, source-site inventory, and owner brand can be reused; a sole mapper and observation issuer are still missing."
+observed_commit = "19a8ec9e70"
+verdict = "Architecture Accept with amendments; implementation remains NoSafeSlice. The existing forest, selected batch/map, constructor batch, source-site inventory, and owner brand can be reused; the forest-wide observation gate is now landed, but a sole mapper and owner/lineage co-seal issuer are still missing."
 mapping = "Cataloged/TopLevel use SelectedNormalCallableKeyV1 -> VerifiedSelectedCallableBatchMapV1 -> VerifiedResolvedCallableSemanticBatchV1 row -> VerifiedSemanticOwnerForestV1 -> VerifiedResolvedSourceSiteInventoryV1 membership. InstanceConstructor uses source_id -> constructor batch forest root -> source-site membership. OwnedExprSiteV1 remains a transient owner/site key."
 lineage = "RawInvocationRootLineageV1 remains raw provenance. Cataloged, TopLevel, and InstanceConstructor must not be collapsed to InstalledNonBrand { caller: None }; missing exact relation is TypedReject or explicit compatibility park, never name/arity/box/symbol synthesis."
 session = "Use the existing same resolver invocation and compilation brand as the session boundary; do not add a public ResolverSessionId or a second semantic receipt merely to prove the join."
 boundary = "The sole mapping/co-seal routine runs after existing owner batches are available and before package prepare_install/body/argument/collector effects. Raw Builder bridges are consumers, not issuers."
-next_step = "Select the existing ordinary FunctionCall observation issuer D0 to classify SelectedCallable, InstanceConstructor, and the older builder ingress; do not widen a profile or open production code until that matrix closes."
-non_claims = "No ordinary FunctionCall observation implementation, target/Callee issuance, Resolved recovery retirement, raw loan transport, Method(None) change, or VM/backend change is authorized by this review."
+next_step = "Keep the landed forest-wide observation gate as a prerequisite, then close the exact owner/site/lineage co-seal design. The next implementation row may open only after package-only begin_lowering bypass, all-owner inventory, and raw-port loan lifetime are fixed together."
+non_claims = "No target/Callee issuance, Resolved recovery retirement, raw loan transport, Method(None) change, mandatory-Callee schema, or VM/backend change is authorized by this review."
+
+[current_head_recheck]
+observed_commit = "19a8ec9e70"
+resolved_feedback = "The older root-only nested-owner concern is closed at the current head: forest_has_unissued_direct_call_observation_v1 walks every forest owner, and package tests cover nested-only plus root-and-nested observations. It is no longer an open D1 blocker."
+remaining_blockers = [
+  "VerifiedNormalCallableSemanticPackageV1 can still be installed and begin_lowering(&self) without a direct-call loan.",
+  "No exact source-site -> owner -> RawInvocationRootLineage co-seal issuer exists before prepare_install.",
+  "RawInvocationChildPortV1 has no scoped &mut direct-call loan, so the physical dispatcher cannot consume a target exactly once.",
+]
+reopen_boundary = "Do not open production target publication until one implementation row closes all three remaining blockers without name/arity/symbol inference, a second resolver, or a public semantic receipt."
 
 [reopen]
 triggers = [

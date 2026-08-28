@@ -103,13 +103,18 @@ verdict = "NoSafeSlice: the observation branch exists but SelectedCallable gate 
 next_design_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0: include main_direct_call_source/FullFunction, semantic BodyEffect ordering, Raw lineage loan, special owner, and old-ingress ParkedSealed classification."
 
 [current_review]
-observed_commit = "9214440857"
-verdict = "Architecture Accept with amendments; implementation remains NoSafeSlice. SelectedCallable and InstanceConstructor are production observation candidates with the gate closed; the old normal_callable_semantic_source is a compatibility/disconnected candidate, and the raw Builder bridge is a consumer only."
+observed_commit = "19a8ec9e70"
+verdict = "Architecture Accept with amendments; the SelectedCallable observer gate and forest-wide nested-owner negative coverage are landed, but implementation remains NoSafeSlice for the source-owner/lineage co-seal and package/loan boundary. The old normal_callable_semantic_source remains a compatibility/disconnected candidate, and the raw Builder bridge is a consumer only."
 observation = "Reuse ShadowResolverV0::resolve_expr and ShadowDirectCallUseV0 as the single neutral observation point; do not add a second AST walk or put owner, lineage, Callee, target, ValueId, or physical symbol into the observation row."
 order = "Separate semantic BodyEffect(Call) from physical Builder/MIR/collector/argument effects. Required order is entrance classification -> site/lineage observation -> disposition -> same-session co-seal -> physical arguments; a profile gate cannot open before this contract."
 cohorts = "Brand constructors, ExplicitExternCall, ASTNode::Call, TypeOp/Math/FastMem, exact-i64/main-direct-call, FullFunction, and raw compatibility remain separate cohorts with explicit owner or parked disposition."
 legacy = "The old no-brand ingress is not caller-zero by grep alone; keep it explicitly parked with a non-test-caller and selected-gate reopen trigger. RawBrandCallAuthorityV1 cannot become the semantic issuer while it collapses source roots to caller=None."
-next_step = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0"
+next_step = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: reuse the landed all-owner observation gate, then close the pre-install owner/site/lineage issuer and package-only bypass before any target publication."
+
+[current_head_recheck]
+observed_commit = "19a8ec9e70"
+nested_owner_status = "Closed: callable_semantic_batch/issuer.rs delegates to forest_has_unissued_direct_call_observation_v1, which walks forest.owners(); resolver_deferred_tests.rs covers nested-only and mixed root/nested observations."
+implementation_status = "Still design_stop: direct-call facts are retained, but no Callee issuer, package loan, raw recursive capability, or dispatcher cutover is present."
 
 [reopen]
 triggers = [
