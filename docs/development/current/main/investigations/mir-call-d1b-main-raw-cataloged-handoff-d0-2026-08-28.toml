@@ -618,7 +618,7 @@ ordered_rows = [
   "R4: MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 — move every remaining typed_global_target_from_selected_symbol caller to its real owner or typed reject; no new symbol parser authority.",
   "R6: MIR-CALL-CORE-SCHEMA-CUTOVER-R6 — after all writers/readers are ready, atomically remove Call.func, Option<Callee>, INVALID sentinel, and impossible-state guards.",
 ]
-row_exit_rule = "Each implementation row is at most one active card, one bounded production switch, focused positive/negative evidence, reusable guard, and one closeout; no per-observation child cards. A row is not complete while its old authority edge remains live."
+row_exit_rule = "Each implementation row is at most one active card, one bounded production switch, focused positive/negative evidence, reusable guard, and one closeout; no per-observation child cards. A row is not complete while its old authority edge remains live. Any row touching test code must also run and record a nonzero filtered cargo test for every touched test name/module; 0 tests or any failure blocks closeout, and cargo check alone is insufficient."
 expected_shape = "D0 is docs-only; I0 may temporarily add a small private loan owner; R2/R3/R4/R6 are the net source-line reduction points. Do not use temporary line growth as a completion metric; measure old-edge/caller counts and residual-zero instead."
 post_core_hygiene = [
   "H1 optional: delete caller-zero compatibility helpers and stale guards only with successor/caller-zero proof.",
@@ -772,4 +772,77 @@ census_boundary = "raw FunctionCall brand authority -> preflight -> shared Resol
 smallest_next_slice = "Record one compact owner row per named origin: exact ingress, preserved behavior, successor/owner, ParkedSealed fate, and observable reopen trigger; do not descend to function- or guard-level review."
 acceptance = "4/4 named owners are classified; generic UnclassifiedSource cannot reach Resolved; no target is synthesized from name/arity/symbol; no supported source behavior is dropped; no new loan, resolver, or guard family is created."
 no_safe_slice = "Return to design_stop if any owner requires a new target issuer, source/raw carrier, or unapproved behavior drop; do not force a global Resolved deletion claim."
+owner_census = [
+    "ScriptRootParkedCompatibility: semantic ScriptRoot ingress at src/mir/builder/calls/function_call_brand_source_demand.rs:88-95, semantic root lifecycle at src/mir/builder/program_root_lowering.rs:212-225 and src/mir/builder/normal_default_root_catalog_lifecycle.rs:364-395; preserves the named Resolved terminal, has no ordinary-call target successor, and reopens only when a source-backed issuer or backend behavior decision exists.",
+    "RawScriptRootParkedCompatibility: ledger-less raw ScriptRoot ingress at src/mir/builder/calls/function_call_brand_source_demand.rs:96-102, compatibility root at src/mir/builder/program_root_lowering.rs:243-257 and src/mir/builder/normal_default_root_catalog_lifecycle.rs:615-635; preserves the named Resolved terminal, has no App Main successor, and reopens only with an explicit raw compatibility owner decision.",
+    "RawRootMainParkedCompatibility: raw-root Main ingress at src/mir/builder/calls/function_call_brand_source_demand.rs:103-108, raw child path src/mir/builder/raw_root_children.rs:280-294 -> src/mir/builder/module_invocation_brand0.rs:246-255 -> src/mir/builder/recursive_child_lowering.rs:539-568; preserves the named Resolved terminal and cannot borrow the App Main loan without a new exact relation.",
+    "RawLegacyParkedCompatibility: RawLegacyChildLoweringPortV1 issuer at src/mir/builder/recursive_child_lowering/legacy_port.rs:56-62, production drivers at :148-170 and src/mir/builder/calls/lowering.rs:378-441; preserves the broad legacy facade and named Resolved terminal, with no common successor; reopens only through an owner-specific replacement.",
+]
+owner_census_status = "4/4 named origins classified as ParkedSealed; no function-level or guard-level expansion; R2E remains docs-only until its lifecycle routing is explicit."
+pre_implementation_gate = "Before any new implementation row, close the I0 regression repair below: the current HEAD reproduces seven red direct-call observation tests, and type-check-only evidence is insufficient for a landed row."
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+
+[i0_observation_verifier_regression_repair_d0_2026_08_29]
+status = "accepted_design_blocker"
+task_id = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
+execution_row = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
+parent_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
+observed_commit = "dc99360ecd"
+trigger_commit = "99bdfc856c"
+implementation_permission = false
+decision = "Preserve the intentional observer-only facts shape. Do not rewrite the seven observation/package expectations to reject. The verifier must accept an empty target set with a non-empty self-consistent observation set, while still rejecting target-only and partial site coverage. Indexed co-seal remains bidirectional."
+source_authority = "Direct-call canonicalization policy owns whether a forest is ObserveOnly or RequireCallableIndex; the observer records source-site facts, while the same-session indexed branch co-issues target rows. The package gate owns the later UnissuedDirectCallObservation rejection for an observer product that is not yet publishable."
+canonical_issuer = "RequireCallableIndex co-issues target and observation rows in resolver_canonicalization.rs; ObserveOnly issues observations only. The verifier checks the data-shape invariant and must not manufacture a target or infer the policy from name/arity."
+non_authority = "A test expectation, target-set emptiness alone as a target issuer, name/arity/symbol, AST rescan, package error collapse, resolver retry, fallback, or changing ObserveOnly into an implicit rejection."
+fail_fast_boundary = "Reject target-only or partial target/observation coverage during function verification; allow ObserveOnly facts through this verifier so the package/source admission gate can emit its named unissued-observation terminal before install."
+legal_shapes = [
+    "T=empty and O=empty is the valid no-call shape.",
+    "T=empty and O=non-empty is valid ObserveOnly facts-only state; observation argument cardinality and duplicate-site checks still run.",
+    "T=O and both non-empty is the valid RequireCallableIndex co-seal state.",
+    "T=non-empty with O=empty, or both non-empty with unequal sites, is SiteCoverageMismatch.",
+]
+reproduction = [
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 tests, 3 passed and 7 failed; every failure is DirectCall(SiteCoverageMismatch).",
+    "The seven failures are selected_direct_call_observation_is_a_typed_package_terminal, unissued_direct_call_observation_rejects_package_before_install, nested_lambda_direct_call_observation_rejects_package_before_install, root_and_nested_direct_call_observations_share_one_package_gate, cataloged_static_direct_call_observation_rejects_before_install, cataloged_nested_lambda_direct_call_observation_rejects_before_install, and selected_callable_retains_direct_call_observation_without_issuing_target.",
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed and 0 failed at this HEAD; no macro CompatibilityLoss regression is reproduced, so no expectation change is authorized without a specific failing test.",
+]
+smallest_next_slice = "In one fast corrective row, change only the existing direct-call verifier contract and its existing unit-test sibling: allow ObserveOnly facts, reject target-only/partial mismatch, preserve foreign/arity/duplicate checks, rename the contradictory observation-without-target test, and rerun the complete direct_call_observation filter before closeout."
+allowed_scope = "src/mir/resolved_semantics/direct_call_verifier.rs, the existing direct-call verifier test module (or a small sibling if its 778-line boundary requires it), the active card, and CURRENT_STATE.toml; no package/loan/dispatcher/Call/VM/Method changes."
+acceptance = [
+    "The direct_call_observation focused command is green with all 10 tests; a zero-test filter is not evidence.",
+    "ObserveOnly facts reach their intended source/package terminal; no target writer or resolver is added.",
+    "Target-only and partial site coverage still return SiteCoverageMismatch; indexed co-seal remains exact T=O; empty/empty remains valid.",
+    "Existing argument cardinality, duplicate argument-site, and foreign-compilation checks remain active.",
+    "A touched test module is run through a filtered cargo test command and the exact command/result is recorded before the row can be marked landed; cargo check alone cannot close it.",
+    "The current I0 row is not retroactively called fully green until the corrective test evidence exists; full cargo test/link remains a separate resource-limited known limit.",
+]
+macro_compatibility_status = "Current HEAD normal_callable_transform filter is green (7/7). Keep the two CompatibilityLoss expectations unchanged unless a named failing test is reproduced on the same HEAD."
+row_exit_rule_amendment = "Prospective rule: any implementation row that touches test code must run a focused cargo test covering every touched test name/module, record the command and nonzero count in its card, and treat 0 tests or any failure as blocking. Filtered evidence is required even when cargo check passes; no second Cargo process may run concurrently."
+historical_allowed_files_audit = "The 99bdfc856c I0 commit changed 40 paths while its declared allowed_files patterns matched 21; 19 paths were outside the declaration. Record this as retrospective scope evidence; do not rewrite the landed history or treat the existing guard's name-only check as proof of git-diff closure."
+historical_undeclared_paths = [
+    "src/mir/builder/calls/call_argument_descent.rs",
+    "src/mir/builder/calls/function_call_brand_source_demand.rs",
+    "src/mir/builder/calls/mod.rs",
+    "src/mir/builder/normal_script_a/consumer.rs",
+    "src/mir/builder/normal_script_semantic_source.rs",
+    "src/mir/builder/normal_script_semantic_source_core.rs",
+    "src/mir/builder/raw_expression_dispatch/mod.rs",
+    "src/mir/builder/raw_structured_child_scope.rs",
+    "src/mir/builder/recursive_child_lowering/legacy_port.rs",
+    "src/mir/callable_semantic_batch/mod.rs",
+    "src/mir/callable_semantic_batch/model.rs",
+    "src/mir/compiler/function_input.rs",
+    "src/mir/normal_callable_semantic_package/install/lowering_port.rs",
+    "src/mir/normal_callable_semantic_package/mod.rs",
+    "src/mir/resolved_semantics/direct_call_verifier.rs",
+    "src/mir/resolved_semantics/mod.rs",
+    "src/mir/resolved_semantics/resolver_canonicalization.rs",
+    "src/mir/resolved_semantics/selected_callable_deferred.rs",
+    "src/mir/resolved_semantics/tests.rs",
+]
+no_safe_slice = [
+    "Do not update tests to reject ObserveOnly unless the language/semantic contract is explicitly changed first.",
+    "Return to design_stop if the verifier must distinguish ObserveOnly from indexed data without an explicit policy or canonicalizer boundary; do not infer mode from an empty target set in a new authority.",
+    "Return to design_stop if the fix needs a package/loan/dispatcher/Call schema change, a second traversal, a new receipt, or a compatibility behavior drop.",
+]
+next_row = "MIR-CALL-D1B-NAMED-COMPATIBILITY-FATE-CENSUS-R2E-D0"
