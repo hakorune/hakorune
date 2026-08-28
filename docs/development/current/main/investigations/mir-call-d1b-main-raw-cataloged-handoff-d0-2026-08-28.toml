@@ -1,7 +1,7 @@
 title = "MIR Call D1B Main raw Cataloged handoff design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-28"
-observed_commit = "c97aac2b3b"
+observed_commit = "afb0d79054"
 implementation_permission = false
 guard_phase = "main_raw_cataloged_handoff_d0"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
@@ -68,8 +68,8 @@ implementation_gate = "Only then may a separate root-only implementation row ope
 task_id = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
 execution_row = "MIR-CALL-D1B-LIFECYCLE-NOARG-DISPATCH-HYGIENE-R0"
 guard_phase = "main_raw_cataloged_handoff_d0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 scope = "Reuse the existing lifecycle guard only: no-arg dispatch must select the current D0 guard phase, never fall back to historical bridge_ready; explicit historical phases remain available."
 allowed_files = [
   "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
@@ -78,4 +78,6 @@ allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
 ]
 forbidden = "No src/mir, fixture, Cargo, production switch, target/Callee/loan/dispatcher, raw lineage, argument, fallback/recovery, new guard family, or D1 semantic permission."
-acceptance = "fast-open no-arg selects this task; unknown phase fails closed; after closeout no-arg selects the active D0 design phase; the already-supported bridge and accepted historical phases remain selectable; pointer guard passes; broad D1 and active semantic permission remain false."
+acceptance = "Fast-open no-arg selected this task; unknown phase failed closed; after closeout no-arg selects the active D0 design phase; the already-supported bridge and accepted historical phases remain selectable; pointer guard passes; broad D1 and active semantic permission remain false."
+implementation_commit = "afb0d79054"
+closeout = "bash -n, current_state_pointer_guard, run_row_guard --only mir-call-d1b-cataloged-affine-loan-lifecycle, explicit bridge_ready, and unknown-phase rejection passed; no src/mir or semantic Call files changed; work_mode returned to design_stop and D1 remains implementation-closed."
