@@ -321,8 +321,9 @@ no_safe_slice = [
 
 [bare_static_reject_r0]
 task_id = "MIR-CALL-D1B-CATALOGED-BARE-STATIC-REJECT-R0"
-status = "design_ready_implementation_closed"
-implementation_permission = false
+status = "fast_open"
+implementation_permission = true
+opened_at = "2026-08-28"
 decision = "For InstalledNonBrand { caller: Some } bare StaticBoxMethod candidates, canonical ingress terminates with a typed pre-effect reject because the language contract and current source products provide no exact call-site relation. Named recovery-proof fixtures remain ParkedSealed compatibility evidence; no package, loan, lineage, or dispatcher work is opened."
 boundary = "Only prepare_ordinary_function_completion_v1 -> prepare_cataloged_target_v1 for the bounded bare static-recovery family, before drive_call_arguments_v1. Qualified MethodCall, exact FreeStatic, Local Value, explicit Extern, exact builtin, and non-Cataloged compatibility families are excluded."
 source_authority = "docs/reference/language/function-call-evaluation.md plus the existing bounded source/fixture family contract; absence of an exact source-site -> declaration/owner/brand relation is the disposition."
