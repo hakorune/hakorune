@@ -507,8 +507,9 @@ non_claims = "No package+loan type, RawInvocationChildPort capability, dispatche
 [cataloged_source_relation_affine_loan_i0]
 task_id = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
 execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
+implementation_commit = "99bdfc856c"
 guard_phase = "cataloged_source_relation_affine_loan_i0"
 parent_row = "MIR-CALL-D1B-MAIN-FREESTATIC-SAME-SESSION-PRODUCER-COSEAL-D2"
 decision = "Implement the selected App Main FreeStatic family using B-double-prime only: one live source/resolver traversal co-issues exact source/ordered-argument facts and ResolvedDirectCallTargetV1, then a private non-Clone package disposition is consumed by one scoped affine loan. Do not broaden this row to a whole trivial profile or to global resolver retirement."
@@ -522,7 +523,7 @@ allowed_files = [
     "src/mir/resolved_semantics/shadow/resolver.rs",
     "src/mir/resolved_semantics/direct_call.rs",
     "src/mir/resolved_semantics/direct_call_inventory_gate.rs",
-    "src/mir/resolved_semantics/owner_resolver/app_main_free_static.rs",
+    "src/mir/resolved_semantics/owner_resolver_app_main.rs",
     "src/mir/resolved_semantics/resolver.rs",
     "src/mir/resolved_semantics/owner_resolver.rs",
     "src/mir/callable_semantic_batch/issuer.rs",
@@ -531,8 +532,10 @@ allowed_files = [
     "src/mir/normal_callable_semantic_package/install.rs",
     "src/mir/builder/normal_callable_package_bridge.rs",
     "src/mir/builder/normal_callable_semantic_loan_port/main_root.rs",
-    "src/mir/builder/recursive_child_lowering/direct_call_loan_scope.rs",
-    "src/mir/builder/calls/cataloged_direct_call.rs",
+    "src/mir/normal_callable_semantic_package/direct_call_loan.rs",
+    "src/mir/normal_callable_semantic_package/app_main_relation.rs",
+    "src/mir/builder/recursive_child_lowering.rs",
+    "src/mir/builder/recursive_child_lowering_port.rs",
     "src/mir/builder/calls/function_call_preflight_route.rs",
     "src/mir/builder/calls/build.rs",
     "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
@@ -573,6 +576,26 @@ no_safe_slice = [
     "any change reaches Method(None), global Resolved recovery, VM/backend, JSON, JoinIR, or Call schema",
 ]
 
+[cataloged_source_relation_affine_loan_i0_verification_2026_08_29]
+status = "landed"
+implementation_commit = "99bdfc856c"
+positive = "The selected App Main FreeStatic path co-issued source observations and same-session indexed targets, carried a private non-Clone loan into the live raw port, consumed it before argument descent, and required residual-zero completion."
+negative = "Nested-owner, wrong-arity, unsupported non-FreeStatic header, foreign-owner, duplicate-site, second-take, residual-loan, and observation/target coverage mismatches have named fail-closed paths."
+typed_failure = "App Main owner-relation failures use AppMainRootRelationIssueV1; direct-call disposition failures remain AppMainDirectCallDispositionIssueV1, including TargetNameMismatch; unsupported headers use the explicit OutsideExactProfile state."
+guards = [
+    "bash -n tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+    "bash tools/checks/current_state_pointer_guard.sh",
+    "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh cataloged_source_relation_affine_loan_i0",
+    "git diff --check",
+]
+compile_checks = [
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib (passed; existing warnings only)",
+    "CARGO_BUILD_JOBS=4 cargo check --profile quick --tests --lib -q (passed; existing warnings only)",
+]
+known_limit = "Full cargo test/link was not rerun because the repository's large test binary previously exceeded the available memory; test targets were type-checked and the reusable lifecycle guard was executed."
+closeout = "I0-A/B is complete for the selected App Main FreeStatic family. Package-only bypass is no longer the live route, the affine loan has a live take_once consumer and finish_empty check, and the old selected direct handoff is not claimed as the remaining contract. R2 all-lineage retirement, Method corridor, VM, and Call-schema changes remain closed."
+next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+
 [worker_task_synthesis_2026_08_29]
 status = "accepted_finite_plan"
 source = [
@@ -584,11 +607,11 @@ source = [
   "freestatic_bridge_adversary + borrow audit: canonical-core and live normal/default use different resolver-session/FunctionOwner brands; transport-only is NoSafeSlice, while existing-port-lifetime affine borrowing is feasible after same-session producer co-seal",
 ]
 definition_of_clean = "MirBuilder ordinary-call meaning is decided once before argument effects, one existing authority issues Callee, one affine handoff reaches the raw consumer, Call is emitted once, and every old resolver/recovery/optional-carrier edge is caller-zero or explicitly compatibility-owned."
-remaining_core_rows = 5
-remaining_core_rows_note = "D2 is now closed. Five implementation/retirement rows remain. They are bounded responsibility families, not per-file or per-function ceremonies."
+remaining_core_rows = 4
+remaining_core_rows_note = "D2 and the selected App Main I0 are closed. Four implementation/retirement rows remain. They are bounded responsibility families, not per-file or per-function ceremonies."
 ordered_rows = [
   "D2 closed: B-double-prime co-issues exact source/ordered-argument facts and ResolvedDirectCallTargetV1 from one live source/resolver lifecycle; it does not issue a whole trivial-value profile.",
-  "I0 next: MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0 — same-session target disposition -> private package+loan -> raw take_once -> arguments once -> header ABI validation -> Call once; delete the selected direct callee payload and package-only/resolver bypass in the same slice.",
+  "I0 landed at 99bdfc856c: same-session target disposition -> private package+loan -> raw take_once -> arguments once -> header ABI validation -> Call once; the selected App Main direct handoff/package bypass is closed.",
   "R2: MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0 — classify remaining lineages before effects and retire Resolved, post-argument unique/tail recovery, direct name-Const/legacy-Call edges; preserve named compatibility siblings.",
   "R3: MIR-CALL-METHOD-CORRIDOR-R0 — remove Method(None), methodize, receiver autoscan/strip/repair, and related VM/optimizer recovery as one receiver-authority family.",
   "R4: MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 — move every remaining typed_global_target_from_selected_symbol caller to its real owner or typed reject; no new symbol parser authority.",
@@ -602,4 +625,4 @@ post_core_hygiene = [
 ]
 not_in_core = "VM/backend retirement, JSON ingress, JoinIR cleanup, FunctionMetadata sub-owners, and broad guard consolidation remain separate lanes; they do not block the six-row Call spine once their explicit owner gates are satisfied."
 no_new_task_families = "Reuse the existing D1 lifecycle guard and current design card. Do not create a new census/owner-map/guard family for each row."
-implementation_gate = "D2 is accepted and this docs-only turn keeps work_mode=design_stop. The next explicit fast transition may open only the single atomic I0 and must use the B-double-prime facts+ResolvedDirectCallTargetV1 design; a whole trivial profile, second traversal/resolver, representation guess, or global R2 retirement claim returns to NoSafeSlice. Later rows reopen one at a time after closeout."
+implementation_gate = "D2 and the selected App Main I0 are accepted. The next explicit fast transition may open only MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0; a whole trivial profile, second traversal/resolver, representation guess, or Method/VM/Call-schema change returns to NoSafeSlice. Later rows reopen one at a time after closeout."

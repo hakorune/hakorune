@@ -1,10 +1,10 @@
 date = "2026-08-29"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0: B-double-prime is accepted. Implement only the selected App Main FreeStatic source-relation plus affine-loan slice; preserve one traversal/session, target-before-arguments, abort/no-retry, and selected old-edge deletion. Global R2 resolver-zero, Method(None), VM, and Call-schema changes remain closed."
-guard_followup = "The existing MIR-CALL-D1B lifecycle guard now has a scoped cataloged_source_relation_affine_loan_i0 phase for this selected family; the broader cataloged_i0 phase remains reserved for R2."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+current_design_stop = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: design-only inventory of remaining lineages and pre-effect terminal disposition; no Method/VM/Call-schema changes."
+current_blocker_token = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0: App Main FreeStatic I0 landed at 99bdfc856c. Before R2 implementation, enumerate remaining Resolved/unique-static/tail/name-Const/legacy-Call edges; preserve named compatibility owners and keep Method(None), VM, and Call-schema closed."
+guard_followup = "The existing MIR-CALL-D1B lifecycle guard remains scoped to cataloged_source_relation_affine_loan_i0 for the landed I0; R2 must be designed and accepted before any broader cataloged/Resolved retirement assertions."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
 latest_card = "mir-call-d1b-main-raw-cataloged-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
-latest_card_summary = "Observer I0, forest-wide observation gate, C0/B1 typed Global work, installed App Main Cataloged scope/owner witness, and qualified MethodCall source-keyed handoff are landed. D2 selected the B-double-prime one-pass source facts plus same-session ResolvedDirectCallTargetV1 design. The selected App Main FreeStatic I0 is now the only fast row: package+affine-loan consumption, raw take_once, arguments once, Call once, and selected old-edge deletion. Global Resolved recovery retirement, Method(None), and Call schema remain closed."
-next_design_card = "none"
-next_execution_card = "MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0"
+latest_card_summary = "Observer/Main owner witness, typed Global and qualified MethodCall handoff, and selected App Main FreeStatic affine-loan I0 are landed at 99bdfc856c. Next is R2 all-lineage pre-effect retirement design; Method(None), VM/backend, and Call schema remain closed."
+next_design_card = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-29: selected App Main FreeStatic source relation and affine-loan I0 landed at 99bdfc856c; same-session target/observation, take_once-before-arguments, finish_empty, and typed reject/owner guards are in place.",
 	"2026-08-28: qualified Cataloged MethodCall ingress now consumes the existing source-keyed publication handoff at 71b8e240eb; Builder owner/method/arity target reconstruction is removed and the physical bridge order is unchanged.",
 	"2026-08-28: Main raw owner witness harden R0 landed at 2dadcae1c2; the live installed App Main callback now rejects missing or mismatched raw callable owners before body effects, with target/loan/dispatcher and Call schema unchanged.",
-	"2026-08-28: D1 lifecycle guard phase routing R0 landed at 15b7a0c6f1; no-arg dispatch now selects active D1 and unknown phases fail closed, with semantic D1 still closed.",
 ]
