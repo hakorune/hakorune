@@ -5,11 +5,11 @@ observed_commit = "f76b80ed26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
-decision = "Reuse existing semantic owner and source-site authorities to carry Cataloged, TopLevel, and InstanceConstructor raw lineage to one same-session owner/site co-seal. This row issues no target, no Callee, and no public semantic receipt."
+decision = "Full D1 actual-lineage-before-prepare_install remains NoSafeSlice. The bounded amendment splits the proof: package issuer validates expected Cataloged owner/site/provenance before install, while the raw transport owner performs one mechanical actual RawInvocationRootLineage equality check at FunctionCall ingress before argument effects. This row issues no target, no Callee, and no public semantic receipt."
 
 [boundary]
 starts = "existing VerifiedSemanticOwnerForestV1, selected batch/map, constructor batch, VerifiedResolvedSourceSiteInventoryV1, OwnedExprSiteV1, and RawInvocationRootLineageV1 at the same resolver session"
-ends = "owner/site/lineage membership is verified and co-sealed before package prepare_install, body lowering, argument effects, block mutation, or Call publication; any transient scratch is consumed and dropped"
+ends = "expected owner/site/provenance membership is verified before package prepare_install; actual RawInvocationRootLineage equality is checked later at raw FunctionCall ingress before body/argument effects, block mutation, or Call publication; any transient scratch is consumed and dropped"
 includes = [
   "Cataloged and TopLevel lineage mapped through the existing selected callable batch/map to the existing forest owner",
   "InstanceConstructor lineage mapped through source_id and the existing constructor batch to the forest root owner",
@@ -26,12 +26,12 @@ excludes = [
 
 [brief]
 source_authority = "VerifiedSemanticOwnerForestV1 is the sole FunctionOwnerId authority; VerifiedResolvedSourceSiteInventoryV1 is the site-membership authority; RawInvocationRootLineageV1 is provenance only."
-canonical_issuer = "the existing same-session semantic package/resolver issuer performs the three lineage-to-forest-owner joins and validates the transient owner/site rows before package install"
+canonical_issuer = "the package issuer validates expected Cataloged owner/site/provenance from existing batch/map/catalog products before install; raw_invocation_source_transport remains the sole actual-lineage constructor and performs only the later equality check"
 non_authority = [
   "Selected source inventory alone, CallableSemanticSourceLedgerView after install, caller=None, builder variable_map, collector order, name/arity/physical symbol, and constructor box/key spelling",
   "AST re-discovery, a second resolver continuation, target inference, or an empty inventory treated as success",
 ]
-fail_fast = "If owner, site, lineage, brand, or session identity is missing or conflicting, abort the unpublished package before prepare_install, body lowering, argument descent/effects, block mutation, or MIR Call publication."
+fail_fast = "Expected owner/site/provenance or brand/session conflicts abort before prepare_install; actual raw lineage/key/site mismatch aborts at FunctionCall ingress before argument descent/effects, block mutation, or MIR Call publication."
 smallest_next_slice = "Design-only mapping matrix and co-seal proof for Cataloged, TopLevel, and InstanceConstructor; no code, fixture, receipt, or production switch."
 non_claims = [
   "this row does not observe ordinary FunctionCall nodes, widen traversal, issue a Callee, or remove Resolved/post-argument recovery",
@@ -62,7 +62,7 @@ states = [
   "PackageAbortBeforeEffects",
   "ParkedCompatibility",
 ]
-terminal_policy = "Only OwnerLineageCoSealed after the same-session owner/site/lineage checks is terminal. Missing/foreign/mixed-brand/duplicate/collapsed/outside states reject or require an explicit external owner; none may cross into package install or effects."
+terminal_policy = "Only the two-stage OwnerLineageCoSealed proof is terminal: expected owner/site/provenance is sealed before package install, then actual raw lineage equality is sealed at FunctionCall ingress before effects. Missing/foreign/mixed-brand/duplicate/collapsed/outside states reject or require an explicit external owner; none may cross their corresponding boundary."
 
 [subtasks]
 map_selected = "Specify the existing selected batch/map lookup for Cataloged and TopLevel without deriving owner from names, arity, or symbols."
@@ -98,7 +98,7 @@ mapping = "Cataloged/TopLevel use SelectedNormalCallableKeyV1 -> VerifiedSelecte
 lineage = "RawInvocationRootLineageV1 remains raw provenance. Cataloged, TopLevel, and InstanceConstructor must not be collapsed to InstalledNonBrand { caller: None }; missing exact relation is TypedReject or explicit compatibility park, never name/arity/box/symbol synthesis."
 session = "Use the existing same resolver invocation and compilation brand as the session boundary; do not add a public ResolverSessionId or a second semantic receipt merely to prove the join."
 boundary = "The sole mapping/co-seal routine runs after existing owner batches are available and before package prepare_install/body/argument/collector effects. Raw Builder bridges are consumers, not issuers."
-next_step = "Keep the landed forest-wide observation gate and BridgeReady one-shot package boundary as prerequisites. First bound the next row to Cataloged-only owner/site/lineage validation before prepare_install; target issuance, package+loan, and raw-dispatcher cutover remain closed until that contract is accepted."
+next_step = "Keep the landed forest-wide observation gate and BridgeReady one-shot package boundary as prerequisites. First close the Cataloged-only expected owner/site/provenance validation before prepare_install; record actual lineage equality as a later raw-ingress consumer step. Target issuance, package+loan, and raw-dispatcher cutover remain closed until this two-stage contract is accepted."
 non_claims = "No target/Callee issuance, Resolved recovery retirement, raw loan transport, Method(None) change, mandatory-Callee schema, or VM/backend change is authorized by this review."
 
 [current_head_recheck]
