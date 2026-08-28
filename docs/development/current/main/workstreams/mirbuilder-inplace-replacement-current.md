@@ -782,8 +782,9 @@ round-trip; and no family migration changes compiler or test semantics.
 - selected optimizer/Rust VM/printer/JSON/native Call terminal prerequisites are
   closed at their owning manifests; PyVM remains outside.
 - canonical Call writers through D1X, late callsite target rewrite retirement,
-  duplicate projection validation, exact-target child, recursive compatibility
-  shelf, and package-only BridgeReady are closed.
+  duplicate projection validation, exact-target child, and recursive compatibility
+  shelf are closed. Package-only BridgeReady remains an open D1B blocker until
+  the consuming package/loan scope and raw-port handoff are implemented.
 - FunctionMetadata owner split is closed at 718 lines; the 127-row consumer
   manifest remains the future sub-owner census authority.
 
