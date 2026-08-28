@@ -397,3 +397,17 @@ focused_tests = "static_call_result_publication_owner:: 5 passed; selected, unse
 guards = "rustfmt changed files, git diff --check, current_state_pointer_guard.sh, and mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh phase=qualified_method_target_issuer_i0 passed"
 source_limits = "static_call_result_publication_owner.rs 225 lines; owner test 254; module_lowering_invocation.rs 743; all below the 760/800 boundary"
 non_claims = "No bare FunctionCall/Main issuer, package+loan, RawInvocationChildPort loan, dispatcher cutover, Resolved recovery retirement, Method(None), Call schema, JSON, VM/backend, fallback, or retry change"
+
+[main_bare_freestatic_relation_boundary_d0]
+task_id = "MIR-CALL-D1B-MAIN-BARE-FREESTATIC-RELATION-BOUNDARY-D0"
+status = "design_stop_no_safe_slice"
+observed_commit = "ea25552c29"
+implementation_permission = false
+decision = "The existing normal_source_plan/resolved_value_profile can issue an exact FreeStatic product for a sealed canonical Main source, but no production bridge carries that product into live Builder raw lowering. Do not treat Main catalog identity, raw Cataloged lineage, or name/arity as a bare-call target issuer."
+source_authority = "VerifiedTrivialDirectCallV1::seal and its normal_source_plan owner co-seal exact source site, owner, callable-index relation, FreeStatic target, argument sites, result, and conservative effect for the canonical resolved route."
+canonical_consumer = "No live raw Builder consumer exists yet; the existing product is consumed only by resolved_lowering/trivial_ssa. A future bridge must be explicitly designed before package+loan or raw dispatcher implementation."
+non_authority = "AppMainCatalogCoSealV1, RawInvocationRootLineageV1::Cataloged, FunctionOwnerIdV1 witness, name/arity/box strings, static_candidates, CalleeResolverBox, MIR Call/Callee, and canonical resolved-route physicalization cannot issue or transport a bare Main target by inference."
+fail_fast = "The existing forest-wide direct-call observation gate rejects Main bare observations before package install. If an exact source/profile-to-Builder relation cannot be proven without a second scan, synthetic key, or new unowned receipt, remain TypedRejectBeforeArguments or explicit ParkedSealed; no effects, retry, fallback, or partial publish."
+smallest_next_slice = "Design-only premise audit for an explicit FreeStatic source/profile-to-Builder bridge: name the issuer, session/brand witness, raw site mapping, package/loan owner, and failure/rollback contract. If those cannot be named from existing owners, ratify the bare Main park rather than adding a compatibility adapter."
+acceptance = "One compact authority decision distinguishes canonical FreeStatic production from raw Builder consumption; all required products, live caller, exact site relation, and ownership/lifetime boundary are either proven or recorded as NoSafeSlice."
+non_claims = "No code, fixture, target issuer, package+loan, RawInvocationChildPort field/lifetime, dispatcher, Resolved retirement, Method(None), Call schema, JSON, VM/backend, fallback, or retry change. Qualified MethodCall I0 remains the only newly landed ingress switch."
