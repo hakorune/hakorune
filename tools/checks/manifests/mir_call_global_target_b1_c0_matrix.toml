@@ -209,3 +209,113 @@ owner = "public MirCall compatibility"
 action = "park-or-breaking-retire"
 terminal = "ParkedSealed API"
 reopen = "selected external reader or breaking API decision"
+
+[[evidence_rows]]
+id = "call-target-schema"
+path = "src/mir/builder/calls/call_target.rs"
+anchor = "Global function"
+disposition_ref = "typed-carrier-consumer"
+owner = "CallTarget schema"
+action = "adapt"
+terminal = "simultaneous typed Callee/CallTarget carrier"
+reopen = "a second Global carrier or String constructor appears"
+
+[[evidence_rows]]
+id = "legacy-call-emitter"
+path = "src/mir/builder/calls/emit.rs"
+anchor = "emit_legacy_call"
+disposition_ref = "retire-recovery-before-effects"
+owner = "legacy call emitter"
+action = "retire"
+terminal = "typed terminal or explicit compatibility isolate"
+reopen = "a production caller requires name-based emission"
+
+[[evidence_rows]]
+id = "compat-global-entrypoint"
+path = "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs"
+anchor = "emit_global_unified"
+disposition_ref = "retire-recovery-before-effects"
+owner = "unified compatibility entrypoint"
+action = "retire"
+terminal = "typed terminal or explicit compatibility isolate"
+reopen = "a production caller bypasses the typed terminal"
+
+[[evidence_rows]]
+id = "callee-string-resolver"
+path = "src/mir/builder/calls/resolver.rs"
+anchor = "pub fn resolve"
+disposition_ref = "retire-recovery-before-effects"
+owner = "legacy Callee resolver"
+action = "retire"
+terminal = "declaration-backed issuer or typed reject"
+reopen = "a resolver remains a Global String issuer"
+
+[[evidence_rows]]
+id = "ordinary-resolved-call"
+path = "src/mir/builder/calls/build.rs"
+anchor = "build_resolved_function_call"
+disposition_ref = "retire-recovery-before-effects"
+owner = "ordinary resolved-call builder"
+action = "retire"
+terminal = "pre-effect typed disposition"
+reopen = "arguments are lowered before target resolution"
+
+[[evidence_rows]]
+id = "ordinary-preflight-route"
+path = "src/mir/builder/calls/function_call_preflight_route.rs"
+anchor = "PreparedRawOrdinaryFunctionCompletionV1::Resolved"
+disposition_ref = "retire-recovery-before-effects"
+owner = "ordinary FunctionCall preflight"
+action = "retire"
+terminal = "pre-effect typed disposition"
+reopen = "relationless calls re-enter Resolved"
+
+[[evidence_rows]]
+id = "static-recovery"
+path = "src/mir/builder/calls/static_resolution.rs"
+anchor = "try_unique_static_method_recovery"
+disposition_ref = "retire-recovery-before-effects"
+owner = "static recovery"
+action = "retire"
+terminal = "exact declaration relation or typed reject"
+reopen = "unique or tail recovery emits a target"
+
+[[evidence_rows]]
+id = "unified-emitter-recovery"
+path = "src/mir/builder/calls/unified_emitter.rs"
+anchor = "emit_legacy_call"
+disposition_ref = "retire-recovery-before-effects"
+owner = "unified emitter recovery"
+action = "retire"
+terminal = "typed terminal without methodize"
+reopen = "environment-gated fallback or Global-to-Method repair remains"
+
+[[evidence_rows]]
+id = "method-terminal-global"
+path = "src/mir/builder/calls/method_call_terminal.rs"
+anchor = "CallTarget::Global"
+disposition_ref = "compiled-adjacent-owner"
+owner = "method call terminal"
+action = "adapt"
+terminal = "declaration-backed typed target"
+reopen = "method terminal reconstructs a target from a symbol"
+
+[[evidence_rows]]
+id = "known-rewrite-global"
+path = "src/mir/builder/rewrite/known.rs"
+anchor = "CallTarget::Global"
+disposition_ref = "compiled-adjacent-owner"
+owner = "known-call rewrite"
+action = "isolate"
+terminal = "fixture or explicit rewrite owner"
+reopen = "rewrite becomes a production Global issuer"
+
+[[evidence_rows]]
+id = "print-global-route"
+path = "src/mir/builder/stmts/print_stmt.rs"
+anchor = "CallTarget::Global"
+disposition_ref = "compiled-adjacent-owner"
+owner = "print statement route"
+action = "adapt"
+terminal = "Builtin(Print) or typed reject"
+reopen = "print acquires a non-builtin callable meaning"
