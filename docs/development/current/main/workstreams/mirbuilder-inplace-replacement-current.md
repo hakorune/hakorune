@@ -71,24 +71,23 @@ fallback, and second resolvers are not authority. The earlier GC and
 caller-zero Print retirements remain recorded in the manifest, while the
 dedicated `ASTNode::Print -> builtin_print()` owner stays unchanged.
 
-The physical-thunk issuer audit is now `ParkedSealed`: the two production
-callers and one test helper share an existing source/physical relation, but
-the current `CallableIndex` and target vocabulary have no exact same-session
-`main/0` Callee issuer. Symbol parse-back, name/arity synthesis, and a new
-semantic receipt are not shortcuts. The selected-exact CorePlan reachability
-audit is also `ParkedSealed`: its source/site/brand/target claim chain is
-structurally exact but caller-zero in production. The next bounded design
-candidate (the parent pointer remains the authority) is
-`MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0`, a read-only census of
-the three public selectors, six source ingresses, four target publishers, and
-the ALL_CALL prelude sibling. Ordinary-new is separately `CarrierMismatch`/
-`ParkedSealed`: its claim is consumed before arguments, but birth text is not
-an exact constructor product and source arity N conflicts with physical argv
-N+1. No operator implementation or production switch is permitted in D0.
-The public flag fate is still the only semantic decision needed before an
-operator I0: retire the opt-in route with a typed pre-effect terminal, or keep
-it as a named compatibility lane. It must not be inferred from default-off
-behavior or from the existence of the Hako operator files.
+The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`,
+and ordinary-new remains `CarrierMismatch`/`ParkedSealed`; none is reopened by
+the operator work. The user selected retirement for only the legacy
+`NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
+audits closed the boundary at three compiler ingresses, four target publishers,
+six structural source ingresses, one prelude coupling, and finite repo-owned
+writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
+the existing direct arithmetic/comparison/unary MIR remain separate and live.
+
+The bounded order is now fixed in the active manifest: first run the
+behavior-neutral `MIR-CALL-SAME-MODULE-OPERATOR-TYPE-FACT-GUARD-SPLIT-S0`
+because the touched guard is 786 lines; then run one atomic
+`MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0`. I0 parses all three selectors
+once at normal/raw-published/resolved compiler ingress, rejects explicit true
+or malformed/non-Unicode values before effects, and deletes the publishers,
+downstream reads, Builder prelude OR, and repo-owned Builder writers together.
+Validator-only, publisher-only, and runtime-lane changes are not permitted.
 
 ## Historical rolling context (non-authoritative)
 
