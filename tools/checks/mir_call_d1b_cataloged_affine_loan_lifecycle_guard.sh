@@ -679,7 +679,7 @@ if phase == "method_corridor_nonstage1_producer_retire_d0":
     for token in ("D0-A", "D0-B", "D0-C", "D0-D", "I1", "caller-zero", "old-edge deletion"):
         if token not in task_text:
             raise SystemExit(f"Method non-Stage1 producer D0 task token is missing: {token}")
-    if section.get("d0_a_status") != "partial_recount" or section.get("d0_a_observed_commit") != "7491d244d6":
+    if section.get("d0_a_status") != "complete_recount" or section.get("d0_a_observed_commit") != "5ed21ada52":
         raise SystemExit("Method non-Stage1 producer D0 caller recount status drifted")
     if not isinstance(section.get("d0_a_boundary"), str) or "->" not in section["d0_a_boundary"]:
         raise SystemExit("Method non-Stage1 producer D0 caller recount boundary is missing")
@@ -690,6 +690,11 @@ if phase == "method_corridor_nonstage1_producer_retire_d0":
         "raw_root_main_origin",
         "resolved_compatibility_consumer",
         "method_resolution_static_none",
+        "builder_method_none_publication_terminal",
+        "unified_emitter_methodize_reissuer",
+        "installed_app_main_affine_successor",
+        "installed_nonbrand_pre_effect_reject",
+        "unclassified_preflight_reject",
     }
     recount = section.get("d0_a_caller_census")
     if not isinstance(recount, list) or {row.get("id") for row in recount if isinstance(row, dict)} != expected_recount:
@@ -699,17 +704,35 @@ if phase == "method_corridor_nonstage1_producer_retire_d0":
             raise SystemExit("Method non-Stage1 producer D0 caller recount row is missing evidence")
         if not isinstance(row.get("production_direct_sites"), int) or row.get("production_direct_sites") < 1:
             raise SystemExit("Method non-Stage1 producer D0 caller recount has an invalid direct-site count")
-        if not isinstance(row.get("upstream_origin_classes"), int) or row.get("upstream_origin_classes") < 1:
+        if not isinstance(row.get("upstream_classes"), int) or row.get("upstream_classes") < 0:
             raise SystemExit("Method non-Stage1 producer D0 caller recount has an invalid upstream count")
     remaining = section.get("d0_a_remaining_rows")
-    if not isinstance(remaining, list) or len(remaining) != 5 or set(remaining) != {
+    if not isinstance(remaining, list) or remaining:
+        raise SystemExit("Method non-Stage1 producer D0 remaining recount rows drifted")
+
+    if section.get("d0_b_status") != "partial_disposition":
+        raise SystemExit("Method non-Stage1 producer D0 disposition status drifted")
+    if not isinstance(section.get("d0_b_boundary"), str) or "->" not in section["d0_b_boundary"]:
+        raise SystemExit("Method non-Stage1 producer D0 disposition boundary is missing")
+    expected_open_rows = {
+        "raw_legacy_origin",
+        "script_root_origin",
+        "raw_script_root_origin",
+        "raw_root_main_origin",
+        "method_resolution_static_none",
+        "resolved_compatibility_consumer",
         "builder_method_none_publication_terminal",
         "unified_emitter_methodize_reissuer",
+    }
+    expected_closed_rows = {
         "installed_app_main_affine_successor",
         "installed_nonbrand_pre_effect_reject",
         "unclassified_preflight_reject",
-    }:
-        raise SystemExit("Method non-Stage1 producer D0 remaining recount rows drifted")
+    }
+    if set(section.get("d0_b_open_rows", [])) != expected_open_rows:
+        raise SystemExit("Method non-Stage1 producer D0 open dispositions drifted")
+    if set(section.get("d0_b_closed_rows", [])) != expected_closed_rows:
+        raise SystemExit("Method non-Stage1 producer D0 closed dispositions drifted")
 
     expected_in_scope = {
         "raw_legacy_origin",

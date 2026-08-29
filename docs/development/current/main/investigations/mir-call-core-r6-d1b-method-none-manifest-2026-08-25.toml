@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "7491d244d6"
+observed_commit = "5ed21ada52"
 observed_at = "2026-08-29"
 implementation_permission = false
 
@@ -386,12 +386,23 @@ forbidden_files = [
   "VM/backend/optimizer/Call schema/receiver repair",
 ]
 
-d0_a_status = "partial_recount"
-d0_a_observed_commit = "7491d244d6"
-d0_a_boundary = "four R2 origin issuers and shared dispatch -> shared Resolved construction/consumer -> method_resolution_static_none production caller"
-d0_a_remaining_rows = [
+d0_a_status = "complete_recount"
+d0_a_observed_commit = "5ed21ada52"
+d0_a_boundary = "four R2 origin issuers and shared dispatch -> shared Resolved construction/consumer -> method_resolution_static_none production caller, with every in-scope producer/reissuer/terminal row counted by direct sites and upstream classes"
+d0_a_remaining_rows = []
+d0_b_status = "partial_disposition"
+d0_b_boundary = "recounted producer/reissuer/terminal -> exact successor, pre-effect typed reject, or open blocker"
+d0_b_open_rows = [
+  "raw_legacy_origin",
+  "script_root_origin",
+  "raw_script_root_origin",
+  "raw_root_main_origin",
+  "method_resolution_static_none",
+  "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
   "unified_emitter_methodize_reissuer",
+]
+d0_b_closed_rows = [
   "installed_app_main_affine_successor",
   "installed_nonbrand_pre_effect_reject",
   "unclassified_preflight_reject",
@@ -500,43 +511,78 @@ reopen_trigger = "A new named source/brand owner is added and supplies an exact 
 id = "raw_legacy_origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/raw_expression_dispatch/mod.rs:345-357"
 production_direct_sites = 1
-upstream_origin_classes = 1
+upstream_classes = 1
 evidence = "one RawLegacy issuer and one shared dispatch site; the origin enters Resolved"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "script_root_origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:77-95; src/mir/builder/calls/function_call_preflight_route.rs:186-193,348-355"
 production_direct_sites = 1
-upstream_origin_classes = 1
+upstream_classes = 1
 evidence = "one ScriptRoot issuer and one shared route site; the origin enters Resolved"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "raw_script_root_origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:194-201,348-355"
 production_direct_sites = 1
-upstream_origin_classes = 1
+upstream_classes = 1
 evidence = "one RawScriptRoot issuer and one shared route site; the origin enters Resolved"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "raw_root_main_origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:202-209,348-355"
 production_direct_sites = 1
-upstream_origin_classes = 1
+upstream_classes = 1
 evidence = "one RawRootMain issuer and one shared route site; the origin enters Resolved"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "resolved_compatibility_consumer"
 owner = "src/mir/builder/calls/function_call_preflight_route.rs:348-355; src/mir/builder/calls/build.rs:120-146"
 production_direct_sites = 1
-upstream_origin_classes = 4
+upstream_classes = 4
 evidence = "four named origins converge into one Resolved construction arm and one consumer arm"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "method_resolution_static_none"
 owner = "src/mir/builder/calls/method_resolution.rs:37-60; src/mir/builder/calls/utils.rs:45-53; src/mir/builder/calls/build.rs:371"
 production_direct_sites = 1
-upstream_origin_classes = 4
+upstream_classes = 4
 evidence = "one direct production caller; the four named R2 origins are upstream of the shared Resolved route"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "builder_method_none_publication_terminal"
+owner = "src/mir/builder/calls/builder_emit.rs:109-142,275-279,363-368"
+production_direct_sites = 1
+upstream_classes = 2
+evidence = "one Builder publication terminal remains live; two in-scope Method(None) writer classes can reach the receiverless terminal"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "unified_emitter_methodize_reissuer"
+owner = "src/mir/builder/calls/unified_emitter.rs:105,119,387-459,698-729; src/mir/builder/calls/request_boundary.rs:67,89"
+production_direct_sites = 1
+upstream_classes = 3
+evidence = "one unified-emitter reissuer remains live and has three direct core-ingress callers; no exact successor or pre-effect terminal is recorded"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "installed_app_main_affine_successor"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:317-318; src/mir/builder/calls/build.rs:128-129,150-176"
+production_direct_sites = 1
+upstream_classes = 1
+evidence = "one installed App Main producer/consumer/publication chain is live; its exact source-keyed affine successor is already the named disposition"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "installed_nonbrand_pre_effect_reject"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:319-324,378-450"
+production_direct_sites = 1
+upstream_classes = 1
+evidence = "one installed non-brand catalog caller reaches two bare same-owner rejection branches and one Rejected completion site before argument descent"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "unclassified_preflight_reject"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:110-112; src/mir/builder/calls/function_call_preflight_route.rs:218-244,341-347,552"
+production_direct_sites = 1
+upstream_classes = 1
+evidence = "one unclassified source issuer reaches one pre-effect reject and one SourceRejected sink; no target product is issued"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
 id = "stage1_exact_one_writer"

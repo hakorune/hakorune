@@ -41,13 +41,11 @@ known writer, but the selector carries no Stage1 provenance; external callers
 must not be treated as Stage1 without a separate owner. Stage1 full artifact
 remains ParkedSealed. The current design stop is
 `MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0`, a finite structured
-inventory only; four R2 origins and the shared Method(None) producer/reissuer/
-terminal remain CutoverBlockerOpen. `method_resolution`, JSON/Hako,
-VM/backend, and Call-schema changes are closed until the in-boundary blockers
-are resolved or receive named typed terminals. D0-A has now recounted the four
-R2 origins, the single shared Resolved consumer, and the single production
-`method_resolution_static_none` caller; five inventory rows remain explicitly
-unrecounted.
+inventory only; D0-A has recounted all 11 rows and D0-B records eight
+CutoverBlockerOpen rows plus an exact App Main successor and two pre-effect
+reject dispositions. `method_resolution`, JSON/Hako, VM/backend, and
+Call-schema changes are closed until the in-boundary blockers are resolved or
+receive named typed terminals. I1 remains closed.
 
 ## Historical rolling context (non-authoritative)
 
