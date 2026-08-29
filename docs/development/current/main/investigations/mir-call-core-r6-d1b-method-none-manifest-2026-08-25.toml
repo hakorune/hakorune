@@ -1652,10 +1652,12 @@ reconciled_result = "The finite provider names are separated: print has an exist
 next_implementation = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
 
 [same_module_cataloged_gc_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "9e166e5974"
+coverage_base_commit = "eb6af37e628fe3f4af735dfed4e93971a72fdde1"
 source_authority = "The existing installed-nonbrand GC retirement predicate is the named policy owner; no target issuer is needed."
 canonical_issuer = "None: gc_collect/gc_stats remain unissued and terminate before argument descent."
 non_authority = [
@@ -1696,8 +1698,14 @@ focused_test_names = [
   "cataloged_gc_names_reject_before_target_synthesis",
   "installed_gc_rejection_does_not_descend_or_publish",
 ]
-focused_test_filters = ["function_call_installed_gc_builtin_tests"]
+focused_test_filters = ["installed_gc_builtin_tests"]
 changed_test_names = ["cataloged_gc_names_reject_before_target_synthesis"]
+implementation_evidence = "Caller-present gc_collect/gc_stats now select RawOrdinaryFunctionRetirementV1::GcGlobal before caller target preparation; the existing caller-less path uses the same typed terminal. The focused installed_gc_builtin_tests suite ran 4 tests with 4 passed, and cargo check --profile quick --lib passed."
+focused_test_command = "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo test --profile quick --lib installed_gc_builtin_tests:: -- --test-threads=1"
+focused_test_result = "4 passed; 0 failed; 7502 filtered out"
+cargo_check_command = "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo check --profile quick --lib"
+cargo_check_result = "passed; existing warnings only"
+full_suite_note = "Full cargo test was not run; this row is evidenced by the exact focused suite, quick library check, pointer guard, active-surface guard, and diff check."
 acceptance = "Both caller=None and caller=Some cataloged GC calls reach one typed retirement variant before target preparation and child descent; no SameModule FreeFunction is synthesized for gc_collect/gc_stats; existing Math/Extern/ordinary routes remain unchanged; focused tests and the reusable active-surface guard are green."
 no_safe_slice = "Return to design_stop if caller-present GC has a public success contract, the predicate cannot be evaluated before caller target preparation, a new GC issuer is required, or the change reaches Math/Extern, VM/backend, wire, package/loan, or Call schema."
 
