@@ -1015,7 +1015,7 @@ non_claims = "This reconciliation does not establish a fresh artifact, ternary r
 next_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
 
 [stage1_resolver_ternary_shape_d0_2026_08_29]
-status = "accepted_design_stop"
+status = "landed_design_stop"
 task_id = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
 execution_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
 parent_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
@@ -1032,6 +1032,20 @@ finite_inventory = [
     "lower_method_array_get_set_box.hako: try_lower, 1 JSON value-fragment ternary (31)",
 ]
 smallest_next_slice = "Read-only source/grammar feasibility matrix for these 20 sites: preserve lazy branch evaluation, return/value shape, null/sentinel/escaping, declaration/parameter contracts, and the same clean snapshot boundary. Do not edit code in D0."
+worker_evidence = [
+    "r2_named_resolved_audit (read-only, HEAD 667f1ad240): all 20 sites are local comparisons/fragment selection; existing Hako owners and parser subset accept lazy if/else forms; no exclusion route exists in the static closure.",
+    "r2_guard_scope_audit (read-only, HEAD 667f1ad240): existing Parser If/Local/Assignment/Return and conditional CFG own the shape; an earlier ParameterContract/SourceShape boundary or changed evaluation order remains NoSafeSlice.",
+]
+feasibility_matrix = [
+    "pattern_util_box.hako:227-232 find_local_bool_before; six integer comparisons; return 1/0; lazy return-if form; safe.",
+    "json_number_canonical_box.hako:53,59,72,76,84 canonicalize_f64; sign/zero string branches; preserve zero sentinel and return order; safe.",
+    "json_number_canonical_box.hako:82 canonicalize_f64; frac2.length()==0 chooses \"0\"; local default plus conditional assignment; safe.",
+    "jsonfrag_normalizer_box.hako:73 _normalize_instructions_array; dst null chooses \"?\" vs int_to_str(dst); call only in non-null branch; safe.",
+    "jsonfrag_normalizer_box.hako:261,271,287,291,300 _canonicalize_f64_str; same sign/zero string branches as canonicalize_f64; safe.",
+    "jsonfrag_normalizer_box.hako:298 _canonicalize_f64_str; frac2.length()==0 chooses \"0\"; local default plus conditional assignment; safe.",
+    "lower_method_array_get_set_box.hako:31 try_lower; sval null chooses existing i64=3 JSON fragment vs existing string fragment; preserve escaping; safe.",
+]
+feasibility_decision = "All 20 expression-position ternaries are a Safe bounded BoxShape I0 candidate. Direct-return sites use `if condition { return then } return else`; embedded sites use a local default plus a conditional assignment. Existing parser/source owners already accept If/Local/Assignment/Return and conditional evaluation; no parser/resolver extension or new receipt is needed."
 acceptance = [
     "Every site has owner, expression position, branch laziness, and source contract recorded; no site outside the finite closure is added.",
     "An existing parser/source owner is named for either a safe BoxShape I0 or an explicit NoSafeSlice; no guessed parser/resolver expansion is accepted.",
@@ -1042,6 +1056,60 @@ no_safe_slice = [
     "The clean route fails before the finite closure or requires an out-of-scope parser/resolver/entry/Call/VM change.",
 ]
 non_claims = "No ternary source edit, fresh artifact, Methodize parity, or MirBuilder Call/VM retirement is authorized by this D0."
+next_row = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
+
+[stage1_resolver_ternary_shape_i0_2026_08_29]
+status = "accepted_bounded_implementation"
+task_id = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
+execution_row = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
+parent_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
+implementation_permission = true
+decision = "Replace only the finite 20 expression-position ternaries in the four existing Stage1 Hako owners with lazy if/else BoxShape forms. Preserve values, return shape, null/sentinel/escaping, import closure, and the clean ResolverDeferred boundary; do not widen the route."
+source_authority = "The four existing Hako method owners and their current return/value semantics; Parser If/Local/Assignment/Return and conditional CFG are the existing canonical source-shape owners."
+canonical_issuer = "No new semantic issuer or receipt. Existing method returns and JSON fragment values remain the sole output authority."
+non_authority = "Ternary language extension, AST/MIR rewrite, Rust resolver, parameter fallback, Main/entry/wrapper, Methodize/Method(None), Call schema, VM/backend, source preprocessor, runtime flags, and guessed dead-code removal."
+fail_fast_boundary = "After the four-file source-only edit, the normal fresh route must still reach the same five-method ResolverDeferred/UnsupportedExpression boundary or a later named artifact boundary; any earlier ParameterContract/SourceShape or changed value/evaluation behavior fails the row."
+census_boundary = "stage1_cli_env.hako -> MirBuilderBox/fallback/finalize static imports -> four Hako owners -> five methods -> 20 non-comment ternary expressions; includes all 20 listed sites, excludes parser/Rust/entry/Methodize/Call/VM/backend and unrelated ternaries/comments."
+allowed_files = [
+    "lang/src/mir/builder/internal/pattern_util_box.hako",
+    "lang/src/shared/json/utils/json_number_canonical_box.hako",
+    "lang/src/mir/builder/internal/jsonfrag_normalizer_box.hako",
+    "lang/src/mir/builder/internal/lower_method_array_get_set_box.hako",
+    "tools/checks/stage1_entry_shape_guard.sh",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden_files = [
+    "src/parser",
+    "src/mir",
+    "src/runner",
+    "lang/src/runner",
+    "tools/selfhost",
+]
+replacement_shapes = [
+    "find_local_bool_before: six direct `return (comparison) ? 1 : 0` sites become `if comparison { return 1 } return 0`.",
+    "canonicalize_f64 and _canonicalize_f64_str: sign/zero and fraction-tail expressions become local defaults plus conditional assignments without changing string fragments.",
+    "_normalize_instructions_array: dstr defaults to `?`; int_to_str(dst) is called only inside `if dst != null`.",
+    "try_lower: existing i64 fragment remains the default; existing string fragment is assigned only when sval != null, then concatenated once.",
+]
+acceptance = [
+    "Exactly the 20 listed non-comment ternaries change to 0; no unrelated ternary, import, route, or source declaration changes.",
+    "Both branches remain lazy; null/sentinel values, JSON escaping, numeric sign/zero behavior, return/value shape, and call evaluation order remain unchanged.",
+    "The existing stage1 entry-shape guard remains green and additionally verifies the finite four-file ternary count is zero.",
+    "A fresh normal quick emit is rerun from a clean source/binary tuple; no stale artifact is accepted. The row records whether the five-method typed boundary moved later or remains the same.",
+    "Touched Hako sources are checked with the smallest available focused route; no parser/Rust/Call/VM behavior claim is made.",
+]
+negative = [
+    "Any earlier SourceShape or ParameterContract failure, changed branch eagerness, changed null/sentinel/escaping, or changed output/return value.",
+    "Any edit outside the four Hako owners and the existing Stage1 guard/docs files.",
+    "A zero-test or stale-binary result used as evidence, or a full artifact/Methodize claim without a fresh normal emit.",
+]
+no_safe_slice = [
+    "The existing Hako subset rejects the replacement form or conditional evaluation is no longer lazy.",
+    "A site needs parser/resolver/entry/Methodize/Call/VM changes, an AST rewrite, or a new semantic receipt.",
+    "The clean route stops earlier than the recorded five-method boundary for a reason not owned by these 20 sites.",
+]
+non_claims = "This I0 does not establish a fresh full Stage1 artifact, Methodize parity, MirBuilder Call cutover, VM retirement, language ternary support, or source/file deletion."
 next_row = "STAGE1-FULL-ARTIFACT-D0"
 
 [stage1_source_shape_diag_d0_2026_08_29]
