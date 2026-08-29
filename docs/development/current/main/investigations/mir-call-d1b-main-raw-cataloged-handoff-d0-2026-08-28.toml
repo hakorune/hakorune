@@ -900,11 +900,12 @@ non_claims = "No fresh full artifact, methodize=0/1 parity, Rust producer deleti
 next_row = "MIR-CALL-METHODIZE-D0"
 
 [stage1_entry_shape_i0_2026_08_29]
-status = "ready_for_fast"
+status = "landed"
 task_id = "STAGE1-ENTRY-SHAPE-I0"
 execution_row = "STAGE1-ENTRY-SHAPE-I0"
 parent_row = "STAGE1-ARTIFACT-ENTRY-SHAPE-ALIGN-D0"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "f00fbd8b9a"
 decision = "Open one bounded shape slice for the canonical default artifact only: both entry/ thin stubs expose Main.main/0. Preserve build defaults and NYASH_ENTRY; top-level wrappers remain an explicit ParkedSealed compatibility route."
 source_authority = "normal_source_plan Main.main/0 contract and build_stage1.sh artifact-kind defaults, with entry/ stubs as the canonical source files."
 canonical_issuer = "The existing Hako parser/lowering path issues the Main.main/0 shape from the edited canonical stub; this row adds no semantic receipt or target authority."
@@ -940,13 +941,48 @@ negative = [
     "NYASH_ENTRY drifting from Main.main/0",
     "explicit wrapper route silently treated as the canonical default",
 ]
+focused_evidence = [
+    "bash tools/checks/stage1_entry_shape_guard.sh: passed",
+    "bash tools/checks/run_row_guard.sh --profile quick-static --only stage1-entry-shape: 1 row passed",
+    "target/quick/hakorune --emit-mir-json <temp> lang/src/runner/entry/launcher_native_entry.hako: zero-arity main emitted; functions=4",
+    "target/quick/hakorune --emit-mir-json <temp> lang/src/runner/entry/stage1_cli_env_entry.hako: zero-arity main emitted; functions=4",
+    "bash tools/checks/current_state_pointer_guard.sh: passed",
+    "git diff --check: passed",
+]
 no_safe_slice = [
     "The default artifact closure contains a top-level wrapper or an active caller requires the wrapper route.",
     "The canonical stub must accept argv, or build defaults/NYASH_ENTRY must change to hide an arity mismatch.",
     "The direct emit probe still stops at a source-shape error that cannot be separated from the stub change.",
     "The change requires Methodize, Method(None), receiver ABI, VM/JSON, shared Resolved, or Call schema edits.",
 ]
+closeout = "STAGE1-ENTRY-SHAPE-I0 landed in f00fbd8b9a. Canonical default stubs now emit zero-arity Main.main; wrappers, build defaults, NYASH_ENTRY, and argv ABI were not changed. The next row is fresh artifact readiness."
 next_row = "STAGE1-FULL-ARTIFACT-D0"
+
+[stage1_full_artifact_d0_2026_08_29]
+status = "accepted_design_stop"
+task_id = "STAGE1-FULL-ARTIFACT-D0"
+execution_row = "STAGE1-FULL-ARTIFACT-D0"
+parent_row = "STAGE1-ENTRY-SHAPE-I0"
+implementation_permission = false
+decision = "Build one fresh stage1-cli artifact through the explicit logical Stage1 owner after the canonical default stubs are aligned. This is an artifact-readiness/parity prerequisite, not a Methodize implementation row."
+source_authority = "tools/selfhost/mainline/build_stage1.sh and tools/selfhost/lib/stage1_contract.sh own artifact kind/entry metadata; lang/src/runner/stage1_cli_env.hako is the logical Stage1 owner; normal_source_plan owns Main.main/0 admission."
+non_authority = "stale release/debug binaries, timeout output, top-level wrappers, HAKO_MIR_BUILDER_METHODIZE, NYASH_ENTRY text, argv adaptation, VM/backend behavior, and Call-schema state"
+fail_fast_boundary = "A fresh artifact must be produced with exact stage1-cli metadata and Main.main/0 entry shape; SourceBackedCatalog/SourceShape or stale-artifact ambiguity remains a typed blocker and is not hidden by relaxing source preservation."
+full_artifact_route = "tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli --entry lang/src/runner/stage1_cli_env.hako --out <fresh-path> --force-rebuild --timeout-secs 900"
+acceptance = [
+    "A fresh stage1-cli artifact and metadata are produced from the explicit logical owner, with canonical Main.main/0 entry shape.",
+    "Direct methodize=0/1 parity is measured only on that fresh artifact, including target, args, dst, effects, result, stdout/return/fault, and no fallback/retry.",
+    "The existing source-preservation contract remains unchanged; top-level wrappers and argv ABI remain separate compatibility routes.",
+    "Only after this evidence may MIR-CALL-METHODIZE-D0 reopen a producer-local fate decision."
+]
+no_safe_slice = [
+    "The build times out without an artifact or emits no metadata.",
+    "The logical Stage1 route stops at SourceBackedCatalog/SourceShape before artifact emission.",
+    "Parity requires relaxing Main.main/0, injecting/discarding argv, or changing Methodize/Method(None)/receiver ABI.",
+    "The proposed change touches shared Resolved/recovery, VM/JSON/backend, or Call schema."
+]
+non_claims = "No Methodize parity, Rust producer deletion, Method corridor implementation, wrapper compatibility, VM migration, or Call-schema cutover is established until the fresh artifact exists."
+next_row = "MIR-CALL-METHODIZE-D0"
 
 [audit_16_reconciliation_2026_08_29]
 status = "reconciled_current_head"
