@@ -15,6 +15,15 @@ import subprocess
 import sys
 import tomllib
 
+from mir_call_d1b_method_corridor_guard import (
+    GUARD_SPLIT_ROW,
+    TEST_SPLIT_ROW,
+    check_guard_split_s0,
+    check_method_corridor_d0,
+    check_method_resolution_ret0,
+    check_test_split_s0,
+)
+
 
 TAG = "mir-call-d1b-active-surface"
 CARD_REL = Path(
@@ -459,151 +468,6 @@ def check_raw_legacy_resume(state: dict, card: dict) -> None:
             fail(f"RawLegacy boundary lacks {token}")
 
 
-def check_method_corridor_d0(state: dict, card: dict) -> None:
-    if state.get("work_mode") != "design_stop":
-        fail("Method corridor producer census must remain design_stop")
-    if state.get("current_execution_row") != METHOD_CORRIDOR_D0_ROW:
-        fail("Method corridor producer census row is not selected by CURRENT_STATE")
-    if state.get("current_design_stop") != METHOD_CORRIDOR_D0_ROW:
-        fail("Method corridor producer census design stop drifted")
-    if state.get("next_design_card") != METHOD_CORRIDOR_D0_ROW:
-        fail("Method corridor producer census next design card drifted")
-    if not str(state.get("next_execution_card", "")).startswith("none"):
-        fail("Method corridor design stop must keep next_execution_card=none")
-
-    row = card.get(METHOD_CORRIDOR_D0_KEY)
-    if not isinstance(row, dict):
-        fail(f"{METHOD_CORRIDOR_D0_KEY} section is missing")
-    if row.get("task_id") != METHOD_CORRIDOR_D0_ROW:
-        fail("Method corridor producer census task id drifted")
-    if row.get("status") not in {"accepted_policy_b_in_progress", "design_stop"}:
-        fail("Method corridor producer census status is not an active design stop")
-    if row.get("implementation_permission") is not False:
-        fail("Method corridor producer census must keep implementation closed")
-    if row.get("current_disposition") != "CutoverBlockerOpen":
-        fail("Method corridor producer census must remain blocker-open")
-    if row.get("in_scope_inventory_count") != 11:
-        fail("Method corridor producer inventory count drifted")
-
-    open_b = row.get("d0_b_open_rows")
-    open_c = row.get("d0_c_open_rows")
-    if not isinstance(open_b, list) or not open_b:
-        fail("Method corridor producer census has no open D0-B rows")
-    if not isinstance(open_c, list) or not open_c:
-        fail("Method corridor producer census has no open D0-C rows")
-    for label, values in (("D0-B", open_b), ("D0-C", open_c)):
-        if "raw_legacy_origin" in values or "script_root_origin" in values:
-            fail(f"{label} still lists a landed compatibility origin")
-        for required in (
-            "resolved_compatibility_consumer",
-            "builder_method_none_publication_terminal",
-            "unified_emitter_methodize_reissuer",
-        ):
-            if required not in values:
-                fail(f"{label} lost remaining Method corridor blocker: {required}")
-    closed = row.get("d0_b_closed_rows")
-    if not isinstance(closed, list):
-        fail("Method corridor producer census closed rows are missing")
-    for required in (
-        "raw_legacy_origin",
-        "script_root_origin",
-        "method_resolution_static_none",
-    ):
-        if required not in closed:
-            fail(f"Method corridor producer census did not close {required}")
-    ret0 = card.get(METHOD_RESOLUTION_RET0_KEY)
-    if not isinstance(ret0, dict) or ret0.get("status") != "landed":
-        fail("Method corridor producer census lacks landed static-none RET0")
-    if ret0.get("implementation_permission") is not False:
-        fail("landed static-none RET0 must keep implementation closed")
-
-
-def check_method_resolution_ret0(state: dict, card: dict, root: Path) -> None:
-    if state.get("work_mode") not in {"fast", "closeout"}:
-        fail("method-resolution RET0 requires fast or closeout work_mode")
-    if state.get("current_execution_row") != METHOD_RESOLUTION_RET0_ROW:
-        fail("method-resolution RET0 row is not selected by CURRENT_STATE")
-    if state.get("current_design_stop") != "none":
-        fail("method-resolution RET0 must clear current_design_stop")
-    if state.get("next_execution_card") != METHOD_RESOLUTION_RET0_ROW:
-        fail("method-resolution RET0 pointer drifted")
-    if state.get("next_execution_card_path") != str(CARD_REL):
-        fail("method-resolution RET0 card pointer drifted")
-
-    row = card.get(METHOD_RESOLUTION_RET0_KEY)
-    if not isinstance(row, dict):
-        fail(f"{METHOD_RESOLUTION_RET0_KEY} section is missing")
-    if row.get("task_id") != METHOD_RESOLUTION_RET0_ROW:
-        fail("method-resolution RET0 task id drifted")
-    if row.get("status") not in {"fast_open", "landed"}:
-        fail("method-resolution RET0 status is not finite")
-    expected_permission = row.get("status") == "fast_open"
-    if row.get("implementation_permission") is not expected_permission:
-        fail("method-resolution RET0 permission/status drifted")
-
-    source_rel = Path("src/mir/builder/calls/method_resolution.rs")
-    utils_rel = Path("src/mir/builder/calls/utils.rs")
-    source = (root / source_rel).read_text()
-    utils = (root / utils_rel).read_text()
-    for path in (source_rel, utils_rel):
-        if sum(1 for _ in (root / path).open()) >= 760:
-            fail(f"method-resolution RET0 source reached the 760-line split boundary: {path}")
-    if "pub fn resolve_call_target(" not in source:
-        fail("method-resolution RET0 lost the remaining generic resolver")
-    if row.get("status") == "landed":
-        for token in (
-            "current_static_box",
-            "has_method(",
-            "Callee::Method",
-            "is_commonly_shadowed_method",
-            "generate_self_recursion_warning",
-            "classify_callee_box_kind",
-        ):
-            if token in source:
-                fail(f"method-resolution RET0 stale static-none token remains: {token}")
-        if "current_static_box" in utils:
-            fail("method-resolution wrapper still carries current_static_box")
-        if "method_resolution_never_issues_receiverless_static_method" not in source:
-            fail("method-resolution RET0 negative test evidence is missing")
-
-    allowed = row.get("allowed_files")
-    expected_allowed = {
-        str(source_rel),
-        str(utils_rel),
-        str(HELPER_REL),
-        str(STATE_REL),
-        str(CARD_REL),
-        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
-        "src/mir/builder/calls/README.md",
-    }
-    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
-        fail("method-resolution RET0 allowed-file boundary drifted")
-
-    if row.get("status") == "landed":
-        base = require_text(row.get("coverage_base_commit"), "method-resolution RET0 coverage_base_commit")
-        changed = changed_added_test_names(git_diff(root, base))
-        expected = set(require_text_list(row.get("changed_test_names"), "method-resolution RET0 changed_test_names"))
-        if changed != expected:
-            fail(f"method-resolution RET0 changed test inventory drifted; diff={sorted(changed)}, card={sorted(expected)}")
-        filters = require_text_list(row.get("focused_test_filters"), "method-resolution RET0 focused_test_filters")
-        listed = cargo_test_names(root)
-        for name in sorted(changed):
-            full_names = [item for item in listed if item.endswith("::" + name)]
-            if len(full_names) != 1:
-                fail(f"method-resolution RET0 changed test {name} is not uniquely listed by cargo")
-            if not any(token in full_names[0] for token in filters):
-                fail(f"method-resolution RET0 changed test {name} has no matching focused filter")
-        for token in filters:
-            if not any(token in item for item in listed):
-                fail(f"method-resolution RET0 focused test filter has zero cargo-list matches: {token}")
-        changed_paths = git_diff_paths(root, base)
-        if not changed_paths.issubset(expected_allowed):
-            fail(
-                "method-resolution RET0 changed paths exceed allowed boundary: "
-                f"{sorted(changed_paths - expected_allowed)}"
-            )
-
-
 def check_raw_legacy_i0(state: dict, card: dict, root: Path) -> None:
     if state.get("work_mode") not in {"fast", "closeout"}:
         fail("RawLegacy I0 requires fast or closeout work_mode")
@@ -732,6 +596,7 @@ def main() -> None:
         fail(f"{PROOF_KEY} section is missing")
     check_tombstones(proof)
     row = state.get("current_execution_row")
+    api = sys.modules[__name__]
     if row == METHOD_ROW:
         check_proof_row(state, card, proof, root)
     elif row == RAW_ROOT_ROW:
@@ -739,9 +604,13 @@ def main() -> None:
     elif row == SCRIPT_ROOT_ROW:
         check_script_root_ret0(state, card, root)
     elif row == METHOD_CORRIDOR_D0_ROW:
-        check_method_corridor_d0(state, card)
+        check_method_corridor_d0(state, card, api)
     elif row == METHOD_RESOLUTION_RET0_ROW:
-        check_method_resolution_ret0(state, card, root)
+        check_method_resolution_ret0(state, card, root, api)
+    elif row == GUARD_SPLIT_ROW:
+        check_guard_split_s0(state, card, root, api)
+    elif row == TEST_SPLIT_ROW:
+        check_test_split_s0(state, card, root, api)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:
