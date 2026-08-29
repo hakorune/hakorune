@@ -1261,11 +1261,11 @@ closeout = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0 is complete as a bounded source-shap
 
 [audit_16_reconciliation_2026_08_29]
 status = "reconciled_current_head"
-source = "第16回監査のloan-I0赤テスト報告を、現HEAD 930f9ef2cb と e382a00923 の履歴・focused evidenceへ照合した。"
-decision = "監査の7件赤は verifier 修正前の歴史状態であり、現HEADの未解決P0ではない。ObserveOnly facts は保持し、target-only/partial coverage は fail-closed のまま維持する。テスト期待値を reject 側へ戻さない。"
+source = "第16回監査のloan-I0赤テスト報告を、e382a00923 の修正履歴と現HEAD 53a378b358 のfiltered evidenceへ照合した。"
+decision = "報告の9件赤（うちloan-I0起因7件）は現HEADでは再現しないため、別時点または別worktreeの履歴状態として扱う。ObserveOnly facts は保持し、target-only/partial coverage は fail-closed のまま維持する。テスト期待値を reject 側へ戻さない。"
 current_evidence = [
-    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed.",
-    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed, 0 failed.",
+    "At HEAD 53a378b358, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed.",
+    "At HEAD 53a378b358, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed, 0 failed.",
     "e382a00923 が direct_call_verifier の ObserveOnly 契約と focused evidence を着地させ、カード内の historical reproduction と current evidence を分離済み。",
     "App Main loan は take_once と finish_empty の production consumer を持ち、残余行は DirectCallLoanNotConsumed で fail-closed。",
 ]
