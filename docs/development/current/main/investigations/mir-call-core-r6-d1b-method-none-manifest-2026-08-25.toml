@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "e9f76676db"
+observed_commit = "045133612d"
 observed_at = "2026-08-29"
 implementation_permission = false
 
@@ -231,10 +231,19 @@ implementation_permission = false
 decision = "Before changing implicit/default-on Rust methodize, freeze a finite reader/writer boundary and name one module-ingress snapshot owner. The env selector chooses Canonical versus ExplicitLegacyCompatibility; it never issues or repairs a target."
 source_authority = "The incoming typed Callee/CanonicalGlobalTarget remains target authority. A module-lifecycle policy snapshot may select compatibility behavior once before Builder mutation."
 non_authority = "The env string, config getter, JSON egress profile, Hako methodize pass, StaticMethodId text, name/arity, Stage1 artifact failure, VM/registry, args[0], and autoscan."
+census_boundary = "Rust process/env ingress -> module-lifecycle policy snapshot -> unified-emitter policy consumer; includes Rust readers/writers and the shell/direct-build handoff that can change the Rust value, excludes JSON egress and Hako methodize readers, which retain separate owners."
 candidate_policy = [
   "Rust unified-emitter reader only: unset or exact 0 -> Canonical; exact 1 -> ExplicitLegacyCompatibility; other or non-Unicode -> typed reject before Builder mutation.",
   "Canonical preserves the incoming typed Global; ExplicitLegacyCompatibility alone may retain the current bounded RuntimeData Global-to-Method(None) projection.",
   "JSON egress and Hako readers remain separately owned and are excluded from the Rust policy claim.",
+]
+state_matrix = [
+  "Unset at the named Rust module ingress -> Canonical; no ambient emitter read.",
+  "Exact \"0\" at the named Rust module ingress -> Canonical; no Method(None) projection.",
+  "Exact \"1\" from the named Stage1 compatibility writer -> ExplicitLegacyCompatibility; the existing bounded projection remains named and isolated.",
+  "Other or non-Unicode Rust selector -> typed reject before Builder mutation; no default-on or retry.",
+  "Shell explicit-empty or build_stage1 direct emit without a named value -> unresolved owner blocker; do not infer Canonical or Stage1 compatibility.",
+  "JSON/Hako selector -> separate owner state; not evidence for the Rust policy and not changed by this row.",
 ]
 finite_census = [
   "Rust ambient getter and unified-emitter consumer: src/config/env/builder_flags.rs and src/mir/builder/calls/unified_emitter.rs.",
@@ -249,6 +258,10 @@ required_before_i0 = [
   "Every implicit unset/empty route is classified Canonical, ExplicitLegacyCompatibility, or typed reject by its actual owner; Stage1 is not assumed to be the sole reader/writer family.",
   "Module lifecycle is accepted as the sole Rust snapshot ingress and invalid/non-Unicode input rejects before clear_callable_declaration_catalog or later Builder mutation.",
   "The I0 diff can keep unified_emitter.rs below 760 lines, reuse the existing lifecycle guard, and avoid a new guard family.",
+]
+open_blockers = [
+  "Name the owner-backed disposition for tools/hakorune_emit_mir.sh explicit-empty forwarding when the variable is unset.",
+  "Name whether tools/selfhost/mainline/build_stage1.sh direct emit is Canonical or an explicit compatibility writer; its current path bypasses the Stage1 default export.",
 ]
 future_i0 = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"
 future_i0_old_edge_delete_set = [
