@@ -117,7 +117,7 @@ fn compatibility_origin_moves_through_request_and_prepared_root() {
         ],
         || {
             let origin = match crate::runner::modes::common_util::normal_callable::materialize_normal_callable_program_with_identity_v1(
-                    "box Node { value: i64 run() { return me.value } }",
+                    "record Pair { left: i64, right: i64 }",
                     crate::parser::ParserBuildConfig::default(),
                     "compat.hako",
                 )

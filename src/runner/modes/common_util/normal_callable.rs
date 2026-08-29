@@ -115,14 +115,19 @@ mod tests {
             ],
             || {
                 let outcome = materialize_normal_callable_program_v1(
-                    "box Node { value: i64 run() { return me.value } }",
+                    "record Pair { left: i64, right: i64 }",
                     crate::parser::ParserBuildConfig::default(),
                 )
                 .expect("compatibility source");
                 assert!(matches!(
                     outcome,
                     NormalCallableMaterializationOutcomeV1::Compatibility(origin)
-                        if matches!(origin.reason(), NormalCallableTransformCompatibilityV1::DefaultDeriveWouldGenerateCallable)
+                        if matches!(
+                            origin.reason(),
+                            NormalCallableTransformCompatibilityV1::Parser(
+                                crate::parser::NormalCallableParserCompatibilityV1::RecordBox
+                            )
+                        )
                 ));
             },
         );
