@@ -734,6 +734,24 @@ if phase == "method_corridor_nonstage1_producer_retire_d0":
     if set(section.get("d0_b_closed_rows", [])) != expected_closed_rows:
         raise SystemExit("Method non-Stage1 producer D0 closed dispositions drifted")
 
+    if section.get("d0_c_status") != "no_safe_slice" or section.get("d0_c_observed_commit") != "3391ecca92":
+        raise SystemExit("Method non-Stage1 producer D0 successor audit status drifted")
+    d0_c_result = section.get("d0_c_result")
+    if not isinstance(d0_c_result, str) or "exact source/catalog product" not in d0_c_result or "pre-effect typed terminal" not in d0_c_result:
+        raise SystemExit("Method non-Stage1 producer D0 successor audit result is incomplete")
+    if set(section.get("d0_c_open_rows", [])) != expected_open_rows:
+        raise SystemExit("Method non-Stage1 producer D0 successor audit open rows drifted")
+    options = section.get("d0_c_decision_options")
+    if not isinstance(options, list) or len(options) != 2:
+        raise SystemExit("Method non-Stage1 producer D0 decision fork must have exactly two options")
+    option_text = " ".join(str(item) for item in options)
+    for token in ("A:", "B:", "source-backed issuer", "pre-effect typed terminals"):
+        if token not in option_text:
+            raise SystemExit(f"Method non-Stage1 producer D0 decision fork token is missing: {token}")
+    next_action = section.get("d0_c_next_action")
+    if not isinstance(next_action, str) or "Choose A or B" not in next_action or "do not infer" not in next_action or "guessed semantic receipt" not in next_action:
+        raise SystemExit("Method non-Stage1 producer D0 next action is not fail-closed")
+
     expected_in_scope = {
         "raw_legacy_origin",
         "script_root_origin",

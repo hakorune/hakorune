@@ -407,6 +407,24 @@ d0_b_closed_rows = [
   "installed_nonbrand_pre_effect_reject",
   "unclassified_preflight_reject",
 ]
+d0_c_status = "no_safe_slice"
+d0_c_observed_commit = "3391ecca92"
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners; none of the four R2 compatibility origins or their shared Resolved consumer has an exact source/catalog product. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
+d0_c_open_rows = [
+  "raw_legacy_origin",
+  "script_root_origin",
+  "raw_script_root_origin",
+  "raw_root_main_origin",
+  "method_resolution_static_none",
+  "resolved_compatibility_consumer",
+  "builder_method_none_publication_terminal",
+  "unified_emitter_methodize_reissuer",
+]
+d0_c_decision_options = [
+  "A: open a separate source-backed issuer design that supplies exact owner/site/brand/relation and an already-issued typed target within the same transaction",
+  "B: explicitly retire the four compatibility origins and shared Method(None) reissuer at origin-specific pre-effect typed terminals, with caller-zero evidence",
+]
+d0_c_next_action = "Choose A or B before any I1 implementation; do not infer a target from name/arity/current_static_box/registry/receiver/arguments, and do not create a guessed semantic receipt."
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_legacy_origin"
@@ -465,7 +483,7 @@ reopen_trigger = "Every Resolved production caller is switched to target-before-
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "builder_method_none_publication_terminal"
 kind = "terminal"
-owner = "src/mir/builder/calls/builder_emit.rs:109-142,275-279"
+owner = "src/mir/builder/builder_emit.rs:109-142,275-279"
 edge = "Builder publication still accepts the receiverless Method terminal"
 authority = "Only an exact receiver or qualified static declaration may reach canonical Call publication"
 disposition = "CutoverBlockerOpen"
@@ -551,7 +569,7 @@ evidence = "one direct production caller; the four named R2 origins are upstream
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "builder_method_none_publication_terminal"
-owner = "src/mir/builder/calls/builder_emit.rs:109-142,275-279,363-368"
+owner = "src/mir/builder/builder_emit.rs:109-142,275-279,363-368"
 production_direct_sites = 1
 upstream_classes = 2
 evidence = "one Builder publication terminal remains live; two in-scope Method(None) writer classes can reach the receiverless terminal"

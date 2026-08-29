@@ -43,9 +43,11 @@ remains ParkedSealed. The current design stop is
 `MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0`, a finite structured
 inventory only; D0-A has recounted all 11 rows and D0-B records eight
 CutoverBlockerOpen rows plus an exact App Main successor and two pre-effect
-reject dispositions. `method_resolution`, JSON/Hako, VM/backend, and
-Call-schema changes are closed until the in-boundary blockers are resolved or
-receive named typed terminals. I1 remains closed.
+reject dispositions. D0-C found no reusable exact source/catalog product for
+the open rows, so the next decision is either a separate source-backed issuer
+design or explicit origin-specific retirement. `method_resolution`, JSON/Hako,
+VM/backend, and Call-schema changes are closed until that decision and its
+evidence are complete. I1 remains closed.
 
 ## Historical rolling context (non-authoritative)
 
