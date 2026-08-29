@@ -38,8 +38,11 @@ card-backed tombstones, changed tests are checked against `cargo test -- --list`
 and the two `SiteCoverageMismatch` negatives are covered. RawRootMain is now
 closed as a caller-zero boundary: the existing raw-root eligibility owner
 classifies ordinary FunctionCall as `UnsupportedSurface(Call)` before physical
-open, so no second terminal is added. The current design stop is the
-ScriptRoot fate decision, not another guard or RawRootMain implementation.
+open, so no second terminal is added. The ScriptRoot fate audit is also closed:
+source-backed ordinary FunctionCall stops as `Deferred`/`ObservationDeferred`
+before physical open, so its downstream `Resolved` success edge has production
+reach zero. RetireBeforeEffects is selected; the only open fast cell replaces
+that dormant edge with one origin-specific typed terminal before arguments.
 
 The two named compatibility-origin tests are green and the R2 preflight fence
 is reconciled; the remaining live downstream compatibility descendants remain
@@ -49,12 +52,10 @@ The bounded Rust explicit-compatibility ingress I0 is landed at
 compatibility mode, and malformed values fail before mutation. Stage1 is a
 known writer, but the selector carries no Stage1 provenance; external callers
 must not be treated as Stage1 without a separate owner. Stage1 full artifact
-remains ParkedSealed. The current design stop is
-`MIR-CALL-COMPAT-SCRIPT-ROOT-FATE-D0`: ScriptRoot ordinary non-special calls
-have no exact source/catalog target product, so one explicit fate (pre-effect
-typed retirement or named retained Resolved compatibility) must be selected
-before touching the shared consumer. `method_resolution`, JSON/Hako,
-VM/backend, and Call-schema changes remain closed.
+remains ParkedSealed. `MIR-CALL-COMPAT-SCRIPT-ROOT-RETIRE-I0` changes only the
+dormant ScriptRoot edge; R4 semantic deferral, special-call precedence,
+RawLegacy, shared `Resolved`, `method_resolution`, JSON/Hako, VM/backend, and
+Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
