@@ -2000,7 +2000,7 @@ ceremony_tier = "T0"
 box_kind = "BoxShape finite operator/env disposition census"
 implementation_permission = false
 primary_missing_boundary = "SemanticAuthorityMissing"
-decision = "Reconcile the three Builder operator-call selectors, the separate prelude ALL selector/legacy operator-module selectors, their six source ingresses, four SameModule target publishers, and the prelude sibling before choosing retirement or retention. Existing arithmetic/comparison/unary non-Call lowering is a possible successor, but the public flag fate and source contract are not authority until explicitly decided. No operator implementation or target replacement is opened in D0."
+decision = "Reconcile the three Builder operator-call selectors, the separate prelude ALL selector/legacy operator-module selectors, their six source ingresses, four SameModule target publishers, the prelude sibling, and the --dev CLI writer before choosing retirement or retention. Existing arithmetic/comparison/unary non-Call lowering is a possible successor, but the public flag fate and source contract are not authority until explicitly decided. No operator implementation or target replacement is opened in D0."
 source_authority = "The source operator enum/AST ingress owns operator meaning; existing arithmetic, comparison, and unary direct lowering own the non-Call successor candidates. The env getters and prelude only select compatibility behavior and do not issue targets."
 canonical_issuer = "No exact SameModule target issuer is identified for the env-selected operator branch. A later I0 may either consume an existing source-backed operator product or install one typed pre-effect retirement terminal after the public flag fate is accepted; D0 creates neither."
 non_authority = [
@@ -2013,8 +2013,13 @@ finite_inventory = [
   "selector owners: src/config/env/builder_flags.rs operator getters builder_operator_box_all_call, builder_operator_box_add_call, builder_operator_box_compare_call",
   "source ingress owners: src/mir/builder/compound_assignment.rs, src/mir/builder/raw_root_body_lowering.rs (two sites), src/mir/builder/ops/binary_expression_descent.rs, src/mir/builder/resolved_lowering/lowerer.rs, and src/mir/builder/ops/unary.rs prepared ingress",
   "target publisher owners: src/mir/builder/ops/arithmetic.rs (two), src/mir/builder/ops/comparison.rs, and src/mir/builder/ops/unary.rs",
-  "compatibility sibling: src/runner/modes/common_util/resolve/strip/prelude.rs plus tools/selfhost/proof/run_stageb_compiler_vm.sh and tools/dev_env.sh; classify NYASH_OPERATOR_BOX_ALL and legacy NYASH_OPERATOR_BOX_* injection separately from Builder selectors",
+  "compatibility sibling/writers: src/runner/modes/common_util/resolve/strip/prelude.rs, src/cli/args.rs (--dev), tools/selfhost/proof/run_stageb_compiler_vm.sh, and tools/dev_env.sh; classify NYASH_OPERATOR_BOX_ALL and legacy NYASH_OPERATOR_BOX_* injection separately from Builder selectors",
   "direct successors: existing arithmetic, comparison, and unary non-Call lowering owners",
+]
+external_writers = [
+  "src/cli/args.rs --dev writes NYASH_OPERATOR_BOX_ALL/STRINGIFY/COMPARE/ADD; it does not enable Builder-call selectors",
+  "tools/dev_env.sh enables both legacy runtime/prelude selectors and Builder-call selectors",
+  "tools/selfhost/proof/run_stageb_compiler_vm.sh supplies both selector families as explicit process defaults",
 ]
 finite_states = [
   "UnsetOrFalse: selector does not request the legacy target publisher; classify the existing direct non-Call route without adding a default target",
