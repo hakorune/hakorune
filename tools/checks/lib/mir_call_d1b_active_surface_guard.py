@@ -495,7 +495,6 @@ def check_method_corridor_d0(state: dict, card: dict) -> None:
         if "raw_legacy_origin" in values or "script_root_origin" in values:
             fail(f"{label} still lists a landed compatibility origin")
         for required in (
-            "method_resolution_static_none",
             "resolved_compatibility_consumer",
             "builder_method_none_publication_terminal",
             "unified_emitter_methodize_reissuer",
@@ -505,9 +504,18 @@ def check_method_corridor_d0(state: dict, card: dict) -> None:
     closed = row.get("d0_b_closed_rows")
     if not isinstance(closed, list):
         fail("Method corridor producer census closed rows are missing")
-    for required in ("raw_legacy_origin", "script_root_origin"):
+    for required in (
+        "raw_legacy_origin",
+        "script_root_origin",
+        "method_resolution_static_none",
+    ):
         if required not in closed:
             fail(f"Method corridor producer census did not close {required}")
+    ret0 = card.get(METHOD_RESOLUTION_RET0_KEY)
+    if not isinstance(ret0, dict) or ret0.get("status") != "landed":
+        fail("Method corridor producer census lacks landed static-none RET0")
+    if ret0.get("implementation_permission") is not False:
+        fail("landed static-none RET0 must keep implementation closed")
 
 
 def check_method_resolution_ret0(state: dict, card: dict, root: Path) -> None:

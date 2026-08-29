@@ -396,7 +396,6 @@ d0_a_remaining_rows = []
 d0_b_status = "partial_disposition"
 d0_b_boundary = "recounted producer/reissuer/terminal -> exact successor, pre-effect typed reject, or open blocker"
 d0_b_open_rows = [
-  "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
   "unified_emitter_methodize_reissuer",
@@ -409,12 +408,12 @@ d0_b_closed_rows = [
   "raw_script_root_origin",
   "script_root_origin",
   "raw_legacy_origin",
+  "method_resolution_static_none",
 ]
 d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot and ScriptRoot have pre-effect retirement/deferral boundaries, and RawLegacy's sole ordinary edge is now closed by RawLegacyRetired at 7fb4ed1a1f. method_resolution_static_none and the unified methodize reissuer still have no existing pre-effect typed terminal."
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot and ScriptRoot have pre-effect retirement/deferral boundaries, RawLegacy's sole ordinary edge is closed by RawLegacyRetired at 7fb4ed1a1f, and method_resolution_static_none is now caller-zero retired at fea43bdade. The unified methodize reissuer and the remaining downstream rows still have no replacement in this boundary."
 d0_c_open_rows = [
-  "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
   "unified_emitter_methodize_reissuer",
@@ -430,14 +429,14 @@ d0_c_retirement_order = [
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "ScriptRoot and RawLegacy RetireBeforeEffects are landed. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its remaining open rows are method_resolution_static_none, resolved_compatibility_consumer, builder_method_none_publication_terminal, and unified_emitter_methodize_reissuer."
+d0_c_next_action = "ScriptRoot, RawLegacy, and method_resolution_static_none RET0 are landed. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its remaining open rows are resolved_compatibility_consumer, builder_method_none_publication_terminal, and unified_emitter_methodize_reissuer."
 
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
-implementation_permission = true
+implementation_permission = false
 decision = "Remove only the dormant current_static_box + has_method branch that issues receiverless Callee::Method. Its sole structural caller is the shared Resolved consumer, whose production reach is zero after RawRootMain eligibility rejects FunctionCall before physical open. No replacement target, terminal, resolver, or new receipt is introduced."
 source_authority = "The upstream RawRootMain eligibility owner and the already-landed RawLegacy/RawScriptRoot/ScriptRoot terminals prove that this method-resolution branch has no production success owner."
 canonical_issuer = "None: this is an unplaced caller-zero retirement, not a target issuance row. Exact catalog/source handoffs remain owned by the existing qualified publication owners."
@@ -478,6 +477,13 @@ changed_test_names = [
   "method_resolution_never_issues_receiverless_static_method",
 ]
 acceptance = "The static-none branch, has_method, self-recursion warning helpers, and current_static_box resolver argument are removed; builtin Print, local Value, and Extern resolution remain unchanged; the new negative test is listed and passes; shared Resolved/build.rs and all Method(None) downstream writers remain untouched."
+implementation_commit = "fea43bdade"
+coverage_base_commit = "e9fa9145d3"
+focused_test_results = [
+  "CARGO_INCREMENTAL=1 CARGO_PROFILE_QUICK_CODEGEN_UNITS=256 CARGO_BUILD_JOBS=2 cargo test --profile quick --lib mir::builder::calls::method_resolution::tests:: -- --test-threads=1: 2 passed, 0 failed",
+]
+guard_result = "mir_call_d1b_active_surface_guard.py static-none checks passed before closeout; parent guard was updated to require the landed RET0 and three remaining blockers."
+rustfmt_result = "rustfmt --edition 2021 on method_resolution.rs and utils.rs passed"
 stop = "Return to design_stop if any production caller reaches this branch, if the wrapper is needed outside build.rs, if an exact source/catalog issuer is required, or if implementation touches build.rs, shared Resolved, Method(None) reissuers, VM/backend, JSON/Hako, Stage1, or Call schema."
 next_row = "Return to design_stop for the remaining Resolved consumer, Builder Method(None) terminal, and unified-emitter reissuer rows; no broad Method corridor implementation is implied."
 

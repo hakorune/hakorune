@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-08-29
+Date: 2026-08-30
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -44,13 +44,12 @@ route tests green and no production replacement credit.
 The explicit-compatibility ingress I0 remains landed at `13664f7787` (unset/exact
 `0` is Canonical, exact `1` selects the named compatibility mode, malformed
 values fail before mutation). Stage1 full artifact remains ParkedSealed. The
-remaining Method corridor is bounded. The only fast-open slice is
-`MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0`: remove the caller-zero
-`current_static_box + has_method` branch that issued receiverless
-`Callee::Method`, with no replacement target and no shared `Resolved`/build.rs
-change. The shared `Resolved` consumer, Builder `Method(None)` terminal, and
-unified-emitter reissuer remain design blockers; VM/backend, JSON/Hako, Stage1,
-and Call-schema changes remain closed.
+caller-zero `method_resolution` static-none RET0 landed at `fea43bdade`: the
+`current_static_box + has_method` branch and local warning/wrapper plumbing are
+gone with no replacement target. The parent Method corridor is back in
+design_stop with three blockers: shared `Resolved` consumer, Builder
+`Method(None)` terminal, and unified-emitter reissuer. VM/backend, JSON/Hako,
+Stage1, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
