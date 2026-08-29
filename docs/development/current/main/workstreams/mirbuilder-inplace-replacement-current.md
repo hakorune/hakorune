@@ -59,9 +59,12 @@ tests and 1/1 semantic-retention test green. It earns no production replacement
 credit; R4
 semantic deferral, special-call precedence, RawLegacy, shared `Resolved`,
 `method_resolution`, JSON/Hako, VM/backend, and Call-schema changes remain
-closed. RET0 closeout is complete; the next boundary is the design stop
-`MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0` for the one remaining live RawLegacy
-fate/caller census.
+closed. RET0 closeout is complete. The RawLegacy D0 census selected
+`RetireBeforeEffects`: no named public/selected success owner or exact target
+product exists, and the one internal production edge must stop before arguments.
+The bounded next slice is `MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0`, which adds only
+the origin-specific typed terminal, zero-delta tests, and the reused active guard;
+shared `Resolved`, build.rs, VM/backend, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 

@@ -29,11 +29,11 @@ Stage1 without a separate owner. Invalid values reject before Builder
 mutation, and this policy does not govern the separate JSON/Hako readers.
 
 The `RawScriptRootParkedCompatibility` and `ScriptRootParkedCompatibility`
-origins now retire ordinary non-special `FunctionCall` before argument descent
-with their origin-specific typed terminals. Brand, TypeOp, Math, FastMem, and
-`str/1` precedence is unchanged. `RawRootMain` is caller-zero upstream, while
-`RawLegacy` remains the only named compatibility origin using the shared
-`Resolved` route until its own bounded row.
+origins retire ordinary non-special `FunctionCall` before argument descent
+with their origin-specific typed terminals. The bounded RawLegacy fate row now
+uses the same pre-effect retirement shape; Brand, TypeOp, Math, FastMem, and
+`str/1` precedence is unchanged. `RawRootMain` is caller-zero upstream, and
+the shared `Resolved` route is not a reason to retain any parked origin.
 
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument

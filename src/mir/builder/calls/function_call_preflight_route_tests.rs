@@ -165,6 +165,19 @@ fn install_catalog(builder: &mut MirBuilder, boxes: Vec<ASTNode>) {
         .unwrap();
 }
 
+fn raw_root_main_preflight(
+    builder: &MirBuilder,
+    name: &str,
+    arguments: Vec<ASTNode>,
+) -> PreparedRawFunctionPreflightV1 {
+    PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        builder,
+        name.to_owned(),
+        arguments,
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::RawRootMainParkedCompatibility,
+    )
+}
+
 #[test]
 fn direct_function_preflight_priority_is_total() {
     let mut builder = MirBuilder::new();
@@ -182,18 +195,13 @@ fn direct_function_preflight_priority_is_total() {
         .register_brand_decl("str".to_string(), "Integer".to_string());
     builder.push_fastmem_region(FastMemRegionId::new(6));
 
-    let weak =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "weak".to_string(), vec![integer(1)]);
+    let weak = raw_root_main_preflight(&builder, "weak", vec![integer(1)]);
     assert!(matches!(
         weak.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
     ));
 
-    let generic_externcall = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "externcall".to_string(),
-        vec![integer(1)],
-    );
+    let generic_externcall = raw_root_main_preflight(&builder, "externcall", vec![integer(1)]);
     assert!(matches!(
         generic_externcall.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
@@ -239,11 +247,8 @@ fn direct_function_preflight_priority_is_total() {
         PreparedRawFunctionPreflightRouteV1::TypeOp { .. }
     ));
 
-    let malformed_typeop = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "isType".to_string(),
-        vec![integer(1), integer(2)],
-    );
+    let malformed_typeop =
+        raw_root_main_preflight(&builder, "isType", vec![integer(1), integer(2)]);
     assert!(matches!(
         malformed_typeop.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
@@ -256,8 +261,7 @@ fn direct_function_preflight_priority_is_total() {
         PreparedRawFunctionPreflightRouteV1::Math { .. }
     ));
 
-    let inactive_fastmem =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "mem.addr".to_string(), vec![integer(1)]);
+    let inactive_fastmem = raw_root_main_preflight(&builder, "mem.addr", vec![integer(1)]);
     assert!(matches!(
         inactive_fastmem.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
@@ -271,11 +275,7 @@ fn direct_function_preflight_priority_is_total() {
         PreparedRawFunctionPreflightRouteV1::FastMem { .. }
     ));
 
-    let ordinary = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "user_function".to_string(),
-        vec![integer(1)],
-    );
+    let ordinary = raw_root_main_preflight(&builder, "user_function", vec![integer(1)]);
     assert!(matches!(
         ordinary.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
@@ -290,8 +290,7 @@ fn direct_function_preflight_priority_is_total() {
         }
     ));
     for arguments in [Vec::new(), vec![integer(1), integer(2)]] {
-        let wrong_arity =
-            PreparedRawFunctionPreflightV1::prepare(&builder, "str".to_string(), arguments);
+        let wrong_arity = raw_root_main_preflight(&builder, "str", arguments);
         assert!(matches!(
             wrong_arity.route,
             PreparedRawFunctionPreflightRouteV1::Ordinary {
@@ -329,19 +328,16 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         .register_brand_decl("Meter".to_string(), "Integer".to_string());
     let mut port = RecordingPortV1::default();
 
-    let compatibility_externcall = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "externcall".to_owned(),
-        vec![integer(1)],
-    );
+    let compatibility_externcall =
+        raw_root_main_preflight(&builder, "externcall", vec![integer(1)]);
     assert!(lower_prepared_raw_function_preflight_with_port_v1(
         &mut builder,
         &mut port,
         compatibility_externcall,
     )
     .is_err());
-    // Explicit RawLegacy compatibility has no pre-effect target product; its
-    // legacy route still descends the argument before the unresolved terminal.
+    // RawRootMain keeps the remaining shared compatibility terminal for this
+    // order test; RawLegacy itself retires before argument descent.
     assert_eq!(port.expression_count, 1);
 
     for (name, arguments) in [
@@ -370,11 +366,8 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
     lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, typeop).unwrap();
     assert_eq!(port.expression_count, 2);
 
-    let malformed_typeop = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "isType".to_string(),
-        vec![integer(1), integer(2)],
-    );
+    let malformed_typeop =
+        raw_root_main_preflight(&builder, "isType", vec![integer(1), integer(2)]);
     let _ = lower_prepared_raw_function_preflight_with_port_v1(
         &mut builder,
         &mut port,
@@ -382,8 +375,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
     );
     assert_eq!(port.expression_count, 4);
 
-    let inactive_fastmem =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "mem.addr".to_string(), vec![integer(1)]);
+    let inactive_fastmem = raw_root_main_preflight(&builder, "mem.addr", vec![integer(1)]);
     let _ = lower_prepared_raw_function_preflight_with_port_v1(
         &mut builder,
         &mut port,
@@ -455,17 +447,12 @@ fn selected_math_and_ordinary_str_keep_child_and_completion_order() {
     assert_eq!(port.events, vec!["child", "child"]);
 
     port.events.clear();
-    let ordinary = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "user_function".to_string(),
-        vec![integer(1)],
-    );
+    let ordinary = raw_root_main_preflight(&builder, "user_function", vec![integer(1)]);
     let _ = lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, ordinary);
     assert_eq!(port.events, vec!["child", "header"]);
 
     port.events.clear();
-    let forged_weak =
-        PreparedRawFunctionPreflightV1::prepare(&builder, "weak".to_string(), vec![integer(1)]);
+    let forged_weak = raw_root_main_preflight(&builder, "weak", vec![integer(1)]);
     let _ =
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, forged_weak);
     assert_eq!(port.events, vec!["child", "header"]);

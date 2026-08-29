@@ -74,12 +74,58 @@ fn script_root_parked_compatibility_keeps_brand_precedence() {
 }
 
 #[test]
-fn raw_compatibility_provenance_preserves_resolved_terminal_for_remaining_origins() {
-    let builder = MirBuilder::new();
-    for authority in [
-        RawBrandCallAuthorityV1::RawRootMainParkedCompatibility,
+fn raw_legacy_parked_compatibility_retires_before_arguments() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_legacy/0".to_owned());
+    let before_instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("test function")
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .count();
+    let mut port = RecordingPortV1::default();
+    let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "helper".to_owned(),
+        vec![integer(1), integer(2)],
         RawBrandCallAuthorityV1::RawLegacyParkedCompatibility,
-    ] {
+    );
+
+    assert!(matches!(
+        prepared.route,
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawLegacyRetired
+        )
+    ));
+    let error =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+            .expect_err("RawLegacy ordinary calls must retire before argument descent");
+    assert_eq!(
+        error,
+        "[freeze:contract][raw-compat/raw-legacy-ordinary-retired]"
+    );
+    assert_eq!(port.expression_count, 0);
+    assert!(port.events.is_empty());
+    let after_instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("test function")
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .count();
+    assert_eq!(after_instructions, before_instructions);
+}
+
+#[test]
+fn raw_root_main_compatibility_preserves_resolved_terminal() {
+    let builder = MirBuilder::new();
+    let authority = RawBrandCallAuthorityV1::RawRootMainParkedCompatibility;
+    {
         let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
             &builder,
             "helper".to_owned(),

@@ -90,9 +90,10 @@ typed terminal `[raw-compat/raw-script-root-ordinary-retired]` before argument
 effects. The semantic `ScriptRoot` ordinary non-special origin is likewise
 retired at `[raw-compat/script-root-ordinary-retired]`; its source-backed path
 already stops as `Deferred`/`ObservationDeferred` before physical open. The
-`RawRootMain` origin is caller-zero upstream, and `RawLegacy` remains the only
-named compatibility origin retaining the compatibility-only `Resolved` edge
-until its separately classified row closes it. These are internal provenance
+`RawRootMain` origin is caller-zero upstream, and RawLegacy ordinary
+non-special calls retire at `[raw-compat/raw-legacy-ordinary-retired]` before
+argument effects. The shared `Resolved` consumer remains a separate legacy
+owner outside this origin-specific slice. These are internal provenance
 decisions, not public grammar changes.
 
 Migration must not silently relabel a behavior change as BoxShape. It requires:

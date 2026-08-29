@@ -29,10 +29,12 @@ METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 RAW_LEGACY_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
+RAW_LEGACY_I0_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
 PROOF_KEY = "proof_reliability_followups_2026_08_29"
 RAW_ROOT_KEY = "raw_root_main_retire_i0_2026_08_29"
 SCRIPT_ROOT_KEY = "method_call_compat_script_root_ret0_2026_08_30"
 RAW_LEGACY_KEY = "method_call_compat_raw_legacy_fate_d0_2026_08_30"
+RAW_LEGACY_I0_KEY = "method_call_compat_raw_legacy_fate_i0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -439,15 +441,130 @@ def check_raw_legacy_resume(state: dict, card: dict) -> None:
     for token in (
         "structural_sites = 1",
         "production_reachable_callers = 1",
-        "test_only_injections = 0",
+        "test_only_authority_injection_helpers = 1",
+        "test_only_production_reachable_callers = 0",
         "public_contract_owners = 0",
     ):
         if token not in census:
             fail(f"RawLegacy census lacks {token}")
+    if "physical_facade_entries = multiple" not in census:
+        fail("RawLegacy census lacks physical facade denominator")
     boundary = require_text(row.get("boundary"), "RawLegacy boundary")
     for token in ("RawLegacy", "shared Resolved", "pre-effect"):
         if token not in boundary:
             fail(f"RawLegacy boundary lacks {token}")
+
+
+def check_raw_legacy_i0(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("RawLegacy I0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != RAW_LEGACY_I0_ROW:
+        fail("RawLegacy I0 row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("RawLegacy I0 must clear current_design_stop")
+    if state.get("next_execution_card") != RAW_LEGACY_I0_ROW:
+        fail("RawLegacy I0 pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("RawLegacy I0 card pointer drifted")
+
+    row = card.get(RAW_LEGACY_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{RAW_LEGACY_I0_KEY} section is missing")
+    if row.get("task_id") != RAW_LEGACY_I0_ROW:
+        fail("RawLegacy I0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("RawLegacy I0 status is not finite")
+    expected_permission = row.get("status") == "fast_open"
+    if row.get("implementation_permission") is not expected_permission:
+        fail("RawLegacy I0 permission/status drifted")
+
+    route_rel = Path("src/mir/builder/calls/function_call_preflight_route.rs")
+    tests_rel = Path("src/mir/builder/calls/function_call_script_compatibility_tests.rs")
+    route = (root / route_rel).read_text()
+    tests = (root / tests_rel).read_text()
+    for path in (route_rel, tests_rel):
+        if sum(1 for _ in (root / path).open()) >= 760:
+            fail(f"RawLegacy I0 source reached the 760-line split boundary: {path}")
+
+    if "RawLegacyRetired" not in route:
+        fail("RawLegacyRetired terminal is not defined or issued")
+    completion_start = route.find("fn prepare_ordinary_function_completion_v1")
+    completion_end = route.find("fn is_installed_non_unified_gc_builtin_v1")
+    if completion_start < 0 or completion_end < completion_start:
+        fail("ordinary completion owner cannot be located")
+    completion = route[completion_start:completion_end]
+    if "RawLegacyRetired" not in completion:
+        fail("RawLegacyRetired is not issued by ordinary completion")
+    resolved = completion.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved")
+    if resolved < 0:
+        fail("shared Resolved compatibility arm disappeared")
+    resolved_context = completion[max(0, resolved - 500) : resolved + 120]
+    if "RawLegacyParkedCompatibility" in resolved_context:
+        fail("RawLegacy still reaches the shared Resolved arm")
+    if "RawRootMainParkedCompatibility" not in resolved_context:
+        fail("RawRootMain remaining Resolved origin disappeared")
+    for token in (
+        "raw_legacy_parked_compatibility_retires_before_arguments",
+        "raw_root_main_compatibility_preserves_resolved_terminal",
+        "raw_legacy_port_issues_named_compatibility_provenance",
+        "raw_script_root_keeps_brand_and_special_precedence",
+        "expression_count",
+        "events.is_empty()",
+        "before_instructions",
+        "after_instructions",
+    ):
+        if token not in tests:
+            fail(f"RawLegacy I0 test evidence is missing: {token}")
+    for token in (
+        "RawLegacyParkedCompatibility",
+        "Brand",
+        "TypeOp",
+        "Math",
+        "FastMem",
+        "str/1",
+    ):
+        if token not in route:
+            fail(f"RawLegacy I0 precedence evidence is missing: {token}")
+
+    allowed = row.get("allowed_files")
+    expected_allowed = {
+        str(route_rel),
+        str(tests_rel),
+        "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+        "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+        "docs/reference/language/function-call-evaluation.md",
+        "src/mir/builder/calls/README.md",
+    }
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        fail("RawLegacy I0 allowed-file boundary drifted")
+
+    if row.get("status") == "landed":
+        base = require_text(row.get("coverage_base_commit"), "RawLegacy I0 coverage_base_commit")
+        changed = changed_added_test_names(git_diff(root, base))
+        expected = set(require_text_list(row.get("changed_test_names"), "RawLegacy I0 changed_test_names"))
+        if changed != expected:
+            fail(f"RawLegacy I0 changed test inventory drifted; diff={sorted(changed)}, card={sorted(expected)}")
+        filters = require_text_list(row.get("focused_test_filters"), "RawLegacy I0 focused_test_filters")
+        listed = cargo_test_names(root)
+        for name in sorted(changed):
+            full_names = [item for item in listed if item.endswith("::" + name)]
+            if len(full_names) != 1:
+                fail(f"RawLegacy I0 changed test {name} is not uniquely listed by cargo")
+            if not any(token in full_names[0] for token in filters):
+                fail(f"RawLegacy I0 changed test {name} has no matching focused filter")
+        for token in filters:
+            if not any(token in item for item in listed):
+                fail(f"RawLegacy I0 focused test filter has zero cargo-list matches: {token}")
+        changed_paths = git_diff_paths(root, base)
+        if not changed_paths.issubset(expected_allowed):
+            fail(
+                "RawLegacy I0 changed paths exceed allowed boundary: "
+                f"{sorted(changed_paths - expected_allowed)}"
+            )
 
 
 def main() -> None:
@@ -474,6 +591,8 @@ def main() -> None:
         check_script_root_ret0(state, card, root)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
+    elif row == RAW_LEGACY_I0_ROW:
+        check_raw_legacy_i0(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

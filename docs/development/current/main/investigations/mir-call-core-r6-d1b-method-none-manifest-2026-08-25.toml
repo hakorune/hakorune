@@ -653,13 +653,30 @@ implementation_permission = false
 decision = "RawLegacy remains the only named compatibility origin entering the shared Resolved completion after the ScriptRoot and RawScriptRoot dormant edges were retired. Freeze its finite fate before any code change: either an effect-free origin-specific terminal or a proven named compatibility owner; do not preserve shared Resolved by inertia."
 boundary = "RawLegacy brand issuance -> shared raw child dispatch -> ordinary preflight completion -> pre-effect terminal or existing shared Resolved consumer. Includes the one production RawLegacy route and its direct/test census; excludes ScriptRoot, RawScriptRoot, RawRootMain, installed App Main, exact Cataloged products, Method(None), VM/backend, JSON/Hako, and Call schema."
 source_authority = "RawBrandCallAuthorityV1::RawLegacyParkedCompatibility is the only provenance issuer. No exact source/catalog target product or public RawLegacy success contract is currently present."
-canonical_issuer = "No issuer is opened by this D0. If RetireBeforeEffects is selected, prepare_ordinary_function_completion_v1 may issue one RawLegacy-specific typed terminal; if RetainNamedCompatibility is selected, the existing named owner must be proven before shared Resolved remains reachable."
+canonical_issuer = "No target issuer is opened by this D0. The only accepted next issuer is an origin-specific RawLegacy pre-effect retirement terminal; retaining shared Resolved requires a named public/selected compatibility owner with observable acceptance."
 non_authority = [
   "name/arity, callable index, current_static_box, has_method, receiver, arguments, MIR, ValueId, physical symbol, registry, singleton, resolver, recovery, fallback, retry",
   "test-only direct injection, shared Resolved existence, and historical compatibility wording without a live owner",
 ]
 fail_fast_boundary = "Existing Brand/TypeOp/Math/FastMem/str/1 precedence -> RawLegacy ordinary classification -> exact fate decision before argument descent, header lookup, resolver/recovery, MIR or collector mutation, fallback, or retry."
-production_reach_census = "Boundary: RawLegacy brand issuer -> shared raw dispatcher -> ordinary completion. structural_sites = 1; production_reachable_callers = 1; test_only_injections = 0; public_contract_owners = 0. The one live production route is the remaining shared Resolved compatibility edge."
+production_reach_census = "Boundary: RawLegacy brand issuer -> shared raw dispatcher -> ordinary completion. structural_sites = 1 (logical RawLegacy -> Resolved edge); production_reachable_callers = 1 (logical edge); physical_facade_entries = multiple (static/instance method sessions and body/statement/expression facades are capability entries, not separate target authorities); test_only_authority_injection_helpers = 1; test_only_production_reachable_callers = 0; public_contract_owners = 0. The one live production route is the remaining shared Resolved compatibility edge."
+physical_facade_inventory = [
+  "src/mir/builder/calls/lowering.rs:377-393 static-method RawLegacy capability session",
+  "src/mir/builder/calls/lowering.rs:437-451 instance-method RawLegacy capability session",
+  "src/mir/builder/stmts/mod.rs:167-179 body/statement RawLegacy facade",
+  "src/mir/builder/ops/logical_shortcircuit.rs:53-55 expression RawLegacy facade",
+  "Other RawLegacyChildLoweringPortV1 uses are non-call capability consumers outside this row.",
+]
+test_only_inventory = [
+  "src/mir/builder/calls/function_call_preflight_route.rs:168-179 test-only PreparedRawFunctionPreflightV1::prepare direct authority injection",
+  "RawLegacy compatibility tests are internal unit tests, not public success contracts.",
+]
+fixture_census = [
+  "function_call_script_compatibility_tests.rs uses RawLegacy only through internal authority injection.",
+  "function_call_preflight_route_tests.rs uses RawLegacy only through internal authority injection.",
+  "docs/development/selfhosting/quickstart.md --backend vm is a broad legacy/debug route, not a RawLegacy success contract.",
+  "Worker audit found no public RawLegacy profile, API, or production fixture requiring shared Resolved success.",
+]
 finite_state_matrix = [
   "RawLegacy + declared Brand -> existing Brand route; unchanged.",
   "RawLegacy + TypeOp, Math, FastMem, or str/1 -> existing selected special route; unchanged.",
@@ -667,9 +684,10 @@ finite_state_matrix = [
   "ScriptRoot/RawScriptRoot/RawRootMain -> previously landed terminals or upstream caller-zero; unchanged.",
   "Installed App Main and exact Cataloged products -> existing source-keyed successors; unchanged.",
 ]
+selected_fate = "RetireBeforeEffects"
+selected_fate_reason = "No named public or selected RawLegacy success owner, exact target product, or compatibility acceptance was found. The only production edge is an internal compatibility route, so it must stop before effects rather than preserve shared Resolved by inertia."
 open_decisions = [
-  "RetireBeforeEffects: add one RawLegacy-specific typed terminal and delete only the RawLegacy -> Resolved edge.",
-  "RetainNamedCompatibility: prove a named public/selected owner, fixture, and compatibility acceptance before retaining shared Resolved.",
+  "Confirm the finite fixture census and preserve Brand/TypeOp/Math/FastMem/str/1 precedence before opening I0.",
 ]
 required_evidence = [
   "finite production/test/public census with start/end/includes/excludes and exact caller paths",
@@ -678,12 +696,55 @@ required_evidence = [
 ]
 acceptance = "D0 closes only when the RawLegacy boundary is Exhausted: the one production caller has either an exact successor or an origin-specific pre-effect typed terminal, while every retained compatibility edge has a named owner and observable acceptance. If neither can be proven, keep the row in design_stop; do not invent a resolver, target, receipt, or fallback."
 stop = "Stay in design_stop if the one production caller cannot be traced to a finite terminal, if a public/selected success contract is claimed without an owner, if source/raw lineage would require a second scan, or if implementation would touch the shared Resolved consumer, build.rs, method_resolution, VM/backend, JSON/Hako, or Call schema."
-next_implementation = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0 only after D0 Exhausted"
+next_implementation = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
+
+[method_call_compat_raw_legacy_fate_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
+parent_row = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
+ceremony_tier = "T1"
+implementation_permission = true
+decision = "Retire RawLegacy ordinary non-special FunctionCall before argument descent. Preserve existing Brand, TypeOp, Math, FastMem, and str/1 precedence; do not create a target, resolver, fallback, retry, or shared-consumer change."
+source_authority = "RawBrandCallAuthorityV1::RawLegacyParkedCompatibility is the finite origin authority; no public success contract or exact target product exists."
+canonical_issuer = "prepare_ordinary_function_completion_v1 issues RawCompatibilityOrdinaryCallTerminalV1::RawLegacyRetired as the sole origin-specific terminal."
+non_authority = [
+  "name/arity, callable index, current_static_box, has_method, receiver, arguments, MIR, ValueId, physical symbol, registry, singleton, resolver, recovery, fallback, retry",
+  "shared Resolved existence, test-only authority injection, and broad --backend vm behavior",
+]
+fail_fast_boundary = "Existing Brand/TypeOp/Math/FastMem/str/1 precedence -> RawLegacy ordinary classification -> RawLegacyRetired terminal before argument descent, header lookup, resolver/recovery, MIR or collector mutation, fallback, or retry."
+old_edge_delete_set = [
+  "RawLegacyParkedCompatibility -> PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+]
+production_reach_census_before = "structural_sites = 1; production_reachable_callers = 1; physical_facade_entries = multiple; test_only_authority_injection_helpers = 1; test_only_production_reachable_callers = 0; public_contract_owners = 0."
+production_reach_census_after = "structural RawLegacy -> Resolved edge = 0; RawLegacyRetired terminal remains as the sole ordinary non-special fate; physical facade entries remain capability entry points; no production replacement credit."
+allowed_files = [
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
+  "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+  "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/reference/language/function-call-evaluation.md",
+  "src/mir/builder/calls/README.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "shared Resolved consumer, package/loan, RawInvocationChildPort, Method(None), VM/backend, JSON/Hako, Stage1, and Call schema",
+]
+focused_gate = "cargo test --profile quick --lib script_compatibility_tests -- --test-threads=1"
+guard = "Reuse mir_call_d1b_active_surface_guard.py; no new guard family or registry row. Verify the terminal, precedence, zero-delta tests, changed paths, and source line boundaries."
+acceptance = "RawLegacy ordinary non-special calls fail with the typed RawLegacyRetired terminal before any child/header/MIR effect; special routes remain unchanged; shared Resolved remains reachable only from the still-in-scope origins; focused changed tests and the stable guard are green."
+stop = "Return to design_stop if a public/selected RawLegacy success owner appears, if special precedence changes, if the shared Resolved consumer/build.rs must change, or if any target/resolver/fallback/retry is required."
+next_row = "Return to design_stop for the next named Method(None) producer; do not broaden this RawLegacy slice."
 
 [proof_reliability_followups_2026_08_29]
 status = "landed"

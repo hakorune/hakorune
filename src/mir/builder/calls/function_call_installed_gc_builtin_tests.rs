@@ -29,8 +29,12 @@ fn installed_gc_names_reject_before_arguments() {
 fn gc_targeting_does_not_capture_compatibility_or_math_routes() {
     let builder = MirBuilder::new();
     for name in ["gc_collect", "gc_stats"] {
-        let prepared =
-            PreparedRawFunctionPreflightV1::prepare(&builder, name.to_owned(), vec![integer(1)]);
+        let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+            &builder,
+            name.to_owned(),
+            vec![integer(1)],
+            RawBrandCallAuthorityV1::RawRootMainParkedCompatibility,
+        );
         assert!(matches!(
             prepared.route,
             PreparedRawFunctionPreflightRouteV1::Ordinary {
