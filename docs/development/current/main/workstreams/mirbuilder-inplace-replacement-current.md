@@ -85,6 +85,10 @@ the ALL_CALL prelude sibling. Ordinary-new is separately `CarrierMismatch`/
 `ParkedSealed`: its claim is consumed before arguments, but birth text is not
 an exact constructor product and source arity N conflicts with physical argv
 N+1. No operator implementation or production switch is permitted in D0.
+The public flag fate is still the only semantic decision needed before an
+operator I0: retire the opt-in route with a typed pre-effect terminal, or keep
+it as a named compatibility lane. It must not be inferred from default-off
+behavior or from the existence of the Hako operator files.
 
 ## Historical rolling context (non-authoritative)
 

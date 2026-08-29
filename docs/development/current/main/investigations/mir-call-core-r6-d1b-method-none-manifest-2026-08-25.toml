@@ -1999,7 +1999,8 @@ parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 box_kind = "BoxShape finite operator/env disposition census"
 implementation_permission = false
-decision = "Reconcile the three public operator/env flags, their six source ingresses, four SameModule target publishers, and the ALL_CALL prelude sibling before choosing retirement or retention. Existing arithmetic/comparison/unary non-Call lowering is a possible successor, but the flag fate and source contract are not authority until explicitly decided. No operator implementation or target replacement is opened in D0."
+primary_missing_boundary = "SemanticAuthorityMissing"
+decision = "Reconcile the three Builder operator-call selectors, the separate prelude ALL selector/legacy operator-module selectors, their six source ingresses, four SameModule target publishers, and the prelude sibling before choosing retirement or retention. Existing arithmetic/comparison/unary non-Call lowering is a possible successor, but the public flag fate and source contract are not authority until explicitly decided. No operator implementation or target replacement is opened in D0."
 source_authority = "The source operator enum/AST ingress owns operator meaning; existing arithmetic, comparison, and unary direct lowering own the non-Call successor candidates. The env getters and prelude only select compatibility behavior and do not issue targets."
 canonical_issuer = "No exact SameModule target issuer is identified for the env-selected operator branch. A later I0 may either consume an existing source-backed operator product or install one typed pre-effect retirement terminal after the public flag fate is accepted; D0 creates neither."
 non_authority = [
@@ -2007,17 +2008,17 @@ non_authority = [
   "operand/place/child effects, Const/ValueId/MIR Call, rewrite/known, ordinary-new, CorePlan, provider, physical thunk, Method(None), shared Resolved, VM/backend, JSON, and Call schema",
 ]
 fail_fast_boundary = "If the accepted fate is retirement, the exact selector must terminate before module mutation, operand/place/child lowering, Const/ValueId allocation, or target publication; if the fate is retention, the existing source operator contract must be proven before those effects. ALL_CALL prelude coupling must be classified in the same boundary."
-census_boundary = "three operator env getters -> six production source ingresses -> four SameModule target publisher terminals -> existing arithmetic/comparison/unary non-Call lowering or typed pre-effect terminal; includes truthy/falsey/malformed/unset selector states, reentrant reads, negative-literal folding, and the ALL_CALL prelude injection sibling; excludes operator semantics implementation, rewrite/known, ordinary-new, CorePlan, provider, thunk, package/loan, VM/backend, JSON, and Call schema."
+census_boundary = "three Builder operator-call getters plus the prelude ALL/legacy operator-module selectors -> six production source ingresses -> four SameModule target publisher terminals -> existing arithmetic/comparison/unary non-Call lowering or typed pre-effect terminal; includes truthy/falsey/malformed/unset selector states, reentrant reads, negative-literal folding, and the ALL_CALL prelude injection sibling; excludes operator semantics implementation, rewrite/known, ordinary-new, CorePlan, provider, thunk, package/loan, VM/backend, JSON, and Call schema."
 finite_inventory = [
   "selector owners: src/config/env/builder_flags.rs operator getters builder_operator_box_all_call, builder_operator_box_add_call, builder_operator_box_compare_call",
-  "source ingress owners: src/mir/builder/ops/compound_assignment.rs, src/mir/builder/raw_root_body_lowering.rs (two sites), ordinary binary descent, resolved lowerer, and unary prepared ingress",
+  "source ingress owners: src/mir/builder/compound_assignment.rs, src/mir/builder/raw_root_body_lowering.rs (two sites), src/mir/builder/ops/binary_expression_descent.rs, src/mir/builder/resolved_lowering/lowerer.rs, and src/mir/builder/ops/unary.rs prepared ingress",
   "target publisher owners: src/mir/builder/ops/arithmetic.rs (two), src/mir/builder/ops/comparison.rs, and src/mir/builder/ops/unary.rs",
-  "compatibility sibling: ALL_CALL prelude injection/runner configuration that sets or observes the same selectors",
+  "compatibility sibling: src/runner/modes/common_util/resolve/strip/prelude.rs plus tools/selfhost/proof/run_stageb_compiler_vm.sh and tools/dev_env.sh; classify NYASH_OPERATOR_BOX_ALL and legacy NYASH_OPERATOR_BOX_* injection separately from Builder selectors",
   "direct successors: existing arithmetic, comparison, and unary non-Call lowering owners",
 ]
 finite_states = [
   "UnsetOrFalse: selector does not request the legacy target publisher; classify the existing direct non-Call route without adding a default target",
-  "TruthyCompatibility: explicit public opt-in requests the legacy operator target branch; retain only if its source/operator contract and terminal are named",
+  "TruthyCompatibility: explicit public opt-in requests the legacy operator target branch; retain only if its source/operator contract and terminal are named, otherwise choose a typed retirement terminal",
   "MalformedSelector: non-boolean/non-finite selector is typed reject before effects; it must not fall through to truthy compatibility",
   "PreludeMismatch: ALL_CALL prelude and source ingress disagree or a selector is written by an unowned sibling; typed blocker, no partial retirement",
   "ReentrantOrDrifted: repeated selector read or source/operator/arity mismatch is a typed blocker with no retry",
