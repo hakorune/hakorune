@@ -791,6 +791,8 @@ try_selfhost_builder_once() {
 
 execute_selfhost_builder_runner() {
   local tmp_hako="$1" tmp_stdout="$2" prog_json="$3"
+  # Keep an unset selector canonical for the Hako child; an explicit empty
+  # value remains visible so the Rust ingress can reject it as malformed.
   (cd "$ROOT" && \
     HAKO_MIR_BUILDER_INTERNAL=1 HAKO_MIR_BUILDER_REGISTRY=1 \
     HAKO_MIR_BUILDER_TRACE="${HAKO_SELFHOST_TRACE:-}" \
@@ -798,7 +800,7 @@ execute_selfhost_builder_runner() {
     HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG="${HAKO_MIR_BUILDER_LOOP_FORCE_JSONFRAG:-}" \
     HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE="${HAKO_MIR_BUILDER_JSONFRAG_NORMALIZE:-}" \
     HAKO_MIR_BUILDER_JSONFRAG_PURIFY="${HAKO_MIR_BUILDER_JSONFRAG_PURIFY:-}" \
-    HAKO_MIR_BUILDER_METHODIZE="${HAKO_MIR_BUILDER_METHODIZE:-}" \
+    HAKO_MIR_BUILDER_METHODIZE="${HAKO_MIR_BUILDER_METHODIZE-0}" \
     HAKO_MIR_BUILDER_NORMALIZE_TAG="${HAKO_MIR_BUILDER_NORMALIZE_TAG:-}" \
     HAKO_MIR_BUILDER_DEBUG="${HAKO_MIR_BUILDER_DEBUG:-}" \
     NYASH_MIR_UNIFIED_CALL=1 \

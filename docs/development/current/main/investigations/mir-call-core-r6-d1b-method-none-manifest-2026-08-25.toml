@@ -248,7 +248,7 @@ state_matrix = [
 ]
 finite_census = [
   "Rust ambient getter and unified-emitter consumer: src/config/env/builder_flags.rs and src/mir/builder/calls/unified_emitter.rs.",
-  "One-time snapshot candidate: src/mir/builder/module_lifecycle.rs into a Copy field on src/mir/builder/compilation_context.rs; normal-default preparation stays Canonical without rereading env.",
+  "One-time snapshot owner: both Rust module ingress paths in src/mir/builder/module_lifecycle.rs write the Copy field on src/mir/builder/compilation_context.rs; unset/exact 0 yields Canonical and the emitter never rereads env.",
   "Stage1 exact-1 injectors: src/runner/stage1_bridge/env/runtime_defaults.rs and tools/selfhost/lib/stage1_contract.sh; build_stage1 direct emit does not currently prove the same pin.",
   "Canonical exact-0 injectors exist in src/main.rs, src/runner/child_env.rs, and src/host_providers/mir_builder.rs.",
   "tools/hakorune_emit_mir.sh currently forwards explicit empty when unset and must receive an owner-backed 0/1/omit disposition before strict parsing.",
@@ -277,6 +277,7 @@ no_safe_slice = "Remain in design_stop if a route owner for unset/empty cannot b
 [method_corridor_explicit_compat_ingress_i0_2026_08_29]
 status = "fast_open"
 task_id = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"
+guard_phase = "method_corridor_explicit_compat_ingress_i0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
 ceremony_tier = "T2"
 implementation_permission = true
@@ -290,6 +291,7 @@ allowed_files = [
   "src/mir/builder/module_lifecycle.rs",
   "src/mir/builder/calls/unified_emitter.rs",
   "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
+  "src/mir/builder/module_lifecycle_capture_tests.rs",
   "src/runner/stage1_bridge/env/runtime_defaults.rs",
   "tools/hakorune_emit_mir.sh",
   "src/tests/mir_static_box_naming.rs",
@@ -298,6 +300,7 @@ allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/guard_rows.toml",
 ]
 forbidden_files = [
   "src/mir/builder/calls/method_resolution.rs",

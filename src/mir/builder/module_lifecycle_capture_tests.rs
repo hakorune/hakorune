@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl};
+use crate::config::env::BuilderMethodizeCompatibilityV1;
 use crate::mir::builder::callable_declaration_catalog::{
     SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
@@ -245,6 +246,67 @@ fn mirbuilder_minimal_literal_integer_path_smoke() {
             Some(MirInstruction::Return { value: Some(value) }) if *value == literal
         )
     }));
+}
+
+#[test]
+fn module_ingress_snapshots_explicit_methodize_policy_before_lowering() {
+    let mut builder = MirBuilder::new();
+    crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "1", || {
+        builder.prepare_module().expect("module shell");
+    });
+
+    // The lowering session owns the snapshot; once ingress has returned, the
+    // restored process environment cannot alter the prepared Builder policy.
+    assert_eq!(
+        builder.comp_ctx.builder_methodize_compatibility,
+        BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility
+    );
+}
+
+#[test]
+fn normal_default_ingress_snapshots_explicit_methodize_policy() {
+    crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "1", || {
+        let mut builder = MirBuilder::new();
+        builder
+            .prepare_normal_default_module(false)
+            .expect("normal module shell");
+        assert_eq!(
+            builder.comp_ctx.builder_methodize_compatibility,
+            BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility
+        );
+    });
+}
+
+#[test]
+fn module_ingress_snapshots_canonical_policy_for_unset_and_zero() {
+    for value in [None, Some("0")] {
+        crate::test_support::with_env_vars(&[("HAKO_MIR_BUILDER_METHODIZE", value)], || {
+            let mut builder = MirBuilder::new();
+            builder
+                .prepare_normal_default_module(false)
+                .expect("canonical methodize selector should prepare");
+            assert_eq!(
+                builder.comp_ctx.builder_methodize_compatibility,
+                BuilderMethodizeCompatibilityV1::Canonical
+            );
+        });
+    }
+}
+
+#[test]
+fn invalid_methodize_selector_rejects_before_normal_module_mutation() {
+    crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "garbage", || {
+        let mut builder = MirBuilder::new();
+        let error = builder
+            .prepare_normal_default_module(false)
+            .expect_err("invalid methodize selector must fail at ingress");
+        assert!(error.contains("mir/methodize/ingress"));
+        assert!(builder.current_module.is_none());
+        assert_eq!(
+            builder.comp_ctx.builder_methodize_compatibility,
+            BuilderMethodizeCompatibilityV1::Canonical
+        );
+    });
 }
 #[test]
 fn shared_root_kernel_lends_each_instance_method_to_one_stack_port() {

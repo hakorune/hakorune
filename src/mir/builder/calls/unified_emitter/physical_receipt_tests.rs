@@ -4,8 +4,10 @@ use super::physical_terminal::{
     CompletedUnifiedCallEmissionV1, UnifiedCallAlternateRouteV1, UnifiedCallEmissionOutcomeV1,
 };
 use super::{CallTarget, UnifiedCallEmitterBox, UnifiedValueCallReceiptErrorV1};
+use crate::config::env::BuilderMethodizeCompatibilityV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::{MirInstruction, ValueId};
+use crate::mir::{Callee, MirInstruction, ValueId};
+use hakorune_mir_defs::{CanonicalGlobalTargetV1, CanonicalSameModuleGlobalTargetV1};
 
 fn builder_with_entry(name: &str) -> MirBuilder {
     let mut builder = MirBuilder::new();
@@ -22,6 +24,78 @@ fn call_destinations(builder: &MirBuilder) -> Vec<Option<ValueId>> {
             _ => None,
         })
         .collect()
+}
+
+fn runtime_static_method_target() -> CallTarget {
+    CallTarget::Global(
+        CanonicalGlobalTargetV1::new_static_box_method("MapBox".into(), "get".into(), 0)
+            .expect("test target must have non-empty static components"),
+    )
+}
+
+fn emitted_callee(builder: &MirBuilder) -> Callee {
+    builder
+        .current_function_instructions()
+        .iter()
+        .find_map(|instruction| match instruction {
+            MirInstruction::Call {
+                callee: Some(callee),
+                ..
+            } => Some(callee.clone()),
+            _ => None,
+        })
+        .expect("the policy witness must emit one typed Call")
+}
+
+#[test]
+fn canonical_snapshot_preserves_runtime_static_global_target() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder_with_entry("methodize_canonical/0");
+        builder.comp_ctx.builder_methodize_compatibility =
+            BuilderMethodizeCompatibilityV1::Canonical;
+
+        UnifiedCallEmitterBox::emit_unified_call(
+            &mut builder,
+            None,
+            runtime_static_method_target(),
+            vec![],
+        )
+        .expect("canonical target should emit");
+
+        assert!(matches!(
+            emitted_callee(&builder),
+            Callee::Global(CanonicalGlobalTargetV1::SameModule(
+                CanonicalSameModuleGlobalTargetV1::StaticBoxMethod { .. }
+            ))
+        ));
+    });
+}
+
+#[test]
+fn explicit_stage1_snapshot_preserves_bounded_runtime_methodize_projection() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder_with_entry("methodize_stage1/0");
+        builder.comp_ctx.builder_methodize_compatibility =
+            BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility;
+
+        UnifiedCallEmitterBox::emit_unified_call(
+            &mut builder,
+            None,
+            runtime_static_method_target(),
+            vec![],
+        )
+        .expect("explicit compatibility target should emit");
+
+        assert!(matches!(
+            emitted_callee(&builder),
+            Callee::Method {
+                receiver: None,
+                box_name,
+                method,
+                ..
+            } if box_name == "MapBox" && method == "get"
+        ));
+    });
 }
 
 #[test]

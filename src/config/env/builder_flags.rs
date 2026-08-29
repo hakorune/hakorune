@@ -3,6 +3,69 @@
 //! Centralizes builder/debug toggles to avoid direct env reads.
 
 use super::{env_bool, env_bool_default, env_present, env_string};
+use std::ffi::OsStr;
+
+/// The only Rust-side methodize policy admitted at module ingress.
+///
+/// This selector chooses a compatibility projection; it never issues a
+/// target.  Keep the value Copy so a Builder session can snapshot it once and
+/// pass it to later consumers without rereading process state.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum BuilderMethodizeCompatibilityV1 {
+    Canonical,
+    ExplicitLegacyCompatibility,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum BuilderMethodizeCompatibilityErrorV1 {
+    NonUnicode,
+    InvalidSelector(Box<str>),
+}
+
+impl std::fmt::Display for BuilderMethodizeCompatibilityErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NonUnicode => formatter.write_str(
+                "HAKO_MIR_BUILDER_METHODIZE must be valid Unicode (expected unset, 0, or 1)",
+            ),
+            Self::InvalidSelector(value) => write!(
+                formatter,
+                "invalid HAKO_MIR_BUILDER_METHODIZE selector: {value} (expected unset, 0, or 1)"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for BuilderMethodizeCompatibilityErrorV1 {}
+
+/// Parse a methodize selector without touching process state.
+///
+/// `None` is the canonical, non-methodizing state.  An explicit empty value is
+/// intentionally invalid rather than being folded into either state.
+pub(crate) fn parse_builder_methodize_compatibility_v1(
+    raw: Option<&OsStr>,
+) -> Result<BuilderMethodizeCompatibilityV1, BuilderMethodizeCompatibilityErrorV1> {
+    let Some(raw) = raw else {
+        return Ok(BuilderMethodizeCompatibilityV1::Canonical);
+    };
+    let value = raw
+        .to_str()
+        .ok_or(BuilderMethodizeCompatibilityErrorV1::NonUnicode)?;
+    match value {
+        "0" => Ok(BuilderMethodizeCompatibilityV1::Canonical),
+        "1" => Ok(BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility),
+        _ => Err(BuilderMethodizeCompatibilityErrorV1::InvalidSelector(
+            value.to_owned().into_boxed_str(),
+        )),
+    }
+}
+
+/// Snapshot the Rust methodize policy at a named module ingress.
+pub(crate) fn snapshot_builder_methodize_compatibility_v1(
+) -> Result<BuilderMethodizeCompatibilityV1, BuilderMethodizeCompatibilityErrorV1> {
+    let raw = std::env::var_os("HAKO_MIR_BUILDER_METHODIZE");
+    parse_builder_methodize_compatibility_v1(raw.as_deref())
+}
 
 pub fn builder_me_call_arity_strict() -> bool {
     env_bool_default("NYASH_ME_CALL_ARITY_STRICT", true)
@@ -186,10 +249,6 @@ pub fn builder_call_resolve_trace() -> bool {
     env_bool("NYASH_CALL_RESOLVE_TRACE")
 }
 
-pub fn builder_methodize_mode() -> Option<String> {
-    env_string("HAKO_MIR_BUILDER_METHODIZE")
-}
-
 pub fn builder_unified_call_mode() -> Option<String> {
     env_string("NYASH_MIR_UNIFIED_CALL")
 }
@@ -224,4 +283,47 @@ pub fn builder_safepoint_entry() -> bool {
 /// after token issuance.
 pub fn builder_safepoint_entry_raw_value() -> Option<String> {
     env_string("NYASH_BUILDER_SAFEPOINT_ENTRY")
+}
+
+#[cfg(test)]
+mod methodize_compatibility_tests {
+    use super::{
+        parse_builder_methodize_compatibility_v1, BuilderMethodizeCompatibilityErrorV1,
+        BuilderMethodizeCompatibilityV1,
+    };
+    use std::ffi::OsStr;
+
+    #[test]
+    fn selector_matrix_is_finite_and_strict() {
+        assert_eq!(
+            parse_builder_methodize_compatibility_v1(None),
+            Ok(BuilderMethodizeCompatibilityV1::Canonical)
+        );
+        assert_eq!(
+            parse_builder_methodize_compatibility_v1(Some(OsStr::new("0"))),
+            Ok(BuilderMethodizeCompatibilityV1::Canonical)
+        );
+        assert_eq!(
+            parse_builder_methodize_compatibility_v1(Some(OsStr::new("1"))),
+            Ok(BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility)
+        );
+
+        for value in ["", "true", "on", "false", "off", "01", " 1 ", "garbage"] {
+            assert!(matches!(
+                parse_builder_methodize_compatibility_v1(Some(OsStr::new(value))),
+                Err(BuilderMethodizeCompatibilityErrorV1::InvalidSelector(_))
+            ));
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn non_unicode_selector_is_not_treated_as_unset() {
+        use std::os::unix::ffi::OsStrExt;
+        let raw = OsStr::from_bytes(b"\xff");
+        assert_eq!(
+            parse_builder_methodize_compatibility_v1(Some(raw)),
+            Err(BuilderMethodizeCompatibilityErrorV1::NonUnicode)
+        );
+    }
 }

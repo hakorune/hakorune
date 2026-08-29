@@ -20,6 +20,13 @@ resolver-sealed symbol for the current source site before lowering arguments.
 `FunctionCall` named `externcall`; the generic parenthesized spelling remains
 ordinary and shadowable.
 
+The Rust-side `HAKO_MIR_BUILDER_METHODIZE` selector is snapshotted once at
+module ingress. Unset/`0` is canonical and preserves an incoming typed Global;
+only the explicit Stage1 child value `1` may perform the bounded RuntimeData
+Global-to-`Method(None)` compatibility projection. Invalid values reject
+before Builder mutation, and this policy does not govern the separate
+JSON/Hako readers.
+
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument
 input is checked and lowered exactly once in source order. Its selected raw

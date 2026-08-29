@@ -21,10 +21,9 @@ fn load_fixture_with_string_helpers() -> String {
 }
 
 /// Compile minimal_to_i64_void.hako and assert Main._nop/0 exists and is targeted.
-/// The test now accepts either:
-///   - Global(Main._nop/0) call (methodization OFF), or
-///   - Method(Main._nop, receiver=singleton) call (methodization ON: default)
-/// Methodization is ON by default (HAKO_MIR_BUILDER_METHODIZE=1).
+/// The canonical normal ingress keeps `Global(Main._nop/0)` typed.  An
+/// explicit Stage1 compatibility child may still project RuntimeData globals
+/// to receiverless `Method` calls, but that policy is no longer the default.
 #[test]
 fn mir_static_main_box_emits_canonical_static_methods() {
     // Enable Stage‑3 + using for the fixture.

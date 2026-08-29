@@ -128,6 +128,7 @@ NYASH_LEAK_LOG=2 NYASH_LLVM_USE_HARNESS=1 ./target/release/hakorune --backend ll
 | `NYASH_STAGE1_BINARY_ONLY_RUN_DIRECT={0\|1}` | unset | phase-1 compatibility | `--hako-run` の binary-only direct route を強制ON/OFF（unset は `NYASH_STAGE1_BINARY_ONLY_DIRECT` を継承し、最終的に OFF） |
 | `HAKO_SELFHOST_NO_DELEGATE={0\|1}` | unset | phase-1 compatibility / selfhost | `env.mirbuilder.emit` の delegate route を禁止（`1` で fail-fast 固定） |
 | `HAKO_MIR_BUILDER_DELEGATE={0\|1}` | unset | phase-1 compatibility / selfhost | MirBuilder delegate route の互換トグル（mainline child では `0` に固定） |
+| `HAKO_MIR_BUILDER_METHODIZE={0\|1}` | unset (`Canonical`) | Rust MirBuilder / phase-1 compatibility | Rust module ingress は未指定または `0` なら typed Global を保持し、明示的な `1` だけが Stage1 の名前付き互換投影（RuntimeData Global → `Method(None)`）を選ぶ。その他の値と非Unicode値は fail-fast。JSON/Hako 側の reader は別経路。 |
 | `HAKO_STAGE1_MODULES_LIST=...` | unset | phase-1 compatibility / selfhost | phase-1 compatibility using 解決用の `name=path` payload。`HAKO_STAGEB_MODULES_LIST` は mode-B .hako reader compatibility alias。 |
 | `HAKO_STAGE1_MODULE_ROOTS_LIST=...` | unset | phase-1 compatibility / selfhost | phase-1 compatibility using prefix 解決用の `prefix=path` payload。`HAKO_STAGEB_MODULE_ROOTS_LIST` は互換 alias。 |
 | `HAKO_STAGE1_APPLY_USINGS={0\|1}` | `0` | phase-1 compatibility / selfhost | phase-1 compatibility child の using text-merge 適用制御。`HAKO_STAGEB_APPLY_USINGS` は互換 alias。 |

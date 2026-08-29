@@ -384,15 +384,15 @@ impl UnifiedCallEmitterBox {
         );
         let mut callee = resolver.resolve(target.clone())?;
 
-        // 🎯 Phase 21.7: Methodization (HAKO_MIR_BUILDER_METHODIZE=1)
-        // Convert an already-typed static-method carrier to Method calls only
-        // for runtime data boxes.  This preserves the legacy route for now,
-        // but deliberately avoids reparsing a display string as a target.
-        let methodize_on = match crate::config::env::builder_methodize_mode().as_deref() {
-            // 明示的に "0" が指定されたときだけ無効化。
-            Some("0") => false,
-            _ => true,
-        };
+        // The module-ingress snapshot is the only Rust methodize selector.
+        // Canonical input keeps the typed target unchanged; the explicitly
+        // named Stage1 compatibility policy alone permits this bounded
+        // RuntimeData Global -> Method(None) projection.  Do not reread env
+        // or reconstruct a target from its display name here.
+        let methodize_on = matches!(
+            builder.comp_ctx.builder_methodize_compatibility,
+            crate::config::env::BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility
+        );
         if methodize_on {
             let static_method = match &callee {
                 Callee::Global(CanonicalGlobalTargetV1::SameModule(

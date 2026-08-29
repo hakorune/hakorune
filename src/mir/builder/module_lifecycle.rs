@@ -334,8 +334,11 @@ impl RootCallableCapturePortV1 for RawLegacyChildLoweringPortV1 {}
 
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
+        let methodize_policy = crate::config::env::snapshot_builder_methodize_compatibility_v1()
+            .map_err(|error| format!("[mir/methodize/ingress] {error}"))?;
         self.prepare_module_with_callable_main_policy(
             super::module_compat_policy::CallableMainCompatibilityPolicyV1::snapshot_from_legacy_ingress(),
+            methodize_policy,
             crate::config::env::builder_safepoint_entry(),
         )
     }
@@ -344,8 +347,11 @@ impl super::MirBuilder {
         &mut self,
         entry_safepoint: bool,
     ) -> Result<(), String> {
+        let methodize_policy = crate::config::env::snapshot_builder_methodize_compatibility_v1()
+            .map_err(|error| format!("[mir/methodize/ingress] {error}"))?;
         self.prepare_module_with_callable_main_policy(
             super::module_compat_policy::CallableMainCompatibilityPolicyV1::Omitted,
+            methodize_policy,
             entry_safepoint,
         )
     }
@@ -353,10 +359,12 @@ impl super::MirBuilder {
     fn prepare_module_with_callable_main_policy(
         &mut self,
         callable_main_policy: super::module_compat_policy::CallableMainCompatibilityPolicyV1,
+        methodize_policy: crate::config::env::BuilderMethodizeCompatibilityV1,
         entry_safepoint: bool,
     ) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
         self.comp_ctx.callable_main_compatibility_policy = callable_main_policy;
+        self.comp_ctx.builder_methodize_compatibility = methodize_policy;
         // A new module is a new legacy compatibility snapshot. Clearing the
         // candidate cache also resets its freshness witness so same-size module
         // replacement cannot reuse the previous module's tail candidates.
