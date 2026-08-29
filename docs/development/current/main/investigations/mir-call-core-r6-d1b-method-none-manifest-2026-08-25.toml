@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "No code slice is open. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 is the selected design stop: finitely classify the remaining same-module Global publishers, then accept at most one production edge."
+smallest_next_slice = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0 is the only fast-open slice: exactly three canonical-key callers project the typed target before descent and the receipt terminal stops reconstructing it from owner/name/arity."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -697,7 +697,7 @@ validation = [
   "git diff --check: pass",
 ]
 red_classification = "Workspace-wide cargo fmt -- --check reports the pre-existing unrelated formatting debt in src/runner/core_executor.rs, which this row did not touch. Targeted rustfmt --check for every changed Rust file passed. The stale resolved_callable_l0 guard fails on its unrelated historical with_resolved_function_draft_session contract and is not acceptance evidence for this bounded row. No full-suite green claim is made."
-next_row = "The parent Method corridor is Exhausted. Return to design_stop at MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0; no implementation is open until its finite publisher inventory and one bounded edge are accepted."
+next_row = "The parent Method corridor is Exhausted. The SameModule producer inventory is reconciled at nine production families; only MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0 is fast-open."
 
 [same_module_all_producer_disposition_r0_2026_08_30]
 status = "accepted_with_open_blockers"
