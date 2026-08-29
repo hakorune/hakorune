@@ -31,40 +31,24 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and active-row authority. RawScriptRoot's
-ordinary non-special I0 is landed at `8837cbbab2` and its closeout is recorded.
-The active-surface proof row is also landed: historical lifecycle commands are
-card-backed tombstones, changed tests are checked against `cargo test -- --list`,
-and the two `SiteCoverageMismatch` negatives are covered. RawRootMain is now
-closed as a caller-zero boundary: the existing raw-root eligibility owner
-classifies ordinary FunctionCall as `UnsupportedSurface(Call)` before physical
-open, so no second terminal is added. The ScriptRoot fate audit is also closed:
-source-backed ordinary FunctionCall stops as `Deferred`/`ObservationDeferred`
-before physical open, so its downstream `Resolved` success edge has production
-reach zero. RetireBeforeEffects is landed at `f1bb472f1d`; the dormant edge now
-ends in one origin-specific typed terminal before arguments, with no production
-replacement credit.
+`CURRENT_STATE.toml` is the sole mode and active-row authority. The active-surface
+proof row is landed: historical lifecycle commands are card-backed tombstones,
+changed tests are checked against `cargo test -- --list`, and the two
+`SiteCoverageMismatch` negatives are covered. RawRootMain is closed as a
+caller-zero boundary, while RawScriptRoot and ScriptRoot ordinary compatibility
+edges stop before physical effects at their named terminals. RawLegacy I0 is now
+landed at `7fb4ed1a1f`: its ordinary non-special edge ends at
+`RawLegacyRetired` before argument descent, with 10 compatibility tests and 22
+route tests green and no production replacement credit.
 
-The two named compatibility-origin tests are green and the R2 preflight fence
-is reconciled; the remaining live downstream compatibility descendants remain
-outside that fence.
-The bounded Rust explicit-compatibility ingress I0 is landed at
-`13664f7787`: unset/exact `0` is Canonical, exact `1` selects the named
-compatibility mode, and malformed values fail before mutation. Stage1 is a
-known writer, but the selector carries no Stage1 provenance; external callers
-must not be treated as Stage1 without a separate owner. Stage1 full artifact
-remains ParkedSealed. `MIR-CALL-COMPAT-SCRIPT-ROOT-RET0` changes only the
-dormant ScriptRoot edge and is landed at `f1bb472f1d` with 9/9 compatibility
-tests and 1/1 semantic-retention test green. It earns no production replacement
-credit; R4
-semantic deferral, special-call precedence, RawLegacy, shared `Resolved`,
-`method_resolution`, JSON/Hako, VM/backend, and Call-schema changes remain
-closed. RET0 closeout is complete. The RawLegacy D0 census selected
-`RetireBeforeEffects`: no named public/selected success owner or exact target
-product exists, and the one internal production edge must stop before arguments.
-The bounded next slice is `MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0`, which adds only
-the origin-specific typed terminal, zero-delta tests, and the reused active guard;
-shared `Resolved`, build.rs, VM/backend, and Call-schema changes remain closed.
+The explicit-compatibility ingress I0 remains landed at `13664f7787` (unset/exact
+`0` is Canonical, exact `1` selects the named compatibility mode, malformed
+values fail before mutation). Stage1 full artifact remains ParkedSealed. The
+remaining Method corridor is a design stop: enumerate
+`method_resolution_static_none`, the shared `Resolved` consumer, the Builder
+`Method(None)` publication terminal, and the unified-emitter reissuer before any
+producer implementation. Shared `Resolved`, build.rs, VM/backend, JSON/Hako,
+Stage1, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 

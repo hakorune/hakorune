@@ -1,10 +1,10 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0: retire only the RawLegacy ordinary non-special edge before argument descent with one typed terminal. Preserve Brand/TypeOp/Math/FastMem/str/1 precedence; no guessed target, second scan, fallback, retry, shared-consumer rewrite, or broader Method/VM/Call-schema change."
-guard_followup = "Run the existing active-surface guard for RawLegacy I0. It must verify structural_sites=1 becomes a zero RawLegacy->Resolved edge, production_reachable_callers=1 becomes 0, physical_facade_entries remain capability entries, test_only_authority_injection_helpers=1, test_only_production_reachable_callers=0, public_contract_owners=0, changed-test coverage, and source boundaries."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+current_design_stop = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+current_blocker_token = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0: RawLegacy and ScriptRoot ordinary compatibility edges are caller-zero after typed pre-effect retirement. Enumerate the remaining method_resolution_static_none, shared Resolved consumer, Builder Method(None) publication terminal, and unified-emitter reissuer before any producer implementation. No guessed target, second scan, fallback, retry, shared-consumer, VM/backend, or Call-schema change."
+guard_followup = "Use the existing active-surface guard for the parent Method corridor census. It must keep the finite 11-row inventory blocker-open, record RawLegacy and ScriptRoot as closed, and reject any attempt to reopen their old shared Resolved edges without a named owner."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "RawLegacy D0 selected RetireBeforeEffects: one internal production edge enters shared Resolved without a named success owner or exact target product. I0 is open only for a typed pre-effect terminal, zero-delta tests, and the reused active guard; shared Resolved, build.rs, VM/backend, and Call schema remain closed."
-next_design_card = "none"
-next_execution_card = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
+latest_card_summary = "RawLegacy I0 landed at 7fb4ed1a1f: the ordinary non-special edge now ends at a typed pre-effect terminal, with 10 compatibility tests and 22 route tests green. The next design stop is the remaining finite Method(None) producer/reissuer/terminal census; shared Resolved, build.rs, VM/backend, and Call schema remain closed."
+next_design_card = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-30: RawLegacy ordinary non-special compatibility calls retired before argument descent at 7fb4ed1a1f; RawLegacyRetired is now the sole terminal for that origin, with no shared Resolved, resolver, MIR or collector effects. The next Method corridor census remains design_stop.",
 	"2026-08-30: ScriptRoot ordinary non-special compatibility calls retired before argument descent at f1bb472f1d; the dormant ScriptRoot -> Resolved edge is now a typed terminal with zero argument/port/MIR effects. R4 semantic deferral, special precedence, RawLegacy, and shared Resolved remain unchanged.",
 	"2026-08-29: RawScriptRoot ordinary non-special compatibility calls retired before argument descent at 8837cbbab2; the typed terminal, precedence tests, and landed lifecycle guard record the 1 -> 0 edge. Method explicit-compatibility ingress I0 is also landed at 13664f7787 with a finite module-ingress policy.",
-	"2026-08-29: I0 verifier correction landed at e382a00923; ObserveOnly facts now pass, target-only/partial site coverage remains fail-closed, and filtered direct-call observation tests are 10/10.",
 ]

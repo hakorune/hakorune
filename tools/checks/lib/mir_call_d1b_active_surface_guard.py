@@ -30,11 +30,13 @@ RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 RAW_LEGACY_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
 RAW_LEGACY_I0_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
+METHOD_CORRIDOR_D0_ROW = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 PROOF_KEY = "proof_reliability_followups_2026_08_29"
 RAW_ROOT_KEY = "raw_root_main_retire_i0_2026_08_29"
 SCRIPT_ROOT_KEY = "method_call_compat_script_root_ret0_2026_08_30"
 RAW_LEGACY_KEY = "method_call_compat_raw_legacy_fate_d0_2026_08_30"
 RAW_LEGACY_I0_KEY = "method_call_compat_raw_legacy_fate_i0_2026_08_30"
+METHOD_CORRIDOR_D0_KEY = "method_corridor_nonstage1_producer_retire_d0_2026_08_29"
 
 
 def fail(message: str) -> None:
@@ -455,6 +457,57 @@ def check_raw_legacy_resume(state: dict, card: dict) -> None:
             fail(f"RawLegacy boundary lacks {token}")
 
 
+def check_method_corridor_d0(state: dict, card: dict) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("Method corridor producer census must remain design_stop")
+    if state.get("current_execution_row") != METHOD_CORRIDOR_D0_ROW:
+        fail("Method corridor producer census row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != METHOD_CORRIDOR_D0_ROW:
+        fail("Method corridor producer census design stop drifted")
+    if state.get("next_design_card") != METHOD_CORRIDOR_D0_ROW:
+        fail("Method corridor producer census next design card drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("Method corridor design stop must keep next_execution_card=none")
+
+    row = card.get(METHOD_CORRIDOR_D0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{METHOD_CORRIDOR_D0_KEY} section is missing")
+    if row.get("task_id") != METHOD_CORRIDOR_D0_ROW:
+        fail("Method corridor producer census task id drifted")
+    if row.get("status") not in {"accepted_policy_b_in_progress", "design_stop"}:
+        fail("Method corridor producer census status is not an active design stop")
+    if row.get("implementation_permission") is not False:
+        fail("Method corridor producer census must keep implementation closed")
+    if row.get("current_disposition") != "CutoverBlockerOpen":
+        fail("Method corridor producer census must remain blocker-open")
+    if row.get("in_scope_inventory_count") != 11:
+        fail("Method corridor producer inventory count drifted")
+
+    open_b = row.get("d0_b_open_rows")
+    open_c = row.get("d0_c_open_rows")
+    if not isinstance(open_b, list) or not open_b:
+        fail("Method corridor producer census has no open D0-B rows")
+    if not isinstance(open_c, list) or not open_c:
+        fail("Method corridor producer census has no open D0-C rows")
+    for label, values in (("D0-B", open_b), ("D0-C", open_c)):
+        if "raw_legacy_origin" in values or "script_root_origin" in values:
+            fail(f"{label} still lists a landed compatibility origin")
+        for required in (
+            "method_resolution_static_none",
+            "resolved_compatibility_consumer",
+            "builder_method_none_publication_terminal",
+            "unified_emitter_methodize_reissuer",
+        ):
+            if required not in values:
+                fail(f"{label} lost remaining Method corridor blocker: {required}")
+    closed = row.get("d0_b_closed_rows")
+    if not isinstance(closed, list):
+        fail("Method corridor producer census closed rows are missing")
+    for required in ("raw_legacy_origin", "script_root_origin"):
+        if required not in closed:
+            fail(f"Method corridor producer census did not close {required}")
+
+
 def check_raw_legacy_i0(state: dict, card: dict, root: Path) -> None:
     if state.get("work_mode") not in {"fast", "closeout"}:
         fail("RawLegacy I0 requires fast or closeout work_mode")
@@ -589,6 +642,8 @@ def main() -> None:
         check_raw_root_resume(state, card, proof, root)
     elif row == SCRIPT_ROOT_ROW:
         check_script_root_ret0(state, card, root)
+    elif row == METHOD_CORRIDOR_D0_ROW:
+        check_method_corridor_d0(state, card)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:

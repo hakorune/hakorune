@@ -396,8 +396,6 @@ d0_a_remaining_rows = []
 d0_b_status = "partial_disposition"
 d0_b_boundary = "recounted producer/reissuer/terminal -> exact successor, pre-effect typed reject, or open blocker"
 d0_b_open_rows = [
-  "raw_legacy_origin",
-  "script_root_origin",
   "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
@@ -409,13 +407,13 @@ d0_b_closed_rows = [
   "unclassified_preflight_reject",
   "raw_root_main_origin",
   "raw_script_root_origin",
+  "script_root_origin",
+  "raw_legacy_origin",
 ]
 d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot has its own pre-effect typed retirement terminal, and ScriptRoot ordinary FunctionCall is stopped by ObservationDeferred at the semantic seal before physical lowering. Only RawLegacy remains a live named R2 compatibility origin entering the shared Resolved consumer without an exact source/catalog product; ScriptRoot retains one dormant structural edge until RET0 deletes it. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot and ScriptRoot have pre-effect retirement/deferral boundaries, and RawLegacy's sole ordinary edge is now closed by RawLegacyRetired at 7fb4ed1a1f. method_resolution_static_none and the unified methodize reissuer still have no existing pre-effect typed terminal."
 d0_c_open_rows = [
-  "raw_legacy_origin",
-  "script_root_origin",
   "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
@@ -432,7 +430,7 @@ d0_c_retirement_order = [
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "ScriptRoot RetireBeforeEffects is selected. Run MIR-CALL-COMPAT-SCRIPT-ROOT-RET0 to retire only the dormant ScriptRoot -> Resolved edge with an origin-specific typed terminal; preserve R4 semantic deferral, special-call precedence, RawLegacy, and the shared consumer."
+d0_c_next_action = "ScriptRoot and RawLegacy RetireBeforeEffects are landed. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its remaining open rows are method_resolution_static_none, resolved_compatibility_consumer, builder_method_none_publication_terminal, and unified_emitter_methodize_reissuer."
 
 [method_call_compat_raw_script_retire_i0_2026_08_29]
 status = "landed"
@@ -645,11 +643,12 @@ stop = "Return to design_stop if ScriptRoot cannot be identified after special p
 next_row = "Return to design_stop for the RawLegacy fate/caller census; do not open it in the same implementation commit."
 
 [method_call_compat_raw_legacy_fate_d0_2026_08_30]
-status = "design_stop"
+status = "landed"
 task_id = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
 implementation_permission = false
+closeout_commit = "7fb4ed1a1f"
 decision = "RawLegacy remains the only named compatibility origin entering the shared Resolved completion after the ScriptRoot and RawScriptRoot dormant edges were retired. Freeze its finite fate before any code change: either an effect-free origin-specific terminal or a proven named compatibility owner; do not preserve shared Resolved by inertia."
 boundary = "RawLegacy brand issuance -> shared raw child dispatch -> ordinary preflight completion -> pre-effect terminal or existing shared Resolved consumer. Includes the one production RawLegacy route and its direct/test census; excludes ScriptRoot, RawScriptRoot, RawRootMain, installed App Main, exact Cataloged products, Method(None), VM/backend, JSON/Hako, and Call schema."
 source_authority = "RawBrandCallAuthorityV1::RawLegacyParkedCompatibility is the only provenance issuer. No exact source/catalog target product or public RawLegacy success contract is currently present."
@@ -686,9 +685,7 @@ finite_state_matrix = [
 ]
 selected_fate = "RetireBeforeEffects"
 selected_fate_reason = "No named public or selected RawLegacy success owner, exact target product, or compatibility acceptance was found. The only production edge is an internal compatibility route, so it must stop before effects rather than preserve shared Resolved by inertia."
-open_decisions = [
-  "Confirm the finite fixture census and preserve Brand/TypeOp/Math/FastMem/str/1 precedence before opening I0.",
-]
+open_decisions = []
 required_evidence = [
   "finite production/test/public census with start/end/includes/excludes and exact caller paths",
   "shared Resolved consumer and all RawLegacy callers enumerated without a second source scan",
@@ -696,7 +693,7 @@ required_evidence = [
 ]
 acceptance = "D0 closes only when the RawLegacy boundary is Exhausted: the one production caller has either an exact successor or an origin-specific pre-effect typed terminal, while every retained compatibility edge has a named owner and observable acceptance. If neither can be proven, keep the row in design_stop; do not invent a resolver, target, receipt, or fallback."
 stop = "Stay in design_stop if the one production caller cannot be traced to a finite terminal, if a public/selected success contract is claimed without an owner, if source/raw lineage would require a second scan, or if implementation would touch the shared Resolved consumer, build.rs, method_resolution, VM/backend, JSON/Hako, or Call schema."
-next_implementation = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
+next_implementation = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
@@ -704,11 +701,13 @@ allowed_files = [
 ]
 
 [method_call_compat_raw_legacy_fate_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
 parent_row = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
 ceremony_tier = "T1"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "7fb4ed1a1f"
+coverage_base_commit = "8936cc98dd"
 decision = "Retire RawLegacy ordinary non-special FunctionCall before argument descent. Preserve existing Brand, TypeOp, Math, FastMem, and str/1 precedence; do not create a target, resolver, fallback, retry, or shared-consumer change."
 source_authority = "RawBrandCallAuthorityV1::RawLegacyParkedCompatibility is the finite origin authority; no public success contract or exact target product exists."
 canonical_issuer = "prepare_ordinary_function_completion_v1 issues RawCompatibilityOrdinaryCallTerminalV1::RawLegacyRetired as the sole origin-specific terminal."
@@ -741,10 +740,36 @@ forbidden_files = [
   "shared Resolved consumer, package/loan, RawInvocationChildPort, Method(None), VM/backend, JSON/Hako, Stage1, and Call schema",
 ]
 focused_gate = "cargo test --profile quick --lib script_compatibility_tests -- --test-threads=1"
+focused_test_filters = [
+  "mir::builder::calls::function_call_preflight_route::tests::script_compatibility_tests::",
+  "mir::builder::calls::function_call_preflight_route::tests::",
+]
+changed_test_names = [
+  "raw_legacy_parked_compatibility_retires_before_arguments",
+  "raw_root_main_compatibility_preserves_resolved_terminal",
+]
+focused_test_results = [
+  "script_compatibility_tests: 10 passed, 0 failed, 7494 filtered out",
+  "function_call_preflight_route::tests: 22 passed, 0 failed, 7482 filtered out",
+]
+guard_result = "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: row=MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0 ok"
+rustfmt_result = "rustfmt --edition 2021 --check on all four touched Rust files: passed"
 guard = "Reuse mir_call_d1b_active_surface_guard.py; no new guard family or registry row. Verify the terminal, precedence, zero-delta tests, changed paths, and source line boundaries."
 acceptance = "RawLegacy ordinary non-special calls fail with the typed RawLegacyRetired terminal before any child/header/MIR effect; special routes remain unchanged; shared Resolved remains reachable only from the still-in-scope origins; focused changed tests and the stable guard are green."
 stop = "Return to design_stop if a public/selected RawLegacy success owner appears, if special precedence changes, if the shared Resolved consumer/build.rs must change, or if any target/resolver/fallback/retry is required."
 next_row = "Return to design_stop for the next named Method(None) producer; do not broaden this RawLegacy slice."
+
+[method_call_compat_raw_legacy_closeout_2026_08_30]
+status = "landed"
+task_id = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0-CLOSEOUT"
+implementation_commit = "7fb4ed1a1f"
+boundary = "RawLegacy brand issuer -> shared raw dispatcher -> ordinary preflight completion"
+production_reach_before = "logical RawLegacy -> Resolved edge = 1; physical capability facades = multiple; test-only authority injection helpers = 1; public contract owners = 0"
+production_reach_after = "logical RawLegacy -> Resolved edge = 0; RawLegacyRetired is the sole ordinary non-special terminal; physical capability facades remain structural and are not target authorities"
+effect_order = "Brand, TypeOp, Math, FastMem, and str/1 retain precedence; ordinary RawLegacy stops before argument/header/resolver/recovery/MIR/collector effects"
+non_claims = "No shared Resolved consumer, build.rs, Method(None), VM/backend, JSON/Hako, Stage1, Call schema, or other-origin behavior changed"
+evidence = "10 compatibility tests and 22 route tests are green; pointer guard, reused active-surface guard, and git diff checks are green"
+next_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0 remains the next design stop"
 
 [proof_reliability_followups_2026_08_29]
 status = "landed"
@@ -835,9 +860,9 @@ reopen_trigger = "CURRENT_STATE selects this D0, a selected gate names legacy-te
 id = "raw_legacy_origin"
 kind = "origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/raw_expression_dispatch/mod.rs:345-357; src/mir/builder/calls/lowering.rs:377-393,437-451"
-edge = "RawLegacy child lowering enters the shared Resolved compatibility completion"
+edge = "RawLegacy child lowering now ends at an origin-specific pre-effect retirement terminal"
 authority = "No exact source/catalog target issuer is present in this legacy owner"
-disposition = "CutoverBlockerOpen"
+disposition = "PreEffectReject"
 reopen_trigger = "Every live RawLegacy production caller has an exact successor or an effect-free named retirement terminal"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
