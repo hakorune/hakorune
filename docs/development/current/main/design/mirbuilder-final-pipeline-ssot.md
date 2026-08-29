@@ -144,10 +144,11 @@ typed Global target family / issuer Decision
   -> preserve exact free/static/import/compatibility target relations
   -> JoinIR declaration co-seal and false GC Global retirement
   -> observer-only FunctionCall completion contract and package install gate
-  -> builtin/Extern disposition and all-lineage late recovery retirement
+  -> builtin/Extern disposition and finite preflight lineage classification
   -> package-owned pre-effect site/target disposition
   -> one affine raw handoff and direct-payload deletion
-  -> receiver/argument ABI and Method(None) retirement
+  -> exact Method(Some) receiver/argument ABI preservation
+  -> named compatibility late-recovery retirement and overlapping Method(None) retirement
   -> remaining static/CorePlan/operator producer dispositions
   -> exact touched-owner shelf and finite current-HEAD B1 census
   -> typed Global common-core and all compiled-consumer cutover

@@ -1,5 +1,5 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
-status = "design_reaudit_queued"
+status = "active_design_stop"
 observed_commit = "e9f76676db"
 observed_at = "2026-08-29"
 implementation_permission = false
@@ -225,7 +225,7 @@ reopen_when = "An existing Stage1 source owner emits a non-empty artifact plus m
 non_claims = "Stage1 is not the repository-wide owner of HAKO_MIR_BUILDER_METHODIZE. Its Rust and shell exact-1 injectors are only named Stage1 compatibility ingress owners."
 
 [method_corridor_ingress_policy_d0_2026_08_29]
-status = "queued_after_r2_fence"
+status = "active_design_stop"
 task_id = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
 implementation_permission = false
 decision = "Before changing implicit/default-on Rust methodize, freeze a finite reader/writer boundary and name one module-ingress snapshot owner. The env selector chooses Canonical versus ExplicitLegacyCompatibility; it never issues or repairs a target."
