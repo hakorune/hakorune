@@ -1,10 +1,10 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0: in exactly three production receipt callers, project the already-owned canonical static key into CanonicalGlobalTargetV1 before argument/recipe descent, then make the receipt terminal consume only that typed target. Delete its owner/method/arity reconstruction; do not touch ordinary static fallback, CorePlan, operators, rewrite, birth/provider, VM/backend, or Call schema."
-guard_followup = "Require positive receipt/bridge evidence, namespace/arity/malformed-target pre-effect negatives, arguments once, Call once, exact three-caller structural census, target projection before descent, no terminal String constructor, B1 guards, quick lib check, pointer guard, and diff check. Any fourth caller or text/lookup issuer returns to design_stop."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_blocker_token = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0: the exact static receipt child landed at e5120589dc; before opening another producer, name its existing exact issuer or a typed pre-effect retirement for the remaining eight production families and keep the test-only row ParkedSealed."
+guard_followup = "Require the finite nine-family inventory, the landed exact-static receipt child, one named next authority, and no broad implementation. Do not open ordinary static fallback, CorePlan, operators, rewrite, birth/provider, VM/backend, or Call schema until its own source-to-terminal relation is closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The Method corridor is Exhausted after caller-zero Resolved retirement at 598530d23b. Two worker audits expanded the SameModule census from three labels to nine production families. Only the exact static receipt family has a closed authority mapping; its three-caller target-before-arguments I0 is fast-open."
+latest_card_summary = "The Method corridor is Exhausted after caller-zero Resolved retirement at 598530d23b. Two worker audits expanded the SameModule census from three labels to nine production families. The exact static receipt target-before-arguments I0 landed at e5120589dc; eight producer families remain blocker-open and require one bounded authority decision before implementation."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-30: SameModule exact static receipt I0 landed at e5120589dc; three production callers now project an owned CanonicalSameModuleCallableKeyV1 into CanonicalGlobalTargetV1 before descent, and the receipt terminal no longer reconstructs owner/method/arity.",
 	"2026-08-30: caller-zero Resolved corridor retired at 598530d23b; RawRootMain ordinary direct injection now reaches RawRootMainRetired before effects, while the Resolved variant/consumer and exclusive generic resolver/recovery/name-Const/tail-env owners were physically deleted (210 insertions, 687 deletions). The Method corridor is Exhausted.",
 	"2026-08-30: Builder Method(None) publication terminal RET0 landed at cc2d390538; receiverless Method rejects before materialization or block insertion, typed Global remains publishable, and the focused terminal tests are 2/2 green.",
-	"2026-08-30: Rust exact-1 methodize and the shared Global-to-Method(None) reissuer retired at 287e944fe8; unset/0 retain typed Global, exact 1 rejects at module ingress, and Stage1/Hako/JSON remain separate named owners.",
 ]

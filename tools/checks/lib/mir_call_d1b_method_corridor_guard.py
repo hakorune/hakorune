@@ -15,6 +15,7 @@ RESOLVED_RETIRE_ROW = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
 RESOLVED_RETIRE_KEY = "raw_root_resolved_caller_zero_ret0_2026_08_30"
 STATIC_RECEIPT_ROW = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
 STATIC_RECEIPT_KEY = "same_module_static_receipt_target_before_args_i0_2026_08_30"
+SAME_MODULE_PARENT_ROW = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 SAME_MODULE_PARENT_KEY = "same_module_all_producer_disposition_r0_2026_08_30"
 
 
@@ -529,7 +530,11 @@ def check_static_receipt_target_before_args_i0(
     order_tokens = (
         (production_rels[0], ".canonical_global_target_v1()", ".lower_all(builder)"),
         (production_rels[1], ".canonical_global_target_v1()", "descent.lower_all(builder)"),
-        (production_rels[2], ".canonical_global_target_v1()", "row.arguments()"),
+        (
+            production_rels[2],
+            ".canonical_global_target_v1()",
+            "lower_node(builder, argument.tree())",
+        ),
     )
     for path, projection, descent in order_tokens:
         text = production[path]
@@ -537,6 +542,58 @@ def check_static_receipt_target_before_args_i0(
             api.fail(f"static receipt I0 order evidence is missing: {path}")
         if text.find(projection) > text.find(descent):
             api.fail(f"static receipt I0 projects target after descent: {path}")
+
+
+def check_same_module_parent_r0(state: dict, card: dict, api: object) -> None:
+    if state.get("work_mode") != "design_stop":
+        api.fail("SameModule producer disposition must remain design_stop")
+    if state.get("current_execution_row") != SAME_MODULE_PARENT_ROW:
+        api.fail("SameModule producer disposition row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != SAME_MODULE_PARENT_ROW:
+        api.fail("SameModule producer disposition design stop drifted")
+    if state.get("next_design_card") != SAME_MODULE_PARENT_ROW:
+        api.fail("SameModule producer disposition next design card drifted")
+    if state.get("next_execution_card") != "none":
+        api.fail("SameModule producer design stop must keep next_execution_card=none")
+
+    row = card.get(SAME_MODULE_PARENT_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"{SAME_MODULE_PARENT_KEY} section is missing")
+    if row.get("task_id") != SAME_MODULE_PARENT_ROW:
+        api.fail("SameModule producer disposition task id drifted")
+    if row.get("status") != "accepted_with_open_blockers":
+        api.fail("SameModule producer disposition must remain blocker-open")
+    if row.get("implementation_permission") is not False:
+        api.fail("SameModule producer disposition cannot permit broad implementation")
+    if row.get("current_disposition") != "CutoverBlockerOpen":
+        api.fail("SameModule producer disposition silently closed open blockers")
+    if row.get("production_family_count") != 9 or row.get("outside_family_count") != 1:
+        api.fail("SameModule producer family census drifted")
+
+    inventory = row.get("inventory")
+    expected_ids = set(
+        "exact_static_receipt ordinary_static_terminal generic_coreplan_globalcall "
+        "selected_exact_coreplan operator_env_publishers physical_thunk rewrite_known "
+        "ordinary_new_birth cataloged_provider_as_free"
+    .split())
+    if not isinstance(inventory, list):
+        api.fail("SameModule producer inventory is missing")
+    ids = [item.get("id") for item in inventory if isinstance(item, dict)]
+    if set(ids) != expected_ids or len(ids) != len(expected_ids):
+        api.fail("SameModule producer inventory is not the finite nine-family set")
+    outside = row.get("outside_inventory")
+    if not isinstance(outside, list) or len(outside) != 1:
+        api.fail("SameModule producer outside inventory must contain one row")
+    if not isinstance(outside[0], dict) or outside[0].get("id") != "test_only_static_publication":
+        api.fail("SameModule producer outside inventory drifted")
+
+    child = card.get(STATIC_RECEIPT_KEY)
+    if (
+        not isinstance(child, dict)
+        or child.get("status") != "landed"
+        or child.get("implementation_permission") is not False
+    ):
+        api.fail("SameModule producer design stop requires a closed static receipt child")
 
 
 def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:

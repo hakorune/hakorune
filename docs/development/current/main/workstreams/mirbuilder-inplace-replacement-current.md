@@ -46,12 +46,13 @@ were semantic families, not an exhaustive file list. The finite Rust Builder
 boundary has nine production families plus one test-only outside owner; physical
 thunk, default-on `rewrite/known`, ordinary-new birth, and cataloged provider
 are separate blockers. Only the exact static receipt family has a closed mapping.
-The active I0 therefore touches exactly three production callers: each already
-owns `CanonicalSameModuleCallableKeyV1`, projects the typed Global target before
-argument/recipe descent, and passes that target to a consumer-only receipt
-terminal. The wider SameModule parent remains blocker-open; ordinary static,
-CorePlan, operators, rewrite, thunk, birth/provider, VM/backend, and Call schema
-remain closed.
+The exact static-receipt I0 landed at `e5120589dc`: its three production callers
+already owned `CanonicalSameModuleCallableKeyV1`, projected the typed Global
+target before argument/recipe descent, and passed that target to a
+consumer-only receipt terminal. The wider SameModule parent remains
+blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
+birth/provider, VM/backend, and Call schema remain closed until each has its
+own exact issuer or typed pre-effect retirement.
 
 ## Historical rolling context (non-authoritative)
 
