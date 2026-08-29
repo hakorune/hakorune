@@ -984,6 +984,41 @@ no_safe_slice = [
 non_claims = "No Methodize parity, Rust producer deletion, Method corridor implementation, wrapper compatibility, VM migration, or Call-schema cutover is established until the fresh artifact exists."
 next_row = "MIR-CALL-METHODIZE-D0"
 
+[stage1_source_shape_diag_d0_2026_08_29]
+status = "accepted_design_stop"
+task_id = "STAGE1-SOURCE-SHAPE-DIAG-D0"
+execution_row = "STAGE1-SOURCE-SHAPE-DIAG-D0"
+parent_row = "STAGE1-FULL-ARTIFACT-D0"
+implementation_permission = false
+decision = "Keep the canonical Main.main/0 contract and the strict source-backed admission gate. Diagnose the Main static-child source/member ordinal against the method-inventory ordinal before opening any source edit; do not treat the SourceShape failure as an argv, Methodize, or stale-artifact problem."
+source_authority = "The normal_source_plan Main.main/0 contract, the parser static-box source transaction, FinalCallableSemanticSyntaxLoan, and source_backed::issue_source_backed_same_module_callable_catalog_v1 own the source-site and method-inventory relation."
+canonical_issuer = "The existing parser/source-backed catalog issuer; this diagnostic adds no semantic receipt and does not issue a target, lineage, or artifact."
+non_authority = "Main arity relaxation, top-level wrappers, NYASH_ENTRY/argv adaptation, Methodize, Call/VM/backend behavior, Program(JSON v0) compatibility, stale binaries, timeout output, and name/arity reconstruction."
+fail_fast_boundary = "Preserve SourceBackedCatalog/SourceShape rejection before package install and body effects; a diagnostic may explain the mismatch but may not weaken the co-seal comparison."
+census_boundary = "stage1_cli_env.hako Main static box -> parser static-box source transaction -> Main static_children/method inventory -> FinalCallableSemanticSyntaxLoan -> source-backed catalog admission; includes Main.main/0 and its three direct helper members, excludes imported boxes, top-level wrappers, JSON v0, Methodize, Call, VM, and backend."
+observed_evidence = [
+    "With NYASH_MACRO_DISABLE=1, target/quick/hakorune --emit-mir-json lang/src/runner/stage1_cli_env.hako stops at SourceBackedCatalog/SourceShape before artifact emission.",
+    "Parser traces classify each literal `method` marker as a field, while the following callable head enters the method inventory; source member ordinals therefore advance for both marker and method, but inventory ordinals advance only for methods.",
+    "The Main.main/0 admission contract and parameter-count parity remain intact; changing Main to main(args) is not an authorized repair.",
+    "The direct source-to-MIR JSON-v0 test is not evidence for this failure because it bypasses normal source-backed catalog admission."
+]
+diagnostic_output = "Record, for each Main child, source member ordinal, method inventory ordinal, final slot, callable identity, and SourceExpr/source-site key. Confirm whether the three helper rows are offset exactly by the literal `method` fields before any I0 edit."
+smallest_next_slice = "Run a read-only STAGE1-SOURCE-SHAPE-DIAG-D0 census. If and only if the ordinal offset is confirmed, open STAGE1-CLI-MAIN-METHOD-SHAPE-I0 to remove the three stale `method` markers from Main helpers only, keeping Main.main/0 and the strict source-backed comparison."
+acceptance = [
+    "The finite Main child inventory has an observed source ordinal, method inventory ordinal, final slot, identity, and source-site for every row.",
+    "The diagnostic distinguishes ordinal mismatch from Main arity, macro transform, wrapper closure, and stale-artifact causes.",
+    "No source, fixture, production route, semantic receipt, guard family, or artifact claim is changed by this D0.",
+    "The next I0, if opened, is limited to the three Main helper declarations and must re-run the normal fresh emit before the full artifact row."
+]
+no_safe_slice = [
+    "The ordinal mismatch is not confirmed, or the failure requires weakening source preservation or Main.main/0.",
+    "The default artifact closure includes a top-level wrapper or an explicit wrapper caller is required by the active route.",
+    "The proposed fix touches Methodize, Method(None), receiver ABI, shared Resolved, Call schema, VM/JSON, or backend behavior.",
+    "A diagnostic result is being used to claim a fresh full artifact or Methodize parity without a subsequent bounded implementation row."
+]
+non_claims = "No fresh full Stage1 artifact, methodize parity, wrapper compatibility, parser contract change, Call/VM retirement, or source fix is established by this diagnostic row."
+next_row = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0"
+
 [audit_16_reconciliation_2026_08_29]
 status = "reconciled_current_head"
 source = "第16回監査のloan-I0赤テスト報告を、現HEAD 930f9ef2cb と e382a00923 の履歴・focused evidenceへ照合した。"
