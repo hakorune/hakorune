@@ -819,6 +819,26 @@ no_safe_slice = [
 guard_contract = "Reuse the existing call corridor/lifecycle guard; add a Method phase only when this design stop is accepted for implementation. Canonical corridor/index-none baseline failures are not R0 evidence."
 next_row = "MIR-CALL-METHODIZE-D0"
 
+[methodize_d0_2026_08_29]
+status = "accepted_design_parked"
+task_id = "MIR-CALL-METHODIZE-D0"
+execution_row = "MIR-CALL-METHODIZE-D0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-R0"
+implementation_permission = false
+decision = "Keep the Stage1 methodize=1 compatibility owner ParkedSealed until its route fate is explicit; the Rust unified-emitter producer may be removed only as a producer-local no-reclassification slice after parity is proven."
+source_authority = "Stage1 route contract and its focused methodized-output canary own the compatibility requirement; an incoming typed Callee::Global is the only value the Rust producer may preserve or pass through."
+non_authority = "HAKO_MIR_BUILDER_METHODIZE alone, RuntimeData classification, StaticMethodId/name/arity text, Method(None), receiver autoscan, args[0], VM/JSON/optimizer repair, and normal-product methodize=0."
+fail_fast_boundary = "No Rust branch removal is accepted until Stage1 output/backend parity is named; once opened, the producer must preserve incoming target, args, dst, effects, and result with no receiver synthesis or retry."
+census_boundary = "Stage1 methodize=1 owner -> Rust unified-emitter Global-to-Method(None) producer -> existing Hako methodize successor/canary; excludes method_resolution, receiver ABI, VM/JSON, optimizer, ordinary-new, and Call schema."
+smallest_next_slice = "Resolve Stage1 fate as retired or successor-owned, record focused parity evidence, then amend the existing lifecycle guard with method_corridor_methodize_r0 before any code change."
+non_claims = "No methodize producer deletion, Method(Some) issuer, Method(None) family retirement, receiver prepend/strip change, VM/backend migration, or Call schema cutover."
+acceptance = "Stage1 owner, Rust producer, successor/canary, route decision, reopen trigger, and bounded allowed files are explicit; until then the row remains ParkedSealed and implementation_permission=false."
+no_safe_slice = [
+    "Stage1 still requires methodize=1 without a named successor or parity result.",
+    "The proposed fix touches Stage1 route behavior, JSON/VM/backend parity, receiver ABI, shared Resolved, or Call schema.",
+]
+next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
+
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
 status = "landed"
 task_id = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
