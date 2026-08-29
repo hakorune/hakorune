@@ -327,7 +327,7 @@ forbidden_files = [
 ]
 
 [method_corridor_nonstage1_producer_retire_d0_2026_08_29]
-status = "accepted_design_no_safe_slice"
+status = "accepted_policy_b_in_progress"
 task_id = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 guard_phase = "method_corridor_nonstage1_producer_retire_d0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-R0"
@@ -407,7 +407,7 @@ d0_b_closed_rows = [
   "installed_nonbrand_pre_effect_reject",
   "unclassified_preflight_reject",
 ]
-d0_c_status = "no_safe_slice"
+d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
 d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners; none of the four R2 compatibility origins or their shared Resolved consumer has an exact source/catalog product. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
 d0_c_open_rows = [
@@ -424,12 +424,82 @@ d0_c_decision_options = [
   "A: open a separate source-backed issuer design that supplies exact owner/site/brand/relation and an already-issued typed target within the same transaction",
   "B: explicitly retire the four compatibility origins and shared Method(None) reissuer at origin-specific pre-effect typed terminals, with caller-zero evidence",
 ]
-d0_c_next_action = "Choose A or B before any I1 implementation; do not infer a target from name/arity/current_static_box/registry/receiver/arguments, and do not create a guessed semantic receipt."
+d0_c_selected_option = "B_origin_specific_pre_effect_retirement"
+d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot lacks a bare FunctionCall target product, RawScriptRoot and RawRootMain lack the semantic package relation, and RawLegacy lacks owner/site/brand/package/target. A would require a second source scan or resolver."
+d0_c_language_policy = "ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy are internal compatibility provenance, not Canonical language semantics or a public Compat2025 profile. No new caller may depend on their post-argument resolver behavior."
+d0_c_retirement_order = [
+  "raw_script_root_origin",
+  "raw_root_main_origin",
+  "script_root_origin",
+  "raw_legacy_origin",
+]
+d0_c_next_action = "Open only MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0. The origin classifier remains, but its ordinary non-special Resolved edge retires before arguments. Do not infer a target, change the other three origins, or delete the shared Resolved consumer yet."
+
+[method_call_compat_raw_script_retire_i0_2026_08_29]
+status = "fast_open"
+task_id = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0"
+guard_phase = "raw_script_root_pre_effect_retire_i0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+ceremony_tier = "T1"
+box_kind = "BoxCount retirement: remove one internal compatibility success shape"
+implementation_permission = true
+decision = "After existing Brand, TypeOp, Math, FastMem, and str/1 precedence, an ordinary RawScriptRoot FunctionCall has no source-backed target issuer and enters one origin-specific typed retirement terminal before argument descent. The other three named compatibility origins keep their current Resolved behavior in this slice."
+source_authority = "RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility, issued by the existing raw source classifier."
+canonical_issuer = "prepare_ordinary_function_completion_v1 is the sole pre-effect terminal issuer after the existing special-form precedence; it issues RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired and no target product."
+non_authority = [
+  "name/arity, current_static_box, has_method, catalog/registry lookup, receiver, arguments, MIR, ValueId, physical symbol, VM/backend",
+  "Resolved, resolve_call_target, unique-static recovery, tail recovery, name Const, compatibility tests, and fallback/retry",
+]
+fail_fast_boundary = "RawScriptRoot ordinary non-special classification -> typed terminal -> Err, before drive_call_arguments_v1, resolver/header lookup, MIR instruction/function publication, collector/header mutation, fallback, or retry."
+finite_state_matrix = [
+  "RawScriptRoot + declared Brand -> existing Brand route; unchanged.",
+  "RawScriptRoot + TypeOp, Math, FastMem, or str/1 -> existing selected special route; unchanged.",
+  "RawScriptRoot + ordinary non-special FunctionCall -> RawScriptRootRetired typed terminal; argument descent 0 and publication 0.",
+  "RawRootMain, ScriptRoot, or RawLegacy ordinary FunctionCall -> existing Resolved compatibility route; unchanged in I0.",
+  "Installed App Main, installed non-brand, unclassified, Cataloged, extern, and value-call owners -> outside this switch; unchanged.",
+]
+old_edge_delete_set = [
+  "RawScriptRootParkedCompatibility -> PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+]
+caller_zero_claim = "Only the RawScriptRoot origin-specific Resolved producer becomes zero. The RawScriptRoot classifier remains, and the shared Resolved variant/consumer remains live for the other three origins."
+positive_tests = [
+  "raw_script_root_ordinary_call_retires_before_arguments: typed origin terminal, stable diagnostic, expression descent 0, event log empty, MIR function/instruction and CompilationContext lowering state zero-delta",
+  "raw_script_root_keeps_brand_and_special_precedence: Brand and selected special routes do not enter the retirement terminal",
+]
+negative_tests = [
+  "raw_root_main_script_root_and_raw_legacy_keep_resolved_terminal",
+  "installed_app_main_and unclassified/source-backed routes remain unchanged",
+  "no resolver, recovery, name Const, target lookup, fallback, or retry is introduced",
+]
+focused_gate = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib function_call_script_compatibility_tests -- --test-threads=1; require at least one real passed test and treat 0 tests as failure"
+guard = "Reuse mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh; no new guard family or registry row."
+done = "The selected edge is 1 -> 0, focused positive/negative tests pass, route and test files remain below 760 lines, other origins are unchanged, and the existing lifecycle/pointer guards are green."
+stop = "Return to design_stop if RawScriptRoot cannot be uniquely identified before effects, an external/public compatibility owner appears, special-form precedence changes, a generic String-only terminal is required, or the slice reaches build.rs, method_resolution, unified_emitter, VM/backend, JSON/Hako, or Call schema."
+next_row = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0 after this row closes; do not open it in the same implementation commit."
+allowed_files = [
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
+  "src/mir/builder/calls/README.md",
+  "docs/reference/language/function-call-evaluation.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/raw_expression_dispatch/mod.rs",
+  "RawCompatibilityChildTerminalPortV1",
+  "VM/backend/optimizer/JSON/Hako/Call schema",
+]
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_legacy_origin"
 kind = "origin"
-owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/raw_expression_dispatch/mod.rs:345-357; src/mir/builder/calls/lowering.rs:377-393,437-451"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/raw_expression_dispatch/mod.rs:345-357; src/mir/builder/calls/lowering.rs:377-393,437-451"
 edge = "RawLegacy child lowering enters the shared Resolved compatibility completion"
 authority = "No exact source/catalog target issuer is present in this legacy owner"
 disposition = "CutoverBlockerOpen"
@@ -527,7 +597,7 @@ reopen_trigger = "A new named source/brand owner is added and supplies an exact 
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "raw_legacy_origin"
-owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/raw_expression_dispatch/mod.rs:345-357"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/raw_expression_dispatch/mod.rs:345-357"
 production_direct_sites = 1
 upstream_classes = 1
 evidence = "one RawLegacy issuer and one shared dispatch site; the origin enters Resolved"

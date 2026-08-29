@@ -77,6 +77,14 @@ diagnostic impact are classified. In particular, a shape equivalent to
 `f((f = value))` may currently retarget the call; canonical semantics forbid that
 retargeting.
 
+The internal `ScriptRoot`, `RawScriptRoot`, `RawRootMain`, and `RawLegacy`
+provenance names are not public compatibility profiles and do not issue a call
+target. No new caller may depend on their post-argument resolver behavior. An
+existing origin either migrates to the exact source-site authority above or
+retires at an origin-specific typed terminal before argument effects. Preserving
+one as a public compatibility contract requires an explicit profile, semantic
+owner, and fixtures before the retirement edge is changed.
+
 Migration must not silently relabel a behavior change as BoxShape. It requires:
 
 1. a complete compatibility caller/fixture census;

@@ -44,10 +44,11 @@ remains ParkedSealed. The current design stop is
 inventory only; D0-A has recounted all 11 rows and D0-B records eight
 CutoverBlockerOpen rows plus an exact App Main successor and two pre-effect
 reject dispositions. D0-C found no reusable exact source/catalog product for
-the open rows, so the next decision is either a separate source-backed issuer
-design or explicit origin-specific retirement. `method_resolution`, JSON/Hako,
-VM/backend, and Call-schema changes are closed until that decision and its
-evidence are complete. I1 remains closed.
+the four internal compatibility origins and selected origin-specific pre-effect
+retirement. The only open fast cell is `MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0`:
+remove RawScriptRoot's ordinary `Resolved` edge before arguments while the
+other three origins remain unchanged. `method_resolution`, JSON/Hako,
+VM/backend, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
