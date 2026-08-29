@@ -27,8 +27,10 @@ ENTRY_REL = Path("tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guar
 HELPER_REL = Path("tools/checks/lib/mir_call_d1b_active_surface_guard.py")
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
+SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 PROOF_KEY = "proof_reliability_followups_2026_08_29"
 RAW_ROOT_KEY = "raw_root_main_retire_i0_2026_08_29"
+SCRIPT_ROOT_KEY = "method_call_compat_script_root_ret0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -62,7 +64,7 @@ def require_text_list(value: object, label: str) -> list[str]:
 
 def git_diff(root: Path, base: str) -> str:
     result = subprocess.run(
-        ["git", "diff", "--unified=0", f"{base}..HEAD", "--", "*.rs"],
+        ["git", "diff", "--unified=3", f"{base}..HEAD", "--", "*.rs"],
         cwd=root,
         capture_output=True,
         text=True,
@@ -73,12 +75,29 @@ def git_diff(root: Path, base: str) -> str:
     return result.stdout
 
 
+def git_diff_paths(root: Path, base: str) -> set[str]:
+    result = subprocess.run(
+        ["git", "diff", "--name-only", f"{base}..HEAD"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        fail(f"cannot inspect changed paths from {base}: {result.stderr.strip()}")
+    return {line for line in result.stdout.splitlines() if line.strip()}
+
+
 def changed_added_test_names(diff: str) -> set[str]:
     names: set[str] = set()
     test_attr_pending = False
     for line in diff.splitlines():
         if line.startswith("diff --git "):
             test_attr_pending = False
+            continue
+        if line.startswith(" "):
+            if re.search(r"#\s*\[\s*test\s*\]", line[1:]):
+                test_attr_pending = True
             continue
         if not line.startswith("+") or line.startswith("+++"):
             continue
@@ -283,6 +302,121 @@ def check_raw_root_resume(state: dict, card: dict, proof: dict, root: Path) -> N
     check_test_coverage(root, proof)
 
 
+def check_script_root_ret0(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("ScriptRoot RET0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != SCRIPT_ROOT_ROW:
+        fail("ScriptRoot RET0 row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("ScriptRoot RET0 must clear current_design_stop")
+    if state.get("next_execution_card") != SCRIPT_ROOT_ROW:
+        fail("ScriptRoot RET0 pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("ScriptRoot RET0 card pointer drifted")
+
+    row = card.get(SCRIPT_ROOT_KEY)
+    if not isinstance(row, dict):
+        fail(f"{SCRIPT_ROOT_KEY} section is missing")
+    if row.get("task_id") != SCRIPT_ROOT_ROW:
+        fail("ScriptRoot RET0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("ScriptRoot RET0 status is not finite")
+    expected_permission = row.get("status") == "fast_open"
+    if row.get("implementation_permission") is not expected_permission:
+        fail("ScriptRoot RET0 permission/status drifted")
+
+    route_rel = Path("src/mir/builder/calls/function_call_preflight_route.rs")
+    tests_rel = Path("src/mir/builder/calls/function_call_script_compatibility_tests.rs")
+    retention_rel = Path(
+        "src/mir/builder/normal_script_semantic_source_call_retention_tests.rs"
+    )
+    route = (root / route_rel).read_text()
+    tests = (root / tests_rel).read_text()
+    retention = (root / retention_rel).read_text()
+    for path in (route_rel, tests_rel, retention_rel):
+        if sum(1 for _ in (root / path).open()) >= 760:
+            fail(f"ScriptRoot RET0 source reached the 760-line split boundary: {path}")
+
+    completion_start = route.find("fn prepare_ordinary_function_completion_v1")
+    completion_end = route.find("fn is_installed_non_unified_gc_builtin_v1")
+    if completion_start < 0 or completion_end < completion_start:
+        fail("ordinary completion owner cannot be located")
+    completion = route[completion_start:completion_end]
+    if "RawCompatibilityOrdinaryCallTerminalV1::ScriptRootRetired" not in completion:
+        fail("ScriptRootRetired terminal is not issued by ordinary completion")
+    if "RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired" not in completion:
+        fail("RawScriptRootRetired precedence is not retained")
+    resolved = completion.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved")
+    if resolved < 0:
+        fail("shared Resolved compatibility arm disappeared")
+    resolved_context = completion[max(0, resolved - 500) : resolved + 120]
+    if "ScriptRootParkedCompatibility" in resolved_context:
+        fail("ScriptRoot still reaches the shared Resolved arm")
+    for token in (
+        "RawRootMainParkedCompatibility",
+        "RawLegacyParkedCompatibility",
+    ):
+        if token not in resolved_context:
+            fail(f"remaining named Resolved origin disappeared: {token}")
+
+    for token in (
+        "script_root_parked_compatibility_retires_before_arguments",
+        "raw_script_root_ordinary_call_retires_before_arguments",
+        "raw_compatibility_provenance_preserves_resolved_terminal_for_remaining_origins",
+        "script_root_parked_compatibility_keeps_brand_precedence",
+        "raw_script_root_keeps_brand_and_special_precedence",
+        "expression_count",
+        "events.is_empty()",
+        "before_instructions",
+        "after_instructions",
+    ):
+        if token not in tests:
+            fail(f"ScriptRoot RET0 test evidence is missing: {token}")
+    if "script_function_call_remains_deferred_to_runtime_retirement_terminal" not in retention:
+        fail("R4 semantic deferral test evidence is missing")
+    if "RetainedExistingTerminal" not in retention:
+        fail("R4 retained terminal contract is not recorded")
+
+    allowed = row.get("allowed_files")
+    expected_allowed = {
+        str(route_rel),
+        str(tests_rel),
+        str(retention_rel),
+        "src/mir/builder/calls/README.md",
+        "docs/reference/language/function-call-evaluation.md",
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        fail("ScriptRoot RET0 allowed-file boundary drifted")
+
+    if row.get("status") == "landed":
+        base = require_text(row.get("coverage_base_commit"), "ScriptRoot coverage_base_commit")
+        changed = changed_added_test_names(git_diff(root, base))
+        expected = set(require_text_list(row.get("changed_test_names"), "ScriptRoot changed_test_names"))
+        if changed != expected:
+            fail(f"ScriptRoot changed test inventory drifted; diff={sorted(changed)}, card={sorted(expected)}")
+        filters = require_text_list(row.get("focused_test_filters"), "ScriptRoot focused_test_filters")
+        listed = cargo_test_names(root)
+        for name in sorted(changed):
+            full_names = [item for item in listed if item.endswith("::" + name)]
+            if len(full_names) != 1:
+                fail(f"ScriptRoot changed test {name} is not uniquely listed by cargo")
+            if not any(token in full_names[0] for token in filters):
+                fail(f"ScriptRoot changed test {name} has no matching focused filter")
+        for token in filters:
+            if not any(token in item for item in listed):
+                fail(f"ScriptRoot focused test filter has zero cargo-list matches: {token}")
+        changed_paths = git_diff_paths(root, base)
+        if not changed_paths.issubset(expected_allowed):
+            fail(
+                "ScriptRoot changed paths exceed allowed boundary: "
+                f"{sorted(changed_paths - expected_allowed)}"
+            )
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         fail("usage: mir_call_d1b_active_surface_guard.py ROOT")
@@ -303,6 +437,8 @@ def main() -> None:
         check_proof_row(state, card, proof, root)
     elif row == RAW_ROOT_ROW:
         check_raw_root_resume(state, card, proof, root)
+    elif row == SCRIPT_ROOT_ROW:
+        check_script_root_ret0(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

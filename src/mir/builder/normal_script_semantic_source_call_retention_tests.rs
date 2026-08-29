@@ -1,4 +1,4 @@
-//! FunctionCall remains an R4-retained Script operation boundary.
+//! FunctionCall remains an R4-deferred Script semantic boundary.
 
 use super::PreparedNormalDefaultProgramRootV1;
 use crate::ast::{ASTNode, LiteralValue, Span};
@@ -10,7 +10,7 @@ use crate::mir::resolved_semantics::{
 };
 
 #[test]
-fn script_function_call_remains_r4_retained() {
+fn script_function_call_remains_deferred_to_runtime_retirement_terminal() {
     let source = PreparedNormalDefaultProgramRootV1::seal(ASTNode::Program {
         statements: vec![ASTNode::FunctionCall {
             name: "helper".to_owned(),

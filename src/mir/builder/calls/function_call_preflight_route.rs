@@ -55,12 +55,16 @@ enum PreparedRawFunctionPreflightRouteV1 {
 /// compatibility consumer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum RawCompatibilityOrdinaryCallTerminalV1 {
+    ScriptRootRetired,
     RawScriptRootRetired,
 }
 
 impl RawCompatibilityOrdinaryCallTerminalV1 {
     fn error(self) -> String {
         match self {
+            Self::ScriptRootRetired => {
+                "[freeze:contract][raw-compat/script-root-ordinary-retired]".to_owned()
+            }
             Self::RawScriptRootRetired => {
                 "[freeze:contract][raw-compat/raw-script-root-ordinary-retired]".to_owned()
             }
@@ -344,6 +348,11 @@ fn prepare_ordinary_function_completion_v1(
         PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
     ) {
         Err(RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired)
+    } else if matches!(
+        origin,
+        PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
+    ) {
+        Err(RawCompatibilityOrdinaryCallTerminalV1::ScriptRootRetired)
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledAppMain) {
         Ok(PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments })
     } else if let Some(caller) = caller {
@@ -382,8 +391,7 @@ fn prepare_ordinary_function_completion_v1(
         })
     } else if matches!(
         origin,
-        PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
-            | PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility
+        PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility
             | PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility
     ) {
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments })

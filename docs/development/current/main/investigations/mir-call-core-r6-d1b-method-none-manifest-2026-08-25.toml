@@ -607,6 +607,17 @@ negative_tests = [
   "changed test names are all matched by the recorded nonzero cargo --list filter and the run/list counts agree.",
 ]
 focused_gate = "CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_BUILD_JOBS=4 cargo test --profile quick --lib function_call_preflight_route::tests::script_compatibility_tests -- --test-threads=1; separately run the exact normal_script semantic retention filter if its test body/name changes; require nonzero --list matches"
+coverage_base_commit = "5546fc2b88"
+changed_test_names = [
+  "script_root_parked_compatibility_retires_before_arguments",
+  "script_function_call_remains_deferred_to_runtime_retirement_terminal",
+]
+focused_test_filters = [
+  "mir::builder::calls::function_call_preflight_route::tests::script_compatibility_tests::",
+  "mir::builder::normal_script_semantic_source::call_retention_tests::",
+]
+coverage_list_command = "CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_BUILD_JOBS=4 cargo test --profile quick --lib -- --list"
+coverage_list_count = 7503
 guard = "Extend the existing mir_call_d1b_active_surface_guard.py current-row phase only; no new shell guard, guard family, or registry row. Pin ScriptRoot -> Resolved = 0, RawLegacy -> Resolved retained, special precedence tokens, changed-test coverage, and touched source files below 760 lines."
 allowed_files = [
   "src/mir/builder/calls/function_call_preflight_route.rs",

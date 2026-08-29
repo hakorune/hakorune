@@ -7,21 +7,51 @@ use crate::mir::builder::calls::RawBrandCallAuthorityV1;
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 
 #[test]
-fn script_root_parked_compatibility_preserves_existing_resolved_terminal() {
-    let builder = MirBuilder::new();
+fn script_root_parked_compatibility_retires_before_arguments() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("script_root/0".to_owned());
+    let before_instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("test function")
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .count();
+    let mut port = RecordingPortV1::default();
     let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
         &builder,
         "helper".to_owned(),
-        vec![integer(1)],
+        vec![integer(1), integer(2)],
         RawBrandCallAuthorityV1::ScriptRootParkedCompatibility,
     );
 
     assert!(matches!(
         prepared.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::Resolved { .. }
-        }
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::ScriptRootRetired
+        )
     ));
+    let error =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+            .expect_err("ScriptRoot ordinary calls must retire before argument descent");
+    assert_eq!(
+        error,
+        "[freeze:contract][raw-compat/script-root-ordinary-retired]"
+    );
+    assert_eq!(port.expression_count, 0);
+    assert!(port.events.is_empty());
+    let after_instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("test function")
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .count();
+    assert_eq!(after_instructions, before_instructions);
 }
 
 #[test]
