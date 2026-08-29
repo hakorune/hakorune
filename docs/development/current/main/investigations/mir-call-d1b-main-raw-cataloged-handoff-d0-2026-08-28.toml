@@ -826,6 +826,12 @@ execution_row = "MIR-CALL-METHODIZE-D0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 implementation_permission = false
 decision = "Keep the Stage1 methodize=1 compatibility owner ParkedSealed until its route fate is explicit; the Rust unified-emitter producer may be removed only as a producer-local no-reclassification slice after parity is proven."
+worker_reaudit = "At HEAD 0965621e1e, Hako CallMethodizeBox is a possible future Stage1 dialect owner but not an explicit successor for the Rust producer: its input/output/lifecycle are serialized legacy call text, func registers, and a Hako finalize pass, without the Rust source owner/site/brand handoff."
+parity_gate = [
+    "A real RuntimeData + typed StaticBoxMethod Global fixture must execute the Rust producer; the existing phase2034 canary exercises Hako-side methodization and is not sufficient evidence.",
+    "Stage1 child output with methodize unset/0/1 must preserve target identity, args, dst, effects, and result on the selected backend, including stdout/return/fault behavior and no fallback/retry.",
+    "Only after the route fate and parity receipt are recorded may the existing lifecycle guard receive method_corridor_methodize_r0 and a producer-local deletion row open.",
+]
 source_authority = "Stage1 route contract and its focused methodized-output canary own the compatibility requirement; an incoming typed Callee::Global is the only value the Rust producer may preserve or pass through."
 non_authority = "HAKO_MIR_BUILDER_METHODIZE alone, RuntimeData classification, StaticMethodId/name/arity text, Method(None), receiver autoscan, args[0], VM/JSON/optimizer repair, and normal-product methodize=0."
 fail_fast_boundary = "No Rust branch removal is accepted until Stage1 output/backend parity is named; once opened, the producer must preserve incoming target, args, dst, effects, and result with no receiver synthesis or retry."
