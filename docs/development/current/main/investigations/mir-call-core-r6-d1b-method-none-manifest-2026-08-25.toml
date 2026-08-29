@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "Open MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0 as a design-only allocation/constructor carrier census. The selected-exact CorePlan chain is caller-zero and ParkedSealed; ordinary-new is the next finite family with an existing exact claim consumer, but its birth target carrier and N versus N+1 ABI must be reconciled before any implementation."
+smallest_next_slice = "Open MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0 as a design-only operator/env disposition census. The selected-exact CorePlan chain is caller-zero and ordinary-new is CarrierMismatch/ParkedSealed; operator/env has finite callers and existing non-Call lowering successors, but its public flag fate and prelude coupling must be decided before implementation."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -782,8 +782,8 @@ evidence = "four default-on production parse-back sites, not fixture-only"
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "ordinary_new_birth"
 owner = "ordinary_new_admission.rs and new_expression.rs"
-disposition = "CutoverBlockerOpen"
-evidence = "construction-owned static target publication requires its own NewBox/Call boundary"
+disposition = "ParkedSealed"
+evidence = "The exact allocation claim is consumed before arguments, but birth is only an Option<Box<str>> and the physical consumer reconstructs a StaticBoxMethod from class plus source arity; constructor semantic rows carry ConstructorSourceIdV1 while physical argv is N+1, so no exact typed product/carrier currently exists."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "cataloged_provider_as_free"
@@ -1990,15 +1990,61 @@ no_safe_slice = "Remain in design_stop if the selected-exact chain has no produc
 non_claims = "No generic CorePlan implementation, no production bridge, no source rescan, no new issuer/receipt, no physical thunk change, no Method(None)/Resolved change, no operator/rewrite/provider/new-birth work, no package/loan, VM/backend, JSON, or Call-schema change."
 evidence = "At HEAD 28c778424b, compose_located_generic_loop_v1 and CorePlanEffectEmissionPortV1::Claimed are referenced only by focused test modules; the production loop entry does not call the located composer. The existing source/site/brand/target claim chain is structurally exact but disconnected from production."
 reopen_trigger = "A real production caller consumes the existing located composer and claim chain in the same session, with exact source/site/brand/target claims and a declared value/statement result contract."
-next_execution = "parked_caller_zero__select_next_same_module_family"
+next_execution = "parked_carrier_mismatch__next_operator_env_disposition_d0"
+
+[same_module_operator_env_disposition_d0_2026_08_30]
+status = "queued_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape finite operator/env disposition census"
+implementation_permission = false
+decision = "Reconcile the three public operator/env flags, their six source ingresses, four SameModule target publishers, and the ALL_CALL prelude sibling before choosing retirement or retention. Existing arithmetic/comparison/unary non-Call lowering is a possible successor, but the flag fate and source contract are not authority until explicitly decided. No operator implementation or target replacement is opened in D0."
+source_authority = "The source operator enum/AST ingress owns operator meaning; existing arithmetic, comparison, and unary direct lowering own the non-Call successor candidates. The env getters and prelude only select compatibility behavior and do not issue targets."
+canonical_issuer = "No exact SameModule target issuer is identified for the env-selected operator branch. A later I0 may either consume an existing source-backed operator product or install one typed pre-effect retirement terminal after the public flag fate is accepted; D0 creates neither."
+non_authority = [
+  "builder_operator_box_all_call, builder_operator_box_add_call, builder_operator_box_compare_call values, hardcoded operator names, prelude injection, current-function guards, headers/registry, generated symbols, typed_global_target_from_selected_symbol, fixtures, fallback, and retry",
+  "operand/place/child effects, Const/ValueId/MIR Call, rewrite/known, ordinary-new, CorePlan, provider, physical thunk, Method(None), shared Resolved, VM/backend, JSON, and Call schema",
+]
+fail_fast_boundary = "If the accepted fate is retirement, the exact selector must terminate before module mutation, operand/place/child lowering, Const/ValueId allocation, or target publication; if the fate is retention, the existing source operator contract must be proven before those effects. ALL_CALL prelude coupling must be classified in the same boundary."
+census_boundary = "three operator env getters -> six production source ingresses -> four SameModule target publisher terminals -> existing arithmetic/comparison/unary non-Call lowering or typed pre-effect terminal; includes truthy/falsey/malformed/unset selector states, reentrant reads, negative-literal folding, and the ALL_CALL prelude injection sibling; excludes operator semantics implementation, rewrite/known, ordinary-new, CorePlan, provider, thunk, package/loan, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "selector owners: src/config/env/builder_flags.rs operator getters builder_operator_box_all_call, builder_operator_box_add_call, builder_operator_box_compare_call",
+  "source ingress owners: src/mir/builder/ops/compound_assignment.rs, src/mir/builder/raw_root_body_lowering.rs (two sites), ordinary binary descent, resolved lowerer, and unary prepared ingress",
+  "target publisher owners: src/mir/builder/ops/arithmetic.rs (two), src/mir/builder/ops/comparison.rs, and src/mir/builder/ops/unary.rs",
+  "compatibility sibling: ALL_CALL prelude injection/runner configuration that sets or observes the same selectors",
+  "direct successors: existing arithmetic, comparison, and unary non-Call lowering owners",
+]
+finite_states = [
+  "UnsetOrFalse: selector does not request the legacy target publisher; classify the existing direct non-Call route without adding a default target",
+  "TruthyCompatibility: explicit public opt-in requests the legacy operator target branch; retain only if its source/operator contract and terminal are named",
+  "MalformedSelector: non-boolean/non-finite selector is typed reject before effects; it must not fall through to truthy compatibility",
+  "PreludeMismatch: ALL_CALL prelude and source ingress disagree or a selector is written by an unowned sibling; typed blocker, no partial retirement",
+  "ReentrantOrDrifted: repeated selector read or source/operator/arity mismatch is a typed blocker with no retry",
+  "NegativeLiteralFold: unary/binary negative-literal handling has its own source shape and must not be counted as ordinary operator target publication",
+]
+ordered_tasks = [
+  "D0-A: derive the three selector owners, six source ingresses, four publishers, one prelude sibling, and three direct non-Call successors in both directions",
+  "D0-B: classify unset/false, explicit truthy, malformed, prelude mismatch, reentrant/drifted, and negative-literal states with one owner and terminal each",
+  "D0-C: decide the public fate of the truthy compatibility flag; do not silently change external invokers or reinterpret malformed values",
+  "D0-D: verify that a retirement terminal can run before operand/place/child effects, or ParkedSealed the family if no source-backed successor/terminal exists",
+  "I0: open only after the fate and boundary are accepted; retire or preserve one operator cohort atomically with prelude coupling and old target edge deletion",
+]
+acceptance = "The operator/env boundary is finite and two-directionally reconciled; all selector states have one owner/terminal; prelude coupling is included; non-Call successors are distinguished from target publishers; and no operator implementation, target synthesis, or production switch was added in D0."
+no_safe_slice = "Remain in design_stop if the public truthy flag fate is undecided, the prelude has an unowned writer, selector meaning needs env/name/prelude inference, the terminal occurs after operand/place/child effects, a source-backed operator product is missing, or the change crosses rewrite/known, ordinary-new, CorePlan, package/loan, VM/backend, JSON, Call schema, or the 760/800-line boundary."
+non_claims = "No operator semantics change, no arithmetic/comparison/unary implementation rewrite, no new target issuer/receipt, no rewrite/known or ordinary-new work, no Method(None)/Resolved change, no package/loan, no VM/backend/JSON, no Call-schema change, and no fallback/retry."
+reopen_trigger = "The public selector fate is explicitly accepted and either an existing source-backed operator product/terminal is identified or a typed pre-effect retirement contract is chosen, including the ALL_CALL prelude writer and all six source ingresses."
+next_execution = "none_until_operator_env_fate_d0"
 
 [same_module_ordinary_new_birth_target_d0_2026_08_30]
-status = "queued_design_stop"
+status = "parked_sealed"
 task_id = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 box_kind = "BoxShape finite allocation/constructor carrier audit"
 implementation_permission = false
+disposition = "ParkedSealed"
+owner = "normal_callable_semantic_package ordinary-new co-seal and selected-normal physical admission"
 decision = "Audit the existing ordinary-new allocation claim, parser-issued instance-constructor row, and physical consumer as one finite boundary before opening implementation. The current consumer already takes an exact allocation claim before argument descent, but it still constructs a birth target from class plus source argument count; D0 must prove an existing exact constructor product and reconcile source arity N with physical argv arity N+1. Do not add a new issuer, resolver, or compatibility bridge in this row."
 source_authority = "Existing OrdinaryNewAdmissionClaimV1 keyed by OwnedExprSiteV1 and parser-issued ConstructorSourceIdV1/VerifiedInstanceConstructorSemanticRowV1 for the same selected-normal package and source-backed constructor declaration. These products may be joined only when the same package/session and exact allocation/constructor relation are already present."
 canonical_issuer = "No new issuer in D0. A later I0 may consume an existing exact constructor product only if the allocation site, constructor source identity, class, birth arity, and same-session brand/owner relation are unique; otherwise the family remains typed reject or ParkedSealed."
@@ -2033,5 +2079,6 @@ ordered_tasks = [
 acceptance = "The ordinary-new boundary is finite and two-directionally reconciled; every exact allocation site has one constructor state/owner; birth text and class/arity lookup are non-authority; source N versus physical argv N+1 is either represented by an existing carrier or explicitly ParkedSealed; and no production implementation or new semantic receipt was added in D0."
 no_safe_slice = "Remain in design_stop if the join requires class/name/arity search, AST re-scan, header/slot/plugin lookup, a new semantic issuer, a new ABI/carrier or Call-schema change, argument/NewBox effects must precede the terminal, no-claim paths must be mixed in, or the 760/800-line boundary would be crossed."
 non_claims = "No ordinary-new implementation, no birth target reconstruction, no field-initializer or constructor-body change, no CorePlan/operator/provider/rewrite/thunk work, no Method(None)/Resolved change, no package/loan generalization, no VM/backend/JSON, no Call-schema change, and no fallback/retry."
+evidence = "At HEAD 3fdf154e90, issue_ordinary_new_claims_v1 emits an OwnedExprSiteV1/class/arity/birth-text claim, while lower_ordinary_raw_new_with_port_v1 takes that claim before arguments but constructs CanonicalGlobalTargetV1 from class plus argument count. Parser-issued ConstructorSourceIdV1/VerifiedInstanceConstructorSemanticRowV1 is consumed by the constructor-body lane, not joined to the allocation claim; the birth target uses method arity N while the physical argv carries dst plus N arguments."
 reopen_trigger = "A same-session source-backed constructor product with exact allocation-site relation and a carrier that explicitly distinguishes method arity N from physical argv arity N+1 is identified, or an explicit language/ABI decision selects typed pre-effect retirement/replacement."
-next_execution = "none_until_ordinary_new_carrier_d0"
+next_execution = "parked_carrier_mismatch__next_operator_env_disposition_d0"

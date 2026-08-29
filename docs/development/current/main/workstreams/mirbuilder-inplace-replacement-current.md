@@ -79,11 +79,12 @@ semantic receipt are not shortcuts. The selected-exact CorePlan reachability
 audit is also `ParkedSealed`: its source/site/brand/target claim chain is
 structurally exact but caller-zero in production. The next bounded design
 candidate (the parent pointer remains the authority) is
-`MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0`, a read-only census of
-the existing allocation claim, parser constructor row, and physical carrier.
-Its first question is whether source constructor arity N and physical argv
-arity N+1 already have an exact typed carrier; no production bridge or
-ordinary-new implementation is permitted in D0.
+`MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0`, a read-only census of
+the three public selectors, six source ingresses, four target publishers, and
+the ALL_CALL prelude sibling. Ordinary-new is separately `CarrierMismatch`/
+`ParkedSealed`: its claim is consumed before arguments, but birth text is not
+an exact constructor product and source arity N conflicts with physical argv
+N+1. No operator implementation or production switch is permitted in D0.
 
 ## Historical rolling context (non-authoritative)
 
