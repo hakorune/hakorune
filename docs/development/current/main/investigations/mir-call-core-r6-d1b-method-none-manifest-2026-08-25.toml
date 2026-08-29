@@ -855,6 +855,7 @@ allowed_files = [
   "src/mir/builder/calls/member_route.rs",
   "src/mir/builder/calls/static_result_publication_physical_bridge.rs",
   "src/mir/builder/calls/method_call_terminal.rs",
+  "src/mir/builder/README.md",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/lib/mir_call_d1b_same_module_target_only_guard.py",
   "docs/development/current/main/CURRENT_STATE.toml",

@@ -12,12 +12,14 @@ use super::super::static_result_publication_ingress::{
 };
 use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
-use super::lower_selected_static_result_publication_v1;
 use super::method_call_descent::{
     lower_method_call_receiver_v1, AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1,
 };
 use super::receiver_binding::ReceiverNormalizationPlan;
 use super::script_direct_static_physical_bridge::lower_claimed_script_direct_static_v1;
+use super::{
+    lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
+};
 use crate::ast::ASTNode;
 
 pub(in crate::mir::builder) enum MemberCallRoutePlan {
@@ -104,10 +106,19 @@ impl MirBuilder {
                                     handoff,
                                 )
                             }
-                            Ok(
-                                StaticResultPublicationIngressV1::Unavailable
-                                | StaticResultPublicationIngressV1::Absent,
-                            ) => {
+                            Ok(StaticResultPublicationIngressV1::TargetOnly(target)) => {
+                                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                                lower_target_only_static_result_publication_v1(
+                                    self,
+                                    &mut descent,
+                                    target,
+                                )
+                            }
+                            Ok(StaticResultPublicationIngressV1::NoExactStaticTarget) => Err(
+                                "[freeze:contract][static-result-ingress/no-exact-static-target]"
+                                    .to_owned(),
+                            ),
+                            Ok(StaticResultPublicationIngressV1::Unavailable) => {
                                 let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
                                 self.handle_static_method_call_with_descent(
                                     &box_name,

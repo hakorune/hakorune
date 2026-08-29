@@ -69,6 +69,7 @@ def check_ordinary_static_target_only_i0(
         member,
         bridge,
         terminal,
+        "src/mir/builder/README.md",
         str(api.HELPER_REL),
         "tools/checks/lib/mir_call_d1b_same_module_target_only_guard.py",
         str(api.STATE_REL),
@@ -88,8 +89,6 @@ def check_ordinary_static_target_only_i0(
 
     texts = {rel: _text(root, rel) for rel in (owner, owner_tests, ingress, handlers, member, bridge, terminal)}
     if row.get("status") == "fast_open":
-        if "StaticCallResultPublicationTakeV1::Unselected" not in texts[owner]:
-            api.fail("target-only I0 precondition disappeared before implementation")
         return
 
     for rel in (owner, ingress, handlers, member, bridge):
@@ -106,7 +105,13 @@ def check_ordinary_static_target_only_i0(
         api.fail("target-only I0 lacks the physical target-only consumer")
     if "emit_static_global_target_value_terminal_v1" not in texts[terminal]:
         api.fail("target-only I0 lacks a typed-target terminal")
-    for test_name in row.get("changed_test_names", []):
+    changed_test_names = row.get("changed_test_names")
+    if not isinstance(changed_test_names, list) or not changed_test_names:
+        api.fail("target-only I0 must record its changed focused tests")
+    for test_name in changed_test_names:
         if not isinstance(test_name, str) or f"fn {test_name}(" not in texts[owner_tests] + texts[ingress]:
             api.fail(f"target-only I0 focused test is missing: {test_name}")
-
+    projection_at = texts[bridge].find("canonical_global_target_v1()")
+    descent_at = texts[bridge].find("descent.lower_all(builder)")
+    if projection_at < 0 or descent_at < 0 or projection_at > descent_at:
+        api.fail("target-only I0 must project the typed target before argument descent")

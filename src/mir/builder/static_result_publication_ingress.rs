@@ -1,8 +1,9 @@
 //! Effect-free ingress for the source-bound static result publication owner.
 //!
-//! The ingress keeps four states distinct.  A compatibility port is
-//! `Unavailable`, an exact Cataloged site with no row is `Absent`, an owned
-//! row is `Selected`, and any source-backed loss or drift is a typed error.
+//! The ingress keeps target and result states distinct.  A compatibility port
+//! is `Unavailable`; an exact Cataloged site may be `Selected` or `TargetOnly`;
+//! a site with no exact target is `NoExactStaticTarget`; source loss/drift is
+//! a typed error.
 //! No terminal, AST matcher, or target resolver lives here.
 
 use std::fmt;
@@ -34,7 +35,8 @@ enum StaticResultPublicationSourceClassV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum StaticResultPublicationIngressV1 {
     Unavailable,
-    Absent,
+    NoExactStaticTarget,
+    TargetOnly(CanonicalSameModuleCallableKeyV1),
     Selected(VerifiedStaticCallResultPublicationHandoffV1),
 }
 
@@ -170,7 +172,12 @@ fn take_cataloged_publication_v1(
             other => StaticResultPublicationIngressErrorV1::HandoffTake(other),
         })?;
     Ok(match decision {
-        StaticCallResultPublicationTakeV1::Unselected => StaticResultPublicationIngressV1::Absent,
+        StaticCallResultPublicationTakeV1::NoExactStaticTarget => {
+            StaticResultPublicationIngressV1::NoExactStaticTarget
+        }
+        StaticCallResultPublicationTakeV1::TargetOnly(target) => {
+            StaticResultPublicationIngressV1::TargetOnly(target)
+        }
         StaticCallResultPublicationTakeV1::Selected(handoff) => {
             StaticResultPublicationIngressV1::Selected(handoff)
         }
@@ -232,10 +239,10 @@ mod tests {
     }
 
     #[test]
-    fn state_vocabulary_keeps_unavailable_and_absent_distinct() {
+    fn state_vocabulary_keeps_unavailable_and_no_exact_target_distinct() {
         assert_ne!(
             StaticResultPublicationIngressV1::Unavailable,
-            StaticResultPublicationIngressV1::Absent
+            StaticResultPublicationIngressV1::NoExactStaticTarget
         );
     }
 

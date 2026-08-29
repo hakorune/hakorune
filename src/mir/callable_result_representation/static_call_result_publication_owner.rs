@@ -4,7 +4,7 @@
 //! move-only handoffs.  It is intentionally AST/Builder/MIR-free; the raw
 //! terminal may consume one row by exact caller/site/target identity.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
@@ -45,7 +45,12 @@ pub(crate) enum StaticCallResultPublicationOwnerErrorV1 {
 pub(crate) enum StaticCallResultPublicationOwnerTakeErrorV1 {
     OwnerUnavailable,
     CatalogBrandMismatch,
-    SelectedRowAlreadyConsumed {
+    RowAlreadyConsumed {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    },
+    TargetDispositionMissing {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceExprSiteV1,
         target: CanonicalSameModuleCallableKeyV1,
@@ -54,7 +59,8 @@ pub(crate) enum StaticCallResultPublicationOwnerTakeErrorV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum StaticCallResultPublicationTakeV1 {
-    Unselected,
+    NoExactStaticTarget,
+    TargetOnly(CanonicalSameModuleCallableKeyV1),
     Selected(VerifiedStaticCallResultPublicationHandoffV1),
 }
 
@@ -66,7 +72,15 @@ pub(crate) enum StaticCallResultPublicationTakeV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedStaticCallResultPublicationOwnerV1 {
     catalog_identity: usize,
+    exact_targets: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        CanonicalSameModuleCallableKeyV1,
+    >,
     selected_targets: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        CanonicalSameModuleCallableKeyV1,
+    >,
+    target_only_targets: BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
         CanonicalSameModuleCallableKeyV1,
     >,
@@ -74,6 +88,7 @@ pub(crate) struct VerifiedStaticCallResultPublicationOwnerV1 {
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
         VerifiedStaticCallResultPublicationHandoffV1,
     >,
+    consumed_sites: BTreeSet<(CanonicalSameModuleCallableKeyV1, SourceExprSiteV1)>,
 }
 
 impl VerifiedStaticCallResultPublicationOwnerV1 {
@@ -89,10 +104,14 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             return Err(StaticCallResultPublicationOwnerErrorV1::ResultCatalogBrandMismatch);
         }
         let catalog_identity = declarations as *const _ as usize;
+        let mut exact_targets = BTreeMap::new();
         let mut selected_targets = BTreeMap::new();
+        let mut target_only_targets = BTreeMap::new();
         let mut rows = BTreeMap::new();
         for ((caller, site), source_target) in targets.rows() {
             let key = (caller.clone(), site.clone());
+            let expected = source_target.target().clone();
+            insert_exact_target(&mut exact_targets, key.clone(), expected.clone())?;
             if let Some(general) = results.call_result(caller, site) {
                 let actual = general.static_target_key().ok_or_else(|| {
                     StaticCallResultPublicationOwnerErrorV1::GeneralRowMustBeSameModuleStatic {
@@ -100,8 +119,7 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                         site: site.clone(),
                     }
                 })?;
-                let expected = source_target.target();
-                if actual != expected {
+                if actual != &expected {
                     return Err(
                         StaticCallResultPublicationOwnerErrorV1::GeneralRowTargetMismatch {
                             caller: caller.clone(),
@@ -124,13 +142,7 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                             site: site.clone(),
                         }
                     })?;
-                insert_selected(
-                    &mut selected_targets,
-                    &mut rows,
-                    key,
-                    expected.clone(),
-                    handoff,
-                )?;
+                insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
                 continue;
             }
             let requirement = match project_static_exact_i64_requirement_v1(
@@ -141,7 +153,10 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
                 results,
             ) {
                 Ok(requirement) => requirement,
-                Err(StaticExactI64RequirementErrorV1::TargetResultUnavailable) => continue,
+                Err(StaticExactI64RequirementErrorV1::TargetResultUnavailable) => {
+                    insert_target_only(&mut target_only_targets, key, expected)?;
+                    continue;
+                }
                 Err(cause) => {
                     return Err(StaticCallResultPublicationOwnerErrorV1::Projection {
                         caller: caller.clone(),
@@ -153,18 +168,15 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             let handoff = VerifiedStaticCallResultPublicationHandoffV1::from_exact_i64_requirement(
                 requirement,
             );
-            insert_selected(
-                &mut selected_targets,
-                &mut rows,
-                key,
-                source_target.target().clone(),
-                handoff,
-            )?;
+            insert_selected(&mut selected_targets, &mut rows, key, expected, handoff)?;
         }
         Ok(Self {
             catalog_identity,
+            exact_targets,
             selected_targets,
+            target_only_targets,
             rows,
+            consumed_sites: BTreeSet::new(),
         })
     }
 
@@ -183,19 +195,81 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             return Err(StaticCallResultPublicationOwnerTakeErrorV1::CatalogBrandMismatch);
         }
         let key = (caller.clone(), site.clone());
-        let Some(expected) = self.selected_targets.get(&key) else {
-            return Ok(StaticCallResultPublicationTakeV1::Unselected);
-        };
-        let expected = expected.clone();
-        let handoff = self.rows.remove(&key).ok_or_else(|| {
-            StaticCallResultPublicationOwnerTakeErrorV1::SelectedRowAlreadyConsumed {
-                caller: caller.clone(),
-                site: site.clone(),
-                target: expected,
+        if let Some(expected) = self.exact_targets.get(&key).cloned() {
+            if self.consumed_sites.contains(&key) {
+                return Err(
+                    StaticCallResultPublicationOwnerTakeErrorV1::RowAlreadyConsumed {
+                        caller: caller.clone(),
+                        site: site.clone(),
+                        target: expected,
+                    },
+                );
             }
-        })?;
-        Ok(StaticCallResultPublicationTakeV1::Selected(handoff))
+            if let Some(target) = self.target_only_targets.remove(&key) {
+                self.consumed_sites.insert(key);
+                return Ok(StaticCallResultPublicationTakeV1::TargetOnly(target));
+            }
+            if self.selected_targets.contains_key(&key) {
+                let handoff = self.rows.remove(&key).ok_or_else(|| {
+                    StaticCallResultPublicationOwnerTakeErrorV1::TargetDispositionMissing {
+                        caller: caller.clone(),
+                        site: site.clone(),
+                        target: expected.clone(),
+                    }
+                })?;
+                self.consumed_sites.insert(key);
+                return Ok(StaticCallResultPublicationTakeV1::Selected(handoff));
+            }
+            return Err(
+                StaticCallResultPublicationOwnerTakeErrorV1::TargetDispositionMissing {
+                    caller: caller.clone(),
+                    site: site.clone(),
+                    target: expected,
+                },
+            );
+        }
+        Ok(StaticCallResultPublicationTakeV1::NoExactStaticTarget)
     }
+}
+
+fn insert_exact_target(
+    exact_targets: &mut BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        CanonicalSameModuleCallableKeyV1,
+    >,
+    key: (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+    target: CanonicalSameModuleCallableKeyV1,
+) -> Result<(), StaticCallResultPublicationOwnerErrorV1> {
+    if exact_targets.contains_key(&key) {
+        return Err(
+            StaticCallResultPublicationOwnerErrorV1::DuplicateSelection {
+                caller: key.0.clone(),
+                site: key.1.clone(),
+            },
+        );
+    }
+    exact_targets.insert(key, target);
+    Ok(())
+}
+
+fn insert_target_only(
+    target_only_targets: &mut BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        CanonicalSameModuleCallableKeyV1,
+    >,
+    key: (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+    target: CanonicalSameModuleCallableKeyV1,
+) -> Result<(), StaticCallResultPublicationOwnerErrorV1> {
+    if target_only_targets.contains_key(&key) {
+        return Err(
+            StaticCallResultPublicationOwnerErrorV1::DuplicateSelection {
+                caller: key.0.clone(),
+                site: key.1.clone(),
+            },
+        );
+    }
+    target_only_targets.insert(key, target);
+    Ok(())
 }
 
 fn insert_selected(

@@ -1003,25 +1003,28 @@ the existing static route. The ingress validates the row before moving it to
 ## Static-result publication ingress fail-fast P0
 
 `static_result_publication_ingress.rs` is the pre-descent capability boundary
-for the existing Cataloged static-result owner. It keeps four outcomes
-separate: `Unavailable` means that a compatibility/test port has no
-source-bound publication capability; `Absent` means an exact Cataloged site
-and owner are present but no row was issued; `Selected` consumes one existing
-publication handoff; and owner-backed source loss or drift is a typed freeze
-error. A Cataloged `expected_lineage` demoted to `UnlocatedCompatibility` is
-therefore never treated as ordinary `None`.
+for the existing Cataloged static-result owner. It keeps target and result
+states separate: `Unavailable` means that a compatibility/test port has no
+source-bound publication capability; `NoExactStaticTarget` means the exact
+Cataloged source site has no issued static target; `TargetOnly` transports an
+already-issued exact target without inventing a result handoff; and `Selected`
+consumes one existing publication handoff. Owner-backed source loss or drift
+is a typed freeze error. A Cataloged `expected_lineage` demoted to
+`UnlocatedCompatibility` is therefore never treated as ordinary `None`.
 
 The `StaticReceiver` route head and lowered static `me` route invoke this
 ingress before receiver/argument effects. For the qualified Cataloged path,
 the ingress selects the existing handoff by `(caller, SourceExprSiteV1)`;
 owner/method/arity strings are route metadata only. A selected row reuses the
 existing ordered argument driver, generic Call receipt emitter, and
-`PreparedStaticCallResultPublicationV1`; no second target resolver, Call
-emitter, publication owner, AST matcher, or late terminal hook exists. Only
-the exact no-row `Absent` state may continue through the ordinary terminal.
-Ledger-free Compatibility, Deferred, RawLegacy, and non-Cataloged roots remain
-`Unavailable`; an owner-backed missing or foreign source is a typed freeze and
-is never promoted by this P0. The reusable
+`PreparedStaticCallResultPublicationV1`; a `TargetOnly` row projects its
+already-owned canonical target, lowers arguments once, and uses the same typed
+terminal without result inference. No second target resolver, Call emitter,
+publication owner, AST matcher, or late terminal hook exists. `NoExactStaticTarget`
+is a typed pre-effect terminal and never falls through to the ordinary
+compatibility route. Ledger-free Compatibility, Deferred, RawLegacy, and
+non-Cataloged roots remain `Unavailable`; an owner-backed missing or foreign
+source is a typed freeze and is never promoted by this P0. The reusable
 `script_static_result_publication_ingress_guard.sh` pins the complete outcome
 table and the no-fallback boundary.
 

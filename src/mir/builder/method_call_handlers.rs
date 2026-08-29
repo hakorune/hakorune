@@ -6,7 +6,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
-use crate::mir::builder::calls::lower_selected_static_result_publication_v1;
+use crate::mir::builder::calls::{
+    lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
+};
 use crate::mir::builder::calls::{
     AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
     MethodCallValueTerminalPortV1, StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
@@ -208,10 +210,17 @@ impl MeCallPolicyBox {
                     return lower_selected_static_result_publication_v1(builder, descent, handoff)
                         .map(Some)
                 }
-                Ok(
-                    StaticResultPublicationIngressV1::Unavailable
-                    | StaticResultPublicationIngressV1::Absent,
-                ) => {}
+                Ok(StaticResultPublicationIngressV1::TargetOnly(target)) => {
+                    return lower_target_only_static_result_publication_v1(builder, descent, target)
+                        .map(Some)
+                }
+                Ok(StaticResultPublicationIngressV1::NoExactStaticTarget) => {
+                    return Err(
+                        "[freeze:contract][static-result-ingress/no-exact-static-target]"
+                            .to_owned(),
+                    )
+                }
+                Ok(StaticResultPublicationIngressV1::Unavailable) => {}
             }
         }
         Self::execute(builder, method, arguments, descent, prepared)

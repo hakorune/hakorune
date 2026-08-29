@@ -71,7 +71,7 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
     assert_eq!(
         owner.take_for_source(&declarations, &caller, &call_site()),
         Err(
-            StaticCallResultPublicationOwnerTakeErrorV1::SelectedRowAlreadyConsumed {
+            StaticCallResultPublicationOwnerTakeErrorV1::RowAlreadyConsumed {
                 caller,
                 site: call_site(),
                 target,
@@ -104,7 +104,7 @@ fn source_keyed_take_rejects_wrong_site_and_foreign_catalog() {
         owner
             .take_for_source(&declarations, &caller, &digit_call_site())
             .expect("wrong-site lookup remains well-formed"),
-        StaticCallResultPublicationTakeV1::Unselected
+        StaticCallResultPublicationTakeV1::NoExactStaticTarget
     );
 
     let foreign_declarations = super::support::declarations(SOURCE);
@@ -213,7 +213,7 @@ fn exact_nominal_box_row_reaches_the_owned_publication_handoff() {
 }
 
 #[test]
-fn exact_source_target_without_an_i64_result_stays_unselected() {
+fn exact_source_target_without_an_i64_result_stays_target_only() {
     let source = r#"
         static box TextOwner {
             caller() { return me.text() }
@@ -248,7 +248,11 @@ fn exact_source_target_without_an_i64_result_stays_unselected() {
     assert_eq!(
         owner
             .take_for_source(&declarations, &caller, &call_site)
-            .expect("unselected lookup remains well-formed"),
-        StaticCallResultPublicationTakeV1::Unselected
+            .expect("target-only lookup remains well-formed"),
+        StaticCallResultPublicationTakeV1::TargetOnly(key(&declarations, "TextOwner", "text", 0,))
     );
+    assert!(matches!(
+        owner.take_for_source(&declarations, &caller, &call_site),
+        Err(StaticCallResultPublicationOwnerTakeErrorV1::RowAlreadyConsumed { .. })
+    ));
 }

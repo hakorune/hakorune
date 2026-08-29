@@ -84,7 +84,9 @@ pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPor
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
-pub(in crate::mir::builder) use static_result_publication_physical_bridge::lower_selected_static_result_publication_v1;
+pub(in crate::mir::builder) use static_result_publication_physical_bridge::{
+    lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
+};
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
