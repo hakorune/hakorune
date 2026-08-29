@@ -287,7 +287,7 @@ fn emit_global_value_terminal_with_lookup_v1(
     arguments: Vec<ValueId>,
     lookup: Option<&dyn crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1>,
 ) -> Result<(ValueId, String), String> {
-    let request = PreparedGlobalValueCallRequestV1::prepare(
+    let request = PreparedOrdinaryGlobalValueCallRequestV1::prepare(
         builder,
         owner,
         method,
@@ -304,45 +304,14 @@ fn emit_global_value_terminal_with_lookup_v1(
     Ok((request.destination, target))
 }
 
-/// Receipt-required sibling for a source-neutral static/global value request.
-///
-/// The ordinary terminal keeps its compatibility behavior. This sibling
-/// accepts only the existing generic physical Call terminal, so rewrites,
-/// BoxCall, legacy compatibility, a missing destination, and failed emission
-/// cannot produce a receipt.
-pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1(
-    builder: &mut MirBuilder,
-    owner: &str,
-    method: &str,
-    checked_source_arity: u32,
-    arguments: Vec<ValueId>,
-) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
-    let request = PreparedGlobalValueCallRequestV1::prepare(
-        builder,
-        owner,
-        method,
-        checked_source_arity,
-        arguments,
-    );
-    // This terminal is entered only after an exact source-bound result demand
-    // was selected.  Signature annotation would be a second result publisher;
-    // the caller commits that demand after this physical receipt succeeds.
-    UnifiedCallEmitterBox::emit_unified_value_call_with_external_result_publication_receipt_v1(
-        builder,
-        request.destination,
-        request.target,
-        request.arguments,
-    )
-}
-
-struct PreparedGlobalValueCallRequestV1 {
+struct PreparedOrdinaryGlobalValueCallRequestV1 {
     destination: ValueId,
     symbol: String,
     target: CallTarget,
     arguments: Vec<ValueId>,
 }
 
-impl PreparedGlobalValueCallRequestV1 {
+impl PreparedOrdinaryGlobalValueCallRequestV1 {
     fn prepare(
         builder: &mut MirBuilder,
         owner: &str,
@@ -364,6 +333,29 @@ impl PreparedGlobalValueCallRequestV1 {
             arguments,
         }
     }
+}
+
+/// Receipt-required sibling for a source-neutral static/global value request.
+///
+/// The ordinary terminal keeps its compatibility behavior. This sibling
+/// accepts only the existing generic physical Call terminal, so rewrites,
+/// BoxCall, legacy compatibility, a missing destination, and failed emission
+/// cannot produce a receipt.
+pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1(
+    builder: &mut MirBuilder,
+    target: CanonicalGlobalTargetV1,
+    arguments: Vec<ValueId>,
+) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
+    let destination = builder.next_value_id();
+    // This terminal is entered only after an exact source-bound result demand
+    // was selected.  Signature annotation would be a second result publisher;
+    // the caller commits that demand after this physical receipt succeeds.
+    UnifiedCallEmitterBox::emit_unified_value_call_with_external_result_publication_receipt_v1(
+        builder,
+        destination,
+        CallTarget::Global(target),
+        arguments,
+    )
 }
 
 pub(in crate::mir::builder) fn emit_env_value_terminal_raw_v1(

@@ -508,13 +508,23 @@ def check_static_receipt_target_before_args_i0(
                 api.fail(f"static receipt I0 precondition disappeared: {token}")
         return
 
-    if "target: CanonicalGlobalTargetV1" not in terminal:
+    receipt_start = terminal.find(
+        "pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1"
+    )
+    receipt_end = terminal.find(
+        "pub(in crate::mir::builder) fn emit_env_value_terminal_raw_v1",
+        receipt_start,
+    )
+    if receipt_start < 0 or receipt_end < 0 or receipt_end <= receipt_start:
+        api.fail("static receipt I0 terminal boundary is missing")
+    receipt = terminal[receipt_start:receipt_end]
+    if "target: CanonicalGlobalTargetV1" not in receipt:
         api.fail("static receipt I0 terminal does not consume the typed target")
     for token in (
         "struct PreparedGlobalValueCallRequestV1",
         "CanonicalGlobalTargetV1::new_static_box_method",
     ):
-        if token in terminal:
+        if token in receipt:
             api.fail(f"static receipt I0 left terminal reconstruction: {token}")
     order_tokens = (
         (production_rels[0], ".canonical_global_target_v1()", ".lower_all(builder)"),

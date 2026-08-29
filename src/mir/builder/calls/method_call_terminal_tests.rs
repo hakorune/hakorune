@@ -2,6 +2,7 @@ use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallabl
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::{Callee, ConstValue, EffectMask, MirBuilder, MirInstruction, MirType};
 use crate::parser::NyashParser;
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_terminal::{
@@ -22,6 +23,11 @@ fn builder(name: &str) -> MirBuilder {
         .unwrap();
     builder.enter_function_for_test(name.to_string());
     builder
+}
+
+fn static_target(owner: &str, method: &str, arity: u32) -> CanonicalGlobalTargetV1 {
+    CanonicalGlobalTargetV1::new_static_box_method(owner.into(), method.into(), arity)
+        .expect("valid static target")
 }
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
@@ -223,9 +229,7 @@ fn static_global_receipt_matches_the_successful_physical_call_destination() {
         let right = crate::mir::builder::emission::constant::emit_integer(&mut builder, 4).unwrap();
         let receipt = emit_static_global_value_terminal_with_receipt_v1(
             &mut builder,
-            "TerminalCatalogOwner",
-            "call",
-            2,
+            static_target("TerminalCatalogOwner", "call", 2),
             vec![left, right],
         )
         .expect("source-neutral static/global receipt");
@@ -248,14 +252,38 @@ fn static_global_receipt_matches_the_successful_physical_call_destination() {
 }
 
 #[test]
+fn static_global_receipt_publishes_the_owned_typed_target() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder("terminal_global_receipt_typed_target/0");
+        let target = static_target("TerminalCatalogOwner", "call", 0);
+        let expected = target.clone();
+        let receipt =
+            emit_static_global_value_terminal_with_receipt_v1(&mut builder, target, vec![])
+                .expect("typed target receipt");
+
+        let emitted = instructions(&builder);
+        let actual = emitted.iter().find_map(|instruction| match instruction {
+            MirInstruction::Call {
+                dst,
+                callee: Some(Callee::Global(actual)),
+                args,
+                ..
+            } if *dst == Some(receipt.final_destination()) && args.is_empty() => {
+                Some(actual.clone())
+            }
+            _ => None,
+        });
+        assert_eq!(actual, Some(expected));
+    });
+}
+
+#[test]
 fn static_global_receipt_rejects_disabled_unified_without_legacy_retry() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
         let mut receipt_builder = builder("terminal_global_receipt_disabled/0");
         let error = emit_static_global_value_terminal_with_receipt_v1(
             &mut receipt_builder,
-            "TerminalCatalogOwner",
-            "call",
-            0,
+            static_target("TerminalCatalogOwner", "call", 0),
             vec![],
         )
         .expect_err("receipt-required terminal must not use legacy compatibility");
@@ -288,9 +316,7 @@ fn failed_static_global_call_emission_issues_no_receipt() {
         builder.function_state.current_block = None;
         let error = emit_static_global_value_terminal_with_receipt_v1(
             &mut builder,
-            "TerminalCatalogOwner",
-            "call",
-            0,
+            static_target("TerminalCatalogOwner", "call", 0),
             vec![],
         )
         .expect_err("failed physical Call must issue no receipt");

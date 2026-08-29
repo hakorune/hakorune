@@ -22,19 +22,19 @@ where
     Port: MethodCallDescentPortV1,
 {
     let (demand, _required_i64_arguments) = handoff.consume();
-    let target = demand.target().clone();
+    let target_key = demand.target().clone();
+    let target = target_key.canonical_global_target_v1().map_err(|error| {
+        format!("[freeze:contract][static-result-bridge/target-projection] {error}")
+    })?;
     let argument_values = descent.lower_all(builder)?;
-    if argument_values.len() != target.arity() as usize {
+    if argument_values.len() != target_key.arity() as usize {
         return Err("[freeze:contract][static-result-bridge/physical-arity]".to_owned());
     }
-    let emission = emit_static_global_value_terminal_with_receipt_v1(
-        builder,
-        target.owner(),
-        target.name(),
-        target.arity(),
-        argument_values,
-    )
-    .map_err(|error| format!("[freeze:contract][static-result-bridge/call-receipt] {error:?}"))?;
+    let emission =
+        emit_static_global_value_terminal_with_receipt_v1(builder, target, argument_values)
+            .map_err(|error| {
+                format!("[freeze:contract][static-result-bridge/call-receipt] {error:?}")
+            })?;
     let publication = PreparedStaticCallResultPublicationV1::prepare(demand, emission);
     let destination = publication.destination();
     publication.commit(builder)?;

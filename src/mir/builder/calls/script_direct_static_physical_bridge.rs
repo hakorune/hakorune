@@ -23,6 +23,7 @@ use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum ScriptDirectStaticPhysicalBridgeErrorV1 {
     TargetMismatch,
+    TargetProjection(String),
     RequiredArgumentProof(String),
     ArgumentDescent(String),
     PhysicalArity { expected: u32, actual: usize },
@@ -37,6 +38,10 @@ impl std::fmt::Display for ScriptDirectStaticPhysicalBridgeErrorV1 {
             Self::TargetMismatch => {
                 write!(formatter, "[freeze:contract][script-direct-static/physical-target]")
             }
+            Self::TargetProjection(detail) => write!(
+                formatter,
+                "[freeze:contract][script-direct-static/target-projection] {detail}"
+            ),
             Self::RequiredArgumentProof(detail) => write!(
                 formatter,
                 "[freeze:contract][script-direct-static/required-argument-proof] {detail}"
@@ -74,8 +79,11 @@ pub(super) fn lower_claimed_script_direct_static_v1<Port>(
 where
     Port: MethodCallDescentPortV1 + RecursiveChildLoweringPortV1,
 {
-    let target = claimed.target().clone();
-    validate_claimed_target_v1(&target, claimed.argument_sites().len())?;
+    let target_key = claimed.target().clone();
+    validate_claimed_target_v1(&target_key, claimed.argument_sites().len())?;
+    let target = target_key
+        .canonical_global_target_v1()
+        .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::TargetProjection)?;
     claimed.consume_required_argument_proof().map_err(|error| {
         ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(error.to_owned())
     })?;
@@ -84,21 +92,16 @@ where
     let argument_values = descent
         .lower_all(builder)
         .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::ArgumentDescent)?;
-    if argument_values.len() != target.arity() as usize {
+    if argument_values.len() != target_key.arity() as usize {
         return Err(ScriptDirectStaticPhysicalBridgeErrorV1::PhysicalArity {
-            expected: target.arity(),
+            expected: target_key.arity(),
             actual: argument_values.len(),
         });
     }
 
-    let emission = emit_static_global_value_terminal_with_receipt_v1(
-        builder,
-        target.owner(),
-        target.name(),
-        target.arity(),
-        argument_values,
-    )
-    .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::CallReceipt)?;
+    let emission =
+        emit_static_global_value_terminal_with_receipt_v1(builder, target, argument_values)
+            .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::CallReceipt)?;
 
     let publication =
         PreparedScriptDirectStaticResultPublicationV1::prepare(claimed.representation(), emission)

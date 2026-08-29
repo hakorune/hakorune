@@ -18,15 +18,15 @@ digest_algorithm = "sha256(path\\0count\\n)"
 id = "callee-global"
 token = "Callee::Global"
 expected_files = 143
-expected_occurrences = 266
-site_digest = "c7a850f65cba0e4975cd18064e1f2af7c40b699861f6dced4e0fd6c639aaae3d"
+expected_occurrences = 267
+site_digest = "a32b5f59d6ec856da19c9643afae0e571fabee3c72a449d3ec84d1abc4c47472"
 
 [[token_aggregates]]
 id = "calltarget-global"
 token = "CallTarget::Global"
 expected_files = 18
-expected_occurrences = 37
-site_digest = "31ddf807c4e4c5cef52bb4b9dc108916e7c1459fc7e18daf39c0645459d297d0"
+expected_occurrences = 38
+site_digest = "127a5a8d97364e6bf40304db4c3b7c1817753dc6093d99c907b74fca17b201bf"
 
 [[coverage_buckets]]
 id = "compiled-builder-calls"
@@ -36,7 +36,7 @@ role = "producer-or-recovery"
 selector = "compiled-builder-calls"
 disposition_ref = "pre-effect-reject-contract"
 expected_files = 11
-expected_occurrences = 21
+expected_occurrences = 22
 
 [[coverage_buckets]]
 id = "compiled-builder-adjacent"
@@ -106,7 +106,7 @@ role = "fixture"
 selector = "test-fixture"
 disposition_ref = "isolate-fixture"
 expected_files = 78
-expected_occurrences = 167
+expected_occurrences = 168
 
 [[dispositions]]
 id = "pre-effect-reject-contract"

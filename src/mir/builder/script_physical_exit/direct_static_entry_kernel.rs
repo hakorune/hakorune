@@ -29,15 +29,24 @@ pub(in crate::mir) fn lower_direct_static_physical_input_v1(
             "[freeze:contract][script-direct-static/input-row-missing]".to_owned(),
         ));
     };
-    let target = row.target().clone();
-    if target.namespace() != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
-        || target.arity() as usize != row.arguments().len()
+    let target_key = row.target().clone();
+    if target_key.namespace() != crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
+        || target_key.arity() as usize != row.arguments().len()
     {
         return Err((
             session,
             "[freeze:contract][script-direct-static/input-target]".to_owned(),
         ));
     }
+    let target = match target_key.canonical_global_target_v1() {
+        Ok(target) => target,
+        Err(error) => {
+            return Err((
+                session,
+                format!("[freeze:contract][script-direct-static/input-target-projection] {error}"),
+            ))
+        }
+    };
 
     let argument_values = {
         let builder = session.builder_mut();
@@ -50,7 +59,7 @@ pub(in crate::mir) fn lower_direct_static_physical_input_v1(
         Ok(values) => values,
         Err(error) => return Err((session, error)),
     };
-    if argument_values.len() != target.arity() as usize {
+    if argument_values.len() != target_key.arity() as usize {
         return Err((
             session,
             "[freeze:contract][script-direct-static/input-arity]".to_owned(),
@@ -59,9 +68,7 @@ pub(in crate::mir) fn lower_direct_static_physical_input_v1(
 
     let emission = match emit_static_global_value_terminal_with_receipt_v1(
         session.builder_mut(),
-        target.owner(),
-        target.name(),
-        target.arity(),
+        target,
         argument_values,
     ) {
         Ok(emission) => emission,
