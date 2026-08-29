@@ -19,7 +19,7 @@ Pointers:
 - Delegate actual execution to existing backend keeps（LLVM / ny-llvmc / residual VM keep）。既定挙動は変えない。
 - `launcher.hako` is a thin public/front-door keep for Stage1 CLI facade/orchestration, not a long-term pipeline-detail owner.
 - `stage1_cli_env.hako` is the current stage1 env-entry authority cluster.
-- `entry/launcher_native_entry.hako` / `entry/stage1_cli_env_entry.hako` are the canonical thin bootstrap entry stubs for `tools/selfhost/mainline/build_stage1.sh`; top-level files stay as compatibility wrappers only.
+- `entry/launcher_native_entry.hako` / `entry/stage1_cli_env_entry.hako` are the canonical thin `Main.main/0` bootstrap entry stubs for `tools/selfhost/mainline/build_stage1.sh`; top-level files stay as explicit `main(args)` compatibility wrappers and are not in the default artifact closure.
 
 ## Files
 

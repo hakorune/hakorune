@@ -1,11 +1,12 @@
 // launcher_native_entry.hako
 //
 // Purpose:
-// - Provide a tiny argv-based bootstrap wrapper for launcher build artifacts.
-// - Keep the active path free of same-file helper boxes, file IO, and env reads.
+// - Provide a tiny Main.main/0 bootstrap stub for launcher build artifacts.
+// - Keep argv compatibility in the explicit top-level wrapper, not this
+//   canonical default entry.
 
 static box Main {
-  main(args) {
+  main() {
     return 0
   }
 }

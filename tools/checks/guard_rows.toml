@@ -40,6 +40,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/current_state_pointer_guard.sh"]
 
 [[rows]]
+id = "stage1-entry-shape"
+label = "canonical Stage1 Main.main/0 entry-shape guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/stage1_entry_shape_guard.sh"]
+
+[[rows]]
 id = "hmi-semantic-reference-inventory"
 label = "HMI semantic-reference inventory guard"
 profiles = ["pilot", "quick-static"]
