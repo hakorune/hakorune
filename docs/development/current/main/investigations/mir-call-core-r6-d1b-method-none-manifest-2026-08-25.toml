@@ -644,6 +644,47 @@ done = "One caller-zero structural retirement replaces the dormant ScriptRoot Re
 stop = "Return to design_stop if ScriptRoot cannot be identified after special precedence, production source can cross ObservationDeferred, an active public fixture requires old success, a typed special/ordinary source disposition must be invented, or implementation reaches any forbidden owner."
 next_row = "Return to design_stop for the RawLegacy fate/caller census; do not open it in the same implementation commit."
 
+[method_call_compat_raw_legacy_fate_d0_2026_08_30]
+status = "design_stop"
+task_id = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+ceremony_tier = "T1"
+implementation_permission = false
+decision = "RawLegacy remains the only named compatibility origin entering the shared Resolved completion after the ScriptRoot and RawScriptRoot dormant edges were retired. Freeze its finite fate before any code change: either an effect-free origin-specific terminal or a proven named compatibility owner; do not preserve shared Resolved by inertia."
+boundary = "RawLegacy brand issuance -> shared raw child dispatch -> ordinary preflight completion -> pre-effect terminal or existing shared Resolved consumer. Includes the one production RawLegacy route and its direct/test census; excludes ScriptRoot, RawScriptRoot, RawRootMain, installed App Main, exact Cataloged products, Method(None), VM/backend, JSON/Hako, and Call schema."
+source_authority = "RawBrandCallAuthorityV1::RawLegacyParkedCompatibility is the only provenance issuer. No exact source/catalog target product or public RawLegacy success contract is currently present."
+canonical_issuer = "No issuer is opened by this D0. If RetireBeforeEffects is selected, prepare_ordinary_function_completion_v1 may issue one RawLegacy-specific typed terminal; if RetainNamedCompatibility is selected, the existing named owner must be proven before shared Resolved remains reachable."
+non_authority = [
+  "name/arity, callable index, current_static_box, has_method, receiver, arguments, MIR, ValueId, physical symbol, registry, singleton, resolver, recovery, fallback, retry",
+  "test-only direct injection, shared Resolved existence, and historical compatibility wording without a live owner",
+]
+fail_fast_boundary = "Existing Brand/TypeOp/Math/FastMem/str/1 precedence -> RawLegacy ordinary classification -> exact fate decision before argument descent, header lookup, resolver/recovery, MIR or collector mutation, fallback, or retry."
+production_reach_census = "Boundary: RawLegacy brand issuer -> shared raw dispatcher -> ordinary completion. structural_sites = 1; production_reachable_callers = 1; test_only_injections = 0; public_contract_owners = 0. The one live production route is the remaining shared Resolved compatibility edge."
+finite_state_matrix = [
+  "RawLegacy + declared Brand -> existing Brand route; unchanged.",
+  "RawLegacy + TypeOp, Math, FastMem, or str/1 -> existing selected special route; unchanged.",
+  "RawLegacy + ordinary non-special FunctionCall -> one open fate row; no target issuer or argument descent during D0.",
+  "ScriptRoot/RawScriptRoot/RawRootMain -> previously landed terminals or upstream caller-zero; unchanged.",
+  "Installed App Main and exact Cataloged products -> existing source-keyed successors; unchanged.",
+]
+open_decisions = [
+  "RetireBeforeEffects: add one RawLegacy-specific typed terminal and delete only the RawLegacy -> Resolved edge.",
+  "RetainNamedCompatibility: prove a named public/selected owner, fixture, and compatibility acceptance before retaining shared Resolved.",
+]
+required_evidence = [
+  "finite production/test/public census with start/end/includes/excludes and exact caller paths",
+  "shared Resolved consumer and all RawLegacy callers enumerated without a second source scan",
+  "a single fate choice with owner, non-authority, reopen trigger, and no silent retention",
+]
+acceptance = "D0 closes only when the RawLegacy boundary is Exhausted: the one production caller has either an exact successor or an origin-specific pre-effect typed terminal, while every retained compatibility edge has a named owner and observable acceptance. If neither can be proven, keep the row in design_stop; do not invent a resolver, target, receipt, or fallback."
+stop = "Stay in design_stop if the one production caller cannot be traced to a finite terminal, if a public/selected success contract is claimed without an owner, if source/raw lineage would require a second scan, or if implementation would touch the shared Resolved consumer, build.rs, method_resolution, VM/backend, JSON/Hako, or Call schema."
+next_implementation = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0 only after D0 Exhausted"
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+
 [proof_reliability_followups_2026_08_29]
 status = "landed"
 task_id = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"

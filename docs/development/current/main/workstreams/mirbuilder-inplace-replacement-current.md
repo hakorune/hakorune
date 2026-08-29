@@ -41,8 +41,9 @@ classifies ordinary FunctionCall as `UnsupportedSurface(Call)` before physical
 open, so no second terminal is added. The ScriptRoot fate audit is also closed:
 source-backed ordinary FunctionCall stops as `Deferred`/`ObservationDeferred`
 before physical open, so its downstream `Resolved` success edge has production
-reach zero. RetireBeforeEffects is selected; the only open fast cell replaces
-that dormant edge with one origin-specific typed terminal before arguments.
+reach zero. RetireBeforeEffects is landed at `f1bb472f1d`; the dormant edge now
+ends in one origin-specific typed terminal before arguments, with no production
+replacement credit.
 
 The two named compatibility-origin tests are green and the R2 preflight fence
 is reconciled; the remaining live downstream compatibility descendants remain
@@ -58,7 +59,9 @@ tests and 1/1 semantic-retention test green. It earns no production replacement
 credit; R4
 semantic deferral, special-call precedence, RawLegacy, shared `Resolved`,
 `method_resolution`, JSON/Hako, VM/backend, and Call-schema changes remain
-closed. The next boundary is a design stop for the RawLegacy fate/caller census.
+closed. RET0 closeout is complete; the next boundary is the design stop
+`MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0` for the one remaining live RawLegacy
+fate/caller census.
 
 ## Historical rolling context (non-authoritative)
 

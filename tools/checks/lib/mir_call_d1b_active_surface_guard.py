@@ -28,9 +28,11 @@ HELPER_REL = Path("tools/checks/lib/mir_call_d1b_active_surface_guard.py")
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
+RAW_LEGACY_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
 PROOF_KEY = "proof_reliability_followups_2026_08_29"
 RAW_ROOT_KEY = "raw_root_main_retire_i0_2026_08_29"
 SCRIPT_ROOT_KEY = "method_call_compat_script_root_ret0_2026_08_30"
+RAW_LEGACY_KEY = "method_call_compat_raw_legacy_fate_d0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -417,6 +419,37 @@ def check_script_root_ret0(state: dict, card: dict, root: Path) -> None:
             )
 
 
+def check_raw_legacy_resume(state: dict, card: dict) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("RawLegacy fate census must remain design_stop")
+    if state.get("current_execution_row") != RAW_LEGACY_ROW:
+        fail("RawLegacy fate census row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != RAW_LEGACY_ROW:
+        fail("RawLegacy fate census design stop drifted")
+    row = card.get(RAW_LEGACY_KEY)
+    if not isinstance(row, dict):
+        fail(f"{RAW_LEGACY_KEY} section is missing")
+    if row.get("task_id") != RAW_LEGACY_ROW:
+        fail("RawLegacy fate census task id drifted")
+    if row.get("status") != "design_stop":
+        fail("RawLegacy fate census is not an active design stop")
+    if row.get("implementation_permission") is not False:
+        fail("RawLegacy fate census must keep implementation closed")
+    census = require_text(row.get("production_reach_census"), "RawLegacy production_reach_census")
+    for token in (
+        "structural_sites = 1",
+        "production_reachable_callers = 1",
+        "test_only_injections = 0",
+        "public_contract_owners = 0",
+    ):
+        if token not in census:
+            fail(f"RawLegacy census lacks {token}")
+    boundary = require_text(row.get("boundary"), "RawLegacy boundary")
+    for token in ("RawLegacy", "shared Resolved", "pre-effect"):
+        if token not in boundary:
+            fail(f"RawLegacy boundary lacks {token}")
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         fail("usage: mir_call_d1b_active_surface_guard.py ROOT")
@@ -439,6 +472,8 @@ def main() -> None:
         check_raw_root_resume(state, card, proof, root)
     elif row == SCRIPT_ROOT_ROW:
         check_script_root_ret0(state, card, root)
+    elif row == RAW_LEGACY_ROW:
+        check_raw_legacy_resume(state, card)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
