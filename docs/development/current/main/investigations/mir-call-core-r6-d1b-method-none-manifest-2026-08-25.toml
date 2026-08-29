@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "a62782ce5a"
+observed_commit = "7491d244d6"
 observed_at = "2026-08-29"
 implementation_permission = false
 
@@ -386,10 +386,21 @@ forbidden_files = [
   "VM/backend/optimizer/Call schema/receiver repair",
 ]
 
+d0_a_status = "partial_recount"
+d0_a_observed_commit = "7491d244d6"
+d0_a_boundary = "four R2 origin issuers and shared dispatch -> shared Resolved construction/consumer -> method_resolution_static_none production caller"
+d0_a_remaining_rows = [
+  "builder_method_none_publication_terminal",
+  "unified_emitter_methodize_reissuer",
+  "installed_app_main_affine_successor",
+  "installed_nonbrand_pre_effect_reject",
+  "unclassified_preflight_reject",
+]
+
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_legacy_origin"
 kind = "origin"
-owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/lowering.rs:377-393,437-451"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/raw_expression_dispatch/mod.rs:345-357; src/mir/builder/calls/lowering.rs:377-393,437-451"
 edge = "RawLegacy child lowering enters the shared Resolved compatibility completion"
 authority = "No exact source/catalog target issuer is present in this legacy owner"
 disposition = "CutoverBlockerOpen"
@@ -398,7 +409,7 @@ reopen_trigger = "Every live RawLegacy production caller has an exact successor 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "script_root_origin"
 kind = "origin"
-owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:77-95; src/mir/builder/calls/function_call_preflight_route.rs:348-355"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:77-95; src/mir/builder/calls/function_call_preflight_route.rs:186-193,348-355"
 edge = "ScriptRoot compatibility demand is normalized to Resolved before argument descent"
 authority = "ScriptRoot source observation has no exact catalog-backed direct-call product in this route"
 disposition = "CutoverBlockerOpen"
@@ -407,7 +418,7 @@ reopen_trigger = "ScriptRoot receives an exact same-brand source/catalog handoff
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_script_root_origin"
 kind = "origin"
-owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:348-355"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:194-201,348-355"
 edge = "RawScriptRoot compatibility demand shares the Resolved completion"
 authority = "RawScriptRoot has no exact source/catalog target issuer"
 disposition = "CutoverBlockerOpen"
@@ -416,7 +427,7 @@ reopen_trigger = "RawScriptRoot receives an exact source/raw relation or a named
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_root_main_origin"
 kind = "origin"
-owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:348-355"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:202-209,348-355"
 edge = "RawRootMain compatibility demand shares the Resolved completion"
 authority = "RawRootMain has no exact parser/catalog/raw lineage issuer for this call"
 disposition = "CutoverBlockerOpen"
@@ -425,7 +436,7 @@ reopen_trigger = "RawRootMain gains an exact source/catalog/raw relation or a na
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "method_resolution_static_none"
 kind = "producer"
-owner = "src/mir/builder/calls/method_resolution.rs:31-55; src/mir/builder/calls/build.rs:371"
+owner = "src/mir/builder/calls/method_resolution.rs:37-60; src/mir/builder/calls/utils.rs:45-53; src/mir/builder/calls/build.rs:371"
 edge = "current_static_box + has_method emits Callee::Method with receiver None"
 authority = "The current box and method spelling are not an exact declaration-backed issuer"
 disposition = "CutoverBlockerOpen"
@@ -434,7 +445,7 @@ reopen_trigger = "The shared Resolved caller receives an exact catalog/owner han
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "resolved_compatibility_consumer"
 kind = "consumer"
-owner = "src/mir/builder/calls/build.rs:128-145,362-419"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:348-355; src/mir/builder/calls/build.rs:120-146,362-419"
 edge = "Resolved lowers arguments, then re-enters resolve_call_target and recovery before Call"
 authority = "No post-argument target discovery is permitted; the consumer must receive an issued handoff"
 disposition = "CutoverBlockerOpen"
@@ -484,6 +495,48 @@ edge = "Unclassified ordinary calls reject before argument descent"
 authority = "Finite preflight classification with no exact target product"
 disposition = "PreEffectReject"
 reopen_trigger = "A new named source/brand owner is added and supplies an exact handoff"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "raw_legacy_origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/raw_expression_dispatch/mod.rs:345-357"
+production_direct_sites = 1
+upstream_origin_classes = 1
+evidence = "one RawLegacy issuer and one shared dispatch site; the origin enters Resolved"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "script_root_origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:77-95; src/mir/builder/calls/function_call_preflight_route.rs:186-193,348-355"
+production_direct_sites = 1
+upstream_origin_classes = 1
+evidence = "one ScriptRoot issuer and one shared route site; the origin enters Resolved"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "raw_script_root_origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:194-201,348-355"
+production_direct_sites = 1
+upstream_origin_classes = 1
+evidence = "one RawScriptRoot issuer and one shared route site; the origin enters Resolved"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "raw_root_main_origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:202-209,348-355"
+production_direct_sites = 1
+upstream_origin_classes = 1
+evidence = "one RawRootMain issuer and one shared route site; the origin enters Resolved"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "resolved_compatibility_consumer"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:348-355; src/mir/builder/calls/build.rs:120-146"
+production_direct_sites = 1
+upstream_origin_classes = 4
+evidence = "four named origins converge into one Resolved construction arm and one consumer arm"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
+id = "method_resolution_static_none"
+owner = "src/mir/builder/calls/method_resolution.rs:37-60; src/mir/builder/calls/utils.rs:45-53; src/mir/builder/calls/build.rs:371"
+production_direct_sites = 1
+upstream_origin_classes = 4
+evidence = "one direct production caller; the four named R2 origins are upstream of the shared Resolved route"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
 id = "stage1_exact_one_writer"

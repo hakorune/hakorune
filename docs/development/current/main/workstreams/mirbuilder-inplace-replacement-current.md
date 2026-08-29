@@ -44,7 +44,10 @@ remains ParkedSealed. The current design stop is
 inventory only; four R2 origins and the shared Method(None) producer/reissuer/
 terminal remain CutoverBlockerOpen. `method_resolution`, JSON/Hako,
 VM/backend, and Call-schema changes are closed until the in-boundary blockers
-are resolved or receive named typed terminals.
+are resolved or receive named typed terminals. D0-A has now recounted the four
+R2 origins, the single shared Resolved consumer, and the single production
+`method_resolution_static_none` caller; five inventory rows remain explicitly
+unrecounted.
 
 ## Historical rolling context (non-authoritative)
 
