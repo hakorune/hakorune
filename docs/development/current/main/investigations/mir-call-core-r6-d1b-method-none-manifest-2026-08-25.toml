@@ -833,11 +833,11 @@ non_claims = "No ordinary static implementation, no target publication, no argum
 next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0__pending_parent_pointer_switch"
 
 [same_module_ordinary_static_cataloged_target_only_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 prerequisite = "same_module_ordinary_static_cataloged_target_only_d0_2026_08_30"
-implementation_permission = true
+implementation_permission = false
 base_commit = "7d4da344b5"
 decision = "When explicitly selected in fast mode, retain the existing exact target product in the current publication owner as a private one-shot TargetOnly disposition. No target is reconstructed and no result/effect is inferred. The current parent design stop remains selected until the pointer is intentionally switched."
 source_authority = "Existing VerifiedSourceStaticCallTargetCatalogV1 exact (caller, SourceExprSiteV1) target and same-session catalog brand."
@@ -855,6 +855,7 @@ allowed_files = [
   "src/mir/builder/calls/member_route.rs",
   "src/mir/builder/calls/static_result_publication_physical_bridge.rs",
   "src/mir/builder/calls/method_call_terminal.rs",
+  "src/mir/builder/calls/mod.rs",
   "src/mir/builder/README.md",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/lib/mir_call_d1b_same_module_target_only_guard.py",
@@ -870,6 +871,33 @@ planned_focused_tests = [
   "ordinary-static target is selected before arguments and arguments are lowered once",
 ]
 structural_guard = "Existing active-surface/target-before-args guards must prove exact target rows are not silently dropped, TargetOnly is private and one-shot, no new resolver/name lookup exists, no result/effect is inferred, and every changed source file remains below 760 lines."
+implementation_commit = "3e7f4a1d7f"
+changed_test_names = [
+  "source_keyed_take_rejects_wrong_site_and_foreign_catalog",
+  "exact_source_target_without_an_i64_result_stays_target_only",
+  "state_vocabulary_keeps_unavailable_and_no_exact_target_distinct",
+]
+focused_test_filters = [
+  "static_call_result_publication_owner",
+  "static_result_publication_ingress",
+  "static_result_publication",
+]
+focused_test_results = [
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 cargo test --profile quick --lib static_call_result_publication_owner: 5 passed, 0 failed, 7503 filtered out",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 cargo test --profile quick --lib static_result_publication_ingress: 3 passed, 0 failed, 7505 filtered out",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 cargo test --profile quick --lib static_result_publication: 10 passed, 0 failed, 7498 filtered out",
+]
+focused_check = "cargo check --profile quick --lib: passed before the focused test runs; the focused test binary also compiled and ran with the same bounded environment."
+guard_result = "current_state_pointer_guard.sh, mir_call_d1b_active_surface_guard.py, and git diff --check passed; the target-only active guard checks the landed owner/ingress/consumer tokens and projection-before-descent order."
+rustfmt_result = "rustfmt --edition 2021 on all eight touched Rust files passed"
+line_count_result = "all touched Rust owners remain below 760 lines; method_call_handlers.rs is 637 lines and the target-only guard is 120 lines"
+old_edge_delete_set = [
+  "exact target rows previously dropped when no result handoff existed",
+  "StaticCallResultPublicationTakeV1::Unselected and StaticResultPublicationIngressV1::Absent collapsed state",
+  "cataloged target-only ingress falling through to generic compatibility fallback",
+]
+acceptance = "The existing exact source/static target is retained as a private one-shot TargetOnly disposition when no result handoff exists; Selected rows remain affine; NoExactStaticTarget is distinct and typed; target-only consumers project the owned target before argument descent and lower arguments once; no target resolver/fallback is re-entered."
+non_claims = "No Method(None) producer retirement, no shared Resolved/unique/tail/name-Const cleanup, no package/loan, no Call schema, no VM/backend, and no other SameModule family changes."
 
 [same_module_static_receipt_target_before_args_i0_2026_08_30]
 status = "landed"

@@ -61,6 +61,7 @@ def check_ordinary_static_target_only_i0(
     member = "src/mir/builder/calls/member_route.rs"
     bridge = "src/mir/builder/calls/static_result_publication_physical_bridge.rs"
     terminal = "src/mir/builder/calls/method_call_terminal.rs"
+    calls_mod = "src/mir/builder/calls/mod.rs"
     allowed = {
         owner,
         owner_tests,
@@ -69,6 +70,7 @@ def check_ordinary_static_target_only_i0(
         member,
         bridge,
         terminal,
+        calls_mod,
         "src/mir/builder/README.md",
         str(api.HELPER_REL),
         "tools/checks/lib/mir_call_d1b_same_module_target_only_guard.py",
@@ -87,11 +89,18 @@ def check_ordinary_static_target_only_i0(
     if not changed <= allowed:
         api.fail(f"ordinary-static target-only I0 changed paths escaped: {sorted(changed - allowed)}")
 
-    texts = {rel: _text(root, rel) for rel in (owner, owner_tests, ingress, handlers, member, bridge, terminal)}
+    texts = {
+        rel: _text(root, rel)
+        for rel in (owner, owner_tests, ingress, handlers, member, bridge, terminal, calls_mod)
+    }
     if row.get("status") == "fast_open":
         return
 
     for rel in (owner, ingress, handlers, member, bridge):
+        if rel == bridge:
+            if "lower_target_only_static_result_publication_v1" not in texts[rel]:
+                api.fail(f"target-only I0 missing TargetOnly consumer evidence: {rel}")
+            continue
         if "TargetOnly" not in texts[rel] and rel != owner:
             api.fail(f"target-only I0 missing TargetOnly consumer evidence: {rel}")
     for token in ("TargetOnly(", "NoExactStaticTarget", "consumed"):
