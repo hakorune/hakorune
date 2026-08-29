@@ -832,7 +832,7 @@ parity_gate = [
     "Stage1 child output with methodize unset/0/1 must preserve target identity, args, dst, effects, and result on the selected backend, including stdout/return/fault behavior and no fallback/retry.",
     "Only after the route fate and parity receipt are recorded may the existing lifecycle guard receive method_corridor_methodize_r0 and a producer-local deletion row open.",
 ]
-probe_note = "A read-only attempt with the existing target/release/hakorune artifact failed at ExactSourceChanged(RootPreservation(CompatibilityLoss)) for both methodize=0 and methodize=1 builds; it is inconclusive parity evidence and does not establish a mode-specific failure."
+probe_note = "Read-only attempts with the existing target/release/hakorune (2026-08-27) and target/debug/hakorune (2026-08-29) artifacts both failed at ExactSourceChanged(RootPreservation(CompatibilityLoss)) before Stage1 output, so the probe is inconclusive parity evidence and does not establish a mode-specific failure."
 source_authority = "Stage1 route contract and its focused methodized-output canary own the compatibility requirement; an incoming typed Callee::Global is the only value the Rust producer may preserve or pass through."
 non_authority = "HAKO_MIR_BUILDER_METHODIZE alone, RuntimeData classification, StaticMethodId/name/arity text, Method(None), receiver autoscan, args[0], VM/JSON/optimizer repair, and normal-product methodize=0."
 fail_fast_boundary = "No Rust branch removal is accepted until Stage1 output/backend parity is named; once opened, the producer must preserve incoming target, args, dst, effects, and result with no receiver synthesis or retry."
