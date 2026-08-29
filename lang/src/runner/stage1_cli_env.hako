@@ -33,7 +33,7 @@ static box Main {
     return 97
   }
 
-  method _run_emit_program_mode() {
+  _run_emit_program_mode() {
     local tag = "[freeze:contract][stage1-cli/emit-program]"
     local source_text = Stage1InputContractBox.resolve_emit_program_source_text()
     if source_text == "" {
@@ -46,11 +46,11 @@ static box Main {
     return Stage1ProgramResultValidationBox.finalize_emit_result(program_json)
   }
 
-  method _run_emit_mir_mode(tag) {
+  _run_emit_mir_mode(tag) {
     return Stage1EmitMirDispatchBox.run_emit_mir_mode(tag)
   }
 
-  method _run_emit_mir_program_json_compat_mode(tag) {
+  _run_emit_mir_program_json_compat_mode(tag) {
     return Stage1EmitMirDispatchBox.run_emit_mir_program_json_compat_mode(tag)
   }
 

@@ -985,7 +985,7 @@ non_claims = "No Methodize parity, Rust producer deletion, Method corridor imple
 next_row = "MIR-CALL-METHODIZE-D0"
 
 [stage1_source_shape_diag_d0_2026_08_29]
-status = "accepted_design_stop"
+status = "landed"
 task_id = "STAGE1-SOURCE-SHAPE-DIAG-D0"
 execution_row = "STAGE1-SOURCE-SHAPE-DIAG-D0"
 parent_row = "STAGE1-FULL-ARTIFACT-D0"
@@ -1001,6 +1001,13 @@ observed_evidence = [
     "Parser traces classify each literal `method` marker as a field, while the following callable head enters the method inventory; source member ordinals therefore advance for both marker and method, but inventory ordinals advance only for methods.",
     "The Main.main/0 admission contract and parameter-count parity remain intact; changing Main to main(args) is not an authorized repair.",
     "The direct source-to-MIR JSON-v0 test is not evidence for this failure because it bypasses normal source-backed catalog admission."
+]
+diagnostic_result = "Confirmed the finite Main child mismatch: Main.main() occupies source member ordinal 0 and method inventory ordinal 0; each literal `method` marker is admitted as an unsupported field and advances the parser source cursor, while the following helper callable advances only the method inventory. The three helpers therefore occupy source ordinals 2, 4, and 6 but method inventory ordinals 1, 2, and 3, so the strict source-backed co-seal rejects before artifact emission."
+diagnostic_receipt = [
+    "stage1_cli_env.hako Main declares exactly one Main.main/0 plus `_run_emit_program_mode`, `_run_emit_mir_mode`, and `_run_emit_mir_program_json_compat_mode` with the literal `method` marker.",
+    "static_def::try_parse_method_or_field treats the marker as a field because it is not followed by `(`; the following helper identifier is the method head.",
+    "static_box_source::commit_unsupported_member and commit_direct_method both advance the same source cursor, while method inventory ordinals count only committed methods.",
+    "source_backed::issue_source_backed_same_module_callable_catalog_v1 compares Main child source member ordinal to method inventory ordinal and returns SourceShape on the first offset."
 ]
 diagnostic_output = "Record, for each Main child, source member ordinal, method inventory ordinal, final slot, callable identity, and SourceExpr/source-site key. Confirm whether the three helper rows are offset exactly by the literal `method` fields before any I0 edit."
 smallest_next_slice = "Run a read-only STAGE1-SOURCE-SHAPE-DIAG-D0 census. If and only if the ordinal offset is confirmed, open STAGE1-CLI-MAIN-METHOD-SHAPE-I0 to remove the three stale `method` markers from Main helpers only, keeping Main.main/0 and the strict source-backed comparison."
@@ -1018,6 +1025,69 @@ no_safe_slice = [
 ]
 non_claims = "No fresh full Stage1 artifact, methodize parity, wrapper compatibility, parser contract change, Call/VM retirement, or source fix is established by this diagnostic row."
 next_row = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0"
+
+[stage1_cli_main_method_shape_i0_2026_08_29]
+status = "landed"
+task_id = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0"
+execution_row = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0"
+parent_row = "STAGE1-SOURCE-SHAPE-DIAG-D0"
+implementation_permission = true
+implementation_commit = "5df20dc27b"
+decision = "Remove only the three stale `method` markers from the Main helpers in the logical Stage1 owner. Keep Main.main/0, the parser source transaction, and the strict source/member-to-inventory co-seal unchanged; this is a bounded source-shape repair, not a language-wide static-box syntax change."
+source_authority = "normal_source_plan Main.main/0 admission and the existing static-box parser/source transaction; the Hako source declaration is the sole edited owner."
+canonical_issuer = "The existing parser/source-backed catalog issuer continues to issue source sites and method inventory; this row adds no receipt, target, lineage, or compatibility authority."
+non_authority = "Other static boxes, top-level wrappers, arbitrary --entry routes, NYASH_ENTRY, argv adaptation, Methodize, Method(None), receiver ABI, shared Resolved, Call schema, VM/JSON, backend, and stale artifacts."
+fail_fast_boundary = "The normal source-backed catalog must pass its existing SourceShape co-seal before package install; Main.main/0 is not adapted and source preservation is not weakened."
+census_boundary = "stage1_cli_env.hako Main static box -> parser static-box source transaction -> Main static_children/method inventory -> source-backed catalog admission; includes the three helper declarations only, excludes every other static box and compatibility route."
+allowed_files = [
+    "lang/src/runner/stage1_cli_env.hako",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml"
+]
+forbidden_files = [
+    "lang/src/runner/entry/launcher_native_entry.hako",
+    "lang/src/runner/entry/stage1_cli_env_entry.hako",
+    "lang/src/runner/launcher_native_entry.hako",
+    "lang/src/runner/stage1_cli_env_entry.hako",
+    "tools/selfhost/mainline/build_stage1.sh",
+    "tools/selfhost/lib/stage1_contract.sh",
+    "src/parser",
+    "src/mir",
+    "src/runner"
+]
+acceptance = [
+    "Only the three Main helper declarations lose the literal `method` marker; all other declarations are unchanged.",
+    "Main.main/0 remains the sole canonical Main entry and the strict source/member-to-method-inventory comparison remains enabled.",
+    "A fresh normal quick emit for stage1_cli_env.hako passes SourceBackedCatalog/SourceShape and produces an artifact candidate or a newly named later blocker; stale output is not accepted.",
+    "The shape guard, focused source-backed admission evidence, pointer guard, and diff check are green; no Methodize, Call, VM, backend, or wrapper claim is made."
+]
+negative = [
+    "Any Main.main(args) or argv injection",
+    "Any helper outside Main changed",
+    "Parser/source-backed co-seal comparison weakened",
+    "Top-level wrapper or build default changed",
+    "A stale artifact or JSON-v0 compatibility test used as the fresh normal-route proof"
+]
+focused_checks = [
+    "bash tools/checks/stage1_entry_shape_guard.sh",
+    "CARGO_BUILD_JOBS=4 target/quick/hakorune --emit-mir-json <fresh-temp> lang/src/runner/stage1_cli_env.hako",
+    "bash tools/checks/current_state_pointer_guard.sh",
+    "git diff --check"
+]
+focused_evidence = [
+    "Before this edit, the fresh normal route failed at SourceBackedCatalog/SourceShape for stage1_cli_env.hako.",
+    "After removing only the three Main helper `method` markers, the same fresh normal route passed SourceBackedCatalog/SourceShape and reached the later typed Batch/ResolverDeferred UnsupportedExpression terminal before artifact emission.",
+    "The later terminal is recorded as the next artifact-readiness blocker; it is not hidden or reclassified as Methodize parity.",
+    "The edit is exactly three declaration-marker removals; no parser, MIR, wrapper, build, or guard source changed in the implementation slice."
+]
+no_safe_slice = [
+    "The three-marker edit does not clear SourceShape or reveals a different source authority mismatch.",
+    "The normal route requires Main.main/1, wrapper inclusion, argv adaptation, or a parser contract change.",
+    "The fix needs Methodize, Method(None), receiver ABI, shared Resolved, Call schema, VM/JSON, or backend changes."
+]
+non_claims = "This row does not establish a fresh full Stage1 artifact, Methodize parity, wrapper compatibility, or any MirBuilder Call/VM retirement."
+next_row = "STAGE1-FULL-ARTIFACT-D0"
+closeout = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0 is complete as a bounded source-shape repair. Main.main/0 and strict source-backed co-seal remain intact; fresh normal emit now clears SourceShape and stops at a later named ResolverDeferred/UnsupportedExpression terminal. The full artifact row remains design_stop."
 
 [audit_16_reconciliation_2026_08_29]
 status = "reconciled_current_head"
