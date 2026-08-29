@@ -352,9 +352,9 @@ safe_i1 = false
 in_scope_inventory_count = 11
 outside_inventory_count = 8
 open_questions = [
-  "Which production callers reach method_resolution_static_none after the named R2 compatibility fence, and which are genuinely non-Stage1?",
-  "Does each non-Stage1 caller have an exact catalog/source relation that can issue qualified Global or Method(Some), or must it remain pre-effect rejected/ParkedSealed?",
-  "Which reissuer/terminal rows are still live after the explicit ingress I0, and which have caller-zero evidence?",
+  "Which test-only Resolved witnesses should be retained as historical compatibility and which should be retired in a separate cleanup row?",
+  "May the Rust exact-1 HAKO_MIR_BUILDER_METHODIZE=1 success contract be retired at module ingress, or must it remain a named compatibility contract?",
+  "After that language decision, which reissuer/terminal rows can receive an effect-free typed terminal or exact successor?",
 ]
 required_evidence = [
   "finite producer/reissuer/terminal inventory with start/end boundary and includes/excludes",
@@ -422,7 +422,8 @@ d0_c_decision_options = [
   "A: open a separate source-backed issuer design that supplies exact owner/site/brand/relation and an already-issued typed target within the same transaction",
   "B: explicitly retire the three remaining compatibility origins and shared Method(None) reissuer at origin-specific pre-effect typed terminals, with caller-zero evidence",
 ]
-d0_c_selected_option = "B_origin_specific_pre_effect_retirement"
+d0_c_selected_option = "B_partial_origin_retirement__reissuer_fate_pending_language_decision"
+d0_c_option_b_scope = "B is accepted for the already-closed ScriptRoot, RawScriptRoot, RawLegacy, RawRootMain, and method_resolution_static_none origin rows only. It does not authorize selective unified-emitter reissuer retirement until the exact-1 compatibility contract is explicitly decided."
 d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot and RawScriptRoot lack a bare FunctionCall target product, RawLegacy lacks owner/site/brand/package/target, and RawRootMain is already caller-zero upstream. A would require a second source scan or resolver."
 d0_c_language_policy = "ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy are internal compatibility provenance, not Canonical language semantics or a public Compat2025 profile. No new caller may depend on their post-argument resolver behavior."
 d0_c_retirement_order = [
