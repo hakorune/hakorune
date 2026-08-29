@@ -854,21 +854,47 @@ no_safe_slice = [
 next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 
 [stage1_artifact_entry_shape_align_d0_2026_08_29]
-status = "accepted_design_stop"
+status = "accepted_bounded_design"
 task_id = "STAGE1-ARTIFACT-ENTRY-SHAPE-ALIGN-D0"
 parent_row = "MIR-CALL-METHODIZE-D0"
 implementation_permission = false
-decision = "NormalSource and Stage1 logical owners use Main.main/0 (main()); main(args) is a separate argv ABI candidate and must not be silently mixed into the Methodize route."
+decision = "The canonical Stage1 default artifacts use Main.main/0 (main()); only the two entry/ thin stubs are in this shape row. Top-level launcher wrappers remain a separate compatibility route and are not included in the default artifact closure. main(args) is an explicit argv ABI candidate and must not be silently mixed into the Methodize route."
 source_authority = "normal_source_plan (main_source.rs, parser_bound_policy.rs, main0_bridge.rs) and the logical owners launcher.hako / stage1_cli_env.hako"
-non_authority = "thin-stub comments, build defaults, legacy entry_selection, NYASH_ENTRY text, HAKO_MIR_BUILDER_METHODIZE, stale Stage0 artifacts, and timeout results"
+non_authority = "top-level compatibility wrappers, thin-stub comments, build defaults, legacy entry_selection, NYASH_ENTRY text, HAKO_MIR_BUILDER_METHODIZE, stale Stage0 artifacts, and timeout results"
 observed_failure = "The canonical launcher-exe build timed out after 900 seconds; the quick bootstrap then stopped the thin launcher_native_entry.hako at callable-main/lowering entry-shape-mismatch because its Main.main(args) conflicts with the Main.main/0 contract."
 quick_bootstrap_evidence = "A fresh `cargo build --profile quick --bin hakorune -j4 --features llvm` completed in 1m41s. Using that binary with the thin launcher entry reproduced entry-shape-mismatch; using logical stage1_cli_env.hako reproduced SourceBackedCatalog/SourceShape before artifact emission. Neither is a full Stage1 artifact."
 fail_fast_boundary = "Reject a nonzero normal Main arity before source transform; do not infer, discard, or silently adapt argv parameters."
-smallest_next_slice = "Align the two thin entry stubs, build defaults, NYASH_ENTRY, and the Stage1 seed route with Main.main/0, or explicitly design a separate argv ABI; then build a full stage1-cli artifact for the direct methodize parity probe."
+smallest_next_slice = "STAGE1-ENTRY-SHAPE-I0: change only entry/launcher_native_entry.hako and entry/stage1_cli_env_entry.hako from main(args) to main(); preserve build defaults and NYASH_ENTRY, and keep top-level wrappers ParkedSealed or move them through a separate compatibility row. Then run the shape guard and build a fresh stage1-cli artifact in the separate artifact row."
 full_artifact_route = "tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli --entry lang/src/runner/stage1_cli_env.hako --out <fresh-path> --force-rebuild --timeout-secs 900"
+wrapper_boundary = "The default build_stage1.sh path and hako_module.toml export the canonical entry/ stubs directly. A caller that explicitly selects lang/src/runner/launcher_native_entry.hako or stage1_cli_env_entry.hako enters a different compatibility closure; those wrappers still call Canonical.main(args), so they remain ParkedSealed until a named wrapper contract or fail-fast retirement row is selected."
+wrapper_reopen_trigger = "Reopen the wrapper row only if an explicit --entry wrapper caller or proof requires it; do not make the canonical Main.main/0 shape accept argv implicitly."
+allowed_files = [
+    "lang/src/runner/entry/launcher_native_entry.hako",
+    "lang/src/runner/entry/stage1_cli_env_entry.hako",
+    "tools/checks/stage1_entry_shape_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "lang/src/runner/README.md",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden_files = [
+    "lang/src/runner/launcher_native_entry.hako",
+    "lang/src/runner/stage1_cli_env_entry.hako",
+    "tools/selfhost/mainline/build_stage1.sh",
+    "tools/selfhost/lib/stage1_contract.sh",
+]
+acceptance = [
+    "Both canonical default stubs expose exactly Main.main/0 and contain no main(args) declaration.",
+    "build_stage1.sh defaults and hako_module.toml continue to name entry/ stubs; NYASH_ENTRY remains Main.main/0.",
+    "Top-level wrappers are not claimed as compatible by this row and remain an explicit ParkedSealed boundary.",
+    "The shape guard checks canonical paths, exact arity, default entry paths, and wrapper separation; it fails closed on drift.",
+    "No Methodize, Method(None), receiver ABI, VM/JSON, shared Resolved, Call schema, or full artifact parity claim is made.",
+]
 no_safe_slice = [
-    "Do not relax the normal Main arity/source-preservation contract to make the artifact build pass.",
-    "Do not change Methodize, Method(None), receiver ABI, VM/JSON, shared Resolved, or Call schema in this entry-shape row.",
+    "The default artifact closure contains either top-level wrapper, or the wrapper route is required by an active caller.",
+    "A canonical stub must accept argv, or build defaults/NYASH_ENTRY must change to hide the arity mismatch.",
+    "The logical Stage1 SourceBackedCatalog/SourceShape failure is being hidden by changing the normal Main contract.",
+    "The change requires Methodize, Method(None), receiver ABI, VM/JSON, shared Resolved, or Call schema edits.",
 ]
 non_claims = "No fresh full artifact, methodize=0/1 parity, Rust producer deletion, or Method corridor implementation is established by this row."
 next_row = "MIR-CALL-METHODIZE-D0"
