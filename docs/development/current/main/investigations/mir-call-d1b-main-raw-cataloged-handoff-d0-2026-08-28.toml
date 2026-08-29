@@ -964,11 +964,33 @@ task_id = "STAGE1-FULL-ARTIFACT-D0"
 execution_row = "STAGE1-FULL-ARTIFACT-D0"
 parent_row = "STAGE1-ENTRY-SHAPE-I0"
 implementation_permission = false
-decision = "Build one fresh stage1-cli artifact through the explicit logical Stage1 owner after the canonical default stubs are aligned. This is an artifact-readiness/parity prerequisite, not a Methodize implementation row."
+worker_premise = "This is not Fast path: the fresh normal stage1-cli route fails before artifact emission at ExactSourceChanged/RootPreservation/CompatibilityLoss, so source-preservation ownership and a bounded successor must be named before any source or builder edit."
+decision = "A clean provenance matrix now separates the two explicit macro policies: default macro-enabled execution stops at ExactSourceChanged/RootPreservation/CompatibilityLoss, while NYASH_MACRO_DISABLE=1 stops at the existing five-method ResolverDeferred/UnsupportedExpression batch. Neither route emits an artifact or metadata, so this remains a source-preservation/macro-route design blocker rather than a ternary or Methodize implementation row."
 source_authority = "tools/selfhost/mainline/build_stage1.sh and tools/selfhost/lib/stage1_contract.sh own artifact kind/entry metadata; lang/src/runner/stage1_cli_env.hako is the logical Stage1 owner; normal_source_plan owns Main.main/0 admission."
 non_authority = "stale release/debug binaries, timeout output, top-level wrappers, HAKO_MIR_BUILDER_METHODIZE, NYASH_ENTRY text, argv adaptation, VM/backend behavior, and Call-schema state"
-fail_fast_boundary = "A fresh artifact must be produced with exact stage1-cli metadata and Main.main/0 entry shape; SourceBackedCatalog/SourceShape or stale-artifact ambiguity remains a typed blocker and is not hidden by relaxing source preservation."
+fail_fast_boundary = "Each explicit macro/environment policy must report its first typed terminal before artifact emission; a fresh artifact is accepted only with exact stage1-cli metadata and Main.main/0 entry shape. Source-preservation or stale-artifact ambiguity is a typed blocker and is not hidden by relaxing the contract."
 full_artifact_route = "tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli --entry lang/src/runner/stage1_cli_env.hako --out <fresh-path> --force-rebuild --timeout-secs 900"
+provenance_source = "Clean detached worktree at dddca6c6acac7dccaf3c46fc9ec28b591c3c9c53; source status clean; lang/src/runner/stage1_cli_env.hako SHA-256 8681091f8a13124ca4af06810d277c7079abf4315ad503ecd2d92945ea38b9d7."
+provenance_binaries = [
+    "target/release/hakorune SHA-256 9a6fbadb023bb4d6da661ea1c20c3bb7d6638112495c175355e3ffcceda8a740; mtime 2026-08-27 05:53:42 +0900 (stale relative to the source commit).",
+    "target/quick/hakorune SHA-256 60478a605aa65407a9d671bf98ddc9d5743b693b1365a25fb3d140f131053b03; mtime 2026-08-29 10:34:50 +0900.",
+]
+provenance_commands = [
+    "Direct probe: cd <clean-worktree>; env -u NYASH_MACRO_DISABLE -u HAKO_MACRO_DISABLE -u NYASH_MACRO_ENABLE NYASH_ROOT=<clean-worktree> /home/tomoaki/git/hakorune-selfhost/target/{quick,release}/hakorune --emit-mir-json <fresh-output> <clean-worktree>/lang/src/runner/stage1_cli_env.hako.",
+    "Direct probe: cd <clean-worktree>; env -u HAKO_MACRO_DISABLE -u NYASH_MACRO_ENABLE NYASH_MACRO_DISABLE=1 NYASH_ROOT=<clean-worktree> /home/tomoaki/git/hakorune-selfhost/target/{quick,release}/hakorune --emit-mir-json <fresh-output> <clean-worktree>/lang/src/runner/stage1_cli_env.hako.",
+    "Full wrapper: NYASH_BIN=/home/tomoaki/git/hakorune-selfhost/target/release/hakorune NYASH_ROOT=<clean-worktree> tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli --entry <clean-worktree>/lang/src/runner/stage1_cli_env.hako --out <fresh-path> --force-rebuild --timeout-secs 900.",
+]
+provenance_matrix = [
+    "quick/default (all macro switches unset): rc=1; no MIR artifact; first terminal ExactSourceChanged(RootPreservation(CompatibilityLoss)).",
+    "release/default (all macro switches unset): rc=1; no MIR artifact; first terminal ExactSourceChanged(RootPreservation(CompatibilityLoss)).",
+    "quick/NYASH_MACRO_DISABLE=1: rc=1; no MIR artifact; first terminal is the five-method ResolverDeferred/UnsupportedExpression batch (PatternUtilBox.find_local_bool_before, JsonNumberCanonicalBox.canonicalize_f64, JsonFragNormalizerBox._normalize_instructions_array, JsonFragNormalizerBox._canonicalize_f64_str, LowerMethodArrayGetSetBox.try_lower).",
+    "release/NYASH_MACRO_DISABLE=1: rc=1; no MIR artifact; the same five-method ResolverDeferred/UnsupportedExpression batch is first.",
+    "Full stage1-cli wrapper with the explicit release binary: rc=1 before artifact/meta emission; wrapper log reports the direct mir-json route failed, and the direct probes above provide the typed inner terminals.",
+]
+worker_evidence = [
+    "r2_named_resolved_audit (read-only): RootPreservation(CompatibilityLoss) is the current default-macro contract; ParserNormalRootExecutionPreservationV1 and its existing normal_callable_transform issuer own that terminal. Do not use a stale binary or entry/argv edit as a successor.",
+    "r2_guard_scope_audit (read-only): build_stage1.sh defaults to target/release/hakorune; the direct stage1 contract route has no macro flag; macro policy must therefore be pinned with source commit, binary hash/mtime, cwd/import root, entry hash, and environment before a retry.",
+]
 acceptance = [
     "A fresh stage1-cli artifact and metadata are produced from the explicit logical owner, with canonical Main.main/0 entry shape.",
     "Direct methodize=0/1 parity is measured only on that fresh artifact, including target, args, dst, effects, result, stdout/return/fault, and no fallback/retry.",
@@ -978,23 +1000,27 @@ acceptance = [
 no_safe_slice = [
     "The build times out without an artifact or emits no metadata.",
     "The logical Stage1 route stops at SourceBackedCatalog/SourceShape before artifact emission.",
+    "The macro/environment policy or source-preservation successor is unnamed, so another probe would mix distinct contracts.",
+    "A stale or foreign binary, mixed worktree, or unpinned environment is used as artifact evidence.",
     "Parity requires relaxing Main.main/0, injecting/discarding argv, or changing Methodize/Method(None)/receiver ABI.",
     "The proposed change touches shared Resolved/recovery, VM/JSON/backend, or Call schema."
 ]
 non_claims = "No Methodize parity, Rust producer deletion, Method corridor implementation, wrapper compatibility, VM migration, or Call-schema cutover is established until the fresh artifact exists."
+smallest_next_slice = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0: record the dual macro-policy terminals as one source-preservation decision, name the existing issuer/successor (or ParkedSealed), and do not edit ternary/source/parser/builder code."
 next_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
 
 [stage1_fresh_blocker_snapshot_reconcile_d0_2026_08_29]
-status = "landed"
+status = "accepted_design_stop"
 task_id = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
 execution_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
 parent_row = "STAGE1-FULL-ARTIFACT-D0"
 implementation_permission = false
-decision = "Reconcile the fresh artifact blocker only after pinning source tree, binary, cwd, environment, and command. The clean c05 snapshot reproduces the recorded ResolverDeferred/UnsupportedExpression batch; do not treat a mixed or edited probe as clean evidence."
+decision = "Reconcile the fresh artifact blocker by keeping the two explicit macro policies separate. The clean macro-disabled route reproduces the five-method ResolverDeferred/UnsupportedExpression batch; the clean default-macro route stops earlier at RootPreservation/CompatibilityLoss. Neither terminal is a fresh artifact, and neither may be replaced by a source or ternary edit without a named existing owner."
 source_authority = "The normal source-backed semantic batch and its existing resolver-deferred terminal own the observed failure; the Stage1 Hako owners named by that batch own any later source-shape decision."
 canonical_issuer = "Existing resolver-deferred typed terminal; this reconciliation issues no semantic receipt, target, artifact, or compatibility route."
 non_authority = "A stale/foreign quick binary, mixed worktree imports, ternary experiment output, timeout text, Main/argv shape, wrappers, Methodize, Call/VM/backend, or inferred declaration identity."
-fail_fast_boundary = "Before package/artifact effects, the clean normal route must report the same typed batch boundary. Any probe that reports an earlier different terminal is a separate edited-snapshot observation, not a replacement of the clean blocker."
+fail_fast_boundary = "Before package/artifact effects, each explicitly pinned macro policy must report its own first typed terminal. A default-macro RootPreservation result and a macro-disabled ResolverDeferred result are separate provenance rows, not interchangeable replacements."
+provenance_matrix_ref = "stage1_full_artifact_d0_2026_08_29.provenance_matrix"
 snapshot_evidence = [
     "Detached clean source tree: c05c88da96bfc85a86e2033de2fd9d8caa91540c; stage1_cli_env.hako SHA-256 8681091f8a13124ca4af06810d277c7079abf4315ad503ecd2d92945ea38b9d7.",
     "Rebuilt quick binary SHA-256 60478a605aa65407a9d671bf98ddc9d5743b693b1365a25fb3d140f131053b03; cwd and import root were the detached clean tree; only NYASH_MACRO_DISABLE=1 was set.",
@@ -1012,7 +1038,7 @@ no_safe_slice = [
     "A stale or mixed snapshot is used as evidence for artifact readiness.",
 ]
 non_claims = "This reconciliation does not establish a fresh artifact, ternary rewrite safety, Methodize parity, or any MirBuilder semantic cutover."
-next_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
+next_row = "STAGE1-FULL-ARTIFACT-D0"
 
 [stage1_resolver_ternary_shape_d0_2026_08_29]
 status = "landed_design_stop"
