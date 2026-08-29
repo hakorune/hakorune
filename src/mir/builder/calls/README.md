@@ -35,6 +35,11 @@ uses the same pre-effect retirement shape; Brand, TypeOp, Math, FastMem, and
 `str/1` precedence is unchanged. `RawRootMain` is caller-zero upstream, and
 the shared `Resolved` route is not a reason to retain any parked origin.
 
+The former `method_resolution` static-box `has_method` branch is retired as a
+caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;
+qualified static targets belong to exact catalog/source handoffs, while the
+remaining resolver handles only Builtin, local Value, and Extern cases.
+
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument
 input is checked and lowered exactly once in source order. Its selected raw

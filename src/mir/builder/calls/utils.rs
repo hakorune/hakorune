@@ -48,7 +48,6 @@ impl MirBuilder {
     ) -> Result<crate::mir::definitions::call_unified::Callee, String> {
         super::method_resolution::resolve_call_target(
             name,
-            &self.comp_ctx.current_static_box,
             &self.function_state.variable_ctx.variable_map,
         )
     }
