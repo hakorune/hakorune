@@ -819,6 +819,18 @@ duplicate expectation in the same slice that gains central coverage; deleted
 guards have named successors and caller-zero; generated forward/reverse edges
 round-trip; and no family migration changes compiler or test semantics.
 
+The 2026-08-29 Call proof audit is queued without preempting the active
+RawScriptRoot old-edge deletion. After that production cell, run one bounded
+`MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0` series: retire landed lifecycle-phase
+handlers to explicit `superseded_by` tombstones instead of making old lanes
+replayable at HEAD, keep only the active origin-retirement family, machine-check
+that every changed test is covered by a nonzero focused filter, and add the two
+missing `SiteCoverageMismatch` negatives. Then return immediately to the next
+origin retirement. `legacy-tests` is a separate parked retirement census; its
+two red `mir_static_box_naming` tests are not repaired or promoted to CI unless
+a selected current acceptance owner is found. Exact evidence and stop lines
+live in the current Method manifest.
+
 ## Short closed tail
 
 - normal-root identity/forest gates and the installed App Main FreeStatic

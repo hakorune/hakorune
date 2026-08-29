@@ -290,6 +290,9 @@ focused_tests = [
   "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib methodize -- --test-threads=1 (11 passed)",
   "cargo test --profile quick --lib module_ingress_snapshots_canonical_policy -- --test-threads=1 (2 passed)",
 ]
+post_audit_focused_evidence = [
+  "At 17cfd7cf83, cargo test -- --list proved the previously unrecorded canonical_snapshot_preserves_runtime_static_global_target path exists, and its exact quick-profile invocation passed 1 test with 7498 filtered out.",
+]
 verification = [
   "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib --features vm-reference",
   "CARGO_BUILD_JOBS=4 cargo check --profile quick --all-targets",
@@ -472,8 +475,9 @@ negative_tests = [
   "no resolver, recovery, name Const, target lookup, fallback, or retry is introduced",
 ]
 focused_gate = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib function_call_script_compatibility_tests -- --test-threads=1; require at least one real passed test and treat 0 tests as failure"
+focused_test_coverage = "Before closeout, derive the exact function_call_script_compatibility_tests paths with cargo test -- --list, record the nonzero list/count, and require every test added or touched by the implementation commit to be present under the recorded filter. A missing name, zero match, or list/run count mismatch blocks closeout."
 guard = "Reuse mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh; no new guard family or registry row."
-done = "The selected edge is 1 -> 0, focused positive/negative tests pass, route and test files remain below 760 lines, other origins are unchanged, and the existing lifecycle/pointer guards are green."
+done = "The selected edge is 1 -> 0, focused positive/negative tests pass, every changed test is covered by the recorded nonzero filter, route and test files remain below 760 lines, other origins are unchanged, and the existing lifecycle/pointer guards are green."
 stop = "Return to design_stop if RawScriptRoot cannot be uniquely identified before effects, an external/public compatibility owner appears, special-form precedence changes, a generic String-only terminal is required, or the slice reaches build.rs, method_resolution, unified_emitter, VM/backend, JSON/Hako, or Call schema."
 next_row = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0 after this row closes; do not open it in the same implementation commit."
 allowed_files = [
@@ -495,6 +499,41 @@ forbidden_files = [
   "RawCompatibilityChildTerminalPortV1",
   "VM/backend/optimizer/JSON/Hako/Call schema",
 ]
+
+[proof_reliability_followups_2026_08_29]
+status = "queued_nonblocking_after_raw_script_i0"
+observed_head = "17cfd7cf83"
+current_row_preemption = "forbidden: the active RawScriptRoot production-edge retirement remains first because its current lifecycle phase and pointer guard are green"
+confirmed = [
+  "The method_corridor_explicit_compat_ingress_i0 historical invocation false-reds at HEAD because the reusable guard still carries landed phase handlers tied to current-row dispatch shape; those handlers are retirement debt, not a reason to restore old execution lanes.",
+  "The I0 implementation added canonical_snapshot_preserves_runtime_static_global_target, but neither recorded broad filter matched it; the exact test is green at observed_head.",
+  "SiteCoverageMismatch has no direct negative test for target-only or partial-overlap inventories.",
+  "The legacy-tests plus vm-reference feature set compiles at observed_head, but the two mir_static_box_naming tests fail with GenericLoop MissingTransientType; this is real baseline debt, not a compile failure and not a Method-corridor result.",
+]
+closed_or_corrected = [
+  "The formerly missing I0 test now has exact post-audit execution evidence.",
+  "docs/reference/environment-variables.md already records unset/0 as Canonical, exact 1 as the named compatibility projection, and malformed/non-Unicode input as fail-fast; no second env-contract document is needed.",
+]
+ordered_tasks = [
+  "1. MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0: after RawScriptRoot I0, run one predeclared two-commit retirement series. Commit A keeps the stable entrypoint but splits/prunes the 1799-line lifecycle guard so only the current origin-retirement family and no-argument current-row dispatch remain live; landed phases become named superseded_by tombstones backed by Git/card evidence instead of replayable HEAD commands. Commit B adds complete changed-test/filter coverage from cargo test -- --list and the two direct SiteCoverageMismatch negative cases. Every touched/new check file stays below 760 lines and no new per-row shell guard is added.",
+  "2. Return immediately to MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0; do not extend the proof detour with further cleanup findings.",
+]
+proof_series_contract = "Exactly two buildable commits: active-surface guard split/prune, then current proof correction plus negative tests. The second commit is the fixed terminal; no third infrastructure row, compiler behavior change, or production-route claim is permitted."
+historical_retirement_acceptance = "Each removed explicit phase handler has one owning card section, landed commit, superseded_by target, and zero current manifest/CI/parent caller evidence. Historical verification commands are retained as landed evidence text, not promised to execute at HEAD. Unknown current phases and duplicate live handlers fail closed; the active origin-retirement family remains green."
+focused_coverage_acceptance = "The checker consumes an exact implementation commit, maps every added/renamed or lexically modified #[test] function in its diff to cargo test -- --list output, and proves coverage by at least one recorded filter. Unmappable changed test code, a zero-match filter, or an uncovered listed test fails closed. README/reference-only allowed files are evidence files, not test coverage inputs."
+site_coverage_negative_acceptance = "Direct verifier tests construct (a) a nonempty target inventory with no observations and (b) a partially overlapping target/observation inventory; both return exactly SiteCoverageMismatch. ObserveOnly observations with no targets remain accepted."
+non_claims = "No compiler semantics, source acceptance, RawScriptRoot switch, new semantic receipt, full cargo suite, CI promotion, or legacy-tests fate is decided by these proof rows."
+
+[legacy_tests_fate_d0_2026_08_29]
+task_id = "LEGACY-TESTS-FATE-D0"
+status = "parked_sealed_separate_lane"
+implementation_permission = false
+observed_head = "17cfd7cf83"
+current_evidence = "cargo check and cargo test --no-run with features legacy-tests,vm-reference succeed; the exact mir_static_box_naming filter executes two tests and both fail at GenericLoop carrier representation with MissingTransientType."
+selected_direction = "RetireHistorical unless a finite caller/cfg census finds a selected current acceptance owner. Do not repair the two reds or add a legacy feature CI lane merely to preserve the old suite."
+decision = "D0 proves the selected acceptance owner/caller count. If it remains zero, remove the legacy-tests cfg surface, affected historical tests, and Cargo feature declaration in one bounded retirement and preserve history in Git. Only a newly found selected owner may reopen RetainSupported as a separate Decision. Silent compilation-only retention is forbidden."
+does_not_block = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0, the queued proof reliability rows, or the Method corridor unless a selected acceptance gate explicitly depends on legacy-tests."
+reopen_trigger = "CURRENT_STATE selects this D0, a selected gate names legacy-tests, or the feature gains a nonzero supported caller/CI owner."
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_legacy_origin"
