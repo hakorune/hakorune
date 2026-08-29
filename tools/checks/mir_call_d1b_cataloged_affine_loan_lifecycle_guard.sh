@@ -659,19 +659,93 @@ elif phase == "method_corridor_explicit_compat_ingress_i0":
     if sum(1 for _ in lifecycle_path.open()) >= 760:
         raise SystemExit("module lifecycle reached the 760-line split boundary")
 elif phase == "method_corridor_nonstage1_producer_retire_d0":
-    required_tokens = (
+    section_name = "method_corridor_nonstage1_producer_retire_d0_2026_08_29"
+    section = method_card.get(section_name)
+    if not isinstance(section, dict):
+        raise SystemExit("Method non-Stage1 producer D0 section is missing")
+    boundary = section.get("census_boundary")
+    if not isinstance(boundary, str) or "->" not in boundary or "includes" not in boundary or "excludes" not in boundary:
+        raise SystemExit("Method non-Stage1 producer D0 census boundary is not explicit")
+    if section.get("current_disposition") != "CutoverBlockerOpen":
+        raise SystemExit("Method non-Stage1 producer D0 must expose open blockers")
+    if section.get("census_status") != "open_blockers_present":
+        raise SystemExit("Method non-Stage1 producer D0 census status drifted")
+    if section.get("safe_i1") is not False:
+        raise SystemExit("Method non-Stage1 producer D0 must keep I1 closed")
+    ordered_tasks = section.get("ordered_tasks")
+    if not isinstance(ordered_tasks, list) or len(ordered_tasks) != 5:
+        raise SystemExit("Method non-Stage1 producer D0 ordered task list drifted")
+    task_text = " ".join(str(item) for item in ordered_tasks)
+    for token in ("D0-A", "D0-B", "D0-C", "D0-D", "I1", "caller-zero", "old-edge deletion"):
+        if token not in task_text:
+            raise SystemExit(f"Method non-Stage1 producer D0 task token is missing: {token}")
+
+    expected_in_scope = {
+        "raw_legacy_origin",
+        "script_root_origin",
+        "raw_script_root_origin",
+        "raw_root_main_origin",
         "method_resolution_static_none",
-        "Method(None)",
-        "non-Stage1",
-        "pre-effect reject",
-        "NoSafeSlice",
-        "Stage1",
-        "ParkedSealed",
+        "resolved_compatibility_consumer",
+        "builder_method_none_publication_terminal",
+        "unified_emitter_methodize_reissuer",
+        "installed_app_main_affine_successor",
+        "installed_nonbrand_pre_effect_reject",
+        "unclassified_preflight_reject",
+    }
+    expected_outside = {
+        "stage1_exact_one_writer",
+        "json_v0_optional_method_receiver",
+        "core_bridge_const_methodize",
+        "core_bridge_module_singleton_methodize",
+        "rust_json_nullable_egress",
+        "rust_vm_method_none_recovery",
+        "selected_native_method_none_preflight",
+        "hako_methodize_adapter",
+    }
+    in_scope = section.get("in_scope_inventory")
+    outside = section.get("outside_inventory")
+    if not isinstance(in_scope, list) or not isinstance(outside, list):
+        raise SystemExit("Method non-Stage1 producer D0 structured inventories are missing")
+    if section.get("in_scope_inventory_count") != len(in_scope):
+        raise SystemExit("Method non-Stage1 producer D0 in-scope count drifted")
+    if section.get("outside_inventory_count") != len(outside):
+        raise SystemExit("Method non-Stage1 producer D0 outside count drifted")
+
+    def validate_inventory(rows, expected_ids, label, allowed_dispositions):
+        ids = [row.get("id") for row in rows if isinstance(row, dict)]
+        if len(ids) != len(rows) or len(ids) != len(set(ids)) or set(ids) != expected_ids:
+            raise SystemExit(f"Method non-Stage1 producer D0 {label} IDs are not exhaustive/unique")
+        required = {"id", "kind", "owner", "edge", "disposition", "reopen_trigger"}
+        for row in rows:
+            if not required.issubset(row) or any(not isinstance(row.get(key), str) or not row.get(key).strip() for key in required):
+                raise SystemExit(f"Method non-Stage1 producer D0 {label} row is missing required evidence")
+            if row.get("disposition") not in allowed_dispositions:
+                raise SystemExit(f"Method non-Stage1 producer D0 {label} disposition is not finite")
+
+    validate_inventory(
+        in_scope,
+        expected_in_scope,
+        "in-scope",
+        {"CutoverBlockerOpen", "ExactSuccessor", "PreEffectReject"},
     )
-    manifest_text = method_card_path.read_text()
-    for token in required_tokens:
-        if token not in manifest_text:
-            raise SystemExit(f"Method non-Stage1 producer D0 token is missing: {token}")
+    if not any(row.get("disposition") == "CutoverBlockerOpen" for row in in_scope):
+        raise SystemExit("Method non-Stage1 producer D0 has no visible blocker")
+    validate_inventory(outside, expected_outside, "outside", {"ParkedSealed"})
+
+    stage1 = method_card.get("stage1_full_artifact_lane_fate_2026_08_29")
+    if not isinstance(stage1, dict):
+        raise SystemExit("Stage1 artifact fate section is missing")
+    if stage1.get("status") != "parked_sealed" or stage1.get("implementation_permission") is not False:
+        raise SystemExit("Stage1 artifact fate must remain ParkedSealed and closed")
+    stage1_text = " ".join(str(stage1.get(key, "")) for key in ("decision", "reopen_when", "non_claims"))
+    for token in ("SeparateArtifactBuildLane", "NoSafeSlice", "same source/semantic/compile transaction"):
+        if token not in stage1_text:
+            raise SystemExit(f"Stage1 artifact fate token is missing: {token}")
+    if method_card.get("implementation_permission") is not False:
+        raise SystemExit("Method manifest top-level implementation permission must remain closed")
+    if current_state.get("next_execution_card") != "none":
+        raise SystemExit("Method non-Stage1 producer D0 must not open an implementation card")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 elif phase == "observer_i0_verifier_corrective":

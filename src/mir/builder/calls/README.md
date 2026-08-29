@@ -22,10 +22,11 @@ ordinary and shadowable.
 
 The Rust-side `HAKO_MIR_BUILDER_METHODIZE` selector is snapshotted once at
 module ingress. Unset/`0` is canonical and preserves an incoming typed Global;
-only the explicit Stage1 child value `1` may perform the bounded RuntimeData
-Global-to-`Method(None)` compatibility projection. Invalid values reject
-before Builder mutation, and this policy does not govern the separate
-JSON/Hako readers.
+only exact value `1` selects the bounded RuntimeData Global-to-`Method(None)`
+compatibility projection. Stage1 is a known writer of that value, but the
+selector carries no Stage1 provenance, so an external caller is not treated as
+Stage1 without a separate owner. Invalid values reject before Builder
+mutation, and this policy does not govern the separate JSON/Hako readers.
 
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument

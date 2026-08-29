@@ -3,8 +3,8 @@ development_branch_ssot = "main"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 current_design_stop = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
-current_blocker_token = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0: enumerate the finite non-Stage1 Method(None) producer, reissuer, consumer, and terminal boundary before any method_resolution change; preserve exact Stage1 value 1 as named compatibility and do not infer a successor from name, registry, receiver, or arguments."
-guard_followup = "Explicit method compatibility I0 is landed with the existing call-corridor lifecycle guard. The same guard now co-seals this design-stop inventory; no source/fixture/fallback/production switch is permitted until the finite boundary is exhausted."
+current_blocker_token = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0: enumerate the finite non-Stage1 Method(None) boundary; four R2 origins, the shared Resolved consumer, method_resolution_static_none, the Builder terminal, and the shared compatibility reissuer remain CutoverBlockerOpen until an exact successor or pre-effect typed terminal is proven. Preserve known Stage1 value 1 as a parked writer, but do not infer a successor from name, registry, receiver, or arguments."
+guard_followup = "Explicit method compatibility I0 is landed with the existing call-corridor lifecycle guard. The same guard now co-seals the structured producer/reissuer/terminal inventory and Stage1 ParkedSealed fate; no source/fixture/fallback/production switch is permitted while an in-boundary blocker remains."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,7 +16,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Explicit Rust methodize ingress I0 is landed and pushed at 13664f7787: unset/exact 0 is Canonical, exact 1 is named Stage1 compatibility, and malformed/non-Unicode values reject before mutation. Stage1 full artifact remains ParkedSealed. The next bounded task is a design-stop inventory of non-Stage1 Method(None) producers; no method_resolution or Call-schema implementation is open."
+latest_card_summary = "Explicit Rust methodize ingress I0 is landed and pushed at 13664f7787: unset/exact 0 is Canonical, exact 1 selects the named compatibility mode, and malformed/non-Unicode values reject before mutation. Stage1 full artifact remains ParkedSealed. The current D0 inventory is structured and guard-checked; four R2 origins plus the shared Method(None) producer/reissuer/terminal remain open blockers, so no method_resolution or Call-schema implementation is open."
 next_design_card = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-29: Method explicit-compatibility ingress I0 landed at 13664f7787; module ingress snapshots the finite Rust policy once, canonical Global remains unchanged, and only exact Stage1 value 1 retains the bounded compatibility projection.",
+	"2026-08-29: Method explicit-compatibility ingress I0 landed at 13664f7787; module ingress snapshots the finite Rust policy once, canonical Global remains unchanged, and only exact value 1 selects the named compatibility projection (the selector itself carries no Stage1 provenance).",
 	"2026-08-29: I0 verifier correction landed at e382a00923; ObserveOnly facts now pass, target-only/partial site coverage remains fail-closed, and filtered direct-call observation tests are 10/10.",
 	"2026-08-29: R2d landed at 80681a8cde; generic unclassified ordinary raw calls now fail closed before argument effects, while named compatibility Resolved/recovery remains for the next bounded row.",
 ]

@@ -35,12 +35,16 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 compatibility-origin tests are green and the R2 preflight fence is reconciled;
 the four live downstream compatibility descendants remain outside that fence.
 The bounded Rust explicit-compatibility ingress I0 is landed at
-`13664f7787`: unset/exact `0` is Canonical, exact `1` is the named Stage1
-compatibility path, and malformed values fail before mutation. Stage1 full
-artifact remains ParkedSealed. The current design stop is
-`MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0`, a finite inventory
-only; `method_resolution`, JSON/Hako, VM/backend, and Call-schema changes are
-closed until that boundary is exhausted.
+`13664f7787`: unset/exact `0` is Canonical, exact `1` selects the named
+compatibility mode, and malformed values fail before mutation. Stage1 is a
+known writer, but the selector carries no Stage1 provenance; external callers
+must not be treated as Stage1 without a separate owner. Stage1 full artifact
+remains ParkedSealed. The current design stop is
+`MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0`, a finite structured
+inventory only; four R2 origins and the shared Method(None) producer/reissuer/
+terminal remain CutoverBlockerOpen. `method_resolution`, JSON/Hako,
+VM/backend, and Call-schema changes are closed until the in-boundary blockers
+are resolved or receive named typed terminals.
 
 ## Historical rolling context (non-authoritative)
 
@@ -429,10 +433,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    at 13664f7787 (module snapshot, exact 0/1 parsing, implicit default-on
    deletion) while exact Method(Some) receiver authority remains separate.
    The next design stop is a finite non-Stage1 producer/reissuer/terminal
-   inventory; do not change method_resolution_static_none while named R2
-   descendants reach it, and do not delete explicit Stage1 methodize until its
-   artifact successor or route retirement exists. Receiver repair, Method(None),
-   VM/JSON, and schema follow as later owner-specific rows.
+   inventory; four R2 origins and the shared Method(None) producer/reissuer/
+   terminal remain CutoverBlockerOpen. Do not change method_resolution_static_none
+   while named R2 descendants reach it, and do not delete the known Stage1
+   writer until its artifact successor or route retirement exists (the selector
+   itself carries no Stage1 provenance). Receiver repair, Method(None), VM/JSON,
+   and schema follow as later owner-specific rows.
 
 15. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0
     classify static method terminal, generic CorePlan GlobalCall, and env-gated

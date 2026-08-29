@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "13664f7787"
+observed_commit = "a62782ce5a"
 observed_at = "2026-08-29"
 implementation_permission = false
 
@@ -63,7 +63,7 @@ parked_selected_backend_rows = 0
 id = "method_resolution_static_none"
 class = "direct_issuer"
 owner = "src/mir/builder/calls/method_resolution.rs:31-55"
-caller = "src/mir/builder/calls/build.rs:307-364"
+caller = "src/mir/builder/calls/build.rs:128-145,362-419"
 edge = "current_static_box + hardcoded has_method issues Callee::Method { receiver: None } and the builder publishes a target/name path"
 authority = "not available in this route; existing callable declaration catalog/publication handoff is the required authority"
 disposition = "CutoverBlockerOpen"
@@ -78,7 +78,7 @@ id = "unified_emitter_methodize_none"
 class = "direct_reissuer"
 owner = "src/mir/builder/calls/unified_emitter.rs:407-461"
 caller = "selected unified emission path; physical publication at :700-725"
-edge = "env/profile and StaticMethodId text parse rewrite an existing Global into Method(None) for RuntimeData"
+edge = "the explicit compatibility snapshot reclassifies an incoming RuntimeData Global into Method(None)"
 authority = "incoming exact Callee provenance; environment/profile/text cannot reclassify a canonical target"
 disposition = "CutoverBlockerOpen"
 coupled_to = "Stage1 exact-1 writers, build_stage1 direct emit, Program(JSON) zero writers, shell empty transport, and separate Hako/JSON readers require a finite ingress-policy decision before this reissuer can change."
@@ -333,7 +333,7 @@ guard_phase = "method_corridor_nonstage1_producer_retire_d0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 ceremony_tier = "T1"
 implementation_permission = false
-decision = "Before changing method_resolution, enumerate the finite non-Stage1 Method(None) producer, reissuer, consumer, and terminal boundary. The exact Stage1 HAKO_MIR_BUILDER_METHODIZE=1 compatibility writer remains a named parked owner; no default, name, registry, receiver, or argument inference may be promoted to target authority."
+decision = "Before changing method_resolution, enumerate the finite non-Stage1 Method(None) producer, reissuer, consumer, and terminal boundary. The known Stage1 HAKO_MIR_BUILDER_METHODIZE=1 writers remain outside this boundary as named parked owners, but the Rust selector carries no Stage1 provenance; its shared reissuer stays an in-boundary blocker. No default, name, registry, receiver, or argument inference may be promoted to target authority."
 source_authority = "An exact same-brand callable/source relation or an already-issued typed publication handoff; this design row issues no new semantic product."
 canonical_issuer = "Existing qualified Global/Method(Some) publication owners, if an exact relation is proven; otherwise the route remains pre-effect rejected or ParkedSealed."
 non_authority = [
@@ -342,7 +342,12 @@ non_authority = [
   "name/arity, StaticMethodId, registry, singleton, physical symbol, func/ValueId, args[0], autoscan, VM/backend, JSON/Hako output",
   "Stage1 artifact failure, stale binary, wrapper/argv substitution, fallback, retry, and test-only fixtures",
 ]
-census_boundary = "method_resolution_static_none producer -> build.rs caller -> selected pre-effect terminal or named compatibility successor; includes the finite Rust Method(None) producer/reissuer/terminal sites and their live production callers; excludes the explicit Stage1 compatibility writer, JSON/Hako readers, VM/backend consumers, Method(Some) semantics, and Call.func/Option<Callee> schema retirement."
+census_boundary = "RawBrandCallAuthorityV1 non-Stage1 origin or Builder methodize snapshot -> pre-effect reject, exact successor, or first MirInstruction::Call insertion; includes the four named R2 origins, the shared Resolved consumer, method_resolution_static_none, the Builder Method(None) publication terminal, the unified-emitter reissuer, and the already-closed installed Main/nonbrand preflight terminals; excludes the known Stage1 writers, JSON/Hako readers, VM/backend/native consumers, Method(Some) semantics, and Call.func/Option<Callee> schema retirement."
+current_disposition = "CutoverBlockerOpen"
+census_status = "open_blockers_present"
+safe_i1 = false
+in_scope_inventory_count = 11
+outside_inventory_count = 8
 open_questions = [
   "Which production callers reach method_resolution_static_none after the named R2 compatibility fence, and which are genuinely non-Stage1?",
   "Does each non-Stage1 caller have an exact catalog/source relation that can issue qualified Global or Method(Some), or must it remain pre-effect rejected/ParkedSealed?",
@@ -355,14 +360,22 @@ required_evidence = [
   "no new semantic Verified*/Prepared* receipt, resolver, target lookup, or production code change",
   "focused source/guard evidence that the inventory is exhaustive within its stated boundary",
 ]
-acceptance = "Inventory is Exhausted within the named boundary; every non-Stage1 row has an owner, authority/non-authority, disposition, and observable reopen trigger; no open in-boundary blocker is silently parked; Stage1 and excluded backend/JSON/Hako rows remain explicitly ParkedSealed."
+ordered_tasks = [
+  "D0-A: trace each in-scope origin to its first producer, shared Resolved consumer, and terminal; record caller counts without changing source",
+  "D0-B: prove or disprove an exact same-brand source/catalog successor for each open row; name the missing issuer instead of inferring one",
+  "D0-C: choose one typed pre-effect terminal or exact successor per open row, then remeasure writer, reissuer, consumer, and caller-zero evidence",
+  "D0-D: close the census only when in-scope blockers are zero and outside cohorts remain owner/reopen-triggered ParkedSealed",
+  "I1: open one producer edge only after D0 is Exhausted; include positive/negative tests, reusable guard, and old-edge deletion in the same bounded slice",
+]
+acceptance = "D0 may close only when the structured in-scope inventory is Exhausted and every in-boundary CutoverBlockerOpen row has either an exact successor or a pre-effect typed terminal with caller-zero evidence. Every outside row has an owner, non-authority, ParkedSealed disposition, and observable reopen trigger. Until then this row remains an accepted design stop and I1 stays closed; no blocker may be silently parked."
 no_safe_slice = "Remain in design_stop if any non-Stage1 producer lacks an exact source/catalog issuer, if a caller crosses the R2 compatibility fence, if method_resolution must be changed to discover the relation, or if the proposed successor requires name/arity/registry/receiver/argument inference, fallback, retry, VM/backend, JSON/Hako, or Call-schema changes."
 next_implementation = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-I1"
 allowed_files = [
-  "docs/development/current/main/CURRENT_STATE.toml",
-  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
-  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
-  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+	"docs/development/current/main/CURRENT_STATE.toml",
+	"docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+	"docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+	"src/mir/builder/calls/README.md",
+	"tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
   "tools/checks/guard_rows.toml",
 ]
 forbidden_files = [
@@ -372,6 +385,177 @@ forbidden_files = [
   "src/runner/mir_json_emit/root.rs",
   "VM/backend/optimizer/Call schema/receiver repair",
 ]
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "raw_legacy_origin"
+kind = "origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:56-62; src/mir/builder/calls/lowering.rs:377-393,437-451"
+edge = "RawLegacy child lowering enters the shared Resolved compatibility completion"
+authority = "No exact source/catalog target issuer is present in this legacy owner"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "Every live RawLegacy production caller has an exact successor or an effect-free named retirement terminal"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "script_root_origin"
+kind = "origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:77-95; src/mir/builder/calls/function_call_preflight_route.rs:348-355"
+edge = "ScriptRoot compatibility demand is normalized to Resolved before argument descent"
+authority = "ScriptRoot source observation has no exact catalog-backed direct-call product in this route"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "ScriptRoot receives an exact same-brand source/catalog handoff or a named pre-effect retirement owner"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "raw_script_root_origin"
+kind = "origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:348-355"
+edge = "RawScriptRoot compatibility demand shares the Resolved completion"
+authority = "RawScriptRoot has no exact source/catalog target issuer"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "RawScriptRoot receives an exact source/raw relation or a named pre-effect retirement owner"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "raw_root_main_origin"
+kind = "origin"
+owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:348-355"
+edge = "RawRootMain compatibility demand shares the Resolved completion"
+authority = "RawRootMain has no exact parser/catalog/raw lineage issuer for this call"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "RawRootMain gains an exact source/catalog/raw relation or a named pre-effect retirement owner"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "method_resolution_static_none"
+kind = "producer"
+owner = "src/mir/builder/calls/method_resolution.rs:31-55; src/mir/builder/calls/build.rs:371"
+edge = "current_static_box + has_method emits Callee::Method with receiver None"
+authority = "The current box and method spelling are not an exact declaration-backed issuer"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "The shared Resolved caller receives an exact catalog/owner handoff or a named typed reject"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "resolved_compatibility_consumer"
+kind = "consumer"
+owner = "src/mir/builder/calls/build.rs:128-145,362-419"
+edge = "Resolved lowers arguments, then re-enters resolve_call_target and recovery before Call"
+authority = "No post-argument target discovery is permitted; the consumer must receive an issued handoff"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "Every Resolved production caller is switched to target-before-arguments or an effect-free typed terminal"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "builder_method_none_publication_terminal"
+kind = "terminal"
+owner = "src/mir/builder/calls/builder_emit.rs:109-142,275-279"
+edge = "Builder publication still accepts the receiverless Method terminal"
+authority = "Only an exact receiver or qualified static declaration may reach canonical Call publication"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "All in-boundary Method(None) writers are zero and the terminal has a typed pre-publication rejection"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "unified_emitter_methodize_reissuer"
+kind = "reissuer"
+owner = "src/mir/builder/calls/unified_emitter.rs:397-459,698-729"
+edge = "Explicit compatibility snapshot can reclassify RuntimeData Global into Method(None)"
+authority = "Incoming typed target provenance; the selector is not a Stage1 provenance brand"
+disposition = "CutoverBlockerOpen"
+reopen_trigger = "All non-Stage1 selector callers are zero or a source-backed exact compatibility owner replaces this reissuer"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "installed_app_main_affine_successor"
+kind = "successor"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:317-318; src/mir/builder/calls/build.rs:128-176"
+edge = "Installed App Main consumes the source-keyed affine handoff before arguments"
+authority = "Same-session App Main source/catalog identity and exact source site"
+disposition = "ExactSuccessor"
+reopen_trigger = "App Main source identity, catalog brand, or handoff consumer changes"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "installed_nonbrand_pre_effect_reject"
+kind = "terminal"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:319-324,425-449"
+edge = "Installed non-brand or bare same-owner static calls reject before argument descent"
+authority = "Installed source relation gate with no exact target handoff"
+disposition = "PreEffectReject"
+reopen_trigger = "A same-brand exact catalog/source relation is added for this installed family"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
+id = "unclassified_preflight_reject"
+kind = "terminal"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:326-347"
+edge = "Unclassified ordinary calls reject before argument descent"
+authority = "Finite preflight classification with no exact target product"
+disposition = "PreEffectReject"
+reopen_trigger = "A new named source/brand owner is added and supplies an exact handoff"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "stage1_exact_one_writer"
+kind = "compatibility_writer"
+owner = "src/runner/stage1_bridge/env/runtime_defaults.rs:10-24; tools/selfhost/lib/stage1_contract.sh:279-307"
+edge = "Known Stage1 writers select exact value 1, but the shared Rust selector carries no Stage1 provenance"
+disposition = "ParkedSealed"
+non_authority = "The environment value alone is not an artifact or source authority"
+reopen_trigger = "Fresh Stage1 artifact plus metadata from the same source/compile transaction, or explicit Stage1 route retirement"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "json_v0_optional_method_receiver"
+kind = "compatibility_ingress"
+owner = "src/runner/mir_json_v0/call.rs:78-118,253-272"
+edge = "JSON-v0 nullable receiver compatibility can publish Method(None)"
+disposition = "ParkedSealed"
+non_authority = "JSON-v0 wire shape cannot issue a Rust source target"
+reopen_trigger = "JSON-v0 lane is selected for schema retirement or gains an exact typed successor"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "core_bridge_const_methodize"
+kind = "post_wire_reissuer"
+owner = "src/runner/modes/common_util/core_bridge.rs:101-199"
+edge = "Post-wire Const text can be rewritten into receiverless Method"
+disposition = "ParkedSealed"
+non_authority = "Post-wire text and compatibility flags cannot become source target authority"
+reopen_trigger = "Selected bridge caller-zero and typed payload retirement are proven"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "core_bridge_module_singleton_methodize"
+kind = "post_wire_reissuer"
+owner = "src/runner/modes/common_util/core_bridge.rs:200-245,290-335"
+edge = "ModuleFunction/static singleton metadata can be rewritten into Method(None)"
+disposition = "ParkedSealed"
+non_authority = "Singleton tables and metadata text cannot issue a receiver"
+reopen_trigger = "Bridge route retirement or an exact catalog handoff for the selected compatibility payload"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "rust_json_nullable_egress"
+kind = "egress"
+owner = "src/runner/mir_json_emit/emitters/calls.rs:17-75; src/runner/mir_json_emit/helpers.rs:43-64"
+edge = "JSON egress projects nullable Method receiver"
+disposition = "ParkedSealed"
+non_authority = "Egress is a projection and cannot repair or issue a target"
+reopen_trigger = "All upstream Method(None) producers are zero and the egress has a typed error boundary"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "rust_vm_method_none_recovery"
+kind = "terminal_consumer"
+owner = "src/backend/mir_interpreter/handlers/calls/mod.rs:70-92,220-242; src/backend/mir_interpreter/handlers/calls/method.rs:394-532"
+edge = "Rust reference VM performs registry/name/singleton and receiver-surrogate recovery"
+disposition = "ParkedSealed"
+non_authority = "The VM is a terminal consumer, not a target issuer"
+reopen_trigger = "Reference backend selection with upstream producer-zero and selected parity evidence"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "selected_native_method_none_preflight"
+kind = "terminal_consumer"
+owner = "selected ny-llvmc mir-call pure/need/dispatch shims"
+edge = "Native preflight treats missing receiver as zero and may retry plan metadata"
+disposition = "ParkedSealed"
+non_authority = "C metadata/name/surface and numeric zero are not source target authority"
+reopen_trigger = "Selected native egress rejects receiverless Method and its presence/range guard is landed"
+
+[[method_corridor_nonstage1_producer_retire_d0_2026_08_29.outside_inventory]]
+id = "hako_methodize_adapter"
+kind = "non_rust_compatibility"
+owner = "lang/src/mir/builder/internal/{builder_config_box,func_lowering/call_methodize_box}.hako"
+edge = "Hako compatibility adapter remains a separate wire/schema owner"
+disposition = "ParkedSealed"
+non_authority = "Hako adapter output is not evidence for the Rust Method(None) producer census"
+reopen_trigger = "Hako pipeline is explicitly selected for migration or route retirement"
 
 [docs]
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
