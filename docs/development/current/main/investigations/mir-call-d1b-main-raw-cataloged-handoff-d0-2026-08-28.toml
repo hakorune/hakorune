@@ -991,6 +991,8 @@ worker_evidence = [
     "r2_named_resolved_audit (read-only): RootPreservation(CompatibilityLoss) is the current default-macro contract; ParserNormalRootExecutionPreservationV1 and its existing normal_callable_transform issuer own that terminal. Do not use a stale binary or entry/argv edit as a successor.",
     "r2_guard_scope_audit (read-only): build_stage1.sh defaults to target/release/hakorune; the direct stage1 contract route has no macro flag; macro policy must therefore be pinned with source commit, binary hash/mtime, cwd/import root, entry hash, and environment before a retry.",
 ]
+route_owner_decision = "The default macro-enabled terminal is owned by transform_normal_callable_program_v1 and ParserNormalRootExecutionPreservationIssuerV1; the macro-disabled terminal is owned by the existing resolver-deferred/parameter-contract boundary and the five named Stage1 Hako method owners. Neither existing owner is an artifact-producing successor, and the clean matrix contains no named successor that can safely bypass either terminal. Keep the full-artifact request ParkedSealed at these typed boundaries; do not reinterpret a macro switch, source rewrite, wrapper, or stale artifact as ownership."
+route_reopen_trigger = "Reopen only when an existing artifact-capable route owner is named, or a source/parameter owner-backed change produces a reproducible later typed terminal under the same clean provenance tuple. Then rerun one fresh stage1-cli artifact probe with exact metadata and Main.main/0; do not add a ternary/parser fallback or change Methodize, Call, VM, or backend contracts."
 acceptance = [
     "A fresh stage1-cli artifact and metadata are produced from the explicit logical owner, with canonical Main.main/0 entry shape.",
     "Direct methodize=0/1 parity is measured only on that fresh artifact, including target, args, dst, effects, result, stdout/return/fault, and no fallback/retry.",
@@ -1006,8 +1008,8 @@ no_safe_slice = [
     "The proposed change touches shared Resolved/recovery, VM/JSON/backend, or Call schema."
 ]
 non_claims = "No Methodize parity, Rust producer deletion, Method corridor implementation, wrapper compatibility, VM migration, or Call-schema cutover is established until the fresh artifact exists."
-smallest_next_slice = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0: record the dual macro-policy terminals as one source-preservation decision, name the existing issuer/successor (or ParkedSealed), and do not edit ternary/source/parser/builder code."
-next_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
+smallest_next_slice = "No implementation slice is open: retain the named dual-policy terminals as ParkedSealed and wait for the recorded owner-backed reopen trigger. Do not add another provenance/reconciliation card, retry with a macro switch, or edit ternary/source/parser/builder code."
+next_row = "STAGE1-FULL-ARTIFACT-D0 (ParkedSealed; reopen only on route_reopen_trigger)"
 
 [stage1_fresh_blocker_snapshot_reconcile_d0_2026_08_29]
 status = "accepted_design_stop"
