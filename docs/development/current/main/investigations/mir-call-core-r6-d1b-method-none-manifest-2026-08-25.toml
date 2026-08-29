@@ -569,13 +569,14 @@ non_claims = [
 next_execution = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 
 [method_call_compat_script_root_ret0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 guard_phase = "script_root_pre_effect_ret0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
 box_kind = "RET0 BoxCount retirement: remove one dormant internal compatibility success shape; production replacement credit = 0"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "f1bb472f1d"
 decision = "After existing Brand, TypeOp, Math, FastMem, and str/1 precedence, ScriptRoot ordinary non-special FunctionCall enters one origin-specific typed retirement terminal before argument descent. R4 semantic Deferred/ObservationDeferred remains unchanged; no target product is issued."
 source_authority = "RawBrandCallAuthorityV1::ScriptRootParkedCompatibility is the sole downstream provenance issuer. The production source path is already fail-closed by NormalScriptPreEffectSourceObservationIssuerV1 before physical lowering."
 canonical_issuer = "prepare_ordinary_function_completion_v1 is the sole physical pre-effect terminal issuer and may issue only RawCompatibilityOrdinaryCallTerminalV1::ScriptRootRetired for this origin."
@@ -618,6 +619,8 @@ focused_test_filters = [
 ]
 coverage_list_command = "CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_BUILD_JOBS=4 cargo test --profile quick --lib -- --list"
 coverage_list_count = 7503
+focused_test_run = "script_compatibility_tests: 9 passed, 0 failed; script_function_call_remains_deferred_to_runtime_retirement_terminal: 1 passed, 0 failed"
+guard_run = "mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: row=ScriptRoot RET0 ok; current_state_pointer_guard.sh: ok"
 guard = "Extend the existing mir_call_d1b_active_surface_guard.py current-row phase only; no new shell guard, guard family, or registry row. Pin ScriptRoot -> Resolved = 0, RawLegacy -> Resolved retained, special precedence tokens, changed-test coverage, and touched source files below 760 lines."
 allowed_files = [
   "src/mir/builder/calls/function_call_preflight_route.rs",

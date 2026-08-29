@@ -53,10 +53,12 @@ compatibility mode, and malformed values fail before mutation. Stage1 is a
 known writer, but the selector carries no Stage1 provenance; external callers
 must not be treated as Stage1 without a separate owner. Stage1 full artifact
 remains ParkedSealed. `MIR-CALL-COMPAT-SCRIPT-ROOT-RET0` changes only the
-dormant ScriptRoot edge and earns no production replacement credit; R4
+dormant ScriptRoot edge and is landed at `f1bb472f1d` with 9/9 compatibility
+tests and 1/1 semantic-retention test green. It earns no production replacement
+credit; R4
 semantic deferral, special-call precedence, RawLegacy, shared `Resolved`,
 `method_resolution`, JSON/Hako, VM/backend, and Call-schema changes remain
-closed.
+closed. The next boundary is a design stop for the RawLegacy fate/caller census.
 
 ## Historical rolling context (non-authoritative)
 
