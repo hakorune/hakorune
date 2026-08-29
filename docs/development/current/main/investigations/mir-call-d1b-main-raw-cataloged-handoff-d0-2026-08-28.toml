@@ -1131,14 +1131,20 @@ canonical_issuer = "Existing callable parameter-contract issuer and existing Res
 non_authority = "Ternary language extension, parser relaxation, default/opaque parameter filling, source rewriting, AST/MIR rewrite, resolver/Rust changes, Main/entry/wrapper/argv, Methodize/Method(None), Call schema, VM/backend, fallback, and artifact promotion."
 fail_fast_boundary = "Before package install and artifact effects, reproduce the baseline five-method ResolverDeferred batch and compare one source-shape combination at a time; any ParameterContract or SourceShape transition remains a named blocker until its existing owner explains it."
 census_boundary = "stage1_cli_env.hako -> static import closure -> the four Hako owners/five methods/20 ternary sites -> callable parameter-contract declaration 430 -> ResolverDeferred terminal; includes only this finite source-shape interaction, excludes parser changes, unrelated ternaries, entry/wrapper, Methodize, Call, VM/backend, and full artifact claims."
-smallest_next_slice = "Read-only per-file and combination matrix with pinned source hashes, binary hash, cwd, env, command, rc, artifact existence, first typed terminal, and declaration/parameter identity. Confirm whether lower_method_array_get_set_box.hako is the decisive transition and name the existing source owner or park the family; no code or fixture edits."
+smallest_next_slice = "Read-only per-file and bounded-combination matrix with pinned source hashes, binary hash, cwd, env, command, rc, artifact existence, first typed terminal, and declaration/parameter identity. Confirm whether lower_method_array_get_set_box.hako is the decisive transition and name the existing source owner or park the family; no code or fixture edits."
 finite_inventory = [
-    "baseline: all four files unchanged -> five-method ResolverDeferred/UnsupportedExpression",
-    "pattern_util_box.hako only -> compare the PatternUtil owner boundary",
-    "json_number_canonical_box.hako only -> compare canonicalize_f64 contract",
-    "jsonfrag_normalizer_box.hako only -> compare both JsonFrag owners",
-    "lower_method_array_get_set_box.hako only -> compare try_lower contract",
-    "bounded combinations only after each single-file observation is recorded; no unbounded join census",
+    "B0: all four files unchanged -> five-method ResolverDeferred/UnsupportedExpression baseline",
+    "S-P: pattern_util_box.hako only -> compare find_local_bool_before",
+    "S-N: json_number_canonical_box.hako only -> compare canonicalize_f64",
+    "S-J: jsonfrag_normalizer_box.hako only -> compare both JsonFrag owners",
+    "S-L: lower_method_array_get_set_box.hako only -> compare try_lower",
+    "C1: PatternUtil + JsonFrag, only after B0/S rows reproduce their terminals",
+    "C2: C1 + JsonNumber, only after C1 reproduces its terminal",
+    "C3: C2 + LowerMethodArrayGetSet, one all-four confirmation; stop after C3",
+]
+worker_evidence = [
+    "r2_named_resolved_audit (read-only, HEAD a776839463): declaration 430 is a FinalCallableSemanticSyntaxLoan batch_slot, not a source identity; parameter 0 is the ordinal. The canonical issuer is issue_callable_parameter_contract_v1, which classifies explicit StringBox/i64 only; the four ternary-owner methods have unannotated parameters and should ordinarily map to OpaqueHandle.",
+    "r2_guard_scope_audit (read-only, HEAD a776839463): use the finite B0/S-P/S-N/S-J/S-L/C1/C2/C3 matrix, stop a later combination on the first unexplained ParameterContract, and reuse current-state-pointer plus stage1-entry-shape guards without a new guard family.",
 ]
 acceptance = [
     "The source/parameter owner for the declaration 430 transition is named, or the finite ternary family is explicitly ParkedSealed with an observable reopen trigger.",
@@ -1150,6 +1156,7 @@ no_safe_slice = [
     "The per-file matrix cannot attribute the transition to an existing source/parameter owner.",
     "The only apparent repair is a parser relaxation, guessed parameter default, AST rewrite, or a change outside the finite four-owner closure.",
     "A probe uses a mixed worktree, stale binary, missing artifact, or plugin/environment failure as semantic evidence.",
+    "A bounded combination changes the batch-slot identity without an existing source-backed explanation; do not infer the owner from slot 430 or from the last edited file.",
 ]
 non_claims = "This D0 does not reopen ternary implementation, establish a full Stage1 artifact, or advance Methodize, MirBuilder Call, VM, backend, or cleanup work."
 next_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
