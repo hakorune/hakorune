@@ -1437,7 +1437,7 @@ acceptance = [
     "The R2 boundary no longer includes a descendant that it also labels ParkedSealed.",
     "Current paths replace stale raw_root_children and legacy-port issuer references.",
     "The rolling frontier distinguishes preflight classification closure from global Resolved/recovery retirement.",
-    "Method corridor is selected only as design_stop; implementation_permission remains false until a disjoint producer and module-ingress policy owner are named.",
+    "Method ingress policy D0 is accepted; the bounded Rust explicit-compatibility I0 is now fast-open while JSON/Hako and the separate Stage1 artifact lane remain outside the switch.",
 ]
 closeout = "R2 fence reconciliation is complete as a docs-only boundary correction. Preflight provenance/disposition is Exhausted and generic unclassified input is fail-closed; the four named compatibility descendants remain live outside the boundary with reopen evidence. No global Resolved/recovery or Method producer retirement is claimed."
-next_row = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
+next_row = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"

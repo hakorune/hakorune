@@ -34,8 +34,10 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 `CURRENT_STATE.toml` is the sole mode and active-row authority. The two named
 compatibility-origin tests are green and the R2 preflight fence is reconciled;
 the four live downstream compatibility descendants remain outside that fence.
-The active design stop is Method ingress policy D0. Stage1 full artifact remains
-ParkedSealed and no Method implementation is open from this rolling file.
+The Method ingress policy D0 is accepted and the bounded Rust explicit-
+compatibility I0 is fast-open. Stage1 full artifact remains ParkedSealed;
+JSON/Hako readers and the direct Stage1 artifact lane remain outside this
+production switch.
 
 ## Historical rolling context (non-authoritative)
 
@@ -420,8 +422,9 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     payload deleted in the same cell after late recovery is already zero
 
 14. MIR-CALL-METHOD-CORRIDOR-R0
-   first freeze the Rust methodize ingress policy and one-time module snapshot;
-   separately preserve exact Method(Some) receiver authority. Do not delete
+   ingress policy D0 is closed; run the bounded Rust explicit-compatibility I0
+   (module snapshot, exact 0/1 parsing, implicit default-on deletion) while
+   separately preserving exact Method(Some) receiver authority. Do not delete
    method_resolution_static_none while named R2 descendants reach it, and do
    not delete explicit Stage1 methodize until its artifact successor or route
    retirement exists. Receiver repair, Method(None), VM/JSON, and schema follow

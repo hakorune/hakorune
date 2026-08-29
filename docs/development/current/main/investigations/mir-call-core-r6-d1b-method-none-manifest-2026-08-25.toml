@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "After the compatibility-origin red and R2 fence are closed, run MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0. Name the one-time module snapshot owner and classify every implicit/explicit methodize reader/writer before any producer implementation opens."
+smallest_next_slice = "The ingress-policy D0 is accepted. Open MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0 for the Rust module snapshot and unified-emitter switch only; keep JSON/Hako and the separate Stage1 artifact lane parked."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -220,15 +220,15 @@ reopen_triggers = [
 [stage1_full_artifact_lane_fate_2026_08_29]
 status = "parked_sealed"
 implementation_permission = false
-decision = "Stage1 full artifact remains a separate NoSafeSlice. It blocks deletion of Stage1 compatibility writers, Stage1 0/1 parity claims, and final R6 while that residual route is live; it does not block read-only Method census or a disjoint exact Method(Some) preservation slice."
+decision = "Stage1 full artifact remains a separate NoSafeSlice. It blocks deletion of Stage1 compatibility writers, Stage1 0/1 parity claims, and final R6 while that residual route is live; it does not block the Rust ingress-policy I0 or a disjoint exact Method(Some) preservation slice. The build_stage1 direct-emission path is a SeparateArtifactBuildLane, not a Rust Canonical or ExplicitLegacy methodize state."
 reopen_when = "An existing Stage1 source owner emits a non-empty artifact plus metadata from the same source/semantic/compile transaction without stale binary, wrapper/argv substitution, macro switching, second resolver, fallback, or retry; alternatively the Stage1 route is retired."
 non_claims = "Stage1 is not the repository-wide owner of HAKO_MIR_BUILDER_METHODIZE. Its Rust and shell exact-1 injectors are only named Stage1 compatibility ingress owners."
 
 [method_corridor_ingress_policy_d0_2026_08_29]
-status = "active_design_stop"
+status = "landed_design"
 task_id = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
 implementation_permission = false
-decision = "Before changing implicit/default-on Rust methodize, freeze a finite reader/writer boundary and name one module-ingress snapshot owner. The env selector chooses Canonical versus ExplicitLegacyCompatibility; it never issues or repairs a target."
+decision = "Freeze the finite reader/writer boundary and use one module-ingress snapshot owner. The env selector chooses Canonical versus ExplicitLegacyCompatibility; it never issues or repairs a target. The Rust boundary is accepted; JSON/Hako readers remain separate owners and build_stage1 direct emission remains a parked artifact lane."
 source_authority = "The incoming typed Callee/CanonicalGlobalTarget remains target authority. A module-lifecycle policy snapshot may select compatibility behavior once before Builder mutation."
 non_authority = "The env string, config getter, JSON egress profile, Hako methodize pass, StaticMethodId text, name/arity, Stage1 artifact failure, VM/registry, args[0], and autoscan."
 census_boundary = "Rust process/env ingress -> module-lifecycle policy snapshot -> unified-emitter policy consumer; includes Rust readers/writers and the shell/direct-build handoff that can change the Rust value, excludes JSON egress and Hako methodize readers, which retain separate owners."
@@ -242,7 +242,8 @@ state_matrix = [
   "Exact \"0\" at the named Rust module ingress -> Canonical; no Method(None) projection.",
   "Exact \"1\" from the named Stage1 compatibility writer -> ExplicitLegacyCompatibility; the existing bounded projection remains named and isolated.",
   "Other or non-Unicode Rust selector -> typed reject before Builder mutation; no default-on or retry.",
-  "Shell explicit-empty or build_stage1 direct emit without a named value -> unresolved owner blocker; do not infer Canonical or Stage1 compatibility.",
+  "tools/hakorune_emit_mir.sh unset -> forwarding owner supplies exact \"0\" (Canonical); explicit empty remains a typed-reject input and is not coerced.",
+  "tools/selfhost/mainline/build_stage1.sh direct emit -> SeparateArtifactBuildLane; it does not claim Rust Canonical or ExplicitLegacy methodize until its own artifact/env provenance is sealed.",
   "JSON/Hako selector -> separate owner state; not evidence for the Rust policy and not changed by this row.",
 ]
 finite_census = [
@@ -259,10 +260,11 @@ required_before_i0 = [
   "Module lifecycle is accepted as the sole Rust snapshot ingress and invalid/non-Unicode input rejects before clear_callable_declaration_catalog or later Builder mutation.",
   "The I0 diff can keep unified_emitter.rs below 760 lines, reuse the existing lifecycle guard, and avoid a new guard family.",
 ]
-open_blockers = [
-  "Name the owner-backed disposition for tools/hakorune_emit_mir.sh explicit-empty forwarding when the variable is unset.",
-  "Name whether tools/selfhost/mainline/build_stage1.sh direct emit is Canonical or an explicit compatibility writer; its current path bypasses the Stage1 default export.",
+resolved_d0_questions = [
+  "tools/hakorune_emit_mir.sh unset forwarding is owned by execute_selfhost_builder_runner and maps to exact \"0\"; explicit empty/invalid values are left for the Rust typed reject.",
+  "tools/selfhost/mainline/build_stage1.sh direct emit is explicitly outside the Rust methodize policy as SeparateArtifactBuildLane and retains the Stage1 artifact reopen trigger.",
 ]
+open_blockers = []
 future_i0 = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"
 future_i0_old_edge_delete_set = [
   "Rust unified emitter per-call ambient env read",
@@ -271,6 +273,41 @@ future_i0_old_edge_delete_set = [
 ]
 future_i0_non_claims = "No method_resolution producer retirement, repository-wide env normalization, Hako/JSON/VM/backend change, Stage1 artifact, receiver repair, Method(None)=0, or Call-schema cutover."
 no_safe_slice = "Remain in design_stop if a route owner for unset/empty cannot be named, the policy must be reread during body lowering, Stage1/JSON/Hako parity is required in the same slice, or target meaning must be reconstructed from text/registry/arguments."
+
+[method_corridor_explicit_compat_ingress_i0_2026_08_29]
+status = "fast_open"
+task_id = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
+ceremony_tier = "T2"
+implementation_permission = true
+change = "Snapshot the Rust methodize policy once at module ingress and make unified emission consume that typed value. Unset/exact 0 is Canonical, exact 1 is the named Stage1 compatibility mode, and other/non-Unicode values reject before Builder mutation. Delete only the implicit/default-on edge."
+contract = "Incoming typed Callee/CanonicalGlobalTarget remains the sole target authority. The explicit compatibility branch is a bounded projection only; JSON/Hako readers, Stage1 artifact construction, and build_stage1 direct emission remain separate owners or parked lanes."
+done = "A focused matrix proves unset/0 preserve Global, exact 1 preserves the existing bounded compatibility projection, malformed/non-Unicode values fail before publication, the module snapshot is stable after env mutation, and the existing call-corridor lifecycle guard remains green."
+stop = "Return to design if another Rust writer/reader is found, shell/direct-build semantics require a new authority, policy is reread during body lowering, or the change reaches method_resolution, JSON/Hako, VM/backend, receiver repair, or Call schema."
+allowed_files = [
+  "src/config/env/builder_flags.rs",
+  "src/mir/builder/compilation_context.rs",
+  "src/mir/builder/module_lifecycle.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
+  "src/runner/stage1_bridge/env/runtime_defaults.rs",
+  "tools/hakorune_emit_mir.sh",
+  "src/tests/mir_static_box_naming.rs",
+  "docs/reference/environment-variables.md",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/runner/mir_json_emit/root.rs",
+  "lang/src/mir/builder/internal/builder_config_box.hako",
+  "lang/src/mir/builder/func_lowering/call_methodize_box.hako",
+  "tools/selfhost/mainline/build_stage1.sh",
+  "tools/selfhost/lib/stage1_contract.sh",
+  "VM/backend/optimizer/Call schema/receiver repair",
+]
 
 [docs]
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
