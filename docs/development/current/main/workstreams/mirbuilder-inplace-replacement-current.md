@@ -74,6 +74,13 @@ retire that caller-zero compatibility edge. No fast row is open until that
 single D0 is recorded; no provider-wide, VM/backend, package/loan, or
 Call-schema work is implied.
 
+The D0 reconciliation is now recorded in the manifest: production `print` is
+parsed as `ASTNode::Print` and owned by `stmts/print_stmt.rs`; no production
+`ASTNode::FunctionCall { name: "print" }` constructor was found. The ordinary
+Cataloged print success branch is therefore a caller-zero compatibility edge.
+The next bounded row is its pre-effect typed retirement, while the dedicated
+Print statement owner stays unchanged.
+
 ## Historical rolling context (non-authoritative)
 
 Decision:
