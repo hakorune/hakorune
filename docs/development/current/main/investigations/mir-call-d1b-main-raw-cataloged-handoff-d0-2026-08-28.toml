@@ -1307,27 +1307,21 @@ next_row = "STAGE1-FULL-ARTIFACT-D0"
 closeout = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0 is complete as a bounded source-shape repair. Main.main/0 and strict source-backed co-seal remain intact; fresh normal emit now clears SourceShape and stops at a later named ResolverDeferred/UnsupportedExpression terminal. The full artifact row remains design_stop."
 
 [normal_callable_compat_origin_test_r0_2026_08_29]
-status = "fast_open"
+status = "landed"
 task_id = "NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0"
 execution_row = "NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "5cba61b545"
 decision = "Keep the source-backed default-derive CompatibilityLoss contract. Repair only the two stale compatibility-origin transport fixtures by selecting an existing parser-issued compatibility cohort, so the tests continue to prove explicit Compatibility origin transport instead of expecting a forbidden fallback."
 source_authority = "The parser-issued NormalCallableParserCompatibilityV1 cohort and NormalCallableTransformCompatibilityV1::Parser provenance own the compatibility origin. ParserNormalRootExecutionPreservationV1 continues to reject source-backed default-derive authority loss."
 non_authority = "A test expectation, the normal_callable_transform filter, default-derive fallback, Method/methodize state, Stage1 artifact state, wrapper substitution, or changing production transform behavior."
 fail_fast_boundary = "The parser/transform must issue explicit Compatibility before NormalCompileRequestV1 and prepared-root transport. Source-backed default derive must still terminate at ExactSourceChanged(RootPreservation(CompatibilityLoss))."
-reproduction = [
-    "At HEAD e9f76676db, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib compatibility_origin_moves_through_request_and_prepared_root -- --test-threads=1 executes 1 test and fails at src/mir/compiler/normal_default_pipeline_tests.rs:124 with ExactSourceChanged(RootPreservation(CompatibilityLoss)).",
-    "At the same HEAD, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib compatibility_source_stays_on_the_explicit_ast_lane -- --test-threads=1 executes 1 test and fails at src/runner/modes/common_util/normal_callable.rs:121 with the same typed terminal.",
-    "The normal_callable_transform filter is a separate 7-test module and does not cover either named failing test.",
-]
+reproduction = "At HEAD e9f76676db, each named compatibility-origin test executed one test and failed at the intentional RootPreservation(CompatibilityLoss) boundary; the separate normal_callable_transform filter did not cover them."
 smallest_next_slice = "Change the two test fixtures from source-backed default-derive box syntax to an existing parser-issued compatibility cohort such as record Data, assert Parser(RecordBox) provenance, and leave production code plus the default-derive CompatibilityLoss negative unchanged."
 allowed_files = ["src/mir/compiler/normal_default_pipeline_tests.rs", "src/runner/modes/common_util/normal_callable.rs", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"]
-acceptance = [
-    "Both exact named tests execute one nonzero test and pass.",
-    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1 remains nonzero and green.",
-    "The explicit compatibility origin still traverses request/prepared-root ownership; the tests are not weakened into error-only expectations.",
-    "The source-backed default-derive CompatibilityLoss negative remains unchanged; no production, Method, Stage1, package/loan, VM, or Call-schema file changes.",
-]
+acceptance = ["Both exact named tests execute one nonzero test and pass.", "The nonzero normal_callable_transform filter remains green.", "Explicit Parser(RecordBox) origin transport is preserved; the default-derive CompatibilityLoss negative and all production routes remain unchanged."]
+filtered_test_evidence = ["compatibility_origin_moves_through_request_and_prepared_root: 1 passed, 0 failed, 7486 filtered out.", "compatibility_source_stays_on_the_explicit_ast_lane: 1 passed, 0 failed, 7486 filtered out.", "normal_callable_transform: 7 passed, 0 failed, 7480 filtered out."]
+closeout = "The two stale fixtures now use the parser-issued RecordBox compatibility cohort and preserve explicit Parser(RecordBox) origin transport. The source-backed default-derive CompatibilityLoss negative remains intact."
 next_row = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
 non_claims = "This row does not make the full suite green, relax source authority, open Method implementation, or prove Stage1 artifacts."
 
@@ -1374,9 +1368,9 @@ acceptance = [
     "Target-only and partial site coverage still return SiteCoverageMismatch; indexed co-seal remains exact T=O; empty/empty remains valid.",
     "Existing argument cardinality, duplicate argument-site, and foreign-compilation checks remain active.",
     "A touched test module is run through a filtered cargo test command and the exact command/result is recorded before the row can be marked landed; cargo check alone cannot close it.",
-    "The current I0 row is not retroactively called fully green until the corrective test evidence exists; full cargo test/link remains a separate resource-limited known limit.",
+    "The corrective test evidence is now recorded by NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0; full cargo test/link remains a separate resource-limited known limit.",
 ]
-macro_compatibility_status = "The normal_callable_transform filter is green (7/7), but both named compatibility-origin transport tests fail independently at HEAD e9f76676db. NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0 owns their fixture correction without changing the default-derive CompatibilityLoss contract."
+macro_compatibility_status = "NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0 landed at 5cba61b545: both named compatibility-origin transport tests and the separate normal_callable_transform filter are green. The default-derive CompatibilityLoss contract remains unchanged."
 row_exit_rule_amendment = "Prospective rule: any implementation row that touches test code must run a focused cargo test covering every touched test name/module, record the command and nonzero count in its card, and treat 0 tests or any failure as blocking. Filtered evidence is required even when cargo check passes; no second Cargo process may run concurrently."
 filtered_test_evidence = [
     "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed, 7477 filtered out.",
@@ -1424,7 +1418,7 @@ no_safe_slice = [
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
 [r2_fence_reconcile_d0_2026_08_29]
-status = "queued_design_stop"
+status = "active_design_stop"
 task_id = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
 execution_row = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"

@@ -31,11 +31,11 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and active-row authority. The bounded order
-is: repair the two named compatibility-origin tests; reconcile the R2 preflight
-fence against its four live downstream compatibility descendants; then select
-the Method ingress-policy D0. Stage1 full artifact remains ParkedSealed and no
-Method implementation is open from this rolling file.
+`CURRENT_STATE.toml` is the sole mode and active-row authority. The two named
+compatibility-origin tests are green; the active design stop now reconciles the
+R2 preflight fence against its four live downstream compatibility descendants,
+then selects the Method ingress-policy D0. Stage1 full artifact remains
+ParkedSealed and no Method implementation is open from this rolling file.
 
 ## Historical rolling context (non-authoritative)
 
