@@ -230,10 +230,6 @@ pub fn builder_debug_param_receiver() -> bool {
     env_bool("NYASH_DEBUG_PARAM_RECEIVER")
 }
 
-pub fn builder_tail_resolve() -> bool {
-    env_bool("NYASH_BUILDER_TAIL_RESOLVE")
-}
-
 pub fn builder_call_resolve_trace() -> bool {
     env_bool("NYASH_CALL_RESOLVE_TRACE")
 }

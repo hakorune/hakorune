@@ -122,23 +122,37 @@ fn raw_legacy_parked_compatibility_retires_before_arguments() {
 }
 
 #[test]
-fn raw_root_main_compatibility_preserves_resolved_terminal() {
-    let builder = MirBuilder::new();
-    let authority = RawBrandCallAuthorityV1::RawRootMainParkedCompatibility;
-    {
-        let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
-            &builder,
-            "helper".to_owned(),
-            vec![integer(1)],
-            authority,
-        );
-        assert!(matches!(
-            prepared.route,
-            PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: PreparedRawOrdinaryFunctionCompletionV1::Resolved { .. }
-            }
-        ));
-    }
+fn raw_root_main_ordinary_call_retires_before_arguments() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_root_main/0".to_owned());
+    let before_instructions = builder.current_function_instructions().len();
+    let mut port = RecordingPortV1::default();
+    let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "helper".to_owned(),
+        vec![integer(1), integer(2)],
+        RawBrandCallAuthorityV1::RawRootMainParkedCompatibility,
+    );
+
+    assert!(matches!(
+        prepared.route,
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+        )
+    ));
+    let error =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+            .expect_err("RawRootMain ordinary calls must retire before argument descent");
+    assert_eq!(
+        error,
+        "[freeze:contract][raw-compat/raw-root-main-ordinary-retired]"
+    );
+    assert_eq!(port.expression_count, 0);
+    assert!(port.events.is_empty());
+    assert_eq!(
+        builder.current_function_instructions().len(),
+        before_instructions
+    );
 }
 
 #[test]

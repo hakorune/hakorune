@@ -657,9 +657,10 @@ allowed_files = [
   "tools/checks/mir_call_d1b_exact_target_child_guard.sh",
   "tools/checks/lib/bare_static_recovery_proof.py",
   "tools/checks/lib/headerport_authority_erasure_guard.py",
-  "tools/checks/lib/resolved_callable_l0.py",
+  "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
   "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
   "tools/smokes/v2/configs/auto_detect.conf",
+  "apps/bare-static-recovery-proof/README.md",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
@@ -678,11 +679,9 @@ changed_test_names = [
   "raw_root_main_gc_name_retires_before_arguments",
 ]
 focused_test_filters = [
-  "function_call_script_compatibility_tests",
-  "function_call_preflight_route_tests",
-  "function_call_installed_gc_builtin_tests",
-  "cataloged_target",
-  "app_main",
+  "raw_root_main_",
+  "cataloged_target_preflight_applies_total_shadow_order",
+  "app_main_direct_call",
 ]
 next_row = "Close the parent Method corridor if the post-implementation census has no remaining in-boundary blocker; otherwise return to design_stop with the exact residual owner."
 

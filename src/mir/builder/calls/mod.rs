@@ -59,7 +59,6 @@ mod function_publication_tests;
 mod function_session_tests;
 #[cfg(test)]
 mod instance_method_draft_preparation_tests;
-pub mod method_resolution;
 pub mod special_handlers;
 
 // New refactored modules (Box Theory Phase 1 & 2 & 25.1d & Phase 3 & Step 4 & Step 5)
@@ -101,7 +100,7 @@ pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
 mod script_direct_static_physical_bridge;
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)
-pub mod static_resolution; // Step 3: Static method resolution and unresolved-call recovery
+pub mod static_resolution; // qualified static receiver classification
 mod static_result_publication_physical_bridge;
 pub mod unified_emitter; // Phase 3-A: Unified call emitter (統一Call発行専用箱)
 pub mod utils; // Phase 3-C: Call materializer (Call前処理・準備専用箱)

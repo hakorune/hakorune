@@ -22,13 +22,9 @@ use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
-use super::call_target::typed_global_target_from_selected_symbol;
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
-use super::static_resolution::BareStaticRecoveryEmissionV1;
-use super::CallTarget;
 use crate::ast::ASTNode;
-use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::function_call_preflight_route::PreparedRawOrdinaryFunctionCompletionV1;
 use crate::mir::builder::calls::{
     drive_call_arguments_v1, drive_call_arguments_with_expected_sites_v1,
@@ -40,7 +36,6 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1,
     RawFunctionHeaderLookupPortV1,
 };
-use crate::mir::policies::call_name_classification::classify_call_name_v1;
 use crate::mir::policies::source_method_typeop_route::{
     classify_source_method_typeop_route_v1, SourceMethodTypeOpDispositionV1,
 };
@@ -109,7 +104,6 @@ impl MirBuilder {
     pub(super) fn lower_prepared_raw_ordinary_function_completion_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
-        name: String,
         completion: PreparedRawOrdinaryFunctionCompletionV1,
     ) -> Result<ValueId, String>
     where
@@ -129,21 +123,6 @@ impl MirBuilder {
                 self.lower_prepared_app_main_direct_call_v1(port, arguments)
             }
             PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
-            PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments } => {
-                let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
-                // Keep the completed invocation header authoritative through
-                // resolver, emitter, and annotation. The legacy port returns None.
-                port.with_function_headers(|lookup| {
-                    let use_unified = super::call_unified::is_unified_call_enabled()
-                        && classify_call_name_v1(&name).raw_unified_admission();
-
-                    if !use_unified {
-                        self.build_resolved_function_call(name, arg_values, lookup)
-                    } else {
-                        self.build_unified_function_call(name, arg_values, lookup)
-                    }
-                })
-            }
         }
     }
 
@@ -358,66 +337,6 @@ impl MirBuilder {
         super::call_argument_descent::drive_raw_call_arguments_v1(self, args)
     }
 
-    /// Build a resolved global function call.
-    fn build_resolved_function_call(
-        &mut self,
-        name: String,
-        arg_values: Vec<ValueId>,
-        lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
-    ) -> Result<ValueId, String> {
-        let dst = self.next_value_id();
-
-        // === ChatGPT5 Pro Design: Type-safe function call resolution ===
-        let callee = match self.resolve_call_target(&name) {
-            Ok(c) => c,
-            Err(_e) => {
-                // Additional resolver: unique static method
-                let tail_recovery_allowed =
-                    match self.try_unique_static_method_recovery(&name, &arg_values, lookup)? {
-                        BareStaticRecoveryEmissionV1::Emitted(result) => {
-                            return Ok(result);
-                        }
-                        BareStaticRecoveryEmissionV1::NoRecovery(
-                            BareStaticRecoveryNoRecoveryReasonV1::NoCandidate,
-                        ) => true,
-                        BareStaticRecoveryEmissionV1::NoRecovery(
-                            BareStaticRecoveryNoRecoveryReasonV1::Ambiguous { .. },
-                        ) => false,
-                    };
-                // Dev-only additional resolver: suffix match
-                if tail_recovery_allowed {
-                    let result = match lookup {
-                        Some(headers) => {
-                            self.try_tail_based_resolver_with_headers(&name, &arg_values, headers)?
-                        }
-                        None => self.try_tail_based_resolver(&name, &arg_values)?,
-                    };
-                    if let Some(result) = result {
-                        return Ok(result);
-                    }
-                }
-                return Err(format!(
-                    "Unresolved function: '{}'. {}",
-                    name,
-                    super::super::call_resolution::suggest_resolution(&name)
-                ));
-            }
-        };
-
-        // Compatibility: keep func populated for older MIR consumers.
-        let fun_val = crate::mir::builder::name_const::make_name_const_result(self, &name)?;
-
-        // Emit new-style Call with type-safe callee
-        self.emit_instruction(MirInstruction::Call {
-            dst: Some(dst),
-            func: fun_val,
-            callee: Some(callee),
-            args: arg_values,
-            effects: EffectMask::READ.add(Effect::ReadHeap),
-        })?;
-        Ok(dst)
-    }
-
     fn emit_prepared_cataloged_call_v1(
         &mut self,
         callee: Callee,
@@ -430,26 +349,6 @@ impl MirBuilder {
             args,
             EffectMask::READ.add(Effect::ReadHeap),
         ))?;
-        Ok(dst)
-    }
-
-    /// Build unified function call
-    fn build_unified_function_call(
-        &mut self,
-        name: String,
-        arg_values: Vec<ValueId>,
-        lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
-    ) -> Result<ValueId, String> {
-        let dst = self.next_value_id();
-        self.emit_unified_call_with_lookup(
-            Some(dst),
-            CallTarget::Global(typed_global_target_from_selected_symbol(
-                &name,
-                arg_values.len(),
-            )?),
-            arg_values,
-            lookup,
-        )?;
         Ok(dst)
     }
 }

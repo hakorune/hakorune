@@ -3,9 +3,9 @@ task_id = "MIR-CALL-GLOBAL-TARGET-B1-C0-DUAL-SURFACE-GUARD-I0"
 card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 phase = "c0_dual_closeout"
 source_roots = ["src", "crates"]
-scoped_fast_card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
-scoped_fast_row_key = "b1_vmref_consumer_i0"
-scoped_fast_task_id = "MIR-CALL-GLOBAL-TARGET-B1-VMREF-CONSUMER-I0"
+scoped_fast_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+scoped_fast_row_key = "raw_root_resolved_caller_zero_ret0_2026_08_30"
+scoped_fast_task_id = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
 required_registry_rows = [
   "mir-call-global-target-b0-machine-census",
   "mir-call-global-target-b1-static-method-s0",
@@ -17,16 +17,16 @@ digest_algorithm = "sha256(path\\0count\\n)"
 [[token_aggregates]]
 id = "callee-global"
 token = "Callee::Global"
-expected_files = 142
-expected_occurrences = 269
-site_digest = "57a01d0d33008eea8c93222d52f94a97c94202602d3a669bd61f224b9610a92c"
+expected_files = 143
+expected_occurrences = 266
+site_digest = "c7a850f65cba0e4975cd18064e1f2af7c40b699861f6dced4e0fd6c639aaae3d"
 
 [[token_aggregates]]
 id = "calltarget-global"
 token = "CallTarget::Global"
-expected_files = 20
-expected_occurrences = 42
-site_digest = "5ddec5a496ad2feca964be6aab3e78733b15c18e9d257de7a43d7a0e0c912f82"
+expected_files = 18
+expected_occurrences = 37
+site_digest = "31ddf807c4e4c5cef52bb4b9dc108916e7c1459fc7e18daf39c0645459d297d0"
 
 [[coverage_buckets]]
 id = "compiled-builder-calls"
@@ -35,8 +35,8 @@ scope = "compiled"
 role = "producer-or-recovery"
 selector = "compiled-builder-calls"
 disposition_ref = "pre-effect-reject-contract"
-expected_files = 14
-expected_occurrences = 30
+expected_files = 11
+expected_occurrences = 21
 
 [[coverage_buckets]]
 id = "compiled-builder-adjacent"
@@ -105,8 +105,8 @@ scope = "test-only"
 role = "fixture"
 selector = "test-fixture"
 disposition_ref = "isolate-fixture"
-expected_files = 77
-expected_occurrences = 166
+expected_files = 78
+expected_occurrences = 167
 
 [[dispositions]]
 id = "pre-effect-reject-contract"
@@ -287,10 +287,10 @@ reopen = "a resolver remains a Global String issuer"
 
 [[evidence_rows]]
 id = "ordinary-resolved-call"
-path = "src/mir/builder/calls/build.rs"
-anchor = "build_resolved_function_call"
+path = "src/mir/builder/calls/function_call_preflight_route.rs"
+anchor = "RawRootMainRetired"
 disposition_ref = "pre-effect-reject-contract"
-owner = "ordinary resolved-call builder"
+owner = "RawRootMain caller-zero terminal"
 action = "retire"
 terminal = "pre-effect typed disposition"
 successor_ref = "MIR-CALL-GLOBAL-TARGET-B1-CUTOVER"
@@ -299,7 +299,7 @@ reopen = "arguments are lowered before target resolution"
 [[evidence_rows]]
 id = "ordinary-preflight-route"
 path = "src/mir/builder/calls/function_call_preflight_route.rs"
-anchor = "PreparedRawOrdinaryFunctionCompletionV1::Resolved"
+anchor = "RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired"
 disposition_ref = "pre-effect-reject-contract"
 owner = "ordinary FunctionCall preflight"
 action = "retire"
@@ -309,8 +309,8 @@ reopen = "relationless calls re-enter Resolved"
 
 [[evidence_rows]]
 id = "static-recovery"
-path = "src/mir/builder/calls/static_resolution.rs"
-anchor = "try_unique_static_method_recovery"
+path = "src/mir/builder/calls/function_call_preflight_route.rs"
+anchor = "bare-static-method-retired"
 disposition_ref = "pre-effect-reject-contract"
 owner = "static recovery"
 action = "retire"

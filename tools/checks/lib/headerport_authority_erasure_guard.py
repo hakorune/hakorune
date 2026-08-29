@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """HDR0-P0 authority handoff guard.
 
-This guard checks the explicit HeaderPort call path without enabling any
-production module capture. It keeps resolve, emission, and post-success
-annotation on one lookup-aware path while retaining the named legacy facade.
+This guard checks that HeaderPort remains an explicit annotation/publication
+capability after the caller-zero Resolved/tail-recovery facade is removed.
 """
 
 from __future__ import annotations
@@ -31,52 +30,33 @@ def verify_authority_erasure(root: Path) -> None:
     }
 
     _require(source["build"], "RawFunctionHeaderLookupPortV1", "call header capability")
-    _require(source["build"], "port.with_function_headers(|lookup|", "short header loan")
-    _require(
-        source["build"],
-        "try_tail_based_resolver_with_headers(&name, &arg_values, headers)",
-        "explicit tail route",
-    )
+    for retired in (
+        "build_resolved_function_call",
+        "try_unique_static_method_recovery",
+        "try_tail_based_resolver",
+    ):
+        _forbid(source["build"], retired, "retired Resolved header consumer")
+        _forbid(source["static"], retired, "retired static recovery owner")
 
-    unique = source["static"].split("pub(super) fn try_unique_static_method_recovery", 1)[1]
-    unique = unique.split("/// Try the dev-only tail resolver", 1)[0]
-    _require(unique, "emit_unified_call_with_lookup", "unique recovery lookup-aware emission")
-    tail = source["static"].split(
-        "pub(in crate::mir::builder) fn try_tail_based_resolver_with_headers", 1
-    )[1]
-    _require(tail, "method_candidates_from_headers", "deterministic explicit tail projection")
-    _require(tail, "emit_unified_call_with_lookup", "explicit tail lookup-aware emission")
-    _forbid(tail, "emit_legacy_call", "explicit tail legacy emission")
-
-    _require(
+    _forbid(
         source["materializer"],
-        "enum GlobalPresenceAuthorityV1",
-        "exclusive materializer authority",
-    )
-    _require(
-        source["materializer"],
-        "try_global_additional_resolvers_with_authority",
-        "authority-owned materializer entry",
+        "GlobalPresenceAuthorityV1",
+        "retired global-presence authority",
     )
     _forbid(
         source["materializer"],
-        "fn try_global_additional_resolvers(",
-        "retired global-presence facade",
-    )
-    _forbid(
-        source["materializer"],
-        "current_module.functions.contains_key",
-        "retired direct module-presence observation",
+        "try_global_additional_resolvers",
+        "retired additional Global resolver",
     )
     _require(
         source["materializer"],
-        "annotate_call_result_from_func_name_with_lookup",
-        "lookup-aware materializer annotation",
+        "materialize_receiver_in_callee",
+        "receiver-only materializer owner",
     )
     _require(
         source["emitter"],
-        "GlobalPresenceAuthorityV1::InvocationHeader",
-        "explicit materializer authority wiring",
+        "lookup: Option<&dyn FunctionSignatureLookupV1>",
+        "explicit emitter header capability",
     )
 
     _require(source["receipt"], "lookup: Option<&'lookup dyn FunctionSignatureLookupV1>", "receipt lookup")

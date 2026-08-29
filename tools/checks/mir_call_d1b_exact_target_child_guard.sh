@@ -65,8 +65,8 @@ if "PreparedRawNonBrandRouteOriginV1::UnclassifiedSource" not in preflight_text:
     raise SystemExit("unclassified source boundary disappeared")
 
 target_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted")
-resolved_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::Resolved", target_start)
-target_window = build_text[target_start:resolved_start]
+app_main_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted", target_start)
+target_window = build_text[target_start:app_main_start]
 if target_window.count("lower_prepared_targeted_call_v1") != 1:
     raise SystemExit("CatalogedTargeted child handoff count drifted")
 if generic_targeted in build_text:
@@ -83,12 +83,20 @@ if any(token in helper_window for token in ("build_resolved_function_call", "try
     raise SystemExit("targeted helper re-entered a late resolver/recovery/name-Const edge")
 
 emit_start = build_text.index("fn emit_prepared_cataloged_call_v1")
-emit_end = build_text.index("/// Build unified function call", emit_start)
+emit_end = build_text.index("\n}\n\n#[cfg(test)]", emit_start)
 emit_window = build_text[emit_start:emit_end]
 if emit_window.count("MirInstruction::call(") != 1:
     raise SystemExit("targeted child canonical issuer count drifted")
 if "MirInstruction::Call {" in emit_window or "make_name_const_result" in emit_window:
     raise SystemExit("targeted child retained a legacy Call literal or name Const")
+for retired in (
+    "PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+    "build_resolved_function_call",
+    "build_unified_function_call",
+    "try_unique_static_method_recovery",
+):
+    if retired in build_text:
+        raise SystemExit(f"caller-zero resolved edge reappeared: {retired}")
 
 for token in (
     "cataloged_target_preflight_applies_total_shadow_order",
@@ -117,7 +125,7 @@ for token in (
         raise SystemExit(f"resolver totality matrix lost {token}")
 
 unified_start = unified_text.index("let resolver = super::resolver::CalleeResolverBox::new")
-unified_end = unified_text.index("        // 🎯 Phase 21.7: Methodization", unified_start)
+unified_end = unified_text.index("        // Structural guard FIRST", unified_start)
 unified_window = unified_text[unified_start:unified_end]
 if unified_window.count("resolver.resolve(target.clone())?") != 1:
     raise SystemExit("unified emitter resolver consume is not exactly one direct propagation")

@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use super::{
     lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightRouteV1,
     PreparedRawFunctionPreflightV1, PreparedRawOrdinaryFunctionCompletionV1,
+    RawCompatibilityOrdinaryCallTerminalV1,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::builder::callable_declaration_catalog::{
@@ -179,7 +180,7 @@ fn raw_root_main_preflight(
 }
 
 #[test]
-fn direct_function_preflight_priority_is_total() {
+fn raw_root_main_special_precedence_survives_resolved_retirement() {
     let mut builder = MirBuilder::new();
     builder
         .comp_ctx
@@ -198,13 +199,17 @@ fn direct_function_preflight_priority_is_total() {
     let weak = raw_root_main_preflight(&builder, "weak", vec![integer(1)]);
     assert!(matches!(
         weak.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+        )
     ));
 
     let generic_externcall = raw_root_main_preflight(&builder, "externcall", vec![integer(1)]);
     assert!(matches!(
         generic_externcall.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+        )
     ));
 
     let brand =
@@ -251,7 +256,9 @@ fn direct_function_preflight_priority_is_total() {
         raw_root_main_preflight(&builder, "isType", vec![integer(1), integer(2)]);
     assert!(matches!(
         malformed_typeop.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+        )
     ));
 
     let math =
@@ -264,7 +271,9 @@ fn direct_function_preflight_priority_is_total() {
     let inactive_fastmem = raw_root_main_preflight(&builder, "mem.addr", vec![integer(1)]);
     assert!(matches!(
         inactive_fastmem.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+        )
     ));
 
     builder.push_fastmem_region(FastMemRegionId::new(7));
@@ -278,7 +287,9 @@ fn direct_function_preflight_priority_is_total() {
     let ordinary = raw_root_main_preflight(&builder, "user_function", vec![integer(1)]);
     assert!(matches!(
         ordinary.route,
-        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+        )
     ));
 
     let str_one =
@@ -293,9 +304,9 @@ fn direct_function_preflight_priority_is_total() {
         let wrong_arity = raw_root_main_preflight(&builder, "str", arguments);
         assert!(matches!(
             wrong_arity.route,
-            PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: PreparedRawOrdinaryFunctionCompletionV1::Resolved { .. }
-            }
+            PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+                RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+            )
         ));
     }
 }
@@ -336,9 +347,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         compatibility_externcall,
     )
     .is_err());
-    // RawRootMain keeps the remaining shared compatibility terminal for this
-    // order test; RawLegacy itself retires before argument descent.
-    assert_eq!(port.expression_count, 1);
+    assert_eq!(port.expression_count, 0);
 
     for (name, arguments) in [
         ("Meter", Vec::new()),
@@ -352,7 +361,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
             prepared,
         )
         .is_err());
-        assert_eq!(port.expression_count, 1);
+        assert_eq!(port.expression_count, 0);
     }
 
     let typeop = PreparedRawFunctionPreflightV1::prepare(
@@ -364,7 +373,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         ],
     );
     lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, typeop).unwrap();
-    assert_eq!(port.expression_count, 2);
+    assert_eq!(port.expression_count, 1);
 
     let malformed_typeop =
         raw_root_main_preflight(&builder, "isType", vec![integer(1), integer(2)]);
@@ -373,7 +382,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         &mut port,
         malformed_typeop,
     );
-    assert_eq!(port.expression_count, 4);
+    assert_eq!(port.expression_count, 3);
 
     let inactive_fastmem = raw_root_main_preflight(&builder, "mem.addr", vec![integer(1)]);
     let _ = lower_prepared_raw_function_preflight_with_port_v1(
@@ -381,7 +390,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         &mut port,
         inactive_fastmem,
     );
-    assert_eq!(port.expression_count, 5);
+    assert_eq!(port.expression_count, 3);
 
     builder.push_fastmem_region(FastMemRegionId::new(8));
     let unknown_fastmem = PreparedRawFunctionPreflightV1::prepare(
@@ -396,7 +405,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
     )
     .unwrap_err();
     assert!(error.contains("[fastmem/forbidden_call]"));
-    assert_eq!(port.expression_count, 5);
+    assert_eq!(port.expression_count, 3);
 
     let wrong_arity = PreparedRawFunctionPreflightV1::prepare(
         &builder,
@@ -407,7 +416,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, wrong_arity)
             .unwrap_err();
     assert!(error.contains("[fastmem/arity] call=mem.addr expected=1 actual=2"));
-    assert_eq!(port.expression_count, 5);
+    assert_eq!(port.expression_count, 3);
 }
 
 #[test]
@@ -449,13 +458,13 @@ fn selected_math_and_ordinary_str_keep_child_and_completion_order() {
     port.events.clear();
     let ordinary = raw_root_main_preflight(&builder, "user_function", vec![integer(1)]);
     let _ = lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, ordinary);
-    assert_eq!(port.events, vec!["child", "header"]);
+    assert!(port.events.is_empty());
 
     port.events.clear();
     let forged_weak = raw_root_main_preflight(&builder, "weak", vec![integer(1)]);
     let _ =
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, forged_weak);
-    assert_eq!(port.events, vec!["child", "header"]);
+    assert!(port.events.is_empty());
 }
 
 #[test]

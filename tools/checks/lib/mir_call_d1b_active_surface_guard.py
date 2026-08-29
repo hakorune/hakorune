@@ -369,23 +369,15 @@ def check_script_root_ret0(state: dict, card: dict, root: Path) -> None:
         fail("ScriptRootRetired terminal is not issued by ordinary completion")
     if "RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired" not in completion:
         fail("RawScriptRootRetired precedence is not retained")
-    resolved = completion.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved")
-    if resolved < 0:
-        fail("shared Resolved compatibility arm disappeared")
-    resolved_context = completion[max(0, resolved - 500) : resolved + 120]
-    if "ScriptRootParkedCompatibility" in resolved_context:
-        fail("ScriptRoot still reaches the shared Resolved arm")
-    for token in (
-        "RawRootMainParkedCompatibility",
-        "RawLegacyParkedCompatibility",
-    ):
-        if token not in resolved_context:
-            fail(f"remaining named Resolved origin disappeared: {token}")
+    if "RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired" not in completion:
+        fail("RawRootMain typed retirement precedence is not retained")
+    if "PreparedRawOrdinaryFunctionCompletionV1::Resolved" in completion:
+        fail("retired shared Resolved compatibility arm reappeared")
 
     for token in (
         "script_root_parked_compatibility_retires_before_arguments",
         "raw_script_root_ordinary_call_retires_before_arguments",
-        "raw_compatibility_provenance_preserves_resolved_terminal_for_remaining_origins",
+        "raw_root_main_ordinary_call_retires_before_arguments",
         "script_root_parked_compatibility_keeps_brand_precedence",
         "raw_script_root_keeps_brand_and_special_precedence",
         "expression_count",
@@ -514,17 +506,13 @@ def check_raw_legacy_i0(state: dict, card: dict, root: Path) -> None:
     completion = route[completion_start:completion_end]
     if "RawLegacyRetired" not in completion:
         fail("RawLegacyRetired is not issued by ordinary completion")
-    resolved = completion.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved")
-    if resolved < 0:
-        fail("shared Resolved compatibility arm disappeared")
-    resolved_context = completion[max(0, resolved - 500) : resolved + 120]
-    if "RawLegacyParkedCompatibility" in resolved_context:
-        fail("RawLegacy still reaches the shared Resolved arm")
-    if "RawRootMainParkedCompatibility" not in resolved_context:
-        fail("RawRootMain remaining Resolved origin disappeared")
+    if "RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired" not in completion:
+        fail("RawRootMain typed retirement precedence is not retained")
+    if "PreparedRawOrdinaryFunctionCompletionV1::Resolved" in completion:
+        fail("retired shared Resolved compatibility arm reappeared")
     for token in (
         "raw_legacy_parked_compatibility_retires_before_arguments",
-        "raw_root_main_compatibility_preserves_resolved_terminal",
+        "raw_root_main_ordinary_call_retires_before_arguments",
         "raw_legacy_port_issues_named_compatibility_provenance",
         "raw_script_root_keeps_brand_and_special_precedence",
         "expression_count",

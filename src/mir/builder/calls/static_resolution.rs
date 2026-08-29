@@ -1,29 +1,13 @@
-//! Static method resolution and unresolved-call recovery.
+//! Static receiver classification for qualified method calls.
 //!
 //! Responsibilities:
 //! - Static receiver method call resolution (BoxName.method → static method)
-//! - Unique static method recovery (undefined function → BoxName.method/Arity)
-//! - Dev-only tail resolver (suffix matching with arity)
 //!
 //! Key functions:
 //! - resolve_static_receiver_box_name: classify BoxName.method(args) syntax
-//! - try_unique_static_method_recovery: find unique static method by name+arity
-//! - try_tail_based_resolver: experimental dev-only suffix resolver
 
-use super::super::{MirBuilder, ValueId};
-use super::call_target::typed_global_target_from_selected_symbol;
-use super::CallTarget;
+use super::super::MirBuilder;
 use crate::ast::ASTNode;
-use crate::mir::builder::callable_declaration_catalog::{
-    BareStaticRecoveryDecisionV1, BareStaticRecoveryNoRecoveryReasonV1,
-};
-use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
-
-#[derive(Debug, PartialEq, Eq)]
-pub(super) enum BareStaticRecoveryEmissionV1 {
-    Emitted(ValueId),
-    NoRecovery(BareStaticRecoveryNoRecoveryReasonV1),
-}
 
 impl MirBuilder {
     pub(in crate::mir::builder) fn resolve_static_receiver_box_name(
@@ -61,123 +45,5 @@ impl MirBuilder {
             return None;
         }
         Some(obj_name.clone())
-    }
-
-    /// Try unique static method recovery (name+arity).
-    ///
-    /// When a function call fails to resolve, attempt to find a unique static method
-    /// with matching name and arity in the complete declaration catalog.
-    ///
-    /// Example: foo(x, y) → BoxName.foo/2 if only one static method matches
-    pub(super) fn try_unique_static_method_recovery(
-        &mut self,
-        name: &str,
-        arg_values: &[ValueId],
-        lookup: Option<&dyn FunctionSignatureLookupV1>,
-    ) -> Result<BareStaticRecoveryEmissionV1, String> {
-        let decision = {
-            let catalog = self
-                .comp_ctx
-                .callable_declaration_catalog()
-                .map_err(|error| error.to_string())?;
-            BareStaticRecoveryDecisionV1::decide(catalog, name, arg_values.len())
-                .map_err(|error| error.to_string())?
-        };
-
-        match decision {
-            BareStaticRecoveryDecisionV1::Unique(key) => {
-                let dst = self.next_value_id();
-                // Emit unified global call to the lowered static method function
-                self.emit_unified_call_with_lookup(
-                    Some(dst),
-                    CallTarget::Global(
-                        key.canonical_global_target_v1().map_err(|error| {
-                            format!("[freeze:contract][static-recovery/{error}]")
-                        })?,
-                    ),
-                    arg_values.to_vec(),
-                    lookup,
-                )?;
-                Ok(BareStaticRecoveryEmissionV1::Emitted(dst))
-            }
-            BareStaticRecoveryDecisionV1::NoRecovery(reason) => {
-                Ok(BareStaticRecoveryEmissionV1::NoRecovery(reason))
-            }
-        }
-    }
-
-    /// Try the dev-only tail resolver.
-    ///
-    /// Experimental: Match function calls by suffix .name/arity in current module.
-    /// Requires NYASH_BUILDER_TAIL_RESOLVE=1 to enable.
-    ///
-    /// Example: foo(x) → SomeBox.foo/1 if only one function ends with ".foo/1"
-    pub(super) fn try_tail_based_resolver(
-        &mut self,
-        name: &str,
-        arg_values: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        if crate::config::env::builder_tail_resolve() {
-            if let Some(ref module) = self.current_module {
-                let tail = format!(".{}{}", name, format!("/{}", arg_values.len()));
-                let mut cands: Vec<String> = module
-                    .functions
-                    .keys()
-                    .filter(|k| k.ends_with(&tail))
-                    .cloned()
-                    .collect();
-                if cands.len() == 1 {
-                    let func_name = cands.remove(0);
-                    let dst = self.next_value_id();
-                    self.emit_legacy_call(
-                        Some(dst),
-                        CallTarget::Global(typed_global_target_from_selected_symbol(
-                            &func_name,
-                            arg_values.len(),
-                        )?),
-                        arg_values.to_vec(),
-                    )?;
-                    return Ok(Some(dst));
-                }
-            }
-        }
-        Ok(None)
-    }
-
-    /// Header-port sibling for the experimental suffix resolver.  Candidate
-    /// lowering supplies a completed-header inventory; no module map fallback
-    /// is consulted by this entrypoint.
-    #[allow(dead_code)]
-    pub(in crate::mir::builder) fn try_tail_based_resolver_with_headers(
-        &mut self,
-        name: &str,
-        arg_values: &[ValueId],
-        headers: &dyn FunctionSignatureLookupV1,
-    ) -> Result<Option<ValueId>, String> {
-        if !crate::config::env::builder_tail_resolve() {
-            return Ok(None);
-        }
-        let cands = crate::mir::builder::builder_method_index::method_candidates_from_headers(
-            headers,
-            name,
-            arg_values.len(),
-        );
-        if cands.len() != 1 {
-            return Ok(None);
-        }
-        let Some(func_name) = cands.into_iter().next() else {
-            return Ok(None);
-        };
-        let dst = self.next_value_id();
-        self.emit_unified_call_with_lookup(
-            Some(dst),
-            CallTarget::Global(typed_global_target_from_selected_symbol(
-                &func_name,
-                arg_values.len(),
-            )?),
-            arg_values.to_vec(),
-            Some(headers),
-        )?;
-        Ok(Some(dst))
     }
 }

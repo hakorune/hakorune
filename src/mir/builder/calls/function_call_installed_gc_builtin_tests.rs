@@ -26,7 +26,7 @@ fn installed_gc_names_reject_before_arguments() {
 }
 
 #[test]
-fn gc_targeting_does_not_capture_compatibility_or_math_routes() {
+fn raw_root_main_gc_name_retires_before_arguments() {
     let builder = MirBuilder::new();
     for name in ["gc_collect", "gc_stats"] {
         let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
@@ -37,9 +37,9 @@ fn gc_targeting_does_not_capture_compatibility_or_math_routes() {
         );
         assert!(matches!(
             prepared.route,
-            PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: PreparedRawOrdinaryFunctionCompletionV1::Resolved { .. }
-            }
+            PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+                RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired
+            )
         ));
     }
     for name in ["sin", "cos"] {

@@ -23,7 +23,6 @@ mod builder_publication_target; // PUBLICATION0 target quiescence/receipt
 #[cfg(test)]
 mod builder_test_api;
 mod builder_value_kind;
-mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
 mod literal_lowering;
 #[cfg(test)]

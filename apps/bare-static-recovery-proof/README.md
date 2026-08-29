@@ -1,21 +1,20 @@
-# Bare static recovery proof
+# Bare static catalog-disposition fixtures
 
-This is the HMI-independent source and production matrix for
+This is the HMI-independent source and catalog-decision matrix for
 `R0-CALLABLE-CATALOG-L0B-G0`.
 
-The checker keeps the disconnected pure decision tests, builds debug and
-release VM-reference binaries, executes the pass/reject matrix, and verifies
-that every accepted source emits its canonical target exactly once. The same
-entry also freezes the closeout counters: one catalog definition/producer/
-install, two recovery consumers, one static-only candidate index, and zero old
-partial authorities, result-representation consumers, or GenericLoop users.
+The checker runs the pure catalog-decision tests and freezes the current
+topology counters: one catalog definition/compatibility producer/install, one
+disposition consumer, one static-only candidate index, and zero old partial
+authorities, result-representation consumers, or GenericLoop users. It does
+not build or execute the retired broad VM-reference compatibility route, and
+these fixtures are not production target authority.
 
 ```bash
 bash apps/bare-static-recovery-proof/test.sh
 ```
 
-Provider-first and caller-first fixtures must compile to the same target. The
-ambiguous fixture intentionally places its consumer between two providers so
-even a forced dev tail resolver cannot turn the already-ambiguous catalog into
-a lowering-order-dependent unique match. Qualified calls retain their earlier
-route, and instance rows never contaminate static recovery.
+Provider-first and caller-first fixtures must produce the same catalog
+decision. The ambiguous fixture intentionally places its consumer between two
+providers so declaration order cannot turn an ambiguous catalog into a unique
+candidate. Instance rows never contaminate the static catalog decision.

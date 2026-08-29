@@ -118,8 +118,9 @@ def tracked_rust_paths(root: Path) -> list[Path]:
         if not raw:
             continue
         relative = Path(raw.decode())
-        if relative.suffix == ".rs":
-            paths.append(root / relative)
+        path = root / relative
+        if relative.suffix == ".rs" and path.is_file():
+            paths.append(path)
     return sorted(paths)
 
 

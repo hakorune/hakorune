@@ -32,13 +32,16 @@ The `RawScriptRootParkedCompatibility` and `ScriptRootParkedCompatibility`
 origins retire ordinary non-special `FunctionCall` before argument descent
 with their origin-specific typed terminals. The bounded RawLegacy fate row now
 uses the same pre-effect retirement shape; Brand, TypeOp, Math, FastMem, and
-`str/1` precedence is unchanged. `RawRootMain` is caller-zero upstream, and
-the shared `Resolved` route is not a reason to retain any parked origin.
+`str/1` precedence is unchanged. `RawRootMain` is caller-zero upstream and its
+direct-injection ordinary non-special edge now ends at `RawRootMainRetired`.
+The shared `Resolved` completion, post-argument generic resolver, unique/tail
+recovery, name-Const Call writer, and tail-resolve env selector are retired.
 
 The former `method_resolution` static-box `has_method` branch is retired as a
 caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;
-qualified static targets belong to exact catalog/source handoffs, while the
-remaining resolver handles only Builtin, local Value, and Extern cases.
+qualified static targets belong to exact catalog/source handoffs. There is no
+remaining generic name/variable/Extern fallback resolver in the ordinary
+FunctionCall corridor.
 After the Rust methodize reissuer reached zero, the shared Builder publication
 terminal also rejects `Callee::Method { receiver: None }` before materializing
 or inserting an instruction. Instance Method requires an exact receiver;

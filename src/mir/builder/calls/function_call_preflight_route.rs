@@ -57,6 +57,7 @@ enum PreparedRawFunctionPreflightRouteV1 {
 enum RawCompatibilityOrdinaryCallTerminalV1 {
     ScriptRootRetired,
     RawScriptRootRetired,
+    RawRootMainRetired,
     RawLegacyRetired,
 }
 
@@ -68,6 +69,9 @@ impl RawCompatibilityOrdinaryCallTerminalV1 {
             }
             Self::RawScriptRootRetired => {
                 "[freeze:contract][raw-compat/raw-script-root-ordinary-retired]".to_owned()
+            }
+            Self::RawRootMainRetired => {
+                "[freeze:contract][raw-compat/raw-root-main-ordinary-retired]".to_owned()
             }
             Self::RawLegacyRetired => {
                 "[freeze:contract][raw-compat/raw-legacy-ordinary-retired]".to_owned()
@@ -90,9 +94,6 @@ enum PreparedRawNonBrandRouteOriginV1 {
 pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     StrNormalization {
         argument: ASTNode,
-    },
-    Resolved {
-        arguments: Vec<ASTNode>,
     },
     CatalogedTargeted {
         callee: Callee,
@@ -402,7 +403,7 @@ fn prepare_ordinary_function_completion_v1(
         origin,
         PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility
     ) {
-        Ok(PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments })
+        Err(RawCompatibilityOrdinaryCallTerminalV1::RawRootMainRetired)
     } else {
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!(
@@ -603,12 +604,9 @@ where
         PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(terminal) => {
             Err(terminal.error())
         }
-        PreparedRawFunctionPreflightRouteV1::Ordinary { completion } => builder
-            .lower_prepared_raw_ordinary_function_completion_with_port_v1(
-                port,
-                prepared.name,
-                completion,
-            ),
+        PreparedRawFunctionPreflightRouteV1::Ordinary { completion } => {
+            builder.lower_prepared_raw_ordinary_function_completion_with_port_v1(port, completion)
+        }
     }
 }
 

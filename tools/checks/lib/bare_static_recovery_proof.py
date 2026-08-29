@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the canonical bare-static recovery CUT0 matrix."""
+"""Validate the canonical bare-static disposition CUT0 matrix."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
@@ -118,14 +117,14 @@ def verify_cutover_owner(root: Path) -> dict[str, int]:
     owner = (catalog_root / "recovery.rs").read_text(encoding="utf-8")
     require(owner.count("pub(crate) enum BareStaticRecoveryDecisionV1") == 1, "decision owner count drift")
     consumer_paths = [
-        root / "src/mir/builder/calls/static_resolution.rs",
+        root / "src/mir/builder/calls/function_call_preflight_route.rs",
         root / "src/mir/builder/calls/materializer.rs",
     ]
     consumers = sum(
         path.read_text(encoding="utf-8").count("BareStaticRecoveryDecisionV1::decide(")
         for path in consumer_paths
     )
-    require(consumers == 2, f"CUT0 production consumer count must be two, got {consumers}")
+    require(consumers == 1, f"CUT0 production consumer count must be one, got {consumers}")
 
     builder_sources = "\n".join(
         path.read_text(encoding="utf-8")
@@ -141,7 +140,7 @@ def verify_cutover_owner(root: Path) -> dict[str, int]:
         require(retired not in builder_sources, f"retired authority remains in Rust: {retired}")
 
     lifecycle = (root / "src/mir/builder/module_lifecycle.rs").read_text(encoding="utf-8")
-    program_root = (root / "src/mir/builder/program_root_lowering.rs").read_text(
+    normal_lifecycle = (root / "src/mir/builder/normal_default_root_catalog_lifecycle.rs").read_text(
         encoding="utf-8"
     )
     require(
@@ -149,14 +148,13 @@ def verify_cutover_owner(root: Path) -> dict[str, int]:
         "catalog clear production caller count drift",
     )
     require(
-        program_root.count(".install_callable_declaration_catalog(catalog)") == 1,
+        normal_lifecycle.count(".install_callable_declaration_catalog(catalog)") == 1,
         "catalog install production caller count drift",
     )
     require(
-        program_root.index("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root")
-        < program_root.index("install_callable_declaration_catalog(catalog)")
-        < program_root.index("PreparedNormalProgramDeclarationFactsV1::collect(snapshot)"),
-        "catalog seal/install must precede Program declaration facts",
+        normal_lifecycle.index("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root")
+        < normal_lifecycle.index("install_callable_declaration_catalog(catalog)"),
+        "catalog seal must precede compatibility install",
     )
     return {"decision_owners": 1, "production_consumers": consumers}
 
@@ -172,7 +170,9 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         path.read_text(encoding="utf-8") for path in production_paths
     )
     lifecycle = (builder_root / "module_lifecycle.rs").read_text(encoding="utf-8")
-    program_root = (builder_root / "program_root_lowering.rs").read_text(encoding="utf-8")
+    normal_lifecycle = (builder_root / "normal_default_root_catalog_lifecycle.rs").read_text(
+        encoding="utf-8"
+    )
     context = (builder_root / "compilation_context.rs").read_text(encoding="utf-8")
     catalog = (CATALOG_DIR / "catalog.rs")
     catalog_source = (root / catalog).read_text(encoding="utf-8")
@@ -183,7 +183,10 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
     session_tests = (root / CATALOG_DIR / "tests.rs").read_text(encoding="utf-8")
     call_consumers = "\n".join(
         (builder_root / relative).read_text(encoding="utf-8")
-        for relative in ("calls/static_resolution.rs", "calls/materializer.rs")
+        for relative in (
+            "calls/function_call_preflight_route.rs",
+            "calls/materializer.rs",
+        )
     )
     build_call = (builder_root / "calls/build.rs").read_text(encoding="utf-8")
     helper = (builder_root / "record_helper_args.rs").read_text(encoding="utf-8")
@@ -194,12 +197,12 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         "declaration catalog definition count drift",
     )
     require(
-        program_root.count("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(source.source_ast())")
+        normal_lifecycle.count("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(")
         == 1,
         "production catalog producer count drift",
     )
     require(
-        program_root.count(".install_callable_declaration_catalog(catalog)") == 1,
+        normal_lifecycle.count(".install_callable_declaration_catalog(catalog)") == 1,
         "catalog install-per-root count drift",
     )
     require(
@@ -219,7 +222,7 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         "catalog session rejection fixtures missing",
     )
     require(
-        call_consumers.count(".callable_declaration_catalog()") == 2,
+        call_consumers.count(".callable_declaration_catalog()") == 1,
         "catalog recovery query count drift",
     )
     require(
@@ -231,7 +234,8 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
     require(
         len(
             re.findall(
-                r"(?m)^\s*static_keys_by_method_and_arity:\s*$", catalog_source
+                r"(?m)^\s*(?:pub\(super\)\s+)?static_keys_by_method_and_arity:\s*$",
+                catalog_source,
             )
         )
         == 1,
@@ -266,11 +270,13 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         "generate_method_function_name" not in helper,
         "record-helper lookup must not reconstruct a physical symbol",
     )
-    require(
-        "BareStaticRecoveryNoRecoveryReasonV1::NoCandidate" in build_call
-        and "BareStaticRecoveryNoRecoveryReasonV1::Ambiguous" in build_call,
-        "tail-recovery boundary lost explicit zero/ambiguous split",
-    )
+    for retired in (
+        "build_resolved_function_call",
+        "try_unique_static_method_recovery",
+        "try_tail_based_resolver",
+        "BareStaticRecoveryEmissionV1",
+    ):
+        require(retired not in build_call, f"caller-zero recovery edge remains: {retired}")
     require(
         "callable_declaration_catalog" not in "\n".join(
             path.read_text(encoding="utf-8")
@@ -289,6 +295,7 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
         builder_root / "calls/static_resolution.rs",
         builder_root / "compilation_context.rs",
         builder_root / "module_lifecycle.rs",
+        builder_root / "normal_default_root_catalog_lifecycle.rs",
         builder_root / "record_helper_args.rs",
         root / "tools/checks/lib/bare_static_recovery_proof.py",
     ]
@@ -307,125 +314,17 @@ def verify_closeout_contract(root: Path) -> dict[str, int]:
     }
 
 
-def run(
-    argv: list[str], root: Path, env: dict[str, str] | None = None
-) -> subprocess.CompletedProcess[str]:
-    merged = os.environ.copy()
-    if env:
-        merged.update(env)
-    return subprocess.run(
-        argv, cwd=root, env=merged, text=True, capture_output=True, check=False
-    )
-
-
-def build_bins(root: Path) -> dict[str, Path]:
-    common = ["cargo", "build", "-q", "--features", "vm-reference", "--bin", "hakorune"]
-    for label, command in (
-        ("debug", common),
-        ("release", common[:2] + ["--release"] + common[2:]),
-    ):
-        completed = run(command, root)
-        require(
-            completed.returncode == 0,
-            f"{label} build failed\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}",
-        )
-    return {
-        "debug": root / "target/debug/hakorune",
-        "release": root / "target/release/hakorune",
-    }
-
-
-def iter_mir_calls(document: dict[str, Any]):
-    for function in document.get("functions", []):
-        for block in function.get("blocks", []):
-            for instruction in block.get("instructions", []):
-                call = instruction.get("mir_call")
-                if call is not None:
-                    yield function.get("name"), call
-
-
-def verify_production_matrix(root: Path, bins: dict[str, Path]) -> dict[str, int]:
-    pass_cases = {
-        "provider_first_script": (2, "2", "Helpers.m_seed/1"),
-        "caller_first_script": (2, "2", "Helpers.m_seed/1"),
-        "provider_first_app": (2, "", "Helpers.m_seed/1"),
-        "caller_first_app": (2, "", "Helpers.m_seed/1"),
-        "cross_provider_first": (2, "2", "Provider.m_seed/1"),
-        "cross_caller_first": (2, "2", "Provider.m_seed/1"),
-        "arity_overload": (2, "2", "UnaryProvider.m_seed/1"),
-        "zero_arg": (1, "1", "Helpers.m_seed/0"),
-        "instance_control": (2, "2", "StaticProvider.m_seed/1"),
-        "qualified_control": (2, "2", "Provider.m_seed/1"),
-        "text_merged_main": (2, "", "TextMergedHelpers.m_seed/1"),
-    }
-    reject_cases = ("ambiguous", "wrong_arity", "no_candidate")
-    text_merge_env = {
-        "NYASH_USING_PROFILE": "dev",
-        "NYASH_ENABLE_USING": "1",
-        "HAKO_ENABLE_USING": "1",
-        "NYASH_ALLOW_USING_FILE": "1",
-        "HAKO_ALLOW_USING_FILE": "1",
-        "NYASH_PREINCLUDE": "1",
-        "HAKO_PREINCLUDE": "1",
-    }
-
-    for profile, binary in bins.items():
-        for case, (expected_rc, expected_stdout, expected_target) in pass_cases.items():
-            source = root / APP_DIR / f"{case}.hako"
-            env = text_merge_env if case == "text_merged_main" else None
-            runtime = run([str(binary), "--backend", "vm", str(source)], root, env)
-            require(
-                runtime.returncode == expected_rc and runtime.stdout.strip() == expected_stdout,
-                f"{profile}/{case} runtime mismatch rc={runtime.returncode} "
-                f"stdout={runtime.stdout!r} stderr={runtime.stderr!r}",
-            )
-
-            mir_path = root / ARTIFACT_DIR / f"{profile}_{case}.json"
-            mir_path.parent.mkdir(parents=True, exist_ok=True)
-            if mir_path.exists():
-                mir_path.unlink()
-            emitted = run(
-                [str(binary), "--emit-mir-json", str(mir_path), str(source)], root, env
-            )
-            require(
-                emitted.returncode == 0 and mir_path.is_file(),
-                f"{profile}/{case} MIR emission failed: {emitted.stderr}",
-            )
-            document = json.loads(mir_path.read_text(encoding="utf-8"))
-            selected = [
-                (owner, call)
-                for owner, call in iter_mir_calls(document)
-                if call.get("callee", {}).get("name") == expected_target
-            ]
-            require(
-                len(selected) == 1,
-                f"{profile}/{case} expected one canonical target {expected_target}, got {len(selected)}",
-            )
-
-        for case in reject_cases:
-            source = root / APP_DIR / f"{case}.hako"
-            env = {"NYASH_BUILDER_TAIL_RESOLVE": "1"} if case == "ambiguous" else None
-            rejected = run([str(binary), "--backend", "vm", str(source)], root, env)
-            require(
-                rejected.returncode == 1 and "Unresolved function:" in rejected.stderr,
-                f"{profile}/{case} must reject without fallback: {rejected.stderr!r}",
-            )
-
-    return {
-        "profiles": len(bins),
-        "pass_cases": len(pass_cases),
-        "reject_cases": len(reject_cases),
-    }
-
-
 def run_focused_tests(root: Path) -> None:
     completed = subprocess.run(
         [
             "cargo",
             "test",
-            "-q",
+            "--profile",
+            "quick",
             "--lib",
             "mir::builder::callable_declaration_catalog::recovery_tests",
+            "--",
+            "--test-threads=1",
         ],
         cwd=root,
         text=True,
@@ -437,6 +336,10 @@ def run_focused_tests(root: Path) -> None:
             f"focused recovery tests failed rc={completed.returncode}\n"
             f"stdout:\n{completed.stdout}\nstderr:\n{completed.stderr}"
         )
+    require(
+        re.search(r"(?m)^running [1-9][0-9]* tests?$", completed.stdout) is not None,
+        "focused recovery filter matched zero tests",
+    )
 
 
 def main() -> int:
@@ -450,30 +353,32 @@ def main() -> int:
     owner_report = verify_cutover_owner(root)
     closeout_report = verify_closeout_contract(root)
     run_focused_tests(root)
-    production_report = verify_production_matrix(root, build_bins(root))
-
     report = {
         "schema_version": 1,
         "row": "R0-CALLABLE-CATALOG-L0B-G0",
-        "selection": "CANONICAL-CALLABLE-CATALOG-CLOSEOUT-GREEN",
-        "production_behavior_delta": 1,
+        "selection": "CANONICAL-CALLABLE-CATALOG-DISPOSITION-GREEN",
+        "production_behavior_delta": 0,
         "source": source_report,
         "owner": owner_report,
         "closeout": closeout_report,
-        "production": production_report,
+        "production": {
+            "runtime_cases": 0,
+            "fixture_role": "catalog-decision-only",
+            "legacy_vm_reference_authority": 0,
+        },
     }
     artifact = root / ARTIFACT_DIR
     artifact.mkdir(parents=True, exist_ok=True)
     (artifact / "p0_observation.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print("selection=CANONICAL-CALLABLE-CATALOG-CLOSEOUT-GREEN")
+    print("selection=CANONICAL-CALLABLE-CATALOG-DISPOSITION-GREEN")
     print("decision_owner_count=1")
-    print("production_consumer_count=2")
+    print(f"production_consumer_count={owner_report['production_consumers']}")
     print(f"fixture_count={source_report['fixture_count']}")
-    print(f"production_pass_cases={production_report['pass_cases']}")
-    print(f"production_reject_cases={production_report['reject_cases']}")
-    print("production_behavior_delta=1")
+    print("production_runtime_cases=0")
+    print("legacy_vm_reference_authority=0")
+    print("production_behavior_delta=0")
     print("g0_behavior_delta=0")
     print("catalog_definitions=1")
     print("catalog_producers=1")
