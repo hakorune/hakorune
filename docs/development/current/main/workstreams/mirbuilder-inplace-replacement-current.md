@@ -81,8 +81,10 @@ Print statement owner stays unchanged; `CURRENT_STATE.toml` remains at the
 SameModule parent design stop. The ordinary-static target-only D0 is now
 design-accepted: the owner must keep `ExactTargetOnly` distinct from
 `NoExactStaticTarget` instead of collapsing exact rows into `Unselected` /
-`Absent`. Its I0 is named but not selected; no implementation is open until
-the parent pointer intentionally switches to that bounded row.
+`Absent`. The parent pointer now selects its bounded I0 in `fast` mode. I0
+may retain only the existing exact target and must consume it once before
+argument effects; it may not add a resolver or change any other SameModule
+family.
 
 ## Historical rolling context (non-authoritative)
 
