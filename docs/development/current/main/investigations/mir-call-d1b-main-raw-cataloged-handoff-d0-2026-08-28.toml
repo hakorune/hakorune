@@ -1059,12 +1059,12 @@ non_claims = "No ternary source edit, fresh artifact, Methodize parity, or MirBu
 next_row = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
 
 [stage1_resolver_ternary_shape_i0_2026_08_29]
-status = "accepted_bounded_implementation"
+status = "no_safe_slice"
 task_id = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
 execution_row = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
 parent_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
-implementation_permission = true
-decision = "Replace only the finite 20 expression-position ternaries in the four existing Stage1 Hako owners with lazy if/else BoxShape forms. Preserve values, return shape, null/sentinel/escaping, import closure, and the clean ResolverDeferred boundary; do not widen the route."
+implementation_permission = false
+decision = "Do not land the four-file ternary BoxShape I0. A clean detached source worktree with all 20 replacements reaches an earlier ParameterContract/UnsupportedDeclaredType boundary, so the source-shape mapping is not closed. Retain no source or guard edit and reopen one compact source-contract D0."
 source_authority = "The four existing Hako method owners and their current return/value semantics; Parser If/Local/Assignment/Return and conditional CFG are the existing canonical source-shape owners."
 canonical_issuer = "No new semantic issuer or receipt. Existing method returns and JSON fragment values remain the sole output authority."
 non_authority = "Ternary language extension, AST/MIR rewrite, Rust resolver, parameter fallback, Main/entry/wrapper, Methodize/Method(None), Call schema, VM/backend, source preprocessor, runtime flags, and guessed dead-code removal."
@@ -1093,11 +1093,9 @@ replacement_shapes = [
     "try_lower: existing i64 fragment remains the default; existing string fragment is assigned only when sval != null, then concatenated once.",
 ]
 acceptance = [
-    "Exactly the 20 listed non-comment ternaries change to 0; no unrelated ternary, import, route, or source declaration changes.",
-    "Both branches remain lazy; null/sentinel values, JSON escaping, numeric sign/zero behavior, return/value shape, and call evaluation order remain unchanged.",
-    "The existing stage1 entry-shape guard remains green and additionally verifies the finite four-file ternary count is zero.",
-    "A fresh normal quick emit is rerun from a clean source/binary tuple; no stale artifact is accepted. The row records whether the five-method typed boundary moved later or remains the same.",
-    "Touched Hako sources are checked with the smallest available focused route; no parser/Rust/Call/VM behavior claim is made.",
+    "The baseline clean normal route remains reproducible at the five-method ResolverDeferred/UnsupportedExpression boundary.",
+    "The attempted four-file source edit and its temporary ternary guard are fully reverted; no production source, guard, artifact, or semantic receipt is retained.",
+    "The clean edited isolation is recorded as a NoSafeSlice input to the next source-contract D0, not as a ternary or full-artifact success.",
 ]
 negative = [
     "Any earlier SourceShape or ParameterContract failure, changed branch eagerness, changed null/sentinel/escaping, or changed output/return value.",
@@ -1108,9 +1106,53 @@ no_safe_slice = [
     "The existing Hako subset rejects the replacement form or conditional evaluation is no longer lazy.",
     "A site needs parser/resolver/entry/Methodize/Call/VM changes, an AST rewrite, or a new semantic receipt.",
     "The clean route stops earlier than the recorded five-method boundary for a reason not owned by these 20 sites.",
+    "A clean edited worktree reproduces ParameterContract { UnsupportedDeclaredType { declaration: 430, parameter: 0 } } before the recorded ResolverDeferred boundary.",
+    "The four source edits interact through an unresolved declaration/parameter contract, so changing one more source shape would be guesswork rather than a bounded BoxShape.",
 ]
-non_claims = "This I0 does not establish a fresh full Stage1 artifact, Methodize parity, MirBuilder Call cutover, VM retirement, language ternary support, or source/file deletion."
-next_row = "STAGE1-FULL-ARTIFACT-D0"
+observed_evidence = [
+    "Baseline on the clean main worktree after reverting the probe: NYASH_MACRO_DISABLE=1 target/quick/hakorune --emit-mir-json /tmp/stage1_baseline_after_revert.json lang/src/runner/stage1_cli_env.hako returned rc=1 with no artifact at the five-method ResolverDeferred/UnsupportedExpression boundary.",
+    "A detached clean worktree at 571a90c29c with pattern_util plus jsonfrag rewrites reached a later ResolverDeferred batch; adding the json-number rewrites left only LowerMethodArrayGetSetBox.try_lower; adding the lower_method_array_get_set rewrite reached ParameterContract/UnsupportedDeclaredType declaration 430 parameter 0.",
+    "The same all-four edit was rerun with the detached worktree's own stage1_cli_env.hako path and returned rc=1 with no artifact; plugin-missing diagnostics were environmental and did not change the typed terminal.",
+    "The source and guard edits were reverted in the main worktree; git diff is empty after the probe.",
+]
+non_claims = "This failed I0 does not establish ternary source safety, a fresh full Stage1 artifact, Methodize parity, MirBuilder Call cutover, VM retirement, language ternary support, or source/file deletion."
+next_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
+
+[stage1_ternary_source_contract_d0_2026_08_29]
+status = "active_design_stop"
+task_id = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
+execution_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
+parent_row = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
+implementation_permission = false
+primary_missing_boundary = "RepresentationDecisionMissing"
+decision = "Explain the declaration/parameter contract transition exposed by the complete four-file source-shape edit before reopening any ternary replacement. Treat the existing five-method ResolverDeferred boundary and the earlier ParameterContract terminal as separate typed observations; do not repair either by widening the parser or inventing a parameter fallback."
+source_authority = "The existing Hako parser/source closure for PatternUtilBox.find_local_bool_before, JsonNumberCanonicalBox.canonicalize_f64, JsonFragNormalizerBox._normalize_instructions_array/_canonicalize_f64_str, LowerMethodArrayGetSetBox.try_lower, and the callable parameter-contract issuer own the source/parameter relation."
+canonical_issuer = "Existing callable parameter-contract issuer and existing ResolverDeferred typed terminal; this D0 issues no semantic receipt, target, artifact, or compatibility route."
+non_authority = "Ternary language extension, parser relaxation, default/opaque parameter filling, source rewriting, AST/MIR rewrite, resolver/Rust changes, Main/entry/wrapper/argv, Methodize/Method(None), Call schema, VM/backend, fallback, and artifact promotion."
+fail_fast_boundary = "Before package install and artifact effects, reproduce the baseline five-method ResolverDeferred batch and compare one source-shape combination at a time; any ParameterContract or SourceShape transition remains a named blocker until its existing owner explains it."
+census_boundary = "stage1_cli_env.hako -> static import closure -> the four Hako owners/five methods/20 ternary sites -> callable parameter-contract declaration 430 -> ResolverDeferred terminal; includes only this finite source-shape interaction, excludes parser changes, unrelated ternaries, entry/wrapper, Methodize, Call, VM/backend, and full artifact claims."
+smallest_next_slice = "Read-only per-file and combination matrix with pinned source hashes, binary hash, cwd, env, command, rc, artifact existence, first typed terminal, and declaration/parameter identity. Confirm whether lower_method_array_get_set_box.hako is the decisive transition and name the existing source owner or park the family; no code or fixture edits."
+finite_inventory = [
+    "baseline: all four files unchanged -> five-method ResolverDeferred/UnsupportedExpression",
+    "pattern_util_box.hako only -> compare the PatternUtil owner boundary",
+    "json_number_canonical_box.hako only -> compare canonicalize_f64 contract",
+    "jsonfrag_normalizer_box.hako only -> compare both JsonFrag owners",
+    "lower_method_array_get_set_box.hako only -> compare try_lower contract",
+    "bounded combinations only after each single-file observation is recorded; no unbounded join census",
+]
+acceptance = [
+    "The source/parameter owner for the declaration 430 transition is named, or the finite ternary family is explicitly ParkedSealed with an observable reopen trigger.",
+    "Baseline and edited observations use clean, pinned source/binary/cwd/env tuples and preserve the typed terminal distinction.",
+    "No parser, resolver, entry, Methodize, Call, VM/backend, artifact, fixture, semantic receipt, or source edit is introduced by this D0.",
+    "Only after the boundary is explained may a new bounded ternary I0 be selected; otherwise return to the existing Stage1 artifact blocker without further source churn.",
+]
+no_safe_slice = [
+    "The per-file matrix cannot attribute the transition to an existing source/parameter owner.",
+    "The only apparent repair is a parser relaxation, guessed parameter default, AST rewrite, or a change outside the finite four-owner closure.",
+    "A probe uses a mixed worktree, stale binary, missing artifact, or plugin/environment failure as semantic evidence.",
+]
+non_claims = "This D0 does not reopen ternary implementation, establish a full Stage1 artifact, or advance Methodize, MirBuilder Call, VM, backend, or cleanup work."
+next_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
 
 [stage1_source_shape_diag_d0_2026_08_29]
 status = "landed"
