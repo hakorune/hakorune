@@ -9,6 +9,8 @@ TEST_SPLIT_ROW = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
 TEST_SPLIT_KEY = "rust_exact1_methodize_retire_test_s0_2026_08_30"
 EXACT1_RETIRE_ROW = "MIR-CALL-RUST-METHODIZE-RETIRE-I0"
 EXACT1_RETIRE_KEY = "rust_exact1_methodize_retire_i0_2026_08_30"
+METHOD_NONE_TERMINAL_ROW = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0"
+METHOD_NONE_TERMINAL_KEY = "builder_method_none_publication_terminal_ret0_2026_08_30"
 
 
 def check_guard_split_s0(state: dict, card: dict, root: Path, api: object) -> None:
@@ -254,6 +256,76 @@ def check_exact1_retire_i0(state: dict, card: dict, root: Path, api: object) -> 
         api.fail("Rust exact-1 retirement I0 allowed-file boundary drifted")
 
 
+def check_method_none_terminal_ret0(
+    state: dict, card: dict, root: Path, api: object
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail("Builder Method(None) terminal RET0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != METHOD_NONE_TERMINAL_ROW:
+        api.fail("Builder Method(None) terminal RET0 is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        api.fail("Builder Method(None) terminal RET0 must clear current_design_stop")
+    if state.get("next_execution_card") != METHOD_NONE_TERMINAL_ROW:
+        api.fail("Builder Method(None) terminal RET0 pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("Builder Method(None) terminal RET0 card pointer drifted")
+
+    row = card.get(METHOD_NONE_TERMINAL_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"{METHOD_NONE_TERMINAL_KEY} section is missing")
+    if row.get("task_id") != METHOD_NONE_TERMINAL_ROW:
+        api.fail("Builder Method(None) terminal RET0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        api.fail("Builder Method(None) terminal RET0 status is not finite")
+    expected_permission = row.get("status") == "fast_open"
+    if row.get("implementation_permission") is not expected_permission:
+        api.fail("Builder Method(None) terminal RET0 permission/status drifted")
+
+    source_rel = Path("src/mir/builder/builder_emit.rs")
+    test_rel = Path("src/mir/builder/builder_method_none_terminal_tests.rs")
+    readme_rel = Path("src/mir/builder/calls/README.md")
+    expected_allowed = {
+        str(source_rel),
+        str(test_rel),
+        str(readme_rel),
+        str(api.HELPER_REL),
+        "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        api.fail("Builder Method(None) terminal RET0 allowed-file boundary drifted")
+    if row.get("status") != "landed":
+        return
+
+    source = root / source_rel
+    tests = root / test_rel
+    for path in (source, tests):
+        if not path.is_file():
+            api.fail(f"Builder Method(None) terminal RET0 owner is missing: {path}")
+        if sum(1 for _ in path.open()) >= 760:
+            api.fail(f"Builder Method(None) terminal RET0 owner reached 760 lines: {path}")
+    source_text = source.read_text()
+    test_text = tests.read_text()
+    for token in (
+        "[mir/call/method-none-retired]",
+        "builder_method_none_terminal_tests.rs",
+    ):
+        if token not in source_text:
+            api.fail(f"Builder Method(None) terminal RET0 lacks source evidence: {token}")
+    for test_name in (
+        "receiverless_method_rejects_before_builder_publication",
+        "typed_global_still_publishes_after_method_none_retirement",
+    ):
+        if test_text.count(f"fn {test_name}(") != 1:
+            api.fail(f"Builder Method(None) terminal RET0 lacks test: {test_name}")
+    exact1 = card.get(EXACT1_RETIRE_KEY)
+    if not isinstance(exact1, dict) or exact1.get("status") != "landed":
+        api.fail("Builder Method(None) terminal RET0 lacks landed reissuer retirement")
+
+
 def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:
     if state.get("work_mode") != "design_stop":
         api.fail("Method corridor producer census must remain design_stop")
@@ -292,7 +364,6 @@ def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:
         for required in (
             "resolved_compatibility_consumer",
             "builder_method_none_publication_terminal",
-            "unified_emitter_methodize_reissuer",
         ):
             if required not in values:
                 api.fail(f"{label} lost remaining Method corridor blocker: {required}")
@@ -303,6 +374,7 @@ def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:
         "raw_legacy_origin",
         "script_root_origin",
         "method_resolution_static_none",
+        "unified_emitter_methodize_reissuer",
     ):
         if required not in closed:
             api.fail(f"Method corridor producer census did not close {required}")

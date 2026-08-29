@@ -50,13 +50,16 @@ gone with no replacement target. The parent Method corridor is back in
 design_stop with three blockers: shared `Resolved` consumer, Builder
 `Method(None)` terminal, and unified-emitter reissuer. `Resolved` is now
 production-caller-zero but still has named test-only compatibility witnesses.
-The Rust exact-1 methodize success contract is selected for typed ingress
-retirement; Hako/JSON Stage1 owners remain separate. The behavior-neutral guard
-and test-home splits landed at `f70e43daa9` and `50b7acf97b`. The current fast
-slice atomically rejects exact `1` before either Rust module ingress mutates the
-Builder, removes the now-useless policy carrier, and removes the unified-emitter
-Global-to-`Method(None)` reissuer. VM/backend, JSON/Hako writers, Stage1,
-shared `Resolved`, Builder terminal, and Call-schema changes remain closed.
+Rust exact-1 methodize retirement landed at `287e944fe8`: both Rust module
+ingresses reject exact `1` before mutation, the stored policy carrier is gone,
+and the unified-emitter Global-to-`Method(None)` reissuer is zero. Hako/JSON and
+the Stage1 writer remain separate and unchanged. The parent Method corridor is
+left with two in-boundary blockers. A post-retirement structural census found
+zero Rust Builder `Callee::Method(receiver=None)` literal writers, so the only
+fast-open slice now rejects that impossible shape at `emit_instruction` before
+publication. The production-caller-zero shared `Resolved` consumer and its
+three test-only witnesses remain closed for a later fate row. VM/backend and
+Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 

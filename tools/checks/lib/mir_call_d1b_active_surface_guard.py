@@ -18,10 +18,12 @@ import tomllib
 from mir_call_d1b_method_corridor_guard import (
     EXACT1_RETIRE_ROW,
     GUARD_SPLIT_ROW,
+    METHOD_NONE_TERMINAL_ROW,
     TEST_SPLIT_ROW,
     check_exact1_retire_i0,
     check_guard_split_s0,
     check_method_corridor_d0,
+    check_method_none_terminal_ret0,
     check_method_resolution_ret0,
     check_test_split_s0,
 )
@@ -615,6 +617,8 @@ def main() -> None:
         check_test_split_s0(state, card, root, api)
     elif row == EXACT1_RETIRE_ROW:
         check_exact1_retire_i0(state, card, root, api)
+    elif row == METHOD_NONE_TERMINAL_ROW:
+        check_method_none_terminal_ret0(state, card, root, api)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:
