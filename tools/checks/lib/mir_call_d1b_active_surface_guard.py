@@ -31,12 +31,14 @@ SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 RAW_LEGACY_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
 RAW_LEGACY_I0_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
 METHOD_CORRIDOR_D0_ROW = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+METHOD_RESOLUTION_RET0_ROW = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"
 PROOF_KEY = "proof_reliability_followups_2026_08_29"
 RAW_ROOT_KEY = "raw_root_main_retire_i0_2026_08_29"
 SCRIPT_ROOT_KEY = "method_call_compat_script_root_ret0_2026_08_30"
 RAW_LEGACY_KEY = "method_call_compat_raw_legacy_fate_d0_2026_08_30"
 RAW_LEGACY_I0_KEY = "method_call_compat_raw_legacy_fate_i0_2026_08_30"
 METHOD_CORRIDOR_D0_KEY = "method_corridor_nonstage1_producer_retire_d0_2026_08_29"
+METHOD_RESOLUTION_RET0_KEY = "method_call_method_resolution_static_none_ret0_d0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -508,6 +510,92 @@ def check_method_corridor_d0(state: dict, card: dict) -> None:
             fail(f"Method corridor producer census did not close {required}")
 
 
+def check_method_resolution_ret0(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("method-resolution RET0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != METHOD_RESOLUTION_RET0_ROW:
+        fail("method-resolution RET0 row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("method-resolution RET0 must clear current_design_stop")
+    if state.get("next_execution_card") != METHOD_RESOLUTION_RET0_ROW:
+        fail("method-resolution RET0 pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("method-resolution RET0 card pointer drifted")
+
+    row = card.get(METHOD_RESOLUTION_RET0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{METHOD_RESOLUTION_RET0_KEY} section is missing")
+    if row.get("task_id") != METHOD_RESOLUTION_RET0_ROW:
+        fail("method-resolution RET0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("method-resolution RET0 status is not finite")
+    expected_permission = row.get("status") == "fast_open"
+    if row.get("implementation_permission") is not expected_permission:
+        fail("method-resolution RET0 permission/status drifted")
+
+    source_rel = Path("src/mir/builder/calls/method_resolution.rs")
+    utils_rel = Path("src/mir/builder/calls/utils.rs")
+    source = (root / source_rel).read_text()
+    utils = (root / utils_rel).read_text()
+    for path in (source_rel, utils_rel):
+        if sum(1 for _ in (root / path).open()) >= 760:
+            fail(f"method-resolution RET0 source reached the 760-line split boundary: {path}")
+    if "pub fn resolve_call_target(" not in source:
+        fail("method-resolution RET0 lost the remaining generic resolver")
+    if row.get("status") == "landed":
+        for token in (
+            "current_static_box",
+            "has_method(",
+            "Callee::Method",
+            "is_commonly_shadowed_method",
+            "generate_self_recursion_warning",
+            "classify_callee_box_kind",
+        ):
+            if token in source:
+                fail(f"method-resolution RET0 stale static-none token remains: {token}")
+        if "current_static_box" in utils:
+            fail("method-resolution wrapper still carries current_static_box")
+        if "method_resolution_never_issues_receiverless_static_method" not in source:
+            fail("method-resolution RET0 negative test evidence is missing")
+
+    allowed = row.get("allowed_files")
+    expected_allowed = {
+        str(source_rel),
+        str(utils_rel),
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+        "src/mir/builder/calls/README.md",
+    }
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        fail("method-resolution RET0 allowed-file boundary drifted")
+
+    if row.get("status") == "landed":
+        base = require_text(row.get("coverage_base_commit"), "method-resolution RET0 coverage_base_commit")
+        changed = changed_added_test_names(git_diff(root, base))
+        expected = set(require_text_list(row.get("changed_test_names"), "method-resolution RET0 changed_test_names"))
+        if changed != expected:
+            fail(f"method-resolution RET0 changed test inventory drifted; diff={sorted(changed)}, card={sorted(expected)}")
+        filters = require_text_list(row.get("focused_test_filters"), "method-resolution RET0 focused_test_filters")
+        listed = cargo_test_names(root)
+        for name in sorted(changed):
+            full_names = [item for item in listed if item.endswith("::" + name)]
+            if len(full_names) != 1:
+                fail(f"method-resolution RET0 changed test {name} is not uniquely listed by cargo")
+            if not any(token in full_names[0] for token in filters):
+                fail(f"method-resolution RET0 changed test {name} has no matching focused filter")
+        for token in filters:
+            if not any(token in item for item in listed):
+                fail(f"method-resolution RET0 focused test filter has zero cargo-list matches: {token}")
+        changed_paths = git_diff_paths(root, base)
+        if not changed_paths.issubset(expected_allowed):
+            fail(
+                "method-resolution RET0 changed paths exceed allowed boundary: "
+                f"{sorted(changed_paths - expected_allowed)}"
+            )
+
+
 def check_raw_legacy_i0(state: dict, card: dict, root: Path) -> None:
     if state.get("work_mode") not in {"fast", "closeout"}:
         fail("RawLegacy I0 requires fast or closeout work_mode")
@@ -644,6 +732,8 @@ def main() -> None:
         check_script_root_ret0(state, card, root)
     elif row == METHOD_CORRIDOR_D0_ROW:
         check_method_corridor_d0(state, card)
+    elif row == METHOD_RESOLUTION_RET0_ROW:
+        check_method_resolution_ret0(state, card, root)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:

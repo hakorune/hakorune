@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "The explicit-compatibility ingress I0 is landed. Stay in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0: enumerate the finite non-Stage1 Method(None) producer/reissuer/terminal boundary before any method_resolution change; keep Stage1 compatibility, JSON/Hako, VM/backend, and Call-schema lanes parked."
+smallest_next_slice = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0 is the only fast-open slice: remove the caller-zero current_static_box + has_method Method(None) branch without changing build.rs, shared Resolved, methodize, Builder publication, or any backend/schema lane."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -431,6 +431,55 @@ d0_c_retirement_order = [
   "raw_legacy_origin",
 ]
 d0_c_next_action = "ScriptRoot and RawLegacy RetireBeforeEffects are landed. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its remaining open rows are method_resolution_static_none, resolved_compatibility_consumer, builder_method_none_publication_terminal, and unified_emitter_methodize_reissuer."
+
+[method_call_method_resolution_static_none_ret0_d0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+ceremony_tier = "T1"
+implementation_permission = true
+decision = "Remove only the dormant current_static_box + has_method branch that issues receiverless Callee::Method. Its sole structural caller is the shared Resolved consumer, whose production reach is zero after RawRootMain eligibility rejects FunctionCall before physical open. No replacement target, terminal, resolver, or new receipt is introduced."
+source_authority = "The upstream RawRootMain eligibility owner and the already-landed RawLegacy/RawScriptRoot/ScriptRoot terminals prove that this method-resolution branch has no production success owner."
+canonical_issuer = "None: this is an unplaced caller-zero retirement, not a target issuance row. Exact catalog/source handoffs remain owned by the existing qualified publication owners."
+non_authority = [
+  "current_static_box, has_method, name/arity, StaticMethodId, registry, receiver, args, func/ValueId, physical symbol, resolver/recovery, fallback, retry",
+  "test-only direct resolution witnesses and historical compatibility wording",
+]
+fail_fast_boundary = "Existing upstream RawRootMain eligibility and named compatibility terminals stop ordinary FunctionCall before physical open or argument effects; this row only removes the unreachable static-none resolver branch and its local API plumbing."
+census_boundary = "method_resolution.rs static-none branch -> its sole MirBuilder wrapper -> the one build.rs Resolved callsite; includes the local test witness and excludes build.rs/Resolved changes, Method(None) reissuers, Builder publication, VM/backend, JSON/Hako, Stage1, and Call schema."
+production_reach_before = "structural method_resolution static-none branch = 1; wrapper caller = 1; production-reachable success caller = 0 because the only Resolved producer is RawRootMain and its FunctionCall is rejected upstream; test-only witnesses remain explicit."
+old_edge_delete_set = [
+  "method_resolution.rs current_static_box + has_method -> Callee::Method { receiver: None }",
+  "is_commonly_shadowed_method and generate_self_recursion_warning helpers used only by that branch",
+  "has_method helper and the current_static_box argument in the method-resolution wrapper",
+  "test expectation that bare length resolves to receiverless Method",
+]
+allowed_files = [
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/utils.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "src/mir/builder/calls/README.md",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/builder_emit.rs",
+  "shared Resolved consumer, Method(None) reissuers, VM/backend, JSON/Hako, Stage1, and Call schema",
+]
+focused_gate = "CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_BUILD_JOBS=2 cargo test --profile quick --lib mir::builder::calls::method_resolution::tests:: -- --test-threads=1"
+focused_test_filters = [
+  "mir::builder::calls::method_resolution::tests::",
+]
+changed_test_names = [
+  "method_resolution_never_issues_receiverless_static_method",
+]
+acceptance = "The static-none branch, has_method, self-recursion warning helpers, and current_static_box resolver argument are removed; builtin Print, local Value, and Extern resolution remain unchanged; the new negative test is listed and passes; shared Resolved/build.rs and all Method(None) downstream writers remain untouched."
+stop = "Return to design_stop if any production caller reaches this branch, if the wrapper is needed outside build.rs, if an exact source/catalog issuer is required, or if implementation touches build.rs, shared Resolved, Method(None) reissuers, VM/backend, JSON/Hako, Stage1, or Call schema."
+next_row = "Return to design_stop for the remaining Resolved consumer, Builder Method(None) terminal, and unified-emitter reissuer rows; no broad Method corridor implementation is implied."
 
 [method_call_compat_raw_script_retire_i0_2026_08_29]
 status = "landed"

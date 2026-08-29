@@ -44,11 +44,13 @@ route tests green and no production replacement credit.
 The explicit-compatibility ingress I0 remains landed at `13664f7787` (unset/exact
 `0` is Canonical, exact `1` selects the named compatibility mode, malformed
 values fail before mutation). Stage1 full artifact remains ParkedSealed. The
-remaining Method corridor is a design stop: enumerate
-`method_resolution_static_none`, the shared `Resolved` consumer, the Builder
-`Method(None)` publication terminal, and the unified-emitter reissuer before any
-producer implementation. Shared `Resolved`, build.rs, VM/backend, JSON/Hako,
-Stage1, and Call-schema changes remain closed.
+remaining Method corridor is bounded. The only fast-open slice is
+`MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0`: remove the caller-zero
+`current_static_box + has_method` branch that issued receiverless
+`Callee::Method`, with no replacement target and no shared `Resolved`/build.rs
+change. The shared `Resolved` consumer, Builder `Method(None)` terminal, and
+unified-emitter reissuer remain design blockers; VM/backend, JSON/Hako, Stage1,
+and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
