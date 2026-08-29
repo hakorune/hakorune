@@ -1,7 +1,7 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "5ed21ada52"
-observed_at = "2026-08-29"
+observed_commit = "598530d23b"
+observed_at = "2026-08-30"
 implementation_permission = false
 
 [boundary]
@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "MIR-CALL-RUST-METHODIZE-RETIRE-GUARD-S0 is the only fast-open slice: split the 755-line active guard by owner without changing checks, registry, source, tests, or production behavior."
+smallest_next_slice = "No code slice is open. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 is the selected design stop: finitely classify the remaining same-module Global publishers, then accept at most one production edge."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -66,12 +66,13 @@ owner = "src/mir/builder/calls/method_resolution.rs:31-55"
 caller = "src/mir/builder/calls/build.rs:128-145,362-419"
 edge = "current_static_box + hardcoded has_method issues Callee::Method { receiver: None } and the builder publishes a target/name path"
 authority = "not available in this route; existing callable declaration catalog/publication handoff is the required authority"
-disposition = "CutoverBlockerOpen"
+disposition = "RetiredCallerZero"
 coupled_to = "The four named R2 compatibility descendants reach this issuer through shared Resolved after argument descent; do not treat it as an independent Method implementation cell."
 replacement = "exact same-brand catalog key -> qualified Global(owner.method/arity) -> CalleeResolver -> MirInstruction::call"
 delete_set = ["Method(None) literal", "hardcoded has_method target classification", "name Const publication for this route", "tail/suffix alternate-target retry"]
 fail_fast = "before argument-effect publication and before build.rs block insertion"
-reopen_trigger = "generic caller receives an exact catalog/owner handoff, or a new production caller appears"
+reopen_trigger = "a new production caller or receiverless Method writer appears"
+retirement_commit = "598530d23b"
 
 [[issuer]]
 id = "unified_emitter_methodize_none"
@@ -80,12 +81,13 @@ owner = "src/mir/builder/calls/unified_emitter.rs:407-461"
 caller = "selected unified emission path; physical publication at :700-725"
 edge = "the explicit compatibility snapshot reclassifies an incoming RuntimeData Global into Method(None)"
 authority = "incoming exact Callee provenance; environment/profile/text cannot reclassify a canonical target"
-disposition = "CutoverBlockerOpen"
+disposition = "RetiredCallerZero"
 coupled_to = "Stage1 exact-1 writers, build_stage1 direct emit, Program(JSON) zero writers, shell empty transport, and separate Hako/JSON readers require a finite ingress-policy decision before this reissuer can change."
 replacement = "retain exact Global or exact Method(receiver); do not repair an unproven Global here"
 delete_set = ["HAKO_MIR_BUILDER_METHODIZE target mutation", "StaticMethodId text reclassification", "Method(None) trace/branch"]
 fail_fast = "before create_mir_call and physical terminal"
-reopen_trigger = "selected methodize caller census changes or exact upstream provenance is proven"
+reopen_trigger = "a new Rust compatibility selector or Global-to-Method(None) reissuer appears"
+retirement_commit = "287e944fe8"
 
 [[issuer]]
 id = "mir_json_v0_optional_method_receiver"
@@ -330,7 +332,7 @@ forbidden_files = [
 ]
 
 [method_corridor_nonstage1_producer_retire_d0_2026_08_29]
-status = "accepted_policy_b_in_progress"
+status = "landed_exhausted"
 task_id = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 guard_phase = "method_corridor_nonstage1_producer_retire_d0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-R0"
@@ -346,14 +348,13 @@ non_authority = [
   "Stage1 artifact failure, stale binary, wrapper/argv substitution, fallback, retry, and test-only fixtures",
 ]
 census_boundary = "RawBrandCallAuthorityV1 non-Stage1 origin or the now-retired Rust methodize ingress -> pre-effect reject, exact successor, or first MirInstruction::Call insertion; includes the four named R2 origins, the shared Resolved consumer, method_resolution_static_none, the Builder Method(None) publication terminal, the retired unified-emitter reissuer, and the already-closed installed Main/nonbrand preflight terminals; excludes the unchanged Stage1/Hako/JSON writers, VM/backend/native consumers, Method(Some) semantics, and Call.func/Option<Callee> schema retirement."
-current_disposition = "CutoverBlockerOpen"
-census_status = "open_blockers_present"
+current_disposition = "Exhausted"
+census_status = "exhausted"
 safe_i1 = false
 in_scope_inventory_count = 11
 outside_inventory_count = 8
-open_questions = [
-  "Which test-only Resolved witnesses should be retained as historical compatibility and which should be retired in a separate cleanup row?",
-]
+open_questions = []
+safe_i1_reason = "The parent is exhausted; no further implementation row belongs to this boundary. The next selected work is the separate same-module publisher design stop."
 required_evidence = [
   "finite producer/reissuer/terminal inventory with start/end boundary and includes/excludes",
   "caller and writer census for method_resolution_static_none, with Stage1 exact-1 separated",
@@ -370,7 +371,7 @@ ordered_tasks = [
 ]
 acceptance = "D0 may close only when the structured in-scope inventory is Exhausted and every in-boundary CutoverBlockerOpen row has either an exact successor or a pre-effect typed terminal with caller-zero evidence. Every outside row has an owner, non-authority, ParkedSealed disposition, and observable reopen trigger. Until then this row remains an accepted design stop and I1 stays closed; no blocker may be silently parked."
 no_safe_slice = "Remain in design_stop if any non-Stage1 producer lacks an exact source/catalog issuer, if a caller crosses the R2 compatibility fence, if method_resolution must be changed to discover the relation, or if the proposed successor requires name/arity/registry/receiver/argument inference, fallback, retry, VM/backend, JSON/Hako, or Call-schema changes."
-next_implementation = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-I1"
+next_implementation = "none__parent_exhausted__see_MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 allowed_files = [
 	"docs/development/current/main/CURRENT_STATE.toml",
 	"docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
@@ -391,11 +392,9 @@ d0_a_status = "complete_recount"
 d0_a_observed_commit = "5ed21ada52"
 d0_a_boundary = "four R2 origin issuers and shared dispatch -> shared Resolved construction/consumer -> method_resolution_static_none production caller, with every in-scope producer/reissuer/terminal row counted by direct sites and upstream classes"
 d0_a_remaining_rows = []
-d0_b_status = "partial_disposition"
+d0_b_status = "complete"
 d0_b_boundary = "recounted producer/reissuer/terminal -> exact successor, pre-effect typed reject, or open blocker"
-d0_b_open_rows = [
-  "resolved_compatibility_consumer",
-]
+d0_b_open_rows = []
 d0_b_closed_rows = [
   "installed_app_main_affine_successor",
   "installed_nonbrand_pre_effect_reject",
@@ -407,40 +406,36 @@ d0_b_closed_rows = [
   "method_resolution_static_none",
   "unified_emitter_methodize_reissuer",
   "builder_method_none_publication_terminal",
-]
-d0_c_status = "selected_origin_retirement"
-d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot and ScriptRoot have pre-effect retirement/deferral boundaries, RawLegacy's sole ordinary edge is closed by RawLegacyRetired at 7fb4ed1a1f, method_resolution_static_none is caller-zero retired at fea43bdade, Rust exact-1 plus the unified methodize reissuer are retired at 287e944fe8, and the Builder Method(None) terminal rejects before publication at cc2d390538. Only the dormant Resolved consumer and its test-only witnesses remain open in this boundary."
-d0_c_open_rows = [
   "resolved_compatibility_consumer",
 ]
+d0_c_status = "complete"
+d0_c_observed_commit = "3391ecca92"
+d0_c_result = "All 11 in-boundary rows have a named exact successor or typed pre-effect retirement. RawRootMain ordinary direct injection now terminates at RawRootMainRetired, and the caller-zero Resolved variant/consumer plus every exclusive resolver/recovery/name-Const/tail-env observer are physically deleted at 598530d23b. No replacement target was issued."
+d0_c_open_rows = []
 d0_c_decision_options = [
   "A: open a separate source-backed issuer design that supplies exact owner/site/brand/relation and an already-issued typed target within the same transaction",
   "B: retire the two remaining caller-zero compatibility consumer/terminal rows without replacement, after classifying their test-only witnesses and non-Rust callers",
 ]
-d0_c_selected_option = "B_in_progress__one_caller_zero_row_remains"
-d0_c_option_b_scope = "B is accepted for the closed ScriptRoot, RawScriptRoot, RawLegacy, RawRootMain, method_resolution_static_none, Rust unified-reissuer, and Builder Method(None) terminal rows. It authorizes no replacement target and does not yet authorize dormant Resolved consumer deletion until its exact test-only witnesses are classified."
+d0_c_selected_option = "B_complete"
+d0_c_option_b_scope = "B is landed for ScriptRoot, RawScriptRoot, RawLegacy, RawRootMain, method_resolution_static_none, Rust unified-reissuer, Builder Method(None), and the caller-zero Resolved corridor. It authorizes no replacement target."
 d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot and RawScriptRoot lack a bare FunctionCall target product, RawLegacy lacks owner/site/brand/package/target, and RawRootMain is already caller-zero upstream. A would require a second source scan or resolver."
 d0_c_language_policy = "ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy are internal compatibility provenance, not Canonical language semantics or a public Compat2025 profile. No new caller may depend on their post-argument resolver behavior."
 d0_c_retirement_order = [
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "Builder Method(None) terminal RET0 is landed at cc2d390538. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its only open row is resolved_compatibility_consumer and its direct test-only witnesses."
+d0_c_next_action = "Parent boundary is Exhausted at 598530d23b. Select MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 as a separate design stop; no Method corridor implementation remains open."
 
 post_static_none_ret0_observed_commit = "c44376532e"
 post_static_none_ret0_recount = "The static-none producer is retired with structural branch=0 and production reach=0. The shared Resolved producer/consumer remains structurally present but its only production origin is RawRootMain, whose ordinary FunctionCall is rejected upstream; the remaining direct witnesses are test-only. Rust exact-1 rejects before mutation, its policy carrier and unified-emitter Method(None) reissuer are zero, and the Builder terminal now rejects receiverless Method before publication."
-resolved_consumer_post_ret0_structural_producer_sites = 1
+resolved_consumer_post_ret0_structural_producer_sites = 0
 resolved_consumer_post_ret0_production_reachable_callers = 0
-resolved_consumer_post_ret0_consumer_definitions = 1
-resolved_consumer_post_ret0_test_only_witnesses = [
-  "src/mir/builder/calls/function_call_script_compatibility_tests.rs::raw_root_main_compatibility_preserves_resolved_terminal",
-  "src/mir/builder/calls/function_call_preflight_route_tests.rs::raw_root_main_compatibility_preserves_resolved_terminal",
-  "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs::raw_root_main_compatibility_preserves_resolved_terminal",
-]
-resolved_consumer_post_ret0_fate = "ParkedSealed test-only compatibility witnesses; physical consumer cleanup is a separate row after their fate is explicitly chosen."
+resolved_consumer_post_ret0_consumer_definitions = 0
+resolved_consumer_post_ret0_test_only_witnesses = []
+resolved_consumer_post_ret0_fate = "Retired at 598530d23b. The three direct witnesses now assert RawRootMainRetired or retained special precedence with zero argument/MIR effects."
+final_retirement_commit = "598530d23b"
 unified_reissuer_user_decision = "Accepted and landed at 287e944fe8: Rust exact-1 HAKO_MIR_BUILDER_METHODIZE=1 is a named typed ingress retirement, not Stage1 provenance; the shared reissuer and policy carrier are deleted."
-d0_e_next_action = "Reconcile every dormant Resolved direct-injection witness, then freeze one RawRootMain typed pre-effect terminal and an exact old-edge delete set before opening a caller-zero retirement row."
+d0_e_next_action = "Complete: the RawRootMain typed pre-effect terminal and exact old-edge delete set landed at 598530d23b."
 d0_e_recommended_decision = "Retire the production-caller-zero RawRootMain Resolved compatibility edge without replacement; preserve str/math/special/Cataloged/AppMain precedence and do not add a target issuer or resolver."
 d0_e_no_safe_slice = "Without that decision, any selective non-Stage1 reissuer removal would rely on env/request inference and is not an executable slice."
 
@@ -612,12 +607,12 @@ validation = [
 next_row = "Return to parent design_stop for the dormant Resolved consumer and its three test-only witnesses."
 
 [raw_root_resolved_caller_zero_ret0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement"
-implementation_permission = true
+implementation_permission = false
 decision = "Replace the dormant RawRootMainParkedCompatibility -> Resolved success edge with one payload-free RawRootMainRetired terminal after Brand/TypeOp/Math/FastMem/exact-str precedence, then delete PreparedRawOrdinaryFunctionCompletionV1::Resolved and every exclusive post-argument resolver/recovery/name-Const/tail-env observer. No replacement target is issued."
 source_authority = "RawBrandCallAuthorityV1::RawRootMainParkedCompatibility is the exact test-injectable provenance. Production authority remains the raw-root eligibility owner, which rejects FunctionCall as UnsupportedSurface before physical open. prepare_ordinary_function_completion_v1 owns the first origin-specific terminal after special precedence."
 canonical_issuer = "None: this is caller-zero retirement. CatalogedTargeted and AppMainTargeted keep their existing exact issuers; the new RawRootMainRetired terminal carries no target payload."
@@ -658,6 +653,7 @@ allowed_files = [
   "tools/checks/lib/bare_static_recovery_proof.py",
   "tools/checks/lib/headerport_authority_erasure_guard.py",
   "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
+  "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py",
   "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
   "tools/smokes/v2/configs/auto_detect.conf",
   "apps/bare-static-recovery-proof/README.md",
@@ -683,7 +679,167 @@ focused_test_filters = [
   "cataloged_target_preflight_applies_total_shadow_order",
   "app_main_direct_call",
 ]
-next_row = "Close the parent Method corridor if the post-implementation census has no remaining in-boundary blocker; otherwise return to design_stop with the exact residual owner."
+implementation_commit = "598530d23b"
+post_implementation_census = "PreparedRawOrdinaryFunctionCompletionV1::Resolved=0; RawRootMain Resolved producer=0; Resolved consumer=0; build_resolved_function_call=0; build_unified_function_call=0; generic resolve_call_target=0; unique-static emission recovery=0; tail/suffix resolver=0; Resolved name-Const writer=0; NYASH_BUILDER_TAIL_RESOLVE Rust reader/writer=0. RawRootMainRetired is the sole ordinary non-special direct-injection terminal after the retained special precedence."
+validation = [
+  "cargo test --profile quick --lib raw_root_main_ -- --test-threads=1: 6 passed",
+  "cargo test --profile quick --lib cataloged_target_preflight_applies_total_shadow_order -- --test-threads=1: 1 passed",
+  "cargo test --profile quick --lib app_main_direct_call -- --test-threads=1: 3 passed",
+  "cargo check --profile quick --lib: pass",
+  "cargo build --profile quick --features vm-reference --bin hakorune: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/mir_call_d1b_exact_target_child_guard.sh: pass",
+  "python3 tools/checks/lib/headerport_authority_erasure_guard.py .: pass",
+  "python3 tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py .: pass",
+  "python3 tools/checks/lib/mir_call_global_target_b1_cutover_guard.py .: pass after removing the two retired adapter users from the exact expected set",
+  "python3 tools/checks/lib/bare_static_recovery_proof.py .: pass with nonzero focused catalog tests",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+]
+red_classification = "Workspace-wide cargo fmt -- --check reports the pre-existing unrelated formatting debt in src/runner/core_executor.rs, which this row did not touch. Targeted rustfmt --check for every changed Rust file passed. The stale resolved_callable_l0 guard fails on its unrelated historical with_resolved_function_draft_session contract and is not acceptance evidence for this bounded row. No full-suite green claim is made."
+next_row = "The parent Method corridor is Exhausted. Return to design_stop at MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0; no implementation is open until its finite publisher inventory and one bounded edge are accepted."
+
+[same_module_all_producer_disposition_r0_2026_08_30]
+status = "accepted_with_open_blockers"
+task_id = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+guard_phase = "same_module_all_producer_disposition_r0"
+ceremony_tier = "T1"
+implementation_permission = false
+decision = "Treat the former three labels as semantic families, not three files. Finitely classify every Rust MirBuilder SameModule target issuer/reconstructor from its first source/owner product through typed Global publication or pre-effect reject. Exact same-brand keys may project one target; String, env, physical symbol, candidate/header lookup, and retry may not issue meaning."
+source_authority = "A same-session CanonicalSameModuleCallableKeyV1 or an already-issued exact typed target owned by the selected source/catalog row."
+canonical_issuer = "CanonicalSameModuleCallableKeyV1::canonical_global_target_v1 for exact static keys; each other family must name its existing exact issuer or retire before effects."
+non_authority = [
+  "owner/name/arity text, formatted MIR symbol, CorePlan func:String, env flags, current_static_box, candidate/header lookup, StaticMethodId parse",
+  "typed_global_target_from_selected_symbol, resolver replay, physical thunk symbol, test fixture, fallback, retry, VM/backend, JSON, and Call schema",
+]
+fail_fast_boundary = "Without an exact issued target, reject before child/argument/operand descent, local_arg or Const emission, collector/block mutation, Call insertion, or result publication."
+census_boundary = "Rust src/mir/builder source/owner product that first issues or reconstructs a SameModule Global target -> exact CanonicalGlobalTargetV1 enters CallTarget::Global/Callee::Global or the route reaches a typed pre-effect terminal; includes 10 compatibility-adapter callsites, 5 non-adapter production constructor classes, exact-key projection, and the key-dropping receipt terminal; excludes typed-target consumers, Builtin(Print), Extern, Method(Some), NewBox construction semantics, canonical_direct_call, JoinIR, wire/JSON, VM/backend, Call schema, and tests."
+inventory_status = "finite_reconciled__9_production_families__1_test_only_outside"
+production_family_count = 9
+outside_family_count = 1
+current_disposition = "CutoverBlockerOpen"
+worker_audit_result = "Two independent read-only audits rejected the old three-file interpretation. Physical thunk and default-on rewrite/known are direct counterexamples; ordinary-new and cataloged provider are additional owner-specific families. The exact static receipt family alone has a closed authority mapping suitable for one bounded implementation row."
+ordered_tasks = [
+  "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
+  "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
+  "I2: generic CorePlan — separate selected exact plan from Unlocated func:String and retire authority-free emission before local_arg",
+  "I3: arithmetic/comparison/unary env publishers — remove env/name target issuance before operand or Const effects",
+  "I4: physical thunk — consume the exact header/entry relation without symbol parse-back",
+  "I5: rewrite/known — replace four production parse-back sites with their existing typed owner or pre-effect reject",
+  "I6: ordinary new birth — keep construction authority separate from SameModule call publication",
+  "I7: cataloged provider-as-Free — retain only exact declared provider/builtin disposition; name+arity synthesis is not authority",
+  "C0: rerun two-direction producer census; close only when open/reopened blockers are zero and the test-only row remains ParkedSealed",
+]
+acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
+no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
+non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
+smallest_next_slice = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "exact_static_receipt"
+owner = "method_call_terminal.rs plus script_direct_static_physical_bridge.rs, static_result_publication_physical_bridge.rs, and script_physical_exit/direct_static_entry_kernel.rs"
+disposition = "BoundedExactSuccessor"
+evidence = "three production callers already own CanonicalSameModuleCallableKeyV1; the terminal currently drops it to owner/method/arity and reconstructs the target"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "ordinary_static_terminal"
+owner = "calls/method_call_handlers.rs and calls/method_call_terminal.rs"
+disposition = "CutoverBlockerOpen"
+evidence = "arguments descend before formatted static target construction"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "generic_coreplan_globalcall"
+owner = "control_flow/plan GlobalCall writers and lowerer/effect_emission.rs"
+disposition = "CutoverBlockerOpen"
+evidence = "func:String is lowered after local_arg; selected exact emission_port is a separate positive successor"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "selected_exact_coreplan"
+owner = "control_flow/plan/lowerer/emission_port.rs"
+disposition = "ExactSuccessor"
+evidence = "existing canonical key projection ignores the raw func spelling"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "operator_env_publishers"
+owner = "ops/arithmetic.rs, ops/comparison.rs, ops/unary.rs"
+disposition = "CutoverBlockerOpen"
+evidence = "env and generated name are non-authority; some operand/Const effects precede target creation"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "physical_thunk"
+owner = "normal_module_transaction/physical_thunk.rs"
+disposition = "CutoverBlockerOpen"
+evidence = "exact header/entry relation exists but the current edge parses source.symbol() back into a target"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "rewrite_known"
+owner = "rewrite/known.rs; production ingress unified_emitter.rs"
+disposition = "CutoverBlockerOpen"
+evidence = "four default-on production parse-back sites, not fixture-only"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "ordinary_new_birth"
+owner = "ordinary_new_admission.rs and new_expression.rs"
+disposition = "CutoverBlockerOpen"
+evidence = "construction-owned static target publication requires its own NewBox/Call boundary"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
+id = "cataloged_provider_as_free"
+owner = "calls/function_call_preflight_route.rs::prepare_cataloged_target_v1"
+disposition = "CutoverBlockerOpen"
+evidence = "non-print BuiltinGlobal names can be synthesized as SameModule FreeFunction from name+arity"
+
+[[same_module_all_producer_disposition_r0_2026_08_30.outside_inventory]]
+id = "test_only_static_publication"
+owner = "normal_script_direct_static_physical_publication.rs"
+disposition = "ParkedSealed"
+non_authority = "test fixture publication is not a production issuer"
+reopen_trigger = "a non-test production caller or acceptance claim appears"
+
+[same_module_static_receipt_target_before_args_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T1"
+box_kind = "BoxShape authority retirement"
+implementation_permission = true
+decision = "In exactly three production receipt callers, project the already-owned CanonicalSameModuleCallableKeyV1 into CanonicalGlobalTargetV1 before argument/operand descent. Pass that owned typed target to the existing receipt terminal; delete the terminal's owner/method/arity constructor and formatted-symbol field."
+source_authority = "The caller-owned same-session CanonicalSameModuleCallableKeyV1, already validated as StaticBoxMethod with exact arity."
+canonical_issuer = "CanonicalSameModuleCallableKeyV1::canonical_global_target_v1, called once per production edge before descent."
+non_authority = "owner/method/arity strings, PreparedGlobalValueCallRequestV1, formatted symbol, arguments, physical receipt, resolver, target adapter, env, VM/backend, and tests."
+fail_fast_boundary = "namespace, arity, malformed target, or projection failure returns before AssociatedMethodCallArgumentsV1::lower_all, lower_node, ValueId/Const/Call emission, or result publication."
+census_boundary = "three callers holding CanonicalSameModuleCallableKeyV1 -> key projection -> argument/recipe descent -> emit_static_global_value_terminal_with_receipt_v1 -> physical Call receipt; includes only the receipt-required terminal and its tests; excludes ordinary static compatibility terminal, generic CorePlan, operators, rewrite, physical thunk, birth/provider, Method(Some), VM/backend, and Call schema."
+precondition_census = "production receipt callers=3; direct receipt tests=3; receipt terminal target constructors=1; receipt terminal formatted-symbol fields=1; all three callers possess the exact canonical key before descent."
+old_edge_delete_set = [
+  "receipt caller key -> owner/method/arity strings after descent",
+  "emit_static_global_value_terminal_with_receipt_v1 owner/method/arity parameters",
+  "PreparedGlobalValueCallRequestV1 symbol field and CanonicalGlobalTargetV1::new_static_box_method reconstruction",
+]
+allowed_files = [
+  "src/mir/builder/calls/method_call_terminal.rs",
+  "src/mir/builder/calls/method_call_terminal_tests.rs",
+  "src/mir/builder/calls/script_direct_static_physical_bridge.rs",
+  "src/mir/builder/calls/static_result_publication_physical_bridge.rs",
+  "src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs",
+  "src/mir/builder/calls/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+  "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py",
+  "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+planned_focused_tests = [
+  "static receipt accepts a preissued typed target and the receipt destination equals the physical Call",
+  "instance namespace, wrong arity, empty owner/name, and projection failure reject before argument/recipe descent",
+  "each of the three production bridges projects the target before its first descent and lowers arguments exactly once",
+  "unified-disabled and failed-emission negatives remain no-retry and issue no receipt",
+]
+structural_guard = "Existing active-surface/B1 guards must prove three production callers, target projection before descent, a target-only receipt signature, no constructor or formatted symbol in the receipt terminal, no adapter growth, and every touched source below 760 lines. No new guard family."
+acceptance = "Exactly three production receipt callers project an owned typed target before descent; the terminal consumes that target without owner/name/arity reconstruction; target/argument/receipt/publication equality remains; positive and all pre-effect negatives pass; arguments lower once; Call publishes once; no other SameModule family changes."
+no_safe_slice = "Return to design_stop if a caller lacks the exact key before descent, projection needs text/symbol/lookup, ordinary static fallback must change, a new receipt/resolver is needed, any fourth production caller appears, or the slice crosses B1/D1/R6/VM/schema or 760/800 boundaries."
+non_claims = "No broad producer closure, ordinary static fallback, generic CorePlan, operators, rewrite, physical thunk, birth/provider, package-loan, Method(Some), VM/backend, JSON, or Call schema."
 
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
 status = "landed"
@@ -1206,8 +1362,8 @@ reopen_trigger = "A new production RawRootMain FunctionCall route crosses the up
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "method_resolution_static_none"
 kind = "producer"
-owner = "src/mir/builder/calls/method_resolution.rs:37-60; src/mir/builder/calls/utils.rs:45-53; src/mir/builder/calls/build.rs:371"
-edge = "current_static_box + has_method emits Callee::Method with receiver None"
+owner = "retired source owner recorded by MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"
+edge = "the removed current_static_box + has_method branch emitted Callee::Method with receiver None"
 authority = "The current box and method spelling are not an exact declaration-backed issuer"
 disposition = "RetiredCallerZero"
 retirement_commit = "fea43bdade"
@@ -1216,15 +1372,16 @@ reopen_trigger = "A new production caller reaches the removed branch, or an exac
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "resolved_compatibility_consumer"
 kind = "consumer"
-owner = "src/mir/builder/calls/function_call_preflight_route.rs:348-355; src/mir/builder/calls/build.rs:120-146,362-419"
-edge = "Resolved lowers arguments, then re-enters resolve_call_target and recovery before Call"
+owner = "retired at 598530d23b; RawRootMainRetired remains in src/mir/builder/calls/function_call_preflight_route.rs"
+edge = "the removed Resolved route lowered arguments, then re-entered resolve_call_target and recovery before Call"
 authority = "No post-argument target discovery is permitted; the consumer must receive an issued handoff"
-disposition = "CutoverBlockerOpen"
-reopen_trigger = "A new production Resolved caller appears, a test-only witness is promoted to a supported contract, or the test-only fate is selected for physical cleanup"
+disposition = "RetiredTypedTerminal"
+reopen_trigger = "PreparedRawOrdinaryFunctionCompletionV1::Resolved, a post-argument resolver, or a RawRootMain ordinary success edge reappears"
 post_ret0_production_reachable_callers = 0
-post_ret0_structural_producer_sites = 1
-post_ret0_test_only_witnesses = 3
-post_ret0_note = "RawRootMain is rejected before physical open; shared Resolved remains only for explicitly injected historical witnesses until a separate cleanup row decides their fate."
+post_ret0_structural_producer_sites = 0
+post_ret0_test_only_witnesses = 0
+post_ret0_note = "RawRootMain direct witnesses now assert the payload-free RawRootMainRetired terminal or retained special precedence before arguments; the Resolved variant, producer, consumer, and exclusive descendants are zero."
+retirement_commit = "598530d23b"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "builder_method_none_publication_terminal"

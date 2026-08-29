@@ -31,39 +31,27 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and active-row authority. The active-surface
-proof row is landed: historical lifecycle commands are card-backed tombstones,
-changed tests are checked against `cargo test -- --list`, and the two
-`SiteCoverageMismatch` negatives are covered. RawRootMain is closed as a
-caller-zero boundary, while RawScriptRoot and ScriptRoot ordinary compatibility
-edges stop before physical effects at their named terminals. RawLegacy I0 is now
-landed at `7fb4ed1a1f`: its ordinary non-special edge ends at
-`RawLegacyRetired` before argument descent, with 10 compatibility tests and 22
-route tests green and no production replacement credit.
+`CURRENT_STATE.toml` is the sole mode and active-row authority. The Method
+corridor is Exhausted: Rust exact-1 methodize, the Global-to-`Method(None)`
+reissuer, the receiverless Builder terminal, `current_static_box + has_method`,
+and the caller-zero shared `Resolved` corridor are retired. The final RET0
+landed at `598530d23b`: RawRootMain ordinary direct injection now reaches
+`RawRootMainRetired` before effects, while the Resolved variant/consumer and
+its exclusive resolver/recovery/name-Const/tail-env owners were physically
+deleted. Cataloged/AppMain and special precedence remain green; no replacement
+target was issued.
 
-The explicit-compatibility ingress I0 remains landed at `13664f7787` (unset/exact
-`0` is Canonical, exact `1` selects the named compatibility mode, malformed
-values fail before mutation). Stage1 full artifact remains ParkedSealed. The
-caller-zero `method_resolution` static-none RET0 landed at `fea43bdade`: the
-`current_static_box + has_method` branch and local warning/wrapper plumbing are
-gone with no replacement target. `Resolved` is now production-caller-zero but
-still has named test-only compatibility witnesses.
-Rust exact-1 methodize retirement landed at `287e944fe8`: both Rust module
-ingresses reject exact `1` before mutation, the stored policy carrier is gone,
-and the unified-emitter Global-to-`Method(None)` reissuer is zero. Hako/JSON and
-the Stage1 writer remain separate and unchanged. A post-retirement structural
-census found zero Rust Builder `Callee::Method(receiver=None)` literal writers.
-The Builder terminal RET0 landed at `cc2d390538`: receiverless Method now
-rejects before materialization or publication while typed Global remains
-canonical. The parent Method corridor is therefore back in design_stop with
-one blocker only: the production-caller-zero shared `Resolved` consumer and its
-direct RawRootMain test witnesses. Two independent read-only audits confirmed
-one Resolved variant, one RawRootMain producer, one consumer, and zero
-production-reachable callers. The bounded RET0 is now fast-open: after existing
-special-form precedence it replaces the direct-injection success edge with
-`RawRootMainRetired`, then removes Resolved and its exclusive generic
-resolver/recovery/tail observers in the same retirement series. No target is
-issued; Cataloged/AppMain, VM/backend, and Call schema remain closed.
+Two independent read-only audits then corrected item 15: its old three labels
+were semantic families, not an exhaustive file list. The finite Rust Builder
+boundary has nine production families plus one test-only outside owner; physical
+thunk, default-on `rewrite/known`, ordinary-new birth, and cataloged provider
+are separate blockers. Only the exact static receipt family has a closed mapping.
+The active I0 therefore touches exactly three production callers: each already
+owns `CanonicalSameModuleCallableKeyV1`, projects the typed Global target before
+argument/recipe descent, and passes that target to a consumer-only receipt
+terminal. The wider SameModule parent remains blocker-open; ordinary static,
+CorePlan, operators, rewrite, thunk, birth/provider, VM/backend, and Call schema
+remain closed.
 
 ## Historical rolling context (non-authoritative)
 
@@ -448,22 +436,21 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     payload deleted in the same cell after late recovery is already zero
 
 14. MIR-CALL-METHOD-CORRIDOR-R0
-   ingress policy D0 and the bounded Rust explicit-compatibility I0 are landed
-   at 13664f7787 (module snapshot, exact 0/1 parsing, implicit default-on
-   deletion) while exact Method(Some) receiver authority remains separate.
-   The next design stop is a finite non-Stage1 producer/reissuer/terminal
-   inventory; four R2 origins and the shared Method(None) producer/reissuer/
-   terminal remain CutoverBlockerOpen. Do not change method_resolution_static_none
-   while named R2 descendants reach it, and do not delete the known Stage1
-   writer until its artifact successor or route retirement exists (the selector
-   itself carries no Stage1 provenance). Receiver repair, Method(None), VM/JSON,
-   and schema follow as later owner-specific rows.
+   complete/Exhausted. The Rust selector/reissuer, static-none producer, Builder
+   terminal, named compatibility origins, and caller-zero Resolved corridor are
+   retired through 598530d23b. Stage1/Hako/JSON and VM/backend remain separate
+   named owners; this row claims no terminal/schema retirement outside Rust Builder.
 
 15. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0
-    classify static method terminal, generic CorePlan GlobalCall, and env-gated
-    arithmetic/comparison/unary Global publishers. Exact final-module declarations
-    retain one guarded old publication; authority-free publishers reject/retire
-    before effects. No formatted owner/name/arity or plan `func: String` is authority
+    blocker-open parent with nine production families: exact static receipt,
+    ordinary static terminal, generic and selected-exact CorePlan, env operators,
+    physical thunk, rewrite/known, ordinary-new birth, and cataloged provider.
+    Exact final-module declarations retain one guarded publication; authority-free
+    publishers reject before effects. The active bounded child is
+    MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0: exactly three
+    canonical-key callers project a typed target before descent, and the receipt
+    terminal stops reconstructing it from owner/name/arity. No formatted text,
+    plan `func: String`, env, symbol, candidate/header lookup, or retry is authority.
 
 16. MIR-CALL-GLOBAL-TARGET-DEAD-TEXT-CALLSHAPE-S0
     move only the call-shape matcher out of the 790-line owner; no behavior change

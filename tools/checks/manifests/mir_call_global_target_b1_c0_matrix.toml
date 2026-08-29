@@ -4,8 +4,8 @@ card_path = "docs/development/current/main/investigations/mir-call-d1b-direct-ca
 phase = "c0_dual_closeout"
 source_roots = ["src", "crates"]
 scoped_fast_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-scoped_fast_row_key = "raw_root_resolved_caller_zero_ret0_2026_08_30"
-scoped_fast_task_id = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
+scoped_fast_row_key = "same_module_static_receipt_target_before_args_i0_2026_08_30"
+scoped_fast_task_id = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
 required_registry_rows = [
   "mir-call-global-target-b0-machine-census",
   "mir-call-global-target-b1-static-method-s0",

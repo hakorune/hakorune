@@ -20,6 +20,7 @@ from mir_call_d1b_method_corridor_guard import (
     GUARD_SPLIT_ROW,
     METHOD_NONE_TERMINAL_ROW,
     RESOLVED_RETIRE_ROW,
+    STATIC_RECEIPT_ROW,
     TEST_SPLIT_ROW,
     check_exact1_retire_i0,
     check_guard_split_s0,
@@ -27,6 +28,7 @@ from mir_call_d1b_method_corridor_guard import (
     check_method_none_terminal_ret0,
     check_method_resolution_ret0,
     check_resolved_retire_ret0,
+    check_static_receipt_target_before_args_i0,
     check_test_split_s0,
 )
 
@@ -611,6 +613,8 @@ def main() -> None:
         check_method_none_terminal_ret0(state, card, root, api)
     elif row == RESOLVED_RETIRE_ROW:
         check_resolved_retire_ret0(state, card, root, api)
+    elif row == STATIC_RECEIPT_ROW:
+        check_static_receipt_target_before_args_i0(state, card, root, api)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:

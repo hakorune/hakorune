@@ -13,6 +13,9 @@ METHOD_NONE_TERMINAL_ROW = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0"
 METHOD_NONE_TERMINAL_KEY = "builder_method_none_publication_terminal_ret0_2026_08_30"
 RESOLVED_RETIRE_ROW = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
 RESOLVED_RETIRE_KEY = "raw_root_resolved_caller_zero_ret0_2026_08_30"
+STATIC_RECEIPT_ROW = "MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0"
+STATIC_RECEIPT_KEY = "same_module_static_receipt_target_before_args_i0_2026_08_30"
+SAME_MODULE_PARENT_KEY = "same_module_all_producer_disposition_r0_2026_08_30"
 
 
 def check_guard_split_s0(state: dict, card: dict, root: Path, api: object) -> None:
@@ -373,6 +376,7 @@ def check_resolved_retire_ret0(
         "tools/checks/lib/bare_static_recovery_proof.py",
         "tools/checks/lib/headerport_authority_erasure_guard.py",
         "tools/checks/lib/mir_call_global_target_b1_c0_matrix_guard.py",
+        "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py",
         "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
         "tools/smokes/v2/configs/auto_detect.conf",
         "apps/bare-static-recovery-proof/README.md",
@@ -415,6 +419,114 @@ def check_resolved_retire_ret0(
     for test_name in row.get("changed_test_names", []):
         if builder_text.count(f"fn {test_name}(") != 1:
             api.fail(f"RawRootMain Resolved RET0 lacks unique test: {test_name}")
+
+
+def check_static_receipt_target_before_args_i0(
+    state: dict, card: dict, root: Path, api: object
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail("static receipt I0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != STATIC_RECEIPT_ROW:
+        api.fail("static receipt I0 is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        api.fail("static receipt I0 must clear current_design_stop")
+    if state.get("next_execution_card") != STATIC_RECEIPT_ROW:
+        api.fail("static receipt I0 pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("static receipt I0 card pointer drifted")
+
+    parent = card.get(SAME_MODULE_PARENT_KEY)
+    if not isinstance(parent, dict):
+        api.fail(f"{SAME_MODULE_PARENT_KEY} section is missing")
+    if parent.get("task_id") != "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0":
+        api.fail("SameModule producer parent task id drifted")
+    if parent.get("status") != "accepted_with_open_blockers":
+        api.fail("SameModule producer parent must remain blocker-open")
+    if parent.get("implementation_permission") is not False:
+        api.fail("SameModule producer parent cannot permit broad implementation")
+    if parent.get("production_family_count") != 9 or parent.get("outside_family_count") != 1:
+        api.fail("SameModule producer family census drifted")
+    if parent.get("current_disposition") != "CutoverBlockerOpen":
+        api.fail("SameModule producer parent silently closed open blockers")
+
+    row = card.get(STATIC_RECEIPT_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"{STATIC_RECEIPT_KEY} section is missing")
+    if row.get("task_id") != STATIC_RECEIPT_ROW:
+        api.fail("static receipt I0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        api.fail("static receipt I0 status is not finite")
+    expected_permission = row.get("status") == "fast_open"
+    if row.get("implementation_permission") is not expected_permission:
+        api.fail("static receipt I0 permission/status drifted")
+
+    terminal_rel = Path("src/mir/builder/calls/method_call_terminal.rs")
+    production_rels = (
+        Path("src/mir/builder/calls/script_direct_static_physical_bridge.rs"),
+        Path("src/mir/builder/calls/static_result_publication_physical_bridge.rs"),
+        Path("src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs"),
+    )
+    tests_rel = Path("src/mir/builder/calls/method_call_terminal_tests.rs")
+    readme_rel = Path("src/mir/builder/calls/README.md")
+    expected_allowed = {
+        str(terminal_rel),
+        str(tests_rel),
+        *(str(path) for path in production_rels),
+        str(readme_rel),
+        str(api.HELPER_REL),
+        "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+        "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py",
+        "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        api.fail("static receipt I0 allowed-file boundary drifted")
+
+    terminal = (root / terminal_rel).read_text()
+    production = {path: (root / path).read_text() for path in production_rels}
+    for path in (terminal_rel, tests_rel, *production_rels):
+        if not (root / path).is_file():
+            api.fail(f"static receipt I0 owner is missing: {path}")
+        if sum(1 for _ in (root / path).open()) >= 760:
+            api.fail(f"static receipt I0 owner reached 760 lines: {path}")
+    for path, text in production.items():
+        if text.count("emit_static_global_value_terminal_with_receipt_v1(") != 1:
+            api.fail(f"static receipt I0 production caller drifted: {path}")
+
+    if row.get("status") == "fast_open":
+        for token in (
+            "owner: &str",
+            "method: &str",
+            "checked_source_arity: u32",
+            "struct PreparedGlobalValueCallRequestV1",
+            "CanonicalGlobalTargetV1::new_static_box_method",
+        ):
+            if token not in terminal:
+                api.fail(f"static receipt I0 precondition disappeared: {token}")
+        return
+
+    if "target: CanonicalGlobalTargetV1" not in terminal:
+        api.fail("static receipt I0 terminal does not consume the typed target")
+    for token in (
+        "struct PreparedGlobalValueCallRequestV1",
+        "CanonicalGlobalTargetV1::new_static_box_method",
+    ):
+        if token in terminal:
+            api.fail(f"static receipt I0 left terminal reconstruction: {token}")
+    order_tokens = (
+        (production_rels[0], ".canonical_global_target_v1()", ".lower_all(builder)"),
+        (production_rels[1], ".canonical_global_target_v1()", "descent.lower_all(builder)"),
+        (production_rels[2], ".canonical_global_target_v1()", "row.arguments()"),
+    )
+    for path, projection, descent in order_tokens:
+        text = production[path]
+        if text.find(projection) < 0 or text.find(descent) < 0:
+            api.fail(f"static receipt I0 order evidence is missing: {path}")
+        if text.find(projection) > text.find(descent):
+            api.fail(f"static receipt I0 projects target after descent: {path}")
 
 
 def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:

@@ -37,8 +37,6 @@ LINE_LIMIT_FILES = (
 )
 COMPATIBILITY_ADAPTER_USERS = {
     Path("src/mir/builder/calls/call_target.rs"),
-    Path("src/mir/builder/calls/build.rs"),
-    Path("src/mir/builder/calls/static_resolution.rs"),
     Path("src/mir/builder/normal_module_transaction/physical_thunk.rs"),
     Path("src/mir/builder/ops/arithmetic.rs"),
     Path("src/mir/builder/ops/comparison.rs"),
