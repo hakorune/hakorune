@@ -789,6 +789,8 @@ execution_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 implementation_permission = false
 decision = "Receiver authority is one-way: an existing source receiver relation yields Method(Some(receiver)); arguments are the source arguments. Method(None), env/profile methodize, name/arity, has_method, args[0], autoscan, and downstream repair are never target authority. The unified-emitter Global-to-Method(None) branch is only a bounded fate candidate, not an implementation permission: the Stage1 compatibility child still sets methodize=1 and must remain an explicit owner until its route decision is made."
+methodize_fate = "ParkedSealed: the Rust unified-emitter methodize producer cannot be retired while the Stage1 compatibility owner sets HAKO_MIR_BUILDER_METHODIZE=1 and its methodized-output parity is undecided."
+methodize_reopen_trigger = "Reopen only after the Stage1 route either retires methodize=1 or names an explicit successor with focused output/backend parity; normal product methodize=0 is not caller-zero evidence."
 source_authority = "Existing source method route plus VerifiedResolvedMethodCallSourceV1/DeclaredInstance relation owns receiver identity; the existing lowering-scope issuer may project an explicit receiver ValueId into Callee::Method(Some) once. Physical MIR helpers, VM tables, JSON text, and optimizer observations do not issue the semantic receiver."
 non_authority = "current_static_box, has_method, name/arity, StaticMethodId text, HAKO_MIR_BUILDER_METHODIZE, type registry/value_origin, receiver autoscan, args[0] surrogate, CalleeGuardBox repair, optimizer/JSON/VM recovery, and Call schema fields."
 fail_fast_boundary = "Before argument/effect descent or block/publication mutation: exact owner/site/brand, declared instance relation, receiver presence/ownership, arity, and ABI shape must agree; missing/foreign/ambiguous/Method(None) inputs typed-reject or remain ParkedSealed with no retry."
@@ -805,7 +807,7 @@ state_matrix = [
     "Missing/foreign/ambiguous receiver, owner, arity, or ABI -> TypedRejectBeforeEffects; no fallback or repair.",
     "Legacy compatibility, non-selected backend, or unresolved receiver repair without an exact issuer -> ParkedSealed with owner and reopen trigger.",
 ]
-smallest_next_slice = "MIR-CALL-METHOD-CORRIDOR-METHODIZE-R0: design and, only after a guard phase is registered, disable the unified-emitter env/profile Global -> Method(None) mutation and trace; preserve incoming exact target, args, dst, effects, and result."
+smallest_next_slice = "MIR-CALL-METHODIZE-D0: keep the Stage1 methodize owner ParkedSealed, record its route/fate decision and parity reopen condition, and do not add a Method guard phase or implementation until that decision exists."
 methodize_scope = "Design candidate only: src/mir/builder/calls/unified_emitter.rs methodize branch, its existing focused parity/negative evidence, and the named Stage1 compatibility owner at src/runner/stage1_bridge/env/runtime_defaults.rs:23. Normal product env locks to 0 are not caller-zero for this branch. Do not touch method_resolution, receiver prepend/strip, VM autoscan, optimizer, JSON/JoinIR, native C, ordinary-new, or Call schema."
 acceptance = "All 11 manifest rows have a current path, owner, disposition, and reopen trigger; the methodize candidate has an exact incoming-target contract and bounded old-edge delete set; no new Method(None) producer is introduced; implementation remains closed until the existing lifecycle guard has a Method phase and touched tests have nonzero filtered evidence."
 no_safe_slice = [
@@ -815,7 +817,7 @@ no_safe_slice = [
     "unified_emitter.rs would cross the 760/800-line boundary or the guard would need a new family instead of a reusable existing phase.",
 ]
 guard_contract = "Reuse the existing call corridor/lifecycle guard; add a Method phase only when this design stop is accepted for implementation. Canonical corridor/index-none baseline failures are not R0 evidence."
-next_row = "MIR-CALL-METHOD-CORRIDOR-METHODIZE-R0"
+next_row = "MIR-CALL-METHODIZE-D0"
 
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
 status = "landed"
