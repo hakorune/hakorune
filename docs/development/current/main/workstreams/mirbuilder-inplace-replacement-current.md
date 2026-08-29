@@ -75,11 +75,15 @@ The physical-thunk issuer audit is now `ParkedSealed`: the two production
 callers and one test helper share an existing source/physical relation, but
 the current `CallableIndex` and target vocabulary have no exact same-session
 `main/0` Callee issuer. Symbol parse-back, name/arity synthesis, and a new
-semantic receipt are not shortcuts. The next bounded design candidate (the
-parent pointer remains the authority) is
-`MIR-CALL-SAME-MODULE-SELECTED-EXACT-COREPLAN-REACHABILITY-D0`, a read-only
-caller/claim census only; no production bridge or CorePlan implementation is
-permitted.
+semantic receipt are not shortcuts. The selected-exact CorePlan reachability
+audit is also `ParkedSealed`: its source/site/brand/target claim chain is
+structurally exact but caller-zero in production. The next bounded design
+candidate (the parent pointer remains the authority) is
+`MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0`, a read-only census of
+the existing allocation claim, parser constructor row, and physical carrier.
+Its first question is whether source constructor arity N and physical argv
+arity N+1 already have an exact typed carrier; no production bridge or
+ordinary-new implementation is permitted in D0.
 
 ## Historical rolling context (non-authoritative)
 

@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "Open MIR-CALL-SAME-MODULE-SELECTED-EXACT-COREPLAN-REACHABILITY-D0 as a design-only caller/claim census. Confirm whether the existing exact source/site/brand/target chain has any production caller; caller-zero is ParkedSealed, and no CorePlan bridge or implementation opens until a live consumer is proven."
+smallest_next_slice = "Open MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0 as a design-only allocation/constructor carrier census. The selected-exact CorePlan chain is caller-zero and ParkedSealed; ordinary-new is the next finite family with an existing exact claim consumer, but its birth target carrier and N versus N+1 ABI must be reconciled before any implementation."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -758,8 +758,8 @@ evidence = "func:String is lowered after local_arg; selected exact emission_port
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "selected_exact_coreplan"
 owner = "control_flow/plan/lowerer/emission_port.rs"
-disposition = "ExactSuccessor"
-evidence = "existing canonical key projection ignores the raw func spelling"
+disposition = "ParkedSealed"
+evidence = "The existing canonical key/claim chain is structurally exact, but the selected composer and claim consumer have no production caller at HEAD; its reachability child is ParkedSealed and the parent family remains open until a live owner appears."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "operator_env_publishers"
@@ -1947,15 +1947,17 @@ no_safe_slice = "Remain in design_stop if main/0 requires a new semantic issuer 
 non_claims = "No physical thunk implementation, no ordinary Call cutover, no Method(Some)/Method(None) change, no CorePlan/operator/rewrite/provider/new-birth work, no package/loan, no VM/backend/JSON, and no Call-schema change."
 evidence = "At HEAD 278883b669, both production callers and the single test helper reconcile to physical_thunk.rs:80-90. VerifiedNormalMainPhysicalRelationV1 seals source owner/completion/physical entry, but CallableIndex excludes main from FreeStatic and CanonicalNormalMainEntryTargetV1 carries physical-entry identity only; no exact same-session Callee issuer exists."
 reopen_trigger = "A same-session source-backed main/0 Callee product/issuer is introduced by an accepted language/product decision, or the physical-thunk route receives an explicit typed retirement/replacement contract."
-next_execution = "parked_no_issuer__next_selected_exact_coreplan_reachability_d0"
+next_execution = "parked_no_issuer__next_ordinary_new_birth_target_d0"
 
 [same_module_selected_exact_coreplan_reachability_d0_2026_08_30]
-status = "queued_design_stop"
+status = "parked_sealed"
 task_id = "MIR-CALL-SAME-MODULE-SELECTED-EXACT-COREPLAN-REACHABILITY-D0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 box_kind = "BoxShape finite reachability census"
 implementation_permission = false
+disposition = "ParkedSealed"
+owner = "control_flow/plan located-loop claim composer and claim consumer"
 decision = "Do not wire the selected-exact CorePlan successor yet. First reconcile whether its existing source/site/brand/target claim chain has any production caller. A caller-zero result is ParkedSealed; a live caller may be recognized only through the existing exact claim chain, never through raw func text or a new bridge."
 source_authority = "Existing VerifiedSourceStaticCallTargetCatalogV1, VerifiedStaticCallResultPublicationOwnerV1, exact (caller, SourceExprSiteV1) claim, and CorePlanEffectEmissionPortV1::Claimed are the only candidate source-backed products."
 canonical_issuer = "No new issuer in D0. The existing canonical key/target projection and claimed emission product may be reused only if a production caller consumes them in the same session."
@@ -1986,4 +1988,50 @@ ordered_tasks = [
 acceptance = "The selected-exact CorePlan boundary is finite and two-directionally reconciled; every caller/consumer has one state and owner; caller-zero is explicitly ParkedSealed; no raw func/name/arity inference or production bridge was added; and any later I0 has a named existing claim product and first-effect boundary."
 no_safe_slice = "Remain in design_stop if the selected-exact chain has no production caller, if activation requires a second source observation, if statement/value effects need a new result authority, if raw func text must be parsed, or if the work crosses generic CorePlan, package/loan, VM/backend, Call schema, or the 760/800-line boundary."
 non_claims = "No generic CorePlan implementation, no production bridge, no source rescan, no new issuer/receipt, no physical thunk change, no Method(None)/Resolved change, no operator/rewrite/provider/new-birth work, no package/loan, VM/backend, JSON, or Call-schema change."
-next_execution = "none_until_reachability_census"
+evidence = "At HEAD 28c778424b, compose_located_generic_loop_v1 and CorePlanEffectEmissionPortV1::Claimed are referenced only by focused test modules; the production loop entry does not call the located composer. The existing source/site/brand/target claim chain is structurally exact but disconnected from production."
+reopen_trigger = "A real production caller consumes the existing located composer and claim chain in the same session, with exact source/site/brand/target claims and a declared value/statement result contract."
+next_execution = "parked_caller_zero__select_next_same_module_family"
+
+[same_module_ordinary_new_birth_target_d0_2026_08_30]
+status = "queued_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape finite allocation/constructor carrier audit"
+implementation_permission = false
+decision = "Audit the existing ordinary-new allocation claim, parser-issued instance-constructor row, and physical consumer as one finite boundary before opening implementation. The current consumer already takes an exact allocation claim before argument descent, but it still constructs a birth target from class plus source argument count; D0 must prove an existing exact constructor product and reconcile source arity N with physical argv arity N+1. Do not add a new issuer, resolver, or compatibility bridge in this row."
+source_authority = "Existing OrdinaryNewAdmissionClaimV1 keyed by OwnedExprSiteV1 and parser-issued ConstructorSourceIdV1/VerifiedInstanceConstructorSemanticRowV1 for the same selected-normal package and source-backed constructor declaration. These products may be joined only when the same package/session and exact allocation/constructor relation are already present."
+canonical_issuer = "No new issuer in D0. A later I0 may consume an existing exact constructor product only if the allocation site, constructor source identity, class, birth arity, and same-session brand/owner relation are unique; otherwise the family remains typed reject or ParkedSealed."
+non_authority = [
+  "birth Option<Box<str>> text, class/name/arity lookup, current_module or header tables, AST re-scan, slot/plugin registry, physical symbol, env, target reconstruction, fallback, retry, and NewBox/Call effects",
+  "ordinary-box coverage alone, test fixtures, no-claim compatibility, CorePlan, operator/provider/rewrite routes, Method(None), shared Resolved, VM/backend, JSON, and Call schema",
+]
+fail_fast_boundary = "Verify exact allocation site, selected package/session, constructor source identity, class and arity relation, carrier shape, duplicate/foreign/missing/residual state before argument descent, Const/ValueId allocation, NewBox emission, birth Call publication, collector/block mutation, or retry/fallback."
+census_boundary = "issue_ordinary_new_claims_v1 -> OrdinaryNewClaimLedgerV1::try_take -> lower_ordinary_raw_new_with_port_v1 -> existing parser-issued instance-constructor semantic rows; includes selected-normal direct local initializers, birth/N and birth/0, missing/duplicate/foreign/mismatch/residual cases, and the physical constructor argv shape; excludes no-claim legacy paths, field initializers, constructor body lowering, CorePlan, operators, rewrite/known, providers, physical thunk, package/loan generalization, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "semantic claim issuer: src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs::issue_ordinary_new_claims_v1",
+  "claim ledger/consumer seam: src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs::OrdinaryNewClaimLedgerV1 and src/mir/builder/raw_ordinary_new_claim.rs",
+  "physical consumer: src/mir/builder/ordinary_new_admission.rs::lower_ordinary_raw_new_with_port_v1",
+  "parser/constructor semantic owner: src/parser/constructor_source_catalog.rs and src/mir/normal_callable_semantic_package/instance_constructor_semantic.rs",
+  "package install/loan path: src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs, install.rs, and src/mir/builder/normal_callable_semantic_loan_port.rs",
+]
+finite_states = [
+  "ExactBirthTarget: one existing source-backed constructor product matches the allocation claim and carrier arity; eligible for a later bounded I0",
+  "NoBirth0: exact ordinary allocation has arity zero and no birth constructor; retain construction semantics without inventing a target",
+  "MissingOrUnresolved: nonzero birth is absent or no exact constructor row exists; typed pre-effect blocker, no fallback",
+  "ForeignOrDuplicate: package/session/source owner/site/class/arity relation is foreign or non-unique; typed reject before effects",
+  "CarrierMismatch: source constructor arity N and physical argv arity N+1 cannot be represented by the existing typed carrier; ParkedSealed until an explicit ABI/carrier decision",
+  "ResidualClaim: an issued claim remains after the selected physical forest finishes; typed residual reject, no silent drop",
+]
+ordered_tasks = [
+  "D0-A: reconcile allocation claims and parser-issued constructor rows in both directions by exact package/session/source identity; do not expand to function-wide or backend census",
+  "D0-B: classify BirthExact, NoBirth0, MissingOrUnresolved, ForeignOrDuplicate, CarrierMismatch, and ResidualClaim with one owner and terminal each",
+  "D0-C: verify the existing consumer's take-before-arguments order and measure source constructor arity N against physical argv N+1; do not infer a target from birth text",
+  "D0-D: if an exact constructor product and compatible carrier exist, name that existing issuer for a later I0; otherwise choose typed pre-effect retirement or ParkedSealed with a concrete reopen trigger",
+  "I0: open only after D0 proves the exact relation and carrier; consume the existing product once, lower arguments, emit NewBox/birth through the sole physical owner, and delete only the old reconstruction edge in the same bounded row",
+]
+acceptance = "The ordinary-new boundary is finite and two-directionally reconciled; every exact allocation site has one constructor state/owner; birth text and class/arity lookup are non-authority; source N versus physical argv N+1 is either represented by an existing carrier or explicitly ParkedSealed; and no production implementation or new semantic receipt was added in D0."
+no_safe_slice = "Remain in design_stop if the join requires class/name/arity search, AST re-scan, header/slot/plugin lookup, a new semantic issuer, a new ABI/carrier or Call-schema change, argument/NewBox effects must precede the terminal, no-claim paths must be mixed in, or the 760/800-line boundary would be crossed."
+non_claims = "No ordinary-new implementation, no birth target reconstruction, no field-initializer or constructor-body change, no CorePlan/operator/provider/rewrite/thunk work, no Method(None)/Resolved change, no package/loan generalization, no VM/backend/JSON, no Call-schema change, and no fallback/retry."
+reopen_trigger = "A same-session source-backed constructor product with exact allocation-site relation and a carrier that explicitly distinguishes method arity N from physical argv arity N+1 is identified, or an explicit language/ABI decision selects typed pre-effect retirement/replacement."
+next_execution = "none_until_ordinary_new_carrier_d0"
