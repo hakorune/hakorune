@@ -43,6 +43,13 @@ caller-present catalog target synthesis, so caller presence cannot turn an
 unissued GC name into a same-module free-function target.  This does not
 change the separate Math, Extern, ordinary, VM, or Call-schema lanes.
 
+The ordinary InstalledNonBrand Cataloged `FunctionCall` spelling `print` is
+caller-zero in production: the parser owns the language spelling as
+`ASTNode::Print`, and `stmts/print_stmt.rs` is the sole source owner of
+`builtin_print()`.  The old Cataloged name-synthesis branch therefore retires
+before child descent; this does not change the dedicated Print statement
+lowering or its exact one-expression contract.
+
 The former `method_resolution` static-box `has_method` branch is retired as a
 caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;
 qualified static targets belong to exact catalog/source handoffs. There is no

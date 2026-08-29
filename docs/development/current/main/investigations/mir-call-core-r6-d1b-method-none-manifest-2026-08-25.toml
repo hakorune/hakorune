@@ -859,14 +859,14 @@ resource_note = "The default optimized test-binary link was stopped twice at app
 post_census = "exactly 3 production receipt callers; receipt terminal consumes CanonicalGlobalTargetV1; PreparedGlobalValueCallRequestV1 and CanonicalGlobalTargetV1::new_static_box_method are absent from the receipt function; all three callers project before descent; touched Rust owners are 459/467/160/53/248 lines and the guard is 697 lines."
 next_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop; select the next exact SameModule family only after a fresh authority audit."
 
-[same_module_cataloged_print_arity_r0_2026_08_30]
-status = "design_stop"
-task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0"
+[same_module_cataloged_print_caller_zero_retire_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-ceremony_tier = "T0"
-box_kind = "BoxShape finite provider contract"
-implementation_permission = false
-decision = "Treat only the existing builtin_print() as the print issuer. Confirm whether the InstalledNonBrand Cataloged FunctionCall path has a live production caller; if it does, accept exact print/1 and reject every other arity before child descent. If it does not, retire the legacy print name-synthesis branch as a caller-zero compatibility edge rather than opening a new provider route."
+ceremony_tier = "T1"
+box_kind = "BoxCount caller-zero retirement"
+implementation_permission = true
+decision = "The ordinary InstalledNonBrand Cataloged print branch has no production ASTNode::FunctionCall caller. Retire that compatibility branch before target synthesis; preserve the dedicated ASTNode::Print owner, which already emits the existing builtin_print() target for its one expression."
 source_authority = "The parser's dedicated ASTNode::Print carries exactly one expression, and CanonicalGlobalTargetV1::builtin_print() is the existing typed issuer. The census itself issues no target."
 canonical_issuer = "Existing CanonicalGlobalTargetV1::builtin_print() only; no name/arity constructor, classifier, catalog-existence check, resolver, symbol, or VM consumer may issue print."
 non_authority = [
@@ -878,10 +878,12 @@ fail_fast_boundary = "At InstalledNonBrand Cataloged ordinary preflight, after e
 census_boundary = "InstalledNonBrand Cataloged raw FunctionCall name=print -> prepare_cataloged_target_v1 -> first target/reject terminal; includes parser/ordinary-call caller reconciliation and focused preflight tests, excludes ASTNode::Print's existing statement owner, Math, ExplicitExtern, GC, VM/backend, wire, and Call schema."
 allowed_files = [
   "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/build.rs",
   "src/mir/builder/calls/function_call_preflight_route_tests.rs",
-  "src/mir/builder/calls/resolver.rs",
   "src/mir/builder/calls/README.md",
-  "docs/reference/language/statements.md",
+  "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_cataloged_print_guard.py",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
@@ -899,13 +901,12 @@ forbidden_files = [
   "VM/backend/JSON/Call schema",
 ]
 ordered_tasks = [
-  "D0: reconcile parser ASTNode::Print, ordinary FunctionCall construction, and all production callers of the Cataloged print branch; tests alone do not establish a live caller",
-  "D0: freeze the finite arity matrix: print/1 may reuse builtin_print(); print/0, print/2+, overflow, and malformed caller shapes must not synthesize a FreeFunction",
-  "I0 only after D0: add the pre-effect exact-arity terminal or caller-zero retirement, with positive/negative/no-descent evidence and the old name+arity synthesis edge removed in the same row",
+  "I0: issue a typed CatalogedPrintRetired terminal before target synthesis, child descent, ValueId/Const allocation, or block mutation",
+  "I0: update the direct preflight test to prove caller-zero retirement and preserve the dedicated ASTNode::Print owner; do not change print statement lowering",
   "C0: rerun the provider census and return to the SameModule parent; do not claim provider-wide closure",
 ]
-acceptance = "The ordinary Cataloged print boundary has a two-directionally reconciled caller list, exactly one authority state, an explicit AST Print exclusion, exact print/1 semantics, pre-effect rejection or caller-zero retirement for every other arity, and no new semantic receipt or provider owner."
-no_safe_slice = "Remain in design_stop if a live caller needs non-print/1 behavior, print is supplied by a different source owner, arity cannot be checked before descent, or the old branch cannot be removed without name/arity, resolver, symbol, fallback, or retry authority."
+acceptance = "The ordinary Cataloged print boundary has zero production FunctionCall callers, emits one typed caller-zero retirement before target synthesis and child descent, preserves the dedicated ASTNode::Print -> builtin_print() owner, and removes the old print name-synthesis edge without a new provider or semantic receipt."
+no_safe_slice = "Return to design_stop if a production FunctionCall print caller appears, the dedicated ASTNode::Print owner is not the sole source route, or retirement would require name/arity, resolver, symbol, fallback, retry, VM, wire, or Call-schema authority."
 selected_cohort = "print_cataloged_caller_zero_retire"
 caller_reconciliation = "The parser's production print token is lowered to ASTNode::Print by src/parser/statements/io_async.rs; a source-wide scan found no production ASTNode::FunctionCall constructor with name=print. The InstalledNonBrand Cataloged print branch is therefore test/compatibility injection only at this boundary. ASTNode::Print remains owned by stmts/print_stmt.rs and is excluded from this retirement."
 caller_reconciliation_evidence = [
@@ -913,8 +914,8 @@ caller_reconciliation_evidence = [
   "src/mir/builder/raw_expression_dispatch/mod.rs:345-358 is the sole production FunctionCall preflight ingress",
   "source-wide production scan found no name: \"print\" FunctionCall constructor; remaining matches are tests, JSON/MIR projections, or the ASTNode::Print owner",
 ]
-decision_after_d0 = "Do not add a second ordinary-call print issuer. Retire the caller-zero Cataloged print name-synthesis branch; preserve the dedicated ASTNode::Print -> builtin_print() owner."
-next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0 may open after the parent pointer selects it; current parent remains design_stop and no fast row is open yet."
+decision_after_d0 = "Do not add a second ordinary-call print issuer. Retire the caller-zero Cataloged print branch; preserve the dedicated ASTNode::Print -> builtin_print() owner."
+next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0 is the selected fast row; after focused evidence and closeout, return to the SameModule parent design stop."
 
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
 status = "landed"

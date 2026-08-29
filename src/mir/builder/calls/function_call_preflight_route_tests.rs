@@ -511,11 +511,10 @@ fn cataloged_target_preflight_applies_total_shadow_order() {
     assert!(matches!(
         builtin.route,
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
-                callee: crate::mir::Callee::Global(ref symbol),
-                ..
-            }
-        } if symbol.display_name() == "print"
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Retired(
+                RawOrdinaryFunctionRetirementV1::BuiltinPrintCataloged
+            )
+        }
     ));
 
     builder

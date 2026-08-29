@@ -33,6 +33,10 @@ from mir_call_d1b_method_corridor_guard import (
     check_static_receipt_target_before_args_i0,
     check_test_split_s0,
 )
+from mir_call_d1b_cataloged_print_guard import (
+    CATALOGED_PRINT_RETIRE_ROW,
+    check_cataloged_print_caller_zero_retire_i0,
+)
 
 
 TAG = "mir-call-d1b-active-surface"
@@ -691,6 +695,8 @@ def main() -> None:
         check_same_module_parent_r0(state, card, api)
     elif row == CATALOGED_GC_RETIRE_ROW:
         check_cataloged_gc_retire_i0(state, card, root)
+    elif row == CATALOGED_PRINT_RETIRE_ROW:
+        check_cataloged_print_caller_zero_retire_i0(state, card, root, api)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:

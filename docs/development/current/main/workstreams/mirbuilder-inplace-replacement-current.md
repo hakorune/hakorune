@@ -66,19 +66,19 @@ remain separate owners/blockers, and no provider-wide implementation is open.
 
 Fresh worker audit keeps the parent in `design_stop`: ordinary static,
 CorePlan, operator, physical-thunk, and rewrite families lack a complete
-pre-effect bridge. The only small candidate is
-`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0`: first reconcile whether the
-Cataloged `FunctionCall` print branch has any live production caller, then
-either enforce the existing exact `builtin_print()` `print/1` contract or
-retire that caller-zero compatibility edge. No fast row is open until that
-single D0 is recorded; no provider-wide, VM/backend, package/loan, or
+pre-effect bridge. The only small candidate was
+`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0`; its D0 is now closed as
+caller-zero for the ordinary Cataloged branch. The selected fast row is
+`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0`: retire only
+that compatibility edge before target synthesis and preserve the dedicated
+`ASTNode::Print` owner. No provider-wide, VM/backend, package/loan, or
 Call-schema work is implied.
 
-The D0 reconciliation is now recorded in the manifest: production `print` is
+The D0 reconciliation is recorded in the manifest: production `print` is
 parsed as `ASTNode::Print` and owned by `stmts/print_stmt.rs`; no production
 `ASTNode::FunctionCall { name: "print" }` constructor was found. The ordinary
 Cataloged print success branch is therefore a caller-zero compatibility edge.
-The next bounded row is its pre-effect typed retirement, while the dedicated
+`CURRENT_STATE.toml` selects its pre-effect typed retirement; the dedicated
 Print statement owner stays unchanged.
 
 ## Historical rolling context (non-authoritative)

@@ -64,12 +64,16 @@ enum RawCompatibilityOrdinaryCallTerminalV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum RawOrdinaryFunctionRetirementV1 {
     GcGlobal,
+    BuiltinPrintCataloged,
 }
 
 impl RawOrdinaryFunctionRetirementV1 {
     pub(super) fn error(self) -> String {
         match self {
             Self::GcGlobal => "[freeze:contract][direct-call/gc-global-retired]".to_owned(),
+            Self::BuiltinPrintCataloged => {
+                "[freeze:contract][direct-call/cataloged-print-retired]".to_owned()
+            }
         }
     }
 }
@@ -384,6 +388,13 @@ fn prepare_ordinary_function_completion_v1(
     {
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Retired(
             RawOrdinaryFunctionRetirementV1::GcGlobal,
+        ))
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        && caller.is_some()
+        && name == "print"
+    {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Retired(
+            RawOrdinaryFunctionRetirementV1::BuiltinPrintCataloged,
         ))
     } else if let Some(caller) = caller {
         match prepare_cataloged_target_v1(builder, caller, name, arguments.len()) {
