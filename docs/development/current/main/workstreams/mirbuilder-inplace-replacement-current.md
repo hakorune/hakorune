@@ -31,9 +31,17 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and active-row authority. The two named
-compatibility-origin tests are green and the R2 preflight fence is reconciled;
-the four live downstream compatibility descendants remain outside that fence.
+`CURRENT_STATE.toml` is the sole mode and active-row authority. RawScriptRoot's
+ordinary non-special I0 is landed at `8837cbbab2` and its closeout is recorded;
+the current design stop is the RawRootMain boundary, not another RawScriptRoot
+implementation. A read-only source audit finds RawRootMain FunctionCall work
+classified as `UnsupportedSurface(Call)` by the existing raw-root eligibility
+owner before physical open; this is a caller-zero/provenance correction to
+record, not permission to add a second call terminal.
+
+The two named compatibility-origin tests are green and the R2 preflight fence
+is reconciled; the remaining live downstream compatibility descendants remain
+outside that fence.
 The bounded Rust explicit-compatibility ingress I0 is landed at
 `13664f7787`: unset/exact `0` is Canonical, exact `1` selects the named
 compatibility mode, and malformed values fail before mutation. Stage1 is a
@@ -45,10 +53,11 @@ inventory only; D0-A has recounted all 11 rows and D0-B records eight
 CutoverBlockerOpen rows plus an exact App Main successor and two pre-effect
 reject dispositions. D0-C found no reusable exact source/catalog product for
 the four internal compatibility origins and selected origin-specific pre-effect
-retirement. The only open fast cell is `MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0`:
-remove RawScriptRoot's ordinary `Resolved` edge before arguments while the
-other three origins remain unchanged. `method_resolution`, JSON/Hako,
-VM/backend, and Call-schema changes remain closed.
+retirement. The current child row is
+`MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0`: first reconcile its upstream
+eligibility/caller-zero evidence, then decide whether any dormant downstream
+edge needs a named terminal. `method_resolution`, JSON/Hako, VM/backend, and
+Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 

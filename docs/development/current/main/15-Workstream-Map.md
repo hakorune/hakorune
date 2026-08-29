@@ -42,6 +42,23 @@ Related:
 5. When `work_mode = "closeout"`, classify evidence and synchronize the
    owning docs/guard/commit without widening the implementation.
 
+## Milestone Projection (navigation only)
+
+This table is a compact progress view, not a second authority or task ledger.
+The active row and completion claims still come from `CURRENT_STATE.toml` and
+the linked SSOTs.
+
+| Milestone | Current state | Completion signal | Authority |
+| --- | --- | --- | --- |
+| MS1 Call spine | active, design stop at the current compatibility boundary | Call R6/R7, old resolver/recovery/fallback edges and `callee=None` producers are zero | `mirbuilder-final-pipeline-ssot.md` and the active Call card |
+| MS2 canonical pipeline / Loop | parked sibling | canonical function finish plus the existing Loop M8--M12 and final convergence audit are accepted | `mirbuilder-final-pipeline-ssot.md` and `joinir-loop-selfhost-recipe-pipeline-ssot.md` |
+| MS3 VM retirement | parked sibling, after Call R7 and post-Call integration | LLVM/AOT is the product owner, the explicit reference is temporary, and Rust VM callers reach zero before deletion | `vm-active-lane-retirement-ssot.md` |
+| MS4 future selfhost artifact | parked future lane | a selfhost owner defines and proves its first artifact; it is not a prerequisite for MS1 | `selfhost-lift-boundary-and-task-order-ssot.md` |
+
+Do not express these milestones as percentages. A milestone is complete only
+when its linked owner records the production-graph delta and required
+caller-zero/parity evidence.
+
 ## Parked Resume
 
 ```text
