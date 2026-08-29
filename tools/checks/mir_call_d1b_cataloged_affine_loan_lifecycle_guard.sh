@@ -12,14 +12,14 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|observer_i0_verifier_corrective|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|method_corridor_explicit_compat_ingress_i0|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|observer_i0|observer_i0_verifier_corrective|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|method_corridor_explicit_compat_ingress_i0|method_corridor_nonstage1_producer_retire_d0|cataloged_i0]"
 # With no explicit argument, the active CURRENT_STATE row selects the current
 # phase; otherwise the root lifecycle card supplies the historical phase.
 # Historical phases remain available for explicit audit, but the manifest
 # entry must never silently run an obsolete pre-bridge phase.
 PHASE="${1:-}"
 case "$PHASE" in
-  ""|readiness|bridge_ready|observer_i0|observer_i0_verifier_corrective|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|method_corridor_explicit_compat_ingress_i0|cataloged_i0) ;;
+  ""|readiness|bridge_ready|observer_i0|observer_i0_verifier_corrective|cataloged_source_coseal_validation|main_observation_gate_corrective_r0|main_root_owner_forest_validation_r0|main_root_identity_coseal_i0|main_raw_cataloged_handoff_d0|main_raw_cataloged_route_r0|main_raw_lineage_handoff_d1|main_raw_lineage_witness_harden_r0|qualified_method_target_issuer_d0|qualified_method_target_issuer_i0|cataloged_source_relation_affine_loan_i0|installed_nonbrand_pre_effect_reject_r2a|resolved_compatibility_provenance_r2b|resolved_compatibility_provenance_r2c|resolved_compatibility_unclassified_r2d|method_corridor_explicit_compat_ingress_i0|method_corridor_nonstage1_producer_retire_d0|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -88,6 +88,8 @@ if not phase:
         phase = "observer_i0_verifier_corrective"
     elif active_row == "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0":
         phase = "method_corridor_explicit_compat_ingress_i0"
+    elif active_row == "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0":
+        phase = "method_corridor_nonstage1_producer_retire_d0"
     elif active_row == "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0":
         r2d = active_card.get("r2d_unclassified_source_fail_closed_2026_08_29")
         if isinstance(r2d, dict) and r2d.get("status") in {"fast_open", "landed"}:
@@ -104,7 +106,7 @@ if not phase:
                     raise SystemExit("active all-lineage row has no explicit current compatibility phase")
     else:
         phase = active_card.get("guard_phase")
-    if phase not in {"readiness", "bridge_ready", "observer_i0", "observer_i0_verifier_corrective", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d", "method_corridor_explicit_compat_ingress_i0", "cataloged_i0"}:
+    if phase not in {"readiness", "bridge_ready", "observer_i0", "observer_i0_verifier_corrective", "cataloged_source_coseal_validation", "main_observation_gate_corrective_r0", "main_root_owner_forest_validation_r0", "main_root_identity_coseal_i0", "main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0", "main_raw_lineage_handoff_d1", "main_raw_lineage_witness_harden_r0", "qualified_method_target_issuer_d0", "qualified_method_target_issuer_i0", "cataloged_source_relation_affine_loan_i0", "installed_nonbrand_pre_effect_reject_r2a", "resolved_compatibility_provenance_r2b", "resolved_compatibility_provenance_r2c", "resolved_compatibility_unclassified_r2d", "method_corridor_explicit_compat_ingress_i0", "method_corridor_nonstage1_producer_retire_d0", "cataloged_i0"}:
         raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
@@ -126,7 +128,7 @@ if sum(1 for item in rows if item.get("id") == guard_id) != 1:
 d1_card = None
 registration_owner = card
 method_card = None
-if phase == "method_corridor_explicit_compat_ingress_i0":
+if phase in {"method_corridor_explicit_compat_ingress_i0", "method_corridor_nonstage1_producer_retire_d0"}:
     method_card_path = root / "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
     with method_card_path.open("rb") as stream:
         method_card = tomllib.load(stream)
@@ -184,6 +186,8 @@ registration_key = (
     if phase == "resolved_compatibility_unclassified_r2d"
     else "method_corridor_explicit_compat_ingress_i0_2026_08_29"
     if phase == "method_corridor_explicit_compat_ingress_i0"
+    else "method_corridor_nonstage1_producer_retire_d0_2026_08_29"
+    if phase == "method_corridor_nonstage1_producer_retire_d0"
     else "i0_observation_verifier_regression_repair_d0_2026_08_29"
     if phase == "observer_i0_verifier_corrective"
     else "guard_registration_row"
@@ -320,6 +324,19 @@ elif phase == "method_corridor_explicit_compat_ingress_i0":
         raise SystemExit("landed Method ingress I0 has an invalid work mode")
     if registration.get("guard_phase") != "method_corridor_explicit_compat_ingress_i0":
         raise SystemExit("Method ingress I0 guard phase is missing")
+elif phase == "method_corridor_nonstage1_producer_retire_d0":
+    if registration.get("task_id") != "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0":
+        raise SystemExit("Method non-Stage1 producer D0 task id drifted")
+    if registration.get("guard_phase") != "method_corridor_nonstage1_producer_retire_d0":
+        raise SystemExit("Method non-Stage1 producer D0 guard phase drifted")
+    if registration.get("status") != "accepted_design_no_safe_slice":
+        raise SystemExit("Method non-Stage1 producer D0 must remain accepted design stop")
+    if registration.get("implementation_permission") is not False:
+        raise SystemExit("Method non-Stage1 producer D0 implementation permission must remain closed")
+    if active_row != "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0":
+        raise SystemExit("Method non-Stage1 producer D0 current row drifted")
+    if current_state.get("work_mode") != "design_stop":
+        raise SystemExit("Method non-Stage1 producer D0 requires design_stop")
 elif phase == "installed_nonbrand_pre_effect_reject_r2a":
     route_path = mir_root / "builder/calls/function_call_preflight_route.rs"
     tests_path = mir_root / "builder/calls/function_call_installed_nonbrand_reject_tests.rs"
@@ -641,6 +658,20 @@ elif phase == "method_corridor_explicit_compat_ingress_i0":
         raise SystemExit("unified emitter reached the 760-line split boundary")
     if sum(1 for _ in lifecycle_path.open()) >= 760:
         raise SystemExit("module lifecycle reached the 760-line split boundary")
+elif phase == "method_corridor_nonstage1_producer_retire_d0":
+    required_tokens = (
+        "method_resolution_static_none",
+        "Method(None)",
+        "non-Stage1",
+        "pre-effect reject",
+        "NoSafeSlice",
+        "Stage1",
+        "ParkedSealed",
+    )
+    manifest_text = method_card_path.read_text()
+    for token in required_tokens:
+        if token not in manifest_text:
+            raise SystemExit(f"Method non-Stage1 producer D0 token is missing: {token}")
 elif phase in {"main_raw_cataloged_handoff_d0", "main_raw_cataloged_route_r0"}:
     pass
 elif phase == "observer_i0_verifier_corrective":
@@ -694,6 +725,9 @@ if phase == "resolved_compatibility_unclassified_r2d":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "method_corridor_explicit_compat_ingress_i0":
+    expected_files = set(registration.get("allowed_files", []))
+    expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
+if phase == "method_corridor_nonstage1_producer_retire_d0":
     expected_files = set(registration.get("allowed_files", []))
     expected_files.update({guard_script, "tools/checks/guard_rows.toml"})
 if phase == "observer_i0_verifier_corrective":

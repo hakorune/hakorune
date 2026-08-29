@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "045133612d"
+observed_commit = "13664f7787"
 observed_at = "2026-08-29"
 implementation_permission = false
 
@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "The ingress-policy D0 is accepted. Open MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0 for the Rust module snapshot and unified-emitter switch only; keep JSON/Hako and the separate Stage1 artifact lane parked."
+smallest_next_slice = "The explicit-compatibility ingress I0 is landed. Stay in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0: enumerate the finite non-Stage1 Method(None) producer/reissuer/terminal boundary before any method_resolution change; keep Stage1 compatibility, JSON/Hako, VM/backend, and Call-schema lanes parked."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -251,7 +251,7 @@ finite_census = [
   "One-time snapshot owner: both Rust module ingress paths in src/mir/builder/module_lifecycle.rs write the Copy field on src/mir/builder/compilation_context.rs; unset/exact 0 yields Canonical and the emitter never rereads env.",
   "Stage1 exact-1 injectors: src/runner/stage1_bridge/env/runtime_defaults.rs and tools/selfhost/lib/stage1_contract.sh; build_stage1 direct emit does not currently prove the same pin.",
   "Canonical exact-0 injectors exist in src/main.rs, src/runner/child_env.rs, and src/host_providers/mir_builder.rs.",
-  "tools/hakorune_emit_mir.sh currently forwards explicit empty when unset and must receive an owner-backed 0/1/omit disposition before strict parsing.",
+  "tools/hakorune_emit_mir.sh now forwards unset as exact \"0\" (Canonical); explicit empty/invalid values remain visible to the Rust typed parser and reject.",
   "Separate excluded readers remain in src/runner/mir_json_emit/root.rs and lang/src/mir/builder/internal/{builder_config_box,call_methodize_box}.hako.",
 ]
 required_before_i0 = [
@@ -275,16 +275,30 @@ future_i0_non_claims = "No method_resolution producer retirement, repository-wid
 no_safe_slice = "Remain in design_stop if a route owner for unset/empty cannot be named, the policy must be reread during body lowering, Stage1/JSON/Hako parity is required in the same slice, or target meaning must be reconstructed from text/registry/arguments."
 
 [method_corridor_explicit_compat_ingress_i0_2026_08_29]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"
 guard_phase = "method_corridor_explicit_compat_ingress_i0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
 ceremony_tier = "T2"
-implementation_permission = true
+implementation_permission = false
 change = "Snapshot the Rust methodize policy once at module ingress and make unified emission consume that typed value. Unset/exact 0 is Canonical, exact 1 is the named Stage1 compatibility mode, and other/non-Unicode values reject before Builder mutation. Delete only the implicit/default-on edge."
 contract = "Incoming typed Callee/CanonicalGlobalTarget remains the sole target authority. The explicit compatibility branch is a bounded projection only; JSON/Hako readers, Stage1 artifact construction, and build_stage1 direct emission remain separate owners or parked lanes."
 done = "A focused matrix proves unset/0 preserve Global, exact 1 preserves the existing bounded compatibility projection, malformed/non-Unicode values fail before publication, the module snapshot is stable after env mutation, and the existing call-corridor lifecycle guard remains green."
 stop = "Return to design if another Rust writer/reader is found, shell/direct-build semantics require a new authority, policy is reread during body lowering, or the change reaches method_resolution, JSON/Hako, VM/backend, receiver repair, or Call schema."
+implementation_commit = "13664f7787"
+focused_tests = [
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib methodize -- --test-threads=1 (11 passed)",
+  "cargo test --profile quick --lib module_ingress_snapshots_canonical_policy -- --test-threads=1 (2 passed)",
+]
+verification = [
+  "CARGO_BUILD_JOBS=4 cargo check --profile quick --lib --features vm-reference",
+  "CARGO_BUILD_JOBS=4 cargo check --profile quick --all-targets",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh method_corridor_explicit_compat_ingress_i0",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+closeout = "I0 is landed and pushed. Full cargo test/link was not run because the repository's documented memory/OOM stop applies; focused tests, quick all-targets, vm-reference feature check, and row/pointer guards are the recorded evidence."
+next_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 allowed_files = [
   "src/config/env/builder_flags.rs",
   "src/mir/builder/compilation_context.rs",
@@ -309,6 +323,53 @@ forbidden_files = [
   "lang/src/mir/builder/func_lowering/call_methodize_box.hako",
   "tools/selfhost/mainline/build_stage1.sh",
   "tools/selfhost/lib/stage1_contract.sh",
+  "VM/backend/optimizer/Call schema/receiver repair",
+]
+
+[method_corridor_nonstage1_producer_retire_d0_2026_08_29]
+status = "accepted_design_no_safe_slice"
+task_id = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+guard_phase = "method_corridor_nonstage1_producer_retire_d0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-R0"
+ceremony_tier = "T1"
+implementation_permission = false
+decision = "Before changing method_resolution, enumerate the finite non-Stage1 Method(None) producer, reissuer, consumer, and terminal boundary. The exact Stage1 HAKO_MIR_BUILDER_METHODIZE=1 compatibility writer remains a named parked owner; no default, name, registry, receiver, or argument inference may be promoted to target authority."
+source_authority = "An exact same-brand callable/source relation or an already-issued typed publication handoff; this design row issues no new semantic product."
+canonical_issuer = "Existing qualified Global/Method(Some) publication owners, if an exact relation is proven; otherwise the route remains pre-effect rejected or ParkedSealed."
+non_authority = [
+  "current_static_box + has_method",
+  "Method(None) literal or methodize flag",
+  "name/arity, StaticMethodId, registry, singleton, physical symbol, func/ValueId, args[0], autoscan, VM/backend, JSON/Hako output",
+  "Stage1 artifact failure, stale binary, wrapper/argv substitution, fallback, retry, and test-only fixtures",
+]
+census_boundary = "method_resolution_static_none producer -> build.rs caller -> selected pre-effect terminal or named compatibility successor; includes the finite Rust Method(None) producer/reissuer/terminal sites and their live production callers; excludes the explicit Stage1 compatibility writer, JSON/Hako readers, VM/backend consumers, Method(Some) semantics, and Call.func/Option<Callee> schema retirement."
+open_questions = [
+  "Which production callers reach method_resolution_static_none after the named R2 compatibility fence, and which are genuinely non-Stage1?",
+  "Does each non-Stage1 caller have an exact catalog/source relation that can issue qualified Global or Method(Some), or must it remain pre-effect rejected/ParkedSealed?",
+  "Which reissuer/terminal rows are still live after the explicit ingress I0, and which have caller-zero evidence?",
+]
+required_evidence = [
+  "finite producer/reissuer/terminal inventory with start/end boundary and includes/excludes",
+  "caller and writer census for method_resolution_static_none, with Stage1 exact-1 separated",
+  "typed disposition per row: exact successor, pre-effect reject, or ParkedSealed with reopen trigger",
+  "no new semantic Verified*/Prepared* receipt, resolver, target lookup, or production code change",
+  "focused source/guard evidence that the inventory is exhaustive within its stated boundary",
+]
+acceptance = "Inventory is Exhausted within the named boundary; every non-Stage1 row has an owner, authority/non-authority, disposition, and observable reopen trigger; no open in-boundary blocker is silently parked; Stage1 and excluded backend/JSON/Hako rows remain explicitly ParkedSealed."
+no_safe_slice = "Remain in design_stop if any non-Stage1 producer lacks an exact source/catalog issuer, if a caller crosses the R2 compatibility fence, if method_resolution must be changed to discover the relation, or if the proposed successor requires name/arity/registry/receiver/argument inference, fallback, retry, VM/backend, JSON/Hako, or Call-schema changes."
+next_implementation = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-I1"
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/runner/mir_json_emit/root.rs",
   "VM/backend/optimizer/Call schema/receiver repair",
 ]
 
