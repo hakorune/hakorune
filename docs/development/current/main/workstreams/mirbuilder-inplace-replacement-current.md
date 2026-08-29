@@ -81,14 +81,15 @@ writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
 Preflight found that the inherited 786-line type-fact composite guard is
-pilot-only and already red before operator work. It contains 15 independent
-checks: nine pass at current HEAD and six fail, including a stale whole-repo
-writer overlay with 20 drifted paths. The active manifest therefore does not
-refresh or delete the composite guard wholesale. The next bounded design audit
-classifies each subguard as Keep, SupersededDelete, Rehome, or Unresolved.
-Only Unresolved=0 opens one prune/rehome S0, which retains current invariants,
-removes superseded checks and output claims, returns below 760 lines, and adds
-quick-static execution.
+pilot-only and already red before operator work. Its 15 independent checks
+are now fate-classified as `Keep=9`, `SupersededDelete=1`, `Rehome=5`,
+`Unresolved=0`. The sole deletion is the stale whole-repo writer overlay with
+20 drifted paths. The five live red checks move to current owners: the two
+Const emission forms, literal lowering, production direct-call emission,
+generic call receipt/post-success, and typed Map replay. The immutable fixture
+and five-row anchor sweep remain. The next bounded S0 removes the overlay and
+rehomes those checks, returns the parent below 760 lines, and promotes the
+retained guard to quick-static; it does not delete the composite guard.
 
 After that proof surface is green, one atomic
 `MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0` parses all three selectors once

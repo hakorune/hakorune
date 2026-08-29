@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "Classify the 15 mixed-age type-fact subguards with MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0, delete or rehome only superseded rows in GUARD-PRUNE-S0, and only then open the atomic OPERATOR-CALL-RETIRE-I0. Do not repair the obsolete whole-repo writer overlay merely to make it green."
+smallest_next_slice = "The type-fact guard-fate D0 is now closed with Keep=9, SupersededDelete=1, Rehome=5, Unresolved=0. Run MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0 to remove the obsolete whole-repo writer overlay and rehome five live checks, then open the atomic OPERATOR-CALL-RETIRE-I0."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -2052,7 +2052,7 @@ decision_reopen_trigger = "Only an explicit future language/product decision may
 next_execution = "none_until_MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0"
 
 [mirbuilder_type_fact_partition_guard_fate_d0_2026_08_30]
-status = "queued_design_stop"
+status = "accepted_closed"
 task_id = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0"
 parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T0"
@@ -2071,29 +2071,32 @@ observed_partition = [
   "green=9: P1 freeze, StaticLoad, CheckSelect, resolved trivial operation, Compare emission, FieldGet, Fastmem receipt, Fastmem FieldLoad, ArrayWrite",
   "red=6: active whole-writer overlay, CONST0 lexical check, literal-postemit check, resolved-direct-call check, CALL-RECEIPT0 check, MapWrite check",
 ]
+accepted_fate = "Keep=9, SupersededDelete=1, Rehome=5, Unresolved=0. SupersededDelete is only ACTIVE_CUTOVER_WRITER_REPLACEMENTS plus its validator/call/test import and unchecked active_writer output. Rehome CONST0 to both current Const emission forms; literal-postemit to literal_lowering.rs; resolved-direct-call to the production emit window excluding cfg(test); CALL-RECEIPT0 to live generic receipt/post-success owners while deleting only the retired preloop fragment; and MAP-WRITE to the current typed method_call issuer/replay window."
+scope_caveat = "The unregistered mirbuilder_type_fact_producer_inventory.py standalone check still compares the immutable historical fixture with current source and remains red; it is not the composite live guard and is not advertised as green."
 ordered_tasks = [
   "run all 15 checks independently so first-failure masking cannot hide later red checks",
   "for each red check name its old owner, current successor guard or caller-zero evidence, exact fate, and reopen trigger",
   "verify all nine green checks still have live owners and are not duplicated elsewhere",
   "open one prune/rehome S0 only when Unresolved=0; otherwise keep operator work closed",
 ]
-acceptance = "All 15 checks have exactly one state and owner; every SupersededDelete names caller-zero or a current successor guard; every Rehome names one destination; Keep rows remain executable; Unresolved=0 before S0; the historical fixture/digest is untouched."
+acceptance = "All 15 checks have exactly one state and owner; Keep=9, SupersededDelete=1, Rehome=5, Unresolved=0; every deletion/rehome has exact source or successor evidence; the historical fixture/digest is untouched; and the next S0 boundary is expressible without a whole-repo baseline refresh."
 no_safe_slice = "Remain in design_stop if a red check still guards a live invariant without a successor, a green check is duplicated but precedence is unclear, deletion would rely only on age/redness, or production code/fixture changes are required."
 non_claims = "No guard deletion or repair, no operator implementation, no fixture refresh, no quick-static promotion, and no production/source change in D0."
-next_row = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0__only_after_Unresolved_zero"
+next_row = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 
 [mirbuilder_type_fact_partition_guard_prune_s0_2026_08_30]
-status = "queued_after_fate_d0"
+status = "queued_fast"
 task_id = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape"
 implementation_permission = false
-prerequisite = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 has Unresolved=0 and an exact Keep/SupersededDelete/Rehome table."
-decision = "Delete only SupersededDelete subguards and their tests/output claims; move Rehome checks to the named current owner; retain Keep checks. Remove the obsolete whole-repo active writer overlay instead of updating its 20-path baseline. Preserve the composite row id and immutable historical fixture, then promote the now-green retained guard to quick-static."
+prerequisite = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 is closed with Keep=9, SupersededDelete=1, Rehome=5, Unresolved=0."
+decision = "Delete only the SupersededDelete overlay and its tests/output claims; rehome the five live checks to one private call-post-success sibling; retain the nine Keep checks and the five-row anchor sweep. Remove the obsolete whole-repo writer overlay instead of updating its 20-path baseline. Preserve the composite row id and immutable historical fixture, then promote the now-green retained guard to quick-static."
 allowed_files = [
   "tools/checks/lib/mirbuilder_type_fact_partition_guard.py",
   "tools/checks/lib/mirbuilder_type_fact_partition_guard_tests.py",
+  "tools/checks/lib/mirbuilder_type_fact_call_post_success_guard.py",
   "tools/checks/guard_rows.toml",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/lib/mir_call_d1b_operator_retirement_guard.py",
@@ -2101,7 +2104,8 @@ allowed_files = [
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
-acceptance = "The retained guard and tests pass from HEAD; every removed check matches the accepted fate table; no output claims a deleted invariant; row id/cmd remain stable and profiles become pilot+quick-static; the guard is below 760 and every file below 800; fixture/digest and production code are unchanged."
+rehome_contract = "The new sibling checks current production owners: constant.rs has two prepare/emit/commit forms; literal_lowering.rs owns build_literal and resolved/unary delegates; direct_call.rs production emit is separated from cfg(test) emit_resolved_header; generic receipt/post-success owners remain live while preloop TYPE-I0 is removed; and MAP replay is checked around ssot::method_call::method_call followed by replay."
+acceptance = "The retained parent plus private sibling and tests pass from HEAD; every removed check matches the accepted fate table; no output claims a deleted invariant; row id/cmd remain stable and profiles become pilot+quick-static; the parent is below 760 and every file below 800; fixture/digest and production code are unchanged; each of the five rehomes has an independent live test rather than relying on first-failure masking."
 no_safe_slice = "Stop if a removed check lacks caller-zero/successor evidence, a rehomed invariant changes meaning, the retained guard remains red, the fixture must change, or production code is needed."
 non_claims = "No selector parsing, operator retirement, publisher/prelude/script deletion, production switch, semantic baseline refresh, or operator behavior change."
 next_row = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
