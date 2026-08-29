@@ -860,12 +860,12 @@ post_census = "exactly 3 production receipt callers; receipt terminal consumes C
 next_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop; select the next exact SameModule family only after a fresh authority audit."
 
 [same_module_cataloged_print_caller_zero_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T1"
 box_kind = "BoxCount caller-zero retirement"
-implementation_permission = true
+implementation_permission = false
 decision = "The ordinary InstalledNonBrand Cataloged print branch has no production ASTNode::FunctionCall caller. Retire that compatibility branch before target synthesis; preserve the dedicated ASTNode::Print owner, which already emits the existing builtin_print() target for its one expression."
 source_authority = "The parser's dedicated ASTNode::Print carries exactly one expression, and CanonicalGlobalTargetV1::builtin_print() is the existing typed issuer. The census itself issues no target."
 canonical_issuer = "Existing CanonicalGlobalTargetV1::builtin_print() only; no name/arity constructor, classifier, catalog-existence check, resolver, symbol, or VM consumer may issue print."
@@ -915,7 +915,34 @@ caller_reconciliation_evidence = [
   "source-wide production scan found no name: \"print\" FunctionCall constructor; remaining matches are tests, JSON/MIR projections, or the ASTNode::Print owner",
 ]
 decision_after_d0 = "Do not add a second ordinary-call print issuer. Retire the caller-zero Cataloged print branch; preserve the dedicated ASTNode::Print -> builtin_print() owner."
-next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0 is the selected fast row; after focused evidence and closeout, return to the SameModule parent design stop."
+next_execution = "Return to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop for a fresh authority audit; do not claim provider-wide closure."
+implementation_commit = "5014903def"
+coverage_base_commit = "c38548776a"
+changed_test_names = [
+  "cataloged_print_caller_zero_retires_before_target_synthesis",
+  "cataloged_print_rejection_does_not_descend_or_publish",
+  "cataloged_target_preflight_applies_total_shadow_order",
+]
+focused_test_filters = [
+  "cataloged_print",
+  "cataloged_target_preflight_applies_total_shadow_order",
+  "mir::builder::stmts::print_stmt::tests::",
+]
+focused_test_results = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo test --profile quick --lib cataloged_print -- --test-threads=1: 2 passed, 0 failed",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo test --profile quick --lib cataloged_target_preflight_applies_total_shadow_order -- --test-threads=1: 1 passed, 0 failed",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_PROFILE_QUICK_OPT_LEVEL=0 cargo test --profile quick --lib mir::builder::stmts::print_stmt::tests:: -- --test-threads=1: 3 passed, 0 failed",
+]
+focused_gate = "The three exact filters above must each report a nonzero run and zero failures; cargo check --profile quick --lib uses the same single-job memory-safe environment."
+focused_check = "cargo check --profile quick --lib: passed with CARGO_BUILD_JOBS=1, CARGO_INCREMENTAL=0, CARGO_PROFILE_QUICK_CODEGEN_UNITS=1, CARGO_PROFILE_QUICK_OPT_LEVEL=0"
+guard_result = "current_state_pointer_guard.sh, mir_call_d1b_active_surface_guard.py, and git diff --check passed while the row was fast-open"
+line_count_result = "function_call_preflight_route.rs=745; function_call_preflight_route_tests.rs=740; function_call_installed_gc_builtin_tests.rs=180; all touched source owners remain below the 760-line split boundary"
+old_edge_delete_set = [
+  "InstalledNonBrand Cataloged FunctionCall name=print -> CatalogedTargeted target synthesis",
+  "ordinary Cataloged print branch -> child descent / target publication",
+]
+caller_zero_claim = "Production ordinary FunctionCall print callers remain zero; the only production print source is ASTNode::Print, whose dedicated owner remains unchanged."
+full_suite_note = "Full cargo test was not run; the exact focused filters and quick library check above are the recorded evidence."
 
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
 status = "landed"

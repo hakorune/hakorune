@@ -55,31 +55,30 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current design stop:
-`MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0` landed in `9e166e5974`.
-Caller-present `gc_collect`/`gc_stats` reuse the existing typed pre-effect
-retirement before Cataloged caller target preparation; the unissued
-SameModule FreeFunction synthesis edge is gone. The focused suite is 4/4
-green and quick library check is green. The parent
-`MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0` is selected again for a
-fresh authority audit; `print`, Math, explicit Extern, and no-issuer names
-remain separate owners/blockers, and no provider-wide implementation is open.
+`MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0` landed in `9e166e5974`, and the
+caller-zero ordinary Cataloged `print` compatibility edge landed retired at
+`5014903def`. The dedicated `ASTNode::Print -> builtin_print()` owner remains
+unchanged. The focused print/preflight/statement tests and quick library check
+are green. The parent `MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0` is
+selected again for a fresh authority audit; Math, explicit Extern, and
+no-issuer names remain separate owners/blockers, and no provider-wide
+implementation is open.
 
 Fresh worker audit keeps the parent in `design_stop`: ordinary static,
 CorePlan, operator, physical-thunk, and rewrite families lack a complete
-pre-effect bridge. The only small candidate was
-`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0`; its D0 is now closed as
-caller-zero for the ordinary Cataloged branch. The selected fast row is
-`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0`: retire only
-that compatibility edge before target synthesis and preserve the dedicated
-`ASTNode::Print` owner. No provider-wide, VM/backend, package/loan, or
-Call-schema work is implied.
+pre-effect bridge. The small print candidate is now closed as caller-zero by
+`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0` at `5014903def`:
+only that compatibility edge retired before target synthesis, while the
+dedicated `ASTNode::Print` owner stayed intact. No provider-wide, VM/backend,
+package/loan, or Call-schema work is implied.
 
-The D0 reconciliation is recorded in the manifest: production `print` is
-parsed as `ASTNode::Print` and owned by `stmts/print_stmt.rs`; no production
-`ASTNode::FunctionCall { name: "print" }` constructor was found. The ordinary
-Cataloged print success branch is therefore a caller-zero compatibility edge.
-`CURRENT_STATE.toml` selects its pre-effect typed retirement; the dedicated
-Print statement owner stays unchanged.
+The D0 reconciliation and I0 closeout are recorded in the manifest: production
+`print` is parsed as `ASTNode::Print` and owned by `stmts/print_stmt.rs`; no
+production `ASTNode::FunctionCall { name: "print" }` constructor was found.
+The ordinary Cataloged print success branch was therefore a caller-zero
+compatibility edge and is now a typed pre-effect retirement. The dedicated
+Print statement owner stays unchanged; `CURRENT_STATE.toml` has returned to
+the SameModule parent design stop.
 
 ## Historical rolling context (non-authoritative)
 
