@@ -527,9 +527,12 @@ non_claims = [
 ]
 
 [proof_reliability_followups_2026_08_29]
-status = "queued_nonblocking_after_raw_script_i0"
-observed_head = "17cfd7cf83"
-current_row_preemption = "forbidden: the active RawScriptRoot production-edge retirement remains first because its current lifecycle phase and pointer guard are green"
+status = "fast_open"
+task_id = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+guard_phase = "active_surface"
+implementation_permission = true
+observed_head = "83984fe124"
+current_row_preemption = "This guard-only proof row is the sole active implementation surface; after its fixed two-commit series, return immediately to RawRootMain caller-zero reconciliation."
 confirmed = [
   "The method_corridor_explicit_compat_ingress_i0 historical invocation false-reds at HEAD because the reusable guard still carries landed phase handlers tied to current-row dispatch shape; those handlers are retirement debt, not a reason to restore old execution lanes.",
   "The I0 implementation added canonical_snapshot_preserves_runtime_static_global_target, but neither recorded broad filter matched it; the exact test is green at observed_head.",
@@ -549,7 +552,38 @@ historical_retirement_acceptance = "Each removed explicit phase handler has one 
 focused_coverage_acceptance = "The checker consumes an exact implementation commit, maps every added/renamed or lexically modified #[test] function in its diff to cargo test -- --list output, and proves coverage by at least one recorded filter. Unmappable changed test code, a zero-match filter, or an uncovered listed test fails closed. README/reference-only allowed files are evidence files, not test coverage inputs."
 site_coverage_negative_acceptance = "Direct verifier tests construct (a) a nonempty target inventory with no observations and (b) a partially overlapping target/observation inventory; both return exactly SiteCoverageMismatch. ObserveOnly observations with no targets remain accepted."
 non_claims = "No compiler semantics, source acceptance, RawScriptRoot switch, new semantic receipt, full cargo suite, CI promotion, or legacy-tests fate is decided by these proof rows."
-
+active_surface_contract = "One registered shell entrypoint dispatches only the current proof row without an explicit phase argument. The Python helper is the sole active implementation and remains below 760 lines; historical phase handlers are deleted from executable code."
+active_surface_helper = "tools/checks/lib/mir_call_d1b_active_surface_guard.py"
+active_surface_allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+[proof_reliability_followups_2026_08_29.historical_phase_tombstones]
+  readiness = "owner=d0_sig_close_f_readiness_audit_2026_08_26; landed=9d8b4be35a; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  bridge_ready = "owner=bridge_ready_registration_row; landed=540e12ffd2; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  observer_i0 = "owner=observer_guard_registration_row; landed=2469ce7e57; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  observer_i0_verifier_corrective = "owner=i0_observation_verifier_regression_repair_d0_2026_08_29; landed=e382a00923; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  cataloged_source_coseal_validation = "owner=validation_guard_registration_row; landed=f5d7f5fed5; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_observation_gate_corrective_r0 = "owner=main_observation_gate_corrective_r0; landed=012099e01b; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_root_owner_forest_validation_r0 = "owner=main_root_owner_forest_validation_r0; landed=605cf718d5; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_root_identity_coseal_i0 = "owner=main_root_identity_catalog_coseal_i0; landed=4001f12c37; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_raw_cataloged_handoff_d0 = "owner=guard_hygiene; landed=afb0d79054; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_raw_cataloged_route_r0 = "owner=route_r0; landed=46fdf7a4fa; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_raw_lineage_handoff_d1 = "owner=guard_phase_drift_2026_08_28; landed=c84293c193; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  main_raw_lineage_witness_harden_r0 = "owner=main_raw_lineage_witness_harden_2026_08_28; landed=2dadcae1c2; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  qualified_method_target_issuer_d0 = "owner=qualified_method_target_issuer_d0; landed=23bb082527; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  qualified_method_target_issuer_i0 = "owner=qualified_method_target_issuer_i0; landed=71b8e240eb; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  cataloged_source_relation_affine_loan_i0 = "owner=cataloged_source_relation_affine_loan_i0; landed=99bdfc856c; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  installed_nonbrand_pre_effect_reject_r2a = "owner=installed_nonbrand_pre_effect_reject_r2a; landed=1db9a097ba; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  resolved_compatibility_provenance_r2b = "owner=r2b_compatibility_provenance_d0_2026_08_29; landed=b48a072098; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  resolved_compatibility_provenance_r2c = "owner=r2c_compatibility_provenance_d0_2026_08_29; landed=52615fa9a2; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  resolved_compatibility_unclassified_r2d = "owner=r2d_unclassified_source_fail_closed_2026_08_29; landed=80681a8cde; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  method_corridor_explicit_compat_ingress_i0 = "owner=method_corridor_explicit_compat_ingress_i0_2026_08_29; landed=13664f7787; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  method_corridor_nonstage1_producer_retire_d0 = "owner=method_corridor_nonstage1_producer_retire_d0_2026_08_29; landed=3391ecca92; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
+  raw_script_root_pre_effect_retire_i0 = "owner=method_call_compat_raw_script_retire_i0_2026_08_29; landed=8837cbbab2; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 [legacy_tests_fate_d0_2026_08_29]
 task_id = "LEGACY-TESTS-FATE-D0"
 status = "parked_sealed_separate_lane"
