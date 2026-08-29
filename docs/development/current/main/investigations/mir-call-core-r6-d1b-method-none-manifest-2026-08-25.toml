@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0 is the only fast-open slice: remove the caller-zero current_static_box + has_method Method(None) branch without changing build.rs, shared Resolved, methodize, Builder publication, or any backend/schema lane."
+smallest_next_slice = "MIR-CALL-RUST-METHODIZE-RETIRE-GUARD-S0 is the only fast-open slice: split the 755-line active guard by owner without changing checks, registry, source, tests, or production behavior."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -447,6 +447,81 @@ unified_reissuer_user_decision = "Rust exact-1 HAKO_MIR_BUILDER_METHODIZE=1 succ
 d0_e_next_action = "Reconcile the dormant Resolved consumer counts and named test-only witness fate, then obtain the single language decision for Rust exact-1 methodize before opening any reissuer or terminal implementation row."
 d0_e_recommended_decision = "Retire Rust exact-1 methodize at module ingress with a typed compatibility terminal; keep Hako/JSON Stage1 writers as separate named owners and do not add a provenance bit to the shared Rust selector."
 d0_e_no_safe_slice = "Without that decision, any selective non-Stage1 reissuer removal would rely on env/request inference and is not an executable slice."
+
+[rust_exact1_methodize_retire_decision_2026_08_30]
+status = "accepted"
+task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
+implementation_permission = false
+decision = "Retire the Rust-side HAKO_MIR_BUILDER_METHODIZE=1 success contract. Exact 1 must fail with a named typed retirement error at both Rust module ingress paths before Builder mutation. Unset and exact 0 remain Canonical."
+source_authority = "The one-time Rust module-ingress selector parser is the failure owner; incoming CanonicalGlobalTargetV1 remains the target authority."
+non_authority = "The env string, Stage1 writer identity, request class, name/arity, RuntimeData classification, Method(None), VM/backend, JSON/Hako, and test fixtures are not target or provenance authority."
+fail_fast_boundary = "prepare_module and prepare_normal_default_module reject exact 1 before prepare_module_with_callable_main_policy, catalog/tail-index clearing, current_module creation, argument descent, or MIR publication."
+finite_state = [
+  "unset or exact 0 -> Canonical acceptance with no stored methodize policy",
+  "exact 1 -> RetiredExplicitCompatibility typed error",
+  "other Unicode or empty -> InvalidSelector typed error",
+  "non-Unicode -> NonUnicode typed error",
+]
+ordered_rows = [
+  "MIR-CALL-RUST-METHODIZE-RETIRE-GUARD-S0: behavior-neutral private guard split",
+  "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0: behavior-neutral module-ingress test-home split",
+  "MIR-CALL-RUST-METHODIZE-RETIRE-I0: exact-1 ingress reject plus policy carrier and reissuer deletion",
+  "closeout: reissuer/Method(None) writer zero recount; Builder terminal and dormant Resolved remain separate blockers",
+]
+non_claims = "No Stage1/Hako/JSON writer change, artifact construction, VM/backend, Call schema, builder_emit terminal, shared Resolved cleanup, resolver, provenance receipt, fallback, or retry."
+
+[rust_exact1_methodize_retire_guard_s0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-GUARD-S0"
+parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape"
+implementation_permission = true
+decision = "Move Method corridor/current-row handlers from the 755-line active guard into one private sibling. Preserve the public shell entrypoint, registry row, phase routing, diagnostics, and behavior."
+allowed_files = [
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+acceptance = "The public guard entry/registry remain unchanged; parent and sibling are each below 760 lines; the parent Method D0 and static-none landed checks produce the same result; the new S0 row is recognized; no Cargo, source, test, semantic, or production file changes."
+next_row = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
+
+[rust_exact1_methodize_retire_test_s0_2026_08_30]
+status = "queued"
+task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
+parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape"
+implementation_permission = false
+decision = "Move the minimal module-ingress smoke and four methodize ingress tests from the 859-line capture test owner into one focused private sibling without changing names or behavior."
+allowed_files = [
+  "src/mir/builder/module_lifecycle_capture_tests.rs",
+  "src/mir/builder/module_lifecycle_ingress_tests.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+acceptance = "Both test files are below 800 lines, existing five test names are unchanged and listed exactly once, focused tests pass, and production source is unchanged."
+next_row = "MIR-CALL-RUST-METHODIZE-RETIRE-I0"
+
+[rust_exact1_methodize_retire_i0_2026_08_30]
+status = "queued"
+task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-I0"
+parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
+ceremony_tier = "T1"
+box_kind = "BoxCount retirement"
+implementation_permission = false
+decision = "Reject exact 1 at both Rust module ingress paths, delete BuilderMethodizeCompatibilityV1 and CompilationContext policy plumbing, and delete the unified-emitter Global-to-Method(None) reissuer in one atomic semantic row."
+old_edge_delete_set = [
+  "exact 1 -> ExplicitLegacyCompatibility success",
+  "CompilationContext builder_methodize_compatibility carrier",
+  "unified emitter RuntimeData Global -> Method(receiver=None) reissuer and trace",
+  "old exact-1 success tests",
+]
+acceptance = "Exact 1 has one named typed pre-mutation error; unset/0 keep typed Global; invalid/non-Unicode remain distinct; Rust reissuer and policy carrier are zero; Stage1/Hako/JSON/VM/Call schema are unchanged; focused test/list coverage and the existing guard are green."
+next_row = "Return to parent Method corridor for Builder terminal hardening and dormant Resolved test-witness fate."
 
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
 status = "landed"

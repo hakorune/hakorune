@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: `Stage0 keep` / `Stage1 mainline` で受け入れる MIR call dialect を固定し、pure-first no-replay cutover の exact blocker を 1 本化する。
 Decision: accepted
-Updated: 2026-03-26
+Updated: 2026-08-30
 Related:
 - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 - docs/development/current/main/design/mir-callsite-retire-lane-ssot.md
@@ -80,6 +80,23 @@ Related:
   - `Callee::Constructor` / `Callee::Global` は v0 `call` + `callee` を keep している
   - this seam is still live today and still materializes visible call dialect choice
   - therefore it is not yet a pure serializer; it is a materializer seam that must be demoted
+
+### Rust exact-1 methodize fate
+
+- Decision (2026-08-30): the Rust-side
+  `HAKO_MIR_BUILDER_METHODIZE=1` success contract is retired.
+- Rust module ingress accepts unset / exact `0` as Canonical. Exact `1` enters
+  a named typed retirement terminal before Builder mutation; invalid and
+  non-Unicode values keep distinct typed failures.
+- Exact `1` is not silently coerced to Canonical and is not treated as Stage1
+  provenance. The shared Rust selector cannot distinguish a Stage1 writer
+  from an external compatibility caller.
+- The `.hako` / JSON Stage1 dialect owners remain separate and unchanged by
+  this Rust retirement. No provenance bit, resolver, fallback, or second
+  compatibility pipeline is introduced.
+- After ingress retirement, the Rust `Global -> Method(receiver=None)`
+  reissuer and its policy carrier are deleted; canonical typed Global remains
+  the target authority.
 
 ### Normalizer
 

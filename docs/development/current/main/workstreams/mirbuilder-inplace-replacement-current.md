@@ -50,9 +50,11 @@ gone with no replacement target. The parent Method corridor is back in
 design_stop with three blockers: shared `Resolved` consumer, Builder
 `Method(None)` terminal, and unified-emitter reissuer. `Resolved` is now
 production-caller-zero but still has named test-only compatibility witnesses.
-The reissuer has no Stage1 provenance bit; its exact-1 compatibility fate is a
-language decision before any implementation row. VM/backend, JSON/Hako,
-Stage1, and Call-schema changes remain closed.
+The Rust exact-1 methodize success contract is selected for typed ingress
+retirement; Hako/JSON Stage1 owners remain separate. Before that semantic row,
+the current fast slice only splits the 755-line active guard, followed by the
+859-line test owner split. VM/backend, JSON/Hako, Stage1, and Call-schema
+changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
