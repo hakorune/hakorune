@@ -90,6 +90,11 @@ if not phase:
         phase = "method_corridor_explicit_compat_ingress_i0"
     elif active_row == "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0":
         phase = "method_corridor_nonstage1_producer_retire_d0"
+    elif active_row == "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0":
+        # The next origin remains under the finite parent inventory until its
+        # own bounded implementation row is accepted; no second guard family
+        # is opened for this design stop.
+        phase = "method_corridor_nonstage1_producer_retire_d0"
     elif active_row == "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0":
         phase = "raw_script_root_pre_effect_retire_i0"
     elif active_row == "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0":
@@ -337,10 +342,23 @@ elif phase == "method_corridor_nonstage1_producer_retire_d0":
         raise SystemExit("Method non-Stage1 producer D0 policy-B status drifted")
     if registration.get("implementation_permission") is not False:
         raise SystemExit("Method non-Stage1 producer D0 implementation permission must remain closed")
-    if active_row != "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0":
+    if active_row not in {
+        "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0",
+        "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0",
+    }:
         raise SystemExit("Method non-Stage1 producer D0 current row drifted")
     if current_state.get("work_mode") != "design_stop":
         raise SystemExit("Method non-Stage1 producer D0 requires design_stop")
+    if active_row == "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0":
+        child = method_card.get("raw_root_main_retire_i0_2026_08_29")
+        if not isinstance(child, dict):
+            raise SystemExit("RawRootMain design-stop child section is missing")
+        if child.get("task_id") != "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0":
+            raise SystemExit("RawRootMain child task id drifted")
+        if child.get("status") != "design_stop":
+            raise SystemExit("RawRootMain child must remain design_stop")
+        if child.get("implementation_permission") is not False:
+            raise SystemExit("RawRootMain child implementation permission must remain closed")
 elif phase == "raw_script_root_pre_effect_retire_i0":
     if registration.get("task_id") != "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0":
         raise SystemExit("RawScriptRoot retirement I0 task id drifted")

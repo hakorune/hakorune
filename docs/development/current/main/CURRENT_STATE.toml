@@ -1,10 +1,10 @@
 date = "2026-08-29"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0: remove only the RawScriptRoot ordinary non-special FunctionCall -> Resolved edge and replace it with an origin-specific typed terminal before argument descent. Preserve Brand/TypeOp/Math/FastMem/str precedence and leave RawRootMain, ScriptRoot, RawLegacy, shared Resolved/recovery, Method(None), Stage1, VM/backend, and Call schema unchanged."
-guard_followup = "D0-C selected origin-specific retirement because no source-backed issuer exists for the four internal compatibility origins and they are not public compatibility profiles. Reuse the existing call-corridor lifecycle guard; the first fast slice is RawScriptRoot only, with argument descent/publication/resolver/fallback all zero."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
+current_design_stop = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
+current_blocker_token = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0: first remeasure the finite RawRootMain caller and its special-form precedence; only an origin-specific typed terminal before argument descent may open. Do not infer a target, change the other compatibility origins, or delete the shared Resolved consumer."
+guard_followup = "RawScriptRoot I0 is landed with a typed pre-effect terminal and 9/9 focused tests. The next design stop is RawRootMain only; reuse the parent finite inventory guard until its caller and terminal boundary are proven."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The 11-row Method corridor inventory remains finite. Worker and source audits prove option A NoSafeSlice for the four R2 compatibility origins: only installed App Main has the complete owner/site/brand/relation/package/loan chain. Because the four names are internal provenance rather than public profiles, D0-C selects option B. The only open implementation cell retires RawScriptRoot ordinary non-special FunctionCall before arguments; all other origins and downstream Method/VM/schema work remain closed."
-next_design_card = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
-next_execution_card = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0"
+latest_card_summary = "The 11-row Method corridor inventory remains finite. Worker and source audits prove option A NoSafeSlice for the four R2 compatibility origins: only installed App Main has the complete owner/site/brand/relation/package/loan chain. Because the four names are internal provenance rather than public profiles, D0-C selects option B. RawScriptRoot ordinary non-special FunctionCall is now retired before arguments with a typed terminal; the next design stop is RawRootMain, while ScriptRoot, RawLegacy, shared Resolved/recovery, Method(None), Stage1, VM/backend, and Call schema remain closed."
+next_design_card = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-29: Method explicit-compatibility ingress I0 landed at 13664f7787; module ingress snapshots the finite Rust policy once, canonical Global remains unchanged, and only exact value 1 selects the named compatibility projection (the selector itself carries no Stage1 provenance).",
+	"2026-08-29: RawScriptRoot ordinary non-special compatibility calls retired before argument descent at 8837cbbab2; the typed terminal, precedence tests, and landed lifecycle guard record the 1 -> 0 edge. Method explicit-compatibility ingress I0 is also landed at 13664f7787 with a finite module-ingress policy.",
 	"2026-08-29: I0 verifier correction landed at e382a00923; ObserveOnly facts now pass, target-only/partial site coverage remains fail-closed, and filtered direct-call observation tests are 10/10.",
 	"2026-08-29: R2d landed at 80681a8cde; generic unclassified ordinary raw calls now fail closed before argument effects, while named compatibility Resolved/recovery remains for the next bounded row.",
 ]

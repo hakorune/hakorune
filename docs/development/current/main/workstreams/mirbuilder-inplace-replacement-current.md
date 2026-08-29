@@ -819,8 +819,9 @@ duplicate expectation in the same slice that gains central coverage; deleted
 guards have named successors and caller-zero; generated forward/reverse edges
 round-trip; and no family migration changes compiler or test semantics.
 
-The 2026-08-29 Call proof audit is queued without preempting the active
-RawScriptRoot old-edge deletion. After that production cell, run one bounded
+The 2026-08-29 Call proof audit is queued without preempting the landed
+RawScriptRoot old-edge deletion. The next production decision is the bounded
+RawRootMain origin only; run one bounded
 `MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0` series: retire landed lifecycle-phase
 handlers to explicit `superseded_by` tombstones instead of making old lanes
 replayable at HEAD, keep only the active origin-retirement family, machine-check

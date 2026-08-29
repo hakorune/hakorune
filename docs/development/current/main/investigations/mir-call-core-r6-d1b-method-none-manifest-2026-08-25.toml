@@ -482,7 +482,7 @@ focused_test_run = "9 passed, 0 failed, 7492 filtered out"
 guard = "Reuse mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh; no new guard family or registry row."
 done = "The selected edge is 1 -> 0, focused positive/negative tests pass, every changed test is covered by the recorded nonzero filter, route and test files remain below 760 lines, other origins are unchanged, and the existing lifecycle/pointer guards are green."
 implementation_evidence = "RawScriptRoot ordinary non-special calls now enter RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired before argument descent; the exact focused cargo test command ran 9 tests with 9 passed."
-implementation_commit = "pending closeout commit hash"
+implementation_commit = "8837cbbab2"
 stop = "Return to design_stop if RawScriptRoot cannot be uniquely identified before effects, an external/public compatibility owner appears, special-form precedence changes, a generic String-only terminal is required, or the slice reaches build.rs, method_resolution, unified_emitter, VM/backend, JSON/Hako, or Call schema."
 next_row = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0 after this row closes; do not open it in the same implementation commit."
 allowed_files = [
@@ -503,6 +503,27 @@ forbidden_files = [
   "src/mir/builder/raw_expression_dispatch/mod.rs",
   "RawCompatibilityChildTerminalPortV1",
   "VM/backend/optimizer/JSON/Hako/Call schema",
+]
+
+[raw_root_main_retire_i0_2026_08_29]
+status = "design_stop"
+task_id = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
+guard_phase = "method_corridor_nonstage1_producer_retire_d0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+implementation_permission = false
+decision = "The next compatibility-origin slice is RawRootMain ordinary non-special FunctionCall retirement. It must reuse the same pre-effect typed-terminal shape as RawScriptRoot only after its live caller, special-form precedence, and fail-fast boundary are confirmed; no target inference or shared Resolved consumer change is allowed in the design stop."
+source_authority = "RawBrandCallAuthorityV1::RawRootMainParkedCompatibility, issued by the existing raw source classifier."
+non_authority = [
+  "name/arity, current_static_box, has_method, catalog/registry lookup, receiver, arguments, MIR, ValueId, physical symbol, VM/backend",
+  "resolver, unique-static recovery, tail recovery, name Const, fallback/retry, and the RawScriptRoot terminal itself as a cross-origin authority",
+]
+fail_fast_boundary = "RawRootMain ordinary non-special classification -> origin-specific typed terminal before drive_call_arguments_v1 and all resolver/header/MIR/collector mutation."
+acceptance = "Design stop remains until the finite RawRootMain caller is remeasured, Brand/TypeOp/Math/FastMem/str precedence is witnessed, and the exact pre-effect terminal/test shape is named. Only then may a separate bounded implementation row open."
+non_claims = [
+  "no RawRootMain code switch",
+  "no shared Resolved consumer deletion",
+  "no ScriptRoot or RawLegacy change",
+  "no Method(None), VM/backend, JSON/Hako, or Call-schema change",
 ]
 
 [proof_reliability_followups_2026_08_29]
