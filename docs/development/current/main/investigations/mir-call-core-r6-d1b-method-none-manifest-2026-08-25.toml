@@ -718,12 +718,12 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; rewrite/known remains NoSafeSlice; the user selected retirement for the Builder operator-call selectors and its bounded S0/I0 are queued; CorePlan lacks a source-bound product; and bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; rewrite/known remains NoSafeSlice; the user selected retirement for the Builder operator-call selectors, but its inherited type-fact guard is pilot-only and already red, so a finite guard-fate/prune pair precedes I0; CorePlan lacks a source-bound product; and bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
   "I2: generic CorePlan — separate selected exact plan from Unlocated func:String and retire authority-free emission before local_arg",
-  "I3: arithmetic/comparison/unary env publishers — split the near-limit type-fact guard, then reject retired selectors at all three compiler ingresses and atomically remove env/name target issuance before operand or Const effects",
+  "I3: arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, then reject retired selectors at all compiler ingress methods and atomically remove env/name target issuance before operand or Const effects",
   "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
   "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
   "I5: rewrite/known — replace four production parse-back sites with their existing typed owner or pre-effect reject",
@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "Run MIR-CALL-SAME-MODULE-OPERATOR-TYPE-FACT-GUARD-SPLIT-S0 as a behavior-neutral BoxShape split, then open one atomic OPERATOR-CALL-RETIRE-I0 that rejects the retired three-key selector at normal/raw-published/resolved compiler ingresses and deletes all four publishers plus the prelude coupling."
+smallest_next_slice = "Classify the 15 mixed-age type-fact subguards with MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0, delete or rehome only superseded rows in GUARD-PRUNE-S0, and only then open the atomic OPERATOR-CALL-RETIRE-I0. Do not repair the obsolete whole-repo writer overlay merely to make it green."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -765,7 +765,7 @@ evidence = "The existing canonical key/claim chain is structurally exact, but th
 id = "operator_env_publishers"
 owner = "ops/arithmetic.rs, ops/comparison.rs, ops/unary.rs"
 disposition = "CutoverBlockerOpen"
-evidence = "The user selected retirement. Env and generated names are non-authority; all publisher-local checks are after operand/Const effects, so the accepted successor is a typed three-compiler-ingress tombstone plus the existing direct MIR routes. Guard S0 precedes the atomic I0 because the active type-fact guard is 786 lines."
+evidence = "The user selected retirement. Env and generated names are non-authority; all publisher-local checks are after operand/Const effects, so the accepted successor is one typed validator across three conceptual compiler families/five public methods plus the existing direct MIR routes. A guard-fate/prune pair precedes I0 because the inherited 786-line type-fact composite is pilot-only and already red."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "physical_thunk"
@@ -2019,7 +2019,7 @@ finite_inventory = [
 external_writers = [
   "src/cli/args.rs --dev writes NYASH_OPERATOR_BOX_ALL/STRINGIFY/COMPARE/ADD; it does not enable Builder-call selectors",
   "tools/dev_env.sh enables both legacy runtime/prelude selectors and Builder-call selectors",
-  "tools/selfhost/proof/run_stageb_compiler_vm.sh passes Builder ALL/ADD as explicit zero defaults; COMPARE is not pinned and may arrive from the parent environment",
+  "tools/selfhost/proof/run_stageb_compiler_vm.sh forwards a non-empty parent Builder ALL/ADD value and otherwise supplies 0; COMPARE is not pinned and may arrive from the parent environment",
 ]
 external_invokers = [
   "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh explicitly passes Builder-call selectors as 0",
@@ -2038,39 +2038,72 @@ finite_states = [
   "NegativeLiteralFold: existing fold/Core13/direct unary handling remains canonical and is never counted as a legacy target publisher",
 ]
 ordered_tasks = [
-  "S0: behavior-neutrally split the 786-line active type-fact guard inventory into one private sibling; preserve fixture, counts, output, registry row, and production code",
+  "D0: classify all 15 type-fact subguards as Keep, SupersededDelete, Rehome, or Unresolved; the probe currently shows 9 green and 6 red",
+  "S0: delete superseded legacy subguards/tests and rehome still-live invariants to their current owner; do not refresh the obsolete whole-repo writer overlay",
   "I0: add one typed aggregate selector parser and invoke it at normal, raw-published, and resolved compiler ingresses before effects",
   "I0: atomically delete the four legacy publishers and all downstream selector rereads while preserving direct MIR lowering",
   "I0: remove only the Builder ALL_CALL prelude OR and repo-owned Builder writers/pass-through/smoke pins; preserve NYASH_OPERATOR_BOX_* and --dev",
   "I0: update the existing active/B1/type-fact guards and focused compiler tests in the same row; no new registry row",
 ]
-acceptance = "D0 is accepted: the exact legacy route, direct successor, three compiler ingresses, four publishers, prelude coupling, external writers, parser states, and exclusions are finite. S0 is the sole next executable BoxShape row; I0 is one atomic retirement row and may not be split into validator-only, publisher-only, or prelude-only semantics."
+acceptance = "The operator D0 is accepted, but implementation waits for the guard-fate D0. The exact legacy route, direct successor, three conceptual compiler ingress families/five physical public methods, four publishers, prelude coupling, external writers, parser states, and exclusions are finite. GUARD-PRUNE-S0 opens only after every subguard has a fate; I0 remains one atomic retirement row."
 no_safe_slice = "Return to design_stop if another production Builder selector reader/writer exists, one of the three compiler ingresses can bypass validation, direct MIR requires a replacement target/resolver, runtime NYASH_OPERATOR_BOX_* behavior must change, typed rejection cannot precede compiler/session/source effects, or the work crosses rewrite/known, ordinary-new, CorePlan, package/loan, VM/backend, JSON, Call schema, or 760/800 lines."
 non_claims = "No operator semantics rewrite, no NYASH_OPERATOR_BOX_* runtime/adopt/observe retirement, no --dev behavior change, no operator library deletion, no global emit_legacy_call or typed_global_target_from_selected_symbol deletion, no historical fixture rewrite, no new target issuer/receipt, no rewrite/known or ordinary-new work, no Method(None), package/loan, VM/backend/JSON, Call-schema change, fallback, or retry."
 decision_reopen_trigger = "Only an explicit future language/product decision may restore a Builder operator-call compatibility route; existing Hako operator files, fixtures, runtime flags, or external stale selectors are non-authority."
-next_execution = "MIR-CALL-SAME-MODULE-OPERATOR-TYPE-FACT-GUARD-SPLIT-S0"
+next_execution = "none_until_MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0"
 
-[same_module_operator_type_fact_guard_split_s0_2026_08_30]
-status = "queued_fast"
-task_id = "MIR-CALL-SAME-MODULE-OPERATOR-TYPE-FACT-GUARD-SPLIT-S0"
+[mirbuilder_type_fact_partition_guard_fate_d0_2026_08_30]
+status = "queued_design_stop"
+task_id = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0"
+parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape finite guard-lifecycle census"
+implementation_permission = false
+decision = "Do not refresh or delete the composite guard blindly. Inventory each of its 15 checks and retain only current invariants. A red check may be deleted only when its old source/edge is caller-zero or a named current guard owns the same invariant; otherwise rehome it or leave Unresolved. The immutable P1 fixture remains historical evidence, not a live whole-repo map."
+red_classification = "known baseline debt at parent HEAD f1b873e467: the composite row is pilot-only and exit 1 before operator work. Independent calls show 9 green checks and 6 red checks; the first aggregate failure is a 20-path active writer-overlay drift (5 removed, 14 added, 1 count change)."
+census_boundary = "validate_p1_g0_profile_freeze_v1 plus 14 active validators -> exact current source/guard owner or typed tombstone; includes direct tests and output labels; excludes production semantics, historical task prose, and operator retirement."
+finite_states = [
+  "Keep: current source owner exists, the check passes, and no equal or stronger current guard owns it",
+  "SupersededDelete: old source/edge is absent or an equal/stronger named guard owns the invariant; delete check, test, import, and output claim together",
+  "Rehome: invariant is still required but the old lexical owner moved; move the minimal check to the current owner-specific guard without recreating a whole-repo census",
+  "Unresolved: authority/successor is unclear; keep operator S0/I0 closed and do not weaken the failure",
+]
+observed_partition = [
+  "green=9: P1 freeze, StaticLoad, CheckSelect, resolved trivial operation, Compare emission, FieldGet, Fastmem receipt, Fastmem FieldLoad, ArrayWrite",
+  "red=6: active whole-writer overlay, CONST0 lexical check, literal-postemit check, resolved-direct-call check, CALL-RECEIPT0 check, MapWrite check",
+]
+ordered_tasks = [
+  "run all 15 checks independently so first-failure masking cannot hide later red checks",
+  "for each red check name its old owner, current successor guard or caller-zero evidence, exact fate, and reopen trigger",
+  "verify all nine green checks still have live owners and are not duplicated elsewhere",
+  "open one prune/rehome S0 only when Unresolved=0; otherwise keep operator work closed",
+]
+acceptance = "All 15 checks have exactly one state and owner; every SupersededDelete names caller-zero or a current successor guard; every Rehome names one destination; Keep rows remain executable; Unresolved=0 before S0; the historical fixture/digest is untouched."
+no_safe_slice = "Remain in design_stop if a red check still guards a live invariant without a successor, a green check is duplicated but precedence is unclear, deletion would rely only on age/redness, or production code/fixture changes are required."
+non_claims = "No guard deletion or repair, no operator implementation, no fixture refresh, no quick-static promotion, and no production/source change in D0."
+next_row = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0__only_after_Unresolved_zero"
+
+[mirbuilder_type_fact_partition_guard_prune_s0_2026_08_30]
+status = "queued_after_fate_d0"
+task_id = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape"
 implementation_permission = false
-decision = "Before changing operator semantics, move only ACTIVE_CUTOVER_WRITER_REPLACEMENTS and validate_active_cutover_writer_inventory_v1 from the 786-line type-fact guard into one private sibling. Preserve imports, fixture, active counts, diagnostics, shell/registry entry, and behavior. Add only the minimal active-row routing needed for S0/I0."
+prerequisite = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 has Unresolved=0 and an exact Keep/SupersededDelete/Rehome table."
+decision = "Delete only SupersededDelete subguards and their tests/output claims; move Rehome checks to the named current owner; retain Keep checks. Remove the obsolete whole-repo active writer overlay instead of updating its 20-path baseline. Preserve the composite row id and immutable historical fixture, then promote the now-green retained guard to quick-static."
 allowed_files = [
   "tools/checks/lib/mirbuilder_type_fact_partition_guard.py",
-  "tools/checks/lib/mirbuilder_type_fact_active_cutover_inventory.py",
   "tools/checks/lib/mirbuilder_type_fact_partition_guard_tests.py",
+  "tools/checks/guard_rows.toml",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/lib/mir_call_d1b_operator_retirement_guard.py",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
-acceptance = "The type-fact parent is below 760 lines, every changed source/check file is below 760 and every file is below 800, the existing fixture/counts/output/guard row are unchanged, existing guard tests and active parent dispatch pass, and no production Rust, shell behavior, docs contract, or semantic writer count changes."
-no_safe_slice = "Stop if the split changes the historical fixture, active replacement counts, diagnostics, registry/shell entry, production code, or requires a second semantic row."
-non_claims = "No selector parsing, retirement terminal, publisher/prelude/script deletion, active count update, production switch, or operator behavior change."
+acceptance = "The retained guard and tests pass from HEAD; every removed check matches the accepted fate table; no output claims a deleted invariant; row id/cmd remain stable and profiles become pilot+quick-static; the guard is below 760 and every file below 800; fixture/digest and production code are unchanged."
+no_safe_slice = "Stop if a removed check lacks caller-zero/successor evidence, a rehomed invariant changes meaning, the retained guard remains red, the fixture must change, or production code is needed."
+non_claims = "No selector parsing, operator retirement, publisher/prelude/script deletion, production switch, semantic baseline refresh, or operator behavior change."
 next_row = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 
 [same_module_operator_call_retire_i0_2026_08_30]
@@ -2080,12 +2113,18 @@ parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement"
 implementation_permission = false
+prerequisites = [
+  "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 closed with Unresolved=0",
+  "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0 landed with the retained guard green and below 760",
+]
 decision = "Retire the complete Builder operator-call compatibility route in one semantic switch: parse all three selectors once, reject explicit true/malformed/non-Unicode at every compiler ingress before effects, keep unset/false and runtime-only selectors on direct MIR, then delete all four legacy publishers, downstream reads, prelude coupling, and repo-owned Builder writers."
 source_authority = "AST operator kinds plus the existing direct arithmetic/comparison/unary lowering. The aggregate ingress parser owns only selector admission and never issues a Call target."
 canonical_issuer = "Existing direct MIR lowerers only. I0 creates no Global/Method target, symbol adapter, resolver, receipt, or compatibility successor."
 selector_grammar = "Fixed key order ALL, ADD, COMPARE; no trimming. Unset or ASCII-case-insensitive 0/false/off is Direct. ASCII-case-insensitive 1/true/on is RetiredExplicitCompatibility. Empty, whitespace, 01, yes, and other Unicode are InvalidSelector; non-Unicode is NonUnicode. Any malformed/non-Unicode key wins over any retired truthy key."
+selector_grammar_rationale = "The broad true/false spellings preserve the existing env_bool route vocabulary while making malformed values fail-closed. This differs intentionally from the earlier strict 0/1 methodize tombstone, whose separate purpose was removal of an implicit default-on route."
 typed_error_transport = "builder_flags.rs owns BuilderOperatorCallIngressErrorV1. Raw published and canonical resolved compiler results gain explicit bounded ingress variants; normal compile maps the same typed error to one stable terminal string. No generic BuilderContract collapse and no silent bool default."
-fail_fast_boundary = "Validate before normal pipeline entry, raw-published request destructure/source binding, and resolved delegation. Rejection must precede candidate/session/current_module/source mutation and all operand/place/child/Const/ValueId/MIR effects; the compiler remains reusable after rejection."
+ingress_topology = "Three conceptual families map to five physical public methods: compile_normal; compile_raw_published_v1; and compile_resolved, compile_resolved_callable_module, compile_resolved_recursive_callable_module. One private compiler validator owns typed rejection and is invoked exactly once at each of the five public methods; placing it only in compile_resolved_first_family is insufficient. Guard counts report conceptual=3 and physical=5 separately."
+fail_fast_boundary = "Validate before normal pipeline entry, raw-published request destructure/source binding, and each resolved public-method delegation/plan/session opening. Rejection must precede candidate/session/current_module/source mutation and all operand/place/child/Const/ValueId/MIR effects; the compiler remains reusable after rejection."
 allowed_file_groups = [
   "selector/error owner: src/config/env/builder_flags.rs",
   "three ingresses/errors/tests: src/mir/compiler/{normal_default_pipeline.rs,raw_published_compile.rs,mod.rs,lowering_input.rs,operator_call_retirement_tests.rs,README.md}",
@@ -2097,7 +2136,7 @@ allowed_file_groups = [
   "current SSOT only: CURRENT_STATE.toml, this active manifest, and the rolling workstream brief",
 ]
 old_edge_delete_set = [
-  "four arithmetic/comparison/unary SameModule operator target publishers and their 14 hardcoded Builder target strings",
+  "four SameModule publishers and 14 targets: Add publisher=1, arithmetic ALL publisher=9, comparison publisher=1, unary publisher=3",
   "all six structural-ingress or downstream builder_operator_box_*_call reads/getters after the aggregate ingress validator",
   "NYASH_BUILDER_OPERATOR_BOX_ALL_CALL as an OR-input to prelude operator module injection",
   "Builder selector exports/default pass-through/reset omissions in repo-owned shell tooling and zero pins in the two selfhost smokes",
@@ -2108,6 +2147,7 @@ preserved = [
   "shared emit_legacy_call and typed_global_target_from_selected_symbol for unrelated live callers",
   "historical type-fact fixture and legacy profile evidence",
 ]
+prelude_edit_boundary = "In prelude.rs preserve the adjacent NYASH_OPERATOR_BOX_ALL runtime read and delete only the NYASH_BUILDER_OPERATOR_BOX_ALL_CALL OR-input; unconditional runtime module injection remains unchanged."
 focused_tests = [
   "three-key parser matrix including mixed precedence and non-Unicode, serialized with the shared env lock",
   "normal/raw-published/resolved pre-effect rejection, zero mutation, and compiler reuse",

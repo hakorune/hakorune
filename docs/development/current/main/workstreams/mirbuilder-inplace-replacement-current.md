@@ -80,14 +80,22 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
-The bounded order is now fixed in the active manifest: first run the
-behavior-neutral `MIR-CALL-SAME-MODULE-OPERATOR-TYPE-FACT-GUARD-SPLIT-S0`
-because the touched guard is 786 lines; then run one atomic
-`MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0`. I0 parses all three selectors
-once at normal/raw-published/resolved compiler ingress, rejects explicit true
-or malformed/non-Unicode values before effects, and deletes the publishers,
-downstream reads, Builder prelude OR, and repo-owned Builder writers together.
-Validator-only, publisher-only, and runtime-lane changes are not permitted.
+Preflight found that the inherited 786-line type-fact composite guard is
+pilot-only and already red before operator work. It contains 15 independent
+checks: nine pass at current HEAD and six fail, including a stale whole-repo
+writer overlay with 20 drifted paths. The active manifest therefore does not
+refresh or delete the composite guard wholesale. The next bounded design audit
+classifies each subguard as Keep, SupersededDelete, Rehome, or Unresolved.
+Only Unresolved=0 opens one prune/rehome S0, which retains current invariants,
+removes superseded checks and output claims, returns below 760 lines, and adds
+quick-static execution.
+
+After that proof surface is green, one atomic
+`MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0` parses all three selectors once
+across three conceptual ingress families and five physical public methods,
+then deletes the publishers, downstream reads, Builder prelude OR, and
+repo-owned Builder writers together. Validator-only, publisher-only,
+whole-guard deletion, and runtime-lane changes are not permitted.
 
 ## Historical rolling context (non-authoritative)
 
