@@ -351,10 +351,13 @@ elif phase == "raw_script_root_pre_effect_retire_i0":
         raise SystemExit("RawScriptRoot retirement I0 status drifted")
     if registration.get("implementation_permission") is not (route_status == "fast_open"):
         raise SystemExit("RawScriptRoot retirement I0 permission/status drifted")
-    if active_row != "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0":
-        raise SystemExit("RawScriptRoot retirement I0 current row drifted")
-    if current_state.get("work_mode") not in {"fast", "closeout"}:
-        raise SystemExit("RawScriptRoot retirement I0 requires fast or closeout")
+    if route_status == "fast_open":
+        if active_row != "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0":
+            raise SystemExit("RawScriptRoot retirement I0 current row drifted")
+        if current_state.get("work_mode") not in {"fast", "closeout"}:
+            raise SystemExit("RawScriptRoot retirement I0 requires fast or closeout")
+    elif current_state.get("work_mode") not in {"closeout", "design_stop"}:
+        raise SystemExit("landed RawScriptRoot retirement I0 requires closeout or design_stop")
 elif phase == "installed_nonbrand_pre_effect_reject_r2a":
     route_path = mir_root / "builder/calls/function_call_preflight_route.rs"
     tests_path = mir_root / "builder/calls/function_call_installed_nonbrand_reject_tests.rs"
@@ -704,11 +707,35 @@ if phase == "raw_script_root_pre_effect_retire_i0":
     if prepare_start < 0 or prepare_end < 0:
         raise SystemExit("RawScriptRoot retirement I0 preflight owner is missing")
     completion = route[prepare_start:prepare_end]
-    if registration.get("status") == "fast_open":
+    status = registration.get("status")
+    if status == "fast_open":
         if "RawScriptRootParkedCompatibility" not in completion or "PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }" not in completion:
             raise SystemExit("RawScriptRoot retirement I0 baseline old edge is missing")
+    elif status == "landed":
+        for token in (
+            "RawCompatibilityOrdinaryCallTerminalV1",
+            "RawScriptRootRetired",
+            "PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal",
+        ):
+            if token not in route:
+                raise SystemExit(f"RawScriptRoot landed terminal token is missing: {token}")
+        if "RawScriptRootParkedCompatibility" not in completion:
+            raise SystemExit("RawScriptRoot landed classifier arm is missing")
+        retired = completion.find("RawScriptRootRetired")
+        resolved = completion.find("PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }")
+        if retired < 0 or resolved < 0 or retired > resolved:
+            raise SystemExit("RawScriptRoot retirement must precede remaining Resolved origins")
+        if "drive_call_arguments_v1" in completion or "resolve_call_target" in completion:
+            raise SystemExit("RawScriptRoot terminal selection re-enters lowering or resolution")
+        tests = tests_path.read_text()
+        for token in (
+            "raw_script_root_ordinary_call_retires_before_arguments",
+            "raw_script_root_keeps_brand_and_special_precedence",
+        ):
+            if token not in tests:
+                raise SystemExit(f"RawScriptRoot focused test is missing: {token}")
     else:
-        raise SystemExit("RawScriptRoot landed structural checks must be installed with the implementation")
+        raise SystemExit("RawScriptRoot landed structural checks require fast_open or landed status")
     for path in (route_path, tests_path):
         if sum(1 for _ in path.open()) >= 760:
             raise SystemExit(f"RawScriptRoot retirement owner reached the 760-line split boundary: {path}")

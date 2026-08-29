@@ -1,3 +1,4 @@
+use super::super::RawCompatibilityOrdinaryCallTerminalV1;
 use super::*;
 
 use crate::ast::{ASTNode, Span};
@@ -43,10 +44,9 @@ fn script_root_parked_compatibility_keeps_brand_precedence() {
 }
 
 #[test]
-fn raw_compatibility_provenance_preserves_resolved_terminal() {
+fn raw_compatibility_provenance_preserves_resolved_terminal_for_remaining_origins() {
     let builder = MirBuilder::new();
     for authority in [
-        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
         RawBrandCallAuthorityV1::RawRootMainParkedCompatibility,
         RawBrandCallAuthorityV1::RawLegacyParkedCompatibility,
     ] {
@@ -63,6 +63,126 @@ fn raw_compatibility_provenance_preserves_resolved_terminal() {
             }
         ));
     }
+}
+
+#[test]
+fn raw_script_root_ordinary_call_retires_before_arguments() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_script_root/0".to_owned());
+    let before_instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("test function")
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .count();
+    let mut port = RecordingPortV1::default();
+    let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "helper".to_owned(),
+        vec![integer(1), integer(2)],
+        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
+    );
+
+    assert!(matches!(
+        prepared.route,
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(
+            RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired
+        )
+    ));
+    let error =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+            .expect_err("RawScriptRoot ordinary calls must retire before argument descent");
+    assert_eq!(
+        error,
+        "[freeze:contract][raw-compat/raw-script-root-ordinary-retired]"
+    );
+    assert_eq!(port.expression_count, 0);
+    assert!(port.events.is_empty());
+    let after_instructions = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .expect("test function")
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .count();
+    assert_eq!(after_instructions, before_instructions);
+}
+
+#[test]
+fn raw_script_root_keeps_brand_and_special_precedence() {
+    let mut builder = MirBuilder::new();
+    builder
+        .comp_ctx
+        .register_brand_decl("Widget".to_owned(), "Integer".to_owned());
+    let brand = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "Widget".to_owned(),
+        vec![integer(1)],
+        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
+    );
+    assert!(matches!(
+        brand.route,
+        PreparedRawFunctionPreflightRouteV1::Brand(_)
+    ));
+
+    let typeop = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "isType".to_owned(),
+        vec![
+            integer(1),
+            ASTNode::Literal {
+                value: crate::ast::LiteralValue::String("Integer".to_owned()),
+                span: Span::unknown(),
+            },
+        ],
+        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
+    );
+    assert!(matches!(
+        typeop.route,
+        PreparedRawFunctionPreflightRouteV1::TypeOp { .. }
+    ));
+
+    let math = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "sqrt".to_owned(),
+        vec![integer(1)],
+        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
+    );
+    assert!(matches!(
+        math.route,
+        PreparedRawFunctionPreflightRouteV1::Math { .. }
+    ));
+
+    let mut fastmem_builder = MirBuilder::new();
+    fastmem_builder.push_fastmem_region(crate::mir::instruction::FastMemRegionId::new(1));
+    let fastmem = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &fastmem_builder,
+        "mem.addr".to_owned(),
+        vec![integer(1)],
+        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
+    );
+    assert!(matches!(
+        fastmem.route,
+        PreparedRawFunctionPreflightRouteV1::FastMem { .. }
+    ));
+
+    let string = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "str".to_owned(),
+        vec![integer(1)],
+        RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility,
+    );
+    assert!(matches!(
+        string.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::StrNormalization { .. }
+        }
+    ));
 }
 
 #[test]

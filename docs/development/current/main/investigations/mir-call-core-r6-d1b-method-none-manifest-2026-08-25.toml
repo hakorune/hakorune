@@ -439,13 +439,13 @@ d0_c_retirement_order = [
 d0_c_next_action = "Open only MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0. The origin classifier remains, but its ordinary non-special Resolved edge retires before arguments. Do not infer a target, change the other three origins, or delete the shared Resolved consumer yet."
 
 [method_call_compat_raw_script_retire_i0_2026_08_29]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0"
 guard_phase = "raw_script_root_pre_effect_retire_i0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement: remove one internal compatibility success shape"
-implementation_permission = true
+implementation_permission = false
 decision = "After existing Brand, TypeOp, Math, FastMem, and str/1 precedence, an ordinary RawScriptRoot FunctionCall has no source-backed target issuer and enters one origin-specific typed retirement terminal before argument descent. The other three named compatibility origins keep their current Resolved behavior in this slice."
 source_authority = "RawBrandCallAuthorityV1::RawScriptRootParkedCompatibility, issued by the existing raw source classifier."
 canonical_issuer = "prepare_ordinary_function_completion_v1 is the sole pre-effect terminal issuer after the existing special-form precedence; it issues RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired and no target product."
@@ -470,14 +470,19 @@ positive_tests = [
   "raw_script_root_keeps_brand_and_special_precedence: Brand and selected special routes do not enter the retirement terminal",
 ]
 negative_tests = [
-  "raw_root_main_script_root_and_raw_legacy_keep_resolved_terminal",
+  "raw_compatibility_provenance_preserves_resolved_terminal_for_remaining_origins",
   "installed_app_main_and unclassified/source-backed routes remain unchanged",
   "no resolver, recovery, name Const, target lookup, fallback, or retry is introduced",
 ]
-focused_gate = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib function_call_script_compatibility_tests -- --test-threads=1; require at least one real passed test and treat 0 tests as failure"
-focused_test_coverage = "Before closeout, derive the exact function_call_script_compatibility_tests paths with cargo test -- --list, record the nonzero list/count, and require every test added or touched by the implementation commit to be present under the recorded filter. A missing name, zero match, or list/run count mismatch blocks closeout."
+focused_gate = "CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_BUILD_JOBS=4 cargo test --profile quick --lib function_call_preflight_route::tests::script_compatibility_tests -- --test-threads=1; require a nonzero --list match and real passed tests, and treat 0 tests as failure"
+focused_test_coverage = "Before closeout, derive the exact script_compatibility_tests paths with cargo test -- --list, record the nonzero list/count, and require every test added or touched by the implementation commit to be present under the recorded filter. A missing name, zero match, or list/run count mismatch blocks closeout."
+focused_test_filter = "mir::builder::calls::function_call_preflight_route::tests::script_compatibility_tests"
+focused_test_list_count = 9
+focused_test_run = "9 passed, 0 failed, 7492 filtered out"
 guard = "Reuse mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh; no new guard family or registry row."
 done = "The selected edge is 1 -> 0, focused positive/negative tests pass, every changed test is covered by the recorded nonzero filter, route and test files remain below 760 lines, other origins are unchanged, and the existing lifecycle/pointer guards are green."
+implementation_evidence = "RawScriptRoot ordinary non-special calls now enter RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired before argument descent; the exact focused cargo test command ran 9 tests with 9 passed."
+implementation_commit = "pending closeout commit hash"
 stop = "Return to design_stop if RawScriptRoot cannot be uniquely identified before effects, an external/public compatibility owner appears, special-form precedence changes, a generic String-only terminal is required, or the slice reaches build.rs, method_resolution, unified_emitter, VM/backend, JSON/Hako, or Call schema."
 next_row = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0 after this row closes; do not open it in the same implementation commit."
 allowed_files = [

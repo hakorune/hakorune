@@ -28,6 +28,12 @@ selector carries no Stage1 provenance, so an external caller is not treated as
 Stage1 without a separate owner. Invalid values reject before Builder
 mutation, and this policy does not govern the separate JSON/Hako readers.
 
+The `RawScriptRootParkedCompatibility` origin now retires an ordinary
+non-special `FunctionCall` before argument descent with the typed
+`raw-compat/raw-script-root-ordinary-retired` terminal. Brand, TypeOp, Math,
+FastMem, and `str/1` precedence is unchanged; the other named compatibility
+origins still use the shared `Resolved` route until their own bounded rows.
+
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument
 input is checked and lowered exactly once in source order. Its selected raw

@@ -1,6 +1,6 @@
 date = "2026-08-29"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0"
 current_design_stop = "none"
 current_blocker_token = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0: remove only the RawScriptRoot ordinary non-special FunctionCall -> Resolved edge and replace it with an origin-specific typed terminal before argument descent. Preserve Brand/TypeOp/Math/FastMem/str precedence and leave RawRootMain, ScriptRoot, RawLegacy, shared Resolved/recovery, Method(None), Stage1, VM/backend, and Call schema unchanged."

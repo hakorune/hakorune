@@ -85,6 +85,12 @@ retires at an origin-specific typed terminal before argument effects. Preserving
 one as a public compatibility contract requires an explicit profile, semantic
 owner, and fixtures before the retirement edge is changed.
 
+The internal `RawScriptRoot` ordinary non-special origin is currently retired at
+the typed terminal `[raw-compat/raw-script-root-ordinary-retired]` before
+argument effects. The remaining `ScriptRoot`, `RawRootMain`, and `RawLegacy`
+origins retain their compatibility-only `Resolved` edge until separately
+classified rows close it.
+
 Migration must not silently relabel a behavior change as BoxShape. It requires:
 
 1. a complete compatibility caller/fixture census;

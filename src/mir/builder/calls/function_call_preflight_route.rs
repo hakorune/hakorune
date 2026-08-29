@@ -43,9 +43,29 @@ enum PreparedRawFunctionPreflightRouteV1 {
     SourceRejected {
         error: String,
     },
+    CompatibilityTerminal(RawCompatibilityOrdinaryCallTerminalV1),
     Ordinary {
         completion: PreparedRawOrdinaryFunctionCompletionV1,
     },
+}
+
+/// Origin-specific terminals are deliberately typed and payload-free.  A
+/// parked compatibility origin has no target product to carry, so it must
+/// stop before argument descent rather than entering the shared Resolved
+/// compatibility consumer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RawCompatibilityOrdinaryCallTerminalV1 {
+    RawScriptRootRetired,
+}
+
+impl RawCompatibilityOrdinaryCallTerminalV1 {
+    fn error(self) -> String {
+        match self {
+            Self::RawScriptRootRetired => {
+                "[freeze:contract][raw-compat/raw-script-root-ordinary-retired]".to_owned()
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -235,7 +255,12 @@ fn prepare_ordinary_route(
     origin: PreparedRawNonBrandRouteOriginV1,
 ) -> PreparedRawFunctionPreflightRouteV1 {
     let completion =
-        prepare_ordinary_function_completion_v1(builder, name, arguments, caller, origin);
+        match prepare_ordinary_function_completion_v1(builder, name, arguments, caller, origin) {
+            Ok(completion) => completion,
+            Err(terminal) => {
+                return PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(terminal)
+            }
+        };
     if matches!(origin, PreparedRawNonBrandRouteOriginV1::UnclassifiedSource) {
         if let PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } = completion {
             return PreparedRawFunctionPreflightRouteV1::SourceRejected { error };
@@ -306,60 +331,69 @@ fn prepare_ordinary_function_completion_v1(
     arguments: Vec<ASTNode>,
     caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     origin: PreparedRawNonBrandRouteOriginV1,
-) -> PreparedRawOrdinaryFunctionCompletionV1 {
+) -> Result<PreparedRawOrdinaryFunctionCompletionV1, RawCompatibilityOrdinaryCallTerminalV1> {
     if name == "str" && arguments.len() == 1 {
-        PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
             argument: arguments
                 .into_iter()
                 .next()
                 .expect("exact str/1 route must retain one argument"),
-        }
+        })
+    } else if matches!(
+        origin,
+        PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
+    ) {
+        Err(RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired)
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledAppMain) {
-        PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments }
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments })
     } else if let Some(caller) = caller {
         match prepare_cataloged_target_v1(builder, caller, name, arguments.len()) {
             Ok(callee) => {
-                PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments }
+                Ok(
+                    PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted {
+                        callee,
+                        arguments,
+                    },
+                )
             }
-            Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
+            Err(error) => Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected { error }),
         }
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && is_installed_non_unified_gc_builtin_v1(name)
     {
-        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!("[freeze:contract][direct-call/gc-global-retired] name={name}"),
-        }
+        })
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && caller.is_none()
     {
-        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!(
                 "[freeze:contract][direct-call/installed-source-relation-missing] name={name} arity={}",
                 arguments.len()
             ),
-        }
+        })
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::UnclassifiedSource) {
-        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!(
                 "[freeze:contract][direct-call/unclassified-source] name={name} arity={}",
                 arguments.len()
             ),
-        }
+        })
     } else if matches!(
         origin,
         PreparedRawNonBrandRouteOriginV1::ScriptRootParkedCompatibility
-            | PreparedRawNonBrandRouteOriginV1::RawScriptRootParkedCompatibility
             | PreparedRawNonBrandRouteOriginV1::RawRootMainParkedCompatibility
             | PreparedRawNonBrandRouteOriginV1::RawLegacyParkedCompatibility
     ) {
-        PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments })
     } else {
-        PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!(
                 "[freeze:contract][direct-call/unclassified-installed-source] name={name} arity={}",
                 arguments.len()
             ),
-        }
+        })
     }
 }
 
@@ -550,6 +584,9 @@ where
             )
         }
         PreparedRawFunctionPreflightRouteV1::SourceRejected { error } => Err(error),
+        PreparedRawFunctionPreflightRouteV1::CompatibilityTerminal(terminal) => {
+            Err(terminal.error())
+        }
         PreparedRawFunctionPreflightRouteV1::Ordinary { completion } => builder
             .lower_prepared_raw_ordinary_function_completion_with_port_v1(
                 port,
