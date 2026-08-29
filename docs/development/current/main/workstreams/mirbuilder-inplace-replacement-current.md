@@ -48,7 +48,10 @@ caller-zero `method_resolution` static-none RET0 landed at `fea43bdade`: the
 `current_static_box + has_method` branch and local warning/wrapper plumbing are
 gone with no replacement target. The parent Method corridor is back in
 design_stop with three blockers: shared `Resolved` consumer, Builder
-`Method(None)` terminal, and unified-emitter reissuer. VM/backend, JSON/Hako,
+`Method(None)` terminal, and unified-emitter reissuer. `Resolved` is now
+production-caller-zero but still has named test-only compatibility witnesses.
+The reissuer has no Stage1 provenance bit; its exact-1 compatibility fate is a
+language decision before any implementation row. VM/backend, JSON/Hako,
 Stage1, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
