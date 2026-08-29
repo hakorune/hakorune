@@ -899,6 +899,55 @@ no_safe_slice = [
 non_claims = "No fresh full artifact, methodize=0/1 parity, Rust producer deletion, or Method corridor implementation is established by this row."
 next_row = "MIR-CALL-METHODIZE-D0"
 
+[stage1_entry_shape_i0_2026_08_29]
+status = "ready_for_fast"
+task_id = "STAGE1-ENTRY-SHAPE-I0"
+execution_row = "STAGE1-ENTRY-SHAPE-I0"
+parent_row = "STAGE1-ARTIFACT-ENTRY-SHAPE-ALIGN-D0"
+implementation_permission = true
+decision = "Open one bounded shape slice for the canonical default artifact only: both entry/ thin stubs expose Main.main/0. Preserve build defaults and NYASH_ENTRY; top-level wrappers remain an explicit ParkedSealed compatibility route."
+source_authority = "normal_source_plan Main.main/0 contract and build_stage1.sh artifact-kind defaults, with entry/ stubs as the canonical source files."
+canonical_issuer = "The existing Hako parser/lowering path issues the Main.main/0 shape from the edited canonical stub; this row adds no semantic receipt or target authority."
+non_authority = "Top-level wrappers, arbitrary --entry overrides, NYASH_ENTRY rewriting, legacy entry_selection, argv adaptation, Methodize, and stale artifacts."
+fail_fast_boundary = "The shape guard and direct emit probe reject any canonical stub that declares nonzero Main arity or any default path that leaves the canonical entry/ closure. No argv is discarded or injected."
+allowed_files = [
+    "lang/src/runner/entry/launcher_native_entry.hako",
+    "lang/src/runner/entry/stage1_cli_env_entry.hako",
+    "tools/checks/stage1_entry_shape_guard.sh",
+    "tools/checks/guard_rows.toml",
+    "lang/src/runner/README.md",
+    "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml",
+    "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden_files = [
+    "lang/src/runner/launcher_native_entry.hako",
+    "lang/src/runner/stage1_cli_env_entry.hako",
+    "tools/selfhost/mainline/build_stage1.sh",
+    "tools/selfhost/lib/stage1_contract.sh",
+    "src/mir",
+    "src/runner",
+]
+acceptance = [
+    "Both canonical entry/ stubs parse and emit one Main.main/0 function; no Main.main/1 or main(args) exists in either file.",
+    "The static shape guard passes and confirms build_stage1.sh plus hako_module.toml still point at entry/ stubs and NYASH_ENTRY remains Main.main/0.",
+    "Top-level wrappers are not in the default artifact closure and remain ParkedSealed; their explicit compatibility route is not claimed by this row.",
+    "Direct emit probes for both canonical stubs pass with the current quick bootstrap; no Methodize, full Stage1 artifact, or parity claim is made.",
+    "The touched source remains below the 760/800-line boundary and no MirBuilder Call/VM/backend/Call-schema file changes."
+]
+negative = [
+    "main(args) in either canonical stub",
+    "default entry path naming a top-level wrapper",
+    "NYASH_ENTRY drifting from Main.main/0",
+    "explicit wrapper route silently treated as the canonical default",
+]
+no_safe_slice = [
+    "The default artifact closure contains a top-level wrapper or an active caller requires the wrapper route.",
+    "The canonical stub must accept argv, or build defaults/NYASH_ENTRY must change to hide an arity mismatch.",
+    "The direct emit probe still stops at a source-shape error that cannot be separated from the stub change.",
+    "The change requires Methodize, Method(None), receiver ABI, VM/JSON, shared Resolved, or Call schema edits.",
+]
+next_row = "STAGE1-FULL-ARTIFACT-D0"
+
 [audit_16_reconciliation_2026_08_29]
 status = "reconciled_current_head"
 source = "第16回監査のloan-I0赤テスト報告を、現HEAD 930f9ef2cb と e382a00923 の履歴・focused evidenceへ照合した。"
