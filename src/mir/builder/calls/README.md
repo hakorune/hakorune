@@ -39,6 +39,10 @@ The former `method_resolution` static-box `has_method` branch is retired as a
 caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;
 qualified static targets belong to exact catalog/source handoffs, while the
 remaining resolver handles only Builtin, local Value, and Extern cases.
+After the Rust methodize reissuer reached zero, the shared Builder publication
+terminal also rejects `Callee::Method { receiver: None }` before materializing
+or inserting an instruction. Instance Method requires an exact receiver;
+qualified static Method remains a typed Global.
 
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument

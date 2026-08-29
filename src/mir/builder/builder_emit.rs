@@ -6,6 +6,9 @@ use crate::mir::BasicBlock;
 
 #[path = "builder_emit_core.rs"]
 mod builder_emit_core;
+#[cfg(test)]
+#[path = "builder_method_none_terminal_tests.rs"]
+mod builder_method_none_terminal_tests;
 
 pub(in crate::mir::builder) use builder_emit_core::{
     CanonicalCompareAppendRejectV1, CanonicalCompareDefinitionSourceV1,
@@ -45,6 +48,19 @@ impl MirBuilder {
             .function_state
             .current_block
             .ok_or("No current basic block")?;
+
+        if matches!(
+            &instruction,
+            MirInstruction::Call {
+                callee: Some(crate::mir::Callee::Method { receiver: None, .. }),
+                ..
+            }
+        ) {
+            return Err(
+                "[mir/call/method-none-retired] receiverless Method is not a Builder publication shape"
+                    .to_owned(),
+            );
+        }
 
         // Make instruction mutable for potential receiver materialization
         let mut instruction = instruction;
