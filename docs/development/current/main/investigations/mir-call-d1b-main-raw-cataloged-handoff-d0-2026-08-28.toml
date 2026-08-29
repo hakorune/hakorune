@@ -1119,19 +1119,19 @@ non_claims = "This failed I0 does not establish ternary source safety, a fresh f
 next_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
 
 [stage1_ternary_source_contract_d0_2026_08_29]
-status = "active_design_stop"
+status = "accepted_design_parked"
 task_id = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
 execution_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
 parent_row = "STAGE1-RESOLVER-TERNARY-SHAPE-I0"
 implementation_permission = false
 primary_missing_boundary = "RepresentationDecisionMissing"
-decision = "Explain the declaration/parameter contract transition exposed by the complete four-file source-shape edit before reopening any ternary replacement. Treat the existing five-method ResolverDeferred boundary and the earlier ParameterContract terminal as separate typed observations; do not repair either by widening the parser or inventing a parameter fallback."
+decision = "The bounded source-contract matrix is complete: all four singleton edits preserve the existing ResolverDeferred/UnsupportedExpression boundary, C1 and C2 do the same, and only the bounded all-four C3 reaches ParameterContract/UnsupportedDeclaredType { declaration: 430, parameter: 0 }. Workers confirm declaration 430 is an existing FinalCallableSemanticSyntaxLoan batch slot rather than an owner identity, while the four edited methods have unannotated parameters. No existing source/parameter owner can therefore explain the transition without guesswork; park the four-file ternary family as ParkedSealed and return to the existing full-artifact blocker. Do not widen the parser or invent a parameter fallback."
 source_authority = "The existing Hako parser/source closure for PatternUtilBox.find_local_bool_before, JsonNumberCanonicalBox.canonicalize_f64, JsonFragNormalizerBox._normalize_instructions_array/_canonicalize_f64_str, LowerMethodArrayGetSetBox.try_lower, and the callable parameter-contract issuer own the source/parameter relation."
 canonical_issuer = "Existing callable parameter-contract issuer and existing ResolverDeferred typed terminal; this D0 issues no semantic receipt, target, artifact, or compatibility route."
 non_authority = "Ternary language extension, parser relaxation, default/opaque parameter filling, source rewriting, AST/MIR rewrite, resolver/Rust changes, Main/entry/wrapper/argv, Methodize/Method(None), Call schema, VM/backend, fallback, and artifact promotion."
 fail_fast_boundary = "Before package install and artifact effects, reproduce the baseline five-method ResolverDeferred batch and compare one source-shape combination at a time; any ParameterContract or SourceShape transition remains a named blocker until its existing owner explains it."
 census_boundary = "stage1_cli_env.hako -> static import closure -> the four Hako owners/five methods/20 ternary sites -> callable parameter-contract declaration 430 -> ResolverDeferred terminal; includes only this finite source-shape interaction, excludes parser changes, unrelated ternaries, entry/wrapper, Methodize, Call, VM/backend, and full artifact claims."
-smallest_next_slice = "Read-only per-file and bounded-combination matrix with pinned source hashes, binary hash, cwd, env, command, rc, artifact existence, first typed terminal, and declaration/parameter identity. Confirm whether lower_method_array_get_set_box.hako is the decisive transition and name the existing source owner or park the family; no code or fixture edits."
+smallest_next_slice = "Resume the existing STAGE1-FULL-ARTIFACT-D0 with a fresh artifact tuple; do not reopen the four-file ternary source edit until an existing source/parameter owner and a reproducible clean terminal are named."
 finite_inventory = [
     "B0: all four files unchanged -> five-method ResolverDeferred/UnsupportedExpression baseline",
     "S-P: pattern_util_box.hako only -> compare find_local_bool_before",
@@ -1142,15 +1142,26 @@ finite_inventory = [
     "C2: C1 + JsonNumber, only after C1 reproduces its terminal",
     "C3: C2 + LowerMethodArrayGetSet, one all-four confirmation; stop after C3",
 ]
+matrix_evidence = [
+    "All rows used detached worktrees at base commit c8bd68f4dfc152454d49dcfc1d89db0463d6c4bf, the existing quick binary SHA-256 60478a605aa65407a9d671bf98ddc9d5743b693b1365a25fb3d140f131053b03, the entry SHA-256 8681091f8a13124ca4af06810d277c7079abf4315ad503ecd2d92945ea38b9d7, cwd/import-root equal to the row worktree, explicit env NYASH_MACRO_DISABLE=1, and the exact command `NYASH_MACRO_DISABLE=1 /home/tomoaki/git/hakorune-selfhost/target/quick/hakorune --emit-mir-json <fresh-temp> <row-worktree>/lang/src/runner/stage1_cli_env.hako`; every row returned rc=1 with no fresh artifact.",
+    "B0 unchanged: five-method ResolverDeferred/UnsupportedExpression baseline (PatternUtilBox.find_local_bool_before, JsonNumberCanonicalBox.canonicalize_f64, both JsonFrag owners, LowerMethodArrayGetSetBox.try_lower).",
+    "S-P PatternUtil only (changed file SHA-256 02466020c9fc26a2294d7842e2689c795fc3ad1af0467638723d377f65da977c): first terminal ResolverDeferred, with JsonNumber, both JsonFrag owners, and LowerMethodArrayGetSet remaining.",
+    "S-N JsonNumber only (changed file SHA-256 cf80031a3f65ccb2218b8597517cd07f096901343c60ba4fe8a22a25e124ccd0): first terminal ResolverDeferred, with PatternUtil, both JsonFrag owners, and LowerMethodArrayGetSet remaining.",
+    "S-J JsonFrag only (changed file SHA-256 da177c98241b01114eb9e92f304605c7466df4b32d6420040fc6e198ae61e824): first terminal ResolverDeferred, with PatternUtil, JsonNumber, and LowerMethodArrayGetSet remaining.",
+    "S-L LowerMethodArrayGetSet only (changed file SHA-256 21e81e69ea5dae7f195de6d508d5edb11f35842ce7f34b56b25f92a0301235cc): first terminal ResolverDeferred, with PatternUtil, JsonNumber, and both JsonFrag owners remaining.",
+    "C1 PatternUtil+JsonFrag (changed SHA-256s 02466020c9fc26a2294d7842e2689c795fc3ad1af0467638723d377f65da977c and da177c98241b01114eb9e92f304605c7466df4b32d6420040fc6e198ae61e824): first terminal ResolverDeferred, with JsonNumber and LowerMethodArrayGetSet remaining.",
+    "C2 C1+JsonNumber (add changed SHA-256 cf80031a3f65ccb2218b8597517cd07f096901343c60ba4fe8a22a25e124ccd0): first terminal ResolverDeferred, with only LowerMethodArrayGetSet remaining.",
+    "C3 C2+LowerMethodArrayGetSet (add changed SHA-256 21e81e69ea5dae7f195de6d508d5edb11f35842ce7f34b56b25f92a0301235cc): first terminal ParameterContract/UnsupportedDeclaredType { declaration: 430, parameter: 0 }; no artifact.",
+]
 worker_evidence = [
     "r2_named_resolved_audit (read-only, HEAD a776839463): declaration 430 is a FinalCallableSemanticSyntaxLoan batch_slot, not a source identity; parameter 0 is the ordinal. The canonical issuer is issue_callable_parameter_contract_v1, which classifies explicit StringBox/i64 only; the four ternary-owner methods have unannotated parameters and should ordinarily map to OpaqueHandle.",
     "r2_guard_scope_audit (read-only, HEAD a776839463): use the finite B0/S-P/S-N/S-J/S-L/C1/C2/C3 matrix, stop a later combination on the first unexplained ParameterContract, and reuse current-state-pointer plus stage1-entry-shape guards without a new guard family.",
 ]
 acceptance = [
-    "The source/parameter owner for the declaration 430 transition is named, or the finite ternary family is explicitly ParkedSealed with an observable reopen trigger.",
-    "Baseline and edited observations use clean, pinned source/binary/cwd/env tuples and preserve the typed terminal distinction.",
+    "The finite B0/S-P/S-N/S-J/S-L/C1/C2/C3 matrix is complete with clean, pinned source/binary/cwd/env tuples and preserves the typed terminal distinction.",
+    "The declaration/parameter owner for the C3 declaration 430 transition is not recoverable from the existing terminal; the four-file ternary family is explicitly ParkedSealed with an observable reopen trigger.",
     "No parser, resolver, entry, Methodize, Call, VM/backend, artifact, fixture, semantic receipt, or source edit is introduced by this D0.",
-    "Only after the boundary is explained may a new bounded ternary I0 be selected; otherwise return to the existing Stage1 artifact blocker without further source churn.",
+    "The next row is the existing Stage1 full-artifact blocker; no further ternary source churn is allowed until the reopen trigger is satisfied.",
 ]
 no_safe_slice = [
     "The per-file matrix cannot attribute the transition to an existing source/parameter owner.",
@@ -1158,8 +1169,9 @@ no_safe_slice = [
     "A probe uses a mixed worktree, stale binary, missing artifact, or plugin/environment failure as semantic evidence.",
     "A bounded combination changes the batch-slot identity without an existing source-backed explanation; do not infer the owner from slot 430 or from the last edited file.",
 ]
+reopen_trigger = "Reopen this ternary family only when an existing source/parameter owner names the declaration identity behind the transition, the same clean tuple reproduces a named later terminal, and the change preserves laziness, null/sentinel/escaping, value/return, and parameter contracts without parser/resolver/entry fallback or a new receipt."
 non_claims = "This D0 does not reopen ternary implementation, establish a full Stage1 artifact, or advance Methodize, MirBuilder Call, VM, backend, or cleanup work."
-next_row = "STAGE1-TERNARY-SOURCE-CONTRACT-D0"
+next_row = "STAGE1-FULL-ARTIFACT-D0"
 
 [stage1_source_shape_diag_d0_2026_08_29]
 status = "landed"
