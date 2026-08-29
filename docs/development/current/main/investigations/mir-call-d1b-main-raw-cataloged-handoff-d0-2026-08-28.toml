@@ -853,6 +853,25 @@ no_safe_slice = [
 ]
 next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 
+[stage1_artifact_entry_shape_align_d0_2026_08_29]
+status = "accepted_design_stop"
+task_id = "STAGE1-ARTIFACT-ENTRY-SHAPE-ALIGN-D0"
+parent_row = "MIR-CALL-METHODIZE-D0"
+implementation_permission = false
+decision = "NormalSource and Stage1 logical owners use Main.main/0 (main()); main(args) is a separate argv ABI candidate and must not be silently mixed into the Methodize route."
+source_authority = "normal_source_plan (main_source.rs, parser_bound_policy.rs, main0_bridge.rs) and the logical owners launcher.hako / stage1_cli_env.hako"
+non_authority = "thin-stub comments, build defaults, legacy entry_selection, NYASH_ENTRY text, HAKO_MIR_BUILDER_METHODIZE, stale Stage0 artifacts, and timeout results"
+observed_failure = "The canonical launcher-exe build timed out after 900 seconds; the quick bootstrap then stopped the thin launcher_native_entry.hako at callable-main/lowering entry-shape-mismatch because its Main.main(args) conflicts with the Main.main/0 contract."
+fail_fast_boundary = "Reject a nonzero normal Main arity before source transform; do not infer, discard, or silently adapt argv parameters."
+smallest_next_slice = "Align the two thin entry stubs, build defaults, NYASH_ENTRY, and the Stage1 seed route with Main.main/0, or explicitly design a separate argv ABI; then build a full stage1-cli artifact for the direct methodize parity probe."
+full_artifact_route = "tools/selfhost/mainline/build_stage1.sh --artifact-kind stage1-cli --entry lang/src/runner/stage1_cli_env.hako --out <fresh-path> --force-rebuild --timeout-secs 900"
+no_safe_slice = [
+    "Do not relax the normal Main arity/source-preservation contract to make the artifact build pass.",
+    "Do not change Methodize, Method(None), receiver ABI, VM/JSON, shared Resolved, or Call schema in this entry-shape row.",
+]
+non_claims = "No fresh full artifact, methodize=0/1 parity, Rust producer deletion, or Method corridor implementation is established by this row."
+next_row = "MIR-CALL-METHODIZE-D0"
+
 [audit_16_reconciliation_2026_08_29]
 status = "reconciled_current_head"
 source = "第16回監査のloan-I0赤テスト報告を、現HEAD 930f9ef2cb と e382a00923 の履歴・focused evidenceへ照合した。"
