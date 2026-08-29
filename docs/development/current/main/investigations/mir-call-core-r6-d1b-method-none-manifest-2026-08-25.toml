@@ -611,6 +611,81 @@ validation = [
 ]
 next_row = "Return to parent design_stop for the dormant Resolved consumer and its three test-only witnesses."
 
+[raw_root_resolved_caller_zero_ret0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+ceremony_tier = "T1"
+box_kind = "BoxCount retirement"
+implementation_permission = true
+decision = "Replace the dormant RawRootMainParkedCompatibility -> Resolved success edge with one payload-free RawRootMainRetired terminal after Brand/TypeOp/Math/FastMem/exact-str precedence, then delete PreparedRawOrdinaryFunctionCompletionV1::Resolved and every exclusive post-argument resolver/recovery/name-Const/tail-env observer. No replacement target is issued."
+source_authority = "RawBrandCallAuthorityV1::RawRootMainParkedCompatibility is the exact test-injectable provenance. Production authority remains the raw-root eligibility owner, which rejects FunctionCall as UnsupportedSurface before physical open. prepare_ordinary_function_completion_v1 owns the first origin-specific terminal after special precedence."
+canonical_issuer = "None: this is caller-zero retirement. CatalogedTargeted and AppMainTargeted keep their existing exact issuers; the new RawRootMainRetired terminal carries no target payload."
+non_authority = [
+  "name/arity, variable map, callable registry/catalog recovery, current box, headers, arguments/ValueId, func/name Const, physical symbol, test fixture, env selector",
+  "resolve_call_target, unique-static recovery, suffix/tail recovery, Builder autoscan, fallback, retry, VM/backend, JSON/Hako, and Call schema",
+]
+fail_fast_boundary = "Within prepare_ordinary_function_completion_v1, preserve Brand routing and TypeOp/Math/FastMem/exact str/1 selection first; ordinary non-special RawRootMain then returns RawRootMainRetired before argument descent, function-header access, resolver/recovery, Const creation, collector mutation, or MIR publication."
+census_boundary = "RawRootMainParkedCompatibility issuance -> ordinary completion selection -> Resolved argument descent/resolver/recovery -> first Call insertion; includes the one variant, one producer, one consumer, zero production callers, direct RawRootMain test injections, exclusive generic resolver and tail-recovery helpers/env/guards; excludes Brand/TypeOp/Math/FastMem/exact str/1, CatalogedTargeted, AppMainTargeted, Method(Some), VM/backend, JSON/Hako, and Call schema."
+precondition_census = "PreparedRawOrdinaryFunctionCompletionV1::Resolved: variant=1, producer=1 RawRootMain, consumer=1, production reachable callers=0. build_resolved_function_call=1 and build_unified_function_call=1 are exclusive consumers. Direct Resolved expectations are test-only."
+old_edge_delete_set = [
+  "RawRootMainParkedCompatibility -> PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+  "Resolved match arm -> argument descent -> function-header access",
+  "build_resolved_function_call and build_unified_function_call",
+  "generic resolve_call_target wrapper/module and call_resolution suggestion module",
+  "unique-static emission recovery plus module/header tail resolver helpers",
+  "NYASH_BUILDER_TAIL_RESOLVE Rust reader and auto-detect writer",
+  "Resolved-specific name Const plus direct legacy MirInstruction::Call writer",
+  "guards/manifests/proofs that require Resolved or tail recovery as current authority",
+]
+allowed_files = [
+  "src/config/env/builder_flags.rs",
+  "src/mir/builder.rs",
+  "src/mir/builder/call_resolution.rs",
+  "src/mir/builder/calls/mod.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
+  "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+  "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/static_resolution.rs",
+  "src/mir/builder/calls/utils.rs",
+  "src/mir/builder/calls/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+  "tools/checks/mir_call_d1b_exact_target_child_guard.sh",
+  "tools/checks/lib/bare_static_recovery_proof.py",
+  "tools/checks/lib/headerport_authority_erasure_guard.py",
+  "tools/checks/lib/resolved_callable_l0.py",
+  "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
+  "tools/smokes/v2/configs/auto_detect.conf",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+acceptance = "RawRootMain ordinary non-special direct injection returns the stable RawRootMainRetired terminal with zero argument/header/MIR delta; Brand/TypeOp/Math/FastMem/exact str/1 precedence remains; Cataloged and AppMain typed paths remain green; Resolved, its exclusive build helpers, generic resolver, unique/tail emissions, name-Const writer, tail env reader/writer, and stale guard expectations are zero; focused tests, quick check, active/exact-target/headerport/recovery guards, pointer, and diff check are green."
+no_safe_slice = "Return to design_stop if any production caller crosses raw-root eligibility, any public compatibility contract owns Resolved success, a second Resolved producer/consumer appears, a supposedly exclusive resolver/recovery helper has another live owner, special precedence changes, or retirement requires a replacement target, argument effect, VM/backend, JSON/Hako, or Call-schema change."
+non_claims = [
+  "no new target issuer, Recipe, Verified/Prepared receipt family, resolver, fallback, or retry",
+  "no CatalogedTargeted/AppMainTargeted/Method(Some) semantic change",
+  "no production selection credit; this removes a caller-zero compatibility corridor",
+  "no VM/backend, optimizer, JSON/Hako, Stage1, or Call.func/Option<Callee> schema change",
+]
+changed_test_names = [
+  "raw_root_main_ordinary_call_retires_before_arguments",
+  "raw_root_main_special_precedence_survives_resolved_retirement",
+  "raw_root_main_gc_name_retires_before_arguments",
+]
+focused_test_filters = [
+  "function_call_script_compatibility_tests",
+  "function_call_preflight_route_tests",
+  "function_call_installed_gc_builtin_tests",
+  "cataloged_target",
+  "app_main",
+]
+next_row = "Close the parent Method corridor if the post-implementation census has no remaining in-boundary blocker; otherwise return to design_stop with the exact residual owner."
+
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
 status = "landed"
 task_id = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"
@@ -735,7 +810,7 @@ forbidden_files = [
 ]
 
 [raw_root_main_retire_i0_2026_08_29]
-status = "caller_zero_reconciled"
+status = "superseded_by_resolved_caller_zero_ret0"
 task_id = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 guard_phase = "active_surface"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
@@ -755,6 +830,8 @@ non_claims = [
   "no ScriptRoot or RawLegacy change",
   "no Method(None), VM/backend, JSON/Hako, or Call-schema change",
 ]
+superseded_by = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
+supersession_reason = "The earlier row correctly proved production reach zero but retained a test-injectable downstream Resolved success edge. Two independent 2026-08-30 audits found that this edge is the sole remaining Resolved producer and that its exclusive resolver/recovery observers otherwise survive forever. The new row replaces, rather than adds beside, that dormant edge with one typed pre-effect RawRootMainRetired terminal after all existing special-form precedence."
 
 [method_call_compat_script_root_fate_d0_2026_08_29]
 status = "selected_retire_before_effects"

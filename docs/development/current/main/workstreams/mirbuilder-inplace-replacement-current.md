@@ -57,8 +57,13 @@ The Builder terminal RET0 landed at `cc2d390538`: receiverless Method now
 rejects before materialization or publication while typed Global remains
 canonical. The parent Method corridor is therefore back in design_stop with
 one blocker only: the production-caller-zero shared `Resolved` consumer and its
-direct RawRootMain test witnesses. VM/backend and Call-schema changes remain
-closed.
+direct RawRootMain test witnesses. Two independent read-only audits confirmed
+one Resolved variant, one RawRootMain producer, one consumer, and zero
+production-reachable callers. The bounded RET0 is now fast-open: after existing
+special-form precedence it replaces the direct-injection success edge with
+`RawRootMainRetired`, then removes Resolved and its exclusive generic
+resolver/recovery/tail observers in the same retirement series. No target is
+issued; Cataloged/AppMain, VM/backend, and Call schema remain closed.
 
 ## Historical rolling context (non-authoritative)
 

@@ -11,6 +11,8 @@ EXACT1_RETIRE_ROW = "MIR-CALL-RUST-METHODIZE-RETIRE-I0"
 EXACT1_RETIRE_KEY = "rust_exact1_methodize_retire_i0_2026_08_30"
 METHOD_NONE_TERMINAL_ROW = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0"
 METHOD_NONE_TERMINAL_KEY = "builder_method_none_publication_terminal_ret0_2026_08_30"
+RESOLVED_RETIRE_ROW = "MIR-CALL-RAW-ROOT-RESOLVED-CALLER-ZERO-RET0"
+RESOLVED_RETIRE_KEY = "raw_root_resolved_caller_zero_ret0_2026_08_30"
 
 
 def check_guard_split_s0(state: dict, card: dict, root: Path, api: object) -> None:
@@ -324,6 +326,94 @@ def check_method_none_terminal_ret0(
     exact1 = card.get(EXACT1_RETIRE_KEY)
     if not isinstance(exact1, dict) or exact1.get("status") != "landed":
         api.fail("Builder Method(None) terminal RET0 lacks landed reissuer retirement")
+
+
+def check_resolved_retire_ret0(
+    state: dict, card: dict, root: Path, api: object
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail("RawRootMain Resolved RET0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != RESOLVED_RETIRE_ROW:
+        api.fail("RawRootMain Resolved RET0 is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        api.fail("RawRootMain Resolved RET0 must clear current_design_stop")
+    if state.get("next_execution_card") != RESOLVED_RETIRE_ROW:
+        api.fail("RawRootMain Resolved RET0 pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("RawRootMain Resolved RET0 card pointer drifted")
+
+    row = card.get(RESOLVED_RETIRE_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"{RESOLVED_RETIRE_KEY} section is missing")
+    if row.get("task_id") != RESOLVED_RETIRE_ROW:
+        api.fail("RawRootMain Resolved RET0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        api.fail("RawRootMain Resolved RET0 status is not finite")
+    expected_permission = row.get("status") == "fast_open"
+    if row.get("implementation_permission") is not expected_permission:
+        api.fail("RawRootMain Resolved RET0 permission/status drifted")
+
+    expected_allowed = {
+        "src/config/env/builder_flags.rs",
+        "src/mir/builder.rs",
+        "src/mir/builder/call_resolution.rs",
+        "src/mir/builder/calls/mod.rs",
+        "src/mir/builder/calls/build.rs",
+        "src/mir/builder/calls/function_call_preflight_route.rs",
+        "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
+        "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+        "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+        "src/mir/builder/calls/method_resolution.rs",
+        "src/mir/builder/calls/static_resolution.rs",
+        "src/mir/builder/calls/utils.rs",
+        "src/mir/builder/calls/README.md",
+        str(api.HELPER_REL),
+        "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+        "tools/checks/mir_call_d1b_exact_target_child_guard.sh",
+        "tools/checks/lib/bare_static_recovery_proof.py",
+        "tools/checks/lib/headerport_authority_erasure_guard.py",
+        "tools/checks/lib/resolved_callable_l0.py",
+        "tools/checks/manifests/mir_call_global_target_b1_c0_matrix.toml",
+        "tools/smokes/v2/configs/auto_detect.conf",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        api.fail("RawRootMain Resolved RET0 allowed-file boundary drifted")
+    if row.get("status") != "landed":
+        return
+
+    route = (root / "src/mir/builder/calls/function_call_preflight_route.rs").read_text()
+    build = (root / "src/mir/builder/calls/build.rs").read_text()
+    builder_root = root / "src/mir/builder"
+    builder_text = "\n".join(
+        path.read_text() for path in builder_root.rglob("*.rs") if path.is_file()
+    )
+    if "RawRootMainRetired" not in route:
+        api.fail("RawRootMain Resolved RET0 lacks its typed terminal")
+    for token in (
+        "PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+        "build_resolved_function_call",
+        "build_unified_function_call",
+        "try_unique_static_method_recovery",
+        "try_tail_based_resolver",
+        "builder_tail_resolve",
+    ):
+        if token in builder_text:
+            api.fail(f"RawRootMain Resolved RET0 left stale Builder edge: {token}")
+    if "make_name_const_result" in build:
+        api.fail("RawRootMain Resolved RET0 left its name-Const writer")
+    for rel in (
+        "src/mir/builder/call_resolution.rs",
+        "src/mir/builder/calls/method_resolution.rs",
+    ):
+        if (root / rel).exists():
+            api.fail(f"RawRootMain Resolved RET0 left caller-zero module: {rel}")
+    for test_name in row.get("changed_test_names", []):
+        if builder_text.count(f"fn {test_name}(") != 1:
+            api.fail(f"RawRootMain Resolved RET0 lacks unique test: {test_name}")
 
 
 def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:
