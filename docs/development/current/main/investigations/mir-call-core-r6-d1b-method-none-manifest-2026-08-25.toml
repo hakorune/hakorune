@@ -859,6 +859,56 @@ resource_note = "The default optimized test-binary link was stopped twice at app
 post_census = "exactly 3 production receipt callers; receipt terminal consumes CanonicalGlobalTargetV1; PreparedGlobalValueCallRequestV1 and CanonicalGlobalTargetV1::new_static_box_method are absent from the receipt function; all three callers project before descent; touched Rust owners are 459/467/160/53/248 lines and the guard is 697 lines."
 next_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop; select the next exact SameModule family only after a fresh authority audit."
 
+[same_module_cataloged_print_arity_r0_2026_08_30]
+status = "design_stop"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape finite provider contract"
+implementation_permission = false
+decision = "Treat only the existing builtin_print() as the print issuer. Confirm whether the InstalledNonBrand Cataloged FunctionCall path has a live production caller; if it does, accept exact print/1 and reject every other arity before child descent. If it does not, retire the legacy print name-synthesis branch as a caller-zero compatibility edge rather than opening a new provider route."
+source_authority = "The parser's dedicated ASTNode::Print carries exactly one expression, and CanonicalGlobalTargetV1::builtin_print() is the existing typed issuer. The census itself issues no target."
+canonical_issuer = "Existing CanonicalGlobalTargetV1::builtin_print() only; no name/arity constructor, classifier, catalog-existence check, resolver, symbol, or VM consumer may issue print."
+non_authority = [
+  "CallNameCalleeClassV1::BuiltinGlobal",
+  "source name/arity and CanonicalGlobalTargetV1::new_free_function",
+  "CalleeResolverBox validation, physical symbol, registry, env, fixture, fallback, and retry",
+]
+fail_fast_boundary = "At InstalledNonBrand Cataloged ordinary preflight, after existing TypeOp/Math/FastMem precedence and before argument descent, ValueId/Const allocation, block mutation, resolver entry, or Call publication."
+census_boundary = "InstalledNonBrand Cataloged raw FunctionCall name=print -> prepare_cataloged_target_v1 -> first target/reject terminal; includes parser/ordinary-call caller reconciliation and focused preflight tests, excludes ASTNode::Print's existing statement owner, Math, ExplicitExtern, GC, VM/backend, wire, and Call schema."
+allowed_files = [
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+  "src/mir/builder/calls/resolver.rs",
+  "src/mir/builder/calls/README.md",
+  "docs/reference/language/statements.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "ordinary static terminal",
+  "generic CorePlan",
+  "operators",
+  "physical thunk",
+  "rewrite/known",
+  "ordinary-new birth",
+  "panic/exit/error/now issuer",
+  "Math/Extern",
+  "package/loan",
+  "VM/backend/JSON/Call schema",
+]
+ordered_tasks = [
+  "D0: reconcile parser ASTNode::Print, ordinary FunctionCall construction, and all production callers of the Cataloged print branch; tests alone do not establish a live caller",
+  "D0: freeze the finite arity matrix: print/1 may reuse builtin_print(); print/0, print/2+, overflow, and malformed caller shapes must not synthesize a FreeFunction",
+  "I0 only after D0: add the pre-effect exact-arity terminal or caller-zero retirement, with positive/negative/no-descent evidence and the old name+arity synthesis edge removed in the same row",
+  "C0: rerun the provider census and return to the SameModule parent; do not claim provider-wide closure",
+]
+acceptance = "The ordinary Cataloged print boundary has a two-directionally reconciled caller list, exactly one authority state, an explicit AST Print exclusion, exact print/1 semantics, pre-effect rejection or caller-zero retirement for every other arity, and no new semantic receipt or provider owner."
+no_safe_slice = "Remain in design_stop if a live caller needs non-print/1 behavior, print is supplied by a different source owner, arity cannot be checked before descent, or the old branch cannot be removed without name/arity, resolver, symbol, fallback, or retry authority."
+selected_cohort = "print_arity_contract_pending_live_caller_reconciliation"
+next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0 remains design_stop until D0 caller reconciliation is recorded; no fast row is open."
+
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
 status = "landed"
 task_id = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"

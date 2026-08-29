@@ -64,6 +64,16 @@ green and quick library check is green. The parent
 fresh authority audit; `print`, Math, explicit Extern, and no-issuer names
 remain separate owners/blockers, and no provider-wide implementation is open.
 
+Fresh worker audit keeps the parent in `design_stop`: ordinary static,
+CorePlan, operator, physical-thunk, and rewrite families lack a complete
+pre-effect bridge. The only small candidate is
+`MIR-CALL-SAME-MODULE-CATALOGED-PRINT-ARITY-R0`: first reconcile whether the
+Cataloged `FunctionCall` print branch has any live production caller, then
+either enforce the existing exact `builtin_print()` `print/1` contract or
+retire that caller-zero compatibility edge. No fast row is open until that
+single D0 is recorded; no provider-wide, VM/backend, package/loan, or
+Call-schema work is implied.
+
 ## Historical rolling context (non-authoritative)
 
 Decision:
