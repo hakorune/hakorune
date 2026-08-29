@@ -55,7 +55,7 @@ fn expr(index: u32, role: SourcePathSegmentV1) -> SourceExprSiteV1 {
     SourceExprSiteV1::from_node(node(vec![SourcePathSegmentV1::Body(index), role]))
 }
 
-fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunctionDataV1 {
+pub(super) fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunctionDataV1 {
     let function_origin = FunctionOriginV1::new(0, 3);
     let binding_ref = BindingRefV1::new(owner, binding);
     let scope = ScopeId::new(owner, 0);

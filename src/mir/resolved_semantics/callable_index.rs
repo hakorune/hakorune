@@ -58,6 +58,11 @@ impl ResolvedCallableRefV1 {
         Self { owner }
     }
 
+    #[cfg(test)]
+    pub(super) const fn for_test(owner: FunctionOwnerIdV1) -> Self {
+        Self { owner }
+    }
+
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }

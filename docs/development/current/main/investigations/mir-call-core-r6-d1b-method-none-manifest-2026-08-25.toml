@@ -399,7 +399,6 @@ d0_b_open_rows = [
   "raw_legacy_origin",
   "script_root_origin",
   "raw_script_root_origin",
-  "raw_root_main_origin",
   "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
@@ -409,15 +408,15 @@ d0_b_closed_rows = [
   "installed_app_main_affine_successor",
   "installed_nonbrand_pre_effect_reject",
   "unclassified_preflight_reject",
+  "raw_root_main_origin",
 ]
 d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners; none of the four R2 compatibility origins or their shared Resolved consumer has an exact source/catalog product. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners; RawRootMain is caller-zero upstream because raw-root eligibility rejects UnsupportedSurface(Call) before physical open. The remaining three R2 compatibility origins and their shared Resolved consumer have no exact source/catalog product. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
 d0_c_open_rows = [
   "raw_legacy_origin",
   "script_root_origin",
   "raw_script_root_origin",
-  "raw_root_main_origin",
   "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
@@ -425,18 +424,17 @@ d0_c_open_rows = [
 ]
 d0_c_decision_options = [
   "A: open a separate source-backed issuer design that supplies exact owner/site/brand/relation and an already-issued typed target within the same transaction",
-  "B: explicitly retire the four compatibility origins and shared Method(None) reissuer at origin-specific pre-effect typed terminals, with caller-zero evidence",
+  "B: explicitly retire the three remaining compatibility origins and shared Method(None) reissuer at origin-specific pre-effect typed terminals, with caller-zero evidence",
 ]
 d0_c_selected_option = "B_origin_specific_pre_effect_retirement"
-d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot lacks a bare FunctionCall target product, RawScriptRoot and RawRootMain lack the semantic package relation, and RawLegacy lacks owner/site/brand/package/target. A would require a second source scan or resolver."
+d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot and RawScriptRoot lack a bare FunctionCall target product, RawLegacy lacks owner/site/brand/package/target, and RawRootMain is already caller-zero upstream. A would require a second source scan or resolver."
 d0_c_language_policy = "ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy are internal compatibility provenance, not Canonical language semantics or a public Compat2025 profile. No new caller may depend on their post-argument resolver behavior."
 d0_c_retirement_order = [
   "raw_script_root_origin",
-  "raw_root_main_origin",
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "Open only MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0. The origin classifier remains, but its ordinary non-special Resolved edge retires before arguments. Do not infer a target, change the other three origins, or delete the shared Resolved consumer yet."
+d0_c_next_action = "RawRootMain caller-zero reconciliation is closed without a new terminal. Open only the next explicitly selected origin-retirement row; do not infer a target, change the remaining origins, or delete the shared Resolved consumer yet."
 
 [method_call_compat_raw_script_retire_i0_2026_08_29]
 status = "landed"
@@ -506,31 +504,32 @@ forbidden_files = [
 ]
 
 [raw_root_main_retire_i0_2026_08_29]
-status = "design_stop"
+status = "caller_zero_reconciled"
 task_id = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
-guard_phase = "method_corridor_nonstage1_producer_retire_d0"
+guard_phase = "active_surface"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 implementation_permission = false
-decision = "The next compatibility-origin slice is RawRootMain ordinary non-special FunctionCall retirement. It must reuse the same pre-effect typed-terminal shape as RawScriptRoot only after its live caller, special-form precedence, and fail-fast boundary are confirmed; no target inference or shared Resolved consumer change is allowed in the design stop."
+decision = "Read-only audit closes the RawRootMain downstream slice as caller-zero: the existing raw-root eligibility owner classifies ordinary FunctionCall as UnsupportedSurface(Call) before physical open. No second RawRootMain terminal is added; reopen only if a new production route crosses that upstream boundary."
 source_authority = "RawBrandCallAuthorityV1::RawRootMainParkedCompatibility, issued by the existing raw source classifier."
 non_authority = [
   "name/arity, current_static_box, has_method, catalog/registry lookup, receiver, arguments, MIR, ValueId, physical symbol, VM/backend",
   "resolver, unique-static recovery, tail recovery, name Const, fallback/retry, and the RawScriptRoot terminal itself as a cross-origin authority",
 ]
-fail_fast_boundary = "RawRootMain ordinary non-special classification -> origin-specific typed terminal before drive_call_arguments_v1 and all resolver/header/MIR/collector mutation."
-acceptance = "Design stop remains until the finite RawRootMain caller is remeasured, Brand/TypeOp/Math/FastMem/str precedence is witnessed, and the exact pre-effect terminal/test shape is named. Only then may a separate bounded implementation row open."
+fail_fast_boundary = "Existing raw-root eligibility -> UnsupportedSurface(Call) before physical open; no downstream RawRootMain FunctionCall terminal is permitted while production reach is zero."
+caller_zero_evidence = "The read-only audit found two structural raw caller classes, and production FunctionCall reach = 0: raw-root eligibility maps ordinary Call to UnsupportedSurface(Call) before physical open, so the downstream RawRootMain preflight edge is dormant."
+acceptance = "Caller-zero/provenance reconciliation is closed. Reopen only when a new production RawRootMain FunctionCall route reaches preflight or the upstream eligibility owner changes; then remeasure precedence and choose one named terminal or exact successor before implementation."
 non_claims = [
-  "no RawRootMain code switch",
+  "no RawRootMain code switch or new terminal",
   "no shared Resolved consumer deletion",
   "no ScriptRoot or RawLegacy change",
   "no Method(None), VM/backend, JSON/Hako, or Call-schema change",
 ]
 
 [proof_reliability_followups_2026_08_29]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 guard_phase = "active_surface"
-implementation_permission = true
+implementation_permission = false
 observed_head = "83984fe124"
 current_row_preemption = "This guard-only proof row is the sole active implementation surface; after its fixed two-commit series, return immediately to RawRootMain caller-zero reconciliation."
 confirmed = [
@@ -542,6 +541,8 @@ confirmed = [
 closed_or_corrected = [
   "The formerly missing I0 test now has exact post-audit execution evidence.",
   "docs/reference/environment-variables.md already records unset/0 as Canonical, exact 1 as the named compatibility projection, and malformed/non-Unicode input as fail-fast; no second env-contract document is needed.",
+  "The active guard is now a two-commit proof surface: historical phase commands are tombstones, and changed test names are checked against cargo test -- --list before RawRootMain resume.",
+  "SiteCoverageMismatch has direct target-only and partial-overlap negative tests; ObserveOnly with no target remains accepted.",
 ]
 ordered_tasks = [
   "1. MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0: after RawScriptRoot I0, run one predeclared two-commit retirement series. Commit A keeps the stable entrypoint but splits/prunes the 1799-line lifecycle guard so only the current origin-retirement family and no-argument current-row dispatch remain live; landed phases become named superseded_by tombstones backed by Git/card evidence instead of replayable HEAD commands. Commit B adds complete changed-test/filter coverage from cargo test -- --list and the two direct SiteCoverageMismatch negative cases. Every touched/new check file stays below 760 lines and no new per-row shell guard is added.",
@@ -554,12 +555,26 @@ site_coverage_negative_acceptance = "Direct verifier tests construct (a) a nonem
 non_claims = "No compiler semantics, source acceptance, RawScriptRoot switch, new semantic receipt, full cargo suite, CI promotion, or legacy-tests fate is decided by these proof rows."
 active_surface_contract = "One registered shell entrypoint dispatches only the current proof row without an explicit phase argument. The Python helper is the sole active implementation and remains below 760 lines; historical phase handlers are deleted from executable code."
 active_surface_helper = "tools/checks/lib/mir_call_d1b_active_surface_guard.py"
+coverage_base_commit = "f75985ec9a"
+changed_test_names = [
+  "direct_call_verifier_rejects_target_only_inventory",
+  "direct_call_verifier_rejects_partial_site_inventory",
+]
+focused_test_filters = [
+  "mir::resolved_semantics::direct_call_verifier::tests::",
+]
+coverage_list_command = "CARGO_INCREMENTAL=0 CARGO_PROFILE_QUICK_CODEGEN_UNITS=1 CARGO_BUILD_JOBS=4 cargo test --profile quick --lib -- --list"
+coverage_list_count = 7503
+coverage_test_run = "direct_call_verifier filter: 3 passed, 0 failed, 7500 filtered out"
 active_surface_allowed_files = [
   "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/guard_rows.toml",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "src/mir/resolved_semantics/callable_index.rs",
+  "src/mir/resolved_semantics/direct_call_verifier.rs",
+  "src/mir/resolved_semantics/tests.rs",
 ]
 [proof_reliability_followups_2026_08_29.historical_phase_tombstones]
   readiness = "owner=d0_sig_close_f_readiness_audit_2026_08_26; landed=9d8b4be35a; superseded_by=MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
@@ -626,10 +641,10 @@ reopen_trigger = "RawScriptRoot receives an exact source/raw relation or a named
 id = "raw_root_main_origin"
 kind = "origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:202-209,348-355"
-edge = "RawRootMain compatibility demand shares the Resolved completion"
-authority = "RawRootMain has no exact parser/catalog/raw lineage issuer for this call"
-disposition = "CutoverBlockerOpen"
-reopen_trigger = "RawRootMain gains an exact source/catalog/raw relation or a named pre-effect retirement owner"
+edge = "RawRootMain compatibility demand is classified upstream as UnsupportedSurface(Call) before physical open; the downstream Resolved completion has no production FunctionCall reach"
+authority = "Existing raw-root eligibility owner is the sole authority for the caller-zero boundary; no downstream target issuer or second terminal is added"
+disposition = "PreEffectReject"
+reopen_trigger = "A new production RawRootMain FunctionCall route crosses the upstream eligibility boundary or that owner changes"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "method_resolution_static_none"
@@ -718,9 +733,9 @@ evidence = "one RawScriptRoot issuer and one shared route site; the origin enter
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "raw_root_main_origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:103-107; src/mir/builder/calls/function_call_preflight_route.rs:202-209,348-355"
-production_direct_sites = 1
-upstream_classes = 1
-evidence = "one RawRootMain issuer and one shared route site; the origin enters Resolved"
+production_direct_sites = 0
+upstream_classes = 2
+evidence = "raw-root eligibility classifies ordinary FunctionCall as UnsupportedSurface(Call) before physical open; the downstream RawRootMain Resolved route has no production FunctionCall reach"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "resolved_compatibility_consumer"

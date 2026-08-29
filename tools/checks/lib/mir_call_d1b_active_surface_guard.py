@@ -8,8 +8,10 @@ is validated from the card as non-executable tombstones.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 import tomllib
 
@@ -48,6 +50,100 @@ def require_text(value: object, label: str) -> str:
     if not isinstance(value, str) or not value.strip():
         fail(f"{label} must be a non-empty string")
     return value
+
+
+def require_text_list(value: object, label: str) -> list[str]:
+    if not isinstance(value, list) or not value or not all(
+        isinstance(item, str) and item.strip() for item in value
+    ):
+        fail(f"{label} must be a non-empty string list")
+    return list(value)
+
+
+def git_diff(root: Path, base: str) -> str:
+    result = subprocess.run(
+        ["git", "diff", "--unified=0", f"{base}..HEAD", "--", "*.rs"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        fail(f"cannot inspect implementation diff from {base}: {result.stderr.strip()}")
+    return result.stdout
+
+
+def changed_added_test_names(diff: str) -> set[str]:
+    names: set[str] = set()
+    test_attr_pending = False
+    for line in diff.splitlines():
+        if line.startswith("diff --git "):
+            test_attr_pending = False
+            continue
+        if not line.startswith("+") or line.startswith("+++"):
+            continue
+        added = line[1:]
+        if re.search(r"#\s*\[\s*test\s*\]", added):
+            test_attr_pending = True
+            continue
+        if test_attr_pending:
+            match = re.search(r"\bfn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(", added)
+            if match:
+                names.add(match.group(1))
+                test_attr_pending = False
+            elif added.strip() and not added.lstrip().startswith("#"):
+                test_attr_pending = False
+    return names
+
+
+def cargo_test_names(root: Path) -> list[str]:
+    env = os.environ.copy()
+    env.update(
+        {
+            "CARGO_BUILD_JOBS": "4",
+            "CARGO_INCREMENTAL": "0",
+            "CARGO_PROFILE_QUICK_CODEGEN_UNITS": "1",
+        }
+    )
+    result = subprocess.run(
+        ["cargo", "test", "--profile", "quick", "--lib", "--", "--list"],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        fail(f"cargo test -- --list failed: {result.stderr.strip()[-600:]}")
+    names = []
+    for line in result.stdout.splitlines():
+        match = re.match(r"^(.+): test$", line)
+        if match:
+            names.append(match.group(1))
+    if not names:
+        fail("cargo test -- --list returned no tests")
+    return names
+
+
+def check_test_coverage(root: Path, proof: dict) -> None:
+    if proof.get("status") != "landed":
+        return
+    base = require_text(proof.get("coverage_base_commit"), "coverage_base_commit")
+    changed = changed_added_test_names(git_diff(root, base))
+    expected = set(require_text_list(proof.get("changed_test_names"), "changed_test_names"))
+    if changed != expected:
+        fail(f"changed test inventory drifted; diff={sorted(changed)}, card={sorted(expected)}")
+    filters = require_text_list(proof.get("focused_test_filters"), "focused_test_filters")
+    listed = cargo_test_names(root)
+    for name in sorted(changed):
+        full_names = [item for item in listed if item.endswith("::" + name)]
+        if len(full_names) != 1:
+            fail(f"changed test {name} is not uniquely listed by cargo")
+        if not any(token in full_names[0] for token in filters):
+            fail(f"changed test {name} has no matching focused filter")
+    for token in filters:
+        if not any(token in item for item in listed):
+            fail(f"focused test filter has zero cargo-list matches: {token}")
 
 
 def check_registry(registry: dict) -> None:
@@ -156,12 +252,15 @@ def check_proof_row(state: dict, card: dict, proof: dict, root: Path) -> None:
         str(REGISTRY_REL),
         str(STATE_REL),
         str(CARD_REL),
+        "src/mir/resolved_semantics/callable_index.rs",
+        "src/mir/resolved_semantics/direct_call_verifier.rs",
+        "src/mir/resolved_semantics/tests.rs",
     }
     if not isinstance(allowed, list) or set(allowed) != expected:
         fail("active guard allowed-file boundary drifted")
 
 
-def check_raw_root_resume(state: dict, card: dict) -> None:
+def check_raw_root_resume(state: dict, card: dict, proof: dict, root: Path) -> None:
     if state.get("work_mode") != "design_stop":
         fail("RawRootMain resume must remain design_stop")
     if state.get("current_execution_row") != RAW_ROOT_ROW:
@@ -179,6 +278,9 @@ def check_raw_root_resume(state: dict, card: dict) -> None:
     for token in ("UnsupportedSurface(Call)", "before physical open", "production FunctionCall reach = 0"):
         if token not in evidence:
             fail(f"RawRootMain evidence lacks {token}")
+    if proof.get("status") != "landed" or proof.get("implementation_permission") is not False:
+        fail("RawRootMain resume requires the proof row to be landed and closed")
+    check_test_coverage(root, proof)
 
 
 def main() -> None:
@@ -200,7 +302,7 @@ def main() -> None:
     if row == METHOD_ROW:
         check_proof_row(state, card, proof, root)
     elif row == RAW_ROOT_ROW:
-        check_raw_root_resume(state, card)
+        check_raw_root_resume(state, card, proof, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

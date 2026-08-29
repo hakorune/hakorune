@@ -50,3 +50,65 @@ pub(super) fn verify_direct_call_targets(
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::super::direct_call::{ResolvedDirectCallObservationV1, ResolvedDirectCallTargetV1};
+    use super::super::ids::FunctionOwnerIdV1;
+    use super::super::source_site::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
+    use super::super::{ResolvedCallableRefV1, ResolvedDirectCallVerificationErrorV1};
+    use super::verify_direct_call_targets;
+    use hakorune_mir_core::BindingId;
+
+    fn site(index: u32) -> SourceExprSiteV1 {
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(index),
+            SourcePathSegmentV1::Value,
+        ]))
+    }
+
+    fn owner() -> FunctionOwnerIdV1 {
+        super::super::FunctionOwnerIssuerV1::new_for_compilation()
+            .unwrap()
+            .issue()
+            .unwrap()
+    }
+
+    #[test]
+    fn direct_call_verifier_rejects_target_only_inventory() {
+        let owner = owner();
+        let mut data = super::super::tests::sample_data(owner, BindingId::new(0));
+        data.direct_call_targets.insert(
+            site(4),
+            ResolvedDirectCallTargetV1::from_resolved(ResolvedCallableRefV1::for_test(owner)),
+        );
+
+        assert_eq!(
+            verify_direct_call_targets(&data),
+            Err(ResolvedDirectCallVerificationErrorV1::SiteCoverageMismatch)
+        );
+    }
+
+    #[test]
+    fn direct_call_verifier_rejects_partial_site_inventory() {
+        let owner = owner();
+        let mut data = super::super::tests::sample_data(owner, BindingId::new(0));
+        data.direct_call_targets.insert(
+            site(4),
+            ResolvedDirectCallTargetV1::from_resolved(ResolvedCallableRefV1::for_test(owner)),
+        );
+        data.direct_call_observations.insert(
+            site(5),
+            ResolvedDirectCallObservationV1::from_parts(
+                "helper".into(),
+                0,
+                Vec::new().into_boxed_slice(),
+            ),
+        );
+
+        assert_eq!(
+            verify_direct_call_targets(&data),
+            Err(ResolvedDirectCallVerificationErrorV1::SiteCoverageMismatch)
+        );
+    }
+}
