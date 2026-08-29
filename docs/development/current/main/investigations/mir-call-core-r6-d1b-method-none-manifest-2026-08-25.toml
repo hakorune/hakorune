@@ -499,12 +499,12 @@ validation = [
 next_row = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
 
 [rust_exact1_methodize_retire_test_s0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
 parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape"
-implementation_permission = true
+implementation_permission = false
 decision = "Move the minimal module-ingress smoke and four methodize ingress tests from the 859-line capture test owner into one focused private sibling without changing names or behavior."
 allowed_files = [
   "src/mir/builder/module_lifecycle_capture_tests.rs",
@@ -514,16 +514,46 @@ allowed_files = [
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
 acceptance = "Both test files are below 800 lines, existing five test names are unchanged and listed exactly once, focused tests pass, and production source is unchanged."
+implementation_commit = "50b7acf97b"
+observed_line_counts = "capture owner 772; focused ingress sibling 94"
+validation = [
+  "cargo test --lib module_lifecycle_ingress_tests -- --test-threads=1: 10 passed; 0 failed",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+]
+red_classification = "The first parallel focused run produced two current-run failures because the existing process-wide garbage selector test overlapped the env-neutral minimal smoke in the two pre-existing module inclusions. The unchanged tests pass 10/10 with the env-sensitive focused family serialized; no production or test meaning was changed in this BoxShape row."
 next_row = "MIR-CALL-RUST-METHODIZE-RETIRE-I0"
 
 [rust_exact1_methodize_retire_i0_2026_08_30]
-status = "queued"
+status = "fast_open"
 task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-I0"
 parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement"
-implementation_permission = false
+implementation_permission = true
 decision = "Reject exact 1 at both Rust module ingress paths, delete BuilderMethodizeCompatibilityV1 and CompilationContext policy plumbing, and delete the unified-emitter Global-to-Method(None) reissuer in one atomic semantic row."
+allowed_files = [
+  "src/config/env/builder_flags.rs",
+  "src/mir/builder/module_lifecycle.rs",
+  "src/mir/builder/compilation_context.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
+  "src/mir/builder/module_lifecycle_ingress_tests.rs",
+  "src/mir/builder/calls/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+  "docs/development/current/main/design/stage1-mir-dialect-contract-ssot.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+focused_test_filters = [
+  "config::env::builder_flags::methodize_compatibility_tests",
+  "module_lifecycle_ingress_tests",
+  "calls::unified_emitter::physical_receipt_tests",
+]
 old_edge_delete_set = [
   "exact 1 -> ExplicitLegacyCompatibility success",
   "CompilationContext builder_methodize_compatibility carrier",
