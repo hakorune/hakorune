@@ -1,5 +1,4 @@
 use crate::ast::LiteralValue;
-use crate::config::env::BuilderMethodizeCompatibilityV1;
 use crate::mir::{ConstValue, MirBuilder, MirInstruction, MirType};
 
 #[test]
@@ -33,46 +32,38 @@ fn mirbuilder_minimal_literal_integer_path_smoke() {
 }
 
 #[test]
-fn module_ingress_snapshots_explicit_methodize_policy_before_lowering() {
+fn module_ingress_retires_explicit_methodize_before_mutation() {
     let mut builder = MirBuilder::new();
     crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "1", || {
-        builder.prepare_module().expect("module shell");
+        let error = builder
+            .prepare_module()
+            .expect_err("retired explicit methodize must fail at ingress");
+        assert!(error.contains("[rust-methodize/retired]"));
     });
-
-    // The lowering session owns the snapshot; once ingress has returned, the
-    // restored process environment cannot alter the prepared Builder policy.
-    assert_eq!(
-        builder.comp_ctx.builder_methodize_compatibility,
-        BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility
-    );
+    assert!(builder.current_module.is_none());
 }
 
 #[test]
-fn normal_default_ingress_snapshots_explicit_methodize_policy() {
+fn normal_default_ingress_retires_explicit_methodize_before_mutation() {
     crate::test_support::with_env_var("HAKO_MIR_BUILDER_METHODIZE", "1", || {
         let mut builder = MirBuilder::new();
-        builder
+        let error = builder
             .prepare_normal_default_module(false)
-            .expect("normal module shell");
-        assert_eq!(
-            builder.comp_ctx.builder_methodize_compatibility,
-            BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility
-        );
+            .expect_err("retired explicit methodize must fail at normal ingress");
+        assert!(error.contains("[rust-methodize/retired]"));
+        assert!(builder.current_module.is_none());
     });
 }
 
 #[test]
-fn module_ingress_snapshots_canonical_policy_for_unset_and_zero() {
+fn module_ingress_accepts_canonical_unset_and_zero() {
     for value in [None, Some("0")] {
         crate::test_support::with_env_vars(&[("HAKO_MIR_BUILDER_METHODIZE", value)], || {
             let mut builder = MirBuilder::new();
             builder
                 .prepare_normal_default_module(false)
                 .expect("canonical methodize selector should prepare");
-            assert_eq!(
-                builder.comp_ctx.builder_methodize_compatibility,
-                BuilderMethodizeCompatibilityV1::Canonical
-            );
+            assert!(builder.current_module.is_some());
         });
     }
 }
@@ -86,9 +77,5 @@ fn invalid_methodize_selector_rejects_before_normal_module_mutation() {
             .expect_err("invalid methodize selector must fail at ingress");
         assert!(error.contains("mir/methodize/ingress"));
         assert!(builder.current_module.is_none());
-        assert_eq!(
-            builder.comp_ctx.builder_methodize_compatibility,
-            BuilderMethodizeCompatibilityV1::Canonical
-        );
     });
 }

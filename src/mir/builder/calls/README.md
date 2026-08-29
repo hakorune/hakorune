@@ -20,13 +20,13 @@ resolver-sealed symbol for the current source site before lowering arguments.
 `FunctionCall` named `externcall`; the generic parenthesized spelling remains
 ordinary and shadowable.
 
-The Rust-side `HAKO_MIR_BUILDER_METHODIZE` selector is snapshotted once at
+The Rust-side `HAKO_MIR_BUILDER_METHODIZE` selector is validated once at
 module ingress. Unset/`0` is canonical and preserves an incoming typed Global;
-only exact value `1` selects the bounded RuntimeData Global-to-`Method(None)`
-compatibility projection. Stage1 is a known writer of that value, but the
-selector carries no Stage1 provenance, so an external caller is not treated as
-Stage1 without a separate owner. Invalid values reject before Builder
-mutation, and this policy does not govern the separate JSON/Hako readers.
+exact value `1` is a named retired contract and fails before Builder mutation.
+It is neither coerced to canonical nor inferred to be Stage1 from its writer.
+Invalid and non-Unicode values remain distinct failures. The former Rust
+RuntimeData Global-to-`Method(None)` reissuer and its stored policy carrier are
+gone; this contract does not govern the separate JSON/Hako readers.
 
 The `RawScriptRootParkedCompatibility` and `ScriptRootParkedCompatibility`
 origins retire ordinary non-special `FunctionCall` before argument descent

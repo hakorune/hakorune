@@ -13,10 +13,6 @@ use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{Effect, EffectMask, MirBuilder, ValueId};
 use crate::mir::definitions::call_unified::Callee;
-use crate::mir::policies::callee_box_kind::{
-    classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
-};
-use hakorune_mir_defs::{CanonicalGlobalTargetV1, CanonicalSameModuleGlobalTargetV1};
 
 /// 統一Call発行専用箱
 ///
@@ -383,80 +379,6 @@ impl UnifiedCallEmitterBox {
             Some(&builder.comp_ctx.type_registry), // 🎯 TypeRegistry を渡す
         );
         let mut callee = resolver.resolve(target.clone())?;
-
-        // The module-ingress snapshot is the only Rust methodize selector.
-        // Canonical input keeps the typed target unchanged; the explicitly
-        // named Stage1 compatibility policy alone permits this bounded
-        // RuntimeData Global -> Method(None) projection.  Do not reread env
-        // or reconstruct a target from its display name here.
-        let methodize_on = matches!(
-            builder.comp_ctx.builder_methodize_compatibility,
-            crate::config::env::BuilderMethodizeCompatibilityV1::ExplicitLegacyCompatibility
-        );
-        if methodize_on {
-            let static_method = match &callee {
-                Callee::Global(CanonicalGlobalTargetV1::SameModule(
-                    CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
-                        owner,
-                        method,
-                        arity,
-                    },
-                )) => Some((owner.clone(), method.clone(), *arity)),
-                _ => None,
-            };
-            if let Some((owner, method, arity)) = static_method {
-                if arity as usize == args.len() {
-                    let box_kind = classify_callee_box_kind_v1(
-                        CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler,
-                        &owner,
-                    );
-                    if box_kind == crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData
-                    {
-                        callee = Callee::Method {
-                            box_name: owner.to_string(),
-                            method: method.to_string(),
-                            receiver: None,
-                            certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
-                            box_kind,
-                        };
-
-                        if crate::config::env::builder_methodize_trace() {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!(
-                                "[methodize] Global({}) → Method{{{}.{}, recv=None}} kind={:?}",
-                                CanonicalGlobalTargetV1::SameModule(
-                                    CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
-                                        owner: owner.clone(),
-                                        method: method.clone(),
-                                        arity,
-                                    },
-                                )
-                                .display_name(),
-                                owner,
-                                method,
-                                box_kind
-                            ));
-                        }
-                    } else if crate::config::env::builder_methodize_trace() {
-                        let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!(
-                            "[methodize] keep Global({}) for non-runtime static method {}.{} kind={:?}",
-                            CanonicalGlobalTargetV1::SameModule(
-                                CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
-                                    owner: owner.clone(),
-                                    method: method.clone(),
-                                    arity,
-                                },
-                            )
-                            .display_name(),
-                            owner,
-                            method,
-                            box_kind
-                        ));
-                    }
-                }
-            }
-        }
 
         // Structural guard FIRST: prevent static compiler boxes from being called with runtime receivers
         // 箱理論: CalleeGuardBox による構造的分離

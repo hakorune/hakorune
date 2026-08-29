@@ -94,9 +94,9 @@ Related:
 - The `.hako` / JSON Stage1 dialect owners remain separate and unchanged by
   this Rust retirement. No provenance bit, resolver, fallback, or second
   compatibility pipeline is introduced.
-- After ingress retirement, the Rust `Global -> Method(receiver=None)`
-  reissuer and its policy carrier are deleted; canonical typed Global remains
-  the target authority.
+- The Rust `Global -> Method(receiver=None)` reissuer and its policy carrier
+  are deleted with ingress retirement; canonical typed Global remains the
+  target authority.
 
 ### Normalizer
 
