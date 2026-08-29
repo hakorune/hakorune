@@ -718,7 +718,7 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at beb3de0d3e confirm the print caller-zero retirement is closed. Ordinary static remains blocker-open because exact target rows are dropped as Unselected/Absent, scalar or inline effects precede target proof, and lowered-global Instance has no issuer. Physical thunk is narrower but lacks an exact source target issuer; rewrite/known and operator publishers remain NoSafeSlice; bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audit at 589359420f confirms the print caller-zero retirement is closed and the ordinary-static D0 is implementable as an owner-local target-only lifecycle, but not yet as a consumer switch. The existing exact target inventory is keyed by (caller, SourceExprSiteV1); the two production issuers pass it to the publication owner, which currently drops TargetResultUnavailable rows and ingress maps the remaining miss to Absent. The accepted correction is to distinguish ExactTargetOnly from NoExactStaticTarget, retain the existing canonical key once, and reject foreign/duplicate/drift before effects. Physical thunk still lacks an issuer; rewrite/known and operator publishers remain NoSafeSlice; bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
@@ -798,13 +798,13 @@ non_authority = "test fixture publication is not a production issuer"
 reopen_trigger = "a non-test production caller or acceptance claim appears"
 
 [same_module_ordinary_static_cataloged_target_only_d0_2026_08_30]
-status = "design_stop"
+status = "accepted_design_ready_for_i0"
 task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-D0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 primary_missing_boundary = "MaterializationRelationMissing"
 implementation_permission = false
-decision = "Do not change ordinary static code yet. First determine whether the existing exact source/static target rows can survive the current publication owner as a target-only, one-shot disposition. If the owner cannot retain those rows without a second source scan, resolver, or guessed result, keep this family blocker-open and park it rather than synthesizing a replacement target."
+decision = "The existing exact source/static target rows can be retained as an owner-local target-only, one-shot disposition. Separate ExactTargetOnly from NoExactStaticTarget; never turn a missing result into Absent until exact-target absence is known. This accepts the bounded I0 design but does not open implementation until the parent pointer selects it."
 source_authority = "Existing VerifiedWholeSourceStaticCallTargetInventoryV1 rows keyed by the exact source callable/site relation and the same-session CanonicalSameModuleCallableKeyV1; the design row issues no new target."
 canonical_issuer = "Existing source/catalog issuer only: CanonicalSameModuleCallableKeyV1::canonical_global_target_v1 for an already-selected exact row. A target-only row may transport that owned product, but may not reconstruct it."
 non_authority = [
@@ -814,23 +814,56 @@ non_authority = [
 fail_fast_boundary = "Exact source/site and catalog relation must be retained or rejected before scalar Const/inline work, child or argument descent, ValueId/Call emission, collector/block mutation, or generic fallback."
 census_boundary = "VerifiedWholeSourceStaticCallTargetInventoryV1 issuance -> installed exact-site publication owner -> first scalar/inline/argument/Call effect; includes selected, unselected, absent, unavailable, foreign, duplicate, site/route/arity drift and lowered-global Instance cases; excludes qualified MethodCall already landed, print/GC, CorePlan, operators, thunk, rewrite, ordinary-new, package/loan, VM/backend, JSON, and Call schema."
 finite_states = [
-  "SelectedExact: one same-session exact source/site target exists and may be retained for one-shot transport",
-  "Unselected: source row exists but no target publication was selected; must not silently become Absent or fallback",
-  "Absent: no source row exists; typed pre-effect terminal or named compatibility owner is required",
-  "Unavailable: owner cannot provide a target-only product; remain blocker-open until a named successor or retirement is chosen",
+  "SelectedResult: one exact target and an existing result handoff exist; consume the existing Selected handoff once",
+  "ExactTargetOnly: one exact source/site target exists but no result handoff exists; move the existing canonical key once",
+  "NoExactStaticTarget: no exact static target exists for the source site; use a typed pre-effect terminal, never fallback",
+  "Unavailable: no Cataloged owner/capability exists; remain blocker-open until a named successor or retirement is chosen",
   "ForeignOrDuplicate: brand/owner/site relation is not unique; typed pre-effect reject",
   "Drift: route/arity/site relation differs; typed pre-effect reject, no repair",
 ]
 ordered_tasks = [
-  "D0-A: reconcile the two production exact-target issuers with the publication owner's dropped-row behavior; record both directions and no silent continue",
-  "D0-B: decide whether a private target-only disposition can preserve result/route/arity without adding a new semantic receipt or second observation",
-  "D0-C: freeze the pre-effect boundary for scalar/inline/argument descent and lowered-global Instance; choose exact transport or typed park/retire",
-  "I0 only after D0 acceptance: one-shot target-only handoff, argument-once consumption, and old formatted-name/fallback edge deletion in one row",
+  "D0-A (closed): reconcile both production exact-target issuers with the publication owner's dropped-row behavior; target rows are keyed by (caller, SourceExprSiteV1)",
+  "D0-B (closed): retain an owner-local exact-target map plus selected-result subset and consumed set; add no new semantic receipt and perform no second observation",
+  "D0-C (closed): freeze the pre-effect boundary for scalar/inline/argument descent and lowered-global Instance; ExactTargetOnly transports an existing key, all other missing/foreign/drift states reject or remain blocker-open",
+  "I0: add one-shot target-only handoff, consume arguments once, and delete only the ordinary-static formatted-name/fallback edge; keep consumer switch and broader families out of scope until the parent opens I0",
 ]
-acceptance = "D0 is closed only when every finite state has one named owner and terminal, target-only retention versus typed park is explicit, both issuer directions are reconciled, and an I0 can be stated as source -> existing target product -> one consumer -> fail-fast boundary without a new resolver or receipt."
+acceptance = "D0 is accepted when every finite state has one named owner and terminal, ExactTargetOnly is distinct from NoExactStaticTarget, both issuer directions are reconciled, and I0 is expressible as source -> existing target product -> one consumer -> fail-fast boundary without a new resolver or receipt."
 no_safe_slice = "Remain in design_stop if exact rows are dropped before the owner, result/effect relation is missing, lowered-global Instance needs a new issuer, any name/symbol/lookup inference is required, or old fallback cannot be deleted atomically."
 non_claims = "No ordinary static implementation, no target publication, no argument/Call cutover, no package/loan, no Method(Some), no CorePlan/operator/thunk/rewrite/provider/VM/backend/JSON/Call-schema change."
-next_execution = "none__awaiting_target_only_lifecycle_decision"
+next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0__pending_parent_pointer_switch"
+
+[same_module_ordinary_static_cataloged_target_only_i0_2026_08_30]
+status = "design_ready_not_selected"
+task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+prerequisite = "same_module_ordinary_static_cataloged_target_only_d0_2026_08_30"
+implementation_permission = false
+decision = "When explicitly selected in fast mode, retain the existing exact target product in the current publication owner as a private one-shot TargetOnly disposition. No target is reconstructed and no result/effect is inferred. The current parent design stop remains selected until the pointer is intentionally switched."
+source_authority = "Existing VerifiedSourceStaticCallTargetCatalogV1 exact (caller, SourceExprSiteV1) target and same-session catalog brand."
+canonical_issuer = "Existing CanonicalSameModuleCallableKeyV1::canonical_global_target_v1 only; I0 transports the owned key and adds no issuer."
+non_authority = [
+  "Unselected/Absent labels as authority, result absence as target absence, owner/method/arity strings, name/arity lookup, formatted symbols, resolver/retry/fallback, test fixtures, and physical MIR",
+]
+fail_fast_boundary = "Brand, exact site, StaticBoxMethod kind, arity, and one-shot consumption are checked before scalar/inline/child/argument effects. Unknown, duplicate, foreign, drift, or residual states terminate without retry."
+census_boundary = "Existing exact target issue -> owner-local TargetOnly/SelectedResult disposition -> ingress take -> first ordinary-static effect; excludes all other SameModule families and all Call-schema/backend work."
+allowed_files = [
+  "src/mir/callable_result_representation/static_call_result_publication_owner.rs",
+  "src/mir/callable_result_representation/tests/static_call_result_publication_owner.rs",
+  "src/mir/builder/static_result_publication_ingress.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/method_call_terminal.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+planned_focused_tests = [
+  "exact target with result handoff remains Selected and is consumed once",
+  "exact target without result handoff becomes TargetOnly and is consumed once",
+  "no exact target remains NoExactStaticTarget and rejects before scalar/inline/argument effects",
+  "foreign, duplicate, wrong-kind, wrong-arity, second-take, and residual states reject",
+  "ordinary-static target is selected before arguments and arguments are lowered once",
+]
+structural_guard = "Existing active-surface/target-before-args guards must prove exact target rows are not silently dropped, TargetOnly is private and one-shot, no new resolver/name lookup exists, no result/effect is inferred, and every changed source file remains below 760 lines."
 
 [same_module_static_receipt_target_before_args_i0_2026_08_30]
 status = "landed"

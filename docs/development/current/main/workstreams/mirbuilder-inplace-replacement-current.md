@@ -77,13 +77,12 @@ The D0 reconciliation and I0 closeout are recorded in the manifest: production
 production `ASTNode::FunctionCall { name: "print" }` constructor was found.
 The ordinary Cataloged print success branch was therefore a caller-zero
 compatibility edge and is now a typed pre-effect retirement. The dedicated
-Print statement owner stays unchanged; `CURRENT_STATE.toml` has returned to
-the SameModule parent design stop. A fresh three-family audit now selects
-`MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-D0` as the next
-design-only slice: existing exact target rows are currently dropped as
-`Unselected`/`Absent`, and scalar/inline/argument effects can precede proof.
-No implementation is open until that target-only lifecycle and its typed
-missing/foreign/duplicate states are reconciled.
+Print statement owner stays unchanged; `CURRENT_STATE.toml` remains at the
+SameModule parent design stop. The ordinary-static target-only D0 is now
+design-accepted: the owner must keep `ExactTargetOnly` distinct from
+`NoExactStaticTarget` instead of collapsing exact rows into `Unselected` /
+`Absent`. Its I0 is named but not selected; no implementation is open until
+the parent pointer intentionally switches to that bounded row.
 
 ## Historical rolling context (non-authoritative)
 
