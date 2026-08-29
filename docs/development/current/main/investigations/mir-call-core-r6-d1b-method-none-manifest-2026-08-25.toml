@@ -398,7 +398,6 @@ d0_b_boundary = "recounted producer/reissuer/terminal -> exact successor, pre-ef
 d0_b_open_rows = [
   "raw_legacy_origin",
   "script_root_origin",
-  "raw_script_root_origin",
   "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
@@ -409,14 +408,14 @@ d0_b_closed_rows = [
   "installed_nonbrand_pre_effect_reject",
   "unclassified_preflight_reject",
   "raw_root_main_origin",
+  "raw_script_root_origin",
 ]
 d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners; RawRootMain is caller-zero upstream because raw-root eligibility rejects UnsupportedSurface(Call) before physical open. The remaining three R2 compatibility origins and their shared Resolved consumer have no exact source/catalog product. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners; RawRootMain is caller-zero upstream because raw-root eligibility rejects UnsupportedSurface(Call) before physical open. RawScriptRoot now has its own pre-effect typed retirement terminal, so only ScriptRoot and RawLegacy remain as named R2 compatibility origins entering the shared Resolved consumer without an exact source/catalog product. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
 d0_c_open_rows = [
   "raw_legacy_origin",
   "script_root_origin",
-  "raw_script_root_origin",
   "method_resolution_static_none",
   "resolved_compatibility_consumer",
   "builder_method_none_publication_terminal",
@@ -430,11 +429,10 @@ d0_c_selected_option = "B_origin_specific_pre_effect_retirement"
 d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot and RawScriptRoot lack a bare FunctionCall target product, RawLegacy lacks owner/site/brand/package/target, and RawRootMain is already caller-zero upstream. A would require a second source scan or resolver."
 d0_c_language_policy = "ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy are internal compatibility provenance, not Canonical language semantics or a public Compat2025 profile. No new caller may depend on their post-argument resolver behavior."
 d0_c_retirement_order = [
-  "raw_script_root_origin",
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "RawRootMain caller-zero reconciliation is closed without a new terminal. Open only the next explicitly selected origin-retirement row; do not infer a target, change the remaining origins, or delete the shared Resolved consumer yet."
+d0_c_next_action = "RawRootMain caller-zero reconciliation and RawScriptRoot pre-effect retirement are closed. Open the ScriptRoot fate Decision before changing the shared Resolved consumer; do not infer a target, touch RawLegacy, or delete the shared consumer yet."
 
 [method_call_compat_raw_script_retire_i0_2026_08_29]
 status = "landed"
@@ -482,7 +480,7 @@ done = "The selected edge is 1 -> 0, focused positive/negative tests pass, every
 implementation_evidence = "RawScriptRoot ordinary non-special calls now enter RawCompatibilityOrdinaryCallTerminalV1::RawScriptRootRetired before argument descent; the exact focused cargo test command ran 9 tests with 9 passed."
 implementation_commit = "8837cbbab2"
 stop = "Return to design_stop if RawScriptRoot cannot be uniquely identified before effects, an external/public compatibility owner appears, special-form precedence changes, a generic String-only terminal is required, or the slice reaches build.rs, method_resolution, unified_emitter, VM/backend, JSON/Hako, or Call schema."
-next_row = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0 after this row closes; do not open it in the same implementation commit."
+next_row = "MIR-CALL-COMPAT-SCRIPT-ROOT-FATE-D0 after this row closes; do not open it in the same implementation commit."
 allowed_files = [
   "src/mir/builder/calls/function_call_preflight_route.rs",
   "src/mir/builder/calls/function_call_script_compatibility_tests.rs",
@@ -525,13 +523,56 @@ non_claims = [
   "no Method(None), VM/backend, JSON/Hako, or Call-schema change",
 ]
 
+[method_call_compat_script_root_fate_d0_2026_08_29]
+status = "design_stop_decision_required"
+task_id = "MIR-CALL-COMPAT-SCRIPT-ROOT-FATE-D0"
+guard_phase = "script_root_fate_decision_d0"
+parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+ceremony_tier = "T1"
+implementation_permission = false
+decision = "ScriptRoot ordinary non-special FunctionCall has no exact source/catalog target product in the current route. Its fate must be explicitly selected before changing the shared Resolved consumer: retire at an origin-specific pre-effect typed terminal, or retain the existing Resolved compatibility behavior as a named ParkedSealed contract until an exact issuer exists. No fate is inferred from the internal name."
+source_authority = "RawBrandCallAuthorityV1::ScriptRootParkedCompatibility and the existing R4 ScriptRoot semantic owner"
+canonical_issuer = "No new issuer in D0. If retirement is selected, the existing preflight dispatcher is the sole terminal issuer; if retention is selected, the existing R4 owner remains the named compatibility owner."
+non_authority = [
+  "name/arity, current_static_box, has_method, catalog/registry lookup, receiver, arguments, MIR, ValueId, physical symbol, VM/backend",
+  "resolve_call_target, unique-static recovery, tail recovery, Method(None), methodize, fallback/retry, test-only fixtures, or RawLegacy behavior",
+]
+fail_fast_boundary = "If RetireBeforeEffects is selected: ScriptRoot ordinary non-special classification -> typed terminal -> Err before argument descent, resolver/header lookup, MIR publication, collector mutation, fallback, or retry. If RetainResolved is selected, no new effect boundary is claimed and the existing compatibility owner remains unchanged."
+finite_state_matrix = [
+  "ScriptRoot + declared Brand -> existing Brand route; unchanged.",
+  "ScriptRoot + TypeOp, Math, FastMem, or str/1 -> existing selected special route; unchanged.",
+  "ScriptRoot + ordinary non-special FunctionCall -> explicit RetireBeforeEffects or RetainResolved decision; no inferred third state.",
+  "RawScriptRoot -> existing RawScriptRootRetired terminal; already closed and outside this decision.",
+  "RawRootMain -> upstream UnsupportedSurface(Call) caller-zero; unchanged.",
+  "RawLegacy -> separate compatibility fate row; unchanged.",
+]
+decision_options = [
+  "RetireBeforeEffects: add one origin-specific typed terminal and update the R4 retention test to assert the intentional retirement; preserves one-way authority and removes the old success edge.",
+  "RetainResolved: keep the existing R4 compatibility behavior as ParkedSealed with an explicit owner and reopen trigger; no shared-consumer deletion is allowed yet.",
+]
+current_recommendation = "RetireBeforeEffects is preferred by the existing D0-C policy B because ScriptRoot is internal compatibility provenance, not a public language profile; user/language acceptance must still be recorded before semantic behavior is changed."
+required_evidence = [
+  "explicit selected fate and owner/reopen trigger",
+  "if RetireBeforeEffects: positive/negative pre-effect tests, updated R4 test meaning, and caller-zero evidence for the ScriptRoot Resolved producer",
+  "if RetainResolved: named compatibility owner, source/fixture evidence, and a statement that the shared Resolved consumer remains a blocker",
+  "RawLegacy and the shared Resolved consumer remain outside this D0",
+]
+acceptance = "D0 closes only after one fate is explicitly selected and recorded. It does not issue a target, add a resolver, change the shared Resolved consumer, or open an implementation row."
+non_claims = [
+  "no ScriptRoot code switch while this Decision is open",
+  "no RawLegacy change",
+  "no Method(None), VM/backend, JSON/Hako, or Call-schema change",
+  "no Stage1 artifact decision",
+]
+next_execution = "none until the fate is selected"
+
 [proof_reliability_followups_2026_08_29]
 status = "landed"
 task_id = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 guard_phase = "active_surface"
 implementation_permission = false
 observed_head = "83984fe124"
-current_row_preemption = "This guard-only proof row is the sole active implementation surface; after its fixed two-commit series, return immediately to RawRootMain caller-zero reconciliation."
+current_row_preemption = "This guard-only proof row is the sole active implementation surface; after its fixed two-commit series, return immediately to the selected ScriptRoot fate Decision."
 confirmed = [
   "The method_corridor_explicit_compat_ingress_i0 historical invocation false-reds at HEAD because the reusable guard still carries landed phase handlers tied to current-row dispatch shape; those handlers are retirement debt, not a reason to restore old execution lanes.",
   "The I0 implementation added canonical_snapshot_preserves_runtime_static_global_target, but neither recorded broad filter matched it; the exact test is green at observed_head.",
@@ -546,7 +587,7 @@ closed_or_corrected = [
 ]
 ordered_tasks = [
   "1. MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0: after RawScriptRoot I0, run one predeclared two-commit retirement series. Commit A keeps the stable entrypoint but splits/prunes the 1799-line lifecycle guard so only the current origin-retirement family and no-argument current-row dispatch remain live; landed phases become named superseded_by tombstones backed by Git/card evidence instead of replayable HEAD commands. Commit B adds complete changed-test/filter coverage from cargo test -- --list and the two direct SiteCoverageMismatch negative cases. Every touched/new check file stays below 760 lines and no new per-row shell guard is added.",
-  "2. Return immediately to MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0; do not extend the proof detour with further cleanup findings.",
+  "2. Return immediately to MIR-CALL-COMPAT-SCRIPT-ROOT-FATE-D0; do not extend the proof detour with further cleanup findings.",
 ]
 proof_series_contract = "Exactly two buildable commits: active-surface guard split/prune, then current proof correction plus negative tests. The second commit is the fixed terminal; no third infrastructure row, compiler behavior change, or production-route claim is permitted."
 historical_retirement_acceptance = "Each removed explicit phase handler has one owning card section, landed commit, superseded_by target, and zero current manifest/CI/parent caller evidence. Historical verification commands are retained as landed evidence text, not promised to execute at HEAD. Unknown current phases and duplicate live handlers fail closed; the active origin-retirement family remains green."
@@ -632,10 +673,10 @@ reopen_trigger = "ScriptRoot receives an exact same-brand source/catalog handoff
 id = "raw_script_root_origin"
 kind = "origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:194-201,348-355"
-edge = "RawScriptRoot compatibility demand shares the Resolved completion"
-authority = "RawScriptRoot has no exact source/catalog target issuer"
-disposition = "CutoverBlockerOpen"
-reopen_trigger = "RawScriptRoot receives an exact source/raw relation or a named pre-effect retirement owner"
+edge = "RawScriptRoot compatibility demand enters an origin-specific pre-effect retirement terminal"
+authority = "RawScriptRoot has no exact source/catalog target issuer; the existing classifier is the sole origin authority"
+disposition = "PreEffectReject"
+reopen_trigger = "RawScriptRoot receives an exact source/raw relation or the named retirement terminal is removed"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_root_main_origin"
@@ -728,7 +769,7 @@ id = "raw_script_root_origin"
 owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:96-102; src/mir/builder/calls/function_call_preflight_route.rs:194-201,348-355"
 production_direct_sites = 1
 upstream_classes = 1
-evidence = "one RawScriptRoot issuer and one shared route site; the origin enters Resolved"
+evidence = "one RawScriptRoot issuer and one shared route site remain observable, but the Resolved producer is caller-zero because the route now issues RawScriptRootRetired before argument descent"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.d0_a_caller_census]]
 id = "raw_root_main_origin"

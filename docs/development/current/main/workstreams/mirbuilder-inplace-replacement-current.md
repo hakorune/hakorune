@@ -35,13 +35,11 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 ordinary non-special I0 is landed at `8837cbbab2` and its closeout is recorded.
 The active-surface proof row is also landed: historical lifecycle commands are
 card-backed tombstones, changed tests are checked against `cargo test -- --list`,
-and the two `SiteCoverageMismatch` negatives are covered. The current design
-stop is the RawRootMain boundary, not another guard or RawScriptRoot
-implementation. A read-only source audit finds RawRootMain FunctionCall work
-classified as `UnsupportedSurface(Call)` by the existing raw-root eligibility
-owner before physical open with production reach zero; this is a
-caller-zero/provenance correction, not permission to add a second call
-terminal.
+and the two `SiteCoverageMismatch` negatives are covered. RawRootMain is now
+closed as a caller-zero boundary: the existing raw-root eligibility owner
+classifies ordinary FunctionCall as `UnsupportedSurface(Call)` before physical
+open, so no second terminal is added. The current design stop is the
+ScriptRoot fate decision, not another guard or RawRootMain implementation.
 
 The two named compatibility-origin tests are green and the R2 preflight fence
 is reconciled; the remaining live downstream compatibility descendants remain
@@ -52,10 +50,11 @@ compatibility mode, and malformed values fail before mutation. Stage1 is a
 known writer, but the selector carries no Stage1 provenance; external callers
 must not be treated as Stage1 without a separate owner. Stage1 full artifact
 remains ParkedSealed. The current design stop is
-`MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0`: the finite inventory now records
-RawRootMain as an upstream caller-zero `UnsupportedSurface(Call)` rejection
-before physical open, so no second terminal is added. `method_resolution`,
-JSON/Hako, VM/backend, and Call-schema changes remain closed.
+`MIR-CALL-COMPAT-SCRIPT-ROOT-FATE-D0`: ScriptRoot ordinary non-special calls
+have no exact source/catalog target product, so one explicit fate (pre-effect
+typed retirement or named retained Resolved compatibility) must be selected
+before touching the shared consumer. `method_resolution`, JSON/Hako,
+VM/backend, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
