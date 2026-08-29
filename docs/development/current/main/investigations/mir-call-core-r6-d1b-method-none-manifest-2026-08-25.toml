@@ -1,7 +1,7 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
-status = "accepted_design_no_safe_slice"
-observed_commit = "8f8f095f5f"
-observed_at = "2026-08-25"
+status = "design_reaudit_queued"
+observed_commit = "e9f76676db"
+observed_at = "2026-08-29"
 implementation_permission = false
 
 [boundary]
@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "Keep design_stop; use this manifest to prove the generic catalog handoff and classify each issuer/recovery row before selecting one producer-first implementation cell"
+smallest_next_slice = "After the compatibility-origin red and R2 fence are closed, run MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0. Name the one-time module snapshot owner and classify every implicit/explicit methodize reader/writer before any producer implementation opens."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -67,6 +67,7 @@ caller = "src/mir/builder/calls/build.rs:307-364"
 edge = "current_static_box + hardcoded has_method issues Callee::Method { receiver: None } and the builder publishes a target/name path"
 authority = "not available in this route; existing callable declaration catalog/publication handoff is the required authority"
 disposition = "CutoverBlockerOpen"
+coupled_to = "The four named R2 compatibility descendants reach this issuer through shared Resolved after argument descent; do not treat it as an independent Method implementation cell."
 replacement = "exact same-brand catalog key -> qualified Global(owner.method/arity) -> CalleeResolver -> MirInstruction::call"
 delete_set = ["Method(None) literal", "hardcoded has_method target classification", "name Const publication for this route", "tail/suffix alternate-target retry"]
 fail_fast = "before argument-effect publication and before build.rs block insertion"
@@ -80,6 +81,7 @@ caller = "selected unified emission path; physical publication at :700-725"
 edge = "env/profile and StaticMethodId text parse rewrite an existing Global into Method(None) for RuntimeData"
 authority = "incoming exact Callee provenance; environment/profile/text cannot reclassify a canonical target"
 disposition = "CutoverBlockerOpen"
+coupled_to = "Stage1 exact-1 writers, build_stage1 direct emit, Program(JSON) zero writers, shell empty transport, and separate Hako/JSON readers require a finite ingress-policy decision before this reissuer can change."
 replacement = "retain exact Global or exact Method(receiver); do not repair an unproven Global here"
 delete_set = ["HAKO_MIR_BUILDER_METHODIZE target mutation", "StaticMethodId text reclassification", "Method(None) trace/branch"]
 fail_fast = "before create_mir_call and physical terminal"
@@ -214,6 +216,48 @@ reopen_triggers = [
   "new selected backend consumer or egress profile",
   "exact catalog handoff changes or a source brand becomes unavailable",
 ]
+
+[stage1_full_artifact_lane_fate_2026_08_29]
+status = "parked_sealed"
+implementation_permission = false
+decision = "Stage1 full artifact remains a separate NoSafeSlice. It blocks deletion of Stage1 compatibility writers, Stage1 0/1 parity claims, and final R6 while that residual route is live; it does not block read-only Method census or a disjoint exact Method(Some) preservation slice."
+reopen_when = "An existing Stage1 source owner emits a non-empty artifact plus metadata from the same source/semantic/compile transaction without stale binary, wrapper/argv substitution, macro switching, second resolver, fallback, or retry; alternatively the Stage1 route is retired."
+non_claims = "Stage1 is not the repository-wide owner of HAKO_MIR_BUILDER_METHODIZE. Its Rust and shell exact-1 injectors are only named Stage1 compatibility ingress owners."
+
+[method_corridor_ingress_policy_d0_2026_08_29]
+status = "queued_after_r2_fence"
+task_id = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"
+implementation_permission = false
+decision = "Before changing implicit/default-on Rust methodize, freeze a finite reader/writer boundary and name one module-ingress snapshot owner. The env selector chooses Canonical versus ExplicitLegacyCompatibility; it never issues or repairs a target."
+source_authority = "The incoming typed Callee/CanonicalGlobalTarget remains target authority. A module-lifecycle policy snapshot may select compatibility behavior once before Builder mutation."
+non_authority = "The env string, config getter, JSON egress profile, Hako methodize pass, StaticMethodId text, name/arity, Stage1 artifact failure, VM/registry, args[0], and autoscan."
+candidate_policy = [
+  "Rust unified-emitter reader only: unset or exact 0 -> Canonical; exact 1 -> ExplicitLegacyCompatibility; other or non-Unicode -> typed reject before Builder mutation.",
+  "Canonical preserves the incoming typed Global; ExplicitLegacyCompatibility alone may retain the current bounded RuntimeData Global-to-Method(None) projection.",
+  "JSON egress and Hako readers remain separately owned and are excluded from the Rust policy claim.",
+]
+finite_census = [
+  "Rust ambient getter and unified-emitter consumer: src/config/env/builder_flags.rs and src/mir/builder/calls/unified_emitter.rs.",
+  "One-time snapshot candidate: src/mir/builder/module_lifecycle.rs into a Copy field on src/mir/builder/compilation_context.rs; normal-default preparation stays Canonical without rereading env.",
+  "Stage1 exact-1 injectors: src/runner/stage1_bridge/env/runtime_defaults.rs and tools/selfhost/lib/stage1_contract.sh; build_stage1 direct emit does not currently prove the same pin.",
+  "Canonical exact-0 injectors exist in src/main.rs, src/runner/child_env.rs, and src/host_providers/mir_builder.rs.",
+  "tools/hakorune_emit_mir.sh currently forwards explicit empty when unset and must receive an owner-backed 0/1/omit disposition before strict parsing.",
+  "Separate excluded readers remain in src/runner/mir_json_emit/root.rs and lang/src/mir/builder/internal/{builder_config_box,call_methodize_box}.hako.",
+]
+required_before_i0 = [
+  "NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0 is green and R2 preflight/downstream fence wording is reconciled.",
+  "Every implicit unset/empty route is classified Canonical, ExplicitLegacyCompatibility, or typed reject by its actual owner; Stage1 is not assumed to be the sole reader/writer family.",
+  "Module lifecycle is accepted as the sole Rust snapshot ingress and invalid/non-Unicode input rejects before clear_callable_declaration_catalog or later Builder mutation.",
+  "The I0 diff can keep unified_emitter.rs below 760 lines, reuse the existing lifecycle guard, and avoid a new guard family.",
+]
+future_i0 = "MIR-CALL-METHOD-CORRIDOR-EXPLICIT-COMPAT-INGRESS-I0"
+future_i0_old_edge_delete_set = [
+  "Rust unified emitter per-call ambient env read",
+  "unset or arbitrary selector -> implicit methodize true",
+  "Canonical typed Global -> Method(None) through an implicit default",
+]
+future_i0_non_claims = "No method_resolution producer retirement, repository-wide env normalization, Hako/JSON/VM/backend change, Stage1 artifact, receiver repair, Method(None)=0, or Call-schema cutover."
+no_safe_slice = "Remain in design_stop if a route owner for unset/empty cannot be named, the policy must be reread during body lowering, Stage1/JSON/Hako parity is required in the same slice, or target meaning must be reconstructed from text/registry/arguments."
 
 [docs]
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"

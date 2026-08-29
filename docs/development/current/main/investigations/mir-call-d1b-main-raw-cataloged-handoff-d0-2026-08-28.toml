@@ -768,19 +768,19 @@ decision = "Keep ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy named com
 source_authority = "Each existing compatibility ingress is its own owner: semantic/raw ScriptRoot scope, raw-root Main scope, or RawLegacy child port. A common ordinary-call target issuer or App Main successor does not exist for these four owners."
 non_authority = "name/arity, raw lineage spelling, variable/static/header scans, tail recovery, name Const, legacy Call, consumer-side resolver, and App Main loan generalization."
 fail_fast_boundary = "UnclassifiedSource rejects after special-form selection and before argument descent; named compatibility keeps its existing terminal until an explicit behavior or backend decision is recorded."
-census_boundary = "raw FunctionCall brand authority -> preflight -> shared Resolved consumer; includes exactly the four named origins and their production ingress/fixtures, excludes AppMain/Cataloged exact routes, Constructor, Method corridor, VM/backend, and Call schema."
-smallest_next_slice = "MIR-CALL-METHOD-CORRIDOR-R0: with all four named origins explicitly ParkedSealed, design the independent receiver-authority family without reopening the R2 census."
-acceptance = "4/4 named owners are classified; generic UnclassifiedSource cannot reach Resolved; no target is synthesized from name/arity/symbol; no supported source behavior is dropped; no new loan, resolver, or guard family is created."
+census_boundary = "raw FunctionCall brand authority -> preflight disposition; includes exactly the four named provenance classifications plus generic UnclassifiedSource rejection, and excludes each named branch's downstream shared Resolved/recovery consumer, AppMain/Cataloged exact routes, Constructor, Method corridor, VM/backend, and Call schema."
+smallest_next_slice = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0: record the preflight classification boundary as Exhausted and move the four live Resolved/recovery descendants outside that boundary before selecting Method design."
+acceptance = "The preflight inventory is Exhausted with open/reopened blocker count zero; generic UnclassifiedSource cannot reach Resolved; all four downstream named compatibility descendants remain live outside the boundary with owner and reopen trigger; no global Resolved/recovery retirement is claimed."
 no_safe_slice = "Return to design_stop if any owner requires a new target issuer, source/raw carrier, or unapproved behavior drop; do not force a global Resolved deletion claim."
 owner_census = [
     "ScriptRootParkedCompatibility: semantic ScriptRoot ingress at src/mir/builder/calls/function_call_brand_source_demand.rs:88-95, semantic root lifecycle at src/mir/builder/program_root_lowering.rs:212-225 and src/mir/builder/normal_default_root_catalog_lifecycle.rs:364-395; preserves the named Resolved terminal, has no ordinary-call target successor, and reopens only when a source-backed issuer or backend behavior decision exists.",
     "RawScriptRootParkedCompatibility: ledger-less raw ScriptRoot ingress at src/mir/builder/calls/function_call_brand_source_demand.rs:96-102, compatibility root at src/mir/builder/program_root_lowering.rs:243-257 and src/mir/builder/normal_default_root_catalog_lifecycle.rs:615-635; preserves the named Resolved terminal, has no App Main successor, and reopens only with an explicit raw compatibility owner decision.",
-    "RawRootMainParkedCompatibility: raw-root Main ingress at src/mir/builder/calls/function_call_brand_source_demand.rs:103-108, raw child path src/mir/builder/raw_root_children.rs:280-294 -> src/mir/builder/module_invocation_brand0.rs:246-255 -> src/mir/builder/recursive_child_lowering.rs:539-568; preserves the named Resolved terminal and cannot borrow the App Main loan without a new exact relation.",
-    "RawLegacyParkedCompatibility: RawLegacyChildLoweringPortV1 issuer at src/mir/builder/recursive_child_lowering/legacy_port.rs:56-62, production drivers at :148-170 and src/mir/builder/calls/lowering.rs:378-441; preserves the broad legacy facade and named Resolved terminal, with no common successor; reopens only through an owner-specific replacement.",
+    "RawRootMainParkedCompatibility: raw-root Main ingress is classified in src/mir/builder/calls/function_call_brand_source_demand.rs and enters through src/mir/builder/module_invocation_brand0.rs -> src/mir/builder/recursive_child_lowering.rs; its downstream Resolved terminal remains outside the preflight census and cannot borrow the App Main loan without a new exact relation.",
+    "RawLegacyParkedCompatibility: RawLegacy provenance is issued in src/mir/builder/calls/function_call_brand_source_demand.rs from the existing legacy child port; its broad downstream Resolved terminal remains outside the preflight census and reopens only through an owner-specific replacement.",
 ]
 owner_census_status = "4/4 named origins classified as ParkedSealed; no function-level or guard-level expansion; the next bounded D0 chooses one owner fate and does not imply global Resolved retirement."
-pre_implementation_gate = "I0 verifier regression repair is landed with filtered test evidence; before the next implementation row, keep the R2 lineage matrix and named compatibility owners explicit."
-next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
+pre_implementation_gate = "Close NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0, then reconcile the R2 boundary. No Method fast row opens while the named Resolved descendants or Stage1 methodize route overlap the selected producer."
+next_row = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
 
 [method_corridor_r0_d0_2026_08_29]
 status = "accepted_design_no_safe_slice"
@@ -1306,28 +1306,30 @@ non_claims = "This row does not establish a fresh full Stage1 artifact, Methodiz
 next_row = "STAGE1-FULL-ARTIFACT-D0"
 closeout = "STAGE1-CLI-MAIN-METHOD-SHAPE-I0 is complete as a bounded source-shape repair. Main.main/0 and strict source-backed co-seal remain intact; fresh normal emit now clears SourceShape and stops at a later named ResolverDeferred/UnsupportedExpression terminal. The full artifact row remains design_stop."
 
-[audit_16_reconciliation_2026_08_29]
-status = "reconciled_current_head"
-source = "第16回監査のloan-I0赤テスト報告を、e382a00923 の修正履歴と現HEAD 53a378b358 のfiltered evidenceへ照合した。"
-decision = "報告の9件赤（うちloan-I0起因7件）は現HEADでは再現しないため、別時点または別worktreeの履歴状態として扱う。ObserveOnly facts は保持し、target-only/partial coverage は fail-closed のまま維持する。テスト期待値を reject 側へ戻さない。"
-current_evidence = [
-    "At HEAD 53a378b358, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed.",
-    "At HEAD 53a378b358, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed, 0 failed.",
-    "e382a00923 が direct_call_verifier の ObserveOnly 契約と focused evidence を着地させ、カード内の historical reproduction と current evidence を分離済み。",
-    "App Main loan は take_once と finish_empty の production consumer を持ち、残余行は DirectCallLoanNotConsumed で fail-closed。",
+[normal_callable_compat_origin_test_r0_2026_08_29]
+status = "fast_open"
+task_id = "NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0"
+execution_row = "NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0"
+implementation_permission = true
+decision = "Keep the source-backed default-derive CompatibilityLoss contract. Repair only the two stale compatibility-origin transport fixtures by selecting an existing parser-issued compatibility cohort, so the tests continue to prove explicit Compatibility origin transport instead of expecting a forbidden fallback."
+source_authority = "The parser-issued NormalCallableParserCompatibilityV1 cohort and NormalCallableTransformCompatibilityV1::Parser provenance own the compatibility origin. ParserNormalRootExecutionPreservationV1 continues to reject source-backed default-derive authority loss."
+non_authority = "A test expectation, the normal_callable_transform filter, default-derive fallback, Method/methodize state, Stage1 artifact state, wrapper substitution, or changing production transform behavior."
+fail_fast_boundary = "The parser/transform must issue explicit Compatibility before NormalCompileRequestV1 and prepared-root transport. Source-backed default derive must still terminate at ExactSourceChanged(RootPreservation(CompatibilityLoss))."
+reproduction = [
+    "At HEAD e9f76676db, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib compatibility_origin_moves_through_request_and_prepared_root -- --test-threads=1 executes 1 test and fails at src/mir/compiler/normal_default_pipeline_tests.rs:124 with ExactSourceChanged(RootPreservation(CompatibilityLoss)).",
+    "At the same HEAD, CARGO_BUILD_JOBS=4 cargo test --profile quick --lib compatibility_source_stays_on_the_explicit_ast_lane -- --test-threads=1 executes 1 test and fails at src/runner/modes/common_util/normal_callable.rs:121 with the same typed terminal.",
+    "The normal_callable_transform filter is a separate 7-test module and does not cover either named failing test.",
 ]
-valid_followups = [
-    "Full cargo test/link は既知の大きな test binary のメモリ制限で未実行。これは未確認の範囲であり、現HEADの focused green を赤へ再分類しない。",
-    "T0 の実行記録はまだ無いが、cleanup/guard hygiene の parked evidence であり、D1 semantic implementation の根拠にはしない。",
-    "99bdfc856c の allowed_files 乖離19件は historical scope evidence として既記録。履歴を書き換えず、次のrowでは実差分と宣言範囲を同一commitで確認する。",
-    "row_exit_rule は既に、test codeを触ったrowへ非ゼロのfiltered cargo testを要求している。次の実装rowでもこの規則を必須適用し、新しいguard familyは作らない。",
+smallest_next_slice = "Change the two test fixtures from source-backed default-derive box syntax to an existing parser-issued compatibility cohort such as record Data, assert Parser(RecordBox) provenance, and leave production code plus the default-derive CompatibilityLoss negative unchanged."
+allowed_files = ["src/mir/compiler/normal_default_pipeline_tests.rs", "src/runner/modes/common_util/normal_callable.rs", "docs/development/current/main/investigations/mir-call-d1b-main-raw-cataloged-handoff-d0-2026-08-28.toml", "docs/development/current/main/CURRENT_STATE.toml"]
+acceptance = [
+    "Both exact named tests execute one nonzero test and pass.",
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1 remains nonzero and green.",
+    "The explicit compatibility origin still traverses request/prepared-root ownership; the tests are not weakened into error-only expectations.",
+    "The source-backed default-derive CompatibilityLoss negative remains unchanged; no production, Method, Stage1, package/loan, VM, or Call-schema file changes.",
 ]
-next_actions = [
-    "P0 verifier regression repair は完了扱いに固定し、同じ7件を再修正しない。",
-    "次のproduction implementationは、現design_stopのMIR-CALL-METHODIZE-D0でStage1 methodize=1のfate/parityを先に確定する。",
-    "Stage1 fateが決まるまで、unified-emitter methodize producerの削除、Method(None)一括退役、VM/JSON/Call schema変更は行わない。",
-]
-non_claims = "この照合は全test suite green、T0実行済み、Stage1 methodize parity確定、または新しい実装許可を意味しない。"
+next_row = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
+non_claims = "This row does not make the full suite green, relax source authority, open Method implementation, or prove Stage1 artifacts."
 
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
 status = "landed"
@@ -1361,7 +1363,7 @@ legal_shapes = [
 reproduction = [
     "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 tests, 3 passed and 7 failed; every failure is DirectCall(SiteCoverageMismatch).",
     "The seven failures are selected_direct_call_observation_is_a_typed_package_terminal, unissued_direct_call_observation_rejects_package_before_install, nested_lambda_direct_call_observation_rejects_package_before_install, root_and_nested_direct_call_observations_share_one_package_gate, cataloged_static_direct_call_observation_rejects_before_install, cataloged_nested_lambda_direct_call_observation_rejects_before_install, and selected_callable_retains_direct_call_observation_without_issuing_target.",
-    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed and 0 failed at this HEAD; no macro CompatibilityLoss regression is reproduced, so no expectation change is authorized without a specific failing test.",
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed and 0 failed at this HEAD; this narrow filter does not contain the two compatibility-origin transport tests reproduced separately at HEAD e9f76676db.",
 ]
 reproduction_status = "Historical trigger evidence from before e382a00923; it is not current-HEAD status. The corrective filtered evidence below is authoritative for the landed row."
 smallest_next_slice = "In one fast corrective row, change only the existing direct-call verifier contract and its existing unit-test sibling: allow ObserveOnly facts, reject target-only/partial mismatch, preserve foreign/arity/duplicate checks, rename the contradictory observation-without-target test, and rerun the complete direct_call_observation filter before closeout."
@@ -1374,7 +1376,7 @@ acceptance = [
     "A touched test module is run through a filtered cargo test command and the exact command/result is recorded before the row can be marked landed; cargo check alone cannot close it.",
     "The current I0 row is not retroactively called fully green until the corrective test evidence exists; full cargo test/link remains a separate resource-limited known limit.",
 ]
-macro_compatibility_status = "Current HEAD normal_callable_transform filter is green (7/7). Keep the two CompatibilityLoss expectations unchanged unless a named failing test is reproduced on the same HEAD."
+macro_compatibility_status = "The normal_callable_transform filter is green (7/7), but both named compatibility-origin transport tests fail independently at HEAD e9f76676db. NORMAL-CALLABLE-COMPAT-ORIGIN-TEST-R0 owns their fixture correction without changing the default-derive CompatibilityLoss contract."
 row_exit_rule_amendment = "Prospective rule: any implementation row that touches test code must run a focused cargo test covering every touched test name/module, record the command and nonzero count in its card, and treat 0 tests or any failure as blocking. Filtered evidence is required even when cargo check passes; no second Cargo process may run concurrently."
 filtered_test_evidence = [
     "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed, 7477 filtered out.",
@@ -1421,31 +1423,26 @@ no_safe_slice = [
 ]
 next_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 
-[r2_one_named_owner_fate_d0_2026_08_29]
-status = "accepted_design_parked"
-task_id = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0"
-execution_row = "MIR-CALL-D1B-R2-ONE-NAMED-OWNER-FATE-D0"
+[r2_fence_reconcile_d0_2026_08_29]
+status = "queued_design_stop"
+task_id = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
+execution_row = "MIR-CALL-D1B-R2-FENCE-RECONCILE-D0"
 parent_row = "MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0"
 implementation_permission = false
-decision = "No named compatibility origin has an exact source-backed successor or an approved pre-effect behavior drop. Close this D0 with all four origins explicitly ParkedSealed; do not globally delete shared Resolved, recovery, name-Const, or legacy-Call edges."
-source_authority = "Existing named ingress owns the source fact: semantic ScriptRoot, raw ScriptRoot, raw-root Main, or RawLegacy. A selected owner may advance only from an exact source-backed relation and its existing terminal; no App Main loan, name/arity, symbol, or backend inference supplies a successor."
-non_authority = "Shared Resolved helper counts, name/arity lookup, symbol parsing, static/header/tail recovery, consumer resolver, methodize/receiver repair, VM/backend routes, and Call-schema state are not owner decisions."
-fail_fast_boundary = "For the one selected owner, decide its fate before argument descent: use an exact existing successor or an explicitly approved pre-effect terminal; otherwise keep that owner ParkedSealed and leave the other three unchanged."
-census_boundary = "named ordinary FunctionCall ingress -> preflight -> shared Resolved terminal; includes exactly ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy; excludes AppMain/Cataloged exact loan, special forms, Method corridor, VM/backend, and Call schema."
-owner_fate_matrix = [
-    "ScriptRoot: ParkedSealed; semantic ScriptRoot owns the existing Resolved compatibility terminal and has no exact ordinary-call target successor.",
-    "RawScriptRoot: ParkedSealed; ledger-less raw ScriptRoot preserves the existing compatibility root and has no exact App Main successor.",
-    "RawRootMain: ParkedSealed; raw-root Main lacks the exact relation required to borrow the App Main loan.",
-    "RawLegacy: ParkedSealed; the broad legacy child facade has no common successor, while independent subedges may retire separately with caller-zero evidence.",
+decision = "Close only the finite preflight classification boundary. The four named compatibility branches remain live downstream Resolved/recovery descendants outside that census; none is silently called retired or globally caller-zero."
+source_authority = "Semantic ScriptRoot, raw ScriptRoot, raw-root Main, RawLegacy, and generic UnclassifiedSource each issue exactly one preflight provenance/disposition. Their downstream compatibility behavior remains owned by the named branch until an exact successor or approved retirement exists."
+non_authority = "Shared resolver counts, name/arity/symbol, static/header/tail recovery, Method(None), env methodize, VM/backend preference, and a grep-only caller-zero result."
+census_boundary = "brand authority -> preflight disposition; includes the four named provenance rows and generic UnclassifiedSource rejection; excludes all downstream Resolved/recovery/name-Const/legacy-Call consumers and all Method/VM/Call-schema work."
+finite_close = "inventory=Exhausted; open/reopened blocker=0 inside the preflight boundary; exactly four named compatibility descendants remain outside with owner, preserved behavior, and observable reopen trigger."
+cross_boundary_blockers = [
+    "method_resolution_static_none is reached by the four named Resolved descendants and cannot be changed as an independent Method producer until that overlap is closed or explicitly fenced.",
+    "unified_emitter methodize is coupled to Stage1 plus separate Rust/Hako/JSON compatibility readers and cannot be called a Stage1-only owner.",
 ]
-selection_rule = "A one-owner promotion is allowed only after an exact successor or approved behavior decision is named from existing authority. This audit found none, so all four remain parked and the next lane is the independent Method corridor. Never invent a fifth provenance or infer a target from a shared helper."
-allowed_scope = "Design stop permits only the active card, CURRENT_STATE.toml, and existing guard-contract text: record the one-owner fate and reopen trigger. No Rust, fixture, production switch, semantic receipt, new guard, or global Resolved deletion is allowed."
-acceptance = "All four named owners remain explicitly ParkedSealed with exact ingress, preserved behavior, and observable reopen triggers; shared helper and remaining owners are unchanged; no global caller-zero claim is made; any future guard-phase amendment waits until an implementation row opens."
-reopen_trigger = "Reopen one owner only when its existing source authority names an exact successor or an explicitly approved pre-effect retirement; a grep-only caller-zero result, a new loan/carrier, or a backend preference is not sufficient."
-guard_contract = "No new R2 guard phase is added during design_stop. If a later implementation row opens, amend the existing lifecycle guard before code and require the selected owner plus the other three parked owners to remain explicit."
-closeout = "R2 one-owner fate D0 is explicitly parked: read-only successor/owner audits found no safe owner-specific cutover. The next bounded design lane is MIR-CALL-METHOD-CORRIDOR-R0; shared Resolved/recovery remains protected."
-no_safe_slice = [
-    "No exact source-backed successor or approved behavior decision exists for the selected owner.",
-    "The proposed change needs a new loan/carrier/issuer, shared-helper deletion, Method/VM/Call-schema work, a new semantic receipt, or grep-only caller-zero evidence.",
+allowed_scope = "Replace/compact only existing CURRENT_STATE, active-card, rolling-workstream, final-pipeline wording, and the existing Method manifest. No Rust, test, fixture, guard, new card, semantic receipt, or production switch."
+acceptance = [
+    "The R2 boundary no longer includes a descendant that it also labels ParkedSealed.",
+    "Current paths replace stale raw_root_children and legacy-port issuer references.",
+    "The rolling frontier distinguishes preflight classification closure from global Resolved/recovery retirement.",
+    "Method corridor is selected only as design_stop; implementation_permission remains false until a disjoint producer and module-ingress policy owner are named.",
 ]
-next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
+next_row = "MIR-CALL-METHOD-CORRIDOR-INGRESS-POLICY-D0"

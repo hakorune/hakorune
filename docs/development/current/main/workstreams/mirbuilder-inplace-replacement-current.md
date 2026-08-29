@@ -1,6 +1,6 @@
 ---
-Status: Design stop — MIR Call D1B source-owner/lineage co-seal D1
-Date: 2026-08-28
+Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
+Date: 2026-08-29
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -9,7 +9,7 @@ North star:
 Call owner:
   - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
 Active card:
-  - docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml
+  - use `CURRENT_STATE.toml.latest_card_path`
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
@@ -29,7 +29,15 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 同じbounded seriesで交換する。第二MirBuilder、consumer-zero route、fallback、
 fixture由来のacceptance、新しい文字列authorityは作らない。
 
-## Current six-line brief
+## Current restart pointer
+
+`CURRENT_STATE.toml` is the sole mode and active-row authority. The bounded order
+is: repair the two named compatibility-origin tests; reconcile the R2 preflight
+fence against its four live downstream compatibility descendants; then select
+the Method ingress-policy D0. Stage1 full artifact remains ParkedSealed and no
+Method implementation is open from this rolling file.
+
+## Historical rolling context (non-authoritative)
 
 Decision:
   CanonicalV1 Value S0は着地済み。VM fate監査はRust engineの最終撤退を受理したが、
@@ -400,10 +408,10 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     declared console/env/host providers remain Extern
 
 12. MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0
-   six lineages + Unlocated/Relationless become exact target / KnownNonDirect /
-   typed reject / ParkedSealed before arguments; delete caller=None, Resolved,
-   unique/tail recovery, target Const, and arbitrary legacy publication while
-   retaining the Cataloged direct payload for the next affine replacement
+   the finite preflight classification is closed: four named compatibility
+   origins remain explicit and generic UnclassifiedSource rejects before
+   arguments. Their downstream Resolved/recovery descendants are outside this
+   boundary and remain live; global caller-zero/deletion is not yet claimed
 
 13. MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0
     (unlocked only after the B1 structural Callee/CallTarget cutover below)
@@ -412,11 +420,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
     payload deleted in the same cell after late recovery is already zero
 
 14. MIR-CALL-METHOD-CORRIDOR-R0
-   receiver lives only in Callee; args are source args; consume the already
-   selected effect authority; close StageB instance, rewrite/known, and
-   ordinary-new birth producers with receiver ABI, then delete prepend/strip/
-   autoscan/args[0], Method(None), methodize, guard repair, UnknownBox,
-   optimizer Global->Method, and VM Global recovery
+   first freeze the Rust methodize ingress policy and one-time module snapshot;
+   separately preserve exact Method(Some) receiver authority. Do not delete
+   method_resolution_static_none while named R2 descendants reach it, and do
+   not delete explicit Stage1 methodize until its artifact successor or route
+   retirement exists. Receiver repair, Method(None), VM/JSON, and schema follow
+   as later owner-specific rows
 
 15. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0
     classify static method terminal, generic CorePlan GlobalCall, and env-gated
@@ -795,17 +804,17 @@ round-trip; and no family migration changes compiler or test semantics.
 
 ## Short closed tail
 
-- normal-root T0/C0/R0 identity/forest gates are closed; the installed App Main
-  raw Cataloged handoff remains the active D1 design stop, so this line does not
-  claim that the Main raw route or atomic source-backed cutover is connected.
+- normal-root identity/forest gates and the installed App Main FreeStatic
+  source-keyed affine handoff are closed; this does not generalize the loan to
+  the four named compatibility descendants.
 - JSON-v0 Call target resolution and Program late target rewrite are closed.
 - Callee operand/use/escape/ownership/query projection rows are closed.
 - selected optimizer/Rust VM/printer/JSON/native Call terminal prerequisites are
   closed at their owning manifests; PyVM remains outside.
 - canonical Call writers through D1X, late callsite target rewrite retirement,
-  duplicate projection validation, exact-target child, and recursive compatibility
-  shelf are closed. Package-only BridgeReady remains an open D1B blocker until
-  the consuming package/loan scope and raw-port handoff are implemented.
+  duplicate projection validation, exact-target child, and the App Main
+  package/loan/raw-port handoff are closed. Named Resolved/recovery descendants,
+  Method ingress policy, Method(None), and final Call schema remain open.
 - FunctionMetadata owner split is closed at 718 lines; the 127-row consumer
   manifest remains the future sub-owner census authority.
 
