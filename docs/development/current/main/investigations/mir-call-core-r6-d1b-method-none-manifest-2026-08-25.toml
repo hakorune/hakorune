@@ -1708,6 +1708,7 @@ cargo_check_result = "passed; existing warnings only"
 full_suite_note = "Full cargo test was not run; this row is evidenced by the exact focused suite, quick library check, pointer guard, active-surface guard, and diff check."
 acceptance = "Both caller=None and caller=Some cataloged GC calls reach one typed retirement variant before target preparation and child descent; no SameModule FreeFunction is synthesized for gc_collect/gc_stats; existing Math/Extern/ordinary routes remain unchanged; focused tests and the reusable active-surface guard are green."
 no_safe_slice = "Return to design_stop if caller-present GC has a public success contract, the predicate cannot be evaluated before caller target preparation, a new GC issuer is required, or the change reaches Math/Extern, VM/backend, wire, package/loan, or Call schema."
+next_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop; select the next exact SameModule family only after a fresh authority audit."
 
 [docs]
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"

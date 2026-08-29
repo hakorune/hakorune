@@ -54,14 +54,15 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
-Current closeout:
+Current design stop:
 `MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0` landed in `9e166e5974`.
 Caller-present `gc_collect`/`gc_stats` reuse the existing typed pre-effect
 retirement before Cataloged caller target preparation; the unissued
 SameModule FreeFunction synthesis edge is gone. The focused suite is 4/4
-green and quick library check is green. `print`, Math, explicit Extern, and
-no-issuer names remain separate owners/blockers; no provider-wide
-implementation was opened.
+green and quick library check is green. The parent
+`MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0` is selected again for a
+fresh authority audit; `print`, Math, explicit Extern, and no-issuer names
+remain separate owners/blockers, and no provider-wide implementation is open.
 
 ## Historical rolling context (non-authoritative)
 
