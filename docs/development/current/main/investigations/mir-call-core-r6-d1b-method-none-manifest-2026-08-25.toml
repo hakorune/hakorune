@@ -718,7 +718,7 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Two independent read-only audits rejected the old three-file interpretation. Physical thunk and default-on rewrite/known are direct counterexamples; ordinary-new and cataloged provider are additional owner-specific families. The exact static receipt family alone has a closed authority mapping suitable for one bounded implementation row."
+worker_audit_result = "Fresh read-only audits at beb3de0d3e confirm the print caller-zero retirement is closed. Ordinary static remains blocker-open because exact target rows are dropped as Unselected/Absent, scalar or inline effects precede target proof, and lowered-global Instance has no issuer. Physical thunk is narrower but lacks an exact source target issuer; rewrite/known and operator publishers remain NoSafeSlice; bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
@@ -734,7 +734,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "Select the next exact SameModule family only after a bounded authority audit; the exact static receipt child landed at e5120589dc."
+smallest_next_slice = "Open MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-D0 as a design-only lifecycle closure: decide whether the existing exact source target rows can be retained and transported without a second scan/resolver. Do not open implementation until target-only retention, missing/foreign/duplicate states, and the first-effect boundary are closed."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -744,9 +744,9 @@ evidence = "three production callers now project CanonicalSameModuleCallableKeyV
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "ordinary_static_terminal"
-owner = "calls/method_call_handlers.rs and calls/method_call_terminal.rs"
+owner = "src/mir/builder/method_call_handlers.rs and src/mir/builder/calls/method_call_terminal.rs"
 disposition = "CutoverBlockerOpen"
-evidence = "arguments descend before formatted static target construction"
+evidence = "exact source target rows can be dropped as Unselected/Absent; scalar/inline effects and arguments precede the remaining formatted target construction, and lowered-global Instance has no exact issuer"
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "generic_coreplan_globalcall"
@@ -796,6 +796,41 @@ owner = "normal_script_direct_static_physical_publication.rs"
 disposition = "ParkedSealed"
 non_authority = "test fixture publication is not a production issuer"
 reopen_trigger = "a non-test production caller or acceptance claim appears"
+
+[same_module_ordinary_static_cataloged_target_only_d0_2026_08_30]
+status = "design_stop"
+task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+primary_missing_boundary = "MaterializationRelationMissing"
+implementation_permission = false
+decision = "Do not change ordinary static code yet. First determine whether the existing exact source/static target rows can survive the current publication owner as a target-only, one-shot disposition. If the owner cannot retain those rows without a second source scan, resolver, or guessed result, keep this family blocker-open and park it rather than synthesizing a replacement target."
+source_authority = "Existing VerifiedWholeSourceStaticCallTargetInventoryV1 rows keyed by the exact source callable/site relation and the same-session CanonicalSameModuleCallableKeyV1; the design row issues no new target."
+canonical_issuer = "Existing source/catalog issuer only: CanonicalSameModuleCallableKeyV1::canonical_global_target_v1 for an already-selected exact row. A target-only row may transport that owned product, but may not reconstruct it."
+non_authority = [
+  "box_name, method, arity, current_static_box, formatted symbol, scalar facts, header/candidate lookup, StaticMethodId, name/arity, env, registry, resolver, retry, fallback, or physical MIR",
+  "target-only census counts, test fixtures, and a missing result treated as a default or FreeFunction",
+]
+fail_fast_boundary = "Exact source/site and catalog relation must be retained or rejected before scalar Const/inline work, child or argument descent, ValueId/Call emission, collector/block mutation, or generic fallback."
+census_boundary = "VerifiedWholeSourceStaticCallTargetInventoryV1 issuance -> installed exact-site publication owner -> first scalar/inline/argument/Call effect; includes selected, unselected, absent, unavailable, foreign, duplicate, site/route/arity drift and lowered-global Instance cases; excludes qualified MethodCall already landed, print/GC, CorePlan, operators, thunk, rewrite, ordinary-new, package/loan, VM/backend, JSON, and Call schema."
+finite_states = [
+  "SelectedExact: one same-session exact source/site target exists and may be retained for one-shot transport",
+  "Unselected: source row exists but no target publication was selected; must not silently become Absent or fallback",
+  "Absent: no source row exists; typed pre-effect terminal or named compatibility owner is required",
+  "Unavailable: owner cannot provide a target-only product; remain blocker-open until a named successor or retirement is chosen",
+  "ForeignOrDuplicate: brand/owner/site relation is not unique; typed pre-effect reject",
+  "Drift: route/arity/site relation differs; typed pre-effect reject, no repair",
+]
+ordered_tasks = [
+  "D0-A: reconcile the two production exact-target issuers with the publication owner's dropped-row behavior; record both directions and no silent continue",
+  "D0-B: decide whether a private target-only disposition can preserve result/route/arity without adding a new semantic receipt or second observation",
+  "D0-C: freeze the pre-effect boundary for scalar/inline/argument descent and lowered-global Instance; choose exact transport or typed park/retire",
+  "I0 only after D0 acceptance: one-shot target-only handoff, argument-once consumption, and old formatted-name/fallback edge deletion in one row",
+]
+acceptance = "D0 is closed only when every finite state has one named owner and terminal, target-only retention versus typed park is explicit, both issuer directions are reconciled, and an I0 can be stated as source -> existing target product -> one consumer -> fail-fast boundary without a new resolver or receipt."
+no_safe_slice = "Remain in design_stop if exact rows are dropped before the owner, result/effect relation is missing, lowered-global Instance needs a new issuer, any name/symbol/lookup inference is required, or old fallback cannot be deleted atomically."
+non_claims = "No ordinary static implementation, no target publication, no argument/Call cutover, no package/loan, no Method(Some), no CorePlan/operator/thunk/rewrite/provider/VM/backend/JSON/Call-schema change."
+next_execution = "none__awaiting_target_only_lifecycle_decision"
 
 [same_module_static_receipt_target_before_args_i0_2026_08_30]
 status = "landed"

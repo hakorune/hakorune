@@ -78,7 +78,12 @@ production `ASTNode::FunctionCall { name: "print" }` constructor was found.
 The ordinary Cataloged print success branch was therefore a caller-zero
 compatibility edge and is now a typed pre-effect retirement. The dedicated
 Print statement owner stays unchanged; `CURRENT_STATE.toml` has returned to
-the SameModule parent design stop.
+the SameModule parent design stop. A fresh three-family audit now selects
+`MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-D0` as the next
+design-only slice: existing exact target rows are currently dropped as
+`Unselected`/`Absent`, and scalar/inline/argument effects can precede proof.
+No implementation is open until that target-only lifecycle and its typed
+missing/foreign/duplicate states are reconciled.
 
 ## Historical rolling context (non-authoritative)
 
