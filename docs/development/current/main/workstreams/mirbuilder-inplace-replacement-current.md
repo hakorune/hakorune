@@ -71,6 +71,14 @@ fallback, and second resolvers are not authority. The earlier GC and
 caller-zero Print retirements remain recorded in the manifest, while the
 dedicated `ASTNode::Print -> builtin_print()` owner stays unchanged.
 
+Next bounded design candidate (the parent pointer remains the authority):
+`MIR-CALL-SAME-MODULE-PHYSICAL-THUNK-ISSUER-CLOSURE-D0`. This is a
+read-only issuer-availability check for the two production physical-thunk
+callers and one test helper. No thunk implementation is permitted until an
+existing same-session source-backed issuer for `main/0` is named; symbol
+parse-back, name/arity synthesis, and a new semantic receipt are not
+shortcuts.
+
 ## Historical rolling context (non-authoritative)
 
 Decision:

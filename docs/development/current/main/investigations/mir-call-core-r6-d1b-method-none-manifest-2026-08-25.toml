@@ -718,13 +718,14 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audit at 589359420f confirms the print caller-zero retirement is closed and the ordinary-static D0 is implementable as an owner-local target-only lifecycle, but not yet as a consumer switch. The existing exact target inventory is keyed by (caller, SourceExprSiteV1); the two production issuers pass it to the publication owner, which currently drops TargetResultUnavailable rows and ingress maps the remaining miss to Absent. The accepted correction is to distinguish ExactTargetOnly from NoExactStaticTarget, retain the existing canonical key once, and reject foreign/duplicate/drift before effects. Physical thunk still lacks an issuer; rewrite/known and operator publishers remain NoSafeSlice; bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; rewrite/known remains NoSafeSlice, operator publishers require an explicit public-env fate, CorePlan lacks a source-bound product, and bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
   "I2: generic CorePlan — separate selected exact plan from Unlocated func:String and retire authority-free emission before local_arg",
   "I3: arithmetic/comparison/unary env publishers — remove env/name target issuance before operand or Const effects",
-  "I4: physical thunk — consume the exact header/entry relation without symbol parse-back",
+  "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
+  "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
   "I5: rewrite/known — replace four production parse-back sites with their existing typed owner or pre-effect reject",
   "I6: ordinary new birth — keep construction authority separate from SameModule call publication",
   "I7-D0: cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; do not open a provider-wide implementation row",
@@ -734,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "Open MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-D0 as a design-only lifecycle closure: decide whether the existing exact source target rows can be retained and transported without a second scan/resolver. Do not open implementation until target-only retention, missing/foreign/duplicate states, and the first-effect boundary are closed."
+smallest_next_slice = "Open MIR-CALL-SAME-MODULE-PHYSICAL-THUNK-ISSUER-CLOSURE-D0 as a design-only issuer-availability closure. Confirm whether the existing same-session source/physical relation can supply an exact main/0 target without symbol parse-back; otherwise choose a typed pre-effect retirement or ParkedSealed. Do not open thunk implementation until the issuer and first-effect boundary are closed."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -1904,3 +1905,42 @@ active_card = "docs/development/current/main/workstreams/mirbuilder-inplace-repl
 prior_writer_manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml"
 normal_root_manifest = "ParkedSealed: docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md; do not copy or slim in this row"
 docs_slim_followup = "Move closed R1-R5/D1A/D1-D8 prose out of the 2970-line Call SSOT only after D1B acceptance; preserve this manifest as the finite D1B ledger"
+
+[same_module_physical_thunk_issuer_closure_d0_2026_08_30]
+status = "queued_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-PHYSICAL-THUNK-ISSUER-CLOSURE-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape finite issuer-availability audit"
+implementation_permission = false
+decision = "Do not implement the physical thunk yet. First close whether an existing same-session source-backed product can issue the exact main/0 target. If no such issuer exists, choose an explicit typed pre-effect retirement or ParkedSealed; never synthesize a target from a symbol, name, arity, or header lookup."
+source_authority = "VerifiedNormalMainPhysicalRelationV1 is the existing source-owner/completion/physical-entry relation. It is evidence for the audit, not by itself a Callee issuer."
+canonical_issuer = "No exact main/0 issuer is identified at HEAD. CallableIndex FreeStatic issuance explicitly excludes main; CanonicalNormalMainEntryTargetV1 owns physical-entry identity only."
+non_authority = [
+  "source.symbol().as_mir_name(), physical symbols, name/arity, header lookup, CanonicalNormalMainEntryTargetV1, typed_global_target_from_selected_symbol, fixtures, backend tables, resolver replay, fallback, and retry",
+]
+fail_fast_boundary = "Verify source/physical arity, semantic owner, completion profile, physical-entry relation, and exact target availability before MIR draft mutation, Call publication, Const/ValueId allocation, collector effects, or any retry/fallback."
+census_boundary = "callable_main_physical.rs and main_transaction.rs production physical-thunk callers -> physical_thunk.rs target-construction terminal; includes the two production callers, one test-only helper, existing VerifiedNormalMainPhysicalRelationV1/header/entry witnesses, and current symbol parse-back; excludes ordinary calls, Method(None), CorePlan, operators, rewrite/known, ordinary-new, package/loan, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "production caller: src/mir/builder/normal_module_transaction/callable_main_physical.rs:193-197",
+  "production caller: src/mir/builder/normal_module_transaction/main_transaction.rs:182-186",
+  "test-only helper: src/mir/builder/normal_module_transaction/main_transaction.rs:529-534",
+  "sole target-construction terminal: src/mir/builder/normal_module_transaction/physical_thunk.rs:80-90",
+]
+finite_states = [
+  "ExactIssuerPresent: an existing same-session source-backed product issues main/0 exactly once; eligible for a later bounded I0",
+  "RelationPresentIssuerMissing: source/physical relation exists but no exact Callee issuer exists; choose typed retirement or ParkedSealed, no implementation",
+  "RelationMissing: source/physical owner, completion, or entry relation is absent or mismatched; typed pre-effect reject",
+  "ForeignOrAmbiguous: owner, session, arity, entry, or target identity is non-unique or foreign; typed pre-effect reject",
+]
+ordered_tasks = [
+  "D0-A: reconcile both production callers and the test-only helper against the sole physical_thunk terminal",
+  "D0-B: verify whether an existing source-backed main/0 issuer is present in the same compile transaction; do not add a new semantic receipt",
+  "D0-C: record ExactIssuerPresent, RelationPresentIssuerMissing, RelationMissing, and ForeignOrAmbiguous with one owner and terminal each",
+  "D0-D: if issuer is absent, select typed pre-effect retirement or ParkedSealed and record an observable reopen trigger",
+  "I0: open only after D0 names an issuer; consume the exact handoff before Call/Const effects and delete symbol parse-back atomically",
+]
+acceptance = "The two production callers and one test helper are two-directionally reconciled; the existing relation, issuer availability, and physical terminal are separately named; no symbol/name/arity synthesis is accepted; and the next implementation decision is either an exact issuer-backed I0 or an explicit typed retirement/ParkedSealed outcome."
+no_safe_slice = "Remain in design_stop if main/0 requires a new semantic issuer without an existing source-backed product, if the relation cannot be verified in the same session, if target identity still needs symbol/name/arity/header inference, or if the change crosses package/loan, VM/backend, Call schema, or the 760/800-line boundary."
+non_claims = "No physical thunk implementation, no ordinary Call cutover, no Method(Some)/Method(None) change, no CorePlan/operator/rewrite/provider/new-birth work, no package/loan, no VM/backend/JSON, and no Call-schema change."
+next_execution = "none_until_issuer_decision"
