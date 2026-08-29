@@ -839,6 +839,29 @@ no_safe_slice = [
 ]
 next_row = "MIR-CALL-METHOD-CORRIDOR-R0"
 
+[audit_16_reconciliation_2026_08_29]
+status = "reconciled_current_head"
+source = "第16回監査のloan-I0赤テスト報告を、現HEAD 930f9ef2cb と e382a00923 の履歴・focused evidenceへ照合した。"
+decision = "監査の7件赤は verifier 修正前の歴史状態であり、現HEADの未解決P0ではない。ObserveOnly facts は保持し、target-only/partial coverage は fail-closed のまま維持する。テスト期待値を reject 側へ戻さない。"
+current_evidence = [
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib direct_call_observation -- --test-threads=1: 10 passed, 0 failed.",
+    "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_transform -- --test-threads=1: 7 passed, 0 failed.",
+    "e382a00923 が direct_call_verifier の ObserveOnly 契約と focused evidence を着地させ、カード内の historical reproduction と current evidence を分離済み。",
+    "App Main loan は take_once と finish_empty の production consumer を持ち、残余行は DirectCallLoanNotConsumed で fail-closed。",
+]
+valid_followups = [
+    "Full cargo test/link は既知の大きな test binary のメモリ制限で未実行。これは未確認の範囲であり、現HEADの focused green を赤へ再分類しない。",
+    "T0 の実行記録はまだ無いが、cleanup/guard hygiene の parked evidence であり、D1 semantic implementation の根拠にはしない。",
+    "99bdfc856c の allowed_files 乖離19件は historical scope evidence として既記録。履歴を書き換えず、次のrowでは実差分と宣言範囲を同一commitで確認する。",
+    "row_exit_rule は既に、test codeを触ったrowへ非ゼロのfiltered cargo testを要求している。次の実装rowでもこの規則を必須適用し、新しいguard familyは作らない。",
+]
+next_actions = [
+    "P0 verifier regression repair は完了扱いに固定し、同じ7件を再修正しない。",
+    "次のproduction implementationは、現design_stopのMIR-CALL-METHODIZE-D0でStage1 methodize=1のfate/parityを先に確定する。",
+    "Stage1 fateが決まるまで、unified-emitter methodize producerの削除、Method(None)一括退役、VM/JSON/Call schema変更は行わない。",
+]
+non_claims = "この照合は全test suite green、T0実行済み、Stage1 methodize parity確定、または新しい実装許可を意味しない。"
+
 [i0_observation_verifier_regression_repair_d0_2026_08_29]
 status = "landed"
 task_id = "MIR-CALL-D1B-I0-OBSERVATION-VERIFIER-REGRESSION-REPAIR-D0"
