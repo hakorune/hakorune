@@ -1,10 +1,10 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0: retain the existing exact source/static target as a private one-shot TargetOnly disposition, distinguish NoExactStaticTarget, and fail before scalar/inline/child/argument effects. Delete only this ordinary-static formatted-name/fallback edge; no provider-wide, CorePlan, operator, rewrite, package/loan, VM/backend, or Call-schema implementation."
-guard_followup = "I0 must use only the existing caller/site target and catalog brand. Require TargetOnly/SelectedResult one-shot consumption, NoExactStaticTarget and foreign/duplicate/drift fail-fast, argument-once order, focused positive/negative tests, and zero new resolver/name lookup."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_blocker_token = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0: the ordinary-static target-only I0 is landed; audit the next exact SameModule producer family before opening implementation. Keep Method(None), shared Resolved, Call schema, package/loan, VM/backend, and other families closed."
+guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The Method corridor is Exhausted after caller-zero Resolved retirement at 598530d23b. The bounded cataloged gc_collect/gc_stats retirement landed at 9e166e5974, and the ordinary Cataloged print compatibility branch is retired at 5014903def. The ordinary-static target-only D0 is accepted; this fast row retains existing exact target products as one-shot TargetOnly/SelectedResult dispositions and removes only its old formatted-name/fallback edge. Other SameModule families remain blocker-open."
+latest_card_summary = "The Method corridor is Exhausted after caller-zero Resolved retirement at 598530d23b. The bounded cataloged gc_collect/gc_stats retirement landed at 9e166e5974, the ordinary Cataloged print compatibility branch retired at 5014903def, and ordinary-static target-only I0 landed at 3e7f4a1d7f. Exact source/site targets without result handoffs remain one-shot TargetOnly products; NoExactStaticTarget is typed and never falls through. Other SameModule families remain blocker-open."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-CATALOGED-TARGET-ONLY-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-30: ordinary InstalledNonBrand Cataloged FunctionCall print was caller-zero and now retires before target synthesis/child descent at 5014903def; the dedicated ASTNode::Print -> builtin_print() owner and print statement tests remain green.",
 	"2026-08-30: SameModule exact static receipt I0 landed at e5120589dc; three production callers now project an owned CanonicalSameModuleCallableKeyV1 into CanonicalGlobalTargetV1 before descent, and the receipt terminal no longer reconstructs owner/method/arity.",
 	"2026-08-30: caller-zero Resolved corridor retired at 598530d23b; RawRootMain ordinary direct injection now reaches RawRootMainRetired before effects, while the Resolved variant/consumer and exclusive generic resolver/recovery/name-Const/tail-env owners were physically deleted (210 insertions, 687 deletions). The Method corridor is Exhausted.",
+	"2026-08-30: ordinary-static target-only I0 landed at 3e7f4a1d7f; exact source/site targets without result handoffs now remain TargetOnly and are consumed once, while NoExactStaticTarget is distinct and never falls through compatibility fallback.",
 ]
