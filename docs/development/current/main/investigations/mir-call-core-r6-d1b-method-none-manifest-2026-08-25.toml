@@ -471,12 +471,12 @@ ordered_rows = [
 non_claims = "No Stage1/Hako/JSON writer change, artifact construction, VM/backend, Call schema, builder_emit terminal, shared Resolved cleanup, resolver, provenance receipt, fallback, or retry."
 
 [rust_exact1_methodize_retire_guard_s0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-GUARD-S0"
 parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape"
-implementation_permission = true
+implementation_permission = false
 decision = "Move Method corridor/current-row handlers from the 755-line active guard into one private sibling. Preserve the public shell entrypoint, registry row, phase routing, diagnostics, and behavior."
 allowed_files = [
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
@@ -486,15 +486,25 @@ allowed_files = [
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
 acceptance = "The public guard entry/registry remain unchanged; parent and sibling are each below 760 lines; the parent Method D0 and static-none landed checks produce the same result; the new S0 row is recognized; no Cargo, source, test, semantic, or production file changes."
+implementation_commit = "f70e43daa9"
+observed_line_counts = "active parent 624; private Method corridor sibling 287"
+validation = [
+  "python3 -m py_compile tools/checks/lib/mir_call_d1b_active_surface_guard.py tools/checks/lib/mir_call_d1b_method_corridor_guard.py: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "historical Method D0 in-memory handler replay: pass",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+]
 next_row = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
 
 [rust_exact1_methodize_retire_test_s0_2026_08_30]
-status = "queued"
+status = "fast_open"
 task_id = "MIR-CALL-RUST-METHODIZE-RETIRE-TEST-S0"
 parent_row = "MIR-CALL-RUST-METHODIZE-RETIRE-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape"
-implementation_permission = false
+implementation_permission = true
 decision = "Move the minimal module-ingress smoke and four methodize ingress tests from the 859-line capture test owner into one focused private sibling without changing names or behavior."
 allowed_files = [
   "src/mir/builder/module_lifecycle_capture_tests.rs",

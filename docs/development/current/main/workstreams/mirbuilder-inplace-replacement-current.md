@@ -51,10 +51,11 @@ design_stop with three blockers: shared `Resolved` consumer, Builder
 `Method(None)` terminal, and unified-emitter reissuer. `Resolved` is now
 production-caller-zero but still has named test-only compatibility witnesses.
 The Rust exact-1 methodize success contract is selected for typed ingress
-retirement; Hako/JSON Stage1 owners remain separate. Before that semantic row,
-the current fast slice only splits the 755-line active guard, followed by the
-859-line test owner split. VM/backend, JSON/Hako, Stage1, and Call-schema
-changes remain closed.
+retirement; Hako/JSON Stage1 owners remain separate. The behavior-neutral
+active-guard split landed at `f70e43daa9` with owners at 624 and 287 lines. The
+current fast slice only moves five existing module-ingress tests out of the
+859-line capture owner without changing names or behavior. Exact-1 retirement,
+VM/backend, JSON/Hako, Stage1, and Call-schema changes remain closed.
 
 ## Historical rolling context (non-authoritative)
 
