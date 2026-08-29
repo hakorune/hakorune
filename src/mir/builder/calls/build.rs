@@ -122,6 +122,7 @@ impl MirBuilder {
             PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments } => {
                 self.lower_prepared_app_main_direct_call_v1(port, arguments)
             }
+            PreparedRawOrdinaryFunctionCompletionV1::Retired(retirement) => Err(retirement.error()),
             PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
         }
     }

@@ -1606,7 +1606,7 @@ non_authority = "Hako adapter output is not evidence for the Rust Method(None) p
 reopen_trigger = "Hako pipeline is explicitly selected for migration or route retirement"
 
 [same_module_cataloged_provider_census_d0_2026_08_30]
-status = "active_design_stop"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
@@ -1646,7 +1646,60 @@ ordered_tasks = [
 acceptance = "The caller-present name list is finite and two-directionally reconciled, each name has exactly one state/owner, math/Extern/ordinary exclusions are explicit, caller-present GC is not silently treated as caller-less, and no production implementation or new semantic receipt was added."
 no_safe_slice = "Remain in design_stop if any provider name needs a new bare runtime owner, public language behavior is undecided, caller-present GC behavior is unclassified, print arity is not contract-backed, or target meaning still requires name/arity, symbol, registry, resolver, env, or retry."
 next_design_card = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
-next_implementation = "none_until_one_provider_cohort_is_selected"
+selected_cohort = "caller_present_gc_typed_retirement"
+caller_present_route = "prepare_ordinary_function_completion_v1 -> prepare_cataloged_target_v1"
+reconciled_result = "The finite provider names are separated: print has an existing builtin issuer; abs/min/max/sin/cos leave through the Math owner; explicit env/nyash/system names remain Extern; error/now/panic/exit have no bare issuer; gc_collect/gc_stats are the only caller-present cohort whose existing caller-less retirement policy can be extended without a new authority."
+next_implementation = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
+
+[same_module_cataloged_gc_retire_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+implementation_permission = true
+source_authority = "The existing installed-nonbrand GC retirement predicate is the named policy owner; no target issuer is needed."
+canonical_issuer = "None: gc_collect/gc_stats remain unissued and terminate before argument descent."
+non_authority = [
+  "cataloged caller presence, name/arity, BuiltinGlobal classification, new_free_function, CalleeResolverBox, registry, symbol, env, VM/backend, fallback, and retry",
+]
+fail_fast_boundary = "At Cataloged ordinary preflight, after TypeOp/Math/FastMem precedence and before caller target preparation, child descent, Const/ValueId allocation, block mutation, or Call publication."
+census_boundary = "InstalledNonBrand raw FunctionCall names gc_collect/gc_stats -> prepare_ordinary_function_completion_v1 -> pre-effect typed Retired terminal; includes caller=None and caller=Some cataloged paths plus focused tests, excludes Math, Extern, bare error/now/panic/exit, wire/JSON, VM/backend, and Call schema."
+decision = "Extend the existing gc-global-retired terminal to caller-present Cataloged calls by moving the predicate before the caller branch. This removes the only caller-present path that synthesized SameModule FreeFunction for an unissued GC provider."
+old_edge_delete_set = [
+  "InstalledNonBrand caller-present gc_collect/gc_stats -> BuiltinGlobal -> SameModule FreeFunction(name, arity)",
+  "caller-present GC -> CalleeResolverBox -> CatalogedTargeted",
+]
+allowed_files = [
+    "src/mir/builder/calls/function_call_preflight_route.rs",
+    "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+    "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+    "src/mir/builder/calls/build.rs",
+    "src/mir/builder/calls/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "ordinary static terminal",
+  "generic CorePlan",
+  "operators",
+  "physical thunk",
+  "rewrite/known",
+  "ordinary-new birth",
+  "panic/exit/error/now issuer",
+  "Math/Extern",
+  "package/loan",
+  "VM/backend/JSON/Call schema",
+]
+focused_test_names = [
+  "installed_gc_names_reject_before_arguments",
+  "cataloged_gc_names_reject_before_target_synthesis",
+  "installed_gc_rejection_does_not_descend_or_publish",
+]
+focused_test_filters = ["function_call_installed_gc_builtin_tests"]
+changed_test_names = ["cataloged_gc_names_reject_before_target_synthesis"]
+acceptance = "Both caller=None and caller=Some cataloged GC calls reach one typed retirement variant before target preparation and child descent; no SameModule FreeFunction is synthesized for gc_collect/gc_stats; existing Math/Extern/ordinary routes remain unchanged; focused tests and the reusable active-surface guard are green."
+no_safe_slice = "Return to design_stop if caller-present GC has a public success contract, the predicate cannot be evaluated before caller target preparation, a new GC issuer is required, or the change reaches Math/Extern, VM/backend, wire, package/loan, or Call schema."
 
 [docs]
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"

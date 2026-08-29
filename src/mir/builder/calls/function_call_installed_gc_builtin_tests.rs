@@ -11,6 +11,21 @@ fn installed_gc_preflight(builder: &MirBuilder, name: &str) -> PreparedRawFuncti
     )
 }
 
+fn cataloged_gc_preflight(
+    builder: &MirBuilder,
+    name: &str,
+    caller: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+) -> PreparedRawFunctionPreflightV1 {
+    PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        builder,
+        name.to_owned(),
+        vec![integer(1)],
+        RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller),
+        },
+    )
+}
+
 #[test]
 fn installed_gc_names_reject_before_arguments() {
     for name in ["gc_collect", "gc_stats"] {
@@ -19,8 +34,32 @@ fn installed_gc_names_reject_before_arguments() {
         assert!(matches!(
             prepared.route,
             PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
-            } if error.contains("gc-global-retired")
+                completion: PreparedRawOrdinaryFunctionCompletionV1::Retired(
+                    RawOrdinaryFunctionRetirementV1::GcGlobal
+                )
+            }
+        ));
+    }
+}
+
+#[test]
+fn cataloged_gc_names_reject_before_target_synthesis() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("BoxA.caller/0".to_owned());
+    install_catalog(&mut builder, vec![static_box("BoxA", &[("caller", 0)])]);
+    let caller = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "BoxA", "caller", 0,
+    );
+
+    for name in ["gc_collect", "gc_stats"] {
+        let prepared = cataloged_gc_preflight(&builder, name, caller.clone());
+        assert!(matches!(
+            prepared.route,
+            PreparedRawFunctionPreflightRouteV1::Ordinary {
+                completion: PreparedRawOrdinaryFunctionCompletionV1::Retired(
+                    RawOrdinaryFunctionRetirementV1::GcGlobal
+                )
+            }
         ));
     }
 }

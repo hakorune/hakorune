@@ -51,6 +51,8 @@ RAW_LEGACY_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-D0"
 RAW_LEGACY_I0_ROW = "MIR-CALL-COMPAT-RAW-LEGACY-FATE-I0"
 METHOD_CORRIDOR_D0_ROW = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 METHOD_RESOLUTION_RET0_ROW = "MIR-CALL-METHOD-RESOLUTION-STATIC-NONE-RET0"
+CATALOGED_GC_RETIRE_ROW = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
+CATALOGED_GC_RETIRE_KEY = "same_module_cataloged_gc_retire_i0_2026_08_30"
 PROOF_KEY = "proof_reliability_followups_2026_08_29"
 RAW_ROOT_KEY = "raw_root_main_retire_i0_2026_08_29"
 SCRIPT_ROOT_KEY = "method_call_compat_script_root_ret0_2026_08_30"
@@ -304,6 +306,74 @@ def check_proof_row(state: dict, card: dict, proof: dict, root: Path) -> None:
     }
     if not isinstance(allowed, list) or set(allowed) != expected:
         fail("active guard allowed-file boundary drifted")
+
+
+def check_cataloged_gc_retire_i0(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("cataloged GC retirement requires fast or closeout work_mode")
+    if state.get("current_execution_row") != CATALOGED_GC_RETIRE_ROW:
+        fail("cataloged GC retirement row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("cataloged GC retirement must clear current_design_stop")
+    if state.get("next_execution_card") != CATALOGED_GC_RETIRE_ROW:
+        fail("cataloged GC retirement pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("cataloged GC retirement card pointer drifted")
+
+    row = card.get(CATALOGED_GC_RETIRE_KEY)
+    if not isinstance(row, dict):
+        fail(f"{CATALOGED_GC_RETIRE_KEY} section is missing")
+    if row.get("task_id") != CATALOGED_GC_RETIRE_ROW:
+        fail("cataloged GC retirement task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("cataloged GC retirement status is not finite")
+    if row.get("implementation_permission") is not (row.get("status") == "fast_open"):
+        fail("cataloged GC retirement permission/status drifted")
+
+    route_rel = Path("src/mir/builder/calls/function_call_preflight_route.rs")
+    build_rel = Path("src/mir/builder/calls/build.rs")
+    tests_rel = Path("src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs")
+    route = (root / route_rel).read_text()
+    tests = (root / tests_rel).read_text()
+    completion_start = route.find("fn prepare_ordinary_function_completion_v1")
+    completion_end = route.find("fn is_installed_non_unified_gc_builtin_v1")
+    if completion_start < 0 or completion_end < completion_start:
+        fail("cataloged GC ordinary completion owner cannot be located")
+    completion = route[completion_start:completion_end]
+    gc_pos = completion.find("is_installed_non_unified_gc_builtin_v1(name)")
+    caller_pos = completion.find("else if let Some(caller) = caller")
+    if gc_pos < 0 or caller_pos < 0 or gc_pos > caller_pos:
+        fail("cataloged GC retirement is not before caller target preparation")
+    if "PreparedRawOrdinaryFunctionCompletionV1::Retired" not in completion:
+        fail("cataloged GC retirement does not use the typed retirement variant")
+    for token in (
+        "cataloged_gc_names_reject_before_target_synthesis",
+        "installed_gc_names_reject_before_arguments",
+        "installed_gc_rejection_does_not_descend_or_publish",
+        "RawOrdinaryFunctionRetirementV1::GcGlobal",
+    ):
+        if token not in tests:
+            fail(f"cataloged GC retirement test evidence is missing: {token}")
+    for path in (route_rel, build_rel, tests_rel):
+        if sum(1 for _ in (root / path).open()) >= 760:
+            fail(f"cataloged GC retirement source reached the 760-line boundary: {path}")
+
+    expected_allowed = {
+        str(route_rel),
+        "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+        str(tests_rel),
+        "src/mir/builder/calls/build.rs",
+        "src/mir/builder/calls/README.md",
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        fail("cataloged GC retirement allowed-file boundary drifted")
+    if row.get("status") == "landed":
+        check_test_coverage(root, row)
 
 
 def check_raw_root_resume(state: dict, card: dict, proof: dict, root: Path) -> None:
@@ -619,6 +689,8 @@ def main() -> None:
         check_static_receipt_target_before_args_i0(state, card, root, api)
     elif row == SAME_MODULE_PARENT_ROW:
         check_same_module_parent_r0(state, card, api)
+    elif row == CATALOGED_GC_RETIRE_ROW:
+        check_cataloged_gc_retire_i0(state, card, root)
     elif row == RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:

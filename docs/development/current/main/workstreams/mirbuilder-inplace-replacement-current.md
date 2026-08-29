@@ -54,14 +54,13 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
-Current design stop:
-`MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0` is the only next slice.
-It counts caller-present names at the Cataloged ingress and separates exact
-`print`, caller-present GC, Math, explicit Extern, and no-issuer cohorts.
-It adds no code, target synthesis, resolver, fallback, or provider-wide
-implementation. Only one named cohort may open an I0 after its existing
-issuer or typed pre-effect retirement is proven; the other cohorts remain
-explicit blockers or ParkedSealed outside owners.
+Current bounded implementation:
+`MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0` is open. The provider census
+selected only caller-present `gc_collect`/`gc_stats`: reuse the existing
+installed-nonbrand pre-effect retirement predicate, move it before Cataloged
+caller target preparation, and delete the old unissued FreeFunction synthesis
+edge. `print`, Math, explicit Extern, and no-issuer names remain separate
+owners/blockers; no provider-wide implementation is allowed.
 
 ## Historical rolling context (non-authoritative)
 

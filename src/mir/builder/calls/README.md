@@ -37,6 +37,12 @@ direct-injection ordinary non-special edge now ends at `RawRootMainRetired`.
 The shared `Resolved` completion, post-argument generic resolver, unique/tail
 recovery, name-Const Call writer, and tail-resolve env selector are retired.
 
+Installed non-brand `gc_collect` and `gc_stats` calls are also a named
+pre-effect retirement.  The same typed terminal is selected before any
+caller-present catalog target synthesis, so caller presence cannot turn an
+unissued GC name into a same-module free-function target.  This does not
+change the separate Math, Extern, ordinary, VM, or Call-schema lanes.
+
 The former `method_resolution` static-box `has_method` branch is retired as a
 caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;
 qualified static targets belong to exact catalog/source handoffs. There is no

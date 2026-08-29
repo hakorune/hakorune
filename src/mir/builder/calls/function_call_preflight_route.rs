@@ -61,6 +61,19 @@ enum RawCompatibilityOrdinaryCallTerminalV1 {
     RawLegacyRetired,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum RawOrdinaryFunctionRetirementV1 {
+    GcGlobal,
+}
+
+impl RawOrdinaryFunctionRetirementV1 {
+    pub(super) fn error(self) -> String {
+        match self {
+            Self::GcGlobal => "[freeze:contract][direct-call/gc-global-retired]".to_owned(),
+        }
+    }
+}
+
 impl RawCompatibilityOrdinaryCallTerminalV1 {
     fn error(self) -> String {
         match self {
@@ -105,6 +118,7 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     AppMainTargeted {
         arguments: Vec<ASTNode>,
     },
+    Retired(RawOrdinaryFunctionRetirementV1),
     Rejected {
         error: String,
     },
@@ -365,6 +379,12 @@ fn prepare_ordinary_function_completion_v1(
         Err(RawCompatibilityOrdinaryCallTerminalV1::RawLegacyRetired)
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledAppMain) {
         Ok(PreparedRawOrdinaryFunctionCompletionV1::AppMainTargeted { arguments })
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        && is_installed_non_unified_gc_builtin_v1(name)
+    {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Retired(
+            RawOrdinaryFunctionRetirementV1::GcGlobal,
+        ))
     } else if let Some(caller) = caller {
         match prepare_cataloged_target_v1(builder, caller, name, arguments.len()) {
             Ok(callee) => {
@@ -377,12 +397,6 @@ fn prepare_ordinary_function_completion_v1(
             }
             Err(error) => Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected { error }),
         }
-    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
-        && is_installed_non_unified_gc_builtin_v1(name)
-    {
-        Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
-            error: format!("[freeze:contract][direct-call/gc-global-retired] name={name}"),
-        })
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && caller.is_none()
     {

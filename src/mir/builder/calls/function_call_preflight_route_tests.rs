@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::{
     lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightRouteV1,
     PreparedRawFunctionPreflightV1, PreparedRawOrdinaryFunctionCompletionV1,
-    RawCompatibilityOrdinaryCallTerminalV1,
+    RawCompatibilityOrdinaryCallTerminalV1, RawOrdinaryFunctionRetirementV1,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::builder::callable_declaration_catalog::{
