@@ -982,7 +982,67 @@ no_safe_slice = [
     "The proposed change touches shared Resolved/recovery, VM/JSON/backend, or Call schema."
 ]
 non_claims = "No Methodize parity, Rust producer deletion, Method corridor implementation, wrapper compatibility, VM migration, or Call-schema cutover is established until the fresh artifact exists."
-next_row = "MIR-CALL-METHODIZE-D0"
+next_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
+
+[stage1_fresh_blocker_snapshot_reconcile_d0_2026_08_29]
+status = "landed"
+task_id = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
+execution_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
+parent_row = "STAGE1-FULL-ARTIFACT-D0"
+implementation_permission = false
+decision = "Reconcile the fresh artifact blocker only after pinning source tree, binary, cwd, environment, and command. The clean c05 snapshot reproduces the recorded ResolverDeferred/UnsupportedExpression batch; do not treat a mixed or edited probe as clean evidence."
+source_authority = "The normal source-backed semantic batch and its existing resolver-deferred terminal own the observed failure; the Stage1 Hako owners named by that batch own any later source-shape decision."
+canonical_issuer = "Existing resolver-deferred typed terminal; this reconciliation issues no semantic receipt, target, artifact, or compatibility route."
+non_authority = "A stale/foreign quick binary, mixed worktree imports, ternary experiment output, timeout text, Main/argv shape, wrappers, Methodize, Call/VM/backend, or inferred declaration identity."
+fail_fast_boundary = "Before package/artifact effects, the clean normal route must report the same typed batch boundary. Any probe that reports an earlier different terminal is a separate edited-snapshot observation, not a replacement of the clean blocker."
+snapshot_evidence = [
+    "Detached clean source tree: c05c88da96bfc85a86e2033de2fd9d8caa91540c; stage1_cli_env.hako SHA-256 8681091f8a13124ca4af06810d277c7079abf4315ad503ecd2d92945ea38b9d7.",
+    "Rebuilt quick binary SHA-256 60478a605aa65407a9d671bf98ddc9d5743b693b1365a25fb3d140f131053b03; cwd and import root were the detached clean tree; only NYASH_MACRO_DISABLE=1 was set.",
+    "NYASH_MACRO_DISABLE=1 target/quick/hakorune --emit-mir-json <fresh> lang/src/runner/stage1_cli_env.hako returned rc=1 with no artifact and the five-method ResolverDeferred/UnsupportedExpression batch: PatternUtilBox.find_local_bool_before, JsonNumberCanonicalBox.canonicalize_f64, JsonFragNormalizerBox._normalize_instructions_array, JsonFragNormalizerBox._canonicalize_f64_str, and LowerMethodArrayGetSetBox.try_lower.",
+    "The earlier ParameterContract/UnsupportedDeclaredType output came from an edited/mixed probe and is not promoted to the clean blocker; no production source change is retained from that probe.",
+]
+acceptance = [
+    "The clean snapshot tuple (source commit/hash, binary hash, cwd, env, command, rc, artifact existence) is recorded and reproducible.",
+    "The five-method/20-site ternary closure is treated as the next design candidate only; no ternary I0 or full artifact claim is opened by this row.",
+    "Main.main/0, source preservation, wrappers, Methodize, Call, VM/backend, and all existing D1 guards remain unchanged.",
+]
+no_safe_slice = [
+    "The same clean tuple cannot reproduce the five-method typed boundary.",
+    "A proposed source edit changes an earlier parameter/source contract or requires parser/resolver/Call/VM/entry changes.",
+    "A stale or mixed snapshot is used as evidence for artifact readiness.",
+]
+non_claims = "This reconciliation does not establish a fresh artifact, ternary rewrite safety, Methodize parity, or any MirBuilder semantic cutover."
+next_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
+
+[stage1_resolver_ternary_shape_d0_2026_08_29]
+status = "accepted_design_stop"
+task_id = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
+execution_row = "STAGE1-RESOLVER-TERNARY-SHAPE-D0"
+parent_row = "STAGE1-FRESH-BLOCKER-SNAPSHOT-RECONCILE-D0"
+implementation_permission = false
+decision = "Bound the next source-shape question to the five existing Hako methods and their 20 expression-position ternaries. First determine whether a source-only lazy if/else form is accepted without changing parameter/source contracts; only then may a separate I0 be opened."
+source_authority = "PatternUtilBox.find_local_bool_before, JsonNumberCanonicalBox.canonicalize_f64, JsonFragNormalizerBox._normalize_instructions_array, JsonFragNormalizerBox._canonicalize_f64_str, and LowerMethodArrayGetSetBox.try_lower own the local expressions; the existing resolver remains a typed observer, not an extension target."
+canonical_issuer = "Existing method return/value semantics and normal source closure; no new receipt or target issuer."
+non_authority = "Runtime flags, delegate/VM/backend, Stage1 root, wrappers/argv, source preprocessor, parameter-contract fallback, Rust resolver extension, Methodize/Method(None), receiver ABI, shared Resolved, Call schema, and guessed dead-code exclusion."
+fail_fast_boundary = "The design candidate must preserve the existing ResolverDeferred terminal until the bounded source form is proven; any earlier ParameterContract or source/member drift is a NoSafeSlice signal, not a reason to widen scope."
+finite_inventory = [
+    "pattern_util_box.hako: find_local_bool_before, 6 comparison ternaries (227-232)",
+    "json_number_canonical_box.hako: canonicalize_f64, 6 ternaries (53,59,72,76,82,84)",
+    "jsonfrag_normalizer_box.hako: _normalize_instructions_array, 1 (73) and _canonicalize_f64_str, 6 (261,271,287,291,298,300)",
+    "lower_method_array_get_set_box.hako: try_lower, 1 JSON value-fragment ternary (31)",
+]
+smallest_next_slice = "Read-only source/grammar feasibility matrix for these 20 sites: preserve lazy branch evaluation, return/value shape, null/sentinel/escaping, declaration/parameter contracts, and the same clean snapshot boundary. Do not edit code in D0."
+acceptance = [
+    "Every site has owner, expression position, branch laziness, and source contract recorded; no site outside the finite closure is added.",
+    "An existing parser/source owner is named for either a safe BoxShape I0 or an explicit NoSafeSlice; no guessed parser/resolver expansion is accepted.",
+    "The next I0, if any, is limited to the four Hako files and must rerun the clean normal route before artifact readiness is reopened.",
+]
+no_safe_slice = [
+    "if/else/assignment/return is not accepted by the existing Hako subset, changes laziness, or alters a parameter/source contract.",
+    "The clean route fails before the finite closure or requires an out-of-scope parser/resolver/entry/Call/VM change.",
+]
+non_claims = "No ternary source edit, fresh artifact, Methodize parity, or MirBuilder Call/VM retirement is authorized by this D0."
+next_row = "STAGE1-FULL-ARTIFACT-D0"
 
 [stage1_source_shape_diag_d0_2026_08_29]
 status = "landed"
