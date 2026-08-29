@@ -727,7 +727,8 @@ ordered_tasks = [
   "I4: physical thunk — consume the exact header/entry relation without symbol parse-back",
   "I5: rewrite/known — replace four production parse-back sites with their existing typed owner or pre-effect reject",
   "I6: ordinary new birth — keep construction authority separate from SameModule call publication",
-  "I7: cataloged provider-as-Free — retain only exact declared provider/builtin disposition; name+arity synthesis is not authority",
+  "I7-D0: cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; do not open a provider-wide implementation row",
+  "I7-I0: one named provider cohort only after its exact issuer or typed pre-effect retirement is closed; name+arity synthesis is not authority",
   "C0: rerun two-direction producer census; close only when open/reopened blockers are zero and the test-only row remains ParkedSealed",
 ]
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
@@ -1603,6 +1604,49 @@ edge = "Hako compatibility adapter remains a separate wire/schema owner"
 disposition = "ParkedSealed"
 non_authority = "Hako adapter output is not evidence for the Rust Method(None) producer census"
 reopen_trigger = "Hako pipeline is explicitly selected for migration or route retirement"
+
+[same_module_cataloged_provider_census_d0_2026_08_30]
+status = "active_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape finite caller census"
+implementation_permission = false
+decision = "Do not treat cataloged_provider_as_free as one implementation slice. First enumerate caller-present names at the Cataloged ingress and assign each name to an existing exact issuer, a typed pre-effect retirement, or a separate language/provider decision. No source, target, resolver, or compatibility behavior changes in this row."
+source_authority = "Existing named builtin, explicit Extern declaration, Math special owner, or exact same-brand callable/source relation; the census itself issues no semantic product."
+canonical_issuer = "Only existing builtin_print() or already-owned qualified Extern/Math/callable publication may be reused. A name plus arity, BuiltinGlobal classification, catalog presence, resolver, symbol, or EffectsAnalyzer is not an issuer."
+non_authority = [
+  "CallNameCalleeClassV1::BuiltinGlobal",
+  "source name/arity and CanonicalGlobalTargetV1::new_free_function",
+  "CalleeResolverBox, catalog existence-only lookup, physical symbol, env, VM/backend, test fixture, fallback, and retry",
+]
+census_boundary = "Installed non-brand Cataloged raw FunctionCall -> prepare_cataloged_target_v1 -> first target/typed-reject terminal; includes caller-present provider names and their existing tests, excludes Math special ingress, ExplicitExtern, RawCompatibility, caller-less GC, wire/JSON, VM/backend, and Call schema."
+finite_states = [
+  "PrintCandidate: exact builtin_print issuer exists; arity contract remains to be confirmed",
+  "MathOwned: abs/min/max/sin/cos leave through the existing Math owner; no provider change",
+  "ExplicitExternOwned: qualified declared provider remains on the existing Extern owner",
+  "NoIssuer: error/now and bare panic/exit have no exact issuer in this boundary; remain open for language/provider decision",
+  "GcCallerPresent: gc_collect/gc_stats with a caller must be counted separately from caller-less reject; no synthesis is accepted",
+  "Ordinary: all other names retain ordinary declaration handling and are not provider evidence",
+]
+provider_matrix = [
+  "print -> existing builtin_print(); exact print/1 is a separate bounded contract check",
+  "abs/min/max/sin/cos -> existing Math route; excluded from this provider implementation",
+  "error/now -> no exact issuer found; typed reject requires language-contract confirmation",
+  "panic/exit -> no bare Extern issuer found; Extern conversion is a separate owner/decision",
+  "gc_collect/gc_stats -> caller-present census first; caller-less reject remains unchanged",
+]
+ordered_tasks = [
+  "D0-A: derive the finite caller-present name list from the Cataloged ingress and record exact file/line callers; no function-level or backend-wide census",
+  "D0-B: verify each name against the finite state table and count caller-present GC separately; do not infer from a missing caller",
+  "D0-C: choose one cohort only: exact print/1 contract or caller-present GC typed retirement; leave no-issuer cohorts open",
+  "I0: open only the selected cohort with positive/negative/pre-effect evidence and delete its old name+arity synthesis edge in the same bounded row",
+  "C0: rerun the provider boundary and return to the SameModule parent; no provider-wide closure claim",
+]
+acceptance = "The caller-present name list is finite and two-directionally reconciled, each name has exactly one state/owner, math/Extern/ordinary exclusions are explicit, caller-present GC is not silently treated as caller-less, and no production implementation or new semantic receipt was added."
+no_safe_slice = "Remain in design_stop if any provider name needs a new bare runtime owner, public language behavior is undecided, caller-present GC behavior is unclassified, print arity is not contract-backed, or target meaning still requires name/arity, symbol, registry, resolver, env, or retry."
+next_design_card = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
+next_implementation = "none_until_one_provider_cohort_is_selected"
 
 [docs]
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
