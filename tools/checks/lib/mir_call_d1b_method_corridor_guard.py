@@ -361,10 +361,7 @@ def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:
     for label, values in (("D0-B", open_b), ("D0-C", open_c)):
         if "raw_legacy_origin" in values or "script_root_origin" in values:
             api.fail(f"{label} still lists a landed compatibility origin")
-        for required in (
-            "resolved_compatibility_consumer",
-            "builder_method_none_publication_terminal",
-        ):
+        for required in ("resolved_compatibility_consumer",):
             if required not in values:
                 api.fail(f"{label} lost remaining Method corridor blocker: {required}")
     closed = row.get("d0_b_closed_rows")
@@ -375,6 +372,7 @@ def check_method_corridor_d0(state: dict, card: dict, api: object) -> None:
         "script_root_origin",
         "method_resolution_static_none",
         "unified_emitter_methodize_reissuer",
+        "builder_method_none_publication_terminal",
     ):
         if required not in closed:
             api.fail(f"Method corridor producer census did not close {required}")

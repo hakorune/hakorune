@@ -353,7 +353,6 @@ in_scope_inventory_count = 11
 outside_inventory_count = 8
 open_questions = [
   "Which test-only Resolved witnesses should be retained as historical compatibility and which should be retired in a separate cleanup row?",
-  "Can the Builder Method(None) publication terminal be deleted immediately after its sole Rust production reissuer reached zero, or does a named non-Rust owner still reach it?",
 ]
 required_evidence = [
   "finite producer/reissuer/terminal inventory with start/end boundary and includes/excludes",
@@ -396,7 +395,6 @@ d0_b_status = "partial_disposition"
 d0_b_boundary = "recounted producer/reissuer/terminal -> exact successor, pre-effect typed reject, or open blocker"
 d0_b_open_rows = [
   "resolved_compatibility_consumer",
-  "builder_method_none_publication_terminal",
 ]
 d0_b_closed_rows = [
   "installed_app_main_affine_successor",
@@ -408,30 +406,30 @@ d0_b_closed_rows = [
   "raw_legacy_origin",
   "method_resolution_static_none",
   "unified_emitter_methodize_reissuer",
+  "builder_method_none_publication_terminal",
 ]
 d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot and ScriptRoot have pre-effect retirement/deferral boundaries, RawLegacy's sole ordinary edge is closed by RawLegacyRetired at 7fb4ed1a1f, method_resolution_static_none is caller-zero retired at fea43bdade, and Rust exact-1 plus the unified methodize reissuer are retired at 287e944fe8. Only the dormant Resolved consumer/test witnesses and Builder Method(None) terminal remain open in this boundary."
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot and ScriptRoot have pre-effect retirement/deferral boundaries, RawLegacy's sole ordinary edge is closed by RawLegacyRetired at 7fb4ed1a1f, method_resolution_static_none is caller-zero retired at fea43bdade, Rust exact-1 plus the unified methodize reissuer are retired at 287e944fe8, and the Builder Method(None) terminal rejects before publication at cc2d390538. Only the dormant Resolved consumer and its test-only witnesses remain open in this boundary."
 d0_c_open_rows = [
   "resolved_compatibility_consumer",
-  "builder_method_none_publication_terminal",
 ]
 d0_c_decision_options = [
   "A: open a separate source-backed issuer design that supplies exact owner/site/brand/relation and an already-issued typed target within the same transaction",
   "B: retire the two remaining caller-zero compatibility consumer/terminal rows without replacement, after classifying their test-only witnesses and non-Rust callers",
 ]
-d0_c_selected_option = "B_in_progress__two_caller_zero_rows_remain"
-d0_c_option_b_scope = "B is accepted for the closed ScriptRoot, RawScriptRoot, RawLegacy, RawRootMain, method_resolution_static_none, and Rust unified-reissuer rows. It authorizes no replacement target and does not yet authorize the dormant Resolved consumer or Builder terminal deletion until their exact callers/test witnesses are classified."
+d0_c_selected_option = "B_in_progress__one_caller_zero_row_remains"
+d0_c_option_b_scope = "B is accepted for the closed ScriptRoot, RawScriptRoot, RawLegacy, RawRootMain, method_resolution_static_none, Rust unified-reissuer, and Builder Method(None) terminal rows. It authorizes no replacement target and does not yet authorize dormant Resolved consumer deletion until its exact test-only witnesses are classified."
 d0_c_option_a_fate = "NoSafeSlice: Installed App Main is the only reusable complete source-owner/site/brand/relation/package/loan chain. ScriptRoot and RawScriptRoot lack a bare FunctionCall target product, RawLegacy lacks owner/site/brand/package/target, and RawRootMain is already caller-zero upstream. A would require a second source scan or resolver."
 d0_c_language_policy = "ScriptRoot, RawScriptRoot, RawRootMain, and RawLegacy are internal compatibility provenance, not Canonical language semantics or a public Compat2025 profile. No new caller may depend on their post-argument resolver behavior."
 d0_c_retirement_order = [
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "Rust exact-1 and the unified reissuer are landed with zero policy carrier. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its only open rows are resolved_compatibility_consumer and builder_method_none_publication_terminal."
+d0_c_next_action = "Builder Method(None) terminal RET0 is landed at cc2d390538. Remain in design_stop for MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0; its only open row is resolved_compatibility_consumer and its direct test-only witnesses."
 
 post_static_none_ret0_observed_commit = "c44376532e"
-post_static_none_ret0_recount = "The static-none producer is retired with structural branch=0 and production reach=0. The shared Resolved producer/consumer remains structurally present but its only production origin is RawRootMain, whose ordinary FunctionCall is rejected upstream; the remaining direct witnesses are test-only. Rust exact-1 now rejects before mutation, its policy carrier is zero, and the unified-emitter Method(None) reissuer is zero. The Builder publication terminal remains for an exact caller recount."
+post_static_none_ret0_recount = "The static-none producer is retired with structural branch=0 and production reach=0. The shared Resolved producer/consumer remains structurally present but its only production origin is RawRootMain, whose ordinary FunctionCall is rejected upstream; the remaining direct witnesses are test-only. Rust exact-1 rejects before mutation, its policy carrier and unified-emitter Method(None) reissuer are zero, and the Builder terminal now rejects receiverless Method before publication."
 resolved_consumer_post_ret0_structural_producer_sites = 1
 resolved_consumer_post_ret0_production_reachable_callers = 0
 resolved_consumer_post_ret0_consumer_definitions = 1
@@ -442,8 +440,8 @@ resolved_consumer_post_ret0_test_only_witnesses = [
 ]
 resolved_consumer_post_ret0_fate = "ParkedSealed test-only compatibility witnesses; physical consumer cleanup is a separate row after their fate is explicitly chosen."
 unified_reissuer_user_decision = "Accepted and landed at 287e944fe8: Rust exact-1 HAKO_MIR_BUILDER_METHODIZE=1 is a named typed ingress retirement, not Stage1 provenance; the shared reissuer and policy carrier are deleted."
-d0_e_next_action = "Reconcile the dormant Resolved consumer's three test-only witnesses and recount every direct caller of the Builder Method(None) publication terminal; then open exactly one caller-zero retirement row."
-d0_e_recommended_decision = "Retire Rust exact-1 methodize at module ingress with a typed compatibility terminal; keep Hako/JSON Stage1 writers as separate named owners and do not add a provenance bit to the shared Rust selector."
+d0_e_next_action = "Reconcile every dormant Resolved direct-injection witness, then freeze one RawRootMain typed pre-effect terminal and an exact old-edge delete set before opening a caller-zero retirement row."
+d0_e_recommended_decision = "Retire the production-caller-zero RawRootMain Resolved compatibility edge without replacement; preserve str/math/special/Cataloged/AppMain precedence and do not add a target issuer or resolver."
 d0_e_no_safe_slice = "Without that decision, any selective non-Stage1 reissuer removal would rely on env/request inference and is not an executable slice."
 
 [rust_exact1_methodize_retire_decision_2026_08_30]
@@ -574,12 +572,12 @@ validation = [
 next_row = "Return to parent Method corridor for Builder terminal hardening and dormant Resolved test-witness fate."
 
 [builder_method_none_publication_terminal_ret0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement"
-implementation_permission = true
+implementation_permission = false
 decision = "Reject Callee::Method(receiver=None) at the sole Builder instruction-publication terminal. Rust Builder literal writers are zero after the exact-1 unified reissuer retirement; no replacement target or route is introduced."
 source_authority = "An instance Method must carry an exact receiver. A static method remains an already-issued qualified Global. The typed Callee is the only terminal input authority."
 non_authority = "func/ValueId, args[0], box/method spelling, registry, current_static_box, RuntimeData classification, JSON/Hako/Stage1, VM/backend, tests, fallback, and retry."
@@ -601,6 +599,16 @@ allowed_files = [
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
 acceptance = "Receiverless Method returns the stable retired terminal with zero instruction delta; typed Global still publishes; no production Method(None) writer, replacement target, resolver, or Call schema change appears; focused tests, quick check, guard, and pointer are green."
+implementation_commit = "cc2d390538"
+post_implementation_census = "Rust Builder Method(None) literal writers=0; unified reissuer=0; emit_instruction typed terminal=1; typed Global positive=1; JSON/Hako/Stage1 and VM/backend excluded owners unchanged."
+validation = [
+  "cargo test --lib builder_method_none_terminal_tests -- --test-threads=1: 2 passed",
+  "cargo check --profile quick --lib: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+]
 next_row = "Return to parent design_stop for the dormant Resolved consumer and its three test-only witnesses."
 
 [method_call_method_resolution_static_none_ret0_d0_2026_08_30]
@@ -1148,12 +1156,13 @@ kind = "terminal"
 owner = "src/mir/builder/builder_emit.rs:109-142,275-279"
 edge = "Builder publication still accepts the receiverless Method terminal"
 authority = "Only an exact receiver or qualified static declaration may reach canonical Call publication"
-disposition = "CutoverBlockerOpen"
+disposition = "RetiredTypedTerminal"
 reopen_trigger = "All in-boundary Method(None) writers are zero and the terminal has a typed pre-publication rejection"
-post_ret0_production_literal_writers = 1
-post_ret0_writer = "src/mir/builder/calls/unified_emitter.rs:415-421"
-post_ret0_pre_effect = false
-post_ret0_successor = "none; terminal hardening waits for unified methodize fate"
+post_ret0_production_literal_writers = 0
+post_ret0_writer = "none; unified reissuer retired at 287e944fe8"
+post_ret0_pre_effect = true
+post_ret0_successor = "none; cc2d390538 rejects the impossible receiverless Method shape before Builder publication"
+retirement_commit = "cc2d390538"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "unified_emitter_methodize_reissuer"
@@ -1161,12 +1170,13 @@ kind = "reissuer"
 owner = "src/mir/builder/calls/unified_emitter.rs:397-459,698-729"
 edge = "Explicit compatibility snapshot can reclassify RuntimeData Global into Method(None)"
 authority = "Incoming typed target provenance; the selector is not a Stage1 provenance brand"
-disposition = "CutoverBlockerOpen"
+disposition = "RetiredCallerZero"
 reopen_trigger = "All non-Stage1 selector callers are zero or a source-backed exact compatibility owner replaces this reissuer"
-post_ret0_production_reissuer_sites = 1
+post_ret0_production_reissuer_sites = 0
 post_ret0_direct_core_ingress_classes = 3
-post_ret0_successor = "none until Rust exact-1 compatibility fate is selected"
-post_ret0_user_decision_required = true
+post_ret0_successor = "none; Rust exact-1 ingress and the shared reissuer retired at 287e944fe8"
+post_ret0_user_decision_required = false
+retirement_commit = "287e944fe8"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "installed_app_main_affine_successor"

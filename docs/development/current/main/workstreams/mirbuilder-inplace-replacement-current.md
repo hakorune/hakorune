@@ -46,20 +46,19 @@ The explicit-compatibility ingress I0 remains landed at `13664f7787` (unset/exac
 values fail before mutation). Stage1 full artifact remains ParkedSealed. The
 caller-zero `method_resolution` static-none RET0 landed at `fea43bdade`: the
 `current_static_box + has_method` branch and local warning/wrapper plumbing are
-gone with no replacement target. The parent Method corridor is back in
-design_stop with three blockers: shared `Resolved` consumer, Builder
-`Method(None)` terminal, and unified-emitter reissuer. `Resolved` is now
-production-caller-zero but still has named test-only compatibility witnesses.
+gone with no replacement target. `Resolved` is now production-caller-zero but
+still has named test-only compatibility witnesses.
 Rust exact-1 methodize retirement landed at `287e944fe8`: both Rust module
 ingresses reject exact `1` before mutation, the stored policy carrier is gone,
 and the unified-emitter Global-to-`Method(None)` reissuer is zero. Hako/JSON and
-the Stage1 writer remain separate and unchanged. The parent Method corridor is
-left with two in-boundary blockers. A post-retirement structural census found
-zero Rust Builder `Callee::Method(receiver=None)` literal writers, so the only
-fast-open slice now rejects that impossible shape at `emit_instruction` before
-publication. The production-caller-zero shared `Resolved` consumer and its
-three test-only witnesses remain closed for a later fate row. VM/backend and
-Call-schema changes remain closed.
+the Stage1 writer remain separate and unchanged. A post-retirement structural
+census found zero Rust Builder `Callee::Method(receiver=None)` literal writers.
+The Builder terminal RET0 landed at `cc2d390538`: receiverless Method now
+rejects before materialization or publication while typed Global remains
+canonical. The parent Method corridor is therefore back in design_stop with
+one blocker only: the production-caller-zero shared `Resolved` consumer and its
+direct RawRootMain test witnesses. VM/backend and Call-schema changes remain
+closed.
 
 ## Historical rolling context (non-authoritative)
 

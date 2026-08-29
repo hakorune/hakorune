@@ -1,10 +1,10 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0: all Rust Builder Callee::Method(receiver=None) literal writers are zero after 287e944fe8. Reject only this impossible terminal shape in emit_instruction before receiver materialization or publication, with one negative and one canonical typed-Global positive. No producer, resolver, argument descent, JSON/Hako/Stage1, VM/backend, or Call-schema change."
-guard_followup = "Run the two focused terminal tests, quick lib check, active guard, pointer guard, receiverless writer census, and git diff --check; builder_emit.rs and its test sibling must remain below 760 lines."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+current_design_stop = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
+current_blocker_token = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0: Builder Method(None) terminal retirement landed at cc2d390538. The sole remaining in-boundary blocker is the production-caller-zero PreparedRawOrdinaryFunctionCompletionV1::Resolved consumer and its direct RawRootMain test-only witnesses. Classify those witnesses and freeze one typed pre-effect retirement boundary before opening source changes."
+guard_followup = "Recount every Resolved producer/consumer and RawRootMain direct-injection witness. Freeze the exact typed terminal, old-edge delete set, focused tests, and non-claims; do not infer a target or change production code while design_stop is selected."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Rust exact-1 methodize retired at 287e944fe8. The post-retirement census found zero Rust Builder Method(None) literal writers, so the only fast-open slice hardens the Builder publication terminal without changing producers or Call schema. Dormant Resolved/test-witness fate remains closed."
+latest_card_summary = "Rust exact-1 and its reissuer retired at 287e944fe8; the Builder Method(None) terminal now rejects before publication at cc2d390538. The Method corridor has one remaining blocker: the production-caller-zero shared Resolved consumer and its test-only RawRootMain witnesses."
 next_design_card = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
-next_execution_card = "MIR-CALL-BUILDER-METHOD-NONE-PUBLICATION-RET0"
+next_execution_card = "none: classify the dormant Resolved test witnesses before opening one caller-zero retirement row"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+	"2026-08-30: Builder Method(None) publication terminal RET0 landed at cc2d390538; receiverless Method now rejects before materialization or block insertion, typed Global remains publishable, and the focused terminal tests are 2/2 green. Only the dormant shared Resolved consumer remains open in the Method corridor.",
 	"2026-08-30: method_resolution static-none caller-zero RET0 landed at fea43bdade; the dormant current_static_box + has_method receiverless Method branch, warning helpers, and wrapper argument were deleted with no replacement target or downstream Call changes. Three Method corridor blockers remain in design_stop.",
 	"2026-08-30: RawLegacy ordinary non-special compatibility calls retired before argument descent at 7fb4ed1a1f; RawLegacyRetired is now the sole terminal for that origin, with no shared Resolved, resolver, MIR or collector effects. The next Method corridor census remains design_stop.",
-	"2026-08-30: ScriptRoot ordinary non-special compatibility calls retired before argument descent at f1bb472f1d; the dormant ScriptRoot -> Resolved edge is now a typed terminal with zero argument/port/MIR effects. R4 semantic deferral, special precedence, RawLegacy, and shared Resolved remain unchanged.",
 ]
