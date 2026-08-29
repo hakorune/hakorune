@@ -412,7 +412,7 @@ d0_b_closed_rows = [
 ]
 d0_c_status = "selected_origin_retirement"
 d0_c_observed_commit = "3391ecca92"
-d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot has its own pre-effect typed retirement terminal, and ScriptRoot ordinary FunctionCall is stopped by ObservationDeferred at the semantic seal before physical lowering. Only RawLegacy remains a live named R2 compatibility origin entering the shared Resolved consumer without an exact source/catalog product; ScriptRoot retains one dormant structural edge until I0 deletes it. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
+d0_c_result = "The existing source-keyed handoffs are limited to Cataloged/installed App Main/qualified static-method owners. RawRootMain is caller-zero upstream, RawScriptRoot has its own pre-effect typed retirement terminal, and ScriptRoot ordinary FunctionCall is stopped by ObservationDeferred at the semantic seal before physical lowering. Only RawLegacy remains a live named R2 compatibility origin entering the shared Resolved consumer without an exact source/catalog product; ScriptRoot retains one dormant structural edge until RET0 deletes it. method_resolution_static_none and the unified methodize reissuer also have no existing pre-effect typed terminal."
 d0_c_open_rows = [
   "raw_legacy_origin",
   "script_root_origin",
@@ -432,7 +432,7 @@ d0_c_retirement_order = [
   "script_root_origin",
   "raw_legacy_origin",
 ]
-d0_c_next_action = "ScriptRoot RetireBeforeEffects is selected. Run MIR-CALL-COMPAT-SCRIPT-ROOT-RETIRE-I0 to replace only the dormant ScriptRoot -> Resolved edge with an origin-specific typed terminal; preserve R4 semantic deferral, special-call precedence, RawLegacy, and the shared consumer."
+d0_c_next_action = "ScriptRoot RetireBeforeEffects is selected. Run MIR-CALL-COMPAT-SCRIPT-ROOT-RET0 to retire only the dormant ScriptRoot -> Resolved edge with an origin-specific typed terminal; preserve R4 semantic deferral, special-call precedence, RawLegacy, and the shared consumer."
 
 [method_call_compat_raw_script_retire_i0_2026_08_29]
 status = "landed"
@@ -559,22 +559,22 @@ required_evidence = [
   "if RetainResolved: named compatibility owner, source/fixture evidence, and a statement that the shared Resolved consumer remains a blocker",
   "RawLegacy and the shared Resolved consumer remain outside this D0",
 ]
-acceptance = "Closed: RetireBeforeEffects is selected, production success reach is zero, R4 semantic deferral is disjoint from raw success, and the bounded I0 below is the only open implementation row. D0 issues no target and changes no shared consumer."
+acceptance = "Closed: RetireBeforeEffects is selected, production success reach is zero, R4 semantic deferral is disjoint from raw success, and the bounded RET0 below is the only open implementation row. D0 issues no target and changes no shared consumer."
 non_claims = [
   "no ScriptRoot code switch while this Decision is open",
   "no RawLegacy change",
   "no Method(None), VM/backend, JSON/Hako, or Call-schema change",
   "no Stage1 artifact decision",
 ]
-next_execution = "MIR-CALL-COMPAT-SCRIPT-ROOT-RETIRE-I0"
+next_execution = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
 
-[method_call_compat_script_root_retire_i0_2026_08_30]
+[method_call_compat_script_root_ret0_2026_08_30]
 status = "fast_open"
-task_id = "MIR-CALL-COMPAT-SCRIPT-ROOT-RETIRE-I0"
-guard_phase = "script_root_pre_effect_retire_i0"
+task_id = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
+guard_phase = "script_root_pre_effect_ret0"
 parent_row = "MIR-CALL-METHOD-CORRIDOR-NONSTAGE1-PRODUCER-RETIRE-D0"
 ceremony_tier = "T1"
-box_kind = "BoxCount retirement: remove one dormant internal compatibility success shape"
+box_kind = "RET0 BoxCount retirement: remove one dormant internal compatibility success shape; production replacement credit = 0"
 implementation_permission = true
 decision = "After existing Brand, TypeOp, Math, FastMem, and str/1 precedence, ScriptRoot ordinary non-special FunctionCall enters one origin-specific typed retirement terminal before argument descent. R4 semantic Deferred/ObservationDeferred remains unchanged; no target product is issued."
 source_authority = "RawBrandCallAuthorityV1::ScriptRootParkedCompatibility is the sole downstream provenance issuer. The production source path is already fail-closed by NormalScriptPreEffectSourceObservationIssuerV1 before physical lowering."
@@ -591,7 +591,7 @@ finite_state_matrix = [
   "R4 Script semantic FunctionCall -> existing Deferred then ObservationDeferred before physical open; unchanged.",
   "RawScriptRoot -> existing RawScriptRootRetired; RawRootMain -> upstream caller-zero; RawLegacy -> existing Resolved; all unchanged.",
 ]
-production_reach_census = "Boundary: selected non-App Script ordinary non-special FunctionCall -> pre-effect semantic observation -> raw physical dispatch. Structural ScriptRoot classifier/route sites = 1; production success callers crossing the semantic seal = 0; test-only direct authority injections = 1. Excludes declared Brand, special calls, installed App Main, RawLegacy, and VM/backend."
+production_reach_census = "Boundary: selected non-App Script ordinary non-special FunctionCall -> pre-effect semantic observation -> raw physical dispatch. structural_sites = 1; production_reachable_callers = 0; test_only_injections = 1; public_contract_owners = 0. Includes the ScriptRoot classifier and downstream preflight edge; excludes declared Brand, special calls, installed App Main, RawLegacy, and VM/backend."
 old_edge_delete_set = [
   "ScriptRootParkedCompatibility -> PreparedRawOrdinaryFunctionCompletionV1::Resolved",
 ]
@@ -626,7 +626,7 @@ forbidden_files = [
   "raw expression dispatch, package/loan/RawInvocationChildPort, Script semantic resolver/receipt owners",
   "RawLegacy, Method(None), VM/backend, optimizer, JSON/Hako, Stage1, and Call schema",
 ]
-done = "One production switch replaces the dormant ScriptRoot Resolved edge with ScriptRootRetired; focused positive/negative tests and the reused active guard are green; changed tests have nonzero list/run coverage; source files remain below 760 lines; R4 semantic deferral, special routes, RawLegacy, and shared Resolved are unchanged."
+done = "One caller-zero structural retirement replaces the dormant ScriptRoot Resolved edge with ScriptRootRetired; focused positive/negative tests and the reused active guard are green; changed tests have nonzero list/run coverage; source files remain below 760 lines; R4 semantic deferral, special routes, RawLegacy, and shared Resolved are unchanged. No production replacement credit is claimed."
 stop = "Return to design_stop if ScriptRoot cannot be identified after special precedence, production source can cross ObservationDeferred, an active public fixture requires old success, a typed special/ordinary source disposition must be invented, or implementation reaches any forbidden owner."
 next_row = "Return to design_stop for the RawLegacy fate/caller census; do not open it in the same implementation commit."
 
@@ -731,7 +731,7 @@ owner = "src/mir/builder/calls/function_call_brand_source_demand.rs:77-95; src/m
 edge = "ScriptRoot ordinary compatibility demand is selected for an origin-specific pre-effect typed terminal; the old downstream Resolved edge is dormant because semantic observation stops before physical open"
 authority = "The existing semantic observation owner and ScriptRoot provenance classifier establish production reach zero; no exact target issuer exists or is needed for retirement"
 disposition = "SelectedPreEffectReject"
-reopen_trigger = "The selected I0 fails, a production caller crosses ObservationDeferred, or a public ScriptRoot success contract appears"
+reopen_trigger = "The selected RET0 fails, a production caller crosses ObservationDeferred, or a public ScriptRoot success contract appears"
 
 [[method_corridor_nonstage1_producer_retire_d0_2026_08_29.in_scope_inventory]]
 id = "raw_script_root_origin"

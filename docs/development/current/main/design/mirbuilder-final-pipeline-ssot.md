@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-27
+Date: 2026-08-30
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -472,11 +472,18 @@ legacy JoinModuleを第二planner、第二acceptance truth、または最終pipe
 
 ```text
 1. north-starのどの責務／edgeを前進させるか
-2. named existing production callerはどれか
-3. selected new ownerはどれか
-4. 同じcommitで削除するold authorityはどれか
-5. cutover後のfallback / retry / reselectionが0か
+2. structural / production-reachable / test-only / public-contractの各countは何か
+3. censusのstart -> end、includes、excludesは何か
+4. named existing production callerはどれか
+5. selected new ownerはどれか
+6. 同じcommitで削除するold authorityはどれか
+7. cutover後のfallback / retry / reselectionが0か
 ```
+
+`structural_sites > 0`を`production_reachable_callers > 0`へ読み替えない。
+production reachが0ならreplacement I0ではなくcaller-zero reconciliation／RET0、
+public contractが残るなら明示Decisionを選ぶ。test-only direct injectionは
+production acceptanceではない。
 
 最初のproduction replacement rowは
 `H2-SELECTED-DYNAMIC-LOOP-CUTOVER-I0`である。

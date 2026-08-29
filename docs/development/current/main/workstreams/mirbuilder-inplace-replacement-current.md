@@ -52,10 +52,11 @@ The bounded Rust explicit-compatibility ingress I0 is landed at
 compatibility mode, and malformed values fail before mutation. Stage1 is a
 known writer, but the selector carries no Stage1 provenance; external callers
 must not be treated as Stage1 without a separate owner. Stage1 full artifact
-remains ParkedSealed. `MIR-CALL-COMPAT-SCRIPT-ROOT-RETIRE-I0` changes only the
-dormant ScriptRoot edge; R4 semantic deferral, special-call precedence,
-RawLegacy, shared `Resolved`, `method_resolution`, JSON/Hako, VM/backend, and
-Call-schema changes remain closed.
+remains ParkedSealed. `MIR-CALL-COMPAT-SCRIPT-ROOT-RET0` changes only the
+dormant ScriptRoot edge and earns no production replacement credit; R4
+semantic deferral, special-call precedence, RawLegacy, shared `Resolved`,
+`method_resolution`, JSON/Hako, VM/backend, and Call-schema changes remain
+closed.
 
 ## Historical rolling context (non-authoritative)
 

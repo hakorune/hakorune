@@ -46,6 +46,21 @@ extract one responsibility
 -> prove parity after the switch
 ```
 
+Before opening the cell, keep four reachability counts separate:
+
+```text
+structural code sites
+production-reachable non-test callers
+test-only/direct-injection sites
+public contract owners
+```
+
+A structural branch or injected fixture is not a production caller. When the
+production count is zero, do not build a replacement owner: reconcile
+caller-zero or run a bounded `RET0`. A public contract owner still requires an
+explicit successor Decision. Any newly found caller/classifier/consumer after
+`fast` opens returns the cell to `design_stop`; it is not added in place.
+
 Disconnected S0 code may survive at most one landed commit before its I0/R0.
 An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their

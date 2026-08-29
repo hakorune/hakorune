@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-25
+Date: 2026-08-30
 Decision: MIRBUILDER-INPLACE-REPLACEMENT-POLICY-v1
 Scope: Rust MirBuilderを稼働させたまま、責務単位で本番内部を交換する
 Related:
@@ -99,6 +99,52 @@ candidate-only port
 production callerを持たないprepared owner
 feature-gated reference laneだけのcaller
 ```
+
+### Reachability census vocabulary
+
+replacement／retirement cellのcensusは、次の4軸を混ぜずに記録する。
+
+```text
+structural_sites:
+  code上に存在するproducer／branch／consumer site数
+
+production_reachable_callers:
+  named non-test ingressから全upstream gateを通過し、対象edgeへ到達できるcaller数
+
+test_only_injections:
+  cfg(test)、fixture、direct authority injection、disconnected proofからだけ開くsite数
+
+public_contract_owners:
+  language／CLI／profile／reference acceptanceがその挙動を要求するnamed owner数
+```
+
+各censusは`start -> end`、includes、excludesを同時に固定する。grep上のbranch、
+classifier variant、shared consumer、test fixtureの存在だけで
+`production_reachable_callers > 0`と数えてはならない。逆にpublic contract ownerは
+現在のproduction reachが0でも削除許可へ読み替えない。
+
+4軸から選べる処分は次で固定する。
+
+```text
+production_reachable_callers > 0:
+  exact new ownerとsame-cell old-edge deletionが閉じた場合だけI0を開く
+
+production_reachable_callers = 0 and structural_sites > 0:
+  新owner／issuerを作らず、caller-zero reconciliationまたはRET0を選ぶ
+
+production_reachable_callers = 0 and test_only_injections > 0:
+  fixtureはproduction acceptanceにしない。削除、移行、またはtyped retirementへ閉じる
+
+public_contract_owners > 0:
+  production reachにかかわらず、明示Decisionとsuccessorなしにretireしない
+
+未分類または境界未確定:
+  design_stop。推測値でfastを開かない
+```
+
+fast開始後に新しいproduction caller、classifier arm、consumer、public contractを
+発見した場合はscopeへ足さず、直ちにdesign_stopへ戻す。同じ責務の追加発見を
+実装commitの通常作業として扱わない。
 
 ## Row vocabulary
 
@@ -201,6 +247,10 @@ production consumers = 0
 ```text
 cell_id
 responsibility
+structural_sites_before
+production_reachable_callers_before
+test_only_injections_before
+public_contract_owners_before
 production_caller_before
 new_owner
 old_edge_or_symbol_to_delete
@@ -212,6 +262,10 @@ closeout時に次を記録する。
 
 ```text
 production_callers_before / after
+structural_sites_before / after
+production_reachable_callers_before / after
+test_only_injections_before / after
+public_contract_owners_before / after
 old_callers_before / after
 deleted_old_symbols_or_branches
 fallback_count
