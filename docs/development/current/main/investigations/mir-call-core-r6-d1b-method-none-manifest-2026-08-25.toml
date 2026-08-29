@@ -2021,6 +2021,14 @@ external_writers = [
   "tools/dev_env.sh enables both legacy runtime/prelude selectors and Builder-call selectors",
   "tools/selfhost/proof/run_stageb_compiler_vm.sh supplies both selector families as explicit process defaults",
 ]
+external_invokers = [
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh explicitly passes Builder-call selectors as 0",
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh explicitly passes Builder-call selectors as 0",
+]
+public_contract_surfaces = [
+  "docs/guides/operator-boxes.md documents the Builder-call master flag as an opt-in compatibility route",
+  "docs/guides/dev-mode.md and docs/reference/environment-variables.md describe the separate --dev/runtime and methodize contracts",
+]
 finite_states = [
   "UnsetOrFalse: selector does not request the legacy target publisher; classify the existing direct non-Call route without adding a default target",
   "TruthyCompatibility: explicit public opt-in requests the legacy operator target branch; retain only if its source/operator contract and terminal are named, otherwise choose a typed retirement terminal",
