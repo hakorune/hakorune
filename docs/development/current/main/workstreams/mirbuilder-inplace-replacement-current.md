@@ -93,15 +93,17 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
-The current bounded implementation row is
-`MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0`. It retires only
-the unissued generic `StaticReceiver`, `StaticThis`, `Me` `StaticFallback`, and
-`LoweredGlobal::Static` compatibility fallbacks before argument effects. Exact
-Cataloged handoffs, scalar/inline owners, qualified `Math`, Env/Extern,
-`Method(Some(receiver))`, and `LoweredGlobal::Instance` remain live. This row
-creates no issuer or receipt and does not alter VM/backend, JSON, Call schema,
-fallback/retry, or guard cleanup; any need to change a preserved owner returns
-the parent to `design_stop`.
+The bounded row
+`MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0` landed at
+`b1755febfb` with terminal-type and guard-ordering corrections at
+`7c834d021a`. It retires only the unissued generic `StaticReceiver`,
+`StaticThis`, `Me` `StaticFallback`, and `LoweredGlobal::Static` compatibility
+fallbacks before argument effects. Exact Cataloged handoffs, scalar/inline
+owners, qualified `Math`, Env/Extern, `Method(Some(receiver))`, and
+`LoweredGlobal::Instance` remain live. It created no issuer or receipt and did
+not alter VM/backend, JSON, Call schema, fallback/retry, or guard cleanup. The
+SameModule parent returns to `design_stop`; any need to change a preserved
+owner reopens the parent instead of widening this row.
 
 Three read-only audits reconciled the Generic CorePlan child with the final
 Loop architecture. The production-live legacy registry route

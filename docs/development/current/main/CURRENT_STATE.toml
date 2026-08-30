@@ -1,6 +1,6 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0"
 current_design_stop = "none"
 current_blocker_token = """

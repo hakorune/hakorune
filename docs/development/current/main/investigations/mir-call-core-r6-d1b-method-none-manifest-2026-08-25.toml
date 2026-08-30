@@ -2337,13 +2337,13 @@ red_classification = "No current-change red in the bounded row. Workspace-wide w
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_ordinary_static_legacy_compat_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TERMINAL-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount bounded unissued-static compatibility retirement"
-implementation_permission = true
+implementation_permission = false
 decision = "Apply the user-selected legacy-retirement policy narrowly to unissued generic static member compatibility. Retire StaticReceiver/StaticThis, Me StaticFallback, and LoweredGlobal::Static only when no exact Cataloged handoff is available, before argument effects. Preserve exact Cataloged handoffs, scalar/inline owners, qualified Math compatibility, Env/Extern, standard Method(Some(receiver)), and LoweredGlobal::Instance."
 source_authority = "Existing exact Cataloged source/site/brand handoff, static scalar fact, inline helper owner, qualified Math compatibility owner, Env/Extern owner, or exact receiver owner. The retired cohort has no issuer and receives a payload-free typed terminal; this row creates no target."
 canonical_issuer = "None for the retired cohort. Exact Cataloged publication, scalar/inline terminals, qualified Math, Env/Extern, Standard Method(Some), and LoweredGlobal::Instance keep their existing owners."
@@ -2413,7 +2413,25 @@ changed_test_names = [
   "lowered_global_static_retires_before_argument_descent",
 ]
 guard = "The existing active-surface lifecycle guard dispatches a row-specific checker. It must prove the exact state/pointer/card boundary, the stable retirement tag before lower_all, the qualified Math preservation, the Method(Some)/Instance preservation, the exact focused test inventory through cargo --list, the allowed path set, and all touched Rust owners below 760 lines. No new registry entry is added."
-next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0__fast_open"
+implementation_commit = "b1755febfb"
+corrective_commit = "7c834d021a"
+coverage_base_commit = "530111b173"
+focused_test_results = [
+  "CARGO_BUILD_JOBS=4 cargo test --quiet --profile quick --lib static_legacy_retire_tests -- --test-threads=1: 5 passed, 0 failed",
+  "CARGO_BUILD_JOBS=4 cargo test --quiet --profile quick --lib member_route_descent_tests -- --test-threads=1: 13 passed, 0 failed",
+]
+focused_check = "rustfmt --edition 2021 on touched Rust files: pass; no full cargo test/link claimed because the repository-wide test binary is an established OOM risk."
+guard_runs = [
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass fast-open and landed validation",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+  "TOML parse via Python tomllib: pass",
+]
+line_count_result = "method_call_handlers.rs 687 lines, static retirement tests 155 lines, member_route_descent_tests.rs 749 lines, active row handler 725 lines; all below 760."
+evidence = "The unissued generic StaticReceiver, static this, receiverless me StaticFallback, and LoweredGlobal::Static routes now enter one finite retirement terminal before argument descent, Const/ValueId allocation, or MIR publication. Existing scalar/inline handling and qualified Math compatibility remain live; LoweredGlobal::Instance and receiver-bearing Method paths are untouched. Five new negative/positive tests and thirteen member-route regressions pass. The retirement terminal is represented by a private enum and the guard checks ordering inside the actual handler body rather than a file-wide token position."
+red_classification = "No current-change red in this bounded row. Existing workspace warnings remain baseline; full cargo test/link is unclaimed."
+reopen_trigger = "Reopen only if a preserved exact Cataloged/scalar/inline/Math/Env/Extern/Method(Some)/Instance owner fails, or a newly discovered unissued static owner needs a different source-backed issuer; do not restore generic fallback by name or registry."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_operator_env_disposition_d0_2026_08_30]
 status = "accepted_retirement_selected"
