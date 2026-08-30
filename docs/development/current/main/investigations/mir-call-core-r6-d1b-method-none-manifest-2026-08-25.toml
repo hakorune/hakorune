@@ -2106,11 +2106,9 @@ non_authority = [
 fail_fast_boundary = "No post-argument reject is permitted: the unified ingress already owns lowered ValueId arguments and the legacy writers may allocate dst/name Const. The retirement I0 must remove the alternate route and continue through Method(Some); if parity fails, remain in design_stop rather than terminalizing after effects."
 census_boundary = "src/mir/builder/rewrite/known.rs four writer families and selector wrappers -> unified_emitter ingress -> rewrite/special.rs equals delegation -> existing Method(Some) resolver/materializer; includes two production to-dst writers, two caller-zero no-dst chains, finite ON/OFF selector inputs, and result/fault/backend parity; excludes early str-like, qualified static/Cataloged, Method ABI, Resolved, ordinary-new, CorePlan/provider/thunk, VM schema repair, JSON, and Call schema."
 finite_inventory = [
-  "Known writer: src/mir/builder/rewrite/known.rs:133-240",
-  "Known-to-dst writer: src/mir/builder/rewrite/known.rs:264-365",
-  "Unique-suffix writer: src/mir/builder/rewrite/known.rs:380-471",
-  "Unique-suffix-to-dst writer: src/mir/builder/rewrite/known.rs:493-589",
-  "selector wrappers: src/mir/builder/rewrite/known.rs:611-684",
+  "Known-to-dst writer: src/mir/builder/rewrite/known.rs:110-231",
+  "Unique-suffix-to-dst writer: src/mir/builder/rewrite/known.rs:234-347",
+  "selector wrappers: src/mir/builder/rewrite/known.rs:351-393",
   "equals delegation: src/mir/builder/rewrite/special.rs:93-126",
   "production ingress: src/mir/builder/calls/unified_emitter.rs:354-369",
   "alternate terminal: src/mir/builder/calls/unified_emitter/physical_terminal.rs:40-49",
@@ -2144,7 +2142,17 @@ parity_matrix_cells = [
   "E-K: equals/1 delegating to Known with dst=Some",
   "E-U: equals/1 delegating to Unique with dst=Some",
 ]
-parity_matrix_contract = "Each cell must record the resolve.choose writer reason, input shape, ON and OFF route, exact Method(Some) receiver, argument order/evaluation count, dst/effects, first fault/result, VM result, and execution of the same emitted MIR through ny-llvmc/AOT. A cell is ready only when it is Equivalent or LegacyBugFixedByCanonical; LegacyOnlySuccess, SemanticDifference, or SuccessorBackendGap keeps I0 closed."
+parity_matrix_contract = "Each reachable cell must record the resolve.choose writer reason, input shape, ON and OFF route, exact Method(Some) receiver, argument order/evaluation count, dst/effects, first fault/result, VM result, and execution of the same emitted MIR through ny-llvmc/AOT. A reachable cell is ready only when it is Equivalent or LegacyBugFixedByCanonical; LegacyOnlySuccess, SemanticDifference, or SuccessorBackendGap keeps I0 closed. A retired no-dst cell may instead be ready as CallerZero only when its production caller census is zero and the old writer is not resurrected."
+parity_matrix_classification_2026_08_30 = [
+  "K1: ParityOpen__Known_to_dst_observed__three_counterexamples_are_LegacyBugCandidate_and_AOT_equal",
+  "K1n: CallerZero__old_no_dst_Known_chain_pruned_at_fb5a4e0e81__no_runtime_probe_allowed",
+  "K2: NoSafeSlice__dev_only_trace_differences_observed_in_existing_fixtures_but_module_header_absence_is_not_proven",
+  "K2n: CallerZero__old_no_dst_Known_chain_pruned_at_fb5a4e0e81__no_runtime_probe_allowed",
+  "U1: NoSafeSlice__unique_suffix_trace_observed_for_OrderedMapBox_length__AOT_blocked_by_unrelated_array_element_write",
+  "U1n: CallerZero__old_no_dst_unique_chain_pruned_at_fb5a4e0e81__no_runtime_probe_allowed",
+  "E-K: NoSafeSlice__no_existing_instance_equals_Known_trace_or_AOT_cell",
+  "E-U: NoSafeSlice__no_existing_instance_equals_Unique_trace_or_AOT_cell",
+]
 parity_evidence_2026_08_30 = [
   "A current HEAD quick build with --features vm-reference completed with one build job; this is build evidence only, not a full-suite claim.",
   "VM result parity matched for phase285_userbox_field_basic (ON rc=0, 42; OFF rc=0, 42), phase224b_method_call_min (ON/OFF both rc=5, i=5), json_query (ON/OFF both rc=0), and rewriteknown_itoa_complex_step (ON/OFF both rc=0, 12).",
@@ -2154,6 +2162,11 @@ parity_evidence_2026_08_30 = [
   "A current-source quick LLVM build with --features llvm was completed with one Cargo worker, but all three fixtures stop before backend execution at ExactSourceChanged(RootPreservation(CompatibilityLoss)) for both rewrite modes. This is source-transform coverage failure, not product parity evidence; classify the LLVM/AOT successor cell as unobserved until an accepted product fixture or an explicit source-transform owner is available.",
   "At HEAD 1e76945679, the current quick binary with --features llvm was rerun for all three named fixtures with NYASH_REWRITE_KNOWN_DEFAULT={0,1}; all six --emit-mir-json attempts returned rc=1 at ExactSourceChanged(RootPreservation(CompatibilityLoss)) and produced no MIR artifact. The explicit NYASH_LLVM_USE_HARNESS=1 --backend llvm route gives the same RootPreservation terminal for the three counterexamples (the other finite samples stop at their existing GenericLoop/Resolver contracts). This reconfirms the source-transform coverage gap and does not close LLVM/AOT parity or authorize the rewrite/known retirement I0.",
   "Using the explicit --backend vm compatibility emit route at HEAD e2695550f9, all three counterexample fixtures produced MIR for rewrite modes 0 and 1; each of the six artifacts was accepted by target/release/ny-llvmc --driver harness and executed with rc=0, yielding the expected 29, 30, and 118 in both modes. This is backend-only AOT evidence (the source LLVM route still rejects before MIR), so it strengthens but does not close the exhaustive product parity matrix.",
+  "Read-only replay against the current source surface at HEAD 4f141c936b confirmed the three Known-to-dst counterexamples: rewrite OFF emitted the incoming Method(receiver) route, rewrite ON emitted a Global projection with resolve.choose reason=userbox-rewrite, and the same six MIR artifacts ran through target/release/ny-llvmc --driver harness with equal outputs 29, 30, and 118. This confirms K1 parity/legacy-bug classification only; it does not cover K2, U1, or equals.",
+  "A scan of 224 existing box/new method fixtures with the current quick artifact found 15 dev-toggle-only resolve.choose entries (including Greeter.__get_greeting/0, ParserBox.skip_ws/2, and MatI64._fill_zero_core/2). The toggle difference proves a dev-sensitive candidate but does not prove module/header absence versus new-origin timing, so K2 remains NoSafeSlice and no new fixture or issuer is authorized.",
+  "The current quick artifact observed U1 unique-suffix for phase296x_binding_context_native_min.hako (OrderedMapBox.length/0, certainty=Heuristic), changing one Method call to Global when rewrite is enabled. ny-llvmc harness object lowering stops on unrelated array_element_write, so this is a SuccessorBackendGap/NoSafeSlice observation rather than parity evidence; do not repair the Global route.",
+  "No existing apps/tests instance-equals fixture reaches the rewrite/special equals delegation: the tracked equals example is a static ParserStmtBox.equals/1 call. E-K and E-U therefore remain unobserved; adding a synthetic fixture in design_stop is forbidden.",
+  "The three no-dst cells remain structural CallerZero: their non-to-dst Known/Unique facades and helpers were removed at fb5a4e0e81, and the current source has no production caller for those symbols. Do not resurrect them merely to manufacture runtime matrix rows.",
 ]
 evidence = "At audit HEAD 636344522ce0, the four writer families are finite: the two `_to_dst` chains are production-live and the two no-dst chains are caller-zero. The current route uses generated symbols/header/suffix and typed_global_target_from_selected_symbol, while the existing incoming Method(Some) route is the named retirement successor. A read-only counter-audit confirmed the three receiver-arity failures as LegacyBugCandidate cells: OFF Method(Some) and VM-emitted ON/OFF MIR both yield the accepted values 29, 30, and 118 through AOT, while current-source LLVM stops before MIR at RootPreservation(CompatibilityLoss). The remaining Known/Unique/equals and destination-shape cells are not writer-traced yet; the eight-cell matrix remains open."
 reopen_trigger = "The finite ON/OFF result/fault/backend matrix is green for all accepted Known/equals/unique shapes and the exact live/caller-zero writer set is frozen; then open the atomic retirement I0. If parity fails, keep the route live and record the counterexample."
