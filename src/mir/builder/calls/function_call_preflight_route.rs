@@ -390,6 +390,15 @@ fn prepare_ordinary_function_completion_v1(
             RawOrdinaryFunctionRetirementV1::GcGlobal,
         ))
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        && name == "error"
+    {
+        Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
+            error: format!(
+                "[freeze:contract][direct-call/bare-error-unsupported] name=error arity={}",
+                arguments.len()
+            ),
+        })
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
         && caller.is_some()
         && name == "print"
     {
