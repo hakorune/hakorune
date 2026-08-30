@@ -718,7 +718,7 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; rewrite/known remains NoSafeSlice; CorePlan lacks a source-bound product; and bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; rewrite/known has four default-on parse-back writers (two live `_to_dst`, two caller-zero) but no exact source/site issuer or pre-effect boundary; and bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
@@ -726,7 +726,7 @@ ordered_tasks = [
   "I3 (landed at 44555655ab): arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, reject retired selectors at all compiler ingress methods, and atomically remove env/name target issuance before operand or Const effects",
   "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
   "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
-  "I5: rewrite/known — replace four production parse-back sites with their existing typed owner or pre-effect reject",
+  "I5-D0: rewrite/known — reconcile the four parse-back writers, selector wrappers, equals delegation, and unified ingress; name an existing exact issuer or a safe pre-effect terminal before any I0",
   "I6: ordinary new birth — keep construction authority separate from SameModule call publication",
   "I7-D0: cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; do not open a provider-wide implementation row",
   "I7-I0: one named provider cohort only after its exact issuer or typed pre-effect retirement is closed; name+arity synthesis is not authority",
@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, and OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab. Keep this parent in design_stop and open the next named producer only after its existing issuer or typed pre-effect retirement is fixed; physical-thunk D0 is first."
+smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, and OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab. Physical thunk and selected-exact CorePlan are now explicitly ParkedSealed; keep this parent in design_stop and open only the finite rewrite/known issuer-boundary D0 next, with no implementation until an exact issuer or pre-effect terminal exists."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -1947,9 +1947,9 @@ ordered_tasks = [
 acceptance = "The two production callers and one test helper are two-directionally reconciled; the existing relation, missing issuer, and physical terminal are separately named; no symbol/name/arity synthesis is accepted; and the child is ParkedSealed with an observable issuer-or-retirement reopen trigger."
 no_safe_slice = "Remain in design_stop if main/0 requires a new semantic issuer without an existing source-backed product, if the relation cannot be verified in the same session, if target identity still needs symbol/name/arity/header inference, or if the change crosses package/loan, VM/backend, Call schema, or the 760/800-line boundary."
 non_claims = "No physical thunk implementation, no ordinary Call cutover, no Method(Some)/Method(None) change, no CorePlan/operator/rewrite/provider/new-birth work, no package/loan, no VM/backend/JSON, and no Call-schema change."
-evidence = "At HEAD 278883b669, both production callers and the single test helper reconcile to physical_thunk.rs:80-90. VerifiedNormalMainPhysicalRelationV1 seals source owner/completion/physical entry, but CallableIndex excludes main from FreeStatic and CanonicalNormalMainEntryTargetV1 carries physical-entry identity only; no exact same-session Callee issuer exists."
+evidence = "At HEAD ce24ad5e1346, both production callers and the single test helper reconcile to physical_thunk.rs:80-90. VerifiedNormalMainPhysicalRelationV1 seals source owner/completion/physical entry, but CallableIndex excludes main from FreeStatic and CanonicalNormalMainEntryTargetV1 carries physical-entry identity only; no exact same-session Callee issuer exists."
 reopen_trigger = "A same-session source-backed main/0 Callee product/issuer is introduced by an accepted language/product decision, or the physical-thunk route receives an explicit typed retirement/replacement contract."
-next_execution = "parked_no_issuer__next_ordinary_new_birth_target_d0"
+next_execution = "parked_no_issuer__next_selected_exact_coreplan_reachability_d0"
 
 [same_module_selected_exact_coreplan_reachability_d0_2026_08_30]
 status = "parked_sealed"
@@ -1990,9 +1990,55 @@ ordered_tasks = [
 acceptance = "The selected-exact CorePlan boundary is finite and two-directionally reconciled; every caller/consumer has one state and owner; caller-zero is explicitly ParkedSealed; no raw func/name/arity inference or production bridge was added; and any later I0 has a named existing claim product and first-effect boundary."
 no_safe_slice = "Remain in design_stop if the selected-exact chain has no production caller, if activation requires a second source observation, if statement/value effects need a new result authority, if raw func text must be parsed, or if the work crosses generic CorePlan, package/loan, VM/backend, Call schema, or the 760/800-line boundary."
 non_claims = "No generic CorePlan implementation, no production bridge, no source rescan, no new issuer/receipt, no physical thunk change, no Method(None)/Resolved change, no operator/rewrite/provider/new-birth work, no package/loan, VM/backend, JSON, or Call-schema change."
-evidence = "At HEAD 28c778424b, compose_located_generic_loop_v1 and CorePlanEffectEmissionPortV1::Claimed are referenced only by focused test modules; the production loop entry does not call the located composer. The existing source/site/brand/target claim chain is structurally exact but disconnected from production."
+evidence = "At HEAD ce24ad5e1346, compose_located_generic_loop_v1 and CorePlanEffectEmissionPortV1::Claimed are referenced only by focused test modules; the production loop entry does not call the located composer. The existing source/site/brand/target claim chain is structurally exact but disconnected from production."
 reopen_trigger = "A real production caller consumes the existing located composer and claim chain in the same session, with exact source/site/brand/target claims and a declared value/statement result contract."
-next_execution = "parked_carrier_mismatch__next_operator_env_disposition_d0"
+next_execution = "parked_caller_zero__next_rewrite_known_issuer_boundary_d0"
+
+[same_module_rewrite_known_issuer_boundary_d0_2026_08_30]
+status = "queued_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxCount finite rewrite/known authority census"
+implementation_permission = false
+disposition = "CutoverBlockerOpen"
+decision = "Keep rewrite/known behavior unchanged until its four parse-back writers are reconciled with a source/site-backed issuer or a typed pre-effect terminal. The current default-on route is not legacy merely because it parses names; no target, loan, Call schema, or fallback change is authorized by this D0."
+source_authority = "No exact rewrite/known source-site issuer is identified at HEAD; existing instance-method carrier and declaration/body owners provide facts but do not issue a target for the rewrite call-site."
+canonical_issuer = "None identified. A later I0 may reuse an existing exact source/site/brand product only if it is produced in the same session and consumed before effects; otherwise the family remains blocker-open or receives an explicit language/product retirement decision."
+non_authority = [
+  "cls/name/method/arity, generated method symbols, header/module lookup, suffix candidates, StaticMethodId parsing, env/origin, module maps, typed_global_target_from_selected_symbol, fixtures, resolver replay, fallback, and retry",
+]
+fail_fast_boundary = "No safe pre-effect terminal exists at the current unified-emitter boundary because the four writers receive ValueId arguments and parse back after argument processing. Do not insert a reject after effects; first identify an earlier owner or keep NoSafeSlice."
+census_boundary = "src/mir/builder/rewrite/known.rs four writer families and selector wrappers -> unified_emitter ingress -> rewrite/special.rs equals delegation -> physical_terminal.rs alternate terminal; includes live/caller-zero distinction and exact issuer search; excludes Method/Resolved/ordinary-new/CorePlan/provider/VM/backend/JSON/Call schema."
+finite_inventory = [
+  "Known writer: src/mir/builder/rewrite/known.rs:133-240",
+  "Known-to-dst writer: src/mir/builder/rewrite/known.rs:264-365",
+  "Unique-suffix writer: src/mir/builder/rewrite/known.rs:380-471",
+  "Unique-suffix-to-dst writer: src/mir/builder/rewrite/known.rs:493-589",
+  "selector wrappers: src/mir/builder/rewrite/known.rs:611-684",
+  "equals delegation: src/mir/builder/rewrite/special.rs:93-126",
+  "production ingress: src/mir/builder/calls/unified_emitter.rs:354-369",
+  "alternate terminal: src/mir/builder/calls/unified_emitter/physical_terminal.rs:40-49",
+]
+finite_states = [
+  "ExactIssuerPresent: an existing source/site/brand product is consumed in the same session; eligible for a later bounded I0",
+  "CallerZero: a writer has no production caller; retain only with a named owner/reopen trigger until the whole family is reconciled",
+  "IssuerMissing: a writer is production-live but has no exact issuer; CutoverBlockerOpen, no name/arity synthesis",
+  "LanguageDecisionMissing: retiring default-on rewrite would change the public route; keep behavior until an explicit decision",
+]
+ordered_tasks = [
+  "D0-A: reconcile all four writers and both selector wrappers in both directions; record live versus test/caller-zero sites",
+  "D0-B: search existing source/site/brand products and prove whether any exact issuer reaches the unified ingress in the same session",
+  "D0-C: record the earliest safe boundary; if arguments already exist, do not add a post-effect reject or a second observer",
+  "D0-D: classify each writer/family as ExactIssuerPresent, CallerZero, IssuerMissing, or LanguageDecisionMissing; do not delete or rehome code in this D0",
+  "I0: open only after D0 names one exact issuer or an approved pre-effect retirement contract; delete old parse-back edges atomically with the replacement",
+]
+acceptance = "The finite rewrite/known boundary is two-directionally reconciled; live and caller-zero writers are separately named; no exact issuer is invented from names/symbols/headers; no pre-effect boundary is claimed where arguments already exist; and any future I0 has a named source product, owner, terminal, and old-edge delete set."
+no_safe_slice = "Remain in design_stop if no source/site issuer exists, if the route needs a new semantic receipt or second scan, if retirement requires a language decision, if a safe pre-effect boundary cannot be reached without shared emitter redesign, or if the work crosses 760/800 lines."
+non_claims = "No rewrite/known implementation, parse-back deletion, Method(None) change, target/loan, Call schema, VM/backend/JSON, shared adapter, fallback, retry, or language-spec decision."
+evidence = "At HEAD ce24ad5e1346, the four writer families are finite; production reachability is confirmed for the two `_to_dst` terminals while the other two are caller-zero. All four still parse back through generated symbols/header/suffix or typed_global_target_from_selected_symbol, and no exact source/site issuer is connected to the rewrite call-site."
+reopen_trigger = "An existing same-session source/site/brand target product reaches the rewrite ingress, or an explicit language/product decision supplies a typed pre-effect retirement/replacement contract."
+next_execution = "none_until_rewrite_known_issuer_boundary_d0"
 
 [same_module_operator_env_disposition_d0_2026_08_30]
 status = "accepted_retirement_selected"

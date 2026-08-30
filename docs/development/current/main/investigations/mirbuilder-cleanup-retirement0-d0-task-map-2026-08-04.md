@@ -765,6 +765,33 @@ Each child remains `ParkedSealed` behind its D0 until owner, include/exclude,
 evidence path, and reopen trigger are reproducible. The TSV/guard may report
 drift, but cannot activate a route or prove semantic retirement.
 
+### Legacy guard retirement rule (parked, one bounded lane)
+
+`GUARD-LEGACY-SURFACE-RETIRE-D0` is a cleanup policy, not a reason to preempt
+the active MirBuilder row. A guard is not deletable because it is old, pilot-only,
+red, or inconvenient. First classify the finite check as `Keep`, `Rehome`,
+`SupersededDelete`, or `Unresolved` and record its actual invocation/profile.
+
+Deletion is permitted only for `SupersededDelete`: the guarded source/edge is
+caller-zero **or** an equal/stronger named successor owns the same invariant,
+and a focused negative/positive proof plus an observable reopen trigger exists.
+Delete the checker, its direct tests/imports, registry/index entry, and output
+claim together in one bounded BoxShape commit. Never delete a live invariant
+just to make a profile green, and never replace a missing owner with a warning.
+
+The type-fact guard is the current example: one stale whole-writer overlay was
+deleted in the landed S0; nine checks remain `Keep` and five were `Rehome`d to
+current owners. Those live checks, the immutable historical fixture, and the
+five anchor sweep are not legacy delete candidates. `rewrite/known`, physical
+thunk, and other MirBuilder family guards remain separate design blockers until
+their owner/terminal census is closed. No per-file guard cards or whole-repo
+refresh is allowed.
+
+```text
+legacy guard -> finite invocation census -> fate + successor/reopen proof
+             -> one bounded delete/rehome commit -> focused gate -> closeout
+```
+
 ### Non-claims and stop conditions
 
 - This queue does not change the current MirBuilder design row or authorize a

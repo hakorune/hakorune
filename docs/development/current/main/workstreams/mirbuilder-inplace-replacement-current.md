@@ -84,6 +84,13 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
+Guard cleanup is a separate parked lane. The only currently proven
+`SupersededDelete` was the stale whole-writer overlay removed by the landed
+type-fact S0; the nine live checks are kept and five are rehomed. Future guard
+deletion requires a finite invocation/profile census, caller-zero or an equal
+or stronger successor, focused positive/negative proof, and a reopen trigger;
+age, pilot-only status, or a red result alone never authorizes deletion.
+
 Preflight found that the inherited 786-line type-fact composite guard is
 pilot-only and already red before operator work. Its 15 independent checks
 are now fate-classified as `Keep=9`, `SupersededDelete=1`, `Rehome=5`,
