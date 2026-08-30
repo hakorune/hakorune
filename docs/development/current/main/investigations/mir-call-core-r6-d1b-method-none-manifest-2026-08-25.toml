@@ -1958,6 +1958,87 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_builder_boxshape_function_session_tail_test_s0_2026_08_31]
+status = "landed_with_baseline_guard_red"
+task_id = "MIR-BUILDER-BOXSHAPE-FUNCTION-SESSION-TAIL-TEST-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-preserving test-only extraction"
+implementation_permission = false
+decision = "Move only the existing two tail tests from function_session_tests.rs into a private sibling through include!. Preserve the test bodies, fixtures, private parent access, historical module/test path, guard anchors, production code, visibility, and behavior exactly; this row only removes the parent source-size breach and does not open the DeclaredInstance issuer stop."
+source_authority = "The existing function_session_tests module, its private helpers, and the two current test bodies are the only authority. Test placement introduces no semantic issuer, target, receiver, ABI, effect, runtime, or production meaning."
+canonical_issuer = "None. This is a physical test-shape extraction only; the existing function-session production owner and all semantic products remain unchanged."
+non_authority = [
+  "test filename or include spelling as semantic ownership",
+  "fixtures, test output, name/arity/header/symbol/registry lookup",
+  "new fields, enums, receipts, resolver, target, loan, fallback, retry, VM/backend, panic, throw, or Call schema",
+]
+fail_fast_boundary = "Stop before closeout if either test body, private access, historical module/test path, guard anchor, production source, visibility, behavior, or line budget changes. The parent and sibling must remain below 760 lines, with 800 as a hard stop."
+census_boundary = "src/mir/builder/calls/function_session_tests.rs:703-796 two existing cfg(test) functions -> src/mir/builder/calls/function_session_tail_tests.rs via include!; includes only box_compilation_session_preserves_the_existing_partial_type_context_action and panic_backstop_restores_without_publishing, excludes production function_session.rs, the first four focused transaction tests, semantic Method/Call work, and all runtime/backend routes."
+finite_inventory = [
+  "parent production/test owner: src/mir/builder/calls/function_session_tests.rs",
+  "retained parent helpers/checkpoints: seeded_builder, assert_outer_state, run_injected_checkpoint, and four existing focused tests",
+  "moved test bodies: box_compilation_session_preserves_the_existing_partial_type_context_action; panic_backstop_restores_without_publishing",
+  "private sibling: src/mir/builder/calls/function_session_tail_tests.rs",
+  "path-preserving parent include!: include!(\"function_session_tail_tests.rs\")",
+  "existing guard anchors: resolved_lowering_ingress_inventory.py four-test/checkpoint contract and resolved_region_flow_authority_guard.sh function_session_tests filter",
+]
+finite_states = [
+  "SplitStable: parent is about 703 lines, sibling is below 760, and both tests remain under mir::builder::calls::function_session_tests",
+  "PathDrift: module path, test name, private access, or guard anchor changes; stop",
+  "BehaviorDrift: any test result, fixture, diagnostic, or production source changes; stop",
+  "BudgetExceeded: any touched Rust source reaches 760 lines or the 800-line hard stop; restore design_stop",
+]
+ordered_tasks = [
+  "S0-A: freeze the 796-line parent census, two moved test names, four retained test contract, and exact historical filter before editing",
+  "S0-B: move the two tail test bodies verbatim into function_session_tail_tests.rs and add one include! at the parent end; add no imports or helper copies",
+  "S0-C: run the exact historical module/list filter, resolved_lowering_ingress_inventory.py, existing function-session guard, rustfmt, quick library check, pointer, diff, and line-budget checks",
+  "S0-D: close out as landed and restore MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 / DeclaredInstance design_stop; make no semantic Call or panic/throw claim",
+]
+acceptance = "function_session_tests.rs and function_session_tail_tests.rs are both below 760/800, the parent retains exactly four focused transaction tests and all five checkpoints, the two moved tests remain listed under mir::builder::calls::function_session_tests with unchanged names and behavior, private access compiles through include!, production function_session.rs and public module paths are untouched, and the focused six-test suite, quick library check, rustfmt, structural census, diff check, and pointer guard pass. The existing resolved_lowering_ingress_inventory guard is separately classified as a parent-reproduced baseline red and is not claimed green by this row."
+no_safe_slice = "Stop and restore design_stop if the sibling needs public APIs, copied helpers/import changes, a second module path, guard/fixture changes, production edits, semantic changes, or the 760/800 budget is crossed."
+non_claims = "No DeclaredInstance co-seal, Method(Some)/Method(None) cutover, direct-call issuer/loan, Resolved/Call-schema retirement, panic/throw/exit change, VM/backend/JSON change, fallback/retry change, or guard deletion/new registry row."
+allowed_files = [
+  "src/mir/builder/calls/function_session_tests.rs",
+  "src/mir/builder/calls/function_session_tail_tests.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/function_session.rs",
+  "src/mir/builder/calls/mod.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "VM/backend/JSON/runtime/Call schema",
+  "guard registry",
+]
+focused_test_filters = [
+  "mir::builder::calls::function_session_tests",
+]
+changed_test_names = [
+  "mir::builder::calls::function_session_tests::box_compilation_session_preserves_the_existing_partial_type_context_action",
+  "mir::builder::calls::function_session_tests::panic_backstop_restores_without_publishing",
+]
+implementation_commit = "0eedd9a495"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib mir::builder::calls::function_session_tests -- --test-threads=1: 6 passed; 0 failed",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass; existing warnings only",
+  "rustfmt --edition 2021 --check src/mir/builder/calls/function_session_tests.rs src/mir/builder/calls/function_session_tail_tests.rs: pass",
+  "structural split census: parent=703, sibling=94, parent inline tests=4, moved tests remain under historical module path: pass",
+]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass while S0 selected",
+  "python3 tools/checks/lib/resolved_lowering_ingress_inventory.py . tools/checks/fixtures/resolved_lowering_ingress_inventory_v1.json: exit 1 at pre-existing B0-L2a anchor drift",
+  "parent reproduction at 796-line pre-row state: the same resolved_lowering_ingress_inventory command exits 1 with the same B0-L2a anchor error",
+  "git diff --check: pass",
+]
+evidence = "Implementation is complete in the worktree: the two tail test bodies moved verbatim to the private include! sibling, parent=703 lines and sibling=94 lines, the focused function-session suite passed 6/6, quick library check and rustfmt passed, and the structural census passed. The resolved_lowering_ingress_inventory guard is a known baseline red: it fails at the missing `pub struct LegacyModuleLoweringInputV1` anchor on the current worktree and reproduced with the same exit/status on the pre-row parent, so it is classified outside this behavior-neutral split rather than hidden. No production function-session code, fixture, registry, or semantic route changed."
+red_classification = "Known baseline red only: resolved_lowering_ingress_inventory.py fails before reaching the function-session test-count/checkpoint assertions because the existing B0-L2a anchor expects `pub struct LegacyModuleLoweringInputV1` while the live source uses crate-restricted visibility; the same failure was reproduced on the parent commit. No current-change red was observed in the focused six-test suite, quick check, rustfmt, structural split census, pointer guard, or diff check."
+closeout = "After the code commit, restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and set next_execution_card=none. Keep DeclaredInstance source/catalog/receiver/ABI co-seal as the only semantic blocker."
+reopen_trigger = "Reopen only if the moved tests lose their historical module path/private access, a focused test regresses, production function-session code changes because of the split, a guard begins requiring the inline bodies, or either source reaches 760/800 lines. The unrelated ingress-inventory anchor red must be repaired in its own guard row, not folded into this BoxShape row."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
 [mir_builder_boxshape_loop_cond_break_continue_facts_test_split_s0_2026_08_31]
 status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-LOOP-COND-BREAK-CONTINUE-FACTS-TEST-S0"
