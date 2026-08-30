@@ -1958,6 +1958,76 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_builder_boxshape_generic_lease_tail_test_s0_2026_08_31]
+status = "accepted_design_ready_for_i0"
+task_id = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-preserving test-only extraction"
+implementation_permission = true
+decision = "Move only the final two existing tests from generic_resolved_carrier_source_lease_tests.rs into a private include! sibling. Preserve test bodies, private access, historical module/test paths, parent imports, guard anchors, production code, and behavior; this row only removes the test-only 760/800-line breach and does not open the DeclaredInstance issuer stop."
+source_authority = "The existing generic_resolved_carrier_source_lease test module, its private helpers/imports, and the two existing test bodies are the only authority. Test placement introduces no semantic issuer, target, receiver, ABI, effect, runtime, or production meaning."
+canonical_issuer = "None. This is a test-only BoxShape row; the parent DeclaredInstance row remains NoSafeSlice and no semantic product is issued."
+non_authority = [
+  "test names or fixtures as production authority",
+  "module names as semantic ownership",
+  "Call/Method/DeclaredInstance facts, source/name/arity lookup, resolver, target, loan, fallback, retry, VM/backend, JSON, or Call schema",
+]
+fail_fast_boundary = "Stop before closeout if the historical module path, private access, parent imports, guard-observed anchor, production source, behavior, or 760/800 line budget changes."
+census_boundary = "src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs:663-795 final two cfg(test) functions -> private include! sibling; includes source_lease_rejects_duplicate_unknown_and_mismatched_forest_roles and source_lease_rejects_identity_and_role_input_mismatches, excludes all production semantics, the first test functions, existing child modules, Call/Method work, and runtime/backend routes."
+finite_inventory = [
+  "parent test owner: src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs",
+  "tail tests: source_lease_rejects_duplicate_unknown_and_mismatched_forest_roles; source_lease_rejects_identity_and_role_input_mismatches",
+  "new private sibling: src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tail_tests.rs",
+  "path-preserving parent mount: include!(\"generic_resolved_carrier_source_lease_tail_tests.rs\")",
+  "historical module path: mir::resolved_semantics::generic_resolved_carrier_source_lease::tests",
+]
+finite_states = [
+  "SplitStable: parent and sibling compile, private access/imports and historical test paths remain unchanged",
+  "GuardAnchorRetain: loop_family_observation_contract.sh continues to observe the parent test owner and existing child modules",
+  "BaselineRed: any pre-existing focused failure must be reproduced on the parent binary and recorded, never hidden",
+  "DriftDetected: semantic, module-path, visibility, fixture, guard, or line-budget drift returns to design_stop",
+]
+ordered_tasks = [
+  "S0-A: record the exact parent/tail ranges, two test names, existing imports, module path, and guard anchors",
+  "S0-B: move only the two test bodies verbatim into generic_resolved_carrier_source_lease_tail_tests.rs and add one include! at the parent end; add no imports or helper copies",
+  "S0-C: run cargo --list and both exact focused tests, quick library check, targeted rustfmt, line-budget, pointer, and diff checks; reproduce any baseline red on the pre-split parent binary",
+  "S0-D: close out to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design_stop; do not claim DeclaredInstance, Method, Call, panic, throw, or Result progress",
+]
+acceptance = "The parent test file falls below 760/800 lines and the sibling remains below 760/800; both moved tests stay under the historical module path with unchanged names and private access; parent imports and existing child modules remain valid; production files and guards are unchanged; focused evidence executes the moved tests rather than only naming them; and any baseline red is separately recorded."
+no_safe_slice = "Remain in design_stop if include! cannot preserve private access or the historical path, a new public API/import/module registration or guard change is needed, production code/fixtures/semantics change, a focused red is new, or either file reaches the 760/800 boundary."
+non_claims = "No DeclaredInstance co-seal, Method(Some)/Method(None) cutover, direct-call issuer/loan, Resolved/Call-schema retirement, panic/throw/exit/Result change, VM/backend/JSON change, fallback/retry, guard deletion, or semantic receipt."
+allowed_files = [
+  "src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs",
+  "src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tail_tests.rs",
+  "src/mir/resolved_semantics/README.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/resolved_semantics/mod.rs",
+  "src/mir/resolved_semantics/generic_resolved_carrier_source_lease/*.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "VM/backend/JSON/Call schema",
+  "guard registry or guard deletion",
+]
+focused_test_filters = [
+  "mir::resolved_semantics::generic_resolved_carrier_source_lease::tests",
+]
+changed_test_names = [
+  "source_lease_rejects_duplicate_unknown_and_mismatched_forest_roles",
+  "source_lease_rejects_identity_and_role_input_mismatches",
+]
+worker_audit_result = "Read-only audit at HEAD 4f9ed71734 found one unlanded test-only BoxShape candidate: the final two tests occupy lines 663-795 of a 796-line parent. A path-preserving include! sibling keeps private helpers, module paths, and existing loop-family guard anchors unchanged; no semantic or production owner is introduced. Existing candidate_envelope_witness remains a separate child and is not moved."
+focused_test_runs = []
+guard = "Use loop_family_observation_contract.sh without changing its parent path, current_state_pointer_guard.sh, cargo --list, exact focused cargo test, targeted rustfmt, line-budget census, and git diff --check. No new registry row or semantic guard is added."
+evidence = "Pending implementation; the design audit is complete and implementation is allowed only for this test-only split after CURRENT_STATE selects the row in fast mode."
+reopen_trigger = "Reopen only if the historical module path/private access cannot be preserved, a guard starts requiring the inline tail, a production caller/module surface changes, either file reaches 760/800 lines, or the parent DeclaredInstance semantic boundary changes."
+next_execution = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0__implementation_pending_pointer_switch"
+
 [mir_builder_boxshape_function_session_tail_test_s0_2026_08_31]
 status = "landed_with_baseline_guard_red"
 task_id = "MIR-BUILDER-BOXSHAPE-FUNCTION-SESSION-TAIL-TEST-S0"

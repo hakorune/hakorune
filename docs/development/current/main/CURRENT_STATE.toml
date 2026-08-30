@@ -1,21 +1,17 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-The function-session BoxShape test-only extraction landed at 0eedd9a495:
-the two tail tests now live in a private include! sibling, with the parent
-at 703 lines and the sibling at 94 lines; focused function-session tests pass
-6/6, quick library check and rustfmt pass, and no production semantics changed.
-The existing resolved-lowering-ingress inventory guard is a known parent-
-reproduced baseline red at its B0-L2a visibility anchor and is not claimed
-green by that row. Continue the finite producer disposition design stop:
-DeclaredInstance still lacks a complete source/catalog/receiver/ABI co-seal,
-panic(String) remains a parked terminal-Fault target with production 0, and
-bare exit remains NoIssuer. Do not mix Method(None), Resolved, Call-schema,
-VM/backend, fallback, retry, or guard cleanup.
+MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0:
+This is a test-only BoxShape extraction. Move only the final two existing
+generic_resolved_carrier_source_lease tests into a private include! sibling;
+preserve the historical module path, private access, imports, guard anchors,
+production code, behavior, and the 760/800 line boundary. Do not touch
+DeclaredInstance, Method/Call, Result/panic/throw, VM/backend, fallback,
+retry, or guard registry. Return to design_stop on semantic, visibility,
+module-path, fixture, guard, baseline-red, or line-budget drift.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -48,10 +44,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The independent function-session BoxShape row landed at 0eedd9a495: two existing tail tests moved verbatim into a private include! sibling (parent=703, sibling=94; focused suite 6/6). A resolved-lowering-ingress inventory guard remains a parent-reproduced baseline red at its B0-L2a visibility anchor and is recorded in the row evidence. Parent producer-disposition design_stop resumes: DeclaredInstance source/catalog/receiver/ABI co-seal remains the only semantic blocker; panic/throw reference policy is accepted but panic production is 0/ParkedSealed and bare exit remains NoIssuer."
+latest_card_summary = "A bounded test-only BoxShape row is selected in fast mode: move the final two generic_resolved_carrier_source_lease tests into a private include! sibling, preserving the historical path, private access, guards, behavior, and line budget. DeclaredInstance remains the only semantic blocker; panic/throw reference policy is accepted but panic production is 0/ParkedSealed, bare exit remains NoIssuer, and Result/? remains a separate production-0 lane."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
