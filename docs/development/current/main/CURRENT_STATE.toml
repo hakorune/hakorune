@@ -1,18 +1,16 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-The declared-instance receiver source-facts correction landed at 01332528ed:
-BodyMeReceiverV1::Lexical remains a lexical BindingRefV1 and
-StaticCurrentOwner remains CurrentOwner in the existing source product.
-True DeclaredInstance still lacks the complete source/catalog/receiver/ABI
-co-seal and remains a separate design row. Bare panic(String) remains an
-accepted terminal-Fault target but production 0/ParkedSealed; bare exit remains
-NoIssuer. Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback,
-retry, or guard cleanup.
+MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0:
+Move only the existing direct FastMem failure test into a private sibling via
+include!, preserving the historical tests path, private access, production
+owner, test body, behavior, and guard anchors. Do not change selected direct
+statement lowering, DeclaredInstance, Method/Call, panic/throw/exit, VM/backend,
+fallback, retry, or guard registry. Closeout returns to the parent
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -45,10 +43,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The declared-instance receiver source-facts row landed at 01332528ed: the existing issuer now preserves BodyMeReceiverV1 lexical/static disposition in VerifiedResolvedMethodCallSourceV1, with 10/10 focused tests green and no target or production Call switch. The prior BoxShape lifecycle-test split landed at 389ae344c1 (parent 753 lines, sibling 25 lines). Return to the DeclaredInstance source/catalog/receiver/ABI co-seal design stop. Panic/throw reference policy is accepted but production 0/ParkedSealed; no loan, Call, VM/backend, fallback, retry, or guard cleanup is in scope."
+latest_card_summary = "The next bounded BoxShape row is the direct FastMem failure-test extraction: move one existing cfg(test) body via include! so normal_script_direct_statement_owner.rs falls below the 760/800 boundary, without semantic or production changes. DeclaredInstance receiver source-facts landed at 01332528ed and remains separate from the parent source/catalog/receiver/ABI co-seal design stop. Panic/throw reference policy is accepted but production 0/ParkedSealed; no loan, Call, VM/backend, fallback, retry, or guard cleanup is in scope."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

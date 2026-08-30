@@ -1956,6 +1956,65 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_builder_boxshape_normal_script_direct_statement_fastmem_failure_test_s0_2026_08_31]
+status = "fast_open"
+task_id = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-preserving test-only extraction"
+implementation_permission = true
+decision = "Move only the existing direct_fastmem_body_failure_discards_candidate_and_reuses_compiler test from the inline cfg(test) module into a sibling file via include!. Preserve the historical module path, private scope, production owner, test body, guard anchors, diagnostics, and runtime behavior; this row exists only to keep the parent source below the 760/800 line boundary."
+source_authority = "Existing normal_script_direct_statement_owner.rs production module and its inline test module; test placement is not semantic authority."
+canonical_issuer = "None. No semantic target, receiver, ABI, effect, loan, receipt, or production switch is created."
+non_authority = [
+  "test file location, include! spelling, module path, fixtures, test output, resolver, target/receiver lookup, fallback, retry, VM/backend, panic/throw/exit, Method, or Call schema",
+]
+fail_fast_boundary = "Any production-body change, module-path/visibility/signature drift, private-access failure, test-filter mismatch, behavior change, guard-anchor drift, or touched/new Rust source at 760 lines or more stops the row before closeout."
+census_boundary = "The existing inline FastMem failure test -> private sibling include!; includes only test placement and parent line-budget relief, excludes selected direct-statement lowering, FastMem semantics, Method/Call, runtime, backend, and guard-registry changes."
+finite_inventory = [
+  "production owner: src/mir/builder/normal_script_direct_statement_owner.rs remains unchanged",
+  "test owner: direct_fastmem_body_failure_discards_candidate_and_reuses_compiler moves verbatim to normal_script_direct_statement_owner_fastmem_failure_test.rs",
+  "parent declaration: include! preserves tests module and historical test path",
+]
+finite_states = [
+  "SplitStable: parent and sibling compile, module path/private access/behavior remain unchanged",
+  "ProductionRetained: direct-statement production functions and caller remain in the parent",
+  "DriftDetected: semantic, path, visibility, guard, filter, or behavior drift returns to design_stop",
+  "BudgetExceeded: parent or sibling reaches 760 lines or more (800 hard stop)",
+]
+ordered_tasks = [
+  "S0-A: record the exact test boundary, historical path, and current 783-line parent census",
+  "S0-B: replace only the test body with include!(\"normal_script_direct_statement_owner_fastmem_failure_test.rs\"); and move the body verbatim",
+  "S0-C: run the exact historical test, cargo --list path coverage, rustfmt, quick library check, line-budget, pointer, and diff checks",
+  "S0-D: close out as a landed BoxShape refactor and restore the parent design_stop; do not claim semantic or Method/Call progress",
+]
+acceptance = "normal_script_direct_statement_owner.rs retains all production definitions and stays below 760/800; the sibling contains the unchanged FastMem failure test and stays below 760/800; the historical tests::direct_fastmem_body_failure_discards_candidate_and_reuses_compiler path remains valid; private access, diagnostics, guard anchors, behavior, focused evidence, pointer guard, rustfmt, and quick check all pass."
+no_safe_slice = "Stop and restore design_stop if the sibling needs public visibility/re-export, include! cannot preserve the historical path/private access, the test body must change, production or guard files must change, a second owner is needed, or either source crosses the 760/800 budget."
+non_claims = "No DeclaredInstance co-seal, Method(Some)/Method(None) cutover, direct-call issuer/loan, Resolved/Call-schema retirement, panic/throw/exit change, VM/backend/JSON change, fallback/retry change, or guard deletion/new registry row."
+allowed_files = [
+  "src/mir/builder/normal_script_direct_statement_owner.rs",
+  "src/mir/builder/normal_script_direct_statement_owner_fastmem_failure_test.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder.rs",
+  "src/mir/builder/normal_script_runtime_block_port.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "VM/backend/JSON/runtime/Call schema",
+  "guard registry",
+]
+focused_test_filters = [
+  "normal_script_direct_statement_owner::tests::direct_fastmem_body_failure_discards_candidate_and_reuses_compiler",
+]
+changed_test_names = [
+  "mir::builder::normal_script_direct_statement_owner::tests::direct_fastmem_body_failure_discards_candidate_and_reuses_compiler",
+]
+next_execution = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0__fast"
+
 [mir_builder_boxshape_module_lifecycle_failure_test_s0_2026_08_31]
 status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0"
