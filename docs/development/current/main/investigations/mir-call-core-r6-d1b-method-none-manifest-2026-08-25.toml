@@ -2541,12 +2541,12 @@ red_classification = "No new red result. Workspace-wide cargo fmt -- --check sti
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_dead_text_callshape_s0_2026_08_30]
-status = "accepted_fast_open"
+status = "landed"
 task_id = "MIR-CALL-GLOBAL-TARGET-DEAD-TEXT-CALLSHAPE-S0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 box_kind = "BoxShape behavior-neutral owner split"
-implementation_permission = true
+implementation_permission = false
 decision = "Move only the private match_dead_text_len_call matcher out of the 790-line dead-text region-plan owner into a small sibling module. Preserve the existing module path, public API, MIR metadata, and matching behavior; this row adds no semantic shape and issues no target."
 source_authority = "Existing MirInstruction/Callee shapes and the existing StringDeadTextRegionPlan refresh path; the split introduces no new authority."
 canonical_issuer = "Existing StringDeadTextRegionPlan refresh functions remain the sole plan producer."
@@ -2593,11 +2593,19 @@ forbidden_files = [
 ]
 focused_test_filters = ["string_dead_text_region_plan"]
 changed_test_names = []
-implementation_commit = "pending"
-focused_test_runs = []
-guard_runs = []
-evidence = "Fast row selected after a read-only audit confirmed the existing private matcher has one finite definition and four local callers, while the parent rewrite/known parity blocker remains unchanged. Legacy guard census found no additional SupersededDelete candidate; guard cleanup stays parked."
-red_classification = "No implementation evidence yet; any pre-existing unrelated workspace red remains outside this bounded row."
+implementation_commit = "95bbe25701"
+focused_test_runs = [
+  "rustfmt --edition 2021 --check src/mir/string_dead_text_region_plan.rs src/mir/string_dead_text_call_shape.rs src/mir/mod.rs: pass",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo check --profile quick --lib: pass; existing warnings only",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib string_dead_text_region_plan -- --test-threads=1: 2 passed; 0 failed; 7521 filtered out",
+  "manual finite split structure check: pass",
+]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass after closeout",
+  "git diff --check: pass",
+]
+evidence = "At audit HEAD 1e76945679, a read-only audit confirmed one private matcher definition and four local callers. Implementation landed at 95bbe25701: the matcher moved to src/mir/string_dead_text_call_shape.rs, the parent owner fell from 790 to 750 lines, the new sibling is 44 lines, and the public region-plan module/API and MIR metadata path stayed unchanged. The existing focused suite ran 2 tests with 2 passed, and quick library type-check passed with existing warnings only. The active-surface lifecycle guard is intentionally not used while this independent BoxShape row is selected; after closeout the parent design-stop dispatch is green. Legacy guard census found no additional SupersededDelete candidate; guard cleanup stays parked."
+red_classification = "No current-change red. Workspace-wide cargo fmt debt remains unrelated; targeted rustfmt passed. Full cargo test/link was not claimed."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_rewrite_known_caller_zero_prune_s0_2026_08_30]
