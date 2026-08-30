@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "e5120589dc"
+observed_commit = "b640b5d855"
 observed_at = "2026-08-30"
 implementation_permission = false
 
@@ -8,7 +8,6 @@ implementation_permission = false
 starts = "selected source/builder target selection and typed MIR-v0 ingress"
 ends = "block publication, selected JSON egress, selected Rust VM dispatch, and selected ny-llvmc pre-effect terminal"
 includes = [
-  "src/mir/builder/calls/method_resolution.rs",
   "src/mir/builder/calls/build.rs",
   "src/mir/builder/calls/unified_emitter.rs",
   "src/runner/mir_json_v0/call.rs",
@@ -62,8 +61,8 @@ parked_selected_backend_rows = 0
 [[issuer]]
 id = "method_resolution_static_none"
 class = "direct_issuer"
-owner = "src/mir/builder/calls/method_resolution.rs:31-55"
-caller = "src/mir/builder/calls/build.rs:128-145,362-419"
+owner = "historical src/mir/builder/calls/method_resolution.rs (removed at fea43bdade; final corridor cleanup at 598530d23b)"
+caller = "0 production callers; historical build.rs handoff removed at 598530d23b"
 edge = "current_static_box + hardcoded has_method issues Callee::Method { receiver: None } and the builder publishes a target/name path"
 authority = "not available in this route; existing callable declaration catalog/publication handoff is the required authority"
 disposition = "RetiredCallerZero"
@@ -718,7 +717,7 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its `func:String`/`local_arg` parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has two production-live to-dst writers and two caller-zero no-dst chains. Its current generated Global path has no exact source/site/brand issuer, but the incoming typed Method(Some(receiver)) is an existing canonical successor; parity evidence is non-fatal and must be strengthened before I0. The ordinary-new audit confirms the allocation claim and parser constructor row have no exact site-to-constructor relation and no existing N-to-N+1 target carrier, so that family remains CarrierMismatch/ParkedSealed. Bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has two production-live to-dst writers and two caller-zero no-dst chains. Its current generated Global path has no exact source/site/brand issuer, but the incoming typed Method(Some(receiver)) is an existing canonical successor; parity evidence is non-fatal and must be strengthened before I0. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. Bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1-D0: ordinary static terminal — reconcile the generic/scalar/inline/lowered-global Instance callers; exact Cataloged handoff is already closed, but no generic issuer or safe pre-effect terminal is authorized",
@@ -831,7 +830,7 @@ evidence = "two production-live to-dst parse-back writers and two caller-zero no
 id = "ordinary_new_birth"
 owner = "ordinary_new_admission.rs and new_expression.rs"
 disposition = "ParkedSealed"
-evidence = "The exact allocation claim is consumed before arguments, but birth is only an Option<Box<str>> and the physical consumer reconstructs a StaticBoxMethod from class plus source arity; constructor semantic rows carry ConstructorSourceIdV1 while physical argv is N+1, so no exact typed product/carrier currently exists."
+evidence = "The selected-normal exact constructor cutover landed at d81d91d800: parser ConstructorSourceIdV1, package Birth(N)/NoBirthZero recipe, shared checked N/N+1 ABI, and pre-argument recipe consumption replace the former birth-text/AST-scan/class-arity reconstruction. No-claim compatibility and other constructor families remain separate parked cohorts."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "cataloged_provider_as_free"
