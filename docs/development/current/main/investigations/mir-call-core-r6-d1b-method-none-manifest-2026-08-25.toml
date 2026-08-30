@@ -718,11 +718,11 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; rewrite/known has four default-on parse-back writers (two live `_to_dst`, two caller-zero) but no exact source/site issuer or pre-effect boundary; and bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live but has no source/owner/brand issuer before its `func:String`/local_arg parse-back; rewrite/known has four default-on parse-back writers (two live `_to_dst`, two caller-zero) but no exact source/site issuer or pre-effect boundary; and bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1-D0: ordinary static terminal — reconcile the generic/scalar/inline/lowered-global Instance callers; exact Cataloged handoff is already closed, but no generic issuer or safe pre-effect terminal is authorized",
-  "I2: generic CorePlan — separate selected exact plan from Unlocated func:String and retire authority-free emission before local_arg",
+  "I2-D0: generic CorePlan — reconcile the six GlobalCall writers, generic v0/v1 route, and single lowerer; selected exact emission is caller-zero and no generic issuer is authorized",
   "I3 (landed at 44555655ab): arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, reject retired selectors at all compiler ingress methods, and atomically remove env/name target issuance before operand or Const effects",
   "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
   "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, and OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab. Physical thunk and selected-exact CorePlan are now explicitly ParkedSealed; keep this parent in design_stop and open only the finite rewrite/known issuer-boundary D0 next, with no implementation until an exact issuer or pre-effect terminal exists."
+smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, and OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab. Physical thunk and selected-exact CorePlan are ParkedSealed; ordinary static is issuer-blocked; open only the finite generic CorePlan GlobalCall D0 next, with no implementation until an exact issuer or explicit retirement contract exists."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -798,7 +798,7 @@ next_execution = "none_until_ordinary_static_issuer_or_retirement_d0"
 id = "generic_coreplan_globalcall"
 owner = "control_flow/plan GlobalCall writers and lowerer/effect_emission.rs"
 disposition = "CutoverBlockerOpen"
-evidence = "func:String is lowered after local_arg; selected exact emission_port is a separate positive successor"
+evidence = "Six production writer arms construct CorePlan GlobalCall(func:String); the live lowerer consumes them after local_arg and parse-backs the string. The selected exact emission_port is a separate caller-zero successor, and no source/owner/brand target issuer reaches the generic route."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "selected_exact_coreplan"
@@ -2037,7 +2037,52 @@ no_safe_slice = "Remain in design_stop if the selected-exact chain has no produc
 non_claims = "No generic CorePlan implementation, no production bridge, no source rescan, no new issuer/receipt, no physical thunk change, no Method(None)/Resolved change, no operator/rewrite/provider/new-birth work, no package/loan, VM/backend, JSON, or Call-schema change."
 evidence = "At HEAD ce24ad5e1346, compose_located_generic_loop_v1 and CorePlanEffectEmissionPortV1::Claimed are referenced only by focused test modules; the production loop entry does not call the located composer. The existing source/site/brand/target claim chain is structurally exact but disconnected from production."
 reopen_trigger = "A real production caller consumes the existing located composer and claim chain in the same session, with exact source/site/brand/target claims and a declared value/statement result contract."
-next_execution = "parked_caller_zero__next_rewrite_known_issuer_boundary_d0"
+next_execution = "parked_caller_zero__next_generic_coreplan_globalcall_d0"
+
+[same_module_generic_coreplan_globalcall_d0_2026_08_30]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-GENERIC-COREPLAN-GLOBALCALL-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxCount finite generic CorePlan authority census"
+implementation_permission = false
+disposition = "CutoverBlockerOpen"
+decision = "Keep generic CorePlan GlobalCall behavior unchanged while reconciling its six writer arms, generic v0/v1 route, and single lowerer. The selected exact emission product is a separate caller-zero ParkedSealed family; it may not be wired as a new bridge."
+source_authority = "No source/owner/catalog-brand product is present on the live generic route. CoreCallSourceV1::Unlocated carries insufficient facts; an exact issuer must already exist in the same production session or the route needs an explicit retirement decision."
+canonical_issuer = "None identified. CanonicalSameModuleCallableKeyV1 and CorePlanEffectEmissionPortV1::Claimed exist only on disconnected/selected paths and cannot be reissued from func text."
+non_authority = [
+  "CoreEffectPlan::GlobalCall.func, CoreCallSourceV1::Unlocated, name/arity, current_static_box, registry, physical symbol, typed_global_target_from_selected_symbol, normalizer strings, fallback, retry, and a second resolver",
+]
+fail_fast_boundary = "The live lowerer sees ValueId/local_arg effects before it parse-backs func:String. Do not add a reject after those effects; first identify an earlier source-backed owner or keep NoSafeSlice/CutoverBlockerOpen."
+census_boundary = "six CorePlan GlobalCall writer arms -> generic loop v0/v1 route -> single lowerer/effect emission -> Call publication; includes selected exact emission reachability distinction and local_arg/parse-back ordering; excludes ordinary-static, rewrite/known, ordinary-new, provider, physical thunk, Method, package/loan, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "writers: src/mir/builder/control_flow/plan/normalizer/common.rs:70-75,82-87",
+  "writers: src/mir/builder/control_flow/plan/loop_body_lowering_associated_input.rs:214-219,323-328",
+  "writers: src/mir/builder/control_flow/plan/helpers_value/lower.rs:250-255,388-393",
+  "carrier: src/mir/builder/control_flow/plan/effect.rs:29-35 (GlobalCall.func: String)",
+  "live consumer: src/mir/builder/control_flow/plan/lowerer/effect_emission.rs:144-157",
+  "generic route: src/mir/builder/control_flow/handlers/generic.rs:29-139",
+  "selected exact sibling: src/mir/builder/control_flow/plan/lowerer/emission_port.rs and located_loop.rs (no production caller)",
+]
+finite_states = [
+  "ExactIssuerPresent: an existing source/site/brand product reaches the generic route before local_arg; eligible for a later bounded I0",
+  "LiveIssuerMissing: production writer/consumer is reachable but no exact issuer exists; CutoverBlockerOpen",
+  "CallerZeroSelected: selected exact composer/claim consumer is test-only/disconnected; ParkedSealed with reopen trigger",
+  "UnlocatedOrResidual: source/owner/brand/target claim is absent or residual; no bridge or reclassification",
+]
+ordered_tasks = [
+  "D0-A: reconcile all six writer arms and generic v0/v1 route callers in both directions",
+  "D0-B: verify CoreCallSourceV1::Unlocated lacks owner/catalog/brand/target and that selected exact emission remains caller-zero",
+  "D0-C: record local_arg-before-parse-back order and the earliest safe boundary; no post-effect reject",
+  "D0-D: classify each writer/consumer as ExactIssuerPresent, LiveIssuerMissing, CallerZeroSelected, or UnlocatedOrResidual",
+  "I0: open only after an existing source/site/brand issuer or approved typed retirement contract is named; delete GlobalCall func:String edge atomically",
+]
+acceptance = "The six writer arms and generic route are finite and two-directionally reconciled; selected exact reachability is separated from the live generic route; no target is inferred from func/name/arity; local_arg ordering is evidenced; and no implementation opens without a named issuer or retirement contract."
+no_safe_slice = "Remain in design_stop if no same-session issuer exists, if a new semantic receipt/second scan is required, if a post-effect reject is the only boundary, if selected exact needs a production bridge, or if the change crosses package/loan, Call schema, VM/backend, JSON, or 760/800 lines."
+non_claims = "No generic CorePlan implementation, no GlobalCall carrier change, no argument reordering, no selected-composer activation, no ordinary-static/rewrite/ordinary-new/provider/thunk work, no Method/Call schema, package/loan, VM/backend, JSON, fallback, or retry."
+evidence = "At audit HEAD 6bb6904093, six production writer arms feed a live generic lowerer that consumes local_arg before parsing func:String; CoreCallSourceV1::Unlocated carries no exact owner/brand/target, and the selected exact claim/emission path has no production caller."
+reopen_trigger = "An existing same-session source/site/brand target product reaches the generic CorePlan route before local_arg, or an explicit language/route decision supplies a typed pre-effect retirement/replacement contract."
+next_execution = "none_until_generic_coreplan_globalcall_d0"
 
 [same_module_rewrite_known_issuer_boundary_d0_2026_08_30]
 status = "queued_design_stop"
