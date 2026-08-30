@@ -87,11 +87,12 @@ are now fate-classified as `Keep=9`, `SupersededDelete=1`, `Rehome=5`,
 20 drifted paths. The five live red checks move to current owners: the two
 Const emission forms, literal lowering, production direct-call emission,
 generic call receipt/post-success, and typed Map replay. The immutable fixture
-and five-row anchor sweep remain. The active bounded S0 removes the overlay
-and rehomes those checks, returns the parent below 760 lines, and promotes the
-retained guard to quick-static; it does not delete the composite guard.
+and five-row anchor sweep remain. The bounded S0 landed at `24db147172`: the
+stale overlay was removed, five live checks were rehomed, the parent is below
+760 lines, and the retained guard is in quick-static; the composite guard
+itself was not deleted.
 
-After that proof surface is green, one atomic
+With that proof surface green, the next atomic
 `MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0` parses all three selectors once
 across three conceptual ingress families and five physical public methods,
 then deletes the publishers, downstream reads, Builder prelude OR, and
