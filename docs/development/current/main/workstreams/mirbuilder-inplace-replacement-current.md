@@ -90,6 +90,11 @@ type-fact S0; the nine live checks are kept and five are rehomed. Future guard
 deletion requires a finite invocation/profile census, caller-zero or an equal
 or stronger successor, focused positive/negative proof, and a reopen trigger;
 age, pilot-only status, or a red result alone never authorizes deletion.
+A fresh read-only registry census on 2026-08-30 found no additional
+`SupersededDelete` candidate (117 registered rows and 2646 unregistered
+surfaces). Unregistered, pilot-only, and compatibility-navigation surfaces
+remain `Keep`/`unknown_retain` until an owner, successor, and reopen trigger
+are proven; no new guard-retirement row is opened.
 
 Preflight found that the inherited 786-line type-fact composite guard is
 pilot-only and already red before operator work. Its 15 independent checks
