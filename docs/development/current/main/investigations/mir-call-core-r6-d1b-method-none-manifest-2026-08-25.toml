@@ -718,12 +718,12 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; rewrite/known remains NoSafeSlice; the user selected retirement for the Builder operator-call selectors, but its inherited type-fact guard is pilot-only and already red, so a finite guard-fate/prune pair precedes I0; CorePlan lacks a source-bound product; and bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; rewrite/known remains NoSafeSlice; CorePlan lacks a source-bound product; and bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
   "I2: generic CorePlan — separate selected exact plan from Unlocated func:String and retire authority-free emission before local_arg",
-  "I3: arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, then reject retired selectors at all compiler ingress methods and atomically remove env/name target issuance before operand or Const effects",
+  "I3 (landed at 44555655ab): arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, reject retired selectors at all compiler ingress methods, and atomically remove env/name target issuance before operand or Const effects",
   "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
   "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
   "I5: rewrite/known — replace four production parse-back sites with their existing typed owner or pre-effect reject",
@@ -735,7 +735,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "The type-fact guard-fate D0 is now closed with Keep=9, SupersededDelete=1, Rehome=5, Unresolved=0. Run MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0 to remove the obsolete whole-repo writer overlay and rehome five live checks, then open the atomic OPERATOR-CALL-RETIRE-I0."
+smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, and OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab. Keep this parent in design_stop and open the next named producer only after its existing issuer or typed pre-effect retirement is fixed; physical-thunk D0 is first."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -764,8 +764,10 @@ evidence = "The existing canonical key/claim chain is structurally exact, but th
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "operator_env_publishers"
 owner = "ops/arithmetic.rs, ops/comparison.rs, ops/unary.rs"
-disposition = "CutoverBlockerOpen"
-evidence = "The user selected retirement. Env and generated names are non-authority; all publisher-local checks are after operand/Const effects, so the accepted successor is one typed validator across three conceptual compiler families/five public methods plus the existing direct MIR routes. A guard-fate/prune pair precedes I0 because the inherited 786-line type-fact composite is pilot-only and already red."
+disposition = "RetiredCallerZero"
+evidence = "The three-selector Builder operator-call route landed at 44555655ab. A single typed compiler-ingress validator now rejects explicit truthy, malformed, and non-Unicode legacy selectors before effects; unset/false values preserve direct MIR, and the four publisher bodies, downstream Builder reads, prelude coupling, and repo-owned selector writers are removed. Runtime-only NYASH_OPERATOR_BOX_* remains separate."
+retirement_commit = "44555655ab"
+reopen_trigger = "A new production Builder operator-call publisher or selector writer appears, or an explicit source-backed compatibility owner is approved."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "physical_thunk"
@@ -2121,12 +2123,12 @@ verification = "The stale overlay symbols are absent; parent=511 lines, post-suc
 next_row = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 
 [same_module_operator_call_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement"
-implementation_permission = true
+implementation_permission = false
 prerequisites = [
   "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 closed with Unresolved=0",
   "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0 landed with the retained guard green and below 760",
@@ -2209,6 +2211,24 @@ focused_test_filters = [
   "operator_call_ingress_tests",
   "operator_call_retirement_tests",
 ]
+implementation_commit = "44555655ab"
+post_implementation_census = "The three Builder selector getters and all four operator publishers are zero; the 14 generated operator target names and downstream Builder selector reads are zero; repo-owned Builder selector writers and prelude OR coupling are zero. NYASH_OPERATOR_BOX_* remains runtime-only, and direct arithmetic/comparison/unary MIR remains the sole compiler route."
+validation = [
+  "cargo check --profile quick --tests --lib -j 4: pass",
+  "cargo check --profile quick --all-targets --features vm-reference -j 4: pass",
+  "cargo test --profile quick --lib -j 2 operator_call_retirement_tests: 4 passed",
+  "cargo test --profile quick --lib -j 2 operator_call_ingress_tests: 3 passed",
+  "cargo test --profile quick --lib -j 2 ordinary_operator_matrix_has_exact_legacy_snapshot_parity: 1 passed",
+  "python3 tools/checks/lib/mir_call_d1b_operator_retirement_guard.py .: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "python3 tools/checks/lib/mirbuilder_type_fact_partition_guard.py .: pass",
+  "bash tools/checks/run_row_guard.sh --profile quick-static --only mirbuilder-type-fact-partition,mir-call-d1b-cataloged-affine-loan-lifecycle: pass",
+  "bash -n changed shell writers: pass",
+  "git diff --check: pass",
+]
+red_classification = "The focused integer_binary_script_legacy_and_raw_have_the_same_normalized_snapshot test remains a pre-existing raw-public snapshot baseline red (legacy omits condition_fn while raw includes it); the I0 preserves direct BinOp and does not change that snapshot producer. Full cargo test/link is not claimed."
+next_row = "Return to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design_stop; operator publishers are closed and physical-thunk D0 is the next named blocker."
 guards = [
   "active D1B operator retirement guard: exactly three compiler ingress calls; no downstream selector reads; four publishers and hardcoded targets zero; prelude Builder OR zero",
   "type-fact active replacement inventory updated without rewriting the historical fixture",

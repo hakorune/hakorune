@@ -56,13 +56,17 @@ own exact issuer or typed pre-effect retirement.
 
 Current design stop:
 `MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0` is selected again after the
-ordinary-static target-only I0 landed at `3e7f4a1d7f` (closeout metadata is in
-the manifest). That I0 retains an existing exact source/site target as a
-one-shot `TargetOnly` disposition when no result handoff exists, keeps
+ordinary-static target-only I0 landed at `3e7f4a1d7f` and the bounded Builder
+operator-call retirement I0 landed at `44555655ab` (closeout metadata is in
+the manifest). The target-only I0 retains an existing exact source/site target
+as a one-shot `TargetOnly` disposition when no result handoff exists, keeps
 `Selected` affine, and rejects `NoExactStaticTarget` before compatibility
-fallback or argument effects. The focused owner, ingress, and publication
-tests are green; no Method(None), shared Resolved, Call-schema, package/loan,
-VM/backend, or other SameModule family work was included.
+fallback or argument effects. The operator I0 now rejects the three retired
+Builder selectors at five compiler ingresses before effects and removes the
+four compiler publishers; runtime-only operator selectors and direct MIR stay
+separate. Focused owner, ingress, and publication tests are green; no
+Method(None), shared Resolved, Call-schema, package/loan, VM/backend, or other
+SameModule family work was included.
 
 The parent remains `design_stop` for the next finite authority audit. The
 remaining producer families must each identify an existing issuer and a sole

@@ -1,9 +1,9 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
-current_design_stop = "none"
-current_blocker_token = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0: the guard-fate D0 and bounded prune S0 are landed (24db147172); implement only the three-selector Builder operator-call retirement with five ingress validations and direct MIR preservation. Do not widen to runtime selectors or other SameModule families."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_blocker_token = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0: type-fact guard-fate/prune S0 and the bounded Builder operator-call retirement I0 are landed (44555655ab); operator publishers/selectors are caller-zero with direct MIR preserved. Keep the remaining SameModule families in design_stop and name an exact issuer or typed pre-effect terminal before opening the next child."
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,9 +16,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The Method corridor and bounded SameModule retirements remain landed; physical thunk, selected-exact CorePlan, and ordinary-new remain separately ParkedSealed. Builder operator-call retirement I0 is the sole fast surface: one typed three-selector parser at five public compiler methods, explicit truthy/malformed rejection before effects, direct MIR and runtime selectors preserved, and four legacy publishers/prelude/writers removed. Guard-fate D0 and prune/rehome S0 are landed at 24db147172; no broader runtime or SameModule expansion is selected."
+latest_card_summary = "The Method corridor and bounded SameModule retirements remain landed; physical thunk, selected-exact CorePlan, and ordinary-new remain separately ParkedSealed. Builder operator-call retirement I0 landed at 44555655ab: one typed three-selector validator covers five compiler ingresses, explicit truthy/malformed/non-Unicode inputs fail before effects, direct MIR and runtime selectors remain separate, and the four legacy publishers/prelude/writers are gone. Guard-fate D0 and prune/rehome S0 are landed; the remaining SameModule families stay in the parent design stop."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -30,7 +30,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-30: SameModule exact static receipt I0 landed at e5120589dc; three production callers now project an owned CanonicalSameModuleCallableKeyV1 into CanonicalGlobalTargetV1 before descent, and the receipt terminal no longer reconstructs owner/method/arity.",
 	"2026-08-30: caller-zero Resolved corridor retired at 598530d23b; RawRootMain ordinary direct injection now reaches RawRootMainRetired before effects, while the Resolved variant/consumer and exclusive generic resolver/recovery/name-Const/tail-env owners were physically deleted (210 insertions, 687 deletions). The Method corridor is Exhausted.",
 	"2026-08-30: ordinary-static target-only I0 landed at 3e7f4a1d7f; exact source/site targets without result handoffs now remain TargetOnly and are consumed once, while NoExactStaticTarget is distinct and never falls through compatibility fallback.",
+	"2026-08-30: Builder operator-call retirement I0 landed at 44555655ab; the three legacy selectors now fail-fast at five compiler ingresses when truthy/malformed/non-Unicode, unset/false stays direct MIR, and the four compiler publishers plus Builder-selector prelude/script coupling are retired. Runtime-only NYASH_OPERATOR_BOX_* remains separate.",
 ]
