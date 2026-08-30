@@ -55,6 +55,13 @@ caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None 
 qualified static targets belong to exact catalog/source handoffs. There is no
 remaining generic name/variable/Extern fallback resolver in the ordinary
 FunctionCall corridor.
+
+The remaining unissued static legacy compatibility edge is retired before
+argument effects. `StaticReceiver`, static `this`, receiverless `me`, and
+unissued lowered static routes use one stable typed terminal; exact Cataloged,
+scalar/inline, qualified Math, Env/Extern, and receiver-bearing `Method` remain
+separate owners. This is an internal static legacy compatibility cleanup, not
+a grammar change.
 After the Rust methodize reissuer reached zero, the shared Builder publication
 terminal also rejects `Callee::Method { receiver: None }` before materializing
 or inserting an instruction. Instance Method requires an exact receiver;

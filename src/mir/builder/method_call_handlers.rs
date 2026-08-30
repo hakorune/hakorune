@@ -102,6 +102,19 @@ fn current_enclosing_box_name(builder: &MirBuilder) -> Option<String> {
     builder.comp_ctx.current_static_box.clone()
 }
 
+/// Qualified `Math.*` keeps its existing compatibility owner for this
+/// bounded retirement row.  Other receiverless static calls have no exact
+/// issuer and must stop before their arguments are lowered.
+fn qualified_math_compatibility_owner(owner: &str) -> bool {
+    owner == "Math"
+}
+
+fn unissued_static_call_retired_error(owner: &str, method: &str, arity: usize) -> String {
+    format!(
+        "[freeze:contract][static-call/legacy-fallback-retired] owner={owner} method={method} arity={arity}"
+    )
+}
+
 /// Effect-free `me.method(...)` route preparation shared by ordinary and
 /// candidate-only callers. It owns no argument descent or MIR emission.
 pub(in crate::mir::builder) fn prepare_me_call_execution_v1<Observer>(
@@ -281,6 +294,13 @@ impl MeCallPolicyBox {
                 )
                 .map(Some),
             PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared } => {
+                if matches!(prepared.receiver(), PreparedMeReceiverV1::Static)
+                    && !qualified_math_compatibility_owner(&owner)
+                {
+                    return builder
+                        .handle_static_method_call_with_descent(&owner, method, arguments, descent)
+                        .map(Some);
+                }
                 Self::execute_lowered_global(builder, &owner, method, arguments, descent, prepared)
                     .map(Some)
             }
@@ -418,6 +438,10 @@ fn current_bound_me_value(builder: &MirBuilder) -> Option<ValueId> {
 #[path = "method_call_handlers_tests.rs"]
 mod tests;
 
+#[cfg(test)]
+#[path = "method_call_handlers_static_legacy_retire_tests.rs"]
+mod static_legacy_retire_tests;
+
 impl MirBuilder {
     /// Handle source static calls after route selection.
     pub(in crate::mir::builder) fn handle_static_method_call_with_descent<Completion>(
@@ -455,6 +479,14 @@ impl MirBuilder {
             completion,
         )? {
             return Ok(result);
+        }
+
+        if !qualified_math_compatibility_owner(box_name) {
+            return Err(unissued_static_call_retired_error(
+                box_name,
+                method,
+                arguments.len(),
+            ));
         }
 
         // Build argument values

@@ -96,6 +96,12 @@ argument effects. The shared `Resolved` consumer remains a separate legacy
 owner outside this origin-specific slice. These are internal provenance
 decisions, not public grammar changes.
 
+The legacy static compatibility edge retires before argument effects when it
+has no exact Cataloged issuer. Static receiver, static `this`, receiverless
+`me`, and unissued lowered-static routes share one typed terminal; exact
+Cataloged, scalar/inline, qualified Math, Env/Extern, receiver-bearing
+`Method`, and lowered-global instance owners remain unchanged.
+
 Migration must not silently relabel a behavior change as BoxShape. It requires:
 
 1. a complete compatibility caller/fixture census;

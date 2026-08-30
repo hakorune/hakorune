@@ -306,8 +306,10 @@ fn typeop_descends_receiver_once_and_keeps_type_string_syntax_only() {
 #[test]
 fn static_route_skips_receiver_and_descends_arguments_left_to_right() {
     let input = RouteInput {
-        receiver: variable("RouteStaticBox"),
-        method: "call".to_string(),
+        // Generic unissued static routes now retire before descent; Math is
+        // the explicitly preserved qualified compatibility owner.
+        receiver: variable("Math"),
+        method: "abs".to_string(),
         arguments: vec![integer(1), integer(2)],
     };
     let mut port = RoutePort::default();
