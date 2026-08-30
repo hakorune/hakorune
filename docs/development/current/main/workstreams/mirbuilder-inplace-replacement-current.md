@@ -101,7 +101,7 @@ ready. No immediate GlobalCall-only or whole-loop retirement row is open.
 `rewrite/known` remains a parity-open candidate: two production-live to-dst
 writers and the equals delegation can retire together by preserving the already-
 owned typed `Method(Some(receiver))` route, while two caller-zero no-dst chains
-are removed by the bounded caller-zero S0. Fresh current `vm-reference` probes include
+were removed by the bounded caller-zero S0 at `fb5a4e0e81`. Fresh current `vm-reference` probes include
 both matching and divergent ON/OFF outcomes (the divergent cases are
 arity/fault differences), so the finite result/fault/backend parity matrix is
 not green and its I0 stays closed. No new Global issuer, post-effect reject, or

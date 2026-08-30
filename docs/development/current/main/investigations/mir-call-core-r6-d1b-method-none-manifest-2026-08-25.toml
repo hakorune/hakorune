@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "The exact static receipt child landed at e5120589dc. The rewrite/known caller-zero no-dst prune is now the next bounded T0 cleanup; its live to-dst parity remains a separate blocker and no new issuer is introduced."
+smallest_next_slice = "The exact static receipt child landed at e5120589dc, and the caller-zero no-dst rewrite/known prune landed at fb5a4e0e81. Keep the parent in design_stop while live to-dst parity remains a separate blocker; no new issuer is introduced."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -2595,6 +2595,7 @@ focused_test_filters = [
 ]
 changed_test_names = []
 coverage_base_commit = "13b5a3e6e0"
+implementation_commit = "fb5a4e0e81"
 focused_test_runs = [
   "cargo check --profile quick --lib -j1: pass",
   "cargo test --profile quick --lib header_lookup -- --test-threads=1: pass",
@@ -2603,6 +2604,6 @@ focused_test_runs = [
   "git diff --check: pass",
 ]
 guard = "Existing mir-call-d1b-cataloged-affine-loan-lifecycle entry dispatches the reusable rewrite-known caller-zero checker; no new registry row is added."
-evidence = "At HEAD 13b5a3e6e0, source-only rg showed no production/test Rust caller outside rewrite/known.rs for the no-dst chains, while unified_emitter.rs and rewrite/special.rs retain the _to_dst family. The no-dst helper and wrappers are therefore a mechanical caller-zero deletion; the live parity-open writers remain unchanged."
+evidence = "At HEAD 13b5a3e6e0, source-only rg showed no production/test Rust caller outside rewrite/known.rs for the no-dst chains, while unified_emitter.rs and rewrite/special.rs retain the _to_dst family. Implementation landed at fb5a4e0e81: the no-dst helper and wrappers were deleted, known.rs is 401 lines, and the live parity-open writers remain unchanged."
 reopen_trigger = "Reopen only if a new source caller for a removed no-dst symbol appears, or if the retained _to_dst family changes owner; live parity reopening remains owned by MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"

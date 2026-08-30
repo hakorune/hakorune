@@ -1,14 +1,14 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0:
-delete only the caller-zero no-dst Known/unique rewrite chains. Retain the live
-_to_dst writers, equals/unified ingress, Method(Some) successor, and all
-parity-open live behavior. No new issuer, resolver, selector, or semantic
-target is permitted; return to the parent design stop after the cleanup.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+the caller-zero no-dst rewrite/known cleanup landed at fb5a4e0e81. Retain the
+live _to_dst writers and parity-open behavior; resume the finite SameModule
+producer census. Names, keys, headers, fixtures, fallback, retry, and second
+resolvers remain non-authority; choose one existing issuer or typed terminal.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -22,9 +22,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Ordinary-new exact constructor cutover I0 landed at d81d91d800. The next bounded T0 is the caller-zero no-dst rewrite/known prune; retained _to_dst writers and parity-open live behavior stay unchanged, then the parent SameModule design stop resumes."
+latest_card_summary = "Ordinary-new exact constructor cutover I0 landed at d81d91d800, and caller-zero no-dst rewrite/known facades were physically pruned at fb5a4e0e81. Retained _to_dst writers and parity-open live behavior are unchanged; resume the parent SameModule design stop."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
