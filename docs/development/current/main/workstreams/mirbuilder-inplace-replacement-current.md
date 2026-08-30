@@ -87,7 +87,10 @@ remain closed. The cataloged-provider audit leaves bare `now`, `panic`, and
 `exit` as `NoIssuer`; the canonical Call SSOT already gives bare `error` an
 unsupported pre-effect contract, now recorded in the one-name D0 card.
 Qualified Extern, Math, and GC owners stay separate. The parent finite producer
-census remains closed while this contract boundary is reconciled. The user
+census remains closed while this contract boundary is reconciled. The current
+bounded implementation row is
+`MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0`; it may touch
+only the existing pre-effect Rejected terminal for bare `error`. The user
 selected retirement for only the legacy
 `NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
 audits closed the boundary at three compiler ingresses, four target publishers,

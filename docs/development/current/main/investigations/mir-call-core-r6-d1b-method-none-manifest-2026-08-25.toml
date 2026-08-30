@@ -1990,6 +1990,67 @@ evidence = "The existing canonical Call SSOT already states bare error rejects; 
 reopen_trigger = "Reopen the parent if the language contract changes, the existing typed terminal cannot be placed before effects, or a same-session exact bare-error issuer is introduced by an explicit provider decision."
 next_execution = "none_until_bare_error_contract_d0_closeout"
 
+[same_module_cataloged_provider_bare_error_retire_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
+parent_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-CONTRACT-D0"
+design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-CONTRACT-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape one-name pre-effect retirement"
+implementation_permission = true
+decision = "Retire only bare error at the existing typed Rejected terminal before target synthesis and argument effects. Do not invent a bare provider, change qualified Extern, or touch now/panic/exit."
+source_authority = "The accepted language contract in docs/reference/language/function-call-evaluation.md and mir-canonical-callsite-lane-ssot.md; the parser remains a generic FunctionCall source and issues no bare provider."
+canonical_issuer = "None. PreparedRawOrdinaryFunctionCompletionV1::Rejected is the sole terminal; no Callee or new semantic receipt is issued."
+non_authority = [
+  "CallNameCalleeClassV1::BuiltinGlobal",
+  "name/arity, CanonicalGlobalTargetV1::new_free_function, current_static_box, catalog lookup, resolver, symbol/registry, VM/backend, fixture, fallback, and retry",
+  "qualified env/nyash/system error providers, which remain separate Extern owners",
+]
+fail_fast_boundary = "After TypeOp/Math/FastMem precedence and before prepare_cataloged_target_v1, resolver, argument descent, Const/ValueId allocation, effects, block mutation, or Call publication."
+census_boundary = "Installed non-brand raw FunctionCall with bare name error -> first provider classification/terminal; includes both Cataloged caller families and observed arities; excludes bare now/panic/exit, qualified Extern, Math, GC, RawCompatibility, physical thunk, CorePlan, package/loan, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "bare error ingress: src/mir/builder/calls/function_call_preflight_route.rs::prepare_ordinary_function_completion_v1",
+  "existing terminal: PreparedRawOrdinaryFunctionCompletionV1::Rejected",
+  "focused owner tests: function_call_installed_gc_builtin_tests.rs",
+]
+finite_states = [
+  "UnsupportedBareError: one typed pre-effect Rejected terminal",
+  "QualifiedExternOwned: qualified providers unchanged",
+]
+ordered_tasks = [
+  "I0-A: add the finite bare-error branch before caller target preparation",
+  "I0-B: prove static and instance Cataloged caller forms reject without child descent or Call publication",
+  "I0-C: run filtered Cargo tests, active-surface guard, pointer guard, and changed-test coverage",
+  "C0: close the one-name row and return to the bare-provider parent; now/panic/exit stay separate",
+]
+acceptance = "Both Cataloged caller families and every observed bare-error arity reach the same existing Rejected terminal before target synthesis and argument effects; focused tests prove zero child/effect/Call publication; the guard proves the finite path and changed-test coverage; qualified Extern and other provider families are unchanged."
+no_safe_slice = "Return to design_stop if the existing Rejected terminal cannot be placed before effects, a new provider/receipt is needed, qualified Extern changes, arity/effect/diagnostic semantics are ambiguous, or the row crosses another provider, physical thunk, package/loan, VM/backend, JSON, Call schema, fallback, retry, or 760/800-line boundary."
+non_claims = "No bare now/panic/exit change, no provider/Extern issuer, no Math/GC/ordinary-static/CorePlan/physical-thunk/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, retry, or guard cleanup."
+allowed_files = [
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+  "src/mir/builder/calls/README.md",
+  "tools/checks/lib/mir_call_d1b_bare_error_retire_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+]
+forbidden_files = [
+  "bare now/panic/exit",
+  "qualified Extern, Math, GC, physical thunk, CorePlan, ordinary-static, ordinary-new",
+  "package/loan, VM/backend, JSON, Call schema, fallback, retry, guard cleanup",
+]
+focused_test_filters = ["bare_error"]
+changed_test_names = []
+coverage_base_commit = ""
+implementation_commit = ""
+focused_test_runs = []
+guard = "The existing active-surface lifecycle guard dispatches a dedicated bare-error checker; fast_open validates only activation scope, while landed validates branch ordering, focused tests, changed-test coverage, and allowed paths."
+evidence = "Activation only: the accepted language contract and existing Rejected terminal are recorded; no production code switch is claimed until I0 lands."
+reopen_trigger = "Reopen the parent if the language contract changes, the existing terminal cannot precede effects, or an explicit same-session bare-error issuer is introduced."
+next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
+
 [same_module_cataloged_gc_retire_i0_2026_08_30]
 status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"

@@ -87,6 +87,7 @@ ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW = (
 ORDINARY_STATIC_LEGACY_RETIRE_I0_KEY = (
     "same_module_ordinary_static_legacy_compat_retire_i0_2026_08_30"
 )
+BARE_ERROR_RETIRE_ROW = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
 ACTIVE_SURFACE_ROWS_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-ROWS-S0"
 ACTIVE_SURFACE_ROWS_KEY = "active_surface_guard_rows_s0_2026_08_30"
 
@@ -369,6 +370,10 @@ def main() -> None:
         check_ordinary_new_i0(state, card, root)
     elif row == ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW:
         check_ordinary_static_legacy_retire_i0(state, card, root)
+    elif row == BARE_ERROR_RETIRE_ROW:
+        from mir_call_d1b_bare_error_retire_guard import check_bare_error_retire_i0
+
+        check_bare_error_retire_i0(state, card, root, api)
     elif row == ACTIVE_SURFACE_ROWS_ROW:
         check_active_surface_rows_s0(state, card, root, api)
     elif row == REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW:
