@@ -2033,6 +2033,68 @@ closeout = "Return work_mode to design_stop with current_execution_row/current_d
 reopen_trigger = "Reopen only if the historical test path cannot compile, private access requires a public API, a guard requires the old inline body, production module_lifecycle.rs changes, the parent/sibling reaches 760/800 lines, or the DeclaredInstance semantic boundary changes."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_call_me_declared_instance_receiver_source_facts_i0_2026_08_31]
+status = "fast_open"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+design_parent = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T1"
+box_kind = "BoxCount source-facts fidelity correction"
+implementation_permission = true
+decision = "Preserve the receiver policy already sealed by BodyMeReceiverV1 when issuing VerifiedResolvedMethodCallSourceV1: Lexical(binding) remains Lexical(binding), while StaticCurrentOwner remains CurrentOwner. This removes a source-facts collapse only; it does not issue a target, receiver ValueId, ABI, loan, or MIR Call."
+source_authority = "The existing resolver-owned BodyExpressionShapeV1::Me receiver field is the sole authority. The existing issue_resolved_method_call_sources_v1 function is the sole source-product issuer and must forward its finite receiver disposition without re-scanning AST or Builder state."
+canonical_issuer = "Existing issue_resolved_method_call_sources_v1 in src/mir/resolved_semantics/body_shape.rs; no new receipt or parallel source pipeline."
+non_authority = [
+  "AST nodes, variable_map, current_static_box, header/name/arity lookup, formatted symbols, registry, physical ABI, backend/VM, tests, fixtures, fallback, retry, and any target/ValueId/MIR publication",
+]
+fail_fast_boundary = "A receiver disposition other than BodyMeReceiverV1::Lexical or BodyMeReceiverV1::StaticCurrentOwner, a foreign binding, or a changed source-site relation remains a typed source-product error before any target or argument effect."
+census_boundary = "BodyExpressionShapeV1::Me receiver disposition -> VerifiedResolvedMethodCallSourceV1::receiver; includes declared-instance lexical receiver and static current-owner source tests, excludes target issuer, Method(Some), package/loan, ABI/effect/result co-seal, Call schema, and backend/runtime routes."
+finite_inventory = [
+  "existing source shape: BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1 }",
+  "existing method source product: VerifiedResolvedMethodCallSourceV1::receiver",
+  "existing issuer: issue_resolved_method_call_sources_from_rows_v1",
+  "existing tests: resolved_shape_keeps_static_current_owner_me_without_forging_a_receiver_binding and declared-instance Me source fixtures",
+]
+finite_states = [
+  "LexicalPreserved: BodyMeReceiverV1::Lexical(binding) becomes ResolvedMethodCallReceiverSourceV1::Lexical(binding)",
+  "StaticOwnerPreserved: BodyMeReceiverV1::StaticCurrentOwner becomes ResolvedMethodCallReceiverSourceV1::CurrentOwner",
+  "UnsupportedReceiver: any other source shape remains Other or rejects under the existing source contract; no target inference",
+  "SourceDrift: site/relation/owner or binding changes; stop",
+]
+ordered_tasks = [
+  "I0-A: replace only the existing Me receiver match arm in the source-product issuer with the two explicit BodyMeReceiverV1 cases",
+  "I0-B: add focused positive coverage for both lexical and static-current-owner method source products, preserving existing source-site and owner assertions",
+  "I0-C: run exact changed tests, test-name listing, rustfmt, quick library check, pointer guard, diff check, and body_shape.rs line census",
+  "I0-D: close out to MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0; do not claim an instance target or production Call switch",
+]
+acceptance = "Declared-instance Me method source rows retain the exact resolver-owned lexical BindingRefV1, static current-owner rows retain CurrentOwner, all existing source-site/argument relations remain unchanged, no target/ValueId/ABI/MIR/loan/backend code is added, focused tests and quick check pass, and body_shape.rs remains below 760/800 lines."
+no_safe_slice = "Stop and return to design_stop if preserving the binding requires AST or Builder state, changes a public/source product shape beyond the existing receiver enum, needs a new receipt/issuer, alters target or argument lowering, or crosses the 760/800 source budget."
+non_claims = "No DeclaredInstance declaration relation, Method(Some(receiver)) cutover, direct-call issuer/loan, Call schema change, panic/throw/exit change, VM/backend/JSON change, fallback/retry change, or guard deletion/new registry row."
+allowed_files = [
+  "src/mir/resolved_semantics/body_shape.rs",
+  "src/mir/resolved_semantics/body_shape_tests.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/declared_instance_call.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "VM/backend/JSON/runtime/Call schema",
+  "guard registry",
+]
+focused_test_filters = [
+  "resolved_shape_keeps_static_current_owner_me_without_forging_a_receiver_binding",
+  "resolved_shape_issues_declared_instance_method_receiver_source",
+]
+changed_test_names = [
+  "mir::resolved_semantics::body_shape_tests::resolved_shape_keeps_static_current_owner_me_without_forging_a_receiver_binding",
+  "mir::resolved_semantics::body_shape_tests::resolved_shape_issues_declared_instance_method_receiver_source",
+]
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0__fast"
+
 [mir_builder_boxshape_normal_callable_source_test_extraction_s0_2026_08_31]
 status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
