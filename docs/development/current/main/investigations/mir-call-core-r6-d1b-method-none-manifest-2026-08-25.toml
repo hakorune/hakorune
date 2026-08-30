@@ -1955,6 +1955,38 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 agree that no exact bare-provider issuer exists. Bare error is retired by its named unsupported terminal and bare now has the same canonical contract; panic/exit remain NoIssuer. Physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. LoweredGlobal::Instance is also a live-semantics, issuer-missing family and remains ParkedSealed; no pre-effect terminal or target issuer may be invented. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[same_module_cataloged_provider_bare_panic_contract_d0_2026_08_30]
+status = "accepted_design_stop_user_decision_required"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-PANIC-CONTRACT-D0"
+parent_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
+ceremony_tier = "T0"
+implementation_permission = false
+decision = "Pending explicit language confirmation: if bare panic has no source-backed provider issuer, retire only its legacy success edge at the existing typed Rejected terminal before argument effects. This does not retire explicit qualified panic providers or the panic syntax itself."
+source_authority = "The parser emits bare panic as a generic FunctionCall and no exact catalog/Extern/provider product is issued. Qualified providers, if any, remain separate owners."
+canonical_issuer = "None under the proposed retirement contract; PreparedRawOrdinaryFunctionCompletionV1::Rejected is the sole allowed terminal. No bare provider or replacement Callee is created."
+non_authority = [
+  "BuiltinGlobal classification, name/arity, CanonicalGlobalTargetV1::new_free_function, catalog-presence lookup, resolver, generated symbol, registry, effects analyzer, VM/backend, fixture, fallback, and retry",
+]
+fail_fast_boundary = "After TypeOp/Math/FastMem precedence and before prepare_cataloged_target_v1, target synthesis, resolver/recovery, argument descent, Const/ValueId allocation, effects, block/Call publication, or fallback."
+census_boundary = "Installed non-brand Cataloged raw FunctionCall with bare name panic -> first provider classification/terminal; includes both StaticBoxMethod and InstanceBoxMethod caller families and observed arities; excludes bare exit, qualified providers, Math, GC, DeclaredInstance, CorePlan, physical thunk, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "bare panic ingress: src/mir/builder/calls/function_call_preflight_route.rs provider branch and Cataloged target synthesis",
+  "existing terminal: PreparedRawOrdinaryFunctionCompletionV1::Rejected",
+  "production caller families: nonmain_static_box_method_batch.rs and instance_box_method_batch.rs",
+  "qualified provider siblings and bare exit remain separate NoIssuer rows",
+]
+finite_states = [
+  "PendingUserDecision: no language contract has yet authorized bare panic retirement",
+  "UnsupportedBarePanic: proposed typed pre-effect Rejected terminal, no Callee",
+  "QualifiedProviderOwned: explicit provider spelling remains unchanged",
+  "WrongArity: no separate contract until a provider issuer/language rule exists",
+]
+acceptance = "A single explicit language decision chooses either the proposed unsupported pre-effect retirement or a named exact provider issuer; the decision is recorded in docs/reference and this card before implementation. No syntax retirement or qualified-provider change is implied."
+no_safe_slice = "Remain in design_stop while the language decision is absent, a bare provider must be invented, or the path requires name/arity/registry inference, fallback, retry, VM/backend, JSON, Call schema, or a new receipt."
+non_claims = "No bare exit change, no panic syntax removal, no qualified provider change, no new provider/Extern issuer, no DeclaredInstance/Method/Resolved/Call-schema/VM/backend work, and no guard deletion."
+reopen_trigger = "Reopen only after the user explicitly selects the unsupported bare-panic contract or names an existing exact provider issuer; otherwise keep this row parked at design_stop."
+next_execution = "none__await_user_language_contract"
+
 [same_module_me_method_canonical_plan_2026_08_30]
 status = "accepted_bounded_series"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
