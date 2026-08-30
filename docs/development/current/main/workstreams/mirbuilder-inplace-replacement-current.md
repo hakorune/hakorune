@@ -98,6 +98,11 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
+The latest bounded audit keeps `LoweredGlobal::Instance` as live semantics with
+no exact same-session issuer or pre-effect terminal. It is `ParkedSealed`, not a
+deletion candidate; reopen only for an exact issuer or an explicit language/ABI
+retirement decision.
+
 The bounded row
 `MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0` landed at
 `b1755febfb` with terminal-type and guard-ordering corrections at
