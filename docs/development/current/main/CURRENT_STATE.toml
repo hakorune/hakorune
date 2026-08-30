@@ -1,17 +1,19 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0:
-the earlier typed terminal dominates the sole helper caller.
-Remove only the unreachable helper-local `name == "print"` target arm.
-Preserve ASTNode::Print -> builtin_print and generic BuiltinGlobal behavior.
-No DeclaredInstance, Method/Call schema, VM/backend, panic/throw/Result,
-package/loan, fallback, retry, or guard-registry work. Run focused evidence,
-then return to the parent design stop. True DeclaredInstance remains
-ParkedSealed because its exact co-seal issuer is absent.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+Cataloged print's unreachable helper-local target arm was pruned at
+125971b5ed; the earlier typed terminal and dedicated ASTNode::Print owner
+remain. The parent returns to design_stop for the next finite authority audit.
+True DeclaredInstance remains ParkedSealed because its exact
+source/catalog/receiver/ABI/result/effect co-seal issuer is absent. Do not
+infer from names, headers, registries, fixtures, or backends; do not add a
+resolver, parallel loan, fallback, retry, Method/Call/VM/backend, or
+panic/throw/Result change. Legacy guard cleanup remains parked unless
+SupersededDelete proof exists.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -44,10 +46,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "A worker audit found one independent caller-zero cleanup: prepare_cataloged_target_v1 still contains an unreachable print-specific target arm, while the earlier InstalledNonBrand print retirement and dedicated ASTNode::Print -> builtin_print() owner remain live. The selected fast row removes only that stale arm and then returns to the parent design stop. True DeclaredInstance remains ParkedSealed and is not touched; panic/throw/Result remain separate production-0 lanes."
+latest_card_summary = "The independent caller-zero cleanup landed at 125971b5ed: the unreachable prepare_cataloged_target_v1 print arm is gone, while the typed BuiltinPrintCataloged terminal and dedicated ASTNode::Print -> builtin_print() owner remain. The parent SameModule producer census is back in design_stop; true DeclaredInstance remains ParkedSealed and panic/throw/Result remain separate production-0 lanes."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+next_execution_card = "none"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

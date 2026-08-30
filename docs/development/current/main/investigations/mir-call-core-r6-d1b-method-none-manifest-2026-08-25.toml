@@ -1959,13 +1959,13 @@ worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact 
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0"
 ceremony_tier = "T0"
 box_kind = "BoxShape caller-zero dead target-preparation arm prune"
-implementation_permission = true
+implementation_permission = false
 decision = "The already-retired InstalledNonBrand Cataloged FunctionCall print branch has one remaining unreachable print-specific target arm inside prepare_cataloged_target_v1. Delete only that arm; preserve the earlier typed BuiltinPrintCataloged terminal, the dedicated ASTNode::Print -> builtin_print() owner, and all generic BuiltinGlobal behavior."
 source_authority = "Parser-owned ASTNode::Print and CanonicalGlobalTargetV1::builtin_print() remain the sole print production authority. This row issues no target and does not alter the existing retirement terminal."
 canonical_issuer = "Existing stmts/print_stmt.rs builtin_print() only; no ordinary FunctionCall name/arity arm may issue print."
@@ -2025,10 +2025,20 @@ focused_test_filters = [
   "mir::builder::stmts::print_stmt::tests::",
 ]
 changed_test_names = []
-implementation_commit = ""
+implementation_commit = "125971b5ed"
+focused_test_results = [
+  "cargo test --profile quick --lib cataloged_print -- --test-threads=1: 2 passed, 0 failed",
+  "cargo test --profile quick --lib cataloged_target_preflight_applies_total_shadow_order -- --test-threads=1: 1 passed, 0 failed",
+  "cargo test --profile quick --lib mir::builder::stmts::print_stmt::tests:: -- --test-threads=1: 3 passed, 0 failed",
+  "cargo check --profile quick --lib: passed",
+]
+guard_result = "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass; current_state_pointer_guard.sh: pass; git diff --check: pass"
+line_count_result = "function_call_preflight_route.rs remains below the 760-line boundary; no production source crossed 800"
+evidence = "At implementation commit 125971b5ed, source-wide production helper census remained one route file with one callsite plus the definition. The unreachable helper-local print projection was deleted; the earlier BuiltinPrintCataloged terminal and dedicated ASTNode::Print -> builtin_print() owner remain. Existing cataloged-print positive/negative tests (2), total-shadow-order test (1), Print-owner tests (3), quick library check, rustfmt, active guard, pointer guard, and diff check passed."
+red_classification = "No current-change red. Full cargo test/link was not claimed."
 guard = "Reuse the existing cataloged-print active-surface dispatch and extend its structural check to assert the helper-local print arm is absent and the sole caller/earlier terminal relationship remains."
 reopen_trigger = "Reopen only if a production caller for the helper-local print arm appears, the dedicated ASTNode::Print owner changes, or the earlier typed print terminal no longer dominates helper entry."
-next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0__implementation_pending_pointer_switch"
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_call_me_declared_instance_relation_issuer_d0_2026_08_31]
 status = "accepted_design_stop"
