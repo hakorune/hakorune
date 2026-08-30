@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Self-host minimal smoke (explicit proof-only keep)
 # - Emits MIR(JSON v0) via the explicit compat/proof keep path
-# - Runs a representative compat bridge example and compares keep outputs
+# - Runs one representative canonical bridge example
 
 ROOT_DIR=$(cd "$(dirname "$0")/../../.." && pwd)
 NY_BIN="${ROOT_DIR}/target/release/hakorune"
@@ -35,25 +35,14 @@ else
   echo "[selfhost-smoke] NOTE: no JSON emitted (skipped). This is optional for the minimal smoke." >&2
 fi
 
-echo "[selfhost-smoke] Step 2: Run representative compat keep example (rewrite=ON/OFF)"
+echo "[selfhost-smoke] Step 2: Run representative canonical keep example"
 EXAMPLE="apps/examples/json_query/main.hako"
-OUT_ON="/tmp/nyash_selfhost_compat_on.txt"
-OUT_OFF="/tmp/nyash_selfhost_compat_off.txt"
+OUT_CANONICAL="/tmp/nyash_selfhost_compat_canonical.txt"
 
 set -x
-"${NY_BIN}" --backend vm "${EXAMPLE}" > "${OUT_ON}"
-NYASH_REWRITE_KNOWN_DEFAULT=0 "${NY_BIN}" --backend vm "${EXAMPLE}" > "${OUT_OFF}"
+"${NY_BIN}" --backend vm "${EXAMPLE}" > "${OUT_CANONICAL}"
 set +x
 
-if ! diff -u "${OUT_ON}" "${OUT_OFF}" >/dev/null 2>&1; then
-  echo "[selfhost-smoke] WARN: compat keep output differs between rewrite ON and OFF" >&2
-  echo "--- ON (${OUT_ON})" >&2
-  head -n 20 "${OUT_ON}" >&2 || true
-  echo "--- OFF (${OUT_OFF})" >&2
-  head -n 20 "${OUT_OFF}" >&2 || true
-  # Non-fatal: keep smoke informative; do not fail hard unless required.
-else
-  echo "[selfhost-smoke] compat bridge outputs match for rewrite ON/OFF (good)."
-fi
+echo "[selfhost-smoke] canonical bridge example completed ($(wc -c < "${OUT_CANONICAL}") bytes)."
 
 echo "[selfhost-smoke] PASS"

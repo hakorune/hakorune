@@ -1,10 +1,8 @@
-//! Rewrite helpers (P1)
+//! Narrow rewrite helpers for explicit, source-level special cases.
 //!
-//! Responsibility
-//! - Known 経路の instance→function 正規化（obj.m → Class.m(me,…)）。
-//! - 特殊規則（toString→str（互換:stringify）, equals など）の集約。
-//! - 既定挙動は不変。dev 観測（resolve.try/choose）は observe 経由で発火。
+//! The optional Known/Unique instance-to-Global optimization was retired by
+//! `MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0`.  Canonical method
+//! lowering now keeps the incoming typed `Method(Some(receiver))` target.
+//! Only the explicit early str-like compatibility route remains here.
 
-pub mod header_lookup;
-pub mod known;
 pub mod special;

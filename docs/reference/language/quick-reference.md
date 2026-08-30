@@ -61,10 +61,11 @@ Selected contextual forms
 
 Expressions and Calls
 - Function call: `f(a, b)`
-- Method call: `obj.m(a, b)` — internally normalized to function form: `Class.m(me: obj, a, b)`
-  - Default‑ON（P4）: Known 受信者かつ関数が一意に存在する場合に正規化（userbox 限定）。
-  - それ以外（Unknown/core/user‑instance）は安全に BoxCall へフォールバック（挙動不変）。
-  - 環境で無効化: `NYASH_REWRITE_KNOWN_DEFAULT=0`（開発時の切替用）。
+- Method call: `obj.m(a, b)` — typed `Method(Some(receiver))` を通常の
+  canonical target として保持する。
+  - 旧 Known/Unique instance→function rewrite は退役済みで、名前・header・suffix
+    から別の Global target を再構築しない。
+  - Unknown/core の BoxCall routing と明示的な `toString` 系 early route は維持する。
   - バックエンド（VM/LLVM/NyRT）は統一形状の呼び出しを受け取る。
 - Member: `obj.field` or `obj.m`
 

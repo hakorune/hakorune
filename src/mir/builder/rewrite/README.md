@@ -1,38 +1,33 @@
-# rewrite — Known 経路の関数化 ＋ 特殊規則（P1）
+# rewrite — explicit special-method handling
 
-目的
-- Known 受け手のメソッド呼び出し `obj.m(a)` を関数呼び出し `Class.m(me,obj,a)` に正規化し、実行系を単純化する。
-- 表示系の特殊規則（`toString` / `stringify` → 規範 `str`）を一箇所に集約する（互換維持）。
-- 仕様は不変。Union は観測のみで、Known のみ関数化対象。
+この module は、source の意味を再解決する場所ではなく、既存の typed
+`Method(Some(receiver))` を補助する明示的な特殊規則だけを扱う。
 
-責務
-- known.rs: Known 経路の instance→function 正規化（ユーザー Box のみ、既存ガード尊重）。
-- special.rs: `toString`/`stringify` → `str` の早期処理（Class.str/0 を優先、互換で stringify/0）。
-  - `equals/1` もここに集約（Known 優先 → 一意候補のみ許容）。
-- 観測は observe 層に委譲（resolve.choose など）。
+## 現在の責務
 
-非責務（禁止）
-- Union の強引な関数化（Unknown/曖昧なものは扱わない）。
-- 起源付与/型推論の実施（origin 層に限定）。
-- NYABI 呼び出しや VM 直接呼び出し。
+- `special.rs` の `toString` / `stringify` / `str` early route。
+- early route は既存の `RuntimeDataBox` method terminal を一度だけ発行する。
+- それ以外の method は unified emitter の既存 resolver/materializer/terminal に渡す。
 
-API（呼び出し側から）
-- caller-zero の no-destination Known/unique rewrite facade は
-  `MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0` で退役済み。
-- `try_known_rewrite_to_dst[_with_lookup](builder, dst, recv, class, method, args) -> Option<Result<ValueId,String>>`
-- `try_unique_suffix_rewrite_to_dst[_with_lookup](builder, dst, recv, method, args) -> Option<Result<ValueId,String>>`
-- `try_known_or_unique_to_dst[_with_lookup](builder, dst, recv, class_opt, method, args) -> Option<Result<ValueId,String>>`
-- `try_early_str_like(builder, recv, class_opt, method, arity) -> Option<Result<ValueId,String>>`
-- `try_special_equals(builder, recv, class_opt, method, args) -> Option<Result<ValueId,String>>`
+## 退役済み
 
-`_to_dst` の三つの入口と `special.rs` の equals delegation が現在の live
-production surface。selector/env と Method(Some) の挙動はこの cleanup では変更しない。
+`MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0` により、任意の
+Known/Unique instance-to-Global rewrite、`equals/1` の特別 rewrite、header/suffix
+lookup、次の selector は削除された。
 
-レイヤールール
-- Allowed: Builder のメタ参照/関数名生成、MirInstruction の生成（関数化結果）。
-- Forbidden: origin/observe のロジックを混在させない（必要時は呼び出しで連携）。
+- `try_known_*` / `try_unique_suffix_*` / `try_known_or_unique_*`
+- `try_special_equals_*`
+- `NYASH_REWRITE_KNOWN_DEFAULT`
+- `NYASH_BUILDER_REWRITE_INSTANCE`
+- `NYASH_DEV_REWRITE_USERBOX`
+- `NYASH_DEV_REWRITE_NEW_ORIGIN`
 
-決定原則
-- Known のみ関数化（`value_origin_newbox` が根拠）。
-- 表示系は規範 `str` を優先、`stringify` は当面互換として許容。
-- すべての決定は dev 観測（resolve.try/choose）で可視化し、挙動は不変。
+caller-zero の no-destination facade と合わせて、これらは canonical target authority
+ではない。generated name、name/arity、header、
+suffix、`StaticMethodId`、env、trace、fixture から target を再構築してはならない。
+
+## 保持する不変条件
+
+- exact receiver を持つ typed `Method(Some(receiver))` が method の唯一の通常経路。
+- `toString` 系の early route と ArrayWrite / BoxCall の既存 alternate は維持する。
+- rewrite 退役で新しい resolver、fallback、retry、Global issuer、MIR schema は作らない。

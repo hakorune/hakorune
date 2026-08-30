@@ -8,8 +8,6 @@ preflight_plugins || exit 2
 
 APP_DIR="$NYASH_ROOT/apps/examples/json_query"
 
-# Disable builder instance→function rewrite to exercise same path in both backends
-export NYASH_BUILDER_REWRITE_INSTANCE=0
 output_vm=$(run_nyash_vm "$APP_DIR/main.hako" --dev)
 
 # LLVM availability check

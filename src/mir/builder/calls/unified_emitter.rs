@@ -287,7 +287,10 @@ impl UnifiedCallEmitterBox {
             crate::mir::builder::observe::resolve::emit_try(builder, meta);
         }
 
-        // Centralized user-box rewrite for method targets (toString/stringify, equals/1, Known→unique)
+        // Preserve only the explicit early str-like compatibility route.
+        // Optional Known/Unique/equals instance-to-Global rewrites were
+        // retired by policy; the incoming typed Method(Some(receiver)) route
+        // is now the canonical owner.
         if let CallTarget::Method {
             ref box_type,
             ref method,
@@ -332,40 +335,6 @@ impl UnifiedCallEmitterBox {
                 res?;
                 return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
                     UnifiedCallAlternateRouteV1::EarlyStringLikeRewrite,
-                ));
-            }
-            // equals/1
-            if let Some(res) =
-                crate::mir::builder::rewrite::special::try_special_equals_to_dst_with_lookup(
-                    builder,
-                    dst,
-                    receiver,
-                    &class_name_opt,
-                    method,
-                    args.clone(),
-                    lookup,
-                )
-            {
-                res?;
-                return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
-                    UnifiedCallAlternateRouteV1::SpecialEqualsRewrite,
-                ));
-            }
-            // Known or unique
-            if let Some(res) =
-                crate::mir::builder::rewrite::known::try_known_or_unique_to_dst_with_lookup(
-                    builder,
-                    dst,
-                    receiver,
-                    &class_name_opt,
-                    method,
-                    args.clone(),
-                    lookup,
-                )
-            {
-                res?;
-                return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
-                    UnifiedCallAlternateRouteV1::KnownOrUniqueRewrite,
                 ));
             }
         }

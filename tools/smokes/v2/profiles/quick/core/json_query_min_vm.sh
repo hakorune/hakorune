@@ -9,13 +9,6 @@ preflight_plugins || exit 2
 # Quick policy: skip heavy query test; covered in integration.
 test_skip "json_query_min_vm" "heavy parser query: covered in integration; skipping in quick" || true
 exit 0
-
-# Dev-time guards
-export NYASH_DEV=1
-# Allow file-using for this minimal driver include
-export NYASH_ALLOW_USING_FILE=1
-# Enable instance→function rewrite (ensures user-box methods are lowered to calls)
-export NYASH_BUILDER_REWRITE_INSTANCE=1
 # Keep tolerate-void as-is (harmless)
 # Strict mode: do not tolerate Void in VM (policy)
 

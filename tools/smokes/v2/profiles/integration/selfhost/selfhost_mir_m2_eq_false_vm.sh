@@ -15,7 +15,6 @@ preflight_plugins || exit 2
 # Dev-time guards
 export NYASH_DEV=1
 export NYASH_ALLOW_USING_FILE=1
-export NYASH_BUILDER_REWRITE_INSTANCE=1
 
 # Build a tiny driver that uses MirVmMin and embeds JSON inline
 TMP_DIR="/tmp/selfhost_mir_m2_eq_false_vm_$$"

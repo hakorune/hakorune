@@ -77,13 +77,13 @@ Internal engineering helper:
 tools/selfhost/proof/selfhost_smoke.sh
 ```
 
-This helper tries to emit JSON (best-effort) and verifies VM outputs match with Known rewrite ON/OFF:
-It does not modify defaults and is safe to run locally.
+This helper tries to emit JSON (best-effort) and runs one canonical VM bridge
+example. The optional Known rewrite comparison has been retired.
 
 Do not read these proof gates as the day-to-day selfhost runtime route. Daily runtime stays on `tools/selfhost/run.sh --runtime --runtime-route mainline`.
 
 ## Flags (dev)
-- Known rewrite default ON (userbox only, strict guards): `NYASH_REWRITE_KNOWN_DEFAULT=0|1`
+- The old Known rewrite selectors are retired and are not read by the Builder.
 - Router trace: `NYASH_ROUTER_TRACE=1`
 - KPI sampling: `NYASH_DEBUG_KPI_KNOWN=1` (+ `NYASH_DEBUG_SAMPLE_EVERY=N`)
 - Local SSA trace: `NYASH_LOCAL_SSA_TRACE=1`

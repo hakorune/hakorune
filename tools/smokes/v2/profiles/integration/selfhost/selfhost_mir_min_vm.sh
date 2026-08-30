@@ -9,7 +9,6 @@ preflight_plugins || exit 2
 # Dev-time guards
 export NYASH_DEV=1
 export NYASH_ALLOW_USING_FILE=1
-export NYASH_BUILDER_REWRITE_INSTANCE=1
 
 TEST_DIR="/tmp/selfhost_mir_min_vm_$$"
 mkdir -p "$TEST_DIR"

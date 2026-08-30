@@ -216,22 +216,6 @@ pub fn builder_use_type_registry() -> bool {
     env_bool("NYASH_USE_TYPE_REGISTRY")
 }
 
-pub fn builder_rewrite_known_default() -> Option<String> {
-    env_string("NYASH_REWRITE_KNOWN_DEFAULT")
-}
-
-pub fn builder_rewrite_instance_mode() -> Option<String> {
-    env_string("NYASH_BUILDER_REWRITE_INSTANCE")
-}
-
-pub fn builder_dev_rewrite_userbox() -> bool {
-    env_bool("NYASH_DEV_REWRITE_USERBOX")
-}
-
-pub fn builder_dev_rewrite_new_origin() -> bool {
-    env_bool("NYASH_DEV_REWRITE_NEW_ORIGIN")
-}
-
 pub fn builder_typefacts_debug() -> bool {
     env_present("NYASH_TYPEFACTS_DEBUG")
 }

@@ -202,6 +202,73 @@ fn early_string_rewrite_never_becomes_a_generic_value_receipt() {
 }
 
 #[test]
+fn rewrite_retire_user_method_uses_canonical_method_terminal() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder_with_entry("rewrite_retire_user_method/0");
+        let receiver = builder.alloc_value_for_test();
+        let destination = builder.alloc_value_for_test();
+
+        let receipt = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
+            &mut builder,
+            destination,
+            CallTarget::Method {
+                box_type: Some("UserBox".to_string()),
+                method: "run".to_string(),
+                receiver,
+            },
+            vec![],
+            None,
+        )
+        .expect("user methods should reach the generic typed terminal");
+
+        assert_eq!(receipt.final_destination(), destination);
+        assert!(matches!(
+            emitted_callee(&builder),
+            Callee::Method {
+                box_name,
+                method,
+                receiver: Some(_),
+                ..
+            } if box_name == "UserBox" && method == "run"
+        ));
+    });
+}
+
+#[test]
+fn rewrite_retire_equals_uses_canonical_method_terminal() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder_with_entry("rewrite_retire_equals/0");
+        let receiver = builder.alloc_value_for_test();
+        let argument = builder.alloc_value_for_test();
+        let destination = builder.alloc_value_for_test();
+
+        let receipt = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
+            &mut builder,
+            destination,
+            CallTarget::Method {
+                box_type: Some("UserBox".to_string()),
+                method: "equals".to_string(),
+                receiver,
+            },
+            vec![argument],
+            None,
+        )
+        .expect("equals should use the generic typed method terminal");
+
+        assert_eq!(receipt.final_destination(), destination);
+        assert!(matches!(
+            emitted_callee(&builder),
+            Callee::Method {
+                box_name,
+                method,
+                receiver: Some(_),
+                ..
+            } if box_name == "UserBox" && method == "equals"
+        ));
+    });
+}
+
+#[test]
 fn boxcall_route_never_becomes_a_generic_value_receipt() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         let mut builder = builder_with_entry("physical_receipt_boxcall/0");

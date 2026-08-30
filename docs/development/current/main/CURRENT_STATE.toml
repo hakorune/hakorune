@@ -1,18 +1,15 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-the user-selected optional rewrite/known optimization is now RetireByPolicy.
-The existing typed Method(Some(receiver)) route is the only named successor;
-do not invent a Global issuer, repair the legacy arity bug, or reject after
-argument effects. The next execution is the bounded policy-retirement I0:
-remove the alternate writers and selector authority while preserving
-Method(Some) and early str-like behavior. R6 Call-schema work,
-provider/thunk/ordinary-static issuer work, VM/backend schema changes,
-fallback, retry, and guard deletion remain outside this row until I0 closeout.
+MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0:
+the user-selected optional rewrite/known optimization is being retired.
+Only the existing typed Method(Some(receiver)) route and early str-like route
+remain in this bounded row. Remove the alternate writers and selector pins;
+do not add a Global issuer, post-effect reject, fallback, retry, R6 Call-schema
+work, VM/backend changes, or unrelated guard/source cleanup.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -26,9 +23,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Ordinary-new exact constructor cutover I0 landed at d81d91d800, caller-zero no-dst rewrite/known facades were physically pruned at fb5a4e0e81, and the independent dead-text call-shape BoxShape split landed at 95bbe25701. The user-selected policy now retires the remaining optional rewrite/known optimization through a bounded Method(Some) successor row; no Global issuer or old ON/OFF parity claim is introduced."
+latest_card_summary = "The bounded policy-retirement row removes the remaining optional rewrite/known/equals alternate and selector authority while preserving typed Method(Some) and early str-like behavior. No Global issuer or old ON/OFF parity claim is introduced."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

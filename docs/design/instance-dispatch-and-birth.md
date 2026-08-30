@@ -8,9 +8,10 @@ Status: Adopt (Go). Scope: VM/Builder/Smokes. Date: 2025-09-27.
 - Eliminate BoxCall-on-Void crashes (stringify, accessors) without changing prod semantics.
 
 ## Decisions
-1) Instance→Function rewrite (default ON)
-- Builder always lowers `me.m(a,b)` to `Box.m/2(me,a,b)`.
-- Env override: `NYASH_BUILDER_REWRITE_INSTANCE=0|1` (default 1).
+1) Instance dispatch (canonical)
+- Builder preserves the typed `Method(Some(receiver))` target.
+- The optional Known/Unique instance→function rewrite and its
+  `NYASH_BUILDER_REWRITE_INSTANCE` selector are retired by policy.
 
 2) VM BoxCall policy
 - User-defined InstanceBox: BoxCall is disallowed in prod; dev may fallback with one-line WARN.
@@ -31,4 +32,3 @@ Status: Adopt (Go). Scope: VM/Builder/Smokes. Date: 2025-09-27.
 ## Acceptance
 - Quick: JSON apps green; user-instance BoxCall hits=0; stringify-void hits=0.
 - Heavy: nested/roundtrip PASS where parser is available.
-

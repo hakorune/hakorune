@@ -98,16 +98,13 @@ therefore `ParkedSealed` until the 389-row accepted corpus has portable-owner or
 approved typed-reject coverage and the M8/M9/precutover deletion manifest is
 ready. No immediate GlobalCall-only or whole-loop retirement row is open.
 
-`rewrite/known` remains a parity-open candidate: two production-live to-dst
-writers and the equals delegation can retire together by preserving the already-
-owned typed `Method(Some(receiver))` route, while two caller-zero no-dst chains
-were removed by the bounded caller-zero S0 at `fb5a4e0e81`. Fresh current `vm-reference` probes include
-both matching and divergent ON/OFF outcomes (the divergent cases are
-arity/fault differences), so the finite result/fault/backend parity matrix is
-not green and its I0 stays closed. No new Global issuer, post-effect reject, or
-second resolver is allowed. The ordinary-new exact-constructor cutover is already
-landed at `d81d91d800`; after the no-dst prune the parent design stop resumes and
-the live rewrite/known parity I0 remains separately blocked.
+The user-selected rewrite/known policy is now the active bounded I0: retire the
+optional Known/Unique/equals instance-to-Global writers and selector pins while
+preserving the existing typed `Method(Some(receiver))` owner and explicit early
+str-like route. The historical ON/OFF probes are evidence only, not a parity
+gate; no new Global issuer, post-effect reject, fallback, or second resolver is
+allowed. The ordinary-new exact-constructor cutover remains landed at
+`d81d91d800`; after this I0 closeout the parent design stop resumes.
 
 Guard cleanup is a separate parked lane. The only currently proven
 `SupersededDelete` was the stale whole-writer overlay removed by the landed

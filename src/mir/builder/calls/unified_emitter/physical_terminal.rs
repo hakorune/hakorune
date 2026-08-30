@@ -1,8 +1,9 @@
 //! Source-neutral terminal for the finalized generic unified Call.
 //!
 //! This module owns the sole typed value receipt for the generic physical
-//! `MirInstruction::Call` branch. Compatibility routes, rewrites, BoxCall,
-//! and calls without a destination never construct that receipt.
+//! `MirInstruction::Call` branch. Compatibility routes, the early str-like
+//! route, BoxCall, and calls without a destination never construct that
+//! receipt.
 
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{MirBuilder, MirInstruction, ValueId};
@@ -42,8 +43,6 @@ pub(super) enum CompletedUnifiedCallEmissionV1 {
 pub(in crate::mir::builder) enum UnifiedCallAlternateRouteV1 {
     LegacyCompatibility,
     EarlyStringLikeRewrite,
-    SpecialEqualsRewrite,
-    KnownOrUniqueRewrite,
     KnownArrayWrite,
     BoxCall,
 }

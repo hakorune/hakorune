@@ -12,16 +12,18 @@ Goals
 
 Pipeline (concept)
 1) Entry: `emit_unified_call(dst, CallTarget::Method { box_type, method, receiver }, args)`
-2) Special rewrites (early): toString/stringify → str, equals/1 consolidation.
-3) Known/unique rewrite (user boxes only): if class is Known and a unique function exists, rewrite to `Call(Class.m/arity)`.
-4) Routing: `RouterPolicy.choose_route` decides Unified vs BoxCall (Unknown/core/user‑instance → BoxCall; else Unified).
+2) Explicit early special route: toString/stringify/str keeps its existing terminal.
+3) Canonical method route: the incoming typed `Method(Some(receiver))` is
+   preserved; the optional Known/Unique and equals rewrites are retired.
+4) Routing: `RouterPolicy.choose_route` decides Unified vs BoxCall.
 5) Emit guard: LocalSSA finalize (recv/args in current block) + BlockSchedule order contract (PHI → Copy → Call).
 6) MIR emit: `Call { callee=Method/Extern/Global }` or `BoxCall` as routed.
 
 Invariants (dev-verified)
 - SSA locality: All operands are materialized within the current basic block before use.
 - Order: PHI group at block head, then materialize Copies, then body (Calls). Verified with `NYASH_BLOCK_SCHEDULE_VERIFY=1`.
-- Rewrites do not change semantics: Known rewrite only when a concrete target exists and is unique for the arity.
+- The retired Known/Unique rewrite is not a target authority; canonical method
+  lowering does not reconstruct a target from names, headers, or suffixes.
 
 Behavior flags (existing)
 - `NYASH_ROUTER_TRACE=1`: short route decisions to stderr (reason, class, method, arity, certainty).
@@ -31,21 +33,19 @@ Behavior flags (existing)
   - `NYASH_DEBUG_KPI_KNOWN=1` → aggregate Known rate for `resolve.choose`.
   - `NYASH_DEBUG_SAMPLE_EVERY=N` → sample output every N events.
 
-Flag (P4)
-- `NYASH_REWRITE_KNOWN_DEFAULT` (default ON; set to 0/false/off to disable):
-  - Enables Known→function rewrite by default for user boxes if and only if:
-    - receiver is Known (origin), and
-    - function exists, and
-    - candidate is unique for the arity.
-  - When disabled, behavior remains conservative; routing still handles BoxCall fallback.
+Retired selector (policy)
+- `NYASH_REWRITE_KNOWN_DEFAULT`, `NYASH_BUILDER_REWRITE_INSTANCE`,
+  `NYASH_DEV_REWRITE_USERBOX`, and `NYASH_DEV_REWRITE_NEW_ORIGIN` are retired.
+  Canonical lowering does not read them and does not recreate a Global target
+  from generated names or header/suffix candidates.
 
 Rollout note
-- Default is ON with strict guards; set `NYASH_REWRITE_KNOWN_DEFAULT=0` to revert to conservative behavior.
-- Continue to use `NYASH_ROUTER_TRACE=1` and KPI sampling to validate stability during development.
+- Existing callers should remove these selectors. `NYASH_ROUTER_TRACE=1`
+  remains an observation-only route trace.
 
 Key files
 - Entry & routing: `src/mir/builder/builder_calls.rs`, `src/mir/builder/router/policy.rs`
-- Rewrites: `src/mir/builder/rewrite/{special.rs, known.rs}`
+- Explicit special route: `src/mir/builder/rewrite/special.rs`
 - SSA & order: `src/mir/builder/ssa/local.rs`, `src/mir/builder/schedule/block.rs`, `src/mir/builder/emit_guard/`
 - Observability: `src/mir/builder/observe/resolve.rs`
 
@@ -55,5 +55,7 @@ Acceptance for P4
 - No noisy logs in default runs; all diagnostics behind flags.
 
 Notes
-- This design keeps Unknown/core/user‑instance on BoxCall for stability and parity with legacy behavior.
-- Known rewrite is structurally safe because user box methods are lowered to standalone MIR functions during build.
+- This design keeps Unknown/core/user‑instance routing rules unchanged.
+- The optional Known/Unique/equals rewrite was a non-authoritative
+  optimization and is retired; exact typed method targets remain the sole
+  ordinary method route.

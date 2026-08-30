@@ -22,7 +22,8 @@ Call Routing — Unification (2025‑09‑28)
     core boxes use Unified only for catalog-backed value-path method families.
   - `router/catalog.rs` owns the catalog-backed core-box value-path rows; `router/policy.rs`
     owns only the route decision and logging.
-  - Rewrites apply centrally: `rewrite::special` (toString/stringify→str, equals/1) and `rewrite::known` (Known→function).
+  - The optional Known/Unique/equals rewrite is retired. `rewrite::special`
+    now owns only the explicit toString/stringify/str early route.
   - LocalSSA + BlockSchedule + EmitGuard enforce PHI→Copy→Call ordering and in‑block materialization.
 
 Structure
@@ -56,7 +57,8 @@ Adoption Plan (behavior-preserving)
 3) Call `types::annotation` where return type is clearly known (string length/size/str etc.).
 4) Keep both unified and BoxCall helper paths routed through `router::policy::choose_route`.
 5) Use `emit_guard` to centralize LocalSSA finalize + schedule verify around calls; later extend to branch/compare.
-6) Use `name_const` in rewrite paths to reduce duplication.
+6) Do not recreate method targets from names or rewrite-specific strings; use
+   the existing typed method terminal.
 
 Diagnostics
 - All new logs remain dev-only behind env toggles already present (e.g., NYASH_LOCAL_SSA_TRACE, NYASH_BLOCK_SCHEDULE_VERIFY).

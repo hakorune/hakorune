@@ -2172,13 +2172,41 @@ reopen_trigger = "The finite ON/OFF result/fault/backend matrix is green for all
 next_execution = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0__pending_fast_activation"
 
 [same_module_rewrite_known_policy_retire_i0_2026_08_30]
-status = "accepted_design_ready_for_i0"
+status = "fast_open"
 task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0"
 ceremony_tier = "T1"
 box_kind = "BoxShape bounded optional-rewrite retirement"
-implementation_permission = false
+implementation_permission = true
+allowed_files = [
+  "src/mir/builder/rewrite/known.rs",
+  "src/mir/builder/rewrite/header_lookup.rs",
+  "src/mir/builder/rewrite/special.rs",
+  "src/mir/builder/rewrite/mod.rs",
+  "src/mir/builder/rewrite/README.md",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/calls/unified_emitter/physical_terminal.rs",
+  "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
+  "src/config/env/builder_flags.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_rewrite_known_policy_guard.py",
+  "tools/checks/lib/mir_call_global_target_b1_cutover_guard.py",
+  "tools/selfhost/proof/selfhost_smoke.sh",
+  "tools/smokes/v2/profiles/integration/json/json_query_vm_llvm.sh",
+  "tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_min_vm.sh",
+  "tools/smokes/v2/profiles/integration/selfhost/selfhost_mir_m2_eq_false_vm.sh",
+  "tools/smokes/v2/profiles/quick/core/json_query_min_vm.sh",
+  "docs/design/instance-dispatch-and-birth.md",
+  "docs/design/using-and-dispatch.md",
+  "docs/development/builder/unified-method-resolution.md",
+  "docs/development/builder/BOXES.md",
+  "docs/development/selfhosting/quickstart.md",
+  "docs/reference/language/quick-reference.md",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
 decision = "Apply the user-selected legacy-retirement policy to the optional Known/unique instance-to-Global rewrite. Delete the alternate route and its selector/env authority; preserve the incoming typed Method(Some(receiver)) resolver/materializer and early str-like behavior. Do not claim old ON/OFF parity or add a replacement issuer."
 source_authority = "The incoming typed CallTarget::Method with its exact receiver is the sole source of method meaning. The existing CalleeResolverBox, router, materializer, and physical terminal own canonical Method(Some) publication."
 canonical_issuer = "Existing Method(Some(receiver)) resolver/materializer; no new Global issuer, source observer, receipt, or target reconstruction is allowed."

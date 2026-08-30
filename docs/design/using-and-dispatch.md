@@ -11,8 +11,11 @@ Key Principles
   - dev/ci: file‑using can be enabled via env; AST prelude merge on by default.
 - Static resolution at using time:
   - Strip `using` lines, collect prelude source paths, parse each to AST, and merge before macro expansion.
-  - Materialize user box methods as standalone functions: `Box.method/Arity`.
-  - Builder rewrites instance calls: `obj.m(a)` → call `Box.m/Arity(obj,a)`.
+  - Materialize user box methods as standalone functions where the canonical
+    catalog requires it; ordinary instance calls retain typed
+    `Method(Some(receiver))`.
+  - The optional Known/Unique instance rewrite is retired; no name/suffix
+    reconstruction is performed by the Builder.
 - Runtime resolution:
   - Plugin/extern dispatch remains dynamic.
   - User instance BoxCall fallback (VM) is disallowed in prod to catch builder misses; dev/ci may allow with WARN.
@@ -24,7 +27,8 @@ Environment Knobs (Summary)
   - `NYASH_USING_AST=1|0` (dev/ci default ON; prod default OFF)
   - `NYASH_ALLOW_USING_FILE=1|0` (default OFF; dev only when needed)
 - Builder
-  - `NYASH_BUILDER_REWRITE_INSTANCE=1|0` (default ON across profiles)
+  - `NYASH_BUILDER_REWRITE_INSTANCE` is retired; canonical lowering does not
+    read this selector.
 - VM
   - `NYASH_VM_USER_INSTANCE_BOXCALL=1|0` (default: prod=0, dev/ci=1)
 
@@ -34,7 +38,8 @@ Code Responsibilities
   - Core: `collect_using_and_strip` (SSOT enforcement, path/alias/package resolution, profile gates)
   - Consumers: all runners (VM, LLVM/harness, PyVM, selfhost) call the same helper to avoid drift.
 - Builder (lowering)
-  - Instance→Function rewrite and method materialization live in `src/mir/builder/*`.
+  - Typed method materialization lives in `src/mir/builder/*`; the optional
+    instance→function rewrite is retired.
 - VM (runtime)
   - User Instance BoxCall fallback gate in `src/backend/mir_interpreter/handlers/boxes.rs`.
 
@@ -46,4 +51,3 @@ Testing Strategy
 Future Small Refactors (non‑behavioral)
 - Factor a helper to parse prelude paths into ASTs (single place), and use it from all runners.
 - Add dev‑only WARN when a candidate `Box.method/Arity` is missing from `module.functions` during rewrite.
-

@@ -38,11 +38,7 @@ LINE_LIMIT_FILES = (
 COMPATIBILITY_ADAPTER_USERS = {
     Path("src/mir/builder/calls/call_target.rs"),
     Path("src/mir/builder/normal_module_transaction/physical_thunk.rs"),
-    Path("src/mir/builder/ops/arithmetic.rs"),
-    Path("src/mir/builder/ops/comparison.rs"),
-    Path("src/mir/builder/ops/unary.rs"),
     Path("src/mir/builder/control_flow/plan/lowerer/effect_emission.rs"),
-    Path("src/mir/builder/rewrite/known.rs"),
 }
 ROW_ID = "mir-call-global-target-b1-cutover"
 

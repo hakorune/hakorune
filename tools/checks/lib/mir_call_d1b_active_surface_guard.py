@@ -45,6 +45,10 @@ from mir_call_d1b_rewrite_known_guard import (
     ROW as REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW,
     check_rewrite_known_caller_zero_s0,
 )
+from mir_call_d1b_rewrite_known_policy_guard import (
+    ROW as REWRITE_KNOWN_POLICY_RETIRE_I0_ROW,
+    check_rewrite_known_policy_retire_i0,
+)
 
 
 TAG = "mir-call-d1b-active-surface"
@@ -360,6 +364,8 @@ def main() -> None:
         check_active_surface_rows_s0(state, card, root, api)
     elif row == REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW:
         check_rewrite_known_caller_zero_s0(state, card, root, api)
+    elif row == REWRITE_KNOWN_POLICY_RETIRE_I0_ROW:
+        check_rewrite_known_policy_retire_i0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
