@@ -437,9 +437,16 @@ fn issue_resolved_method_call_sources_from_rows_v1(
                 BodyExpressionShapeV1::QualifiedReceiver { .. } => {
                     ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
                 }
-                BodyExpressionShapeV1::Me { .. } => {
-                    ResolvedMethodCallReceiverSourceV1::CurrentOwner
-                }
+                BodyExpressionShapeV1::Me {
+                    receiver: BodyMeReceiverV1::Lexical(receiver),
+                    ..
+                } => ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
+                    *receiver,
+                )),
+                BodyExpressionShapeV1::Me {
+                    receiver: BodyMeReceiverV1::StaticCurrentOwner,
+                    ..
+                } => ResolvedMethodCallReceiverSourceV1::CurrentOwner,
                 _ => ResolvedMethodCallReceiverSourceV1::Other,
             })
             .ok_or_else(|| {

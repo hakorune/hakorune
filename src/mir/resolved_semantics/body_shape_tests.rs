@@ -230,6 +230,36 @@ fn resolved_shape_seals_me_as_the_lexical_receiver_binding() {
 }
 
 #[test]
+fn resolved_shape_issues_declared_instance_method_receiver_source() {
+    let tree = function(
+        vec![return_value(Some(ASTNode::MethodCall {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            method: "read".into(),
+            arguments: Vec::new(),
+            span: Span::unknown(),
+        }))],
+        false,
+    );
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_with_body_shape(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let calls = super::body_shape::issue_resolved_method_call_sources_v1(product.body_shape())
+        .expect("declared-instance method source");
+    let call = calls.values().next().expect("one method call");
+
+    assert_eq!(call.owner(), product.function().owner());
+    assert!(matches!(
+        call.receiver(),
+        super::ResolvedMethodCallReceiverSourceV1::Lexical(
+            super::ResolvedLexicalRefV1::Local(receiver)
+        ) if receiver.owner() == call.owner()
+    ));
+}
+
+#[test]
 fn resolved_shape_keeps_empty_body_as_complete_empty_inventory() {
     let tree = function(Vec::new(), true);
     let product = FunctionSemanticResolverSessionV1::new(0)
