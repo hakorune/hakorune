@@ -718,10 +718,10 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; rewrite/known has four default-on parse-back writers (two live `_to_dst`, two caller-zero) but no exact source/site issuer or pre-effect boundary; and bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; rewrite/known has four default-on parse-back writers (two live `_to_dst`, two caller-zero) but no exact source/site issuer or pre-effect boundary; and bare error/now has no language/provider Decision."
 ordered_tasks = [
   "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
-  "I1: ordinary static terminal — select exact source/catalog target before argument descent or typed-reject the compatibility shape",
+  "I1-D0: ordinary static terminal — reconcile the generic/scalar/inline/lowered-global Instance callers; exact Cataloged handoff is already closed, but no generic issuer or safe pre-effect terminal is authorized",
   "I2: generic CorePlan — separate selected exact plan from Unlocated func:String and retire authority-free emission before local_arg",
   "I3 (landed at 44555655ab): arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, reject retired selectors at all compiler ingress methods, and atomically remove env/name target issuance before operand or Const effects",
   "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
@@ -748,6 +748,51 @@ id = "ordinary_static_terminal"
 owner = "src/mir/builder/method_call_handlers.rs and src/mir/builder/calls/method_call_terminal.rs"
 disposition = "CutoverBlockerOpen"
 evidence = "exact source target rows can be dropped as Unselected/Absent; scalar/inline effects and arguments precede the remaining formatted target construction, and lowered-global Instance has no exact issuer"
+
+[same_module_ordinary_static_terminal_d0_2026_08_30]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TERMINAL-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxCount finite ordinary-static authority census"
+implementation_permission = false
+disposition = "CutoverBlockerOpen"
+decision = "Keep the generic ordinary-static compatibility terminal unchanged. The exact Cataloged static branch already uses its source/site/brand handoff and is outside this D0; generic, scalar, inline, and lowered-global Instance branches must not be forced through that issuer or repaired from owner/method/arity."
+source_authority = "StaticResultPublicationOwnerV1 is the existing authority only for exact Cataloged rows. The generic handler has no source/site/brand product at its ingress; scalar and inline branches own separate facts and must remain separate."
+canonical_issuer = "No exact issuer for the remaining generic compatibility terminal is identified. A later I0 requires an existing source/site/brand handoff in the same session, or an explicit typed pre-effect retirement contract; no new receipt or resolver is allowed in D0."
+non_authority = [
+  "owner/method/arity, func_name, static scalar facts, inline catalog, header/me/physical receiver, current_static_box, generated symbol, registry, resolver, fallback, retry, and Instance-to-Global projection",
+]
+fail_fast_boundary = "Exact Cataloged NoExactStaticTarget remains pre-effect rejected; the generic compatibility ingress currently receives/evaluates ValueId arguments before its formatted terminal, so no post-effect reject may be added without an earlier owner. Scalar/inline order remains unchanged."
+census_boundary = "member_route exact Cataloged handoff and generic/static fallback entries -> handle_static_method_call_with_descent -> method_call_terminal; includes generic, scalar, inline, lowered-global Static/Instance, and existing exact Cataloged exclusions; excludes Method(Some) semantics, rewrite/known, CorePlan, ordinary-new, provider, physical thunk, package/loan, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "exact Cataloged ingress: src/mir/builder/calls/member_route.rs:99-141",
+  "generic handler: src/mir/builder/method_call_handlers.rs:423-482",
+  "static fallback entry: src/mir/builder/method_call_handlers.rs:303-305",
+  "generic terminal: src/mir/builder/calls/method_call_terminal.rs:116-164,282-335",
+  "scalar and inline terminals: src/mir/builder/method_call_handlers.rs:440-457",
+  "lowered-global Static/Instance path: src/mir/builder/method_call_handlers.rs:310-375",
+]
+finite_states = [
+  "ExactCataloged: existing source/site/brand handoff, already closed by target-only I0",
+  "GenericCompatibility: production-live formatted target reconstruction after argument descent; CutoverBlockerOpen",
+  "ScalarOwned: zero-argument fact/Const owner; keep separate from direct-call target lane",
+  "InlineOwned: helper-inline body/argument owner; keep separate from direct-call target lane",
+  "LoweredGlobalInstance: no typed Instance target carrier/issuer; ParkedSealed inside the blocker until an ABI/target decision",
+]
+ordered_tasks = [
+  "D0-A: reconcile exact Cataloged, generic, scalar, inline, and lowered-global Static/Instance callers in both directions",
+  "D0-B: record that exact Cataloged is already handoff-backed while generic/scalar/inline/Instance have distinct owners and effects",
+  "D0-C: verify argument/effect ordering and prove no earlier source/site/brand issuer exists for the generic terminal",
+  "D0-D: keep generic compatibility CutoverBlockerOpen and lowered-global Instance ParkedSealed; do not add a post-effect reject or target reconstruction",
+  "I0: open only for one named exact issuer or an approved pre-effect retirement contract, then delete only that branch's formatted/fallback edge",
+]
+acceptance = "The ordinary-static boundary is finite and two-directionally reconciled; exact Cataloged handoff, generic compatibility, scalar, inline, and lowered-global Instance are separately owned; no name/arity/me/symbol inference is elevated; and no implementation is opened without a named source product and pre-effect boundary."
+no_safe_slice = "Remain in design_stop if the generic branch needs a new source observer/issuer, if scalar or inline semantics would move, if Instance must be projected into Global, if a post-effect reject is the only option, or if the change crosses package/loan, VM/backend, Call schema, or 760/800 lines."
+non_claims = "No generic ordinary-static implementation, no scalar/inline rewrite, no lowered-global Instance carrier, no Method(Some)/Method(None) change, no rewrite/known/provider/CorePlan/ordinary-new work, no package/loan, VM/backend, JSON, Call schema, fallback, or retry."
+evidence = "At audit HEAD ce24ad5e1346, exact Cataloged rows use the existing source-keyed handoff; generic production callers enter handle_static_method_call_with_descent and method_call_terminal after argument/effect processing, scalar/inline have independent terminals, and lowered-global Instance has no exact typed issuer."
+reopen_trigger = "An existing same-session source/site/brand product reaches the generic handler before effects, or an explicit language/ABI decision selects a typed pre-effect retirement/replacement for the generic and Instance branches."
+next_execution = "none_until_ordinary_static_issuer_or_retirement_d0"
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "generic_coreplan_globalcall"
@@ -2329,6 +2374,6 @@ ordered_tasks = [
 acceptance = "The ordinary-new boundary is finite and two-directionally reconciled; every exact allocation site has one constructor state/owner; birth text and class/arity lookup are non-authority; source N versus physical argv N+1 is either represented by an existing carrier or explicitly ParkedSealed; and no production implementation or new semantic receipt was added in D0."
 no_safe_slice = "Remain in design_stop if the join requires class/name/arity search, AST re-scan, header/slot/plugin lookup, a new semantic issuer, a new ABI/carrier or Call-schema change, argument/NewBox effects must precede the terminal, no-claim paths must be mixed in, or the 760/800-line boundary would be crossed."
 non_claims = "No ordinary-new implementation, no birth target reconstruction, no field-initializer or constructor-body change, no CorePlan/operator/provider/rewrite/thunk work, no Method(None)/Resolved change, no package/loan generalization, no VM/backend/JSON, no Call-schema change, and no fallback/retry."
-evidence = "At HEAD 3fdf154e90, issue_ordinary_new_claims_v1 emits an OwnedExprSiteV1/class/arity/birth-text claim, while lower_ordinary_raw_new_with_port_v1 takes that claim before arguments but constructs CanonicalGlobalTargetV1 from class plus argument count. Parser-issued ConstructorSourceIdV1/VerifiedInstanceConstructorSemanticRowV1 is consumed by the constructor-body lane, not joined to the allocation claim; the birth target uses method arity N while the physical argv carries dst plus N arguments."
+evidence = "At audit HEAD ce24ad5e1346, issue_ordinary_new_claims_v1 emits an OwnedExprSiteV1/class/arity/birth-text claim, while lower_ordinary_raw_new_with_port_v1 takes that claim before arguments but constructs CanonicalGlobalTargetV1 from class plus argument count. Parser-issued ConstructorSourceIdV1/VerifiedInstanceConstructorSemanticRowV1 is consumed by the constructor-body lane, not joined to the allocation claim; the birth target uses method arity N while the physical argv carries dst plus N arguments."
 reopen_trigger = "A same-session source-backed constructor product with exact allocation-site relation and a carrier that explicitly distinguishes method arity N from physical argv arity N+1 is identified, or an explicit language/ABI decision selects typed pre-effect retirement/replacement."
-next_execution = "parked_carrier_mismatch__next_operator_env_disposition_d0"
+next_execution = "parked_carrier_mismatch__next_rewrite_known_issuer_boundary_d0"
