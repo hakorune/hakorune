@@ -674,6 +674,9 @@ be narrowed or rewritten. The exact task order is in
 - recursive child-lowering boundary
   - `src/mir/builder/recursive_child_lowering.rs` owns one associated-input
     port across body, statement, and expression entries.
+  - `recursive_child_lowering/pending_helpers.rs` is a private BoxShape-only
+    sibling for forwarding already-issued pending rows and the existing App
+    Main loan; it does not select routes or issue semantic targets.
   - E0 selects one fresh raw port synchronously at each legacy facade. The
     port is never stored in `MirBuilder`, shared, cloned, or retried.
   - Existing helper recursion remains an explicit raw leaf. Located inputs,

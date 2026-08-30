@@ -36,6 +36,8 @@ use super::raw_invocation_source_transport::{
 use crate::parser::CallableMethodSourceObservationV1;
 
 mod legacy_port;
+#[path = "recursive_child_lowering/pending_helpers.rs"]
+mod pending_helpers;
 #[path = "raw_ordinary_new_claim.rs"]
 mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
@@ -502,24 +504,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         Ok(pending)
     }
 
-    pub(in crate::mir::builder) fn commit_normal_top_level_function_pending_v1(
-        &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
-        admission: super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.module_port
-            .commit_normal_top_level_function_pending(pending, admission)
-    }
-
-    pub(in crate::mir::builder) fn commit_normal_instance_constructor_pending_v1(
-        &mut self,
-        pending: LegacyFunctionPendingSessionV1<'_>,
-        admission: super::normal_instance_constructor_admission::NormalInstanceConstructorDraftAdmissionV1,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.module_port
-            .commit_normal_instance_constructor_pending(pending, admission)
-    }
-
     pub(in crate::mir::builder) fn commit_legacy_nested_box_method_symbol_pending_v1(
         &mut self,
         pending: LegacyFunctionPendingSessionV1<'_>,
@@ -534,37 +518,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                 arity,
             ),
         )
-    }
-
-    pub(in crate::mir::builder) fn complete_raw_root_static_child_branded(
-        &mut self,
-        builder: &mut MirBuilder,
-        prepared: super::PreparedRawRootStaticChildDraftV1,
-    ) -> Result<
-        super::module_invocation_owner_chain::InvocationBranded<
-            super::module_draft_collector::CollectedDraftAdmissionReceiptV1,
-        >,
-        ModuleLoweringPortChildErrorV1,
-    > {
-        let (admission, lowering) = prepared.into_parts();
-        let source_root = RawInvocationRootLineageV1::Main(admission.source_locator().clone());
-        let pending = self.with_source_transport_v1(
-            RawInvocationSourceTransportV1::root((), source_root),
-            |port, ()| {
-                port.capture_static_box_method_pending_v1(
-                    builder,
-                    lowering.function_name,
-                    lowering.params,
-                    lowering.param_decls,
-                    lowering.return_type_name,
-                    lowering.body,
-                    lowering.uses,
-                    lowering.attrs,
-                )
-            },
-        )?;
-        self.module_port
-            .commit_legacy_symbol_pending_branded(pending, admission.into_collector_parts())
     }
 
     /// Instance counterpart of the port-aware capture seam.
@@ -609,46 +562,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?
         };
         Ok(pending)
-    }
-
-    pub(in crate::mir::builder) fn is_app_main_direct_call_scope_v1(&self) -> bool {
-        let Some(loan) = self.direct_call_loan.as_deref() else {
-            return false;
-        };
-        let Some(owner) = self.callable_owner_v1() else {
-            return false;
-        };
-        let Some(super::raw_invocation_source_transport::RawInvocationSourceContextV1::Located {
-            root: super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(_),
-            ..
-        }) = self.active_source.as_ref()
-        else {
-            return false;
-        };
-        owner == loan.owner()
-    }
-
-    fn take_app_main_direct_call_disposition_inner_v1(
-        &mut self,
-    ) -> Result<
-        crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRowV1,
-        String,
-    > {
-        let owner = self
-            .callable_owner_v1()
-            .ok_or_else(|| "[freeze:contract][app-main-direct-call/owner-missing]".to_owned())?;
-        let site = self
-            .current_source_site_v1()
-            .ok_or_else(|| "[freeze:contract][app-main-direct-call/site-missing]".to_owned())?;
-        let loan = self
-            .direct_call_loan
-            .as_deref_mut()
-            .ok_or_else(|| "[freeze:contract][app-main-direct-call/loan-unavailable]".to_owned())?;
-        loan.take_once(
-            owner,
-            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
-        )
-        .map_err(|error| format!("[freeze:contract][app-main-direct-call/{error:?}]"))
     }
 }
 
