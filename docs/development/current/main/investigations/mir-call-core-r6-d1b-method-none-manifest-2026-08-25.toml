@@ -825,8 +825,8 @@ reopen_trigger = "A same-session source-backed main/0 Callee issuer is introduce
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "rewrite_known"
 owner = "rewrite/known.rs; production ingress unified_emitter.rs"
-disposition = "CutoverBlockerOpen"
-evidence = "two production-live to-dst parse-back writers and two caller-zero no-dst chains remain; the existing typed Method(Some) route is a named retirement successor, but current ON/OFF parity is non-fatal and must be made exhaustive before I0"
+disposition = "RetireByPolicy"
+evidence = "the user selected retirement of this optional legacy optimization; the existing typed Method(Some) route is the sole canonical successor, no Global issuer is allowed, and the historical ON/OFF matrix is retained without being a gate"
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "ordinary_new_birth"
@@ -2090,20 +2090,20 @@ reopen_trigger = "Portable Loop M8/M9/precutover readiness plus exhaustive 389-r
 next_execution = "parked_until_generic_m10b_precutover_readiness"
 
 [same_module_rewrite_known_issuer_boundary_d0_2026_08_30]
-status = "accepted_design_stop_successor_parity_required"
+status = "accepted_policy_retirement"
 task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 box_kind = "BoxCount finite rewrite/known authority census"
 implementation_permission = false
-disposition = "CutoverBlockerOpen"
-decision = "Treat Known/unique instance-to-Global rewriting as a legacy optional optimization. Retire it only by preserving the incoming typed Method(Some(receiver)) route, which is the existing canonical successor; never invent a Global issuer from rewritten names. Keep current behavior unchanged until the finite ON/OFF result/fault/backend parity matrix is green."
+disposition = "RetireByPolicy"
+decision = "The user-selected product policy retires Known/unique instance-to-Global rewriting as a legacy optional optimization. Preserve the incoming typed Method(Some(receiver)) route as the sole canonical successor; do not invent a Global issuer from rewritten names. The old ON/OFF parity matrix remains historical evidence only and is not a prerequisite for this policy retirement."
 source_authority = "The incoming typed Method target and its exact receiver remain authoritative. The existing unified resolver/materializer owns canonical Method(Some) emission; rewrite/known itself has no exact source/site/brand issuer for a new Global target."
 canonical_issuer = "Existing typed Method(Some(receiver)) publication owner. No replacement Global issuer or semantic receipt is needed for the retirement path."
 non_authority = [
   "cls/name/method/arity, generated method symbols, header/module lookup, suffix candidates, StaticMethodId parsing, env/origin, module maps, typed_global_target_from_selected_symbol, fixtures, resolver replay, fallback, and retry",
 ]
-fail_fast_boundary = "No post-argument reject is permitted: the unified ingress already owns lowered ValueId arguments and the legacy writers may allocate dst/name Const. The retirement I0 must remove the alternate route and continue through Method(Some); if parity fails, remain in design_stop rather than terminalizing after effects."
+fail_fast_boundary = "Do not add a post-argument reject: the unified ingress already owns lowered ValueId arguments. Remove the alternate rewrite route before publication and continue through the existing Method(Some) resolver/materializer. If a valid source shape is not handled by Method(Some), stop before changing behavior and reopen this policy row."
 census_boundary = "src/mir/builder/rewrite/known.rs four writer families and selector wrappers -> unified_emitter ingress -> rewrite/special.rs equals delegation -> existing Method(Some) resolver/materializer; includes two production to-dst writers, two caller-zero no-dst chains, finite ON/OFF selector inputs, and result/fault/backend parity; excludes early str-like, qualified static/Cataloged, Method ABI, Resolved, ordinary-new, CorePlan/provider/thunk, VM schema repair, JSON, and Call schema."
 finite_inventory = [
   "Known-to-dst writer: src/mir/builder/rewrite/known.rs:110-231",
@@ -2114,24 +2114,23 @@ finite_inventory = [
   "alternate terminal: src/mir/builder/calls/unified_emitter/physical_terminal.rs:40-49",
 ]
 finite_states = [
-  "MethodSuccessorCandidate: incoming typed Method(Some(receiver)) is the existing semantic owner; eligible only after parity",
-  "ParityOpen: ON/OFF result, fault, or backend shape differs or is not observed; CutoverBlockerOpen",
+  "MethodSuccessor: incoming typed Method(Some(receiver)) is the existing canonical semantic owner",
+  "RetireByPolicy: user-selected removal of the optional rewrite optimization; no old ON/OFF parity claim",
   "CallerZero: a no-dst writer has no production caller; delete only in the atomic family I0",
-  "RetirementReady: exhaustive parity is green and both live/caller-zero writer sets are frozen for one atomic I0",
+  "Reopen: a valid source shape fails through Method(Some), or an explicit product decision restores the optimization",
 ]
 ordered_tasks = [
   "D0-A: reconcile all four writers, both selector wrappers, equals delegation, and unified ingress in both directions; record two live to-dst and two caller-zero no-dst chains",
   "D0-B: establish that incoming typed Method(Some(receiver)) is the existing successor and that no Global issuer is needed for retirement",
-  "D0-C: run a source-neutral eight-cell ON/OFF matrix (module/header Known, dev-only Known, unique suffix, and equals Known/Unique across destination shapes) with resolve.choose writer traces",
-  "D0-C2: compare receiver, argument order/eval-once, dst, effects, first fault, VM result, and the same emitted MIR through ny-llvmc/AOT; classify each cell as Equivalent, LegacyBugFixedByCanonical, or NoSafeSlice",
-  "D0-D: classify the family as MethodSuccessorCandidate, ParityOpen, CallerZero, or RetirementReady; do not delete or add a post-effect terminal in D0",
-  "I0: only after RetirementReady, remove unified KnownOrUnique/equals delegation, both live to-dst writers, selector reads/pins, and caller-zero no-dst chains in one bounded row while preserving early str-like and Method(Some)",
+  "D0-C: record the existing ON/OFF probes as historical counter-evidence; do not manufacture missing cells or a new issuer",
+  "D0-D: classify the family as MethodSuccessor + RetireByPolicy; preserve early str-like and Method(Some), and do not add a post-effect terminal",
+  "I0: remove unified KnownOrUnique/equals delegation, both live to-dst writers, selector reads/pins, and caller-zero no-dst chains in one bounded row while preserving early str-like and Method(Some)",
 ]
-acceptance = "The finite rewrite/known boundary is two-directionally reconciled; the existing Method(Some) successor is named; two production-live and two caller-zero writers are fixed; an exhaustive ON/OFF result/fault/backend parity matrix is green; and the next I0 has one atomic old-edge delete set without a post-effect reject or new issuer."
-no_safe_slice = "Remain in design_stop if any accepted shape lacks Method(Some) parity, ON/OFF differences are non-fatal or unobserved, a new source observer/receipt/resolver is required, a post-effect reject is the only option, early str-like semantics would change, or the change crosses 760/800 lines."
-non_claims = "No rewrite/known I0 yet, no Global target issuer, no Method ABI/schema change, no early str-like retirement, no qualified static/Cataloged/Resolved/ordinary-new/CorePlan/provider/thunk work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
-parity_status = "ParityOpen"
-outcome_classification = "LegacyRewriteBugCandidate__three_cells_reclassified__eight_cell_matrix_open"
+acceptance = "The finite rewrite/known boundary is two-directionally reconciled; the existing Method(Some) successor is named; two production-live and two caller-zero writers are fixed; user-selected RetireByPolicy is recorded without claiming old ON/OFF parity; and the I0 has one atomic old-edge delete set without a post-effect reject or new issuer."
+no_safe_slice = "Remain in design_stop if a valid source shape is not handled by Method(Some), a new source observer/receipt/resolver is required, a post-effect reject is the only option, early str-like semantics would change, or the change crosses 760/800 lines. Reopen also if an explicit product decision restores the optional optimization."
+non_claims = "No old rewrite ON/OFF parity claim, no Global target issuer, no Method ABI/schema change, no early str-like retirement, no qualified static/Cataloged/Resolved/ordinary-new/CorePlan/provider/thunk work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
+parity_status = "HistoricalOnly__policy_retirement_selected"
+outcome_classification = "RetireByPolicy__MethodSomeCanonicalSuccessor__historical_matrix_not_a_gate"
 parity_matrix_cells = [
   "K1: module/header-backed Known with dst=Some",
   "K1n: module/header-backed Known with dst=None",
@@ -2142,7 +2141,7 @@ parity_matrix_cells = [
   "E-K: equals/1 delegating to Known with dst=Some",
   "E-U: equals/1 delegating to Unique with dst=Some",
 ]
-parity_matrix_contract = "Each reachable cell must record the resolve.choose writer reason, input shape, ON and OFF route, exact Method(Some) receiver, argument order/evaluation count, dst/effects, first fault/result, VM result, and execution of the same emitted MIR through ny-llvmc/AOT. A reachable cell is ready only when it is Equivalent or LegacyBugFixedByCanonical; LegacyOnlySuccess, SemanticDifference, or SuccessorBackendGap keeps I0 closed. A retired no-dst cell may instead be ready as CallerZero only when its production caller census is zero and the old writer is not resurrected."
+parity_matrix_contract = "The prior ON/OFF matrix is retained as historical evidence and must not be used to invent a target or a post-effect reject. Policy retirement is accepted when the incoming Method(Some) route is the named canonical successor and the live/caller-zero writer set is finite. A retired no-dst cell is ready only when its production caller census is zero and the old writer is not resurrected."
 parity_matrix_classification_2026_08_30 = [
   "K1: ParityOpen__Known_to_dst_observed__three_counterexamples_are_LegacyBugCandidate_and_AOT_equal",
   "K1n: CallerZero__old_no_dst_Known_chain_pruned_at_fb5a4e0e81__no_runtime_probe_allowed",
@@ -2170,7 +2169,66 @@ parity_evidence_2026_08_30 = [
 ]
 evidence = "At audit HEAD 636344522ce0, the four writer families are finite: the two `_to_dst` chains are production-live and the two no-dst chains are caller-zero. The current route uses generated symbols/header/suffix and typed_global_target_from_selected_symbol, while the existing incoming Method(Some) route is the named retirement successor. A read-only counter-audit confirmed the three receiver-arity failures as LegacyBugCandidate cells: OFF Method(Some) and VM-emitted ON/OFF MIR both yield the accepted values 29, 30, and 118 through AOT, while current-source LLVM stops before MIR at RootPreservation(CompatibilityLoss). The remaining Known/Unique/equals and destination-shape cells are not writer-traced yet; the eight-cell matrix remains open."
 reopen_trigger = "The finite ON/OFF result/fault/backend matrix is green for all accepted Known/equals/unique shapes and the exact live/caller-zero writer set is frozen; then open the atomic retirement I0. If parity fails, keep the route live and record the counterexample."
-next_execution = "blocked_on_rewrite_known_eight_cell_trace_matrix__current_three_cells_legacy_bug_candidate"
+next_execution = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0__pending_fast_activation"
+
+[same_module_rewrite_known_policy_retire_i0_2026_08_30]
+status = "accepted_design_ready_for_i0"
+task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0"
+ceremony_tier = "T1"
+box_kind = "BoxShape bounded optional-rewrite retirement"
+implementation_permission = false
+decision = "Apply the user-selected legacy-retirement policy to the optional Known/unique instance-to-Global rewrite. Delete the alternate route and its selector/env authority; preserve the incoming typed Method(Some(receiver)) resolver/materializer and early str-like behavior. Do not claim old ON/OFF parity or add a replacement issuer."
+source_authority = "The incoming typed CallTarget::Method with its exact receiver is the sole source of method meaning. The existing CalleeResolverBox, router, materializer, and physical terminal own canonical Method(Some) publication."
+canonical_issuer = "Existing Method(Some(receiver)) resolver/materializer; no new Global issuer, source observer, receipt, or target reconstruction is allowed."
+non_authority = [
+  "Known/unique generated names, class/method/arity strings, header/module lookup, suffix candidates, StaticMethodId parsing, rewrite env flags, new-origin flags, resolve.choose traces, fixtures, and legacy parity guesses",
+]
+fail_fast_boundary = "Skip the retired rewrite branch before alternate publication and continue through the existing Method(Some) path. Do not reject after argument effects and do not fall back/retry. If Method(Some) cannot handle a valid source shape, stop and reopen the policy rather than adding a terminal."
+census_boundary = "rewrite/known.rs live _to_dst writers and selector wrappers -> unified_emitter method ingress -> rewrite/special.rs equals delegation -> existing Method(Some) resolver/materializer; includes dead no-dst chains already pruned, four Rust env readers, repo-owned live env pins, alternate outcome labels, and current rewrite docs; excludes early str-like, ArrayWrite, Method ABI, Resolved, ordinary-static, ordinary-new, CorePlan/provider/thunk, package/loan, VM/backend, JSON, Call schema, fallback, and retry."
+finite_inventory = [
+  "Known-to-dst writer pair: src/mir/builder/rewrite/known.rs",
+  "Unique-suffix-to-dst writer pair: src/mir/builder/rewrite/known.rs",
+  "equals delegation: src/mir/builder/rewrite/special.rs",
+  "unified method ingress and alternate labels: src/mir/builder/calls/unified_emitter.rs and src/mir/builder/calls/unified_emitter/physical_terminal.rs",
+  "selector readers: src/config/env/builder_flags.rs",
+  "repo-owned live selector pins: tools/selfhost/proof/selfhost_smoke.sh and tools/smokes/v2/profiles/{integration,quick}/**",
+]
+old_edge_delete_set = [
+  "try_known_rewrite_to_dst[_with_lookup]",
+  "try_unique_suffix_rewrite_to_dst[_with_lookup]",
+  "try_known_or_unique_to_dst[_with_lookup]",
+  "try_special_equals_to_dst[_with_lookup]",
+  "UnifiedCallAlternateRouteV1::SpecialEqualsRewrite",
+  "UnifiedCallAlternateRouteV1::KnownOrUniqueRewrite",
+  "NYASH_REWRITE_KNOWN_DEFAULT / NYASH_BUILDER_REWRITE_INSTANCE / NYASH_DEV_REWRITE_USERBOX / NYASH_DEV_REWRITE_NEW_ORIGIN Rust readers",
+]
+preserved_edge_set = [
+  "early str-like toString/stringify/str handling",
+  "incoming typed Method(Some(receiver)) resolver/materializer/router",
+  "ArrayWrite alternate route",
+  "generic physical MirInstruction::Call terminal",
+]
+positive_tests = [
+  "user-defined Method(Some(receiver)) reaches the generic typed Call terminal without a rewrite alternate",
+  "early str-like Method route remains the existing explicit alternate",
+]
+negative_tests = [
+  "equals/1 no longer enters SpecialEqualsRewrite",
+  "KnownOrUniqueRewrite alternate is unconstructible after the route deletion",
+  "retired rewrite env values have no Rust reader or production effect",
+]
+focused_test_filters = [
+  "physical_receipt",
+  "rewrite_retire",
+]
+guard = "Extend the existing active-surface dispatch with one policy-retirement checker; it must prove the old writer/selector symbols and alternate labels are absent after landing, Method(Some) and early str-like owners remain, all non-archive selector pins are removed, touched source files stay below 760 lines, and focused cargo-list filters match nonzero tests."
+acceptance = "Known/unique/equals alternate writers and selector readers are caller-zero or deleted, no Global target issuer was added, canonical Method(Some) and early str-like routes remain, focused positive/negative tests and the active policy guard are green, current docs/reference contract marks the envs retired, and the commit diff is confined to this bounded delete set."
+no_safe_slice = "Return to design_stop if a valid source shape fails through Method(Some), any non-archive production reader/writer for the retired env remains, a new target/receipt/resolver is needed, a post-effect reject is proposed, or the change crosses Method ABI, Call schema, VM/backend, JSON, package/loan, fallback/retry, or 760/800 lines."
+non_claims = "No old ON/OFF parity claim, no Method(None) whole-family retirement, no Call.func/Option<Callee> schema change, no VM/backend change, no Stage1 artifact, no early str-like or ArrayWrite retirement, no guard registry deletion, and no language semantics change beyond removing the optional optimization."
+reopen_trigger = "Reopen only if an explicit product decision restores the optional rewrite or a valid source method call fails through the canonical Method(Some) route after this retirement."
+next_execution = "switch_to_fast_and_land_MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
 
 [same_module_operator_env_disposition_d0_2026_08_30]
 status = "accepted_retirement_selected"
