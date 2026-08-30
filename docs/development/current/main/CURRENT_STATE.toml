@@ -1,20 +1,14 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0:
-implementation is open only for the parser-owned ConstructorSourceIdV1 /
-Birth(N) or NoBirthZero product, same-package ordinary-new recipe, and the
-shared checked N/N+1 ABI. Take the recipe before arguments and delete only
-birth-text/AST-scan/class-arity reconstruction. No no-claim change, other
-SameModule family, VM/backend/JSON, Call schema, fallback, retry, or new
-package-wide loan abstraction is permitted.
-Parent design:
-MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0 is accepted; if exact
-source relation or shared ABI is missing, return to design_stop rather than
-inferring from names, keys, headers, or fixtures.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+the ordinary-new exact constructor I0 is landed at d81d91d800. Resume the
+finite SameModule producer census before opening another bounded row. Names,
+keys, headers, fixtures, fallback, retry, and second resolvers remain
+non-authority; choose one existing issuer or one typed pre-effect terminal.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -28,9 +22,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Ordinary-new exact constructor cutover I0 is fast-open: parser ConstructorSourceIdV1 plus typed Birth(N)/NoBirthZero, same-package recipe co-seal, and checked N/N+1 ABI only. The consumer must take the recipe before arguments and delete birth-text/AST-scan/class-arity reconstruction; no-claim compatibility and every other SameModule family remain closed."
-next_design_card = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
-next_execution_card = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
+latest_card_summary = "Ordinary-new exact constructor cutover I0 landed at d81d91d800: parser ConstructorSourceIdV1 plus typed Birth(N)/NoBirthZero, same-package recipe co-seal, checked N/N+1 ABI, and pre-argument recipe consumption are in place. Birth-text/AST-scan/class-arity reconstruction is gone; no-claim compatibility and every other SameModule family remain closed. Resume the parent finite producer census."
+next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -43,6 +37,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
 	"2026-08-30: caller-zero Resolved corridor retired at 598530d23b; RawRootMain ordinary direct injection now reaches RawRootMainRetired before effects, while the Resolved variant/consumer and exclusive generic resolver/recovery/name-Const/tail-env owners were physically deleted (210 insertions, 687 deletions). The Method corridor is Exhausted.",
-	"2026-08-30: ordinary-static target-only I0 landed at 3e7f4a1d7f; exact source/site targets without result handoffs now remain TargetOnly and are consumed once, while NoExactStaticTarget is distinct and never falls through compatibility fallback.",
+	"2026-08-30: ordinary-static target-only I0 landed at 3e7f4a1d7f; exact source/site targets without result handoffs now remain TargetOnly and are consumed once, while NoExactStaticTarget is distinct and never falls through compatibility fallback. Ordinary-new exact constructor I0 also landed at d81d91d800 with parser ConstructorSourceIdV1, typed Birth(N)/NoBirthZero, shared checked N/N+1 ABI, and pre-argument recipe consumption; birth-text/AST-scan/class-arity reconstruction is gone for its selected-normal direct-local cohort.",
 	"2026-08-30: Builder operator-call retirement I0 landed at 44555655ab; the three legacy selectors now fail-fast at five compiler ingresses when truthy/malformed/non-Unicode, unset/false stays direct MIR, and the four compiler publishers plus Builder-selector prelude/script coupling are retired. Runtime-only NYASH_OPERATOR_BOX_* remains separate.",
 ]

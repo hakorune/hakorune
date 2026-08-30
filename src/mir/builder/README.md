@@ -325,15 +325,15 @@ legacy `is_brand_declared` route remain outside this consumer row.
 ### Raw ordinary-`New` source claim consumer (D2c)
 
 The selected Raw direct-body cohort now co-seals ordinary-box coverage,
-exact direct-local initializer sites, and the optional `birth/N` target in
-the normal callable semantic package. The package installs one affine claim
-ledger; the Raw child consumes a matching `(owner, site, class, arity)` claim
-before lowering arguments or emitting `NewBox`. A claimed non-zero arity uses
-only its sealed `Class.birth/N` target. Non-cohort or compatibility rows retain
-the existing header-based compatibility route, but they cannot consume or
-manufacture a source claim. Package completion rejects any unconsumed
-ordinary claim, so source-backed admission has no retry or post-lowering
-target inference.
+exact direct-local initializer sites, and a parser-owned
+`ConstructorSourceIdV1`/`Birth(N)` recipe (or `NoBirthZero`) in the normal
+callable semantic package. The Raw child consumes a matching `(owner, site,
+class, arity)` claim before lowering arguments or emitting `NewBox`, validates
+the shared source-N/physical-N+1 ABI, and uses the sealed recipe target for the
+birth Call. Non-cohort or compatibility rows retain the existing header-based
+compatibility route, but they cannot consume or manufacture a source claim.
+Package completion rejects any unconsumed ordinary claim, so source-backed
+admission has no retry or post-lowering target inference.
 
 ### RawCompatibility child terminal I1 (2026-08-27)
 

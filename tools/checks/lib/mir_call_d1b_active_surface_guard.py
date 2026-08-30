@@ -736,6 +736,8 @@ def check_ordinary_new_i0(state: dict, card: dict, root: Path) -> None:
         "src/mir/builder/ordinary_new_admission.rs",
         "src/mir/builder/raw_root_physical/callable_main_terminal.rs",
         "src/mir/builder/raw_root_physical/child_terminal.rs",
+        "src/mir/builder/README.md",
+        "src/mir/normal_callable_semantic_package/README.md",
         "src/parser/source_authority.rs",
         "src/parser/public_api.rs",
         "src/parser/source_authority_tests.rs",

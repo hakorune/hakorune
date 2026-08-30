@@ -82,10 +82,12 @@ terminal; the AST-only compatibility catalog is not a retry route.
 
 The final source transport now carries ordinary-box coverage into this same
 package. The issuer joins selected direct-body `Allocation` sites with the
-exact source `New` class/arity and its ordinary declaration; an optional
-`Class.birth/N` target is sealed there, not rediscovered by Builder headers.
-Install creates one affine claim ledger. The selected Raw adapter consumes a
-matching owner-branded site exactly once before `NewBox` emission, and package
+exact parser-owned `ConstructorSourceIdV1` and its typed `Birth(N)` signature.
+It emits either a non-`Clone` `VerifiedOrdinaryNewBirthRecipeV1` or the
+explicit `NoBirthZero` disposition; no `Class.birth/N` text is reconstructed
+from Builder headers. The selected Raw adapter consumes a matching
+owner-branded site exactly once before `NewBox` emission, validates the shared
+source-N/physical-N+1 ABI, and emits the already-sealed recipe target. Package
 completion rejects leftover claims. Non-cohort and compatibility rows remain
 outside this claim surface and retain their explicitly parked compatibility
 behavior; they cannot issue or retry a source-backed claim.

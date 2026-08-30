@@ -2436,12 +2436,12 @@ reopen_trigger = "Open the bounded I0 only when the parser product, exact alloca
 next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0__implementation_pending_pointer_switch"
 
 [same_module_ordinary_new_exact_constructor_cutover_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0"
 ceremony_tier = "bounded implementation"
 box_kind = "BoxCount exact ordinary-new constructor cutover"
-implementation_permission = true
+implementation_permission = false
 decision = "Replace the ordinary-new birth text/class-arity reconstruction with the parser-owned ConstructorSourceIdV1 and typed Birth(N)/NoBirthZero disposition. Co-seal that exact source product with the allocation site in the existing normal callable package, use one checked N-to-N+1 ABI, and consume the recipe before argument descent. This row changes only the selected-normal direct-local ordinary-new claim cohort."
 source_authority = "Parser constructor source catalog owns final-box membership, ConstructorSourceIdV1, constructor kind, and source arity. Existing instance-constructor semantic rows preserve the same source id and session brand. The package issuer is the only co-seal owner for allocation site plus constructor product."
 canonical_issuer = "VerifiedOrdinaryNewBirthRecipeV1 issued by ordinary_new_coseal from one exact parser constructor row and one exact allocation site; InstanceConstructorAbiV1 owns source N and physical argv N+1. The Builder consumer only takes and emits the already-sealed recipe."
@@ -2466,6 +2466,8 @@ allowed_files = [
   "src/mir/builder/ordinary_new_admission.rs",
   "src/mir/builder/raw_root_physical/callable_main_terminal.rs",
   "src/mir/builder/raw_root_physical/child_terminal.rs",
+  "src/mir/builder/README.md",
+  "src/mir/normal_callable_semantic_package/README.md",
   "src/parser/source_authority.rs",
   "src/parser/public_api.rs",
   "src/parser/source_authority_tests.rs",
@@ -2511,4 +2513,21 @@ acceptance = "The parser exposes a typed constructor kind/source-arity product a
 no_safe_slice = "Return to design_stop if exact constructor selection needs a downstream key parse or AST/program scan, if source and physical arity lack a shared checked ABI, if a second issuer or resolver is needed, if no-claim paths must change, if Call/VM/backend semantics must change, or if any touched Rust source reaches the 760/800-line boundary."
 non_claims = "No general loan/package redesign, no Call schema change, no Method/Resolved/VM/backend/JSON/CorePlan/operator/provider/rewrite/thunk change, no field or constructor-body semantics, no fallback/retry, and no physical deletion beyond the listed reconstruction edges."
 reopen_trigger = "If an exact parser constructor relation or shared N/N+1 ABI is unavailable, keep the allocation claim typed-rejected or ParkedSealed; reopen only after the same-session source product is present or the ordinary-new cohort receives an explicit retirement decision."
-next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0__implementation"
+implementation_commit = "d81d91d800"
+coverage_base_commit = "194b0c08b6"
+focused_test_runs = [
+  "cargo test --profile quick --lib ordinary_new -- --test-threads=1: 10 passed",
+  "cargo test --profile quick --lib source_authority -- --test-threads=1: 22 passed",
+  "cargo test --profile quick --lib instance_constructor_abi -- --test-threads=1: 1 passed",
+  "cargo test --profile quick --lib normal_instance_constructor_admission -- --test-threads=1: 2 passed",
+  "cargo test --profile quick --lib mir::normal_callable_semantic_package:: -- --test-threads=1: 62 passed",
+]
+guard_runs = [
+  "cargo check --profile quick --lib -j1: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass before closeout",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass before closeout",
+  "git diff --check: pass",
+]
+evidence = "Implementation landed at d81d91d800. Parser constructor relations now carry typed Init/Pack/Birth plus source arity, ordinary-box coverage resolves one exact final-box row, and the existing constructor semantic batch exposes an exact Birth(N) lookup. The package replaces the birth-text claim with a non-Clone Birth(recipe) or NoBirthZero disposition, issues one checked InstanceConstructorAbiV1, and the selected-normal consumer validates and takes that disposition before argument descent. The claimed path emits NewBox followed by one recipe-owned birth Call; no-claim compatibility remains unchanged. Nine new focused tests plus the existing constructor/package suites pass under the quick profile. Full cargo test/link was not claimed because the repository's historical binary is large; the focused commands were actually executed. README owners were updated in the same closeout series."
+red_classification = "No new red result. Workspace-wide cargo fmt -- --check still reports pre-existing unrelated formatting debt in src/runner/core_executor.rs; targeted rustfmt was applied to every changed Rust file."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
