@@ -2832,6 +2832,7 @@ box_shape_preparation = [
   "D0-B1: keep each touched Rust source below 760 lines and stop at 800; do not hide growth by compression",
   "D0-B2: after the split, name one private co-seal owner for source/site, InstanceBoxMethod declaration, package/catalog brand, bound receiver, ABI, body/return, and effect; if none exists, remain NoSafeSlice",
 ]
+parked_boxshape_followup = "Read-only audit at HEAD 3dafaeae9c found one additional test-only candidate in src/mir/builder/indexing.rs:737-789 (790-line parent). It is ParkedSealed because it remains below the 800-line hard stop and does not block the next semantic row; do not open another BoxShape split unless the file reaches 800 or physically blocks the DeclaredInstance implementation."
 box_shape_non_claims = "The preparation split is not an issuer, target, loan, Method(Some) cutover, or production switch. It must not add a family-specific parallel pipeline, default/empty receipt, resolver, header/name inference, or backend-derived meaning."
 minimal_co_seal_shape = [
   "caller_batch_slot + exact call_site + callee_key + callee_batch_slot",
