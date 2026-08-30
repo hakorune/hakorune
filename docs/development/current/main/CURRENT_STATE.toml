@@ -1,23 +1,17 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-StaticCurrentOwner me.method I0 landed at 2b7b3e7489 with the existing exact
-source/site/catalog handoff taken before legacy header observation and argument
-effects, direct Global(StaticBoxMethod) with N source arguments, and the selected
-old edge removed. True DeclaredInstance me.method still lacks the complete
-source/catalog/receiver/ABI co-seal and is the next design-only row. Do not mix
-Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard
-cleanup. The next child D0 must locate one existing exact
-source/catalog/receiver/ABI issuer or remain NoSafeSlice; read-only audits found
-no reusable generic issuer. Before semantic addition, define one private package-
-side co-seal assembler for the missing source-site-to-InstanceBoxMethod relation.
-It may borrow existing result/effect/ABI products but may not infer a target from
-header/name/registry, copy body facts, or create a parallel family pipeline.
-Implementation remains closed until those relation owners are named.
+MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0:
+Move only the existing deferred static lifecycle failure test into a private
+sibling. Preserve its body, fixture, historical module path, private parent
+access, production code, and behavior. This T0 BoxShape row introduces no
+semantic issuer, target, receiver, ABI, effect, Call, panic, throw, runtime,
+backend, fallback, retry, or guard cleanup. Stop if parent/sibling reaches
+760 lines (800 hard stop) or any observable surface changes; after closeout
+return to the DeclaredInstance design stop.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -50,9 +44,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0 landed at c1a715eb97 as a behavior-preserving move of the existing test module into a private sibling; the historical normal_callable_semantic_source::tests path and production owner remain intact, with parent 367 lines and sibling 351 lines. The focused row had 7 passing tests and 3 pre-existing raw-compat/runtime-box-fate-retired baseline failures reproduced on the parent commit. The DeclaredInstance/source-site co-seal design stop is active again; the current source product also collapses BodyMeReceiverV1::Lexical(binding) and StaticCurrentOwner, so receiver binding preservation is a prerequisite. No semantic issuer, target, loan, Call, panic, VM/backend, fallback, retry, or guard cleanup is permitted until the missing relation owners are named."
+latest_card_summary = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0 is the current independent T0 row: move one existing deferred lifecycle failure test to a private sibling without semantic or production changes, then return to the DeclaredInstance/source-site co-seal design stop. The panic/throw reference decision remains accepted but production 0 and ParkedSealed. The current DeclaredInstance source product still collapses BodyMeReceiverV1::Lexical(binding) and StaticCurrentOwner; no semantic issuer, target, loan, Call, VM/backend, fallback, retry, or guard cleanup is permitted outside the selected BoxShape test extraction."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
+next_execution_card = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

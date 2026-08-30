@@ -1956,6 +1956,67 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_builder_boxshape_module_lifecycle_failure_test_s0_2026_08_31]
+status = "fast_open"
+task_id = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-preserving test-only extraction"
+implementation_permission = true
+decision = "Move only the existing deferred static lifecycle failure test into a private sibling so module_lifecycle_capture_tests.rs falls below the 760-line split boundary. Preserve the test body, historical module path, private parent access, production lifecycle, visibility, re-exports, and behavior exactly. This independent BoxShape row does not open the DeclaredInstance issuer stop."
+source_authority = "Existing test-module ownership, private parent names, and the current test body are the only authority. No semantic issuer, target, receiver, ABI, effect, backend, or runtime meaning is introduced."
+canonical_issuer = "None; this is a physical test-shape extraction only."
+non_authority = [
+  "test fixtures as production authority",
+  "module filename or test name as semantic ownership",
+  "name/arity/header/symbol/registry lookup",
+  "new fields, enums, receipts, resolver, target, loan, fallback, retry, VM/backend, panic, throw, or Call schema",
+]
+fail_fast_boundary = "Stop before closeout if the test body, module path, private access, production source, visibility, re-export, behavior, or line budget changes. Parent and sibling must remain below 760 lines, with 800 as a hard stop."
+census_boundary = "The final deferred_static_box_lifecycle_restores_context_and_stops_after_failure test in src/mir/builder/module_lifecycle_capture_tests.rs -> private lifecycle_failure_tests sibling; includes only that test and its existing parent-private dependencies, excludes module_lifecycle.rs production code, ingress tests, semantic Method/Call work, and all runtime/backend routes."
+finite_inventory = [
+  "parent: src/mir/builder/module_lifecycle_capture_tests.rs (772 lines before split)",
+  "single moved test: deferred_static_box_lifecycle_restores_context_and_stops_after_failure",
+  "new private sibling: src/mir/builder/module_lifecycle_failure_tests.rs (about 25 lines)",
+  "existing parent-private dependencies: MirBuilder, RecordingOrdinaryPortV1, parsed_static_box, ProgramDeferredStaticBoxLifecycleV1",
+]
+finite_states = [
+  "SplitStable: parent is about 753 lines, sibling is below 760, private access and historical test path compile",
+  "BehaviorDrift: test body/output/module path/production code changes; stop",
+  "BudgetExceeded: any touched Rust source reaches 760 or more (800 hard stop); stop",
+]
+ordered_tasks = [
+  "S0-A: add the private lifecycle_failure_tests path module beside the existing ingress test module",
+  "S0-B: move only deferred_static_box_lifecycle_restores_context_and_stops_after_failure using super-private imports; do not rewrite its assertions or fixture",
+  "S0-C: run the exact historical test path, focused module listing, rustfmt, quick library check, pointer guard, diff check, and line census",
+  "S0-D: close out as landed and restore MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design_stop; make no DeclaredInstance or panic/throw claim",
+]
+acceptance = "The parent and new sibling remain below 760/800, the exact test name remains under mir::builder::module_lifecycle::capture_tests::lifecycle_failure_tests, private parent access compiles, the test output and fixture are unchanged, production module_lifecycle.rs is untouched, and focused evidence plus pointer/diff checks are recorded."
+no_safe_slice = "Stop and restore design_stop if the test requires a public API, helper duplication, parent production edit, module-path change, guard change, semantic code change, or the line budget is crossed."
+non_claims = "No DeclaredInstance co-seal, Method(Some)/Method(None) cutover, direct-call issuer/loan, Resolved/Call-schema retirement, panic/throw/exit change, VM/backend/JSON change, fallback/retry change, or guard deletion/new registry row."
+allowed_files = [
+  "src/mir/builder/module_lifecycle_capture_tests.rs",
+  "src/mir/builder/module_lifecycle_failure_tests.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/module_lifecycle.rs",
+  "src/mir/builder/module_lifecycle_ingress_tests.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "VM/backend/JSON/runtime/Call schema",
+  "guard registry",
+]
+focused_test_filters = [
+  "mir::builder::module_lifecycle::capture_tests::lifecycle_failure_tests::deferred_static_box_lifecycle_restores_context_and_stops_after_failure",
+]
+changed_test_names = [
+  "mir::builder::module_lifecycle::capture_tests::lifecycle_failure_tests::deferred_static_box_lifecycle_restores_context_and_stops_after_failure",
+]
+next_execution = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0__fast"
+
 [mir_builder_boxshape_normal_callable_source_test_extraction_s0_2026_08_31]
 status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
