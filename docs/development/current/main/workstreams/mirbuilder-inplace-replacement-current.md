@@ -84,6 +84,16 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
+Three read-only audits reconciled the Generic CorePlan child with the final
+Loop architecture. The production-live legacy registry route
+`LoopRouteId::GenericLoopV0/V1` is an internal execution route whose retirement
+is already owned by the portable Loop M10b cutover; it is not a new language
+decision. The source-backed canonical V1 path is a separate retained semantic
+owner and must not be deleted with the registry route. The Call child is
+therefore `ParkedSealed` until the 389-row accepted corpus has portable-owner or
+approved typed-reject coverage and the M8/M9/precutover deletion manifest is
+ready. No immediate GlobalCall-only or whole-loop retirement row is open.
+
 Guard cleanup is a separate parked lane. The only currently proven
 `SupersededDelete` was the stale whole-writer overlay removed by the landed
 type-fact S0; the nine live checks are kept and five are rehomed. Future guard
