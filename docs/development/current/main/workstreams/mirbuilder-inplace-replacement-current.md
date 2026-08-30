@@ -94,6 +94,13 @@ therefore `ParkedSealed` until the 389-row accepted corpus has portable-owner or
 approved typed-reject coverage and the M8/M9/precutover deletion manifest is
 ready. No immediate GlobalCall-only or whole-loop retirement row is open.
 
+The next bounded design proof is `rewrite/known`: two production-live to-dst
+writers and the equals delegation can retire together by preserving the already-
+owned typed `Method(Some(receiver))` route, while two caller-zero no-dst chains
+are removed in the same cleanup. Existing ON/OFF smoke evidence is non-fatal, so
+a finite result/fault/backend parity matrix must be green before opening that
+I0. No new Global issuer, post-effect reject, or second resolver is allowed.
+
 Guard cleanup is a separate parked lane. The only currently proven
 `SupersededDelete` was the stale whole-writer overlay removed by the landed
 type-fact S0; the nine live checks are kept and five are rehomed. Future guard
