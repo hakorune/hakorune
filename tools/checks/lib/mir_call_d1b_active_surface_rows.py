@@ -40,6 +40,8 @@ TYPE_FACT_GUARD_PRUNE_S0_ROW = api.TYPE_FACT_GUARD_PRUNE_S0_ROW
 TYPE_FACT_GUARD_PRUNE_S0_KEY = api.TYPE_FACT_GUARD_PRUNE_S0_KEY
 ORDINARY_NEW_I0_ROW = api.ORDINARY_NEW_I0_ROW
 ORDINARY_NEW_I0_KEY = api.ORDINARY_NEW_I0_KEY
+ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW = api.ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW
+ORDINARY_STATIC_LEGACY_RETIRE_I0_KEY = api.ORDINARY_STATIC_LEGACY_RETIRE_I0_KEY
 ACTIVE_SURFACE_ROWS_ROW = api.ACTIVE_SURFACE_ROWS_ROW
 ACTIVE_SURFACE_ROWS_KEY = api.ACTIVE_SURFACE_ROWS_KEY
 
@@ -614,3 +616,101 @@ def check_ordinary_new_i0(state: dict, card: dict, root: Path) -> None:
                 "ordinary-new I0 changed paths exceed allowed boundary: "
                 f"{sorted(changed_paths - expected_allowed)}"
             )
+
+
+def check_ordinary_static_legacy_retire_i0(
+    state: dict, card: dict, root: Path
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("ordinary-static legacy retirement requires fast or closeout work_mode")
+    if state.get("current_execution_row") != ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW:
+        fail("ordinary-static legacy retirement row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("ordinary-static legacy retirement must clear current_design_stop")
+    if state.get("next_execution_card") != ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW:
+        fail("ordinary-static legacy retirement pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("ordinary-static legacy retirement card pointer drifted")
+
+    row = card.get(ORDINARY_STATIC_LEGACY_RETIRE_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{ORDINARY_STATIC_LEGACY_RETIRE_I0_KEY} section is missing")
+    if row.get("task_id") != ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW:
+        fail("ordinary-static legacy retirement task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("ordinary-static legacy retirement status is not finite")
+    if row.get("implementation_permission") is not (row.get("status") == "fast_open"):
+        fail("ordinary-static legacy retirement permission/status drifted")
+
+    source_rel = Path("src/mir/builder/method_call_handlers.rs")
+    route_rel = Path("src/mir/builder/calls/member_route.rs")
+    tests_rel = Path("src/mir/builder/method_call_handlers_static_legacy_retire_tests.rs")
+    readme_rel = Path("src/mir/builder/calls/README.md")
+    reference_rel = Path("docs/reference/language/function-call-evaluation.md")
+    expected_allowed = {
+        str(source_rel),
+        str(route_rel),
+        str(tests_rel),
+        "src/mir/builder/calls/member_route_descent_tests.rs",
+        str(readme_rel),
+        str(reference_rel),
+        str(HELPER_REL),
+        str(Path("tools/checks/lib/mir_call_d1b_active_surface_rows.py")),
+        str(STATE_REL),
+        str(CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        fail("ordinary-static legacy retirement allowed-file boundary drifted")
+
+    for rel in (source_rel, route_rel, tests_rel):
+        path = root / rel
+        if not path.is_file():
+            fail(f"ordinary-static legacy retirement owner is missing: {rel}")
+        if len(path.read_text(encoding="utf-8").splitlines()) >= 760:
+            fail(f"ordinary-static legacy retirement owner reached 760 lines: {rel}")
+
+    if row.get("status") != "landed":
+        return
+
+    source = (root / source_rel).read_text(encoding="utf-8")
+    route = (root / route_rel).read_text(encoding="utf-8")
+    tests = (root / tests_rel).read_text(encoding="utf-8")
+    reference = (root / reference_rel).read_text(encoding="utf-8")
+    for token in (
+        "unissued_static_call_retired_error",
+        "[freeze:contract][static-call/legacy-fallback-retired]",
+        "qualified_math_compatibility_owner",
+        "PreparedMeReceiverV1::Static",
+        "PreparedMeReceiverV1::Instance",
+    ):
+        if token not in source:
+            fail(f"ordinary-static legacy retirement evidence is missing: {token}")
+    if "legacy static compatibility edge retires before argument effects" not in reference:
+        fail("ordinary-static language reference receipt is missing")
+    if "static legacy compatibility" not in (root / readme_rel).read_text(encoding="utf-8"):
+        fail("ordinary-static calls README receipt is missing")
+
+    retirement = source.find("unissued_static_call_retired_error")
+    descent = source.find("completion.lower_all(self)?")
+    if retirement < 0 or descent < 0 or retirement > descent:
+        fail("ordinary-static retirement is not proven before generic argument descent")
+    for name in (
+        "unissued_static_route_retires_before_argument_descent",
+        "qualified_math_static_route_keeps_compatibility_owner",
+        "static_this_retires_before_argument_descent",
+        "me_static_fallback_retires_before_argument_descent",
+        "lowered_global_static_retires_before_argument_descent",
+    ):
+        if tests.count(f"fn {name}(") != 1:
+            fail(f"ordinary-static legacy retirement test is missing or duplicated: {name}")
+
+    check_test_coverage(root, row)
+    base = require_text(row.get("coverage_base_commit"), "ordinary-static coverage_base_commit")
+    changed_paths = git_diff_paths(root, base)
+    if not changed_paths.issubset(expected_allowed):
+        fail(
+            "ordinary-static legacy retirement changed paths exceed allowed boundary: "
+            f"{sorted(changed_paths - expected_allowed)}"
+        )

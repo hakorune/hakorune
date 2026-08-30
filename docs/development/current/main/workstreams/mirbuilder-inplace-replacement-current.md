@@ -93,6 +93,16 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
+The current bounded implementation row is
+`MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0`. It retires only
+the unissued generic `StaticReceiver`, `StaticThis`, `Me` `StaticFallback`, and
+`LoweredGlobal::Static` compatibility fallbacks before argument effects. Exact
+Cataloged handoffs, scalar/inline owners, qualified `Math`, Env/Extern,
+`Method(Some(receiver))`, and `LoweredGlobal::Instance` remain live. This row
+creates no issuer or receipt and does not alter VM/backend, JSON, Call schema,
+fallback/retry, or guard cleanup; any need to change a preserved owner returns
+the parent to `design_stop`.
+
 Three read-only audits reconciled the Generic CorePlan child with the final
 Loop architecture. The production-live legacy registry route
 `LoopRouteId::GenericLoopV0/V1` is an internal execution route whose retirement

@@ -1,18 +1,16 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-the bounded rewrite/known policy-retirement row landed at 7a6fb9e2db.
-The optional Known/Unique/equals alternate and selector authority are gone;
-typed Method(Some(receiver)) and the explicit early str-like route remain.
-The fresh finite audit now records physical thunk as RelationPresentIssuerMissing /
-ParkedSealed and bare error/now/panic/exit as NoIssuer until a language/provider
-decision. Do not infer a new Global issuer, reopen parity by guesswork, or mix
-Method(None), Resolved, Call-schema, VM/backend, package/loan, fallback, retry,
-or guard cleanup.
+MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0:
+retire only unissued generic StaticReceiver/StaticThis/Me StaticFallback and
+LoweredGlobal::Static compatibility before argument effects. Preserve exact
+Cataloged handoff, scalar/inline owners, qualified Math, Env/Extern,
+Method(Some(receiver)), and LoweredGlobal::Instance. Do not infer an issuer,
+add a receipt, change VM/backend/Call schema, or touch fallback/retry/guard
+cleanup. Return to design_stop if any preserved owner or exact route must change.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -26,9 +24,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The bounded optional rewrite/known/equals retirement landed at 7a6fb9e2db: old writers and selector authority are removed, while typed Method(Some) and early str-like remain. The SameModule parent is back at design_stop after finite audits: physical thunk has no exact main/0 issuer and bare error/now/panic/exit have no bare provider issuer. Guard cleanup remains parked because no additional SupersededDelete candidate was proven."
+latest_card_summary = "The SameModule parent remains open, with physical thunk RelationPresentIssuerMissing and bare error/now/panic/exit NoIssuer. The next bounded row is the user-selected retirement of unissued generic static compatibility before argument effects; exact Cataloged/scalar/inline/Math/Extern/Method(Some)/Instance owners remain unchanged. Guard cleanup remains parked."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

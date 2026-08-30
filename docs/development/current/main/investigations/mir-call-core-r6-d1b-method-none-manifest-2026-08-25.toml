@@ -2336,6 +2336,85 @@ evidence = "Implementation landed at 7a6fb9e2db. The optional Known/Unique/equal
 red_classification = "No current-change red in the bounded row. Workspace-wide warnings and historical pilot guards are baseline/out-of-scope and were not relabeled."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[same_module_ordinary_static_legacy_compat_retire_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TERMINAL-D0"
+ceremony_tier = "T1"
+box_kind = "BoxCount bounded unissued-static compatibility retirement"
+implementation_permission = true
+decision = "Apply the user-selected legacy-retirement policy narrowly to unissued generic static member compatibility. Retire StaticReceiver/StaticThis, Me StaticFallback, and LoweredGlobal::Static only when no exact Cataloged handoff is available, before argument effects. Preserve exact Cataloged handoffs, scalar/inline owners, qualified Math compatibility, Env/Extern, standard Method(Some(receiver)), and LoweredGlobal::Instance."
+source_authority = "Existing exact Cataloged source/site/brand handoff, static scalar fact, inline helper owner, qualified Math compatibility owner, Env/Extern owner, or exact receiver owner. The retired cohort has no issuer and receives a payload-free typed terminal; this row creates no target."
+canonical_issuer = "None for the retired cohort. Exact Cataloged publication, scalar/inline terminals, qualified Math, Env/Extern, Standard Method(Some), and LoweredGlobal::Instance keep their existing owners."
+non_authority = [
+  "owner/method/arity text, current_static_box, me ValueId, formatted func_name, header/module/plugin lookup, registry, generated symbol, resolver/recovery, fixture, fallback, retry, and any new receipt or target issuer",
+]
+fail_fast_boundary = "After existing exact Cataloged ingress and scalar/inline checks, but before completion.lower_all, next_value_id, Const/ValueId allocation, block/collector mutation, MIR Call publication, or any retry/fallback. Qualified Math remains the explicitly preserved compatibility owner."
+census_boundary = "member_route StaticReceiver/StaticThis and method_call_handlers Me StaticFallback/LoweredGlobal::Static -> existing generic static compatibility terminal; includes claim-ingress Unavailable, non-claim static routes, one typed retirement terminal, and focused route tests; excludes exact Cataloged Selected/TargetOnly/NoExactStaticTarget, scalar, inline, qualified Math, Env/Extern, Standard Method(Some), LoweredGlobal::Instance, CorePlan, provider, physical thunk, rewrite/known, ordinary-new, package/loan, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "member_route.rs StaticReceiver claim-ingress Unavailable fallback",
+  "member_route.rs StaticReceiver non-claim execution",
+  "member_route.rs ReceiverNormalizationPlan::StaticThis execution",
+  "method_call_handlers.rs PreparedMeCallExecutionV1::StaticFallback",
+  "method_call_handlers.rs PreparedMeCallExecutionV1::LoweredGlobal with PreparedMeReceiverV1::Static",
+  "method_call_handlers.rs handle_static_method_call_with_descent generic terminal",
+  "preserved owners: exact Cataloged, scalar/inline, qualified Math, Env/Extern, Method(Some), LoweredGlobal::Instance",
+]
+finite_states = [
+  "ExactCatalogedKeep: Selected/TargetOnly/NoExactStaticTarget uses the existing source-keyed ingress and never enters generic compatibility",
+  "ScalarInlineKeep: existing scalar fact or inline helper completes without generic target synthesis",
+  "QualifiedMathKeep: owner Math keeps its existing compatibility terminal because qualified Math is a separate named owner",
+  "RetireBeforeEffects: unissued StaticReceiver/StaticThis/StaticFallback/LoweredGlobal::Static enters one stable typed error before argument descent",
+  "InstanceKeep: LoweredGlobal::Instance and standard Method(Some(receiver)) retain their current receiver-bearing semantics",
+  "UnsupportedTypedReject: missing/foreign/ambiguous exact routes keep their existing typed rejection and never fall through",
+]
+ordered_tasks = [
+  "I0-A: amend the active card and reusable active-surface dispatch with the finite preserved/retired boundary; no production semantic change in this task",
+  "I0-B: add one payload-free static-legacy-retired error helper after scalar/inline checks and before argument descent",
+  "I0-C: connect StaticReceiver/StaticThis/Me StaticFallback and unissued LoweredGlobal::Static to that terminal while preserving exact Cataloged, Math, Env/Extern, Method(Some), and LoweredGlobal::Instance",
+  "I0-D: update focused positive/negative route tests and module/language reference, then prove no MIR/argument effect on the retired cohort",
+  "C0: record caller-zero for the retired generic terminal edge, run focused tests/guards, and return the SameModule parent to design_stop without broad closure",
+]
+acceptance = "The retired generic static cohort returns one stable typed terminal before argument descent and publishes no MIR/effect; exact Cataloged, scalar/inline, qualified Math, Env/Extern, Method(Some), and LoweredGlobal::Instance remain green; no new issuer/resolver/receipt or fallback/retry appears; focused cargo tests, active-surface guard, pointer guard, and line-count guard pass."
+no_safe_slice = "Return to design_stop if qualified Math, exact Cataloged, scalar/inline, Env/Extern, Method(Some), or LoweredGlobal::Instance must change; if an exact issuer/new receipt is needed; if the only rejection is post-effect; if another static owner appears; or if the work crosses build.rs, Call schema, VM/backend/JSON, package/loan, fallback/retry, or the 760/800-line boundary."
+non_claims = "No whole Method(None) change, no shared Resolved change, no exact Cataloged issuer or loan, no qualified Math/provider decision, no CorePlan/physical-thunk/rewrite/ordinary-new work, no VM/backend/JSON, no Call schema, no guard deletion, and no public language grammar change beyond retiring the unissued internal compatibility edge."
+allowed_files = [
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/member_route.rs",
+  "src/mir/builder/method_call_handlers_static_legacy_retire_tests.rs",
+  "src/mir/builder/calls/member_route_descent_tests.rs",
+  "src/mir/builder/calls/README.md",
+  "docs/reference/language/function-call-evaluation.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_rows.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/method_call_terminal.rs",
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "VM/backend/JSON/LLVM",
+  "Call schema",
+  "package/loan/generalization",
+]
+focused_test_filters = [
+  "static_legacy_retire_tests",
+]
+changed_test_names = [
+  "unissued_static_route_retires_before_argument_descent",
+  "qualified_math_static_route_keeps_compatibility_owner",
+  "static_this_retires_before_argument_descent",
+  "me_static_fallback_retires_before_argument_descent",
+  "lowered_global_static_retires_before_argument_descent",
+]
+guard = "The existing active-surface lifecycle guard dispatches a row-specific checker. It must prove the exact state/pointer/card boundary, the stable retirement tag before lower_all, the qualified Math preservation, the Method(Some)/Instance preservation, the exact focused test inventory through cargo --list, the allowed path set, and all touched Rust owners below 760 lines. No new registry entry is added."
+next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0__fast_open"
+
 [same_module_operator_env_disposition_d0_2026_08_30]
 status = "accepted_retirement_selected"
 task_id = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"

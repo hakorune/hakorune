@@ -81,6 +81,12 @@ TYPE_FACT_GUARD_PRUNE_S0_KEY = "mirbuilder_type_fact_partition_guard_prune_s0_20
 OPERATOR_ROW = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 ORDINARY_NEW_I0_ROW = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
 ORDINARY_NEW_I0_KEY = "same_module_ordinary_new_exact_constructor_cutover_i0_2026_08_30"
+ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW = (
+    "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0"
+)
+ORDINARY_STATIC_LEGACY_RETIRE_I0_KEY = (
+    "same_module_ordinary_static_legacy_compat_retire_i0_2026_08_30"
+)
 ACTIVE_SURFACE_ROWS_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-ROWS-S0"
 ACTIVE_SURFACE_ROWS_KEY = "active_surface_guard_rows_s0_2026_08_30"
 
@@ -312,6 +318,7 @@ def main() -> None:
         check_active_surface_rows_s0,
         check_cataloged_gc_retire_i0,
         check_ordinary_new_i0,
+        check_ordinary_static_legacy_retire_i0,
         check_proof_row,
         check_raw_legacy_i0,
         check_raw_legacy_resume,
@@ -360,6 +367,8 @@ def main() -> None:
         check_operator_retirement_i0(state, card, root)
     elif row == ORDINARY_NEW_I0_ROW:
         check_ordinary_new_i0(state, card, root)
+    elif row == ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW:
+        check_ordinary_static_legacy_retire_i0(state, card, root)
     elif row == ACTIVE_SURFACE_ROWS_ROW:
         check_active_surface_rows_s0(state, card, root, api)
     elif row == REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW:
