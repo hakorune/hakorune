@@ -2172,13 +2172,13 @@ reopen_trigger = "The finite ON/OFF result/fault/backend matrix is green for all
 next_execution = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0__pending_fast_activation"
 
 [same_module_rewrite_known_policy_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0"
 ceremony_tier = "T1"
 box_kind = "BoxShape bounded optional-rewrite retirement"
-implementation_permission = true
+implementation_permission = false
 allowed_files = [
   "src/mir/builder/rewrite/known.rs",
   "src/mir/builder/rewrite/header_lookup.rs",
@@ -2256,7 +2256,29 @@ acceptance = "Known/unique/equals alternate writers and selector readers are cal
 no_safe_slice = "Return to design_stop if a valid source shape fails through Method(Some), any non-archive production reader/writer for the retired env remains, a new target/receipt/resolver is needed, a post-effect reject is proposed, or the change crosses Method ABI, Call schema, VM/backend, JSON, package/loan, fallback/retry, or 760/800 lines."
 non_claims = "No old ON/OFF parity claim, no Method(None) whole-family retirement, no Call.func/Option<Callee> schema change, no VM/backend change, no Stage1 artifact, no early str-like or ArrayWrite retirement, no guard registry deletion, and no language semantics change beyond removing the optional optimization."
 reopen_trigger = "Reopen only if an explicit product decision restores the optional rewrite or a valid source method call fails through the canonical Method(Some) route after this retirement."
-next_execution = "switch_to_fast_and_land_MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
+implementation_commit = "7a6fb9e2db"
+coverage_base_commit = "7eb80b6609"
+changed_test_names = [
+  "rewrite_retire_user_method_uses_canonical_method_terminal",
+  "rewrite_retire_equals_uses_canonical_method_terminal",
+]
+focused_test_results = [
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib rewrite_retire -- --nocapture --test-threads=1: 2 passed, 0 failed",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib physical_receipt -- --test-threads=1: 22 passed, 0 failed",
+]
+focused_check = "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo check --profile quick --lib: passed with existing warnings only"
+guard_runs = [
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass while fast-open",
+  "python3 tools/checks/lib/mir_call_d1b_rewrite_known_policy_guard.py .: pass while fast-open",
+  "python3 tools/checks/lib/mir_call_global_target_b1_cutover_guard.py .: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass while fast-open",
+  "git diff --check: pass",
+]
+rustfmt_result = "rustfmt --edition 2021 --check on the six touched Rust files: pass"
+line_count_result = "all touched Rust owners and the policy guard remain below the 760-line split boundary"
+evidence = "Implementation landed at 7a6fb9e2db. The optional Known/Unique/equals rewrite writers, selectors, and alternate labels were removed; the incoming typed Method(Some(receiver)) and explicit early str-like routes remain. The two focused canonical-method witnesses and the 22-test physical-receipt filter passed, quick library type-check passed, and the active policy/B1/pointer guards passed. Full cargo test/link was not claimed; unrelated historical/pilot guard cleanup remains outside this row."
+red_classification = "No current-change red in the bounded row. Workspace-wide warnings and historical pilot guards are baseline/out-of-scope and were not relabeled."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_operator_env_disposition_d0_2026_08_30]
 status = "accepted_retirement_selected"

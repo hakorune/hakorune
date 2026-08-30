@@ -98,13 +98,13 @@ therefore `ParkedSealed` until the 389-row accepted corpus has portable-owner or
 approved typed-reject coverage and the M8/M9/precutover deletion manifest is
 ready. No immediate GlobalCall-only or whole-loop retirement row is open.
 
-The user-selected rewrite/known policy is now the active bounded I0: retire the
-optional Known/Unique/equals instance-to-Global writers and selector pins while
-preserving the existing typed `Method(Some(receiver))` owner and explicit early
-str-like route. The historical ON/OFF probes are evidence only, not a parity
-gate; no new Global issuer, post-effect reject, fallback, or second resolver is
-allowed. The ordinary-new exact-constructor cutover remains landed at
-`d81d91d800`; after this I0 closeout the parent design stop resumes.
+The user-selected rewrite/known policy I0 landed at `7a6fb9e2db`: the optional
+Known/Unique/equals instance-to-Global writers and selector pins are retired,
+while the existing typed `Method(Some(receiver))` owner and explicit early
+str-like route remain. The historical ON/OFF probes are evidence only, not a
+parity gate; no new Global issuer, post-effect reject, fallback, or second
+resolver was added. The ordinary-new exact-constructor cutover remains landed
+at `d81d91d800`, and the parent design stop resumes.
 
 Guard cleanup is a separate parked lane. The only currently proven
 `SupersededDelete` was the stale whole-writer overlay removed by the landed

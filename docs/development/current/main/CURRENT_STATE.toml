@@ -1,15 +1,16 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0:
-the user-selected optional rewrite/known optimization is being retired.
-Only the existing typed Method(Some(receiver)) route and early str-like route
-remain in this bounded row. Remove the alternate writers and selector pins;
-do not add a Global issuer, post-effect reject, fallback, retry, R6 Call-schema
-work, VM/backend changes, or unrelated guard/source cleanup.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+the bounded rewrite/known policy-retirement row landed at 7a6fb9e2db.
+The optional Known/Unique/equals alternate and selector authority are gone;
+typed Method(Some(receiver)) and the explicit early str-like route remain.
+Continue with a fresh finite SameModule producer audit. Do not infer a new
+Global issuer, reopen parity by guesswork, or mix Method(None), Resolved,
+Call-schema, VM/backend, package/loan, fallback, retry, or guard cleanup.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -23,9 +24,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The bounded policy-retirement row removes the remaining optional rewrite/known/equals alternate and selector authority while preserving typed Method(Some) and early str-like behavior. No Global issuer or old ON/OFF parity claim is introduced."
+latest_card_summary = "The bounded optional rewrite/known/equals retirement landed at 7a6fb9e2db: old writers and selector authority are removed, while typed Method(Some) and early str-like remain. The SameModule parent is back at design_stop for a fresh finite producer audit; no Global issuer or parity claim was introduced."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-POLICY-RETIRE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -37,7 +38,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-30: caller-zero Resolved corridor retired at 598530d23b; RawRootMain ordinary direct injection now reaches RawRootMainRetired before effects, while the Resolved variant/consumer and exclusive generic resolver/recovery/name-Const/tail-env owners were physically deleted (210 insertions, 687 deletions). The Method corridor is Exhausted.",
 	"2026-08-30: ordinary-static target-only I0 landed at 3e7f4a1d7f; exact source/site targets without result handoffs now remain TargetOnly and are consumed once, while NoExactStaticTarget is distinct and never falls through compatibility fallback. Ordinary-new exact constructor I0 also landed at d81d91d800 with parser ConstructorSourceIdV1, typed Birth(N)/NoBirthZero, shared checked N/N+1 ABI, and pre-argument recipe consumption; birth-text/AST-scan/class-arity reconstruction is gone for its selected-normal direct-local cohort.",
 	"2026-08-30: Builder operator-call retirement I0 landed at 44555655ab; the three legacy selectors now fail-fast at five compiler ingresses when truthy/malformed/non-Unicode, unset/false stays direct MIR, and the four compiler publishers plus Builder-selector prelude/script coupling are retired. Runtime-only NYASH_OPERATOR_BOX_* remains separate.",
+	"2026-08-30: optional Known/Unique/equals instance-to-Global rewrite retirement landed at 7a6fb9e2db; the alternate writers and selector authority were removed while typed Method(Some(receiver)) and the explicit early str-like route remain. No Global issuer or parity claim was introduced.",
 ]
