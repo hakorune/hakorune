@@ -76,12 +76,17 @@ caller-zero Print retirements remain recorded in the manifest, while the
 dedicated `ASTNode::Print -> builtin_print()` owner stays unchanged.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
-ordinary-new is no longer an unexplained carrier dead-end. Its bounded exact
-constructor cutover landed at `d81d91d800`: the parser constructor product,
-package recipe, shared ABI, and selected-normal consumer now replace
-birth-text/AST-scan/class-arity reconstruction. No-claim compatibility and
-every other SameModule family remain closed. The parent finite producer census
-is the next design stop. The user selected retirement for only the legacy
+the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
+the two production callers and one test helper are reconciled, but no exact
+same-session `main/0` Callee issuer exists. Ordinary-new is no longer an
+unexplained carrier dead-end. Its bounded exact constructor cutover landed at
+`d81d91d800`: the parser constructor product, package recipe, shared ABI, and
+selected-normal consumer now replace birth-text/AST-scan/class-arity
+reconstruction. No-claim compatibility and every other SameModule family
+remain closed. The cataloged-provider audit also leaves bare `error`, `now`,
+`panic`, and `exit` as `NoIssuer` until an explicit language/provider decision;
+qualified Extern, Math, and GC owners stay separate. The parent finite producer
+census is the next design stop. The user selected retirement for only the legacy
 `NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
 audits closed the boundary at three compiler ingresses, four target publishers,
 six structural source ingresses, one prelude coupling, and finite repo-owned
@@ -116,7 +121,11 @@ A fresh read-only registry census on 2026-08-30 found no additional
 `SupersededDelete` candidate (117 registered rows and 2646 unregistered
 surfaces). Unregistered, pilot-only, and compatibility-navigation surfaces
 remain `Keep`/`unknown_retain` until an owner, successor, and reopen trigger
-are proven; no new guard-retirement row is opened.
+are proven; no new guard-retirement row is opened. The parked follow-up is
+deliberately small: when a guard family is next touched, record its finite
+entry/profile/consumer boundary; only a proven `SupersededDelete` may remove
+its guard, test, and index claim together, with focused proof and a reopen
+trigger.
 
 Preflight found that the inherited 786-line type-fact composite guard is
 pilot-only and already red before operator work. Its 15 independent checks

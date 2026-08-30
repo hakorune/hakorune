@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "b640b5d855"
+observed_commit = "1ba49eb4fd"
 observed_at = "2026-08-30"
 implementation_permission = false
 
@@ -717,26 +717,35 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has two production-live to-dst writers and two caller-zero no-dst chains. Its current generated Global path has no exact source/site/brand issuer, but the incoming typed Method(Some(receiver)) is an existing canonical successor; parity evidence is non-fatal and must be strengthened before I0. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. Bare error/now has no language/provider Decision."
+worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. The physical-thunk audit is now closed as RelationPresentIssuerMissing/ParkedSealed, and the bare provider audit leaves error/now/panic/exit in NoIssuer until a language/provider decision; neither family has an implementation row."
 ordered_tasks = [
-  "I0: exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
+  "I0 (landed at e5120589dc): exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1-D0: ordinary static terminal — reconcile the generic/scalar/inline/lowered-global Instance callers; exact Cataloged handoff is already closed, but no generic issuer or safe pre-effect terminal is authorized",
   "I2-D0 (ParkedSealed under M10b): generic CorePlan — keep the six GlobalCall writers and legacy registry V0/V1 route unchanged in the Call lane; reopen only at portable Loop M8/M9/precutover deletion-manifest readiness or an exact earlier source-target co-seal",
   "I3 (landed at 44555655ab): arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, reject retired selectors at all compiler ingress methods, and atomically remove env/name target issuance before operand or Const effects",
-  "I4-D0: physical thunk issuer closure — confirm an existing same-session main/0 issuer or choose typed pre-effect retirement/ParkedSealed; no implementation yet",
+  "I4-D0 (ParkedSealed): physical thunk issuer closure — the finite two-caller audit found RelationPresentIssuerMissing; reopen only with an existing same-session main/0 issuer or an accepted typed pre-effect retirement contract",
   "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
-  "I5-D0: rewrite/known — accept the existing Method(Some) retirement successor and close a finite ON/OFF result/fault/backend parity matrix for the four writers, selector wrappers, equals delegation, and unified ingress before any I0",
-  "I6: ordinary new birth — keep construction authority separate from SameModule call publication",
-  "I7-D0: cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; do not open a provider-wide implementation row",
+  "I5 (landed at 7a6fb9e2db): rewrite/known policy retirement — remove the optional Known/Unique/equals instance-to-Global writers and selector authority while retaining typed Method(Some) and the early str-like route; historical parity is evidence only",
+  "I6 (landed at d81d91d800): ordinary new birth — keep construction authority separate from SameModule call publication; no-claim compatibility remains parked",
+  "I7-D0 (landed): cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; do not open a provider-wide implementation row",
+  "I7-D0b (design stop): bare error/now/panic/exit have no exact issuer; obtain one explicit language/provider decision before any named I0, otherwise keep NoIssuer/ParkedSealed",
   "I7-I0: one named provider cohort only after its exact issuer or typed pre-effect retirement is closed; name+arity synthesis is not authority",
   "C0: rerun two-direction producer census; close only when open/reopened blockers are zero and the test-only row remains ParkedSealed",
 ]
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, and OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab. Physical thunk, selected-exact CorePlan, ordinary-new, and Generic CorePlan GlobalCall are ParkedSealed under their named successor/reopen contracts. The next bounded design proof is rewrite/known: accept Method(Some) as the existing successor and close its finite ON/OFF result/fault/backend parity matrix before an atomic writer retirement I0. The independent R6 audit remains No-Go until unified-off/emit_legacy_call alternate routes and every func/None consumer are caller-zero; no new Call-schema or guard-deletion row is opened here."
+smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab, and the user-selected rewrite/known policy retirement is closed at 7a6fb9e2db. Physical thunk is RelationPresentIssuerMissing/ParkedSealed with no exact main/0 issuer; selected-exact CorePlan is caller-zero ParkedSealed; generic CorePlan remains owned by Loop M10b; ordinary-new is landed with no-claim compatibility separate; and bare error/now/panic/exit remain NoIssuer until a language/provider decision. The next bounded row must be selected only from a named exact issuer or an explicitly approved typed pre-effect retirement. The independent R6 audit remains No-Go until unified-off/emit_legacy_call alternate routes and every func/None consumer are caller-zero; no new Call-schema or guard-deletion row is opened here."
 call_schema_dependency = "R6 remains a later atomic schema row: first close unified-off and emit_legacy_call alternate routes, typed-writer normalization, constructor/closure Call producers, JoinIR func authority, and Callee-only consumers; then delete Call.func, make callee mandatory, and remove Call-specific INVALID. R6 issues no target and cannot unblock a SameModule family lacking an exact issuer."
 guard_cleanup_dependency = "The 2026-08-30 guard census found no additional SupersededDelete candidate beyond the already-landed stale type-fact overlay removal. Keep/rehome/park all other guards until finite invocation/profile coverage, caller-zero or an equal successor, focused proof, and a reopen trigger are recorded."
+guard_cleanup_status = "ParkedSealed__no_current_deletion_candidate"
+guard_cleanup_inventory = "117 registered rows and 2646 unregistered surfaces were sampled; the only proven SupersededDelete was the stale type-fact whole-writer overlay already removed. Pilot-only, unregistered, compatibility-navigation, and red-only guards are not deletion authority."
+guard_cleanup_task = [
+  "G-D0: when a guard family is next touched, record its finite entry/profile/consumer boundary and classify each row Keep, Rehome, SupersededDelete, or ParkedSealed",
+  "G-S0: for SupersededDelete only, prove caller-zero or an equal/stronger successor, remove the guard/test/index claim together, and add an observable reopen trigger",
+  "G-C0: run the surviving guard through its declared profile and a focused positive/negative proof; a named path alone is not evidence",
+  "Do not open a standalone guard-retirement row until G-D0 yields at least one proven SupersededDelete; otherwise keep this task parked and continue the selected compiler row",
+]
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "exact_static_receipt"
@@ -1889,6 +1898,53 @@ caller_present_route = "prepare_ordinary_function_completion_v1 -> prepare_catal
 reconciled_result = "The finite provider names are separated: print has an existing builtin issuer; abs/min/max/sin/cos leave through the Math owner; explicit env/nyash/system names remain Extern; error/now/panic/exit have no bare issuer; gc_collect/gc_stats are the only caller-present cohort whose existing caller-less retirement policy can be extended without a new authority."
 next_implementation = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
 
+[same_module_cataloged_provider_bare_no_issuer_d0_2026_08_30]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
+ceremony_tier = "T0"
+box_kind = "BoxCount finite bare-provider authority audit"
+implementation_permission = false
+decision = "Keep the remaining bare provider names in design_stop. The Cataloged ingress may not turn name plus arity into a SameModule FreeFunction. Until a language/provider contract names an exact issuer, error/now/panic/exit are NoIssuer; no implementation or new semantic receipt is opened."
+source_authority = "An existing named builtin, qualified Extern provider, Math owner, or exact same-brand callable/source relation. The parser emits only a generic identifier FunctionCall for these names and therefore does not issue a bare provider product."
+canonical_issuer = "None for bare error/now/panic/exit at HEAD 1ba49eb4fd. Qualified env/nyash/system Externs, Math special handlers, and the existing caller-less/caller-present GC retirement are separate owners and may not be reused by name."
+non_authority = [
+  "CallNameCalleeClassV1::BuiltinGlobal",
+  "name/arity and CanonicalGlobalTargetV1::new_free_function",
+  "CalleeResolverBox, catalog existence-only lookup, generated symbol, registry, EffectsAnalyzer, VM/backend, fixture, fallback, and retry",
+]
+fail_fast_boundary = "After TypeOp/Math/FastMem precedence and before prepare_cataloged_target_v1, resolver or argument descent, Const/ValueId, effects, block/Call publication, and any fallback. A selected name with no exact issuer must enter one named typed pre-effect terminal."
+census_boundary = "Installed non-brand Cataloged raw FunctionCall -> provider-name classification -> first target/typed-terminal; includes bare error/now/panic/exit, exact arity observations, the two Cataloged caller families, and Math/Extern/ordinary exclusions; excludes qualified Extern, Math special ingress, GC retirement already landed, RawCompatibility, wire/JSON, VM/backend, and Call schema."
+finite_inventory = [
+  "bare error: src/mir/builder/calls/function_call_preflight_route.rs -> prepare_cataloged_target_v1; no bare provider issuer found",
+  "bare now: src/mir/builder/calls/function_call_preflight_route.rs -> prepare_cataloged_target_v1; exact provider is qualified env.now_ms, not bare now",
+  "bare panic: same Cataloged synthesis; extern provider has no bare panic issuer",
+  "bare exit: same Cataloged synthesis; qualified env.process.exit is separate and bare exit has no issuer",
+  "production Cataloged caller families: nonmain_static_box_method_batch.rs and instance_box_method_batch.rs",
+  "excluded owners: special_handlers.rs Math route, qualified Extern declarations, and landed GC pre-effect retirement",
+]
+finite_states = [
+  "NoIssuer: error/now/panic/exit have no exact bare issuer; remain CutoverBlockerOpen until a language/provider decision",
+  "QualifiedExternOwned: env/nyash/system names retain their existing qualified provider owner",
+  "MathOwned: abs/min/max/sin/cos retain the existing Math owner and are outside this row",
+  "Ordinary: all other identifiers retain ordinary declaration handling and are not provider evidence",
+  "WrongArity: only after a bare issuer contract exists may wrong arity be a typed reject; do not invent one now",
+]
+ordered_tasks = [
+  "D0-A: reconcile the four bare names, arity observations, two production Cataloged caller families, and the first target/terminal in both directions",
+  "D0-B: record NoIssuer for all four and keep qualified Extern/Math/ordinary/GC exclusions explicit; do not infer caller-zero from missing fixtures",
+  "D0-C: obtain an explicit language/provider decision for one name, or keep the name ParkedSealed with its reopen trigger",
+  "I0: only after that decision, retire one named synthesis edge to a typed pre-effect terminal or connect one exact existing provider issuer; no provider-wide implementation",
+  "C0: rerun this finite bare-name census and return to the SameModule parent without claiming provider-wide closure",
+]
+acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; each name has exactly one NoIssuer/qualified-owner state; no name/arity synthesis is elevated; and implementation remains closed until one language/provider contract or exact issuer is named."
+no_safe_slice = "Remain in design_stop if a bare runtime provider must be invented, public language behavior is undecided, panic/exit /1 Extern semantics are not contract-backed, or the only route is resolver/name/symbol/registry/VM fallback."
+non_claims = "No error/now/panic/exit behavior change, no new provider/Extern issuer, no Math/GC change, no ordinary-static/physical-thunk/CorePlan/rewrite/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
+evidence = "Read-only audit at HEAD 1ba49eb4fd found the four bare names still synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. Parser treats them as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products. The existing Cataloged GC retirement is the only compatible caller-present pre-effect policy."
+reopen_trigger = "An explicit language/provider decision names one bare contract, or an existing same-session exact issuer for that bare name is found; otherwise keep NoIssuer/ParkedSealed and do not create a resolver or receipt."
+next_execution = "parked_no_bare_issuer__select_one_named_provider_decision_or_return_to_parent_d0"
+
 [same_module_cataloged_gc_retire_i0_2026_08_30]
 status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-GC-RETIRE-I0"
@@ -1995,7 +2051,7 @@ ordered_tasks = [
 acceptance = "The two production callers and one test helper are two-directionally reconciled; the existing relation, missing issuer, and physical terminal are separately named; no symbol/name/arity synthesis is accepted; and the child is ParkedSealed with an observable issuer-or-retirement reopen trigger."
 no_safe_slice = "Remain in design_stop if main/0 requires a new semantic issuer without an existing source-backed product, if the relation cannot be verified in the same session, if target identity still needs symbol/name/arity/header inference, or if the change crosses package/loan, VM/backend, Call schema, or the 760/800-line boundary."
 non_claims = "No physical thunk implementation, no ordinary Call cutover, no Method(Some)/Method(None) change, no CorePlan/operator/rewrite/provider/new-birth work, no package/loan, no VM/backend/JSON, and no Call-schema change."
-evidence = "At HEAD ce24ad5e1346, both production callers and the single test helper reconcile to physical_thunk.rs:80-90. VerifiedNormalMainPhysicalRelationV1 seals source owner/completion/physical entry, but CallableIndex excludes main from FreeStatic and CanonicalNormalMainEntryTargetV1 carries physical-entry identity only; no exact same-session Callee issuer exists."
+evidence = "Read-only audit at HEAD 1ba49eb4fd confirms that both production callers and the single test helper reconcile to physical_thunk.rs:80-90. VerifiedNormalMainPhysicalRelationV1 seals source owner/completion/physical entry, but CallableIndex excludes main from FreeStatic and CanonicalNormalMainEntryTargetV1 carries physical-entry identity only; no exact same-session Callee issuer exists."
 reopen_trigger = "A same-session source-backed main/0 Callee product/issuer is introduced by an accepted language/product decision, or the physical-thunk route receives an explicit typed retirement/replacement contract."
 next_execution = "parked_no_issuer__next_selected_exact_coreplan_reachability_d0"
 
