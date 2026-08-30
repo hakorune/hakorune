@@ -2540,6 +2540,66 @@ evidence = "Implementation landed at d81d91d800. Parser constructor relations no
 red_classification = "No new red result. Workspace-wide cargo fmt -- --check still reports pre-existing unrelated formatting debt in src/runner/core_executor.rs; targeted rustfmt was applied to every changed Rust file."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[same_module_dead_text_callshape_s0_2026_08_30]
+status = "accepted_fast_open"
+task_id = "MIR-CALL-GLOBAL-TARGET-DEAD-TEXT-CALLSHAPE-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-neutral owner split"
+implementation_permission = true
+decision = "Move only the private match_dead_text_len_call matcher out of the 790-line dead-text region-plan owner into a small sibling module. Preserve the existing module path, public API, MIR metadata, and matching behavior; this row adds no semantic shape and issues no target."
+source_authority = "Existing MirInstruction/Callee shapes and the existing StringDeadTextRegionPlan refresh path; the split introduces no new authority."
+canonical_issuer = "Existing StringDeadTextRegionPlan refresh functions remain the sole plan producer."
+non_authority = [
+  "names, symbols, arity inference, resolver/registry lookup, generated targets, env, fixtures, fallback, retry, rewrite/known parity, Call schema, VM/backend",
+]
+fail_fast_boundary = "The finite split must preserve the parent module path and API, keep every existing caller on the same matcher, keep all touched Rust sources below 760 lines (800 hard stop), and stop on any behavior, metadata, or caller drift."
+census_boundary = "match_dead_text_len_call definition -> its four existing dead-text plan callers -> src/mir/mod.rs module declaration; includes Method/Extern/Global length shapes and the existing refresh test, excludes rewrite/known semantics, Call schema, backend, and guard retirement."
+finite_inventory = [
+  "matcher: src/mir/string_dead_text_region_plan.rs::match_dead_text_len_call",
+  "callers: const_len, is_len_value_for_source, match_exit_return, text_content_observed_after_loop",
+  "module owner: src/mir/mod.rs::string_dead_text_region_plan",
+  "existing proof: src/mir/string_dead_text_region_plan.rs::refresh_function_detects_substring_concat_dead_text_region",
+]
+finite_states = [
+  "SplitStable: sibling matcher is private crate-internal, all callers are rewired, and behavior/API/metadata are unchanged",
+  "DriftDetected: any caller, shape, public surface, or metadata result changes; stop before closeout",
+  "BudgetExceeded: a touched/new Rust source reaches 760 lines or more; return to design_stop",
+]
+ordered_tasks = [
+  "S0-A: record the finite matcher/caller census and preserve the parent rewrite/known parity stop",
+  "S0-B: add src/mir/string_dead_text_call_shape.rs and move the matcher without semantic edits",
+  "S0-C: rewire the four callers and the internal module declaration while preserving the public region-plan module",
+  "S0-D: run targeted plan tests, quick library check, line-budget and diff checks, then close out to the parent design stop",
+]
+acceptance = "The parent dead-text owner is below 760 lines, the new sibling is below 760 lines, all four callers resolve through the sibling matcher, public module paths and MIR metadata are unchanged, the existing focused plan test and quick library check pass, and no rewrite/known or guard-retirement claim is made."
+no_safe_slice = "Return to design_stop if any caller exists outside the finite inventory, the matcher needs a public API or new semantic authority, behavior/metadata changes, a new resolver/target is needed, or the 760/800 source budget is crossed."
+non_claims = "No rewrite/known parity closure or writer retirement, no Method/Call schema change, no Global issuer, no package/loan, no VM/backend/JSON change, and no legacy guard deletion."
+allowed_files = [
+  "src/mir/string_dead_text_region_plan.rs",
+  "src/mir/string_dead_text_call_shape.rs",
+  "src/mir/mod.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/rewrite/known.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/calls/build.rs",
+  "Call schema",
+  "VM/backend/JSON",
+  "guard registry/deletion",
+]
+focused_test_filters = ["string_dead_text_region_plan"]
+changed_test_names = []
+implementation_commit = "pending"
+focused_test_runs = []
+guard_runs = []
+evidence = "Fast row selected after a read-only audit confirmed the existing private matcher has one finite definition and four local callers, while the parent rewrite/known parity blocker remains unchanged. Legacy guard census found no additional SupersededDelete candidate; guard cleanup stays parked."
+red_classification = "No implementation evidence yet; any pre-existing unrelated workspace red remains outside this bounded row."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
 [same_module_rewrite_known_caller_zero_prune_s0_2026_08_30]
 status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0"
