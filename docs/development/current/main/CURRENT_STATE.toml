@@ -12,8 +12,11 @@ old edge removed. True DeclaredInstance me.method still lacks the complete
 source/catalog/receiver/ABI co-seal and is the next design-only row. Do not mix
 Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard
 cleanup. The next child D0 must locate one existing exact
-source/catalog/receiver/ABI issuer or remain NoSafeSlice; do not infer a target
-from header/name/registry.
+source/catalog/receiver/ABI issuer or remain NoSafeSlice; the follow-up audit
+found no reusable generic issuer. Before any semantic addition, perform only a
+path-preserving BoxShape split around the 648-line package issuer and its
+near-limit loan/recursive modules, then name the single co-seal owner; do not
+infer a target from header/name/registry or create a parallel family pipeline.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -46,7 +49,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "StaticCurrentOwner me.method I0 landed at 2b7b3e7489: the existing exact caller/site/catalog publication owner is taken before header/argument effects, direct Global(StaticBoxMethod) carries N source arguments, and the selected old edge is removed. The next active child remains DeclaredInstance D0. Separately, panic(String) -> Never is accepted as a noncatchable terminal-Fault target and ParkedSealed until its common exit/MIR/runtime chain exists."
+latest_card_summary = "StaticCurrentOwner me.method I0 landed at 2b7b3e7489: the existing exact caller/site/catalog publication owner is taken before header/argument effects, direct Global(StaticBoxMethod) carries N source arguments, and the selected old edge is removed. The next active child remains DeclaredInstance D0. A follow-up read-only audit found no reusable generic source/catalog/receiver/ABI issuer, so the only allowed next work is a path-preserving BoxShape split and explicit co-seal-owner decision; implementation remains closed. Separately, panic(String) -> Never is accepted as a noncatchable terminal-Fault target and ParkedSealed until its common exit/MIR/runtime chain exists."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
