@@ -1957,13 +1957,13 @@ worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact 
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_builder_boxshape_normal_callable_source_test_extraction_s0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape behavior-preserving test-only extraction"
-implementation_permission = true
+implementation_permission = false
 decision = "Move only the existing cfg(test) tests from normal_callable_semantic_source.rs into a private sibling. Preserve the normal_callable_semantic_source::tests module path, private access, production semantic owner, signatures, visibility, re-exports, guard anchors, runtime behavior, and all test bodies. This row exists only to keep the parent source below the 760/800 line budget before any future semantic work."
 source_authority = "Existing normal_callable_semantic_source.rs module ownership, its production definitions, and the current inline tests. Test placement is not semantic authority."
 canonical_issuer = "None. No semantic target, receiver, ABI, effect, loan, receipt, or production switch is created."
@@ -2009,9 +2009,34 @@ forbidden_files = [
   "guard registry or guard deletion",
 ]
 focused_test_filters = ["normal_callable_semantic_source::tests"]
-changed_test_names = []
+changed_test_names = [
+  "mir::builder::normal_callable_semantic_source::tests::callable_entry_local_variable_and_rebind_materialization_keeps_parity",
+  "mir::builder::normal_callable_semantic_source::tests::mixed_callable_batch_seals_and_reacquires_exact_program_sites",
+  "mir::builder::normal_callable_semantic_source::tests::callable_loop_handoff_issues_exact_resolver_sites_before_lowering",
+  "mir::builder::normal_callable_semantic_source::tests::function_call_defers_before_unresolved_argument_child",
+  "mir::builder::normal_callable_semantic_source::tests::selected_direct_call_observation_is_a_typed_package_terminal",
+  "mir::builder::normal_callable_semantic_source::tests::main_methods_are_absent_from_callable_semantic_batch",
+  "mir::builder::normal_callable_semantic_source::tests::nonplain_instance_blocker_defers_the_whole_mixed_batch_before_resolution",
+  "mir::builder::normal_callable_semantic_source::tests::nonplain_blocker_is_script_only_and_app_remains_complete_eligible",
+  "mir::builder::normal_callable_semantic_source::tests::mixed_nonplain_batch_keeps_selected_and_legacy_lowering_in_parity",
+  "mir::builder::normal_callable_semantic_source::tests::callable_parameter_and_local_bodies_do_not_borrow_the_script_ledger",
+]
+implementation_commit = "c1a715eb97"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib normal_callable_semantic_source::tests -- --test-threads=1: 7 passed, 3 known baseline failures; parent 97e62bd7a3 reproduces the same 3 failures",
+  "target/quick/deps/nyash_rust-bef87a5262fef8ae normal_callable_semantic_source::tests --list: 10 matching tests, 0 benchmarks",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass (existing warnings only)",
+  "rustfmt --edition 2021 src/mir/builder/normal_callable_semantic_source.rs src/mir/builder/normal_callable_semantic_source_tests.rs: pass",
+  "line budget: parent 367 lines, sibling 351 lines; both below 760 and 800 hard stop",
+]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass before closeout",
+  "git diff --check: pass before closeout",
+]
+evidence = "Implementation landed at c1a715eb97. The existing production owner remains in src/mir/builder/normal_callable_semantic_source.rs (367 lines); its cfg(test) body moved to the private sibling src/mir/builder/normal_callable_semantic_source_tests.rs (351 lines), with #[cfg(test)] #[path = ...] mod tests preserving the historical normal_callable_semantic_source::tests path and private access. The exact focused filter executed all 10 tests: 7 passed, while 3 existing runtime-box-fate-retired failures reproduced identically on parent 97e62bd7a3, so they are baseline debt, not a split regression. Quick library check, rustfmt, pointer guard, and diff check passed. No semantic, production, guard, panic/throw, VM/backend, fallback, or retry change was made."
+red_classification = "Known baseline red only: callable_entry_local_variable_and_rebind_materialization_keeps_parity, callable_parameter_and_local_bodies_do_not_borrow_the_script_ledger, and mixed_nonplain_batch_keeps_selected_and_legacy_lowering_in_parity all fail with the pre-existing raw-compat/runtime-box-fate-retired terminal on both c1a715eb97 and parent 97e62bd7a3. No current-change red is attributed to this BoxShape extraction."
 guard = "Use current_state_pointer_guard, cargo --list exact-path coverage, line-budget and parent-token checks, rustfmt, quick library check, and git diff --check. Do not add a row-specific shell guard or alter existing semantic guards."
-closeout = "Record the implementation and focused evidence, set status=landed and implementation_permission=false, restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0, and set next_execution_card=none."
+closeout = "Implementation and evidence are recorded; status=landed and implementation_permission=false. Restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and set next_execution_card=none."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_call_boxshape_preflight_tail_test_extraction_s0_2026_08_31]

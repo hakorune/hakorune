@@ -1,19 +1,23 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0:
-Move only the existing #[cfg(test)] tests from
-src/mir/builder/normal_callable_semantic_source.rs into a private sibling while
-preserving the normal_callable_semantic_source::tests module path. This is a
-BoxShape-only fast row: no semantic issuer, target, receiver, ABI, loan, Call,
-panic, VM/backend, fallback, retry, or guard-registry change. Keep the parent
-and sibling below 760 lines (800 is a hard stop), preserve private access and
-all existing behavior, then return to the DeclaredInstance design stop. If a
-path, visibility, guard anchor, test filter, or behavior changes, stop before
-closeout and restore design_stop.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+StaticCurrentOwner me.method I0 landed at 2b7b3e7489 with the existing exact
+source/site/catalog handoff taken before legacy header observation and argument
+effects, direct Global(StaticBoxMethod) with N source arguments, and the selected
+old edge removed. True DeclaredInstance me.method still lacks the complete
+source/catalog/receiver/ABI co-seal and is the next design-only row. Do not mix
+Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard
+cleanup. The next child D0 must locate one existing exact
+source/catalog/receiver/ABI issuer or remain NoSafeSlice; read-only audits found
+no reusable generic issuer. Before semantic addition, define one private package-
+side co-seal assembler for the missing source-site-to-InstanceBoxMethod relation.
+It may borrow existing result/effect/ABI products but may not infer a target from
+header/name/registry, copy body facts, or create a parallel family pipeline.
+Implementation remains closed until those relation owners are named.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -46,9 +50,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0 is the selected fast row: move only the existing test module into a private sibling, preserve normal_callable_semantic_source::tests and production behavior, keep both files below 760/800 lines, then return to the DeclaredInstance/source-site co-seal design stop. No semantic issuer, target, loan, Call, panic, VM/backend, fallback, retry, or guard cleanup is in scope."
+latest_card_summary = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0 landed at c1a715eb97 as a behavior-preserving move of the existing test module into a private sibling; the historical normal_callable_semantic_source::tests path and production owner remain intact, with parent 367 lines and sibling 351 lines. The focused row had 7 passing tests and 3 pre-existing raw-compat/runtime-box-fate-retired baseline failures reproduced on the parent commit. The DeclaredInstance/source-site co-seal design stop is active again; no semantic issuer, target, loan, Call, panic, VM/backend, fallback, retry, or guard cleanup is permitted until the missing relation owners are named."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -61,6 +65,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 with terminal-type and guard-ordering corrections at 7c834d021a; StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static now stop before argument effects, while exact Cataloged/scalar/inline/Math/Extern/Method(Some)/Instance owners remain unchanged.",
-  "2026-08-30: StaticCurrentOwner me.method handoff landed at 2b7b3e7489; the exact source/site/catalog target is consumed before header/argument effects and emitted as Global(StaticBoxMethod) with N source arguments. True DeclaredInstance remains a separate NoSafeSlice design row.",
+  "2026-08-30: StaticCurrentOwner me.method handoff landed at 2b7b3e7489; the exact source/site/catalog target is consumed before header/argument effects and emitted as Global(StaticBoxMethod) with N source arguments. True DeclaredInstance remains a separate NoSafeSlice design row. 2026-08-31: MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0 landed at c1a715eb97; the production owner remains 367 lines and the private test sibling is 351 lines, with the historical normal_callable_semantic_source::tests path preserved. Focused execution ran 10 tests (7 pass, 3 identical parent-baseline raw-compat/runtime-box-fate-retired reds); no semantic or production route changed.",
 	"2026-08-30: LANG-PANIC-TERMINAL-FAULT-D0 accepted panic(String) as an ordinary-call-shaped, reserved, noncatchable terminal Fault target. Production remains zero and ParkedSealed behind the common exit transaction, generic Fault terminal, and selected runtime ABI; legacy Throw/Catch retirement is separate.",
 ]
