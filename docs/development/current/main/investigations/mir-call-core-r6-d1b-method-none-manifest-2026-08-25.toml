@@ -1956,6 +1956,81 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_call_boxshape_preflight_tail_test_extraction_s0_2026_08_31]
+status = "landed"
+task_id = "MIR-CALL-BOXSHAPE-PREFLIGHT-TAIL-TEST-EXTRACTION-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-preserving test-only extraction"
+implementation_permission = false
+decision = "Move only the test-only explicit_source_identity_tests module from function_call_preflight_route.rs into a private sibling test file declared by the same parent. Preserve production routing, module path, visibility, re-exports, guard anchors, test behavior, and diagnostics. The existing function_call_preflight_route_tests.rs is already at the 760-line boundary, so it remains unchanged; the sibling keeps both touched owners below the 760/800 budget."
+source_authority = "Existing Rust module/test ownership and the current PreparedRawExplicitExternCallV1 behavior; test placement is not semantic authority."
+canonical_issuer = "None. No target, receiver, ABI, effect, loan, or semantic receipt is added."
+non_authority = [
+  "test location, line count, test output, names, fixtures, header/symbol/registry lookup, resolver, fallback, retry, panic, Method, Call schema, VM/backend",
+]
+fail_fast_boundary = "Before closeout, the production function_call_preflight_route.rs body and all public/module surfaces must be unchanged; the moved test must compile from a private sibling declared by the same parent and keep its historical module path; either touched Rust source at 760 lines or more, any guard-anchor drift, or any behavior change is a stop."
+census_boundary = "The inline #[cfg(test)] explicit_source_identity_tests block at the tail of function_call_preflight_route.rs -> a private sibling file declared by the same parent; excludes replay_function_call_trace, the existing function_call_preflight_route_tests.rs body, every production route/helper, semantic issuer work, and all backend/runtime lanes."
+finite_inventory = [
+  "inline test module: src/mir/builder/calls/function_call_preflight_route.rs::explicit_source_identity_tests",
+  "destination test module: src/mir/builder/calls/function_call_preflight_source_identity_tests.rs",
+  "parent declaration: src/mir/builder/calls/function_call_preflight_route.rs::explicit_source_identity_tests",
+  "unchanged sibling suite: src/mir/builder/calls/function_call_preflight_route_tests.rs",
+  "existing module/re-export surface: src/mir/builder/calls/mod.rs",
+]
+finite_states = [
+  "SplitStable: test compiles and runs from the child module; production parent behavior and surface are unchanged",
+  "AnchorDrift: a production guard or module path observes a changed parent token; return to design_stop",
+  "BehaviorDrift: test or production behavior changes; no closeout",
+  "BudgetExceeded: either touched Rust source reaches 760 lines or 800 hard stop; no compression workaround",
+]
+ordered_tasks = [
+  "S0-A: record the one inline test module and existing child test owner; keep replay_function_call_trace in the production parent",
+  "S0-B: remove only the inline test module, add the same three-line private sibling declaration, and move the test body to function_call_preflight_source_identity_tests.rs using ancestor-private access",
+  "S0-C: run rustfmt check, the moved exact test by its historical module path, quick library check, line-budget and diff checks; do not change production route code",
+  "S0-D: close out to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design_stop with no semantic claim",
+]
+acceptance = "function_call_preflight_route.rs, function_call_preflight_route_tests.rs, and the new sibling test file are each below 760 lines, explicit_source_identity_tests keeps its historical module/test path and runs with the same two assertions, production module paths/visibility/re-exports/guard anchors and behavior are unchanged, and no semantic or legacy-retirement scope is opened."
+no_safe_slice = "Return to design_stop if the test needs a production API change, a new module/re-export, a changed guard token, a second scan, any semantic edit, or either source reaches 760/800 lines."
+non_claims = "No DeclaredInstance co-seal, Method(Some)/Method(None) cutover, direct-call issuer/loan, Resolved/Call-schema retirement, panic/throw/exit change, VM/backend/JSON change, or guard deletion/new registry row."
+worker_audit_head = "current HEAD ae41e70e83"
+worker_audit_result = "A read-only audit found broad production splits unsafe because existing guards anchor parent files. The only conditional GO was this test-only tail extraction; replay_function_call_trace and all production helpers remain in the parent. A follow-up audit rejected the existing test-file destination at 760 lines and approved a private sibling while preserving the historical module path."
+allowed_files = [
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+  "src/mir/builder/calls/function_call_preflight_source_identity_tests.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/method_call_terminal.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/normal_callable_semantic_package/declared_instance_call.rs",
+  "tools/checks/guard_rows.toml",
+  "VM/backend/JSON/Call schema",
+]
+focused_test_filters = ["exact_resolver_symbol_is_required_before_argument_lowering"]
+changed_test_names = ["explicit_source_identity_tests::exact_resolver_symbol_is_required_before_argument_lowering"]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+]
+focused_test_runs = [
+  "rustfmt --edition 2021 --check src/mir/builder/calls/function_call_preflight_route.rs src/mir/builder/calls/function_call_preflight_route_tests.rs src/mir/builder/calls/function_call_preflight_source_identity_tests.rs: pass",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib mir::builder::calls::function_call_preflight_route::explicit_source_identity_tests::exact_resolver_symbol_is_required_before_argument_lowering -- --exact --test-threads=1: 1 passed; 0 failed; 7535 filtered out",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib -- --list | rg exact_resolver_symbol_is_required_before_argument_lowering: pass",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass; existing warnings only",
+  "line census: function_call_preflight_route.rs=742, function_call_preflight_route_tests.rs=740, function_call_preflight_source_identity_tests.rs=17: pass",
+]
+implementation_commit = "626c1fa5d6"
+evidence = "The inline test-only module moved to src/mir/builder/calls/function_call_preflight_source_identity_tests.rs, declared by the same production parent, preserving the historical module/test path. Production route logic and the existing 740-line test suite were unchanged; the parent is 742 lines and the new sibling is 17 lines. The exact test passed after a clean lib-test rebuild, cargo --list found the same path, quick library check passed, rustfmt passed, pointer guard passed, and diff check passed."
+red_classification = "No current-change red. The full workspace has existing warnings/debt; this BoxShape row did not alter production semantics and did not claim full cargo test/link."
+reopen_trigger = "Reopen only if the historical test path cannot compile, a guard begins requiring the old inline body, a production caller/module surface changes, or the parent/test/sibling source reaches 760/800 lines. Semantic DeclaredInstance remains owned by the parent design stop."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
 [same_module_cataloged_provider_bare_panic_contract_d0_2026_08_30]
 status = "accepted_target_parked_sealed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-PANIC-CONTRACT-D0"
