@@ -1028,6 +1028,14 @@ source is a typed freeze and is never promoted by this P0. The reusable
 `script_static_result_publication_ingress_guard.sh` pins the complete outcome
 table and the no-fallback boundary.
 
+For the bounded StaticCurrentOwner `me.method` route, this ingress runs before
+the legacy `me` header classifier. A static-box caller therefore projects the
+already-issued catalog key to `Global(StaticBoxMethod)` and lowers N source
+arguments with no receiver prefix. Declared instance `me.method` and other
+compatibility siblings remain `Unavailable` here and keep their own
+receiver-bearing owners; this row does not retire the language feature or the
+shared header terminal.
+
 ## ME-call arity fail-fast P0
 
 `method_call_handlers.rs` prepares the `me` route from the existing header

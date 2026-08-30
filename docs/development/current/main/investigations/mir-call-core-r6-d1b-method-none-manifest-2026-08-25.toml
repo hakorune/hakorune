@@ -1978,12 +1978,12 @@ progress_metrics = [
 non_claims = "No me.method feature retirement, no Method(None)/Resolved/Call-schema change, no provider/CorePlan/physical-thunk work, no nonselected VM/WASM feature expansion, and no guard deletion before successor-backed caller-zero."
 
 [same_module_static_current_owner_handoff_i0_2026_08_30]
-status = "accepted_next"
+status = "fast_open"
 task_id = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T1"
 box_kind = "BoxShape one production-edge replacement"
-implementation_permission = false
+implementation_permission = true
 decision = "For a StaticBoxMethod caller, canonical me.method has no runtime receiver. Consume the already-issued current-owner target before legacy header observation and arguments, then emit Global(StaticBoxMethod) with exactly N source arguments. OutsideStaticCurrentOwner is a named sibling and must continue unchanged."
 source_authority = "VerifiedSourceMethodCallSiteV1 with canonical ASTNode::Me, exact caller/site/catalog, and caller namespace StaticBoxMethod."
 canonical_issuer = "VerifiedSourceStaticCallTargetCatalogV1::extend_current_owner issues VerifiedCurrentOwnerStaticCallTargetV1; VerifiedWholeSourceStaticCallTargetInventoryV1 and VerifiedStaticCallResultPublicationOwnerV1 carry its CanonicalSameModuleCallableKeyV1 to the existing one-shot Builder ingress."
@@ -2038,17 +2038,18 @@ forbidden_files = [
   "VM/backend/JSON",
   "Call schema",
 ]
-coverage_base_commit = "5b6e6397a9"
+coverage_base_commit = "cd5c8719cd"
 planned_test_names = [
   "static_current_owner_target_is_taken_before_header_and_arguments",
   "static_current_owner_lowers_source_arguments_once_without_receiver_prefix",
   "static_current_owner_missing_target_rejects_before_arguments",
   "outside_static_current_owner_preserves_declared_instance_sibling",
   "static_current_owner_argument_failure_does_not_emit_retry_or_fallback",
+  "declared_instance_cataloged_source_stays_outside_static_ingress",
 ]
 planned_focused_test_filters = [
   "me_method_canonical_cutover_tests",
-  "current_owner_tests",
+  "static_result_publication_ingress",
 ]
 guard_plan = "Create one small dedicated cutover guard and dispatch it from the existing active-surface guard. It must prove target-take before arguments, one argument descent, direct typed Global emission, no generate_method_function_name/header observation/AST rescan/resolver/fallback/retry in the selected branch, the exact old-edge deletion set, cargo --list coverage for every changed test, and <760/<800 line limits. Do not grow the 754-line method-corridor guard."
 

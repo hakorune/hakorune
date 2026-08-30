@@ -199,29 +199,19 @@ impl MeCallPolicyBox {
     where
         Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
     {
-        let prepared = Self::prepare(builder, method, arguments, descent)?;
-        Self::validate_prepared_me_arity_before_descent(
-            &prepared,
-            method,
-            arguments.len(),
-            crate::config::env::builder_me_call_arity_strict(),
-        )?;
-        let publication_owner = match &prepared {
-            PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared }
-                if matches!(prepared.receiver(), PreparedMeReceiverV1::Static) =>
-            {
-                Some(owner.as_str())
-            }
-            PreparedMeCallExecutionV1::StaticFallback { owner } => Some(owner.as_str()),
-            _ => None,
-        };
-        if let Some(owner) = publication_owner {
+        // StaticCurrentOwner has a source-backed exact target.  Take that
+        // target before the legacy header observer or any argument effect.
+        // Math keeps its named compatibility owner until its own row closes.
+        let math_compatibility = current_enclosing_box_name(builder)
+            .as_deref()
+            .is_some_and(qualified_math_compatibility_owner);
+        if !math_compatibility {
             let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
             let decision = {
                 let port = descent.terminal_port();
                 port.take_static_result_publication_ingress_v1(
                     declarations,
-                    owner,
+                    "<source-owned>",
                     method,
                     arguments.len(),
                 )
@@ -229,12 +219,22 @@ impl MeCallPolicyBox {
             match decision {
                 Err(error) => return Err(error.to_string()),
                 Ok(StaticResultPublicationIngressV1::Selected(handoff)) => {
-                    return lower_selected_static_result_publication_v1(builder, descent, handoff)
-                        .map(Some)
+                    return lower_selected_static_result_publication_v1(
+                        builder,
+                        descent,
+                        handoff,
+                        arguments.len(),
+                    )
+                    .map(Some)
                 }
                 Ok(StaticResultPublicationIngressV1::TargetOnly(target)) => {
-                    return lower_target_only_static_result_publication_v1(builder, descent, target)
-                        .map(Some)
+                    return lower_target_only_static_result_publication_v1(
+                        builder,
+                        descent,
+                        target,
+                        arguments.len(),
+                    )
+                    .map(Some)
                 }
                 Ok(StaticResultPublicationIngressV1::NoExactStaticTarget) => {
                     return Err(
@@ -245,6 +245,14 @@ impl MeCallPolicyBox {
                 Ok(StaticResultPublicationIngressV1::Unavailable) => {}
             }
         }
+
+        let prepared = Self::prepare(builder, method, arguments, descent)?;
+        Self::validate_prepared_me_arity_before_descent(
+            &prepared,
+            method,
+            arguments.len(),
+            crate::config::env::builder_me_call_arity_strict(),
+        )?;
         Self::execute(builder, method, arguments, descent, prepared)
     }
 

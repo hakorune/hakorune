@@ -88,6 +88,8 @@ pub(in crate::mir::builder) use static_result_publication_physical_bridge::{
     lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
 };
 #[cfg(test)]
+mod me_method_canonical_cutover_tests;
+#[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
 mod method_call_descent_tests;

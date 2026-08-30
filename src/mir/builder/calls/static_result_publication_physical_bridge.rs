@@ -20,17 +20,25 @@ pub(in crate::mir::builder) fn lower_selected_static_result_publication_v1<Port>
     builder: &mut MirBuilder,
     descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     handoff: VerifiedStaticCallResultPublicationHandoffV1,
+    source_argument_count: usize,
 ) -> Result<ValueId, String>
 where
     Port: MethodCallDescentPortV1,
 {
+    let expected_arity = handoff.target().arity() as usize;
+    if source_argument_count != expected_arity {
+        return Err(format!(
+            "[freeze:contract][static-result-bridge/source-arity] expected {}, got {}",
+            expected_arity, source_argument_count
+        ));
+    }
     let (demand, _required_i64_arguments) = handoff.consume();
     let target_key = demand.target().clone();
     let target = target_key.canonical_global_target_v1().map_err(|error| {
         format!("[freeze:contract][static-result-bridge/target-projection] {error}")
     })?;
     let argument_values = descent.lower_all(builder)?;
-    if argument_values.len() != target_key.arity() as usize {
+    if argument_values.len() != expected_arity {
         return Err("[freeze:contract][static-result-bridge/physical-arity]".to_owned());
     }
     let emission =
@@ -48,11 +56,18 @@ pub(in crate::mir::builder) fn lower_target_only_static_result_publication_v1<Po
     builder: &mut MirBuilder,
     descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     target_key: CanonicalSameModuleCallableKeyV1,
+    source_argument_count: usize,
 ) -> Result<ValueId, String>
 where
     Port: MethodCallDescentPortV1,
 {
     let expected_arity = target_key.arity() as usize;
+    if source_argument_count != expected_arity {
+        return Err(format!(
+            "[freeze:contract][static-target-only/source-arity] expected {}, got {}",
+            expected_arity, source_argument_count
+        ));
+    }
     let target = target_key.canonical_global_target_v1().map_err(|error| {
         format!("[freeze:contract][static-target-only/target-projection] {error}")
     })?;

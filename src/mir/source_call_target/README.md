@@ -204,6 +204,21 @@ state, and runtime tags are not authorities. Parser spellings `me` and `this`
 both normalize to `ASTNode::Me`, so M0 proves the canonical semantic receiver,
 not preservation of the original token spelling.
 
+### Static current-owner `me.method` handoff I0
+
+For a `StaticBoxMethod` caller, the current-owner row is a direct same-module
+Global call: `VerifiedSourceStaticCallTargetCatalogV1::extend_current_owner`
+already owns the exact caller/site/catalog relation and the Builder ingress
+consumes that row before legacy header observation or argument descent. The
+physical bridge projects the owned key once and lowers exactly the source
+arguments; it does not add a runtime receiver or a manual `me` prefix.
+
+An `InstanceBoxMethod` caller is intentionally not classified by this ingress.
+It remains the receiver-bearing `DeclaredInstance` sibling and requires its
+own source/declaration/receiver/ABI co-seal before any canonical cutover. A
+missing static row is a typed pre-effect rejection, never a name, header,
+registry, fallback, or retry opportunity.
+
 Q0 and M0 deliberately have no production producer or consumer. They do not
 own:
 

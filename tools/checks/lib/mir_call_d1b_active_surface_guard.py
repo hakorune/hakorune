@@ -91,6 +91,10 @@ BARE_ERROR_RETIRE_ROW = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETI
 BARE_NOW_RETIRE_ROW = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-RETIRE-I0"
 ACTIVE_SURFACE_ROWS_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-ROWS-S0"
 ACTIVE_SURFACE_ROWS_KEY = "active_surface_guard_rows_s0_2026_08_30"
+ME_METHOD_CANONICAL_I0_ROW = (
+    "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
+)
+ME_METHOD_CANONICAL_I0_KEY = "same_module_static_current_owner_handoff_i0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -385,6 +389,10 @@ def main() -> None:
         check_rewrite_known_caller_zero_s0(state, card, root, api)
     elif row == REWRITE_KNOWN_POLICY_RETIRE_I0_ROW:
         check_rewrite_known_policy_retire_i0(state, card, root, api)
+    elif row == ME_METHOD_CANONICAL_I0_ROW:
+        from mir_call_d1b_me_method_cutover_guard import check_me_method_canonical_i0
+
+        check_me_method_canonical_i0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

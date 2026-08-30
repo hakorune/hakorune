@@ -1,9 +1,21 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
+current_design_stop = "none"
 current_blocker_token = """
+MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0:
+StaticBoxMethod me.method has an existing exact source/site/catalog target.
+Take it before legacy header observation and argument effects, emit direct
+Global(StaticBoxMethod) with N source arguments, and remove only this branch's
+header-first/LoweredGlobal::Instance/symbol-reconstruction/me-prefix edge.
+OutsideStaticCurrentOwner must remain unchanged for true DeclaredInstance and
+compatibility siblings. No new receipt, resolver, fallback, retry, VM/backend,
+Call-schema, or me.method language change is allowed. Stop if the existing
+publication owner cannot be reached before effects or if the 760/800 boundary
+is crossed.
+"""
+previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
 with the finite enum terminal and handler-order guard correction at 7c834d021a.
@@ -31,9 +43,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Worker audits split the old LoweredGlobal::Instance bucket. StaticCurrentOwner me.method already owns a verified current-owner target keyed by exact caller/site/catalog and can use the existing target-before-arguments Global terminal with N source arguments; it is the selected next implementation. True DeclaredInstance me.method remains a separate source/catalog/receiver/ABI co-seal design row whose final clean MIR is Method(Some(receiver)) with N source arguments and a direct selected LLVM/AOT projection. The me.method language feature is retained."
-next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
+latest_card_summary = "StaticCurrentOwner me.method I0 is active: use the existing exact caller/site/catalog publication owner, take the target before header/argument effects, emit direct Global(StaticBoxMethod) with N source arguments, and delete only the selected old edge. True DeclaredInstance remains a separate D0 for Method(Some(receiver)); the me.method language feature and C-fast direct-call goal are retained."
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+next_execution_card = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

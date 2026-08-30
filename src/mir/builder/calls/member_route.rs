@@ -104,6 +104,7 @@ impl MirBuilder {
                                     self,
                                     &mut descent,
                                     handoff,
+                                    arguments.len(),
                                 )
                             }
                             Ok(StaticResultPublicationIngressV1::TargetOnly(target)) => {
@@ -112,6 +113,7 @@ impl MirBuilder {
                                     self,
                                     &mut descent,
                                     target,
+                                    arguments.len(),
                                 )
                             }
                             Ok(StaticResultPublicationIngressV1::NoExactStaticTarget) => Err(

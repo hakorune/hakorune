@@ -9,7 +9,8 @@
 use std::fmt;
 
 use crate::mir::builder::callable_declaration_catalog::{
-    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawSourceTransportPortV1,
@@ -142,10 +143,16 @@ fn classify_source_context_v1(
             root: RawInvocationRootLineageV1::Cataloged(caller),
             site,
             ..
-        } => Ok(StaticResultPublicationSourceClassV1::Cataloged {
-            caller: caller.clone(),
-            site: SourceExprSiteV1::from_node(site.clone()),
-        }),
+        } if caller.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod => {
+            Ok(StaticResultPublicationSourceClassV1::Cataloged {
+                caller: caller.clone(),
+                site: SourceExprSiteV1::from_node(site.clone()),
+            })
+        }
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(_),
+            ..
+        } => Ok(StaticResultPublicationSourceClassV1::Unavailable),
     }
 }
 
@@ -238,6 +245,10 @@ mod tests {
         CanonicalSameModuleCallableKeyV1::test_static_box_method("Caller", "run", 0)
     }
 
+    fn instance_caller() -> CanonicalSameModuleCallableKeyV1 {
+        CanonicalSameModuleCallableKeyV1::test_instance_box_method("Caller", "run", 0)
+    }
+
     #[test]
     fn state_vocabulary_keeps_unavailable_and_no_exact_target_distinct() {
         assert_ne!(
@@ -307,6 +318,21 @@ mod tests {
         assert_eq!(
             classify_source_context_v1(Some(&foreign), true),
             Err(StaticResultPublicationIngressErrorV1::ForeignLineage)
+        );
+    }
+
+    #[test]
+    fn declared_instance_cataloged_source_stays_outside_static_ingress() {
+        let located = RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::Cataloged(instance_caller()),
+            site: site(),
+            body_kind: None,
+        };
+
+        assert_eq!(
+            classify_source_context_v1(Some(&located), true).unwrap(),
+            StaticResultPublicationSourceClassV1::Unavailable,
+            "a declared instance me.method must retain its receiver-bearing sibling"
         );
     }
 }
