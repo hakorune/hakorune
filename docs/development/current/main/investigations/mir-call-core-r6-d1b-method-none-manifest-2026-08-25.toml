@@ -2140,7 +2140,7 @@ implementation_permission = false
 disposition = "CutoverBlockerOpen__NoSafeSlice"
 decision = "Retain true instance me.method and design its canonical path as Method(Some(receiver)) with N source arguments. Before implementation, co-seal the exact resolved source method-call row, ReceiverPolicyV1::DeclaredInstance, exact InstanceBoxMethod declaration, same catalog/package brand, bound me value, physical receiver ABI, return/result/effect facts, and selected direct-call eligibility."
 source_authority = "VerifiedResolvedMethodCallSourceV1 plus the exact FunctionOwnerIdV1/SourceExprSiteV1/receiver site, DeclaredInstance receiver policy, InstanceBoxMethod declaration, same-session package/catalog brand, and the bound receiver supplied by the function owner."
-canonical_issuer = "No complete existing generic issuer is named yet. D0 must locate and reuse one owner that co-seals the existing products, or remain NoSafeSlice; it may not mint target meaning from a header, name, registry, box_type=None, or backend plan."
+canonical_issuer = "No complete existing generic issuer exists at HEAD. The design-only candidate is one private package-side assembler at src/mir/normal_callable_semantic_package/declared_instance_call.rs; it may co-seal existing source/catalog/ABI/result/effect products but may not become a second source or target authority. Until its source-site-to-declaration relation is issued and its existing result/effect references are named, implementation remains NoSafeSlice."
 fail_fast_boundary = "Missing, duplicate, foreign, ambiguous, arity/ABI/effect/return mismatch rejects before argument descent, receiver materialization, MIR effects, Call publication, or backend route selection."
 census_boundary = "declared instance MethodCall source row -> exact InstanceBoxMethod declaration/brand/bound receiver/ABI/effect relation -> candidate Method(Some(receiver)) Recipe -> selected LLVM/AOT direct call; includes current LoweredGlobal::Instance and Standard Method(Some) producer/consumer boundaries; excludes static current-owner, Method(None), Call schema, providers/CorePlan/thunk, and nonselected backend feature work."
 ordered_tasks = [
@@ -2179,7 +2179,17 @@ box_shape_preparation = [
   "D0-B2: after the split, name one private co-seal owner for source/site, InstanceBoxMethod declaration, package/catalog brand, bound receiver, ABI, body/return, and effect; if none exists, remain NoSafeSlice",
 ]
 box_shape_non_claims = "The preparation split is not an issuer, target, loan, Method(Some) cutover, or production switch. It must not add a family-specific parallel pipeline, default/empty receipt, resolver, header/name inference, or backend-derived meaning."
-next_design_action = "Complete D0-B0..D0-B2 in this existing card, then either select a named existing co-seal issuer or record the family as ParkedSealed with an explicit missing-issuer reopen trigger; implementation_permission remains false until that decision is accepted."
+minimal_co_seal_shape = [
+  "caller_batch_slot + exact call_site + callee_key + callee_batch_slot",
+  "receiver_binding from the resolver-owned DeclaredInstance relation",
+  "source_arity plus a borrowed physical-signature row proving receiver lane 0 and receiver+N physical arity",
+  "borrowed existing result/completion contract and effect contract; no copied body facts",
+]
+minimal_co_seal_owner = "Design candidate only: normal_callable_semantic_package::declared_instance_call.rs, orchestrated once by issuer.rs after catalog, batch, selected map, parameter contracts, physical header, and physical signature are already issued. It assembles existing products and issues no independent source, effect, ABI, or backend meaning."
+source_to_declaration_gap = "VerifiedResolvedMethodCallSourceV1 has call/receiver sites, selector, and arity but no callee declaration identity; InstanceBoxMethod catalog has the declaration and brand but no call-site relation. The missing relation must be issued by one source-backed owner before any name/arity-derived CanonicalSameModuleCallableKey is accepted."
+contract_reference_rule = "A target row may borrow an existing same-package physical signature/header and source body/result/effect contract only after exact identity, catalog/package brand, batch slot, receiver binding, and arity agree. Missing/unannotated result or effect is ParkedSealed or typed pre-effect reject; it is never filled from MIR EffectMask, FunctionSignature, header text, or backend plan."
+implementation_gate = "Keep implementation_permission=false until the source-site-to-declaration relation and the existing result/effect reference owners are both named, with a finite missing/duplicate/foreign/receiver/arity/ABI/result/effect matrix. Then open one bounded I0 for Method(Some(receiver)) plus N source arguments."
+next_design_action = "Complete D0-B0..D0-B2, then define the private assembler contract above and its exact source-site-to-declaration issuer. If either relation or an existing result/effect owner is absent, record ParkedSealed with the observable reopen trigger; do not implement a guessed bridge."
 next_execution = "none__NoSafeSlice__await_existing_issuer_or_explicit_language_abi_decision"
 
 [same_module_cataloged_provider_bare_error_contract_d0_2026_08_30]
