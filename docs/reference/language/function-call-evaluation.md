@@ -31,6 +31,11 @@ complete source callable inventory
 The resolved function retains only the exact callable identity for that source
 site. Lowering consumes it and does not search again by name.
 
+Bare `error` is not a direct FreeStatic provider. It is an unsupported bare
+name and rejects before argument evaluation; qualified providers such as
+`env.console.error` remain separate Extern contracts and are not inferred from
+the bare spelling.
+
 Within the SelectedNormal admission cohort, multiple source occurrences that
 project to the same effective top-level `name/arity` physical symbol are an
 ambiguous direct target. They reject before body lowering and before argument

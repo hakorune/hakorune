@@ -83,10 +83,12 @@ unexplained carrier dead-end. Its bounded exact constructor cutover landed at
 `d81d91d800`: the parser constructor product, package recipe, shared ABI, and
 selected-normal consumer now replace birth-text/AST-scan/class-arity
 reconstruction. No-claim compatibility and every other SameModule family
-remain closed. The cataloged-provider audit also leaves bare `error`, `now`,
-`panic`, and `exit` as `NoIssuer` until an explicit language/provider decision;
-qualified Extern, Math, and GC owners stay separate. The parent finite producer
-census is the next design stop. The user selected retirement for only the legacy
+remain closed. The cataloged-provider audit leaves bare `now`, `panic`, and
+`exit` as `NoIssuer`; the canonical Call SSOT already gives bare `error` an
+unsupported pre-effect contract, now recorded in the one-name D0 card.
+Qualified Extern, Math, and GC owners stay separate. The parent finite producer
+census remains closed while this contract boundary is reconciled. The user
+selected retirement for only the legacy
 `NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
 audits closed the boundary at three compiler ingresses, four target publishers,
 six structural source ingresses, one prelude coupling, and finite repo-owned
