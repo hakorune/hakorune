@@ -679,7 +679,8 @@ def check_ordinary_static_legacy_retire_i0(
     tests = (root / tests_rel).read_text(encoding="utf-8")
     reference = (root / reference_rel).read_text(encoding="utf-8")
     for token in (
-        "unissued_static_call_retired_error",
+        "UnissuedStaticCallRetirementV1",
+        "GenericCompatibility",
         "[freeze:contract][static-call/legacy-fallback-retired]",
         "qualified_math_compatibility_owner",
         "PreparedMeReceiverV1::Static",
@@ -692,8 +693,16 @@ def check_ordinary_static_legacy_retire_i0(
     if "static legacy compatibility" not in (root / readme_rel).read_text(encoding="utf-8"):
         fail("ordinary-static calls README receipt is missing")
 
-    retirement = source.find("unissued_static_call_retired_error")
-    descent = source.find("completion.lower_all(self)?")
+    method_marker = "pub(in crate::mir::builder) fn handle_static_method_call_with_descent"
+    method_body = source.split(method_marker, 1)
+    if len(method_body) != 2:
+        fail("ordinary-static handler is missing")
+    method_body = method_body[1].split("\n    /// Handle TypeOp method calls", 1)
+    if len(method_body) != 2:
+        fail("ordinary-static handler boundary is missing")
+    handler = method_body[0]
+    retirement = handler.find("UnissuedStaticCallRetirementV1::GenericCompatibility.error")
+    descent = handler.find("completion.lower_all(self)?")
     if retirement < 0 or descent < 0 or retirement > descent:
         fail("ordinary-static retirement is not proven before generic argument descent")
     for name in (

@@ -109,10 +109,19 @@ fn qualified_math_compatibility_owner(owner: &str) -> bool {
     owner == "Math"
 }
 
-fn unissued_static_call_retired_error(owner: &str, method: &str, arity: usize) -> String {
-    format!(
-        "[freeze:contract][static-call/legacy-fallback-retired] owner={owner} method={method} arity={arity}"
-    )
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UnissuedStaticCallRetirementV1 {
+    GenericCompatibility,
+}
+
+impl UnissuedStaticCallRetirementV1 {
+    fn error(self, owner: &str, method: &str, arity: usize) -> String {
+        match self {
+            Self::GenericCompatibility => format!(
+                "[freeze:contract][static-call/legacy-fallback-retired] owner={owner} method={method} arity={arity}"
+            ),
+        }
+    }
 }
 
 /// Effect-free `me.method(...)` route preparation shared by ordinary and
@@ -482,7 +491,7 @@ impl MirBuilder {
         }
 
         if !qualified_math_compatibility_owner(box_name) {
-            return Err(unissued_static_call_retired_error(
+            return Err(UnissuedStaticCallRetirementV1::GenericCompatibility.error(
                 box_name,
                 method,
                 arguments.len(),
