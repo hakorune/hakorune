@@ -60,6 +60,124 @@ pub(crate) fn validate_builder_methodize_ingress_v1() -> Result<(), BuilderMetho
     validate_builder_methodize_selector_v1(raw.as_deref())
 }
 
+const BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1: [&str; 3] = [
+    "NYASH_BUILDER_OPERATOR_BOX_ALL_CALL",
+    "NYASH_BUILDER_OPERATOR_BOX_ADD_CALL",
+    "NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL",
+];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum BuilderOperatorCallIngressPolicyV1 {
+    Direct,
+    RetiredExplicitCompatibility { key: &'static str },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum BuilderOperatorCallIngressErrorV1 {
+    RetiredExplicitCompatibility { key: &'static str },
+    InvalidSelector { key: &'static str },
+    NonUnicode { key: &'static str },
+}
+
+impl std::fmt::Display for BuilderOperatorCallIngressErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::RetiredExplicitCompatibility { key } => write!(
+                formatter,
+                "[mir/operator-call/retired] selector={key} is no longer accepted"
+            ),
+            Self::InvalidSelector { key } => write!(
+                formatter,
+                "[mir/operator-call/invalid] selector={key} has an invalid value"
+            ),
+            Self::NonUnicode { key } => write!(
+                formatter,
+                "[mir/operator-call/non-unicode] selector={key} must be valid Unicode"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for BuilderOperatorCallIngressErrorV1 {}
+
+fn parse_builder_operator_call_selector_v1(
+    key: &'static str,
+    raw: Option<&OsStr>,
+) -> Result<bool, BuilderOperatorCallIngressErrorV1> {
+    let Some(raw) = raw else {
+        return Ok(false);
+    };
+    let value = raw
+        .to_str()
+        .ok_or(BuilderOperatorCallIngressErrorV1::NonUnicode { key })?;
+    match value.to_ascii_lowercase().as_str() {
+        "0" | "false" | "off" => Ok(false),
+        "1" | "true" | "on" => Ok(true),
+        _ => Err(BuilderOperatorCallIngressErrorV1::InvalidSelector { key }),
+    }
+}
+
+pub(crate) fn builder_operator_call_policy_from_values_v1(
+    all: Option<&OsStr>,
+    add: Option<&OsStr>,
+    compare: Option<&OsStr>,
+) -> Result<BuilderOperatorCallIngressPolicyV1, BuilderOperatorCallIngressErrorV1> {
+    let all =
+        parse_builder_operator_call_selector_v1(BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[0], all)?;
+    let add =
+        parse_builder_operator_call_selector_v1(BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[1], add)?;
+    let compare = parse_builder_operator_call_selector_v1(
+        BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[2],
+        compare,
+    )?;
+
+    if all {
+        return Ok(
+            BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility {
+                key: BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[0],
+            },
+        );
+    }
+    if add {
+        return Ok(
+            BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility {
+                key: BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[1],
+            },
+        );
+    }
+    if compare {
+        return Ok(
+            BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility {
+                key: BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[2],
+            },
+        );
+    }
+    Ok(BuilderOperatorCallIngressPolicyV1::Direct)
+}
+
+/// Read all Builder operator selectors once at a compiler ingress.
+///
+/// Direct MIR lowering remains the only accepted route.  A truthy legacy
+/// selector is reported as a typed retirement, while malformed values are
+/// rejected before any compiler effects.  The fixed key order also ensures an
+/// invalid selector cannot be hidden by an earlier truthy selector.
+pub(crate) fn validate_builder_operator_call_ingress_v1(
+) -> Result<(), BuilderOperatorCallIngressErrorV1> {
+    let all = std::env::var_os(BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[0]);
+    let add = std::env::var_os(BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[1]);
+    let compare = std::env::var_os(BUILDER_OPERATOR_CALL_SELECTOR_KEYS_V1[2]);
+    match builder_operator_call_policy_from_values_v1(
+        all.as_deref(),
+        add.as_deref(),
+        compare.as_deref(),
+    )? {
+        BuilderOperatorCallIngressPolicyV1::Direct => Ok(()),
+        BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility { key } => {
+            Err(BuilderOperatorCallIngressErrorV1::RetiredExplicitCompatibility { key })
+        }
+    }
+}
+
 pub fn builder_me_call_arity_strict() -> bool {
     env_bool_default("NYASH_ME_CALL_ARITY_STRICT", true)
 }
@@ -132,18 +250,6 @@ pub fn builder_p4_debug() -> bool {
 
 pub fn builder_p3c_debug() -> bool {
     env_present("NYASH_P3C_DEBUG")
-}
-
-pub fn builder_operator_box_all_call() -> bool {
-    env_bool("NYASH_BUILDER_OPERATOR_BOX_ALL_CALL")
-}
-
-pub fn builder_operator_box_add_call() -> bool {
-    env_bool("NYASH_BUILDER_OPERATOR_BOX_ADD_CALL")
-}
-
-pub fn builder_operator_box_compare_call() -> bool {
-    env_bool("NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL")
 }
 
 pub fn builder_local_ssa_trace() -> bool {
@@ -303,6 +409,94 @@ mod methodize_ingress_tests {
         assert_eq!(
             validate_builder_methodize_selector_v1(Some(raw)),
             Err(BuilderMethodizeIngressErrorV1::NonUnicode)
+        );
+    }
+}
+
+#[cfg(test)]
+mod operator_call_ingress_tests {
+    use super::{
+        builder_operator_call_policy_from_values_v1, BuilderOperatorCallIngressErrorV1,
+        BuilderOperatorCallIngressPolicyV1,
+    };
+    use std::ffi::OsStr;
+
+    fn policy(
+        all: Option<&str>,
+        add: Option<&str>,
+        compare: Option<&str>,
+    ) -> Result<BuilderOperatorCallIngressPolicyV1, BuilderOperatorCallIngressErrorV1> {
+        builder_operator_call_policy_from_values_v1(
+            all.map(OsStr::new),
+            add.map(OsStr::new),
+            compare.map(OsStr::new),
+        )
+    }
+
+    #[test]
+    fn selector_matrix_is_finite_and_direct_by_default() {
+        assert_eq!(
+            policy(None, None, None),
+            Ok(BuilderOperatorCallIngressPolicyV1::Direct)
+        );
+        for value in ["0", "false", "FALSE", "off", "Off"] {
+            assert_eq!(
+                policy(Some(value), Some(value), Some(value)),
+                Ok(BuilderOperatorCallIngressPolicyV1::Direct)
+            );
+        }
+        assert_eq!(
+            policy(Some("1"), None, None),
+            Ok(
+                BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility {
+                    key: "NYASH_BUILDER_OPERATOR_BOX_ALL_CALL"
+                }
+            )
+        );
+        assert_eq!(
+            policy(None, Some("TRUE"), None),
+            Ok(
+                BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility {
+                    key: "NYASH_BUILDER_OPERATOR_BOX_ADD_CALL"
+                }
+            )
+        );
+        assert_eq!(
+            policy(None, None, Some("on")),
+            Ok(
+                BuilderOperatorCallIngressPolicyV1::RetiredExplicitCompatibility {
+                    key: "NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL"
+                }
+            )
+        );
+    }
+
+    #[test]
+    fn malformed_and_non_unicode_values_cannot_hide_behind_truthy_values() {
+        assert_eq!(
+            policy(Some("1"), Some("garbage"), None),
+            Err(BuilderOperatorCallIngressErrorV1::InvalidSelector {
+                key: "NYASH_BUILDER_OPERATOR_BOX_ADD_CALL"
+            })
+        );
+        assert_eq!(
+            policy(Some("1"), None, Some(" 1 ")),
+            Err(BuilderOperatorCallIngressErrorV1::InvalidSelector {
+                key: "NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL"
+            })
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn operator_non_unicode_selector_is_not_treated_as_unset() {
+        use std::os::unix::ffi::OsStrExt;
+        let raw = OsStr::from_bytes(b"\xff");
+        assert_eq!(
+            super::builder_operator_call_policy_from_values_v1(None, None, Some(raw)),
+            Err(BuilderOperatorCallIngressErrorV1::NonUnicode {
+                key: "NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL"
+            })
         );
     }
 }

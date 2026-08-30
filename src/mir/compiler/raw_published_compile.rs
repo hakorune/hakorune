@@ -20,10 +20,12 @@ use super::raw_root_package::RejectedRawRootPlanningV1;
 use super::raw_root_postprocess::RejectedRawPostprocessInvocationV1;
 use super::raw_root_publication::{RawPublishedInvocationV1, RejectedRawPublicationInvocationV1};
 use super::raw_source_binding::RejectedRawSourceBindingV1;
+use crate::config::env::BuilderOperatorCallIngressErrorV1;
 use crate::mir::RawPublishedCompileRequestV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawPublishedCompileStageV1 {
+    OperatorCallIngress,
     SourceBinding,
     RootPackage,
     Eligibility,
@@ -42,6 +44,7 @@ pub(in crate::mir) enum RawPublishedCompileStageV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) enum RejectedRawPublishedCompileV1 {
+    OperatorCallIngress(BuilderOperatorCallIngressErrorV1),
     SourceBinding(Box<RejectedRawSourceBindingV1>),
     RootPackage(Box<RejectedRawRootPlanningV1>),
     Eligibility(Box<RejectedRawRootEligibilityV1>),
@@ -61,6 +64,7 @@ pub(in crate::mir) enum RejectedRawPublishedCompileV1 {
 impl RejectedRawPublishedCompileV1 {
     pub(in crate::mir) const fn stage(&self) -> RawPublishedCompileStageV1 {
         match self {
+            Self::OperatorCallIngress(_) => RawPublishedCompileStageV1::OperatorCallIngress,
             Self::SourceBinding(_) => RawPublishedCompileStageV1::SourceBinding,
             Self::RootPackage(_) => RawPublishedCompileStageV1::RootPackage,
             Self::Eligibility(_) => RawPublishedCompileStageV1::Eligibility,
@@ -80,6 +84,7 @@ impl RejectedRawPublishedCompileV1 {
 
     pub(in crate::mir) fn discard(self) {
         match self {
+            Self::OperatorCallIngress(_) => {}
             Self::SourceBinding(owner) => owner.discard(),
             Self::RootPackage(owner) => owner.discard(),
             Self::Eligibility(owner) => owner.discard(),
@@ -99,6 +104,7 @@ impl RejectedRawPublishedCompileV1 {
 
     pub(in crate::mir) fn into_public_string(self) -> String {
         let stage = match self.stage() {
+            RawPublishedCompileStageV1::OperatorCallIngress => "operator-call-ingress",
             RawPublishedCompileStageV1::SourceBinding => "source-binding",
             RawPublishedCompileStageV1::RootPackage => "root-package",
             RawPublishedCompileStageV1::Eligibility => "eligibility",
@@ -138,6 +144,10 @@ impl RawPublishedCompileFailureReportV1 {
             RawPublishedCompileStageV1::SourceBinding => {
                 ("source-binding-rejected", "typed source binding rejection")
             }
+            RawPublishedCompileStageV1::OperatorCallIngress => (
+                "operator-call-ingress-rejected",
+                "typed Builder operator-call ingress rejection",
+            ),
             RawPublishedCompileStageV1::RootPackage => {
                 ("root-package-rejected", "typed root package rejection")
             }
@@ -189,6 +199,8 @@ impl super::MirCompiler {
         &mut self,
         request: RawPublishedCompileRequestV1,
     ) -> Result<RawPublishedInvocationV1, RejectedRawPublishedCompileV1> {
+        super::validate_builder_operator_call_ingress_once_v1()
+            .map_err(RejectedRawPublishedCompileV1::OperatorCallIngress)?;
         let RawPublishedCompileRequestV1 {
             ast,
             source_file,

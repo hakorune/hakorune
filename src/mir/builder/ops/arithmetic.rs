@@ -2,24 +2,17 @@
 //!
 //! ## Purpose
 //! Handles arithmetic binary operations (Add, Sub, Mul, Div, Mod, Shl, Shr, BitAnd, BitOr, BitXor)
-//! with Type facts integration and operator Box routing.
+//! with Type facts integration and direct MIR routing.
 //!
 //! ## Responsibilities
-//! - **Operator Box routing**: Route to AddOperator, SubOperator, etc. under NYASH_BUILDER_OPERATOR_BOX flags
 //! - **Type facts classification**: Classify String vs Integer for Add operation
-//! - **Guard detection**: Prevent infinite recursion (in_add_op, in_sub_op, etc.)
 //! - **Core-13 pure expansion**: Use ssot::binop_lower for pure MIR emission
-//! - **ALL_CALL flag support**: Enable all operator boxes via NYASH_BUILDER_OPERATOR_BOX_ALL_CALL
 //!
 //! ## Type Facts Integration
 //! The Add operation uses TypeFactsBox to classify operand types:
 //! - String + String → String value result
 //! - Integer + Integer → Integer result
 //! - Mixed types → Unknown (use-site coercion in LLVM backend)
-//!
-//! ## Environment Variables
-//! - `NYASH_BUILDER_OPERATOR_BOX_ALL_CALL=1`: Enable all operator boxes
-//! - `NYASH_BUILDER_OPERATOR_BOX_ADD_CALL=1`: Enable AddOperator only
 //!
 //! ## Phase History
 //! - Phase Dev: Lower '+' to operator box calls (default OFF)
@@ -58,7 +51,7 @@ fn classify_operand_type(
 /// Build an arithmetic binary operation instruction.
 ///
 /// This function handles all arithmetic operations (Add, Sub, Mul, Div, Mod, Shl, Shr,
-/// BitAnd, BitOr, BitXor) with optional operator Box routing based on environment flags.
+/// BitAnd, BitOr, BitXor) through the direct MIR owner.
 ///
 /// # Arguments
 /// - `builder`: MIR builder context
@@ -86,224 +79,39 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
 ) -> Result<ValueId, String> {
     let dst = builder.next_value_id();
 
-    let all_call = crate::config::env::builder_operator_box_all_call();
+    if let (Some(func), Some(cur_bb)) = (
+        builder.function_state.current_function.as_mut(),
+        builder.function_state.current_block,
+    ) {
+        crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
+    } else {
+        builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
+    }
 
-    // Phase Dev: Lower '+' を演算子ボックス呼び出しに置換（既定OFF）
-    let in_add_op = builder
-        .function_state
-        .current_function
-        .as_ref()
-        .map(|f| f.signature.name.starts_with("AddOperator.apply/"))
-        .unwrap_or(false);
-    if matches!(op, crate::mir::BinaryOp::Add)
-        && !in_add_op
-        && (all_call || crate::config::env::builder_operator_box_add_call())
-    {
-        // AddOperator.apply/2(lhs, rhs)
-        let name = "AddOperator.apply/2".to_string();
-        builder.emit_legacy_call(
-            Some(dst),
-            super::super::CallTarget::Global(
-                super::super::calls::call_target::typed_global_target_from_selected_symbol(
-                    &name, 2,
-                )?,
-            ),
-            vec![lhs, rhs],
-        )?;
-        // Phase 196: TypeFacts SSOT - AddOperator call type annotation
-        // Phase 131-11-E: TypeFacts - classify operand types (Phase 136: use TypeFactsBox)
+    // TypeFacts SSOT: direct BinOp emission records only source-backed types.
+    if matches!(op, crate::mir::BinaryOp::Add) {
+        use super::super::type_facts::OperandTypeClass::*;
         let lhs_type = classify_operand_type(builder, lhs);
         let rhs_type = classify_operand_type(builder, rhs);
-
-        use super::super::type_facts::OperandTypeClass::*;
-        match (lhs_type, rhs_type) {
-            (String, String) => {
-                // BOTH are strings: result stays value-world text.
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::String);
-            }
-            (Integer, Integer) => {
-                // Exact integer evidence on both operands is required.
-                // A physical Unknown may be a source-backed Dynamic value;
-                // it is not permission to publish an Integer result.
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-            }
-            (Integer, Unknown) | (Unknown, Integer) => {
-                // Keep the result physically unknown until a source-backed
-                // semantic authority classifies it.
-            }
-            (String, Integer) | (Integer, String) => {
-                // Mixed types: leave as Unknown for use-site coercion
-            }
-            (Unknown, Unknown) => {
-                // Both Unknown: cannot infer
-            }
-            (String, Unknown) | (Unknown, String) => {
-                // One side is String, other is Unknown: cannot infer safely
-            }
-        }
-    } else if all_call {
-        // Lower other arithmetic ops to operator boxes under ALL flag
-        let (name, guard_prefix) = match op {
-            crate::mir::BinaryOp::Sub => ("SubOperator.apply/2", "SubOperator.apply/"),
-            crate::mir::BinaryOp::Mul => ("MulOperator.apply/2", "MulOperator.apply/"),
-            crate::mir::BinaryOp::Div => ("DivOperator.apply/2", "DivOperator.apply/"),
-            crate::mir::BinaryOp::Mod => ("ModOperator.apply/2", "ModOperator.apply/"),
-            crate::mir::BinaryOp::Shl => ("ShlOperator.apply/2", "ShlOperator.apply/"),
-            crate::mir::BinaryOp::Shr => ("ShrOperator.apply/2", "ShrOperator.apply/"),
-            crate::mir::BinaryOp::BitAnd => ("BitAndOperator.apply/2", "BitAndOperator.apply/"),
-            crate::mir::BinaryOp::BitOr => ("BitOrOperator.apply/2", "BitOrOperator.apply/"),
-            crate::mir::BinaryOp::BitXor => ("BitXorOperator.apply/2", "BitXorOperator.apply/"),
-            _ => ("", ""),
-        };
-        if !name.is_empty() {
-            let in_guard = builder
+        if lhs_type == String && rhs_type == String {
+            builder
                 .function_state
-                .current_function
-                .as_ref()
-                .map(|f| f.signature.name.starts_with(guard_prefix))
-                .unwrap_or(false);
-            if !in_guard {
-                builder.emit_legacy_call(
-                    Some(dst),
-                    super::super::CallTarget::Global(
-                        super::super::calls::call_target::typed_global_target_from_selected_symbol(
-                            name, 2,
-                        )?,
-                    ),
-                    vec![lhs, rhs],
-                )?;
-                // 型注釈: 算術はおおむね整数（Addは上で注釈済み）
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-            } else {
-                // guard中は従来のBinOp
-                if let (Some(func), Some(cur_bb)) = (
-                    builder.function_state.current_function.as_mut(),
-                    builder.function_state.current_block,
-                ) {
-                    crate::mir::ssot::binop_lower::emit_binop_to_dst(
-                        func, cur_bb, dst, op, lhs, rhs,
-                    );
-                } else {
-                    builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
-                }
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-            }
-        } else {
-            // 既存の算術経路
-            if let (Some(func), Some(cur_bb)) = (
-                builder.function_state.current_function.as_mut(),
-                builder.function_state.current_block,
-            ) {
-                crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
-            } else {
-                builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
-            }
-            // Phase 196: TypeFacts SSOT - BinOp type is determined by operands only
-            // String concatenation is handled at use-site in LLVM lowering
-            if matches!(op, crate::mir::BinaryOp::Add) {
-                // Phase 131-11-E: TypeFacts - classify operand types (Phase 136: use TypeFactsBox)
-                let lhs_type = classify_operand_type(builder, lhs);
-                let rhs_type = classify_operand_type(builder, rhs);
-
-                use super::super::type_facts::OperandTypeClass::*;
-                match (lhs_type, rhs_type) {
-                    (String, String) => {
-                        // BOTH are strings: result stays value-world text.
-                        builder
-                            .function_state
-                            .type_ctx
-                            .value_types
-                            .insert(dst, MirType::String);
-                    }
-                    (Integer, Integer) => {
-                        // Exact integer evidence on both operands is required.
-                        // Source-backed Dynamic lineage is sealed elsewhere.
-                        builder
-                            .function_state
-                            .type_ctx
-                            .value_types
-                            .insert(dst, MirType::Integer);
-                    }
-                    (Integer, Unknown) | (Unknown, Integer) => {
-                        // Keep the result physically unknown until a
-                        // source-backed semantic authority classifies it.
-                    }
-                    (String, Integer) | (Integer, String) => {
-                        // Mixed types: leave as Unknown for use-site coercion
-                        // LLVM backend will handle string concatenation
-                    }
-                    (Unknown, Unknown) => {
-                        // Both Unknown: cannot infer, leave as Unknown
-                    }
-                    (String, Unknown) | (Unknown, String) => {
-                        // One side is String, other is Unknown: cannot infer safely
-                        // Leave as Unknown
-                    }
-                }
-            } else {
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-            }
-        }
-    } else {
-        // 既存の算術経路
-        if let (Some(func), Some(cur_bb)) = (
-            builder.function_state.current_function.as_mut(),
-            builder.function_state.current_block,
-        ) {
-            crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
-        } else {
-            builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
-        }
-        // Phase 196: TypeFacts SSOT - BinOp type is determined by operands only
-        // String concatenation is handled at use-site in LLVM lowering
-        if matches!(op, crate::mir::BinaryOp::Add) {
-            use super::super::type_facts::OperandTypeClass::*;
-            let lhs_type = classify_operand_type(builder, lhs);
-            let rhs_type = classify_operand_type(builder, rhs);
-            if lhs_type == String && rhs_type == String {
-                // BOTH are strings: result stays value-world text.
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::String);
-            } else if lhs_type == Integer && rhs_type == Integer {
-                // Both operands carry exact integer evidence.
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-            }
-            // else: Mixed types (string + int or int + string)
-            // Leave dst type as Unknown - LLVM will handle coercion at use-site
-        } else {
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::String);
+        } else if lhs_type == Integer && rhs_type == Integer {
             builder
                 .function_state
                 .type_ctx
                 .value_types
                 .insert(dst, MirType::Integer);
         }
+    } else {
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(dst, MirType::Integer);
     }
 
     // Fail-fast: Verify BinOp Add's operands are defined (strict/dev+planner_required only)

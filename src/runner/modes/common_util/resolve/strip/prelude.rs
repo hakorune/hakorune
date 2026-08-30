@@ -31,8 +31,7 @@ pub fn resolve_prelude_paths_profiled(
     }
     // Operator Boxes prelude injection（観測“常時ON”のため）
     // stringify/compare/add は常に注入（存在時）。その他（bitwise等）は ALL 指定時のみ。
-    let opbox_all = crate::config::env::env_bool("NYASH_OPERATOR_BOX_ALL")
-        || crate::config::env::env_bool("NYASH_BUILDER_OPERATOR_BOX_ALL_CALL");
+    let opbox_all = crate::config::env::env_bool("NYASH_OPERATOR_BOX_ALL");
 
     if let Some(root) =
         crate::runner::modes::common_util::resolve::root::resolve_repo_root(Some(filename))

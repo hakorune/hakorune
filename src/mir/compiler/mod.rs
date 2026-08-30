@@ -61,6 +61,8 @@ mod module_session_borrow_p0_tests;
 #[cfg(test)]
 mod nested_if_recipe_d2_tests;
 #[cfg(test)]
+mod operator_call_retirement_tests;
+#[cfg(test)]
 mod prod_activation_p0_r1;
 #[cfg(test)]
 mod raw_public_cutover_parity_snapshot;
@@ -239,6 +241,19 @@ fn set_candidate_source_hint(candidate: &mut MirBuilder, source_file: Option<&st
     match source_file {
         Some(source) => candidate.set_source_file_hint(source.to_string()),
         None => candidate.clear_source_file_hint(),
+    }
+}
+
+fn validate_builder_operator_call_ingress_once_v1(
+) -> Result<(), crate::config::env::BuilderOperatorCallIngressErrorV1> {
+    crate::config::env::validate_builder_operator_call_ingress_v1()
+}
+
+fn map_operator_call_ingress_error(
+    error: crate::config::env::BuilderOperatorCallIngressErrorV1,
+) -> CanonicalLoweringErrorV1 {
+    CanonicalLoweringErrorV1::OperatorCallIngress {
+        detail: error.to_string(),
     }
 }
 
@@ -433,6 +448,8 @@ impl MirCompiler {
         input: ResolvedModuleLoweringInputV1<'_>,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        validate_builder_operator_call_ingress_once_v1()
+            .map_err(map_operator_call_ingress_error)?;
         self.compile_resolved_first_family(input, source_file)
     }
 
@@ -446,6 +463,8 @@ impl MirCompiler {
         input: ResolvedCallableModuleLoweringInputV1<'_>,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        validate_builder_operator_call_ingress_once_v1()
+            .map_err(map_operator_call_ingress_error)?;
         if self.builder.repl_mode {
             return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
         }
@@ -480,6 +499,8 @@ impl MirCompiler {
         input: ResolvedCallableModuleLoweringInputV1<'_>,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        validate_builder_operator_call_ingress_once_v1()
+            .map_err(map_operator_call_ingress_error)?;
         if self.builder.repl_mode {
             return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
         }

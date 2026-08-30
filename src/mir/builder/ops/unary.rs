@@ -1,20 +1,7 @@
 //! Unary Operations Module
 //!
-//! This module handles building unary operations (-, !, ~) with support for:
-//! - Operator Box routing (NegOperator, NotOperator, BitNotOperator)
-//! - Core-13 pure expansion (when mir_core13_pure() gate enabled)
-//! - Guard detection to prevent infinite recursion
-//! - Return type tracking (Integer vs Bool)
-//!
-//! ## Operator Box Routing
-//!
-//! When `NYASH_BUILDER_OPERATOR_BOX_ALL_CALL=1` is set:
-//! - `-x` → `NegOperator.apply/1(x)` (returns Integer)
-//! - `!x` → `NotOperator.apply/1(x)` (returns Bool)
-//! - `~x` → `BitNotOperator.apply/1(x)` (returns Integer)
-//!
-//! Guard detection prevents infinite recursion by checking if we're already inside
-//! the operator method being called.
+//! This module handles building unary operations (-, !, ~) with direct MIR
+//! emission and optional Core-13 pure expansion.
 //!
 //! ## Core-13 Pure Expansion
 //!
@@ -33,13 +20,6 @@
 //!
 //! ## Example Transformations
 //!
-//! ### Operator Box Call (ALL_CALL mode)
-//! ```ignore
-//! -x  →  %result = Call("NegOperator.apply/1", [x]) : Integer
-//! !x  →  %result = Call("NotOperator.apply/1", [x]) : Bool
-//! ~x  →  %result = Call("BitNotOperator.apply/1", [x]) : Integer
-//! ```
-//!
 //! ### Core-13 Pure Expansion
 //! ```ignore
 //! -x  →  %zero = Const(0)
@@ -55,8 +35,7 @@
 //! ## Responsibilities
 //!
 //! - Evaluate operand expression
-//! - Check for operator box routing flags
-//! - Detect guard conditions to prevent recursion
+//! - Use the compiler ingress policy to retire legacy operator-call routing
 //! - Apply Core-13 pure expansion when enabled
 //! - Emit appropriate MIR instruction (UnaryOp or expanded form)
 //! - Track result type in type context
@@ -128,14 +107,6 @@ impl PreparedRawOrdinaryUnaryOperatorV1 {
         matches!(self, Self::Minus)
     }
 
-    fn operator_box(self) -> (&'static str, &'static str) {
-        match self {
-            Self::Minus => ("NegOperator.apply/1", "NegOperator.apply/"),
-            Self::Not => ("NotOperator.apply/1", "NotOperator.apply/"),
-            Self::BitNot => ("BitNotOperator.apply/1", "BitNotOperator.apply/"),
-        }
-    }
-
     fn mir_operator(self) -> crate::mir::UnaryOp {
         match self {
             Self::Minus => crate::mir::UnaryOp::Neg,
@@ -186,34 +157,6 @@ where
         }
     }
     let operand_val = drive_legacy_expression_v1(builder, port, operand)?;
-    let all_call = crate::config::env::builder_operator_box_all_call();
-    if all_call {
-        let (name, guard_prefix) = operator.operator_box();
-        let in_guard = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .map(|f| f.signature.name.starts_with(guard_prefix))
-            .unwrap_or(false);
-        let dst = builder.next_value_id();
-        if !in_guard {
-            builder.emit_legacy_call(
-                Some(dst),
-                super::super::CallTarget::Global(
-                    super::super::calls::call_target::typed_global_target_from_selected_symbol(
-                        name, 1,
-                    )?,
-                ),
-                vec![operand_val],
-            )?;
-            builder
-                .function_state
-                .type_ctx
-                .value_types
-                .insert(dst, return_type.clone());
-            return Ok(dst);
-        }
-    }
     // Core-13 純化: UnaryOp を直接 展開（Neg/Not/BitNot）
     if crate::config::env::mir_core13_pure() {
         match operator {

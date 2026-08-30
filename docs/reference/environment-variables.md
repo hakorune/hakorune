@@ -469,6 +469,11 @@ OperatorBox の `apply` を「観測（observe）」から「採用（adopt）�
 | --- | --- | --- | --- |
 | `NYASH_OPERATOR_BOX_COMPARE_ADOPT={0\|1}` | `0` | Any | CompareOperator.apply の adopt を有効化（既定OFF）。現在は CompareOperator が observe-only（Void返り）なので、意味論はVM側が常にSSOT。 |
 
+`NYASH_BUILDER_OPERATOR_BOX_ALL_CALL`、`NYASH_BUILDER_OPERATOR_BOX_ADD_CALL`、
+`NYASH_BUILDER_OPERATOR_BOX_COMPARE_CALL` は Rust compiler の旧 Call 発行入口として
+退役済み。明示指定や不正値は compiler ingress で fail-fast し、runtime-only の
+`NYASH_OPERATOR_BOX_*` 設定とは別扱いになる。
+
 ---
 
 ## VM behavior（dev-only）

@@ -6,13 +6,18 @@ has selected an operator family.
 ## Existing semantic owners
 
 - `converters.rs`: source operator to MIR operator classification.
-- `arithmetic.rs`: arithmetic/operator-box policy, destination allocation, and
+- `arithmetic.rs`: direct arithmetic lowering, destination allocation, and
   result representation facts.
-- `comparison.rs`: comparison policy, operand normalization, destination
-  allocation, and Bool result facts.
+- `comparison.rs`: direct comparison lowering, operand normalization,
+  destination allocation, and Bool result facts.
 - `logical_shortcircuit.rs`: conditional RHS evaluation plus CFG/PHI creation
   for `And` and `Or`.
-- `unary.rs`: unary operator lowering.
+- `unary.rs`: direct unary operator lowering.
+
+The former `NYASH_BUILDER_OPERATOR_BOX_*_CALL` compiler selectors and their
+operator-call publishers are retired.  Operator lowering now stays in the
+direct MIR owners above.  Runtime-only `NYASH_OPERATOR_BOX_*` adoption and
+prelude behavior are separate contracts and remain untouched.
 
 ## Associated-input descent
 

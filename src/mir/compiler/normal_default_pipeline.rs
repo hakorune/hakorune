@@ -514,6 +514,8 @@ impl MirCompiler {
         &mut self,
         request: NormalCompileRequestV1,
     ) -> Result<MirCompileResult, String> {
+        super::validate_builder_operator_call_ingress_once_v1()
+            .map_err(|error| error.to_string())?;
         NormalDefaultPublishedPipelineV1::compile(self, request)
     }
 }

@@ -45,7 +45,7 @@
 //! - **Purpose**: Handle arithmetic binary operations
 //! - **Operations**: Add, Sub, Mul, Div, Mod, Shl, Shr, BitAnd, BitOr, BitXor
 //! - **Key Features**:
-//!   - Operator Box routing (AddOperator, SubOperator, etc.)
+//!   - Direct MIR routing for the complete arithmetic family
 //!   - Type facts classification (String vs Integer for Add)
 //!   - Core-13 pure expansion (ssot::binop_lower)
 //! - **Phase Context**: Phase 2.11 Core-13 pure BinOp
@@ -54,7 +54,7 @@
 //! - **Purpose**: Handle comparison operations
 //! - **Operations**: Eq, Ne, Lt, Le, Gt, Ge
 //! - **Key Features**:
-//!   - Operator Box routing (CompareOperator.apply/3)
+//!   - Direct MIR comparison routing
 //!   - IntegerBox cast detection and TypeOp insertion
 //!   - LocalSSA finalization (ensure_local_ssa)
 //! - **Phase Context**: Phase 2.11 Core-13 pure Compare
@@ -73,12 +73,11 @@
 //! - **Purpose**: Handle unary operations
 //! - **Operations**: - (Neg), ! (Not), ~ (BitNot)
 //! - **Key Features**:
-//!   - Operator Box routing (NegOperator, NotOperator, BitNotOperator)
+//!   - Direct MIR unary routing
 //!   - Core-13 pure expansion:
 //!     - Neg: `Sub 0-x`
 //!     - Not: `Compare Eq x-false`
 //!     - BitNot: `XOR x-(-1)`
-//!   - Guard detection (prevent infinite recursion)
 //! - **Phase Context**: Phase 2.11 Core-13 pure UnaryOp
 //!
 //! ## Benefits of This Architecture

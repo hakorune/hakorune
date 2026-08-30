@@ -50,7 +50,11 @@ Future Work (Optional / Later)
 - Unify lowering (sugar → operator boxes) after VM and Builder parity are green.
 - Add per-operator adopt flags if needed for runtime switching; current builder call lowering already routes via operator boxes.
 
-Builder lowering (centralized)
-- Master flag: `NYASH_BUILDER_OPERATOR_BOX_ALL_CALL=1` lowers all arithmetic/compare/unary ops to `*Operator.apply` calls in one place (src/mir/builder/ops.rs).
-- Reentrancy guard: when building inside `*Operator.apply`, lowering is skipped to avoid recursion; falls back to direct MIR op.
-- Metadata: builder annotates result types (Integer/String/Bool) to preserve `value_types` so downstream analysis remains stable.
+Builder lowering (retired compiler route)
+- The former `NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` selectors and
+  their `*Operator.apply` publishers are retired.  Arithmetic, comparison, and
+  unary source operators now use their direct MIR owners.
+- Runtime-only `NYASH_OPERATOR_BOX_*` adoption and prelude injection remain a
+  separate lane; they do not select a compiler Call route.
+- Existing direct MIR owners continue to annotate result types (Integer/String/
+  Bool) so downstream analysis remains stable.

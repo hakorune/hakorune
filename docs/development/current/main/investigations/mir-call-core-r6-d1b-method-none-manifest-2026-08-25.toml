@@ -2121,12 +2121,12 @@ verification = "The stale overlay symbols are absent; parent=511 lines, post-suc
 next_row = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 
 [same_module_operator_call_retire_i0_2026_08_30]
-status = "queued_after_s0"
+status = "fast_open"
 task_id = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount retirement"
-implementation_permission = false
+implementation_permission = true
 prerequisites = [
   "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 closed with Unresolved=0",
   "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0 landed with the retained guard green and below 760",
@@ -2139,6 +2139,33 @@ selector_grammar_rationale = "The broad true/false spellings preserve the existi
 typed_error_transport = "builder_flags.rs owns BuilderOperatorCallIngressErrorV1. Raw published and canonical resolved compiler results gain explicit bounded ingress variants; normal compile maps the same typed error to one stable terminal string. No generic BuilderContract collapse and no silent bool default."
 ingress_topology = "Three conceptual families map to five physical public methods: compile_normal; compile_raw_published_v1; and compile_resolved, compile_resolved_callable_module, compile_resolved_recursive_callable_module. One private compiler validator owns typed rejection and is invoked exactly once at each of the five public methods; placing it only in compile_resolved_first_family is insufficient. Guard counts report conceptual=3 and physical=5 separately."
 fail_fast_boundary = "Validate before normal pipeline entry, raw-published request destructure/source binding, and each resolved public-method delegation/plan/session opening. Rejection must precede candidate/session/current_module/source mutation and all operand/place/child/Const/ValueId/MIR effects; the compiler remains reusable after rejection."
+coverage_base_commit = "32094aded3"
+allowed_files = [
+  "src/config/env/builder_flags.rs",
+  "src/mir/compiler/normal_default_pipeline.rs",
+  "src/mir/compiler/raw_published_compile.rs",
+  "src/mir/compiler/mod.rs",
+  "src/mir/compiler/lowering_input.rs",
+  "src/mir/compiler/operator_call_retirement_tests.rs",
+  "src/mir/compiler/README.md",
+  "src/mir/builder/ops/arithmetic.rs",
+  "src/mir/builder/ops/comparison.rs",
+  "src/mir/builder/ops/unary.rs",
+  "src/mir/builder/ops/mod.rs",
+  "src/mir/builder/ops/README.md",
+  "src/runner/modes/common_util/resolve/strip/prelude.rs",
+  "tools/dev_env.sh",
+  "tools/selfhost/proof/run_stageb_compiler_vm.sh",
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_planner_required_dev_gate_vm.sh",
+  "tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_route_parity_smoke_vm.sh",
+  "docs/guides/operator-boxes.md",
+  "docs/reference/environment-variables.md",
+  "tools/checks/lib/mir_call_d1b_operator_retirement_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+]
 allowed_file_groups = [
   "selector/error owner: src/config/env/builder_flags.rs",
   "three ingresses/errors/tests: src/mir/compiler/{normal_default_pipeline.rs,raw_published_compile.rs,mod.rs,lowering_input.rs,operator_call_retirement_tests.rs,README.md}",
@@ -2168,6 +2195,19 @@ focused_tests = [
   "unset/false direct MIR for Add, all arithmetic/comparison/unary cohorts, compound/raw-root paths, and negative-literal fold",
   "runtime-only selectors and --dev remain accepted without legacy Builder Call publication",
   "direct structural Site/target publisher absence and script syntax checks",
+]
+changed_test_names = [
+  "selector_matrix_is_finite_and_direct_by_default",
+  "malformed_and_non_unicode_values_cannot_hide_behind_truthy_values",
+  "operator_non_unicode_selector_is_not_treated_as_unset",
+  "normal_ingress_rejects_retired_selector_before_builder_effects_and_reuses",
+  "raw_ingress_rejects_malformed_selector_before_source_binding",
+  "resolved_ingress_rejects_non_unicode_selector_before_candidate_open",
+  "unset_selectors_keep_the_direct_compiler_route",
+]
+focused_test_filters = [
+  "operator_call_ingress_tests",
+  "operator_call_retirement_tests",
 ]
 guards = [
   "active D1B operator retirement guard: exactly three compiler ingress calls; no downstream selector reads; four publishers and hardcoded targets zero; prelude Builder OR zero",

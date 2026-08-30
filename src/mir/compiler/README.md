@@ -3,6 +3,15 @@
 This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
+### Builder operator-call retirement I0
+
+The three legacy `NYASH_BUILDER_OPERATOR_BOX_*_CALL` selectors are parsed once
+at the five compiler ingress methods.  Unset/false values keep direct MIR;
+explicit truthy, malformed, and non-Unicode values terminate before source
+binding or candidate effects.  The compiler no longer publishes operator-box
+Calls from the arithmetic, comparison, or unary owners.  Runtime-only
+`NYASH_OPERATOR_BOX_*` behavior is outside this boundary and remains separate.
+
 ### Generic G0 body-shape transport I0
 
 `VerifiedResolvedSourceUnitV1::resolve_function` resolves the forest and the

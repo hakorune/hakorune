@@ -70,6 +70,7 @@ METHOD_CORRIDOR_D0_KEY = "method_corridor_nonstage1_producer_retire_d0_2026_08_2
 METHOD_RESOLUTION_RET0_KEY = "method_call_method_resolution_static_none_ret0_d0_2026_08_30"
 TYPE_FACT_GUARD_PRUNE_S0_ROW = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 TYPE_FACT_GUARD_PRUNE_S0_KEY = "mirbuilder_type_fact_partition_guard_prune_s0_2026_08_30"
+OPERATOR_ROW = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
 
 
 def fail(message: str) -> None:
@@ -746,6 +747,9 @@ def main() -> None:
         check_raw_legacy_i0(state, card, root)
     elif row == TYPE_FACT_GUARD_PRUNE_S0_ROW:
         check_type_fact_guard_prune_s0(state, card, root)
+    elif row == OPERATOR_ROW:
+        from mir_call_d1b_operator_retirement_guard import check_operator_retirement_i0
+        check_operator_retirement_i0(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

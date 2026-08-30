@@ -53,11 +53,12 @@ impl VerifiedResolvedSourceUnitV1 {
                 detail: format!("{error:?}"),
             }
         })?;
-        let (forest, body_shapes) = session.resolve_forest_with_body_shapes(view).map_err(|error| {
-            CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: format!("{error:?}"),
-            }
-        })?;
+        let (forest, body_shapes) =
+            session
+                .resolve_forest_with_body_shapes(view)
+                .map_err(|error| CanonicalLoweringErrorV1::SourceUnitResolution {
+                    detail: format!("{error:?}"),
+                })?;
         let projection = VerifiedSourceProjectionV1::seal(&root, &forest).map_err(|error| {
             CanonicalLoweringErrorV1::SourceNavigation {
                 detail: error.to_string(),
@@ -155,6 +156,9 @@ pub enum CanonicalLoweringErrorV1 {
     UnsupportedCanonicalOwnerKind,
     UnsupportedCanonicalSyntaxKind,
     UnsupportedCanonicalControlRoute,
+    OperatorCallIngress {
+        detail: String,
+    },
     MissingCorePlanSiteCarrier,
     MissingLambdaOwnerTransport,
     SourceUnitResolution {
@@ -204,6 +208,10 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             ),
             Self::UnsupportedCanonicalControlRoute => formatter.write_str(
                 "[freeze:contract][canonical_lowering/unsupported_control_route]",
+            ),
+            Self::OperatorCallIngress { detail } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/operator_call_ingress] detail={detail}"
             ),
             Self::MissingCorePlanSiteCarrier => formatter.write_str(
                 "[freeze:contract][canonical_lowering/missing_coreplan_site_carrier]",
