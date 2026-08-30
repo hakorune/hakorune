@@ -1,19 +1,18 @@
 date = "2026-08-30"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0:
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
 with the finite enum terminal and handler-order guard correction at 7c834d021a.
-The canonical Call SSOT decides that bare error is unsupported and must reject
-before argument evaluation. The bounded I0 may route only that name to the
-existing typed Rejected terminal; it must not invent a provider or change
-qualified Extern behavior. Bare now/panic/exit remain NoIssuer siblings.
-Physical thunk remains RelationPresentIssuerMissing and ParkedSealed. Do not
-mix Method(None), Resolved, Call-schema, VM/backend, package/loan, fallback,
-retry, or guard cleanup.
+The bare error retirement landed at 69680b983f using the canonical unsupported
+contract and the existing typed Rejected terminal before target synthesis and
+argument effects. Bare now/panic/exit remain NoIssuer; physical thunk remains
+RelationPresentIssuerMissing and ParkedSealed. The SameModule producer census
+is the next design stop. Do not mix Method(None), Resolved, Call-schema,
+VM/backend, package/loan, fallback, retry, or guard cleanup.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -27,9 +26,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The ordinary unissued static compatibility retirement landed at 685aaeab49 with typed terminal and guard-order correction 7c834d021a. The canonical Call SSOT decides bare error is unsupported before argument effects; the current fast row routes only that name to the existing Rejected terminal. Bare now/panic/exit remain separate NoIssuer siblings. Physical thunk remains RelationPresentIssuerMissing/ParkedSealed; guard cleanup remains parked with no proven SupersededDelete candidate."
-next_design_card = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
-next_execution_card = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
+latest_card_summary = "The ordinary unissued static compatibility retirement landed at 685aaeab49 with typed terminal and guard-order correction 7c834d021a. Bare error retirement landed at 69680b983f before target synthesis and argument effects, with focused 2/2 green evidence. Bare now/panic/exit remain separate NoIssuer siblings. Physical thunk remains RelationPresentIssuerMissing/ParkedSealed; guard cleanup remains parked with no proven SupersededDelete candidate."
+next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

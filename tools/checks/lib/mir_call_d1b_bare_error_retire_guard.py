@@ -119,7 +119,7 @@ def check_landed(root: Path, row: dict, parent_api) -> None:
     ):
         if tests.count(f"fn {name}(") != 1:
             fail(f"bare error focused test is missing or duplicated: {name}")
-    if "bare `error`" not in readme or "pre-effect" not in readme:
+    if "bare `error`" not in readme.lower() or "pre-effect" not in readme:
         fail("calls README lacks the bare error contract receipt")
 
     parent_api.check_test_coverage(root, row)

@@ -1906,9 +1906,9 @@ design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
 ceremony_tier = "T0"
 box_kind = "BoxCount finite bare-provider authority audit"
 implementation_permission = false
-decision = "Keep the remaining bare provider names in design_stop. The Cataloged ingress may not turn name plus arity into a SameModule FreeFunction. Until a language/provider contract names an exact issuer, error/now/panic/exit are NoIssuer; no implementation or new semantic receipt is opened."
+decision = "Keep the remaining bare provider names in design_stop. The Cataloged ingress may not turn name plus arity into a SameModule FreeFunction. Bare error now has its own named typed pre-effect retirement child; bare now/panic/exit remain NoIssuer until an explicit language/provider contract names an exact issuer."
 source_authority = "An existing named builtin, qualified Extern provider, Math owner, or exact same-brand callable/source relation. The parser emits only a generic identifier FunctionCall for these names and therefore does not issue a bare provider product."
-canonical_issuer = "None for bare error/now/panic/exit at HEAD 1ba49eb4fd. Qualified env/nyash/system Externs, Math special handlers, and the existing caller-less/caller-present GC retirement are separate owners and may not be reused by name."
+canonical_issuer = "None for bare now/panic/exit at HEAD 69680b983f. Bare error uses the existing Rejected terminal without a Callee issuer. Qualified env/nyash/system Externs, Math special handlers, and the existing caller-less/caller-present GC retirement are separate owners and may not be reused by name."
 non_authority = [
   "CallNameCalleeClassV1::BuiltinGlobal",
   "name/arity and CanonicalGlobalTargetV1::new_free_function",
@@ -1917,7 +1917,7 @@ non_authority = [
 fail_fast_boundary = "After TypeOp/Math/FastMem precedence and before prepare_cataloged_target_v1, resolver or argument descent, Const/ValueId, effects, block/Call publication, and any fallback. A selected name with no exact issuer must enter one named typed pre-effect terminal."
 census_boundary = "Installed non-brand Cataloged raw FunctionCall -> provider-name classification -> first target/typed-terminal; includes bare error/now/panic/exit, exact arity observations, the two Cataloged caller families, and Math/Extern/ordinary exclusions; excludes qualified Extern, Math special ingress, GC retirement already landed, RawCompatibility, wire/JSON, VM/backend, and Call schema."
 finite_inventory = [
-  "bare error: src/mir/builder/calls/function_call_preflight_route.rs -> prepare_cataloged_target_v1; no bare provider issuer found",
+  "bare error: retired by same_module_cataloged_provider_bare_error_retire_i0_2026_08_30 before prepare_cataloged_target_v1",
   "bare now: src/mir/builder/calls/function_call_preflight_route.rs -> prepare_cataloged_target_v1; exact provider is qualified env.now_ms, not bare now",
   "bare panic: same Cataloged synthesis; extern provider has no bare panic issuer",
   "bare exit: same Cataloged synthesis; qualified env.process.exit is separate and bare exit has no issuer",
@@ -1925,7 +1925,8 @@ finite_inventory = [
   "excluded owners: special_handlers.rs Math route, qualified Extern declarations, and landed GC pre-effect retirement",
 ]
 finite_states = [
-  "NoIssuer: error/now/panic/exit have no exact bare issuer; remain CutoverBlockerOpen until a language/provider decision",
+  "BareErrorRetired: existing typed Rejected terminal before target synthesis and argument effects",
+  "NoIssuer: now/panic/exit have no exact bare issuer; remain CutoverBlockerOpen until a language/provider decision",
   "QualifiedExternOwned: env/nyash/system names retain their existing qualified provider owner",
   "MathOwned: abs/min/max/sin/cos retain the existing Math owner and are outside this row",
   "Ordinary: all other identifiers retain ordinary declaration handling and are not provider evidence",
@@ -1934,21 +1935,21 @@ finite_states = [
 ordered_tasks = [
   "D0-A: reconcile the four bare names, arity observations, two production Cataloged caller families, and the first target/terminal in both directions",
   "D0-B: record NoIssuer for all four and keep qualified Extern/Math/ordinary/GC exclusions explicit; do not infer caller-zero from missing fixtures",
-  "D0-C: obtain an explicit language/provider decision for one name, or keep the name ParkedSealed with its reopen trigger",
-  "I0: only after that decision, retire one named synthesis edge to a typed pre-effect terminal or connect one exact existing provider issuer; no provider-wide implementation",
+  "D0-C: use the existing canonical unsupported contract for bare error; keep now/panic/exit ParkedSealed with their reopen triggers",
+  "I0: bare error retirement is landed; any later provider row must name one exact issuer or typed terminal and remain one-name bounded",
   "C0: rerun this finite bare-name census and return to the SameModule parent without claiming provider-wide closure",
 ]
-acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; each name has exactly one NoIssuer/qualified-owner state; no name/arity synthesis is elevated; and implementation remains closed until one language/provider contract or exact issuer is named."
+acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; bare error has one named typed retirement, now/panic/exit retain explicit NoIssuer states, no name/arity synthesis is elevated, and any further implementation remains closed until its own language/provider contract or exact issuer is named."
 no_safe_slice = "Remain in design_stop if a bare runtime provider must be invented, public language behavior is undecided, panic/exit /1 Extern semantics are not contract-backed, or the only route is resolver/name/symbol/registry/VM fallback."
 non_claims = "No error/now/panic/exit behavior change, no new provider/Extern issuer, no Math/GC change, no ordinary-static/physical-thunk/CorePlan/rewrite/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
-evidence = "Read-only audit at HEAD 220a146ae802 found the four bare names still synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. Parser treats them as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products. The existing Cataloged GC retirement is the only compatible caller-present pre-effect policy."
+evidence = "Read-only audit at HEAD 220a146ae802 found the four bare names synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. The canonical language contract then selected bare error for one bounded typed retirement; implementation landed at 69680b983f. Parser treats the remaining names as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products."
 reopen_trigger = "An explicit language/provider decision names one bare contract, or an existing same-session exact issuer for that bare name is found; otherwise keep NoIssuer/ParkedSealed and do not create a resolver or receipt."
 worker_audit_head = "220a146ae802"
 worker_audit_result = "Fresh read-only audits agree that no exact bare-provider issuer exists at this HEAD. The four names remain NoIssuer; physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. Legacy guard cleanup also has no proven SupersededDelete candidate and remains parked under the parent guard policy."
-next_execution = "parked_no_bare_issuer__explicit_language_provider_decision_required_before_i0"
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_provider_bare_error_contract_d0_2026_08_30]
-status = "accepted_design_stop"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-CONTRACT-D0"
 parent_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
 design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
@@ -1988,16 +1989,16 @@ no_safe_slice = "Remain in design_stop if the existing Rejected terminal cannot 
 non_claims = "No bare now/panic/exit change, no provider/Extern issuer, no Math/GC/ordinary-static/CorePlan/physical-thunk/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, retry, or guard cleanup."
 evidence = "The existing canonical Call SSOT already states bare error rejects; the fresh worker audits at HEAD 220a146ae802 found no bare issuer and the existing Rejected terminal is available. This row records that contract without claiming a code switch."
 reopen_trigger = "Reopen the parent if the language contract changes, the existing typed terminal cannot be placed before effects, or a same-session exact bare-error issuer is introduced by an explicit provider decision."
-next_execution = "none_until_bare_error_contract_d0_closeout"
+next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
 
 [same_module_cataloged_provider_bare_error_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-CONTRACT-D0"
 design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-CONTRACT-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape one-name pre-effect retirement"
-implementation_permission = true
+implementation_permission = false
 decision = "Retire only bare error at the existing typed Rejected terminal before target synthesis and argument effects. Do not invent a bare provider, change qualified Extern, or touch now/panic/exit."
 source_authority = "The accepted language contract in docs/reference/language/function-call-evaluation.md and mir-canonical-callsite-lane-ssot.md; the parser remains a generic FunctionCall source and issues no bare provider."
 canonical_issuer = "None. PreparedRawOrdinaryFunctionCompletionV1::Rejected is the sole terminal; no Callee or new semantic receipt is issued."
@@ -2042,14 +2043,23 @@ forbidden_files = [
   "package/loan, VM/backend, JSON, Call schema, fallback, retry, guard cleanup",
 ]
 focused_test_filters = ["bare_error"]
-changed_test_names = []
-coverage_base_commit = ""
-implementation_commit = ""
-focused_test_runs = []
+changed_test_names = [
+  "cataloged_bare_error_rejects_before_target_synthesis",
+  "cataloged_bare_error_rejection_does_not_descend_or_publish",
+]
+coverage_base_commit = "8a9546db2a"
+implementation_commit = "69680b983f"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --quiet --profile quick --lib bare_error -- --test-threads=1: 2 passed, 0 failed",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "rustfmt --edition 2021 --check on touched Rust files: pass",
+  "git diff --check: pass",
+]
 guard = "The existing active-surface lifecycle guard dispatches a dedicated bare-error checker; fast_open validates only activation scope, while landed validates branch ordering, focused tests, changed-test coverage, and allowed paths."
-evidence = "Activation only: the accepted language contract and existing Rejected terminal are recorded; no production code switch is claimed until I0 lands."
+evidence = "Implementation landed at 69680b983f. Installed non-brand bare error now enters PreparedRawOrdinaryFunctionCompletionV1::Rejected before prepare_cataloged_target_v1 and argument descent; static and instance Cataloged caller forms are covered by two focused tests, with 2/2 passed and no child events or MirInstruction::Call."
 reopen_trigger = "Reopen the parent if the language contract changes, the existing terminal cannot precede effects, or an explicit same-session bare-error issuer is introduced."
-next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-ERROR-RETIRE-I0"
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_gc_retire_i0_2026_08_30]
 status = "landed"
