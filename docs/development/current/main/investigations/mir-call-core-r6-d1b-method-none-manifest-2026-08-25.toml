@@ -2229,7 +2229,7 @@ ordered_tasks = [
   "R0-C: extract only unanchored recursive raw-port pending/owner helpers into a private sibling; leave all guard-anchored impls in the parent",
   "R0-D: run rustfmt/check, focused existing tests, pointer/line/diff checks, then close out to the parent design stop",
 ]
-acceptance = "normal_callable_semantic_loan_port.rs remains at 747 lines and recursive_child_lowering.rs at 667 lines, both below 760 and the 800 hard stop; pending_helpers.rs is 98 lines; module paths, visibility, signatures, fields, public re-exports, guard-observed tokens, call order, test names, and runtime behavior are unchanged; quick library check and the two exact existing port tests pass; no semantic implementation claim is made."
+acceptance = "normal_callable_semantic_loan_port.rs remains below 760 lines and recursive_child_lowering.rs at 667 lines, both below the 800 hard stop; pending_helpers.rs is 98 lines; module paths, visibility, signatures, fields, public re-exports, guard-observed tokens, call order, test names, and runtime behavior are unchanged; quick library check and the two exact existing port tests pass; no semantic implementation claim is made."
 no_safe_slice = "Stop and restore design_stop if moving a block requires changing an existing guard or source consumer, adding a public API/re-export, changing a signature/field/enum/call order, touching semantic/Call/VM/backend/panic code, creating a new issuer/receipt, or crossing the 760/800 line budget."
 non_claims = "No DeclaredInstance co-seal, Method(Some) cutover, direct-call loan, target issuer, Method(None)/Resolved retirement, panic/throw/exit change, Call schema change, VM/backend/JSON change, fallback/retry change, or guard deletion/new registry row."
 allowed_files = [
