@@ -1,26 +1,17 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-The generic lease tail test-only BoxShape extraction landed at 892526b4d6
-with focused five-test, quick check, rustfmt, line-budget, isolated
-loop-family guard, pointer, and diff evidence. The aggregate
-mirbuilder_inplace_replacement_guard still has a reproduced unrelated raw
-Loop/JoinIR route-freeze-owner baseline red; do not hide or fold it into this
-row. The sole semantic blocker remains true DeclaredInstance me.method:
-source/catalog/receiver/ABI co-seal issuer is still absent. Do not infer from
-names, headers, registries, fixtures, or backends; do not add a resolver,
-parallel family loan, fallback, retry, Method/Call/VM/backend change, or
-Result/panic/throw work until an exact issuer is named. Legacy guard cleanup
-remains parked unless SupersededDelete proof exists.
-D0-B2/B3 refresh at HEAD 3f02266d84 traced a concrete
-Ordinary.call -> me.target case: source facts, same-brand declaration,
-selected slot, and receiver ABI exist independently, but no reusable
-caller-site-to-callee issuer or complete generic result/effect owner exists.
-Keep true DeclaredInstance ParkedSealed; do not open an inferred bridge.
+MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0:
+the earlier typed terminal dominates the sole helper caller.
+Remove only the unreachable helper-local `name == "print"` target arm.
+Preserve ASTNode::Print -> builtin_print and generic BuiltinGlobal behavior.
+No DeclaredInstance, Method/Call schema, VM/backend, panic/throw/Result,
+package/loan, fallback, retry, or guard-registry work. Run focused evidence,
+then return to the parent design stop. True DeclaredInstance remains
+ParkedSealed because its exact co-seal issuer is absent.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -53,10 +44,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The generic lease tail test-only BoxShape row landed at 892526b4d6: the final two tests now live in a private include! sibling, preserving the historical path, private access, guards, behavior, and line budget; focused 5/5 and quick checks are green. An unrelated aggregate mirbuilder guard baseline red is recorded, not hidden. A fresh D0-B2/B3 audit at 3f02266d84 traced Ordinary.call -> me.target and closed with no reusable caller-site issuer or complete generic result/effect owner; true DeclaredInstance remains ParkedSealed and is the only semantic blocker. Panic/throw policy is accepted but panic production is 0/ParkedSealed, bare exit remains NoIssuer, and Result/? remains a separate production-0 lane."
+latest_card_summary = "A worker audit found one independent caller-zero cleanup: prepare_cataloged_target_v1 still contains an unreachable print-specific target arm, while the earlier InstalledNonBrand print retirement and dedicated ASTNode::Print -> builtin_print() owner remain live. The selected fast row removes only that stale arm and then returns to the parent design stop. True DeclaredInstance remains ParkedSealed and is not touched; panic/throw/Result remain separate production-0 lanes."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

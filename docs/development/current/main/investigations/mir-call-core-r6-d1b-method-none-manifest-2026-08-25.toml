@@ -1958,6 +1958,78 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-CALLER-ZERO-RETIRE-I0"
+ceremony_tier = "T0"
+box_kind = "BoxShape caller-zero dead target-preparation arm prune"
+implementation_permission = true
+decision = "The already-retired InstalledNonBrand Cataloged FunctionCall print branch has one remaining unreachable print-specific target arm inside prepare_cataloged_target_v1. Delete only that arm; preserve the earlier typed BuiltinPrintCataloged terminal, the dedicated ASTNode::Print -> builtin_print() owner, and all generic BuiltinGlobal behavior."
+source_authority = "Parser-owned ASTNode::Print and CanonicalGlobalTargetV1::builtin_print() remain the sole print production authority. This row issues no target and does not alter the existing retirement terminal."
+canonical_issuer = "Existing stmts/print_stmt.rs builtin_print() only; no ordinary FunctionCall name/arity arm may issue print."
+non_authority = [
+  "prepare_cataloged_target_v1's dead print arm, CallNameCalleeClassV1::BuiltinGlobal, name/arity synthesis, resolver, catalog, registry, symbol, MIR, runtime, test fixture, fallback, and retry",
+]
+fail_fast_boundary = "If the top-level InstalledNonBrand caller-present print retirement is not still before prepare_cataloged_target_v1, or if any non-test production caller reaches the helper for print, stop before deleting the arm."
+census_boundary = "prepare_ordinary_function_completion_v1's InstalledNonBrand caller-present print terminal -> prepare_cataloged_target_v1 BuiltinGlobal branch; includes the sole helper caller, dedicated Print owner, existing print tests, and reusable active-surface guard; excludes generic BuiltinGlobal names, ASTNode::Print lowering, panic/exit/error/now, Method/Call schema, VM/backend, and guard retirement."
+finite_inventory = [
+  "sole helper caller: src/mir/builder/calls/function_call_preflight_route.rs::prepare_ordinary_function_completion_v1",
+  "dead arm: prepare_cataloged_target_v1 name == print -> CanonicalGlobalTargetV1::builtin_print()",
+  "retained terminal: RawOrdinaryFunctionRetirementV1::BuiltinPrintCataloged",
+  "sole production print owner: src/mir/builder/stmts/print_stmt.rs::builtin_print",
+  "focused behavior evidence: function_call_installed_gc_builtin_tests.rs and function_call_preflight_route_tests.rs",
+]
+finite_states = [
+  "RetiredBeforeHelper: InstalledNonBrand caller-present print reaches BuiltinPrintCataloged before helper; retained",
+  "DeadTargetArm: helper-local print target arm has no production path; delete",
+  "GenericBuiltinGlobal: all non-print generic handling remains unchanged",
+  "UnexpectedCaller: a production helper print caller is a NoSafeSlice",
+]
+old_edge_delete_set = [
+  "prepare_cataloged_target_v1 name == print -> CanonicalGlobalTargetV1::builtin_print()",
+]
+allowed_files = [
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs",
+  "src/mir/builder/calls/function_call_preflight_route_tests.rs",
+  "src/mir/builder/stmts/print_stmt.rs",
+  "src/mir/builder/calls/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_cataloged_print_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/resolver.rs",
+  "Method/Call schema",
+  "panic/exit/error/now",
+  "VM/backend/JSON/runtime",
+  "package/loan",
+  "guard registry deletion",
+]
+ordered_tasks = [
+  "D0: confirm the helper has exactly one production caller and that the earlier typed print terminal dominates it",
+  "R0: remove only the helper-local print target arm; preserve generic BuiltinGlobal handling and the dedicated Print owner",
+  "C0: run existing cataloged-print positive/negative and Print-owner tests, structural caller-zero guard, quick check, and return to the parent design stop",
+]
+acceptance = "The helper-local print target arm is absent; the earlier BuiltinPrintCataloged terminal remains before helper entry; the dedicated ASTNode::Print owner still projects builtin_print(); generic BuiltinGlobal names are unchanged; focused positive/negative tests and the reusable guard pass; no new issuer, resolver, target, effect, fallback, or retry is introduced."
+no_safe_slice = "Do not land if any production/test caller outside the known helper reaches the deleted arm, the earlier terminal is no longer total, generic BuiltinGlobal behavior must change, or the row crosses print statement semantics, providers, Method/Call schema, VM/backend, package/loan, or 760/800 boundaries."
+non_claims = "No provider-wide closure, no panic/exit/error/now decision, no ordinary static/DeclaredInstance/Method/Call cutover, no Call schema, VM/backend/JSON, package/loan, fallback/retry, or guard deletion."
+focused_test_filters = [
+  "cataloged_print",
+  "cataloged_target_preflight_applies_total_shadow_order",
+  "mir::builder::stmts::print_stmt::tests::",
+]
+changed_test_names = []
+implementation_commit = ""
+guard = "Reuse the existing cataloged-print active-surface dispatch and extend its structural check to assert the helper-local print arm is absent and the sole caller/earlier terminal relationship remains."
+reopen_trigger = "Reopen only if a production caller for the helper-local print arm appears, the dedicated ASTNode::Print owner changes, or the earlier typed print terminal no longer dominates helper entry."
+next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0__implementation_pending_pointer_switch"
+
 [mir_call_me_declared_instance_relation_issuer_d0_2026_08_31]
 status = "accepted_design_stop"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"

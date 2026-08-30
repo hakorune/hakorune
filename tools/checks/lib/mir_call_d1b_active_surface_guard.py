@@ -35,7 +35,9 @@ from mir_call_d1b_method_corridor_guard import (
 )
 from mir_call_d1b_cataloged_print_guard import (
     CATALOGED_PRINT_RETIRE_ROW,
+    CATALOGED_PRINT_TARGET_ARM_PRUNE_ROW,
     check_cataloged_print_caller_zero_retire_i0,
+    check_cataloged_print_target_arm_prune_r0,
 )
 from mir_call_d1b_same_module_target_only_guard import (
     ORDINARY_STATIC_TARGET_ONLY_I0_ROW,
@@ -360,6 +362,8 @@ def main() -> None:
         check_cataloged_gc_retire_i0(state, card, root)
     elif row == CATALOGED_PRINT_RETIRE_ROW:
         check_cataloged_print_caller_zero_retire_i0(state, card, root, api)
+    elif row == CATALOGED_PRINT_TARGET_ARM_PRUNE_ROW:
+        check_cataloged_print_target_arm_prune_r0(state, card, root, api)
     elif row == ORDINARY_STATIC_TARGET_ONLY_I0_ROW:
         check_ordinary_static_target_only_i0(state, card, root, api)
     elif row == RAW_LEGACY_ROW:

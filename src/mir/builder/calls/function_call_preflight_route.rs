@@ -498,17 +498,13 @@ fn prepare_cataloged_target_v1(
         classification,
         crate::mir::policies::call_name_classification::CallNameCalleeClassV1::BuiltinGlobal
     ) {
-        let target = if name == "print" {
-            CanonicalGlobalTargetV1::builtin_print()
-        } else {
-            CanonicalGlobalTargetV1::new_free_function(
-                name.into(),
-                u32::try_from(arity).map_err(|_| {
-                    "[freeze:contract][direct-call/global-target/arity-overflow]".to_owned()
-                })?,
-            )
-            .map_err(|error| format!("[freeze:contract][direct-call/global-target/{error:?}]"))?
-        };
+        let target = CanonicalGlobalTargetV1::new_free_function(
+            name.into(),
+            u32::try_from(arity).map_err(|_| {
+                "[freeze:contract][direct-call/global-target/arity-overflow]".to_owned()
+            })?,
+        )
+        .map_err(|error| format!("[freeze:contract][direct-call/global-target/{error:?}]"))?;
         return resolve_catalog_call_target_v1(builder, CallTarget::Global(target));
     }
 
