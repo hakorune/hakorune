@@ -143,6 +143,90 @@ def check_bare_error_retire_i0(state: dict, card: dict, root: Path, parent_api=a
         check_landed(root, row, parent_api)
 
 
+def check_bare_now_retire_i0(state: dict, card: dict, root: Path, parent_api=api) -> None:
+    """Check the adjacent one-name bare-now retirement row."""
+    row_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-RETIRE-I0"
+    card_key = "same_module_cataloged_provider_bare_now_retire_i0_2026_08_30"
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("bare now retirement requires fast or closeout work_mode")
+    if state.get("current_execution_row") != row_id:
+        fail("bare now retirement row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("bare now retirement must clear current_design_stop")
+    if state.get("next_execution_card") != row_id:
+        fail("bare now retirement pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("bare now retirement card pointer drifted")
+
+    row = card.get(card_key)
+    if not isinstance(row, dict):
+        fail(f"{card_key} section is missing")
+    if row.get("task_id") != row_id:
+        fail("bare now retirement task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("bare now retirement status is not finite")
+    if row.get("implementation_permission") is not (row.get("status") == "fast_open"):
+        fail("bare now retirement permission/status drifted")
+
+    expected = {
+        str(ROUTE_REL),
+        str(TESTS_REL),
+        str(README_REL),
+        str(GUARD_REL),
+        str(PARENT_GUARD_REL),
+        "docs/reference/language/function-call-evaluation.md",
+        str(STATE_REL),
+        str(CARD_REL),
+        str(WORKSTREAM_REL),
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected:
+        fail("bare now retirement allowed-file boundary drifted")
+    for rel in (ROUTE_REL, TESTS_REL, GUARD_REL, PARENT_GUARD_REL):
+        path = root / rel
+        if not path.is_file():
+            fail(f"bare now retirement owner is missing: {rel}")
+        if len(path.read_text(encoding="utf-8").splitlines()) >= 760:
+            fail(f"bare now retirement owner reached the 760-line boundary: {rel}")
+
+    if row.get("status") == "fast_open":
+        if row.get("changed_test_names") != [] or row.get("focused_test_runs") != []:
+            fail("fast_open bare now row must not claim tests")
+        return
+
+    route = text(root, ROUTE_REL)
+    tests = text(root, TESTS_REL)
+    readme = text(root, README_REL)
+    start = route.find("fn prepare_ordinary_function_completion_v1")
+    end = route.find("fn is_installed_non_unified_gc_builtin_v1")
+    if start < 0 or end <= start:
+        fail("ordinary completion owner cannot be located")
+    completion = route[start:end]
+    branch = completion.find('matches!(name, "error" | "now")')
+    target_prep = completion.find("prepare_cataloged_target_v1")
+    rejected = completion.find("PreparedRawOrdinaryFunctionCompletionV1::Rejected")
+    if min(branch, target_prep, rejected) < 0:
+        fail("bare now pre-effect branch evidence is missing")
+    if not (branch < rejected < target_prep):
+        fail("bare now reject is not before target preparation")
+    if route.count("[freeze:contract][direct-call/bare-now-unsupported]") != 1:
+        fail("bare now terminal tag is not unique")
+    for name in (
+        "cataloged_bare_now_rejects_before_target_synthesis",
+        "cataloged_bare_now_rejection_does_not_descend_or_publish",
+    ):
+        if tests.count(f"fn {name}(") != 1:
+            fail(f"bare now focused test is missing or duplicated: {name}")
+    if "bare `now`" not in readme.lower() or "pre-effect" not in readme:
+        fail("calls README lacks the bare now contract receipt")
+
+    parent_api.check_test_coverage(root, row)
+    base = parent_api.require_text(row.get("coverage_base_commit"), "bare now coverage_base_commit")
+    changed = parent_api.git_diff_paths(root, base)
+    if not changed.issubset(expected):
+        fail(f"bare now retirement changed paths exceed boundary: {sorted(changed - expected)}")
+
+
 if __name__ == "__main__":
     import sys
     import tomllib

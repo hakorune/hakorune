@@ -36,6 +36,10 @@ name and rejects before argument evaluation; qualified providers such as
 `env.console.error` remain separate Extern contracts and are not inferred from
 the bare spelling.
 
+Bare `now` follows the same unsupported-name contract and rejects before
+argument evaluation. The qualified `env.now_ms` provider remains a separate
+declared Extern owner; the bare spelling does not infer or alias it.
+
 Within the SelectedNormal admission cohort, multiple source occurrences that
 project to the same effective top-level `name/arity` physical symbol are an
 ambiguous direct target. They reject before body lowering and before argument
