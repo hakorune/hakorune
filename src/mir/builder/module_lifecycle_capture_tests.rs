@@ -20,6 +20,9 @@ use crate::parser::NyashParser;
 #[path = "module_lifecycle_ingress_tests.rs"]
 mod module_lifecycle_ingress_tests;
 
+#[path = "module_lifecycle_failure_tests.rs"]
+mod lifecycle_failure_tests;
+
 #[derive(Default)]
 struct RecordingOrdinaryPortV1 {
     methods: Vec<(String, String, usize)>,
@@ -747,26 +750,4 @@ fn instance_constructor_batch_stops_after_first_failure() {
 
     assert_eq!(error, "selected instance method failure: Page.birth/1");
     assert_eq!(port.instance_methods, vec!["Page.birth/0", "Page.birth/1"]);
-}
-
-#[test]
-fn deferred_static_box_lifecycle_restores_context_and_stops_after_failure() {
-    let mut builder = MirBuilder::new();
-    let mut port = RecordingOrdinaryPortV1 {
-        fail_static_method: Some("Broken.beta/0".to_owned()),
-        record_only_static: true,
-        ..RecordingOrdinaryPortV1::default()
-    };
-
-    let (name, methods) = parsed_static_box(
-        "static box Broken { gamma() { return 3 } beta() { return 2 } alpha() { return 1 } }",
-    );
-    let error = ProgramDeferredStaticBoxLifecycleV1::new(name, methods)
-        .lower_with_port_v1(&mut builder, &mut port)
-        .expect_err("selected static method must fail");
-
-    assert_eq!(error, "selected static method failure: Broken.beta/0");
-    assert_eq!(port.static_methods, vec!["Broken.alpha/0", "Broken.beta/0"]);
-    assert_eq!(port.static_context_active, vec![true, true]);
-    assert!(builder.comp_ctx.compilation_context.is_none());
 }
