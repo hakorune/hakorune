@@ -75,6 +75,15 @@ preserves it, the tool owns a non-semantic record outside both grammar profiles;
 it cannot use a parser retry or a compatibility alias to reach canonical AST,
 MIR, runtime, or backend lowering.
 
+`panic(message)` is intentionally not a separate grammar-registry production.
+It uses the ordinary `FunctionCall` production and remains an identifier token;
+the semantic-kernel and call-evaluation owners reserve only the exact bare
+`panic/1` spelling with a verified `String` argument. That semantic reservation
+is an accepted target with production activation `0`, and must not be inferred
+from a registry lookup, `name/arity` synthesis, or an `Extern` string. The
+reserved panic target is a successorless Fault route, not `throw`, `catch`, or
+an ordinary callable grammar row.
+
 ## Normalization Modes
 
 ```text
