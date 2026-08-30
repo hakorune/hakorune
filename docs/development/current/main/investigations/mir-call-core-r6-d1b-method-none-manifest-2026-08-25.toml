@@ -1958,6 +1958,71 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_call_me_declared_instance_relation_issuer_d0_2026_08_31]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+design_parent = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T1"
+box_kind = "BoxCount source-backed relation issuer design"
+implementation_permission = false
+decision = "Retain true DeclaredInstance me.method as ordinary language syntax whose clean canonical form is Method(Some(receiver)) with N source arguments. Permit exactly one package-side source-backed relation issuer only after it co-seals the existing resolved source row with the same-session InstanceBoxMethod declaration, catalog/package brand, bound receiver relation, physical ABI, and complete result/effect contracts. Until that issuer exists, this family remains NoSafeSlice; do not infer a target from names, headers, registries, fixtures, or backends."
+source_authority = "The source side is the existing resolver-owned VerifiedResolvedMethodCallSourceV1: exact caller owner, call site, receiver site, preserved BodyMeReceiverV1 disposition, argument source sites, selector, arity, and result site. The declaration side is the same-session source-backed callable catalog and its InstanceBoxMethod row/brand. Receiver and physical contracts must come from their existing owners; none may be reconstructed by the Builder."
+canonical_issuer = "No complete issuer exists at this HEAD. If D0 proves the missing joins, the sole permitted candidate is one private package-side assembler at src/mir/normal_callable_semantic_package/declared_instance_call.rs, invoked once by the existing package issuer. It may co-seal existing products but may not become a second resolver or parallel family pipeline."
+non_authority = [
+  "method/name/arity text, current_static_box, variable_map, generated symbols, first-Box headers, registry or slot lookup, physical MIR/header facts, backend/VM behavior, test fixtures, fallback, retry, and any generic CatalogedTargeted payload",
+  "a lexical me receiver by itself, a declaration_for lookup without a source-backed relation, a selected slot without caller/site ownership, and an incomplete result/effect or ABI record",
+]
+fail_fast_boundary = "A complete relation must be verified before receiver materialization, ValueId creation, argument descent/effects, Const or MIR Call publication, collector mutation, or backend projection. Missing, duplicate, foreign, ambiguous, or incomplete relations take one typed pre-effect terminal; no fallback, retry, or normal success successor is allowed."
+census_boundary = "VerifiedResolvedMethodCallSourceV1 for an InstanceBoxMethod/DeclaredInstance caller -> same-session InstanceBoxMethod declaration/catalog brand -> bound receiver relation and physical receiver ABI -> complete function result/effect contract -> one package co-seal point; includes lexical declared-instance me.method and its exact source/receiver sites, excludes StaticCurrentOwner, qualified/static compatibility, Method(None), generic CatalogedTargeted, ordinary-new, CorePlan/provider/thunk, panic/throw/Result, VM/backend, JSON, and final Call-schema work."
+finite_inventory = [
+  "source facts: src/mir/resolved_semantics/body_shape.rs::VerifiedResolvedMethodCallSourceV1 and ResolvedMethodCallReceiverSourceV1",
+  "source aggregate: src/mir/resolved_semantics/product.rs::ResolvedFunctionDataV1::method_calls",
+  "source/catalog target inventory: src/mir/source_call_target/whole_source_inventory.rs and source_method_call_site.rs",
+  "declaration authority: src/mir/builder/callable_declaration_catalog and CanonicalSameModuleCallableKeyV1::InstanceBoxMethod",
+  "package owner: src/mir/normal_callable_semantic_package/issuer.rs and physical_signature.rs",
+  "completion/result owner: src/mir/resolved_control_flow/function_control.rs and completion_seed.rs",
+  "existing Builder consumer that must remain closed: src/mir/builder/method_call_handlers.rs",
+]
+finite_states = [
+  "CompleteRelation: one source/site/owner + InstanceBoxMethod declaration/brand + bound receiver + ABI + result/effect row; eligible for a later Method(Some(receiver)) I0",
+  "MissingSourceRelation: source facts exist but caller-site-to-declaration relation is absent; NoSafeSlice",
+  "MissingReceiverRelation: lexical receiver exists but bound receiver/physical lane is not co-sealed; NoSafeSlice",
+  "MissingResultOrEffect: result or call-effect owner is absent/incomplete; NoSafeSlice",
+  "ForeignOrDuplicate: caller/site/brand/declaration/receiver relation is foreign, duplicate, or ambiguous; typed pre-effect reject",
+  "ShapeDrift: selector, arity, receiver site, ABI lane, or return contract differs; typed pre-effect reject without repair",
+  "ParkedSealed: relation cannot be completed without a new authority or explicit language/ABI retirement decision; remain outside implementation",
+]
+relation_shape = "The eventual private relation may carry caller_owner, call_site, receiver_site, receiver_binding, target_identity/key/slot borrowed from the catalog, receiver_lane proof, physical_callable_lane_count, and existing result/effect contracts. It must not carry AST nodes, ValueId, Callee, physical symbols, MIR, or a cloned argument list; it is a source/catalog relation, not the affine consumption loan."
+ordered_tasks = [
+  "D0-A: prove the exact source-site -> InstanceBoxMethod declaration/brand join for every in-bound DeclaredInstance row, including duplicate/foreign/receiver-site failures; do not use name/arity as a substitute",
+  "D0-B: identify one existing complete bound-receiver/physical-ABI owner and one complete result/effect owner; if either is absent, record the precise NoSafeSlice and do not add a receipt",
+  "D0-C: if A and B both close, design the one package-side relation assembler and its finite error matrix; reuse existing products and keep implementation_permission=false until the active pointer selects it",
+  "I0 (conditional): only after D0-C acceptance, co-seal the relation once, transport it through the common direct-call disposition mechanism, and switch the real consumer to Method(Some(receiver)) before N source arguments",
+  "R0 (later): after caller-zero proof, delete only the DeclaredInstance header/symbol/receiver-prefix reconstruction; keep Method(None), Call schema, VM/backend, and unrelated families separate",
+]
+acceptance = "D0 is complete only when the finite DeclaredInstance boundary has one named source authority, one conditional issuer location, one complete receiver/ABI owner, one complete result/effect owner, and one exhaustive failure table. No production target, ValueId, loan, MIR Call, fallback, retry, or new semantic receipt is issued by this design row."
+no_safe_slice = "Remain in design_stop and ParkedSealed if caller-site-to-callee identity, bound receiver/ABI, or result/effect ownership cannot be co-sealed from existing source-backed products; if declaration_for requires generic name/arity lookup; if a parallel family loan/resolver is proposed; or if the row crosses Method(None), Call schema, VM/backend, JSON, panic/throw/Result, or the 760/800 source boundary."
+non_claims = "No DeclaredInstance implementation, Method(Some(receiver)) production switch, direct-call loan, Call schema change, Method(None) or Resolved retirement, header/symbol/registry cleanup, fallback/retry, VM/backend/JSON work, panic/throw/Result/? work, guard deletion, or full ordinary Call completion."
+allowed_files = [
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+]
+forbidden_files = [
+  "src/mir/normal_callable_semantic_package/declared_instance_call.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+  "panic/throw/Result/?",
+]
+worker_audit_result = "Read-only audits at HEAD 3f02266d84 and follow-up review found no reusable generic caller-site-to-callee issuer. A concrete Ordinary.call -> me.target case has source facts, same-brand declaration, selected slot, and receiver ABI independently, but no complete relation or generic result/effect owner. The only permitted next move is to name those missing owners or keep the family ParkedSealed; do not infer a bridge."
+reopen_trigger = "Reopen implementation only when one existing package invocation can co-seal the exact source/site/owner, InstanceBoxMethod declaration and brand, bound receiver and physical ABI, and complete result/effect contracts. A header, name, registry, fixture, backend, selected slot, or test-only relation is not a reopen trigger."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop"
+
 [mir_builder_boxshape_generic_lease_tail_test_s0_2026_08_31]
 status = "landed_with_baseline_guard_red"
 task_id = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
