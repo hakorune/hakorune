@@ -1959,13 +1959,13 @@ worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact 
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_builder_boxshape_generic_lease_tail_test_s0_2026_08_31]
-status = "accepted_design_ready_for_i0"
+status = "landed_with_baseline_guard_red"
 task_id = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape behavior-preserving test-only extraction"
-implementation_permission = true
+implementation_permission = false
 decision = "Move only the final two existing tests from generic_resolved_carrier_source_lease_tests.rs into a private include! sibling. Preserve test bodies, private access, historical module/test paths, parent imports, guard anchors, production code, and behavior; this row only removes the test-only 760/800-line breach and does not open the DeclaredInstance issuer stop."
 source_authority = "The existing generic_resolved_carrier_source_lease test module, its private helpers/imports, and the two existing test bodies are the only authority. Test placement introduces no semantic issuer, target, receiver, ABI, effect, runtime, or production meaning."
 canonical_issuer = "None. This is a test-only BoxShape row; the parent DeclaredInstance row remains NoSafeSlice and no semantic product is issued."
@@ -2022,9 +2022,24 @@ changed_test_names = [
   "source_lease_rejects_identity_and_role_input_mismatches",
 ]
 worker_audit_result = "Read-only audit at HEAD 4f9ed71734 found one unlanded test-only BoxShape candidate: the final two tests occupy lines 663-795 of a 796-line parent. A path-preserving include! sibling keeps private helpers, module paths, and existing loop-family guard anchors unchanged; no semantic or production owner is introduced. Existing candidate_envelope_witness remains a separate child and is not moved."
-focused_test_runs = []
-guard = "Use loop_family_observation_contract.sh without changing its parent path, current_state_pointer_guard.sh, cargo --list, exact focused cargo test, targeted rustfmt, line-budget census, and git diff --check. No new registry row or semantic guard is added."
-evidence = "Pending implementation; the design audit is complete and implementation is allowed only for this test-only split after CURRENT_STATE selects the row in fast mode."
+implementation_commit = "892526b4d6"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib mir::resolved_semantics::generic_resolved_carrier_source_lease::tests -- --test-threads=1: 5 passed; 0 failed; 7532 filtered out",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib mir::resolved_semantics::generic_resolved_carrier_source_lease::tests -- --list: 5 tests listed under the historical module path",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass; existing warnings only",
+  "rustfmt --edition 2021 --check src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tests.rs src/mir/resolved_semantics/generic_resolved_carrier_source_lease_tail_tests.rs: pass",
+  "line-budget census: parent=664 lines, sibling=132 lines, both below 760/800: pass",
+]
+guard_runs = [
+  "guard_loop_family_observation_contract isolated invocation: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass while S0 selected",
+  "git diff --check: pass",
+  "bash tools/checks/mirbuilder_inplace_replacement_guard.sh: exit 1 at pre-existing raw Loop callers must share one JoinIR route/freeze owner baseline; no current-change source/guard drift observed",
+]
+evidence = "Implementation is complete in 892526b4d6: the two tail test bodies moved verbatim to the private include! sibling, parent=664 lines and sibling=132 lines, the historical module path lists and executes all five lease tests, the focused suite passed 5/5, quick library check and rustfmt passed, the isolated loop-family guard passed, and pointer/diff checks passed. The aggregate mirbuilder_inplace_replacement_guard remains a known baseline red at its unrelated raw Loop route/freeze-owner check; the split did not touch that route. No production function, fixture, registry, semantic route, or meaning changed."
+red_classification = "Known baseline red only: mirbuilder_inplace_replacement_guard.sh exits at the pre-existing raw Loop callers/JoinIR route-freeze-owner check. The row-specific isolated loop_family_observation_contract, focused five-test suite, cargo check, rustfmt, line budget, pointer guard, and diff check are green. No current-change red was observed."
+closeout = "Restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and set next_execution_card=none. Keep true DeclaredInstance source/catalog/receiver/ABI co-seal as the only semantic blocker."
+guard = "Use loop_family_observation_contract.sh without changing its parent path, current_state_pointer_guard.sh, cargo --list, exact focused cargo test, targeted rustfmt, line-budget census, and git diff --check. The aggregate mirbuilder_inplace_replacement_guard is recorded as a reproduced baseline red and is not hidden or repaired by this BoxShape row. No new registry row or semantic guard is added."
 reopen_trigger = "Reopen only if the historical module path/private access cannot be preserved, a guard starts requiring the inline tail, a production caller/module surface changes, either file reaches 760/800 lines, or the parent DeclaredInstance semantic boundary changes."
 next_execution = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0__implementation_pending_pointer_switch"
 

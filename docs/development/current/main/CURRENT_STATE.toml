@@ -1,17 +1,21 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0:
-This is a test-only BoxShape extraction. Move only the final two existing
-generic_resolved_carrier_source_lease tests into a private include! sibling;
-preserve the historical module path, private access, imports, guard anchors,
-production code, behavior, and the 760/800 line boundary. Do not touch
-DeclaredInstance, Method/Call, Result/panic/throw, VM/backend, fallback,
-retry, or guard registry. Return to design_stop on semantic, visibility,
-module-path, fixture, guard, baseline-red, or line-budget drift.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+The generic lease tail test-only BoxShape extraction landed at 892526b4d6
+with focused five-test, quick check, rustfmt, line-budget, isolated
+loop-family guard, pointer, and diff evidence. The aggregate
+mirbuilder_inplace_replacement_guard still has a reproduced unrelated raw
+Loop/JoinIR route-freeze-owner baseline red; do not hide or fold it into this
+row. The sole semantic blocker remains true DeclaredInstance me.method:
+source/catalog/receiver/ABI co-seal issuer is still absent. Do not infer from
+names, headers, registries, fixtures, or backends; do not add a resolver,
+parallel family loan, fallback, retry, Method/Call/VM/backend change, or
+Result/panic/throw work until an exact issuer is named. Legacy guard cleanup
+remains parked unless SupersededDelete proof exists.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -44,10 +48,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "A bounded test-only BoxShape row is selected in fast mode: move the final two generic_resolved_carrier_source_lease tests into a private include! sibling, preserving the historical path, private access, guards, behavior, and line budget. DeclaredInstance remains the only semantic blocker; panic/throw reference policy is accepted but panic production is 0/ParkedSealed, bare exit remains NoIssuer, and Result/? remains a separate production-0 lane."
+latest_card_summary = "The generic lease tail test-only BoxShape row landed at 892526b4d6: the final two tests now live in a private include! sibling, preserving the historical path, private access, guards, behavior, and line budget; focused 5/5 and quick checks are green. An unrelated aggregate mirbuilder guard baseline red is recorded, not hidden. DeclaredInstance remains the only semantic blocker; panic/throw reference policy is accepted but panic production is 0/ParkedSealed, bare exit remains NoIssuer, and Result/? remains a separate production-0 lane."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+next_execution_card = "none"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
