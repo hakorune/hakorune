@@ -75,9 +75,11 @@ fallback, and second resolvers are not authority. The earlier GC and
 caller-zero Print retirements remain recorded in the manifest, while the
 dedicated `ASTNode::Print -> builtin_print()` owner stays unchanged.
 
-The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`,
-and ordinary-new remains `CarrierMismatch`/`ParkedSealed`; none is reopened by
-the operator work. The user selected retirement for only the legacy
+The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
+ordinary-new is no longer an unexplained carrier dead-end: its next bounded
+successor is a parser-owned typed constructor product plus a package co-seal
+and shared N/N+1 ABI, while implementation remains closed until the pointer
+switch. The user selected retirement for only the legacy
 `NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
 audits closed the boundary at three compiler ingresses, four target publishers,
 six structural source ingresses, one prelude coupling, and finite repo-owned
@@ -94,12 +96,17 @@ therefore `ParkedSealed` until the 389-row accepted corpus has portable-owner or
 approved typed-reject coverage and the M8/M9/precutover deletion manifest is
 ready. No immediate GlobalCall-only or whole-loop retirement row is open.
 
-The next bounded design proof is `rewrite/known`: two production-live to-dst
+`rewrite/known` remains a parity-open candidate: two production-live to-dst
 writers and the equals delegation can retire together by preserving the already-
 owned typed `Method(Some(receiver))` route, while two caller-zero no-dst chains
-are removed in the same cleanup. Existing ON/OFF smoke evidence is non-fatal, so
-a finite result/fault/backend parity matrix must be green before opening that
-I0. No new Global issuer, post-effect reject, or second resolver is allowed.
+are removed in the same cleanup. Fresh current `vm-reference` probes include
+both matching and divergent ON/OFF outcomes (the divergent cases are
+arity/fault differences), so the finite result/fault/backend parity matrix is
+not green and its I0 stays closed. No new Global issuer, post-effect reject, or
+second resolver is allowed. The next executable design is the ordinary-new
+exact-constructor cutover recorded in the parent manifest; it must delete only
+birth-text/class-arity reconstruction after the parser product and N/N+1 ABI
+are co-sealed.
 
 Guard cleanup is a separate parked lane. The only currently proven
 `SupersededDelete` was the stale whole-writer overlay removed by the landed

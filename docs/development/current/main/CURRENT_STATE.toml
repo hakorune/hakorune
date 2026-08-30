@@ -3,7 +3,23 @@ development_branch_ssot = "main"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_blocker_token = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0: type-fact guard-fate/prune S0 and the bounded Builder operator-call retirement I0 are landed (44555655ab); operator publishers/selectors are caller-zero with direct MIR preserved. Physical thunk, selected CorePlan, and ordinary-new remain ParkedSealed. Generic CorePlan GlobalCall belongs to the production-live legacy Loop scheduler and has no exact issuer before func:String/local_arg; retirement of the legacy registry V0/V1 route is already owned by the portable Loop M10b cutover, while source-backed canonical V1 semantics remain live. Rewrite/known has two production-live to-dst writers and an existing Method(Some) successor candidate; its finite ON/OFF parity must close before I0. Keep remaining SameModule families in design_stop."
+current_blocker_token = """
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+type-fact guard-fate/prune S0 and the bounded Builder operator-call retirement
+I0 are landed (44555655ab); operator publishers/selectors are caller-zero with
+direct MIR preserved. Physical thunk and selected CorePlan remain ParkedSealed.
+Generic CorePlan GlobalCall belongs to the production-live legacy Loop scheduler
+and has no exact issuer before func:String/local_arg; retirement of the legacy
+registry V0/V1 route is already owned by the portable Loop M10b cutover, while
+source-backed canonical V1 semantics remain live. Rewrite/known has two
+production-live to-dst writers and an existing Method(Some) successor candidate,
+but fresh current vm-reference probes show ON/OFF result/fault counterexamples,
+so its finite parity gate remains open and I0 stays closed. Ordinary-new has a
+bounded design-approved successor: parser-owned ConstructorSourceIdV1/Birth(N)
+plus package co-seal and shared N/N+1 ABI; implementation is still closed until
+the active pointer switches to that row. Guard cleanup has no new
+SupersededDelete candidate. Keep remaining SameModule families in design_stop.
+"""
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -16,7 +32,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Method corridor and bounded SameModule retirements are landed. Operator-call I0 (44555655ab) removed four publishers and preserves direct MIR/runtime separation. Generic CorePlan GlobalCall is ParkedSealed under portable Loop M10b; legacy registry V0/V1 waits for accepted-corpus coverage and atomic switch, while source-backed canonical V1 remains live. Rewrite/known is the next bounded Call proof: Method(Some) is the successor and finite ON/OFF parity must be green before atomic writer retirement. Physical thunk, selected CorePlan, and ordinary-new remain ParkedSealed; guard-fate/prune S0 is landed."
+latest_card_summary = "Method corridor and bounded SameModule retirements are landed. Operator-call I0 (44555655ab) removed four publishers and preserves direct MIR/runtime separation. Generic CorePlan GlobalCall is ParkedSealed under portable Loop M10b; legacy registry V0/V1 waits for accepted-corpus coverage and atomic switch, while source-backed canonical V1 remains live. Rewrite/known remains a parity-open successor candidate: fresh current vm-reference probes include both matching and divergent ON/OFF outcomes, so no writer retirement is authorized. Ordinary-new now has an accepted bounded design for a parser-owned ConstructorSourceIdV1/Birth(N), package co-seal, and shared N/N+1 ABI; its I0 is pending an explicit pointer switch. Physical thunk and selected CorePlan remain ParkedSealed; guard cleanup has no new deletion candidate."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
