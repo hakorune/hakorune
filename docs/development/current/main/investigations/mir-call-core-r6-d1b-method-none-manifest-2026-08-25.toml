@@ -2020,7 +2020,7 @@ changed_test_names = [
   "accepts_multidelta_break_continue_as_recipe_only",
   "program_block_with_exit_signals_prefers_recipe_only",
 ]
-implementation_commit = "pending closeout commit"
+implementation_commit = "ccced92d64"
 focused_test_runs = [
   "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib control_flow::plan::loop_cond::break_continue_facts::tests -- --test-threads=1: 5 passed, 1 pre-existing baseline failure",
   "parent binary target/quick/deps/nyash_rust-5ac8cdc0fe377915 control_flow::plan::loop_cond::break_continue_facts::tests --test-threads=1: same 5 passed, 1 baseline failure",
@@ -2030,10 +2030,10 @@ guard_runs = [
   "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib control_flow::plan::loop_cond::break_continue_facts::tests -- --test-threads=1: 5 pass, 1 parent-reproduced baseline failure",
   "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUSTFLAGS='-Awarnings' cargo check --profile quick --lib: pass",
   "line census: break_continue_facts.rs 380, break_continue_facts_tests.rs 366; both <760 and no touched Rust source >=800",
-  "bash tools/checks/current_state_pointer_guard.sh: pending after closeout state restore",
-  "git diff --check: pending after closeout",
+  "bash tools/checks/current_state_pointer_guard.sh: pass after closeout state restore",
+  "git diff --check: pass after closeout",
 ]
-evidence = "The cfg(test) module moved to break_continue_facts_tests.rs through a path-preserving declaration. The production extractor remains byte-for-byte unchanged; the parent is 380 lines and the sibling is 366 lines. All six historical tests compile under mir::builder::control_flow::plan::loop_cond::break_continue_facts::tests. Five pass on the changed tree. program_block_with_exit_signals_prefers_recipe_only fails identically in the pre-split parent binary (5 passed, 1 failed), so this is known baseline debt rather than current-change red. Quick lib check and targeted rustfmt pass; no semantic, public API, guard, Method/Call, panic/throw/exit, backend, fallback, or retry change occurred."
+evidence = "Implementation landed at ccced92d64. The cfg(test) module moved to break_continue_facts_tests.rs through a path-preserving declaration. The production extractor remains byte-for-byte unchanged; the parent is 380 lines and the sibling is 366 lines. All six historical tests compile under mir::builder::control_flow::plan::loop_cond::break_continue_facts::tests. Five pass on the changed tree. program_block_with_exit_signals_prefers_recipe_only fails identically in the pre-split parent binary (5 passed, 1 failed), so this is known baseline debt rather than current-change red. Quick lib check and targeted rustfmt pass; pointer, TOML, and diff guards pass after closeout. No semantic, public API, guard, Method/Call, panic/throw/exit, backend, fallback, or retry change occurred."
 red_classification = "known_baseline_debt: program_block_with_exit_signals_prefers_recipe_only fails before and after the test-only split at the same assertion; no current-change red. The full suite is not claimed."
 reopen_trigger = "Reopen only if the historical test path or private access breaks, a guard starts requiring the inline body, a production caller changes, or either source crosses the 760/800 budget."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
