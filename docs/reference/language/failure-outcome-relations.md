@@ -178,6 +178,15 @@ unrecoverable violated contract. Bare `exit` is not an alias: process exit is
 a separate application/runtime capability and is not accepted by this
 Decision.
 
+Repository evidence (not a language authority) already demonstrates the
+throw-free application shape: `apps/lib/json_native/parser/parser.hako`
+accumulates parse errors as data and projects them through its error-result
+facade instead of raising a source exception. This confirms that `throw` is
+not required for ordinary fallible application code; it does not activate the
+typed Result-only `?`
+consumer, whose production activation remains `0` until its own bounded
+Result/exit transaction row lands.
+
 ## Dynamic Invocation
 
 An exact source-bound Dynamic member invocation has only these caller-visible

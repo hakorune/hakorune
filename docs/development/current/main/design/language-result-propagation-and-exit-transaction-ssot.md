@@ -180,6 +180,20 @@ cleanup transport, postfix catch target, and compatibility gates are migration
 evidence only. Unsupported target syntax must reject before Builder effects;
 there is no Canonical-to-Compat retry.
 
+## Corpus evidence and sequencing
+
+The repository already contains a throw-free fallible application pattern:
+`apps/lib/json_native/parser/parser.hako` accumulates parser errors in
+`me.errors` and projects them as a value through its facade. This is evidence
+that ordinary application failure does not require a source `throw`; it is not
+a replacement for the typed Result contract or a production-activation claim.
+
+Because the verified Result-only `?` consumer is still production `0`, schedule
+its bounded `P0 -> I0` lane before selfhost code is rewritten to depend on
+postfix propagation. That lane is independent of the accepted `panic` syntax:
+it must not reopen `throw`, make `panic` recoverable, or turn a terminal Fault
+into `Result::Err` implicitly.
+
 ## Task family
 
 Use one responsibility family rather than a document per constructor:

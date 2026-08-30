@@ -2472,6 +2472,8 @@ no_safe_slice = "Keep this target ParkedSealed while the common exit transaction
 non_claims = "No production panic support, public Never type, bare exit decision, qualified provider change, assert/unreachable feature, Throw/Catch implementation reuse, nonselected VM parity, Call-schema change, or guard deletion."
 reopen_trigger = "Reopen D1 only when the same source/session can co-seal exact panic/1 String admission with the common pending-Fault exit transaction, one generic final Fault terminal, and the selected runtime ABI. Otherwise leave this lane ParkedSealed and continue an independent active lane."
 activation = "language_target=1; parser_registry=0; source_issuer=0; exit_transaction_consumer=0; generic_fault_terminal=0; selected_runtime_abi=0; production_switch=0"
+corpus_evidence_non_authority = "apps/lib/json_native/parser/parser.hako accumulates parse errors in me.errors and projects them as values through JsonParserFacadeErrorProjectionV1; this demonstrates that ordinary fallible code does not require throw, but it does not activate panic or the typed Result-only ? consumer."
+result_qmark_followup = "LANGUAGE-RESULT-EXIT-C-PRIME0-P0 -> I0 remains a separate selfhost-readiness lane because its typed Result-only ? production consumer is 0. It is not a dependency for the panic language Decision and must not reopen throw, catch, or implicit Fault-to-Result conversion."
 next_execution = "none__parked_until_common_exit_fault_chain"
 
 [same_module_me_method_canonical_plan_2026_08_30]
