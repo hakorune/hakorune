@@ -2540,6 +2540,66 @@ evidence = "Implementation landed at d81d91d800. Parser constructor relations no
 red_classification = "No new red result. Workspace-wide cargo fmt -- --check still reports pre-existing unrelated formatting debt in src/runner/core_executor.rs; targeted rustfmt was applied to every changed Rust file."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[active_surface_guard_rows_s0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-GUARD-ACTIVE-SURFACE-ROWS-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape guard-handler rehome"
+implementation_permission = true
+decision = "Move the eight existing active-surface row handlers into one private Python sibling so the parent guard stays below the source-size boundary. Preserve the shell entrypoint, registry row/profile/cmd contract, tombstone validation, current-row dispatch, diagnostics, and all handler results; delete no guard and add no new registry row."
+source_authority = "The existing registered shell entrypoint, guard_rows.toml row, active card, and active helper's finite current-row dispatch. This refactor introduces no compiler or semantic authority."
+canonical_issuer = "The existing mir_call_d1b_active_surface_guard.py dispatch remains the sole guard entry and result owner; the sibling only rehomes handlers."
+non_authority = [
+  "guard age, profile absence, LOC alone, historical phase names, inactive status, compiler/source/test behavior, rewrite/known parity, fixtures, fallback, retry",
+]
+fail_fast_boundary = "Preserve shell no-argument rejection, registry id/profiles/cmd, historical tombstone checks, current-row dispatch, success tag, and handler failure behavior. Stop on any changed guard result, public entrypoint, or source-size boundary crossing."
+census_boundary = "mir_call_d1b_active_surface_guard.py shared helpers/registry/tombstone checks/main dispatch -> eight existing row handlers -> same card/state evidence; includes proof, GC, RawRoot, ScriptRoot, RawLegacy, type-fact, and ordinary-new handlers; excludes method-corridor sibling, compiler/Rust source/tests, guard deletion, and registry changes."
+finite_inventory = [
+  "parent shared owner: tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "handlers to rehome: check_proof_row, check_cataloged_gc_retire_i0, check_raw_root_resume, check_script_root_ret0, check_raw_legacy_resume, check_raw_legacy_i0, check_type_fact_guard_prune_s0, check_ordinary_new_i0",
+  "new private sibling: tools/checks/lib/mir_call_d1b_active_surface_rows.py",
+  "stable entry: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "stable registry: tools/checks/guard_rows.toml",
+]
+finite_states = [
+  "RehomedStable: parent and sibling are each below 760 lines and every handler returns the prior result",
+  "DispatchDrift: current row, entrypoint, registry, tombstone, or output contract changes; stop",
+  "BoundaryExceeded: parent or sibling reaches 760 lines (800 hard stop); return to design_stop",
+  "UnexpectedCaller: a handler is imported or called outside the finite dispatch; stop and re-audit",
+]
+ordered_tasks = [
+  "S0-A: freeze the eight-handler/parent/shared-contract census and keep all existing guard deletion candidates at Keep/Rehome/Parked",
+  "S0-B: add the private rows sibling and move the eight handlers with shared helpers referenced through the loaded parent API",
+  "S0-C: keep the shell and registry untouched, dispatch the selected row through the sibling, and compare the current parent design-stop result",
+  "S0-D: run py_compile, active-surface/pointer guards, line-budget and diff checks; close out to the parent rewrite/known design stop",
+]
+acceptance = "The parent and sibling are both below 760 lines, no file reaches 800, the shell entrypoint/registry/tombstone/output contracts are unchanged, all eight handlers are defined only in the sibling and reached through the same finite dispatch, the active guard passes in the selected row and after parent closeout, and no guard is deleted or compiler behavior changed."
+no_safe_slice = "Return to design_stop if a handler needs new semantics, a second registry/shell entry, a public API, compiler/source/test edits, a changed guard result, a non-finite caller, or the 760/800 line boundary is crossed."
+non_claims = "No SupersededDelete, no guard-family retirement, no new guard registry row, no compiler/Rust/VM/backend/JSON/Call changes, no rewrite/known parity closure, and no fallback/retry change."
+allowed_files = [
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_rows.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+  "compiler/Rust source/tests/VM/backend/JSON",
+  "guard deletion or new registry rows",
+]
+focused_test_filters = []
+changed_test_names = []
+implementation_commit = "pending"
+focused_test_runs = []
+guard_runs = []
+evidence = "A read-only worker audit at HEAD b6af5f64d3 found no additional SupersededDelete guard candidate. The active helper is 846 lines, and the eight existing row handlers form a finite rehome boundary; the stable shell/registry contract remains the single entry."
+red_classification = "No implementation evidence yet; any pre-existing unrelated guard or workspace red remains outside this BoxShape row."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
 [same_module_dead_text_callshape_s0_2026_08_30]
 status = "landed"
 task_id = "MIR-CALL-GLOBAL-TARGET-DEAD-TEXT-CALLSHAPE-S0"
