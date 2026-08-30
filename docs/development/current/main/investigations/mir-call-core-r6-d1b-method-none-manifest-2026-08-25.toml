@@ -2541,12 +2541,12 @@ red_classification = "No new red result. Workspace-wide cargo fmt -- --check sti
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [active_surface_guard_rows_s0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-GUARD-ACTIVE-SURFACE-ROWS-S0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T0"
 box_kind = "BoxShape guard-handler rehome"
-implementation_permission = true
+implementation_permission = false
 decision = "Move the eight existing active-surface row handlers into one private Python sibling so the parent guard stays below the source-size boundary. Preserve the shell entrypoint, registry row/profile/cmd contract, tombstone validation, current-row dispatch, diagnostics, and all handler results; delete no guard and add no new registry row."
 source_authority = "The existing registered shell entrypoint, guard_rows.toml row, active card, and active helper's finite current-row dispatch. This refactor introduces no compiler or semantic authority."
 canonical_issuer = "The existing mir_call_d1b_active_surface_guard.py dispatch remains the sole guard entry and result owner; the sibling only rehomes handlers."
@@ -2593,11 +2593,20 @@ forbidden_files = [
 ]
 focused_test_filters = []
 changed_test_names = []
-implementation_commit = "pending"
-focused_test_runs = []
-guard_runs = []
-evidence = "A read-only worker audit at HEAD b6af5f64d3 found no additional SupersededDelete guard candidate. The active helper is 846 lines, and the eight existing row handlers form a finite rehome boundary; the stable shell/registry contract remains the single entry."
-red_classification = "No implementation evidence yet; any pre-existing unrelated guard or workspace red remains outside this BoxShape row."
+implementation_commit = "924c7bbd55"
+focused_test_runs = [
+  "No compiler or Rust test files changed; this BoxShape row is guard-only",
+]
+guard_runs = [
+  "python3 -m py_compile tools/checks/lib/mir_call_d1b_active_surface_guard.py tools/checks/lib/mir_call_d1b_active_surface_rows.py: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass while S0 selected",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass while S0 selected",
+  "bash tools/checks/current_state_pointer_guard.sh: pass after closeout",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass after closeout",
+  "git diff --check: pass",
+]
+evidence = "At HEAD 924c7bbd55, the eight existing active-surface row handlers were moved verbatim into tools/checks/lib/mir_call_d1b_active_surface_rows.py. The stable parent guard now owns shared helpers, registry/tombstones, and finite dispatch (369 lines); the private sibling is 616 lines. The shell entrypoint, guard_rows.toml row/profile/cmd, tombstone inventory, diagnostics, and handler contracts are unchanged. The selected S0 guard and stable shell passed before closeout; the parent design-stop guard and pointer guard passed after closeout. A read-only worker audit found no additional SupersededDelete candidate."
+red_classification = "No current-change red. This was a behavior-neutral Python BoxShape split with no compiler, Rust, VM, backend, fixture, or test changes; any unrelated baseline red remains outside this row."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_dead_text_callshape_s0_2026_08_30]
