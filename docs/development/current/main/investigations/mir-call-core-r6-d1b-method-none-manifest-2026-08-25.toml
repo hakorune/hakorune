@@ -1957,13 +1957,13 @@ worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact 
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_builder_boxshape_module_lifecycle_failure_test_s0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape behavior-preserving test-only extraction"
-implementation_permission = true
+implementation_permission = false
 decision = "Move only the existing deferred static lifecycle failure test into a private sibling so module_lifecycle_capture_tests.rs falls below the 760-line split boundary. Preserve the test body, historical module path, private parent access, production lifecycle, visibility, re-exports, and behavior exactly. This independent BoxShape row does not open the DeclaredInstance issuer stop."
 source_authority = "Existing test-module ownership, private parent names, and the current test body are the only authority. No semantic issuer, target, receiver, ABI, effect, backend, or runtime meaning is introduced."
 canonical_issuer = "None; this is a physical test-shape extraction only."
@@ -2015,7 +2015,23 @@ focused_test_filters = [
 changed_test_names = [
   "mir::builder::module_lifecycle::capture_tests::lifecycle_failure_tests::deferred_static_box_lifecycle_restores_context_and_stops_after_failure",
 ]
-next_execution = "MIR-BUILDER-BOXSHAPE-MODULE-LIFECYCLE-FAILURE-TEST-S0__fast"
+implementation_commit = "389ae344c1"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib mir::builder::module_lifecycle::capture_tests::lifecycle_failure_tests::deferred_static_box_lifecycle_restores_context_and_stops_after_failure -- --exact --test-threads=1: 1 passed; 0 failed",
+  "target/quick/deps/nyash_rust-bef87a5262fef8ae mir::builder::module_lifecycle::capture_tests::lifecycle_failure_tests::deferred_static_box_lifecycle_restores_context_and_stops_after_failure --list: exact test listed",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass; existing warnings only",
+  "rustfmt --edition 2021 --check src/mir/builder/module_lifecycle_capture_tests.rs src/mir/builder/module_lifecycle_failure_tests.rs: pass",
+]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+  "line census: module_lifecycle_capture_tests.rs=753, module_lifecycle_failure_tests.rs=25: pass",
+]
+evidence = "Implementation landed at 389ae344c1. Only deferred_static_box_lifecycle_restores_context_and_stops_after_failure moved to the private lifecycle_failure_tests sibling; the parent is 753 lines and the sibling is 25 lines. The historical test path now includes capture_tests::lifecycle_failure_tests, private parent access compiles, the exact test passed, the direct test binary listed the exact test, quick library check and rustfmt passed, and production module_lifecycle.rs was untouched."
+red_classification = "No current-change red. This T0 row did not claim the full cargo test/link suite; existing workspace warnings and unrelated baseline debt remain outside the test-only extraction."
+closeout = "Return work_mode to design_stop with current_execution_row/current_design_stop/next_design_card set to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and next_execution_card=none."
+reopen_trigger = "Reopen only if the historical test path cannot compile, private access requires a public API, a guard requires the old inline body, production module_lifecycle.rs changes, the parent/sibling reaches 760/800 lines, or the DeclaredInstance semantic boundary changes."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_builder_boxshape_normal_callable_source_test_extraction_s0_2026_08_31]
 status = "landed"
