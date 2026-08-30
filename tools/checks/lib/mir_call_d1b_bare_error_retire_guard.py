@@ -111,7 +111,7 @@ def check_landed(root: Path, row: dict, parent_api) -> None:
         fail("bare error pre-effect branch evidence is missing")
     if not (error_branch < rejected < caller_branch < target_prep):
         fail("bare error reject is not before target preparation and caller descent")
-    if route.count("[freeze:contract][direct-call/bare-error-unsupported]") != 1:
+    if route.count('"bare-error-unsupported"') != 1:
         fail("bare error terminal tag is not unique")
     for name in (
         "cataloged_bare_error_rejects_before_target_synthesis",
@@ -209,7 +209,7 @@ def check_bare_now_retire_i0(state: dict, card: dict, root: Path, parent_api=api
         fail("bare now pre-effect branch evidence is missing")
     if not (branch < rejected < target_prep):
         fail("bare now reject is not before target preparation")
-    if route.count("[freeze:contract][direct-call/bare-now-unsupported]") != 1:
+    if route.count('"bare-now-unsupported"') != 1:
         fail("bare now terminal tag is not unique")
     for name in (
         "cataloged_bare_now_rejects_before_target_synthesis",

@@ -390,11 +390,16 @@ fn prepare_ordinary_function_completion_v1(
             RawOrdinaryFunctionRetirementV1::GcGlobal,
         ))
     } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
-        && name == "error"
+        && matches!(name, "error" | "now")
     {
+        let provider = if name == "error" {
+            "bare-error-unsupported"
+        } else {
+            "bare-now-unsupported"
+        };
         Ok(PreparedRawOrdinaryFunctionCompletionV1::Rejected {
             error: format!(
-                "[freeze:contract][direct-call/bare-error-unsupported] name=error arity={}",
+                "[freeze:contract][direct-call/{provider}] name={name} arity={}",
                 arguments.len()
             ),
         })

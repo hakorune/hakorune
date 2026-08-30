@@ -50,11 +50,11 @@ caller-zero in production: the parser owns the language spelling as
 before child descent; this does not change the dedicated Print statement
 lowering or its exact one-expression contract.
 
-Bare `error` is an unsupported direct name.  Installed non-brand callers enter
-the existing typed `Rejected` terminal before target synthesis and argument
-descent; qualified `env.console.error` remains a separate declared Extern
-owner.  This one-name retirement does not decide bare `now`, `panic`, or
-`exit`.
+Bare `error` and bare `now` are unsupported direct names. Installed non-brand
+callers enter the existing typed `Rejected` terminal before target synthesis
+and argument descent; qualified `env.console.error` and `env.now_ms` remain
+separate declared Extern owners. These one-name retirements do not decide bare
+`panic` or `exit`.
 
 The former `method_resolution` static-box `has_method` branch is retired as a
 caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;

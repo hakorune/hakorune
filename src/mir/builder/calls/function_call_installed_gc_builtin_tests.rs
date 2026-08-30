@@ -41,6 +41,21 @@ fn cataloged_bare_error_preflight(
     )
 }
 
+fn cataloged_bare_now_preflight(
+    builder: &MirBuilder,
+    caller: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    arguments: Vec<ASTNode>,
+) -> PreparedRawFunctionPreflightV1 {
+    PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        builder,
+        "now".to_owned(),
+        arguments,
+        RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller),
+        },
+    )
+}
+
 fn cataloged_print_preflight(
     builder: &MirBuilder,
     caller: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
@@ -148,6 +163,56 @@ fn cataloged_bare_error_rejection_does_not_descend_or_publish() {
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
             .expect_err("unsupported bare error must reject before children");
     assert!(error.contains("bare-error-unsupported"));
+    assert_eq!(port.expression_count, 0);
+    assert!(port.events.is_empty());
+    let calls = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .collect::<Vec<_>>();
+    assert!(calls.is_empty());
+}
+
+#[test]
+fn cataloged_bare_now_rejects_before_target_synthesis() {
+    let callers = [
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "BoxA", "caller", 0,
+        ),
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_instance_box_method(
+            "BoxA", "caller", 0,
+        ),
+    ];
+    for caller in callers {
+        let builder = MirBuilder::new();
+        let prepared = cataloged_bare_now_preflight(&builder, caller, vec![integer(1), integer(2)]);
+        assert!(matches!(
+            prepared.route,
+            PreparedRawFunctionPreflightRouteV1::Ordinary {
+                completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
+            } if error.contains("bare-now-unsupported") && error.contains("arity=2")
+        ));
+    }
+}
+
+#[test]
+fn cataloged_bare_now_rejection_does_not_descend_or_publish() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("BoxA.caller/0".to_owned());
+    let caller = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+        "BoxA", "caller", 0,
+    );
+    let prepared = cataloged_bare_now_preflight(&builder, caller, vec![integer(1)]);
+    let mut port = RecordingPortV1::default();
+    let error =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+            .expect_err("unsupported bare now must reject before children");
+    assert!(error.contains("bare-now-unsupported"));
     assert_eq!(port.expression_count, 0);
     assert!(port.events.is_empty());
     let calls = builder
