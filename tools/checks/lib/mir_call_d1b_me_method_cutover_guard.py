@@ -135,6 +135,7 @@ def check_me_method_canonical_i0(
         str(HANDLERS_REL),
         str(INGRESS_REL),
         str(BRIDGE_REL),
+        "src/mir/builder/calls/member_route.rs",
         str(TESTS_REL),
         str(CALLS_MOD_REL),
         "src/mir/source_call_target/README.md",

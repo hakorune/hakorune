@@ -1978,12 +1978,12 @@ progress_metrics = [
 non_claims = "No me.method feature retirement, no Method(None)/Resolved/Call-schema change, no provider/CorePlan/physical-thunk work, no nonselected VM/WASM feature expansion, and no guard deletion before successor-backed caller-zero."
 
 [same_module_static_current_owner_handoff_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T1"
 box_kind = "BoxShape one production-edge replacement"
-implementation_permission = true
+implementation_permission = false
 decision = "For a StaticBoxMethod caller, canonical me.method has no runtime receiver. Consume the already-issued current-owner target before legacy header observation and arguments, then emit Global(StaticBoxMethod) with exactly N source arguments. OutsideStaticCurrentOwner is a named sibling and must continue unchanged."
 source_authority = "VerifiedSourceMethodCallSiteV1 with canonical ASTNode::Me, exact caller/site/catalog, and caller namespace StaticBoxMethod."
 canonical_issuer = "VerifiedSourceStaticCallTargetCatalogV1::extend_current_owner issues VerifiedCurrentOwnerStaticCallTargetV1; VerifiedWholeSourceStaticCallTargetInventoryV1 and VerifiedStaticCallResultPublicationOwnerV1 carry its CanonicalSameModuleCallableKeyV1 to the existing one-shot Builder ingress."
@@ -2019,6 +2019,7 @@ allowed_files = [
   "src/mir/builder/static_result_publication_ingress.rs",
   "src/mir/builder/method_call_handlers.rs",
   "src/mir/builder/calls/static_result_publication_physical_bridge.rs",
+  "src/mir/builder/calls/member_route.rs",
   "src/mir/builder/calls/me_method_canonical_cutover_tests.rs",
   "src/mir/builder/calls/mod.rs",
   "src/mir/source_call_target/README.md",
@@ -2051,6 +2052,34 @@ planned_focused_test_filters = [
   "me_method_canonical_cutover_tests",
   "static_result_publication_ingress",
 ]
+changed_test_names = [
+  "static_current_owner_target_is_taken_before_header_and_arguments",
+  "static_current_owner_lowers_source_arguments_once_without_receiver_prefix",
+  "static_current_owner_missing_target_rejects_before_arguments",
+  "outside_static_current_owner_preserves_declared_instance_sibling",
+  "static_current_owner_argument_failure_does_not_emit_retry_or_fallback",
+  "declared_instance_cataloged_source_stays_outside_static_ingress",
+]
+focused_test_filters = [
+  "me_method_canonical_cutover_tests",
+  "static_result_publication_ingress",
+]
+implementation_commit = "2b7b3e7489"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib me_method_canonical_cutover_tests -- --test-threads=1: 5 passed; 0 failed",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib static_result_publication_ingress -- --test-threads=1: 4 passed; 0 failed",
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass; existing warnings only",
+]
+guard_runs = [
+  "python3 -m py_compile tools/checks/lib/mir_call_d1b_me_method_cutover_guard.py tools/checks/lib/mir_call_d1b_active_surface_guard.py: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass",
+  "cargo test --profile quick --lib -- --list: six changed tests uniquely listed and filter-covered",
+  "git diff --check: pass",
+]
+evidence = "At implementation commit 2b7b3e7489, StaticCurrentOwner me.method takes the existing source/site/catalog handoff before legacy header preparation, projects a typed Global target, checks source arity before descent, lowers N arguments once without a receiver prefix, and preserves InstanceBoxMethod as an unavailable sibling. The dedicated five-test cutover suite and four-test ingress suite are green; quick library check is green with existing warnings. The dedicated guard is dispatched by the stable active-surface entry and enforces the finite source/instance boundary plus the 760/800 line budget."
+red_classification = "No current-change red. Full cargo test/link was not run because this repository's test binary is memory-heavy; focused tests, cargo --list coverage, quick library check, pointer guard, lifecycle guard, py_compile, and diff check are the claimed evidence."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0__design_stop"
 guard_plan = "Create one small dedicated cutover guard and dispatch it from the existing active-surface guard. It must prove target-take before arguments, one argument descent, direct typed Global emission, no generate_method_function_name/header observation/AST rescan/resolver/fallback/retry in the selected branch, the exact old-edge deletion set, cargo --list coverage for every changed test, and <760/<800 line limits. Do not grow the 754-line method-corridor guard."
 
 [me_declared_instance_source_coseal_d0_2026_08_30]
