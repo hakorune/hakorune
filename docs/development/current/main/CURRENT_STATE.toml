@@ -5,14 +5,15 @@ current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-The direct-statement FastMem failure-test BoxShape split landed at
-7e50c819f3: the production owner is 748 lines and the private sibling is 36
-lines, with the historical test path preserved and the exact test green.
-DeclaredInstance source-facts remain corrected at 01332528ed, but the complete
-source/catalog/receiver/ABI co-seal is still missing. Bare panic(String) remains
-an accepted terminal-Fault target but production 0/ParkedSealed; bare exit is
-NoIssuer. Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback,
-retry, or guard cleanup.
+The loop-condition BoxShape test-only split landed with production extractor
+unchanged (parent 380 lines, sibling 366 lines). Five focused tests pass and
+one historical assertion failure reproduces in the pre-split parent binary;
+it is recorded as known baseline debt, not current-change red. Continue the
+finite producer disposition design stop: DeclaredInstance still lacks a
+complete source/catalog/receiver/ABI co-seal, panic(String) remains a parked
+terminal-Fault target with production 0, and bare exit remains NoIssuer. Do
+not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or
+guard cleanup.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -45,7 +46,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The direct FastMem failure-test BoxShape row landed at 7e50c819f3: normal_script_direct_statement_owner.rs is 748 lines, its private sibling is 36 lines, and the exact test is green with no production semantic change. DeclaredInstance receiver source-facts landed at 01332528ed, while the complete source/catalog/receiver/ABI co-seal remains a design stop. Panic/throw reference policy is accepted but production 0/ParkedSealed; no loan, Call, VM/backend, fallback, retry, or guard cleanup is in scope."
+latest_card_summary = "The loop-condition BoxShape test-only split is landed: break_continue_facts.rs is 380 lines and its private sibling is 366 lines, with the historical test path preserved; five focused tests pass and one pre-existing parent-reproduced baseline failure is recorded. Parent producer-disposition design stop resumes. DeclaredInstance receiver source-facts remain separate from the source/catalog/receiver/ABI co-seal. Panic/throw reference policy is accepted but panic production is 0/ParkedSealed and bare exit remains NoIssuer; no semantic Call, VM/backend, fallback, retry, or guard cleanup is in scope."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -60,6 +61,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 (terminal/guard correction 7c834d021a); StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static stop before argument effects. StaticCurrentOwner me.method handoff landed at 2b7b3e7489; exact source/site/catalog target is consumed before effects and emitted as Global(StaticBoxMethod). True DeclaredInstance remains a separate NoSafeSlice design row.",
-  "2026-08-31: BoxShape test extractions landed at c1a715eb97 (normal callable production 367 lines) and 7e50c819f3 (direct-statement production 748 lines, private FastMem sibling 36 lines, historical paths preserved); DeclaredInstance receiver source-facts correction landed at 01332528ed (body_shape_tests 10/10 green, no target/loan/MIR/backend/fallback/retry/new receipt).",
+  "2026-08-31: BoxShape test extractions landed at c1a715eb97 (normal callable production 367 lines), 7e50c819f3 (direct-statement production 748 lines, private FastMem sibling 36 lines), and the loop-condition facts split in this closeout (production 380 lines, private sibling 366 lines, historical path preserved); DeclaredInstance receiver source-facts correction landed at 01332528ed (body_shape_tests 10/10 green, no target/loan/MIR/backend/fallback/retry/new receipt).",
   "2026-08-30: LANG-PANIC-TERMINAL-FAULT-D0 accepted panic(String) as an ordinary-call-shaped, reserved, noncatchable terminal Fault target. Production remains zero and ParkedSealed behind the common exit transaction, generic Fault terminal, and selected runtime ABI; legacy Throw/Catch retirement is separate.",
 ]

@@ -1956,6 +1956,88 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_builder_boxshape_loop_cond_break_continue_facts_test_split_s0_2026_08_31]
+status = "landed"
+task_id = "MIR-BUILDER-BOXSHAPE-LOOP-COND-BREAK-CONTINUE-FACTS-TEST-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T0"
+box_kind = "BoxShape test-only owner split"
+implementation_permission = false
+decision = "Move only the existing cfg(test) module from break_continue_facts.rs into a private sibling. Preserve the production extractor, historical module/test paths, private access, guard anchors, and behavior; add no semantic shape or target authority."
+source_authority = "The existing loop_cond break/continue facts extractor and its existing Recipe/Facts issuers remain the sole production owners; this row only changes test file placement."
+canonical_issuer = "The existing try_extract_loop_cond_break_continue_facts_inner and the existing loop_cond Recipe/Facts pipeline remain unchanged and authoritative."
+non_authority = [
+  "test helpers and fixtures",
+  "Call/Method/VM/backend behavior",
+  "production selector or Recipe meaning",
+  "resolver, target, registry, fallback, retry",
+  "guard deletion or new registry row",
+]
+fail_fast_boundary = "Move lines 378-746 verbatim and replace them with a cfg(test) path-preserving sibling declaration. Stop on any changed test result, module path, private access, production caller, guard anchor, or 760/800 line-budget violation."
+census_boundary = "src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs production extractor and its existing cfg(test) module -> sibling break_continue_facts_tests.rs; includes the six tests and nine private helpers, excludes all production facts/Recipe logic, Call/Method, VM/backend, guards, and semantic receipt changes."
+finite_inventory = [
+  "production owner: src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs:1-377",
+  "test module: src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs:378-746",
+  "private sibling: src/mir/builder/control_flow/plan/loop_cond/break_continue_facts_tests.rs",
+  "module declaration: #[cfg(test)] #[path = \"break_continue_facts_tests.rs\"] mod tests;",
+  "historical test path: mir::builder::control_flow::plan::loop_cond::break_continue_facts::tests",
+]
+finite_states = [
+  "SplitStable: production owner and sibling are below 760 lines; all six tests compile and pass under the historical module path",
+  "PathDrift: module path, private access, or test name changes; stop",
+  "BehaviorDrift: any test result or extractor behavior changes; stop",
+  "BudgetExceeded: any touched Rust source reaches 760 lines or the 800-line hard stop; return to design_stop",
+]
+ordered_tasks = [
+  "S0-A: freeze the production/test line census and six-test filter before editing",
+  "S0-B: add break_continue_facts_tests.rs and move only the cfg(test) module; keep the production parent declaration path-preserving",
+  "S0-C: run the exact historical test module, quick library check, rustfmt, line-budget, pointer, and diff checks",
+  "S0-D: close out to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design_stop; do not claim semantic Call progress",
+]
+acceptance = "break_continue_facts.rs is below 760 lines, the private sibling is below 760 lines, all six existing tests remain under the historical module path and compile, production extractor code and callers are unchanged, no guard/registry/public API changes occur, the one pre-existing failing test is reproduced at the parent binary and classified as baseline debt, and the parent design stop is restored after closeout."
+no_safe_slice = "Return to design_stop if the tests require a public helper, a second module path, a production edit, a guard change, a fixture/semantic change, a non-finite caller, or the 760/800 line budget is crossed."
+non_claims = "No BoxCount, no new Facts/Recipe/issuer, no Method/Call/VM/backend change, no panic/throw/exit change, no fallback/retry change, no guard deletion, and no legacy retirement claim."
+allowed_files = [
+  "src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs",
+  "src/mir/builder/control_flow/plan/loop_cond/break_continue_facts_tests.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/control_flow/plan/loop_cond/mod.rs",
+  "src/mir/builder/calls/**",
+  "src/mir/resolved_semantics/**",
+  "VM/backend/JSON",
+  "tools/checks/guard_rows.toml",
+  "guard deletion or new registry rows",
+]
+focused_test_filters = ["control_flow::plan::loop_cond::break_continue_facts::tests"]
+changed_test_names = [
+  "policy_recipe_only_when_not_extended",
+  "policy_recipe_only_with_then_only_break",
+  "accepts_nested_guard_break_if_as_program_block_recipe_only",
+  "accepts_nested_loop_if_as_program_block_recipe_only",
+  "accepts_multidelta_break_continue_as_recipe_only",
+  "program_block_with_exit_signals_prefers_recipe_only",
+]
+implementation_commit = "pending closeout commit"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib control_flow::plan::loop_cond::break_continue_facts::tests -- --test-threads=1: 5 passed, 1 pre-existing baseline failure",
+  "parent binary target/quick/deps/nyash_rust-5ac8cdc0fe377915 control_flow::plan::loop_cond::break_continue_facts::tests --test-threads=1: same 5 passed, 1 baseline failure",
+]
+guard_runs = [
+  "rustfmt --edition 2021 --check src/mir/builder/control_flow/plan/loop_cond/break_continue_facts.rs src/mir/builder/control_flow/plan/loop_cond/break_continue_facts_tests.rs: pass",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib control_flow::plan::loop_cond::break_continue_facts::tests -- --test-threads=1: 5 pass, 1 parent-reproduced baseline failure",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUSTFLAGS='-Awarnings' cargo check --profile quick --lib: pass",
+  "line census: break_continue_facts.rs 380, break_continue_facts_tests.rs 366; both <760 and no touched Rust source >=800",
+  "bash tools/checks/current_state_pointer_guard.sh: pending after closeout state restore",
+  "git diff --check: pending after closeout",
+]
+evidence = "The cfg(test) module moved to break_continue_facts_tests.rs through a path-preserving declaration. The production extractor remains byte-for-byte unchanged; the parent is 380 lines and the sibling is 366 lines. All six historical tests compile under mir::builder::control_flow::plan::loop_cond::break_continue_facts::tests. Five pass on the changed tree. program_block_with_exit_signals_prefers_recipe_only fails identically in the pre-split parent binary (5 passed, 1 failed), so this is known baseline debt rather than current-change red. Quick lib check and targeted rustfmt pass; no semantic, public API, guard, Method/Call, panic/throw/exit, backend, fallback, or retry change occurred."
+red_classification = "known_baseline_debt: program_block_with_exit_signals_prefers_recipe_only fails before and after the test-only split at the same assertion; no current-change red. The full suite is not claimed."
+reopen_trigger = "Reopen only if the historical test path or private access breaks, a guard starts requiring the inline body, a production caller changes, or either source crosses the 760/800 budget."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
 [mir_builder_boxshape_normal_script_direct_statement_fastmem_failure_test_s0_2026_08_31]
 status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0"
