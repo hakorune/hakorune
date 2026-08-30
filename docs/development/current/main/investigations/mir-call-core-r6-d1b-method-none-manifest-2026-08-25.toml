@@ -1957,13 +1957,13 @@ worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact 
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_builder_boxshape_normal_script_direct_statement_fastmem_failure_test_s0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape behavior-preserving test-only extraction"
-implementation_permission = true
+implementation_permission = false
 decision = "Move only the existing direct_fastmem_body_failure_discards_candidate_and_reuses_compiler test from the inline cfg(test) module into a sibling file via include!. Preserve the historical module path, private scope, production owner, test body, guard anchors, diagnostics, and runtime behavior; this row exists only to keep the parent source below the 760/800 line boundary."
 source_authority = "Existing normal_script_direct_statement_owner.rs production module and its inline test module; test placement is not semantic authority."
 canonical_issuer = "None. No semantic target, receiver, ABI, effect, loan, receipt, or production switch is created."
@@ -2013,7 +2013,23 @@ focused_test_filters = [
 changed_test_names = [
   "mir::builder::normal_script_direct_statement_owner::tests::direct_fastmem_body_failure_discards_candidate_and_reuses_compiler",
 ]
-next_execution = "MIR-BUILDER-BOXSHAPE-NORMAL-SCRIPT-DIRECT-STATEMENT-FASTMEM-FAILURE-TEST-S0__fast"
+implementation_commit = "7e50c819f3"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib 'mir::builder::normal_script_direct_statement_owner::tests::direct_fastmem_body_failure_discards_candidate_and_reuses_compiler' -- --exact --test-threads=1: 1 passed, 0 failed",
+  "target/quick/deps/nyash_rust-bef87a5262fef8ae 'mir::builder::normal_script_direct_statement_owner::tests' --list: exact test listed",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass (existing warnings only)",
+  "rustfmt --edition 2021 --check src/mir/builder/normal_script_direct_statement_owner.rs src/mir/builder/normal_script_direct_statement_owner_fastmem_failure_test.rs: pass",
+  "line budget: normal_script_direct_statement_owner.rs 748 lines; sibling 36 lines; both below 760 and 800 hard stop",
+]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass before closeout",
+  "git diff --check: pass before closeout",
+]
+evidence = "Implementation landed at 7e50c819f3. The existing direct_fastmem_body_failure_discards_candidate_and_reuses_compiler test moved verbatim into the private sibling via include!, preserving the historical tests path and private access. The exact test passed 1/1; cargo --list, quick library check, rustfmt, line budget, pointer guard, and diff check passed. Production direct-statement lowering and its caller were untouched; no semantic target, Method/Call, panic/throw/exit, backend, fallback, retry, or guard registry changed."
+red_classification = "No current-change red. Existing workspace warnings and unrelated baseline debt remain outside this BoxShape extraction; the exact changed test was green."
+closeout = "Implementation and evidence are recorded; status=landed and implementation_permission=false. Restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and set next_execution_card=none."
+reopen_trigger = "Reopen only if the historical test path/private access regresses, a guard requires the inline body, production direct-statement code changes because of the split, the sibling or parent reaches 760/800, or behavior parity changes."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_builder_boxshape_module_lifecycle_failure_test_s0_2026_08_31]
 status = "landed"
