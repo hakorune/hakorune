@@ -1,25 +1,19 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
-StaticCurrentOwner me.method I0 landed at 2b7b3e7489 with the existing exact
-source/site/catalog handoff taken before legacy header observation and argument
-effects, direct Global(StaticBoxMethod) with N source arguments, and the selected
-old edge removed. True DeclaredInstance me.method still lacks the complete
-source/catalog/receiver/ABI co-seal and is the next design-only row. Do not mix
-Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard
-cleanup. The next child D0 must locate one existing exact
-source/catalog/receiver/ABI issuer or remain NoSafeSlice; read-only audits found
-no reusable generic issuer. Independent BoxShape rows landed without semantic
-or guard-surface changes, including preflight test extraction at 626c1fa5d6.
-Before semantic addition, define one private package-side co-seal assembler for
-the missing source-site-to-InstanceBoxMethod relation. It may borrow existing
-result/effect/ABI products but may not infer a target from header/name/registry,
-copy body facts, or create a parallel family pipeline. Implementation remains
-closed until those relation owners are named.
+MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0:
+Move only the existing #[cfg(test)] tests from
+src/mir/builder/normal_callable_semantic_source.rs into a private sibling while
+preserving the normal_callable_semantic_source::tests module path. This is a
+BoxShape-only fast row: no semantic issuer, target, receiver, ABI, loan, Call,
+panic, VM/backend, fallback, retry, or guard-registry change. Keep the parent
+and sibling below 760 lines (800 is a hard stop), preserve private access and
+all existing behavior, then return to the DeclaredInstance design stop. If a
+path, visibility, guard anchor, test filter, or behavior changes, stop before
+closeout and restore design_stop.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -52,9 +46,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "MIR-CALL-BOXSHAPE-PREFLIGHT-TAIL-TEST-EXTRACTION-S0 landed at 626c1fa5d6 as a behavior-preserving move of the test-only explicit_source_identity_tests block into a private sibling while preserving its historical module path. The parent DeclaredInstance/source-site co-seal design stop is active again; no semantic issuer, target, loan, Call, panic, VM/backend, fallback, retry, or guard cleanup is permitted until the missing relation owners are named."
+latest_card_summary = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0 is the selected fast row: move only the existing test module into a private sibling, preserve normal_callable_semantic_source::tests and production behavior, keep both files below 760/800 lines, then return to the DeclaredInstance/source-site co-seal design stop. No semantic issuer, target, loan, Call, panic, VM/backend, fallback, retry, or guard cleanup is in scope."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "none"
+next_execution_card = "MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
