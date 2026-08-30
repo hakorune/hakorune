@@ -7,16 +7,13 @@
  */
 
 use crate::mir::array_receiver_proof::value_root;
-use crate::mir::string_corridor_names::{
-    is_len_method_name, is_lowered_len_global, is_runtime_len_handle_export,
-};
 use crate::mir::string_corridor_recognizer::{
     match_substring_call, match_substring_concat3_helper_call,
 };
+use crate::mir::string_dead_text_call_shape::match_dead_text_len_call;
 use crate::mir::value_origin::{build_value_def_map, ValueDefMap};
 use crate::mir::{
-    BasicBlock, BasicBlockId, BinaryOp, Callee, CompareOp, ConstValue, MirFunction, MirInstruction,
-    ValueId,
+    BasicBlock, BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, ValueId,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -678,43 +675,6 @@ fn block_successors(block: &BasicBlock) -> Vec<BasicBlockId> {
             then_bb, else_bb, ..
         }) => vec![*then_bb, *else_bb],
         _ => Vec::new(),
-    }
-}
-
-fn match_dead_text_len_call(inst: &MirInstruction) -> Option<(ValueId, Vec<ValueId>)> {
-    match inst {
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if is_len_method_name(method) => {
-            let mut values = vec![*receiver];
-            values.extend(args.iter().copied());
-            Some((*dst, values))
-        }
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 1 && is_runtime_len_handle_export(name) => {
-            Some((*dst, args.iter().copied().collect::<Vec<_>>()))
-        }
-        MirInstruction::Call {
-            dst: Some(dst),
-            callee: Some(Callee::Global(name)),
-            args,
-            ..
-        } if args.len() == 1 && is_lowered_len_global(&name.display_name()) => {
-            Some((*dst, args.iter().copied().collect::<Vec<_>>()))
-        }
-        _ => None,
     }
 }
 

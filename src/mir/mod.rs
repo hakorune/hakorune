@@ -266,6 +266,7 @@ pub(crate) mod string_corridor_names; // helper-name vocabulary quarantine
 pub mod string_corridor_placement; // placement/effect scaffold over canonical string facts
 pub(crate) mod string_corridor_recognizer; // shared pure shape recognizers for string corridor
 pub mod string_corridor_relation; // string-corridor relation layer over generic PHI queries
+pub(crate) mod string_dead_text_call_shape; // private call-shape matcher for dead-text plans
 pub mod string_dead_text_region_plan; // MIR-owned dead text-region plans for substring concat loops
 pub mod string_direct_set_window_plan; // MIR-owned string direct-set source-window route plans
 pub mod string_kernel_plan; // backend-consumable string plan seam derived from corridor candidates
