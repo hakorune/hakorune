@@ -76,10 +76,13 @@ caller-zero Print retirements remain recorded in the manifest, while the
 dedicated `ASTNode::Print -> builtin_print()` owner stays unchanged.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
-ordinary-new is no longer an unexplained carrier dead-end: its next bounded
-successor is a parser-owned typed constructor product plus a package co-seal
-and shared N/N+1 ABI, while implementation remains closed until the pointer
-switch. The user selected retirement for only the legacy
+ordinary-new is no longer an unexplained carrier dead-end: its bounded
+successor is now selected as
+`MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0`. The row
+may change only the parser constructor product, package recipe, shared ABI,
+and selected-normal consumer; birth-text/AST-scan/class-arity reconstruction
+is the exact delete set. No-claim compatibility and every other SameModule
+family remain closed. The user selected retirement for only the legacy
 `NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
 audits closed the boundary at three compiler ingresses, four target publishers,
 six structural source ingresses, one prelude coupling, and finite repo-owned

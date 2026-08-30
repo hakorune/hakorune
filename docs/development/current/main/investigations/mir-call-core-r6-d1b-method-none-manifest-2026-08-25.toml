@@ -2434,3 +2434,67 @@ evidence = "At audit HEAD 8d4150a60b, issue_ordinary_new_claims_v1 still emits (
 worker_audit_result = "Fresh read-only audit confirms that the old allocation claim and constructor row merely coexist and cannot be joined by the existing types. A clean implementation path exists only by adding a small parser-owned typed constructor product, a package-owned birth recipe, and one shared InstanceConstructorAbiV1; no existing carrier can be promoted by inference. The future I0 is therefore bounded and design-approved, while code remains closed until the active pointer switches to it."
 reopen_trigger = "Open the bounded I0 only when the parser product, exact allocation-site join, and shared N/N+1 ABI are present in the same package/session; if any relation is missing, keep typed pre-effect rejection or ParkedSealed rather than reconstructing from birth text."
 next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0__implementation_pending_pointer_switch"
+
+[same_module_ordinary_new_exact_constructor_cutover_i0_2026_08_30]
+status = "fast_open"
+task_id = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-BIRTH-TARGET-D0"
+ceremony_tier = "bounded implementation"
+box_kind = "BoxCount exact ordinary-new constructor cutover"
+implementation_permission = true
+decision = "Replace the ordinary-new birth text/class-arity reconstruction with the parser-owned ConstructorSourceIdV1 and typed Birth(N)/NoBirthZero disposition. Co-seal that exact source product with the allocation site in the existing normal callable package, use one checked N-to-N+1 ABI, and consume the recipe before argument descent. This row changes only the selected-normal direct-local ordinary-new claim cohort."
+source_authority = "Parser constructor source catalog owns final-box membership, ConstructorSourceIdV1, constructor kind, and source arity. Existing instance-constructor semantic rows preserve the same source id and session brand. The package issuer is the only co-seal owner for allocation site plus constructor product."
+canonical_issuer = "VerifiedOrdinaryNewBirthRecipeV1 issued by ordinary_new_coseal from one exact parser constructor row and one exact allocation site; InstanceConstructorAbiV1 owns source N and physical argv N+1. The Builder consumer only takes and emits the already-sealed recipe."
+non_authority = [
+  "birth Option<Box<str>> text, formatted birth/N keys, class/name/arity lookup, source AST Program/Box scans, current_module or header tables, slot/plugin registry, physical symbol, env, target reconstruction, fallback, retry, and no-claim compatibility",
+  "test fixtures, constructor-body lowering, field initializers, CorePlan, operators, providers, rewrite/known, physical thunk, Method(None), shared Resolved, VM/backend, JSON, Call schema, and any new package-wide loan abstraction",
+]
+fail_fast_boundary = "Reject missing, duplicate, foreign, wrong-kind, wrong-arity, overflow, or residual constructor products before argument descent, ValueId/Const allocation, NewBox emission, birth Call publication, collector/block mutation, or retry/fallback."
+census_boundary = "Parser constructor source relation and ordinary-box coverage -> ordinary-new package recipe -> RawInvocationChildPort claim take -> lower_ordinary_raw_new_with_port_v1; includes direct-local selected-normal New sites, exact Birth(N)/NoBirthZero, shared N/N+1 ABI, consumer order, and residual claim closure; excludes no-claim compatibility, field/constructor-body lanes, and every other SameModule family."
+allowed_files = [
+  "src/parser/source_authority/constructor_source.rs",
+  "src/parser/constructor_source_catalog.rs",
+  "src/parser/normal_callable_program_source/ordinary_new_source.rs",
+  "src/mir/instance_constructor_abi.rs",
+  "src/mir/normal_callable_semantic_package/instance_constructor_semantic.rs",
+  "src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/builder/normal_instance_constructor_admission.rs",
+  "src/mir/builder/ordinary_new_admission.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/function_call_preflight_route.rs",
+  "Call schema",
+  "VM/backend/JSON",
+  "CorePlan/operator/provider/rewrite/known/physical thunk",
+]
+old_edge_delete_set = [
+  "OrdinaryNewAdmissionClaimV1::birth Option<Box<str>>",
+  "source_birth_target Program/Box AST scan",
+  "format!(\"birth/{N}\") and class.birth/N target reconstruction",
+  "claimed branch hidden name Const/result dst and emit_legacy_call reconstruction",
+]
+focused_test_filters = [
+  "ordinary_new_coseal",
+  "ordinary_new_admission",
+  "instance_constructor_abi",
+  "instance_constructor_semantic",
+]
+changed_test_names = [
+  "ordinary_new_recipe_selects_exact_birth_source",
+  "ordinary_new_recipe_accepts_zero_arity_without_birth",
+  "ordinary_new_recipe_rejects_nonzero_without_birth",
+  "ordinary_new_consumer_takes_recipe_before_arguments",
+  "instance_constructor_abi_checks_n_plus_one",
+]
+acceptance = "The parser exposes a typed constructor kind/source-arity product and exact source id; the package issues one typed NoBirthZero or Birth(recipe) disposition per exact allocation site; the same InstanceConstructorAbiV1 validates N and N+1; the consumer takes the recipe before arguments, emits NewBox then one dst=None birth Call only for Birth, and residual claims fail closed. The listed birth-text/AST-scan/reconstruction edges are zero while no-claim compatibility remains unchanged."
+no_safe_slice = "Return to design_stop if exact constructor selection needs a downstream key parse or AST/program scan, if source and physical arity lack a shared checked ABI, if a second issuer or resolver is needed, if no-claim paths must change, if Call/VM/backend semantics must change, or if any touched Rust source reaches the 760/800-line boundary."
+non_claims = "No general loan/package redesign, no Call schema change, no Method/Resolved/VM/backend/JSON/CorePlan/operator/provider/rewrite/thunk change, no field or constructor-body semantics, no fallback/retry, and no physical deletion beyond the listed reconstruction edges."
+reopen_trigger = "If an exact parser constructor relation or shared N/N+1 ABI is unavailable, keep the allocation claim typed-rejected or ParkedSealed; reopen only after the same-session source product is present or the ordinary-new cohort receives an explicit retirement decision."
+next_execution = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0__implementation"

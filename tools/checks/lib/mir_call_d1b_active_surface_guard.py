@@ -71,6 +71,8 @@ METHOD_RESOLUTION_RET0_KEY = "method_call_method_resolution_static_none_ret0_d0_
 TYPE_FACT_GUARD_PRUNE_S0_ROW = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 TYPE_FACT_GUARD_PRUNE_S0_KEY = "mirbuilder_type_fact_partition_guard_prune_s0_2026_08_30"
 OPERATOR_ROW = "MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0"
+ORDINARY_NEW_I0_ROW = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
+ORDINARY_NEW_I0_KEY = "same_module_ordinary_new_exact_constructor_cutover_i0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -694,6 +696,73 @@ def check_type_fact_guard_prune_s0(state: dict, card: dict, root: Path) -> None:
         fail("rehomed type-fact sibling reached the 800-line hard stop")
 
 
+def check_ordinary_new_i0(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("ordinary-new I0 requires fast or closeout work_mode")
+    if state.get("current_execution_row") != ORDINARY_NEW_I0_ROW:
+        fail("ordinary-new I0 row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("ordinary-new I0 must clear current_design_stop")
+    if state.get("next_execution_card") != ORDINARY_NEW_I0_ROW:
+        fail("ordinary-new I0 pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("ordinary-new I0 card pointer drifted")
+
+    row = card.get(ORDINARY_NEW_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{ORDINARY_NEW_I0_KEY} section is missing")
+    if row.get("task_id") != ORDINARY_NEW_I0_ROW:
+        fail("ordinary-new I0 task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("ordinary-new I0 status is not finite")
+    if row.get("implementation_permission") is not (row.get("status") == "fast_open"):
+        fail("ordinary-new I0 permission/status drifted")
+    parent = card.get("same_module_ordinary_new_birth_target_d0_2026_08_30")
+    if not isinstance(parent, dict) or parent.get("status") != "accepted_design_stop_exact_constructor_relation_required":
+        fail("ordinary-new I0 parent design is not accepted")
+    allowed = row.get("allowed_files")
+    expected_allowed = {
+        "src/parser/source_authority/constructor_source.rs",
+        "src/parser/constructor_source_catalog.rs",
+        "src/parser/normal_callable_program_source/ordinary_new_source.rs",
+        "src/mir/instance_constructor_abi.rs",
+        "src/mir/normal_callable_semantic_package/instance_constructor_semantic.rs",
+        "src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs",
+        "src/mir/normal_callable_semantic_package/issuer.rs",
+        "src/mir/builder/normal_instance_constructor_admission.rs",
+        "src/mir/builder/ordinary_new_admission.rs",
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        fail("ordinary-new I0 allowed-file boundary drifted")
+    for rel in (
+        Path("src/parser/source_authority/constructor_source.rs"),
+        Path("src/parser/constructor_source_catalog.rs"),
+        Path("src/parser/normal_callable_program_source/ordinary_new_source.rs"),
+        Path("src/mir/normal_callable_semantic_package/instance_constructor_semantic.rs"),
+        Path("src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs"),
+        Path("src/mir/builder/normal_instance_constructor_admission.rs"),
+        Path("src/mir/builder/ordinary_new_admission.rs"),
+    ):
+        if sum(1 for _ in (root / rel).open()) >= 760:
+            fail(f"ordinary-new I0 source reached the 760-line split boundary: {rel}")
+    abi = root / "src/mir/instance_constructor_abi.rs"
+    if abi.exists() and len(abi.read_text(encoding="utf-8").splitlines()) >= 760:
+        fail("ordinary-new ABI owner reached the 760-line split boundary")
+    if row.get("status") == "landed":
+        check_test_coverage(root, row)
+        base = require_text(row.get("coverage_base_commit"), "ordinary-new coverage_base_commit")
+        changed_paths = git_diff_paths(root, base)
+        if not changed_paths.issubset(expected_allowed):
+            fail(
+                "ordinary-new I0 changed paths exceed allowed boundary: "
+                f"{sorted(changed_paths - expected_allowed)}"
+            )
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         fail("usage: mir_call_d1b_active_surface_guard.py ROOT")
@@ -750,6 +819,8 @@ def main() -> None:
     elif row == OPERATOR_ROW:
         from mir_call_d1b_operator_retirement_guard import check_operator_retirement_i0
         check_operator_retirement_i0(state, card, root)
+    elif row == ORDINARY_NEW_I0_ROW:
+        check_ordinary_new_i0(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
