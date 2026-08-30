@@ -1,17 +1,18 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0:
-Forward the existing resolver-owned BodyMeReceiverV1 disposition into the
-existing VerifiedResolvedMethodCallSourceV1 product: preserve lexical
-BindingRefV1 versus StaticCurrentOwner. Do not issue a target, receiver ValueId,
-ABI, loan, MIR Call, backend route, fallback, retry, or new receipt. Add only
-focused source-product evidence; stop if the source shape or 760/800 line
-boundary changes. Closeout returns to the DeclaredInstance source/catalog/
-receiver/ABI co-seal design stop.
+MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
+The declared-instance receiver source-facts correction landed at 01332528ed:
+BodyMeReceiverV1::Lexical remains a lexical BindingRefV1 and
+StaticCurrentOwner remains CurrentOwner in the existing source product.
+True DeclaredInstance still lacks the complete source/catalog/receiver/ABI
+co-seal and remains a separate design row. Bare panic(String) remains an
+accepted terminal-Fault target but production 0/ParkedSealed; bare exit remains
+NoIssuer. Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback,
+retry, or guard cleanup.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -44,10 +45,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0 is the current bounded source-facts row: forward the existing BodyMeReceiverV1 lexical/static disposition into VerifiedResolvedMethodCallSourceV1 without issuing a target or changing production lowering. The prior BoxShape lifecycle-test split landed at 389ae344c1 (parent 753 lines, sibling 25 lines). After this row, return to the DeclaredInstance source/catalog/receiver/ABI co-seal design stop. Panic/throw reference policy is accepted but production 0/ParkedSealed; no loan, Call, VM/backend, fallback, retry, or guard cleanup is in scope."
+latest_card_summary = "The declared-instance receiver source-facts row landed at 01332528ed: the existing issuer now preserves BodyMeReceiverV1 lexical/static disposition in VerifiedResolvedMethodCallSourceV1, with 10/10 focused tests green and no target or production Call switch. The prior BoxShape lifecycle-test split landed at 389ae344c1 (parent 753 lines, sibling 25 lines). Return to the DeclaredInstance source/catalog/receiver/ABI co-seal design stop. Panic/throw reference policy is accepted but production 0/ParkedSealed; no loan, Call, VM/backend, fallback, retry, or guard cleanup is in scope."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
-next_execution_card = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+next_execution_card = "none"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -58,7 +59,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 with terminal-type and guard-ordering corrections at 7c834d021a; StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static now stop before argument effects, while exact Cataloged/scalar/inline/Math/Extern/Method(Some)/Instance owners remain unchanged.",
-  "2026-08-30: StaticCurrentOwner me.method handoff landed at 2b7b3e7489; the exact source/site/catalog target is consumed before header/argument effects and emitted as Global(StaticBoxMethod) with N source arguments. True DeclaredInstance remains a separate NoSafeSlice design row. 2026-08-31: MIR-BUILDER-BOXSHAPE-NORMAL-CALLABLE-SOURCE-TEST-EXTRACTION-S0 landed at c1a715eb97; the production owner remains 367 lines and the private test sibling is 351 lines, with the historical normal_callable_semantic_source::tests path preserved. Focused execution ran 10 tests (7 pass, 3 identical parent-baseline raw-compat/runtime-box-fate-retired reds); no semantic or production route changed.",
-	"2026-08-30: LANG-PANIC-TERMINAL-FAULT-D0 accepted panic(String) as an ordinary-call-shaped, reserved, noncatchable terminal Fault target. Production remains zero and ParkedSealed behind the common exit transaction, generic Fault terminal, and selected runtime ABI; legacy Throw/Catch retirement is separate.",
+  "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 (terminal/guard correction 7c834d021a); StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static stop before argument effects. StaticCurrentOwner me.method handoff landed at 2b7b3e7489; exact source/site/catalog target is consumed before effects and emitted as Global(StaticBoxMethod). True DeclaredInstance remains a separate NoSafeSlice design row.",
+  "2026-08-31: BoxShape normal-callable source test extraction landed at c1a715eb97 (production 367 lines, private sibling 351 lines, historical test path preserved); DeclaredInstance receiver source-facts correction landed at 01332528ed (body_shape_tests 10/10 green, no target/loan/MIR/backend/fallback/retry/new receipt).",
+  "2026-08-30: LANG-PANIC-TERMINAL-FAULT-D0 accepted panic(String) as an ordinary-call-shaped, reserved, noncatchable terminal Fault target. Production remains zero and ParkedSealed behind the common exit transaction, generic Fault terminal, and selected runtime ABI; legacy Throw/Catch retirement is separate.",
 ]

@@ -2034,13 +2034,13 @@ reopen_trigger = "Reopen only if the historical test path cannot compile, privat
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_call_me_declared_instance_receiver_source_facts_i0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 design_parent = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 ceremony_tier = "T1"
 box_kind = "BoxCount source-facts fidelity correction"
-implementation_permission = true
+implementation_permission = false
 decision = "Preserve the receiver policy already sealed by BodyMeReceiverV1 when issuing VerifiedResolvedMethodCallSourceV1: Lexical(binding) remains Lexical(binding), while StaticCurrentOwner remains CurrentOwner. This removes a source-facts collapse only; it does not issue a target, receiver ValueId, ABI, loan, or MIR Call."
 source_authority = "The existing resolver-owned BodyExpressionShapeV1::Me receiver field is the sole authority. The existing issue_resolved_method_call_sources_v1 function is the sole source-product issuer and must forward its finite receiver disposition without re-scanning AST or Builder state."
 canonical_issuer = "Existing issue_resolved_method_call_sources_v1 in src/mir/resolved_semantics/body_shape.rs; no new receipt or parallel source pipeline."
@@ -2093,7 +2093,23 @@ changed_test_names = [
   "mir::resolved_semantics::body_shape_tests::resolved_shape_keeps_static_current_owner_me_without_forging_a_receiver_binding",
   "mir::resolved_semantics::body_shape_tests::resolved_shape_issues_declared_instance_method_receiver_source",
 ]
-next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-SOURCE-FACTS-I0__fast"
+implementation_commit = "01332528ed"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo test --profile quick --lib mir::resolved_semantics::body_shape_tests -- --test-threads=1: 10 passed, 0 failed",
+  "target/quick/deps/nyash_rust-bef87a5262fef8ae 'mir::resolved_semantics::body_shape_tests' --list: both source-facts tests listed",
+  "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 cargo check --profile quick --lib -j1: pass (existing warnings only)",
+  "rustfmt --edition 2021 --check src/mir/resolved_semantics/body_shape.rs src/mir/resolved_semantics/body_shape_tests.rs: pass",
+  "line budget: body_shape.rs 733 lines; body_shape_tests.rs 390 lines; both below 760 and 800 hard stop",
+]
+guard_runs = [
+  "bash tools/checks/current_state_pointer_guard.sh: pass before closeout",
+  "git diff --check: pass before closeout",
+]
+evidence = "Implementation landed at 01332528ed. issue_resolved_method_call_sources_v1 now forwards BodyMeReceiverV1::Lexical as ResolvedLexicalRefV1::Local and preserves StaticCurrentOwner as CurrentOwner. The focused body_shape_tests suite passed 10/10, including the new declared-instance receiver-source assertion; quick library check, test-name listing, rustfmt, line budget, pointer guard, and diff check passed. No target, receiver ValueId, ABI, loan, MIR Call, backend, fallback, retry, or new receipt was added."
+red_classification = "No current-change red. Existing workspace warnings and unrelated baseline debt remain outside this source-facts row; the focused suite was fully green."
+closeout = "Implementation and evidence are recorded; status=landed and implementation_permission=false. Restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and set next_execution_card=none."
+reopen_trigger = "Reopen only if a later source/catalog/receiver co-seal cannot use the preserved BodyMeReceiverV1 disposition, the focused source-product tests regress, a new receipt/target/ValueId is proposed, or body_shape.rs reaches the 760/800 budget."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0__design_stop"
 
 [mir_builder_boxshape_normal_callable_source_test_extraction_s0_2026_08_31]
 status = "landed"
