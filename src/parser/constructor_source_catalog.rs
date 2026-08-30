@@ -8,7 +8,10 @@ use std::collections::BTreeSet;
 
 use crate::ast::ASTNode;
 
-use super::source_authority::{ConstructorSourceRelationV1, ParserInvocationBrandV1};
+use super::source_authority::{
+    ConstructorSourceKindV1, ConstructorSourceRelationV1, ConstructorSourceSignatureV1,
+    ParserInvocationBrandV1,
+};
 use super::source_seal::ParserBoxSourceSealV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -69,6 +72,7 @@ pub(crate) struct FinalConstructorSemanticSyntaxRowRefV1<'source> {
     box_name: &'source str,
     key: &'source str,
     declaration: &'source ASTNode,
+    signature: ConstructorSourceSignatureV1,
 }
 
 #[derive(Debug)]
@@ -101,6 +105,14 @@ impl FinalConstructorSemanticSyntaxRowRefV1<'_> {
 
     pub(crate) fn declaration(&self) -> &ASTNode {
         self.declaration
+    }
+
+    pub(crate) const fn kind(&self) -> ConstructorSourceKindV1 {
+        self.signature.kind()
+    }
+
+    pub(crate) const fn source_arity(&self) -> u32 {
+        self.signature.source_arity()
     }
 }
 
@@ -204,6 +216,7 @@ impl ParserConstructorSourceCatalogV1 {
                 box_name: name,
                 key: row.relation.key(),
                 declaration,
+                signature: row.relation.signature(),
             });
         }
         Ok(FinalConstructorSemanticSyntaxLoanV1 {

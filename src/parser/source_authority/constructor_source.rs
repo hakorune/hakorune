@@ -49,9 +49,33 @@ pub(in crate::parser) enum ConstructorSourceOriginV1 {
     GeneratedBirthInitializer,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ConstructorSourceKindV1 {
+    Init,
+    Pack,
+    Birth,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ConstructorSourceSignatureV1 {
+    kind: ConstructorSourceKindV1,
+    source_arity: u32,
+}
+
+impl ConstructorSourceSignatureV1 {
+    pub(crate) const fn kind(self) -> ConstructorSourceKindV1 {
+        self.kind
+    }
+
+    pub(crate) const fn source_arity(self) -> u32 {
+        self.source_arity
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::parser) struct ConstructorSourceRelationV1 {
     key: Box<str>,
+    signature: ConstructorSourceSignatureV1,
     origin: ConstructorSourceOriginV1,
     initializer_triggers: Box<[GeneratedBirthTriggerSourceV1]>,
 }
@@ -59,6 +83,10 @@ pub(in crate::parser) struct ConstructorSourceRelationV1 {
 impl ConstructorSourceRelationV1 {
     pub(in crate::parser) fn key(&self) -> &str {
         &self.key
+    }
+
+    pub(in crate::parser) const fn signature(&self) -> ConstructorSourceSignatureV1 {
+        self.signature
     }
 
     pub(in crate::parser) fn origin(&self) -> &ConstructorSourceOriginV1 {
@@ -91,13 +119,27 @@ impl ConstructorSourceRelationV1 {
 }
 
 pub(super) fn canonical_constructor_key(node: &ASTNode) -> Option<String> {
+    let ASTNode::FunctionDeclaration { name, .. } = node else {
+        return None;
+    };
+    let signature = constructor_source_signature(node)?;
+    Some(format!("{name}/{}", signature.source_arity()))
+}
+
+fn constructor_source_signature(node: &ASTNode) -> Option<ConstructorSourceSignatureV1> {
     let ASTNode::FunctionDeclaration { name, params, .. } = node else {
         return None;
     };
-    if !matches!(name.as_str(), "init" | "pack" | "birth") {
-        return None;
-    }
-    Some(format!("{name}/{}", params.len()))
+    let kind = match name.as_str() {
+        "init" => ConstructorSourceKindV1::Init,
+        "pack" => ConstructorSourceKindV1::Pack,
+        "birth" => ConstructorSourceKindV1::Birth,
+        _ => return None,
+    };
+    Some(ConstructorSourceSignatureV1 {
+        kind,
+        source_arity: u32::try_from(params.len()).ok()?,
+    })
 }
 
 pub(in crate::parser) fn validate_constructor_rows(
@@ -123,6 +165,11 @@ pub(in crate::parser) fn validate_constructor_rows(
         let actual = canonical_constructor_key(node)
             .ok_or_else(|| SourceAuthorityErrorV1::ConstructorShapeMismatch(row.key.clone()))?;
         if actual != row.key.as_ref() {
+            return Err(SourceAuthorityErrorV1::ConstructorShapeMismatch(
+                row.key.clone(),
+            ));
+        }
+        if constructor_source_signature(node) != Some(row.signature) {
             return Err(SourceAuthorityErrorV1::ConstructorShapeMismatch(
                 row.key.clone(),
             ));
@@ -164,6 +211,12 @@ impl OpenBoxMethodSourceTransactionV1 {
         self.constructor_relations
             .push(ConstructorSourceRelationV1 {
                 key: key.to_owned().into_boxed_str(),
+                signature: constructor_source_signature(declaration).ok_or_else(|| {
+                    ParseError::BuildCfg {
+                        message: "constructor source signature is unavailable".to_owned(),
+                        line: 0,
+                    }
+                })?,
                 origin: ConstructorSourceOriginV1::Direct(SourceBoxMethodSiteV1::Direct {
                     member: self.current_member_site(),
                 }),
@@ -204,6 +257,10 @@ impl OpenBoxMethodSourceTransactionV1 {
             self.constructor_relations
                 .push(ConstructorSourceRelationV1 {
                     key: "birth/0".into(),
+                    signature: ConstructorSourceSignatureV1 {
+                        kind: ConstructorSourceKindV1::Birth,
+                        source_arity: 0,
+                    },
                     origin: ConstructorSourceOriginV1::GeneratedBirthInitializer,
                     initializer_triggers: self.generated_birth_triggers.clone().into_boxed_slice(),
                 });

@@ -614,9 +614,13 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => Some(*batch_slot),
         NormalCallableDynamicProjectionV1::ValidUnselected => None,
     };
-    let ordinary_new_claims =
-        issue_ordinary_new_claims_v1(&batch, &selected, dynamic_batch_slot)
-            .map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
+    let ordinary_new_claims = issue_ordinary_new_claims_v1(
+        &batch,
+        &selected,
+        dynamic_batch_slot,
+        &instance_constructors,
+    )
+    .map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
     let physical_signature = issue_callable_physical_signature_v1(
         catalog.catalog().brand().clone(),
         &batch,

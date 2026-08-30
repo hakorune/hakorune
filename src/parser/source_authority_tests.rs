@@ -162,12 +162,40 @@ fn constructor_inventory_preserves_written_member_order() {
         vec!["init/2", "pack/1", "birth/0"]
     );
     for (ordinal, row) in rows.iter().enumerate() {
+        let expected = match ordinal {
+            0 => (ConstructorSourceKindV1::Init, 2),
+            1 => (ConstructorSourceKindV1::Pack, 1),
+            2 => (ConstructorSourceKindV1::Birth, 0),
+            _ => unreachable!(),
+        };
+        assert_eq!(row.signature().kind(), expected.0);
+        assert_eq!(row.signature().source_arity(), expected.1);
         assert!(matches!(
             row.origin(),
             ConstructorSourceOriginV1::Direct(site)
                 if site.source_member_ordinal() == ordinal as u32
         ));
     }
+}
+
+#[test]
+fn constructor_source_signature_preserves_kind_and_arity() {
+    let brand = ParserInvocationBrandV1::issue();
+    let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 15);
+    let node = constructor("birth", 3);
+    transaction
+        .commit_constructor_at_current("birth/3", &node)
+        .unwrap();
+    transaction.finish_member().unwrap();
+    let mut constructors = std::collections::HashMap::new();
+    constructors.insert("birth/3".to_owned(), node);
+
+    let prepared = transaction.finish(&constructors).unwrap();
+    let [row] = prepared.constructor_relations() else {
+        panic!("one constructor source row expected")
+    };
+    assert_eq!(row.signature().kind(), ConstructorSourceKindV1::Birth);
+    assert_eq!(row.signature().source_arity(), 3);
 }
 
 #[test]

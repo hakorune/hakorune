@@ -33,9 +33,28 @@ impl ParserOrdinaryBoxSourceCoverageV1 {
         self.rows.iter().any(|row| row.name.as_ref() == name)
     }
 
+    pub(crate) fn row_for(
+        &self,
+        name: &str,
+    ) -> Result<Option<&ParserOrdinaryBoxSourceRowV1>, ParserOrdinaryBoxSourceLookupErrorV1> {
+        let mut matches = self.rows.iter().filter(|row| row.name.as_ref() == name);
+        let Some(row) = matches.next() else {
+            return Ok(None);
+        };
+        if matches.next().is_some() {
+            return Err(ParserOrdinaryBoxSourceLookupErrorV1::DuplicateName);
+        }
+        Ok(Some(row))
+    }
+
     pub(crate) fn rows(&self) -> &[ParserOrdinaryBoxSourceRowV1] {
         &self.rows
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ParserOrdinaryBoxSourceLookupErrorV1 {
+    DuplicateName,
 }
 
 impl ParserOrdinaryBoxSourceRowV1 {
@@ -45,5 +64,31 @@ impl ParserOrdinaryBoxSourceRowV1 {
 
     pub(crate) fn name(&self) -> &str {
         &self.name
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ordinary_new_source_coverage_returns_exact_box_ordinal() {
+        let coverage =
+            ParserOrdinaryBoxSourceCoverageV1::issue(vec![(4, "Page".into()), (9, "Other".into())]);
+        let row = coverage
+            .row_for("Page")
+            .expect("unique ordinary Box name")
+            .expect("Page row");
+        assert_eq!(row.final_box_ordinal(), 4);
+    }
+
+    #[test]
+    fn ordinary_new_source_coverage_rejects_duplicate_box_names() {
+        let coverage =
+            ParserOrdinaryBoxSourceCoverageV1::issue(vec![(4, "Page".into()), (9, "Page".into())]);
+        assert_eq!(
+            coverage.row_for("Page"),
+            Err(ParserOrdinaryBoxSourceLookupErrorV1::DuplicateName)
+        );
     }
 }

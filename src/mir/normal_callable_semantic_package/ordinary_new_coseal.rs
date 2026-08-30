@@ -7,19 +7,53 @@
 
 use std::{cell::RefCell, collections::BTreeMap};
 
+use super::instance_constructor_semantic::{
+    InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
+};
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
+use crate::mir::instance_constructor_abi::{
+    InstanceConstructorAbiErrorV1, InstanceConstructorAbiV1,
+};
 use crate::mir::resolved_semantics::{
     BodyEffectKindV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
+use hakorune_mir_defs::{CanonicalGlobalTargetConstructionErrorV1, CanonicalGlobalTargetV1};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
+    source_id: crate::parser::ConstructorSourceIdV1,
+    target: CanonicalGlobalTargetV1,
+    abi: InstanceConstructorAbiV1,
+}
+
+impl VerifiedOrdinaryNewBirthRecipeV1 {
+    pub(crate) fn source_id(&self) -> &crate::parser::ConstructorSourceIdV1 {
+        &self.source_id
+    }
+
+    pub(crate) fn target(self) -> CanonicalGlobalTargetV1 {
+        self.target
+    }
+
+    pub(crate) const fn abi(&self) -> InstanceConstructorAbiV1 {
+        self.abi
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) enum OrdinaryNewConstructorDispositionV1 {
+    NoBirthZero,
+    Birth(VerifiedOrdinaryNewBirthRecipeV1),
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     site: OwnedExprSiteV1,
     class: Box<str>,
     arity: usize,
-    birth: Option<Box<str>>,
+    constructor: OrdinaryNewConstructorDispositionV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -92,12 +126,12 @@ impl OrdinaryNewAdmissionClaimV1 {
         &self.class
     }
 
-    pub(crate) fn birth(&self) -> Option<&str> {
-        self.birth.as_deref()
-    }
-
     pub(crate) const fn arity(&self) -> usize {
         self.arity
+    }
+
+    pub(crate) fn constructor(self) -> OrdinaryNewConstructorDispositionV1 {
+        self.constructor
     }
 }
 
@@ -117,13 +151,34 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         site: OwnedExprSiteV1,
         class: Box<str>,
     },
-    BoxDeclarationMissing {
+    OrdinaryBoxCoverageDuplicate {
         site: OwnedExprSiteV1,
         class: Box<str>,
     },
-    BoxDeclarationNotOrdinary {
+    ConstructorSourceOrdinalOverflow {
         site: OwnedExprSiteV1,
         class: Box<str>,
+    },
+    ConstructorLookup {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        error: InstanceConstructorBirthLookupErrorV1,
+    },
+    ConstructorAbi {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        error: InstanceConstructorAbiErrorV1,
+    },
+    BirthTargetInvalid {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        arity: usize,
+        error: CanonicalGlobalTargetConstructionErrorV1,
+    },
+    ConstructorRelationMismatch {
+        site: OwnedExprSiteV1,
+        class: Box<str>,
+        arity: usize,
     },
     BirthConstructorMissing {
         site: OwnedExprSiteV1,
@@ -139,6 +194,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     excluded_dynamic_batch_slot: Option<u32>,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
 ) -> Result<Box<[OrdinaryNewAdmissionClaimV1]>, OrdinaryNewCoSealIssueV1> {
     let mut claims = Vec::new();
     for declaration in batch.declarations() {
@@ -176,10 +232,68 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 })
                 .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
 
-            if !batch.ordinary_box_coverage().contains_box(class.as_ref()) {
+            let Some(box_source) = batch
+                .ordinary_box_coverage()
+                .row_for(class.as_ref())
+                .map_err(|_| OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageDuplicate {
+                    site: site.clone(),
+                    class: class.clone(),
+                })?
+            else {
                 return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
-            }
-            let birth = source_birth_target(batch.source_ast(), &site, &class, arity)?;
+            };
+            let final_box_ordinal =
+                u32::try_from(box_source.final_box_ordinal()).map_err(|_| {
+                    OrdinaryNewCoSealIssueV1::ConstructorSourceOrdinalOverflow {
+                        site: site.clone(),
+                        class: class.clone(),
+                    }
+                })?;
+            let constructor = match instance_constructors
+                .birth_for(final_box_ordinal, arity)
+                .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                    site: site.clone(),
+                    class: class.clone(),
+                    error,
+                })? {
+                Some(row) => {
+                    if row.box_name() != class.as_ref()
+                        || usize::try_from(row.source_arity()).ok() != Some(arity)
+                    {
+                        return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+                            site,
+                            class,
+                            arity,
+                        });
+                    }
+                    let abi = InstanceConstructorAbiV1::issue(arity).map_err(|error| {
+                        OrdinaryNewCoSealIssueV1::ConstructorAbi {
+                            site: site.clone(),
+                            class: class.clone(),
+                            error,
+                        }
+                    })?;
+                    let target = CanonicalGlobalTargetV1::new_static_box_method(
+                        row.box_name().into(),
+                        "birth".into(),
+                        row.source_arity(),
+                    )
+                    .map_err(|error| {
+                        OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
+                            site: site.clone(),
+                            class: class.clone(),
+                            arity,
+                            error,
+                        }
+                    })?;
+                    OrdinaryNewConstructorDispositionV1::Birth(VerifiedOrdinaryNewBirthRecipeV1 {
+                        source_id: row.source_id().clone(),
+                        target,
+                        abi,
+                    })
+                }
+                None => no_birth_constructor_disposition(&site, &class, arity)?,
+            };
             if claims
                 .iter()
                 .any(|claim: &OrdinaryNewAdmissionClaimV1| claim.site == site)
@@ -190,7 +304,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 site,
                 class,
                 arity,
-                birth,
+                constructor,
             });
         }
     }
@@ -207,46 +321,13 @@ fn is_direct_local_initializer(segments: &[SourcePathSegmentV1]) -> bool {
     )
 }
 
-fn source_birth_target(
-    source_ast: &ASTNode,
+fn no_birth_constructor_disposition(
     site: &OwnedExprSiteV1,
     class: &str,
     arity: usize,
-) -> Result<Option<Box<str>>, OrdinaryNewCoSealIssueV1> {
-    let ASTNode::Program { statements, .. } = source_ast else {
-        return Err(OrdinaryNewCoSealIssueV1::BoxDeclarationMissing {
-            site: site.clone(),
-            class: class.into(),
-        });
-    };
-    let Some(ASTNode::BoxDeclaration {
-        constructors,
-        is_interface,
-        is_record,
-        is_static,
-        name,
-        ..
-    }) = statements.iter().find(|statement| {
-        matches!(statement, ASTNode::BoxDeclaration { name: declaration, .. } if declaration == class)
-    })
-    else {
-        return Err(OrdinaryNewCoSealIssueV1::BoxDeclarationMissing {
-            site: site.clone(),
-            class: class.into(),
-        });
-    };
-    if *is_interface || *is_record || *is_static || name != class {
-        return Err(OrdinaryNewCoSealIssueV1::BoxDeclarationNotOrdinary {
-            site: site.clone(),
-            class: class.into(),
-        });
-    }
-    let key = format!("birth/{arity}");
-    if constructors.contains_key(&key) {
-        return Ok(Some(format!("{class}.{key}").into_boxed_str()));
-    }
+) -> Result<OrdinaryNewConstructorDispositionV1, OrdinaryNewCoSealIssueV1> {
     if arity == 0 {
-        return Ok(None);
+        return Ok(OrdinaryNewConstructorDispositionV1::NoBirthZero);
     }
     Err(OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
         site: site.clone(),
@@ -279,7 +360,7 @@ mod tests {
             site,
             class: "Page".into(),
             arity,
-            birth: None,
+            constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
         }
     }
 
@@ -336,24 +417,50 @@ mod tests {
     }
 
     #[test]
-    fn source_birth_projection_is_exact_and_missing_arity_rejects() {
-        let source =
-            crate::parser::NyashParser::parse_from_string("box Page { birth() { return 0 } }")
-                .expect("ordinary box source");
+    fn ordinary_new_recipe_preserves_exact_birth_source() {
+        let source_id = crate::parser::ConstructorSourceIdV1::test_new(7);
+        let abi = InstanceConstructorAbiV1::issue(2).expect("constructor ABI");
+        let target =
+            CanonicalGlobalTargetV1::new_static_box_method("Page".into(), "birth".into(), 2)
+                .expect("birth target");
+        let recipe = VerifiedOrdinaryNewBirthRecipeV1 {
+            source_id: source_id.clone(),
+            target: target.clone(),
+            abi,
+        };
+        let OrdinaryNewConstructorDispositionV1::Birth(recipe) =
+            OrdinaryNewConstructorDispositionV1::Birth(recipe)
+        else {
+            unreachable!()
+        };
+        assert!(recipe.source_id().same_as(&source_id));
+        assert_eq!(recipe.abi(), abi);
+        assert_eq!(recipe.target(), target);
+    }
+
+    #[test]
+    fn ordinary_new_constructor_disposition_accepts_zero_arity_without_birth() {
         let site = test_site();
-        assert_eq!(
-            source_birth_target(&source, &site, "Page", 0)
-                .expect("zero-arity birth projection")
-                .as_deref(),
-            Some("Page.birth/0")
-        );
+        let disposition = no_birth_constructor_disposition(&site, "Page", 0)
+            .expect("zero-arity allocation may omit birth");
         assert!(matches!(
-            source_birth_target(&source, &site, "Page", 1),
-            Err(OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
+            disposition,
+            OrdinaryNewConstructorDispositionV1::NoBirthZero
+        ));
+    }
+
+    #[test]
+    fn ordinary_new_constructor_disposition_rejects_nonzero_without_birth() {
+        let site = test_site();
+        let error = no_birth_constructor_disposition(&site, "Page", 1)
+            .expect_err("nonzero allocation requires an exact birth row");
+        assert!(matches!(
+            error,
+            OrdinaryNewCoSealIssueV1::BirthConstructorMissing {
                 class,
                 arity: 1,
                 ..
-            }) if class.as_ref() == "Page"
+            } if class.as_ref() == "Page"
         ));
     }
 }

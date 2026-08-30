@@ -10,6 +10,9 @@ use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::mir::instance_constructor_abi::{
+    InstanceConstructorAbiErrorV1, InstanceConstructorAbiV1,
+};
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 use crate::mir::MirBuilder;
 use crate::parser::{
@@ -365,25 +368,25 @@ impl NormalInstanceConstructorSourceBatchV1 {
 pub(in crate::mir::builder) struct NormalInstanceConstructorDraftAdmissionV1 {
     source_key: NormalInstanceConstructorSourceKeyV1,
     physical_symbol: Box<str>,
-    physical_arity: usize,
+    abi: InstanceConstructorAbiV1,
 }
 
 impl NormalInstanceConstructorDraftAdmissionV1 {
     pub(in crate::mir::builder) fn seal(
         source_key: NormalInstanceConstructorSourceKeyV1,
         normalized_parameter_count: usize,
-    ) -> Self {
+    ) -> Result<Self, InstanceConstructorAbiErrorV1> {
         let physical_symbol = format!(
             "{}.{}",
             source_key.box_name(),
             source_key.parser_constructor_key()
         )
         .into_boxed_str();
-        Self {
+        Ok(Self {
             source_key,
             physical_symbol,
-            physical_arity: normalized_parameter_count + 1,
-        }
+            abi: InstanceConstructorAbiV1::issue(normalized_parameter_count)?,
+        })
     }
 
     pub(in crate::mir::builder) fn source_key(&self) -> &NormalInstanceConstructorSourceKeyV1 {
@@ -395,20 +398,20 @@ impl NormalInstanceConstructorDraftAdmissionV1 {
     }
 
     pub(in crate::mir::builder) const fn physical_arity(&self) -> usize {
-        self.physical_arity
+        self.abi.physical_arity()
     }
 
     fn into_legacy_collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
             source_key: _,
             physical_symbol,
-            physical_arity,
+            abi,
         } = self;
         let symbol = physical_symbol.into_string();
         (
             FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
             symbol,
-            physical_arity,
+            abi.physical_arity(),
         )
     }
 }
@@ -449,7 +452,8 @@ impl RawInvocationChildPortV1<'_, '_> {
                 param_decls,
             );
         let admission =
-            NormalInstanceConstructorDraftAdmissionV1::seal(source_key.clone(), params.len());
+            NormalInstanceConstructorDraftAdmissionV1::seal(source_key.clone(), params.len())
+                .map_err(ModuleLoweringPortChildErrorV1::InstanceConstructorAbi)?;
         let source_root =
             super::raw_invocation_source_transport::RawInvocationRootLineageV1::InstanceConstructor(
                 source_key.clone(),
@@ -494,8 +498,10 @@ mod tests {
             "Page",
             "birth/0",
         );
-        let first = NormalInstanceConstructorDraftAdmissionV1::seal(source_key.clone(), 0);
-        let second = NormalInstanceConstructorDraftAdmissionV1::seal(source_key, 0);
+        let first = NormalInstanceConstructorDraftAdmissionV1::seal(source_key.clone(), 0)
+            .expect("constructor ABI");
+        let second = NormalInstanceConstructorDraftAdmissionV1::seal(source_key, 0)
+            .expect("constructor ABI");
 
         assert!(first.source_key().source_id().same_as(&source_id));
         assert_eq!(first.source_key().statement_index(), 7);

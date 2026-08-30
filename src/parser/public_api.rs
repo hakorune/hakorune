@@ -26,3 +26,4 @@ pub(crate) use super::normal_callable_program_source::{
     ParserNormalCallableTransformSessionV1, ParserNormalRootExecutionPreservationRejectV1,
     ParserNormalRootExecutionPreservationV1, VerifiedFinalCallableProgramSourceV1,
 };
+pub(crate) use super::source_authority::ConstructorSourceKindV1;

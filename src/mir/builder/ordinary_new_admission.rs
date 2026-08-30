@@ -10,6 +10,7 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
     RawOrdinaryNewClaimPortV1,
 };
+use crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1;
 use crate::mir::slot_registry::resolve_slot_by_type_name;
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
@@ -23,6 +24,16 @@ where
     Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + RawOrdinaryNewClaimPortV1,
 {
     let claim = port.try_take_ordinary_new_claim(class, arguments.len())?;
+    let constructor = claim.map(|claim| claim.constructor());
+    if let Some(OrdinaryNewConstructorDispositionV1::Birth(recipe)) = constructor.as_ref() {
+        let physical_arity = arguments.len().checked_add(1).ok_or_else(|| {
+            "[freeze:contract][ordinary-new/abi/physical-arity-overflow]".to_owned()
+        })?;
+        recipe
+            .abi()
+            .validate(arguments.len(), physical_arity)
+            .map_err(|error| format!("[freeze:contract][ordinary-new/abi/{error:?}]"))?;
+    }
     let mut arg_values = Vec::new();
     for arg in arguments {
         arg_values.push(drive_legacy_expression_v1(builder, port, arg)?);
@@ -45,18 +56,12 @@ where
         .value_origin_newbox
         .insert(dst, class.to_owned());
 
-    if let Some(claim) = claim {
-        if claim.birth().is_some() {
+    if let Some(constructor) = constructor {
+        if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
             let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arg_values.len());
             argv.push(dst);
             argv.extend(arg_values.iter().copied());
-            let target = CanonicalGlobalTargetV1::new_static_box_method(
-                class.into(),
-                "birth".into(),
-                arg_values.len() as u32,
-            )
-            .map_err(|error| format!("[freeze:contract][ordinary-new/birth/{error:?}]"))?;
-            builder.emit_legacy_call(None, CallTarget::Global(target), argv)?;
+            builder.emit_legacy_call(None, CallTarget::Global(recipe.target()), argv)?;
         }
         return Ok(dst);
     }

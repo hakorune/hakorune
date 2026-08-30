@@ -25,9 +25,10 @@ use crate::ast::{
 };
 use crate::parser::ParseError;
 
+pub(crate) use constructor_source::ConstructorSourceKindV1;
 pub(in crate::parser) use constructor_source::{
-    ConstructorSourceOriginV1, ConstructorSourceRelationV1, GeneratedBirthTriggerKindV1,
-    GeneratedBirthTriggerSourceV1,
+    ConstructorSourceOriginV1, ConstructorSourceRelationV1, ConstructorSourceSignatureV1,
+    GeneratedBirthTriggerKindV1, GeneratedBirthTriggerSourceV1,
 };
 pub(in crate::parser) use declaration_syntax::{
     ParserBoxDeclarationKindV1, ParserBoxDeclarationSyntaxV1,

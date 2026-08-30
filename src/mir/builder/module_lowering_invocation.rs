@@ -117,6 +117,7 @@ pub(in crate::mir) enum ModuleLoweringPortChildErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
     Admission(ModuleDraftAdmissionErrorV1),
     ReceiptBrand(CollectorReceiptBrandErrorV1),
+    InstanceConstructorAbi(crate::mir::instance_constructor_abi::InstanceConstructorAbiErrorV1),
     PhysicalSignatureMismatch,
     PinnedTextBackendFrameContractMismatch,
 }
@@ -137,6 +138,10 @@ impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
             Self::Session(error) => error.fmt(formatter),
             Self::Admission(error) => error.fmt(formatter),
             Self::ReceiptBrand(error) => error.fmt(formatter),
+            Self::InstanceConstructorAbi(error) => write!(
+                formatter,
+                "[freeze:contract][mir/instance-constructor-abi/{error:?}]"
+            ),
             Self::PhysicalSignatureMismatch => {
                 write!(
                     formatter,

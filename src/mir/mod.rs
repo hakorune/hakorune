@@ -174,6 +174,7 @@ pub(crate) mod if_recipe_contract; // Builder-free fixed-shell If recipe wire
 pub mod indexof_search_micro_seed_plan; // MIR-owned route plan for temporary indexOf search micro seed bridge
 pub(crate) mod inline_leaf; // shared narrow leaf inline shape contract for optimizer/verifier
 pub mod inline_plan; // MIR-owned InlinePlan metadata derived from rune hints
+pub(crate) mod instance_constructor_abi; // shared source N / physical N+1 constructor ABI
 pub mod instruction;
 pub mod instruction_introspection; // Introspection helpers for tests (instruction names)
 pub mod instruction_kinds; // small kind-specific metadata (Const/BinOp)

@@ -11,7 +11,9 @@ use crate::mir::resolved_semantics::{
     SemanticOwnerRootProfileV1, SourceBoundSelectedCallableResolverRejectV1,
     VerifiedSemanticOwnerForestV1,
 };
-use crate::parser::{ConstructorSourceIdV1, VerifiedFinalCallableProgramSourceV1};
+use crate::parser::{
+    ConstructorSourceIdV1, ConstructorSourceKindV1, VerifiedFinalCallableProgramSourceV1,
+};
 
 #[derive(Debug)]
 pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
@@ -30,6 +32,8 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     final_box_ordinal: u32,
     box_name: Box<str>,
     key: Box<str>,
+    kind: ConstructorSourceKindV1,
+    source_arity: u32,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
 }
@@ -39,9 +43,39 @@ pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
+    SourceArityOverflow,
+    DuplicateBirth,
+}
+
 impl VerifiedInstanceConstructorSemanticBatchV1 {
     pub(crate) fn rows(&self) -> &[VerifiedInstanceConstructorSemanticRowV1] {
         &self.rows
+    }
+
+    pub(crate) fn birth_for(
+        &self,
+        final_box_ordinal: u32,
+        source_arity: usize,
+    ) -> Result<
+        Option<&VerifiedInstanceConstructorSemanticRowV1>,
+        InstanceConstructorBirthLookupErrorV1,
+    > {
+        let source_arity = u32::try_from(source_arity)
+            .map_err(|_| InstanceConstructorBirthLookupErrorV1::SourceArityOverflow)?;
+        let mut matches = self.rows.iter().filter(|row| {
+            row.final_box_ordinal == final_box_ordinal
+                && row.kind == ConstructorSourceKindV1::Birth
+                && row.source_arity == source_arity
+        });
+        let Some(row) = matches.next() else {
+            return Ok(None);
+        };
+        if matches.next().is_some() {
+            return Err(InstanceConstructorBirthLookupErrorV1::DuplicateBirth);
+        }
+        Ok(Some(row))
     }
 }
 
@@ -60,6 +94,14 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
 
     pub(crate) fn key(&self) -> &str {
         &self.key
+    }
+
+    pub(crate) const fn kind(&self) -> ConstructorSourceKindV1 {
+        self.kind
+    }
+
+    pub(crate) const fn source_arity(&self) -> u32 {
+        self.source_arity
     }
 
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
@@ -133,6 +175,8 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     syntax.final_box_ordinal(),
                     Box::<str>::from(syntax.box_name()),
                     Box::<str>::from(syntax.key()),
+                    syntax.kind(),
+                    syntax.source_arity(),
                     syntax.declaration(),
                     view,
                 ));
@@ -166,8 +210,19 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
             }
             let mut rows = Vec::with_capacity(forests.len());
-            for ((source_id, final_box_ordinal, box_name, key, declaration, view), forest) in
-                candidates.into_iter().zip(forests)
+            for (
+                (
+                    source_id,
+                    final_box_ordinal,
+                    box_name,
+                    key,
+                    kind,
+                    source_arity,
+                    declaration,
+                    view,
+                ),
+                forest,
+            ) in candidates.into_iter().zip(forests)
             {
                 let [root] = forest.roots() else {
                     return Err(InstanceConstructorSemanticBatchIssueV1::MissingRoot);
@@ -200,6 +255,8 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     final_box_ordinal,
                     box_name,
                     key,
+                    kind,
+                    source_arity,
                     forest,
                     projection,
                 });
@@ -209,4 +266,24 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
             })
         })
         .map_err(|_| InstanceConstructorSemanticBatchIssueV1::ParserSyntax)?
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ordinary_new_constructor_lookup_reports_missing_nonzero_birth() {
+        let batch = VerifiedInstanceConstructorSemanticBatchV1 { rows: Box::new([]) };
+        assert!(matches!(batch.birth_for(3, 1), Ok(None)));
+    }
+
+    #[test]
+    fn ordinary_new_constructor_lookup_rejects_source_arity_overflow() {
+        let batch = VerifiedInstanceConstructorSemanticBatchV1 { rows: Box::new([]) };
+        assert!(matches!(
+            batch.birth_for(3, usize::MAX),
+            Err(InstanceConstructorBirthLookupErrorV1::SourceArityOverflow)
+        ));
+    }
 }

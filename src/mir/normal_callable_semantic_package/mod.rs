@@ -69,7 +69,9 @@ pub(in crate::mir) use issuer::{
 };
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
-pub(crate) use ordinary_new_coseal::{OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1};
+pub(crate) use ordinary_new_coseal::{
+    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
+};
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
