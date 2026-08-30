@@ -39,7 +39,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "The exact static receipt child landed at e5120589dc. Keep this parent in design_stop and select the next SameModule family only after naming its existing exact issuer or typed pre-effect retirement."
+smallest_next_slice = "The exact static receipt child landed at e5120589dc. The rewrite/known caller-zero no-dst prune is now the next bounded T0 cleanup; its live to-dst parity remains a separate blocker and no new issuer is introduced."
 non_claims = [
   "new semantic receipt",
   "Method(Some) receiver repair",
@@ -2530,4 +2530,79 @@ guard_runs = [
 ]
 evidence = "Implementation landed at d81d91d800. Parser constructor relations now carry typed Init/Pack/Birth plus source arity, ordinary-box coverage resolves one exact final-box row, and the existing constructor semantic batch exposes an exact Birth(N) lookup. The package replaces the birth-text claim with a non-Clone Birth(recipe) or NoBirthZero disposition, issues one checked InstanceConstructorAbiV1, and the selected-normal consumer validates and takes that disposition before argument descent. The claimed path emits NewBox followed by one recipe-owned birth Call; no-claim compatibility remains unchanged. Nine new focused tests plus the existing constructor/package suites pass under the quick profile. Full cargo test/link was not claimed because the repository's historical binary is large; the focused commands were actually executed. README owners were updated in the same closeout series."
 red_classification = "No new red result. Workspace-wide cargo fmt -- --check still reports pre-existing unrelated formatting debt in src/runner/core_executor.rs; targeted rustfmt was applied to every changed Rust file."
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
+[same_module_rewrite_known_caller_zero_prune_s0_2026_08_30]
+status = "landed"
+task_id = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape caller-zero legacy writer prune"
+implementation_permission = false
+decision = "Delete only the two no-dst Known/unique rewrite chains proven caller-zero in production source. Preserve the two live _to_dst writers, their equals/unified ingress, selector/env behavior, incoming typed Method(Some(receiver)) successor, and every parity-open live result/fault/backend behavior. This row issues no replacement target."
+source_authority = "Incoming typed Method(Some(receiver)) remains the existing successor for any live caller; no-dst writer removal relies only on exact source caller-zero evidence."
+canonical_issuer = "Existing Method(Some(receiver)) resolver/materializer for retained to-dst callers; the S0 cleanup has no issuer and no semantic receipt."
+non_authority = [
+  "generated method names, class/method/arity text, header or module lookup, suffix candidates, StaticMethodId parsing, env/origin, fixtures, parity guesses, fallback, retry, and any new Global target",
+]
+fail_fast_boundary = "The structural caller-zero boundary must fail closed: if any no-dst symbol has a source caller outside rewrite/known.rs, or if a retained to-dst symbol disappears, stop before landing. No runtime effect or argument order is changed by this row."
+census_boundary = "src/mir/builder/rewrite/known.rs no-dst writer/helper/wrapper definitions -> all repo Rust callers; includes rewrite_call_args_for_signature, try_known_rewrite[_with_lookup], try_unique_suffix_rewrite[_with_lookup], try_known_or_unique[_with_lookup], retained _to_dst writers, README/API references, and the existing lookup guard; excludes live to-dst semantics, equals, early str-like, Method ABI, Resolved, ordinary-new, CorePlan/provider/thunk, VM/backend, JSON, and Call schema."
+finite_inventory = [
+  "no-dst helper: src/mir/builder/rewrite/known.rs::rewrite_call_args_for_signature",
+  "no-dst Known writer chain: try_known_rewrite and try_known_rewrite_with_lookup",
+  "no-dst unique writer chain: try_unique_suffix_rewrite and try_unique_suffix_rewrite_with_lookup",
+  "no-dst selector wrappers: try_known_or_unique and try_known_or_unique_with_lookup",
+  "retained live writers: try_known_rewrite_to_dst_with_lookup, try_unique_suffix_rewrite_to_dst_with_lookup, try_known_or_unique_to_dst_with_lookup",
+  "production callers: unified_emitter.rs and rewrite/special.rs only for the retained _to_dst family",
+  "reusable guard owner: tools/checks/lib/mir_call_d1b_rewrite_known_guard.py dispatched by the existing active-surface guard",
+]
+finite_states = [
+  "CallerZeroDelete: no-dst symbols have no source Rust caller outside known.rs; delete in this S0",
+  "LiveToDstRetain: _to_dst writers and their production callers remain present",
+  "ExternalCaller: any non-known.rs source caller is a NoSafeSlice",
+  "ParityOpenRetain: result/fault/backend parity for live writers remains open and is not changed",
+]
+ordered_tasks = [
+  "S0-A: record the exact source caller scan and retain the live _to_dst/equals boundary",
+  "S0-B: remove the no-dst helper, two writer chains, and no-dst selector wrappers; update the module README and lookup-only guard without changing runtime behavior",
+  "S0-C: run structural caller-zero/live-retention checks plus a quick library check and existing header-lookup focused tests",
+  "S0-D: close out with the parent design stop; keep the live rewrite/known parity I0 blocked until its exhaustive matrix is green",
+]
+acceptance = "All no-dst symbols and their internal wrappers are absent from source, every retained _to_dst writer and its unified/special caller remains, no new resolver/issuer/target or selector change appears, source files stay below 760/800, the reusable active-surface guard proves the boundary, and quick compile plus existing header-lookup tests pass."
+no_safe_slice = "Do not land if a production or test Rust caller outside known.rs exists, a helper is shared with the retained _to_dst family, a selector/env/default/argument/result/fault/backend behavior changes, a new target issuer or terminal is needed, the parity-open live route must be altered, or the 760/800 boundary is crossed."
+non_claims = "No live to-dst retirement, no parity closure, no Method(Some) or Method ABI change, no qualified/static/Resolved/ordinary-new/CorePlan/provider/thunk work, no package/loan, VM/backend/JSON, Call schema, fallback, retry, or guard-registry deletion."
+allowed_files = [
+  "src/mir/builder/rewrite/known.rs",
+  "src/mir/builder/rewrite/README.md",
+  "tools/checks/lib/rewrite_header_p0_guard.py",
+  "tools/checks/lib/mir_call_d1b_rewrite_known_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/builder/rewrite/special.rs",
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/build.rs",
+  "VM/backend/JSON",
+  "Call schema",
+]
+focused_test_filters = [
+  "header_lookup",
+]
+changed_test_names = []
+coverage_base_commit = "13b5a3e6e0"
+focused_test_runs = [
+  "cargo check --profile quick --lib -j1: pass",
+  "cargo test --profile quick --lib header_lookup -- --test-threads=1: pass",
+  "python3 tools/checks/lib/rewrite_header_p0_guard.py: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "git diff --check: pass",
+]
+guard = "Existing mir-call-d1b-cataloged-affine-loan-lifecycle entry dispatches the reusable rewrite-known caller-zero checker; no new registry row is added."
+evidence = "At HEAD 13b5a3e6e0, source-only rg showed no production/test Rust caller outside rewrite/known.rs for the no-dst chains, while unified_emitter.rs and rewrite/special.rs retain the _to_dst family. The no-dst helper and wrappers are therefore a mechanical caller-zero deletion; the live parity-open writers remain unchanged."
+reopen_trigger = "Reopen only if a new source caller for a removed no-dst symbol appears, or if the retained _to_dst family changes owner; live parity reopening remains owned by MIR-CALL-SAME-MODULE-REWRITE-KNOWN-ISSUER-BOUNDARY-D0."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"

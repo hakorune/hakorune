@@ -41,6 +41,10 @@ from mir_call_d1b_same_module_target_only_guard import (
     ORDINARY_STATIC_TARGET_ONLY_I0_ROW,
     check_ordinary_static_target_only_i0,
 )
+from mir_call_d1b_rewrite_known_guard import (
+    ROW as REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW,
+    check_rewrite_known_caller_zero_s0,
+)
 
 
 TAG = "mir-call-d1b-active-surface"
@@ -831,6 +835,8 @@ def main() -> None:
         check_operator_retirement_i0(state, card, root)
     elif row == ORDINARY_NEW_I0_ROW:
         check_ordinary_new_i0(state, card, root)
+    elif row == REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW:
+        check_rewrite_known_caller_zero_s0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

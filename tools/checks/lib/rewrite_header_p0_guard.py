@@ -3,9 +3,10 @@
 
 The rewrite projection is lookup-only.  Known, unique-suffix, and equals
 routes may consume an explicit header view, while compatibility callers keep
-their old module/index path when no view is supplied.  This guard prevents a
-second header authority or a silent fallback from entering the disconnected
-P0 slice.
+their old module/index path when no view is supplied.  The no-destination
+facades were caller-zero retired by the bounded SameModule cleanup; this guard
+now protects only the retained destination-aware projection and prevents a
+second header authority or a silent fallback from entering the live slice.
 """
 
 from __future__ import annotations
@@ -56,11 +57,8 @@ def main() -> int:
         forbid(header, fragment, f"P0 header projection authority {fragment}")
 
     for fragment in (
-        "try_known_rewrite_with_lookup",
         "try_known_rewrite_to_dst_with_lookup",
-        "try_unique_suffix_rewrite_with_lookup",
         "try_unique_suffix_rewrite_to_dst_with_lookup",
-        "try_known_or_unique_with_lookup",
         "try_known_or_unique_to_dst_with_lookup",
         "rewrite_call_args_for_signature_with_lookup",
         "lookup\n        .map(|view|",
@@ -70,6 +68,15 @@ def main() -> int:
         "should_block_primitive_str_rewrite",
     ):
         require(known, fragment, "P0 Known/unique lookup route")
+    for fragment in (
+        "pub(crate) fn try_known_rewrite(",
+        "pub(in crate::mir::builder) fn try_known_rewrite_with_lookup(",
+        "pub(crate) fn try_unique_suffix_rewrite(",
+        "pub(in crate::mir::builder) fn try_unique_suffix_rewrite_with_lookup(",
+        "pub(crate) fn try_known_or_unique(",
+        "pub(in crate::mir::builder) fn try_known_or_unique_with_lookup(",
+    ):
+        forbid(known, fragment, "caller-zero no-destination rewrite facade")
     for fragment in (
         "try_special_equals_to_dst_with_lookup",
         "try_known_rewrite_to_dst_with_lookup",

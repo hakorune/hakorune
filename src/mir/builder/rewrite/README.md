@@ -17,11 +17,16 @@
 - NYABI 呼び出しや VM 直接呼び出し。
 
 API（呼び出し側から）
-- `try_known_rewrite(builder, recv, class, method, args) -> Option<Result<ValueId,String>>`
-- `try_unique_suffix_rewrite(builder, recv, method, args) -> Option<Result<ValueId,String>>`
-- `try_known_or_unique(builder, recv, class_opt, method, args) -> Option<Result<ValueId,String>>`
+- caller-zero の no-destination Known/unique rewrite facade は
+  `MIR-CALL-SAME-MODULE-REWRITE-KNOWN-CALLER-ZERO-PRUNE-S0` で退役済み。
+- `try_known_rewrite_to_dst[_with_lookup](builder, dst, recv, class, method, args) -> Option<Result<ValueId,String>>`
+- `try_unique_suffix_rewrite_to_dst[_with_lookup](builder, dst, recv, method, args) -> Option<Result<ValueId,String>>`
+- `try_known_or_unique_to_dst[_with_lookup](builder, dst, recv, class_opt, method, args) -> Option<Result<ValueId,String>>`
 - `try_early_str_like(builder, recv, class_opt, method, arity) -> Option<Result<ValueId,String>>`
 - `try_special_equals(builder, recv, class_opt, method, args) -> Option<Result<ValueId,String>>`
+
+`_to_dst` の三つの入口と `special.rs` の equals delegation が現在の live
+production surface。selector/env と Method(Some) の挙動はこの cleanup では変更しない。
 
 レイヤールール
 - Allowed: Builder のメタ参照/関数名生成、MirInstruction の生成（関数化結果）。
