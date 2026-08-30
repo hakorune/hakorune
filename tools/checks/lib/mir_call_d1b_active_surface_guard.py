@@ -68,6 +68,8 @@ RAW_LEGACY_KEY = "method_call_compat_raw_legacy_fate_d0_2026_08_30"
 RAW_LEGACY_I0_KEY = "method_call_compat_raw_legacy_fate_i0_2026_08_30"
 METHOD_CORRIDOR_D0_KEY = "method_corridor_nonstage1_producer_retire_d0_2026_08_29"
 METHOD_RESOLUTION_RET0_KEY = "method_call_method_resolution_static_none_ret0_d0_2026_08_30"
+TYPE_FACT_GUARD_PRUNE_S0_ROW = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
+TYPE_FACT_GUARD_PRUNE_S0_KEY = "mirbuilder_type_fact_partition_guard_prune_s0_2026_08_30"
 
 
 def fail(message: str) -> None:
@@ -656,6 +658,41 @@ def check_raw_legacy_i0(state: dict, card: dict, root: Path) -> None:
             )
 
 
+def check_type_fact_guard_prune_s0(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("type-fact guard prune requires fast or closeout work_mode")
+    if state.get("current_execution_row") != TYPE_FACT_GUARD_PRUNE_S0_ROW:
+        fail("type-fact guard prune row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("type-fact guard prune must clear current_design_stop")
+    if state.get("next_execution_card") != TYPE_FACT_GUARD_PRUNE_S0_ROW:
+        fail("type-fact guard prune pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("type-fact guard prune card pointer drifted")
+
+    row = card.get(TYPE_FACT_GUARD_PRUNE_S0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{TYPE_FACT_GUARD_PRUNE_S0_KEY} section is missing")
+    if row.get("task_id") != TYPE_FACT_GUARD_PRUNE_S0_ROW:
+        fail("type-fact guard prune task id drifted")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("type-fact guard prune status is not finite")
+    if row.get("implementation_permission") is not (row.get("status") == "fast_open"):
+        fail("type-fact guard prune permission/status drifted")
+
+    expected_files = frozenset(("tools/checks/lib/mirbuilder_type_fact_partition_guard.py", "tools/checks/lib/mirbuilder_type_fact_partition_guard_tests.py", "tools/checks/lib/mirbuilder_type_fact_call_post_success_guard.py", "tools/checks/lib/mirbuilder_type_fact_call_post_success_guard_tests.py", "tools/checks/guard_rows.toml", str(HELPER_REL), "tools/checks/lib/mir_call_d1b_operator_retirement_guard.py", str(STATE_REL), str(CARD_REL), "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"))
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_files:
+        fail("type-fact guard prune allowed-file boundary is missing")
+
+    parent = root / "tools/checks/lib/mirbuilder_type_fact_partition_guard.py"
+    sibling = root / "tools/checks/lib/mirbuilder_type_fact_call_post_success_guard.py"
+    if len(parent.read_text(encoding="utf-8").splitlines()) >= 760:
+        fail("retained type-fact parent reached the 760-line split boundary")
+    if len(sibling.read_text(encoding="utf-8").splitlines()) >= 800:
+        fail("rehomed type-fact sibling reached the 800-line hard stop")
+
+
 def main() -> None:
     if len(sys.argv) != 2:
         fail("usage: mir_call_d1b_active_surface_guard.py ROOT")
@@ -707,6 +744,8 @@ def main() -> None:
         check_raw_legacy_resume(state, card)
     elif row == RAW_LEGACY_I0_ROW:
         check_raw_legacy_i0(state, card, root)
+    elif row == TYPE_FACT_GUARD_PRUNE_S0_ROW:
+        check_type_fact_guard_prune_s0(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

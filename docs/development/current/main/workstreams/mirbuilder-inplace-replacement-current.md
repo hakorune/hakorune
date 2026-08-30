@@ -87,8 +87,8 @@ are now fate-classified as `Keep=9`, `SupersededDelete=1`, `Rehome=5`,
 20 drifted paths. The five live red checks move to current owners: the two
 Const emission forms, literal lowering, production direct-call emission,
 generic call receipt/post-success, and typed Map replay. The immutable fixture
-and five-row anchor sweep remain. The next bounded S0 removes the overlay and
-rehomes those checks, returns the parent below 760 lines, and promotes the
+and five-row anchor sweep remain. The active bounded S0 removes the overlay
+and rehomes those checks, returns the parent below 760 lines, and promotes the
 retained guard to quick-static; it does not delete the composite guard.
 
 After that proof surface is green, one atomic

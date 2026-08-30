@@ -2085,18 +2085,19 @@ non_claims = "No guard deletion or repair, no operator implementation, no fixtur
 next_row = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 
 [mirbuilder_type_fact_partition_guard_prune_s0_2026_08_30]
-status = "queued_fast"
+status = "fast_open"
 task_id = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-PRUNE-S0"
 parent_row = "MIR-CALL-SAME-MODULE-OPERATOR-ENV-DISPOSITION-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape"
-implementation_permission = false
+implementation_permission = true
 prerequisite = "MIRBUILDER-TYPE-FACT-PARTITION-GUARD-FATE-D0 is closed with Keep=9, SupersededDelete=1, Rehome=5, Unresolved=0."
 decision = "Delete only the SupersededDelete overlay and its tests/output claims; rehome the five live checks to one private call-post-success sibling; retain the nine Keep checks and the five-row anchor sweep. Remove the obsolete whole-repo writer overlay instead of updating its 20-path baseline. Preserve the composite row id and immutable historical fixture, then promote the now-green retained guard to quick-static."
 allowed_files = [
   "tools/checks/lib/mirbuilder_type_fact_partition_guard.py",
   "tools/checks/lib/mirbuilder_type_fact_partition_guard_tests.py",
   "tools/checks/lib/mirbuilder_type_fact_call_post_success_guard.py",
+  "tools/checks/lib/mirbuilder_type_fact_call_post_success_guard_tests.py",
   "tools/checks/guard_rows.toml",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/lib/mir_call_d1b_operator_retirement_guard.py",

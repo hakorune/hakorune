@@ -5,21 +5,21 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 import unittest
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "tools/checks/lib"))
+
 from mirbuilder_type_fact_partition_guard import (
-    validate_active_cutover_writer_inventory_v1,
     validate_array_write_observe0_authority_v1,
-    validate_const0_authority_v1,
     validate_fastmem_fieldload0_authority_v1,
     validate_fastmem_receipt0_authority_v1,
-    validate_map_write_observe0_authority_v1,
     validate_p1_g0_profile_freeze_v1,
 )
 
 
-ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tools/checks/fixtures/mirbuilder_type_fact_producer_matrix_v1.json"
 
 
@@ -37,13 +37,10 @@ class PartitionGuardTests(unittest.TestCase):
     def test_live_fixture_passes(self) -> None:
         validate_p1_g0_profile_freeze_v1(fixture_copy())
 
-    def test_live_active_cutover_and_const0_authority_pass(self) -> None:
-        validate_active_cutover_writer_inventory_v1(ROOT, fixture_copy())
-        validate_const0_authority_v1(ROOT)
+    def test_live_retained_authority_pass(self) -> None:
         validate_fastmem_receipt0_authority_v1(ROOT)
         validate_fastmem_fieldload0_authority_v1(ROOT)
         validate_array_write_observe0_authority_v1(ROOT)
-        validate_map_write_observe0_authority_v1(ROOT)
 
     def test_profile_prerequisite_drift_rejects(self) -> None:
         data = fixture_copy()

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Freeze the approved FACT0-P1 semantic partition before PHI0 migration."""
+"""Freeze the approved FACT0-P1 partition and live owner topology."""
 
 from __future__ import annotations
 
@@ -16,7 +16,13 @@ from mirbuilder_type_fact_producer_inventory import (
     read,
     require_anchor,
     strip_cfg_test_modules,
-    writer_counts,
+)
+from mirbuilder_type_fact_call_post_success_guard import (
+    validate_call_receipt0_authority_v1,
+    validate_const0_authority_v1,
+    validate_literal_postemit_retirement_v1,
+    validate_map_write_observe0_authority_v1,
+    validate_resolved_direct_call_authority_v1,
 )
 
 
@@ -86,41 +92,6 @@ EXPECTED_SHARED_PROFILE_SETS = {
     ("explicit_static_legacy", "receiver_param0_rcv0"),
 }
 EXPECTED_PARTITION_DIGEST = "344339695ca2d0cdc057fc014442c27e20bc22ac45929ba07f20567b60500b1c"
-
-# The P1 fixture remains the immutable pre-cutover census. These are the only
-# approved current source-level replacements landed by later independent rows.
-# A new FACT0 row must extend this map deliberately; it may not rewrite the
-# historical partition to make a direct writer disappearance look invisible.
-ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
-    "src/mir/builder/ssa/local.rs": None,
-    "src/mir/builder/ssa/local/copy_type.rs": 1,
-    "src/mir/builder/ssa/local/post_success.rs": 3,
-    "src/mir/builder/emission/constant.rs": None,
-    "src/mir/builder/emission/constant_type.rs": 1,
-    "src/mir/builder/indexing.rs": None,
-    "src/mir/builder/indexing/static_load_type.rs": 1,
-    "src/mir/builder/exprs_check.rs": None,
-    "src/mir/builder/exprs_check/select_type.rs": 1,
-    "src/mir/builder/builder_build.rs": 3,
-    "src/mir/builder/resolved_lowering/lowerer.rs": 1,
-    "src/mir/builder/ops/unary.rs": 5,
-    "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs": None,
-    "src/mir/builder/resolved_lowering/trivial_ssa/operation_type.rs": 1,
-    "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs": None,
-    "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs": 1,
-    "src/mir/builder/emission/compare.rs": None,
-    "src/mir/builder/emission/compare_type.rs": 1,
-    "src/mir/builder/calls/preloop_nested_result_type.rs": 1,
-    "src/mir/builder/emission/value_lifecycle_definition.rs": 1,
-    "src/mir/builder/fields.rs": None,
-    "src/mir/builder/fields/post_success.rs": 1,
-    "src/mir/builder/fastmem/field_load.rs": 2,
-    "src/mir/builder/raw_root_body_exit.rs": 1,
-    "src/mir/builder/raw_root_body_lowering.rs": 1,
-    "src/mir/builder/resolved_lowering/draft_seal.rs": 1,
-    "src/mir/builder/script_physical_exit/exit.rs": 1,
-}
-
 
 def partition_projection_v1(fixture: dict[str, object]) -> dict[str, object]:
     profiles = fixture.get("partition_profiles")
@@ -225,51 +196,6 @@ def validate_p1_g0_profile_freeze_v1(fixture: dict[str, object]) -> None:
         fail("P1-G0 cannot name FACT0-G0 as a retirement prerequisite")
 
 
-def validate_active_cutover_writer_inventory_v1(root: Path, fixture: dict[str, object]) -> None:
-    baseline = fixture.get("write_inventory")
-    if not isinstance(baseline, dict):
-        fail("active FACT0 cutover requires write_inventory")
-    expected = dict(baseline)
-    for path, count in ACTIVE_CUTOVER_WRITER_REPLACEMENTS.items():
-        if count is None:
-            expected.pop(path, None)
-        else:
-            expected[path] = count
-    actual = writer_counts(root)
-    if actual != expected:
-        fail(
-            "active FACT0 direct-writer inventory drift: "
-            f"expected={expected} actual={actual}"
-        )
-
-
-def validate_const0_authority_v1(root: Path) -> None:
-    constant = code_only(read(root / "src/mir/builder/emission/constant.rs"))
-    owner = code_only(read(root / "src/mir/builder/emission/constant_type.rs"))
-
-    if "value_types.insert" in constant or "value_origin_newbox" in constant:
-        fail("CONST0 direct type/origin writer survived in constant.rs")
-    if constant.count("PreparedCanonicalConstTypeV1::prepare") != 1:
-        fail("CONST0 requires one shared preparation consumer")
-    if constant.count("prepared.commit(") != 1:
-        fail("CONST0 requires one shared post-emission commit consumer")
-    if constant.count("emit_exact_const(") != 7:
-        fail("CONST0 requires one helper plus six canonical public delegates")
-    if constant.count("string_literals.insert") != 1:
-        fail("CONST0 String companion publication drift")
-    if constant.find("prepared.commit(") > constant.find("string_literals.insert"):
-        fail("CONST0 String companion must follow the shared type commit")
-    if owner.count("TypeFactDecisionV1::prepare") != 1 or owner.count("type_ctx.set_type") != 1:
-        fail("CONST0 decision/commit owner drift")
-    for path in (
-        root / "src/mir/builder/emission/constant.rs",
-        root / "src/mir/builder/emission/constant_type.rs",
-        Path(__file__),
-    ):
-        if len(read(path).splitlines()) >= 800:
-            fail(f"CONST0 source/check file reached 800 lines: {path}")
-
-
 def validate_staticload0_authority_v1(root: Path) -> None:
     indexing = code_only(read(root / "src/mir/builder/indexing.rs"))
     owner = code_only(read(root / "src/mir/builder/indexing/static_load_type.rs"))
@@ -318,41 +244,6 @@ def validate_checkselect0_authority_v1(root: Path) -> None:
             fail(f"CHECKSELECT0 source/check file reached 800 lines: {path}")
 
 
-def validate_literal_postemit_retirement_v1(root: Path) -> None:
-    literal_builder = read(root / "src/mir/builder/builder_build.rs")
-    resolved_lowerer = read(root / "src/mir/builder/resolved_lowering/lowerer.rs")
-    unary = read(root / "src/mir/builder/ops/unary.rs")
-
-    literal_dispatch = literal_builder.split("fn build_literal", 1)[1].split(
-        "pub(in crate::mir::builder) fn emit_typed_integer_literal", 1
-    )[0]
-    resolved_literal = resolved_lowerer.split("fn lower_literal", 1)[1]
-    folded_negative = unary.split("if operator.is_minus()", 1)[1].split("let operand_val", 1)[0]
-
-    if "value_types.insert" in literal_dispatch:
-        fail("LITERAL-POSTEMIT-RET0 literal dispatch direct type writer survived")
-    if "value_types.insert" in resolved_literal:
-        fail("LITERAL-POSTEMIT-RET0 resolved Null/Void direct type writer survived")
-    if "value_types.insert" in folded_negative:
-        fail("LITERAL-POSTEMIT-RET0 folded negative direct type writer survived")
-    if literal_dispatch.count("emission::constant::emit_") != 6:
-        fail("LITERAL-POSTEMIT-RET0 literal dispatch must retain six canonical Const delegates")
-    if "emit_typed_integer_literal" not in literal_dispatch:
-        fail("LITERAL-POSTEMIT-RET0 TypedInteger canonical delegate missing")
-    if "build_literal(literal.clone())" not in resolved_literal:
-        fail("LITERAL-POSTEMIT-RET0 resolved literal must delegate to canonical literal lowering")
-    if "emission::constant::emit_integer(builder, negated)" not in folded_negative:
-        fail("LITERAL-POSTEMIT-RET0 folded negative must delegate to canonical Const")
-    for path in (
-        root / "src/mir/builder/builder_build.rs",
-        root / "src/mir/builder/resolved_lowering/lowerer.rs",
-        root / "src/mir/builder/ops/unary.rs",
-        Path(__file__),
-    ):
-        if len(read(path).splitlines()) >= 800:
-            fail(f"LITERAL-POSTEMIT-RET0 source/check file reached 800 lines: {path}")
-
-
 def validate_resolved_trivial_operation_authority_v1(root: Path) -> None:
     operation = code_only(
         read(root / "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs")
@@ -380,35 +271,6 @@ def validate_resolved_trivial_operation_authority_v1(root: Path) -> None:
             fail(f"RESOLVED-TRIVIAL-OP0 source/check file reached 800 lines: {path}")
 
 
-def validate_resolved_direct_call_authority_v1(root: Path) -> None:
-    direct_call = code_only(
-        read(root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs")
-    )
-    owner = code_only(
-        read(root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs")
-    )
-
-    if "value_types.insert" in direct_call or "type_ctx.set_type" in direct_call:
-        fail("RESOLVED-DIRECT-CALL0 direct type writer survived in direct_call.rs")
-    if direct_call.count("PreparedResolvedDirectCallIntegerTypeV1::prepare") != 1:
-        fail("RESOLVED-DIRECT-CALL0 requires one pre-emission preparation consumer")
-    if direct_call.count("prepared.commit(") != 1:
-        fail("RESOLVED-DIRECT-CALL0 requires one post-emission commit consumer")
-    if direct_call.find("prepared.commit(") < direct_call.find(
-        "builder.emit_instruction(instruction)?"
-    ):
-        fail("RESOLVED-DIRECT-CALL0 commit must follow Call emission")
-    if owner.count("TypeFactDecisionV1::prepare") != 1 or owner.count("type_ctx.set_type") != 1:
-        fail("RESOLVED-DIRECT-CALL0 decision/commit owner drift")
-    for path in (
-        root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs",
-        root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs",
-        Path(__file__),
-    ):
-        if len(read(path).splitlines()) >= 800:
-            fail(f"RESOLVED-DIRECT-CALL0 source/check file reached 800 lines: {path}")
-
-
 def validate_compareemit0_authority_v1(root: Path) -> None:
     compare = code_only(read(root / "src/mir/builder/emission/compare.rs"))
     owner = code_only(read(root / "src/mir/builder/emission/compare_type.rs"))
@@ -434,89 +296,6 @@ def validate_compareemit0_authority_v1(root: Path) -> None:
     ):
         if len(read(path).splitlines()) >= 800:
             fail(f"COMPAREEMIT0 source/check file reached 800 lines: {path}")
-
-
-def validate_call_receipt0_authority_v1(root: Path) -> None:
-    emitter = strip_cfg_test_modules(
-        code_only(read(root / "src/mir/builder/calls/unified_emitter.rs"))
-    )
-    physical = code_only(
-        read(root / "src/mir/builder/calls/unified_emitter/physical_terminal.rs")
-    )
-    request = code_only(
-        read(root / "src/mir/builder/calls/unified_emitter/request_boundary.rs")
-    )
-    post_success = strip_cfg_test_modules(
-        code_only(read(root / "src/mir/builder/calls/unified_emitter/post_success.rs"))
-    )
-    nested_type = code_only(
-        read(root / "src/mir/builder/calls/preloop_nested_result_type.rs")
-    )
-
-    if emitter.count("physical_terminal::emit_finalized_generic_call_v1") != 1:
-        fail("CALL-RECEIPT0 requires one generic physical terminal consumer")
-    if physical.count("pub(super) fn emit_finalized_generic_call_v1") != 1:
-        fail("CALL-RECEIPT0 requires one generic physical Call writer")
-    if physical.count("MirInstruction::Call") != 1:
-        fail("CALL-RECEIPT0 physical terminal must own one Call instruction")
-    if physical.count("PreparedUnifiedCallPostSuccessV1::prepare") != 1:
-        fail("CALL-RECEIPT0 requires one canonical payload preparation consumer")
-    if physical.count("prepared_post_success.commit_after_success(builder)") != 1:
-        fail("CALL-RECEIPT0 requires one canonical post-success payload consumer")
-    constructor = (
-        "CompletedUnifiedCallEmissionV1::Value("
-        "CompletedUnifiedValueCallEmissionV1 {"
-    )
-    if physical.count(constructor) != 1:
-        fail("CALL-RECEIPT0 requires one value receipt constructor")
-    emit_at = physical.find("builder.emit_instruction(call_inst)?")
-    commit_at = physical.find("prepared_post_success.commit_after_success(builder)")
-    receipt_at = physical.find(constructor)
-    if not emit_at < commit_at < receipt_at:
-        fail("CALL-RECEIPT0 requires Call success -> post-success -> receipt order")
-    if request.count("fn emit_unified_value_call_with_lookup_receipt_v1") != 1:
-        fail("CALL-RECEIPT0 requires one receipt-required request boundary")
-    if "emit_legacy_call" in request:
-        fail("CALL-RECEIPT0 receipt request must not retry through legacy emission")
-    for forbidden in (
-        "ASTNode",
-        "MirType",
-        "type_ctx",
-        "annotate_call_result_from_func_name",
-        "annotate_array_element_result",
-        "annotate_map_get_result",
-        "verify_after_call",
-    ):
-        if forbidden in physical:
-            fail(f"CALL-RECEIPT0 forbidden physical-terminal authority: {forbidden}")
-
-    if post_success.count("fn commit_after_success") != 1:
-        fail("CALL-RECEIPT0 requires one post-success commit owner")
-    if nested_type.count("TypeFactDecisionV1::prepare") != 1:
-        fail("TYPE-I0 requires one receipt-backed Integer decision")
-    if nested_type.count("type_ctx.set_type") != 1 or "value_types" in nested_type:
-        fail("TYPE-I0 exact writer authority drift")
-    for required, expected in (
-        ("annotate_call_result_from_func_name_with_lookup(", 1),
-        ("annotate_call_result_from_func_name(", 1),
-        ("annotate_array_element_result(", 1),
-        ("annotate_map_get_result(", 1),
-        ("verify_after_call(", 1),
-    ):
-        if post_success.count(required) != expected:
-            fail(f"CALL-RECEIPT0 post-success owner drift: {required}")
-    for path in (
-        root / "src/mir/builder/calls/unified_emitter.rs",
-        root / "src/mir/builder/calls/unified_emitter/physical_terminal.rs",
-        root / "src/mir/builder/calls/unified_emitter/post_success.rs",
-        root / "src/mir/builder/calls/unified_emitter/request_boundary.rs",
-        root / "src/mir/builder/calls/unified_emitter/physical_receipt_tests.rs",
-        root / "src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs",
-        root / "src/mir/builder/calls/preloop_nested_result_type.rs",
-        Path(__file__),
-    ):
-        if len(read(path).splitlines()) >= 800:
-            fail(f"CALL-RECEIPT0 source/check file reached 800 lines: {path}")
 
 
 def validate_fieldget_receipt0_authority_v1(root: Path) -> None:
@@ -687,60 +466,9 @@ def validate_array_write_observe0_authority_v1(root: Path) -> None:
             fail(f"ARRAY-WRITE-OBSERVE0 source/check file reached 800 lines: {path}")
 
 
-def validate_map_write_observe0_authority_v1(root: Path) -> None:
-    emitter = strip_cfg_test_modules(
-        code_only(read(root / "src/mir/builder/calls/unified_emitter.rs"))
-    )
-    receipt = strip_cfg_test_modules(
-        code_only(read(root / "src/mir/builder/calls/unified_emitter/post_success.rs"))
-    )
-    boxcall = strip_cfg_test_modules(
-        code_only(read(root / "src/mir/builder/utils/boxcall_emit.rs"))
-    )
-    replay = code_only(read(root / "src/mir/builder/types/map_value/post_success.rs"))
-
-    if emitter.count("PreparedMapWriteReplayV1::prepare") != 1:
-        fail("MAP-WRITE-OBSERVE0 requires one direct Unified replay preparation")
-    if emitter.count("append_if_distinct_receiver") != 2:
-        fail("MAP-WRITE-OBSERVE0 Unified S/L/R replay sequence drift")
-    if "observe_map_write_call" in emitter:
-        fail("MAP-WRITE-OBSERVE0 direct Unified pre-receipt observer survived")
-    if receipt.count("observe_map_write_call") != 1:
-        fail("MAP-WRITE-OBSERVE0 requires one Unified receipt replay consumer")
-    if receipt.find("observe_map_write_call") > receipt.find("annotate_call_result_from_func_name"):
-        fail("MAP-WRITE-OBSERVE0 Map replay must precede generic Call annotations")
-
-    if boxcall.count("PreparedMapWriteReplayV1::prepare") != 1:
-        fail("MAP-WRITE-OBSERVE0 requires one BoxCall semantic-source preparation")
-    if boxcall.count("emit_unified_call_with_map_replay") != 1:
-        fail("MAP-WRITE-OBSERVE0 requires one private BoxCall-to-Unified handoff")
-    if boxcall.count("observe_map_write_call") != 1:
-        fail("MAP-WRITE-OBSERVE0 requires one terminal BoxCall receipt replay")
-    terminal = boxcall.split("self.emit_instruction(super::super::MirInstruction::Call", 1)[1]
-    if terminal.find("observe_map_write_call") < terminal.find("})?"):
-        fail("MAP-WRITE-OBSERVE0 terminal replay must follow successful Call")
-
-    if replay.count("pub(in crate::mir::builder) struct PreparedMapWriteReplayV1") != 1:
-        fail("MAP-WRITE-OBSERVE0 replay authority count drift")
-    if "MirBuilder" in replay or "observe_map_write_call" in replay:
-        fail("MAP-WRITE-OBSERVE0 replay product must remain Builder-free")
-    for path in (
-        root / "src/mir/builder/calls/unified_emitter.rs",
-        root / "src/mir/builder/calls/unified_emitter/post_success.rs",
-        root / "src/mir/builder/utils/boxcall_emit.rs",
-        root / "src/mir/builder/types/map_value.rs",
-        root / "src/mir/builder/types/map_value/post_success.rs",
-        root / "src/mir/builder/calls/unified_emitter/map_write_timing_tests.rs",
-        Path(__file__),
-    ):
-        if len(read(path).splitlines()) >= 800:
-            fail(f"MAP-WRITE-OBSERVE0 source/check file reached 800 lines: {path}")
-
-
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
-    validate_active_cutover_writer_inventory_v1(root, fixture)
     validate_const0_authority_v1(root)
     validate_staticload0_authority_v1(root)
     validate_checkselect0_authority_v1(root)
@@ -761,12 +489,9 @@ def check(root: Path) -> None:
         if not isinstance(row, dict):
             fail("FACT0 fixture primary matrix row is invalid")
         require_anchor(root, row)
-    active_inventory = writer_counts(root)
     print(
         "[mirbuilder-type-fact-partition-guard] ok "
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
-        f"active_writer_paths={len(active_inventory)} "
-        f"active_writer_occurrences={sum(active_inventory.values())} "
         "slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
