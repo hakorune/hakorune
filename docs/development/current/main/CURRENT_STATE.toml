@@ -7,11 +7,12 @@ current_blocker_token = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the two live rewrite/known _to_dst writers remain parity-open. The existing
 typed Method(Some(receiver)) route is the only named successor; do not invent
-a Global issuer or reject after argument effects. Keep the finite ON/OFF
-result/fault/backend matrix in design_stop until every accepted shape is
-green, then open one atomic writer-retirement row. R6 Call-schema work,
-provider/thunk/ordinary-static issuer work, VM/backend changes, fallback,
-retry, and guard deletion remain outside this row.
+a Global issuer, repair the legacy arity bug, or reject after argument effects.
+The next design slice is a source-neutral eight-cell Known/Unique/equals and
+dst-shape trace plus VM/AOT outcome matrix. Keep I0 closed until every cell is
+Equivalent or LegacyBugFixedByCanonical; R6 Call-schema work, provider/thunk/
+ordinary-static issuer work, VM/backend schema changes, fallback, retry, and
+guard deletion remain outside this row.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -25,7 +26,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Ordinary-new exact constructor cutover I0 landed at d81d91d800, caller-zero no-dst rewrite/known facades were physically pruned at fb5a4e0e81, and the independent dead-text call-shape BoxShape split landed at 95bbe25701. Active-surface guard handlers were rehomed at 924c7bbd55 without deleting any guard; the parent rewrite/known parity stop remains selected."
+latest_card_summary = "Ordinary-new exact constructor cutover I0 landed at d81d91d800, caller-zero no-dst rewrite/known facades were physically pruned at fb5a4e0e81, and the independent dead-text call-shape BoxShape split landed at 95bbe25701. Active-surface guard handlers were rehomed at 924c7bbd55 without deleting any guard; the parent rewrite/known parity stop now requires an eight-cell writer trace and VM/AOT matrix before I0."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"

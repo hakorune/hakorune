@@ -2124,7 +2124,8 @@ finite_states = [
 ordered_tasks = [
   "D0-A: reconcile all four writers, both selector wrappers, equals delegation, and unified ingress in both directions; record two live to-dst and two caller-zero no-dst chains",
   "D0-B: establish that incoming typed Method(Some(receiver)) is the existing successor and that no Global issuer is needed for retirement",
-  "D0-C: run an exhaustive finite ON/OFF matrix over accepted Known/equals/unique shapes and compare result, fault, and backend output; existing non-fatal smoke is not enough",
+  "D0-C: run a source-neutral eight-cell ON/OFF matrix (module/header Known, dev-only Known, unique suffix, and equals Known/Unique across destination shapes) with resolve.choose writer traces",
+  "D0-C2: compare receiver, argument order/eval-once, dst, effects, first fault, VM result, and the same emitted MIR through ny-llvmc/AOT; classify each cell as Equivalent, LegacyBugFixedByCanonical, or NoSafeSlice",
   "D0-D: classify the family as MethodSuccessorCandidate, ParityOpen, CallerZero, or RetirementReady; do not delete or add a post-effect terminal in D0",
   "I0: only after RetirementReady, remove unified KnownOrUnique/equals delegation, both live to-dst writers, selector reads/pins, and caller-zero no-dst chains in one bounded row while preserving early str-like and Method(Some)",
 ]
@@ -2132,7 +2133,18 @@ acceptance = "The finite rewrite/known boundary is two-directionally reconciled;
 no_safe_slice = "Remain in design_stop if any accepted shape lacks Method(Some) parity, ON/OFF differences are non-fatal or unobserved, a new source observer/receipt/resolver is required, a post-effect reject is the only option, early str-like semantics would change, or the change crosses 760/800 lines."
 non_claims = "No rewrite/known I0 yet, no Global target issuer, no Method ABI/schema change, no early str-like retirement, no qualified static/Cataloged/Resolved/ordinary-new/CorePlan/provider/thunk work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
 parity_status = "ParityOpen"
-outcome_classification = "LegacyRewriteBugCandidate__vm_confirmed__llvm_aot_successor_pending"
+outcome_classification = "LegacyRewriteBugCandidate__three_cells_reclassified__eight_cell_matrix_open"
+parity_matrix_cells = [
+  "K1: module/header-backed Known with dst=Some",
+  "K1n: module/header-backed Known with dst=None",
+  "K2: dev-override-only Known with dst=Some",
+  "K2n: dev-override-only Known with dst=None",
+  "U1: unique-suffix with dst=Some",
+  "U1n: unique-suffix with dst=None",
+  "E-K: equals/1 delegating to Known with dst=Some",
+  "E-U: equals/1 delegating to Unique with dst=Some",
+]
+parity_matrix_contract = "Each cell must record the resolve.choose writer reason, input shape, ON and OFF route, exact Method(Some) receiver, argument order/evaluation count, dst/effects, first fault/result, VM result, and execution of the same emitted MIR through ny-llvmc/AOT. A cell is ready only when it is Equivalent or LegacyBugFixedByCanonical; LegacyOnlySuccess, SemanticDifference, or SuccessorBackendGap keeps I0 closed."
 parity_evidence_2026_08_30 = [
   "A current HEAD quick build with --features vm-reference completed with one build job; this is build evidence only, not a full-suite claim.",
   "VM result parity matched for phase285_userbox_field_basic (ON rc=0, 42; OFF rc=0, 42), phase224b_method_call_min (ON/OFF both rc=5, i=5), json_query (ON/OFF both rc=0), and rewriteknown_itoa_complex_step (ON/OFF both rc=0, 12).",
@@ -2143,9 +2155,9 @@ parity_evidence_2026_08_30 = [
   "At HEAD 1e76945679, the current quick binary with --features llvm was rerun for all three named fixtures with NYASH_REWRITE_KNOWN_DEFAULT={0,1}; all six --emit-mir-json attempts returned rc=1 at ExactSourceChanged(RootPreservation(CompatibilityLoss)) and produced no MIR artifact. The explicit NYASH_LLVM_USE_HARNESS=1 --backend llvm route gives the same RootPreservation terminal for the three counterexamples (the other finite samples stop at their existing GenericLoop/Resolver contracts). This reconfirms the source-transform coverage gap and does not close LLVM/AOT parity or authorize the rewrite/known retirement I0.",
   "Using the explicit --backend vm compatibility emit route at HEAD e2695550f9, all three counterexample fixtures produced MIR for rewrite modes 0 and 1; each of the six artifacts was accepted by target/release/ny-llvmc --driver harness and executed with rc=0, yielding the expected 29, 30, and 118 in both modes. This is backend-only AOT evidence (the source LLVM route still rejects before MIR), so it strengthens but does not close the exhaustive product parity matrix.",
 ]
-evidence = "At audit HEAD 1e76945679, the four writer families are finite: the two `_to_dst` chains are production-live and the two no-dst chains are caller-zero. The current route uses generated symbols/header/suffix and typed_global_target_from_selected_symbol, while the existing incoming Method(Some) route is the named retirement successor. Current quick-artifact VM replay classifies the three arity counterexamples as LegacyRewriteBugCandidate; current-source LLVM replay still stops at RootPreservation(CompatibilityLoss) before backend execution, so LLVM/AOT successor evidence and exhaustive accepted-shape result/fault/backend parity remain open."
+evidence = "At audit HEAD 636344522ce0, the four writer families are finite: the two `_to_dst` chains are production-live and the two no-dst chains are caller-zero. The current route uses generated symbols/header/suffix and typed_global_target_from_selected_symbol, while the existing incoming Method(Some) route is the named retirement successor. A read-only counter-audit confirmed the three receiver-arity failures as LegacyBugCandidate cells: OFF Method(Some) and VM-emitted ON/OFF MIR both yield the accepted values 29, 30, and 118 through AOT, while current-source LLVM stops before MIR at RootPreservation(CompatibilityLoss). The remaining Known/Unique/equals and destination-shape cells are not writer-traced yet; the eight-cell matrix remains open."
 reopen_trigger = "The finite ON/OFF result/fault/backend matrix is green for all accepted Known/equals/unique shapes and the exact live/caller-zero writer set is frozen; then open the atomic retirement I0. If parity fails, keep the route live and record the counterexample."
-next_execution = "blocked_on_rewrite_known_finite_parity_matrix__current_vm_counterexamples"
+next_execution = "blocked_on_rewrite_known_eight_cell_trace_matrix__current_three_cells_legacy_bug_candidate"
 
 [same_module_operator_env_disposition_d0_2026_08_30]
 status = "accepted_retirement_selected"
