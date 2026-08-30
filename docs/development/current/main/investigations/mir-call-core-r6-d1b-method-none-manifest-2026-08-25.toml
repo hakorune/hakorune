@@ -717,12 +717,13 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_current_head = "1a026f82c4"
-worker_audit_current_refresh = "The latest read-only bounded audit keeps LoweredGlobal::Instance live and ParkedSealed: its path reaches the existing terminal only after argument lowering, and no exact same-session source/site/brand issuer or pre-effect terminal exists. No implementation row is open for this family; reopen only for an exact issuer or an explicit language/ABI retirement decision."
-worker_audit_result = "Read-only audits at audit HEAD 22e3aff4f5 confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. The physical-thunk audit is now closed as RelationPresentIssuerMissing/ParkedSealed. Bare error retired at 69680b983f and bare now retired at 3e35e4f39c through the canonical unsupported pre-effect terminal; bare panic/exit remain NoIssuer and neither remaining family has an implementation row."
+worker_audit_current_head = "5b6e6397a9"
+worker_audit_current_refresh = "Six read-only audits at HEAD 5b6e6397a9 correct the broad LoweredGlobal::Instance label. StaticCurrentOwner me.method already owns VerifiedCurrentOwnerStaticCallTargetV1 under the exact caller/site/catalog and must become a direct Global(StaticBoxMethod) call with N source arguments. True DeclaredInstance me.method is a separate live family: its clean MIR is Method(Some(receiver)) with N source arguments, but the exact source/catalog/receiver/ABI co-seal is not yet complete. Preserve the language feature and retire only the legacy header/symbol/receiver-prefix wiring after both successors are closed."
+worker_audit_result = "Read-only audits at audit HEAD 22e3aff4f5 confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. Bare error retired at 69680b983f and bare now retired at 3e35e4f39c through the canonical unsupported pre-effect terminal; bare panic/exit remain NoIssuer. The 2026-08-30 me.method correction selects one bounded static-current-owner handoff I0 and parks the true declared-instance source/ABI co-seal as its own design row."
 ordered_tasks = [
   "I0 (landed at e5120589dc): exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
-  "I1-D0: ordinary static terminal — reconcile the generic/scalar/inline/lowered-global Instance callers; exact Cataloged handoff is already closed, but no generic issuer or safe pre-effect terminal is authorized",
+  "I1-I0 (selected next): StaticCurrentOwner me.method — consume the existing exact current-owner target before legacy header observation and arguments, emit direct Global(StaticBoxMethod) with N source arguments, and delete only this branch's header-first/LoweredGlobal::Instance/me-prefix edge",
+  "I1-D0 (separate): true DeclaredInstance me.method — co-seal exact source site, InstanceBoxMethod declaration, catalog/package brand, bound receiver, ABI, return/effect facts, then select Method(Some(receiver)) with N source arguments; no header/name/registry inference",
   "I2-D0 (ParkedSealed under M10b): generic CorePlan — keep the six GlobalCall writers and legacy registry V0/V1 route unchanged in the Call lane; reopen only at portable Loop M8/M9/precutover deletion-manifest readiness or an exact earlier source-target co-seal",
   "I3 (landed at 44555655ab): arithmetic/comparison/unary env publishers — classify/prune the mixed-age type-fact guard, reject retired selectors at all compiler ingress methods, and atomically remove env/name target issuance before operand or Const effects",
   "I4-D0 (ParkedSealed): physical thunk issuer closure — the finite two-caller audit found RelationPresentIssuerMissing; reopen only with an existing same-session main/0 issuer or an accepted typed pre-effect retirement contract",
@@ -737,7 +738,7 @@ ordered_tasks = [
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab, and the user-selected rewrite/known policy retirement is closed at 7a6fb9e2db. Physical thunk is RelationPresentIssuerMissing/ParkedSealed with no exact main/0 issuer; selected-exact CorePlan is caller-zero ParkedSealed; generic CorePlan remains owned by Loop M10b; ordinary-new is landed with no-claim compatibility separate; bare error retired at 69680b983f and bare now retired at 3e35e4f39c. Bare panic/exit remain NoIssuer. The next bounded row must be selected only from a named exact issuer or an explicitly approved typed pre-effect retirement. The independent R6 audit remains No-Go until unified-off/emit_legacy_call alternate routes and every func/None consumer are caller-zero; no new Call-schema or guard-deletion row is opened here."
+smallest_next_slice = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0 is the selected bounded next implementation. It reuses the already-issued VerifiedCurrentOwnerStaticCallTargetV1 and existing one-shot static publication ingress, takes the target before legacy header observation and arguments, emits direct Global(StaticBoxMethod) with exactly N source arguments, and deletes only the static-current-owner old edge. True DeclaredInstance me.method remains a separate D0; physical thunk, CorePlan, providers, Method ABI, R6 Call schema, VM/backend, and guard cleanup stay closed."
 call_schema_dependency = "R6 remains a later atomic schema row: first close unified-off and emit_legacy_call alternate routes, typed-writer normalization, constructor/closure Call producers, JoinIR func authority, and Callee-only consumers; then delete Call.func, make callee mandatory, and remove Call-specific INVALID. R6 issues no target and cannot unblock a SameModule family lacking an exact issuer."
 guard_cleanup_dependency = "The 2026-08-30 guard census found no additional SupersededDelete candidate beyond the already-landed stale type-fact overlay removal. Keep/rehome/park all other guards until finite invocation/profile coverage, caller-zero or an equal successor, focused proof, and a reopen trigger are recorded."
 guard_cleanup_status = "ParkedSealed__no_current_deletion_candidate"
@@ -759,7 +760,7 @@ evidence = "three production callers now project CanonicalSameModuleCallableKeyV
 id = "ordinary_static_terminal"
 owner = "src/mir/builder/method_call_handlers.rs and src/mir/builder/calls/method_call_terminal.rs"
 disposition = "CutoverBlockerOpen"
-evidence = "exact source target rows can be dropped as Unselected/Absent; scalar/inline effects and arguments precede the remaining formatted target construction, and lowered-global Instance has no exact issuer"
+evidence = "exact Cataloged rows are closed. The former lowered-global Instance bucket is split: StaticCurrentOwner me.method has an exact source/site/catalog target and a selected bounded handoff I0; true DeclaredInstance me.method still lacks the complete source/catalog/receiver/ABI co-seal. Scalar/inline and generic compatibility remain separate owners."
 
 [same_module_ordinary_static_terminal_d0_2026_08_30]
 status = "accepted_design_stop"
@@ -769,13 +770,13 @@ ceremony_tier = "T0"
 box_kind = "BoxCount finite ordinary-static authority census"
 implementation_permission = false
 disposition = "CutoverBlockerOpen"
-decision = "Keep the generic ordinary-static compatibility terminal unchanged. The exact Cataloged static branch already uses its source/site/brand handoff and is outside this D0; generic, scalar, inline, and lowered-global Instance branches must not be forced through that issuer or repaired from owner/method/arity."
-source_authority = "StaticResultPublicationOwnerV1 is the existing authority only for exact Cataloged rows. The generic handler has no source/site/brand product at its ingress; scalar and inline branches own separate facts and must remain separate."
-canonical_issuer = "No exact issuer for the remaining generic compatibility terminal is identified. A later I0 requires an existing source/site/brand handoff in the same session, or an explicit typed pre-effect retirement contract; no new receipt or resolver is allowed in D0."
+decision = "Keep generic ordinary-static, scalar, and inline compatibility unchanged, but split the former lowered-global Instance label by semantic receiver policy. StaticCurrentOwner me.method is already covered by the exact source target inventory and is selected for a bounded handoff I0. True DeclaredInstance me.method remains a separate D0 and must not be projected through the static issuer or repaired from owner/method/arity."
+source_authority = "StaticCurrentOwner uses VerifiedCurrentOwnerStaticCallTargetV1 issued from exact caller/site/catalog and Canonical Me under a StaticBoxMethod declaration. True DeclaredInstance requires its exact resolved source row, InstanceBoxMethod declaration, same package/catalog brand, bound receiver, and physical ABI; generic, scalar, and inline branches retain separate owners."
+canonical_issuer = "For StaticCurrentOwner, VerifiedWholeSourceStaticCallTargetInventoryV1 and VerifiedStaticCallResultPublicationOwnerV1 already carry the exact CanonicalSameModuleCallableKeyV1 to Builder. For true DeclaredInstance, no complete same-session target/ABI issuer is yet named; no new receipt, resolver, or Global projection is allowed in this D0."
 non_authority = [
-  "owner/method/arity, func_name, static scalar facts, inline catalog, header/me/physical receiver, current_static_box, generated symbol, registry, resolver, fallback, retry, and Instance-to-Global projection",
+  "owner/method/arity, func_name, first-Box header classification, static scalar facts, inline catalog, current_static_box, generated symbol, registry, resolver, fallback, retry, and Instance-to-Global projection",
 ]
-fail_fast_boundary = "Exact Cataloged NoExactStaticTarget remains pre-effect rejected; the generic compatibility ingress currently receives/evaluates ValueId arguments before its formatted terminal, so no post-effect reject may be added without an earlier owner. Scalar/inline order remains unchanged."
+fail_fast_boundary = "StaticCurrentOwner must take one exact target or reject before header observation, child/argument descent, ValueId/Const emission, collector mutation, or Call publication. True DeclaredInstance must remain unchanged until its exact source/catalog/receiver/ABI co-seal exists. Generic/scalar/inline order remains unchanged."
 census_boundary = "member_route exact Cataloged handoff and generic/static fallback entries -> handle_static_method_call_with_descent -> method_call_terminal; includes generic, scalar, inline, lowered-global Static/Instance, and existing exact Cataloged exclusions; excludes Method(Some) semantics, rewrite/known, CorePlan, ordinary-new, provider, physical thunk, package/loan, VM/backend, JSON, and Call schema."
 finite_inventory = [
   "exact Cataloged ingress: src/mir/builder/calls/member_route.rs:99-141",
@@ -790,23 +791,24 @@ finite_states = [
   "GenericCompatibility: production-live formatted target reconstruction after argument descent; CutoverBlockerOpen",
   "ScalarOwned: zero-argument fact/Const owner; keep separate from direct-call target lane",
   "InlineOwned: helper-inline body/argument owner; keep separate from direct-call target lane",
-  "LoweredGlobalInstance: production-live lowered Static/Instance fallback reaches the formatted terminal after argument descent; CutoverBlockerOpen until an exact issuer or explicit public-semantics-preserving retirement decision exists",
+  "StaticCurrentOwnerExact: existing source/site/catalog target; selected next for direct Global(StaticBoxMethod) with N source arguments",
+  "DeclaredInstanceOpen: production-live instance me.method; clean target is Method(Some(receiver)) with N source arguments, but exact source/catalog/receiver/ABI co-seal is still CutoverBlockerOpen",
 ]
 ordered_tasks = [
-  "D0-A: reconcile exact Cataloged, generic, scalar, inline, and lowered-global Static/Instance callers in both directions",
-  "D0-B: record that exact Cataloged is already handoff-backed while generic/scalar/inline/Instance have distinct owners and effects",
-  "D0-C: verify argument/effect ordering and prove no earlier source/site/brand issuer exists for the generic terminal",
-  "D0-D: keep generic compatibility and lowered-global Static/Instance CutoverBlockerOpen; do not add a post-effect reject or target reconstruction",
-  "I0: open only for one named exact issuer or an approved pre-effect retirement contract, then delete only that branch's formatted/fallback edge",
+  "D0-A: split StaticCurrentOwner and true DeclaredInstance by existing receiver policy and declaration namespace; do not classify them from headers",
+  "I0-A: consume the existing StaticCurrentOwner exact target before header observation and arguments, emit direct Global(StaticBoxMethod) with N source arguments, and delete only that branch's legacy edge",
+  "D0-B: co-seal true DeclaredInstance source/site/declaration/brand/receiver/ABI/effect facts without introducing a new resolver or family-specific parallel pipeline",
+  "I0-B: after D0-B, issue Method(Some(receiver)) with N source arguments and a selected LLVM/AOT direct-call projection; do not add nonselected backend features",
+  "R0: after both successors are caller-zero complete, retire first-Box header classification, manual me prefix, formatted Global reissuer, and superseded tests/guards",
 ]
-acceptance = "The ordinary-static boundary is finite and two-directionally reconciled; exact Cataloged handoff, generic compatibility, scalar, inline, and lowered-global Instance are separately owned; no name/arity/me/symbol inference is elevated; and no implementation is opened without a named source product and pre-effect boundary."
-no_safe_slice = "Remain in design_stop if the generic branch needs a new source observer/issuer, if scalar or inline semantics would move, if Instance must be projected into Global, if a post-effect reject is the only option, or if the change crosses package/loan, VM/backend, Call schema, or 760/800 lines."
-non_claims = "No generic ordinary-static implementation, no scalar/inline rewrite, no lowered-global Instance carrier, no Method(Some)/Method(None) change, no rewrite/known/provider/CorePlan/ordinary-new work, no package/loan, VM/backend, JSON, Call schema, fallback, or retry."
+acceptance = "The ordinary-static boundary is finite and two-directionally reconciled; exact Cataloged, StaticCurrentOwner, true DeclaredInstance, generic compatibility, scalar, and inline are separately owned; the me.method language feature is retained; no name/arity/header/symbol inference is elevated; and each implementation opens only with a named source product and pre-effect boundary."
+no_safe_slice = "Return to design_stop if StaticCurrentOwner cannot reach the existing publication owner before header observation, if true DeclaredInstance requires header/name/registry inference or a new family-specific receipt, if scalar/inline/generic semantics would move, if an instance target must be projected into Global, if a post-effect reject is the only option, or if the change crosses VM/backend, Call schema, or 760/800 lines."
+non_claims = "No me.method language retirement, no generic/scalar/inline rewrite, no immediate true-instance cutover, no Method(None)/Resolved change, no rewrite/known/provider/CorePlan/ordinary-new work, no VM/backend/JSON feature expansion, Call schema, fallback, or retry."
 evidence = "At audit HEAD 2a84b1fff0, exact Cataloged rows use the existing source-keyed handoff; generic production callers enter handle_static_method_call_with_descent and method_call_terminal after argument/effect processing, scalar/inline have independent terminals, and lowered-global Static/Instance remain production-live without an exact typed issuer."
-worker_audit_head = "1a026f82c4"
-worker_audit_result = "Fresh read-only audit confirms LoweredGlobal::Instance is live semantics with no exact source/site/brand issuer and no existing pre-effect terminal. The bounded path is PreparedMeCallExecutionV1::LoweredGlobal(Instance) -> execute_lowered_global -> argument lowering -> emit_me_lowered_global_value_terminal; owner/method/arity or header/registry reconstruction is non-authority. This is NoSafeSlice for implementation and remains ParkedSealed until an exact issuer or explicit language/ABI retirement decision exists."
-reopen_trigger = "An existing same-session source/site/brand product reaches the generic handler before effects, or an explicit language/ABI decision selects a typed pre-effect retirement/replacement for the generic and Instance branches."
-next_execution = "none_until_ordinary_static_issuer_or_retirement_d0"
+worker_audit_head = "5b6e6397a9"
+worker_audit_result = "Six read-only audits at HEAD 5b6e6397a9 found the prior bucket too broad. StaticBoxMethod -> StaticCurrentOwner already issues VerifiedCurrentOwnerStaticCallTargetV1 and the installed publication owner can project it to a direct Global before arguments. InstanceBoxMethod -> DeclaredInstance is separate: the resolved source row and declared-instance contracts exist, but their target/receiver/ABI/effect relation is not yet co-sealed into Builder."
+reopen_trigger = "StaticCurrentOwner I0 is selected now. Reopen true DeclaredInstance only when the exact source/site/InstanceBoxMethod/catalog-brand/bound-receiver/ABI relation is co-sealed, or when an explicit language decision changes the feature; header/name/registry inference is never a reopen trigger."
+next_execution = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "generic_coreplan_globalcall"
@@ -1952,6 +1954,124 @@ reopen_trigger = "An explicit language/provider decision names one bare contract
 worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 agree that no exact bare-provider issuer exists. Bare error is retired by its named unsupported terminal and bare now has the same canonical contract; panic/exit remain NoIssuer. Physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. LoweredGlobal::Instance is also a live-semantics, issuer-missing family and remains ParkedSealed; no pre-effect terminal or target issuer may be invented. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
+
+[same_module_me_method_canonical_plan_2026_08_30]
+status = "accepted_bounded_series"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+decision = "Retain me.method as ordinary language syntax. Replace the old header/symbol/receiver-prefix wiring in two authority-correct cohorts: StaticCurrentOwner becomes a direct same-module Global call, while true DeclaredInstance becomes Method(Some(receiver)). Do not build parallel family-specific pipelines; both cohorts reuse the existing source, declaration, publication, and terminal owners."
+finish_line = "Every selected me.method target is fixed before argument effects; canonical MIR contains no header/name/registry-derived target, no manual duplicate receiver, and no retry/fallback. Selected LLVM/AOT lowers both cohorts to direct same-module calls. The old first-Box classifier, formatted Global reissuer, and manual me prefix are physically deleted only after caller-zero."
+ordered_rows = [
+  "I0: MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0 — existing exact issuer -> Global(StaticBoxMethod), N source args, direct selected LLVM/AOT call",
+  "D0: MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0 — exact source/site/declaration/brand/receiver/ABI/effect relation or NoSafeSlice",
+  "I1: MIR-CALL-ME-DECLARED-INSTANCE-CANONICAL-I0 — co-sealed relation -> Method(Some(receiver)), N source args, direct selected LLVM/AOT projection",
+  "I2: MIR-CALL-METHOD-RECEIVER-ABI-I0 — receiver stays in Callee in canonical MIR and is projected exactly once to physical arg0",
+  "R0: MIR-CALL-ME-HEADER-LEGACY-RETIRE-R0 — caller-zero deletion of header classification, manual receiver prefix, formatted Global reissuer, and superseded tests/guards",
+  "C0: return to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 and recount the remaining production families",
+]
+progress_metrics = [
+  "StaticCurrentOwner header-first classifications -> 0",
+  "true DeclaredInstance Global + manual me-prefix writers -> 0",
+  "canonical Method calls with receiver duplicated in args -> 0",
+  "me.method name/header/registry target reconstruction -> 0",
+  "selected LLVM/AOT runtime name/slot lookup for these exact cohorts -> 0",
+]
+non_claims = "No me.method feature retirement, no Method(None)/Resolved/Call-schema change, no provider/CorePlan/physical-thunk work, no nonselected VM/WASM feature expansion, and no guard deletion before successor-backed caller-zero."
+
+[same_module_static_current_owner_handoff_i0_2026_08_30]
+status = "accepted_next"
+task_id = "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T1"
+box_kind = "BoxShape one production-edge replacement"
+implementation_permission = false
+decision = "For a StaticBoxMethod caller, canonical me.method has no runtime receiver. Consume the already-issued current-owner target before legacy header observation and arguments, then emit Global(StaticBoxMethod) with exactly N source arguments. OutsideStaticCurrentOwner is a named sibling and must continue unchanged."
+source_authority = "VerifiedSourceMethodCallSiteV1 with canonical ASTNode::Me, exact caller/site/catalog, and caller namespace StaticBoxMethod."
+canonical_issuer = "VerifiedSourceStaticCallTargetCatalogV1::extend_current_owner issues VerifiedCurrentOwnerStaticCallTargetV1; VerifiedWholeSourceStaticCallTargetInventoryV1 and VerifiedStaticCallResultPublicationOwnerV1 carry its CanonicalSameModuleCallableKeyV1 to the existing one-shot Builder ingress."
+non_authority = [
+  "first physical parameter is Box, module/header observation, current_static_box, bound-me presence, owner/method/arity text, generated symbol, registry, resolver, fallback, retry, fixture, and backend route",
+]
+fail_fast_boundary = "A Cataloged StaticBoxMethod source site must yield Selected or TargetOnly before prepare_me_call_execution_v1, header observation, child/argument descent, ValueId/Const emission, collector mutation, or Call publication. NoExactStaticTarget, foreign lineage/catalog, duplicate/double take, or arity drift rejects there."
+census_boundary = "raw Cataloged MethodCall whose receiver normalized to Me and caller namespace is StaticBoxMethod -> exact publication-owner take -> existing static-result physical bridge -> typed Global Call receipt; includes exact target/result states, argument order, current header-first bypass, and StaticCurrentOwner tests; excludes true DeclaredInstance, inline record/setter, qualified Math/Extern, generic/scalar/inline compatibility, Method ABI, VM/backend, JSON, and Call schema."
+finite_states = [
+  "ExactSelected: take the result handoff once, project the owned target, lower N arguments once, publish one direct Global Call and result",
+  "ExactTargetOnly: take the canonical key once, project the owned target, lower N arguments once, publish one direct Global Call",
+  "StaticCurrentOwnerMissing: typed reject before header and argument effects; no compatibility fallback",
+  "OutsideStaticCurrentOwner: do not consume the static owner; preserve the named DeclaredInstance/compatibility sibling for its own row",
+  "UnavailableCompatibility: retain the existing compatibility behavior; do not claim source-backed success",
+]
+old_edge_delete_set = [
+  "StaticCurrentOwner -> observe_me_call_parameters/header first-Box classification",
+  "StaticCurrentOwner -> PreparedMeReceiverV1::Instance or LoweredGlobal::Instance",
+  "StaticCurrentOwner -> generate_method_function_name target reconstruction",
+  "StaticCurrentOwner -> manual me prefix or receiver-bearing ABI",
+]
+ordered_tasks = [
+  "I0-A: make the existing publication ingress distinguish StaticCurrentOwner from OutsideStaticCurrentOwner using the Cataloged caller namespace; issue no new semantic receipt",
+  "I0-B: invoke that ingress before prepare/header observation; Selected/TargetOnly reuse the existing target-before-arguments physical bridge",
+  "I0-C: delete only the StaticCurrentOwner header-first, lowered-instance, symbol-reconstruction, and receiver-prefix edges; preserve DeclaredInstance and compatibility siblings",
+  "I0-D: add a dedicated test sibling and dedicated small guard; update source-call/Builder README ownership and record focused positive/negative evidence",
+  "I0-E: close out to the DeclaredInstance co-seal D0 without claiming whole me.method or SameModule completion",
+]
+acceptance = "Exact source target is taken before header observation and arguments; N source arguments are lowered once left-to-right; one Global(StaticBoxMethod) Call is emitted; no runtime receiver or me prefix exists; missing/foreign/duplicate/arity failures are pre-effect; existing inline/helper/Math/DeclaredInstance/compatibility precedence is unchanged; selected LLVM/AOT uses its direct Global lowering; no string/name/slot lookup, resolver, fallback, or retry appears; every touched source is below 760 lines and 800 is a hard stop."
+no_safe_slice = "Return to design_stop if the installed publication owner cannot be reached before header observation, the Cataloged caller namespace cannot distinguish StaticCurrentOwner without a second scan, a new semantic receipt/target issuer is needed, an argument/effect must occur before selection, a DeclaredInstance or compatibility behavior must change, a nonselected backend needs a feature addition, or any touched source crosses 760/800."
+non_claims = "No true DeclaredInstance cutover, no Method(Some)/Method(None) ABI change, no generic/scalar/inline/Math/Extern change, no Call schema, VM/WASM feature, provider/CorePlan/thunk, fallback, retry, or legacy guard deletion."
+allowed_files = [
+  "src/mir/builder/static_result_publication_ingress.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/static_result_publication_physical_bridge.rs",
+  "src/mir/builder/calls/me_method_canonical_cutover_tests.rs",
+  "src/mir/builder/calls/mod.rs",
+  "src/mir/source_call_target/README.md",
+  "src/mir/builder/README.md",
+  "tools/checks/lib/mir_call_d1b_me_method_cutover_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "src/mir/builder/recursive_child_lowering.rs",
+  "src/mir/builder/calls/member_route_descent_tests.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "tools/checks/lib/mir_call_d1b_method_corridor_guard.py",
+  "VM/backend/JSON",
+  "Call schema",
+]
+coverage_base_commit = "5b6e6397a9"
+planned_test_names = [
+  "static_current_owner_target_is_taken_before_header_and_arguments",
+  "static_current_owner_lowers_source_arguments_once_without_receiver_prefix",
+  "static_current_owner_missing_target_rejects_before_arguments",
+  "outside_static_current_owner_preserves_declared_instance_sibling",
+  "static_current_owner_argument_failure_does_not_emit_retry_or_fallback",
+]
+planned_focused_test_filters = [
+  "me_method_canonical_cutover_tests",
+  "current_owner_tests",
+]
+guard_plan = "Create one small dedicated cutover guard and dispatch it from the existing active-surface guard. It must prove target-take before arguments, one argument descent, direct typed Global emission, no generate_method_function_name/header observation/AST rescan/resolver/fallback/retry in the selected branch, the exact old-edge deletion set, cargo --list coverage for every changed test, and <760/<800 line limits. Do not grow the 754-line method-corridor guard."
+
+[me_declared_instance_source_coseal_d0_2026_08_30]
+status = "queued_design_stop_after_static_i0"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+ceremony_tier = "T1"
+implementation_permission = false
+decision = "Retain true instance me.method and design its canonical path as Method(Some(receiver)) with N source arguments. Before implementation, co-seal the exact resolved source method-call row, ReceiverPolicyV1::DeclaredInstance, exact InstanceBoxMethod declaration, same catalog/package brand, bound me value, physical receiver ABI, return/result/effect facts, and selected direct-call eligibility."
+source_authority = "VerifiedResolvedMethodCallSourceV1 plus the exact FunctionOwnerIdV1/SourceExprSiteV1/receiver site, DeclaredInstance receiver policy, InstanceBoxMethod declaration, same-session package/catalog brand, and the bound receiver supplied by the function owner."
+canonical_issuer = "No complete existing generic issuer is named yet. D0 must locate and reuse one owner that co-seals the existing products, or remain NoSafeSlice; it may not mint target meaning from a header, name, registry, box_type=None, or backend plan."
+fail_fast_boundary = "Missing, duplicate, foreign, ambiguous, arity/ABI/effect/return mismatch rejects before argument descent, receiver materialization, MIR effects, Call publication, or backend route selection."
+census_boundary = "declared instance MethodCall source row -> exact InstanceBoxMethod declaration/brand/bound receiver/ABI/effect relation -> candidate Method(Some(receiver)) Recipe -> selected LLVM/AOT direct call; includes current LoweredGlobal::Instance and Standard Method(Some) producer/consumer boundaries; excludes static current-owner, Method(None), Call schema, providers/CorePlan/thunk, and nonselected backend feature work."
+ordered_tasks = [
+  "D0-A: reconcile source row, declaration key, package/catalog brand, receiver binding, ABI, return/result/effect owners in both directions",
+  "D0-B: name the sole existing issuer/co-seal owner or record NoSafeSlice; no family-specific parallel loan or new resolver",
+  "D0-C: freeze canonical MIR as Method(Some(receiver)) plus N source arguments and selected LLVM/AOT direct lowering as receiver physical arg0 plus N",
+  "I0: only after D0 closes, replace the true-instance Global+manual-prefix edge atomically with the canonical Method carrier and delete its old edge",
+]
+acceptance = "One exact same-session relation owns source site, target declaration, receiver, ABI, return/result/effect facts before arguments; canonical MIR has Method(Some(receiver)) and N source arguments; selected LLVM/AOT emits one direct same-module call with receiver projected exactly once; runtime name/slot lookup, second resolver, fallback, and retry are zero."
+no_safe_slice = "Remain in design_stop if the exact relation or issuer is absent, a new target/receipt must be invented, box_type/header/name/registry/backend data would decide meaning, effects/return/ABI are incomplete, or implementation must mix Call schema or nonselected backend support."
+non_claims = "No current implementation permission, no Global instance target, no dynamic lookup acceptance, no Method(None), Call schema, VM/WASM feature, or legacy header deletion before successor-backed caller-zero."
 
 [same_module_cataloged_provider_bare_error_contract_d0_2026_08_30]
 status = "landed"

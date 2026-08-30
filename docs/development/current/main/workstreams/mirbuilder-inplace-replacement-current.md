@@ -98,10 +98,16 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
-The latest bounded audit keeps `LoweredGlobal::Instance` as live semantics with
-no exact same-session issuer or pre-effect terminal. It is `ParkedSealed`, not a
-deletion candidate; reopen only for an exact issuer or an explicit language/ABI
-retirement decision.
+Six read-only audits split the old broad `LoweredGlobal::Instance` label while
+retaining `me.method`. `StaticBoxMethod`/`StaticCurrentOwner` already has an
+exact caller/site/catalog target and is the accepted next bounded row: direct
+`Global(StaticBoxMethod)`, N source arguments, and no runtime receiver.
+True `InstanceBoxMethod`/`DeclaredInstance` is a separate co-seal D0 whose clean
+MIR is `Method(Some(receiver))` plus N source arguments.
+The series preserves C-class speed: selected LLVM/AOT uses direct same-module
+calls, never runtime name/slot lookup. Header classification, formatted symbol
+reissue, receiver prefix, and their guards retire only after both successors
+prove caller-zero.
 
 The bounded row
 `MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0` landed at
