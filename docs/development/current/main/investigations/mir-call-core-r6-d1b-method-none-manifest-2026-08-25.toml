@@ -2193,13 +2193,14 @@ next_design_action = "Complete D0-B0..D0-B2, then define the private assembler c
 next_execution = "none__NoSafeSlice__await_existing_issuer_or_explicit_language_abi_decision"
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-PORT-SURFACE-R0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape behavior-preserving private implementation extraction"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "f0413b3470"
 decision = "Open one independent fast row only to move the unguarded recursive port helper blocks into a private child module. The normal callable RootCallableCapturePortV1 implementation remains in its parent because existing source guards anchor its exact parent-file surface. This creates no semantic shape and does not open the DeclaredInstance source/catalog/receiver/ABI co-seal. Parent module paths, visibility, signatures, fields, call order, guard-observed tokens, and runtime behavior remain unchanged."
 source_authority = "Existing Rust module ownership, trait implementations, and current callers are the only authority. The split introduces no issuer, target, loan, receiver, ABI, effect, or backend meaning."
 canonical_issuer = "None. This row is BoxShape-only; the parent DeclaredInstance row remains NoSafeSlice until one existing source-backed co-seal owner is named."
@@ -2266,7 +2267,6 @@ guard = "Use current_state_pointer_guard, git diff --check, exact line-budget an
 evidence = "The adapter RootCallableCapturePortV1 implementation remains in the parent to preserve existing guard-observed source anchors. Five unanchored RawInvocationChildPortV1 helper methods moved to private pending_helpers.rs; cargo check passed, both exact existing port tests passed, and all touched Rust files remain below the split boundary. The broad normal_callable filter was run against both the post-row and pre-row binaries: 47 passed and the same 5 known baseline failures reproduced, so no current-change red is attributed to this refactor."
 red_classification = "normal_callable_semantic_source_row_i0_guard.sh remains a known parent-baseline red (its expected multi-token exact anchor was already absent at HEAD); canonical-trivial and complete-batch guards are context/registry mismatches for this independent row and are not altered. The broad normal_callable 5-test red is reproduced by the pre-row binary and is known baseline debt."
 closeout = "Record implementation commit and focused evidence, then set status=landed, implementation_permission=false, work_mode=design_stop, current_execution_row/current_design_stop/next_design_card back to MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0, and next_execution_card=none."
-red_classification = "No current-change red is accepted. A failing pre-existing guard or test must be reproduced against the parent commit, classified, and kept out of this behavior-preserving split."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_provider_bare_error_contract_d0_2026_08_30]
