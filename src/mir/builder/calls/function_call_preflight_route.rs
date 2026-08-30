@@ -734,25 +734,8 @@ fn replay_function_call_trace(builder: &MirBuilder, name: &str) {
 }
 
 #[cfg(test)]
-mod explicit_source_identity_tests {
-    use super::PreparedRawExplicitExternCallV1;
-
-    #[test]
-    fn exact_resolver_symbol_is_required_before_argument_lowering() {
-        assert!(PreparedRawExplicitExternCallV1::prepare(
-            "env.get".to_owned(),
-            Box::<str>::from("env.set"),
-            Vec::new(),
-        )
-        .is_err());
-        assert!(PreparedRawExplicitExternCallV1::prepare(
-            "env.get".to_owned(),
-            Box::<str>::from("env.get"),
-            Vec::new(),
-        )
-        .is_ok());
-    }
-}
+#[path = "function_call_preflight_source_identity_tests.rs"]
+mod explicit_source_identity_tests;
 
 #[cfg(test)]
 #[path = "function_call_preflight_route_tests.rs"]
