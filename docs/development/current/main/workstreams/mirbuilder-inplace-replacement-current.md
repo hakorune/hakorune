@@ -334,10 +334,10 @@ enum CanonicalSameModuleGlobalTargetV1 {
 }
 ```
 
-`Print`はexact `print/1`だけ。finite runtime providerは`panic/1`と`exit/1`
-を同名Externへ出す。bare `error`と`now`はauthority不在でrejectし、explicit
-`env/nyash.console.error`だけがExternになる。mathはMethod、GCは未実行Global
-producerをretireしてrejectする。
+`Print`はexact `print/1`だけ。bare `panic/1`はCall/Externではなく、共通exit
+transactionを通るterminal Faultのaccepted target（production 0）。bare `exit/1`
+は未発行の別lane。bare `error`と`now`はrejectし、explicit providerだけがExtern
+になる。mathはMethod、GCは未実行Global producerをretireしてrejectする。
 import aliasはfinal moduleのexact declarationに着地した時だけSameModuleとし、
 distinct Imported/Helper/Generated/Legacy variantは作らない。JoinIRは生成関数
 宣言とcallを同じownerでco-sealし、SameModule FreeFunctionを使う。
@@ -540,9 +540,9 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    incomplete disposition before install, and issue no target from observation
 
 11. MIR-CALL-GLOBAL-BUILTIN-EXTERN-DISPOSITION-R0
-    exact print/1 retains one guarded Global publication for B1; panic/1 and
-    exit/1 reroute to same-name Extern; bare error/now/println reject; explicit
-    declared console/env/host providers remain Extern
+    exact print/1 retains one guarded Global publication for B1; panic/1 leaves
+    the Call lane for the parked terminal-Fault series; exit/1 stays unissued;
+    bare error/now/println reject; explicit declared providers remain Extern
 
 12. MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0
    the finite preflight classification is closed: four named compatibility

@@ -43,7 +43,7 @@ families = [
   "SameModule(FreeFunction { name, arity })",
   "SameModule(StaticBoxMethod { owner, method, arity })",
 ]
-family_disposition = "Exact bare panic/1 and exit/1 -> same-name Extern; bare error and now -> reject; explicit declared env/nyash.console.error -> Extern; math is Method; construction is NewBox/NewClosure; GC Global publication retires; imports need an exact final-module declaration; JoinIR will use a co-sealed FreeFunction; no additional variant."
+family_disposition = "Exact bare panic/1 is superseded by LANG-PANIC-TERMINAL-FAULT-D0: it leaves the Call lane for a parked noncatchable terminal-Fault pipeline. Bare exit/1 remains unissued; bare error and now reject; explicit declared env/nyash.console.error remains Extern; math is Method; construction is NewBox/NewClosure; GC Global publication retires; imports need an exact final-module declaration; JoinIR will use a co-sealed FreeFunction; no additional Global variant."
 projection = "B1 installs the sole one-way target-to-physical projection under resolved_semantics/callable_symbol and one MirModule structural lookup; it deletes/delegates CanonicalSameModuleCallableKeyV1::mir_symbol_projection, and collision rejects before module publication."
 method = "Method receiver is non-optional and is the sole semantic receiver; Call.args contains source arguments only."
 construction = "NewBox/NewClosure own construction; closure invocation uses Callee::Value. Constructor/Closure descriptors do not survive in final Call."
@@ -78,7 +78,8 @@ disposition = [
 ]
 family_matrix = [
   "print|nyash.builtin.print at exact arity 1 | source print/1 or owner-private compatibility alias | Builtin(Print) | print_stmt/classifier/v1-v0 alias publishers | structural adapt; println and wrong arity reject before arguments",
-  "panic/1|exit/1 | exact runtime-provider signature owner | Extern(panic|exit) | builtin classifier and VM Global arms | E0 then producer reroute; Global aliases deleted",
+  "panic/1 | semantic-reserved terminal-Fault source owner | outside Call/Global; production 0 | builtin classifier and VM string arms are non-authority | common exit/Fault/runtime pipeline, then legacy Call edge deletion",
+  "exit/1 | no accepted bare issuer | separate ParkedSealed decision | builtin classifier and VM Global arms are non-authority | no producer reroute until a language/runtime contract exists",
   "bare error | no exact bare source/provider relation | typed reject | builtin classifier | delete classifier publication before arguments; only explicit declared env/nyash.console.error may issue Extern",
   "bare now | no selected source/provider contract | typed reject | builtin classifier | delete classifier publication before arguments; explicit env.now_ms remains Extern",
   "env.*|system.*|nyash.console.*|hostbridge.* and harness helpers | exact extern/provider declaration plus arity | Extern or typed reject when declaration absent | v1 aliases and VM Global helper arms | compatibility resolution once; Global fallback deleted",

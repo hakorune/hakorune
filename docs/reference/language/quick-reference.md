@@ -34,7 +34,8 @@ Feature status and gates
   [callable contracts](callable-contracts.md).
 - `throw` is prohibited and parser-rejected with a stable freeze tag. It is not
   a feature that can be enabled by a compatibility toggle.
-- source `try`, `throw`, `catch`, and `RecoverableFailure` are rejected target
+- source `try`, `throw`, `catch`, exception `finally`, and
+  `RecoverableFailure` are rejected target
   surfaces. Typed Result-only postfix `?` is the accepted unchanged-error
   propagation marker; Option `?` and implicit conversion are rejected. Its
   verified production route remains 0. See the
@@ -61,6 +62,12 @@ Selected contextual forms
 
 Expressions and Calls
 - Function call: `f(a, b)`
+- Accepted target, production 0: `panic(message)` uses the ordinary function
+  call syntax but is a reserved terminal builtin with semantic signature
+  `panic(String) -> Never`. It is not shadowable, returns no value, cannot be
+  caught, and still runs lexical cleanup/Home release before the final Fault.
+  `Never` has no source type spelling in v1. Use `Result<T,E>` for expected or
+  caller-actionable failure; `throw`/`try`/`catch` are not alternatives.
 - Method call: `obj.m(a, b)` — typed `Method(Some(receiver))` を通常の
   canonical target として保持する。
   - 旧 Known/Unique instance→function rewrite は退役済みで、名前・header・suffix

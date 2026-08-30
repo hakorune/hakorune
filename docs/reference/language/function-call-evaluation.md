@@ -40,6 +40,17 @@ Bare `now` follows the same unsupported-name contract and rejects before
 argument evaluation. The qualified `env.now_ms` provider remains a separate
 declared Extern owner; the bare spelling does not infer or alias it.
 
+Bare `panic` is an explicitly defined terminal special form carried by the
+ordinary `FunctionCall` source shape. Its exact reserved identity, arity `1`,
+and verified `String` result contract are fixed before argument evaluation. It
+does not enter FreeStatic, SameModule, Extern, provider, or value-call target
+resolution. The message expression is then evaluated exactly once. A normal
+message creates a pending noncatchable Panic Fault; an argument Fault remains
+the earlier primary Fault. The common exit transaction drains cleanup and
+Home obligations before the final successorless Fault terminal. Bare `exit`
+is a separate undecided application/runtime surface, not a sibling selected by
+this rule.
+
 Within the SelectedNormal admission cohort, multiple source occurrences that
 project to the same effective top-level `name/arity` physical symbol are an
 ambiguous direct target. They reject before body lowering and before argument
@@ -76,6 +87,11 @@ observed in left-to-right source order.
 Explicit special forms own their own source validation but must likewise choose
 their form before descending into ordinary arguments. They cannot fall through
 to FreeStatic resolution after partially evaluating arguments.
+
+`panic` is not shadowable by a local, parameter, or source callable in v1.
+Because it remains an identifier token rather than a lexer keyword, this rule
+belongs to semantic declaration/name admission. Qualified member spellings
+such as `obj.panic(...)` remain ordinary qualified calls.
 
 ## Compatibility boundary
 

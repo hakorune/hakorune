@@ -54,7 +54,15 @@ Bare `error` and bare `now` are unsupported direct names. Installed non-brand
 callers enter the existing typed `Rejected` terminal before target synthesis
 and argument descent; qualified `env.console.error` and `env.now_ms` remain
 separate declared Extern owners. These one-name retirements do not decide bare
-`panic` or `exit`.
+`exit`.
+
+Bare `panic(String)` now has an accepted language target but no production
+issuer: the ordinary source `FunctionCall` shape must become a semantic
+reserved terminal Fault, pass through the common exit transaction, and reach
+one successorless Fault terminal after cleanup. It must never be synthesized
+as SameModule/Extern by name, reuse `Throw`, or bypass cleanup. Until that
+source/exit/MIR/runtime chain is co-sealed, the row is ParkedSealed and the
+current legacy success edge grants no implementation authority.
 
 The former `method_resolution` static-box `has_method` branch is retired as a
 caller-zero cleanup. It no longer manufactures `Callee::Method { receiver: None }`;

@@ -719,7 +719,7 @@ outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
 worker_audit_current_head = "e7d57b448a"
 worker_audit_current_refresh = "The static current-owner I0 is now landed at 2b7b3e7489. Three fresh read-only audits at HEAD e7d57b448a agree that true DeclaredInstance me.method is a separate live family: its clean MIR is Method(Some(receiver)) with N source arguments, but no existing same-session issuer co-seals source/site, InstanceBoxMethod declaration, catalog/package brand, bound receiver, ABI, body/return, and effect facts. Preserve the language feature and do not replace the missing issuer with header/name/registry/backend inference."
-worker_audit_result = "Read-only audits at audit HEAD 22e3aff4f5 confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. Bare error retired at 69680b983f and bare now retired at 3e35e4f39c through the canonical unsupported pre-effect terminal; bare panic/exit remain NoIssuer. The 2026-08-30 me.method correction selects one bounded static-current-owner handoff I0 and parks the true declared-instance source/ABI co-seal as its own design row."
+worker_audit_result = "Read-only audits at audit HEAD 22e3aff4f5 confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. Bare error retired at 69680b983f and bare now retired at 3e35e4f39c through the canonical unsupported pre-effect terminal. At that audit head panic/exit were both NoIssuer; LANG-PANIC-TERMINAL-FAULT-D0 later accepted panic as a parked terminal-Fault target while exit remains NoIssuer. The 2026-08-30 me.method correction selects one bounded static-current-owner handoff I0 and parks the true declared-instance source/ABI co-seal as its own design row."
 ordered_tasks = [
   "I0 (landed at e5120589dc): exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1-I0 (selected next): StaticCurrentOwner me.method — consume the existing exact current-owner target before legacy header observation and arguments, emit direct Global(StaticBoxMethod) with N source arguments, and delete only this branch's header-first/LoweredGlobal::Instance/me-prefix edge",
@@ -1878,7 +1878,7 @@ finite_states = [
   "PrintCandidate: exact builtin_print issuer exists; arity contract remains to be confirmed",
   "MathOwned: abs/min/max/sin/cos leave through the existing Math owner; no provider change",
   "ExplicitExternOwned: qualified declared provider remains on the existing Extern owner",
-  "NamedUnsupported: bare error and bare now use one-name typed pre-effect retirements; panic/exit remain open for language/provider decision",
+  "NamedUnsupported: bare error and bare now use one-name typed pre-effect retirements; panic is a parked terminal-Fault target and exit remains open for its own language/runtime decision",
   "GcCallerPresent: gc_collect/gc_stats with a caller must be counted separately from caller-less reject; no synthesis is accepted",
   "Ordinary: all other names retain ordinary declaration handling and are not provider evidence",
 ]
@@ -1886,22 +1886,22 @@ provider_matrix = [
   "print -> existing builtin_print(); exact print/1 is a separate bounded contract check",
   "abs/min/max/sin/cos -> existing Math route; excluded from this provider implementation",
   "error -> named unsupported retirement at 69680b983f; now -> canonical unsupported contract and one-name retirement child",
-  "panic/exit -> no bare Extern issuer found; Extern conversion is a separate owner/decision",
+  "panic -> accepted terminal-Fault target with production 0; exit -> no bare issuer; neither may become Extern by name",
   "gc_collect/gc_stats -> caller-present census first; caller-less reject remains unchanged",
 ]
 ordered_tasks = [
   "D0-A: derive the finite caller-present name list from the Cataloged ingress and record exact file/line callers; no function-level or backend-wide census",
   "D0-B: verify each name against the finite state table and count caller-present GC separately; do not infer from a missing caller",
-  "D0-C: choose one cohort only: exact print/1 contract, caller-present GC typed retirement, or a named unsupported bare-provider contract; leave panic/exit NoIssuer",
+  "D0-C: choose one cohort only: exact print/1 contract, caller-present GC typed retirement, or a named unsupported bare-provider contract; delegate panic to its terminal-Fault lane and leave exit NoIssuer",
   "I0: open only the selected cohort with positive/negative/pre-effect evidence and delete its old name+arity synthesis edge in the same bounded row",
   "C0: rerun the provider boundary and return to the SameModule parent; no provider-wide closure claim",
 ]
 acceptance = "The caller-present name list is finite and two-directionally reconciled, each name has exactly one state/owner or named unsupported contract, math/Extern/ordinary exclusions are explicit, caller-present GC is not silently treated as caller-less, and no provider-wide implementation or new semantic receipt was added."
-no_safe_slice = "Remain in design_stop if any provider name needs a new bare runtime owner, public language behavior is undecided, caller-present GC behavior is unclassified, print arity is not contract-backed, or target meaning still requires name/arity, symbol, registry, resolver, env, or retry."
+no_safe_slice = "Remain in design_stop if any provider name needs a new bare runtime owner, bare exit behavior is undecided, the accepted panic Fault pipeline is incomplete, caller-present GC behavior is unclassified, print arity is not contract-backed, or target meaning still requires name/arity, symbol, registry, resolver, env, or retry."
 next_design_card = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
 selected_cohort = "caller_present_gc_typed_retirement"
 caller_present_route = "prepare_ordinary_function_completion_v1 -> prepare_cataloged_target_v1"
-reconciled_result = "The finite provider names are separated: print has an existing builtin issuer; abs/min/max/sin/cos leave through the Math owner; explicit env/nyash/system names remain Extern; bare error and bare now use named unsupported retirements while panic/exit have no bare issuer; gc_collect/gc_stats are the only caller-present cohort whose existing caller-less retirement policy can be extended without a new authority."
+reconciled_result = "The finite provider names are separated: print has an existing builtin issuer; abs/min/max/sin/cos leave through the Math owner; explicit env/nyash/system names remain Extern; bare error/now use named unsupported retirements; panic leaves the Call lane for its parked terminal-Fault target; exit has no bare issuer; gc_collect/gc_stats are the only caller-present cohort whose existing caller-less retirement policy can be extended without a new authority."
 next_implementation = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_provider_bare_no_issuer_d0_2026_08_30]
@@ -1912,9 +1912,9 @@ design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
 ceremony_tier = "T0"
 box_kind = "BoxCount finite bare-provider authority audit"
 implementation_permission = false
-decision = "Keep only bare panic/exit in design_stop. The Cataloged ingress may not turn name plus arity into a SameModule FreeFunction. Bare error is retired and bare now has the same canonical unsupported language contract; panic/exit remain NoIssuer until an explicit language/provider contract names an exact issuer."
+decision = "Keep bare panic and exit out of Cataloged name synthesis. Bare error/now are retired. LANG-PANIC-TERMINAL-FAULT-D0 accepts panic as a separate parked terminal-Fault target; bare exit remains NoIssuer until its own explicit language/runtime contract."
 source_authority = "An existing named builtin, qualified Extern provider, Math owner, or exact same-brand callable/source relation. The parser emits only a generic identifier FunctionCall for these names and therefore does not issue a bare provider product."
-canonical_issuer = "None for bare now/panic/exit. Bare error and bare now use the existing Rejected terminal without a Callee issuer. Qualified env/nyash/system Externs, Math special handlers, and the existing caller-less/caller-present GC retirement are separate owners and may not be reused by name."
+canonical_issuer = "None live for bare panic/exit. Bare error/now use the existing Rejected terminal without a Callee issuer. Panic requires its typed source -> common exit -> generic Fault -> selected runtime chain; exit requires a separate Decision. Qualified env/nyash/system Externs, Math handlers, and GC retirement may not be reused by name."
 non_authority = [
   "CallNameCalleeClassV1::BuiltinGlobal",
   "name/arity and CanonicalGlobalTargetV1::new_free_function",
@@ -1925,7 +1925,7 @@ census_boundary = "Installed non-brand Cataloged raw FunctionCall -> provider-na
 finite_inventory = [
   "bare error: retired by same_module_cataloged_provider_bare_error_retire_i0_2026_08_30 before prepare_cataloged_target_v1",
   "bare now: retired by same_module_cataloged_provider_bare_now_retire_i0_2026_08_30 before prepare_cataloged_target_v1",
-  "bare panic: same Cataloged synthesis; extern provider has no bare panic issuer",
+  "bare panic: accepted terminal-Fault target; current Cataloged name synthesis is non-authority and the typed source/exit/MIR/runtime issuer chain is not live",
   "bare exit: same Cataloged synthesis; qualified env.process.exit is separate and bare exit has no issuer",
   "production Cataloged caller families: nonmain_static_box_method_batch.rs and instance_box_method_batch.rs",
   "excluded owners: special_handlers.rs Math route, qualified Extern declarations, and landed GC pre-effect retirement",
@@ -1933,7 +1933,8 @@ finite_inventory = [
 finite_states = [
   "BareErrorRetired: existing typed Rejected terminal before target synthesis and argument effects",
   "BareNowRetired: canonical language SSOT marks bare now unsupported and its one-name retirement is landed before target synthesis and argument effects",
-  "NoIssuer: panic/exit have no exact bare issuer; remain CutoverBlockerOpen until a language/provider decision",
+  "PanicTargetAcceptedIssuerMissing: panic/1 leaves the Call lane, but remains ParkedSealed until one typed source-to-final-Fault chain is co-sealed",
+  "NoIssuer: bare exit has no exact issuer and remains a separate CutoverBlockerOpen language/runtime decision",
   "QualifiedExternOwned: env/nyash/system names retain their existing qualified provider owner",
   "MathOwned: abs/min/max/sin/cos retain the existing Math owner and are outside this row",
   "Ordinary: all other identifiers retain ordinary declaration handling and are not provider evidence",
@@ -1941,51 +1942,67 @@ finite_states = [
 ]
 ordered_tasks = [
   "D0-A: reconcile the four bare names, arity observations, two production Cataloged caller families, and the first target/terminal in both directions",
-  "D0-B: record the canonical unsupported contract for bare error/now and keep panic/exit NoIssuer; qualified Extern/Math/ordinary/GC exclusions stay explicit",
+  "D0-B: record bare error/now as unsupported, bare panic as a parked terminal-Fault target, and bare exit as NoIssuer; qualified Extern/Math/ordinary/GC exclusions stay explicit",
   "D0-C: use the existing canonical unsupported terminal for bare error and open only a one-name bare-now retirement child",
-  "I0: bare error and bare now retirements are landed as separate one-name rows; panic/exit remain separate",
+  "I0: bare error and bare now retirements are landed as separate one-name rows; panic is delegated to its terminal-Fault series and exit remains separate",
   "C0: rerun this finite bare-name census and return to the SameModule parent without claiming provider-wide closure",
 ]
-acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; bare error and bare now each have one named typed unsupported retirement, panic/exit retain explicit NoIssuer states, no name/arity synthesis is elevated, and any further implementation remains closed until its own language/provider contract or exact issuer is named."
-no_safe_slice = "Remain in design_stop if a bare runtime provider must be invented, public language behavior is undecided, panic/exit /1 Extern semantics are not contract-backed, or the only route is resolver/name/symbol/registry/VM fallback."
-non_claims = "No error/now/panic/exit behavior change, no new provider/Extern issuer, no Math/GC change, no ordinary-static/physical-thunk/CorePlan/rewrite/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
-evidence = "Read-only audit at HEAD 220a146ae802 found the four bare names synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. The canonical language contract selected bare error and bare now for one-name typed retirements; bare error landed at 69680b983f and bare now landed at 3e35e4f39c. Parser treats panic/exit as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products."
-reopen_trigger = "An explicit language/provider decision names one bare contract, or an existing same-session exact issuer for that bare name is found; otherwise keep NoIssuer/ParkedSealed and do not create a resolver or receipt."
+acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; bare error/now have named unsupported retirements, panic is delegated to the accepted terminal-Fault target with production 0, exit retains NoIssuer, no name/arity synthesis is elevated, and implementation remains closed until each exact issuer chain is named."
+no_safe_slice = "Remain in design_stop if a bare runtime provider must be invented, bare exit behavior is undecided, the common exit transaction/final Fault chain is absent, or the only route is resolver/name/symbol/registry/VM fallback."
+non_claims = "No error/now/exit behavior change, no live panic route, no new provider/Extern issuer, no Math/GC change, no ordinary-static/physical-thunk/CorePlan/rewrite/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
+evidence = "Read-only audits found the four bare names synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. Bare error/now have landed one-name retirements. The language reference now selects panic(String) as a noncatchable terminal Fault through cleanup, while current parser/classifier/VM strings and qualified env/nyash/system consumers issue no canonical bare-panic product. Bare exit remains undecided."
+reopen_trigger = "For panic, reopen only when one same-session source issuer, pending Fault/exit transaction, generic final Fault terminal, and selected runtime ABI are co-sealed without name/provider/backend recovery. For exit, require its own explicit language/runtime decision."
 worker_audit_head = "1a026f82c4"
-worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 agree that no exact bare-provider issuer exists. Bare error is retired by its named unsupported terminal and bare now has the same canonical contract; panic/exit remain NoIssuer. Physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. LoweredGlobal::Instance is also a live-semantics, issuer-missing family and remains ParkedSealed; no pre-effect terminal or target issuer may be invented. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
+worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_provider_bare_panic_contract_d0_2026_08_30]
-status = "accepted_design_stop_user_decision_required"
+status = "accepted_target_parked_sealed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-PANIC-CONTRACT-D0"
 parent_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
-ceremony_tier = "T0"
+ceremony_tier = "T1"
 implementation_permission = false
-decision = "Pending explicit language confirmation: if bare panic has no source-backed provider issuer, retire only its legacy success edge at the existing typed Rejected terminal before argument effects. This does not retire explicit qualified panic providers or the panic syntax itself."
-source_authority = "The parser emits bare panic as a generic FunctionCall and no exact catalog/Extern/provider product is issued. Qualified providers, if any, remain separate owners."
-canonical_issuer = "None under the proposed retirement contract; PreparedRawOrdinaryFunctionCompletionV1::Rejected is the sole allowed terminal. No bare provider or replacement Callee is created."
+worker_premise_audit_reason = "This is not a Fast-path row because selecting panic(String) -> Never changes the source-language terminal-Fault authority, canonical MIR terminator, and runtime ABI ownership; read-only workers must first prove the existing Fault/Throw/Call surfaces and identify the sole reusable owner without treating VM or Extern strings as authority."
+worker_premise_audit_result = "Two read-only audits at HEAD 037c12dc52 found no live exact panic issuer, generic Fault terminal, or runtime ABI. They confirmed ordinary FunctionCall parsing, noncatchable Fault semantics, mandatory cleanup chronology, specialized non-reusable CheckedCallOutFault/Trap terminals, legacy Throw/Catch incompatibility, and Rust VM/Ring0/string handlers as evidence-only consumers."
+decision = "LANG-PANIC-TERMINAL-FAULT-D0 accepted: exact bare panic(message) retains ordinary FunctionCall syntax but is a semantic-reserved panic(String) -> Never builtin. It yields a noncatchable pending Fault, runs the common exit transaction and cleanup/Home release, then publishes one successorless final Fault. It is not FreeStatic, SameModule, Extern, Throw, Result, or bare exit. Production activation remains zero."
+source_authority = "Exact bare source identifier panic, exact arity 1, a statically verified String result contract, and the exact source call site. Semantic declaration/name admission reserves the bare spelling; qualified obj.panic/provider spellings remain separate declared owners."
+canonical_issuer = "No live issuer exists. The required future chain is one finite typed panic source product -> pending Fault(Panic, message) -> common verified exit transaction -> generic final Fault terminal -> selected runtime Fault ABI. The current BuiltinGlobal classifier, SameModule synthesis, Extern strings, Throw/Catch, CheckedCallOutFault, Ring0, and Rust VM are not issuers."
 non_authority = [
-  "BuiltinGlobal classification, name/arity, CanonicalGlobalTargetV1::new_free_function, catalog-presence lookup, resolver, generated symbol, registry, effects analyzer, VM/backend, fixture, fallback, and retry",
+  "generic FunctionCall AST alone, BuiltinGlobal classification, name/arity, CanonicalGlobalTargetV1::new_free_function, catalog-presence lookup, resolver, generated symbol, registry, effects analyzer, CallFlags::no_return, VM/backend, Ring0, fixture, fallback, and retry",
+  "legacy AST/MIR Throw or Catch, checked-provider CheckedCallOutFault, pinned-text trap, process status projection, and a backend unreachable instruction",
 ]
-fail_fast_boundary = "After TypeOp/Math/FastMem precedence and before prepare_cataloged_target_v1, target synthesis, resolver/recovery, argument descent, Const/ValueId allocation, effects, block/Call publication, or fallback."
-census_boundary = "Installed non-brand Cataloged raw FunctionCall with bare name panic -> first provider classification/terminal; includes both StaticBoxMethod and InstanceBoxMethod caller families and observed arities; excludes bare exit, qualified providers, Math, GC, DeclaredInstance, CorePlan, physical thunk, VM/backend, JSON, and Call schema."
+fail_fast_boundary = "Reserve the exact bare identity and verify arity/String facts before argument effects or generic target synthesis. After admission evaluate the message once; an argument Fault remains primary, otherwise create one pending Panic Fault, drain the common exit transaction, and publish one final successorless Fault. No resolver, retry, fallback, or normal successor exists."
+census_boundary = "Bare source panic FunctionCall -> exact semantic admission -> pending Fault -> exit transaction/cleanup -> final Fault -> selected runtime projection; includes wrong arity/type/shadow attempts and both current Cataloged caller families, and excludes bare exit, qualified members/providers, Math, GC, DeclaredInstance, CorePlan, physical thunk, nonselected VM expansion, JSON compatibility, and final Call-schema work."
 finite_inventory = [
-  "bare panic ingress: src/mir/builder/calls/function_call_preflight_route.rs provider branch and Cataloged target synthesis",
-  "existing terminal: PreparedRawOrdinaryFunctionCompletionV1::Rejected",
-  "production caller families: nonmain_static_box_method_batch.rs and instance_box_method_batch.rs",
-  "qualified provider siblings and bare exit remain separate NoIssuer rows",
+  "language owners: docs/reference/language/failure-outcome-relations.md, semantic-kernel.md, function-call-evaluation.md, EBNF.md, and status-index.md",
+  "current wrong ingress: call_name_classification BuiltinGlobal -> function_call_preflight_route SameModule FreeFunction synthesis",
+  "missing owners: typed panic source issuer, live common exit transaction, generic final Fault terminal, and selected runtime Fault ABI",
+  "specialized non-reusable siblings: CheckedCallOutFault and PinnedTextResidenceTrap",
+  "legacy retirement sibling: source try/throw/catch/finally stay rejected; AST/MIR/JSON Throw/Catch transport is a separate census",
+  "qualified provider siblings and bare exit remain separate rows",
 ]
 finite_states = [
-  "PendingUserDecision: no language contract has yet authorized bare panic retirement",
-  "UnsupportedBarePanic: proposed typed pre-effect Rejected terminal, no Callee",
-  "QualifiedProviderOwned: explicit provider spelling remains unchanged",
-  "WrongArity: no separate contract until a provider issuer/language rule exists",
+  "AcceptedTargetParked: language contract is fixed but production issuer/exit/terminal/ABI chain is incomplete",
+  "SelectedPanic: exact bare panic/1 plus verified String facts; evaluate the message once, then issue pending Panic Fault",
+  "ArgumentFault: message evaluation Faults; preserve that earlier Fault and do not issue a second Panic Fault",
+  "WrongArityOrType: typed reject before argument effects and MIR publication",
+  "ShadowRejected: a local, parameter, or source callable cannot claim the bare reserved name",
+  "QualifiedCallOwned: obj.panic/provider spelling follows its exact declaration and is not this builtin",
+  "BareExitSeparate: no alias to panic and no issuer selected by this row",
 ]
-acceptance = "A single explicit language decision chooses either the proposed unsupported pre-effect retirement or a named exact provider issuer; the decision is recorded in docs/reference and this card before implementation. No syntax retirement or qualified-provider change is implied."
-no_safe_slice = "Remain in design_stop while the language decision is absent, a bare provider must be invented, or the path requires name/arity/registry inference, fallback, retry, VM/backend, JSON, Call schema, or a new receipt."
-non_claims = "No bare exit change, no panic syntax removal, no qualified provider change, no new provider/Extern issuer, no DeclaredInstance/Method/Resolved/Call-schema/VM/backend work, and no guard deletion."
-reopen_trigger = "Reopen only after the user explicitly selects the unsupported bare-panic contract or names an existing exact provider issuer; otherwise keep this row parked at design_stop."
-next_execution = "none__await_user_language_contract"
+ordered_tasks = [
+  "D0 LANG-PANIC-TERMINAL-FAULT-D0: reference Decision, call chronology, cleanup rule, Never boundary, reserved-name rule, and throw/exit separation (accepted; production 0)",
+  "D1 MIR-PANIC-FAULT-PIPELINE-COSEAL-D1: name the exact typed source product, pending Fault record, common exit transaction consumer, final generic Fault terminal, selected runtime ABI, and one atomic switch boundary",
+  "I0 MIR-PANIC-FAULT-PIPELINE-I0: only after D1 closes, land a 2-5 commit bounded series with no production switch until typed source -> cleanup -> final Fault -> selected LLVM/C projection is complete",
+  "R0 MIR-PANIC-LEGACY-CALL-RETIRE-R0: in the I0 switch commit delete BuiltinGlobal/name -> SameModule/Extern panic publication, normal fallthrough, and resolver/backend retry; retain no parallel success path",
+  "R1 MIR-LEGACY-EXCEPTION-TRANSPORT-RETIRE-R0: separately census and retire parser/AST/MIR/JSON-v0 Throw/Catch compatibility only after its named external callers are zero or explicitly retired; never relabel it as panic",
+]
+acceptance = "Reference SSOT agrees on ordinary call syntax, reserved bare identity, exact String/arity contract, semantic non-source-spellable Never, noncatchable pending Fault, mandatory cleanup/exit transaction, final successorless Fault, and separation from Result/throw/exit. Implementation stays closed until D1 proves the whole chain and an atomic old-edge deletion."
+no_safe_slice = "Keep this target ParkedSealed while the common exit transaction has production activation 0, no generic final Fault/ABI owner exists, or the path would require SameModule/Extern strings, Throw/Catch reuse, specialized terminal reuse, backend inference, fallback, or retry."
+non_claims = "No production panic support, public Never type, bare exit decision, qualified provider change, assert/unreachable feature, Throw/Catch implementation reuse, nonselected VM parity, Call-schema change, or guard deletion."
+reopen_trigger = "Reopen D1 only when the same source/session can co-seal exact panic/1 String admission with the common pending-Fault exit transaction, one generic final Fault terminal, and the selected runtime ABI. Otherwise leave this lane ParkedSealed and continue an independent active lane."
+activation = "language_target=1; parser_registry=0; source_issuer=0; exit_transaction_consumer=0; generic_fault_terminal=0; selected_runtime_abi=0; production_switch=0"
+next_execution = "none__parked_until_common_exit_fault_chain"
 
 [same_module_me_method_canonical_plan_2026_08_30]
 status = "accepted_bounded_series"
@@ -2306,7 +2323,7 @@ design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape one-name pre-effect retirement"
 implementation_permission = false
-decision = "Retire only InstalledNonBrand bare now at the existing typed Rejected terminal before target synthesis and argument effects. Keep bare panic/exit NoIssuer and qualified env.now_ms unchanged."
+decision = "Retire only InstalledNonBrand bare now at the existing typed Rejected terminal before target synthesis and argument effects. Keep panic delegated to its parked terminal-Fault target, bare exit NoIssuer, and qualified env.now_ms unchanged."
 source_authority = "The accepted canonical language contract in mir-canonical-callsite-lane-ssot.md; parser emits no bare provider."
 canonical_issuer = "None. PreparedRawOrdinaryFunctionCompletionV1::Rejected is the sole terminal; no Callee or new semantic receipt is issued."
 non_authority = [

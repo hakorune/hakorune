@@ -22,8 +22,10 @@ with the finite enum terminal and handler-order guard correction at 7c834d021a.
 Bare error retirement landed at 69680b983f and bare now retirement landed at
 3e35e4f39c, both using the canonical unsupported contract and the existing
 typed Rejected terminal before target synthesis and argument effects. Bare
-panic/exit remain NoIssuer; physical thunk remains RelationPresentIssuerMissing
-and ParkedSealed. The former LoweredGlobal::Instance bucket is now split:
+panic(String) is now an accepted terminal-Fault target but remains ParkedSealed
+because its source/exit/MIR/runtime chain is absent; bare exit remains NoIssuer.
+Physical thunk remains RelationPresentIssuerMissing and ParkedSealed. The
+former LoweredGlobal::Instance bucket is now split:
 StaticCurrentOwner me.method has landed as an exact same-session source/site/
 catalog handoff and direct Global(StaticBoxMethod) successor; true
 DeclaredInstance me.method still lacks the complete source/catalog/receiver/ABI
@@ -44,7 +46,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "StaticCurrentOwner me.method I0 landed at 2b7b3e7489: the existing exact caller/site/catalog publication owner is taken before header/argument effects, direct Global(StaticBoxMethod) carries N source arguments, and the selected old edge is removed. The next child is the separate DeclaredInstance D0 for Method(Some(receiver)); the me.method language feature and C-fast direct-call goal are retained."
+latest_card_summary = "StaticCurrentOwner me.method I0 landed at 2b7b3e7489: the existing exact caller/site/catalog publication owner is taken before header/argument effects, direct Global(StaticBoxMethod) carries N source arguments, and the selected old edge is removed. The next active child remains DeclaredInstance D0. Separately, panic(String) -> Never is accepted as a noncatchable terminal-Fault target and ParkedSealed until its common exit/MIR/runtime chain exists."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
@@ -58,7 +60,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-	"2026-08-30: optional Known/Unique/equals instance-to-Global rewrite retirement landed at 7a6fb9e2db; the alternate writers and selector authority were removed while typed Method(Some(receiver)) and the explicit early str-like route remain. No Global issuer or parity claim was introduced.",
   "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 with terminal-type and guard-ordering corrections at 7c834d021a; StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static now stop before argument effects, while exact Cataloged/scalar/inline/Math/Extern/Method(Some)/Instance owners remain unchanged.",
   "2026-08-30: StaticCurrentOwner me.method handoff landed at 2b7b3e7489; the exact source/site/catalog target is consumed before header/argument effects and emitted as Global(StaticBoxMethod) with N source arguments. True DeclaredInstance remains a separate NoSafeSlice design row.",
+	"2026-08-30: LANG-PANIC-TERMINAL-FAULT-D0 accepted panic(String) as an ordinary-call-shaped, reserved, noncatchable terminal Fault target. Production remains zero and ParkedSealed behind the common exit transaction, generic Fault terminal, and selected runtime ABI; legacy Throw/Catch retirement is separate.",
 ]

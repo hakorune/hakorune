@@ -1,8 +1,9 @@
 # Hakorune Semantic Kernel v1
 
 Status: SSOT
-Decision: accepted; Result/exit C′ amendment accepted 2026-08-05
-Date: 2026-08-05
+Decision: accepted; Result/exit C′ amendment accepted 2026-08-05;
+terminal-panic amendment accepted 2026-08-30
+Date: 2026-08-30
 Scope: Canonical evaluation operations, control outcomes, cleanup precedence,
 and sugar preservation for Language v1.
 
@@ -10,6 +11,8 @@ Related:
 
 - `docs/reference/language/semantic-contract-charter.md`
 - `docs/reference/language/function-exit-and-entry-result.md`
+- `docs/reference/language/failure-outcome-relations.md`
+- `docs/reference/language/function-call-evaluation.md`
 - `docs/reference/language/dynamic-invocation.md`
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/scope-exit-semantics.md`
@@ -30,6 +33,13 @@ Fault(reason)
 
 `Fault` is an unrecoverable canonical semantic outcome. It is not absence or
 recoverable failure and no `catch` operation handles it.
+
+The accepted explicit source request for this outcome is the semantic reserved
+call `panic(String) -> Never`. It retains the ordinary `FunctionCall` parser
+shape but has no `Normal` continuation and never becomes a generic FreeStatic,
+Extern, or `Throw`. Here `Never` is an internal bottom judgment, not a v1
+source type spelling. Exact arity and the String contract are verified before
+argument effects; a normally produced message becomes a pending Panic Fault.
 
 An ordinary Dynamic invocation yields either
 `Normal(SelfContainedDynamicCarrier)` or `Fault`. Its callable-bounded Return
@@ -107,6 +117,9 @@ later cleanup/finalization Fault -> suppressed diagnostic
 Thus a cleanup Fault overrides a pending `Normal`, `Return`, `Break`, or
 `Continue`, but does not erase an earlier body Fault. This rule preserves the
 causal failure while still draining every required cleanup and Home release.
+An explicit `panic` follows this same path. “No exception unwind” means no
+catchable runtime exception mechanism; it never means bypassing the verified
+exit transaction or skipping cleanup.
 
 ## Control Boundaries
 
@@ -147,6 +160,9 @@ cleanup_fault_precedence = 1
 typed_result_qmark_production_consumer = 0
 verified_exit_transaction_production_consumer = 0
 guard_else_requires_no_fallthrough = 1
+panic_terminal_fault_target = 1
+panic_terminal_fault_production = 0
+panic_source_never_type_spelling = 0
 ast_rewrite_canonicalization = 0
 semantic_kernel_implemented = 0
 ```

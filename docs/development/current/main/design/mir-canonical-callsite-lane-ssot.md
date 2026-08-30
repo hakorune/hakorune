@@ -102,8 +102,11 @@ enum CanonicalSameModuleGlobalTargetV1 {
 `Legacy` variant exists. An imported alias becomes SameModule only after an
 exact declaration exists in the final module; otherwise it rejects before
 arguments. JoinIR will co-seal its generated declaration and call as a
-same-module free function. Exact bare `panic/1` and `exit/1` route to same-name
-Extern providers. Bare `error` and `now` reject; only an explicit declared
+same-module free function. Exact bare `panic/1` is outside the Call lane: its
+accepted target is the semantic-reserved terminal Fault route through the
+common exit transaction, and production activation remains 0. Bare `exit/1`
+has no accepted issuer in this Decision and is not inferred as Extern. Bare
+`error` and `now` reject; only an explicit declared
 `env`/`nyash.console.error` provider may issue Extern. Math is Method,
 construction is `NewBox`/`NewClosure`, and the current bounded GC Global
 producer retires without activating GC semantics.

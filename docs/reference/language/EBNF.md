@@ -13,9 +13,15 @@ These flags select an implementation surface; they do not independently define
 canonical language semantics.
 
 Design SSOT note (Scope Exit Semantics):
+- exact bare `panic(message)` is an accepted terminal-Fault target with
+  semantic signature `panic(String) -> Never`; production activation is 0.
+  It uses the ordinary function-call grammar and `panic` remains an identifier
+  token, but semantic declaration/name admission reserves the bare spelling.
+  No dedicated panic keyword or exception production is added.
 - `throw` is prohibited in surface language design.
 - parser は `throw` を常時 reject する（`[freeze:contract][parser/throw_reserved]`）。
 - source `try` is rejected in Canonical and Compat2025 language profiles.
+- exception `finally` is rejected; standalone `cleanup {}` owns lexical exit.
 - typed Result-only postfix `?` is the accepted unchanged-propagation target;
   its grammar/verified consumer remains production 0.
 - source catch and `RecoverableFailure` are rejected targets.
@@ -324,6 +330,11 @@ map_entries := STRING '=>' expr (',' STRING '=>' expr)* [',']
 
 call_tail := '.' IDENT '(' args? ')'   ; method
            | '(' args? ')'             ; function call
+
+; `panic(message)` uses the ordinary function-call production. Semantic
+; admission reserves exact bare panic/1, requires a verified String result,
+; and selects terminal Fault before argument effects. The ordinary call parser
+; is live; the dedicated reservation/terminal route is not.
 
 args      := expr (',' expr)*
 
@@ -1003,7 +1014,7 @@ evidence for the migration inventory only.
 The accepted C′ target is instead:
 
 ```text
-source try / throw / catch          = rejected in both language profiles
+source try / throw / catch / finally = rejected in both language profiles
 RecoverableFailure Outcome          = rejected
 typed Result-only postfix ?         = accepted target; production 0
 canonical lexical spelling          = standalone cleanup { ... }

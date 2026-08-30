@@ -1,8 +1,9 @@
 # Failure and Outcome Relations
 
 Status: Current reference.
-Decision: `LANGUAGE-RESULT-EXIT-C-PRIME0-D0` accepted target (2026-08-05);
-production activation remains 0.
+Decision: `LANGUAGE-RESULT-EXIT-C-PRIME0-D0` accepted target (2026-08-05),
+and `LANG-PANIC-TERMINAL-FAULT-D0` accepted target (2026-08-30);
+production activation remains 0 for both.
 
 This document fixes the semantic vocabulary for the Language v1
 Failure/Outcome lane. It is a relation specification, not a runtime migration
@@ -135,6 +136,48 @@ primary; later cleanup or terminal-finalization Faults are suppressed
 diagnostics while teardown continues best effort. `Result::Err` never becomes
 a cleanup Fault implicitly.
 
+## Explicit Terminal Fault: `panic`
+
+Decision: Hakorune v1 retains the exact bare spelling `panic(message)` as an
+ordinary function-call-shaped expression with semantic signature
+`panic(String) -> Never`. `Never` means that the expression has no `Normal`
+outcome; v1 does not expose `Never` as a source-spellable type.
+
+`panic` is a semantic reserved builtin, not an exception keyword. The lexer
+and parser keep the ordinary `FunctionCall` shape, while declaration and name
+resolution reserve the exact bare identifier. A qualified member or provider
+spelling is not the bare builtin and remains governed by its own declaration.
+Exact arity `1` and a verified `String` result type are required before
+argument effects. The admitted argument is evaluated once. If it Faults, that
+earlier Fault remains primary; otherwise its String becomes the payload of a
+pending `Fault(Panic, message)`.
+
+The pending Fault follows the one verified exit transaction: lexical cleanup
+and Home release run before the final successorless Fault is published. This
+is not exception stack unwinding and creates no source handler edge. In
+particular:
+
+```text
+panic -> Result::Err                forbidden
+Result::Err -> panic                explicit source choice only
+panic -> catch/retry/fallback       forbidden
+panic -> normal successor/value     forbidden
+panic -> Throw/Catch transport       forbidden
+```
+
+The canonical MIR target is a dedicated successorless Fault terminal reached
+after cleanup; a normal `Call` carrying only a Control effect is insufficient.
+The selected LLVM/C projection is one cold, non-returning runtime Fault ABI
+call followed by physical `unreachable`. The ABI symbol, Ring0 reporter, and
+backend instruction are projections only: none may rediscover `panic` by name,
+provider lookup, retry, or fallback.
+
+Expected or caller-actionable failures use `Result<T,E>` and explicit
+`match`, `guard`, return, or typed Result-only `?`. `panic` is for an
+unrecoverable violated contract. Bare `exit` is not an alias: process exit is
+a separate application/runtime capability and is not accepted by this
+Decision.
+
 ## Dynamic Invocation
 
 An exact source-bound Dynamic member invocation has only these caller-visible
@@ -185,7 +228,8 @@ document does not change it.
 `null`, current QMark, catch, and legacy exception-shaped paths remain governed
 by their current parser/registry implementation until their bounded cutover.
 The accepted target is Result-only typed `?`, no source try/throw/catch, no
-`RecoverableFailure` Outcome, terminal non-catchable Fault, and no implicit
+exception `finally`, `RecoverableFailure` Outcome, terminal non-catchable
+Fault, and no implicit
 `Result::Err` lift. This relation Decision is not permission to flip grammar or
 runtime rows before the accepted implementation series. `CompatNull` remains
 limited to its separately named migration boundary.
@@ -198,5 +242,8 @@ uninitialized_local_activation = 0
 typed_result_qmark_activation = 0
 catch_retirement_activation = 0
 recoverable_failure_target = 0
+panic_terminal_fault_target = 1
+panic_reserved_name_admission = 0
+panic_terminal_fault_production = 0
 mandatory_post_implementation_reference_closeout = 1
 ```
