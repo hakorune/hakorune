@@ -778,19 +778,19 @@ finite_states = [
   "GenericCompatibility: production-live formatted target reconstruction after argument descent; CutoverBlockerOpen",
   "ScalarOwned: zero-argument fact/Const owner; keep separate from direct-call target lane",
   "InlineOwned: helper-inline body/argument owner; keep separate from direct-call target lane",
-  "LoweredGlobalInstance: no typed Instance target carrier/issuer; ParkedSealed inside the blocker until an ABI/target decision",
+  "LoweredGlobalInstance: production-live lowered Static/Instance fallback reaches the formatted terminal after argument descent; CutoverBlockerOpen until an exact issuer or explicit public-semantics-preserving retirement decision exists",
 ]
 ordered_tasks = [
   "D0-A: reconcile exact Cataloged, generic, scalar, inline, and lowered-global Static/Instance callers in both directions",
   "D0-B: record that exact Cataloged is already handoff-backed while generic/scalar/inline/Instance have distinct owners and effects",
   "D0-C: verify argument/effect ordering and prove no earlier source/site/brand issuer exists for the generic terminal",
-  "D0-D: keep generic compatibility CutoverBlockerOpen and lowered-global Instance ParkedSealed; do not add a post-effect reject or target reconstruction",
+  "D0-D: keep generic compatibility and lowered-global Static/Instance CutoverBlockerOpen; do not add a post-effect reject or target reconstruction",
   "I0: open only for one named exact issuer or an approved pre-effect retirement contract, then delete only that branch's formatted/fallback edge",
 ]
 acceptance = "The ordinary-static boundary is finite and two-directionally reconciled; exact Cataloged handoff, generic compatibility, scalar, inline, and lowered-global Instance are separately owned; no name/arity/me/symbol inference is elevated; and no implementation is opened without a named source product and pre-effect boundary."
 no_safe_slice = "Remain in design_stop if the generic branch needs a new source observer/issuer, if scalar or inline semantics would move, if Instance must be projected into Global, if a post-effect reject is the only option, or if the change crosses package/loan, VM/backend, Call schema, or 760/800 lines."
 non_claims = "No generic ordinary-static implementation, no scalar/inline rewrite, no lowered-global Instance carrier, no Method(Some)/Method(None) change, no rewrite/known/provider/CorePlan/ordinary-new work, no package/loan, VM/backend, JSON, Call schema, fallback, or retry."
-evidence = "At audit HEAD ce24ad5e1346, exact Cataloged rows use the existing source-keyed handoff; generic production callers enter handle_static_method_call_with_descent and method_call_terminal after argument/effect processing, scalar/inline have independent terminals, and lowered-global Instance has no exact typed issuer."
+evidence = "At audit HEAD 2a84b1fff0, exact Cataloged rows use the existing source-keyed handoff; generic production callers enter handle_static_method_call_with_descent and method_call_terminal after argument/effect processing, scalar/inline have independent terminals, and lowered-global Static/Instance remain production-live without an exact typed issuer."
 reopen_trigger = "An existing same-session source/site/brand product reaches the generic handler before effects, or an explicit language/ABI decision selects a typed pre-effect retirement/replacement for the generic and Instance branches."
 next_execution = "none_until_ordinary_static_issuer_or_retirement_d0"
 
@@ -817,8 +817,9 @@ reopen_trigger = "A new production Builder operator-call publisher or selector w
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "physical_thunk"
 owner = "normal_module_transaction/physical_thunk.rs"
-disposition = "CutoverBlockerOpen"
-evidence = "exact header/entry relation exists but the current edge parses source.symbol() back into a target"
+disposition = "ParkedSealed"
+evidence = "The exact header/entry relation exists, but no same-session main/0 Callee issuer exists; the dedicated closure D0 therefore parks this family and keeps the current symbol parse-back unchanged until an issuer or explicit typed replacement contract is accepted."
+reopen_trigger = "A same-session source-backed main/0 Callee issuer is introduced, or an explicit typed retirement/replacement contract for the physical entry is accepted."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "rewrite_known"
@@ -836,7 +837,8 @@ evidence = "The exact allocation claim is consumed before arguments, but birth i
 id = "cataloged_provider_as_free"
 owner = "calls/function_call_preflight_route.rs::prepare_cataloged_target_v1"
 disposition = "CutoverBlockerOpen"
-evidence = "non-print BuiltinGlobal names can be synthesized as SameModule FreeFunction from name+arity"
+evidence = "Caller-present gc_collect/gc_stats now leave through the existing pre-effect GcGlobal retirement at 9e166e5974; bare error/now/panic/exit still synthesize SameModule FreeFunction from name+arity and have no exact issuer or language/provider decision."
+reopen_trigger = "A named bare provider issuer or an explicit typed pre-effect retirement/language decision is accepted for the remaining bare names."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.outside_inventory]]
 id = "test_only_static_publication"
