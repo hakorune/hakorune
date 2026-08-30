@@ -717,7 +717,7 @@ inventory_status = "finite_reconciled__9_production_families__1_test_only_outsid
 production_family_count = 9
 outside_family_count = 1
 current_disposition = "CutoverBlockerOpen"
-worker_audit_result = "Fresh read-only audits at HEAD confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. The physical-thunk audit is now closed as RelationPresentIssuerMissing/ParkedSealed. Bare error is retired at 69680b983f through the canonical unsupported pre-effect terminal; bare now/panic/exit remain NoIssuer and neither remaining family has an implementation row."
+worker_audit_result = "Read-only audits at audit HEAD 22e3aff4f5 confirm the print caller-zero retirement and ordinary-static target-only I0 are closed. The exact target inventory remains keyed by (caller, SourceExprSiteV1), and target-only rows now retain the existing canonical key without a second scan or resolver. The Builder operator-call selector family is now retired at 44555655ab: one typed validator owns all five compiler ingresses, direct MIR remains the sole compiler route, and runtime-only selectors stay separate. Physical thunk has a finite two-caller boundary and an existing source/physical relation but no identified exact same-session main/0 issuer; selected-exact CorePlan has no production caller; generic ordinary-static has an exact Cataloged handoff only and no source/site/brand route for its remaining compatibility terminal; generic CorePlan GlobalCall is production-live on the legacy scheduler with no source/owner/brand issuer before its func:String/local_arg parse-back. Three fresh audits assign legacy registry V0/V1/debt retirement to the existing portable Loop M10b cutover after accepted-corpus coverage, while the separate source-backed canonical V1 path remains live; this Call family is ParkedSealed and GlobalCall-only deletion is NoSafeSlice. Rewrite/known has landed as the user-selected policy retirement at 7a6fb9e2db, with typed Method(Some(receiver)) retained and no parity claim introduced. The ordinary-new exact constructor cutover landed at d81d91d800; no-claim compatibility remains a separate parked cohort. The physical-thunk audit is now closed as RelationPresentIssuerMissing/ParkedSealed. Bare error retired at 69680b983f and bare now retired at 3e35e4f39c through the canonical unsupported pre-effect terminal; bare panic/exit remain NoIssuer and neither remaining family has an implementation row."
 ordered_tasks = [
   "I0 (landed at e5120589dc): exact static receipt — project the existing canonical key before arguments in exactly three production callers; make the receipt terminal a target consumer only",
   "I1-D0: ordinary static terminal — reconcile the generic/scalar/inline/lowered-global Instance callers; exact Cataloged handoff is already closed, but no generic issuer or safe pre-effect terminal is authorized",
@@ -727,15 +727,15 @@ ordered_tasks = [
   "I4-I0: only after D0 names an issuer, consume the exact header/entry relation without symbol parse-back",
   "I5 (landed at 7a6fb9e2db): rewrite/known policy retirement — remove the optional Known/Unique/equals instance-to-Global writers and selector authority while retaining typed Method(Some) and the early str-like route; historical parity is evidence only",
   "I6 (landed at d81d91d800): ordinary new birth — keep construction authority separate from SameModule call publication; no-claim compatibility remains parked",
-  "I7-D0 (landed): cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; bare error later received a one-name retirement and no provider-wide implementation row is open",
-  "I7-D0b (design stop): bare error received the existing unsupported-contract retirement at 69680b983f; bare now/panic/exit still have no exact issuer and require separate language/provider decisions",
+  "I7-D0 (landed): cataloged provider-as-Free caller-present census — separate print, GC, math, Extern, and bare-name cohorts; bare error and bare now received one-name retirements and no provider-wide implementation row is open",
+  "I7-D0b (design stop): bare error retired at 69680b983f and bare now retired at 3e35e4f39c using the existing unsupported contract; bare panic/exit still have no exact issuer and require separate language/provider decisions",
   "I7-I0: one named provider cohort only after its exact issuer or typed pre-effect retirement is closed; name+arity synthesis is not authority",
   "C0: rerun two-direction producer census; close only when open/reopened blockers are zero and the test-only row remains ParkedSealed",
 ]
 acceptance = "The broad R0 closes only when all nine production families have an exact successor or typed pre-effect retirement, adapter and non-adapter counts agree in both directions, every outside row has owner/non-authority/reopen trigger, and no publisher is silently parked. One bounded child may land without claiming broad closure when its own start/end boundary is exhaustive."
 no_safe_slice = "Return to design_stop if a live publisher cannot name an exact issuer or typed terminal, a CorePlan/operator caller cannot be finitely enumerated, target identity still needs String/env/symbol/lookup inference, effects cannot move behind the reject without package/loan/schema/backend work, or the change crosses 760/800 lines."
 non_claims = "No B1/D1 package-loan, R6 Call schema, Method(Some), constructor/NewBox meaning, JoinIR, JSON, VM/backend, source rescan, second resolver, fallback, or retry."
-smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab, and the user-selected rewrite/known policy retirement is closed at 7a6fb9e2db. Physical thunk is RelationPresentIssuerMissing/ParkedSealed with no exact main/0 issuer; selected-exact CorePlan is caller-zero ParkedSealed; generic CorePlan remains owned by Loop M10b; ordinary-new is landed with no-claim compatibility separate; bare error is retired at 69680b983f while bare now/panic/exit remain NoIssuer. The next bounded row must be selected only from a named exact issuer or an explicitly approved typed pre-effect retirement. The independent R6 audit remains No-Go until unified-off/emit_legacy_call alternate routes and every func/None consumer are caller-zero; no new Call-schema or guard-deletion row is opened here."
+smallest_next_slice = "The type-fact guard-fate D0 and prune/rehome S0 are landed, OPERATOR-CALL-RETIRE-I0 is closed at 44555655ab, and the user-selected rewrite/known policy retirement is closed at 7a6fb9e2db. Physical thunk is RelationPresentIssuerMissing/ParkedSealed with no exact main/0 issuer; selected-exact CorePlan is caller-zero ParkedSealed; generic CorePlan remains owned by Loop M10b; ordinary-new is landed with no-claim compatibility separate; bare error retired at 69680b983f and bare now retired at 3e35e4f39c. Bare panic/exit remain NoIssuer. The next bounded row must be selected only from a named exact issuer or an explicitly approved typed pre-effect retirement. The independent R6 audit remains No-Go until unified-off/emit_legacy_call alternate routes and every func/None consumer are caller-zero; no new Call-schema or guard-deletion row is opened here."
 call_schema_dependency = "R6 remains a later atomic schema row: first close unified-off and emit_legacy_call alternate routes, typed-writer normalization, constructor/closure Call producers, JoinIR func authority, and Callee-only consumers; then delete Call.func, make callee mandatory, and remove Call-specific INVALID. R6 issues no target and cannot unblock a SameModule family lacking an exact issuer."
 guard_cleanup_dependency = "The 2026-08-30 guard census found no additional SupersededDelete candidate beyond the already-landed stale type-fact overlay removal. Keep/rehome/park all other guards until finite invocation/profile coverage, caller-zero or an equal successor, focused proof, and a reopen trigger are recorded."
 guard_cleanup_status = "ParkedSealed__no_current_deletion_candidate"
@@ -847,7 +847,7 @@ evidence = "The selected-normal exact constructor cutover landed at d81d91d800: 
 id = "cataloged_provider_as_free"
 owner = "calls/function_call_preflight_route.rs::prepare_cataloged_target_v1"
 disposition = "CutoverBlockerOpen"
-evidence = "Caller-present gc_collect/gc_stats now leave through the existing pre-effect GcGlobal retirement at 9e166e5974; bare error leaves through the named unsupported retirement at 69680b983f, while bare now/panic/exit still have no exact issuer or language/provider decision."
+evidence = "Caller-present gc_collect/gc_stats now leave through the existing pre-effect GcGlobal retirement at 9e166e5974; bare error and bare now leave through named unsupported retirements at 69680b983f and 3e35e4f39c, while bare panic/exit still have no exact issuer or language/provider decision."
 reopen_trigger = "A named bare provider issuer or an explicit typed pre-effect retirement/language decision is accepted for the remaining bare names."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.outside_inventory]]
@@ -1896,7 +1896,7 @@ next_design_card = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-CENSUS-D0"
 selected_cohort = "caller_present_gc_typed_retirement"
 caller_present_route = "prepare_ordinary_function_completion_v1 -> prepare_cataloged_target_v1"
 reconciled_result = "The finite provider names are separated: print has an existing builtin issuer; abs/min/max/sin/cos leave through the Math owner; explicit env/nyash/system names remain Extern; bare error and bare now use named unsupported retirements while panic/exit have no bare issuer; gc_collect/gc_stats are the only caller-present cohort whose existing caller-less retirement policy can be extended without a new authority."
-next_implementation = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-RETIRE-I0"
+next_implementation = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_provider_bare_no_issuer_d0_2026_08_30]
 status = "accepted_design_stop"
@@ -1918,7 +1918,7 @@ fail_fast_boundary = "After TypeOp/Math/FastMem precedence and before prepare_ca
 census_boundary = "Installed non-brand Cataloged raw FunctionCall -> provider-name classification -> first target/typed-terminal; includes bare error/now/panic/exit, exact arity observations, the two Cataloged caller families, and Math/Extern/ordinary exclusions; excludes qualified Extern, Math special ingress, GC retirement already landed, RawCompatibility, wire/JSON, VM/backend, and Call schema."
 finite_inventory = [
   "bare error: retired by same_module_cataloged_provider_bare_error_retire_i0_2026_08_30 before prepare_cataloged_target_v1",
-  "bare now: canonical unsupported contract; the next one-name retirement child targets src/mir/builder/calls/function_call_preflight_route.rs before prepare_cataloged_target_v1",
+  "bare now: retired by same_module_cataloged_provider_bare_now_retire_i0_2026_08_30 before prepare_cataloged_target_v1",
   "bare panic: same Cataloged synthesis; extern provider has no bare panic issuer",
   "bare exit: same Cataloged synthesis; qualified env.process.exit is separate and bare exit has no issuer",
   "production Cataloged caller families: nonmain_static_box_method_batch.rs and instance_box_method_batch.rs",
@@ -1926,7 +1926,7 @@ finite_inventory = [
 ]
 finite_states = [
   "BareErrorRetired: existing typed Rejected terminal before target synthesis and argument effects",
-  "BareNowContract: canonical language SSOT marks bare now unsupported; its one-name retirement child is the next bounded row",
+  "BareNowRetired: canonical language SSOT marks bare now unsupported and its one-name retirement is landed before target synthesis and argument effects",
   "NoIssuer: panic/exit have no exact bare issuer; remain CutoverBlockerOpen until a language/provider decision",
   "QualifiedExternOwned: env/nyash/system names retain their existing qualified provider owner",
   "MathOwned: abs/min/max/sin/cos retain the existing Math owner and are outside this row",
@@ -1937,16 +1937,16 @@ ordered_tasks = [
   "D0-A: reconcile the four bare names, arity observations, two production Cataloged caller families, and the first target/terminal in both directions",
   "D0-B: record the canonical unsupported contract for bare error/now and keep panic/exit NoIssuer; qualified Extern/Math/ordinary/GC exclusions stay explicit",
   "D0-C: use the existing canonical unsupported terminal for bare error and open only a one-name bare-now retirement child",
-  "I0: bare error retirement is landed; bare now is the next one-name bounded row, while panic/exit remain separate",
+  "I0: bare error and bare now retirements are landed as separate one-name rows; panic/exit remain separate",
   "C0: rerun this finite bare-name census and return to the SameModule parent without claiming provider-wide closure",
 ]
 acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; bare error and bare now each have one named typed unsupported retirement, panic/exit retain explicit NoIssuer states, no name/arity synthesis is elevated, and any further implementation remains closed until its own language/provider contract or exact issuer is named."
 no_safe_slice = "Remain in design_stop if a bare runtime provider must be invented, public language behavior is undecided, panic/exit /1 Extern semantics are not contract-backed, or the only route is resolver/name/symbol/registry/VM fallback."
 non_claims = "No error/now/panic/exit behavior change, no new provider/Extern issuer, no Math/GC change, no ordinary-static/physical-thunk/CorePlan/rewrite/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
-evidence = "Read-only audit at HEAD 220a146ae802 found the four bare names synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. The canonical language contract selected bare error and bare now for one-name typed retirements; bare error landed at 69680b983f and bare now is the next fast row. Parser treats panic/exit as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products."
+evidence = "Read-only audit at HEAD 220a146ae802 found the four bare names synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. The canonical language contract selected bare error and bare now for one-name typed retirements; bare error landed at 69680b983f and bare now landed at 3e35e4f39c. Parser treats panic/exit as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products."
 reopen_trigger = "An explicit language/provider decision names one bare contract, or an existing same-session exact issuer for that bare name is found; otherwise keep NoIssuer/ParkedSealed and do not create a resolver or receipt."
-worker_audit_head = "220a146ae802"
-worker_audit_result = "Fresh read-only audits agree that no exact bare-provider issuer exists at this HEAD. Bare error is now retired by its named unsupported terminal and bare now has the same canonical contract; panic/exit remain NoIssuer. Physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. Legacy guard cleanup also has no proven SupersededDelete candidate and remains parked under the parent guard policy."
+worker_audit_head = "22e3aff4f5"
+worker_audit_result = "Read-only audits at audit HEAD 22e3aff4f5 agree that no exact bare-provider issuer exists. Bare error is retired by its named unsupported terminal and bare now has the same canonical contract; panic/exit remain NoIssuer. Physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. Legacy guard cleanup also has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_provider_bare_error_contract_d0_2026_08_30]
@@ -2092,13 +2092,13 @@ reopen_trigger = "Reopen if the canonical language contract changes, the existin
 next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-RETIRE-I0"
 
 [same_module_cataloged_provider_bare_now_retire_i0_2026_08_30]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-RETIRE-I0"
 parent_row = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-CONTRACT-D0"
 design_parent = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NO-ISSUER-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape one-name pre-effect retirement"
-implementation_permission = true
+implementation_permission = false
 decision = "Retire only InstalledNonBrand bare now at the existing typed Rejected terminal before target synthesis and argument effects. Keep bare panic/exit NoIssuer and qualified env.now_ms unchanged."
 source_authority = "The accepted canonical language contract in mir-canonical-callsite-lane-ssot.md; parser emits no bare provider."
 canonical_issuer = "None. PreparedRawOrdinaryFunctionCompletionV1::Rejected is the sole terminal; no Callee or new semantic receipt is issued."
@@ -2139,14 +2139,24 @@ forbidden_files = [
   "package/loan, VM/backend, JSON, Call schema, fallback, retry, guard cleanup",
 ]
 focused_test_filters = ["bare_now"]
-changed_test_names = []
-coverage_base_commit = "22e3aff4f5"
-implementation_commit = ""
-focused_test_runs = []
-guard = "The existing active-surface lifecycle guard dispatches the named bare-now checker; fast_open validates only activation scope, while landed validates branch ordering, focused tests, changed-test coverage, and allowed paths."
-evidence = "Fast row opened after the canonical language-contract alignment; implementation and focused evidence are pending."
+changed_test_names = [
+  "cataloged_bare_now_rejects_before_target_synthesis",
+  "cataloged_bare_now_rejection_does_not_descend_or_publish",
+]
+coverage_base_commit = "d5d9674d69"
+implementation_commit = "3e35e4f39c"
+focused_test_runs = [
+  "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --quiet --profile quick --lib bare_now -- --test-threads=1: 2 passed, 0 failed",
+  "python3 tools/checks/lib/mir_call_d1b_bare_error_retire_guard.py (bare-now landed override with cargo --list coverage): pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "rustfmt --edition 2021 --check on touched Rust files: pass",
+  "git diff --check: pass",
+]
+guard = "The existing active-surface lifecycle guard dispatches the shared bare-provider checker for the named bare-now row; fast_open validates only activation scope, while landed validates branch ordering, focused tests, changed-test coverage, and allowed paths."
+evidence = "Implementation landed at 3e35e4f39c. Installed non-brand bare now enters PreparedRawOrdinaryFunctionCompletionV1::Rejected before prepare_cataloged_target_v1 and argument descent; static and instance Cataloged caller forms are covered by two focused tests, with 2/2 passed and no child events or MirInstruction::Call."
 reopen_trigger = "Reopen the parent if the language contract changes, the existing terminal cannot precede effects, or an explicit same-session bare-now issuer is introduced."
-next_execution = "MIR-CALL-SAME-MODULE-CATALOGED-PROVIDER-BARE-NOW-RETIRE-I0"
+next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [same_module_cataloged_gc_retire_i0_2026_08_30]
 status = "landed"
