@@ -1941,9 +1941,11 @@ ordered_tasks = [
 acceptance = "The four bare names and two production caller families are finite and two-directionally reconciled; each name has exactly one NoIssuer/qualified-owner state; no name/arity synthesis is elevated; and implementation remains closed until one language/provider contract or exact issuer is named."
 no_safe_slice = "Remain in design_stop if a bare runtime provider must be invented, public language behavior is undecided, panic/exit /1 Extern semantics are not contract-backed, or the only route is resolver/name/symbol/registry/VM fallback."
 non_claims = "No error/now/panic/exit behavior change, no new provider/Extern issuer, no Math/GC change, no ordinary-static/physical-thunk/CorePlan/rewrite/ordinary-new work, no package/loan, VM/backend/JSON, Call schema, fallback, or retry."
-evidence = "Read-only audit at HEAD 1ba49eb4fd found the four bare names still synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. Parser treats them as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products. The existing Cataloged GC retirement is the only compatible caller-present pre-effect policy."
+evidence = "Read-only audit at HEAD 220a146ae802 found the four bare names still synthesized as SameModule FreeFunction(name, arity) at Cataloged preflight. Parser treats them as ordinary identifiers; qualified env/nyash/system providers and VM terminal consumers are separate and do not issue bare products. The existing Cataloged GC retirement is the only compatible caller-present pre-effect policy."
 reopen_trigger = "An explicit language/provider decision names one bare contract, or an existing same-session exact issuer for that bare name is found; otherwise keep NoIssuer/ParkedSealed and do not create a resolver or receipt."
-next_execution = "parked_no_bare_issuer__select_one_named_provider_decision_or_return_to_parent_d0"
+worker_audit_head = "220a146ae802"
+worker_audit_result = "Fresh read-only audits agree that no exact bare-provider issuer exists at this HEAD. The four names remain NoIssuer; physical thunk is a separate RelationPresentIssuerMissing/ParkedSealed family. Legacy guard cleanup also has no proven SupersededDelete candidate and remains parked under the parent guard policy."
+next_execution = "parked_no_bare_issuer__explicit_language_provider_decision_required_before_i0"
 
 [same_module_cataloged_gc_retire_i0_2026_08_30]
 status = "landed"
