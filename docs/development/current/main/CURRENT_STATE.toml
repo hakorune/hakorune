@@ -16,6 +16,11 @@ names, headers, registries, fixtures, or backends; do not add a resolver,
 parallel family loan, fallback, retry, Method/Call/VM/backend change, or
 Result/panic/throw work until an exact issuer is named. Legacy guard cleanup
 remains parked unless SupersededDelete proof exists.
+D0-B2/B3 refresh at HEAD 3f02266d84 traced a concrete
+Ordinary.call -> me.target case: source facts, same-brand declaration,
+selected slot, and receiver ABI exist independently, but no reusable
+caller-site-to-callee issuer or complete generic result/effect owner exists.
+Keep true DeclaredInstance ParkedSealed; do not open an inferred bridge.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -48,7 +53,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The generic lease tail test-only BoxShape row landed at 892526b4d6: the final two tests now live in a private include! sibling, preserving the historical path, private access, guards, behavior, and line budget; focused 5/5 and quick checks are green. An unrelated aggregate mirbuilder guard baseline red is recorded, not hidden. DeclaredInstance remains the only semantic blocker; panic/throw reference policy is accepted but panic production is 0/ParkedSealed, bare exit remains NoIssuer, and Result/? remains a separate production-0 lane."
+latest_card_summary = "The generic lease tail test-only BoxShape row landed at 892526b4d6: the final two tests now live in a private include! sibling, preserving the historical path, private access, guards, behavior, and line budget; focused 5/5 and quick checks are green. An unrelated aggregate mirbuilder guard baseline red is recorded, not hidden. A fresh D0-B2/B3 audit at 3f02266d84 traced Ordinary.call -> me.target and closed with no reusable caller-site issuer or complete generic result/effect owner; true DeclaredInstance remains ParkedSealed and is the only semantic blocker. Panic/throw policy is accepted but panic production is 0/ParkedSealed, bare exit remains NoIssuer, and Result/? remains a separate production-0 lane."
 next_design_card = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 next_execution_card = "none"
 next_execution_card_path = ""
