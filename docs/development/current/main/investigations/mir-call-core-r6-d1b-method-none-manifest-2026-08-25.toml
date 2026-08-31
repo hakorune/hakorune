@@ -2050,12 +2050,7 @@ finite_states = [
   "CrossBlockNoRewrite: same key in another block is never reused",
   "UnsupportedNoRewrite: unsupported or non-numeric form remains untouched with zero count",
 ]
-ordered_tasks = [
-  "I0-A: move the expression map inside the per-block loop without changing the existing instruction-key vocabulary",
-  "I0-B: increment the statistic only in the branch that actually replaces the instruction with Copy",
-  "I0-C: add same-block positive, sibling-block negative, unsupported/non-numeric zero-count, and deterministic repeat tests",
-  "I0-D: run the changed tests, quick library check, active-surface guard, pointer guard, and diff check; close out without Call or backend claims",
-]
+evidence_obligation_disposition = "UnknownRetain for compaction: I0-A/B and the focused I0-D evidence landed, but I0-C explicitly promised deterministic repeat tests and the checked-in changed_test_names/focused_test_evidence contain no repeat test or repeated-process receipt. Do not tombstone or delete this row until that promise is Fulfilled, ExplicitlySuperseded, or RejectedAsUnnecessary with owner, reason, and commit."
 acceptance = "CSE never reuses a value across BasicBlocks; every counted elimination corresponds to one emitted Copy; same-block supported behavior remains green; sibling-block and unsupported/non-numeric cases are unchanged with zero statistics; source/test/guard evidence is present and no Call/VM/backend semantics change."
 no_safe_slice = "Return to design_stop if same-block correctness requires a new dominance analysis, a new semantic receipt, a cross-block rewrite, a source/AST scan, or any Call/VM/backend change."
 non_claims = "No MirBuilder Call cutover, no selected-C progress, no language semantic change, no generic dominance/CSE widening, no fallback/retry change, no Call schema change, and no whole-lib green claim."
@@ -5095,9 +5090,12 @@ next_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0 design stop; select
 durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
 active_pointer = "docs/development/current/main/CURRENT_STATE.toml"
 active_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-prior_writer_manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml"
 normal_root_manifest = "ParkedSealed: docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md; do not copy or slim in this row"
-docs_slim_followup = "Move closed R1-R5/D1A/D1-D8 prose out of the 2970-line Call SSOT only after D1B acceptance; preserve this manifest as the finite D1B ledger"
+docs_slim_followup = "After the current CorePlan detour, compact this manifest before opening the next semantic family. Authority: current-docs-update-policy-ssot.md, Active-Card Budget and No-Growth Law (about 800 lines editorial target, 1,000 hard limit), plus current-docs-archive-policy-ssot.md. Use this existing followup; create no new card or guard."
+compaction_preflight = "Before removing prose, reconcile every requirement with checked-in evidence and classify it as Fulfilled, ExplicitlySuperseded, StillOpen, or RejectedAsUnnecessary. StillOpen or unclassified obligations are UnknownRetain, never silent deletion."
+compaction_dispositions = "KeepLive | MoveArchive | Tombstone | RetireFromTree | UnknownRetain; current/open rows are KeepLive, while referenced closed rows require Tombstone."
+tombstone_contract = "A referenced closed row keeps owner=, landed=<commit>, superseded_by=, evidence disposition, and an observable reopen trigger; a zero-reference reproducible closed row defaults to RetireFromTree because Git owns detail."
+compaction_acceptance = "Keep current/open rows complete; resolve every inbound reference; reach <=1,000 lines; keep pointer and active-surface guards green; record tracked file/line deltas; do not copy bodies to a second current card or tracked archive."
 
 [same_module_physical_thunk_issuer_closure_d0_2026_08_30]
 status = "parked_sealed"
