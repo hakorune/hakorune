@@ -70,6 +70,7 @@ def check_backend_owner_declared_instance_method_d0(
 
     inventory = _nonempty_list(row, "finite_inventory")
     coverage = _nonempty_list(row, "coverage_matrix")
+    rust_audit = _text(row, "independent_rust_call_lane_audit")
     states = _nonempty_list(row, "finite_states")
     tasks = _nonempty_list(row, "ordered_tasks")
     for token in ("current compatibility owner", "future terminal owner", "transport only"):
@@ -85,6 +86,9 @@ def check_backend_owner_declared_instance_method_d0(
     ):
         if not any(token in item for item in coverage):
             api.fail(f"backend owner D0 coverage matrix lacks {token}")
+    for token in ("no other unlanded Rust", "no alternate implementation row"):
+        if token not in rust_audit:
+            api.fail(f"backend owner D0 Rust lane audit lacks {token}")
     if not any(item.startswith("D0-A") for item in tasks):
         api.fail("backend owner D0 task inventory lacks D0-A")
     if not any(item.startswith("D0-B") for item in tasks):

@@ -4034,6 +4034,7 @@ non_claims = "No selected-C admission token, no receiver materialization, no Met
 reopen_trigger = "Open I0 only after one exact Hako emitter family has source-independent backend coverage, matched object/ABI evidence, a named live caller, and a same-row selected-C old-edge deletion plan with fallback/retry zero."
 next_execution = "none__design_stop"
 worker_audit_result = "At HEAD a3b2877b29, D0-A is CoverageMissing: Hako emitter/BackendRecipeBox has no source-independent root DeclaredInstance Method(Some) family. BackendRecipeBox is not the live selected-C caller authority; the live route is a separate hard-coded JSON/registry compatibility consumer with no receiver/result/effect/full-lane relation. D0-B/C therefore keep I0 NoSafeSlice and RetireAfterReplacement; no MirBuilder issuer or backend inference is permitted."
+independent_rust_call_lane_audit = "A current-HEAD read-only census found no other unlanded Rust MirBuilder Call family with an existing exact source-backed issuer, target-before-arguments route, finite live callers, and a same-row deletable old edge. Physical thunk, CorePlan, panic/exit, ordinary compatibility, indirect Call, and JoinIR remain separately parked or blocked; no alternate implementation row is opened."
 implementation_evidence = "D0 closed as a design stop with exact matrix Hako=0 / selected-C compatibility consumer=1 / direct Method(Some) ABI parity=0 / named caller switch=0."
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
