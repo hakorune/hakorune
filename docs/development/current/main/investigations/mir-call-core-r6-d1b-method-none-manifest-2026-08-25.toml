@@ -1971,7 +1971,7 @@ decision = "Restore honest daily quick visibility and establish a deterministic 
 source_authority = "tools/checks/lib/dev_gate_quick_steps.sh owns daily quick order; the canonical baseline command owns stack size, jobs, profile, features, and serial test execution. docs/tools/check-scripts-index.md is navigation only."
 canonical_command = "RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib -- --test-threads=1"
 observed_head = "d96266852d"
-observed_health = "After restoring the naming vocabulary, dev_gate quick advances to the MIR metadata catalog guard and stops on a pinned_text_access_plans egress anchor drift (src/runner/mir_json_emit/root.rs:140). Quick steps contain cargo check but no cargo test --lib; the type-fact guard is green when run directly but is not a daily quick caller; focused DeclaredInstance relation suites are green but are not whole-lib evidence."
+observed_health = "After restoring the naming vocabulary and refreshing all 16 metadata manifest anchors, the metadata checker, manifest guard, and catalog guard pass. dev_gate quick now advances to the phase-1 compatibility emit-program runtime-helper guard, whose ny-llvmc fixture aborts with stack overflow (rc=134). Quick steps contain cargo check but no cargo test --lib; the type-fact guard is green when run directly but is not a daily quick caller; focused DeclaredInstance relation suites are green but are not whole-lib evidence."
 red_baseline_note = "A local run observed 7373 passed, 139 failed, 29 ignored, while the fixed-stack worker run observed 7372 passed, 140 failed, 29 ignored. The artifact-dependent receipt test and stack ownership must be made deterministic before recording the exact baseline."
 fail_fast_boundary = "A missing summary, stack abort, compile/link failure, zero-test run, duplicate or malformed baseline, added failure name, changed failure name, or disappeared baseline name blocks comparison. Do not use count-only, regex waivers, auto-rebaseline, or || true."
 census_boundary = "dev_gate quick entry -> quick steps -> serial full-lib result and exact failure-name set; includes naming vocabulary repair, deterministic artifact fixture, baseline runner/manifest, visible known-debt receipt, and changed-test filter execution; excludes compiler/MIR semantics, DeclaredInstance co-seal, Call schema, backend parity, quick-static qualification, and legacy-tests fate."
@@ -2020,7 +2020,7 @@ reopen_trigger = "Reopen the prerequisite only when the canonical command or tes
 next_execution = "Return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop after this verification prerequisite is landed; keep production implementation closed until effect issuer and selected-C capability are co-sealed."
 
 [mir_metadata_consumer_manifest_anchor_refresh_d0_2026_08_31]
-status = "accepted_design_stop_prerequisite"
+status = "landed"
 task_id = "MIR-METADATA-CONSUMER-MANIFEST-ANCHOR-REFRESH-D0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 box_kind = "BoxShape verification receipt refresh only"
@@ -2074,6 +2074,19 @@ no_safe_slice = "Remain in design_stop if an anchor token moved semantically, th
 non_claims = "No current exhaustive metadata owner census, no field retirement authority, no source behavior change, no quick/full-lib green claim, no DeclaredInstance issuer/co-seal, no Method(Some) production switch, no Call-schema or backend change."
 reopen_trigger = "Reopen the refresh only when one of the 16 statements moves again, the manifest schema/checker changes, or the manifest is about to be used as current exhaustive evidence; in the latter case require a separate live-owner recensus first."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop after the verification prerequisite is closed; keep semantic implementation permission false."
+changed_anchor_occurrences = 16
+unique_anchor_mappings = 11
+stale_anchor_occurrences = 0
+verification_commands = [
+  "python3 tools/checks/mir_metadata_consumer_manifest.py --root .: pass",
+  "bash tools/checks/mir_metadata_consumer_manifest_guard.sh: pass",
+  "bash tools/checks/mir_metadata_catalog_guard.sh: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+  "bash tools/checks/dev_gate.sh quick: metadata step passed; next first failure is phase-1 compatibility emit-program runtime-helper guard (rc=134, stack overflow)",
+]
+evidence = "The 16 literal anchor refreshes preserve the historical manifest revision and all owner/count/category/role/state fields. Direct checker, manifest guard, and metadata catalog guard pass. The daily quick gate now reaches the next independent Stage1 runtime-helper fixture and records its stack-overflow red; this row does not repair or waive that failure."
+red_classification = "No current-change red in this row. The Stage1 runtime-helper stack overflow is an independent pre-existing gate failure and remains unclassified until its owning lane performs parent/current comparison."
 
 [mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
 status = "landed"
