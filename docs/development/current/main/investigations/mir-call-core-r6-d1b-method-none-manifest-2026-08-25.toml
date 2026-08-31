@@ -4104,6 +4104,8 @@ worker_audit_evidence = [
   "src/mir/builder/method_call_handlers.rs:141-162,347-413,445-452 — legacy variable_map/current_bound_me_value/manual receiver-prefix edge",
 ]
 next_design_slice = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0: expose the exact locator relation row through the existing non-Clone callback scope, compare caller owner/session/receiver BindingRef, and borrow the existing generic consume ledger without issuing a new receipt or family-specific loan."
+audit_closeout = "OwnerMissing / ExactExistingOwnerButViewUnavailable: one storage candidate exists, but the production crosswalk is absent. The receiver-value owner audit is complete and no Method(Some) implementation may open from this row."
+next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 guard_shape_note = "The over-budget active-surface guard moves current-row dispatch to a private sibling without changing registry command, row semantics, or evidence; the shared owner returns below the 760-line split trigger."
 next_execution = "none__design_stop"
 allowed_files = [
@@ -4113,6 +4115,70 @@ allowed_files = [
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
   "tools/checks/lib/mir_declared_instance_receiver_value_owner_d0_guard.py",
+]
+forbidden_files = [
+  "src/mir/**",
+  "lang/src/**",
+  "lang/c-abi/**",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+]
+
+[mir_call_me_declared_instance_locator_value_crosswalk_d0_2026_09_02]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
+ceremony_tier = "T1"
+box_kind = "Callback-scoped BoxShape crosswalk; no new semantic product"
+implementation_permission = false
+decision = "Reuse the existing locator relation owner and CallableSemanticLoweringState consume ledger. The only proposed bridge is a non-Clone callback-scoped view that lends one exact relation row, checks caller owner/session/receiver BindingRef against the live callable state, and borrows the existing generic take-once value. Do not add a family-specific receiver loan, second resolver, or semantic receipt."
+source_authority = "VerifiedDeclaredInstanceCallRelationV1::caller_owner, receiver_site, and receiver_binding, already co-sealed by the package locator; the callable session owner and entry materialization ledger provide physical identity only after exact crosswalk checks."
+canonical_issuer = "No new issuer in D0. DeclaredInstanceCallLocatorViewV1 remains the relation-row owner and CallableSemanticLoweringState remains the sole BindingRef -> ValueId consume owner; the bridge only exposes and validates their existing products."
+non_authority = [
+  "variable_map['me'], current_bound_me_value, formal parameter position, param0, args[0], numeric ValueId(0), AST/name/header/registry lookup, target or backend metadata, JSON/C/Hako inference, and any standalone test helper",
+  "Rc/RefCell cloning, a family-specific loan/map, package-side declaration_for/re-resolution, a second resolver, fallback, retry, or a new Verified/Prepared semantic receipt",
+]
+fail_fast_boundary = "A missing locator row, foreign owner/session, receiver-site or BindingRef mismatch, duplicate candidate, unavailable entry ValueId, second take, or residual ledger row remains a typed design-stop/reject before receiver effects, argument descent, Callee/Const/MIR publication, backend admission, fallback, or retry."
+census_boundary = "Installed package locator callback -> exact relation row -> live callable session owner -> existing BindingRef consume ledger -> request-local receiver ValueId view; includes root lexical DeclaredInstance only and excludes nested/upvar, Method(Some), argument lowering, Call schema, selected-C/Hako/C, and compatibility repair."
+finite_states = [
+  "NoRootDeclaredInstanceCall: locator explicitly has no root relation and no take is requested",
+  "RelationRowUnavailable: locator view cannot lend the exact relation row to the live callback",
+  "OwnerMismatch: relation caller owner differs from the live callable session owner",
+  "SessionMismatch: relation and ledger belong to different package/lowering sessions",
+  "BindingMismatch: relation receiver BindingRef differs from the state receiver binding",
+  "DuplicateCandidate: more than one row or ledger entry claims the exact source site",
+  "EntryValueUnavailable: exact binding exists but entry materialization has no pending ValueId",
+  "ReadyToBorrow: one relation row and one pending generic ledger value reconcile exactly",
+  "AlreadyTaken: the generic consume ledger has already consumed the exact receiver site",
+  "Residual: session finish observes an unconsumed receiver/value row",
+  "NestedOrUpvarOutside: non-root receiver is outside this crosswalk boundary",
+]
+ordered_tasks = [
+  "D0-A: inventory every production locator callback, its available relation-row fields, callable session owner, and entry-materialization lifetime in both directions",
+  "D0-B: define the smallest callback-scoped borrowed view that carries caller owner, session brand, receiver site, and BindingRef without copying or issuing a new product",
+  "D0-C: prove the existing CallableSemanticLoweringState generic consume operation can take the exact receiver row and finish residual-zero; otherwise remain NoSafeSlice",
+  "I0 later: use the proven view before argument descent, obtain the existing receiver ValueId once, and only then open the common Method(Some) target/result/effect/ABI cutover",
+]
+acceptance = "D0 closes only when the locator relation row, live callable owner/session, receiver BindingRef, and existing generic ledger consume path have a finite bidirectional crosswalk with all negative states named before effects; no ValueId, target, backend capability, or semantic receipt is issued here."
+no_safe_slice = "Remain in design_stop if the locator view cannot expose the relation row, if the locator-to-ledger crosswalk is not production-safe, if owner/session/binding identity is not exact, if the generic ledger cannot be borrowed without a second authority, or if any bridge needs variable_map, param0, args[0], ValueId zero, AST/name/backend inference, a new family loan, fallback, or retry."
+non_claims = "No receiver ValueId production, no Method(Some), no argument descent, no MIR/Call schema, no selected-C/Hako/C change, no old-edge deletion, no new semantic receipt, no fallback/retry, and no whole-lib green claim."
+reopen_trigger = "Open the common Method(Some) implementation only after this callback-scoped crosswalk is production-proven, the generic ledger take and residual finish are exact, and the selected old Global/manual receiver-prefix edge is deletable in the same series."
+worker_audit_result = "The three D0 audits agree that the only physical storage/consume owner is CallableSemanticLoweringState and that the current production locator-to-ledger crosswalk is zero. The next task is a BoxShape API design over existing products, not a new semantic issuer."
+evidence = [
+  "src/mir/normal_callable_semantic_package/declared_instance_locator.rs:63-89 — current non-Clone view only exposes no-root/count",
+  "src/mir/normal_callable_semantic_package/install.rs:298-404 — callback-scoped locator access exists but no relation-row production consumer",
+  "src/mir/builder/normal_callable_semantic_lowering_state.rs:24-48,283-307,338-360,477-509 — sole BindingRef/value map, take, and residual finish",
+  "src/mir/builder/normal_callable_binding_materialization_port.rs:67-85 and normal_callable_semantic_loan_port.rs:269-306 — entry install/session lifetime",
+]
+next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
+next_execution = "none__design_stop"
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_declared_instance_locator_value_crosswalk_d0_guard.py",
 ]
 forbidden_files = [
   "src/mir/**",

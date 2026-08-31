@@ -55,19 +55,19 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current design stop:
-`MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0` follows the landed
-relation/effect/locator/install chain and the completed backend option audit.
+`MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0` follows the landed
+receiver-owner audit, relation/effect/locator/install chain, and backend option audit.
 Option B is the final architecture: retain ordinary `me.method`, publish one
 canonical `Method(Some(receiver))` MIR, lower it through typed Hako LLVM text,
 switch one named caller, then delete the selected-C compatibility edge. Option A
 is only a temporary typed `UnsupportedBeforeObject` gate, never the finish line.
-The current D0 audit identifies one physical storage candidate,
-`CallableSemanticLoweringState`, but the production locator-to-ledger crosswalk
-is zero: the locator view exposes only no-root/count and the live lowering does
-not receive the relation row. `variable_map`, param0, `args[0]`, numeric zero,
-AST reread, names, registry, JSON/C/Hako/backend metadata, fallback, and retry
-are non-authorities. The next design slice is a callback-scoped locator relation
-borrow plus the existing generic consume ledger; no new receipt or family loan.
+The prior D0 found one physical storage candidate, `CallableSemanticLoweringState`,
+but the production locator-to-ledger crosswalk is zero: the locator view exposes
+only no-root/count and live lowering receives no relation row. This row designs a
+callback-scoped relation borrow plus the existing generic consume ledger; no new
+receipt or family loan. `variable_map`, param0, `args[0]`, numeric zero, AST
+reread, names, registry, JSON/C/Hako/backend metadata, fallback, and retry are
+non-authorities.
 No `Method(Some)`, MIR, backend wire, or production switch is open. Hako
 LLVM-text root DeclaredInstance coverage, lossless transport, exact ABI parity,
 and named caller switches remain zero, so the later replacement I0 stays
@@ -78,7 +78,7 @@ prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WI
 landed at `1115d70687` with exact full-lib red-baseline comparison and one quick-step
 wiring; three fixed-stack observations agree at 7385/139/29 over 7553 tests. Preserve
 Core C ABI, compare evidence, and no fallback/retry; the pointer is at the exact
-receiver-value owner design stop and whole quick is not claimed green.
+locator-value crosswalk design stop and whole quick is not claimed green.
 The temporary FastMem verification prerequisite landed at `39d5188d9d`: the
 test-only order-independent membership assertion passes in ten exact runs and
 the 20-test module; whole-lib red remains separate and unaccepted.
