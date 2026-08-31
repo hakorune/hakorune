@@ -67,14 +67,14 @@ backend work remain closed; whole-lib health is a separate prerequisite. The
 selected-C launch plus planned-definition snapshot stack blocker is landed at
 `46b2ee72e3` with a fresh-FFI repeated 8 MiB guard.
 
-The selected-C lane is `ParkedSealed/BackendCapabilityMissing`. The independent
-bounded row `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at
-`25ab8fb58a`: it owns only the existing MIR CSE pass, uses one expression map
-per basic block, and counts only an emitted `Copy`; same-block positive and
-sibling/unsupported negative evidence are recorded. This correctness row is
-outside Call convergence and makes no selected-C claim. The current pointer
-returns to the selected-C design stop until a source-backed physical admission
-issuer exists.
+The selected-C semantic admission is `ParkedSealed/RetireAfterReplacement`;
+its current MIR(JSON)->LLVM C lowerer is a compatibility/compare owner, not
+MirBuilder meaning authority. The independent bounded row
+`MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
+existing MIR CSE and makes no selected-C claim. The current pointer is now
+`BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0`: map exact Hako LLVM-text
+coverage and a named caller before any C-edge retirement; preserve Core C ABI,
+compare evidence, and no fallback/retry.
 
 The temporary verification prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`
 landed at `39d5188d9d`: one test-only positional assertion now checks exact

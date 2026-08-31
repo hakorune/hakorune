@@ -3827,8 +3827,8 @@ verification_prerequisites = [
 worker_audit_head = "60d27c5869d924454430702cdc6a56a966845d78"
 worker_audit_result = "Fresh read-only audits agree that PhysicalCallableLaneV1 and its source-backed signature cohort are the only reusable physical-lane vocabulary. The selected Boundary pure-first C route is a real consumer, but it is not yet an admission capability for this family: it reconstructs a target view from plan metadata, conflates missing receiver with numeric zero, strips duplicate args[0], and supports only a narrow one-lane result cell. No existing same-session selected-C capability co-seals receiver presence, full lane, result, and effect. The exact existing selected-C blocker is recorded separately by NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0; it is not waived here."
 full_lane_decision = "PhysicalCallableLaneV1 / PhysicalCallableSignatureRowRefV1 is a named downstream product candidate. Package co-seal may borrow it only after exact declaration identity and result/effect coverage are checked; it may not reconstruct or widen the lane."
-selected_c_decision = "Selected Boundary pure-first C remains the intended physical consumer, but its receiver-presence contract, full logical-to-physical lane coverage, and source-backed result/effect admission are absent. The separate 8MiB snapshot stack blocker is closed at 46b2ee72e3; selected-C semantic admission remains a CutoverBlockerOpen."
-d0_status = "CutoverBlockerOpen__NoSafeSlice__selected_C_admission_missing"
+selected_c_decision = "Product decision: RetireAfterReplacement. The Boundary pure-first C MIR(JSON)->LLVM lowerer is a compatibility/compare owner, not a MirBuilder semantic issuer. Preserve the Core C ABI and performance comparison; retire this lowerer only after the Hako LLVM-text emitter covers the named family and its live caller is switched. The separate 8MiB snapshot blocker is closed at 46b2ee72e3."
+d0_status = "ParkedSealed__RetireAfterReplacement__selected_C_admission_missing"
 existing_capability_inventory = "Exhausted: one formal lane cohort and one physical C consumer exist, but zero source-backed selected-C admission capabilities exist for root DeclaredInstance. The C consumer cannot be promoted by reading MIR JSON metadata or repairing args[0]."
 common_disposition_shape = "A future common non-Clone package disposition may keep only private locators (caller/target batch slot plus exact relation/effect row ordinals); take must borrow the already-issued relation, effect, result/Completion, and physical signature together, and completion must reject residual rows. This shape is design-only until selected-C admission exists."
 transport_blockers = [
@@ -3838,7 +3838,7 @@ transport_blockers = [
 ]
 selected_c_lane = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0 (separate backend health lane; status=CutoverBlockerClosed at 46b2ee72e3)"
 selected_c_admission_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-selected_c_admission_status = "NoSafeSlice__existing_source_backed_capability_count_zero"
+selected_c_admission_status = "ParkedSealed__RetireAfterReplacement__existing_source_backed_capability_count_zero"
 selected_c_admission_scope = "Define one versioned downstream admission that borrows the backend-neutral locator plus already-issued relation/result/Completion/effect/full-lane views, distinguishes receiver absence from ValueId 0, validates all lane/result/effect coverage before C need-scan, and emits an opaque admission token without re-issuing meaning. No production implementation is permitted until this contract has an existing owner and focused rejection matrix."
 selected_c_admission_non_authority = [
   "MIR JSON target_symbol/target_arity/receiver_value",
@@ -3846,9 +3846,63 @@ selected_c_admission_non_authority = [
   "args[0] receiver repair or numeric-zero presence",
   "C registry/header/symbol lookup, VM/llvmlite/A-prime/pinned-Text routes",
 ]
-selected_c_reopen_trigger = "A production non-Clone same-session API exists that accepts the backend-neutral locator, validates relation/result/Completion/effect/full lane including ExactText pairs and receiver presence independent of ValueId 0, then returns an opaque selected-C admission token consumed exactly once before C emission; missing/foreign/duplicate/coverage/residual reject pre-effect."
-reopen_trigger = "Open implementation only when the same-session source relation, result/Completion, semantic effect, full lane, and selected-C capability are all exact, verification prerequisites are recorded, and one atomic common disposition can delete the selected legacy edges with fallback/retry zero."
-next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0__pending_current_pointer_switch"
+selected_c_reopen_trigger = "Reopen selected-C admission only if an explicit product decision changes the fate back to RetainTransition and a production non-Clone same-session API validates the full crosswalk before C emission; otherwise keep this lane parked while backend replacement proceeds."
+reopen_trigger = "Open the backend replacement row only when one Hako LLVM-text emitter family has exact coverage, a named production caller can switch without MIR/JSON inference, and the corresponding C lowerer caller can be retired with fallback/retry zero."
+next_execution = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0__active_design_stop"
+
+[backend_owner_declared_instance_method_cutover_d0_2026_09_01]
+status = "accepted_design_stop"
+task_id = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+ceremony_tier = "T1"
+box_kind = "Backend owner cutover design; RetireAfterReplacement"
+implementation_permission = false
+decision = "RetireAfterReplacement: treat the selected Boundary pure-first C MIR(JSON)->LLVM lowerer as a compatibility owner to retire after replacement, not as a missing MirBuilder semantic issuer. The Hako LLVM-text emitter is the future terminal owner. Keep the Core C ABI and matched performance/compare lane; switch and retire one exact backend family at a time."
+source_authority = "The backend-owner and LLVM-line SSOTs, BackendRecipeBox route profiles, published MirModule, existing Hako LLVM-text emitter coverage, and the current C lowerer caller ledger. MIR remains the semantic SSOT; this row does not issue source meaning."
+canonical_issuer = "Existing Hako LLVM-text emitter/BackendRecipeBox owner for an exact covered family after D0 proves its route and ABI contract; no new MIR semantic receipt or C-side issuer is allowed."
+non_authority = [
+  "MIR JSON target_symbol/target_arity/receiver_value, args[0] repair, numeric ValueId(0), C registry/header/symbol lookup, FunctionSignature/body inference, source names, fixtures, benchmark names, VM/llvmlite/native keep lanes, fallback, and retry",
+  "C consumer success alone, Hako emitter syntax alone, or a single performance run as proof of replacement readiness",
+]
+fail_fast_boundary = "A family remains compatibility-owned or is typed-rejected before object emission when Hako emitter coverage, route/ABI parity, or caller ownership is incomplete. No C lowerer failure may use fallback/retry through another backend, and no backend may repair MIR meaning."
+census_boundary = "Published MirModule -> backend route profile -> current selected-C MIR(JSON)->LLVM consumer and Hako LLVM-text candidate -> object/exe/compare archive; includes root DeclaredInstance Method(Some) backend coverage and named live callers, excludes MIR source semantics, Call schema, Core C ABI definition, other backends, and language syntax."
+finite_inventory = [
+  "current compatibility owner: ny-llvmc boundary pure-first plus lang/c-abi/shims/hako_llvmc_ffi_pure_compile* and mir_call_* consumers",
+  "future terminal owner: lang/src/shared/backend/ll_emit/ll_text_emit_box.hako, call_policy_box.hako, call_selector_box.hako, and BackendRecipeBox route profiles",
+  "thin tool/API seam: env.codegen.compile_ll_text/link_object and libhako_llvmc_ffi; transport only",
+  "evidence/keep lanes: explicit C compare/archive smoke and Core C ABI; neither is semantic authority",
+]
+finite_states = [
+  "CoverageMissing: Hako emitter cannot express the exact family; retain C compatibility owner and record the blocker",
+  "CoverageExact: Hako emitter produces the exact accepted route/ABI shape and matched evidence is available",
+  "CallerSwitched: one named production caller uses Hako emitter and its corresponding C daily edge is removed",
+  "RetireReady: no live caller reaches the selected C lowerer; compare/archive residue is explicit",
+  "Unsupported: neither owner accepts the shape; typed reject before object emission, with no fallback",
+]
+ordered_tasks = [
+  "D0-A: inventory exact selected-C callers and Hako emitter support for DeclaredInstance Method(Some) without reading meaning from MIR JSON or C metadata",
+  "D0-B: define one family acceptance contract through BackendRecipeBox and the existing Core C ABI, separating correctness from performance evidence",
+  "D0-C: choose one exact covered family for a future I0 or record ParkedSealed if no Hako route exists; do not add a MirBuilder issuer",
+  "I0 later: switch one named caller, verify object/ABI and C-speed evidence, then delete that selected-C daily edge in the same bounded series",
+]
+acceptance = "D0 closes only when the finite current-C/Hako/transport/compare inventory, exact family coverage matrix, named caller switch, pre-object rejection, and RetireAfterReplacement trigger are recorded. This row issues no Callee, ValueId, effect, MIR, JSON, or C capability and does not implement the switch."
+no_safe_slice = "Remain in design_stop if Hako emitter coverage is absent, the route requires target/receiver/effect inference from JSON/MIR/C metadata, no named caller can switch, a new public ABI is needed, or correctness and performance cannot be separated."
+non_claims = "No selected-C admission token, no receiver materialization, no Method(Some) production change, no Call schema, No MIR semantic change, no C ABI rewrite, no VM/llvmlite/native expansion, no fallback/retry, and no physical delete before caller-zero."
+reopen_trigger = "Open I0 only after one exact Hako emitter family has source-independent backend coverage, matched object/ABI evidence, a named live caller, and a same-row selected-C old-edge deletion plan with fallback/retry zero."
+next_execution = "none__design_stop"
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_backend_owner_declared_instance_method_d0_guard.py",
+]
+forbidden_files = [
+  "src/mir/normal_callable_semantic_package/**",
+  "src/mir/builder/**",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+]
 
 [mir_call_me_declared_instance_package_private_locator_i0_2026_08_31]
 status = "landed"

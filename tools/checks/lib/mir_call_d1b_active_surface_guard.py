@@ -146,6 +146,9 @@ SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 CSE_SAME_BLOCK_ROW = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
 CSE_SAME_BLOCK_KEY = "mir_cse_same_block_stats_determinism_r0_2026_09_01"
+BACKEND_OWNER_DECLARED_INSTANCE_METHOD_CUTOVER_D0_ROW = (
+    "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+)
 
 
 def fail(message: str) -> None:
@@ -890,6 +893,12 @@ def main() -> None:
         from mir_cse_same_block_guard import check_cse_same_block_r0
 
         check_cse_same_block_r0(state, card, root, api)
+    elif row == BACKEND_OWNER_DECLARED_INSTANCE_METHOD_CUTOVER_D0_ROW:
+        from mir_backend_owner_declared_instance_method_d0_guard import (
+            check_backend_owner_declared_instance_method_d0,
+        )
+
+        check_backend_owner_declared_instance_method_d0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
