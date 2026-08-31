@@ -3090,6 +3090,23 @@ declared_instance_d0_tasks = [
   "D0-B3: freeze the finite typed rejection matrix (missing/foreign/ambiguous/duplicate receiver, brand, declaration, arity, ABI, result, effect) at the pre-argument boundary; no name/arity consumer lookup, second resolver, fallback, or retry",
   "D0-B4: if no existing relation owner and complete physical/result/effect references can be named after B1-B3, record ParkedSealed with an observable reopen trigger instead of opening an implementation row",
 ]
+source_adoption_d0 = "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-SOURCE-ADOPTION-D0 is a design-only child. The live owner is the final parser/resolver source issuance that already produces VerifiedFinalCallableProgramSourceV1 and the same FunctionSemanticResolverSession batch; the standalone test-oriented ParserBoxResolverSourceHandoffV1/InstanceMethodFunctionCarrierIssuerV1 path may not be re-run as a second resolver. The child decides the non-reconstructing crosswalk from the live CallableMethodSourceObservationV1 to the same-session nominal InstanceBoxMethod declaration."
+source_adoption_relation_shape = [
+  "root lexical DeclaredInstance caller FunctionOwnerIdV1 + exact SourceExprSiteV1/receiver site + parser provenance",
+  "same-session ResolverCatalogBrandV1 + exact nominal Box identity + opaque declaration/member identity",
+  "selector/name is checked only inside that nominal subset; declaration arity validates after selection",
+  "no AST, batch/Builder key, ValueId, Callee, symbol, header, registry, result/effect/ABI, cloned arguments, fallback, or retry",
+]
+source_adoption_partition = [
+  "RootDeclaredInstance: the only candidate for this child; receiver binding must be the root Receiver binding, not the spelling me alone",
+  "StaticCurrentOwner: named sibling already landed; never falls back into this relation",
+  "NestedOrUpvarReceiver: ParkedSealed until capture and receiver ABI are explicit",
+  "DelegateOrGeneratedOnly: separate DEL-003 relation; no implicit forwarding or overload search",
+  "ForeignOrDuplicate: typed pre-effect rejection before receiver materialization or argument effects",
+]
+source_adoption_fail_fast = "The source-adoption child rejects missing/foreign parser provenance or resolver brand, non-root receiver binding, missing/ambiguous nominal declaration, duplicate visible method name, selector mismatch, arity mismatch, and duplicate source site before any target, receiver ValueId, result/effect/ABI, package loan, MIR, backend, or argument effect is issued."
+source_adoption_acceptance = "D0 closes only when the live final parser/resolver owner and the non-reconstructing crosswalk are named, the relation shape and root-only partition are fixed, and the seven counterexample groups (root positive, cross-Box same-name, mixed static/instance, foreign provenance/brand, wrong arity, nested/upvar exclusion, duplicate/delegate collision) have observable typed outcomes. This child issues no target and does not open production implementation."
+source_adoption_no_safe_slice = "Keep implementation_permission=false if the live final source cannot retain the parser identity and nominal declaration relation in one issuance, if connecting them requires a fresh resolver traversal, or if any package/name/ordinal/header/registry/backend lookup would decide identity. Do not solve the gap with a new family loan or default/empty relation."
 declared_instance_d0_acceptance = "The source product preserves the exact receiver policy and binding; one same-session owner can prove caller/site/declaration/brand/slot/ABI/result/effect relation in both directions; all other states reject before receiver materialization or argument effects. This D0 does not issue Method(Some(receiver)), a loan, a Call, or backend code."
 box_shape_preparation = [
   "D0-B0: split only existing orchestration/validation responsibilities before semantic edits; preserve module paths, visibility, behavior, and public re-exports",
