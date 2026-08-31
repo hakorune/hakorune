@@ -55,12 +55,16 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-the exact receiver crosswalk landed at `dc68fa2910`. The selected root
-DeclaredInstance path now consumes one installed locator row, reads the
-existing BindingRef-owned ValueId before arguments, and rejects armed mismatch
-or residual inventory without falling back to ambient `me`; its current
-Global/manual receiver-prefix output is intentionally unchanged. The pointer
-has returned to `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`.
+`DEV-GATE-LIB-BASELINE-REFRESH-R0` is the sole bounded prerequisite. Three
+independent fixed-stack observations must agree at 7562/7394/139/29; only the
+inventory/pass receipt may change, while the 139 failure names and hash remain
+byte-stable. The refreshed comparator must pass and `dev_gate quick` must reach
+and classify every later step before product work resumes. The receiver
+crosswalk itself landed at `dc68fa2910`: the selected root DeclaredInstance
+path consumes one locator row and reads the BindingRef-owned ValueId before
+arguments without ambient `me`; Global/manual receiver-prefix output remains.
+After verification closes, return to
+`MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`.
 Option B remains final: name one exact Hako LLVM-text physical owner/ABI and
 one production caller, then open one source-to-AOT `Method(Some(receiver))`
 vertical and delete that family's old Global/manual-prefix and selected-C
@@ -71,11 +75,9 @@ named caller are still zero; whole-lib known-red health is separate. The
 independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
-prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0`
-landed at `1115d70687` with exact full-lib red-baseline comparison and one quick-step
-wiring; three fixed-stack observations agree at 7385/139/29 over 7553 tests. Preserve
-Core C ABI, compare evidence, and no fallback/retry; the pointer is at the exact
-locator-value crosswalk design stop and whole quick is not claimed green.
+prerequisite landed at `e3cfa78488`; the original baseline runner landed at
+`1115d70687`. Its 7553-test receipt is now stale only because nine landed tests
+raised the observed inventory/pass counts; whole quick is not yet claimed green.
 The temporary FastMem verification prerequisite landed at `39d5188d9d`: the
 test-only order-independent membership assertion passes in ten exact runs and
 the 20-test module; whole-lib red remains separate and unaccepted.

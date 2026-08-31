@@ -2364,6 +2364,41 @@ red_classification = "The existing whole-lib red set is accepted only as an expl
 guard = "The stable active-surface guard dispatches a dedicated P0-C contract checker; the runner itself is the executable comparison owner and the quick step is wired once."
 next_execution = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0__design_stop"
 
+[verification_health_quick_lib_baseline_refresh_r0_2026_09_01]
+status = "fast_open"
+task_id = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+reuses = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
+ceremony_tier = "T1"
+box_kind = "verification-only exact receipt refresh; no compiler or test semantics"
+implementation_permission = true
+decision = "Run the existing fixed default-feature quick --lib command and --list three separate times. Only if all observations are exactly 7562 total, 7394 passed, 139 failed, and 29 ignored with the committed 139 failure names byte-identical, replace the sorted test inventory, expected_passed, and inventory SHA. Then run the baseline owner and dev_gate quick through every later step."
+source_authority = "Three independent fixed-command cargo observations, the exact --list inventory, and the existing cargo_lib_red_baseline.py comparator."
+non_authority = [
+  "one run, counts without names, auto-rebaseline, filtered output, cargo check, historical prose, MIR/backend facts",
+]
+fail_fast_boundary = "Any observation mismatch, inventory/name/hash drift beyond the named receipt fields, abort or zero/filtered result, or later quick-step red stops the row. Do not widen the row or return to product work."
+census_boundary = "fixed default-feature cargo --list and --lib commands -> sorted complete inventory and summary -> committed known-red comparator -> every dev_gate quick step; excludes legacy-tests, vm-reference, compiler semantics, selected-C, MIR/Call/backend routes, and test retirement."
+allowed_files = [
+  "tools/checks/manifests/cargo_lib_red_baseline.toml",
+  "tools/checks/manifests/cargo_lib_red_baseline.tests.txt",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+]
+read_only_evidence_files = [
+  "tools/checks/manifests/cargo_lib_red_baseline.failures.txt",
+  "tools/checks/lib/cargo_lib_red_baseline.py",
+  "tools/checks/lib/tests/test_cargo_lib_red_baseline.py",
+  "tools/checks/lib/dev_gate_quick_steps.sh",
+]
+focused_test_filters = ["test_cargo_lib_red_baseline"]
+acceptance = "Three fixed-stack observations are identical at 7562/7394/139/29; inventory has 7562 unique listed tests; expected_passed is 7394; expected_failed/ignored/status stay 139/29/FAILED; failure file and SHA stay byte-identical; unit negatives and refreshed runner pass; dev_gate quick reaches every step with no unclassified red. Only then return to selected-C admission design_stop."
+non_claims = "No all-feature/whole-workspace green claim, known-failure repair, test add/delete, compiler/MIR/Call/backend behavior, Method(Some), selected-C decision, fallback, retry, or schema change."
+next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"
 task_id = "ROW-EXIT-CHANGED-TEST-EXEC-P0"
