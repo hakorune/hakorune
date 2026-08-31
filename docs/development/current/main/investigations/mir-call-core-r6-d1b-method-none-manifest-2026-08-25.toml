@@ -2183,21 +2183,21 @@ reopen_trigger = "Reopen the refresh only when one of the 16 statements moves ag
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop after the verification prerequisite is closed; keep semantic implementation permission false."
 
 [ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31]
-status = "selected_fast"
-disposition = "CutoverBlockerOpen"
+status = "landed"
+disposition = "CutoverBlockerClosed"
 task_id = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 box_kind = "BoxShape selected-C backend stack ownership repair"
-implementation_permission = true
+implementation_permission = false
 decision = "Treat the phase-1 runtime-helper guard's stack overflow as a real selected-C baseline regression, not as a 16 MiB stack waiver. The 8 MiB process stack is the acceptance boundary; move only the invocation-local launch and planned-definition context snapshots to heap ownership while preserving each save, activate, emit, restore, and free order."
-source_authority = "The daily quick order is owned by tools/checks/lib/dev_gate_quick_steps.sh; the behavior contract is stage1_emit_program_json_runtime_helper_guard.sh; the selected physical owners are selected_launch_emit.inc and the compile_json_compat_pure state path."
-canonical_issuer = "The existing selected-C launch snapshot construction/activation owner; no new MIR or source semantic issuer is allowed."
+source_authority = "The daily quick order is owned by tools/checks/lib/dev_gate_quick_steps.sh; the behavior contract is stage1_emit_program_json_runtime_helper_guard.sh; the selected physical owners are selected_launch_emit.inc and the planned-definition emission seam split into same_module_function_definition_emit.inc."
+canonical_issuer = "The existing selected-C launch and planned-definition snapshot construction/activation owners; no new MIR or source semantic issuer is allowed."
 non_authority = [
   "fixture shape, route trace, guard text, RUST_MIN_STACK, ulimit, Rust CLI behavior, capacity reduction, optimization flags, and alternate backend success",
   "DeclaredInstance/Method/Call schema, MIR effect/ABI, runtime helper naming, fallback, retry, or a larger process stack",
 ]
 fail_fast_boundary = "At an 8 MiB process stack, the fresh selected-C FFI must reach the existing exact consumer trace and non-empty object; allocation failure must return a typed error before context activation/save mutation, with no output, fallback, or retry."
-census_boundary = "stage1_emit_program_json_runtime_helper_guard.sh -> fresh ny-llvmc selected-C FFI -> selected_launch_emit snapshot save/activate/emit/restore/free; includes only the duplicated stack-owned snapshot and its focused guard/smoke evidence, excludes fixture semantics, MIR/Call changes, backend selection, and quick baseline policy."
+census_boundary = "stage1_emit_program_json_runtime_helper_guard.sh -> fresh ny-llvmc selected-C FFI -> selected launch and planned-definition snapshot save/activate/emit/restore/free; includes only these duplicated stack-owned snapshots and their focused guard/smoke evidence, excludes fixture semantics, MIR/Call changes, backend selection, and quick baseline policy."
 finite_inventory = [
   "guard contract: tools/checks/stage1_emit_program_json_runtime_helper_guard.sh:37-57",
   "selected-C launch owner: lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc:10",
@@ -2248,13 +2248,21 @@ changed_anchor_occurrences = 16
 unique_anchor_mappings = 11
 stale_anchor_occurrences = 0
 verification_commands = [
-  "R0-A: bash -c 'ulimit -s 8192; bash tools/checks/stage1_emit_program_json_runtime_helper_guard.sh' after fresh FFI rebuild: launch-only diagnostic passed; planned-definition snapshot remains open",
+  "R0-B: bash tools/build_hako_llvmc_ffi.sh: fresh selected-C FFI build passed",
+  "R0-B: bash -c 'ulimit -s 8192; bash tools/checks/stage1_emit_program_json_runtime_helper_guard.sh': exact selected-C consumer trace and non-empty object passed at 8 MiB",
+  "R0-B: repeated 8 MiB runtime-helper guard: passed with fresh FFI artifact; no stack abort",
   "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
   "bash tools/checks/current_state_pointer_guard.sh: pass",
   "git diff --check: pass",
 ]
 r0_a_commit = "68a030dc95"
-red_classification = "R0-A removed one stack-owned launch snapshot, but fresh audit found one remaining planned-definition saved_context frame; the row stays CutoverBlockerOpen until R0-B and a fresh 8 MiB guard pass. Whole-lib and quick-gate baseline health remain separate and unclaimed."
+r0_b_commit = "46b2ee72e3"
+base_commit = "3967435efc"
+implementation_commit = "46b2ee72e3"
+implementation_evidence = "R0-A heap-owned the selected launch snapshot, and R0-B split the planned-definition helpers into hako_llvmc_ffi_same_module_function_definition_emit.inc and heap-owned saved_context. A fresh FFI rebuild followed by two repeated 8 MiB selected-C runtime-helper guard runs reached the exact consumer trace and non-empty object. The active-surface and pointer guards passed; no fixture, ABI, route, MIR, Call, fallback, retry, or DeclaredInstance behavior changed."
+red_classification = "R0-A removed the launch snapshot from the stack. The follow-up R0-B split the planned-definition helpers and heap-owned saved_context; fresh FFI rebuild plus the 8 MiB selected-C guard now pass, so this selected-C stack blocker is closed. Whole-lib and quick-gate baseline health remain separate and unclaimed."
+closeout = "Selected-C stack health landed at 46b2ee72e3. Restore CURRENT_STATE to MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0 design_stop with next_execution_card=none; keep full lane/selected-C semantic admission, receiver ValueId, Method(Some), package/loan, MIR, backend, fallback, retry, and Call-schema publication closed."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0__design_stop"
 
 [mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
 status = "landed"

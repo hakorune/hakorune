@@ -1,17 +1,18 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 current_blocker_token = """
-NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0:
-the selected-C runtime-helper must pass at the 8 MiB process-stack boundary.
-The launch snapshot is heap-owned, but the planned-definition path still has a
-second stack-owned context snapshot. Move only these invocation-local snapshots
-to heap ownership, preserving save -> activate -> emit -> restore -> free.
-Allocation failure must reject before save/activation with no output, fallback,
-or retry. Do not change fixtures, ABI, MIR, Call, route selection, or
-DeclaredInstance semantics.
+MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0:
+the source relation, result/Completion carriage, and resolver-owned
+OpaqueObservable/Query effect sibling are landed. Name one existing
+source-backed full physical lane and the selected-C admission capability under
+the same session. PhysicalCallableLaneV1 is only a named candidate; the
+selected-C route must prove receiver presence, full lane coverage, and
+source-backed result/effect meaning. Keep receiver materialization, Method(Some),
+package/loan, MIR, backend, fallback, retry, and Call-schema publication closed
+until that exact co-seal and the verification prerequisites are accepted.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -44,9 +45,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "The selected-C stack-health row is active: launch_snapshot was heap-owned at 68a030dc95, but a planned-definition saved_context remains stack-owned and must be moved within the same BoxShape umbrella. DeclaredInstance package co-seal remains closed; relation/result/effect are landed, but selected-C admission and full lane are not. Receiver ValueId, Method(Some), package/loan, MIR, fallback, retry, and Call-schema cutover remain closed."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The selected-C 8MiB snapshot blocker is closed at 46b2ee72e3 after heap-owning both invocation-local snapshots with fresh-FFI guard evidence. Package co-seal remains the design stop: full physical lane and selected-C admission are not yet named. Receiver ValueId, Method(Some), package/loan, MIR, fallback, retry, and Call-schema cutover remain closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
-next_execution_card = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -58,7 +59,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-31: selected-C 8 MiB stack health landed at 46b2ee72e3: both invocation-local SameModuleFunctionContextSnapshot values are heap-owned, the definition seam is split under the line budget, and fresh-FFI repeated runtime-helper guard evidence passes; no route, ABI, MIR, or semantic change was made.",
   "2026-08-31: DeclaredInstance effect issuer I0 landed at 11d9dadada4cf533bdea91429afe4e67469e7a65; parser contract disposition and resolver-owned OpaqueObservable/Query facts are retained with focused evidence, while target/receiver/package/MIR publication remains closed.",
   "2026-08-31: DeclaredInstance source relation landed at 845bd72641 and selected Cataloged result/Completion retention landed at e1976b8ba1; exact relation/result products are now inputs to the package co-seal design stop.",
-  "2026-08-30: StaticCurrentOwner me.method handoff landed at 2b7b3e7489 and ordinary static compatibility retirement landed at 685aaeab49; true DeclaredInstance me.method remains retained and awaits full lane/selected-C co-seal.",
 ]
