@@ -39,6 +39,8 @@ use crate::mir::normal_callable_semantic_package::{
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
 };
 
+#[path = "normal_callable_semantic_loan_port/cataloged_instance_scope.rs"]
+mod cataloged_instance_scope;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
 mod main_root;
 
@@ -107,49 +109,6 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     input,
                     Rc::clone(&ordinary_new_claim_ledger),
                     execute,
-                )
-            })
-            .map_err(package_issue)?
-    }
-
-    fn with_cataloged_callable_source_scope<R>(
-        &mut self,
-        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-        execute: impl FnOnce(
-            &mut RawInvocationChildPortV1<'port, 'collector>,
-            super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
-            NormalCatalogedBoxMethodDraftAdmissionV1,
-            ResolvedCallablePhysicalSignatureLoanV1<'_>,
-        ) -> Result<R, String>,
-    ) -> Result<R, String> {
-        let inner = &mut *self.inner;
-        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
-        self.package
-            .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
-                validate_selected_cataloged_input(&input)?;
-                validate_selected_signature_loan(&input, &signature)?;
-                if matches!(
-                    input.selected().semantic(),
-                    crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
-                ) {
-                    return Err(
-                        "[freeze:contract][mir/callable-semantic-package/dynamic-instance-route]"
-                            .to_owned(),
-                    );
-                }
-                let (selected, admission, _physical_header) = input.into_lowering_and_admission();
-                let lineage =
-                    super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
-                        admission.source_key().clone(),
-                    );
-                with_selected_source_scope(
-                    inner,
-                    lineage,
-                    selected,
-                    Rc::clone(&ordinary_new_claim_ledger),
-                    |inner, transport| {
-                    execute(inner, transport, admission, signature)
-                    },
                 )
             })
             .map_err(package_issue)?
