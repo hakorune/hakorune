@@ -77,7 +77,8 @@ Expressions and Calls
   - FreeStaticだけは別namespaceで exact `name/arity` identityを使い、
     `f/1`と`f/2`を区別できる。この規則をBox methodへ流用しない。
   - `CallableContract(query)` が無い通常の declared-instance call は、source
-    declaration から `OpaqueObservable` effect を発行する。これは最適化barrierであり、
+    declaration に基づく accepted `OpaqueObservable` effect contract を持つ。
+    production issuer はまだ 0 で、これは最適化barrierの仕様だけを固定する。
     Dynamic invocation の result/Home/suspension 契約を流用する意味ではない。
   - 旧 Known/Unique instance→function rewrite は退役済みで、名前・header・suffix
     から別の Global target を再構築しない。

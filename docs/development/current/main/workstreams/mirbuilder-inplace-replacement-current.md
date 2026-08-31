@@ -58,10 +58,11 @@ Current design stop:
 `MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0` retains ordinary
 `me.method`; one resolver relation selects its target and the package only
 co-seals contracts. `OpaqueObservable` and one visible method name per nominal
-Box are accepted; FreeStatic `name/arity` is separate. Live issuance,
-result/Completion carriage, resolver adoption, selected C capability, and the
-common affine lifecycle remain blockers. Implementation, old-edge deletion,
-fallback/retry, and nonselected backend work remain closed.
+Box are accepted; FreeStatic `name/arity` is separate. Result/Completion
+carriage is landed at `e1976b8ba1`; resolver adoption, ordinary effect
+issuance, selected C capability, and the common affine lifecycle remain
+blockers. Implementation, old-edge deletion, fallback/retry, and nonselected
+backend work remain closed.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

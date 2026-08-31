@@ -26,6 +26,11 @@ During an accepted authority migration, prose such as `canonical target` or
 `status_conflict` continues to describe the unsynchronized physical
 registry/parser/docs. Those annotations never mean `live`.
 
+`accepted target / production 0` means that the language meaning and its
+authority are fixed, but no production issuer or consumer is active yet. It
+does not authorize implementation, backend parity, or a compatibility
+fallback.
+
 Only bracketed values such as `[freeze:contract][parser/throw_reserved]` are
 existing implementation tags. Other gate/reject values in the table are
 `index:` labels for this documentation stop and must not be passed to a parser
