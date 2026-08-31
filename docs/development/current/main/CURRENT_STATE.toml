@@ -1,15 +1,17 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0:
-BoxShape-only fast row. Extract one checked generic BindingRef -> ValueId read
-from CallableSemanticLoweringState and reuse it from the existing variable
-reader. No locator consumption, receiver loan, Method(Some), backend, Call
-schema, name/position inference, variable_map, param0, args[0], numeric zero,
-fallback, or retry. Return to the locator crosswalk design_stop after evidence.
+MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0:
+Option B is the final architecture: retain ordinary me.method, publish one
+canonical Method(Some(receiver)) MIR, lower it through typed Hako LLVM text,
+switch one named caller, then delete the selected-C compatibility edge. The
+sole physical storage candidate is CallableSemanticLoweringState. Its landed
+S0 accessor is behavior-neutral; the locator relation-row bridge remains design
+only. Do not infer from variable_map, param0, args[0], ValueId zero, AST, names,
+registry, or backend metadata; no fallback/retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,26 +44,24 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-P0-A .inc no-growth and P0-B1 FastMem determinism prerequisites are landed.
-P0-C landed at 1115d70687: a fixed-stack runner compares the complete 7553-test
-inventory, 7385/139/29 summary, and 139-name failure set after three identical
-observations, and is wired once before later quick compatibility steps. Known
-red remains explicit debt; the whole quick gate is not claimed green.
+P0-A/.inc and P0-B1/FastMem prerequisites are landed. P0-C landed at
+1115d70687: a fixed-stack runner compares the 7553-test inventory, 7385/139/29
+summary, and 139-name failure set after three identical observations; known red
+remains explicit debt and whole quick is not claimed green.
 Language decisions are fixed: ordinary me.method is retained, static/instance/
 delegate namespaces are explicit, panic is terminal Fault, and Result/?/cleanup
-are non-throwing surfaces. DeclaredInstance relation/effect/locator products
-and the install bridge are landed. The final choice is Option B: retain ordinary
-me.method, publish canonical Method(Some(receiver)) MIR, then replace the
-selected-C compatibility lowerer with typed Hako LLVM-text one family at a time.
+are non-throwing surfaces. DeclaredInstance relation/effect/locator products and
+the install bridge are landed. Final choice: Option B retains me.method,
+publishes canonical Method(Some(receiver)) MIR, then replaces selected-C with
+typed Hako LLVM-text one family at a time.
 Option A is only a temporary UnsupportedBeforeObject gate. Receiver ValueId,
 Method(Some), Hako coverage, MIR, fallback/retry, and Call-schema cutover remain
 closed. The receiver owner audit found one storage candidate but no production
 crosswalk; the current design stop specifies that callback-scoped BoxShape.
-The active fast S0 only extracts a behavior-neutral exact BindingRef -> ValueId
-accessor from that owner; it does not open the locator crosswalk or Method(Some).
+The exact-binding accessor S0 landed at e15947332c as a behavior-neutral BindingRef -> ValueId read reused by the existing variable reader; locator crosswalk and Method(Some) remain closed.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
-next_execution_card = "MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
