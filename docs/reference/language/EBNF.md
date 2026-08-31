@@ -890,8 +890,10 @@ stored         := IDENT ( '=' expr )?
 
 delegate_decl  := 'delegate' IDENT 'exposes' '{' delegate_expose+ '}'
 delegate_expose:= IDENT ( 'as' IDENT )? ','?
-                  ; DEL-002 Stage0 capsule. Carries explicit method exposure
-                  ; metadata only. No forwarding/collision/interface semantics.
+                  ; DEL-002 Stage0 parser capsule. The parser carries the
+                  ; explicit exposure metadata; accepted forwarding and
+                  ; collision semantics are owned by the delegation/call
+                  ; contracts, while production forwarding remains gated.
 
 method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* block handler_tail?
                   ; return annotation is optional. `: void` is an explicit

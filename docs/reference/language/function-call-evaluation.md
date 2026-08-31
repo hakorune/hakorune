@@ -92,6 +92,24 @@ DeclaredInstance
   -> N explicit source arguments
 ```
 
+The same source spelling is classified by its enclosing receiver context; it
+is never reinterpreted after argument evaluation:
+
+| Source form | Semantic family | Canonical target | Receiver rule |
+| --- | --- | --- | --- |
+| `me.method(args)` in a `static box` with an exact static declaration | `StaticCurrentOwner` | `Global(StaticBoxMethod)` | no fabricated receiver; `args` are the explicit arguments |
+| `me.method(args)` in an instance method, or `obj.method(args)` | `DeclaredInstance` | `Method(Some(receiver))` | the exact lexical/object receiver is carried once |
+| `host.exposed(args)` for a declared delegate exposure | `DelegateForward` | exact host-field/delegate relation | the exposure's declared field relation supplies the forwarded receiver; no name fallback |
+| `obj.field.method(args)` | explicit delegate-object call | the nominal target of `field` | the field path is part of the owner relation |
+| `f(args)` | `FreeStatic` | exact `name/arity` identity | no Box receiver |
+
+If the enclosing context has no exact declaration in the applicable family, the
+call rejects before receiver materialization and before argument effects. A
+static `me.method` is never retried as an instance call, an exposed delegate is
+never retried as a direct host method, and an explicit delegate field path is
+never collapsed into a host-name lookup. These are language distinctions, not
+overload or fallback syntax.
+
 The method name selects within that one nominal Box namespace; arity validates
 the selected declaration and never searches a second same-name declaration.
 Static/instance declarations and delegate exposures therefore collide on the
