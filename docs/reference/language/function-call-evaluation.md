@@ -1,8 +1,8 @@
 # Function Call Evaluation
 
-Status: accepted language target; StaticCurrentOwner handoff is landed, while
-the true DeclaredInstance resolver relation and production migration remain
-pending.
+Status: accepted language target; StaticCurrentOwner handoff and the resolver-owned
+DeclaredInstance source relation are landed, while production Method(Some)
+migration remains pending.
 
 ## Decision
 
@@ -116,10 +116,11 @@ Static/instance declarations and delegate exposures therefore collide on the
 same visible name even when arity or receiver policy differs. A distinct
 explicit delegate alias is valid, and the same spelling on another nominal Box
 is valid because the owner relation differs. FreeStatic `name/arity` overloads
-remain a separate namespace. The current StaticCurrentOwner handoff is a
-landed implementation slice; true DeclaredInstance remains a design stop
-until the resolver-owned source-site/declaration relation, effect/result
-contracts, full receiver lane, and selected physical capability are co-sealed.
+remain a separate namespace. The StaticCurrentOwner handoff and resolver-owned
+source-site/declaration relation are landed implementation slices; true
+DeclaredInstance production Method(Some) remains a design stop until
+effect/result contracts, the full receiver lane, and selected physical
+capability are co-sealed.
 
 For a value call, the callee expression is evaluated once before the arguments.
 Its resulting callable value is the callee authority. A Builder `ValueId` is a

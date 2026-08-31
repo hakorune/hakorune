@@ -3142,11 +3142,11 @@ latest_worker_audit_brief = "Decision: keep true DeclaredInstance in design_stop
 next_execution = "superseded__see_MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
 
 [mir_call_me_declared_instance_resolver_relation_i0_2026_08_31]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
 observed_commit = "da00098e2a"
-implementation_permission = true
+implementation_permission = false
 box_kind = "resolver-owned AST-free source-site/declaration relation"
 decision = "Within the existing final callable-semantic batch with_callable_semantic_syntax HRTB, after the single existing forest/body-shape resolver returns, issue one non-Clone DeclaredInstanceCallSourceDispositionV1 and retain it on VerifiedResolvedCallableSemanticBatchV1. This is a source relation only; it does not issue a target or open production call lowering."
 source_authority = "The live final parser/resolver source, its opaque CallableDeclarationIdentityV1/provenance/final syntax rows, and the already-issued same-session resolved forest/body-shape products."
@@ -3170,7 +3170,7 @@ allowed_files = [
   "src/mir/resolved_semantics/README.md",
   "src/mir/callable_semantic_batch/README.md",
   "tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py",
-  "tools/checks/lib/mir_call_d1b_active_surface_guard.py (lazy dispatch only)",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py (I0 dispatch and post-closeout design-stop check)",
   "docs/reference/language/function-call-evaluation.md (status line only at closeout)",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
@@ -3211,7 +3211,22 @@ secondary_test_filter = "cargo test --profile quick --lib callable_semantic_batc
 guard_command = "python3 tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py ."
 line_budget = "relation source <=420 lines (split only if it approaches 760); focused tests <=360; issuer 337-><=490; model 462-><=490; declaration accessor 417-><=440; mod <=370; 800 hard stop"
 old_edge_metric = "3 -> 3; this I0 issues no Method(Some), emits no Call, and deletes no legacy edge"
-closeout = "Record focused evidence and relation inventory, then set status=landed, implementation_permission=false, restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0, and clear next_execution_card."
+implementation_commit = "845bd72641"
+implementation_evidence = "The existing final callable-semantic batch now invokes one resolver-owned relation issuer after the single forest/body-shape resolution. The non-Clone disposition retains either NoRootDeclaredInstanceCall or one complete AST-free catalog keyed by exact parser identity/provenance, owner-branded source sites, root receiver binding, nominal Box declaration, and validated arity. Same-name methods on different Boxes remain distinct; static current-owner calls stay outside this relation; wrong arity rejects before lowering. No target, ValueId, effect, result, ABI, package loan, Builder, MIR, backend, fallback, retry, or legacy edge was changed."
+observed_line_counts = "declared_instance_call_relation.rs 392; declared_instance_call_relation_tests.rs 95; callable_semantic_batch/issuer.rs 438; model.rs 470; callable_semantic_batch/tests.rs 302; all touched Rust sources below 760 and 800 hard stop"
+validation = [
+  "cargo test --profile quick --lib declared_instance_call_relation -- --test-threads=1: 4 passed; 0 failed",
+  "cargo test --profile quick --lib callable_semantic_batch -- --test-threads=1: 24 passed; 0 failed",
+  "cargo check --profile quick --lib: pass; existing warnings only",
+  "rustfmt --edition 2021 --check on all touched Rust sources: pass",
+  "python3 tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py .: pass",
+  "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+  "cargo test --profile quick --lib -- --test-threads=1: current 7372 passed, 140 failed, 29 ignored; parent 9ebf6f82c6 7367 passed, 141 failed, 29 ignored; four relation tests are included and no newly failing test name appears in the current-vs-parent comparison",
+]
+red_classification = "The full lib run is not green and is not presented as green: current 845bd72641 records 7372 passed, 140 failed, 29 ignored, while parent 9ebf6f82c6 records 7367 passed, 141 failed, 29 ignored with no newly failing test name in the comparison; the four added relation tests pass. The remaining 140 failures are pre-existing baseline debt outside this source-only row and must be handled by a separate dev-gate/baseline task before broad Call-schema work. A whole-workspace cargo fmt --all -- --check also reports pre-existing formatting drift in src/runner/core_executor.rs outside this row; touched Rust sources pass individual rustfmt checks."
+closeout = "I0 landed at 845bd72641. Restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 and clear next_execution_card; keep target/effect/result/ABI/selected-C/package/Builder/MIR production cutover closed."
 non_claims = "No Method(Some) emission, receiver ValueId, package co-seal, effect/result/ABI/selected-C/common affine consumer, Builder/MIR/backend/VM/JSON/Call schema change, delegate/nested/upvar activation, language change, fallback, retry, or old-edge deletion."
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]

@@ -100,6 +100,12 @@ ME_METHOD_CANONICAL_I0_KEY = "same_module_static_current_owner_handoff_i0_2026_0
 DECLARED_INSTANCE_RELATION_I0_ROW = (
     "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0"
 )
+DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+)
+DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY = (
+    "mir_call_me_declared_instance_relation_issuer_d0_2026_08_31"
+)
 
 
 def fail(message: str) -> None:
@@ -304,6 +310,31 @@ def check_tombstones(proof: dict) -> None:
             fail(f"historical tombstone {phase} lacks a git commit id")
 
 
+def check_declared_instance_relation_issuer_d0(state: dict, card: dict) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("DeclaredInstance relation issuer must remain design_stop")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
+        fail("DeclaredInstance relation issuer row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
+        fail("DeclaredInstance relation issuer design stop drifted")
+    if state.get("next_design_card") != DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
+        fail("DeclaredInstance relation issuer next design card drifted")
+    if state.get("next_execution_card") != "none":
+        fail("DeclaredInstance relation issuer design stop must keep next_execution_card=none")
+    row = card.get(DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
+        fail("DeclaredInstance relation issuer task id drifted")
+    if row.get("status") != "accepted_design_stop":
+        fail("DeclaredInstance relation issuer must remain an accepted design stop")
+    if row.get("implementation_permission") is not False:
+        fail("DeclaredInstance relation issuer cannot permit production implementation")
+    child = card.get("mir_call_me_declared_instance_resolver_relation_i0_2026_08_31")
+    if not isinstance(child, dict) or child.get("status") != "landed":
+        fail("DeclaredInstance relation issuer requires the source relation child to be landed")
+
+
 # Row-specific handlers live in mir_call_d1b_active_surface_rows.py.
 # This parent keeps the shared contract, registry, tombstones, and dispatch.
 
@@ -408,6 +439,8 @@ def main() -> None:
 
         relation_row = check_declared_instance_relation_pointer(state, card, root)
         check_declared_instance_relation_structure(root, relation_row)
+    elif row == DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
+        check_declared_instance_relation_issuer_d0(state, card)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
