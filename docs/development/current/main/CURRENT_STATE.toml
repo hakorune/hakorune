@@ -52,8 +52,10 @@ delegate namespaces are explicit, panic is terminal Fault, and Result/?/cleanup
 are non-throwing surfaces. DeclaredInstance relation/effect/locator products
 and the install bridge are landed, while receiver ValueId, Method(Some),
 selected-C admission, MIR, fallback, retry, and Call-schema cutover remain
-closed. Selected-C is ParkedSealed/BackendCapabilityMissing; the current
-backend-owner DeclaredInstance row is the design stop.
+closed. Selected-C is ParkedSealed/BackendCapabilityMissing: current HEAD has
+no source-independent Hako LLVM-text root DeclaredInstance Method(Some) family;
+the selected-C JSON/registry route is compatibility-only and I0 is NoSafeSlice.
+The current backend-owner DeclaredInstance row is the design stop.
 """
 next_design_card = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 next_execution_card = "none"

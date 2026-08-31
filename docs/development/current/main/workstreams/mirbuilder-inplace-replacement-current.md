@@ -60,13 +60,13 @@ locator install bridge. The existing backend-neutral locator co-seal
 (`6f40203999`) now survives semantic-package install and is lent only through
 a non-Clone callback-scoped Builder view. The bridge added no target, receiver
 ValueId, selected-C token, Method(Some), MIR, backend wire, fallback, or retry.
-Selected-C remains a separate `NoSafeSlice` design stop because no
-source-backed physical admission issuer exists. Receiver materialization,
+Selected-C remains `NoSafeSlice`: Hako LLVM-text root DeclaredInstance
+`Method(Some(receiver))` family count is 0 and the C route is JSON/registry
+compatibility-only; receiver materialization,
 package/loan consumption, MIR, backend, fallback/retry, and nonselected
 backend work remain closed; whole-lib health is a separate prerequisite. The
 selected-C launch plus planned-definition snapshot stack blocker is landed at
 `46b2ee72e3` with a fresh-FFI repeated 8 MiB guard.
-
 The selected-C semantic admission is `ParkedSealed/RetireAfterReplacement`;
 its current MIR(JSON)->LLVM C lowerer is a compatibility/compare owner, not
 MirBuilder meaning authority. The independent bounded row

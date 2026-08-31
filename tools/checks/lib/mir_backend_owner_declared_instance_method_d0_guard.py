@@ -69,6 +69,7 @@ def check_backend_owner_declared_instance_method_d0(
             api.fail(f"backend owner D0 fail-fast contract lacks {token}")
 
     inventory = _nonempty_list(row, "finite_inventory")
+    coverage = _nonempty_list(row, "coverage_matrix")
     states = _nonempty_list(row, "finite_states")
     tasks = _nonempty_list(row, "ordered_tasks")
     for token in ("current compatibility owner", "future terminal owner", "transport only"):
@@ -77,6 +78,13 @@ def check_backend_owner_declared_instance_method_d0(
     for token in ("CoverageMissing", "CoverageExact", "CallerSwitched", "RetireReady", "Unsupported"):
         if not any(item.startswith(token) for item in states):
             api.fail(f"backend owner D0 state inventory lacks {token}")
+    for token in (
+        "root lexical DeclaredInstance Method(Some(receiver)): Hako LLVM-text exact family 0",
+        "selected-C direct method ABI/result/effect/full-lane parity: 0",
+        "named one-to-one production caller switch: 0",
+    ):
+        if not any(token in item for item in coverage):
+            api.fail(f"backend owner D0 coverage matrix lacks {token}")
     if not any(item.startswith("D0-A") for item in tasks):
         api.fail("backend owner D0 task inventory lacks D0-A")
     if not any(item.startswith("D0-B") for item in tasks):
