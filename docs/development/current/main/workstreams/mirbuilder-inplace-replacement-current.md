@@ -54,15 +54,16 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
-Current design stop:
-`MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0` follows the landed
+Current execution:
+`MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0` follows the landed
 receiver-owner, relation/effect/package chain, and backend option audits.
 Option B is the final architecture: retain ordinary `me.method`, publish one
 canonical `Method(Some(receiver))` MIR, lower it through typed Hako LLVM text,
 switch one named caller, then delete the selected-C compatibility edge. The
 behavior-neutral exact BindingRef -> ValueId accessor S0 landed at
-`e15947332c`; it reuses `CallableSemanticLoweringState` without consuming
-locator rows or opening a receiver loan. `variable_map`, param0, `args[0]`,
+`e15947332c`; the current I0 connects that existing owner to the installed
+locator only for the selected root receiver and preserves the current
+Global/manual receiver-prefix output. `variable_map`, param0, `args[0]`,
 numeric zero, AST reread, names, registry, JSON/C/Hako/backend metadata,
 fallback, and retry remain non-authorities. Hako LLVM-text root DeclaredInstance
 coverage, lossless transport, exact ABI parity, and named caller switches remain

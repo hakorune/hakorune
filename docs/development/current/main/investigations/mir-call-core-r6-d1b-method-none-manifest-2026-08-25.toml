@@ -4240,7 +4240,8 @@ ordered_tasks = [
   "D0-C: prove the existing CallableSemanticLoweringState generic consume operation can take the exact receiver row and finish residual-zero; otherwise remain NoSafeSlice",
   "I0 later: use the proven view before argument descent, obtain the existing receiver ValueId once, and only then open the common Method(Some) target/result/effect/ABI cutover",
 ]
-acceptance = "D0 closes only when the locator relation row, live callable owner/session, receiver BindingRef, and existing generic ledger consume path have a finite bidirectional crosswalk with all negative states named before effects; no ValueId, target, backend capability, or semantic receipt is issued here."
+acceptance = "D0 closes as a design decision when the existing locator relation owner, live callable owner/session, receiver BindingRef, and generic ledger owner are named, the callback-scoped borrow/take/residual API is finite, and every negative state is named before effects. This is an implementation-ready crosswalk design; the production locator consumer remains zero until the separate I0 row. No ValueId, target, backend capability, or semantic receipt is issued here."
+design_closure = "The three read-only audits establish ExactExistingOwnersAndFeasibleBorrow: the resolver-issued relation is the semantic source, the installed package owns the locator transport, and CallableSemanticLoweringState is the sole BindingRef -> ValueId physical owner. D0 therefore closes without inventing another issuer; I0 may connect these existing products only through a callback-scoped, non-Clone crosswalk."
 no_safe_slice = "Remain in design_stop if the locator view cannot expose the relation row, if the locator-to-ledger crosswalk is not production-safe, if owner/session/binding identity is not exact, if the generic ledger cannot be borrowed without a second authority, or if any bridge needs variable_map, param0, args[0], ValueId zero, AST/name/backend inference, a new family loan, fallback, or retry."
 non_claims = "No receiver ValueId production, no Method(Some), no argument descent, no MIR/Call schema, no selected-C/Hako/C change, no old-edge deletion, no new semantic receipt, no fallback/retry, and no whole-lib green claim."
 reopen_trigger = "Open the common Method(Some) implementation only after this callback-scoped crosswalk is production-proven, the generic ledger take and residual finish are exact, and the selected old Global/manual receiver-prefix edge is deletable in the same series."
@@ -4255,8 +4256,8 @@ evidence = [
   "src/mir/builder/normal_callable_semantic_lowering_state.rs:24-48,283-307,338-360,477-509 — sole BindingRef/value map, take, and residual finish",
   "src/mir/builder/normal_callable_binding_materialization_port.rs:67-85 and normal_callable_semantic_loan_port.rs:269-306 — entry install/session lifetime",
 ]
-next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
-next_execution = "none__design_stop"
+next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0__fast"
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
@@ -4272,6 +4273,89 @@ forbidden_files = [
   "Call schema",
   "VM/backend/JSON/runtime",
 ]
+
+[mir_call_me_declared_instance_locator_value_crosswalk_i0_2026_09_01]
+status = "fast_open"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
+ceremony_tier = "T1"
+box_kind = "One receiver-authority BoxShape production crosswalk; no target or MIR shape change"
+implementation_permission = true
+decision = "Connect the already-issued root DeclaredInstance relation to the already-installed callable session through one combined callback. Take the exact locator row once, validate owner/session/site/binding, borrow the existing BindingRef -> ValueId entry, and replace only the ambient receiver authority. Keep the current Global/manual receiver-prefix emission unchanged until the later Method(Some) cutover."
+source_authority = "VerifiedDeclaredInstanceCallRelationV1 carried by the installed DeclaredInstance locator; its caller owner, exact call/receiver sites, and receiver BindingRef are the only source identity. CallableSemanticLoweringState remains the sole physical BindingRef -> ValueId owner."
+canonical_issuer = "No new issuer. NormalCallableSemanticPackagePortV1 lends selected input/signature and a non-Clone caller-scoped locator capability from the same installed package; the live callable session performs the exact BindingRef read and owns receiver ValueId access."
+non_authority = [
+  "variable_map['me'], current_bound_me_value, formal parameter position, param0, args[0], numeric ValueId(0), AST/name/header/registry lookup, target/effect/result/ABI/backend metadata, JSON/C/Hako inference, and standalone test helpers",
+  "family-specific receiver loan/receipt, cloned locator, package declaration_for/re-resolution, second resolver, fallback, retry, Method(None), or any new semantic product",
+]
+fail_fast_boundary = "An unarmed or out-of-boundary call, missing/duplicate locator row, foreign package/session/owner, call-site/receiver-site/binding mismatch, unavailable entry ValueId, second take, or residual locator/site rejects before receiver effects, argument descent, Const/MIR publication, backend admission, fallback, or retry. An armed mismatch never falls back to ambient me."
+census_boundary = "selected cataloged root lexical DeclaredInstance source scope -> installed package locator -> exact current call site -> live callable session -> exact receiver BindingRef -> existing materialized ValueId; includes only the receiver-authority replacement and excludes Method(Some), target/result/effect/ABI publication, nested/upvar receivers, delegates, selected-C/Hako/C, VM/backend, Call schema, and compatibility cleanup."
+finite_states = [
+  "UnarmedCompatibility: legacy/test ports have no DeclaredInstance capability",
+  "OutsideExactRootMember: nested/upvar/non-root receiver is outside this row",
+  "RelationRowUnavailable: no unique locator row for the current owner/site",
+  "SessionMismatch: installed package, relation, or live callable state is not the same session",
+  "OwnerMismatch: relation caller owner differs from live callable state owner",
+  "BindingMismatch: relation receiver site/binding does not match the root receiver inventory",
+  "EntryNotInstalled: exact entry materialization has not completed",
+  "ValueUnavailable: exact binding has no materialized ValueId",
+  "AlreadyTaken: the exact locator/source site was consumed once already",
+  "Ready(ValueId): exact receiver authority is borrowed for the current call",
+  "ResidualLocatorOrSite: scope finish observes an unconsumed locator or receiver site",
+]
+ordered_tasks = [
+  "I0-A: move the near-limit callable loan-port helper into a private sibling without changing behavior, visibility, paths, or test contracts",
+  "I0-B: add one combined package callback and a private non-Clone locator scope that lends only exact caller/site/receiver relation data and tracks locator take-once/residual",
+  "I0-C: add the generic exact-site BindingRef -> ValueId consume/read operation using the existing state owner; ValueId remains reusable for repeated me reads",
+  "I0-D: add an explicit Unarmed recursive-port capability, short-reborrow it only for RawInvocationChildPortV1, and replace the selected root DeclaredInstance ambient receiver read before argument descent while preserving current Global/manual-prefix output",
+  "I0-E: add positive/negative/temporal/structural tests and guard the no-fallback, exact-site, take-once, and residual-zero contracts",
+]
+acceptance = "The selected root DeclaredInstance production callback obtains its receiver only through the exact package locator + live callable BindingRef crosswalk; ambient variable_map['me'] is no longer the authority on that path. The current emitted target/receiver-prefix shape is unchanged. All exact-site rows are consumed once, residuals reject, repeated me reads remain legal, and all changed tests are filtered and green."
+no_safe_slice = "Return to design_stop if the combined borrow cannot carry package/session identity, if locator take/residual needs a second map or clone, if exact receiver access requires position/name/args inference, if an armed mismatch falls back to ambient me, if the raw capability cannot reborrow through recursive frames, or if preserving the current output requires opening Method(Some), target/effect/ABI, selected-C/Hako/C, Call schema, fallback, or retry."
+non_claims = "No Method(Some), no target/result/effect/ABI reissuance, no MIR or Call schema change, no selected-C/Hako/C/VM/backend route, no Method(None)/Resolved cleanup, no legacy fallback/retry, and no whole-lib green claim."
+allowed_files = [
+  "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/install/lowering_port.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port/**",
+  "src/mir/builder/normal_callable_semantic_lowering_state.rs",
+  "src/mir/builder/normal_callable_semantic_receiver_crosswalk.rs",
+  "src/mir/builder/recursive_child_lowering.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/method_call_handlers/**",
+  "src/mir/builder/calls/member_route.rs",
+  "focused DeclaredInstance receiver tests",
+  "focused structural guard",
+  "src/mir/builder/README.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/mir/resolved_semantics/declared_instance_call_relation.rs",
+  "Call schema",
+  "selected-C/Hako/C",
+  "VM/backend/JSON/runtime",
+]
+focused_test_filters = [
+  "declared_instance",
+  "receiver_crosswalk",
+  "normal_callable_semantic_loan_port",
+]
+verification_prerequisites = [
+  "cargo check --profile quick --lib",
+  "every changed test name must be listed and matched by cargo test -- --list",
+  "focused positive/negative/temporal tests and structural guard",
+  "pointer guard and git diff --check",
+  "whole-lib 7553/7385/139/29 baseline remains separate and is not claimed green",
+]
+acceptance_evidence = "To be filled only after implementation: exact changed test names, focused runs, structural guard, pointer guard, diff check, and red classification. Do not report design evidence as production consumer evidence."
+closeout = "After the bounded receiver-authority row lands, set status=landed and return work_mode=design_stop. Select the next exact product/selected-C design stop; do not open Method(Some) merely because the receiver crosswalk is green."
+next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution = "none__design_stop"
 
 [mir_call_me_declared_instance_package_private_locator_i0_2026_08_31]
 status = "landed"
