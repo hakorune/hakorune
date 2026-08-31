@@ -3623,35 +3623,36 @@ design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount source-backed package co-seal boundary"
 implementation_permission = false
-decision = "The source relation, result/Completion carriage, and resolver-owned OpaqueObservable/Query effect sibling are landed. The next design boundary co-seals those products with the full logical-to-physical lane and the selected-C admission capability; selected-C remains a downstream acceptance gate and does not issue semantic target, result, or effect meaning."
+decision = "The source relation, result/Completion carriage, and resolver-owned OpaqueObservable/Query effect sibling are landed. The semantic package boundary co-seals those products with the full logical-to-physical lane; selected-C remains a separate downstream admission gate and never issues semantic target, result, effect, or lane meaning."
 source_authority = "VerifiedDeclaredInstanceCallRelationV1, the retained DeclaredFunctionResultContractV1/VerifiedFunctionCompletionV1 cohort, the resolver-owned DeclaredInstanceCallSemanticEffectV1, and one existing source-backed PhysicalCallableLaneV1 owner under the same parser/resolver session."
 canonical_issuer = "No production Method(Some) issuer exists yet. A future package-private co-seal owner may validate and transport already-issued relation/result/effect/physical products, but may not call declaration_for, re-resolve by name/arity, infer from MIR/ABI/backend data, or create a family-specific loan."
 non_authority = [
   "package keys/brands, selected slots, current_static_box, variable_map, generated symbols, headers, MIR, EffectMask, FunctionSignature, backend/VM behavior, fixtures, fallback, and retry",
   "selected-C capability as a semantic issuer, receiver presence inferred from numeric ValueId 0, args[0] receiver repair, or any package-side declaration lookup",
 ]
-fail_fast_boundary = "Missing, foreign, duplicate, ambiguous, unsupported, or coverage-drifted relation/result/effect/full-lane/selected-C products reject before receiver ValueId materialization, argument descent/effects, Const/MIR publication, collector mutation, backend need-scan, or fallback."
-census_boundary = "landed source relation/result/effect products -> same-session full physical lane and selected-C admission -> common package-owned disposition; includes only root lexical DeclaredInstance and excludes StaticCurrentOwner, nested/upvar me, Method(None), delegates, Dynamic/qualified/core calls, panic/throw/Result/?, VM/backend, and Call schema."
+fail_fast_boundary = "Missing, foreign, duplicate, ambiguous, unsupported, or coverage-drifted relation/result/effect/full-lane products reject before receiver ValueId materialization, argument descent/effects, Const/MIR publication, collector mutation, backend need-scan, or fallback. A later selected-C admission must independently reject the same product drift before C emission; it is not part of semantic issuance."
+census_boundary = "landed source relation/result/effect products -> same-session full physical lane -> backend-neutral package locator -> separate selected-C admission view; includes only root lexical DeclaredInstance and excludes StaticCurrentOwner, nested/upvar me, Method(None), delegates, Dynamic/qualified/core calls, panic/throw/Result/?, VM/backend, and Call schema."
 finite_inventory = [
   "resolver relation: mir_call_me_declared_instance_resolver_relation_i0_2026_08_31",
   "result/Completion: mir_normal_callable_result_contract_retention_d0_i0_2026_08_31",
   "effect: lang_ordinary_declared_instance_call_effect_issuer_i0_2026_08_31",
   "physical lane: existing PhysicalCallableLaneV1 source-backed owner; no package reconstruction",
-  "selected-C: Boundary pure-first C admission, whose stack/heap health is a separate prerequisite",
+  "selected-C: Boundary pure-first C physical consumer; source-backed admission capability is absent and must remain a separate downstream task",
 ]
 finite_states = [
   "InputsIncomplete: any required product is absent; remain design_stop",
   "ForeignOrDrifted: provenance, owner, declaration, result, effect, lane, or selected-C identity differs; typed pre-effect reject",
-  "SemanticReadyPhysicalBlocked: relation/result/effect are exact but selected-C or full lane is unavailable; ParkedSealed with observable reopen trigger",
-  "ReadyForAtomicCutover: all products are co-sealed and one common affine disposition can be consumed once",
+  "SemanticReadyPhysicalBlocked: relation/result/effect/full lane are exact but selected-C admission is unavailable; keep the semantic locator design-only and ParkedSealed with an observable reopen trigger",
+  "ReadyForSelectedAdmission: backend-neutral locator is exact and a separate selected-C capability can borrow it without semantic re-issuance",
+  "ReadyForAtomicCutover: selected-C admission and all semantic products are co-sealed and one common affine disposition can be consumed once",
 ]
 ordered_tasks = [
   "D0-A: name the existing source-backed full-lane owner and prove receiver presence is independent of numeric ValueId 0",
-  "D0-B: name the selected-C admission capability and its stack/heap acceptance contract without giving it semantic authority",
-  "D0-C: freeze one common non-Clone package disposition and the missing/foreign/duplicate/coverage/residual rejection matrix",
-  "I0: only after D0 closes, atomically consume the disposition, materialize receiver once, lower arguments once, emit Method(Some(receiver)), and delete the selected legacy edges",
+  "D0-B: define the separate selected-C admission contract and its stack/heap acceptance without giving it semantic authority; current existing capability count is zero",
+  "D0-C: freeze one common non-Clone backend-neutral package locator and the missing/foreign/duplicate/coverage/residual rejection matrix",
+  "I0: only after semantic locator plus selected-C admission both close, atomically consume the common disposition, materialize receiver once, lower arguments once, emit Method(Some(receiver)), and delete the selected legacy edges",
 ]
-acceptance = "D0 closes only when exact relation, result/Completion, semantic effect, full physical lane, and selected-C admission are named under one session and can be transported without re-resolution or inference. This row issues no ValueId, Callee, Method(Some), MIR, backend code, fallback, or retry."
+acceptance = "D0 closes only when exact relation, result/Completion, semantic effect, and full physical lane are named under one source session, the backend-neutral locator and its typed rejection matrix are fixed, and a separate selected-C admission handoff contract is explicit. This row issues no ValueId, Callee, Method(Some), MIR, backend code, fallback, or retry."
 no_safe_slice = "Remain in design_stop if no existing source-backed full-lane/effect/selected-C owner can be named, if package lookup or backend inference is required, if a family-specific loan or second resolver is proposed, or if verification-health prerequisites are absent."
 non_claims = "No production Method(Some) route, receiver materialization, package/loan implementation, selected-C stack workaround, Call schema change, Method(None) broad cleanup, nonselected backend parity, panic/throw/Result/? change, fallback, retry, or old-edge deletion."
 allowed_files = [
@@ -3675,23 +3676,33 @@ forbidden_files = [
 verification_prerequisites = [
   "whole-lib failure-name baseline must be deterministic and compared before any broad Call schema cutover",
   "dev_gate quick must include a comparable cargo test --lib step",
-  "selected-C 8MiB stack health must have an accepted heap/ownership resolution or remain a separate CutoverBlockerOpen",
+  "selected-C 8MiB stack health is accepted at 46b2ee72e3; semantic admission remains a separate capability prerequisite",
 ]
 worker_audit_head = "60d27c5869d924454430702cdc6a56a966845d78"
 worker_audit_result = "Fresh read-only audits agree that PhysicalCallableLaneV1 and its source-backed signature cohort are the only reusable physical-lane vocabulary. The selected Boundary pure-first C route is a real consumer, but it is not yet an admission capability for this family: it reconstructs a target view from plan metadata, conflates missing receiver with numeric zero, strips duplicate args[0], and supports only a narrow one-lane result cell. No existing same-session selected-C capability co-seals receiver presence, full lane, result, and effect. The exact existing selected-C blocker is recorded separately by NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0; it is not waived here."
 full_lane_decision = "PhysicalCallableLaneV1 / PhysicalCallableSignatureRowRefV1 is a named downstream product candidate. Package co-seal may borrow it only after exact declaration identity and result/effect coverage are checked; it may not reconstruct or widen the lane."
-selected_c_decision = "Selected Boundary pure-first C remains the intended product consumer, but its receiver-presence contract, full logical-to-physical lane coverage, and source-backed result/effect admission are absent. The 8MiB launch-snapshot stack overflow is a separate CutoverBlockerOpen and is not repaired in this semantic row."
+selected_c_decision = "Selected Boundary pure-first C remains the intended physical consumer, but its receiver-presence contract, full logical-to-physical lane coverage, and source-backed result/effect admission are absent. The separate 8MiB snapshot stack blocker is closed at 46b2ee72e3; selected-C semantic admission remains a CutoverBlockerOpen."
 d0_status = "CutoverBlockerOpen__NoSafeSlice__selected_C_admission_missing"
-existing_capability_inventory = "Exhausted: one formal lane cohort and one physical C consumer exist, but zero source-backed selected-C admission capabilities exist for root DeclaredInstance."
+existing_capability_inventory = "Exhausted: one formal lane cohort and one physical C consumer exist, but zero source-backed selected-C admission capabilities exist for root DeclaredInstance. The C consumer cannot be promoted by reading MIR JSON metadata or repairing args[0]."
 common_disposition_shape = "A future common non-Clone package disposition may keep only private locators (caller/target batch slot plus exact relation/effect row ordinals); take must borrow the already-issued relation, effect, result/Completion, and physical signature together, and completion must reject residual rows. This shape is design-only until selected-C admission exists."
 transport_blockers = [
   "production result/Completion borrow accessor is not yet exposed; cfg(test)-only access is insufficient for cutover",
   "the existing selected lowering port is definition-oriented and does not carry call-site relation/effect or selected-C capability",
   "normal_callable_semantic_loan_port.rs is at 748 lines and needs a behavior-preserving split before common callsite transport can be added",
 ]
-selected_c_lane = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0 (separate backend health lane; status=CutoverBlockerOpen)"
+selected_c_lane = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0 (separate backend health lane; status=CutoverBlockerClosed at 46b2ee72e3)"
+selected_c_admission_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+selected_c_admission_status = "NoSafeSlice__existing_source_backed_capability_count_zero"
+selected_c_admission_scope = "Define one versioned downstream admission that borrows the backend-neutral locator plus already-issued relation/result/Completion/effect/full-lane views, distinguishes receiver absence from ValueId 0, validates all lane/result/effect coverage before C need-scan, and emits an opaque admission token without re-issuing meaning. No production implementation is permitted until this contract has an existing owner and focused rejection matrix."
+selected_c_admission_non_authority = [
+  "MIR JSON target_symbol/target_arity/receiver_value",
+  "FunctionSignature/body inference and fixed effect tags",
+  "args[0] receiver repair or numeric-zero presence",
+  "C registry/header/symbol lookup, VM/llvmlite/A-prime/pinned-Text routes",
+]
+selected_c_reopen_trigger = "A production non-Clone same-session API exists that accepts the backend-neutral locator, validates relation/result/Completion/effect/full lane including ExactText pairs and receiver presence independent of ValueId 0, then returns an opaque selected-C admission token consumed exactly once before C emission; missing/foreign/duplicate/coverage/residual reject pre-effect."
 reopen_trigger = "Open implementation only when the same-session source relation, result/Completion, semantic effect, full lane, and selected-C capability are all exact, verification prerequisites are recorded, and one atomic common disposition can delete the selected legacy edges with fallback/retry zero."
-next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0__design_stop"
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
 status = "landed"

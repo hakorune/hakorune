@@ -59,17 +59,18 @@ Current design stop:
 `me.method`; the source/site/declaration relation landed at `845bd72641`,
 result/Completion carriage at `e1976b8ba1`, and resolver-owned
 OpaqueObservable/Query effect facts at `11d9dadada`. The next design work is to
-name one existing full physical lane and selected-C admission capability under
-the same session. `PhysicalCallableLaneV1` is only a reusable candidate; the
-selected Boundary pure-first C consumer still lacks receiver-presence, full
-lane, and source-backed result/effect admission. Receiver materialization,
-Method(Some), package/loan, MIR, backend, fallback/retry, and nonselected
-backend work remain closed; whole-lib health is a separate prerequisite, and
-the selected-C launch plus planned-definition snapshot stack blocker is now
-landed at `46b2ee72e3` with a fresh-FFI repeated 8 MiB guard. A future common
-disposition may carry only private
-locators and borrow the already-issued siblings together; it is design-only
-until the selected-C admission capability and the common callsite port exist.
+name one existing full physical lane under the same parser/resolver session and
+freeze a backend-neutral package locator. Selected-C is a separate downstream
+admission gate, not a semantic issuer; the selected Boundary pure-first C
+consumer exists, but its source-backed admission capability count is zero and
+it still lacks receiver-presence, full-lane, and source-backed result/effect
+acceptance. Receiver materialization, Method(Some), package/loan, MIR, backend,
+fallback/retry, and nonselected backend work remain closed; whole-lib health is
+a separate prerequisite, and the selected-C launch plus planned-definition
+snapshot stack blocker is now landed at `46b2ee72e3` with a fresh-FFI repeated
+8 MiB guard. A future common disposition may carry only private locators and
+borrow the already-issued semantic siblings together; it is design-only until
+the separate selected-C admission capability and common callsite port exist.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
