@@ -118,6 +118,12 @@ DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW = (
 DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY = (
     "lang_ordinary_declared_instance_call_effect_issuer_i0_2026_08_31"
 )
+DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+)
+DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY = (
+    "mir_call_me_declared_instance_package_coseal_d0_2026_08_31"
+)
 
 
 def fail(message: str) -> None:
@@ -415,6 +421,40 @@ def check_declared_instance_effect_issuer_i0(
     check_declared_instance_effect_issuer_structure(root)
 
 
+def check_declared_instance_package_coseal_d0(state: dict, card: dict) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("DeclaredInstance package co-seal must remain design_stop")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
+        fail("DeclaredInstance package co-seal row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
+        fail("DeclaredInstance package co-seal design stop drifted")
+    if state.get("next_design_card") != DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
+        fail("DeclaredInstance package co-seal next design card drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("DeclaredInstance package co-seal must keep next_execution_card=none")
+    row = card.get(DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
+        fail("DeclaredInstance package co-seal task id drifted")
+    if row.get("status") != "accepted_design_stop":
+        fail("DeclaredInstance package co-seal must remain an accepted design stop")
+    if row.get("implementation_permission") is not False:
+        fail("DeclaredInstance package co-seal cannot permit implementation")
+    relation = card.get(DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY)
+    if not isinstance(relation, dict):
+        fail("DeclaredInstance package co-seal requires the relation design section")
+    relation_child = card.get("mir_call_me_declared_instance_resolver_relation_i0_2026_08_31")
+    if not isinstance(relation_child, dict) or relation_child.get("status") != "landed":
+        fail("DeclaredInstance package co-seal requires the source relation child")
+    result = card.get("mir_normal_callable_result_contract_retention_d0_i0_2026_08_31")
+    if not isinstance(result, dict) or not str(result.get("status", "")).startswith("landed"):
+        fail("DeclaredInstance package co-seal requires result/completion retention")
+    effect = card.get(DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY)
+    if not isinstance(effect, dict) or effect.get("status") != "landed":
+        fail("DeclaredInstance package co-seal requires the landed effect issuer")
+
+
 def check_declared_instance_effect_issuer_structure(root: Path) -> None:
     effect_path = root / "src/mir/resolved_semantics/declared_instance_call_effect.rs"
     parser_path = root / "src/parser/callable_contract_syntax.rs"
@@ -576,6 +616,8 @@ def main() -> None:
         check_declared_instance_effect_issuer_d0(state, card)
     elif row == DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW:
         check_declared_instance_effect_issuer_i0(state, card, root)
+    elif row == DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
+        check_declared_instance_package_coseal_d0(state, card)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

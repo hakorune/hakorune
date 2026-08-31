@@ -1,18 +1,17 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 current_blocker_token = """
-LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0:
-carry the parser-issued CallableContract disposition into the existing final
-callable syntax loan and issue one resolver-owned semantic effect sibling for
-the already-landed DeclaredInstance source relation. No contract means
-OpaqueObservable; an explicit Query has precedence. This row stores only
-AST-free source-backed facts and changes no target, receiver ValueId, result,
-physical ABI, selected-C capability, package/loan, Method(Some), MIR, backend,
-fallback, retry, or Call schema. Missing/foreign/duplicate/coverage-drifted
-contract rows reject before any physical or argument effect.
+MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0:
+the source relation, result/Completion carriage, and resolver-owned
+OpaqueObservable/Query effect sibling are landed. Name one existing
+source-backed full physical lane and the selected-C admission capability under
+the same session; selected-C is a downstream gate, not semantic authority.
+Keep receiver materialization, Method(Some), package/loan, MIR, backend,
+fallback, retry, and Call-schema publication closed until exact co-seal and
+verification prerequisites are accepted.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -45,9 +44,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The resolver-owned DeclaredInstance source-site/declaration relation landed at 845bd72641 with four focused tests; result/Completion retention landed at e1976b8ba1. The bounded effect issuer I0 is now the sole fast row: parser contract disposition carriage plus resolver-owned OpaqueObservable/Query effect facts only. Full receiver lane, selected-C capability, package/loan, Method(Some), target publication, and Call-schema cutover remain closed. Verification-health remains a separate prerequisite before any production Method(Some) or broad Call-schema cutover."
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
-next_execution_card = "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The next design stop is package co-seal for the full physical lane and selected-C admission; receiver ValueId, Method(Some), package/loan, MIR, backend, fallback, retry, and Call-schema cutover remain closed. Whole-lib baseline and selected-C stack health remain separate prerequisites."
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -59,7 +58,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-31: LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepted OpaqueObservable with Query precedence, and LANG-BOX-METHOD-NAMESPACE-D0 fixed one visible method name per nominal Box with FreeStatic name/arity kept separate. Production issuers remain zero; resolver owns target issuance and package stays transport/co-seal only.",
-  "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 (terminal/guard correction 7c834d021a); StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static stop before argument effects. StaticCurrentOwner me.method handoff landed at 2b7b3e7489; exact source/site/catalog target is consumed before effects and emitted as Global(StaticBoxMethod). True DeclaredInstance remains a separate NoSafeSlice design row.",
-  "2026-08-31: BoxShape test extractions landed at c1a715eb97/7e50c819f3/ccced92d64; DeclaredInstance receiver source-facts correction landed at 01332528ed; selected Cataloged result/Completion retention landed at e1976b8ba1 with exclusive S6C ownership, retained Unannotated/Void rows, and sparse borrowed physical headers; no target/effect/receiver/ABI switch.",
+  "2026-08-31: DeclaredInstance effect issuer I0 landed at 11d9dadada4cf533bdea91429afe4e67469e7a65; parser contract disposition and resolver-owned OpaqueObservable/Query facts are retained with focused evidence, while target/receiver/package/MIR publication remains closed.",
+  "2026-08-31: DeclaredInstance source relation landed at 845bd72641 and selected Cataloged result/Completion retention landed at e1976b8ba1; exact relation/result products are now inputs to the package co-seal design stop.",
+  "2026-08-30: StaticCurrentOwner me.method handoff landed at 2b7b3e7489 and ordinary static compatibility retirement landed at 685aaeab49; true DeclaredInstance me.method remains retained and awaits full lane/selected-C co-seal.",
 ]

@@ -3519,10 +3519,10 @@ closeout = "I0 landed at 845bd72641. Restore work_mode=design_stop/current_execu
 non_claims = "No Method(Some) emission, receiver ValueId, package co-seal, effect/result/ABI/selected-C/common affine consumer, Builder/MIR/backend/VM/JSON/Call schema change, delegate/nested/upvar activation, language change, fallback, retry, or old-edge deletion."
 
 [lang_ordinary_declared_instance_call_effect_issuer_i0_2026_08_31]
-status = "selected_fast"
+status = "landed"
 task_id = "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
-implementation_permission = true
+implementation_permission = false
 box_kind = "BoxCount parser-contract disposition carriage plus resolver semantic-effect facts"
 decision = "Carry one parser-issued CallableContract disposition beside each final callable syntax row, then issue one resolver-owned DeclaredInstance call-effect disposition from the already-landed source relation. Missing contract means OpaqueObservable; explicit Query has precedence. This row remains facts-only and does not publish a target or physical call."
 source_authority = "Existing parser ExplicitMethodSourceRelationV1.callable_contract carried through the final callable syntax loan, joined by exact CallableDeclarationIdentityV1 to the resolver-owned DeclaredInstanceCallSourceDispositionV1 relation."
@@ -3556,6 +3556,7 @@ allowed_files = [
   "docs/reference/language/status-index.md",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
 ]
 forbidden_files = [
@@ -3593,12 +3594,77 @@ changed_test_names = [
   "static_current_owner_has_no_declared_instance_effect_rows",
   "wrong_declared_instance_arity_rejects_before_effect_issuer",
 ]
-implementation_commit = "pending"
-implementation_evidence = "Parser contract disposition is carried through the final syntax loan; the resolver batch issues one AST-free OpaqueObservable/DeclaredQuery sibling from the landed relation. Focused tests and structural guard are green; no target, receiver, package, MIR, or backend path changed."
+implementation_commit = "11d9dadada4cf533bdea91429afe4e67469e7a65"
+implementation_evidence = "At 11d9dadada4cf533bdea91429afe4e67469e7a65, parser contract disposition is carried through the final syntax loan and the resolver batch issues one AST-free OpaqueObservable/DeclaredQuery sibling from the landed relation. The effect, relation, batch, parser-contract, and normal-callable focused filters passed 4/4, 4/4, 28/28, 13/13, and 38/38; quick library check, rustfmt, structural active-surface guard, pointer guard, and diff check passed. No target, receiver, package, MIR, or backend path changed."
 structural_guard_command = "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py ."
 red_classification = "No current-change red is present in this bounded row: the effect filter is 4 passed, the relation filter is 4 passed, the batch filter is 28 passed, the parser contract filter is 13 passed, and the normal callable source filter is 38 passed. Whole-lib baseline (7373 passed/139 failed/29 ignored in the audit) and selected-C 8MiB stack health remain separate CutoverBlockerOpen prerequisite lanes and are not silently folded into this row."
-closeout = "After implementation and focused evidence, set this section status=landed and implementation_permission=false, record the commit and commands, then restore CURRENT_STATE to MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0 design_stop with next_execution_card=none."
+closeout = "Landed at 11d9dadada4cf533bdea91429afe4e67469e7a65. Restore CURRENT_STATE to MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0 design_stop with next_execution_card=none; keep receiver/full-lane/selected-C/package/loan/Method(Some)/MIR and Call-schema publication closed."
 non_claims = "No Method(Some) emission, receiver ValueId, result/Completion reissuer, physical lane, selected-C admission, package/loan, Builder/MIR/backend/VM/JSON/Call schema change, language syntax change, fallback, retry, or old-edge deletion."
+
+[mir_call_me_declared_instance_package_coseal_d0_2026_08_31]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
+design_parent = "MIR-CALL-ME-DECLARED-INSTANCE-SOURCE-COSEAL-D0"
+ceremony_tier = "T1"
+box_kind = "BoxCount source-backed package co-seal boundary"
+implementation_permission = false
+decision = "The source relation, result/Completion carriage, and resolver-owned OpaqueObservable/Query effect sibling are landed. The next design boundary co-seals those products with the full logical-to-physical lane and the selected-C admission capability; selected-C remains a downstream acceptance gate and does not issue semantic target, result, or effect meaning."
+source_authority = "VerifiedDeclaredInstanceCallRelationV1, the retained DeclaredFunctionResultContractV1/VerifiedFunctionCompletionV1 cohort, the resolver-owned DeclaredInstanceCallSemanticEffectV1, and one existing source-backed PhysicalCallableLaneV1 owner under the same parser/resolver session."
+canonical_issuer = "No production Method(Some) issuer exists yet. A future package-private co-seal owner may validate and transport already-issued relation/result/effect/physical products, but may not call declaration_for, re-resolve by name/arity, infer from MIR/ABI/backend data, or create a family-specific loan."
+non_authority = [
+  "package keys/brands, selected slots, current_static_box, variable_map, generated symbols, headers, MIR, EffectMask, FunctionSignature, backend/VM behavior, fixtures, fallback, and retry",
+  "selected-C capability as a semantic issuer, receiver presence inferred from numeric ValueId 0, args[0] receiver repair, or any package-side declaration lookup",
+]
+fail_fast_boundary = "Missing, foreign, duplicate, ambiguous, unsupported, or coverage-drifted relation/result/effect/full-lane/selected-C products reject before receiver ValueId materialization, argument descent/effects, Const/MIR publication, collector mutation, backend need-scan, or fallback."
+census_boundary = "landed source relation/result/effect products -> same-session full physical lane and selected-C admission -> common package-owned disposition; includes only root lexical DeclaredInstance and excludes StaticCurrentOwner, nested/upvar me, Method(None), delegates, Dynamic/qualified/core calls, panic/throw/Result/?, VM/backend, and Call schema."
+finite_inventory = [
+  "resolver relation: mir_call_me_declared_instance_resolver_relation_i0_2026_08_31",
+  "result/Completion: mir_normal_callable_result_contract_retention_d0_i0_2026_08_31",
+  "effect: lang_ordinary_declared_instance_call_effect_issuer_i0_2026_08_31",
+  "physical lane: existing PhysicalCallableLaneV1 source-backed owner; no package reconstruction",
+  "selected-C: Boundary pure-first C admission, whose stack/heap health is a separate prerequisite",
+]
+finite_states = [
+  "InputsIncomplete: any required product is absent; remain design_stop",
+  "ForeignOrDrifted: provenance, owner, declaration, result, effect, lane, or selected-C identity differs; typed pre-effect reject",
+  "SemanticReadyPhysicalBlocked: relation/result/effect are exact but selected-C or full lane is unavailable; ParkedSealed with observable reopen trigger",
+  "ReadyForAtomicCutover: all products are co-sealed and one common affine disposition can be consumed once",
+]
+ordered_tasks = [
+  "D0-A: name the existing source-backed full-lane owner and prove receiver presence is independent of numeric ValueId 0",
+  "D0-B: name the selected-C admission capability and its stack/heap acceptance contract without giving it semantic authority",
+  "D0-C: freeze one common non-Clone package disposition and the missing/foreign/duplicate/coverage/residual rejection matrix",
+  "I0: only after D0 closes, atomically consume the disposition, materialize receiver once, lower arguments once, emit Method(Some(receiver)), and delete the selected legacy edges",
+]
+acceptance = "D0 closes only when exact relation, result/Completion, semantic effect, full physical lane, and selected-C admission are named under one session and can be transported without re-resolution or inference. This row issues no ValueId, Callee, Method(Some), MIR, backend code, fallback, or retry."
+no_safe_slice = "Remain in design_stop if no existing source-backed full-lane/effect/selected-C owner can be named, if package lookup or backend inference is required, if a family-specific loan or second resolver is proposed, or if verification-health prerequisites are absent."
+non_claims = "No production Method(Some) route, receiver materialization, package/loan implementation, selected-C stack workaround, Call schema change, Method(None) broad cleanup, nonselected backend parity, panic/throw/Result/? change, fallback, retry, or old-edge deletion."
+allowed_files = [
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/reference/language/callable-contracts.md",
+  "docs/reference/language/function-call-evaluation.md",
+  "docs/reference/language/quick-reference.md",
+  "docs/reference/language/field-visibility-and-delegation.md",
+]
+forbidden_files = [
+  "src/mir/normal_callable_semantic_package/declared_instance_call.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+]
+verification_prerequisites = [
+  "whole-lib failure-name baseline must be deterministic and compared before any broad Call schema cutover",
+  "dev_gate quick must include a comparable cargo test --lib step",
+  "selected-C 8MiB stack health must have an accepted heap/ownership resolution or remain a separate CutoverBlockerOpen",
+]
+reopen_trigger = "Open implementation only when the same-session source relation, result/Completion, semantic effect, full lane, and selected-C capability are all exact, verification prerequisites are recorded, and one atomic common disposition can delete the selected legacy edges with fallback/retry zero."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0__design_stop"
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
 status = "landed"
