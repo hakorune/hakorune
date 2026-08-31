@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_design_stop"
-observed_commit = "c95c2e9b97e45c412e733a857ead00da6f58a4d4"
+observed_commit = "b44ea0b182"
 observed_at = "2026-08-31"
 implementation_permission = false
 
@@ -2073,7 +2073,7 @@ finite_inventory = [
   "result/completion: resolved_control_flow/function_control.rs plus the landed package retention cohort at e1976b8ba1; generic carriage is retained through selected package install",
   "semantic effect: accepted OpaqueObservable/Query precedence in callable-contracts.md; production issuer absent",
   "selected physical seam: Boundary pure-first C path; exact DeclaredInstance capability absent",
-  "legacy consumer/delete set: builder/method_call_handlers.rs and unified_emitter.rs",
+  "legacy consumer/delete set: builder/method_call_handlers.rs, calls/method_call_terminal.rs, and unified_emitter.rs",
 ]
 finite_states = [
   "OutsideRootDeclaredInstance: StaticCurrentOwner and non-receiver sources keep named owners; nested/upvar me is ParkedSealed until capture/receiver ABI is explicit",
