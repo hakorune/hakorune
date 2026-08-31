@@ -1,15 +1,14 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
-current_design_stop = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
+current_design_stop = "none"
 current_blocker_token = """
-BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0:
-Selected-C MIR(JSON)->LLVM remains a compatibility owner, not a MirBuilder
-semantic issuer. Map one exact Hako LLVM-text replacement family and its named
-caller before any switch; preserve the Core C ABI and compare lane. Do not
-infer meaning from JSON/MIR/C metadata, args[0], ValueId(0), fallback, or retry.
-Retire the C edge only after exact Hako coverage, parity, and caller-zero.
+DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0:
+Connect one deterministic full-lib red-baseline comparator to the quick gate.
+Accept only a complete fixed-stack summary, exact inventory, and exact failure
+set; known baseline debt is visible, while new/disappeared/changed red fails.
+Do not touch MIR, Call, backend, legacy-tests, fallback, or retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -46,7 +45,7 @@ The temporary verification prerequisite DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTME
 landed as test-only exact-membership stabilization; ten independent exact runs,
 the 20-test FastMem module, quick library check, pointer guard, and diff check pass;
 production MIR/Call/backend semantics and the whole-lib red baseline are unchanged.
-Selected-C semantic admission is ParkedSealed/RetireAfterReplacement; backend replacement D0 remains a separate design stop. The .inc no-growth baseline prerequisite landed at e3cfa78488; quick cargo-test and full-lib baseline work remain open in the parent verification row.
+Selected-C semantic admission is ParkedSealed/RetireAfterReplacement; backend replacement D0 remains a separate design stop. The .inc no-growth baseline prerequisite landed at e3cfa78488; the active bounded verification row now connects a deterministic full-lib red baseline to quick without claiming whole-gate green.
 Language decisions are fixed: ordinary me.method is retained, static/instance/
 delegate method namespaces are explicit, bare panic is a terminal Fault, and
 Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance
@@ -61,8 +60,8 @@ actual-Copy-only statistics, and makes no Call/VM/backend claim. Receiver
 ValueId, Method(Some), selected-C token/wire, MIR, fallback, retry, and
 Call-schema cutover remain closed.
 """
-next_design_card = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
-next_execution_card = "none"
+next_design_card = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
+next_execution_card = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

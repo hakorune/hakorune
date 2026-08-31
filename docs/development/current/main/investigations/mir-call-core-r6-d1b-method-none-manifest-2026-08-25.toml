@@ -2281,6 +2281,74 @@ red_classification = "This row accepts no test result and does not reclassify th
 guard = "The stable active-surface guard dispatches a dedicated P0-A checker; the checker validates the row contract and exact allowlist shape, while inc_codegen_thin_shim_guard.sh remains the behavior guard."
 next_execution = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0__design_stop"
 
+[verification_health_quick_lib_baseline_p0_c_runner_wire_r0_2026_09_01]
+status = "fast_open"
+task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
+parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+depends_on = [
+  "verification_health_quick_lib_baseline_p0_a_inc_debt_reconcile_r0_2026_09_01",
+  "verification_health_quick_lib_baseline_p0_b1_fastmem_order_r0_2026_09_01",
+]
+ceremony_tier = "T1"
+box_kind = "BoxShape deterministic verification runner and quick wiring"
+implementation_permission = true
+decision = "Connect one fixed full-lib cargo test observation to dev_gate quick through a deterministic baseline comparator. Known failure names remain visible baseline debt; only exact new, disappeared, changed, malformed, or incomplete evidence fails the row."
+source_authority = "The cargo test result summary, cargo --list inventory, fixed command/environment, and sorted baseline data files are the only observation inputs. The Python runner is the sole comparison owner; dev_gate_group.sh only consumes its exit status."
+canonical_issuer = "No semantic issuer. tools/checks/lib/cargo_lib_red_baseline.py issues only a verification outcome from already-emitted Cargo observations and never issues compiler meaning."
+non_authority = [
+  "test counts without names, regex waivers, filtered or zero-test runs, summary prose without inventory, auto-rebaseline, HEAD^ inference, compile/link/stack aborts treated as known red, manifest_runner.py, MIR/Call/backend metadata, fixtures, fallback, and retry",
+]
+fail_fast_boundary = "The runner fails on missing or duplicate summary, compile/link/stack abort, empty or changed inventory, filtered tests, ignored-count drift, added/disappeared/changed failure names, hash mismatch, or malformed baseline. It returns zero only for an exact accepted known-red observation or an exact all-green observation."
+census_boundary = "dev_gate quick entry -> fixed cargo test command and cargo --list -> complete test inventory -> summary and sorted failure names -> hash comparison -> runner exit; includes only default-feature --lib quick evidence, excludes quick-static, legacy-tests, vm-reference, selected-C, MIR/Call/backend semantics, and production routes."
+finite_states = [
+  "Unseeded: no accepted baseline files exist; the runner is not a valid quick step",
+  "Candidate: fresh repeated observations are being compared before acceptance",
+  "AcceptedKnownRed: exact inventory/summary/failure set/hash matches and the known red receipt is visible",
+  "AcceptedGreen: exact inventory/summary has no failures",
+  "Drift: any added, disappeared, changed, malformed, filtered, or incomplete evidence stops the gate",
+]
+ordered_tasks = [
+  "R0-A: implement the fixed-command parser/comparator and synthetic unit negatives without executing Cargo from unit tests",
+  "R0-B: seed sorted inventory/failure files only after three separate identical fixed-stack observations; record exact counts and hashes",
+  "R0-C: add one quick step before later compatibility probes so known baseline debt is observed daily; keep quick's later independent red visible",
+  "R0-D: close out with runner/quick evidence and return to BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0 design_stop",
+]
+acceptance = "cargo_lib_red_baseline.py executes the fixed default-feature quick --lib command and --list inventory, accepts only an exact committed baseline after three identical observations, exposes known red compactly, and rejects every new/disappeared/changed/abort/zero-test case. The quick steps invoke it exactly once before the later independent compatibility red; Python unit negatives, pointer, active-surface, and diff checks pass. No MIR/Call/backend/legacy-tests behavior changes."
+no_safe_slice = "Remain in design_stop if the full command lacks a complete summary or inventory, three observations differ, baseline data must be inferred or regex-waived, auto-rebaseline is required, the runner needs manifest_runner.py, or wiring changes semantic/legacy/backend routes."
+non_claims = "No claim that dev_gate quick is wholly green, no claim that the known full-lib failures are repaired, no all-feature/legacy-tests/vm-reference baseline, no DeclaredInstance co-seal, no Method(Some) switch, no Call-schema change, and no backend replacement."
+allowed_files = [
+  "tools/checks/lib/cargo_lib_red_baseline.py",
+  "tools/checks/lib/tests/test_cargo_lib_red_baseline.py",
+  "tools/checks/manifests/cargo_lib_red_baseline.toml",
+  "tools/checks/manifests/cargo_lib_red_baseline.tests.txt",
+  "tools/checks/manifests/cargo_lib_red_baseline.failures.txt",
+  "tools/checks/lib/dev_gate_quick_steps.sh",
+  "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/tools/check-scripts-index.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "tools/checks/guard_rows.toml",
+  "tools/checks/lib/manifest_runner.py",
+  "src/mir/**",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+  "legacy-tests",
+  "selected-C",
+  "fallback or retry routes",
+]
+focused_test_filters = ["test_cargo_lib_red_baseline"]
+changed_test_names = []
+coverage_base_commit = "346fae95e8"
+implementation_commit = "pending"
+implementation_evidence = "Not landed: the runner, baseline data, and one quick-step wiring are the next implementation slice."
+red_classification = "The existing whole-lib red set is accepted only as an explicit KnownBaselineDebt observation after three identical runs; any name-set drift remains current-change blocking. Later quick compatibility failures remain independent and are not relabeled."
+guard = "The stable active-surface guard dispatches a dedicated P0-C contract checker; the runner itself is the executable comparison owner and the quick step is wired once."
+next_execution = "none__closeout_pending"
+
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"
 task_id = "ROW-EXIT-CHANGED-TEST-EXEC-P0"

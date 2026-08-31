@@ -72,9 +72,9 @@ its current MIR(JSON)->LLVM C lowerer is a compatibility/compare owner, not
 MirBuilder meaning authority. The independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
-prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0` landed
-at `e3cfa78488`; quick cargo-test and full-lib baseline work remain open.
-Preserve Core C ABI, compare evidence, and no fallback/retry.
+prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0` now owns
+exact full-lib red-baseline comparison and one quick-step wiring; preserve Core C ABI,
+compare evidence, and no fallback/retry.
 
 The temporary verification prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`
 landed at `39d5188d9d`: one test-only positional assertion now checks exact

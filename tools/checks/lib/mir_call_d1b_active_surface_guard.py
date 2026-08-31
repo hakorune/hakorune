@@ -152,6 +152,9 @@ BACKEND_OWNER_DECLARED_INSTANCE_METHOD_CUTOVER_D0_ROW = (
 VERIFICATION_P0_A_INC_DEBT_RECONCILE_R0_ROW = (
     "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
 )
+VERIFICATION_P0_C_RUNNER_WIRE_R0_ROW = (
+    "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
+)
 
 
 def fail(message: str) -> None:
@@ -908,6 +911,12 @@ def main() -> None:
         )
 
         check_verification_quick_p0_a_inc_debt_reconcile_r0(state, card, root, api)
+    elif row == VERIFICATION_P0_C_RUNNER_WIRE_R0_ROW:
+        from mir_verification_quick_p0_c_guard import (
+            check_verification_quick_p0_c_runner_wire_r0,
+        )
+
+        check_verification_quick_p0_c_runner_wire_r0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
