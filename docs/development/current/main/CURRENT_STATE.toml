@@ -1,15 +1,14 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0:
-selected-C remains ParkedSealed/BackendCapabilityMissing: no source-backed
-physical admission issuer exists. Do not infer a token, receiver, effect,
-ABI, or MIR Call from C/JSON/ValueId/args[0]/symbols. The independent
-MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0 correctness row is landed and makes
-no selected-C or Call-convergence claim.
+DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0:
+test-only FastMem branch evidence must compare exact field membership, not
+HashMap iteration order. Touch only the named test assertion; no production
+MIR/Call/backend semantics or selected-C authority may change. After closeout,
+return to the selected-C ParkedSealed/BackendCapabilityMissing design stop.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -43,6 +42,10 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
+Temporary verification prerequisite DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0
+is fast-open: one HashMap-order-dependent FastMem test becomes order-independent
+exact membership; no production semantics or whole-lib baseline claim changes.
+Selected-C remains ParkedSealed/BackendCapabilityMissing; CSE is landed; selected-C design stop resumes after this test-only row closes.
 Language decisions are fixed: ordinary me.method is retained, static/instance/
 delegate method namespaces are explicit, bare panic is a terminal Fault, and
 Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance
@@ -59,7 +62,7 @@ ValueId, Method(Some), selected-C token/wire, MIR, fallback, retry, and
 Call-schema cutover remain closed.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none"
+next_execution_card = "DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -2153,6 +2153,67 @@ non_claims = "No claim that the 139/140 failures are repaired or accepted foreve
 reopen_trigger = "Reopen the prerequisite only when the canonical command or test inventory changes, a quick step is added/removed, a new failure appears/disappears, or the baseline receipt can no longer be reproduced exactly."
 next_execution = "Return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop after this verification prerequisite is landed; keep production implementation closed until effect issuer and selected-C capability are co-sealed."
 
+[verification_health_quick_lib_baseline_p0_b1_fastmem_order_r0_2026_09_01]
+status = "selected_fast"
+task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0"
+parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+depends_on = "verification_health_quick_lib_baseline_p0_2026_08_31"
+ceremony_tier = "T0"
+box_kind = "BoxShape test-only exact-membership stabilization"
+implementation_permission = true
+decision = "Replace one order-sensitive FastMem test assertion with exact order-independent field membership. The production HashMap representation and all MIR semantics remain unchanged; this row only removes nondeterministic evidence from the baseline prerequisite."
+source_authority = "The existing FastMem test's emitted MemOpKind/field_id inventory is the observed contract; membership and cardinality are meaningful, while HashMap iteration order is not."
+canonical_issuer = "None. This row changes no production issuer or route; it only observes the already-emitted MemOp facts in a deterministic test assertion."
+non_authority = [
+  "HashMap iteration order, block allocation order, test fixture pass/fail by chance, full-lib counts, selected-C, C/JSON, MIR/Call/backend meaning, fallback, retry, and any production route",
+]
+fail_fast_boundary = "The test must fail on missing, duplicate, wrong-kind, or wrong-field MemOp membership, but must not fail merely because BasicBlock/HashMap iteration order changes. No production code or MIR is mutated by this row."
+census_boundary = "src/mir/builder/fastmem/tests/branch.rs positional field_memops assertion -> order-independent exact membership assertion; includes only the named test and its exact fastmem test module, excludes FastMem production lowering, whole-lib baseline seeding, selected-C, Call schema, and backend changes."
+finite_states = [
+  "ExactMembership: both expected field MemOps appear exactly once with the expected kind",
+  "MissingOrDuplicate: cardinality or membership differs; test fails",
+  "OrderOnlyDifference: same exact membership in another iteration order; test passes",
+]
+ordered_tasks = [
+  "R0-A: replace only the positional field_memops equality with a deterministic sorted/exact-membership assertion",
+  "R0-B: run the exact target repeatedly plus the complete fastmem test module and a quick library check",
+  "R0-C: record that production delta is zero, then close out and return to the selected-C design stop",
+]
+allowed_files = [
+  "src/mir/builder/fastmem/tests/branch.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/function/types.rs",
+  "src/mir/builder/fastmem/** production lowering",
+  "tools/checks/guard_rows.toml",
+  "tools/checks/lib/dev_gate_quick_steps.sh",
+  "src/mir/builder/calls/**",
+  "MIR Call schema",
+  "VM/backend/JSON/runtime",
+  "selected-C admission",
+]
+focused_test_filters = [
+  "mir::builder::fastmem::tests::branch::fastmem_source_lowers_owner_eq_branch_cfg_pilot",
+  "mir::builder::fastmem::tests",
+]
+changed_test_names = [
+  "mir::builder::fastmem::tests::branch::fastmem_source_lowers_owner_eq_branch_cfg_pilot",
+]
+verification_prerequisites = [
+  "exact target filter must run nonzero and green in at least ten separate processes",
+  "the complete mir::builder::fastmem::tests module must run nonzero and green",
+  "cargo check --profile quick --lib, current-state pointer guard, and git diff --check must pass",
+  "whole-lib red baseline remains separate and is not claimed green or seeded by this row",
+]
+acceptance = "The named FastMem test accepts any HashMap iteration order while enforcing exact field MemOp kind/name membership and cardinality; ten separate exact runs and the complete fastmem test module are green; production Rust/MIR/Call/backend delta is zero; touched source stays below 760/800 lines; pointer and diff checks pass; then the pointer returns to MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 design_stop."
+no_safe_slice = "Return to design_stop if the assertion cannot prove exact membership without production changes, if a second nondeterministic owner is found, if the full fastmem module has current-change red, if the row needs quick-step wiring or baseline seeding, or if any MIR/Call/backend/selected-C file is touched."
+non_claims = "No whole-lib baseline acceptance, no FastMem production change, no CSE/Call convergence credit, no selected-C admission, no Method(Some), no language or backend change, no fallback/retry, and no guard retirement."
+reopen_trigger = "Reopen only if the FastMem test's emitted inventory changes shape, another order-dependent assertion is found within the same baseline owner, or the exact test/module execution becomes non-deterministic again."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
+
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"
 task_id = "ROW-EXIT-CHANGED-TEST-EXEC-P0"
