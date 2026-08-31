@@ -1,18 +1,20 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
 current_blocker_token = """
-MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0:
-preserve the already-issued VerifiedFunctionCompletionV1 and its
-DeclaredFunctionResultContractV1 for every selected Cataloged row through
-package install. RetainedGeneric and MovedToS6CChild are exclusive; physical
-header remains a sparse projection and never owns semantic Completion. This
-row does not change target selection, physical ABI, or language syntax. Do not
-add TopLevel issuance, non-i64 ABI, Completion clone, body/MIR/backend
-inference, fallback, retry, Call schema, or unrelated cleanup. Return to the
-DeclaredInstance design stop after focused tests and closeout.
+MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0:
+retain ordinary me.method and replace only its legacy implementation. Exact
+target selection belongs to one resolver-owned nominal declaration relation;
+the package-side issuer hypothesis is rejected. The unannotated
+OpaqueObservable effect Decision and the one-name-per-Box method namespace
+Decision are accepted. Selected Cataloged result/Completion carriage now
+lands at e1976b8ba1, but live DeclaredInstance target/effect/receiver/full-lane
+ABI issuance and the common affine consumer remain CutoverBlockerOpen. Do not
+infer from package keys, names, headers, registries, MIR, fixtures, or
+backends; do not add a family loan, fallback, retry, Method(None), Call schema,
+VM/llvmlite/WASM, panic/throw/Result/?, or unrelated guard cleanup.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -45,10 +47,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The selected bounded implementation only retains existing result/Completion products for selected Cataloged package rows; true DeclaredInstance target/effect/receiver/ABI issuance remains closed."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The selected Cataloged result/Completion retention cohort landed at e1976b8ba1; true DeclaredInstance target/effect/receiver/ABI issuance remains closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
-next_execution_card = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+next_execution_card = "none"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -61,5 +63,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-31: LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepted OpaqueObservable with Query precedence, and LANG-BOX-METHOD-NAMESPACE-D0 fixed one visible method name per nominal Box with FreeStatic name/arity kept separate. Production issuers remain zero; resolver owns target issuance and package stays transport/co-seal only.",
   "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 (terminal/guard correction 7c834d021a); StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static stop before argument effects. StaticCurrentOwner me.method handoff landed at 2b7b3e7489; exact source/site/catalog target is consumed before effects and emitted as Global(StaticBoxMethod). True DeclaredInstance remains a separate NoSafeSlice design row.",
-  "2026-08-31: BoxShape test extractions landed at c1a715eb97 (normal callable production 367 lines), 7e50c819f3 (direct-statement production 748 lines, private FastMem sibling 36 lines), and ccced92d64 (loop-condition production 380 lines, private sibling 366 lines, historical path preserved); DeclaredInstance receiver source-facts correction landed at 01332528ed (body_shape_tests 10/10 green, no target/loan/MIR/backend/fallback/retry/new receipt).",
+  "2026-08-31: BoxShape test extractions landed at c1a715eb97/7e50c819f3/ccced92d64; DeclaredInstance receiver source-facts correction landed at 01332528ed; selected Cataloged result/Completion retention landed at e1976b8ba1 with exclusive S6C ownership, retained Unannotated/Void rows, and sparse borrowed physical headers; no target/effect/receiver/ABI switch.",
 ]

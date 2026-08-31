@@ -2131,12 +2131,12 @@ smallest_next_slice = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0: design 
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop"
 
 [mir_normal_callable_result_contract_retention_d0_i0_2026_08_31]
-status = "accepted_design_ready_for_fast"
+status = "landed_with_known_baseline_red"
 task_id = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
 ceremony_tier = "T1"
 box_kind = "BoxShape package carriage; preserve an already-issued language contract"
-implementation_permission = true
+implementation_permission = false
 decision = "Keep one existing verify_function_completion_v1 result for every selected Cataloged callable row through package install. Preserve the three source states Unannotated, Void, and Annotated(name); do not use Option<ExactTrivialScalarAbiV1> as the semantic carrier. The package-private cohort owns the original non-Clone VerifiedFunctionCompletionV1 and borrows its DeclaredFunctionResultContractV1. S6C remains an exclusive MovedToS6CChild disposition; all other rows use RetainedGeneric. Physical header remains a sparse projection (None for Unannotated/Void, ExactTrivialScalar(I64) for the existing supported scalar) and never owns or clones Completion."
 source_authority = "The existing resolver-owned verify_function_completion_v1 result and DeclaredFunctionResultContractV1 are the sole semantic authority. issue_callable_completion_seed_cohort_v1 is the one package invocation that obtains them; the new result_contract.rs assembler only retains and co-seals those products."
 canonical_issuer = "Existing verify_function_completion_v1; no second result/completion verifier is introduced. result_contract.rs may issue only a package-private retention cohort from the existing seed rows."
@@ -2208,6 +2208,17 @@ focused_test_filters = [
 ]
 guard = "Use current_state_pointer_guard, exact changed-test --list coverage, package completion/physical-header guards, line-budget and git diff checks. A filtered run matching zero tests is a filter failure, not green evidence."
 reopen_trigger = "Reopen the parent DeclaredInstance row only after this cohort is landed and a resolver-owned source-site relation, ordinary effect issuer, selected full-lane capability, and common affine consumer are all named; never widen this row to fill those gaps."
+implementation_commit = "e1976b8ba1"
+focused_test_results = [
+  "cargo test --profile quick --lib mir::normal_callable_semantic_package -- --test-threads=1: 62 passed, 0 failed",
+  "cargo check --profile quick --lib -j1: passed; existing warnings only",
+  "rustfmt --edition 2021 --check on all touched Rust sources: passed",
+]
+guard_result = "current_state_pointer_guard.sh: pass; git diff --check: pass; line-budget census: pass; loop_physical_transfer_authority_guard.sh: known baseline red at the pre-existing Main static-child token; normal_callable_complete_batch_guard.sh: known baseline red because it still requires the retired raw_invocation_source_transport.rs path."
+evidence = "At implementation commit e1976b8ba1, the existing non-Clone VerifiedFunctionCompletionV1 is moved once from the completion seed into a package-private retained result-contract cohort after exclusive S6C consumption. Unannotated, Void, and Annotated(i64) rows remain observable through install; physical headers borrow the cohort and stay sparse. S6C selected rows intentionally use the child-owned Completion instead of the generic cohort. The package suite ran 62/62 green after this S6C gate correction."
+red_classification = "No current-change red in the focused package suite or quick library check. Two broader guards remain known baseline debt: loop_physical_transfer_authority_guard.sh expects an older Main static-child install token, and normal_callable_complete_batch_guard.sh requires the pre-split raw_invocation_source_transport.rs path. They were not repaired in this bounded result-carriage row."
+closeout = "Return work_mode=design_stop and current_execution_row/current_design_stop to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0. Keep target/effect/receiver/full-lane ABI issuance closed; this row only preserves already-issued result/Completion products."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop"
 
 [mir_builder_boxshape_generic_lease_tail_test_s0_2026_08_31]
 status = "landed_with_baseline_guard_red"
