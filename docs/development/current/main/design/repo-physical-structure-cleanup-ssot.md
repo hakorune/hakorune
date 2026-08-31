@@ -9,6 +9,8 @@ Related:
   - docs/development/current/main/phases/archive/phase-29cr/README.md
   - docs/development/current/main/DOCS_LAYOUT.md
   - docs/development/current/main/design/compiler-expressivity-first-policy.md
+  - docs/development/current/main/design/current-docs-archive-policy-ssot.md
+  - docs/development/current/main/design/code-retirement-history-policy-ssot.md
 ---
 
 # Repo Physical Structure Cleanup (SSOT)
@@ -146,6 +148,53 @@ copied full-body archive replacement = 0
 ```
 
 A census-only, docs-only, rename-only, or net-zero move batch is progress zero.
+
+## Family Repository Surface Budget
+
+Repository reduction is part of each production family's closeout, not a
+future broad-cleanup promise. This is a local repayment check: it removes only
+assets exclusively owned by the family that just switched. It does not insert
+a general cleanup lane ahead of the next product row.
+
+One before/after receipt records:
+
+```text
+tracked files / tracked lines
+production files/lines; family tests/proofs; guard owner/cases
+active card/manifest lines; temporary assets; retired family assets
+```
+
+```text
+delete/shrink tracked content          -> reduction credit
+rename/move/archive copy               -> zero credit
+new durable contract test/reference    -> retained, not temporary debt
+caller-zero duplicate/superseded asset -> retire before next family
+```
+
+Close only after classifying every positive asset. Durable reference/tests or
+one reusable lane guard may remain with one owner. Temporary proofs, row
+guards, adapters, compatibility fixtures, and disconnected receipts are
+deleted in-series or carry one finite repayment row and `retire_when`;
+unresolved temporary delta blocks the next family.
+
+Replacement and retirement series default to non-positive total tracked-file
+and tracked-line deltas. A genuinely new T2 language/ABI capability may be
+positive only when its durable assets are named and no parallel alias,
+authority, route, or proof family remains. LOC reduction never authorizes
+deleting a required language contract, reference, test, or guard.
+
+```text
+caller switch + old edge deletion
+  -> family-owned asset retirement
+  -> tracked files/lines remeasure
+  -> no unclassified or temporary positive delta
+  -> next family may be selected
+```
+
+Closed execution prose defaults to Git history. `Tombstone` and tracked
+archive retention remain exceptions owned by
+`current-docs-archive-policy-ssot.md`; neither counts as absolute reduction
+unless tracked files and lines actually decrease without a copied full body.
 
 ## Reading Rule
 

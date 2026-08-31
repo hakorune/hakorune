@@ -1,6 +1,7 @@
 # Code Retirement / History Policy (SSOT)
 
 Status: SSOT  
+Date: 2026-09-01
 Scope: Rust/.hako 実装の縮退・置換時に「どこに残すか」を固定する。  
 Related:
 - `docs/development/current/main/design/compiler-cleanliness-campaign-ssot.md`
@@ -24,10 +25,17 @@ Related:
 - 暫定 compat は既定OFF + 撤去条件つきでのみ許可。
 
 3. 理由は docs に残す
-- 退役理由・境界・検証コマンドは `CURRENT_TASK.md` と phase/design SSOT に記録する。
+- 退役理由・境界・検証コマンドは active card と owning design/reference
+  SSOT に短く記録する。`CURRENT_TASK.md` はpointerのまま保つ。
 - 「コード本文」を docs に複製しない。必要なら commit hash を記録する。
 
-4. rollback 単位を固定
+4. 閉じた実行履歴は Git
+- 閉じたcard／guard／proof／fixture本文をtracked archiveへコピーしない。
+- stable external entryや再現不能evidenceが必要な例外だけ、ownerと
+  `retire_when`付きのtombstone/archiveを許可する。
+- rename、move、archive copyはrepository削減credit 0とする。
+
+5. rollback 単位を固定
 - 1 blocker = 1 受理形 = 1 commit を基本とする。
 - 構造整理で series が必要な場合も、目的1つ・2〜5コミットに限定する。
 

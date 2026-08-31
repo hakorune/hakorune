@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-30
+Date: 2026-09-01
 Decision: MIRBUILDER-INPLACE-REPLACEMENT-POLICY-v1
 Scope: Rust MirBuilderを稼働させたまま、責務単位で本番内部を交換する
 Related:
@@ -14,6 +14,19 @@ Related:
 ---
 
 # MirBuilder In-Place Replacement Policy
+
+## Current Capsule
+
+- **Current decision:** replace one live production responsibility in place;
+  do not grow a second Builder or a chain of disconnected prerequisites.
+- **Current implementation status:** caller/owner/old-edge accounting is the
+  accepted migration discipline.
+- **Next ordered task:** the active pointer selects the only executable cell;
+  this policy does not select a row.
+- **Production stop line:** a vertical opens only when its exact family,
+  caller, issuer/owner, selected physical path, and old-edge set form one row.
+- **Retirement finish line:** the live caller uses the new owner, the selected
+  old edge is physically gone, and fallback/retry/reselection are zero.
 
 ## Decision
 
@@ -141,6 +154,40 @@ public_contract_owners > 0:
 未分類または境界未確定:
   design_stop。推測値でfastを開かない
 ```
+
+### Caller-first vertical admission gate
+
+Before adding another precursor row, classify the intended production
+vertical as exactly one finite tuple:
+
+```text
+exact semantic family
+named live non-test caller
+canonical source issuer and selected new owner
+lossless selected result/effect/ABI/backend path
+finite old-edge delete set
+```
+
+`lossless selected path` means the selected backend can consume the canonical
+product without name/registry repair, fallback, or semantic reconstruction.
+`RejectBeforeEffect` proves only a retirement row, not a successful vertical.
+
+```text
+exactly one complete tuple:
+  fixed 2--5 commits; at most one S0
+  finish with caller switch + same-series I0/R0 deletion
+
+zero complete tuples or multiple competing tuples:
+  park the whole vertical outside the active boundary
+  add no D0/receipt/adapter/fixture-only route/per-row guard
+```
+
+Reopen a parked vertical only when an observable tuple field changes: a live
+caller, one owner, a lossless selected path, or a finite delete set. Prose,
+candidate types, and local-green fixtures are not reopen triggers.
+
+Intermediate assets have no progress credit. If the series cannot reach its
+switch/delete terminal, revert or stash detached S0 assets and park it.
 
 fast開始後に新しいproduction caller、classifier arm、consumer、public contractを
 発見した場合はscopeへ足さず、直ちにdesign_stopへ戻す。同じ責務の追加発見を

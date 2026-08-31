@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-11
+Date: 2026-09-01
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -27,7 +27,8 @@ Related:
 - **Production stop line:** no router or guard wording may authorize a source
   shape, production caller, fallback, or publication path.
 - **Retirement finish line:** duplicated procedure and historical command
-  tables are absent from the local router and current mirrors.
+  tables are absent from the local router and current mirrors; each completed
+  family has repaid temporary repository assets before the next family starts.
 
 ## Purpose
 
@@ -296,6 +297,23 @@ ownership is still being discovered, the slice is a design stop rather than an
 implementation row. Do not add fixtures, fallback, or a compatibility adapter
 to make an unresolved mapping look green. A row that cannot satisfy its Done
 block keeps its blocker and next action; it is not closed as “partially landed.”
+
+### Small-surface advancement gate
+
+These are blocking closeout owners, not optional cleanup guidance:
+
+```text
+source spelling     -> language-minimal-surface-ssot.md
+production vertical -> mirbuilder-inplace-replacement-policy-ssot.md
+tracked assets      -> repo-physical-structure-cleanup-ssot.md
+```
+
+Exactly one complete production tuple opens a bounded series; zero/multiple
+keeps the whole vertical parked without another D0/receipt/guard. Before the
+next family, classify added assets and remeasure tracked files/lines. One
+family has one active card and guard owner; moves/archive copies earn zero
+reduction credit, closed detail belongs to Git, and required contract evidence
+is never deleted merely to satisfy a count.
 
 ### Worker consultation contract
 

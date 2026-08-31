@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-08-05
+Date: 2026-09-01
 Scope: Minimal canonical Hakorune language surface for low-level and selfhost work.
 Related:
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
@@ -17,6 +17,20 @@ Related:
 ---
 
 # Language Minimal Surface SSOT
+
+## Current Capsule
+
+- **Current decision:** one core idea has one canonical source spelling;
+  existing families absorb new needs before syntax grows.
+- **Current implementation status:** the minimal surface table is accepted;
+  parser acceptance alone never admits a language feature.
+- **Next ordered task:** apply the source-surface admission budget whenever a
+  language row is explicitly reopened.
+- **Production stop line:** no keyword, builtin spelling, alias, or sugar lands
+  without one semantic owner, one selected execution path, and fail-fast
+  behavior for unsupported paths.
+- **Retirement finish line:** compatibility spellings are either deleted in
+  the admitting series or have one bounded owner and observable sunset.
 
 ## Decision
 
@@ -89,6 +103,44 @@ Use this checklist before accepting any new language surface.
 | Does unsupported backend behavior exist? | Define fail-fast behavior before implementation. |
 | Does it require inference? | Split inference into its own Stage1 row; do not hide it in parser work. |
 | Does it add sugar for convenience only? | Defer until a real code owner needs it. |
+
+## Source-Surface Budget Law
+
+The default source-language surface delta is zero. A parser branch, fixture,
+formatter example, backend implementation, or local green test is not a
+language feature by itself.
+
+Before admitting syntax, one existing language Decision must contain exactly
+one row with:
+
+```text
+canonical semantic family
+source need not expressible by an existing family without semantic loss
+Stage1 issuer + fail-fast boundary + selected end-to-end execution path
+one canonical reference/formatter spelling
+compatibility spellings deleted now or owned by one bounded sunset
+```
+
+```text
+exactly one complete row -> at most one spelling through a bounded T2 series
+zero/multiple rows       -> park; add no syntax/alias/receipt/fixture/guard
+existing family suffices -> fold into it; source-surface delta = 0
+```
+
+A genuinely new orthogonal meaning may have a positive surface delta only
+through that explicit T2 Decision. It does not earn permission for a second
+alias. Convenience, parser/backend simplicity, or reuse is not a new meaning.
+
+Closeout records:
+
+```text
+canonical spellings before / after
+compatibility spellings before / after
+production owner/path; deleted old surface or exact sunset/reopen trigger
+```
+
+The counts are an admission check, not a reason to delete a distinct required
+feature. Retirement still requires zero owner/caller or an accepted successor.
 
 Allowed growth:
 

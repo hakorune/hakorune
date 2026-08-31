@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-08
+Date: 2026-09-01
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - AGENTS.md
@@ -21,7 +21,7 @@ Related:
 ## Current Capsule
 
 - **Current decision:** `CURRENT_STATE.toml` is the compact current pointer;
-  active cards own execution and git history owns landed detail.
+  one family owns one active card/guard owner and Git owns closed detail.
 - **Current implementation status:** the pointer/mirror thinning policy and
   classified-red procedure are active; this policy update does not change the
   selected compiler lane.
@@ -30,7 +30,7 @@ Related:
 - **Production stop line:** documentation and guard cleanup cannot activate a
   production route or waive a failing current contract.
 - **Retirement finish line:** current mirrors contain no copied history,
-  `landed_tail` stays bounded, and durable rules have one tracked owner.
+  `landed_tail` stays bounded, and durable rules/proofs have one tracked owner.
 
 ## Problem
 
@@ -293,59 +293,57 @@ and closeout evidence still decide that claim.
 
 ### Responsibility-Family Amortization Law
 
-Documentation is amortized over a semantic responsibility family, not emitted
-once per AST constructor. A family is a reusable authority boundary such as a
-compositional expression closure, control, call/object, nested-owner, or
-compatibility-retirement boundary.
+Documentation and proof ownership are amortized over one semantic
+responsibility family, not emitted once per AST constructor or row.
 
 ```text
-one family decision
-  -> one or more implementation-coupled constructor edits
-  -> one batch-boundary census / compact closeout
+one semantic family
+  -> one active card
+  -> one family/lane guard owner
+  -> implementation-coupled edits
+  -> one compact closeout
 ```
 
 Rules:
 
-- adding another constructor to an already accepted family does not create a
-  task document, selection document, or closeout document;
-- record such an edit as one compact table/queue mutation in the implementation
-  commit; git history and the executable proof remain the detailed record;
-- do not reopen D0 for each constructor unless source authority, failure owner,
-  result policy, language semantics, or the family invariant changes;
-- three consecutive same-family constructor rows are a mandatory batching
-  trigger: stop creating per-constructor rows and use one family-level batch;
-- batch selection must still name the production caller and the old authority
-  removed; batching never permits mixed semantic responsibilities or fallback;
-- run a fresh broad census once at the family/batch boundary, not after each
-  constructor.
+- no per-constructor task/selection/closeout document and no per-row shell
+  guard; add a case to the family owner when proof is required;
+- do not reopen D0 unless authority, failure, result/effect, ABI, language
+  semantics, or the family invariant changes;
+- after two same-family constructor edits, batch the rest instead of opening a
+  third row;
+- the family card names the live caller, selected owner, old-edge delete set,
+  focused test surface, and lane guard owner;
+- run one broad census at the family boundary; Git history owns landed detail;
+- when the owner/caller/delete-set is zero or multiple, park the whole family.
+  Do not accumulate another D0, receipt, adapter, fixture, or guard.
 
 ### Active-Card Budget and No-Growth Law
 
-An active rolling card is a restart surface, not an append-only ledger. Active
-rolling cards have an editorial target of about 800 lines and the existing
-current-state guard enforces a hard 1,000-line limit.
+An active card or execution manifest is a restart surface, not an append-only
+ledger. The editorial target is about 800 lines and the hard limit is 1,000.
+The pointer guard must ultimately cover `latest_workstream_card`,
+`latest_card_path`, and `current_execution_design`; until all three are
+machine-checked, manual line census is blocking evidence, not a waiver.
 
 ```text
-rolling card <= 1,000 lines:
+active card/manifest <= 1,000 lines:
   ordinary compact updates allowed
 
-rolling card > 1,000 lines:
+active card/manifest > 1,000 lines:
   replacement/compaction edits only
-  net landed-history growth forbidden
+  no next semantic family until a <= 1,000-line current surface exists
 ```
 
-An over-budget card may only replace its current four-block brief or current
-pointer in place while shrinking overall. Before the next batch closeout, move or delete superseded
-landed prose using the bounded archive policy and keep only:
+An over-budget surface may replace its current brief in place only while
+shrinking. Keep current decision, execution brief, compact queue,
+sunset/fence registry, and a short closed tail. Closed prose defaults to
+`RetireFromTree`; Git owns detail. A tracked move, rename, or full-body archive
+copy earns zero reduction credit.
 
-- current decision / consultation;
-- current four-block execution brief;
-- compact active queue;
-- active sunset/fence registry;
-- a short closed tail.
-
-Do not evade this law by creating a second `*-current.md`, a per-constructor
-investigation file, or a new ledger that merely copies the rolling card.
+Do not evade the limit with a second `*-current.md`, per-row investigation,
+or copied ledger. A tombstone or tracked archive is allowed only by the
+bounded archive policy's stable-entry or irreproducible-evidence exception.
 
 A new narrative document is allowed only for a durable cross-workstream
 contract, machine-consumed stable artifact, irreproducible evidence, incident
@@ -485,27 +483,18 @@ fast-path ceremony compresses repeated proof; it never waives proof.
 
 ## Active Docs Size Policy
 
-The 800-line hard cap applies to source code files. It is not an active-docs
-line cap.
+Active restart, workstream, task-order, card, and execution-manifest surfaces
+use the 800-line target / 1,000-line hard limit above. Existing over-budget
+surfaces are shrink-only and must be compacted before the next semantic family.
+New history shards and copied investigation ledgers are not compaction.
 
-Active restart / workstream / task-order / design docs should still stay
-small enough to scan. Use these rules instead of a hard 800-line markdown
-limit:
+Durable cross-workstream SSOTs may exceed 1,000 lines only when splitting
+would create a second authority; material updates must replace or shrink an
+existing section. Archive/fixture evidence may exceed the limit only under a
+named retention owner and is never an active restart entrypoint.
 
-- keep active entry docs as pointers, current decisions, and next-action
-  queues;
-- keep the active execution section within the Minimal Execution Brief Law;
-- move landed history, full inventories, and probe transcripts into phase
-  cards, fixtures, ledgers, or investigation notes;
-- keep `mirbuilder-rust-to-hako-converter-task-order-ssot.md` below 400 lines
-  and 500 characters per line; `current_state_pointer_guard.sh` enforces the
-  line-length boundary;
-- when an active markdown file grows past roughly 1000 lines, open a docs-slim
-  task or archive split before adding more historical prose;
-- long archive / fixture / investigation docs may exceed that size when they
-  are not restart entrypoints;
-- do not split a doc just to satisfy a line count if the split would hide the
-  SSOT or make the next action harder to find.
+`mirbuilder-rust-to-hako-converter-task-order-ssot.md` retains its tighter
+400-line / 500-character-per-line guard.
 
 For source code, use the earlier design trigger owned by
 `agent-current-entry-contract-ssot.md`: 760 lines requires a responsibility

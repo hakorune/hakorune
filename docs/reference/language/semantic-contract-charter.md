@@ -2,7 +2,7 @@
 
 Status: SSOT
 Decision: accepted
-Date: 2026-07-10
+Date: 2026-09-01
 Scope: Cross-cutting language laws, normative precedence, and the change
 protocol for Hakorune language v1.
 
@@ -18,6 +18,7 @@ Related:
 - `docs/reference/language/ownership.md`
 - `docs/reference/language/lifecycle.md`
 - `docs/reference/language/scope-exit-semantics.md`
+- `docs/development/current/main/design/language-minimal-surface-ssot.md`
 
 ## Purpose
 
@@ -98,6 +99,21 @@ compatibility output = canonical normalized shape or fail-fast
 The grammar row owns the concrete profile name, registry rows, parser flags,
 and migration schedule. This charter only forbids compatibility from becoming
 an unstated default or a fallback after canonical rejection.
+
+## Canonical Surface Budget
+
+One core idea has one canonical source spelling. A parser branch, fixture,
+formatter example, or backend implementation does not admit syntax by itself.
+
+A new keyword, operator, reserved builtin spelling, header shape, or sugar is
+admitted only when an accepted language Decision proves that existing
+canonical families cannot express the meaning without loss and names one
+semantic issuer, failure boundary, and selected path. Zero/multiple complete
+rows leave it unadmitted; provisional aliases must not manufacture uniqueness.
+
+Compatibility syntax is explicit, normalizes immediately, and has one sunset
+owner. New meaning may add one spelling, never a parallel alias. Operational
+accounting is owned by `language-minimal-surface-ssot.md`.
 
 ## Language Change Protocol
 
