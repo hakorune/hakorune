@@ -55,19 +55,20 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-`MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0` follows the landed
-receiver-owner, relation/effect/package chain, and backend option audits.
-Option B is the final architecture: retain ordinary `me.method`, publish one
-canonical `Method(Some(receiver))` MIR, lower it through typed Hako LLVM text,
-switch one named caller, then delete the selected-C compatibility edge. The
-behavior-neutral exact BindingRef -> ValueId accessor S0 landed at
-`e15947332c`; the current I0 connects that existing owner to the installed
-locator only for the selected root receiver and preserves the current
-Global/manual receiver-prefix output. `variable_map`, param0, `args[0]`,
-numeric zero, AST reread, names, registry, JSON/C/Hako/backend metadata,
-fallback, and retry remain non-authorities. Hako LLVM-text root DeclaredInstance
-coverage, lossless transport, exact ABI parity, and named caller switches remain
-zero; whole-lib known-red health is separate. The independent bounded row
+the exact receiver crosswalk landed at `dc68fa2910`. The selected root
+DeclaredInstance path now consumes one installed locator row, reads the
+existing BindingRef-owned ValueId before arguments, and rejects armed mismatch
+or residual inventory without falling back to ambient `me`; its current
+Global/manual receiver-prefix output is intentionally unchanged. The pointer
+has returned to `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`.
+Option B remains final: name one exact Hako LLVM-text physical owner/ABI and
+one production caller, then open one source-to-AOT `Method(Some(receiver))`
+vertical and delete that family's old Global/manual-prefix and selected-C
+edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
+zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
+remain non-authorities. Hako LLVM-text root DeclaredInstance coverage and a
+named caller are still zero; whole-lib known-red health is separate. The
+independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
 prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0`

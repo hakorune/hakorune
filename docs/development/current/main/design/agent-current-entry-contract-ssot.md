@@ -303,6 +303,12 @@ Workers are a bounded review resource, not a second implementation stream.
 
 - Keep one serial authority/current-execution spine. Up to two workers may
   inspect independent premises; they remain read-only and one Decision is integrated.
+- A read-only worker must not run `git stash`, `git reset`, `git checkout`,
+  `git restore`, `git switch`, or `git clean` in the shared root worktree.
+  Compare another revision with `git show` or a dedicated temporary worktree.
+  If a worker must compile that revision, give it a separate target directory;
+  it must not take the active agent's `target/quick` lock or temporarily hide
+  uncommitted changes. A worker-side stash/pop cycle is a write, not an audit.
 - Once dispatched, do not rush a worker with short polling, close it for
   silence, or duplicate its audit. Do non-overlapping work, then make one
   sufficiently long wait at the integration boundary. A timeout means pending,

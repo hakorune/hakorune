@@ -1,17 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0:
-reuse the resolver relation, installed locator, and CallableSemanticLoweringState
-exact BindingRef -> ValueId owner. Replace only selected root receiver
-authority through one combined non-Clone callback and short raw-port reborrow;
-reject owner/session/site/binding/entry/take/residual mismatches before effects.
-Keep Global/manual receiver-prefix output unchanged; no inference from
-variable_map/param0/args[0]/ValueId zero/AST/names/registry/backend, no
-fallback/retry, Method(Some), target/effect/ABI, backend, or Call-schema change.
+Decision: make one root DeclaredInstance family the first source-to-AOT Method(Some(receiver)) vertical; do not create another family-specific loan.
+Source authority + canonical issuer: the landed relation/effect/result/signature/locator/value crosswalk; one exact Hako LLVM-text physical owner is still missing.
+Non-authority: Global/manual receiver prefix, args[0], names/registry, JSON/C, selected-C repair, VM, fallback, retry, or a backend-issued semantic target.
+Fail-fast boundary: no Method(Some), argument effect, object, or caller switch until one exact physical owner, ABI, named caller, and old-edge delete set close.
+Smallest next slice: identify that owner/family/caller; then open one bounded Method(Some) -> LLVM/AOT series and delete the matching Global/manual-prefix and selected-C edges.
+Non-claims: no broad selected-C deletion, other method families, Call R6/R7, VM retirement, compatibility quarantine, or schema cutover.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -44,27 +42,24 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-P0-A/.inc and P0-B1/FastMem prerequisites are landed. P0-C landed at
-1115d70687: a fixed-stack runner compares the 7553-test inventory, 7385/139/29
-summary, and 139-name failure set after three identical observations; known red
-remains explicit debt and whole quick is not claimed green.
-Language decisions are fixed: ordinary me.method is retained, static/instance/
-delegate namespaces are explicit, panic is terminal Fault, and Result/?/cleanup
-are non-throwing surfaces. DeclaredInstance relation/effect/locator products and
-the install bridge are landed. Final choice: Option B retains me.method,
-publishes canonical Method(Some(receiver)) MIR, then replaces selected-C with
-typed Hako LLVM-text one family at a time.
-Option A is only a temporary UnsupportedBeforeObject gate. Receiver ValueId,
-Method(Some), Hako coverage, MIR, fallback/retry, and Call-schema cutover remain
-closed. The receiver owner audit found one storage candidate but no production
-crosswalk; the current design stop specifies that callback-scoped BoxShape.
-The exact-binding accessor S0 landed at e15947332c as a behavior-neutral BindingRef -> ValueId read reused by the existing variable reader. Three read-only audits then closed the D0 authority question: the resolver relation, installed locator, and callable state are existing owners and a combined callback-scoped crosswalk is feasible. The current fast row replaces only the selected root DeclaredInstance receiver authority; it does not open Method(Some), target/effect/ABI, selected-C/Hako/C, backend, fallback/retry, or Call schema.
+The deterministic runner at 1115d70687 retains the committed 7553-test and
+139-failure receipt; the current direct run has 7562 tests and the same 139
+failure names, so inventory refresh is prerequisite debt, not whole-lib green.
+Language decisions are fixed: retain ordinary me.method, use explicit static/
+instance/delegate namespaces, terminal panic Fault, and non-throwing Result/?/cleanup.
+Option B publishes canonical Method(Some(receiver)) and replaces selected-C
+with typed Hako LLVM text one family at a time. The receiver crosswalk landed
+at dc68fa2910: exact locator/site/binding now supplies the existing ValueId
+before arguments and residuals reject, while Global/manual-prefix output is
+unchanged. Next, name one exact Hako physical owner, ABI, caller, and delete set.
 """
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
-next_execution_card = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
+parked_mirbuilder_test_inventory_retirement_task = "MIR-BUILDER-TEST-INVENTORY-RETIRE-R0 (recorded in the active Call card; nonblocking)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
@@ -73,7 +68,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-01: DeclaredInstance receiver crosswalk I0 landed at dc68fa2910; the exact package locator and BindingRef owner now replace ambient receiver authority before arguments, with take-once/residual-zero evidence and unchanged Global/manual-prefix output.",
   "2026-09-01: FastMem branch evidence stabilization landed at 39d5188d9d; one test now checks exact field MemOp membership/cardinality independent of HashMap order. Ten exact runs and the 20-test module pass; no production semantics or whole-lib baseline claim.",
   "2026-08-31: selected-C 8 MiB stack health landed at 46b2ee72e3: both invocation-local SameModuleFunctionContextSnapshot values are heap-owned, the definition seam is split under the line budget, and fresh-FFI repeated runtime-helper guard evidence passes; no route, ABI, MIR, or semantic change was made.",
-  "2026-08-31: DeclaredInstance effect issuer I0 landed at 11d9dadada4cf533bdea91429afe4e67469e7a65; parser contract disposition and resolver-owned OpaqueObservable/Query facts are retained with focused evidence, while target/receiver/package/MIR publication remains closed.",
 ]

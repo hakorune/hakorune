@@ -3975,7 +3975,7 @@ transport_blockers = [
 ]
 selected_c_lane = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0 (separate backend health lane; status=CutoverBlockerClosed at 46b2ee72e3)"
 selected_c_admission_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-selected_c_admission_status = "ParkedSealed__RetireAfterReplacement__existing_source_backed_capability_count_zero"
+selected_c_admission_status = "NoSafeSlice__existing_source_backed_capability_count_zero"
 selected_c_admission_scope = "Define one versioned downstream admission that borrows the backend-neutral locator plus already-issued relation/result/Completion/effect/full-lane views, distinguishes receiver absence from ValueId 0, validates all lane/result/effect coverage before C need-scan, and emits an opaque admission token without re-issuing meaning. No production implementation is permitted until this contract has an existing owner and focused rejection matrix."
 selected_c_admission_non_authority = [
   "MIR JSON target_symbol/target_arity/receiver_value",
@@ -4275,12 +4275,13 @@ forbidden_files = [
 ]
 
 [mir_call_me_declared_instance_locator_value_crosswalk_i0_2026_09_01]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 ceremony_tier = "T1"
 box_kind = "One receiver-authority BoxShape production crosswalk; no target or MIR shape change"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "dc68fa2910"
 decision = "Connect the already-issued root DeclaredInstance relation to the already-installed callable session through one combined callback. Take the exact locator row once, validate owner/session/site/binding, borrow the existing BindingRef -> ValueId entry, and replace only the ambient receiver authority. Keep the current Global/manual receiver-prefix emission unchanged until the later Method(Some) cutover."
 source_authority = "VerifiedDeclaredInstanceCallRelationV1 carried by the installed DeclaredInstance locator; its caller owner, exact call/receiver sites, and receiver BindingRef are the only source identity. CallableSemanticLoweringState remains the sole physical BindingRef -> ValueId owner."
 canonical_issuer = "No new issuer. NormalCallableSemanticPackagePortV1 lends selected input/signature and a non-Clone caller-scoped locator capability from the same installed package; the live callable session performs the exact BindingRef read and owns receiver ValueId access."
@@ -4367,10 +4368,11 @@ verification_prerequisites = [
   "every changed test name must be listed and matched by cargo test -- --list",
   "focused positive/negative/temporal tests and structural guard",
   "pointer guard and git diff --check",
-  "whole-lib 7553/7385/139/29 baseline remains separate and is not claimed green",
+  "whole-lib failure names are compared with the committed 139-name receipt; inventory refresh remains separate and whole-lib is not claimed green",
 ]
-acceptance_evidence = "To be filled only after implementation: exact changed test names, focused runs, structural guard, pointer guard, diff check, and red classification. Do not report design evidence as production consumer evidence."
-closeout = "After the bounded receiver-authority row lands, set status=landed and return work_mode=design_stop. Select the next exact product/selected-C design stop; do not open Method(Some) merely because the receiver crosswalk is green."
+acceptance_evidence = "Landed at dc68fa2910. Cargo-built exact filters passed locator_scope 2/2, exact_receiver_value 2/2, and declared_instance_selected_handoff 2/2. Reusing that exact current test binary then passed declared_instance 22/22, receiver_crosswalk 5/5, and normal_callable_semantic_loan_port 1/1; cargo --list exposed 7562 tests and all six changed names exactly. The direct fixed-stack whole-lib run observed 7394 passed, 139 failed, 29 ignored, with zero added or removed failure names versus the committed 139-name receipt. The active structural guard, pointer guard, diff check, and source line limits passed."
+red_classification = "No current-change red. The committed full-lib inventory receipt still names 7553 tests while the current binary lists 7562 because nine passing tests landed after that receipt; its 139-name failure set is unchanged. Inventory refresh remains verification baseline debt and is a prerequisite before the next production cutover, not a green claim for this row."
+closeout = "The selected root DeclaredInstance receiver now comes only from the exact installed locator plus live BindingRef -> ValueId owner before arguments; armed mismatches never fall back to ambient me, and locator residuals reject. Global/manual receiver-prefix output is deliberately unchanged. Return to selected-C/Hako physical-owner design_stop before opening Method(Some)."
 next_design_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 next_execution = "none__design_stop"
 
@@ -4523,28 +4525,43 @@ next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_
 status = "accepted_design_stop"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
-depends_on = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
+depends_on = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 ceremony_tier = "T1"
-box_kind = "Downstream selected-C admission over an existing semantic locator"
+box_kind = "Backend-capability design gate for the first DeclaredInstance Method(Some) vertical"
 implementation_permission = false
-decision = "Keep selected-C as a downstream physical admission, separate from the semantic package locator. No production source-backed selected-C capability currently exists; the lane is NoSafeSlice rather than a reason to infer meaning from C/JSON metadata."
-source_authority = "The landed package-private locator plus the same-session DeclaredInstance relation, result/Completion, semantic effect, selected mapping, and full physical-lane products; a future selected-C owner must borrow them without reissuing meaning."
-canonical_issuer = "No existing production issuer. Reopen only when one same-session non-Clone admission owner validates the complete crosswalk and emits an opaque consume-once token before C emission."
+decision = "Use this existing design stop as the backend prerequisite for one end-to-end DeclaredInstance vertical. Option B is final: retain me.method, publish Method(Some(receiver)), lower one exact family through typed Hako LLVM text, switch one named caller, and delete that family's old Global/manual-prefix and selected-C edges. Do not build a standalone selected-C semantic issuer or a parallel family-specific loan."
+source_authority = "The landed resolver relation, semantic effect, result/Completion, selected mapping, full physical signature, package locator, and exact BindingRef -> ValueId crosswalk. They alone decide target/receiver/result/effect/lanes before argument descent."
+canonical_issuer = "No physical issuer is selected yet. This D0 must name one existing or bounded Hako LLVM-text physical owner, its lossless Method(Some) ABI input, and one production caller. That owner consumes the canonical disposition without issuing semantic meaning."
 non_authority = [
   "MIR/JSON target_symbol, target_arity, receiver_value, FunctionSignature/body inference, fixed effect tags, C registry/header/symbol lookup, VM/llvmlite/A-prime/pinned-Text routes",
-  "ValueId(0) as receiver absence, args[0] receiver repair, name lookup, fallback, retry, or backend-side target/effect/lane reconstruction",
+  "the current Global/manual receiver prefix, ValueId(0) as receiver absence, args[0] receiver repair, name lookup, fallback, retry, or backend-side target/effect/lane reconstruction",
 ]
-fail_fast_boundary = "Missing/foreign/duplicate/coverage/residual relation, result/Completion, effect, full-lane, receiver-presence, or selected capability must reject before receiver materialization, argument effects, MIR/JSON publication, C need-scan, fallback, or retry."
-census_boundary = "The landed backend-neutral locator -> a future selected-C admission consumer; includes only the downstream admission contract and excludes semantic issuer changes, receiver ValueId, Method(Some), C emission, Call schema, and other backends."
+fail_fast_boundary = "Until one exact Hako owner, ABI, named caller, and old-edge delete set are all closed, Method(Some), argument descent on that new route, object emission, caller switch, fallback, and retry remain zero. Missing/foreign/duplicate/coverage/residual products reject before effects."
+census_boundary = "one selected root DeclaredInstance source relation -> exact receiver/target/result/effect/physical signature -> future Method(Some) MIR disposition -> one Hako LLVM-text physical owner -> one named LLVM/AOT caller -> deletion of the matching Global/manual-prefix and selected-C edges; includes only that first family and excludes delegates, explicit receivers, other methods, broad selected-C retirement, VM, Call R6/R7, and compatibility quarantine."
 finite_states = [
-  "NoSafeSlice: source-backed selected-C capability count is zero",
-  "DesignReady: one owner and a complete rejection matrix exist, but no production switch yet",
-  "AdmissionReady: non-Clone opaque token validates the complete same-session crosswalk",
-  "Consumed: exactly one C consumer takes the token before physical emission",
+  "CoverageMissing: exact Hako LLVM-text family/ABI/caller count is zero; remain NoSafeSlice",
+  "DesignReady: one physical owner, complete input contract, named caller, and deletion set are finite; no production switch yet",
+  "VerticalReady: Method(Some) is owned before arguments and the same disposition is accepted losslessly by the physical owner",
+  "CallerSwitched: one named source-to-LLVM/AOT route uses the new vertical with fallback/retry zero",
+  "RetireReady: that family's old Global/manual-prefix and selected-C callers are zero and can be deleted",
+  "ParkedSealed: a boundary-external backend family has an owner and observable reopen trigger but is not needed by this vertical",
 ]
-acceptance = "Remain design_stop until a real source-backed selected-C owner exists. Do not promote the current JSON consumer, args[0] repair, numeric-zero check, N+1 ABI, or fixed effect tag into authority."
-no_safe_slice = "Any implementation request that needs a C/JSON lookup, target/effect/lane inference, receiver repair, a second resolver, fallback/retry, or semantic meaning in the physical consumer returns to this design stop."
-non_claims = "No selected-C production implementation, receiver materialization, Method(Some), common direct-call loan, MIR/Call schema change, C/LLVM backend rewrite, VM change, or legacy deletion."
+ordered_tasks = [
+  "D0-A: name the smallest exact Hako LLVM-text physical owner and record its receiver/result/effect/full-lane input without JSON/C/name inference",
+  "D0-B: name one production caller and the exact old Global/manual-prefix plus selected-C edge delete set; classify every other backend family ParkedSealed or out of boundary",
+  "D0-C: reconcile the committed full-lib inventory receipt with the nine later passing tests and require unchanged 139 failure names before opening production",
+  "I0 successor: in at most one implementation plus one closeout commit, own Method(Some) before arguments, lower arguments once, emit through the named LLVM/AOT owner, switch the caller, delete both old edges, and prove residual zero",
+]
+vertical_successor_task = "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0"
+vertical_successor_acceptance = "One ordinary source me.method call reaches exact Method(Some(receiver)) -> arguments once -> typed Hako LLVM-text -> LLVM/AOT with no name/registry/JSON/C reconstruction, fallback, or retry. The selected family's Global/manual receiver-prefix producer and selected-C consumer are both zero in the same bounded series."
+old_edge_delete_set = [
+  "selected root DeclaredInstance -> Global(StaticBoxMethod) publication",
+  "manual receiver ValueId prefix into Call args for that family",
+  "the named selected-C compatibility consumer for that family",
+]
+acceptance = "Remain design_stop until CoverageMissing becomes DesignReady through one exact physical owner, ABI, named caller, deletion set, and refreshed no-new-red receipt. Do not promote the current JSON consumer, args[0] repair, numeric-zero check, N+1 ABI, or fixed effect tag into authority."
+no_safe_slice = "Any implementation request that needs a C/JSON lookup, target/effect/lane inference, receiver repair, a second resolver, fallback/retry, a parallel family-specific loan, or semantic meaning in the physical consumer returns to this design stop. If no exact Hako owner exists after one bounded audit, keep this family ParkedSealed rather than adding more D0 cards."
+non_claims = "No broad selected-C deletion, no other Method family, no Call schema R6/R7, no VM change, no compatibility quarantine, no second MirBuilder, and no physical module cleanup."
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
@@ -4561,11 +4578,81 @@ focused_test_filters = [
   "selected_c_admission",
 ]
 verification_prerequisites = [
-  "A production source-backed admission owner must exist before implementation permission is reconsidered",
+  "receiver crosswalk I0 dc68fa2910 remains landed and no armed path can fall back to ambient me",
+  "one exact Hako LLVM-text physical owner and named caller must exist before implementation permission is reconsidered",
   "The locator and all existing relation/result/Completion/effect/full-lane products remain exact and same-session",
-  "Whole-lib baseline is compared separately and is not replaced by focused green",
+  "The committed full-lib inventory is refreshed from 7553 to the current exact inventory while the 139-name failure set remains unchanged",
 ]
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
+
+[mir_builder_focused_test_binary_boundary_s0_2026_09_01]
+status = "parked_sealed_nonblocking"
+task_id = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0"
+parent_row = "MIRBUILDER-FINAL-PIPELINE-v1"
+ceremony_tier = "T0"
+box_kind = "Verification-only BoxShape extraction of the monolithic root lib-test binary"
+implementation_permission = false
+decision = "Treat the 7562-test nyash-rust lib-test binary as physical verification legacy. Do not block the DeclaredInstance vertical on it, do not duplicate private Builder logic, and do not widen production visibility for tests. When a real crate boundary is available, move one focused MirBuilder owner and its tests together into a small harness/crate; until then build the root test binary once per source revision and reuse that exact binary for filters and --list."
+source_authority = "Measured same-host evidence from dc68fa2910: a one-import rebuild of the root quick lib-test binary took 11m56s, while reusing that exact binary ran the DeclaredInstance/receiver/loan filters in 0.01s. The existing crates/hakorune_mir_builder boundary owns only substrate today and is not yet the full Builder."
+non_authority = [
+  "test count alone, one best timing, cargo-nextest as a build-time cure, a copied private implementation, public API widening solely for tests, cfg that changes production semantics, or a second MirBuilder",
+  "this task is not compiler runtime optimization and does not replace the deterministic whole-lib red-baseline owner",
+]
+fail_fast_boundary = "Any proposed split that changes a production module path, visibility/authority, test meaning/name, feature/default behavior, baseline failure set, or needs a mirrored implementation is rejected before migration."
+census_boundary = "one touched MirBuilder production owner + its private unit-test cohort -> candidate small crate/test binary -> compile/link measurement -> identical focused results; includes Cargo verification build shape only and excludes MIR semantics, Call/backend routes, runtime performance, and broad workspace decomposition."
+ordered_tasks = [
+  "S0-A: measure cold and warm compile/link for the root lib-test binary and the candidate focused boundary with identical source/profile/environment",
+  "S0-B: prove whether the production owner can move with its tests into crates/hakorune_mir_builder without public leakage; if not, keep ParkedSealed rather than create a mirror harness",
+  "S0-C: move one owner/test cohort, preserve exact test names and whole-lib receipts, and record before/after compile-link evidence",
+]
+acceptance = "A touched focused MirBuilder owner no longer forces relinking the 7562-test root binary; the smaller owner/test target executes the same positives/negatives, introduces no public or semantic surface, and records a reproducible compile-link reduction against the 11m56s observation. Root baseline coverage remains intact until caller-zero permits deleting the old test placement."
+reopen_when = "After the first DeclaredInstance Method(Some) product vertical lands, or earlier only if a selected semantic row is repeatedly blocked by root lib-test relink time and one production owner plus tests already form a movable crate boundary."
+does_not_block = [
+  "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0",
+  "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0",
+]
+non_claims = "No immediate Cargo/profile change, no test deletion, no baseline waiver, no root-crate breakup, no production visibility expansion, and no Call/backend implementation permission."
+
+[mir_builder_test_inventory_retirement_r0_2026_09_01]
+status = "parked_sealed_nonblocking"
+task_id = "MIR-BUILDER-TEST-INVENTORY-RETIRE-R0"
+parent_row = "MIRBUILDER-FINAL-PIPELINE-v1"
+ceremony_tier = "T0"
+box_kind = "Finite test-owner census followed by caller-zero legacy retirement; no semantic change"
+implementation_permission = false
+decision = "The root lib-test count is not the only quality target, but reducing its absolute size is a required outcome. Classify every committed test as Keep, Rehome, SupersededDelete, ParkedHistorical, or Unresolved; in the same bounded series, physically delete SupersededDelete rows and consolidate genuinely identical contracts. Move historical/reference evidence out of the daily root binary without relabeling it production evidence."
+source_authority = "The committed 7553-name baseline receipt, the current 7562-name test binary, and each test's current production owner, exercised entry/terminal, successor test or guard, and reopen trigger. Committed census: mir=5486, mir::builder=2378, mir::compiler=581, runner=559, runtime=328, parser=219, root tests=333; current mir::builder count is 2383 after later passing tests."
+non_authority = [
+  "raw test count, file age, slow link time alone, a passing local filter, guard text, historical phase labels, or apparent duplicate names",
+  "deleting tests to make the known-red summary smaller, auto-accepting a baseline delta, or replacing behavior evidence with grep",
+]
+fail_fast_boundary = "A test without an exact current owner, equal-or-stronger successor, and reopen trigger is never deleted. Any changed production behavior, missing negative coverage, new failure name, or baseline waiver stops the retirement row."
+census_boundary = "committed root --lib test inventory -> current production owner/entry/terminal -> successor test/guard/reference owner -> daily-root fate; includes all 7553 committed names and excludes integration binaries, external app corpora, and future tests added after the census snapshot unless separately classified."
+finite_states = [
+  "Keep: unique current production positive/negative contract in the daily owner",
+  "Rehome: current contract survives under a smaller owning crate/harness with the same name and semantics",
+  "SupersededDelete: production caller is zero and an equal-or-stronger successor plus reopen trigger exists",
+  "ParkedHistorical: useful nonproduction evidence moved outside the daily root binary with explicit reference owner",
+  "Unresolved: owner or successor is unknown; no edit permitted and census cannot close",
+]
+ordered_tasks = [
+  "R0-A: generate a finite owner/entry/terminal census from the committed test-name receipt, starting with the 2378 mir::builder tests, and select one exact deletable/consolidatable cohort in the same active-card amendment",
+  "R0-B: in the implementation commit, collapse duplicated fixtures/matrices through one owner-side constructor and physically delete every selected SupersededDelete row while keeping named negative coverage explicit",
+  "R0-C: rehome any retained focused cohort with its production owner, refresh the deterministic inventory receipt without changing the 139 failure set, and record root/mir::builder counts before and after",
+]
+progress_metrics = [
+  "current daily root --lib test count: 7562 -> strictly lower",
+  "current mir::builder test count: 2383 -> strictly lower for the first cohort",
+  "focused root lib-test compile/link observation: 11m56s -> strictly lower after physical boundary work",
+]
+batch_rule = "Each retirement batch is at most three commits (card amendment; implementation+tests+actual deletion; closeout+receipt) and must reduce the applicable daily test count by at least one. A docs/guard-only batch or a net-zero rename does not count as progress. New product tests may increase a separate product row, but may not conceal the retirement delta."
+acceptance = "Inventory is Exhausted, Unresolved=0, the daily root count is strictly below 7562 and the first mir::builder cohort strictly below 2383, every deleted row has caller-zero plus an equal-or-stronger successor and reopen trigger, every ParkedHistorical row is absent from the daily root binary but remains intentionally addressable, current negatives stay green, and the deterministic baseline records the exact smaller inventory without hiding a failure."
+reopen_when = "After the first Method(Some) vertical lands, or when the focused-test binary boundary task has one movable owner cohort; do not interrupt the current backend design stop merely to reduce the count."
+does_not_block = [
+  "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0",
+  "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0",
+]
+non_claims = "No immediate deletion, no test coverage reduction, no known-red forgiveness, no production refactor, no guard deletion by age, and no claim that 7553 tests are intrinsically wrong."
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
 status = "landed"
