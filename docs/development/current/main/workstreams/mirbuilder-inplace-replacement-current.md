@@ -65,7 +65,9 @@ selected Boundary pure-first C consumer still lacks receiver-presence, full
 lane, and source-backed result/effect admission. Receiver materialization,
 Method(Some), package/loan, MIR, backend, fallback/retry, and nonselected
 backend work remain closed; whole-lib health and selected-C stack health are
-separate prerequisites.
+separate prerequisites. A future common disposition may carry only private
+locators and borrow the already-issued siblings together; it is design-only
+until the selected-C admission capability and the common callsite port exist.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

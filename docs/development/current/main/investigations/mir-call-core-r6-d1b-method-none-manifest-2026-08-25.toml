@@ -3664,10 +3664,18 @@ verification_prerequisites = [
   "selected-C 8MiB stack health must have an accepted heap/ownership resolution or remain a separate CutoverBlockerOpen",
 ]
 worker_audit_head = "60d27c5869d924454430702cdc6a56a966845d78"
-worker_audit_result = "Fresh read-only audits agree that PhysicalCallableLaneV1 and its source-backed signature cohort are the only reusable physical-lane vocabulary. The selected Boundary pure-first C route is a real consumer, but it is not yet an admission capability for this family: it reconstructs a target view from plan metadata, conflates missing receiver with numeric zero, strips duplicate args[0], and supports only a narrow one-lane result cell. No existing same-session selected-C capability co-seals receiver presence, full lane, result, and effect."
+worker_audit_result = "Fresh read-only audits agree that PhysicalCallableLaneV1 and its source-backed signature cohort are the only reusable physical-lane vocabulary. The selected Boundary pure-first C route is a real consumer, but it is not yet an admission capability for this family: it reconstructs a target view from plan metadata, conflates missing receiver with numeric zero, strips duplicate args[0], and supports only a narrow one-lane result cell. No existing same-session selected-C capability co-seals receiver presence, full lane, result, and effect. The exact existing selected-C blocker is recorded separately by NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0; it is not waived here."
 full_lane_decision = "PhysicalCallableLaneV1 / PhysicalCallableSignatureRowRefV1 is a named downstream product candidate. Package co-seal may borrow it only after exact declaration identity and result/effect coverage are checked; it may not reconstruct or widen the lane."
 selected_c_decision = "Selected Boundary pure-first C remains the intended product consumer, but its receiver-presence contract, full logical-to-physical lane coverage, and source-backed result/effect admission are absent. The 8MiB launch-snapshot stack overflow is a separate CutoverBlockerOpen and is not repaired in this semantic row."
-d0_status = "NoSafeSlice__selected_C_admission_missing"
+d0_status = "CutoverBlockerOpen__NoSafeSlice__selected_C_admission_missing"
+existing_capability_inventory = "Exhausted: one formal lane cohort and one physical C consumer exist, but zero source-backed selected-C admission capabilities exist for root DeclaredInstance."
+common_disposition_shape = "A future common non-Clone package disposition may keep only private locators (caller/target batch slot plus exact relation/effect row ordinals); take must borrow the already-issued relation, effect, result/Completion, and physical signature together, and completion must reject residual rows. This shape is design-only until selected-C admission exists."
+transport_blockers = [
+  "production result/Completion borrow accessor is not yet exposed; cfg(test)-only access is insufficient for cutover",
+  "the existing selected lowering port is definition-oriented and does not carry call-site relation/effect or selected-C capability",
+  "normal_callable_semantic_loan_port.rs is at 748 lines and needs a behavior-preserving split before common callsite transport can be added",
+]
+selected_c_lane = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0 (separate backend health lane; status=CutoverBlockerOpen)"
 reopen_trigger = "Open implementation only when the same-session source relation, result/Completion, semantic effect, full lane, and selected-C capability are all exact, verification prerequisites are recorded, and one atomic common disposition can delete the selected legacy edges with fallback/retry zero."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0__design_stop"
 
