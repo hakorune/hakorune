@@ -130,6 +130,12 @@ DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW = (
 DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY = (
     "mir_call_me_declared_instance_package_private_locator_i0_2026_08_31"
 )
+DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+)
+DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_KEY = (
+    "mir_call_me_declared_instance_selected_c_admission_d0_2026_08_31"
+)
 SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 
@@ -503,6 +509,7 @@ def check_declared_instance_package_locator_i0(
         "src/mir/normal_callable_semantic_package/mod.rs",
         "src/mir/normal_callable_semantic_package/model.rs",
         "src/mir/normal_callable_semantic_package/issuer.rs",
+        "src/mir/normal_callable_semantic_package/install.rs",
     }
     for rel in source_files:
         path = root / rel
@@ -533,6 +540,38 @@ def check_declared_instance_package_locator_i0(
     }
     if not required <= allowed:
         fail(f"private locator allowed_files omit {sorted(required - allowed)}")
+
+
+def check_declared_instance_selected_c_admission_d0(state: dict, card: dict) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("selected-C admission must remain design_stop")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
+        fail("selected-C admission row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
+        fail("selected-C admission design stop drifted")
+    if state.get("next_design_card") != DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
+        fail("selected-C admission next design card drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("selected-C admission must keep next_execution_card=none")
+    row = card.get(DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
+        fail("selected-C admission task id drifted")
+    if row.get("status") != "accepted_design_stop":
+        fail("selected-C admission must remain an accepted design stop")
+    if row.get("implementation_permission") is not False:
+        fail("selected-C admission cannot permit implementation")
+    locator = card.get(DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY)
+    if not isinstance(locator, dict) or locator.get("status") != "landed":
+        fail("selected-C admission requires the landed package locator")
+    if locator.get("implementation_permission") is not False:
+        fail("landed package locator must not retain implementation permission")
+    package = card.get(DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY)
+    if not isinstance(package, dict) or package.get(
+        "selected_c_admission_status"
+    ) != "NoSafeSlice__existing_source_backed_capability_count_zero":
+        fail("selected-C admission capability count must remain zero")
 
 
 def check_selected_c_stack_row(state: dict, card: dict, root: Path) -> None:
@@ -753,6 +792,8 @@ def main() -> None:
         check_declared_instance_package_coseal_d0(state, card)
     elif row == DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
         check_declared_instance_package_locator_i0(state, card, root)
+    elif row == DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
+        check_declared_instance_selected_c_admission_d0(state, card)
     elif row == SELECTED_C_STACK_ROW:
         check_selected_c_stack_row(state, card, root)
     else:

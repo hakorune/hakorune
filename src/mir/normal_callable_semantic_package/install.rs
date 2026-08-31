@@ -344,6 +344,10 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header,
             dynamic,
             dynamic_physical_header,
+            // The locator is validated and published by the semantic package
+            // row; downstream transport is a separate selected-C/common-loan
+            // boundary and must not be implied by this install transition.
+            declared_instance_call_locators: _,
         } = self.package;
         match root_execution {
             NormalRootExecutionPackageStateV1::Prepared(root) => root.discard_unconnected(),

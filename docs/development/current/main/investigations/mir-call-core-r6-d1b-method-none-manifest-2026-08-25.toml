@@ -3705,12 +3705,12 @@ reopen_trigger = "Open implementation only when the same-session source relation
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0__pending_current_pointer_switch"
 
 [mir_call_me_declared_instance_package_private_locator_i0_2026_08_31]
-status = "selected_fast"
+status = "landed"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 ceremony_tier = "T1"
 box_kind = "BoxCount backend-neutral semantic package locator co-seal"
-implementation_permission = true
+implementation_permission = false
 decision = "Consume no new meaning: issue one private non-Clone locator catalog by exact crosswalk of the already-issued DeclaredInstance relation, resolver-owned semantic effect, result/Completion cohort, selected identity mapping, and source-backed PhysicalCallableSignature row. Selected-C remains a separate downstream admission gate and is not required or implemented by this row."
 source_authority = "VerifiedDeclaredInstanceCallRelationCatalogV1, VerifiedDeclaredInstanceCallEffectCatalogV1, VerifiedCallableResultContractCohortV1, VerifiedSelectedCallableBatchMapV1, and VerifiedCallablePhysicalSignatureCohortV1 from the same resolver/package session."
 canonical_issuer = "One package-private locator issuer in src/mir/normal_callable_semantic_package/declared_instance_locator.rs, called once after the existing physical-signature issuer and before package publication; it only stores private row ordinals/slots and exact OwnedExprSiteV1 cross-references."
@@ -3740,6 +3740,7 @@ allowed_files = [
   "src/mir/normal_callable_semantic_package/mod.rs",
   "src/mir/normal_callable_semantic_package/model.rs",
   "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/install.rs",
   "src/mir/normal_callable_semantic_package/result_contract.rs",
   "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
   "src/mir/normal_callable_semantic_package/README.md",
@@ -3766,6 +3767,71 @@ verification_prerequisites = [
   "whole-lib baseline remains separate and must not be claimed green",
 ]
 implementation_base_commit = "b6529cc27b"
+implementation_commit = "6f40203999"
+changed_test_names = [
+  "mir::normal_callable_semantic_package::declared_instance_locator_tests::package_retains_one_private_locator_for_exact_me_method_site",
+  "mir::normal_callable_semantic_package::declared_instance_locator_tests::package_publishes_explicit_no_root_for_static_only_source",
+  "mir::normal_callable_semantic_package::declared_instance_locator_tests::package_rejects_missing_declared_instance_target_before_locator_publication",
+]
+focused_test_runs = [
+  "cargo test --profile quick --lib declared_instance_locator -- --test-threads=1: 3 passed",
+  "normal_callable_semantic_package test binary: 65 passed",
+  "cargo check --profile quick --lib: pass",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
+  "bash tools/checks/current_state_pointer_guard.sh: pass",
+  "git diff --check: pass",
+]
+evidence = "The package issuer now invokes one private non-Clone locator crosswalk after physical-signature issuance. The locator accepts explicit no-root or a complete exact-site/slot/ordinal catalog; all three focused locator tests and the 65-test normal_callable_semantic_package suite pass. No target, receiver ValueId, selected-C token, Method(Some), MIR, backend, fallback, retry, or Call-schema path changed. Whole-lib health remains a separate baseline and is not claimed green."
+red_classification = "No current-change red was observed in the focused locator or package suite. The repository's known whole-lib baseline and selected-C admission absence remain outside this row."
+closeout = "After committing the bounded locator row, set work_mode=design_stop and select MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0. Keep selected-C implementation_permission=false until a source-backed admission owner exists."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
+
+[mir_call_me_declared_instance_selected_c_admission_d0_2026_08_31]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+depends_on = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
+ceremony_tier = "T1"
+box_kind = "Downstream selected-C admission over an existing semantic locator"
+implementation_permission = false
+decision = "Keep selected-C as a downstream physical admission, separate from the semantic package locator. No production source-backed selected-C capability currently exists; the lane is NoSafeSlice rather than a reason to infer meaning from C/JSON metadata."
+source_authority = "The landed package-private locator plus the same-session DeclaredInstance relation, result/Completion, semantic effect, selected mapping, and full physical-lane products; a future selected-C owner must borrow them without reissuing meaning."
+canonical_issuer = "No existing production issuer. Reopen only when one same-session non-Clone admission owner validates the complete crosswalk and emits an opaque consume-once token before C emission."
+non_authority = [
+  "MIR/JSON target_symbol, target_arity, receiver_value, FunctionSignature/body inference, fixed effect tags, C registry/header/symbol lookup, VM/llvmlite/A-prime/pinned-Text routes",
+  "ValueId(0) as receiver absence, args[0] receiver repair, name lookup, fallback, retry, or backend-side target/effect/lane reconstruction",
+]
+fail_fast_boundary = "Missing/foreign/duplicate/coverage/residual relation, result/Completion, effect, full-lane, receiver-presence, or selected capability must reject before receiver materialization, argument effects, MIR/JSON publication, C need-scan, fallback, or retry."
+census_boundary = "The landed backend-neutral locator -> a future selected-C admission consumer; includes only the downstream admission contract and excludes semantic issuer changes, receiver ValueId, Method(Some), C emission, Call schema, and other backends."
+finite_states = [
+  "NoSafeSlice: source-backed selected-C capability count is zero",
+  "DesignReady: one owner and a complete rejection matrix exist, but no production switch yet",
+  "AdmissionReady: non-Clone opaque token validates the complete same-session crosswalk",
+  "Consumed: exactly one C consumer takes the token before physical emission",
+]
+acceptance = "Remain design_stop until a real source-backed selected-C owner exists. Do not promote the current JSON consumer, args[0] repair, numeric-zero check, N+1 ABI, or fixed effect tag into authority."
+no_safe_slice = "Any implementation request that needs a C/JSON lookup, target/effect/lane inference, receiver repair, a second resolver, fallback/retry, or semantic meaning in the physical consumer returns to this design stop."
+non_claims = "No selected-C production implementation, receiver materialization, Method(Some), common direct-call loan, MIR/Call schema change, C/LLVM backend rewrite, VM change, or legacy deletion."
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "lang/c-abi/shims/**",
+  "MIR Call schema",
+  "VM/backend/JSON/runtime",
+]
+focused_test_filters = [
+  "selected_c_admission",
+]
+verification_prerequisites = [
+  "A production source-backed admission owner must exist before implementation permission is reconsidered",
+  "The locator and all existing relation/result/Completion/effect/full-lane products remain exact and same-session",
+  "Whole-lib baseline is compared separately and is not replaced by focused green",
+]
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
