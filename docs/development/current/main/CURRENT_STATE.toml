@@ -1,19 +1,22 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0:
+MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0:
 the resolver-owned DeclaredInstance source-site/declaration relation is landed
-at 845bd72641. Before opening Method(Some) production lowering, co-seal the
-already-issued relation with exact result/completion, semantic effect, full
-receiver physical lane, and selected C capability in one source/package
-session. The package may transport and validate existing products but may not
-re-resolve names or issue target meaning. Missing/foreign/duplicate/ambiguous/
-unsupported/second-take/residual states reject before receiver or argument
-effects. Do not use name/header/registry/MIR/backend inference, fallback, retry,
-Call-schema changes, or family-specific parallel loans.
+at 845bd72641 and result/Completion retention is landed at e1976b8ba1. The
+next design question is the one same-session source-backed semantic-effect
+issuer: absent CallableContract means OpaqueObservable and Query has explicit
+precedence. Before opening Method(Some) production lowering, co-seal that
+effect with the relation, full receiver physical lane, and selected C
+capability in one source/package session. The package may transport and
+validate existing products but may not re-resolve names or issue target
+meaning. Missing/foreign/duplicate/ambiguous/unsupported/second-take/residual
+states reject before receiver or argument effects. Do not use
+name/header/registry/MIR/backend inference, fallback, retry, Call-schema
+changes, or family-specific parallel loans.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -46,8 +49,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The resolver-owned DeclaredInstance source-site/declaration relation landed at 845bd72641 with four focused tests and no target/effect/receiver/ABI or production migration. The next design stop is the exact issuer/co-seal boundary; target/effect/full-lane/selected-C production migration remains closed. Verification-health remains a separate prerequisite before any broad Call-schema cutover: quick has a selected-C stack red, full-lib red baseline is not yet deterministic, and changed-test execution proof is a distinct pending row."
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The resolver-owned DeclaredInstance source-site/declaration relation landed at 845bd72641 with four focused tests; result/Completion retention landed at e1976b8ba1. The current design stop is the one same-session source-backed semantic-effect issuer (OpaqueObservable by absence, Query precedence), followed by full-lane and selected-C co-seal; target/effect/full-lane/selected-C production migration remains closed. Verification-health remains a separate prerequisite before any production Method(Some) or broad Call-schema cutover: quick has a selected-C stack red, full-lib red baseline is not yet deterministic, and changed-test execution proof is a distinct pending row."
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
 next_execution_card = "none"
 next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

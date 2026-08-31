@@ -55,14 +55,14 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current design stop:
-`MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0` retains ordinary
-`me.method`; one resolver relation selects its target and the package only
-co-seals contracts. `OpaqueObservable` and one visible method name per nominal
-Box are accepted; FreeStatic `name/arity` is separate. Result/Completion
-carriage is landed at `e1976b8ba1`; resolver adoption, ordinary effect
-issuance, selected C capability, and the common affine lifecycle remain
-blockers. Implementation, old-edge deletion, fallback/retry, and nonselected
-backend work remain closed.
+`MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0` retains ordinary
+`me.method`; the source/site/declaration relation landed at `845bd72641` and
+one resolver-side effect issuer is the next bounded design slice. `OpaqueObservable`
+and one visible method name per nominal Box are accepted; FreeStatic `name/arity`
+is separate. Result/Completion carriage is landed at `e1976b8ba1`; selected C
+capability, full physical lane, package co-seal, and the common affine lifecycle
+remain blockers. Implementation, old-edge deletion, fallback/retry, and
+nonselected backend work remain closed.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

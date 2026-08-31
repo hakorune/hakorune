@@ -106,6 +106,12 @@ DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW = (
 DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY = (
     "mir_call_me_declared_instance_relation_issuer_d0_2026_08_31"
 )
+DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
+)
+DECLARED_INSTANCE_EFFECT_ISSUER_D0_KEY = (
+    "mir_call_me_declared_instance_effect_issuer_d0_2026_08_31"
+)
 
 
 def fail(message: str) -> None:
@@ -335,6 +341,37 @@ def check_declared_instance_relation_issuer_d0(state: dict, card: dict) -> None:
         fail("DeclaredInstance relation issuer requires the source relation child to be landed")
 
 
+def check_declared_instance_effect_issuer_d0(state: dict, card: dict) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("DeclaredInstance effect issuer must remain design_stop")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
+        fail("DeclaredInstance effect issuer row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
+        fail("DeclaredInstance effect issuer design stop drifted")
+    if state.get("next_design_card") != DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
+        fail("DeclaredInstance effect issuer next design card drifted")
+    if state.get("next_execution_card") != "none":
+        fail("DeclaredInstance effect issuer design stop must keep next_execution_card=none")
+    row = card.get(DECLARED_INSTANCE_EFFECT_ISSUER_D0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_EFFECT_ISSUER_D0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
+        fail("DeclaredInstance effect issuer task id drifted")
+    if row.get("status") != "accepted_design_stop":
+        fail("DeclaredInstance effect issuer must remain an accepted design stop")
+    if row.get("implementation_permission") is not False:
+        fail("DeclaredInstance effect issuer cannot permit implementation")
+    relation = card.get(DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY)
+    if not isinstance(relation, dict):
+        fail("DeclaredInstance effect issuer requires the relation design section")
+    child = card.get("mir_call_me_declared_instance_resolver_relation_i0_2026_08_31")
+    if not isinstance(child, dict) or child.get("status") != "landed":
+        fail("DeclaredInstance effect issuer requires the source relation child to be landed")
+    result = card.get("mir_normal_callable_result_contract_retention_d0_i0_2026_08_31")
+    if not isinstance(result, dict) or not str(result.get("status", "")).startswith("landed"):
+        fail("DeclaredInstance effect issuer requires result/completion retention")
+
+
 # Row-specific handlers live in mir_call_d1b_active_surface_rows.py.
 # This parent keeps the shared contract, registry, tombstones, and dispatch.
 
@@ -441,6 +478,8 @@ def main() -> None:
         check_declared_instance_relation_structure(root, relation_row)
     elif row == DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
         check_declared_instance_relation_issuer_d0(state, card)
+    elif row == DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
+        check_declared_instance_effect_issuer_d0(state, card)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

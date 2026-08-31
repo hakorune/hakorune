@@ -813,7 +813,62 @@ evidence = "At audit HEAD 2a84b1fff0, exact Cataloged rows use the existing sour
 worker_audit_head = "5b6e6397a9"
 worker_audit_result = "Six read-only audits at HEAD 5b6e6397a9 found the prior bucket too broad. StaticBoxMethod -> StaticCurrentOwner already issues VerifiedCurrentOwnerStaticCallTargetV1 and the installed publication owner can project it to a direct Global before arguments. InstanceBoxMethod -> DeclaredInstance is separate: the resolved source row and declared-instance contracts exist, but their target/receiver/ABI/effect relation is not yet co-sealed into Builder."
 reopen_trigger = "True DeclaredInstance is reopened as an in-bound CutoverBlockerOpen design row. Implementation opens only after the resolver relation, result/effect/full-lane carriage, selected C capability, and common affine lifecycle are all named; header/name/registry inference is never a trigger."
-next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop"
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0__design_stop"
+
+[mir_call_me_declared_instance_effect_issuer_d0_2026_08_31]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+development_state = "DesignReadyForBoundedI0"
+implementation_permission = false
+ceremony_tier = "T1"
+box_kind = "BoxCount one source-backed semantic-effect issuer"
+decision = "Issue the ordinary DeclaredInstance effect row from the same resolver-owned source relation used by the landed target relation. No CallableContract means OpaqueObservable; one explicit Query contract takes precedence and remains a declared obligation rather than a body-inference result."
+source_authority = "ExplicitMethodSourceRelationV1.callable_contract carried through the existing final parser source, joined to the landed VerifiedDeclaredInstanceCallRelationV1 in the same callable-semantic batch HRTB"
+canonical_issuer = "DeclaredInstanceCallEffectIssuerV1, a resolver-side sibling issuer invoked immediately after the relation issuer; package assembly only co-seals and transports the already-issued row"
+non_authority = [
+  "AST re-read, FunctionSignature, MIR EffectMask, Dynamic envelope, backend/runtime metadata, package-side defaults, headers, names, registry lookup, fixtures, fallback, and retry",
+]
+fail_fast_boundary = "Missing, duplicate, foreign, outside, or cardinality-drifted contract carriage rejects the whole batch before receiver materialization, argument effects, package publication, MIR, or backend admission; Query never downgrades silently to OpaqueObservable."
+census_boundary = "final parser callable-contract source disposition -> same-session DeclaredInstance effect issuer -> callable-semantic batch sibling field; includes direct root InstanceBoxMethod rows with absent or Query contracts, and excludes target/receiver ValueId, full physical lane, selected C capability, package loan, Method(Some), Call schema, and nonselected backends"
+finite_states = [
+  "OutsideDirectDeclaredInstanceMethod: explicit absence outside the exact root relation; not an effect candidate",
+  "NoRootDeclaredInstanceCall: relation has no eligible root call; issue no effect row",
+  "PublishedOpaqueObservable: exact direct instance relation with no CallableContract",
+  "PublishedDeclaredQuery: exact direct instance relation with one Query contract and its source ordinal",
+  "MissingOrDuplicateContractSource: exact relation has zero or multiple source dispositions; typed batch reject",
+  "ForeignOrDriftedContractSource: provenance, owner, site, nominal identity, or cardinality differs; typed batch reject",
+  "UnsupportedContractVariant: exhaustive match forces a design reopen; no wildcard downgrade",
+]
+allowed_files = [
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "src/parser/callable_contract_syntax.rs",
+  "src/parser/initial_callable_program_source/issue.rs",
+  "src/parser/initial_callable_program_source/model.rs",
+  "src/parser/normal_callable_program_source/model.rs",
+  "src/parser/normal_callable_program_source/transform.rs",
+  "src/parser/normal_callable_program_source/semantic_syntax_loan.rs",
+  "src/mir/resolved_semantics/declared_instance_call_effect.rs",
+  "src/mir/resolved_semantics/mod.rs",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/callable_semantic_batch/model.rs",
+  "focused tests and module README/reference receipt",
+]
+forbidden_files = [
+  "src/mir/resolved_semantics/declared_instance_call_relation.rs",
+  "src/mir/normal_callable_semantic_package/**",
+  "src/mir/builder/**",
+  "MIR/backend/runtime/C call emission",
+  "Call schema, Method(Some) production, package loan, fallback, retry",
+]
+acceptance = "The existing final parser source carries an exhaustive contract disposition with the same source/slot coverage as the callable rows; the resolver-side effect issuer emits exactly OpaqueObservable or DeclaredQuery for each eligible relation, retains no AST/target/physical data, and batch publication is all-or-nothing with typed coverage/provenance failures. No production target, receiver, ABI, package, MIR, backend, or old-edge change is claimed."
+no_safe_slice = "Remain in design_stop if the callable contract cannot be carried without source re-scan, if no same-session resolver owner can issue the effect row, if Query conformance is required in this slice, or if package/backend/MIR changes are needed."
+non_claims = "No package co-seal, selected-C capability, affine loan, receiver materialization, Method(Some) publication, legacy deletion, Call schema, VM/backend parity, or Result/throw/panic change."
+next_design_action = "After this D0 is accepted, open LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0; keep Method(Some) production closed until effect, full lane, selected C, and common affine consumption are co-sealed."
+worker_audit_head = "825a23610f"
+worker_audit_result = "The read-only effect audit found an existing parser callable-contract source and a single same-session batch HRTB hook immediately after relation issuance. Absence maps to OpaqueObservable, Query is explicit, and no package-side or backend-derived effect issuer is allowed."
 
 [[same_module_all_producer_disposition_r0_2026_08_30.inventory]]
 id = "generic_coreplan_globalcall"
