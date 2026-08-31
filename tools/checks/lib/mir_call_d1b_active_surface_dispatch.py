@@ -58,6 +58,7 @@ RECEIVER_VALUE_OWNER_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D
 VERIFICATION_P0_A_ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
 VERIFICATION_P0_C_ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
 VERIFICATION_REFRESH_ROW = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+VERIFICATION_VARMAP_RECONCILE_ROW = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
 CROSSWALK_D0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 CROSSWALK_I0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
@@ -206,5 +207,11 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         )
 
         check_verification_quick_lib_baseline_refresh_r0(state, card, root, api)
+    elif row == VERIFICATION_VARMAP_RECONCILE_ROW:
+        from mir_verification_quick_p0_c_guard import (
+            check_verification_coreplan_varmap_boundary_reconcile_d0,
+        )
+
+        check_verification_coreplan_varmap_boundary_reconcile_d0(state, card, root, api)
     else:
         api.fail(f"unsupported current row for this stable guard: {row!r}")

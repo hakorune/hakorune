@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
+import re
 import tomllib
 
 import mir_call_d1b_active_surface_guard as api
@@ -13,6 +14,8 @@ ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
 KEY = "verification_health_quick_lib_baseline_p0_c_runner_wire_r0_2026_09_01"
 REFRESH_ROW = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 REFRESH_KEY = "verification_health_quick_lib_baseline_refresh_r0_2026_09_01"
+VARMAP_RECONCILE_ROW = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
+VARMAP_RECONCILE_KEY = "verification_health_coreplan_varmap_boundary_reconcile_d0_2026_09_01"
 BASELINE = Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
 INVENTORY = Path("tools/checks/manifests/cargo_lib_red_baseline.tests.txt")
 FAILURES = Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")
@@ -200,3 +203,48 @@ def check_verification_quick_lib_baseline_refresh_r0(
     if len(runner_steps) != 1:
         api.fail("baseline refresh requires exactly one existing quick runner step")
     print(f"[{api.TAG}] baseline refresh receipt ok status={status}")
+
+
+def check_verification_coreplan_varmap_boundary_reconcile_d0(
+    state: dict, card: dict, root: Path, _parent_api=api
+) -> None:
+    if state.get("work_mode") != "design_stop":
+        api.fail("CorePlan varmap reconciliation requires design_stop")
+    if state.get("current_execution_row") != VARMAP_RECONCILE_ROW:
+        api.fail("CorePlan varmap reconciliation is not selected")
+    if state.get("current_design_stop") != VARMAP_RECONCILE_ROW:
+        api.fail("CorePlan varmap reconciliation design-stop pointer drifted")
+    if state.get("next_execution_card") != "none__design_stop":
+        api.fail("CorePlan varmap reconciliation must not open implementation")
+
+    row = card.get(VARMAP_RECONCILE_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"CorePlan varmap reconciliation section is missing: {VARMAP_RECONCILE_KEY}")
+    if _text(row, "task_id") != VARMAP_RECONCILE_ROW:
+        api.fail("CorePlan varmap reconciliation task id drifted")
+    if _text(row, "status") != "active_design_stop":
+        api.fail("CorePlan varmap reconciliation status drifted")
+    if row.get("implementation_permission") is not False:
+        api.fail("CorePlan varmap reconciliation must keep implementation closed")
+    decision = _text(row, "decision")
+    for token in ("51", "48", "reseal", "prune", "retire"):
+        if token not in decision:
+            api.fail(f"CorePlan varmap reconciliation decision lacks {token}")
+
+    pattern = re.compile(r"variable_map\s*\.\s*insert\s*\(")
+    sites = []
+    for relative in (
+        Path("src/mir/builder/control_flow/plan"),
+        Path("src/mir/builder/ssa"),
+    ):
+        for path in sorted((root / relative).rglob("*.rs")):
+            text = path.read_text(encoding="utf-8")
+            sites.extend((path, match.start()) for match in pattern.finditer(text))
+    if len(sites) != 51:
+        api.fail(f"CorePlan varmap reconciliation premise drifted: sites={len(sites)}")
+    guard = (root / "tools/checks/coreplan_varmap_boundary_inventory_guard.sh").read_text(
+        encoding="utf-8"
+    )
+    if "max_insert_count = 48" not in guard:
+        api.fail("CorePlan varmap historical upper-bound premise drifted")
+    print(f"[{api.TAG}] CorePlan varmap reconciliation premise ok sites=51 bound=48")

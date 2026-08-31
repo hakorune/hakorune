@@ -55,16 +55,15 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-`DEV-GATE-LIB-BASELINE-REFRESH-R0` is the sole bounded prerequisite. Three
-independent fixed-stack observations must agree at 7562/7394/139/29; only the
-inventory/pass receipt may change, while the 139 failure names and hash remain
-byte-stable. The refreshed comparator must pass and `dev_gate quick` must reach
-and classify every later step before product work resumes. The receiver
-crosswalk itself landed at `dc68fa2910`: the selected root DeclaredInstance
-path consumes one locator row and reads the BindingRef-owned ValueId before
-arguments without ambient `me`; Global/manual receiver-prefix output remains.
-After verification closes, return to
-`MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`.
+the exact lib receipt refresh landed at `484d58585f`: three observations agree
+at 7562/7394/139/29, the nine new names are the landed crosswalk tests, and the
+139 failure names/SHA are unchanged. The runner passes. Full quick now stops
+at `DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0`: 51 current direct
+`variable_map` insert sites exceed the historical 48 bound. Do not bump or
+delete the guard by assumption. Classify every site and choose one reseal,
+prune, or caller-zero/equal-successor retirement slice. The receiver crosswalk
+at `dc68fa2910` remains valid and Global/manual-prefix output is unchanged.
+Only after quick reaches every later step may selected-C admission resume.
 Option B remains final: name one exact Hako LLVM-text physical owner/ABI and
 one production caller, then open one source-to-AOT `Method(Some(receiver))`
 vertical and delete that family's old Global/manual-prefix and selected-C
@@ -76,8 +75,8 @@ independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
 prerequisite landed at `e3cfa78488`; the original baseline runner landed at
-`1115d70687`. Its 7553-test receipt is now stale only because nine landed tests
-raised the observed inventory/pass counts; whole quick is not yet claimed green.
+`1115d70687`, and its exact receipt refresh landed at `484d58585f`; whole quick
+is still red at the separately owned CorePlan boundary guard.
 The temporary FastMem verification prerequisite landed at `39d5188d9d`: the
 test-only order-independent membership assertion passes in ten exact runs and
 the 20-test module; whole-lib red remains separate and unaccepted.

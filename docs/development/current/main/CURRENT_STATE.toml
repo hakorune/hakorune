@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
+current_design_stop = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
 current_blocker_token = """
-Decision: refresh only the deterministic default-feature --lib known-red receipt before the first Method(Some) production vertical.
-Source authority + canonical issuer: three identical fixed-stack cargo observations plus exact --list inventory; cargo_lib_red_baseline.py remains the sole comparison owner.
-Non-authority: one run, counts without names, auto-rebaseline, filtered output, compile/check green, historical prose, or any MIR/backend fact.
-Fail-fast boundary: inventory, summary, ignored count, failure names/hash, abort status, or any later quick-step red stops return to the product row.
-Smallest next slice: prove 7562/7394/139/29 three times, replace only inventory/pass receipts, keep the 139 failure file/hash byte-stable, then run quick through every step.
-Non-claims: no test repair or forgiveness, compiler/MIR/Call/backend/legacy semantics, selected-C decision, Method(Some) publication, fallback, retry, or schema change.
+Decision: do not raise 48 to 51 or delete the CorePlan variable_map guard by assumption; classify the finite current surface and choose reseal, prune, or retire.
+Source authority + canonical issuer: the 51 matched current source sites, current var_map_scope/Recipe ownership, and the quick-step consumer; historical phase counts issue no current meaning.
+Non-authority: the raw count alone, old phase prose, a formerly green quick run, filenames, tests, or a replacement allowlist without owner equivalence.
+Fail-fast boundary: no guard edit or selected-C/Method vertical until every site is classified and an equal-or-stronger current invariant or caller-zero retirement is named.
+Smallest next slice: census 51 sites as production authority, test fixture, superseded writer, or helper bypass; select exactly one bounded reseal/prune/retire implementation.
+Non-claims: no count bump, blind guard deletion, MIR/Call/backend semantics, test repair, Method(Some), selected-C decision, fallback, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,11 +42,12 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic runner at 1115d70687 retains the committed 7553-test and
-139-failure receipt, while the current binary has 7562 tests and the same 139
-failure names. DEV-GATE-LIB-BASELINE-REFRESH-R0 is the only open fast cell:
-three identical observations must refresh inventory/pass evidence without
-changing the failure file/hash, then quick must execute every later step.
+The deterministic default-feature receipt was refreshed at 484d58585f after
+three identical 7562/7394/139/29 observations; all 139 failure names and their
+SHA remained byte-identical. The runner now passes. Full quick then exposed its
+next independent red: the CorePlan variable_map guard still bounds 48 direct
+insert sites while the current finite surface is 51 (confirmed since at least
+3fa2f72d4d). Reconcile that guard before returning to product work.
 Language decisions are fixed: retain ordinary me.method, use explicit static/
 instance/delegate namespaces, terminal panic Fault, and non-throwing Result/?/cleanup.
 Option B publishes canonical Method(Some(receiver)) and replaces selected-C
@@ -55,8 +56,8 @@ at dc68fa2910: exact locator/site/binding now supplies the existing ValueId
 before arguments and residuals reject; selected-C admission resumes only after
 the verification receipt and every quick step are classified.
 """
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_design_card = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -70,7 +71,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-01: default-feature --lib receipt refresh landed at 484d58585f after three identical 7562/7394/139/29 observations; the 139 failure names/SHA are unchanged. The runner passes, while full quick now stops at the independent CorePlan variable_map 51-vs-48 guard drift.",
   "2026-09-01: DeclaredInstance receiver crosswalk I0 landed at dc68fa2910; the exact package locator and BindingRef owner now replace ambient receiver authority before arguments, with take-once/residual-zero evidence and unchanged Global/manual-prefix output.",
   "2026-09-01: FastMem branch evidence stabilization landed at 39d5188d9d; one test now checks exact field MemOp membership/cardinality independent of HashMap order. Ten exact runs and the 20-test module pass; no production semantics or whole-lib baseline claim.",
-  "2026-08-31: selected-C 8 MiB stack health landed at 46b2ee72e3: both invocation-local SameModuleFunctionContextSnapshot values are heap-owned, the definition seam is split under the line budget, and fresh-FFI repeated runtime-helper guard evidence passes; no route, ABI, MIR, or semantic change was made.",
 ]
