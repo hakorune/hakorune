@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
+import tomllib
 
 import mir_call_d1b_active_surface_guard as api
 
 
 ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
 KEY = "verification_health_quick_lib_baseline_p0_c_runner_wire_r0_2026_09_01"
+REFRESH_ROW = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+REFRESH_KEY = "verification_health_quick_lib_baseline_refresh_r0_2026_09_01"
 BASELINE = Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
 INVENTORY = Path("tools/checks/manifests/cargo_lib_red_baseline.tests.txt")
 FAILURES = Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")
@@ -113,3 +117,86 @@ def check_verification_quick_p0_c_runner_wire_r0(
             api.fail("P0-C landed row still has pending implementation")
         _check_landed_files(root, row)
     print(f"[{api.TAG}] P0-C baseline runner contract ok status={status}")
+
+
+def _canonical_lines_sha256(lines: list[str]) -> str:
+    payload = "" if not lines else "\n".join(lines) + "\n"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def check_verification_quick_lib_baseline_refresh_r0(
+    state: dict, card: dict, root: Path, _parent_api=api
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail("baseline refresh requires fast or closeout work_mode")
+    if state.get("current_execution_row") != REFRESH_ROW:
+        api.fail("baseline refresh is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        api.fail("baseline refresh must clear current_design_stop")
+    if state.get("next_execution_card") != REFRESH_ROW:
+        api.fail("baseline refresh execution pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("baseline refresh card path drifted")
+
+    row = card.get(REFRESH_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"baseline refresh section is missing: {REFRESH_KEY}")
+    if _text(row, "task_id") != REFRESH_ROW:
+        api.fail("baseline refresh task id drifted")
+    if _text(row, "parent_row") != "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0":
+        api.fail("baseline refresh parent row drifted")
+    status = _text(row, "status")
+    if status not in {"fast_open", "landed"}:
+        api.fail("baseline refresh status is not finite")
+    if row.get("implementation_permission") is not (status == "fast_open"):
+        api.fail("baseline refresh permission/status drifted")
+
+    expected_allowed = {
+        str(BASELINE),
+        str(INVENTORY),
+        str(api.STATE_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+        str(api.CARD_REL),
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+    }
+    if set(_list(row, "allowed_files")) != expected_allowed:
+        api.fail("baseline refresh allowed-file boundary drifted")
+    if _list(row, "focused_test_filters") != ["test_cargo_lib_red_baseline"]:
+        api.fail("baseline refresh focused filter drifted")
+
+    with (root / BASELINE).open("rb") as stream:
+        manifest = tomllib.load(stream)
+    expected_fields = {
+        "expected_status": "FAILED",
+        "expected_exit_code": 101,
+        "expected_passed": 7394,
+        "expected_failed": 139,
+        "expected_ignored": 29,
+        "expected_measured": 0,
+        "expected_filtered": 0,
+        "inventory_sha256": "39c71a21a2abfd0d65e2f988aa593f9446de0dfc9b7d7dc14e39ff967ea91bcb",
+        "failures_sha256": "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041",
+    }
+    for name, expected in expected_fields.items():
+        if manifest.get(name) != expected:
+            api.fail(f"baseline refresh manifest drifted: {name}")
+
+    inventory = (root / INVENTORY).read_text(encoding="utf-8").splitlines()
+    failures = (root / FAILURES).read_text(encoding="utf-8").splitlines()
+    if len(inventory) != 7562 or inventory != sorted(set(inventory)):
+        api.fail("baseline refresh inventory must contain 7562 unique sorted tests")
+    if len(failures) != 139 or failures != sorted(set(failures)):
+        api.fail("baseline refresh failure receipt must keep 139 unique sorted names")
+    if _canonical_lines_sha256(inventory) != expected_fields["inventory_sha256"]:
+        api.fail("baseline refresh inventory SHA drifted")
+    if _canonical_lines_sha256(failures) != expected_fields["failures_sha256"]:
+        api.fail("baseline refresh failure SHA drifted")
+    quick = (root / QUICK_STEPS).read_text(encoding="utf-8")
+    runner_steps = [
+        line for line in quick.splitlines()
+        if line.startswith("dev_gate_cmd_step ") and "cargo_lib_red_baseline.py" in line
+    ]
+    if len(runner_steps) != 1:
+        api.fail("baseline refresh requires exactly one existing quick runner step")
+    print(f"[{api.TAG}] baseline refresh receipt ok status={status}")
