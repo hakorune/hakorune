@@ -54,24 +54,22 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
-Current design stop:
-`MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0` follows the landed
-receiver-owner audit, relation/effect/locator/install chain, and backend option audit.
-Option B is the final architecture: retain ordinary `me.method`, publish one
-canonical `Method(Some(receiver))` MIR, lower it through typed Hako LLVM text,
-switch one named caller, then delete the selected-C compatibility edge. Option A
-is only a temporary typed `UnsupportedBeforeObject` gate, never the finish line.
-The prior D0 found one physical storage candidate, `CallableSemanticLoweringState`,
-but the production locator-to-ledger crosswalk is zero: the locator view exposes
-only no-root/count and live lowering receives no relation row. This row designs a
-callback-scoped relation borrow plus the existing generic consume ledger; no new
-receipt or family loan. `variable_map`, param0, `args[0]`, numeric zero, AST
-reread, names, registry, JSON/C/Hako/backend metadata, fallback, and retry are
-non-authorities.
-No `Method(Some)`, MIR, backend wire, or production switch is open. Hako
-LLVM-text root DeclaredInstance coverage, lossless transport, exact ABI parity,
-and named caller switches remain zero, so the later replacement I0 stays
-`NoSafeSlice`; whole-lib known-red health remains a separate prerequisite. The independent bounded row
+Current execution row:
+`MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0` is a behavior-
+neutral BoxShape extraction from the locator crosswalk design stop. Option B is
+the final architecture: retain ordinary `me.method`, publish one canonical
+`Method(Some(receiver))` MIR, lower it through typed Hako LLVM text, switch one
+named caller, then delete the selected-C compatibility edge. Option A is only a
+temporary typed `UnsupportedBeforeObject` gate, never the finish line.
+The sole physical storage candidate is `CallableSemanticLoweringState`; this S0
+extracts one checked generic `BindingRef -> ValueId` read and reuses it from the
+existing variable reader. It does not consume locator rows or open a receiver
+loan. `variable_map`, param0, `args[0]`, numeric zero, AST reread, names,
+registry, JSON/C/Hako/backend metadata, fallback, and retry are non-authorities.
+After focused evidence, return to `MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-
+CROSSWALK-D0`. Hako LLVM-text root DeclaredInstance coverage, lossless transport,
+exact ABI parity, and named caller switches remain zero; whole-lib known-red
+health remains a separate prerequisite. The independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
 prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0`

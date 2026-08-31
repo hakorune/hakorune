@@ -468,6 +468,17 @@ propagates only exact source-authorized copies. Rebind invalidates the active
 origin. This state is not a type owner, parameter publisher, GenericLoop/PHI
 authority, or fallback route.
 
+### Exact callable binding value accessor (S0, behavior-neutral)
+
+`normal_callable_semantic_receiver_crosswalk.rs` exposes one checked,
+observational `BindingRefV1 -> ValueId` read owned by
+`CallableSemanticLoweringState`. It validates the live owner, binding brand,
+entry installation, and materialized value, then permits repeated reads without
+consuming the binding. The existing variable reader uses this same accessor;
+the later DeclaredInstance crosswalk may borrow it after proving an exact source
+relation. It does not inspect names or positions, consume locator rows, issue a
+target, open a receiver-specific loan, or infer Method/receiver semantics.
+
 `normal_callable_loop_handoff.rs` owns the L0-R0 source-coverage projection.
 It no longer treats `(condition reads, body reads, rebinds) = (1,1,1)` as a
 semantic contract or discards exact relations into a count receipt. One

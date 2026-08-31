@@ -4124,6 +4124,78 @@ forbidden_files = [
   "VM/backend/JSON/runtime",
 ]
 
+[mir_call_me_declared_instance_exact_binding_value_accessor_s0_2026_09_02]
+status = "active_fast"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
+ceremony_tier = "T1"
+box_kind = "BoxShape behavior-neutral generic BindingRef to ValueId accessor"
+implementation_permission = true
+decision = "Add one generic exact-binding accessor to the existing CallableSemanticLoweringState and reuse it from the current variable reader. The accessor only validates the already-owned function/session binding and returns the already-materialized ValueId; it does not consume the binding, issue a target, or open a receiver-specific loan."
+source_authority = "CallableSemanticLoweringState.owner, receiver/parameter binding inventory, entry_installed flag, and existing values map are the sole physical owner. No locator or package data is copied into the state."
+canonical_issuer = "No new issuer. The existing entry materialization path remains the only ValueId publisher; this row extracts a checked read from that owner into a small sibling module."
+non_authority = [
+  "variable_map['me'], current_bound_me_value, formal position, param0, args[0], numeric ValueId(0), AST/name/header/registry lookup, JSON/C/Hako/backend metadata",
+  "locator relation, target/effect/result/ABI meaning, Method(Some), package/loan, fallback, retry, or a new Verified/Prepared semantic receipt",
+]
+fail_fast_boundary = "A foreign owner, foreign binding, missing entry installation, or unavailable exact value returns a typed contract error before any future receiver or argument effect. Existing generic variable consumption keeps its current duplicate-site checks."
+census_boundary = "existing CallableSemanticLoweringState value lookup -> exact generic BindingRef accessor; includes entry receiver/parameter bindings and current variable-reader reuse, excludes locator row consumption, receiver crosswalk, Method(Some), argument order, MIR, backend, selected-C, and Call schema"
+finite_states = [
+  "OwnerMismatch: requested owner differs from the live state owner",
+  "ForeignBinding: requested BindingRef is not owned by this state",
+  "EntryNotInstalled: entry values have not been adopted",
+  "ValueUnavailable: exact owned binding has no materialized ValueId",
+  "Ready: exact owned binding has one materialized ValueId",
+  "Reusable: repeated reads remain legal because the accessor is observational",
+]
+ordered_tasks = [
+  "S0-A: extract the generic owner/binding/entry/value checks into a sibling module below the 760-line source budget",
+  "S0-B: route the existing read_variable path through the accessor without changing its site-consumption behavior",
+  "S0-C: add positive, owner/binding/entry negative, and repeated-read tests plus a structural guard",
+  "S0-D: close out as behavior-neutral and return to the locator crosswalk design stop; do not claim a production receiver switch",
+]
+acceptance = "The existing variable reader and the future receiver crosswalk share one checked BindingRef -> ValueId owner; owner, binding, entry, and value failures are observable; repeated reads are legal; no target, receiver loan, locator consumption, MIR, backend, or fallback path changes; touched sources remain below 760/800 lines."
+no_safe_slice = "Return to design_stop if the accessor needs variable_map/name/position/args inference, mutates or consumes a binding, requires a family-specific loan or new semantic receipt, or changes existing variable consumption behavior."
+non_claims = "No locator-to-ledger production crosswalk, no receiver ValueId production, no Method(Some), no selected-C/Hako/C change, no MIR/Call schema change, no old-edge deletion, and no whole-lib green claim."
+allowed_files = [
+  "src/mir/builder/normal_callable_semantic_lowering_state.rs",
+  "src/mir/builder/normal_callable_semantic_receiver_crosswalk.rs",
+  "src/mir/builder/normal_callable_semantic_receiver_crosswalk_tests.rs",
+  "src/mir/builder/README.md",
+  "tools/checks/lib/mir_declared_instance_exact_binding_value_accessor_s0_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/normal_callable_semantic_package/**",
+  "lang/c-abi/shims/**",
+  "Method(Some), package/loan, selected-C, Hako LLVM-text, MIR/Call schema, VM/backend/JSON/runtime",
+]
+focused_test_filters = [
+  "normal_callable_semantic_receiver_crosswalk",
+]
+verification_prerequisites = [
+  "cargo test --profile quick --lib normal_callable_semantic_receiver_crosswalk -- --test-threads=1",
+  "cargo check --profile quick --lib",
+  "exact changed-test names must be listed and filter-covered",
+  "pointer/active-surface guard and diff check",
+  "whole-lib baseline remains separate and is not claimed green",
+]
+implementation_base_commit = "302265a739"
+changed_test_names = [
+  "exact_binding_accessor_returns_the_materialized_entry_value",
+  "exact_binding_accessor_rejects_owner_binding_and_entry_mismatches",
+  "exact_binding_accessor_is_observational_and_reusable",
+]
+implementation_evidence = "Pending implementation. This row is intentionally limited to a generic checked read owned by CallableSemanticLoweringState; no locator relation or production method-call route is opened."
+red_classification = "No current-change red is accepted before the focused test, quick check, structural guard, pointer guard, and diff check are run. Known whole-lib red remains outside this row."
+closeout = "After the focused evidence passes, mark this row landed, restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0, and keep next_execution_card=none."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0__design_stop"
+
 [mir_call_me_declared_instance_locator_value_crosswalk_d0_2026_09_02]
 status = "accepted_design_stop"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"

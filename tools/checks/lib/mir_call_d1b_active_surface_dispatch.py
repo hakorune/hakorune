@@ -58,6 +58,9 @@ RECEIVER_VALUE_OWNER_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D
 VERIFICATION_P0_A_ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
 VERIFICATION_P0_C_ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
 CROSSWALK_D0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
+EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0"
+)
 
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
@@ -171,6 +174,12 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         )
 
         check_declared_instance_locator_value_crosswalk_d0(state, card, root, api)
+    elif row == EXACT_BINDING_VALUE_ACCESSOR_S0_ROW:
+        from mir_declared_instance_exact_binding_value_accessor_s0_guard import (
+            check_exact_binding_value_accessor_s0,
+        )
+
+        check_exact_binding_value_accessor_s0(state, card, root, api)
     elif row == VERIFICATION_P0_A_ROW:
         from mir_verification_quick_p0_a_guard import (
             check_verification_quick_p0_a_inc_debt_reconcile_r0,

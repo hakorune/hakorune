@@ -18,6 +18,8 @@ use super::normal_callable_dynamic_origin::{
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 
+#[path = "normal_callable_semantic_receiver_crosswalk.rs"]
+mod normal_callable_semantic_receiver_crosswalk;
 #[path = "normal_callable_semantic_observation.rs"]
 mod observation;
 
@@ -353,10 +355,14 @@ impl CallableSemanticLoweringState {
                 site.segments()
             ));
         };
-        self.values
-            .get(&binding)
-            .copied()
-            .ok_or_else(|| freeze("variable-before-materialization"))
+        self.value_for_exact_binding(self.owner, binding)
+            .map_err(|error| match error {
+                normal_callable_semantic_receiver_crosswalk::ExactBindingValueErrorV1::EntryNotInstalled
+                | normal_callable_semantic_receiver_crosswalk::ExactBindingValueErrorV1::ValueUnavailable => {
+                    freeze("variable-before-materialization")
+                }
+                other => other.to_string(),
+            })
     }
 
     pub(super) fn rebind(&mut self, site: &SourceNodeSiteV1, value: ValueId) -> Result<(), String> {
