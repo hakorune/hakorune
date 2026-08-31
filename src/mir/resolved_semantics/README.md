@@ -11,6 +11,17 @@ canonical function AST
   -> VerifiedResolvedFunctionV1
 ```
 
+## DeclaredInstance source relation (I0)
+
+The final callable batch issues one resolver-owned, AST-free relation for a
+root lexical `me.method(...)` source row. It joins the opaque parser identity,
+source/receiver sites, root receiver binding, nominal Box declaration, and
+source arity under one provenance/nominal brand. The disposition is either
+`NoRootDeclaredInstanceCall` or one complete non-`Clone` catalog; missing,
+foreign, duplicate, static, and wrong-arity rows reject before any receiver or
+argument effect. This I0 publishes no `Callee`, `ValueId`, ABI, effect, Recipe,
+MIR, or backend meaning; package and Builder consumers remain later owners.
+
 SA0 adds only the closed canonical schema and publication boundary. SA1 adds
 a physically separate, disconnected shadow resolver. The shadow resolver may
 read canonical syntax, but it owns only `Shadow*V0` handles and can publish

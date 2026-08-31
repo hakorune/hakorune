@@ -122,6 +122,15 @@ impl ResolverNominalTypeEnvironmentV1 {
         self.brand
     }
 
+    pub(crate) fn source_declaration(
+        &self,
+        statement_ordinal: u32,
+    ) -> Option<(&str, ResolverNominalBoxTypeIdV1)> {
+        self.declarations
+            .get(&statement_ordinal)
+            .map(|declaration| (declaration.source_name.as_ref(), declaration.type_id))
+    }
+
     fn declaration(
         &self,
         statement_ordinal: u32,

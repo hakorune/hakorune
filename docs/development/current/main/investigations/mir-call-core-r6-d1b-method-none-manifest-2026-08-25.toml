@@ -1,6 +1,7 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
 status = "active_fast"
 observed_commit = "da00098e2a"
+base_commit = "9ebf6f82c6"
 observed_at = "2026-08-31"
 implementation_permission = true
 
@@ -3200,9 +3201,15 @@ acceptance = [
   "focused relation tests, quick lib check, reusable guard, diff check, and every touched source under 760 lines",
 ]
 focused_test_filter = "cargo test --profile quick --lib declared_instance_call_relation -- --test-threads=1"
+changed_test_names = [
+  "declared_instance_relation_publishes_one_exact_me_call",
+  "same_method_name_on_different_boxes_keeps_nominal_relations_separate",
+  "static_current_owner_me_call_is_outside_declared_instance_relation",
+  "declared_instance_relation_rejects_target_arity_mismatch_before_lowering",
+]
 secondary_test_filter = "cargo test --profile quick --lib callable_semantic_batch -- --test-threads=1"
 guard_command = "python3 tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py ."
-line_budget = "new relation <=300 lines; focused tests <=360; issuer 337-><=380; model 462-><=490; declaration accessor 417-><=440; mod <=370; 800 hard stop"
+line_budget = "relation source <=420 lines (split only if it approaches 760); focused tests <=360; issuer 337-><=490; model 462-><=490; declaration accessor 417-><=440; mod <=370; 800 hard stop"
 old_edge_metric = "3 -> 3; this I0 issues no Method(Some), emits no Call, and deletes no legacy edge"
 closeout = "Record focused evidence and relation inventory, then set status=landed, implementation_permission=false, restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0, and clear next_execution_card."
 non_claims = "No Method(Some) emission, receiver ValueId, package co-seal, effect/result/ABI/selected-C/common affine consumer, Builder/MIR/backend/VM/JSON/Call schema change, delegate/nested/upvar activation, language change, fallback, retry, or old-edge deletion."

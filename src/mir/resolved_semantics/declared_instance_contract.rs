@@ -74,6 +74,24 @@ impl<'a> DeclaredInstanceMethodContractRefV1<'a> {
     }
 }
 
+impl DeclaredInstanceMethodIdentityV1 {
+    /// Build the stable declaration identity from the already co-sealed
+    /// resolver source coordinates. This is a projection only; it does not
+    /// look up a name, arity, target, or physical symbol.
+    pub(crate) fn from_resolver_source(
+        resolver_brand: ResolverCatalogBrandV1,
+        nominal_box_type: super::ResolverNominalBoxTypeIdV1,
+        source_site: crate::parser::ResolverBoxMethodSourceSiteV1,
+    ) -> Self {
+        Self {
+            resolver_brand,
+            nominal_box_type,
+            box_statement_ordinal: source_site.box_statement_ordinal(),
+            method_member_ordinal: source_site.member_ordinal(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct VerifiedDeclaredInstanceMethodContractCatalogV1 {
     home_catalog: VerifiedDeclaredInstanceMethodHomeCatalogV1,

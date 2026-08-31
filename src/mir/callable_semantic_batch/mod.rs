@@ -8,6 +8,8 @@ mod model;
 mod s6c_typed_input;
 
 #[cfg(test)]
+mod declared_instance_call_relation_tests;
+#[cfg(test)]
 mod s6c_typed_input_tests;
 #[cfg(test)]
 mod tests;

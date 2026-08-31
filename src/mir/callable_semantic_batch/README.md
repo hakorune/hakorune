@@ -40,6 +40,12 @@ fallback. Those are child projections or later co-seals. A second resolver
 call, name-based pairing, numeric owner repair, and arbitrary verified
 constructors are forbidden.
 
+The batch also retains exactly one resolver-owned DeclaredInstance source
+disposition. It is a non-`Clone` `NoRoot`/`Published` relation for root lexical
+`me.method(...)` facts only; it carries no target, receiver `ValueId`, effect,
+result, ABI, or package loan. A later consumer may co-seal that already-issued
+relation, but may not re-resolve it or reconstruct a target from its name.
+
 The batch issuer also retains the resolver-owned typed BlockExpr expectation
 once, beside the same function/body-shape row. The batch row is the only owner;
 future selected/package ports may borrow it inside their HRTB, but may not

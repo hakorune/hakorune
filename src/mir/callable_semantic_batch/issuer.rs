@@ -8,11 +8,15 @@ use crate::mir::compiler::source_projection::{
 };
 use crate::mir::resolved_semantics::{
     forest_has_unissued_direct_call_observation_v1, issue_resolved_block_expr_expectation_v1,
-    CallableHeaderSyntaxViewV1, FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
-    ReceiverPolicyV1, ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
+    CallableHeaderSyntaxViewV1, DeclaredInstanceCallRelationIssueV1,
+    DeclaredInstanceCallRelationIssuerV1, DeclaredInstanceCallSourceRefV1,
+    DeclaredInstanceMethodModeV1, DeclaredInstanceMethodSourceRefV1,
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
+    ResolveSourceBoundSelectedCallableForestsWithAppMainFreeStaticOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
-    ResolvedBlockExpressionExpectationIssueV1, SelectedCallableResolverDeferredBatchV1,
-    SelectedCallableResolverInputV1, SemanticOwnerRootProfileV1,
+    ResolvedBlockExpressionExpectationIssueV1, ResolvedLexicalRefV1,
+    ResolvedMethodCallReceiverSourceV1, SelectedCallableResolverDeferredBatchV1,
+    SelectedCallableResolverInputV1, SemanticOwnerRootProfileV1, SourceBindingSiteV1,
     SourceBoundSelectedCallableResolverRejectV1,
 };
 use crate::parser::{
@@ -46,6 +50,9 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
         _error: SourceNavigationErrorV1,
     },
     ParameterCountOverflow,
+    DeclaredInstanceCallRelation {
+        _error: DeclaredInstanceCallRelationIssueV1,
+    },
 }
 
 /// Controls whether unissued direct-call observations remain available to a
@@ -122,7 +129,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
     direct_call_policy: DirectCallObservationBatchPolicyV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
-    let (rows, callable_index) = source
+    let (rows, callable_index, declared_instance_call_source) = source
         .with_callable_semantic_syntax(|loan| {
             let mut candidates = Vec::with_capacity(loan.rows().len());
             let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
@@ -302,7 +309,100 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     method_source_observation,
                 });
             }
-            Ok((resolved.into_boxed_slice(), callable_index))
+
+            // Build neutral method declarations from the same borrowed
+            // syntax rows and their paired resolved owners. This is still the
+            // one final-source HRTB; no parser or resolver is re-entered.
+            let mut method_sources = Vec::new();
+            let mut call_sources = Vec::new();
+            for (syntax, row) in loan.rows().iter().zip(resolved.iter()) {
+                if let Some(observation) = syntax.method_source_observation() {
+                    let ASTNode::FunctionDeclaration { name, params, .. } = syntax.declaration()
+                    else {
+                        return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
+                    };
+                    let box_name = syntax
+                        .owner_name()
+                        .ok_or(ResolvedCallableSemanticBatchIssueV1::SourceCoverage)?;
+                    let method_mode = match syntax.mode() {
+                        FinalCallableDeclarationModeV1::StaticBoxMethod => {
+                            DeclaredInstanceMethodModeV1::Static
+                        }
+                        FinalCallableDeclarationModeV1::InstanceBoxMethod => {
+                            DeclaredInstanceMethodModeV1::Instance
+                        }
+                        FinalCallableDeclarationModeV1::TopLevel => {
+                            return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage)
+                        }
+                    };
+                    let parameter_count = u32::try_from(params.len())
+                        .map_err(|_| ResolvedCallableSemanticBatchIssueV1::ParameterCountOverflow)?;
+                    method_sources.push(DeclaredInstanceMethodSourceRefV1::new(
+                        syntax.identity(),
+                        observation.parser_provenance(),
+                        observation.source_site(),
+                        box_name,
+                        name,
+                        method_mode,
+                        parameter_count,
+                        row.owner,
+                    ));
+                }
+                if row.mode != ResolvedCallableDeclarationModeV1::InstanceBoxMethod {
+                    continue;
+                }
+                let Some(caller_observation) = syntax.method_source_observation() else {
+                    continue;
+                };
+                let function = row
+                    .forest
+                    .owner(row.owner)
+                    .ok_or(ResolvedCallableSemanticBatchIssueV1::MissingRoot)?;
+                let root_receiver_binding =
+                    function.declaration_binding(&SourceBindingSiteV1::Receiver);
+                let root_receiver_declaration_count = function
+                    .declaration_sites()
+                    .filter(|site| matches!(site, SourceBindingSiteV1::Receiver))
+                    .count();
+                for (call_site, call) in function.method_calls() {
+                    let ResolvedMethodCallReceiverSourceV1::Lexical(
+                        ResolvedLexicalRefV1::Local(receiver_binding),
+                    ) = call.receiver()
+                    else {
+                        continue;
+                    };
+                    if call.owner() != row.owner {
+                        return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
+                    }
+                    call_sources.push(DeclaredInstanceCallSourceRefV1::new(
+                        syntax.identity(),
+                        caller_observation.parser_provenance(),
+                        caller_observation.source_site(),
+                        row.owner,
+                        call_site.clone(),
+                        call.receiver_site().clone(),
+                        receiver_binding,
+                        root_receiver_binding,
+                        root_receiver_declaration_count,
+                        call.selector(),
+                        call.arity(),
+                    ));
+                }
+            }
+            let declared_instance_call_source = DeclaredInstanceCallRelationIssuerV1::issue(
+                &method_sources,
+                &call_sources,
+            )
+            .map_err(|error| {
+                ResolvedCallableSemanticBatchIssueV1::DeclaredInstanceCallRelation {
+                    _error: error,
+                }
+            })?;
+            Ok((
+                resolved.into_boxed_slice(),
+                callable_index,
+                declared_instance_call_source,
+            ))
         })
         .map_err(|error| ResolvedCallableSemanticBatchIssueV1::ParserSyntax { _error: error })??;
 
@@ -333,5 +433,6 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
         source,
         rows,
         main_callable_index,
+        declared_instance_call_source,
     })
 }

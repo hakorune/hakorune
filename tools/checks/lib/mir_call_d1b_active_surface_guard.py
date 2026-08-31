@@ -97,6 +97,9 @@ ME_METHOD_CANONICAL_I0_ROW = (
     "MIR-CALL-SAME-MODULE-STATIC-CURRENT-OWNER-HANDOFF-I0"
 )
 ME_METHOD_CANONICAL_I0_KEY = "same_module_static_current_owner_handoff_i0_2026_08_30"
+DECLARED_INSTANCE_RELATION_I0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0"
+)
 
 
 def fail(message: str) -> None:
@@ -397,6 +400,14 @@ def main() -> None:
         from mir_call_d1b_me_method_cutover_guard import check_me_method_canonical_i0
 
         check_me_method_canonical_i0(state, card, root, api)
+    elif row == DECLARED_INSTANCE_RELATION_I0_ROW:
+        from mir_call_d1b_declared_instance_relation_guard import (
+            check_pointer as check_declared_instance_relation_pointer,
+            check_structure as check_declared_instance_relation_structure,
+        )
+
+        relation_row = check_declared_instance_relation_pointer(state, card, root)
+        check_declared_instance_relation_structure(root, relation_row)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

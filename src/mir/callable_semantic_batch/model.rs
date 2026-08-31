@@ -3,9 +3,9 @@ use std::sync::Arc;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedBlockExpressionExpectationV1,
-    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
-    VerifiedSemanticOwnerForestV1,
+    DeclaredInstanceCallSourceDispositionV1, FunctionOriginV1, FunctionOwnerIdV1,
+    VerifiedResolvedBlockExpressionExpectationV1, VerifiedResolvedBodyShapeInventoryV1,
+    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
 use crate::parser::{
@@ -46,6 +46,10 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
     /// relation look valid inside unrelated owners.
     pub(super) main_callable_index:
         Option<(u32, crate::mir::resolved_semantics::VerifiedCallableIndexV1)>,
+    /// Resolver-owned source relation for exact root `me.method(...)` calls.
+    /// This is facts-only; target, receiver ValueId, effects, and ABI remain
+    /// downstream responsibilities.
+    pub(super) declared_instance_call_source: DeclaredInstanceCallSourceDispositionV1,
 }
 
 /// Selected-callable identity transport for downstream scoped loans.
@@ -91,6 +95,10 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 impl VerifiedResolvedCallableSemanticBatchV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.source.ast()
+    }
+
+    pub(crate) fn declared_instance_call_source(&self) -> &DeclaredInstanceCallSourceDispositionV1 {
+        &self.declared_instance_call_source
     }
 
     pub(crate) fn ordinary_box_coverage(
