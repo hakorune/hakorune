@@ -82,6 +82,8 @@ def check_backend_owner_declared_instance_method_d0(
     for token in (
         "root lexical DeclaredInstance Method(Some(receiver)): Hako LLVM-text exact family 0",
         "selected-C direct method ABI/result/effect/full-lane parity: 0",
+        "lossless Hako root transport of receiver/result/Completion/effect/full lane: 0",
+        "source-backed physical receiver ValueId consumer: 0",
         "named one-to-one production caller switch: 0",
     ):
         if not any(token in item for item in coverage):
