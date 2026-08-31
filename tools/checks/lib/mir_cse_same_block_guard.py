@@ -123,7 +123,8 @@ def check_cse_same_block_r0(
         parent_api.fail("same-block CSE expression map is not scoped inside the block loop")
     if "let mut rewritten" not in cse or "if rewritten" not in cse:
         parent_api.fail("same-block CSE statistic is not tied to an actual rewrite")
-    if cse.find("if rewritten") > cse.find("eliminated += 1"):
+    rewritten_at = cse.find("if rewritten")
+    if "eliminated += 1" not in cse[rewritten_at:]:
         parent_api.fail("same-block CSE increments before confirming the Copy rewrite")
     for token in ("CrossBlockNoRewrite", "UnsupportedNoRewrite", "no cross-block fallback"):
         if token not in str(row.get("finite_states", [])) + str(row.get("fail_fast_boundary", "")):

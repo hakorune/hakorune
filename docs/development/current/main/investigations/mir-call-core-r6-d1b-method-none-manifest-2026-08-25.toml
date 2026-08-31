@@ -2073,9 +2073,10 @@ forbidden_files = [
   "Call schema",
 ]
 focused_test_filters = [
-  "cse_same_block",
-  "cse_does_not_reuse_across_sibling_blocks",
-  "cse_counts_only_actual_rewrites",
+  "same_block",
+  "across_sibling_blocks",
+  "actual_copy_rewrites",
+  "bundle_runs_landed_cse",
 ]
 changed_test_names = [
   "cse_rewrites_only_duplicate_pure_instructions_in_same_block",

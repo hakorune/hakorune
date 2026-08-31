@@ -135,7 +135,8 @@ mod tests {
             .insert(ValueId(5), MirType::Bool);
         module.add_function(function);
 
-        let stats = apply(&mut module);
+        let stats =
+            crate::test_support::with_env_var("NYASH_LLVM_FAST_INT", "1", || apply(&mut module));
         assert_eq!(stats.cse_eliminated, 1);
     }
 
