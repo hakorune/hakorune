@@ -113,6 +113,8 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
             _ => None,
         })
         .collect();
+    let mut field_memops = field_memops;
+    field_memops.sort_by(|left, right| left.1.cmp(&right.1));
     assert_eq!(
         field_memops,
         vec![
