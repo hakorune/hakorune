@@ -1,9 +1,9 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
-status = "active_fast"
+status = "active_design_stop"
 observed_commit = "da00098e2a"
 base_commit = "9ebf6f82c6"
 observed_at = "2026-08-31"
-implementation_permission = true
+implementation_permission = false
 
 [boundary]
 starts = "selected source/builder target selection and typed MIR-v0 ingress"
@@ -1974,6 +1974,8 @@ observed_head = "d96266852d"
 observed_health = "After restoring the naming vocabulary and refreshing all 16 metadata manifest anchors, the metadata checker, manifest guard, and catalog guard pass. dev_gate quick now advances to the phase-1 compatibility emit-program runtime-helper guard, whose ny-llvmc fixture aborts with stack overflow (rc=134). Quick steps contain cargo check but no cargo test --lib; the type-fact guard is green when run directly but is not a daily quick caller; focused DeclaredInstance relation suites are green but are not whole-lib evidence."
 red_baseline_note = "A local run observed 7373 passed, 139 failed, 29 ignored, while the fixed-stack worker run observed 7372 passed, 140 failed, 29 ignored. The artifact-dependent receipt test and stack ownership must be made deterministic before recording the exact baseline."
 latest_full_lib_run = "At HEAD f3120dd80b, RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib -- --test-threads=1 completed in 2.20s with 7373 passed, 139 failed, 29 ignored; the final failure-name set SHA256 is fa4e8fc8bd0282cc563a422ff4ecb46c64268dc53d5b39efba086952af4ff71a. This is an observation receipt, not an accepted baseline, because the adjacent fixed-stack run differed by one artifact-dependent failure."
+repeatability_requirement = "Before accepting a baseline, fix or isolate both observed nondeterministic owners: the selected-receipt test's repo-local release artifact dependency and the fastmem branch test's HashMap iteration order. Run the canonical command in three separate processes and require identical summary, ignored count, sorted full test inventory, sorted failure-name set, and hashes."
+baseline_stack_policy = "RUST_MIN_STACK is an observation parameter, not a waiver. Do not call a 16 MiB run healthy while the selected C quick contract is 8 MiB; settle the baseline command and stack ownership explicitly before seeding the manifest."
 fail_fast_boundary = "A missing summary, stack abort, compile/link failure, zero-test run, duplicate or malformed baseline, added failure name, changed failure name, or disappeared baseline name blocks comparison. Do not use count-only, regex waivers, auto-rebaseline, or || true."
 census_boundary = "dev_gate quick entry -> quick steps -> serial full-lib result and exact failure-name set; includes naming vocabulary repair, deterministic artifact fixture, baseline runner/manifest, visible known-debt receipt, and changed-test filter execution; excludes compiler/MIR semantics, DeclaredInstance co-seal, Call schema, backend parity, quick-static qualification, and legacy-tests fate."
 finite_states = [
@@ -1986,8 +1988,9 @@ finite_states = [
 ]
 ordered_tasks = [
   "P0-A: restore the three naming-charter vocabulary tokens, rerun dev_gate quick, and record the next first failure without claiming overall green early",
-  "P0-B: isolate the artifact-dependent lib test with a temporary fixture, then add one exact baseline manifest/runner with fixed stack, serial execution, counts, names, and hash",
-  "P0-C: make changed-test coverage execute every matched filter (not list only), keep the landed relation guard's design-stop and closeout checks distinct, and expose only a reserved known-baseline receipt from successful quick output",
+  "P0-B: isolate the artifact-dependent lib test and stabilize the HashMap-order-dependent fastmem test without changing production semantics; record both owners before baseline seeding",
+  "P0-C: add one exact baseline manifest/runner with an explicitly fixed command, serial execution, counts, complete test inventory, sorted failure names, and hashes; require three identical runs and block both new and disappeared names",
+  "P0-D: make changed-test coverage execute every matched filter (not list only), keep the landed relation guard's design-stop and closeout checks distinct, and expose only a reserved known-baseline receipt from successful quick output",
   "P1: decide LEGACY-TESTS-FATE-D0 separately; do not mix its compile/test policy with DeclaredInstance or Call-schema work",
 ]
 allowed_files = [
@@ -2014,11 +2017,59 @@ forbidden_files = [
   "VM/backend/JSON/runtime",
   "legacy-tests repair or fallback",
 ]
-acceptance = "The naming guard and every quick step execute in order; the fixed full-lib command completes without stack abort and owns an exact test inventory/ignored count/failure set/hash; new and disappeared failures both stop; the known-baseline receipt is visible while ordinary successful child logs remain compact; changed-test filters are nonzero and actually run; all touched Rust stays below 760/800; pointer and diff guards pass."
+acceptance = "The naming guard and the baseline step are wired exactly once and execute in order; the standalone fixed full-lib command completes without stack abort and owns an exact test inventory/ignored count/failure set/hash after three identical runs; new and disappeared failures both stop; the known-baseline receipt is visible while ordinary successful child logs remain compact; changed-test filters are nonzero and actually run; all touched Rust stays below 760/800; pointer and diff guards pass. The independent Stage1 runtime-helper red must be repaired or classified by its own selected-C row before whole quick can be called green."
 no_safe_slice = "Remain in design_stop if the full run has no complete summary, artifact isolation changes production behavior, the baseline requires an inferred HEAD^ or regex waiver, quick-static/manifest pilots must be wired into the daily gate, or the task crosses MIR/Call/backend semantics."
 non_claims = "No claim that the 139/140 failures are repaired or accepted forever, no whole-workspace/all-feature green claim, no legacy-tests decision, no DeclaredInstance issuer/co-seal, no Method(Some) production switch, no Call-schema change, and no old-edge deletion."
 reopen_trigger = "Reopen the prerequisite only when the canonical command or test inventory changes, a quick step is added/removed, a new failure appears/disappears, or the baseline receipt can no longer be reproduced exactly."
 next_execution = "Return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop after this verification prerequisite is landed; keep production implementation closed until effect issuer and selected-C capability are co-sealed."
+
+[row_exit_changed_test_exec_p0_2026_08_31]
+status = "accepted_design_stop"
+task_id = "ROW-EXIT-CHANGED-TEST-EXEC-P0"
+parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+box_kind = "BoxShape closeout-proof helper only"
+implementation_permission = false
+decision = "Separate changed-test execution proof from the active MirCall guards. A row may claim focused evidence only when every added, renamed, modified, or explicitly retired test in the exact implementation diff is mapped to a unique cargo test -- --list path and actually executed by an exact filter or exact test invocation."
+source_authority = "The implementation row's declared base_commit and implementation_commit diff, cargo test -- --list output, and the recorded exact test invocations. Prose test names, substring presence, and a later HEAD diff are not authority."
+non_authority = [
+  "focused test counts selected by hand",
+  "cargo test -- --list without execution",
+  "substring filters that match zero or multiple paths",
+  "a post-implementation HEAD diff",
+  "full-lib baseline counts used as a substitute for changed-test coverage",
+]
+fail_fast_boundary = "Reject before row closeout when a changed test cannot be mapped uniquely, a retired test lacks an explicit removal record, an exact invocation runs zero tests or an ignored test, a declared filter is never executed, or any executed test fails."
+census_boundary = "exact base_commit..implementation_commit Rust test diff -> added/renamed/modified/retired test inventory -> cargo --list full paths -> exact executions and filters -> row closeout receipt; excludes production semantics, daily full-lib baseline, legacy-tests fate, and active-guard implementation."
+finite_states = [
+  "Covered: unique listed path and nonzero exact execution recorded",
+  "Unmapped: diff test cannot be identified in the cargo list",
+  "Unexecuted: listed path exists but no exact execution occurred",
+  "ZeroMatch: declared filter selects no tests",
+  "Ignored: selected test is ignored rather than run",
+  "RetiredWithRecord: removed test has an explicit retirement reason and owner",
+]
+ordered_tasks = [
+  "D0: define the exact implementation diff boundary and the full-path cargo --list parser",
+  "I0: add the reusable helper and unit negatives for unmapped, zero-match, ignored, and unexecuted cases; do not embed it in active_surface_rows.py",
+  "C0: apply it to the next semantic row and record the complete exact invocations before closeout",
+]
+allowed_files = [
+  "tools/checks/lib/row_exit_changed_test_exec.py",
+  "tools/checks/lib/tests/test_row_exit_changed_test_exec.py",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+forbidden_files = [
+  "tools/checks/lib/mir_call_d1b_active_surface_rows.py",
+  "tools/checks/guard_rows.toml",
+  "src/mir/**",
+  "legacy-tests",
+  "Call schema",
+]
+acceptance = "The helper proves exact diff-to-list-to-execution coverage with nonzero results and explicit retirement records; synthetic negative cases fail closed; no active MirCall guard or compiler behavior changes."
+no_safe_slice = "Remain in design_stop if the diff cannot distinguish a semantic test edit from unrelated later HEAD changes, if a test path is not unique, or if the helper requires a broad guard registry rewrite."
+non_claims = "No full-lib green claim, no baseline seeding, no semantic implementation permission, no legacy-tests decision, and no Call-schema or backend change."
+reopen_trigger = "Reopen when the test harness changes its listing format, a row uses a new test macro/fixture shape, or a closeout records a filter that does not execute a nonzero exact path."
 
 [mir_metadata_consumer_manifest_anchor_refresh_d0_2026_08_31]
 status = "landed"
