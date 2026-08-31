@@ -55,28 +55,27 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current design stop:
-`BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0` follows the landed
-locator install bridge. The existing backend-neutral locator co-seal
-(`6f40203999`) now survives semantic-package install and is lent only through
-a non-Clone callback-scoped Builder view. The bridge added no target, receiver
-ValueId, selected-C token, Method(Some), MIR, backend wire, fallback, or retry.
-Selected-C remains `NoSafeSlice`: Hako LLVM-text root DeclaredInstance
-`Method(Some(receiver))` family count is 0 and the C route is JSON/registry
-compatibility-only; receiver materialization,
-package/loan consumption, MIR, backend, fallback/retry, and nonselected
-backend work remain closed; whole-lib health is a separate prerequisite. The
-selected-C launch plus planned-definition snapshot stack blocker is landed at
-`46b2ee72e3` with a fresh-FFI repeated 8 MiB guard.
-The selected-C semantic admission is `ParkedSealed/RetireAfterReplacement`;
-its current MIR(JSON)->LLVM C lowerer is a compatibility/compare owner, not
-MirBuilder meaning authority. The independent bounded row
+`MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0` follows the landed
+relation/effect/locator/install chain and the completed backend option audit.
+Option B is the final architecture: retain ordinary `me.method`, publish one
+canonical `Method(Some(receiver))` MIR, lower it through typed Hako LLVM text,
+switch one named caller, then delete the selected-C compatibility edge. Option A
+is only a temporary typed `UnsupportedBeforeObject` gate, never the finish line.
+The current D0 identifies the sole existing same-session root `BindingRef` to
+request-local `ValueId` owner before any receiver/argument effect. `variable_map`,
+param0, `args[0]`, numeric zero, AST reread, names, registry, JSON/C/Hako/backend
+metadata, fallback, and retry are non-authorities. No `Method(Some)`, MIR, backend
+wire, or production switch is open. Hako LLVM-text root DeclaredInstance coverage,
+lossless transport, exact ABI parity, and named caller switches remain zero, so
+the later replacement I0 stays `NoSafeSlice`; whole-lib known-red health remains
+a separate prerequisite. The independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
 prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0`
 landed at `1115d70687` with exact full-lib red-baseline comparison and one quick-step
 wiring; three fixed-stack observations agree at 7385/139/29 over 7553 tests. Preserve
-Core C ABI, compare evidence, and no fallback/retry; the pointer is back at the
-backend-owner DeclaredInstance design stop and whole quick is not claimed green.
+Core C ABI, compare evidence, and no fallback/retry; the pointer is at the exact
+receiver-value owner design stop and whole quick is not claimed green.
 The temporary verification prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`
 landed at `39d5188d9d`: one test-only positional assertion now checks exact
 order-independent membership, without changing FastMem production MIR, Call,

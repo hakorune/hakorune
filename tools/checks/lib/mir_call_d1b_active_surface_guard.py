@@ -15,44 +15,6 @@ import subprocess
 import sys
 import tomllib
 
-from mir_call_d1b_method_corridor_guard import (
-    EXACT1_RETIRE_ROW,
-    GUARD_SPLIT_ROW,
-    METHOD_NONE_TERMINAL_ROW,
-    RESOLVED_RETIRE_ROW,
-    SAME_MODULE_PARENT_ROW,
-    STATIC_RECEIPT_ROW,
-    TEST_SPLIT_ROW,
-    check_exact1_retire_i0,
-    check_guard_split_s0,
-    check_method_corridor_d0,
-    check_method_none_terminal_ret0,
-    check_method_resolution_ret0,
-    check_resolved_retire_ret0,
-    check_same_module_parent_r0,
-    check_static_receipt_target_before_args_i0,
-    check_test_split_s0,
-)
-from mir_call_d1b_cataloged_print_guard import (
-    CATALOGED_PRINT_RETIRE_ROW,
-    CATALOGED_PRINT_TARGET_ARM_PRUNE_ROW,
-    check_cataloged_print_caller_zero_retire_i0,
-    check_cataloged_print_target_arm_prune_r0,
-)
-from mir_call_d1b_same_module_target_only_guard import (
-    ORDINARY_STATIC_TARGET_ONLY_I0_ROW,
-    check_ordinary_static_target_only_i0,
-)
-from mir_call_d1b_rewrite_known_guard import (
-    ROW as REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW,
-    check_rewrite_known_caller_zero_s0,
-)
-from mir_call_d1b_rewrite_known_policy_guard import (
-    ROW as REWRITE_KNOWN_POLICY_RETIRE_I0_ROW,
-    check_rewrite_known_policy_retire_i0,
-)
-
-
 TAG = "mir-call-d1b-active-surface"
 CARD_REL = Path(
     "docs/development/current/main/investigations/"
@@ -146,15 +108,6 @@ SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 CSE_SAME_BLOCK_ROW = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
 CSE_SAME_BLOCK_KEY = "mir_cse_same_block_stats_determinism_r0_2026_09_01"
-BACKEND_OWNER_DECLARED_INSTANCE_METHOD_CUTOVER_D0_ROW = (
-    "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
-)
-VERIFICATION_P0_A_INC_DEBT_RECONCILE_R0_ROW = (
-    "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
-)
-VERIFICATION_P0_C_RUNNER_WIRE_R0_ROW = (
-    "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
-)
 
 
 def fail(message: str) -> None:
@@ -775,9 +728,6 @@ def check_declared_instance_effect_issuer_structure(root: Path) -> None:
         fail("semantic batch does not invoke the sole effect issuer")
 
 
-# Row-specific handlers live in mir_call_d1b_active_surface_rows.py.
-# This parent keeps the shared contract, registry, tombstones, and dispatch.
-
 def main() -> None:
     if len(sys.argv) != 2:
         fail("usage: mir_call_d1b_active_surface_guard.py ROOT")
@@ -796,129 +746,9 @@ def main() -> None:
     row = state.get("current_execution_row")
     api = sys.modules[__name__]
     sys.modules.setdefault("mir_call_d1b_active_surface_guard", api)
-    from mir_call_d1b_active_surface_rows import (
-        check_active_surface_rows_s0,
-        check_cataloged_gc_retire_i0,
-        check_ordinary_new_i0,
-        check_ordinary_static_legacy_retire_i0,
-        check_proof_row,
-        check_raw_legacy_i0,
-        check_raw_legacy_resume,
-        check_raw_root_resume,
-        check_script_root_ret0,
-        check_type_fact_guard_prune_s0,
-    )
-    if row == METHOD_ROW:
-        check_proof_row(state, card, proof, root)
-    elif row == RAW_ROOT_ROW:
-        check_raw_root_resume(state, card, proof, root)
-    elif row == SCRIPT_ROOT_ROW:
-        check_script_root_ret0(state, card, root)
-    elif row == METHOD_CORRIDOR_D0_ROW:
-        check_method_corridor_d0(state, card, api)
-    elif row == METHOD_RESOLUTION_RET0_ROW:
-        check_method_resolution_ret0(state, card, root, api)
-    elif row == GUARD_SPLIT_ROW:
-        check_guard_split_s0(state, card, root, api)
-    elif row == TEST_SPLIT_ROW:
-        check_test_split_s0(state, card, root, api)
-    elif row == EXACT1_RETIRE_ROW:
-        check_exact1_retire_i0(state, card, root, api)
-    elif row == METHOD_NONE_TERMINAL_ROW:
-        check_method_none_terminal_ret0(state, card, root, api)
-    elif row == RESOLVED_RETIRE_ROW:
-        check_resolved_retire_ret0(state, card, root, api)
-    elif row == STATIC_RECEIPT_ROW:
-        check_static_receipt_target_before_args_i0(state, card, root, api)
-    elif row == SAME_MODULE_PARENT_ROW:
-        check_same_module_parent_r0(state, card, api)
-    elif row == CATALOGED_GC_RETIRE_ROW:
-        check_cataloged_gc_retire_i0(state, card, root)
-    elif row == CATALOGED_PRINT_RETIRE_ROW:
-        check_cataloged_print_caller_zero_retire_i0(state, card, root, api)
-    elif row == CATALOGED_PRINT_TARGET_ARM_PRUNE_ROW:
-        check_cataloged_print_target_arm_prune_r0(state, card, root, api)
-    elif row == ORDINARY_STATIC_TARGET_ONLY_I0_ROW:
-        check_ordinary_static_target_only_i0(state, card, root, api)
-    elif row == RAW_LEGACY_ROW:
-        check_raw_legacy_resume(state, card)
-    elif row == RAW_LEGACY_I0_ROW:
-        check_raw_legacy_i0(state, card, root)
-    elif row == TYPE_FACT_GUARD_PRUNE_S0_ROW:
-        check_type_fact_guard_prune_s0(state, card, root)
-    elif row == OPERATOR_ROW:
-        from mir_call_d1b_operator_retirement_guard import check_operator_retirement_i0
-        check_operator_retirement_i0(state, card, root)
-    elif row == ORDINARY_NEW_I0_ROW:
-        check_ordinary_new_i0(state, card, root)
-    elif row == ORDINARY_STATIC_LEGACY_RETIRE_I0_ROW:
-        check_ordinary_static_legacy_retire_i0(state, card, root)
-    elif row == BARE_ERROR_RETIRE_ROW:
-        from mir_call_d1b_bare_error_retire_guard import check_bare_error_retire_i0
+    from mir_call_d1b_active_surface_dispatch import dispatch
 
-        check_bare_error_retire_i0(state, card, root, api)
-    elif row == BARE_NOW_RETIRE_ROW:
-        from mir_call_d1b_bare_error_retire_guard import check_bare_now_retire_i0
-
-        check_bare_now_retire_i0(state, card, root, api)
-    elif row == ACTIVE_SURFACE_ROWS_ROW:
-        check_active_surface_rows_s0(state, card, root, api)
-    elif row == REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW:
-        check_rewrite_known_caller_zero_s0(state, card, root, api)
-    elif row == REWRITE_KNOWN_POLICY_RETIRE_I0_ROW:
-        check_rewrite_known_policy_retire_i0(state, card, root, api)
-    elif row == ME_METHOD_CANONICAL_I0_ROW:
-        from mir_call_d1b_me_method_cutover_guard import check_me_method_canonical_i0
-
-        check_me_method_canonical_i0(state, card, root, api)
-    elif row == DECLARED_INSTANCE_RELATION_I0_ROW:
-        from mir_call_d1b_declared_instance_relation_guard import (
-            check_pointer as check_declared_instance_relation_pointer,
-            check_structure as check_declared_instance_relation_structure,
-        )
-
-        relation_row = check_declared_instance_relation_pointer(state, card, root)
-        check_declared_instance_relation_structure(root, relation_row)
-    elif row == DECLARED_INSTANCE_RELATION_ISSUER_D0_ROW:
-        check_declared_instance_relation_issuer_d0(state, card)
-    elif row == DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
-        check_declared_instance_effect_issuer_d0(state, card)
-    elif row == DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW:
-        check_declared_instance_effect_issuer_i0(state, card, root)
-    elif row == DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
-        check_declared_instance_package_coseal_d0(state, card)
-    elif row == DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
-        check_declared_instance_package_locator_i0(state, card, root)
-    elif row == DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW:
-        check_declared_instance_locator_install_bridge_i0(state, card, root)
-    elif row == DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
-        check_declared_instance_selected_c_admission_d0(state, card)
-    elif row == SELECTED_C_STACK_ROW:
-        check_selected_c_stack_row(state, card, root)
-    elif row == CSE_SAME_BLOCK_ROW:
-        from mir_cse_same_block_guard import check_cse_same_block_r0
-
-        check_cse_same_block_r0(state, card, root, api)
-    elif row == BACKEND_OWNER_DECLARED_INSTANCE_METHOD_CUTOVER_D0_ROW:
-        from mir_backend_owner_declared_instance_method_d0_guard import (
-            check_backend_owner_declared_instance_method_d0,
-        )
-
-        check_backend_owner_declared_instance_method_d0(state, card, root, api)
-    elif row == VERIFICATION_P0_A_INC_DEBT_RECONCILE_R0_ROW:
-        from mir_verification_quick_p0_a_guard import (
-            check_verification_quick_p0_a_inc_debt_reconcile_r0,
-        )
-
-        check_verification_quick_p0_a_inc_debt_reconcile_r0(state, card, root, api)
-    elif row == VERIFICATION_P0_C_RUNNER_WIRE_R0_ROW:
-        from mir_verification_quick_p0_c_guard import (
-            check_verification_quick_p0_c_runner_wire_r0,
-        )
-
-        check_verification_quick_p0_c_runner_wire_r0(state, card, root, api)
-    else:
-        fail(f"unsupported current row for this stable guard: {row!r}")
+    dispatch(row, state, card, proof, root, api)
     print(f"[{TAG}] row={row} ok")
 
 

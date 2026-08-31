@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
 work_mode = "design_stop"
-current_execution_row = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
-current_design_stop = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
 current_blocker_token = """
-BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0:
-The deterministic full-lib known-red baseline is now observed by a fixed-stack
-runner before the later quick compatibility steps. Keep the selected-C backend
-replacement at design_stop until one exact Hako LLVM-text family, route/ABI
-parity, and named caller switch are proven. Do not infer MIR meaning from
-JSON/C metadata, and do not open fallback or retry.
+MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0:
+Option B is the final architecture: canonical Method(Some(receiver)) MIR feeds
+typed Hako LLVM-text lowering before the selected-C compatibility edge retires.
+First identify one exact same-session BindingRef -> request-local ValueId owner.
+Do not infer the receiver from variable_map, param0, args[0], ValueId zero, AST,
+names, registry, or backend metadata; do not open Method(Some), fallback, or retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -50,14 +50,14 @@ red remains explicit debt; the whole quick gate is not claimed green.
 Language decisions are fixed: ordinary me.method is retained, static/instance/
 delegate namespaces are explicit, panic is terminal Fault, and Result/?/cleanup
 are non-throwing surfaces. DeclaredInstance relation/effect/locator products
-and the install bridge are landed, while receiver ValueId, Method(Some),
-selected-C admission, MIR, fallback, retry, and Call-schema cutover remain
-closed. Selected-C is ParkedSealed/BackendCapabilityMissing: current HEAD has
-no source-independent Hako LLVM-text root DeclaredInstance Method(Some) family;
-the selected-C JSON/registry route is compatibility-only and I0 is NoSafeSlice.
-The current backend-owner DeclaredInstance row is the design stop.
+and the install bridge are landed. The final choice is Option B: retain ordinary
+me.method, publish canonical Method(Some(receiver)) MIR, then replace the
+selected-C compatibility lowerer with typed Hako LLVM-text one family at a time.
+Option A is only a temporary UnsupportedBeforeObject gate. Receiver ValueId,
+Method(Some), Hako coverage, MIR, fallback/retry, and Call-schema cutover remain
+closed. The current design stop audits the sole exact BindingRef -> ValueId owner.
 """
-next_design_card = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
