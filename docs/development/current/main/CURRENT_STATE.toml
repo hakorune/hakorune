@@ -7,9 +7,10 @@ current_blocker_token = """
 MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0:
 Option B is the final architecture: canonical Method(Some(receiver)) MIR feeds
 typed Hako LLVM-text lowering before the selected-C compatibility edge retires.
-First identify one exact same-session BindingRef -> request-local ValueId owner.
-Do not infer the receiver from variable_map, param0, args[0], ValueId zero, AST,
-names, registry, or backend metadata; do not open Method(Some), fallback, or retry.
+The sole storage candidate is CallableSemanticLoweringState, but the production
+locator-to-ledger crosswalk is 0. Design the callback-scoped relation-row bridge
+before any implementation. Do not infer from variable_map, param0, args[0],
+ValueId zero, AST, names, registry, or backend metadata; no fallback or retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -55,7 +56,8 @@ me.method, publish canonical Method(Some(receiver)) MIR, then replace the
 selected-C compatibility lowerer with typed Hako LLVM-text one family at a time.
 Option A is only a temporary UnsupportedBeforeObject gate. Receiver ValueId,
 Method(Some), Hako coverage, MIR, fallback/retry, and Call-schema cutover remain
-closed. The current design stop audits the sole exact BindingRef -> ValueId owner.
+closed. The current design stop records the unique storage candidate and the
+missing locator-to-ledger crosswalk; the next design slice is that BoxShape only.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
 next_execution_card = "none"

@@ -61,14 +61,17 @@ Option B is the final architecture: retain ordinary `me.method`, publish one
 canonical `Method(Some(receiver))` MIR, lower it through typed Hako LLVM text,
 switch one named caller, then delete the selected-C compatibility edge. Option A
 is only a temporary typed `UnsupportedBeforeObject` gate, never the finish line.
-The current D0 identifies the sole existing same-session root `BindingRef` to
-request-local `ValueId` owner before any receiver/argument effect. `variable_map`,
-param0, `args[0]`, numeric zero, AST reread, names, registry, JSON/C/Hako/backend
-metadata, fallback, and retry are non-authorities. No `Method(Some)`, MIR, backend
-wire, or production switch is open. Hako LLVM-text root DeclaredInstance coverage,
-lossless transport, exact ABI parity, and named caller switches remain zero, so
-the later replacement I0 stays `NoSafeSlice`; whole-lib known-red health remains
-a separate prerequisite. The independent bounded row
+The current D0 audit identifies one physical storage candidate,
+`CallableSemanticLoweringState`, but the production locator-to-ledger crosswalk
+is zero: the locator view exposes only no-root/count and the live lowering does
+not receive the relation row. `variable_map`, param0, `args[0]`, numeric zero,
+AST reread, names, registry, JSON/C/Hako/backend metadata, fallback, and retry
+are non-authorities. The next design slice is a callback-scoped locator relation
+borrow plus the existing generic consume ledger; no new receipt or family loan.
+No `Method(Some)`, MIR, backend wire, or production switch is open. Hako
+LLVM-text root DeclaredInstance coverage, lossless transport, exact ABI parity,
+and named caller switches remain zero, so the later replacement I0 stays
+`NoSafeSlice`; whole-lib known-red health remains a separate prerequisite. The independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
 prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0`
@@ -76,11 +79,9 @@ landed at `1115d70687` with exact full-lib red-baseline comparison and one quick
 wiring; three fixed-stack observations agree at 7385/139/29 over 7553 tests. Preserve
 Core C ABI, compare evidence, and no fallback/retry; the pointer is at the exact
 receiver-value owner design stop and whole quick is not claimed green.
-The temporary verification prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`
-landed at `39d5188d9d`: one test-only positional assertion now checks exact
-order-independent membership, without changing FastMem production MIR, Call,
-backend, or selected-C semantics. Ten exact runs and the 20-test module pass;
-the whole-lib red baseline remains separate and unaccepted.
+The temporary FastMem verification prerequisite landed at `39d5188d9d`: the
+test-only order-independent membership assertion passes in ten exact runs and
+the 20-test module; whole-lib red remains separate and unaccepted.
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
 the two production callers and one test helper are reconciled, but no exact

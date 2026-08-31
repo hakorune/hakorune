@@ -4061,34 +4061,49 @@ parent_row = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 ceremony_tier = "T1"
 box_kind = "Physical receiver owner design; no new semantic product"
 implementation_permission = false
-decision = "Keep Option B as the final architecture and identify exactly one existing function-entry owner that projects the resolver-issued root receiver BindingRef into the request-local ValueId before any DeclaredInstance Method(Some) implementation. Option A remains a temporary selected-backend UnsupportedBeforeObject state only."
-source_authority = "VerifiedDeclaredInstanceCallRelationV1::receiver_binding plus the same-function callable-entry BindingRef inventory. The existing function-entry parameter/materialization ledger may be the physical projection owner only if the owner/session/binding relation is exact."
-canonical_issuer = "One existing request-local callable-entry BindingRef -> ValueId materialization owner, if the D0 census proves it consumes the same root owner and receiver binding. This row creates no new Verified/Prepared receipt and issues no ValueId."
+decision = "Keep Option B as the final architecture. The D0 audit finds one physical storage candidate, CallableSemanticLoweringState, for BindingRef -> ValueId, but no production locator-to-ledger crosswalk; keep Method(Some) closed until that exact same-session bridge is designed. Option A remains a temporary selected-backend UnsupportedBeforeObject state only."
+source_authority = "VerifiedDeclaredInstanceCallRelationV1::receiver_binding plus the same-function callable-entry BindingRef inventory. The relation owns caller/site/binding identity; the existing function-entry parameter/materialization ledger is a physical candidate only when owner, session, and binding are exact."
+canonical_issuer = "CallableSemanticLoweringState is the sole existing request-local BindingRef -> ValueId storage/consume owner. The current locator view does not expose the relation row to that ledger in production. This row creates no new Verified/Prepared receipt and issues no ValueId."
 non_authority = [
   "function_state.variable_map['me'], raw param0, args[0], numeric ValueId(0), current_static_box, receiver AST re-lowering, name/header/registry lookup, CallTarget repair, MIR/JSON/C/Hako/backend metadata, fixtures, fallback, and retry",
   "CallableEntryShapeV1 or the callable ledger by name alone without an exact owner/session/BindingRef crosswalk",
 ]
-fail_fast_boundary = "Missing, foreign, duplicate, ambiguous, nested/upvar, or unavailable receiver materialization remains NoSafeSlice before receiver or argument effects, Callee/Const/MIR publication, backend admission, fallback, or retry."
+fail_fast_boundary = "Missing, foreign, duplicate, ambiguous, nested/upvar, unavailable, already-taken, or residual receiver materialization remains NoSafeSlice before receiver or argument effects, Callee/Const/MIR publication, backend admission, fallback, or retry."
 census_boundary = "Installed DeclaredInstance locator callback -> relation receiver BindingRef -> callable-entry materialization ledger -> first request-local ValueId borrow; includes root lexical instance-method entry only and excludes nested/upvar receivers, Method(Some) emission, arguments, Call schema, backend transport, Hako/C implementation, and compatibility repair."
 finite_states = [
-  "ExactExistingOwner: one same-session root receiver BindingRef maps to one existing request-local ValueId owner",
+  "ExactStorageCandidate: CallableSemanticLoweringState owns a request-local BindingRef -> ValueId map and consume ledger",
+  "ExactExistingOwnerButViewUnavailable: storage candidate is unique but the production locator view cannot lend its relation row",
+  "Ready: locator row, caller owner, session, receiver BindingRef, and pending entry ValueId reconcile exactly before effects",
   "NoRootDeclaredInstanceCall: locator and entry relation are both explicit absence",
   "OwnerMissing: no production BindingRef -> ValueId owner reaches the locator callback",
   "OwnerForeign: materialized binding belongs to another function owner or session",
   "OwnerAmbiguous: more than one materialization candidate exists",
+  "BindingMismatch: locator receiver BindingRef does not equal the current callable state receiver binding",
   "EntryValueUnavailable: exact binding is known but no ValueId exists before argument descent",
+  "AlreadyTaken: the generic consume ledger has already taken the exact receiver site",
+  "Residual: the callable state finishes with an unconsumed receiver/value row",
   "NestedOrUpvarOutside: non-root receiver remains outside this row",
 ]
 ordered_tasks = [
   "D0-A: inventory CallableEntryShapeV1 preparation, install_entry_values, callable ledger lookup, and the locator callback in both directions",
-  "D0-B: prove or refute an exact same-owner/session receiver BindingRef -> ValueId crosswalk without variable_map, param0, args[0], AST reread, or backend data",
-  "D0-C: if ExactExistingOwner is unique, define one borrowed/take-once physical view and the old current_bound_me_value/manual-prefix delete set; otherwise record NoSafeSlice",
+  "D0-B: prove or refute an exact same-owner/session receiver BindingRef -> ValueId crosswalk without variable_map, param0, args[0], AST reread, or backend data; current production crosswalk is 0",
+  "D0-C: define the next BoxShape slice as a callback-scoped locator relation borrow plus the existing generic ledger exact-take; do not create a family-specific loan or new receipt; if owner/session checks cannot be wired, remain NoSafeSlice",
   "I0 later: take the exact locator and receiver ValueId before arguments, emit Method(Some(receiver)) once, finish residual-zero, and delete the selected Global/manual receiver-prefix edge",
 ]
-acceptance = "The root receiver BindingRef, entry materialization owner, request-local ValueId lifetime, locator callback, and first physical consumer are finite and two-directionally reconciled; every negative state is pre-effect; no ValueId, target, backend capability, or semantic receipt is issued in D0."
-no_safe_slice = "Remain in design_stop if the only receiver source is variable_map, param0 position, args[0], ValueId zero, AST re-lowering, name/header/registry/backend inference, a second resolver, a family-specific loan, fallback/retry, or any source owner cannot be reconciled before effects."
+acceptance = "The D0 census names CallableSemanticLoweringState as the sole physical storage candidate, records the production locator-to-ledger crosswalk as zero, and distinguishes every missing/foreign/duplicate/binding/take/residual state before effects; no ValueId, target, backend capability, or semantic receipt is issued in D0."
+no_safe_slice = "Remain in design_stop while the locator view exposes only no-root/count, the production crosswalk is zero, or the owner/session/binding relation cannot be reconciled without variable_map, param0, args[0], ValueId zero, AST re-lowering, name/header/registry/backend inference, a second resolver, a family-specific loan, fallback, or retry."
 non_claims = "No Method(Some) production, no selected-C or Hako coverage, no receiver materialization change, no argument descent, no MIR/Call schema change, no C edge deletion, no fallback/retry, and no whole-lib green claim."
-reopen_trigger = "Open the bounded Method(Some) I0 only when one existing same-session root BindingRef -> ValueId owner is proven, the locator callback can borrow it before effects, and the exact old Global/manual receiver-prefix edge can be deleted in the same series."
+reopen_trigger = "Open the next locator-value crosswalk design only with a callback-scoped relation row and existing generic ledger view; open Method(Some) I0 only after that bridge is production-proven, receiver ValueId is available before effects, and the exact old Global/manual receiver-prefix edge can be deleted in the same series."
+worker_audit_result = "Three independent read-only audits agree: CallableSemanticLoweringState is the unique BindingRef -> ValueId storage/consume candidate, but the production locator-to-ledger crosswalk is 0 because DeclaredInstanceCallLocatorViewV1 exposes only no-root/count and the live cataloged lowering does not receive the relation row. The current state is ExactExistingOwnerButViewUnavailable / OwnerMissing, not implementation-ready."
+candidate_owner_count = 1
+production_crosswalk_count = 0
+worker_audit_evidence = [
+  "src/mir/builder/normal_callable_semantic_lowering_state.rs:24-48,283-307,477-509 — one request-local BindingRef -> ValueId map and consume ledger",
+  "src/mir/normal_callable_semantic_package/declared_instance_locator.rs:63-89,142-298 — production view exposes no-root/count but not the relation row",
+  "src/mir/builder/normal_callable_package_bridge.rs:177-224 and normal_cataloged_box_method_lowering.rs:181-234 — locator bridge is test-only and live lowering receives no relation row",
+  "src/mir/builder/method_call_handlers.rs:141-162,347-413,445-452 — legacy variable_map/current_bound_me_value/manual receiver-prefix edge",
+]
+next_design_slice = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0: expose the exact locator relation row through the existing non-Clone callback scope, compare caller owner/session/receiver BindingRef, and borrow the existing generic consume ledger without issuing a new receipt or family-specific loan."
 guard_shape_note = "The over-budget active-surface guard moves current-row dispatch to a private sibling without changing registry command, row semantics, or evidence; the shared owner returns below the 760-line split trigger."
 next_execution = "none__design_stop"
 allowed_files = [

@@ -83,7 +83,11 @@ def check_declared_instance_receiver_value_owner_d0(
     _require_tokens(
         _text(row, "canonical_issuer"),
         "canonical issuer",
-        ("BindingRef -> ValueId", "request-local", "no new Verified/Prepared receipt"),
+        (
+            "CallableSemanticLoweringState",
+            "BindingRef -> ValueId",
+            "no new Verified/Prepared receipt",
+        ),
     )
     _require_tokens(
         _text(row, "fail_fast_boundary"),
@@ -104,12 +108,17 @@ def check_declared_instance_receiver_value_owner_d0(
     )
     states = _list(row, "finite_states")
     for state_name in (
-        "ExactExistingOwner",
+        "ExactStorageCandidate",
+        "ExactExistingOwnerButViewUnavailable",
+        "Ready",
         "NoRootDeclaredInstanceCall",
         "OwnerMissing",
         "OwnerForeign",
         "OwnerAmbiguous",
+        "BindingMismatch",
         "EntryValueUnavailable",
+        "AlreadyTaken",
+        "Residual",
         "NestedOrUpvarOutside",
     ):
         if not any(item.startswith(state_name + ":") for item in states):
@@ -122,17 +131,58 @@ def check_declared_instance_receiver_value_owner_d0(
     _require_tokens(
         _text(row, "acceptance"),
         "acceptance",
-        ("two-directionally reconciled", "pre-effect", "no ValueId"),
+        (
+            "sole physical storage candidate",
+            "production locator-to-ledger crosswalk",
+            "before effects",
+            "no ValueId",
+        ),
     )
     _require_tokens(
         _text(row, "no_safe_slice"),
         "NoSafeSlice",
-        ("variable_map", "args[0]", "family-specific loan", "fallback/retry"),
+        (
+            "locator view",
+            "production crosswalk is zero",
+            "variable_map",
+            "args[0]",
+            "family-specific loan",
+            "fallback",
+            "retry",
+        ),
     )
     _require_tokens(
         _text(row, "non_claims"),
         "non-claims",
         ("No Method(Some)", "no selected-C or Hako coverage", "no MIR/Call schema change"),
+    )
+    _require_tokens(
+        _text(row, "worker_audit_result"),
+        "worker audit",
+        ("Three independent", "CallableSemanticLoweringState", "crosswalk is 0"),
+    )
+    if row.get("candidate_owner_count") != 1:
+        api.fail("receiver-value owner D0 candidate owner count must be one")
+    if row.get("production_crosswalk_count") != 0:
+        api.fail("receiver-value owner D0 production crosswalk must be zero")
+    evidence = "\n".join(_list(row, "worker_audit_evidence"))
+    _require_tokens(
+        evidence,
+        "worker evidence",
+        (
+            "normal_callable_semantic_lowering_state.rs",
+            "declared_instance_locator.rs",
+            "method_call_handlers.rs",
+        ),
+    )
+    _require_tokens(
+        _text(row, "next_design_slice"),
+        "next design slice",
+        (
+            "LOCATOR-VALUE-CROSSWALK-D0",
+            "existing generic consume ledger",
+            "without issuing a new receipt",
+        ),
     )
 
     expected = {
