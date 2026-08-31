@@ -7,10 +7,10 @@
 
 use crate::mir::callable_semantic_batch::ResolvedCallableSemanticBatchLoanErrorV1;
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
-use crate::mir::resolved_control_flow::{
-    FunctionCompletionVerificationErrorV1, VerifiedFunctionCompletionV1,
-};
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
+use crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+
+use super::result_contract::{CallableResultContractRefV1, VerifiedCallableResultContractCohortV1};
 
 #[derive(Debug)]
 pub(in crate::mir) enum CallablePhysicalHeaderIssueV1 {
@@ -50,27 +50,12 @@ pub(super) struct VerifiedCallablePhysicalHeaderRowV1 {
     batch_slot: u32,
     owner: FunctionOwnerIdV1,
     result: ExactTrivialScalarAbiV1,
-    completion: VerifiedFunctionCompletionV1,
 }
 
 #[derive(Clone, Copy)]
 pub(crate) struct CallablePhysicalHeaderRefV1<'a> {
     row: &'a VerifiedCallablePhysicalHeaderRowV1,
-}
-
-impl VerifiedCallablePhysicalHeaderCohortV1 {
-    pub(super) fn row(&self, batch_slot: u32) -> Option<&VerifiedCallablePhysicalHeaderRowV1> {
-        self.rows
-            .binary_search_by_key(&batch_slot, |row| row.batch_slot)
-            .ok()
-            .map(|index| &self.rows[index])
-    }
-}
-
-impl VerifiedCallablePhysicalHeaderRowV1 {
-    pub(super) fn borrow(&self) -> CallablePhysicalHeaderRefV1<'_> {
-        CallablePhysicalHeaderRefV1 { row: self }
-    }
+    result_contract: CallableResultContractRefV1<'a>,
 }
 
 impl CallablePhysicalHeaderRefV1<'_> {
@@ -83,40 +68,62 @@ impl CallablePhysicalHeaderRefV1<'_> {
     }
 
     pub(crate) const fn completion_owner(&self) -> FunctionOwnerIdV1 {
-        self.row.completion.owner()
+        self.result_contract.completion_owner()
     }
 
-    pub(crate) const fn completion_target_function(&self) -> RegionId {
-        self.row.completion.target_function()
+    pub(crate) const fn completion_target_function(
+        &self,
+    ) -> crate::mir::resolved_semantics::RegionId {
+        self.result_contract.completion_target_function()
     }
 
     pub(crate) const fn completion_returns_value(&self) -> bool {
-        self.row.completion.returns_value()
+        self.result_contract.completion_returns_value()
     }
 
     pub(crate) fn completion_explicit_site_count(&self) -> usize {
-        self.row.completion.explicit_sites().len()
+        self.result_contract.completion_explicit_site_count()
     }
 
     pub(crate) fn completion_cleanup_is_empty(&self) -> bool {
-        self.row.completion.cleanup().crossed_scopes().is_empty()
+        self.result_contract.completion_cleanup_is_empty()
     }
 }
 
-pub(super) fn issue_callable_physical_header_from_seeds_v1(
-    seeds: Vec<super::completion_seed::VerifiedCallableCompletionSeedV1>,
+impl VerifiedCallablePhysicalHeaderCohortV1 {
+    pub(super) fn row<'a>(
+        &'a self,
+        batch_slot: u32,
+        result_contracts: &'a VerifiedCallableResultContractCohortV1,
+    ) -> Option<CallablePhysicalHeaderRefV1<'a>> {
+        let row = self
+            .rows
+            .binary_search_by_key(&batch_slot, |row| row.batch_slot)
+            .ok()
+            .map(|index| &self.rows[index])?;
+        let result_contract = result_contracts.row(batch_slot)?;
+        if result_contract.owner() != row.owner || result_contract.result() != Some(row.result) {
+            return None;
+        }
+        Some(CallablePhysicalHeaderRefV1 {
+            row,
+            result_contract: result_contract.borrow(),
+        })
+    }
+}
+
+pub(super) fn issue_callable_physical_header_from_result_contract_v1(
+    result_contracts: &VerifiedCallableResultContractCohortV1,
 ) -> VerifiedCallablePhysicalHeaderCohortV1 {
     let mut rows = Vec::new();
-    for seed in seeds {
-        let Some(result) = seed.result() else {
+    for contract in result_contracts.rows() {
+        let Some(result) = contract.result() else {
             continue;
         };
-        let batch_slot = seed.batch_slot();
         rows.push(VerifiedCallablePhysicalHeaderRowV1 {
-            batch_slot,
-            owner: seed.owner(),
+            batch_slot: contract.batch_slot(),
+            owner: contract.owner(),
             result,
-            completion: seed.take_completion(),
         });
     }
     rows.sort_by_key(|row| row.batch_slot);

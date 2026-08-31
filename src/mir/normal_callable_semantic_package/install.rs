@@ -26,6 +26,7 @@ use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysic
 use super::physical_signature::{
     PhysicalCallableSignatureRowRefV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
+use super::result_contract::{CallableResultContractRefV1, VerifiedCallableResultContractCohortV1};
 use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::{
@@ -53,6 +54,8 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     DuplicateParameterContract,
     ParameterContractOwnerMismatch,
     PhysicalSignatureMismatch,
+    ResultContractUnavailable,
+    ResultContractMismatch,
     MainChildUnavailable,
     MainChildIdentityMismatch,
     MainChildRoleMismatch,
@@ -80,6 +83,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    result_contracts: VerifiedCallableResultContractCohortV1,
     physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
     s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     s6c_storage_header: Option<VerifiedS6CStorageHeaderProjectionV1>,
@@ -93,6 +97,7 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     parameter_contracts: &'loan [super::model::OwnedCallableParameterContractV1],
     block_expr_expectation: &'loan VerifiedResolvedBlockExpressionExpectationV1,
     physical_header: Option<CallablePhysicalHeaderRefV1<'loan>>,
+    result_contract: Option<CallableResultContractRefV1<'loan>>,
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
     selected_key: SelectedNormalCallableKeyV1,
@@ -332,6 +337,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             instance_constructors,
             selected,
             parameter_contracts,
+            result_contracts,
             physical_signature,
             s6c_child,
             s6c_storage_header,
@@ -363,6 +369,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             instance_constructors,
             selected,
             parameter_contracts,
+            result_contracts,
             physical_signature,
             s6c_child,
             s6c_storage_header,
@@ -525,7 +532,40 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
             SelectedNormalCallableKeyV1::TopLevel(_) => None,
         };
-        let physical_header = self.physical_header.row(batch_slot).map(|row| row.borrow());
+        let result_contract = match key {
+            // The S6C child consumed this row's Completion seed exclusively
+            // before the generic retention cohort was assembled. Its selected
+            // view remains valid, but the generic result contract is absent by
+            // construction; S6C owns the matching completion through its
+            // child loan instead.
+            SelectedNormalCallableKeyV1::Cataloged(_) if self.selected.is_main_child_key(key) => {
+                None
+            }
+            SelectedNormalCallableKeyV1::Cataloged(_) => {
+                let row = self.result_contracts.row(batch_slot).ok_or(
+                    NormalCallableSemanticPackageInstallIssueV1::ResultContractUnavailable,
+                )?;
+                let Some(expected_identity) = self.selected.identity_for_batch_slot(batch_slot)
+                else {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
+                    );
+                };
+                let Some(expected_role) = self.selected.role_for_batch_slot(batch_slot) else {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
+                    );
+                };
+                if !row.identity().same_as(expected_identity) || row.role() != expected_role {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
+                    );
+                }
+                Some(row.borrow())
+            }
+            SelectedNormalCallableKeyV1::TopLevel(_) => None,
+        };
+        let physical_header = self.physical_header.row(batch_slot, &self.result_contracts);
         let block_expr_expectation = self
             .batch
             .block_expr_expectation(batch_slot)
@@ -543,6 +583,11 @@ impl InstalledNormalCallableSemanticPackageV1 {
         };
         self.batch
             .with_lowering_input_and_source_identity(batch_slot, |source, source_identity| {
+                if result_contract.is_some_and(|contract| contract.owner() != source.owner()) {
+                    return Err(
+                        NormalCallableSemanticPackageInstallIssueV1::ResultContractMismatch,
+                    );
+                }
                 let parameters = match parameter_declaration {
                     Some(declaration) => {
                         if declaration.owner != source.owner() {
@@ -560,6 +605,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
                     parameter_contracts: parameters,
                     block_expr_expectation,
                     physical_header,
+                    result_contract,
                     semantic,
                     source_identity,
                     selected_key,

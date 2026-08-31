@@ -268,6 +268,15 @@ authority. The current verified completion slice is narrower than the full
 target: broad nested, multiple-return, cleanup-bearing, and all-path coverage
 remain separate capability rows.
 
+The selected Cataloged package retention now keeps the original non-`Clone`
+`VerifiedFunctionCompletionV1` and `DeclaredFunctionResultContractV1` in one
+package-owned cohort after the exclusive S6C child consumes its seed.
+Unannotated and `void` remain distinct source contracts even without a
+physical header row. Any physical header is only a sparse borrowed projection
+of that cohort and may expose the existing exact `i64` scalar; it does not
+infer, clone, or reissue the result contract. This is transport evidence for
+the accepted semantics, not a new ABI or Call-schema decision.
+
 ## Source Entry and Physical Entry
 
 Entry selection produces a typed source-entry result:

@@ -47,6 +47,14 @@ fn explicit_result_annotation_lends_one_complete_header_view() {
     );
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     port.with_selected_lowering_input(&key, |input| {
+        let result_contract = input
+            .result_contract()
+            .expect("generic result contract row");
+        assert!(matches!(
+            result_contract.declared_result(),
+            crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Annotated(name)
+                if name.as_ref() == "i64"
+        ));
         let header = input.physical_header().expect("header cohort row");
         assert_eq!(header.owner(), input.source().owner());
         assert_eq!(
@@ -79,6 +87,13 @@ fn absent_result_annotation_keeps_ordinary_package_without_physical_header() {
     );
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     port.with_selected_lowering_input(&key, |input| {
+        let result_contract = input
+            .result_contract()
+            .expect("unannotated result contract is retained");
+        assert!(matches!(
+            result_contract.declared_result(),
+            crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated
+        ));
         assert!(input.physical_header().is_none());
     })
     .expect("ordinary loan");
@@ -108,12 +123,33 @@ fn valid_void_siblings_do_not_poison_sparse_physical_header_cohort() {
         };
         let expected_header = source_key.name() == "run";
         port.with_selected_lowering_input(&key, |input| {
+            let result_contract = input
+                .result_contract()
+                .expect("result contract row remains for every generic callable");
             assert_eq!(
                 input.physical_header().is_some(),
                 expected_header,
                 "{}",
                 source_key.name()
             );
+            if expected_header {
+                assert!(matches!(
+                    result_contract.declared_result(),
+                    crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Annotated(
+                        name
+                    ) if name.as_ref() == "i64"
+                ));
+            } else if source_key.name() == "explicit" {
+                assert!(matches!(
+                    result_contract.declared_result(),
+                    crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Void
+                ));
+            } else {
+                assert!(matches!(
+                    result_contract.declared_result(),
+                    crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated
+                ));
+            }
         })
         .expect("selected row loan");
     }

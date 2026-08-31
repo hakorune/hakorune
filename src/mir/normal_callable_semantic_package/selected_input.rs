@@ -27,7 +27,19 @@ impl<'loan> super::SelectedCallableLoweringInputRefV1<'loan> {
     }
 
     pub(crate) fn physical_header(&self) -> Option<super::CallablePhysicalHeaderRefV1<'_>> {
-        self.physical_header
+        let header = self.physical_header?;
+        let result_contract = self.result_contract?;
+        if result_contract.owner() != header.owner()
+            || result_contract.result() != Some(header.result())
+        {
+            return None;
+        }
+        Some(header)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn result_contract(&self) -> Option<super::CallableResultContractRefV1<'_>> {
+        self.result_contract
     }
 
     pub(in crate::mir) fn semantic(&self) -> super::SelectedCallableSemanticRefV1<'loan> {

@@ -53,10 +53,13 @@ use super::model::{
 };
 use super::ordinary_new_coseal::{issue_ordinary_new_claims_v1, OrdinaryNewCoSealIssueV1};
 use super::physical_header::{
-    issue_callable_physical_header_from_seeds_v1, CallablePhysicalHeaderIssueV1,
+    issue_callable_physical_header_from_result_contract_v1, CallablePhysicalHeaderIssueV1,
 };
 use super::physical_signature::{
     issue_callable_physical_signature_v1, CallablePhysicalSignatureIssueV1,
+};
+use super::result_contract::{
+    issue_callable_result_contract_cohort_v1, CallableResultContractIssueV1,
 };
 use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
 use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
@@ -328,6 +331,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     PhysicalHeader {
         _error: CallablePhysicalHeaderIssueV1,
     },
+    ResultContract {
+        _error: CallableResultContractIssueV1,
+    },
     PhysicalSignature {
         _error: CallablePhysicalSignatureIssueV1,
     },
@@ -492,8 +498,11 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
         }
     };
-    let physical_header =
-        issue_callable_physical_header_from_seeds_v1(completion_seeds.into_rows());
+    let result_contracts = issue_callable_result_contract_cohort_v1(completion_seeds.into_rows())
+        .map_err(|error| {
+        NormalCallableSemanticPackageIssueV1::ResultContract { _error: error }
+    })?;
+    let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
     let mut candidate = None;
     for declaration in batch.declarations() {
         // The resolved batch row is the sole declaration-mode authority.  The
@@ -638,6 +647,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         instance_constructors,
         selected,
         parameter_contracts,
+        result_contracts,
         physical_signature,
         s6c_child,
         s6c_storage_header,

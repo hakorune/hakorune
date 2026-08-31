@@ -29,6 +29,7 @@ MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
 MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
 COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_seed.rs"
+RESULT_CONTRACT="$ROOT_DIR/src/mir/normal_callable_semantic_package/result_contract.rs"
 S6C_CHILD="$ROOT_DIR/src/mir/normal_callable_semantic_package/s6c_child.rs"
 TEXT_FORMAL_ABI="$ROOT_DIR/src/runtime/text_formal_abi.rs"
 TEXT_FORMAL_HOST="$ROOT_DIR/src/runtime/host_handles/lease_identity.rs"
@@ -46,7 +47,7 @@ guard_require_files "$TAG" "$PHYSICAL_INPUT"
 guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
 guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
   "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
-guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD"
+guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$RESULT_CONTRACT" "$S6C_CHILD"
 guard_require_files "$TAG" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" \
   "$TEXT_FORMAL_HEADER" "$TEXT_FORMAL_EXPORT"
 guard_require_files "$TAG" "$TEXT_FORMAL_CALL_LIFETIME" "$TEXT_FORMAL_CALL_FACADE" \
@@ -118,6 +119,9 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "verify_function_completion_v1" "$COMPLETION_SEED" \
   "callable Completion seed must use the sole Completion issuer"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_callable_result_contract_cohort_v1" "$RESULT_CONTRACT" \
+  "callable result contract must retain the existing Completion product"
 if rg -n -F -- 'verify_function_completion_v1' "$PHYSICAL_HEADER" >/dev/null 2>&1; then
   guard_fail "$TAG" "callable physical-header row reissues the Completion authority"
 fi
@@ -125,7 +129,7 @@ guard_expect_fixed_in_file "$TAG" \
   "ExactTrivialScalarAbiV1::classify" "$COMPLETION_SEED" \
   "callable Completion seed result must use the explicit scalar source spelling"
 guard_expect_fixed_in_file "$TAG" \
-  "issue_callable_physical_header_from_seeds_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
+  "issue_callable_physical_header_from_result_contract_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
   "package issuer must have one source/header cohort seam"
 guard_expect_fixed_in_file "$TAG" \
   "TextFormalBorrowV1" "$TEXT_FORMAL_ABI" \

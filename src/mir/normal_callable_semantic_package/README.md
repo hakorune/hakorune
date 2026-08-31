@@ -145,9 +145,10 @@ The package also has one caller-zero, Builder-free sparse source/header cohort.
 Each selected cataloged row that has its own complete formal parameter contract
 and an explicit source result annotation accepted by the current scalar
 bootstrap (`i64`) is co-sealed with `verify_function_completion_v1`. Missing or
-unannotated sibling rows are absent from the cohort and cannot erase an
-eligible row. The cohort itself is always present and moves through install;
-only row lookup is optional and is lent as an
+unannotated sibling rows are absent from the sparse physical-header projection
+and cannot erase an eligible row. The result-contract cohort itself is always
+present and moves through install; only physical-header row lookup is optional
+and is lent as an
 `Option<CallablePhysicalHeaderRefV1>` on the selected lowering view. A callable
 without that explicit row admission remains valid for its ordinary semantic
 route and lends `None`; it is not inferred from a body, MIR, ResultCatalog, or
@@ -158,6 +159,18 @@ This row does not define a Text handle ABI or runtime wire. In particular,
 the S6C physical session remain downstream design stops. The cohort owns the
 source result spelling and Completion proof only; the formal parameter issuer
 continues to own ordinal, BindingRef, owner, and formal-kind evidence.
+
+## Retained result/Completion cohort (2026-08-31)
+
+The package now moves the remaining completion seeds into one private,
+non-`Clone` result-contract cohort after the exclusive S6C child consumes its
+seed. Every retained Cataloged row keeps its original
+`DeclaredFunctionResultContractV1` and `VerifiedFunctionCompletionV1`,
+including Unannotated and Void rows. The sparse physical-header cohort is a
+projection over that retained product: it borrows Completion details and
+contains only the existing supported scalar projection (`i64`). It does not
+verify, infer, clone, or reissue a result, and a physical-header miss does not
+erase the ordinary retained result contract.
 
 ## Installed S6C child composition (2026-08-15)
 

@@ -2167,13 +2167,14 @@ ordered_tasks = [
   "I0-A: add one private result_contract.rs cohort and move remaining completion seeds into it after the existing S6C child consumes its one seed",
   "I0-B: make physical_header.rs a sparse projection over the retained cohort; preserve current header consumers through a composite borrowed view",
   "I0-C: carry the retained cohort through VerifiedNormalCallableSemanticPackageV1 -> InstalledNormalCallableSemanticPackageV1 -> SelectedCallableLoweringInputRefV1",
-  "I0-D: add focused Unannotated/Void/AnnotatedI64/S6C exclusivity and mismatch tests, then run exact changed filters and package guards",
+  "I0-D: extend the existing physical_header_tests.rs with focused Unannotated/Void/AnnotatedI64/S6C exclusivity and mismatch coverage, then run exact changed filters and package guards",
   "C0: record residual non-i64/TopLevel ABI as separate NoSafeSlice and return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop",
 ]
 allowed_files = [
   "src/mir/normal_callable_semantic_package/completion_seed.rs",
   "src/mir/normal_callable_semantic_package/result_contract.rs",
-  "src/mir/normal_callable_semantic_package/result_contract_tests.rs",
+  "src/mir/normal_callable_semantic_package/physical_header_tests.rs",
+  "tools/checks/loop_physical_transfer_authority_guard.sh",
   "src/mir/normal_callable_semantic_package/physical_header.rs",
   "src/mir/normal_callable_semantic_package/model.rs",
   "src/mir/normal_callable_semantic_package/issuer.rs",

@@ -43,6 +43,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    pub(super) result_contracts: super::result_contract::VerifiedCallableResultContractCohortV1,
     pub(super) physical_signature:
         super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     pub(super) s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,

@@ -52,6 +52,26 @@ impl VerifiedCallableCompletionSeedV1 {
     pub(super) fn take_completion(self) -> VerifiedFunctionCompletionV1 {
         self.completion
     }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        u32,
+        FunctionOwnerIdV1,
+        CallableDeclarationIdentityV1,
+        crate::mir::builder::SelectedCallableConsumptionRoleV1,
+        Option<ExactTrivialScalarAbiV1>,
+        VerifiedFunctionCompletionV1,
+    ) {
+        (
+            self.batch_slot,
+            self.owner,
+            self.identity,
+            self.role,
+            self.result,
+            self.completion,
+        )
+    }
 }
 
 #[derive(Debug)]
