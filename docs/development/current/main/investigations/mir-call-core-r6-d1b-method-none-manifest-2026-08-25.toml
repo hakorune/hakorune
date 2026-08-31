@@ -2225,13 +2225,13 @@ closeout = "The test-only order stabilization is landed and verified. Return wor
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [verification_health_quick_lib_baseline_p0_a_inc_debt_reconcile_r0_2026_09_01]
-status = "fast_open"
+status = "landed"
 task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 depends_on = "verification_health_quick_lib_baseline_p0_2026_08_31"
 ceremony_tier = "T0"
 box_kind = "BoxShape guard baseline data only"
-implementation_permission = true
+implementation_permission = false
 decision = "Record the four already-observed .inc analysis-debt owners and exact counts in the no-growth allowlist. This does not delete or reinterpret C/MIR code; future files or per-file growth remain a failure."
 source_authority = "tools/checks/inc_codegen_thin_shim_guard.sh owns the pattern count and the allowlist comparison; this row only records its current observed shape."
 canonical_issuer = "None; no production issuer or route is changed by a guard baseline row."
@@ -2275,11 +2275,11 @@ forbidden_files = [
 focused_test_filters = []
 changed_test_names = []
 coverage_base_commit = "ca44b27974"
-implementation_commit = "pending"
-implementation_evidence = "Not landed: the next implementation commit adds only the four exact no-growth baseline rows and runs the existing .inc guard."
+implementation_commit = "e3cfa78488"
+implementation_evidence = "Landed at e3cfa78488: the four existing unscoped .inc owners are recorded at exact counts 3, 2, 3, and 4. inc_codegen_thin_shim_guard.sh reports files=4, debt_lines=12, and still fails on new owners or per-file growth. No .inc source, C/MIR production, Call, backend, fallback, or retry code changed."
 red_classification = "This row accepts no test result and does not reclassify the known whole-lib red baseline; it only makes the existing .inc guard honest and green."
 guard = "The stable active-surface guard dispatches a dedicated P0-A checker; the checker validates the row contract and exact allowlist shape, while inc_codegen_thin_shim_guard.sh remains the behavior guard."
-next_execution = "none__closeout_pending"
+next_execution = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0__design_stop"
 
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"
