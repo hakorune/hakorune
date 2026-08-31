@@ -2224,6 +2224,63 @@ red_classification = "No current-change red in the exact test or FastMem module.
 closeout = "The test-only order stabilization is landed and verified. Return work_mode=design_stop to MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0; do not infer selected-C authority or claim the whole-lib baseline is green."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
+[verification_health_quick_lib_baseline_p0_a_inc_debt_reconcile_r0_2026_09_01]
+status = "fast_open"
+task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
+parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+depends_on = "verification_health_quick_lib_baseline_p0_2026_08_31"
+ceremony_tier = "T0"
+box_kind = "BoxShape guard baseline data only"
+implementation_permission = true
+decision = "Record the four already-observed .inc analysis-debt owners and exact counts in the no-growth allowlist. This does not delete or reinterpret C/MIR code; future files or per-file growth remain a failure."
+source_authority = "tools/checks/inc_codegen_thin_shim_guard.sh owns the pattern count and the allowlist comparison; this row only records its current observed shape."
+canonical_issuer = "None; no production issuer or route is changed by a guard baseline row."
+non_authority = [
+  "C/MIR meaning, selected-C, Call schema, backend route, source names, fixtures, fallback, retry, and any production deletion",
+  "a passing allowlist comparison as evidence that the four debt owners are repaired",
+]
+fail_fast_boundary = "A missing, malformed, or extra allowlist row, a new .inc debt owner, or per-file count growth fails the existing guard. The recorded debt is visible and does not make quick or whole-lib health green."
+census_boundary = "The four current unscoped .inc analysis-debt files -> exact path/count rows in inc_codegen_thin_shim_debt_allowlist.tsv; includes only the existing four owners, excludes view-owner regions, C/MIR semantics, quick cargo-test wiring, baseline seeding, and backend work."
+finite_states = [
+  "Unrecorded: the existing guard reports the four files as new debt and this row is not landed",
+  "RecordedNoGrowth: exact four rows are present and the guard accepts the current counts",
+  "GrowthOrNewOwner: guard fails and semantic work must not proceed",
+  "Prunable: an owner is reduced or removed and may be explicitly pruned in a later row",
+]
+ordered_tasks = [
+  "R0-A: add the four exact path/count rows (3, 2, 3, 4) without touching the .inc sources",
+  "R0-B: run inc_codegen_thin_shim_guard.sh, the active-surface guard, the pointer guard, and diff check",
+  "R0-C: record guard-only evidence and close out to the existing backend design stop; do not claim quick or whole-lib green",
+]
+acceptance = "The allowlist contains exactly the four observed paths with counts 3, 2, 3, and 4; inc_codegen_thin_shim_guard.sh exits 0 while future new debt or growth still fails; no production source, MIR, Call, backend, fallback, or retry changes occur; active-surface, pointer, and diff guards pass."
+no_safe_slice = "Remain in design_stop if the observed counts drift, a fifth owner appears, a view-owner row is conflated with an unscoped row, the guard needs semantic changes, or the change would touch C/MIR production sources."
+non_claims = "No claim that quick is green, no cargo-test or full-lib baseline, no legacy-tests decision, no DeclaredInstance co-seal, no Method(Some) switch, no Call-schema change, no backend replacement, and no old-edge deletion."
+allowed_files = [
+  "tools/checks/inc_codegen_thin_shim_debt_allowlist.tsv",
+  "tools/checks/lib/mir_verification_quick_p0_a_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "lang/c-abi/shims/**",
+  "src/mir/**",
+  "src/runner/**",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+  "tools/checks/guard_rows.toml",
+  "fallback or retry routes",
+]
+focused_test_filters = []
+changed_test_names = []
+coverage_base_commit = "ca44b27974"
+implementation_commit = "pending"
+implementation_evidence = "Not landed: the next implementation commit adds only the four exact no-growth baseline rows and runs the existing .inc guard."
+red_classification = "This row accepts no test result and does not reclassify the known whole-lib red baseline; it only makes the existing .inc guard honest and green."
+guard = "The stable active-surface guard dispatches a dedicated P0-A checker; the checker validates the row contract and exact allowlist shape, while inc_codegen_thin_shim_guard.sh remains the behavior guard."
+next_execution = "none__closeout_pending"
+
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"
 task_id = "ROW-EXIT-CHANGED-TEST-EXEC-P0"

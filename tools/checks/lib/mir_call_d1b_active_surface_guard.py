@@ -149,6 +149,9 @@ CSE_SAME_BLOCK_KEY = "mir_cse_same_block_stats_determinism_r0_2026_09_01"
 BACKEND_OWNER_DECLARED_INSTANCE_METHOD_CUTOVER_D0_ROW = (
     "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 )
+VERIFICATION_P0_A_INC_DEBT_RECONCILE_R0_ROW = (
+    "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
+)
 
 
 def fail(message: str) -> None:
@@ -899,6 +902,12 @@ def main() -> None:
         )
 
         check_backend_owner_declared_instance_method_d0(state, card, root, api)
+    elif row == VERIFICATION_P0_A_INC_DEBT_RECONCILE_R0_ROW:
+        from mir_verification_quick_p0_a_guard import (
+            check_verification_quick_p0_a_inc_debt_reconcile_r0,
+        )
+
+        check_verification_quick_p0_a_inc_debt_reconcile_r0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
