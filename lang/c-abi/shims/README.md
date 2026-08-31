@@ -83,6 +83,14 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 - Its body is split into `*.inc` partitions so the route owner stays thin
   without widening the exported ABI surface.
 
+The selected Dynamic launch and planned same-module-definition projections
+keep their invocation-local `SameModuleFunctionContextSnapshot` values
+heap-owned. This avoids consuming the 8 MiB process stack while preserving
+each existing save -> activate -> emit -> restore -> free lifecycle; it does
+not change the selected route, ABI, or MIR meaning. The definition-emission
+helpers live in their own include so the physical seam stays below the source
+line budget.
+
 Current partitions:
 
 - `hako_llvmc_ffi_common.inc`
@@ -185,6 +193,10 @@ Current partitions:
 - `hako_llvmc_ffi_same_module_function_emit.inc`
   - same-module uniform ABI function definition facade; keep this as
     orchestration/context plumbing, not a semantic planner
+- `hako_llvmc_ffi_same_module_function_definition_emit.inc`
+  - planned same-module definition lookup and emission helpers; owns the
+    invocation-local context snapshot lifecycle and does not select semantic
+    routes or alter the emitted ABI
 - `hako_llvmc_ffi_same_module_prepass.inc`
   - same-module prepass helper partition; publishes backend-local reg/origin
     facts from MIR-owned metadata before body emit; structured `Extern` calls

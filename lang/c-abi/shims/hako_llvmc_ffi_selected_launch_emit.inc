@@ -7,7 +7,7 @@
  * copied, no stub is invented, and no launch arguments are synthesized.
  */
 if (program.selected_dynamic) {
-  struct SameModuleFunctionContextSnapshot launch_snapshot;
+  struct SameModuleFunctionContextSnapshot* launch_snapshot;
   hako_llvmc_generic_pure_function_view launch_function = program.launch;
   int launch_rc;
 
@@ -34,14 +34,28 @@ if (program.selected_dynamic) {
     goto GEN_ABORT;
   }
 
-  same_module_function_save_function_context(&launch_snapshot);
+  launch_snapshot = calloc(1, sizeof(*launch_snapshot));
+  if (!launch_snapshot) {
+    note_pure_unsupported_shape(
+        -1,
+        0,
+        "selected_dynamic_launch",
+        "launch_context_snapshot_allocation_failed",
+        NULL);
+    HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
+    yyjson_doc_free(d);
+    goto GEN_ABORT;
+  }
+
+  same_module_function_save_function_context(launch_snapshot);
   same_module_function_activate_function_context(&launch_function);
   launch_rc = same_module_function_emit_function_pipeline(
       f,
       launch_function.fn,
       launch_function.index,
       "ny_main");
-  same_module_function_restore_function_context(&launch_snapshot);
+  same_module_function_restore_function_context(launch_snapshot);
+  free(launch_snapshot);
   if (launch_rc != 1) {
     note_pure_unsupported_shape(
         -1,

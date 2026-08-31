@@ -477,15 +477,24 @@ def check_selected_c_stack_row(state: dict, card: dict, root: Path) -> None:
     if row.get("implementation_permission") is not (status == "selected_fast"):
         fail("selected-C stack row permission/status drifted")
     source = root / "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc"
+    definition_source = root / "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_definition_emit.inc"
+    definition_seam = root / "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc"
     guard = root / "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh"
-    for path in (source, guard):
+    for path in (source, definition_source, definition_seam, guard):
         if not path.is_file():
             fail(f"selected-C stack owner is missing: {path}")
     if sum(1 for _ in source.open(encoding="utf-8")) >= 760:
-        fail("selected-C stack owner reached the 760-line boundary")
+        fail("selected-C launch owner reached the 760-line boundary")
+    if sum(1 for _ in definition_source.open(encoding="utf-8")) >= 760:
+        fail("selected-C definition owner reached the 760-line boundary")
+    if sum(1 for _ in definition_seam.open(encoding="utf-8")) >= 760:
+        fail("selected-C definition seam reached the 760-line boundary")
     allowed = set(require_text_list(row.get("allowed_files"), "selected-C allowed_files"))
     required = {
         "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc",
+        "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_definition_emit.inc",
+        "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc",
+        "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_context.inc",
         "lang/c-abi/shims/README.md",
         "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh",
         str(HELPER_REL),

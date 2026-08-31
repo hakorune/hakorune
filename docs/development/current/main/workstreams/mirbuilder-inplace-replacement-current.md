@@ -54,14 +54,6 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
-Current selected prerequisite:
-`NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0` is the only fast row. It
-may move only the invocation-local selected-C launch snapshot to heap ownership
-at the existing 8 MiB boundary, preserving save/activate/emit/restore/free;
-DeclaredInstance meaning, MIR/Call, fixtures, ABI, route selection, fallback,
-and retry remain closed. Once its focused guard is green, restore the package
-co-seal design stop below.
-
 Current design stop:
 `MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0` retains ordinary
 `me.method`; the source/site/declaration relation landed at `845bd72641`,
@@ -72,8 +64,9 @@ the same session. `PhysicalCallableLaneV1` is only a reusable candidate; the
 selected Boundary pure-first C consumer still lacks receiver-presence, full
 lane, and source-backed result/effect admission. Receiver materialization,
 Method(Some), package/loan, MIR, backend, fallback/retry, and nonselected
-backend work remain closed; whole-lib health and selected-C stack health are
-separate prerequisites. A future common disposition may carry only private
+ backend work remain closed; whole-lib health is a separate prerequisite, and
+the selected-C launch snapshot stack blocker is now landed at `68a030dc95`
+with a fresh-FFI 8 MiB guard. A future common disposition may carry only private
 locators and borrow the already-issued siblings together; it is design-only
 until the selected-C admission capability and the common callsite port exist.
 

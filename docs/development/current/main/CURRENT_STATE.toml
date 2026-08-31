@@ -6,10 +6,12 @@ current_design_stop = "none"
 current_blocker_token = """
 NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0:
 the selected-C runtime-helper must pass at the 8 MiB process-stack boundary.
-Move only the invocation-local launch snapshot to heap ownership, preserving
-save -> activate -> emit -> restore -> free. Allocation failure must reject
-before save/activation with no output, fallback, or retry. Do not change
-fixtures, ABI, MIR, Call, route selection, or DeclaredInstance semantics.
+The launch snapshot is heap-owned, but the planned-definition path still has a
+second stack-owned context snapshot. Move only these invocation-local snapshots
+to heap ownership, preserving save -> activate -> emit -> restore -> free.
+Allocation failure must reject before save/activation with no output, fallback,
+or retry. Do not change fixtures, ABI, MIR, Call, route selection, or
+DeclaredInstance semantics.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,7 +44,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "A separate selected-C health prerequisite is now the only fast row: heap-own the invocation-local launch snapshot without changing route or semantics. DeclaredInstance package co-seal remains the next design stop; relation/result/effect are landed, but selected-C admission and full lane are not. Receiver ValueId, Method(Some), package/loan, MIR, fallback, retry, and Call-schema cutover remain closed."
+latest_card_summary = "The selected-C stack-health row is active: launch_snapshot was heap-owned at 68a030dc95, but a planned-definition saved_context remains stack-owned and must be moved within the same BoxShape umbrella. DeclaredInstance package co-seal remains closed; relation/result/effect are landed, but selected-C admission and full lane are not. Receiver ValueId, Method(Some), package/loan, MIR, fallback, retry, and Call-schema cutover remain closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 next_execution_card = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"

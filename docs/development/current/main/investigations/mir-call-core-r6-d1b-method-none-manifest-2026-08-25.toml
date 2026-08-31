@@ -2189,7 +2189,7 @@ task_id = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 box_kind = "BoxShape selected-C backend stack ownership repair"
 implementation_permission = true
-decision = "Treat the phase-1 runtime-helper guard's stack overflow as a real selected-C baseline regression, not as a 16 MiB stack waiver. The 8 MiB process stack is the acceptance boundary; the narrow repair may move only the invocation-local launch snapshot to heap ownership while preserving save, activate, emit, restore, and free order."
+decision = "Treat the phase-1 runtime-helper guard's stack overflow as a real selected-C baseline regression, not as a 16 MiB stack waiver. The 8 MiB process stack is the acceptance boundary; move only the invocation-local launch and planned-definition context snapshots to heap ownership while preserving each save, activate, emit, restore, and free order."
 source_authority = "The daily quick order is owned by tools/checks/lib/dev_gate_quick_steps.sh; the behavior contract is stage1_emit_program_json_runtime_helper_guard.sh; the selected physical owners are selected_launch_emit.inc and the compile_json_compat_pure state path."
 canonical_issuer = "The existing selected-C launch snapshot construction/activation owner; no new MIR or source semantic issuer is allowed."
 non_authority = [
@@ -2201,24 +2201,30 @@ census_boundary = "stage1_emit_program_json_runtime_helper_guard.sh -> fresh ny-
 finite_inventory = [
   "guard contract: tools/checks/stage1_emit_program_json_runtime_helper_guard.sh:37-57",
   "selected-C launch owner: lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc:10",
+  "selected-C planned-definition owner: lang/c-abi/shims/hako_llvmc_ffi_same_module_function_definition_emit.inc",
+  "selected-C definition seam: lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc",
   "selected-C lowering state: lang/c-abi/shims/hako_llvmc_ffi_generic_pure_lowering_state.inc:58-111",
   "context snapshot view: lang/c-abi/shims/hako_llvmc_ffi_same_module_function_context.inc:8-40",
   "fresh compiler artifact owner: crates/nyash-llvm-compiler and existing selected-Dynamic smoke",
 ]
 finite_states = [
   "EightMiBOverflow: current guard aborts with rc=134 before object emission",
-  "HeapSnapshotCandidate: one invocation-local snapshot may be heap-owned with order preserved",
+  "HeapSnapshotCandidate: both invocation-local snapshots may be heap-owned with order preserved",
   "ExactSelectedConsumer: existing trace and non-empty object at 8 MiB",
   "AllocationRejected: typed failure before save/activation and no output",
   "UnsafeShortcut: 16 MiB waiver, static/TLS snapshot, capacity/fixture change, fallback, or retry",
 ]
 ordered_tasks = [
   "D0: confirm parent/current byte identity for guard, fixture, fresh FFI, and selected-C source; record the 8 MiB overflow and 16 MiB non-authority observation",
-  "R0: if the existing selected-C owner can heap-own only the invocation-local launch snapshot, preserve save -> activate -> emit -> restore -> free and keep all state/ABI/fixture semantics unchanged",
+  "R0-A: heap-own the selected launch snapshot; preserve save -> activate -> emit -> restore -> free",
+  "R0-B: split the planned-definition seam without behavior change, then heap-own saved_context with the same lifecycle",
   "C0: run the existing runtime-helper guard plus selected-Dynamic positive/negative and allocation-failure evidence at 8 MiB; require fresh FFI evidence and return to the health parent design stop",
 ]
 allowed_files = [
   "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_definition_emit.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_emit.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_same_module_function_context.inc",
   "lang/c-abi/shims/README.md",
   "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh",
   "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
@@ -2234,7 +2240,7 @@ forbidden_files = [
   "MIR/Call/DeclaredInstance semantics",
   "fallback/retry/static/TLS global snapshot",
 ]
-acceptance = "At the 8 MiB stack boundary the existing selected-C runtime-helper guard reaches its exact consumer trace and non-empty object, allocation failure is typed and side-effect-free before activation, the selected-Dynamic focused evidence remains green, and no fixture/ABI/route/semantic behavior changes."
+acceptance = "At the 8 MiB stack boundary the existing selected-C runtime-helper guard reaches its exact consumer trace and non-empty object with zero stack-owned SameModuleFunctionContextSnapshot values; both allocation-failure branches are typed and side-effect-free before activation; the selected-Dynamic focused evidence remains green; and no fixture/ABI/route/semantic behavior changes."
 no_safe_slice = "Remain in design_stop if heap ownership cannot preserve the existing snapshot lifecycle, if the fresh FFI is not proven, or if the repair needs stack enlargement, fixture/capacity changes, static/TLS state, alternate backend, or semantic route edits."
 non_claims = "No quick/full-lib green claim, no 139-failure baseline acceptance, no Stage1 artifact completion, no DeclaredInstance issuer/co-seal, no Method(Some) or Call-schema cutover, and no VM/backend policy change."
 reopen_trigger = "Reopen when selected-C launch state shape, FFI freshness, the guard contract, or the 8 MiB result changes; keep this row separate from the metadata historical/live census task."
@@ -2242,15 +2248,13 @@ changed_anchor_occurrences = 16
 unique_anchor_mappings = 11
 stale_anchor_occurrences = 0
 verification_commands = [
-  "python3 tools/checks/mir_metadata_consumer_manifest.py --root .: pass",
-  "bash tools/checks/mir_metadata_consumer_manifest_guard.sh: pass",
-  "bash tools/checks/mir_metadata_catalog_guard.sh: pass",
+  "R0-A: bash -c 'ulimit -s 8192; bash tools/checks/stage1_emit_program_json_runtime_helper_guard.sh' after fresh FFI rebuild: launch-only diagnostic passed; planned-definition snapshot remains open",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass",
   "bash tools/checks/current_state_pointer_guard.sh: pass",
   "git diff --check: pass",
-  "bash tools/checks/dev_gate.sh quick: metadata step passed; next first failure is phase-1 compatibility emit-program runtime-helper guard (rc=134, stack overflow)",
 ]
-evidence = "The 16 literal anchor refreshes preserve the historical manifest revision and all owner/count/category/role/state fields. Direct checker, manifest guard, and metadata catalog guard pass. The daily quick gate now reaches the next independent Stage1 runtime-helper fixture and records its stack-overflow red; this row does not repair or waive that failure."
-red_classification = "No current-change red in this row. The Stage1 runtime-helper stack overflow is an independent pre-existing gate failure and remains unclassified until its owning lane performs parent/current comparison."
+r0_a_commit = "68a030dc95"
+red_classification = "R0-A removed one stack-owned launch snapshot, but fresh audit found one remaining planned-definition saved_context frame; the row stays CutoverBlockerOpen until R0-B and a fresh 8 MiB guard pass. Whole-lib and quick-gate baseline health remain separate and unclaimed."
 
 [mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
 status = "landed"
