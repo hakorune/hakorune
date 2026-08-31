@@ -1961,6 +1961,64 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[verification_health_quick_lib_baseline_p0_2026_08_31]
+status = "accepted_design_stop_prerequisite"
+task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+box_kind = "BoxShape verification infrastructure only"
+implementation_permission = false
+decision = "Restore honest daily quick visibility and establish a deterministic full-lib red baseline before any broad Call-schema cutover. Focused green does not waive whole-repository red; known failures remain explicit baseline debt until an exact name-set comparison proves no new red."
+source_authority = "tools/checks/lib/dev_gate_quick_steps.sh owns daily quick order; the canonical baseline command owns stack size, jobs, profile, features, and serial test execution. docs/tools/check-scripts-index.md is navigation only."
+canonical_command = "RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib -- --test-threads=1"
+observed_head = "d96266852d"
+observed_health = "After restoring the naming vocabulary, dev_gate quick advances to the MIR metadata catalog guard and stops on a pinned_text_access_plans egress anchor drift (src/runner/mir_json_emit/root.rs:140). Quick steps contain cargo check but no cargo test --lib; the type-fact guard is green when run directly but is not a daily quick caller; focused DeclaredInstance relation suites are green but are not whole-lib evidence."
+red_baseline_note = "A local run observed 7373 passed, 139 failed, 29 ignored, while the fixed-stack worker run observed 7372 passed, 140 failed, 29 ignored. The artifact-dependent receipt test and stack ownership must be made deterministic before recording the exact baseline."
+fail_fast_boundary = "A missing summary, stack abort, compile/link failure, zero-test run, duplicate or malformed baseline, added failure name, changed failure name, or disappeared baseline name blocks comparison. Do not use count-only, regex waivers, auto-rebaseline, or || true."
+census_boundary = "dev_gate quick entry -> quick steps -> serial full-lib result and exact failure-name set; includes naming vocabulary repair, deterministic artifact fixture, baseline runner/manifest, visible known-debt receipt, and changed-test filter execution; excludes compiler/MIR semantics, DeclaredInstance co-seal, Call schema, backend parity, quick-static qualification, and legacy-tests fate."
+finite_states = [
+  "QuickEntryRed: naming-charter or a later quick step fails; rerun from the first failing step after each repair",
+  "DeterministicBaseline: fixed command completes with an exact test/ignored partition and sorted failure-name hash",
+  "KnownBaselineDebt: expected failure names are visible as an observation receipt, never silently treated as green",
+  "NewOrChangedRed: actual failure set differs from the committed set; stop and classify before semantic work",
+  "BaselineShrink: an expected failure disappears; require explicit rebaseline rather than retaining stale debt",
+  "LegacyTestsSeparate: legacy-tests remains a separate parked fate row and is not repaired for this prerequisite",
+]
+ordered_tasks = [
+  "P0-A: restore the three naming-charter vocabulary tokens, rerun dev_gate quick, and record the next first failure without claiming overall green early",
+  "P0-B: isolate the artifact-dependent lib test with a temporary fixture, then add one exact baseline manifest/runner with fixed stack, serial execution, counts, names, and hash",
+  "P0-C: make changed-test coverage execute every matched filter (not list only), keep the landed relation guard's design-stop and closeout checks distinct, and expose only a reserved known-baseline receipt from successful quick output",
+  "P1: decide LEGACY-TESTS-FATE-D0 separately; do not mix its compile/test policy with DeclaredInstance or Call-schema work",
+]
+allowed_files = [
+  "docs/tools/check-scripts-index.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "tools/checks/lib/dev_gate_quick_steps.sh",
+  "tools/checks/lib/dev_gate_group.sh",
+  "tools/checks/lib/dev_gate_group_test.sh",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py",
+  "tools/checks/manifests/cargo_lib_red_baseline.toml",
+  "tools/checks/lib/cargo_lib_red_baseline.py",
+  "tools/checks/lib/tests/test_cargo_lib_red_baseline.py",
+  "src/runner/modes/common_util/exec.rs",
+  "src/runner/modes/common_util/exec_tests.rs",
+]
+forbidden_files = [
+  "tools/checks/guard_rows.toml",
+  "tools/checks/lib/manifest_runner.py",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+  "legacy-tests repair or fallback",
+]
+acceptance = "The naming guard and every quick step execute in order; the fixed full-lib command completes without stack abort and owns an exact test inventory/ignored count/failure set/hash; new and disappeared failures both stop; the known-baseline receipt is visible while ordinary successful child logs remain compact; changed-test filters are nonzero and actually run; all touched Rust stays below 760/800; pointer and diff guards pass."
+no_safe_slice = "Remain in design_stop if the full run has no complete summary, artifact isolation changes production behavior, the baseline requires an inferred HEAD^ or regex waiver, quick-static/manifest pilots must be wired into the daily gate, or the task crosses MIR/Call/backend semantics."
+non_claims = "No claim that the 139/140 failures are repaired or accepted forever, no whole-workspace/all-feature green claim, no legacy-tests decision, no DeclaredInstance issuer/co-seal, no Method(Some) production switch, no Call-schema change, and no old-edge deletion."
+reopen_trigger = "Reopen the prerequisite only when the canonical command or test inventory changes, a quick step is added/removed, a new failure appears/disappears, or the baseline receipt can no longer be reproduced exactly."
+next_execution = "Return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop after this verification prerequisite is landed; keep production implementation closed until effect issuer and selected-C capability are co-sealed."
+
 [mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
 status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"

@@ -27,6 +27,8 @@ Use this order for normal work:
 3. Use the current-family quick index below for active selfhost / ProgramJSON / AOT work.
 4. Use [`check-scripts-legacy-ledger.md`](./check-scripts-legacy-ledger.md) for the old-ledger lookup policy; use git history when a removed long-form row description is actually needed.
 
+Compatibility vocabulary retained for the naming charter: phase-1 compatibility selfhost sources; phase-1 compatibility bridge runtime defaults; bootstrap cleanup/catch boundary; phase-1 compatibility Program(JSON v0) runtime helper route; GlobalCallTarget shape inventory SSOT; mode-B compatibility Program(JSON) stdout capture helper; mode-B compatibility `.hako` parser; mode-B compatibility FuncScanner / JSON builder; mode-B compatibility enrichment seam; phase-1 compatibility Program(JSON) compat execution helper.
+
 ## Guard Growth Rule
 
 Do not add a dedicated shell guard for every inventory or selection row.
