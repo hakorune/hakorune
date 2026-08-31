@@ -8,7 +8,8 @@ MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0:
 retain ordinary me.method and replace only its legacy implementation. Exact
 target selection belongs to one resolver-owned nominal declaration relation;
 the package-side issuer hypothesis is rejected. The unannotated
-OpaqueObservable effect Decision is accepted, but its live issuer, generic
+OpaqueObservable effect Decision and the one-name-per-Box method namespace
+Decision are accepted, but their live issuer/consumer work, generic
 result/Completion carriage, live resolver source adoption, full-lane selected
 C capability, and common affine lifecycle remain CutoverBlockerOpen. Do not
 infer from package keys, names, headers, registries, MIR, fixtures, or
@@ -46,7 +47,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Six read-only audits retain true DeclaredInstance me.method and select a resolver-owned target relation; package-side target issuance is rejected. LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepts an explicit unannotated OpaqueObservable effect-axis contract, while production issuance stays zero. Implementation remains closed until result/Completion carriage, live resolver adoption, full-lane selected C capability, and common affine consumption are co-sealed."
+latest_card_summary = "True DeclaredInstance me.method is retained with a resolver-owned target relation; package-side target issuance is rejected. LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepts OpaqueObservable, and LANG-BOX-METHOD-NAMESPACE-D0 fixes one visible method name per nominal Box while keeping FreeStatic name/arity separate. Production remains closed until result/Completion carriage, live resolver adoption, full-lane selected C capability, and common affine consumption are co-sealed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -60,7 +61,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-31: LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepted the explicit unannotated OpaqueObservable effect-axis contract; Query takes precedence, and production issuer remains zero. Six read-only audits select resolver-owned target issuance and keep the package as transport/co-seal only.",
+  "2026-08-31: LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepted OpaqueObservable with Query precedence, and LANG-BOX-METHOD-NAMESPACE-D0 fixed one visible method name per nominal Box with FreeStatic name/arity kept separate. Production issuers remain zero; resolver owns target issuance and package stays transport/co-seal only.",
   "2026-08-30: unissued generic static compatibility retirement landed at 685aaeab49 (terminal/guard correction 7c834d021a); StaticReceiver/StaticThis/receiverless Me/LoweredGlobal::Static stop before argument effects. StaticCurrentOwner me.method handoff landed at 2b7b3e7489; exact source/site/catalog target is consumed before effects and emitted as Global(StaticBoxMethod). True DeclaredInstance remains a separate NoSafeSlice design row.",
   "2026-08-31: BoxShape test extractions landed at c1a715eb97 (normal callable production 367 lines), 7e50c819f3 (direct-statement production 748 lines, private FastMem sibling 36 lines), and ccced92d64 (loop-condition production 380 lines, private sibling 366 lines, historical path preserved); DeclaredInstance receiver source-facts correction landed at 01332528ed (body_shape_tests 10/10 green, no target/loan/MIR/backend/fallback/retry/new receipt).",
 ]

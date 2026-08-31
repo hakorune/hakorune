@@ -2053,6 +2053,7 @@ ceremony_tier = "T2"
 box_kind = "BoxShape in-place authority replacement with one new resolver relation prerequisite"
 implementation_permission = false
 decision = "Retain true DeclaredInstance me.method as ordinary syntax. Its canonical logical MIR is Method(Some(receiver)) with N explicit source arguments; the receiver is never duplicated in args. Target selection is resolver-owned, package assembly is transport/contract co-seal only, and the selected C path receives the full physical lane vector. The legacy Global/header/symbol/receiver-prefix path remains live until one successor-backed atomic cutover deletes it."
+method_namespace_decision = "LANG-BOX-METHOD-NAMESPACE-D0 is accepted: one nominal Box owns one flat visible-method namespace keyed by exposed name. Direct static/instance methods and delegate forwarders do not overload by arity or receiver kind. Same-name declarations in one Box reject; same names on different Boxes remain distinct; FreeStatic name/arity overload is a separate namespace."
 source_authority = "The exact source authority is the resolver-owned method-call row plus root receiver binding, the same parser provenance and ResolverCatalogBrandV1, and the carrier row's exact nominal box type. Inside that nominal declaration subset selector selects one declaration and arity validates its signature; selector/arity are not identity and never start a second Builder lookup."
 canonical_issuer = "No complete production issuer exists at this HEAD. The only accepted target-selection owner is a future resolver sibling relation in src/mir/resolved_semantics/declared_instance_call_relation.rs, co-issued from the same live parser/resolver source as VerifiedInstanceMethodFunctionCarrierCatalogV1 and VerifiedInstanceMethodDeclarationCatalogV1. A package assembler may consume that relation but may not issue or repair it."
 package_role = "The normal callable package may only co-seal an already-issued resolver relation with the existing selected batch slot, complete result/completion carriage, semantic effect row, and full PhysicalCallableLaneV1 signature. Builder catalog keys and package brands are validation/transport vocabulary, not source target authority."
@@ -2076,15 +2077,19 @@ finite_inventory = [
 ]
 finite_states = [
   "OutsideRootDeclaredInstance: StaticCurrentOwner and non-receiver sources keep named owners; nested/upvar me is ParkedSealed until capture/receiver ABI is explicit",
-  "MissingOrDuplicateTarget: zero or multiple nominal declaration rows; typed pre-effect reject",
+  "CrossOwnerSameName: the same spelling on different nominal Boxes is valid; the exact owner/receiver relation selects one Box namespace",
+  "DuplicateBoxMethodName: a second direct static/instance or generated forwarding name in one Box rejects before resolver/package/Builder publication, even when arity differs",
+  "DelegateExposeCollision: an exposed name colliding with a host method or another exposure rejects the whole unpublished forwarding batch; only a distinct explicit alias is valid",
+  "MissingTarget: zero nominal declaration rows; typed pre-effect reject",
   "ForeignRelation: parser provenance, resolver brand, nominal type, owner, receiver binding, source site, declaration identity, or selected slot differs; typed pre-effect reject",
-  "ShapeDrift: selector/arity, result/completion, effect, or full lane signature differs; typed pre-effect reject without overload search or repair",
+  "ShapeDrift: selector/arity, result/completion, effect, or full lane signature differs; typed pre-effect reject without Box-method overload search or repair",
   "SelectedCapabilityMissing: receiver presence, multi-lane formals, result, or effect is unsupported by the selected C cell; typed pre-effect reject, no backend fallback",
   "Ready: one complete disposition may be taken once before receiver/arguments",
   "TakenOrResidual: second take, wrong site/owner/variant, or unconsumed row is a typed abort; successful finish requires residual zero",
 ]
 relation_shape = "The resolver relation owns exact caller/source/receiver binding and an opaque resolver declaration identity under one parser provenance/brand/nominal type. It carries no Builder key/slot, AST, ValueId, Callee, symbol, MIR, ABI, effect, result, or cloned arguments. Package/private disposition adds borrowed contract locators only after exact identity is already issued."
 ordered_tasks = [
+  "LANG-BOX-METHOD-NAMESPACE-D0 (accepted): keep one visible method name per nominal Box; static/instance, arity, and delegate forwarding create no overload namespace; FreeStatic name/arity remains separate",
   "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 (accepted): name unannotated OpaqueObservable and Query precedence; production remains zero",
   "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0/I0: retain DeclaredFunctionResultContractV1 plus VerifiedFunctionCompletionV1 through normal package install, distinguishing Unannotated/Void/Annotated",
   "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-SOURCE-ADOPTION-D0 then MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0: co-issue the root-receiver callsite-to-declaration relation from the live final parser source; selector resolves only inside the exact nominal subset and arity only validates",
@@ -2092,6 +2097,7 @@ ordered_tasks = [
   "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-CAPABILITY-D0/I0: co-seal selected slot, complete result/effect, and full physical lane vector; prove explicit receiver presence and remove duplicate-receiver repair in the one selected C cell",
   "MIR-CALL-ME-DECLARED-INSTANCE-CANONICAL-I0 (atomic): install one common Ready/take_once/finish_empty disposition, materialize receiver once, lower N source args left-to-right once, emit Method(Some(receiver)) once, and delete the selected legacy first-Box/header, formatted Global/symbol, and manual receiver-prefix edges",
   "MIR-CALL-ME-DECLARED-INSTANCE-CLOSEOUT-C0: recount old edges 3 -> 0 with fallback/retry 0, then return to the SameModule parent; Method(None), Call schema, nested/upvar me, and nonselected backends remain separate",
+  "DEL-003 delegate forwarding (separate ParkedSealed row): consume the existing exact field/expose/source relation, require one unique host alias, and connect forwarding without overload search, implicit override, fallback, or partial batch publication",
 ]
 acceptance = "D0 closes only when the root DeclaredInstance boundary has one resolver-owned target relation, complete source effect/result/completion and full-lane ABI carriage, one selected C capability, and one common affine consumption lifecycle. This design row issues no ValueId, Callee, MIR, backend code, fallback, retry, or production success edge."
 no_safe_slice = "Remain in design_stop while any E1/R0/T0/P0 prerequisite is absent. Do not compensate with package declaration_for, name/header/registry/symbol lookup, physical/body/backend inference, receiver autoscan, args[0] repair, a family-specific loan, a second resolver, fallback/retry, or a source file at/over the 760/800 boundary."
@@ -2101,7 +2107,10 @@ allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/reference/language/callable-contracts.md",
+  "docs/reference/language/function-call-evaluation.md",
   "docs/reference/language/quick-reference.md",
+  "docs/reference/language/field-visibility-and-delegation.md",
+  "docs/reference/language/EBNF.md",
   "docs/reference/language/status-index.md",
 ]
 forbidden_files = [

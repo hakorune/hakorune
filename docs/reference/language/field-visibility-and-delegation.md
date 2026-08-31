@@ -61,8 +61,21 @@ Rules:
 - Parent/delegate state is accessed through an explicit field path such as
   `me.p2p.state`.
 - Local method calls to the delegate use `me.<field>.<method>(...)`.
-- Duplicate exposed names fail-fast unless resolved by an explicit alias.
+- Each exposed name occupies the same flat method namespace as the host Box's
+  direct methods and every other delegate exposure.
+- A collision with a host method or another exposure rejects the whole
+  unpublished forwarding batch. Declaration order and last-write-wins never
+  choose a winner.
+- `as` resolves a collision only by choosing a distinct exposed name. An alias
+  cannot overwrite, shadow, or override an existing host method.
+- The same target method spelling on different delegate fields is valid when
+  called through its explicit field path, for example `me.left.run()` and
+  `me.right.run()`.
 - Wildcard exposes are not MVP.
+
+These are the accepted language-target rules. The Stage0 parser currently owns
+syntax and metadata transport; complete forwarding target issuance and
+Builder/MIR activation remain later Stage1 work.
 
 ## Field Visibility
 

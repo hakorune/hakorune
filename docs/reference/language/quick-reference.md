@@ -71,6 +71,11 @@ Expressions and Calls
 - Method call: `obj.m(a, b)` — typed `Method(Some(receiver))` を通常の
   canonical target として保持する。
   - receiver は `callee` に一度だけ保持し、`args` は明示的な source 引数だけを持つ。
+  - 各 nominal Box の visible method 名は一意。static/instance、arity違い、
+    delegate forwarding は同名overloadを作らず、衝突は引数評価前にrejectする。
+    別Boxの同名methodはowner/receiverが異なるため許可する。
+  - FreeStaticだけは別namespaceで exact `name/arity` identityを使い、
+    `f/1`と`f/2`を区別できる。この規則をBox methodへ流用しない。
   - `CallableContract(query)` が無い通常の declared-instance call は、source
     declaration から `OpaqueObservable` effect を発行する。これは最適化barrierであり、
     Dynamic invocation の result/Home/suspension 契約を流用する意味ではない。

@@ -56,8 +56,24 @@ project to the same effective top-level `name/arity` physical symbol are an
 ambiguous direct target. They reject before body lowering and before argument
 evaluation. Declaration order, collector replacement, and a retry through the
 RawCompatibility owner do not select a winner. Different arities remain
-distinct physical identities; RawCompatibility keeps its own explicitly owned
-legacy replacement policy and never re-enters SelectedNormal.
+distinct FreeStatic identities; this is not Box-method overloading.
+RawCompatibility keeps its own explicitly owned legacy replacement policy and
+never re-enters SelectedNormal.
+
+For a Box method call, the exact nominal owner/receiver relation selects one
+Box namespace before argument evaluation. A Box has at most one visible method
+per name across direct static/instance declarations and delegate forwarding
+names. Arity validates that declaration and never searches another same-name
+method. The same name on different Boxes is valid because the nominal owner is
+part of the relation. A duplicate name in one Box, static/instance collision,
+wrong arity, foreign relation, or ambiguous delegate exposure rejects before
+argument effects, with no declaration-order choice or fallback.
+
+`me.method(...)` follows the already selected receiver policy. A
+`StaticCurrentOwner` call emits the exact static Global without fabricating a
+receiver. A true declared-instance call retains the exact lexical receiver and
+emits `Method(Some(receiver))`. Neither form may retry through the other merely
+because its method spelling matches.
 
 For a value call, the callee expression is evaluated once before the arguments.
 Its resulting callable value is the callee authority. A Builder `ValueId` is a

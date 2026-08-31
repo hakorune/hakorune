@@ -56,13 +56,12 @@ own exact issuer or typed pre-effect retirement.
 
 Current design stop:
 `MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0` retains ordinary
-`me.method` and replaces only its legacy wiring. Target selection is owned by
-one resolver nominal-declaration relation; the package may only co-seal
-result/effect/full-lane contracts. The unannotated `OpaqueObservable` effect
-Decision is accepted, but its live issuer, generic result/Completion carriage,
-live resolver adoption, selected C capability, and common affine lifecycle
-remain blockers. Implementation, old-edge deletion, fallback, retry, and
-nonselected backend work are closed.
+`me.method`; one resolver relation selects its target and the package only
+co-seals contracts. `OpaqueObservable` and one visible method name per nominal
+Box are accepted; FreeStatic `name/arity` is separate. Live issuance,
+result/Completion carriage, resolver adoption, selected C capability, and the
+common affine lifecycle remain blockers. Implementation, old-edge deletion,
+fallback/retry, and nonselected backend work remain closed.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

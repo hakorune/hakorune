@@ -67,6 +67,52 @@ maps. This does not open the Hako parser carrier, Home/Query behavior, body
 conformance, resolver target, or callable-contract execution; those remain
 separate design rows.
 
+## Box method namespace and collisions
+
+Decision `LANG-BOX-METHOD-NAMESPACE-D0` is accepted on 2026-08-31.
+
+Each nominal `box` owns one flat method namespace keyed by the method name
+visible on that Box. Direct instance methods, methods of a `static box`, and
+generated delegate forwarding names do not form separate overload namespaces.
+Within one Box, a visible method name occurs at most once. A second declaration
+with the same name is rejected even when its arity or receiver policy differs.
+
+Arity validates the one selected declaration; it never selects between
+same-name Box methods. An exact name with the wrong argument count therefore
+produces an arity error before argument evaluation rather than searching for
+another declaration. Different nominal Boxes may use the same method name:
+the exact receiver/owner relation distinguishes them.
+
+This Box rule is intentionally separate from the FreeStatic namespace.
+FreeStatic identity includes exact `name/arity`, so `f/1` and `f/2` may coexist;
+two FreeStatic declarations with the same exact `name/arity` remain ambiguous
+and reject. FreeStatic arity overloading does not authorize Box-method
+overloading.
+
+A delegate exposure occupies the host Box namespace under its exposed name.
+It collides with a direct host method or another exposure using that name.
+`as` may choose a different unique exposed name, but it never overwrites,
+shadows, or establishes precedence. Underlying methods with the same spelling
+on different delegate fields are valid because the explicit field relation
+distinguishes them. The whole unpublished delegate batch rejects on a host-name
+collision; declaration order, last-write-wins, fallback, and runtime lookup do
+not select a winner.
+
+| Source state | Disposition |
+| --- | --- |
+| same method name on different nominal Boxes | accepted; exact owner/receiver selects the Box |
+| second direct method name in one Box | rejected, including different arity or receiver policy |
+| direct host method and delegate exposure share a name | whole unpublished delegate batch rejected |
+| two delegate exposures share a host name | rejected unless explicit distinct aliases are used |
+| one unique Box method with wrong arity | typed arity rejection; no overload search |
+| same FreeStatic name with different arity | accepted as distinct exact `name/arity` identities |
+| duplicate exact FreeStatic `name/arity` | ambiguous direct target; rejected before argument effects |
+
+These rules fix language identity and failure order. Existing parser duplicate
+checks and delegate staging are implementation evidence; delegate forwarding,
+resolver target issuance, Recipe/CallSlot, Builder, MIR, and runtime activation
+remain governed by their own production rows.
+
 ## `query` meaning
 
 `query` is a stable whole-call behavioral contract:

@@ -898,6 +898,9 @@ method_decl    := IDENT '(' params? ')' ( ':' TYPE_REF )? signature_clause* bloc
                   ; no-value contract; omission is an unannotated result contract,
                   ; not implicit void or source-level result inference. `birth`
                   ; is a constructor hook governed by the construction SSOT.
+                  ; A nominal Box owns one flat visible-method namespace.
+                  ; Static/instance, arity, and delegate forwarding do not
+                  ; create Box-method overload namespaces.
                   ; handler_tail is unsynchronized migration inventory and is
                   ; rejected by the accepted C′ target.
 
@@ -929,6 +932,13 @@ postfix_cleanup    := primary_expr 'cleanup' block
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
+- Box method names are unique within one nominal Box. A direct method,
+  static/instance alternative, or delegate-exposed forwarding name cannot
+  reuse an existing visible method name, even with a different arity. An
+  explicit delegate `as` alias is valid only when the resulting host name is
+  unique. Collisions reject the unpublished declaration/batch before callable
+  publication; no declaration-order or runtime winner exists. FreeStatic
+  `name/arity` identity remains a separate call namespace.
 - constructor overload identity is the normalized `init|pack|birth/arity` key.
   Two selected declarations with the same key are rejected before either can
   overwrite the other. Generated `birth/0` is source-backed by the stored-field
