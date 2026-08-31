@@ -1,5 +1,6 @@
 use crate::ast::ASTNode;
 
+use super::super::callable_contract_syntax::CallableContractSourceDispositionV1;
 use super::super::callable_parameter_source::{
     validate_parser_normal_program_source_transform_v1, ParserCallableParameterSourceDispositionV1,
     ParserCompositeTransformRejectV1, ParserNormalProgramSourceAuthorityDispositionV1,
@@ -36,6 +37,7 @@ pub(super) struct PreparedNormalCallableTransformInputV1 {
     initial_ast: ASTNode,
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
+    callable_contract_sources: Box<[CallableContractSourceDispositionV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: ParserConstructorSourceCatalogV1,
@@ -48,6 +50,7 @@ impl PreparedNormalCallableTransformInputV1 {
         initial_ast: ASTNode,
         sources: Box<[PreparedCallableSourceV1]>,
         slots: Box<[InitialCallableFinalSlotV1]>,
+        callable_contract_sources: Box<[CallableContractSourceDispositionV1]>,
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: ParserConstructorSourceCatalogV1,
@@ -58,6 +61,7 @@ impl PreparedNormalCallableTransformInputV1 {
             initial_ast,
             sources,
             slots,
+            callable_contract_sources,
             parameter_source,
             source_authority,
             constructor_source,
@@ -71,6 +75,7 @@ impl PreparedNormalCallableTransformInputV1 {
             initial_ast,
             sources,
             slots,
+            callable_contract_sources,
             parameter_source,
             source_authority,
             constructor_source,
@@ -85,6 +90,7 @@ impl PreparedNormalCallableTransformInputV1 {
             transformed,
             sources,
             slots,
+            callable_contract_sources,
             parameter_source,
             source_authority,
             constructor_source,
@@ -136,6 +142,7 @@ fn issue_callable_program_source_v1(
     };
     if transformed_slots.as_slice() != input.slots.as_ref()
         || input.sources.len() != input.slots.len()
+        || input.callable_contract_sources.len() != input.slots.len()
     {
         drop(transformed_slots);
         input.discard_at_named_transform_reject_terminal(transformed);
@@ -162,6 +169,7 @@ fn issue_callable_program_source_v1(
         initial_ast,
         sources,
         slots,
+        callable_contract_sources,
         parameter_source,
         source_authority,
         constructor_source,
@@ -183,6 +191,7 @@ fn issue_callable_program_source_v1(
                     transformed,
                     sources,
                     slots,
+                    callable_contract_sources,
                     parameter_source,
                     source_authority,
                     constructor_source,
@@ -196,6 +205,7 @@ fn issue_callable_program_source_v1(
         final_ast,
         sources,
         slots,
+        callable_contract_sources,
         parameter_source,
         source_authority,
         constructor_source,
@@ -209,6 +219,7 @@ fn discard_transform_remainder_at_named_terminal(
     transformed: Option<ASTNode>,
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
+    callable_contract_sources: Box<[CallableContractSourceDispositionV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: ParserConstructorSourceCatalogV1,
@@ -219,6 +230,7 @@ fn discard_transform_remainder_at_named_terminal(
         transformed,
         sources,
         slots,
+        callable_contract_sources,
         parameter_source,
         source_authority,
         constructor_source,
@@ -235,6 +247,7 @@ pub(super) fn reject_foreign_root_authority_for_test(
         initial_ast,
         sources,
         slots,
+        callable_contract_sources,
         parameter_source,
         source_authority,
         constructor_source,
@@ -245,6 +258,7 @@ pub(super) fn reject_foreign_root_authority_for_test(
         initial_ast: foreign_initial_ast,
         sources: foreign_sources,
         slots: foreign_slots,
+        callable_contract_sources: foreign_callable_contract_sources,
         parameter_source: foreign_parameter_source,
         source_authority: foreign_authority,
         constructor_source: foreign_constructor_source,
@@ -257,6 +271,7 @@ pub(super) fn reject_foreign_root_authority_for_test(
     drop((
         sources,
         slots,
+        callable_contract_sources,
         parameter_source,
         source_authority,
         constructor_source,
@@ -264,6 +279,7 @@ pub(super) fn reject_foreign_root_authority_for_test(
         foreign_initial_ast,
         foreign_sources,
         foreign_slots,
+        foreign_callable_contract_sources,
         foreign_parameter_source,
         foreign_constructor_source,
         foreign_ordinary_box_coverage,

@@ -1,22 +1,18 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
+work_mode = "fast"
+current_execution_row = "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0:
-the resolver-owned DeclaredInstance source-site/declaration relation is landed
-at 845bd72641 and result/Completion retention is landed at e1976b8ba1. The
-next design question is the one same-session source-backed semantic-effect
-issuer: absent CallableContract means OpaqueObservable and Query has explicit
-precedence. Before opening Method(Some) production lowering, co-seal that
-effect with the relation, full receiver physical lane, and selected C
-capability in one source/package session. The package may transport and
-validate existing products but may not re-resolve names or issue target
-meaning. Missing/foreign/duplicate/ambiguous/unsupported/second-take/residual
-states reject before receiver or argument effects. Do not use
-name/header/registry/MIR/backend inference, fallback, retry, Call-schema
-changes, or family-specific parallel loans.
+LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0:
+carry the parser-issued CallableContract disposition into the existing final
+callable syntax loan and issue one resolver-owned semantic effect sibling for
+the already-landed DeclaredInstance source relation. No contract means
+OpaqueObservable; an explicit Query has precedence. This row stores only
+AST-free source-backed facts and changes no target, receiver ValueId, result,
+physical ABI, selected-C capability, package/loan, Method(Some), MIR, backend,
+fallback, retry, or Call schema. Missing/foreign/duplicate/coverage-drifted
+contract rows reject before any physical or argument effect.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -49,10 +45,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The resolver-owned DeclaredInstance source-site/declaration relation landed at 845bd72641 with four focused tests; result/Completion retention landed at e1976b8ba1. The current design stop is the one same-session source-backed semantic-effect issuer (OpaqueObservable by absence, Query precedence), followed by full-lane and selected-C co-seal; target/effect/full-lane/selected-C production migration remains closed. Verification-health remains a separate prerequisite before any production Method(Some) or broad Call-schema cutover: quick has a selected-C stack red, full-lib red baseline is not yet deterministic, and changed-test execution proof is a distinct pending row."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The resolver-owned DeclaredInstance source-site/declaration relation landed at 845bd72641 with four focused tests; result/Completion retention landed at e1976b8ba1. The bounded effect issuer I0 is now the sole fast row: parser contract disposition carriage plus resolver-owned OpaqueObservable/Query effect facts only. Full receiver lane, selected-C capability, package/loan, Method(Some), target publication, and Call-schema cutover remain closed. Verification-health remains a separate prerequisite before any production Method(Some) or broad Call-schema cutover."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

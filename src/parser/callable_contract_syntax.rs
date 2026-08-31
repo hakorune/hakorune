@@ -24,6 +24,29 @@ pub(crate) enum CallableContractSyntaxV1 {
     },
 }
 
+/// Exact source-side disposition for one final callable declaration.
+///
+/// The absence arm is meaningful: it selects the semantic default later, but
+/// it is not a Query and it does not contain any target, ABI, or physical
+/// information.  Keeping this as a finite parser product prevents consumers
+/// from re-reading the AST or treating an omitted rune as an unresolved one.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CallableContractSourceDispositionV1 {
+    OutsideDirectDeclaredInstanceMethod,
+    DirectDeclaredInstanceMethod {
+        syntax: Option<CallableContractSyntaxV1>,
+    },
+}
+
+impl CallableContractSourceDispositionV1 {
+    pub(crate) fn syntax(&self) -> Option<&CallableContractSyntaxV1> {
+        match self {
+            Self::OutsideDirectDeclaredInstanceMethod => None,
+            Self::DirectDeclaredInstanceMethod { syntax } => syntax.as_ref(),
+        }
+    }
+}
+
 impl CallableContractSyntaxV1 {
     pub(super) fn from_instance_method(declaration: &ASTNode) -> Option<Self> {
         let attrs = match declaration {

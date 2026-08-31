@@ -148,7 +148,9 @@ pub(crate) use body_source::{
     ParserBoxBodySourceEnvelopeV1, ParserBoxInstanceMethodSyntaxLeaseV1,
     ParserBoxMethodBodySourceRowV1,
 };
-pub(crate) use callable_contract_syntax::CallableContractSyntaxV1;
+pub(crate) use callable_contract_syntax::{
+    CallableContractSourceDispositionV1, CallableContractSyntaxV1,
+};
 pub(crate) use source_resolver_handoff::{
     ParserBoxResolverSourceHandoffV1, ResolverBoxMethodSourceRowV1, ResolverBoxMethodSourceSiteV1,
     ResolverSourceInvocationProvenanceV1,

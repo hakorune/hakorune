@@ -24,6 +24,7 @@ mod callable_module_header_view;
 mod callable_source_ledger;
 mod callable_symbol;
 mod core_method_instance_target;
+mod declared_instance_call_effect;
 mod declared_instance_call_relation;
 mod declared_instance_contract;
 mod declared_query_body_source;
@@ -124,6 +125,11 @@ pub(crate) use core_method_instance_target::{
     CoreMethodHomeReceiverRelationV1, CoreMethodHomeResultRelationV1, CoreMethodHomeSchemaV1,
     CoreMethodInstanceTargetIssuerV1, CoreMethodInstanceTargetRejectV1, CoreMethodTargetBrandV1,
     VerifiedCoreMethodInstanceTargetV1,
+};
+pub(crate) use declared_instance_call_effect::{
+    DeclaredInstanceCallEffectIssueV1, DeclaredInstanceCallEffectIssuerV1,
+    DeclaredInstanceCallEffectSourceDispositionV1, DeclaredInstanceCallSemanticEffectV1,
+    VerifiedDeclaredInstanceCallEffectCatalogV1, VerifiedDeclaredInstanceCallEffectRowV1,
 };
 pub(crate) use declared_instance_call_relation::{
     DeclaredInstanceCallRelationIssueV1, DeclaredInstanceCallRelationIssuerV1,

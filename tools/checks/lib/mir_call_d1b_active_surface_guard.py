@@ -112,6 +112,12 @@ DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW = (
 DECLARED_INSTANCE_EFFECT_ISSUER_D0_KEY = (
     "mir_call_me_declared_instance_effect_issuer_d0_2026_08_31"
 )
+DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW = (
+    "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
+)
+DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY = (
+    "lang_ordinary_declared_instance_call_effect_issuer_i0_2026_08_31"
+)
 
 
 def fail(message: str) -> None:
@@ -372,6 +378,94 @@ def check_declared_instance_effect_issuer_d0(state: dict, card: dict) -> None:
         fail("DeclaredInstance effect issuer requires result/completion retention")
 
 
+def check_declared_instance_effect_issuer_i0(
+    state: dict, card: dict, root: Path
+) -> None:
+    if state.get("work_mode") != "fast":
+        fail("DeclaredInstance effect issuer I0 must be fast")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW:
+        fail("DeclaredInstance effect issuer I0 row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("DeclaredInstance effect issuer I0 must clear current_design_stop")
+    if state.get("next_execution_card") != DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW:
+        fail("DeclaredInstance effect issuer I0 next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("DeclaredInstance effect issuer I0 card path drifted")
+    row = card.get(DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW:
+        fail("DeclaredInstance effect issuer I0 task id drifted")
+    if row.get("status") != "selected_fast":
+        fail("DeclaredInstance effect issuer I0 must be selected_fast")
+    if row.get("implementation_permission") is not True:
+        fail("DeclaredInstance effect issuer I0 must permit only its bounded implementation")
+    d0 = card.get(DECLARED_INSTANCE_EFFECT_ISSUER_D0_KEY)
+    if not isinstance(d0, dict) or d0.get("status") != "accepted_design_stop":
+        fail("DeclaredInstance effect issuer I0 requires the accepted D0 design")
+    relation = card.get(DECLARED_INSTANCE_RELATION_ISSUER_D0_KEY)
+    if not isinstance(relation, dict):
+        fail("DeclaredInstance effect issuer I0 requires the relation design section")
+    child = card.get("mir_call_me_declared_instance_resolver_relation_i0_2026_08_31")
+    if not isinstance(child, dict) or child.get("status") != "landed":
+        fail("DeclaredInstance effect issuer I0 requires the source relation child")
+    result = card.get("mir_normal_callable_result_contract_retention_d0_i0_2026_08_31")
+    if not isinstance(result, dict) or not str(result.get("status", "")).startswith("landed"):
+        fail("DeclaredInstance effect issuer I0 requires result/completion retention")
+    check_declared_instance_effect_issuer_structure(root)
+
+
+def check_declared_instance_effect_issuer_structure(root: Path) -> None:
+    effect_path = root / "src/mir/resolved_semantics/declared_instance_call_effect.rs"
+    parser_path = root / "src/parser/callable_contract_syntax.rs"
+    loan_path = root / "src/parser/normal_callable_program_source/semantic_syntax_loan.rs"
+    batch_model_path = root / "src/mir/callable_semantic_batch/model.rs"
+    batch_issuer_path = root / "src/mir/callable_semantic_batch/issuer.rs"
+    for path in (
+        effect_path,
+        parser_path,
+        loan_path,
+        batch_model_path,
+        batch_issuer_path,
+    ):
+        if not path.exists():
+            fail(f"DeclaredInstance effect issuer source is missing: {path}")
+
+    effect = effect_path.read_text(encoding="utf-8")
+    required_effect = (
+        "DeclaredInstanceCallSemanticEffectV1",
+        "OpaqueObservable",
+        "DeclaredQuery",
+        "DeclaredInstanceCallEffectIssuerV1",
+        "TargetSyntaxMissing",
+        "TargetSyntaxDuplicate",
+    )
+    for token in required_effect:
+        if token not in effect:
+            fail(f"DeclaredInstance effect issuer missing required token: {token}")
+    for token in ("EffectMask", "FunctionSignature", "ValueId", "Callee::", "resolve_call_target"):
+        if token in effect:
+            fail(f"DeclaredInstance effect issuer illegally depends on {token}")
+
+    parser = parser_path.read_text(encoding="utf-8")
+    for token in (
+        "CallableContractSourceDispositionV1",
+        "OutsideDirectDeclaredInstanceMethod",
+        "DirectDeclaredInstanceMethod",
+    ):
+        if token not in parser:
+            fail(f"parser contract disposition token is missing: {token}")
+    loan = loan_path.read_text(encoding="utf-8")
+    if "callable_contract_source" not in loan:
+        fail("final callable syntax loan does not carry the contract disposition")
+    batch_model = batch_model_path.read_text(encoding="utf-8")
+    if "declared_instance_call_effect_source" not in batch_model:
+        fail("semantic batch does not retain the effect sibling")
+    batch_issuer = batch_issuer_path.read_text(encoding="utf-8")
+    if "DeclaredInstanceCallEffectIssuerV1::issue" not in batch_issuer:
+        fail("semantic batch does not invoke the sole effect issuer")
+
+
 # Row-specific handlers live in mir_call_d1b_active_surface_rows.py.
 # This parent keeps the shared contract, registry, tombstones, and dispatch.
 
@@ -480,6 +574,8 @@ def main() -> None:
         check_declared_instance_relation_issuer_d0(state, card)
     elif row == DECLARED_INSTANCE_EFFECT_ISSUER_D0_ROW:
         check_declared_instance_effect_issuer_d0(state, card)
+    elif row == DECLARED_INSTANCE_EFFECT_ISSUER_I0_ROW:
+        check_declared_instance_effect_issuer_i0(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

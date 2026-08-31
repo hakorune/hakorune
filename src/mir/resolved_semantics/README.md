@@ -22,6 +22,16 @@ foreign, duplicate, static, and wrong-arity rows reject before any receiver or
 argument effect. This I0 publishes no `Callee`, `ValueId`, ABI, effect, Recipe,
 MIR, or backend meaning; package and Builder consumers remain later owners.
 
+The adjacent effect projection is resolver-owned and remains facts-only. It
+consumes the exact relation together with the parser-carried contract
+disposition, issuing `OpaqueObservable` when the target has no explicit
+contract and `DeclaredQuery { rune_ordinal }` when the target carries the
+validated Query rune. Query therefore has precedence over the absence default;
+the issuer never infers an effect from `EffectMask`, `FunctionSignature`, a
+body, ABI, target spelling, or backend behavior. This sibling is retained by
+the callable semantic batch and does not publish a target, receiver `ValueId`,
+package loan, MIR instruction, or physical route.
+
 SA0 adds only the closed canonical schema and publication boundary. SA1 adds
 a physically separate, disconnected shadow resolver. The shadow resolver may
 read canonical syntax, but it owns only `Shadow*V0` handles and can publish

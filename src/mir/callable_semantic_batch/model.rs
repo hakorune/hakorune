@@ -3,9 +3,10 @@ use std::sync::Arc;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    DeclaredInstanceCallSourceDispositionV1, FunctionOriginV1, FunctionOwnerIdV1,
-    VerifiedResolvedBlockExpressionExpectationV1, VerifiedResolvedBodyShapeInventoryV1,
-    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    DeclaredInstanceCallEffectSourceDispositionV1, DeclaredInstanceCallSourceDispositionV1,
+    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedBlockExpressionExpectationV1,
+    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
+    VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
 use crate::parser::{
@@ -50,6 +51,9 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchV1 {
     /// This is facts-only; target, receiver ValueId, effects, and ABI remain
     /// downstream responsibilities.
     pub(super) declared_instance_call_source: DeclaredInstanceCallSourceDispositionV1,
+    /// Resolver-owned semantic effect facts for the exact relation. This is
+    /// separate from target, receiver, ABI, and physical publication.
+    pub(super) declared_instance_call_effect_source: DeclaredInstanceCallEffectSourceDispositionV1,
 }
 
 /// Selected-callable identity transport for downstream scoped loans.
@@ -99,6 +103,12 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
 
     pub(crate) fn declared_instance_call_source(&self) -> &DeclaredInstanceCallSourceDispositionV1 {
         &self.declared_instance_call_source
+    }
+
+    pub(crate) fn declared_instance_call_effect_source(
+        &self,
+    ) -> &DeclaredInstanceCallEffectSourceDispositionV1 {
+        &self.declared_instance_call_effect_source
     }
 
     pub(crate) fn ordinary_box_coverage(

@@ -46,6 +46,13 @@ disposition. It is a non-`Clone` `NoRoot`/`Published` relation for root lexical
 result, ABI, or package loan. A later consumer may co-seal that already-issued
 relation, but may not re-resolve it or reconstruct a target from its name.
 
+The batch retains the resolver-owned DeclaredInstance call-effect disposition
+as a separate non-`Clone` sibling. Its finite rows are `NoRootDeclaredInstanceCall`
+or an exact catalog of `OpaqueObservable`/`DeclaredQuery` facts derived from
+the relation target's parser contract. It is a semantic effect product only:
+it does not issue a target, receiver, result, ABI, package loan, or MIR effect
+mask, and package/Builder consumers must not reclassify it.
+
 The batch issuer also retains the resolver-owned typed BlockExpr expectation
 once, beside the same function/body-shape row. The batch row is the only owner;
 future selected/package ports may borrow it inside their HRTB, but may not

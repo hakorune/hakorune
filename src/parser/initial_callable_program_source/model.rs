@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1};
 
+use super::super::callable_contract_syntax::CallableContractSourceDispositionV1;
 use super::super::callable_source_anchor::PreparedCallableSourceV1;
 use super::syntax_loan::{
     InitialCallableProgramSyntaxLoanV1, InitialCallableProgramSyntaxRowRefV1,
@@ -23,18 +24,28 @@ pub(crate) enum InitialCallableFinalSlotV1 {
 pub(super) struct VerifiedInitialCallableSourceRowV1 {
     source: PreparedCallableSourceV1,
     final_slot: InitialCallableFinalSlotV1,
+    callable_contract_source: CallableContractSourceDispositionV1,
 }
 
 impl VerifiedInitialCallableSourceRowV1 {
     pub(super) fn new(
         source: PreparedCallableSourceV1,
         final_slot: InitialCallableFinalSlotV1,
+        callable_contract_source: CallableContractSourceDispositionV1,
     ) -> Self {
-        Self { source, final_slot }
+        Self {
+            source,
+            final_slot,
+            callable_contract_source,
+        }
     }
 
     pub(super) fn final_slot(&self) -> InitialCallableFinalSlotV1 {
         self.final_slot
+    }
+
+    pub(super) fn callable_contract_source(&self) -> &CallableContractSourceDispositionV1 {
+        &self.callable_contract_source
     }
 }
 
@@ -47,6 +58,7 @@ pub(crate) struct VerifiedInitialCallableProgramSourceV1 {
     ast: ASTNode,
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
+    callable_contract_sources: Box<[CallableContractSourceDispositionV1]>,
     constructor_source:
         Option<super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1>,
 }
@@ -55,14 +67,17 @@ impl VerifiedInitialCallableProgramSourceV1 {
     pub(super) fn issue(ast: ASTNode, rows: Vec<VerifiedInitialCallableSourceRowV1>) -> Self {
         let mut sources = Vec::with_capacity(rows.len());
         let mut slots = Vec::with_capacity(rows.len());
+        let mut callable_contract_sources = Vec::with_capacity(rows.len());
         for row in rows {
             sources.push(row.source);
             slots.push(row.final_slot);
+            callable_contract_sources.push(row.callable_contract_source);
         }
         Self {
             ast,
             sources: sources.into_boxed_slice(),
             slots: slots.into_boxed_slice(),
+            callable_contract_sources: callable_contract_sources.into_boxed_slice(),
             constructor_source: None,
         }
     }
@@ -98,9 +113,16 @@ impl VerifiedInitialCallableProgramSourceV1 {
         ASTNode,
         Box<[PreparedCallableSourceV1]>,
         Box<[InitialCallableFinalSlotV1]>,
+        Box<[CallableContractSourceDispositionV1]>,
         Option<super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1>,
     ) {
-        (self.ast, self.sources, self.slots, self.constructor_source)
+        (
+            self.ast,
+            self.sources,
+            self.slots,
+            self.callable_contract_sources,
+            self.constructor_source,
+        )
     }
 
     /// Lend exact callable syntax without allowing an AST reference to escape.

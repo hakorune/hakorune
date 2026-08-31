@@ -182,6 +182,15 @@ unknown-value, arity, duplicate, and placement rejection. The small
 that row together with the non-Clone `SourceBoxMethodSiteV1` and the
 declaration-local rune ordinal.
 
+The final callable syntax loan now carries a finite
+`CallableContractSourceDispositionV1` beside every callable row. The
+`DirectDeclaredInstanceMethod { syntax: None }` arm is the checked absence of
+an explicit contract, while `OutsideDirectDeclaredInstanceMethod` keeps
+static, generated, and non-instance rows out of the effect lane. This is
+parser transport only: downstream issuers borrow the disposition instead of
+re-reading the AST, and no target, receiver, result, effect, ABI, Recipe, or
+MIR meaning is issued here.
+
 This is syntax carriage, not semantic issuance. The parser does not decide
 Home, signature, effect, suspension/control, ABI, body conformance, resolver
 targets, Recipe/CallSlot, or MIR. Generated/property/delegate rows receive no

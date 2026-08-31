@@ -8,7 +8,8 @@ use crate::mir::compiler::source_projection::{
 };
 use crate::mir::resolved_semantics::{
     forest_has_unissued_direct_call_observation_v1, issue_resolved_block_expr_expectation_v1,
-    CallableHeaderSyntaxViewV1, DeclaredInstanceCallRelationIssueV1,
+    CallableHeaderSyntaxViewV1, DeclaredInstanceCallEffectIssueV1,
+    DeclaredInstanceCallEffectIssuerV1, DeclaredInstanceCallRelationIssueV1,
     DeclaredInstanceCallRelationIssuerV1, DeclaredInstanceCallSourceRefV1,
     DeclaredInstanceMethodModeV1, DeclaredInstanceMethodSourceRefV1,
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
@@ -52,6 +53,9 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     ParameterCountOverflow,
     DeclaredInstanceCallRelation {
         _error: DeclaredInstanceCallRelationIssueV1,
+    },
+    DeclaredInstanceCallEffect {
+        _error: DeclaredInstanceCallEffectIssueV1,
     },
 }
 
@@ -129,7 +133,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
     direct_call_policy: DirectCallObservationBatchPolicyV1,
     app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
-    let (rows, callable_index, declared_instance_call_source) = source
+    let (rows, callable_index, declared_instance_call_source, declared_instance_call_effect_source) = source
         .with_callable_semantic_syntax(|loan| {
             let mut candidates = Vec::with_capacity(loan.rows().len());
             let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
@@ -398,10 +402,20 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     _error: error,
                 }
             })?;
+            let declared_instance_call_effect_source = DeclaredInstanceCallEffectIssuerV1::issue(
+                &declared_instance_call_source,
+                loan.rows(),
+            )
+            .map_err(|error| {
+                ResolvedCallableSemanticBatchIssueV1::DeclaredInstanceCallEffect {
+                    _error: error,
+                }
+            })?;
             Ok((
                 resolved.into_boxed_slice(),
                 callable_index,
                 declared_instance_call_source,
+                declared_instance_call_effect_source,
             ))
         })
         .map_err(|error| ResolvedCallableSemanticBatchIssueV1::ParserSyntax { _error: error })??;
@@ -434,5 +448,6 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
         rows,
         main_callable_index,
         declared_instance_call_source,
+        declared_instance_call_effect_source,
     })
 }

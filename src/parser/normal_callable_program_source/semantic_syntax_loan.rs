@@ -6,6 +6,7 @@
 
 use crate::ast::ASTNode;
 
+use super::super::callable_contract_syntax::CallableContractSourceDispositionV1;
 use super::super::callable_parameter_source::{
     ParserCallableParameterDeclarationSourceV1, ParserCallableParameterSourceDispositionV1,
 };
@@ -69,6 +70,7 @@ pub(crate) struct FinalCallableSemanticSyntaxRowRefV1<'source> {
     owner_name: Option<&'source str>,
     parameters: Option<Box<[FinalCallableParameterSourceRefV1<'source>]>>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
+    callable_contract_source: &'source CallableContractSourceDispositionV1,
 }
 
 #[derive(Debug)]
@@ -82,6 +84,7 @@ pub(crate) enum FinalCallableSemanticSyntaxLoanErrorV1 {
     BatchSlotOverflow,
     DeclarationMissing,
     DuplicateParameterProjection,
+    CallableContractCoverageMismatch,
 }
 
 impl FinalCallableSemanticSyntaxLoanV1<'_> {
@@ -122,6 +125,10 @@ impl FinalCallableSemanticSyntaxRowRefV1<'_> {
     pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
         self.method_source_observation.as_ref()
     }
+
+    pub(crate) fn callable_contract_source(&self) -> &CallableContractSourceDispositionV1 {
+        self.callable_contract_source
+    }
 }
 
 impl FinalCallableParameterSourceRefV1<'_> {
@@ -146,17 +153,26 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
     ast: &'source ASTNode,
     sources: &'source [PreparedCallableSourceV1],
     slots: &[InitialCallableFinalSlotV1],
+    callable_contract_sources: &'source [CallableContractSourceDispositionV1],
     parameter_source: &'source ParserCallableParameterSourceDispositionV1,
 ) -> Result<FinalCallableSemanticSyntaxLoanV1<'source>, FinalCallableSemanticSyntaxLoanErrorV1> {
     if sources.len() != slots.len() {
         return Err(FinalCallableSemanticSyntaxLoanErrorV1::CoverageMismatch);
+    }
+    if sources.len() != callable_contract_sources.len() {
+        return Err(FinalCallableSemanticSyntaxLoanErrorV1::CallableContractCoverageMismatch);
     }
     let parameter_catalog = match parameter_source {
         ParserCallableParameterSourceDispositionV1::Complete(catalog) => Some(catalog),
         ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported => None,
     };
     let mut rows = Vec::with_capacity(sources.len());
-    for (index, (source, slot)) in sources.iter().zip(slots.iter().copied()).enumerate() {
+    for (index, ((source, slot), callable_contract_source)) in sources
+        .iter()
+        .zip(slots.iter().copied())
+        .zip(callable_contract_sources.iter())
+        .enumerate()
+    {
         let batch_slot = u32::try_from(index)
             .map_err(|_| FinalCallableSemanticSyntaxLoanErrorV1::BatchSlotOverflow)?;
         let declaration = declaration_at(ast, slot);
@@ -186,6 +202,7 @@ pub(super) fn build_final_callable_semantic_syntax_loan_v1<'source>(
             owner_name: declaration_owner_name(ast, slot)?,
             parameters,
             method_source_observation: issue_method_source_observation(source),
+            callable_contract_source,
         });
     }
     Ok(FinalCallableSemanticSyntaxLoanV1 {

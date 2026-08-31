@@ -3518,6 +3518,88 @@ red_classification = "The full lib run is not green and is not presented as gree
 closeout = "I0 landed at 845bd72641. Restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 and clear next_execution_card; keep target/effect/result/ABI/selected-C/package/Builder/MIR production cutover closed."
 non_claims = "No Method(Some) emission, receiver ValueId, package co-seal, effect/result/ABI/selected-C/common affine consumer, Builder/MIR/backend/VM/JSON/Call schema change, delegate/nested/upvar activation, language change, fallback, retry, or old-edge deletion."
 
+[lang_ordinary_declared_instance_call_effect_issuer_i0_2026_08_31]
+status = "selected_fast"
+task_id = "LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-ISSUER-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0"
+implementation_permission = true
+box_kind = "BoxCount parser-contract disposition carriage plus resolver semantic-effect facts"
+decision = "Carry one parser-issued CallableContract disposition beside each final callable syntax row, then issue one resolver-owned DeclaredInstance call-effect disposition from the already-landed source relation. Missing contract means OpaqueObservable; explicit Query has precedence. This row remains facts-only and does not publish a target or physical call."
+source_authority = "Existing parser ExplicitMethodSourceRelationV1.callable_contract carried through the final callable syntax loan, joined by exact CallableDeclarationIdentityV1 to the resolver-owned DeclaredInstanceCallSourceDispositionV1 relation."
+canonical_issuer = "One new small resolver sibling invoked exactly once inside callable_semantic_batch/issuer.rs after the existing relation issuer, using the same final-source HRTB; parser transport only preserves the already-issued syntax disposition."
+non_authority = [
+  "AST reread, name/arity lookup, resolver/registry/header/MIR/backend inference",
+  "EffectMask, physical signature, selected-C capability, package/loan, Method(Some), Callee, Call, fallback, retry",
+  "Query body conformance or Home/ABI result reconstruction",
+]
+fail_fast = "Reject missing/foreign/duplicate/coverage-drifted parser contract carriage or a relation target without exactly one matching final syntax identity before any receiver ValueId, argument descent/effect, target, package, MIR, or backend publication."
+allowed_files = [
+  "src/parser/callable_contract_syntax.rs",
+  "src/parser/initial_callable_program_source/model.rs",
+  "src/parser/initial_callable_program_source/issue.rs",
+  "src/parser/normal_callable_program_source/model.rs",
+  "src/parser/normal_callable_program_source/transform.rs",
+  "src/parser/normal_callable_program_source/semantic_syntax_loan.rs",
+  "src/parser/normal_callable_program_source/mod.rs",
+  "src/parser/mod.rs",
+  "src/mir/resolved_semantics/declared_instance_call_effect.rs",
+  "src/mir/resolved_semantics/mod.rs",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/callable_semantic_batch/model.rs",
+  "src/mir/callable_semantic_batch/mod.rs",
+  "src/mir/callable_semantic_batch/declared_instance_call_effect_tests.rs",
+  "src/parser/README.md",
+  "src/mir/resolved_semantics/README.md",
+  "src/mir/callable_semantic_batch/README.md",
+  "docs/reference/language/callable-contracts.md",
+  "docs/reference/language/quick-reference.md",
+  "docs/reference/language/status-index.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/normal_callable_semantic_package/**",
+  "src/mir/builder/**",
+  "Method(Some), package/loan, selected-C, physical signature, result/Completion issuer",
+  "MIR/Call schema, VM/backend/JSON/runtime, fallback/retry, guard registry/shell",
+]
+finite_states = [
+  "NoRootDeclaredInstanceCall: no relation rows; no effect rows",
+  "OpaqueObservable: exact target declaration has no CallableContract syntax",
+  "DeclaredQuery: exact target declaration has CallableContract(query) and carries only rune ordinal",
+  "CoverageMismatch: relation target cannot match exactly one parser syntax row; typed reject",
+  "ForeignOrDuplicate: identity/provenance/contract cardinality drift; typed reject",
+]
+ordered_tasks = [
+  "I0-A: add a private AST-free parser contract disposition and carry it through initial/final syntax products with exact cardinality checks",
+  "I0-B: add one resolver effect issuer that maps relation target identity to OpaqueObservable or Query precedence without inferring from MIR/ABI",
+  "I0-C: retain the effect disposition as a non-Clone batch sibling and add focused positive/negative/structural evidence",
+  "I0-D: update parser/resolver/batch READMEs and close out to the existing Method/DeclaredInstance design stop; do not open production Method(Some)",
+]
+acceptance = [
+  "Every final callable row carries exactly one parser contract disposition without AST, target, ValueId, key, or physical data",
+  "No CallableContract maps to Opaque when the exact source declaration says Query; absent contract maps only to OpaqueObservable",
+  "Relation target identity matches exactly one final syntax identity or the batch rejects before effects; no target/effect reconstruction occurs downstream",
+  "VerifiedResolvedCallableSemanticBatchV1 owns one non-Clone effect disposition sibling; no package/Builder/MIR/backend switch is made",
+  "Focused positive/negative tests, targeted rustfmt/check, pointer/active guard, structural effect guard, diff check, and touched Rust sources below 760 lines",
+]
+no_safe_slice = "Return to design_stop if the parser relation cannot carry the contract without AST reread, if effect must be inferred from EffectMask/ABI/body facts, if a second resolver or new semantic receipt family is required, or if the row reaches receiver/argument/target/physical publication."
+focused_test_filter = "cargo test --profile quick --lib declared_instance_call_effect -- --test-threads=1"
+secondary_test_filter = "cargo test --profile quick --lib callable_semantic_batch -- --test-threads=1"
+changed_test_names = [
+  "unannotated_declared_instance_target_is_opaque_observable",
+  "query_contract_has_precedence_over_opaque_default",
+  "static_current_owner_has_no_declared_instance_effect_rows",
+  "wrong_declared_instance_arity_rejects_before_effect_issuer",
+]
+implementation_commit = "pending"
+implementation_evidence = "Parser contract disposition is carried through the final syntax loan; the resolver batch issues one AST-free OpaqueObservable/DeclaredQuery sibling from the landed relation. Focused tests and structural guard are green; no target, receiver, package, MIR, or backend path changed."
+structural_guard_command = "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py ."
+red_classification = "No current-change red is present in this bounded row: the effect filter is 4 passed, the relation filter is 4 passed, the batch filter is 28 passed, the parser contract filter is 13 passed, and the normal callable source filter is 38 passed. Whole-lib baseline (7373 passed/139 failed/29 ignored in the audit) and selected-C 8MiB stack health remain separate CutoverBlockerOpen prerequisite lanes and are not silently folded into this row."
+closeout = "After implementation and focused evidence, set this section status=landed and implementation_permission=false, record the commit and commands, then restore CURRENT_STATE to MIR-CALL-ME-DECLARED-INSTANCE-EFFECT-ISSUER-D0 design_stop with next_execution_card=none."
+non_claims = "No Method(Some) emission, receiver ValueId, result/Completion reissuer, physical lane, selected-C admission, package/loan, Builder/MIR/backend/VM/JSON/Call schema change, language syntax change, fallback, retry, or old-edge deletion."
+
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
 status = "landed"
 task_id = "MIR-BUILDER-BOXSHAPE-PORT-SURFACE-R0"

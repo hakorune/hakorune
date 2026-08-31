@@ -2,6 +2,7 @@ use crate::ast::ASTNode;
 use crate::mir::CanonicalSourceBytesDigestV1;
 use hakorune_frontend_parser::parser::GrammarProfile;
 
+use super::super::callable_contract_syntax::CallableContractSourceDispositionV1;
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, with_parser_composite_source_loan_from_normal_authority,
     with_parser_normal_program_source_loan, ParserCallableDeclarationSyntaxLoanV1,
@@ -230,11 +231,13 @@ impl PreparedNormalCallableProgramSourceV1 {
     pub(super) fn into_transform_input(
         self,
     ) -> super::transform::PreparedNormalCallableTransformInputV1 {
-        let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
+        let (ast, sources, slots, callable_contract_sources, constructor_source) =
+            self.initial.into_transform_parts();
         super::transform::PreparedNormalCallableTransformInputV1::issue(
             ast,
             sources,
             slots,
+            callable_contract_sources,
             self.parameter_source,
             self.source_authority,
             constructor_source.expect("constructor source checked at issue"),
@@ -268,6 +271,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     ast: ASTNode,
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
+    callable_contract_sources: Box<[CallableContractSourceDispositionV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
@@ -285,6 +289,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         ast: ASTNode,
         sources: Box<[PreparedCallableSourceV1]>,
         slots: Box<[InitialCallableFinalSlotV1]>,
+        callable_contract_sources: Box<[CallableContractSourceDispositionV1]>,
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
@@ -295,6 +300,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             ast,
             sources,
             slots,
+            callable_contract_sources,
             parameter_source,
             source_authority,
             constructor_source,
@@ -339,6 +345,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             ast,
             sources,
             slots,
+            callable_contract_sources,
             parameter_source,
             source_authority,
             constructor_source,
@@ -352,6 +359,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             ast,
             sources,
             slots,
+            callable_contract_sources,
             parameter_source,
             source_authority,
             constructor_source,
@@ -420,6 +428,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             &self.ast,
             &self.sources,
             &self.slots,
+            &self.callable_contract_sources,
             &self.parameter_source,
         )?;
         Ok(callback(loan))

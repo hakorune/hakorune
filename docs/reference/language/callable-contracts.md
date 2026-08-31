@@ -235,9 +235,11 @@ relations. Result and completion remain governed by
 `function-exit-and-entry-result.md`, including the distinction between
 unannotated and declared `Void`.
 
-Production issuance for this declared-instance effect row is not live yet. The
-first implementation must issue it from the same resolver declaration identity
-used by the exact call relation, before receiver materialization or argument
+The resolver-owned facts issuer for this effect row is now landed: it consumes
+the same declaration identity as the exact call relation and carries either
+`OpaqueObservable` or the explicit Query ordinal into the semantic batch.
+Physical production issuance is still not live. The later package/Builder
+owner must consume this sibling before receiver materialization or argument
 effects, without creating a second resolver or a hidden conservative fallback.
 
 Declaration contracts may be cataloged before bodies are verified so recursive

@@ -7,6 +7,7 @@ use super::model::{
 use crate::parser::build_cfg::program_item_slots::{
     ProjectedProgramItemSlotErrorV1, ProjectedProgramItemSlotSetV1,
 };
+use crate::parser::callable_contract_syntax::CallableContractSourceDispositionV1;
 use crate::parser::callable_source_anchor::{
     DirectCallableCommitPlacementV1, DirectCallableDeclarationKindV1, GeneratedCallableOriginV1,
     PreparedCallableSourceV1, PreparedDirectCallableSourceV1,
@@ -33,6 +34,7 @@ pub(in crate::parser) enum InitialCallableProgramSourceRejectV1 {
     GeneratedOriginMismatch,
     DuplicateFinalCallableSlot,
     CallableCoverageMismatch { expected: usize, actual: usize },
+    CallableContractSourceCoverage,
 }
 
 pub(in crate::parser) fn issue_initial_callable_program_source_v1(
@@ -64,13 +66,18 @@ pub(in crate::parser) fn issue_initial_callable_program_source_v1(
     let mut verified = Vec::with_capacity(callable_rows.len());
     for row in callable_rows {
         let slot = resolve_callable_slot(&ast, &program_slots, box_seals, &row)?;
+        let callable_contract_source = issue_callable_contract_source(&row, box_seals)?;
         if verified
             .iter()
             .any(|previous: &VerifiedInitialCallableSourceRowV1| previous.final_slot() == slot)
         {
             return Err(InitialCallableProgramSourceRejectV1::DuplicateFinalCallableSlot);
         }
-        verified.push(VerifiedInitialCallableSourceRowV1::new(row, slot));
+        verified.push(VerifiedInitialCallableSourceRowV1::new(
+            row,
+            slot,
+            callable_contract_source,
+        ));
     }
     if !same_slot_coverage(&expected, &verified) {
         return Err(
@@ -82,6 +89,55 @@ pub(in crate::parser) fn issue_initial_callable_program_source_v1(
     }
     verified.sort_by_key(|row| slot_key(row.final_slot()));
     Ok(VerifiedInitialCallableProgramSourceV1::issue(ast, verified))
+}
+
+fn issue_callable_contract_source(
+    row: &PreparedCallableSourceV1,
+    box_seals: &[PreparedBoxSourceSealV1],
+) -> Result<CallableContractSourceDispositionV1, InitialCallableProgramSourceRejectV1> {
+    let Some(direct) = row.direct() else {
+        return Ok(CallableContractSourceDispositionV1::OutsideDirectDeclaredInstanceMethod);
+    };
+    if !matches!(
+        direct.kind(),
+        DirectCallableDeclarationKindV1::InstanceBoxMethod
+    ) {
+        return Ok(CallableContractSourceDispositionV1::OutsideDirectDeclaredInstanceMethod);
+    }
+    let SourceProgramCallablePathV1::BoxMethod {
+        declaration,
+        gate_path,
+        member_ordinal,
+    } = direct.path()
+    else {
+        return Ok(CallableContractSourceDispositionV1::OutsideDirectDeclaredInstanceMethod);
+    };
+    if !gate_path.is_empty() {
+        return Ok(CallableContractSourceDispositionV1::OutsideDirectDeclaredInstanceMethod);
+    }
+    let seal = exact_box_seal(declaration, box_seals)?;
+    let matches = seal
+        .method_relations()
+        .iter()
+        .filter_map(|relation| match relation {
+            MethodSourceRelationV1::Explicit(explicit)
+                if explicit.source_site().source_member_ordinal() == *member_ordinal
+                    && explicit.source_site().box_site().path()
+                        == declaration.compatibility_box_path() =>
+            {
+                Some(explicit.callable_contract().cloned())
+            }
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    match matches.as_slice() {
+        [syntax] => Ok(
+            CallableContractSourceDispositionV1::DirectDeclaredInstanceMethod {
+                syntax: syntax.clone(),
+            },
+        ),
+        _ => Err(InitialCallableProgramSourceRejectV1::CallableContractSourceCoverage),
+    }
 }
 
 /// Explicit admission for the historical postpass compatibility arm.
