@@ -1,16 +1,15 @@
-date = "2026-08-31"
+date = "2026-09-01"
 development_branch_ssot = "main"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
 MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0:
-the backend-neutral DeclaredInstance package locator has landed, but no
-source-backed selected-C admission issuer exists. Keep selected-C at a
-NoSafeSlice: define the downstream versioned admission only after a real
-same-session capability can borrow the locator plus relation/result/Completion/
-effect/full-lane products. Do not infer from JSON, target symbols, ABI shape,
-ValueId(0), args[0], MIR, backend metadata, fallback, retry, or Call schema.
+the backend-neutral DeclaredInstance locator is now retained through install
+and lent only as a non-Clone callback-scoped Builder view. No source-backed
+selected-C physical admission issuer exists yet, so keep selected-C at
+NoSafeSlice. Never infer a target, receiver ValueId, effect, lane, or token
+from JSON, target symbols, ABI shape, ValueId(0), or args[0].
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -43,7 +42,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The selected-C 8MiB snapshot blocker is closed at 46b2ee72e3 after heap-owning both invocation-local snapshots with fresh-FFI guard evidence. The backend-neutral private locator co-seal landed at 6f40203999: it cross-checks those existing products without issuing target, receiver, ABI, or lowering meaning. Selected-C admission remains a separate NoSafeSlice with source-backed capability count zero. Receiver ValueId, Method(Some), package/loan consumption, MIR, fallback, retry, and Call-schema cutover remain closed."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, resolver-owned OpaqueObservable/Query effect facts at 11d9dadada, and the backend-neutral private locator co-seal at 6f40203999. The locator install bridge is now landed: the existing disposition survives package install and is exposed only through a non-Clone callback-scoped Builder view. Selected-C admission remains a separate NoSafeSlice with source-backed capability count zero. Receiver ValueId, Method(Some), selected-C token/wire, MIR, fallback, retry, and Call-schema cutover remain closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
@@ -57,7 +56,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-01: DeclaredInstance locator install bridge landed: the existing backend-neutral locator is retained in the installed package and lent through a non-Clone callback-scoped Builder view; focused bridge/package tests and active/pointer guards pass. Selected-C admission remains NoSafeSlice.",
   "2026-08-31: selected-C 8 MiB stack health landed at 46b2ee72e3: both invocation-local SameModuleFunctionContextSnapshot values are heap-owned, the definition seam is split under the line budget, and fresh-FFI repeated runtime-helper guard evidence passes; no route, ABI, MIR, or semantic change was made.",
   "2026-08-31: DeclaredInstance effect issuer I0 landed at 11d9dadada4cf533bdea91429afe4e67469e7a65; parser contract disposition and resolver-owned OpaqueObservable/Query facts are retained with focused evidence, while target/receiver/package/MIR publication remains closed.",
-  "2026-08-31: DeclaredInstance package-private locator landed at 6f40203999; the package now publishes an explicit no-root or complete backend-neutral crosswalk of existing relation/effect/result/Completion/physical-lane products. No target, receiver ValueId, selected-C token, Method(Some), MIR, backend, fallback, retry, or Call-schema change was made.",
 ]

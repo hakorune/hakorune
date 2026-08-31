@@ -8,7 +8,7 @@
 use std::cell::Cell;
 
 use crate::mir::normal_callable_semantic_package::{
-    AppMainDirectCallDispositionLoanV1, BuilderInstallTokenV1,
+    AppMainDirectCallDispositionLoanV1, BuilderInstallTokenV1, DeclaredInstanceCallLocatorViewV1,
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1,
 };
@@ -75,6 +75,14 @@ pub(in crate::mir) struct BuilderPrivateCallableLoweringScopeV1 {
 }
 
 impl BuilderPrivateCallableLoweringScopeV1 {
+    pub(in crate::mir::builder) fn with_declared_instance_call_locators<R>(
+        &self,
+        callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
+    ) -> R {
+        self.installed
+            .with_declared_instance_call_locators(callback)
+    }
+
     pub(in crate::mir::builder) fn with_normal_program_source_loan<R>(
         &self,
         callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
@@ -163,5 +171,55 @@ mod tests {
             scope.open_lowering_once(&context),
             Err(NormalCallableSemanticPackageInstallIssueV1::LoweringAlreadyStarted)
         ));
+    }
+
+    #[test]
+    fn installed_scope_lends_declared_instance_locator_without_dropping_it() {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "box Counter { call() { return me.value() } value() { return 1 } }",
+            ParserBuildConfig::default(),
+        )
+        .expect("declared-instance source");
+        let source = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+                .expect("source-backed transform");
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                transformed
+            else {
+                panic!("fixture must remain source-backed")
+            };
+            source
+        });
+        let mut resolver = FunctionSemanticResolverSessionV1::new(1_072).expect("resolver");
+        let package = crate::mir::normal_callable_semantic_package::
+            issue_normal_callable_semantic_package_v1(&mut resolver, source)
+            .expect("semantic package");
+        let mut context = CompilationContext::new();
+        let mut scope = package
+            .with_normal_callable_install_once(&mut context, BuilderInstallConsumerV1::new())
+            .expect("package install")
+            .into_lowering_scope();
+        let port = scope.open_lowering_once(&context).expect("package port");
+        let count = port.with_declared_instance_call_locators(|view| view.row_count());
+        assert_eq!(count, 1);
+    }
+
+    #[test]
+    fn installed_scope_lends_explicit_no_root_locator_state() {
+        let package = issue_normal_callable_semantic_package_v1(
+            &mut FunctionSemanticResolverSessionV1::new(1_073).expect("resolver"),
+            source(),
+        )
+        .expect("semantic package");
+        let mut context = CompilationContext::new();
+        let mut scope = package
+            .with_normal_callable_install_once(&mut context, BuilderInstallConsumerV1::new())
+            .expect("package install")
+            .into_lowering_scope();
+        let port = scope.open_lowering_once(&context).expect("package port");
+        let (is_no_root, count) =
+            port.with_declared_instance_call_locators(|view| (view.is_no_root(), view.row_count()));
+        assert!(is_no_root);
+        assert_eq!(count, 0);
     }
 }

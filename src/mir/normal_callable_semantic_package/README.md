@@ -123,6 +123,14 @@ drift cases reject before lowering effects. Selected-C admission remains a
 separate downstream NoSafeSlice until an existing source-backed capability can
 validate the full relation and lane contract.
 
+The install bridge retains this disposition in
+`InstalledNormalCallableSemanticPackageV1` instead of dropping it. The package
+port and Builder lowering scope lend only a callback-scoped
+`DeclaredInstanceCallLocatorViewV1`; the view cannot be cloned or carried into
+a later lowering step. This is transport of the existing source-backed locator
+only. Selected-C admission, receiver materialization, target/effect
+reclassification, and physical publication remain separate downstream owners.
+
 ## Callable physical signature mapping (2026-08-16)
 
 The package now issues one non-`Clone` physical-signature cohort from the same

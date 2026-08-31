@@ -136,6 +136,12 @@ DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW = (
 DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_KEY = (
     "mir_call_me_declared_instance_selected_c_admission_d0_2026_08_31"
 )
+DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-INSTALL-BRIDGE-I0"
+)
+DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_KEY = (
+    "mir_call_me_declared_instance_locator_install_bridge_i0_2026_08_31"
+)
 SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 
@@ -572,6 +578,86 @@ def check_declared_instance_selected_c_admission_d0(state: dict, card: dict) -> 
         "selected_c_admission_status"
     ) != "NoSafeSlice__existing_source_backed_capability_count_zero":
         fail("selected-C admission capability count must remain zero")
+    bridge = card.get(DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_KEY)
+    if not isinstance(bridge, dict) or bridge.get("status") != "landed":
+        fail("selected-C admission requires the landed locator install bridge")
+    if bridge.get("implementation_permission") is not False:
+        fail("landed locator install bridge must not retain implementation permission")
+
+
+def check_declared_instance_locator_install_bridge_i0(
+    state: dict, card: dict, root: Path
+) -> None:
+    if state.get("work_mode") != "fast":
+        fail("DeclaredInstance locator install bridge must be fast")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW:
+        fail("DeclaredInstance locator install bridge row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("DeclaredInstance locator install bridge must clear current_design_stop")
+    if state.get("next_execution_card") != DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW:
+        fail("DeclaredInstance locator install bridge next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("DeclaredInstance locator install bridge card path drifted")
+    row = card.get(DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW:
+        fail("DeclaredInstance locator install bridge task id drifted")
+    if row.get("status") != "selected_fast":
+        fail("DeclaredInstance locator install bridge must be selected_fast")
+    if row.get("implementation_permission") is not True:
+        fail("DeclaredInstance locator install bridge must permit only its bounded transport")
+    locator = card.get(DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY)
+    if not isinstance(locator, dict) or locator.get("status") != "landed":
+        fail("locator install bridge requires the landed private locator")
+    if locator.get("implementation_permission") is not False:
+        fail("landed private locator must not retain implementation permission")
+    selected = card.get(DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_KEY)
+    if not isinstance(selected, dict) or selected.get("status") != "accepted_design_stop":
+        fail("locator install bridge requires selected-C design stop")
+    if selected.get("implementation_permission") is not False:
+        fail("selected-C admission must remain closed while locator transport is selected")
+    source_files = {
+        "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+        "src/mir/normal_callable_semantic_package/mod.rs",
+        "src/mir/normal_callable_semantic_package/model.rs",
+        "src/mir/normal_callable_semantic_package/install.rs",
+        "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
+        "src/mir/builder/normal_callable_package_bridge.rs",
+    }
+    for rel in source_files:
+        path = root / rel
+        if not path.is_file():
+            fail(f"locator install bridge owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 760:
+            fail(f"locator install bridge source reached the 760-line boundary: {rel}")
+    install = (root / "src/mir/normal_callable_semantic_package/install.rs").read_text(
+        encoding="utf-8"
+    )
+    if "declared_instance_call_locators," not in install:
+        fail("installed package does not retain the locator disposition")
+    if "with_declared_instance_call_locators" not in install:
+        fail("installed package does not expose a callback-scoped locator view")
+    bridge = (root / "src/mir/builder/normal_callable_package_bridge.rs").read_text(
+        encoding="utf-8"
+    )
+    if "with_declared_instance_call_locators" not in bridge:
+        fail("Builder package bridge does not forward the locator view")
+    locator_source = (
+        root / "src/mir/normal_callable_semantic_package/declared_instance_locator.rs"
+    ).read_text(encoding="utf-8")
+    if "ValueId" in locator_source or "Callee" in locator_source:
+        fail("locator install bridge must not introduce target or receiver meaning")
+    if "Clone" in locator_source or "Copy" in locator_source:
+        fail("locator install bridge view must remain non-Clone/non-Copy")
+    allowed = set(require_text_list(row.get("allowed_files"), "locator install bridge allowed_files"))
+    required = source_files | {
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+    }
+    if not required <= allowed:
+        fail(f"locator install bridge allowed_files omit {sorted(required - allowed)}")
 
 
 def check_selected_c_stack_row(state: dict, card: dict, root: Path) -> None:
@@ -792,6 +878,8 @@ def main() -> None:
         check_declared_instance_package_coseal_d0(state, card)
     elif row == DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
         check_declared_instance_package_locator_i0(state, card, root)
+    elif row == DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW:
+        check_declared_instance_locator_install_bridge_i0(state, card, root)
     elif row == DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
         check_declared_instance_selected_c_admission_d0(state, card)
     elif row == SELECTED_C_STACK_ROW:

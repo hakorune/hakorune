@@ -56,18 +56,16 @@ own exact issuer or typed pre-effect retirement.
 
 Current design stop:
 `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` follows the landed
-private locator co-seal (`6f40203999`). The package now cross-checks the
-already-issued source/site/declaration relation (`845bd72641`), result/
-Completion carriage (`e1976b8ba1`), resolver-owned OpaqueObservable/Query
-effect facts (`11d9dadada`), selected identity mapping, and source-backed
-physical lane without issuing a target, receiver ValueId, selected-C token,
-Method(Some), MIR, or backend route. Selected-C is a separate downstream
-admission gate, not a semantic issuer; its source-backed capability count is
-zero, so it remains NoSafeSlice. Receiver materialization, package/loan
-consumption, MIR, backend, fallback/retry, and nonselected backend work remain
-closed; whole-lib health is a separate prerequisite. The selected-C launch
-plus planned-definition snapshot stack blocker is landed at `46b2ee72e3` with
-a fresh-FFI repeated 8 MiB guard.
+locator install bridge. The existing backend-neutral locator co-seal
+(`6f40203999`) now survives semantic-package install and is lent only through
+a non-Clone callback-scoped Builder view. The bridge added no target, receiver
+ValueId, selected-C token, Method(Some), MIR, backend wire, fallback, or retry.
+Selected-C remains a separate `NoSafeSlice` design stop because no
+source-backed physical admission issuer exists. Receiver materialization,
+package/loan consumption, MIR, backend, fallback/retry, and nonselected
+backend work remain closed; whole-lib health is a separate prerequisite. The
+selected-C launch plus planned-definition snapshot stack blocker is landed at
+`46b2ee72e3` with a fresh-FFI repeated 8 MiB guard.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

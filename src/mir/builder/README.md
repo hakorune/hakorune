@@ -881,8 +881,11 @@ lifecycle calls `with_normal_callable_install_once`, receives a private
 into a `BuilderPrivateCallableLoweringScopeV1`. Parser source is lent only
 inside `with_normal_program_source_loan`, and the existing package port is
 opened once from that scope before the lowering consumer receives it. The
-scope exposes no package getter or direct-call loan, and the Cataloged
-affine-loan issuer remains a later design-stopped row.
+scope exposes no package getter or direct-call loan. An already-issued
+DeclaredInstance locator is likewise lent only through a callback-scoped view
+from the installed package; this bridge transports locator facts but does not
+issue a target, receiver ValueId, selected-C token, or MIR meaning. The
+Cataloged affine-loan issuer remains a later design-stopped row.
 
 This row is intentionally source-only. The neutral product issues no target,
 candidate/noncandidate, A/C, Recipe/Join, MIR ID, physical, fallback, or

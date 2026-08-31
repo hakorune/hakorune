@@ -60,6 +60,34 @@ pub(super) struct SealedDeclaredInstanceCallLocatorCatalogV1 {
     rows: Box<[SealedDeclaredInstanceCallLocatorRowV1]>,
 }
 
+/// Borrow-only view of the package locator.  The view does not own, clone, or
+/// reinterpret any semantic product; it only keeps the install/Builder seam
+/// callback-scoped until a downstream physical admission is designed.
+#[derive(Debug)]
+pub(in crate::mir) struct DeclaredInstanceCallLocatorViewV1<'a> {
+    disposition: &'a DeclaredInstanceCallPackageLocatorDispositionV1,
+}
+
+impl<'a> DeclaredInstanceCallLocatorViewV1<'a> {
+    pub(super) fn new(disposition: &'a DeclaredInstanceCallPackageLocatorDispositionV1) -> Self {
+        Self { disposition }
+    }
+
+    pub(in crate::mir) fn is_no_root(&self) -> bool {
+        matches!(
+            self.disposition,
+            DeclaredInstanceCallPackageLocatorDispositionV1::NoRootDeclaredInstanceCall
+        )
+    }
+
+    pub(in crate::mir) fn row_count(&self) -> usize {
+        match self.disposition {
+            DeclaredInstanceCallPackageLocatorDispositionV1::NoRootDeclaredInstanceCall => 0,
+            DeclaredInstanceCallPackageLocatorDispositionV1::Published(catalog) => catalog.len(),
+        }
+    }
+}
+
 impl SealedDeclaredInstanceCallLocatorCatalogV1 {
     pub(super) fn rows(&self) -> &[SealedDeclaredInstanceCallLocatorRowV1] {
         &self.rows

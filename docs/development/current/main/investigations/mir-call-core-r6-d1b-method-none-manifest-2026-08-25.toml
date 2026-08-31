@@ -3786,6 +3786,69 @@ red_classification = "No current-change red was observed in the focused locator 
 closeout = "After committing the bounded locator row, set work_mode=design_stop and select MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0. Keep selected-C implementation_permission=false until a source-backed admission owner exists."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
+[mir_call_me_declared_instance_locator_install_bridge_i0_2026_08_31]
+status = "landed"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-INSTALL-BRIDGE-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+depends_on = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
+ceremony_tier = "T1"
+box_kind = "BoxCount callback-scoped transport of an existing backend-neutral locator"
+implementation_permission = false
+implementation_commit = "same row closeout commit; see git history"
+decision = "Retain the already-issued DeclaredInstance locator in InstalledNormalCallableSemanticPackageV1 and lend it only through a private callback-scoped Builder view. This is transport of an existing product, not a new semantic issuer."
+source_authority = "The package-owned DeclaredInstance locator issuer landed at 6f40203999; install is the sole owner that currently drops it, and the Builder package port is the only downstream transport surface opened by this row."
+canonical_issuer = "No new meaning issuer. InstalledNormalCallableSemanticPackageV1::commit must move the existing locator disposition into the installed package, and NormalCallableSemanticPackagePortV1 must expose only a bounded HRTB borrow/view."
+non_authority = [
+  "selected-C/C JSON metadata, target_symbol/target_arity, receiver ValueId, args[0], ABI or FunctionSignature inference, MIR/EffectMask, C registry/header lookup, name lookup, fallback, retry",
+  "the Builder bridge does not issue or reclassify target/effect/result/physical-lane meaning and does not consume a selected-C token",
+]
+fail_fast_boundary = "The exact package locator disposition is moved intact at install; the callback-scoped view cannot escape or be independently cloned/split. No receiver materialization, argument effect, MIR/JSON publication, C need-scan, fallback, or retry is opened by this row."
+census_boundary = "VerifiedNormalCallableSemanticPackageV1 locator field -> InstalledNormalCallableSemanticPackageV1 -> NormalCallableSemanticPackagePortV1 callback view; includes only locator retention/borrow and excludes selected-C admission, physical wire, receiver ValueId, Method(Some), common loan consumption, MIR, C/backend, and Call schema."
+finite_states = [
+  "NoRoot: explicit no-root disposition is borrowed without inventing a row",
+  "Published: complete private locator catalog is borrowed from the installed package",
+  "BorrowClosed: callback returns and no locator view escapes",
+  "TransportReject: package/install lifecycle cannot expose a foreign or independently reconstructed locator",
+]
+acceptance = "Install retains the exact locator disposition; the package port offers one callback-scoped neutral view; focused tests prove both no-root and published rows survive install; no semantic or backend route changes occur."
+no_safe_slice = "Return to the selected-C design stop if the bridge requires a C/JSON lookup, a new semantic receipt, target/effect/lane inference, a ValueId/args[0] repair, or a family-specific loan."
+non_claims = "No selected-C admission issuer, token/wire, receiver materialization, Method(Some), common direct-call loan, MIR/Call schema change, C/LLVM/VM backend change, fallback, retry, or legacy deletion."
+allowed_files = [
+  "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+  "src/mir/normal_callable_semantic_package/mod.rs",
+  "src/mir/normal_callable_semantic_package/model.rs",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
+  "src/mir/builder/README.md",
+  "src/mir/builder/normal_callable_package_bridge.rs",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/compiler/selected_c_admission.rs",
+  "lang/c-abi/shims/**",
+  "MIR Call schema",
+  "VM/backend/JSON/runtime",
+]
+focused_test_filters = [
+  "declared_instance_locator",
+  "normal_callable_package_bridge",
+]
+verification_prerequisites = [
+  "locator issuer row remains landed and non-Clone",
+  "selected-C admission remains a separate design_stop with source-backed capability count zero",
+  "whole-lib baseline is compared separately and is not replaced by focused green",
+]
+evidence = "CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo check --profile quick --lib passed; cargo test --profile quick --lib declared_instance_locator ran 4 passed; cargo test --profile quick --lib normal_callable_package_bridge ran 3 passed; cargo test --profile quick --lib normal_callable_semantic_package ran 65 passed; active-surface guard, current-state pointer guard, and git diff --check passed. Whole-lib health is not claimed green."
+red_classification = "No current-change red in the bridge/package focused suites. Existing whole-lib baseline remains outside this row and is not relabeled."
+closeout = "The installed package now retains the exact locator disposition and lends it through a non-Clone callback-scoped view. Return to the selected-C admission design stop; no selected-C issuer or physical consumer was invented."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
+
 [mir_call_me_declared_instance_selected_c_admission_d0_2026_08_31]
 status = "accepted_design_stop"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"

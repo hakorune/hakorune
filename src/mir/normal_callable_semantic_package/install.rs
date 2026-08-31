@@ -19,6 +19,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::VerifiedResolvedBlockExpressionExpectationV1;
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
+use super::declared_instance_locator::DeclaredInstanceCallLocatorViewV1;
 use super::ordinary_new_coseal::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1,
 };
@@ -85,6 +86,8 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     result_contracts: VerifiedCallableResultContractCohortV1,
     physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
+    declared_instance_call_locators:
+        super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
     s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     s6c_storage_header: Option<VerifiedS6CStorageHeaderProjectionV1>,
     physical_header: VerifiedCallablePhysicalHeaderCohortV1,
@@ -287,6 +290,17 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
 }
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    /// Lend the already-issued locator without exposing package ownership or
+    /// allowing the view to outlive this callback.  This is transport only;
+    /// selected-C admission remains a separate downstream boundary.
+    pub(in crate::mir) fn with_declared_instance_call_locators<R>(
+        &self,
+        callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
+    ) -> R {
+        self.installed
+            .with_declared_instance_call_locators(callback)
+    }
+
     /// Move the package-owned App Main inventory into the root raw session.
     /// There is no package-only fallback once this succeeds.
     pub(in crate::mir) fn take_app_main_direct_call_loan(
@@ -344,10 +358,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             physical_header,
             dynamic,
             dynamic_physical_header,
-            // The locator is validated and published by the semantic package
-            // row; downstream transport is a separate selected-C/common-loan
-            // boundary and must not be implied by this install transition.
-            declared_instance_call_locators: _,
+            declared_instance_call_locators,
         } = self.package;
         match root_execution {
             NormalRootExecutionPackageStateV1::Prepared(root) => root.discard_unconnected(),
@@ -375,6 +386,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             parameter_contracts,
             result_contracts,
             physical_signature,
+            declared_instance_call_locators,
             s6c_child,
             s6c_storage_header,
             physical_header,
@@ -385,6 +397,15 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    pub(in crate::mir) fn with_declared_instance_call_locators<R>(
+        &self,
+        callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
+    ) -> R {
+        callback(DeclaredInstanceCallLocatorViewV1::new(
+            &self.declared_instance_call_locators,
+        ))
+    }
+
     pub(crate) fn take_ordinary_new_claim(
         &self,
         site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
