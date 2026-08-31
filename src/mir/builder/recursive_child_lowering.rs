@@ -51,7 +51,8 @@ pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
-    AppMainDirectCallDispositionPortV1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    AppMainDirectCallDispositionPortV1, DeclaredInstanceReceiverIngressV1,
+    RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
@@ -239,6 +240,11 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) direct_call_loan: Option<
         &'port mut crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionLoanV1,
     >,
+    /// Short-lived package locator capability for the selected DeclaredInstance
+    /// root. Compatibility frames remain explicitly unarmed.
+    pub(in crate::mir::builder) declared_instance_locator: Option<
+        crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<'port>,
+    >,
     pub(in crate::mir::builder) runtime_box_fate: RuntimeBoxFateScopeV1<'port>,
     pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
@@ -319,6 +325,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             script_deferred_observation: None,
             callable_loop_root_scope,
             direct_call_loan,
+            declared_instance_locator: None,
             runtime_box_fate: RuntimeBoxFateScopeV1::Unarmed,
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
@@ -340,6 +347,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
             direct_call_loan: self.direct_call_loan.as_deref_mut(),
+            declared_instance_locator: self
+                .declared_instance_locator
+                .as_mut()
+                .map(|locator| locator.reborrow()),
             runtime_box_fate: self.runtime_box_fate.reborrow(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
@@ -363,6 +374,71 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         let mut scoped = self.reborrow();
         scoped.runtime_box_fate = RuntimeBoxFateScopeV1::Phase2160(&mut fate);
         execute(&mut scoped)
+    }
+
+    /// Run one selected DeclaredInstance body with a package-owned locator
+    /// capability.  The capability is installed only on this short raw frame;
+    /// recursive children receive a reborrow and compatibility frames remain
+    /// unarmed.
+    pub(in crate::mir::builder) fn with_declared_instance_locator_scope<R>(
+        &mut self,
+        locator: crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<
+            '_,
+        >,
+        execute: impl for<'scope> FnOnce(
+            &mut RawInvocationChildPortV1<'scope, 'collector>,
+        ) -> Result<R, String>,
+    ) -> Result<R, String> {
+        let mut scoped = self.reborrow();
+        scoped.declared_instance_locator = Some(locator);
+        execute(&mut scoped)
+    }
+
+    /// Take the exact source-backed receiver for the current method-call site.
+    /// The locator row is consumed once; the callable state only reads the
+    /// already-materialized ValueId by the relation's BindingRef.
+    pub(in crate::mir::builder) fn take_declared_instance_receiver_value_inner_v1(
+        &mut self,
+        _builder: &MirBuilder,
+    ) -> Result<DeclaredInstanceReceiverIngressV1, String> {
+        if self.declared_instance_locator.is_none() {
+            return Ok(DeclaredInstanceReceiverIngressV1::Unarmed);
+        }
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][declared-instance/owner-unavailable]".to_owned())?;
+        let site = self.current_source_site_v1().ok_or_else(|| {
+            "[freeze:contract][declared-instance/call-site-unavailable]".to_owned()
+        })?;
+        let expected_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        );
+        let ledger = self
+            .callable_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][declared-instance/state-unavailable]".to_owned())?;
+        let locator = self
+            .declared_instance_locator
+            .as_mut()
+            .expect("checked DeclaredInstance locator capability");
+        locator
+            .take_exact_relation(&expected_site, |relation| {
+                if relation.caller_owner() != owner || relation.call_site() != expected_site.site()
+                {
+                    return Err("[freeze:contract][declared-instance/relation-mismatch]".to_owned());
+                }
+                let mut state = ledger.borrow_mut();
+                state
+                    .take_exact_receiver_value(
+                        owner,
+                        relation.receiver_site().node(),
+                        relation.receiver_binding(),
+                    )
+                    .map(DeclaredInstanceReceiverIngressV1::Ready)
+                    .map_err(|error| error.to_string())
+            })
+            .map_err(|error| format!("[freeze:contract][declared-instance/locator/{error:?}]"))
     }
 
     pub(in crate::mir::builder) fn take_runtime_box_fate_v1(

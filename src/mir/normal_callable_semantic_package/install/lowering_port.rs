@@ -9,6 +9,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::ReceiverPolicyV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
+use super::super::declared_instance_locator::DeclaredInstanceCallLocatorScopeV1;
 use super::super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1;
 use super::super::s6c_child::S6CSemanticChildRefV1;
 use super::{
@@ -262,6 +263,57 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         })
     }
 
+    /// Lend the selected cataloged input, physical signature, and the same
+    /// installed package's DeclaredInstance receiver locator in one callback.
+    /// The locator is transport-only and is consumed by exact source site;
+    /// no target or receiver value is issued here.
+    pub(in crate::mir) fn with_selected_cataloged_lowering_input_signature_and_declared_instance_locator<
+        R,
+    >(
+        &mut self,
+        admission: NormalCatalogedBoxMethodDraftAdmissionV1,
+        callback: impl for<'loan> FnOnce(
+            SelectedCatalogedCallableLoweringInputV1<'loan>,
+            ResolvedCallablePhysicalSignatureLoanV1<'loan>,
+            DeclaredInstanceCallLocatorScopeV1<'loan>,
+        ) -> R,
+    ) -> Result<R, NormalCallableSemanticPackageInstallIssueV1> {
+        let key = SelectedNormalCallableKeyV1::Cataloged(admission.source_key().clone());
+        let batch_slot = self
+            .installed
+            .selected
+            .batch_slot(&key)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)?;
+        let signature = self
+            .installed
+            .physical_signature
+            .row(batch_slot)
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::PhysicalSignatureUnavailable)?;
+        let installed = self.installed;
+        let locator_consumed = &mut self.declared_instance_consumed;
+        let result = installed.with_selected_lowering_input(&key, |selected| {
+            if selected.selected_key() != &key {
+                return Err(
+                    NormalCallableSemanticPackageInstallIssueV1::CatalogedAdmissionMismatch,
+                );
+            }
+            let physical_header = installed.take_dynamic_physical_header(admission.source_key());
+            installed.with_declared_instance_call_locators(|view| {
+                Ok(callback(
+                    SelectedCatalogedCallableLoweringInputV1 {
+                        selected,
+                        admission,
+                        physical_header,
+                    },
+                    ResolvedCallablePhysicalSignatureLoanV1::new(signature),
+                    DeclaredInstanceCallLocatorScopeV1::new(view, locator_consumed),
+                ))
+            })
+        })??;
+        self.consumed.insert(key);
+        Ok(result)
+    }
+
     pub(in crate::mir) fn with_main_static_child_lowering_input<R>(
         &mut self,
         child: &VerifiedMainStaticChildV1<'_>,
@@ -335,6 +387,14 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         }
         if !self.installed.ordinary_new_claim_ledger.is_empty() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::IncompleteOrdinaryNewCoverage);
+        }
+        let locator_count = self
+            .installed
+            .with_declared_instance_call_locators(|view| view.row_count());
+        if self.declared_instance_consumed.len() != locator_count {
+            return Err(
+                NormalCallableSemanticPackageInstallIssueV1::DeclaredInstanceLocatorNotConsumed,
+            );
         }
         Ok(())
     }

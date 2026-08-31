@@ -199,7 +199,7 @@ mod tests {
             .with_normal_callable_install_once(&mut context, BuilderInstallConsumerV1::new())
             .expect("package install")
             .into_lowering_scope();
-        let port = scope.open_lowering_once(&context).expect("package port");
+        let mut port = scope.open_lowering_once(&context).expect("package port");
         let count = port.with_declared_instance_call_locators(|view| view.row_count());
         assert_eq!(count, 1);
     }
@@ -216,7 +216,7 @@ mod tests {
             .with_normal_callable_install_once(&mut context, BuilderInstallConsumerV1::new())
             .expect("package install")
             .into_lowering_scope();
-        let port = scope.open_lowering_once(&context).expect("package port");
+        let mut port = scope.open_lowering_once(&context).expect("package port");
         let (is_no_root, count) =
             port.with_declared_instance_call_locators(|view| (view.is_no_root(), view.row_count()));
         assert!(is_no_root);

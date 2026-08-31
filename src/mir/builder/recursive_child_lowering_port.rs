@@ -22,6 +22,16 @@ pub(in crate::mir::builder) enum ScriptDirectStaticClaimIngressV1 {
     Available,
 }
 
+/// Result of asking the active raw invocation for the exact DeclaredInstance
+/// receiver.  `Unarmed` is the explicit compatibility state; `Ready` is only
+/// returned after the package-owned locator and callable state have agreed on
+/// the current source site.  The hook never infers a receiver.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum DeclaredInstanceReceiverIngressV1 {
+    Unarmed,
+    Ready(ValueId),
+}
+
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     type BodyInput;
     type StatementInput;
@@ -78,6 +88,16 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         _claimed: ScriptDirectStaticClaimedRowV1,
     ) -> Result<(), String> {
         Err("[freeze:contract][script-direct-static/claim-consumer-unavailable]".to_owned())
+    }
+
+    /// Borrow the exact receiver value for a source-backed DeclaredInstance
+    /// call before argument descent. Compatibility/test ports remain
+    /// explicitly unarmed and therefore keep their existing route.
+    fn take_declared_instance_receiver_value_v1(
+        &mut self,
+        _builder: &MirBuilder,
+    ) -> Result<DeclaredInstanceReceiverIngressV1, String> {
+        Ok(DeclaredInstanceReceiverIngressV1::Unarmed)
     }
 
     /// Isolated test-only ports deny cleanup exits unless they explicitly

@@ -12,7 +12,8 @@ use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::{
     DeclaredInstanceCallEffectSourceDispositionV1, DeclaredInstanceCallSourceDispositionV1,
-    OwnedExprSiteV1, SourceExprSiteV1,
+    OwnedExprSiteV1, SourceExprSiteV1, VerifiedDeclaredInstanceCallRelationCatalogV1,
+    VerifiedDeclaredInstanceCallRelationV1,
 };
 
 use super::physical_signature::{
@@ -66,11 +67,22 @@ pub(super) struct SealedDeclaredInstanceCallLocatorCatalogV1 {
 #[derive(Debug)]
 pub(in crate::mir) struct DeclaredInstanceCallLocatorViewV1<'a> {
     disposition: &'a DeclaredInstanceCallPackageLocatorDispositionV1,
+    relation: Option<&'a VerifiedDeclaredInstanceCallRelationCatalogV1>,
 }
 
 impl<'a> DeclaredInstanceCallLocatorViewV1<'a> {
-    pub(super) fn new(disposition: &'a DeclaredInstanceCallPackageLocatorDispositionV1) -> Self {
-        Self { disposition }
+    pub(super) fn new(
+        disposition: &'a DeclaredInstanceCallPackageLocatorDispositionV1,
+        source: &'a DeclaredInstanceCallSourceDispositionV1,
+    ) -> Self {
+        let relation = match source {
+            DeclaredInstanceCallSourceDispositionV1::NoRootDeclaredInstanceCall => None,
+            DeclaredInstanceCallSourceDispositionV1::Published(relation) => Some(relation),
+        };
+        Self {
+            disposition,
+            relation,
+        }
     }
 
     pub(in crate::mir) fn is_no_root(&self) -> bool {
@@ -85,6 +97,129 @@ impl<'a> DeclaredInstanceCallLocatorViewV1<'a> {
             DeclaredInstanceCallPackageLocatorDispositionV1::NoRootDeclaredInstanceCall => 0,
             DeclaredInstanceCallPackageLocatorDispositionV1::Published(catalog) => catalog.len(),
         }
+    }
+
+    fn relation(&self) -> Option<&VerifiedDeclaredInstanceCallRelationCatalogV1> {
+        self.relation
+    }
+}
+
+/// A callback-scoped relation row borrowed from the resolver-owned catalog.
+/// The target, result, effect, and physical lanes remain private to their
+/// existing owners; this view exposes only the receiver crosswalk needed by
+/// the selected raw lowering seam.
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir) struct DeclaredInstanceCallRelationViewV1<'a> {
+    row: &'a VerifiedDeclaredInstanceCallRelationV1,
+}
+
+impl DeclaredInstanceCallRelationViewV1<'_> {
+    pub(in crate::mir) const fn caller_owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.row.caller_owner()
+    }
+
+    pub(in crate::mir) fn call_site(&self) -> &SourceExprSiteV1 {
+        self.row.call_site()
+    }
+
+    pub(in crate::mir) fn receiver_site(&self) -> &SourceExprSiteV1 {
+        self.row.receiver_site()
+    }
+
+    pub(in crate::mir) const fn receiver_binding(
+        &self,
+    ) -> crate::mir::resolved_semantics::BindingRefV1 {
+        self.row.receiver_binding()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum DeclaredInstanceCallLocatorTakeErrorV1 {
+    NoRoot,
+    RelationUnavailable,
+    SiteUnavailable,
+    DuplicateSite,
+    AlreadyTaken,
+    RelationMismatch,
+}
+
+/// Non-`Clone` exactly-once view used by one installed lowering callback.
+/// Locator rows are consumed, while the receiver `ValueId` is only read from
+/// the callable state and may therefore be reused by repeated `me.method`
+/// sites with the same binding.
+pub(in crate::mir) struct DeclaredInstanceCallLocatorScopeV1<'a> {
+    view: DeclaredInstanceCallLocatorViewV1<'a>,
+    consumed: &'a mut BTreeSet<u32>,
+}
+
+impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
+    pub(super) fn new(
+        view: DeclaredInstanceCallLocatorViewV1<'a>,
+        consumed: &'a mut BTreeSet<u32>,
+    ) -> Self {
+        Self { view, consumed }
+    }
+
+    pub(in crate::mir) fn is_no_root(&self) -> bool {
+        self.view.is_no_root()
+    }
+
+    pub(in crate::mir) fn row_count(&self) -> usize {
+        self.view.row_count()
+    }
+
+    pub(in crate::mir) fn reborrow(&mut self) -> DeclaredInstanceCallLocatorScopeV1<'_> {
+        DeclaredInstanceCallLocatorScopeV1 {
+            view: DeclaredInstanceCallLocatorViewV1 {
+                disposition: self.view.disposition,
+                relation: self.view.relation,
+            },
+            consumed: &mut *self.consumed,
+        }
+    }
+
+    pub(in crate::mir) fn take_exact_relation<R>(
+        &mut self,
+        expected_site: &OwnedExprSiteV1,
+        callback: impl FnOnce(DeclaredInstanceCallRelationViewV1<'_>) -> Result<R, String>,
+    ) -> Result<R, DeclaredInstanceCallLocatorTakeErrorV1> {
+        let rows = match self.view.disposition {
+            DeclaredInstanceCallPackageLocatorDispositionV1::NoRootDeclaredInstanceCall => {
+                return Err(DeclaredInstanceCallLocatorTakeErrorV1::NoRoot)
+            }
+            DeclaredInstanceCallPackageLocatorDispositionV1::Published(catalog) => catalog.rows(),
+        };
+        let relation = self
+            .view
+            .relation()
+            .ok_or(DeclaredInstanceCallLocatorTakeErrorV1::RelationUnavailable)?;
+        let mut matches = rows.iter().filter(|row| row.call_site() == expected_site);
+        let Some(row) = matches.next() else {
+            return Err(DeclaredInstanceCallLocatorTakeErrorV1::SiteUnavailable);
+        };
+        if matches.next().is_some() {
+            return Err(DeclaredInstanceCallLocatorTakeErrorV1::DuplicateSite);
+        }
+        let relation_ordinal = usize::try_from(row.relation_row_ordinal())
+            .map_err(|_| DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch)?;
+        if self.consumed.contains(&row.relation_row_ordinal()) {
+            return Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken);
+        }
+        let Some(relation_row) = relation.rows().get(relation_ordinal) else {
+            return Err(DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch);
+        };
+        if relation_row.caller_owner() != expected_site.owner()
+            || relation_row.call_site() != expected_site.site()
+        {
+            return Err(DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch);
+        }
+        if !self.consumed.insert(row.relation_row_ordinal()) {
+            return Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken);
+        }
+        callback(DeclaredInstanceCallRelationViewV1 { row: relation_row })
+            .map_err(|_| DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch)
     }
 }
 

@@ -4315,12 +4315,17 @@ no_safe_slice = "Return to design_stop if the combined borrow cannot carry packa
 non_claims = "No Method(Some), no target/result/effect/ABI reissuance, no MIR or Call schema change, no selected-C/Hako/C/VM/backend route, no Method(None)/Resolved cleanup, no legacy fallback/retry, and no whole-lib green claim."
 allowed_files = [
   "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+  "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
   "src/mir/normal_callable_semantic_package/install.rs",
   "src/mir/normal_callable_semantic_package/install/lowering_port.rs",
+  "src/mir/normal_callable_semantic_package/mod.rs",
+  "src/mir/normal_callable_semantic_package/resolved_selected_handoff_tests.rs",
+  "src/mir/builder/normal_callable_package_bridge.rs",
   "src/mir/builder/normal_callable_semantic_loan_port.rs",
   "src/mir/builder/normal_callable_semantic_loan_port/**",
   "src/mir/builder/normal_callable_semantic_lowering_state.rs",
   "src/mir/builder/normal_callable_semantic_receiver_crosswalk.rs",
+  "src/mir/builder/normal_callable_semantic_receiver_crosswalk_tests.rs",
   "src/mir/builder/recursive_child_lowering.rs",
   "src/mir/builder/recursive_child_lowering_port.rs",
   "src/mir/builder/raw_invocation_source_transport/child_lowering_impl.rs",
@@ -4329,6 +4334,8 @@ allowed_files = [
   "src/mir/builder/calls/member_route.rs",
   "focused DeclaredInstance receiver tests",
   "focused structural guard",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "tools/checks/lib/mir_declared_instance_locator_value_crosswalk_d0_guard.py",
   "src/mir/builder/README.md",
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
@@ -4346,6 +4353,14 @@ focused_test_filters = [
   "declared_instance",
   "receiver_crosswalk",
   "normal_callable_semantic_loan_port",
+]
+changed_test_names = [
+  "locator_scope_lends_exact_relation_once_and_rejects_second_take",
+  "locator_scope_reports_no_root_and_missing_site_without_consumption",
+  "exact_receiver_value_consumes_the_source_site_once_and_reuses_value",
+  "exact_receiver_value_rejects_receiver_and_site_mismatches",
+  "declared_instance_selected_handoff_consumes_locator_and_finishes",
+  "declared_instance_selected_handoff_rejects_residual_locator",
 ]
 verification_prerequisites = [
   "cargo check --profile quick --lib",

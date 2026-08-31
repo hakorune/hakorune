@@ -19,7 +19,9 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::VerifiedResolvedBlockExpressionExpectationV1;
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
-use super::declared_instance_locator::DeclaredInstanceCallLocatorViewV1;
+use super::declared_instance_locator::{
+    DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorViewV1,
+};
 use super::ordinary_new_coseal::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1,
 };
@@ -71,6 +73,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MainRootUnavailable,
     MainRootRelationMismatch,
     MainRootAlreadyConsumed,
+    DeclaredInstanceLocatorNotConsumed,
     S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
@@ -285,6 +288,7 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
     pub(super) app_main_direct_call_loan:
         Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
+    declared_instance_consumed: BTreeSet<u32>,
     s6c_child_consumed: bool,
     main_root_consumed: bool,
 }
@@ -294,11 +298,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     /// allowing the view to outlive this callback.  This is transport only;
     /// selected-C admission remains a separate downstream boundary.
     pub(in crate::mir) fn with_declared_instance_call_locators<R>(
-        &self,
-        callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
+        &mut self,
+        callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorScopeV1<'view>) -> R,
     ) -> R {
-        self.installed
-            .with_declared_instance_call_locators(callback)
+        let consumed = &mut self.declared_instance_consumed;
+        self.installed.with_declared_instance_call_locators(|view| {
+            callback(DeclaredInstanceCallLocatorScopeV1::new(view, consumed))
+        })
     }
 
     /// Move the package-owned App Main inventory into the root raw session.
@@ -401,8 +407,10 @@ impl InstalledNormalCallableSemanticPackageV1 {
         &self,
         callback: impl for<'view> FnOnce(DeclaredInstanceCallLocatorViewV1<'view>) -> R,
     ) -> R {
+        let source = self.batch.declared_instance_call_source();
         callback(DeclaredInstanceCallLocatorViewV1::new(
             &self.declared_instance_call_locators,
+            source,
         ))
     }
 
@@ -486,6 +494,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             installed: self,
             app_main_direct_call_loan,
             consumed: BTreeSet::new(),
+            declared_instance_consumed: BTreeSet::new(),
             s6c_child_consumed: false,
             main_root_consumed: false,
         })

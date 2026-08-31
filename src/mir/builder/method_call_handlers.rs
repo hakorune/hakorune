@@ -17,6 +17,7 @@ use crate::mir::builder::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MethodCallLoweringPortV1,
     PreparedMeReceiverV1,
 };
+use crate::mir::builder::recursive_child_lowering_port::DeclaredInstanceReceiverIngressV1;
 use crate::mir::builder::static_result_publication_ingress::{
     StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1,
 };
@@ -135,10 +136,23 @@ pub(in crate::mir::builder) fn prepare_me_call_execution_v1<Observer>(
 where
     Observer: MeCallHeaderObservationPortV1,
 {
+    let me = current_bound_me_value(builder);
+    prepare_me_call_execution_with_receiver_v1(builder, method, arguments, observer, me)
+}
+
+fn prepare_me_call_execution_with_receiver_v1<Observer>(
+    builder: &MirBuilder,
+    method: &str,
+    arguments: &[ASTNode],
+    observer: &mut Observer,
+    me: Option<ValueId>,
+) -> Result<PreparedMeCallExecutionV1, String>
+where
+    Observer: MeCallHeaderObservationPortV1,
+{
     let Some(owner) = current_enclosing_box_name(builder) else {
         return Ok(PreparedMeCallExecutionV1::NotApplicable);
     };
-    let me = current_bound_me_value(builder);
 
     if let Some(receiver) = me {
         if let Some(prepared) = builder.prepare_record_helper_inline(
@@ -180,7 +194,23 @@ impl MeCallPolicyBox {
     where
         Port: MethodCallLoweringPortV1,
     {
-        let prepared = Self::prepare(builder, method, arguments, descent)?;
+        let receiver = descent
+            .terminal_port()
+            .take_declared_instance_receiver_value_v1(builder)?;
+        let prepared = match receiver {
+            DeclaredInstanceReceiverIngressV1::Unarmed => {
+                Self::prepare(builder, method, arguments, descent)?
+            }
+            DeclaredInstanceReceiverIngressV1::Ready(value) => {
+                prepare_me_call_execution_with_receiver_v1(
+                    builder,
+                    method,
+                    arguments,
+                    descent.terminal_port(),
+                    Some(value),
+                )?
+            }
+        };
         Self::validate_prepared_me_arity_before_descent(
             &prepared,
             method,
@@ -246,7 +276,23 @@ impl MeCallPolicyBox {
             }
         }
 
-        let prepared = Self::prepare(builder, method, arguments, descent)?;
+        let receiver = descent
+            .terminal_port()
+            .take_declared_instance_receiver_value_v1(builder)?;
+        let prepared = match receiver {
+            DeclaredInstanceReceiverIngressV1::Unarmed => {
+                Self::prepare(builder, method, arguments, descent)?
+            }
+            DeclaredInstanceReceiverIngressV1::Ready(value) => {
+                prepare_me_call_execution_with_receiver_v1(
+                    builder,
+                    method,
+                    arguments,
+                    descent.terminal_port(),
+                    Some(value),
+                )?
+            }
+        };
         Self::validate_prepared_me_arity_before_descent(
             &prepared,
             method,

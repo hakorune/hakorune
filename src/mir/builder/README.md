@@ -479,6 +479,24 @@ the later DeclaredInstance crosswalk may borrow it after proving an exact source
 relation. It does not inspect names or positions, consume locator rows, issue a
 target, open a receiver-specific loan, or infer Method/receiver semantics.
 
+### DeclaredInstance receiver authority crosswalk
+
+The selected root `me.method(...)` path now borrows the installed package's
+exact DeclaredInstance locator together with the selected callable input and
+physical-signature sibling. A non-`Clone` scope takes the exact caller/call
+site relation once, then the live `CallableSemanticLoweringState` checks its
+receiver site and `BindingRefV1` before reading the already-materialized
+`ValueId`. Locator and receiver-site residuals fail the callable scope; an
+armed mismatch cannot fall back to ambient `variable_map["me"]`, parameter
+position, or `args[0]` inference. The binding value itself remains reusable by
+distinct exact call sites.
+
+This row changes receiver authority only. The existing Global/manual receiver
+prefix output is deliberately preserved until the later end-to-end
+`Method(Some(receiver))` family cutover. Target, result, semantic effect,
+physical ABI, selected backend, Call schema, fallback, and retry remain owned
+by their existing boundaries.
+
 `normal_callable_loop_handoff.rs` owns the L0-R0 source-coverage projection.
 It no longer treats `(condition reads, body reads, rebinds) = (1,1,1)` as a
 semantic contract or discards exact relations into a count receipt. One

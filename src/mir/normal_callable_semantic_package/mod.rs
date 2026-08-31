@@ -55,6 +55,10 @@ mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
 
+pub(in crate::mir) use declared_instance_locator::{
+    DeclaredInstanceCallLocatorScopeV1,
+    DeclaredInstanceCallLocatorViewV1,
+};
 pub(crate) use direct_call_loan::{
     AppMainDirectCallDispositionLoanV1, AppMainDirectCallDispositionRowV1,
 };
@@ -70,9 +74,6 @@ pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_v1;
 pub(in crate::mir) use issuer::{
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
     NormalCallableSemanticPackageIssueV1,
-};
-pub(in crate::mir) use declared_instance_locator::{
-    DeclaredInstanceCallLocatorViewV1,
 };
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;

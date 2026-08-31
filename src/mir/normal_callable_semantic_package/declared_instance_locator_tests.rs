@@ -1,8 +1,14 @@
+use std::collections::BTreeSet;
+
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, OwnedExprSiteV1, SourcePathV1};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
 use super::{
-    declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
+    declared_instance_locator::{
+        DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorTakeErrorV1,
+        DeclaredInstanceCallLocatorViewV1, DeclaredInstanceCallPackageLocatorDispositionV1,
+    },
     issue_normal_callable_semantic_package_v1,
 };
 
@@ -70,4 +76,73 @@ fn package_rejects_missing_declared_instance_target_before_locator_publication()
         Err(super::NormalCallableSemanticPackageIssueV1::Batch { .. })
             | Err(super::NormalCallableSemanticPackageIssueV1::DeclaredInstanceLocator { .. })
     ));
+}
+
+#[test]
+fn locator_scope_lends_exact_relation_once_and_rejects_second_take() {
+    let package = issue("box Counter { call() { return me.value() } value() { return 1 } }");
+    let disposition = package.declared_instance_call_locators();
+    let DeclaredInstanceCallPackageLocatorDispositionV1::Published(catalog) = disposition else {
+        panic!("the exact me.method source must publish a locator catalog")
+    };
+    let site = catalog
+        .rows()
+        .first()
+        .expect("one locator row")
+        .call_site()
+        .clone();
+    let mut consumed = BTreeSet::new();
+    let view = DeclaredInstanceCallLocatorViewV1::new(
+        disposition,
+        package.batch().declared_instance_call_source(),
+    );
+    let mut scope = DeclaredInstanceCallLocatorScopeV1::new(view, &mut consumed);
+
+    let binding = scope
+        .take_exact_relation(&site, |relation| {
+            assert_eq!(relation.caller_owner(), site.owner());
+            assert_eq!(relation.call_site(), site.site());
+            assert_eq!(relation.receiver_binding().owner(), site.owner());
+            Ok(relation.receiver_binding())
+        })
+        .expect("exact relation must be lent once");
+    assert_eq!(binding.owner(), site.owner());
+    assert_eq!(
+        scope.take_exact_relation(&site, |_| Ok(())),
+        Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken)
+    );
+    assert_eq!(consumed.len(), 1);
+}
+
+#[test]
+fn locator_scope_reports_no_root_and_missing_site_without_consumption() {
+    let package = issue("static box Api { run(value) { return value } }");
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
+    let owner = issuer.issue().expect("test owner");
+    let site = OwnedExprSiteV1::new(owner, SourcePathV1::function_body().expr());
+    let mut consumed = BTreeSet::new();
+    let view = DeclaredInstanceCallLocatorViewV1::new(
+        package.declared_instance_call_locators(),
+        package.batch().declared_instance_call_source(),
+    );
+    let mut scope = DeclaredInstanceCallLocatorScopeV1::new(view, &mut consumed);
+
+    assert_eq!(
+        scope.take_exact_relation(&site, |_| Ok(())),
+        Err(DeclaredInstanceCallLocatorTakeErrorV1::NoRoot)
+    );
+    assert!(consumed.is_empty());
+
+    let package = issue("box Counter { call() { return me.value() } value() { return 1 } }");
+    let mut consumed = BTreeSet::new();
+    let view = DeclaredInstanceCallLocatorViewV1::new(
+        package.declared_instance_call_locators(),
+        package.batch().declared_instance_call_source(),
+    );
+    let mut scope = DeclaredInstanceCallLocatorScopeV1::new(view, &mut consumed);
+    assert_eq!(
+        scope.take_exact_relation(&site, |_| Ok(())),
+        Err(DeclaredInstanceCallLocatorTakeErrorV1::SiteUnavailable)
+    );
+    assert!(consumed.is_empty());
 }

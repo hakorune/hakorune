@@ -12,8 +12,8 @@ impl<'package, 'loan, 'port, 'collector, 'target>
     pub(super) fn with_cataloged_callable_source_scope<R>(
         &mut self,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
-        execute: impl FnOnce(
-            &mut RawInvocationChildPortV1<'port, 'collector>,
+        execute: impl for<'frame> FnOnce(
+            &mut RawInvocationChildPortV1<'frame, 'collector>,
             super::super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
             NormalCatalogedBoxMethodDraftAdmissionV1,
             ResolvedCallablePhysicalSignatureLoanV1<'_>,
@@ -22,7 +22,9 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
-            .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
+            .with_selected_cataloged_lowering_input_signature_and_declared_instance_locator(
+                admission,
+                |input, signature, locator| {
                 super::validate_selected_cataloged_input(&input)?;
                 super::validate_selected_signature_loan(&input, &signature)?;
                 if matches!(
@@ -43,9 +45,14 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     lineage,
                     selected,
                     Rc::clone(&ordinary_new_claim_ledger),
-                    |inner, transport| execute(inner, transport, admission, signature),
+                    |inner, transport| {
+                        inner.with_declared_instance_locator_scope(locator, |inner| {
+                            execute(inner, transport, admission, signature)
+                        })
+                    },
                 )
-            })
+                },
+            )
             .map_err(super::package_issue)?
     }
 }

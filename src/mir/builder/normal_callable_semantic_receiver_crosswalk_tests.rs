@@ -1,10 +1,11 @@
 use super::super::CallableSemanticLoweringState;
-use super::ExactBindingValueErrorV1;
+use super::{ExactBindingValueErrorV1, ExactReceiverValueErrorV1};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, CallableFunctionSyntaxViewV1, FunctionOwnerIssuerV1,
-    FunctionSemanticResolverSessionV1, ResolveSelectedCallableForestsOutcomeV1,
+    FunctionSemanticResolverSessionV1, ResolveSelectedCallableForestsOutcomeV1, SourceNodeSiteV1,
+    SourcePathSegmentV1, SourcePathV1,
 };
 use crate::mir::ValueId;
 use crate::parser::NyashParser;
@@ -105,5 +106,64 @@ fn exact_binding_accessor_is_observational_and_reusable() {
     assert_eq!(
         state.value_for_exact_binding(owner, binding),
         Ok(ValueId::new(77))
+    );
+}
+
+fn materialized_receiver_fixture() -> (
+    CallableSemanticLoweringState,
+    crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    BindingRefV1,
+    BindingRefV1,
+    SourceNodeSiteV1,
+) {
+    let (mut state, owner, receiver) = materialized_parameter_fixture();
+    let other = state.parameters[1];
+    let receiver_site = SourcePathV1::function_body()
+        .child(SourcePathSegmentV1::Receiver)
+        .node();
+    state.receiver = Some(receiver);
+    state.variables.insert(receiver_site.clone(), receiver);
+    (state, owner, receiver, other, receiver_site)
+}
+
+#[test]
+fn exact_receiver_value_consumes_the_source_site_once_and_reuses_value() {
+    let (mut state, owner, receiver, _, receiver_site) = materialized_receiver_fixture();
+
+    assert_eq!(
+        state.take_exact_receiver_value(owner, &receiver_site, receiver),
+        Ok(ValueId::new(77))
+    );
+    assert_eq!(
+        state.take_exact_receiver_value(owner, &receiver_site, receiver),
+        Err(ExactReceiverValueErrorV1::AlreadyTaken)
+    );
+    assert_eq!(
+        state.value_for_exact_binding(owner, receiver),
+        Ok(ValueId::new(77)),
+        "the binding value remains reusable by another exact call site"
+    );
+}
+
+#[test]
+fn exact_receiver_value_rejects_receiver_and_site_mismatches() {
+    let (mut state, owner, receiver, other, receiver_site) = materialized_receiver_fixture();
+    state.receiver = Some(other);
+    assert_eq!(
+        state.take_exact_receiver_value(owner, &receiver_site, receiver),
+        Err(ExactReceiverValueErrorV1::ReceiverBindingMismatch)
+    );
+
+    state.receiver = Some(receiver);
+    state.variables.insert(receiver_site.clone(), other);
+    assert_eq!(
+        state.take_exact_receiver_value(owner, &receiver_site, receiver),
+        Err(ExactReceiverValueErrorV1::SiteBindingMismatch)
+    );
+
+    state.variables.remove(&receiver_site);
+    assert_eq!(
+        state.take_exact_receiver_value(owner, &receiver_site, receiver),
+        Err(ExactReceiverValueErrorV1::ReceiverSiteUnavailable)
     );
 }
