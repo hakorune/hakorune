@@ -2282,7 +2282,7 @@ guard = "The stable active-surface guard dispatches a dedicated P0-A checker; th
 next_execution = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0__design_stop"
 
 [verification_health_quick_lib_baseline_p0_c_runner_wire_r0_2026_09_01]
-status = "fast_open"
+status = "landed"
 task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 depends_on = [
@@ -2291,7 +2291,7 @@ depends_on = [
 ]
 ceremony_tier = "T1"
 box_kind = "BoxShape deterministic verification runner and quick wiring"
-implementation_permission = true
+implementation_permission = false
 decision = "Connect one fixed full-lib cargo test observation to dev_gate quick through a deterministic baseline comparator. Known failure names remain visible baseline debt; only exact new, disappeared, changed, malformed, or incomplete evidence fails the row."
 source_authority = "The cargo test result summary, cargo --list inventory, fixed command/environment, and sorted baseline data files are the only observation inputs. The Python runner is the sole comparison owner; dev_gate_group.sh only consumes its exit status."
 canonical_issuer = "No semantic issuer. tools/checks/lib/cargo_lib_red_baseline.py issues only a verification outcome from already-emitted Cargo observations and never issues compiler meaning."
@@ -2343,11 +2343,23 @@ forbidden_files = [
 focused_test_filters = ["test_cargo_lib_red_baseline"]
 changed_test_names = []
 coverage_base_commit = "346fae95e8"
-implementation_commit = "pending"
-implementation_evidence = "Not landed: the runner, baseline data, and one quick-step wiring are the next implementation slice."
+implementation_commit = "1115d70687"
+implementation_evidence = "Landed at 1115d70687: cargo_lib_red_baseline.py runs the fixed default-feature quick --lib and --list commands, compares the complete 7553-name inventory and 139-name failure set by hash, and fails on drift, filtered runs, malformed summaries, or aborts. Three separate fixed-stack observations agreed at 7385 passed, 139 failed, 29 ignored, exit 101; the runner is wired exactly once before later quick compatibility steps."
+focused_test_runs = [
+  "python3 -m unittest tools/checks/lib/tests/test_cargo_lib_red_baseline.py -v: 15 passed",
+  "python3 tools/checks/lib/cargo_lib_red_baseline.py --root .: KNOWN BASELINE 7385 passed / 139 failed / 29 ignored, inventory 7553",
+  "RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 cargo test --profile quick --lib -- --list: inventory 7553",
+  "three separate fixed-stack cargo test --profile quick --lib -- --test-threads=1 runs: each 7385 passed / 139 failed / 29 ignored, exit 101",
+]
+guard_runs = [
+  "bash tools/checks/dev_gate.sh --list-steps: baseline runner appears exactly once before later compatibility steps",
+  "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .: pass before closeout",
+  "bash tools/checks/current_state_pointer_guard.sh: pass before closeout",
+  "git diff --check: pass",
+]
 red_classification = "The existing whole-lib red set is accepted only as an explicit KnownBaselineDebt observation after three identical runs; any name-set drift remains current-change blocking. Later quick compatibility failures remain independent and are not relabeled."
 guard = "The stable active-surface guard dispatches a dedicated P0-C contract checker; the runner itself is the executable comparison owner and the quick step is wired once."
-next_execution = "none__closeout_pending"
+next_execution = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0__design_stop"
 
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"

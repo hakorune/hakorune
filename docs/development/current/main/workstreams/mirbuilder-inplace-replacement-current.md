@@ -55,7 +55,7 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current design stop:
-`MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` follows the landed
+`BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0` follows the landed
 locator install bridge. The existing backend-neutral locator co-seal
 (`6f40203999`) now survives semantic-package install and is lent only through
 a non-Clone callback-scoped Builder view. The bridge added no target, receiver
@@ -72,16 +72,16 @@ its current MIR(JSON)->LLVM C lowerer is a compatibility/compare owner, not
 MirBuilder meaning authority. The independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
-prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0` now owns
-exact full-lib red-baseline comparison and one quick-step wiring; preserve Core C ABI,
-compare evidence, and no fallback/retry.
-
+prerequisite landed at `e3cfa78488`; `DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0`
+landed at `1115d70687` with exact full-lib red-baseline comparison and one quick-step
+wiring; three fixed-stack observations agree at 7385/139/29 over 7553 tests. Preserve
+Core C ABI, compare evidence, and no fallback/retry; the pointer is back at the
+backend-owner DeclaredInstance design stop and whole quick is not claimed green.
 The temporary verification prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`
 landed at `39d5188d9d`: one test-only positional assertion now checks exact
 order-independent membership, without changing FastMem production MIR, Call,
 backend, or selected-C semantics. Ten exact runs and the 20-test module pass;
-the pointer is back at the selected-C design stop, and the whole-lib red baseline remains
-separate and unaccepted.
+the whole-lib red baseline remains separate and unaccepted.
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
 the two production callers and one test helper are reconciled, but no exact

@@ -1,14 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+current_design_stop = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 current_blocker_token = """
-DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0:
-Connect one deterministic full-lib red-baseline comparator to the quick gate.
-Accept only a complete fixed-stack summary, exact inventory, and exact failure
-set; known baseline debt is visible, while new/disappeared/changed red fails.
-Do not touch MIR, Call, backend, legacy-tests, fallback, or retry.
+BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0:
+The deterministic full-lib known-red baseline is now observed by a fixed-stack
+runner before the later quick compatibility steps. Keep the selected-C backend
+replacement at design_stop until one exact Hako LLVM-text family, route/ABI
+parity, and named caller switch are proven. Do not infer MIR meaning from
+JSON/C metadata, and do not open fallback or retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -41,27 +42,21 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The temporary verification prerequisite DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0
-landed as test-only exact-membership stabilization; ten independent exact runs,
-the 20-test FastMem module, quick library check, pointer guard, and diff check pass;
-production MIR/Call/backend semantics and the whole-lib red baseline are unchanged.
-Selected-C semantic admission is ParkedSealed/RetireAfterReplacement; backend replacement D0 remains a separate design stop. The .inc no-growth baseline prerequisite landed at e3cfa78488; the active bounded verification row now connects a deterministic full-lib red baseline to quick without claiming whole-gate green.
+P0-A .inc no-growth and P0-B1 FastMem determinism prerequisites are landed.
+P0-C landed at 1115d70687: a fixed-stack runner compares the complete 7553-test
+inventory, 7385/139/29 summary, and 139-name failure set after three identical
+observations, and is wired once before later quick compatibility steps. Known
+red remains explicit debt; the whole quick gate is not claimed green.
 Language decisions are fixed: ordinary me.method is retained, static/instance/
-delegate method namespaces are explicit, bare panic is a terminal Fault, and
-Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance
-source relation landed at 845bd72641, result/Completion retention at
-e1976b8ba1, resolver-owned OpaqueObservable/Query effect facts at 11d9dadada,
-and the backend-neutral private locator co-seal at 6f40203999. The locator
-install bridge is now landed: the existing disposition survives package
-install and is exposed only through a non-Clone callback-scoped Builder view.
-Selected-C admission is ParkedSealed/BackendCapabilityMissing because no source-backed physical issuer exists; the independent
-MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0 row is landed with per-block maps and
-actual-Copy-only statistics, and makes no Call/VM/backend claim. Receiver
-ValueId, Method(Some), selected-C token/wire, MIR, fallback, retry, and
-Call-schema cutover remain closed.
+delegate namespaces are explicit, panic is terminal Fault, and Result/?/cleanup
+are non-throwing surfaces. DeclaredInstance relation/effect/locator products
+and the install bridge are landed, while receiver ValueId, Method(Some),
+selected-C admission, MIR, fallback, retry, and Call-schema cutover remain
+closed. Selected-C is ParkedSealed/BackendCapabilityMissing; the current
+backend-owner DeclaredInstance row is the design stop.
 """
-next_design_card = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
-next_execution_card = "DEV-GATE-QUICK-LIB-BASELINE-P0-C-RUNNER-WIRE-R0"
+next_design_card = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
