@@ -8,9 +8,11 @@ MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0:
 the source relation, result/Completion carriage, and resolver-owned
 OpaqueObservable/Query effect sibling are landed. Name one existing
 source-backed full physical lane and the selected-C admission capability under
-the same session; selected-C is a downstream gate, not semantic authority.
-Keep receiver materialization, Method(Some), package/loan, MIR, backend,
-fallback, retry, and Call-schema publication closed until exact co-seal and
+the same session. PhysicalCallableLaneV1 is only a named candidate; the
+selected-C route currently lacks an admission capability that proves receiver
+presence, full lane coverage, and source-backed result/effect meaning. Keep
+receiver materialization, Method(Some), package/loan, MIR, backend, fallback,
+retry, and Call-schema publication closed until that exact co-seal and the
 verification prerequisites are accepted.
 """
 previous_parent_blocker_context = """
@@ -44,7 +46,7 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The next design stop is package co-seal for the full physical lane and selected-C admission; receiver ValueId, Method(Some), package/loan, MIR, backend, fallback, retry, and Call-schema cutover remain closed. Whole-lib baseline and selected-C stack health remain separate prerequisites."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The package co-seal D0 now records PhysicalCallableLaneV1 as a candidate only: selected-C has no source-backed admission capability for receiver presence, full lane, result, and effect, and its 8MiB stack issue is separate. Receiver ValueId, Method(Some), package/loan, MIR, backend, fallback, retry, and Call-schema cutover remain closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"

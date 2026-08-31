@@ -60,9 +60,12 @@ Current design stop:
 result/Completion carriage at `e1976b8ba1`, and resolver-owned
 OpaqueObservable/Query effect facts at `11d9dadada`. The next design work is to
 name one existing full physical lane and selected-C admission capability under
-the same session. Receiver materialization, Method(Some), package/loan, MIR,
-backend, fallback/retry, and nonselected backend work remain closed; whole-lib
-health and selected-C stack health are separate prerequisites.
+the same session. `PhysicalCallableLaneV1` is only a reusable candidate; the
+selected Boundary pure-first C consumer still lacks receiver-presence, full
+lane, and source-backed result/effect admission. Receiver materialization,
+Method(Some), package/loan, MIR, backend, fallback/retry, and nonselected
+backend work remain closed; whole-lib health and selected-C stack health are
+separate prerequisites.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

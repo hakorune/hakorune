@@ -3663,6 +3663,11 @@ verification_prerequisites = [
   "dev_gate quick must include a comparable cargo test --lib step",
   "selected-C 8MiB stack health must have an accepted heap/ownership resolution or remain a separate CutoverBlockerOpen",
 ]
+worker_audit_head = "60d27c5869d924454430702cdc6a56a966845d78"
+worker_audit_result = "Fresh read-only audits agree that PhysicalCallableLaneV1 and its source-backed signature cohort are the only reusable physical-lane vocabulary. The selected Boundary pure-first C route is a real consumer, but it is not yet an admission capability for this family: it reconstructs a target view from plan metadata, conflates missing receiver with numeric zero, strips duplicate args[0], and supports only a narrow one-lane result cell. No existing same-session selected-C capability co-seals receiver presence, full lane, result, and effect."
+full_lane_decision = "PhysicalCallableLaneV1 / PhysicalCallableSignatureRowRefV1 is a named downstream product candidate. Package co-seal may borrow it only after exact declaration identity and result/effect coverage are checked; it may not reconstruct or widen the lane."
+selected_c_decision = "Selected Boundary pure-first C remains the intended product consumer, but its receiver-presence contract, full logical-to-physical lane coverage, and source-backed result/effect admission are absent. The 8MiB launch-snapshot stack overflow is a separate CutoverBlockerOpen and is not repaired in this semantic row."
+d0_status = "NoSafeSlice__selected_C_admission_missing"
 reopen_trigger = "Open implementation only when the same-session source relation, result/Completion, semantic effect, full lane, and selected-C capability are all exact, verification prerequisites are recorded, and one atomic common disposition can delete the selected legacy edges with fallback/retry zero."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0__design_stop"
 
