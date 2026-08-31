@@ -2183,12 +2183,12 @@ reopen_trigger = "Reopen the refresh only when one of the 16 statements moves ag
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop after the verification prerequisite is closed; keep semantic implementation permission false."
 
 [ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31]
-status = "accepted_design_stop"
+status = "selected_fast"
 disposition = "CutoverBlockerOpen"
 task_id = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 box_kind = "BoxShape selected-C backend stack ownership repair"
-implementation_permission = false
+implementation_permission = true
 decision = "Treat the phase-1 runtime-helper guard's stack overflow as a real selected-C baseline regression, not as a 16 MiB stack waiver. The 8 MiB process stack is the acceptance boundary; the narrow repair may move only the invocation-local launch snapshot to heap ownership while preserving save, activate, emit, restore, and free order."
 source_authority = "The daily quick order is owned by tools/checks/lib/dev_gate_quick_steps.sh; the behavior contract is stage1_emit_program_json_runtime_helper_guard.sh; the selected physical owners are selected_launch_emit.inc and the compile_json_compat_pure state path."
 canonical_issuer = "The existing selected-C launch snapshot construction/activation owner; no new MIR or source semantic issuer is allowed."
@@ -2221,9 +2221,11 @@ allowed_files = [
   "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc",
   "lang/c-abi/shims/README.md",
   "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
   "existing selected-Dynamic smoke/guard evidence",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
   "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
-  "docs/development/current/main/CURRENT_STATE.toml (pointer only if this row is selected)",
+  "docs/development/current/main/CURRENT_STATE.toml",
 ]
 forbidden_files = [
   "RUST_MIN_STACK/ulimit waiver",

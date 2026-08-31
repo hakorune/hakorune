@@ -54,6 +54,14 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
+Current selected prerequisite:
+`NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0` is the only fast row. It
+may move only the invocation-local selected-C launch snapshot to heap ownership
+at the existing 8 MiB boundary, preserving save/activate/emit/restore/free;
+DeclaredInstance meaning, MIR/Call, fixtures, ABI, route selection, fallback,
+and retry remain closed. Once its focused guard is green, restore the package
+co-seal design stop below.
+
 Current design stop:
 `MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0` retains ordinary
 `me.method`; the source/site/declaration relation landed at `845bd72641`,

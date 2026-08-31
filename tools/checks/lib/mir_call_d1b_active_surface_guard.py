@@ -124,6 +124,8 @@ DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW = (
 DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY = (
     "mir_call_me_declared_instance_package_coseal_d0_2026_08_31"
 )
+SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
+SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 
 
 def fail(message: str) -> None:
@@ -455,6 +457,50 @@ def check_declared_instance_package_coseal_d0(state: dict, card: dict) -> None:
         fail("DeclaredInstance package co-seal requires the landed effect issuer")
 
 
+def check_selected_c_stack_row(state: dict, card: dict, root: Path) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("selected-C stack row requires fast or closeout work_mode")
+    if state.get("current_execution_row") != SELECTED_C_STACK_ROW:
+        fail("selected-C stack row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("selected-C stack row must clear current_design_stop")
+    if state.get("next_execution_card") != SELECTED_C_STACK_ROW:
+        fail("selected-C stack row pointer drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("selected-C stack row card pointer drifted")
+    row = card.get(SELECTED_C_STACK_KEY)
+    if not isinstance(row, dict) or row.get("task_id") != SELECTED_C_STACK_ROW:
+        fail("selected-C stack row is missing")
+    status = row.get("status")
+    if status not in {"selected_fast", "landed"}:
+        fail("selected-C stack row status is not finite")
+    if row.get("implementation_permission") is not (status == "selected_fast"):
+        fail("selected-C stack row permission/status drifted")
+    source = root / "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc"
+    guard = root / "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh"
+    for path in (source, guard):
+        if not path.is_file():
+            fail(f"selected-C stack owner is missing: {path}")
+    if sum(1 for _ in source.open(encoding="utf-8")) >= 760:
+        fail("selected-C stack owner reached the 760-line boundary")
+    allowed = set(require_text_list(row.get("allowed_files"), "selected-C allowed_files"))
+    required = {
+        "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc",
+        "lang/c-abi/shims/README.md",
+        "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh",
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+    }
+    if not required <= allowed:
+        fail(f"selected-C allowed_files omit {sorted(required - allowed)}")
+    if status == "landed":
+        base = require_text(row.get("base_commit"), "selected-C base_commit")
+        changed = git_diff_paths(root, base)
+        if not changed <= allowed:
+            fail(f"selected-C changed paths escaped: {sorted(changed - allowed)}")
+
+
 def check_declared_instance_effect_issuer_structure(root: Path) -> None:
     effect_path = root / "src/mir/resolved_semantics/declared_instance_call_effect.rs"
     parser_path = root / "src/parser/callable_contract_syntax.rs"
@@ -618,6 +664,8 @@ def main() -> None:
         check_declared_instance_effect_issuer_i0(state, card, root)
     elif row == DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
         check_declared_instance_package_coseal_d0(state, card)
+    elif row == SELECTED_C_STACK_ROW:
+        check_selected_c_stack_row(state, card, root)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")
