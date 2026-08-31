@@ -2075,6 +2075,61 @@ no_safe_slice = "Remain in design_stop if an anchor token moved semantically, th
 non_claims = "No current exhaustive metadata owner census, no field retirement authority, no source behavior change, no quick/full-lib green claim, no DeclaredInstance issuer/co-seal, no Method(Some) production switch, no Call-schema or backend change."
 reopen_trigger = "Reopen the refresh only when one of the 16 statements moves again, the manifest schema/checker changes, or the manifest is about to be used as current exhaustive evidence; in the latter case require a separate live-owner recensus first."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop after the verification prerequisite is closed; keep semantic implementation permission false."
+
+[ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31]
+status = "accepted_design_stop"
+disposition = "CutoverBlockerOpen"
+task_id = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
+parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+box_kind = "BoxShape selected-C backend stack ownership repair"
+implementation_permission = false
+decision = "Treat the phase-1 runtime-helper guard's stack overflow as a real selected-C baseline regression, not as a 16 MiB stack waiver. The 8 MiB process stack is the acceptance boundary; the narrow repair may move only the invocation-local launch snapshot to heap ownership while preserving save, activate, emit, restore, and free order."
+source_authority = "The daily quick order is owned by tools/checks/lib/dev_gate_quick_steps.sh; the behavior contract is stage1_emit_program_json_runtime_helper_guard.sh; the selected physical owners are selected_launch_emit.inc and the compile_json_compat_pure state path."
+canonical_issuer = "The existing selected-C launch snapshot construction/activation owner; no new MIR or source semantic issuer is allowed."
+non_authority = [
+  "fixture shape, route trace, guard text, RUST_MIN_STACK, ulimit, Rust CLI behavior, capacity reduction, optimization flags, and alternate backend success",
+  "DeclaredInstance/Method/Call schema, MIR effect/ABI, runtime helper naming, fallback, retry, or a larger process stack",
+]
+fail_fast_boundary = "At an 8 MiB process stack, the fresh selected-C FFI must reach the existing exact consumer trace and non-empty object; allocation failure must return a typed error before context activation/save mutation, with no output, fallback, or retry."
+census_boundary = "stage1_emit_program_json_runtime_helper_guard.sh -> fresh ny-llvmc selected-C FFI -> selected_launch_emit snapshot save/activate/emit/restore/free; includes only the duplicated stack-owned snapshot and its focused guard/smoke evidence, excludes fixture semantics, MIR/Call changes, backend selection, and quick baseline policy."
+finite_inventory = [
+  "guard contract: tools/checks/stage1_emit_program_json_runtime_helper_guard.sh:37-57",
+  "selected-C launch owner: lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc:10",
+  "selected-C lowering state: lang/c-abi/shims/hako_llvmc_ffi_generic_pure_lowering_state.inc:58-111",
+  "context snapshot view: lang/c-abi/shims/hako_llvmc_ffi_same_module_function_context.inc:8-40",
+  "fresh compiler artifact owner: crates/nyash-llvm-compiler and existing selected-Dynamic smoke",
+]
+finite_states = [
+  "EightMiBOverflow: current guard aborts with rc=134 before object emission",
+  "HeapSnapshotCandidate: one invocation-local snapshot may be heap-owned with order preserved",
+  "ExactSelectedConsumer: existing trace and non-empty object at 8 MiB",
+  "AllocationRejected: typed failure before save/activation and no output",
+  "UnsafeShortcut: 16 MiB waiver, static/TLS snapshot, capacity/fixture change, fallback, or retry",
+]
+ordered_tasks = [
+  "D0: confirm parent/current byte identity for guard, fixture, fresh FFI, and selected-C source; record the 8 MiB overflow and 16 MiB non-authority observation",
+  "R0: if the existing selected-C owner can heap-own only the invocation-local launch snapshot, preserve save -> activate -> emit -> restore -> free and keep all state/ABI/fixture semantics unchanged",
+  "C0: run the existing runtime-helper guard plus selected-Dynamic positive/negative and allocation-failure evidence at 8 MiB; require fresh FFI evidence and return to the health parent design stop",
+]
+allowed_files = [
+  "lang/c-abi/shims/hako_llvmc_ffi_selected_launch_emit.inc",
+  "lang/c-abi/shims/README.md",
+  "tools/checks/stage1_emit_program_json_runtime_helper_guard.sh",
+  "existing selected-Dynamic smoke/guard evidence",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+  "docs/development/current/main/CURRENT_STATE.toml (pointer only if this row is selected)",
+]
+forbidden_files = [
+  "RUST_MIN_STACK/ulimit waiver",
+  "fixture or capacity/state-shape changes",
+  "Rust CLI route or alternate backend",
+  "MIR/Call/DeclaredInstance semantics",
+  "fallback/retry/static/TLS global snapshot",
+]
+acceptance = "At the 8 MiB stack boundary the existing selected-C runtime-helper guard reaches its exact consumer trace and non-empty object, allocation failure is typed and side-effect-free before activation, the selected-Dynamic focused evidence remains green, and no fixture/ABI/route/semantic behavior changes."
+no_safe_slice = "Remain in design_stop if heap ownership cannot preserve the existing snapshot lifecycle, if the fresh FFI is not proven, or if the repair needs stack enlargement, fixture/capacity changes, static/TLS state, alternate backend, or semantic route edits."
+non_claims = "No quick/full-lib green claim, no 139-failure baseline acceptance, no Stage1 artifact completion, no DeclaredInstance issuer/co-seal, no Method(Some) or Call-schema cutover, and no VM/backend policy change."
+reopen_trigger = "Reopen when selected-C launch state shape, FFI freshness, the guard contract, or the 8 MiB result changes; keep this row separate from the metadata historical/live census task."
 changed_anchor_occurrences = 16
 unique_anchor_mappings = 11
 stale_anchor_occurrences = 0
