@@ -3,6 +3,8 @@ dev_gate_script_step "current-state pointer guard" tools/checks/current_state_po
 dev_gate_script_step "naming charter guard" tools/checks/naming_charter_guard.sh
 dev_gate_script_step "MIR metadata catalog guard" tools/checks/mir_metadata_catalog_guard.sh
 dev_gate_script_step "GlobalCallTarget shape inventory guard" tools/checks/stage0_shape_inventory_guard.sh
+dev_gate_group_label "verification health"
+dev_gate_cmd_step "cargo lib known-red baseline" "RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 python3 tools/checks/lib/cargo_lib_red_baseline.py --root ." env RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0 python3 tools/checks/lib/cargo_lib_red_baseline.py --root .
 dev_gate_group_label "Program(JSON) compatibility"
 dev_gate_script_step "phase-1 compatibility emit-program runtime-helper guard" tools/checks/stage1_emit_program_json_runtime_helper_guard.sh
 dev_gate_script_step "Program(JSON) dev surface guard" tools/checks/program_json_dev_surface_guard.sh

@@ -1,0 +1,17 @@
+schema_version = 1
+state = "accepted"
+profile = "quick"
+test_command = ["cargo", "test", "--profile", "quick", "--lib", "--", "--test-threads=1"]
+list_command = ["cargo", "test", "--profile", "quick", "--lib", "--", "--list"]
+environment = { RUST_MIN_STACK = "16777216", CARGO_BUILD_JOBS = "4", CARGO_INCREMENTAL = "0" }
+expected_status = "FAILED"
+expected_exit_code = 101
+expected_passed = 7385
+expected_failed = 139
+expected_ignored = 29
+expected_measured = 0
+expected_filtered = 0
+inventory_file = "tools/checks/manifests/cargo_lib_red_baseline.tests.txt"
+inventory_sha256 = "d9b0ae0053019f817b80d67737f602c20cd6fcc578ad52587b102e3dc4871244"
+failures_file = "tools/checks/manifests/cargo_lib_red_baseline.failures.txt"
+failures_sha256 = "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041"
