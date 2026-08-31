@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
-status = "active_design_stop"
-observed_commit = "b44ea0b182"
+status = "active_fast"
+observed_commit = "da00098e2a"
 observed_at = "2026-08-31"
-implementation_permission = false
+implementation_permission = true
 
 [boundary]
 starts = "selected source/builder target selection and typed MIR-v0 ingress"
@@ -40,7 +40,7 @@ non_authority = [
 ]
 fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
 no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
-smallest_next_slice = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 is selected in design_stop. Result/Completion retention landed at e1976b8ba1; the remaining blockers are resolver relation adoption, ordinary effect issuance, full-lane selected C capability, and common affine consumption."
+smallest_next_slice = "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0 is the only fast-open child: issue the AST-free source-site/declaration relation once inside the existing final batch HRTB and retain its NoRoot/Published disposition. Result/Completion retention landed at e1976b8ba1; effect, full-lane selected-C capability, affine consumption, and production cutover remain closed."
 non_claims = [
   "production implementation from this design row",
   "package-side or backend-derived target issuance",
@@ -3135,10 +3135,77 @@ minimal_co_seal_owner = "The source-adoption resolver sibling is the sole relati
 source_to_declaration_gap = "VerifiedResolvedMethodCallSourceV1 has call/receiver sites, selector, and arity but no callee declaration identity; InstanceBoxMethod catalog has the declaration and brand but no call-site relation. The missing relation must be issued by one source-backed owner before any name/arity-derived CanonicalSameModuleCallableKey is accepted."
 contract_reference_rule = "A target row may borrow an existing same-package physical signature/header and source body/result/effect contract only after exact identity, catalog/package brand, batch slot, receiver binding, and arity agree. Missing/unannotated result or effect is ParkedSealed or typed pre-effect reject; it is never filled from MIR EffectMask, FunctionSignature, header text, or backend plan."
 implementation_gate = "The source-adoption relation I0 may open once the existing batch closure is the named one-pass hook, the new resolver sibling's AST-free relation shape and seven counterexample outcomes are fixed, and no second resolver is required. Keep the later Method(Some(receiver)) production cutover closed until result/effect/full-lane and selected-C owners are also named."
-next_design_action = "D0-B2/B3 are design-closed at HEAD f28067a429: the live parser/resolver source-adoption crosswalk is named as the one-pass resolver-sibling owner, with an AST-free relation shape and finite failure boundary. No production relation implementation is authorized by this manifest alone; open a fast I0 only when CURRENT_STATE selects it, and keep target/effect/full-lane/selected-C cutover closed until their owners are named."
+next_design_action = "D0-B2/B3 are design-closed at HEAD f28067a429. CURRENT_STATE now selects the bounded source-adoption relation I0; closeout must return the parent to design_stop. Keep target/effect/full-lane/selected-C cutover closed until their owners are named."
 latest_worker_audit_head = "f28067a429"
 latest_worker_audit_brief = "Decision: keep true DeclaredInstance in design_stop/ParkedSealed; Source authority: live final parser/resolver source plus InstanceBoxMethod declaration/brand; package role: contract/transport co-seal only; Non-authority: package declaration_for, InstanceMethodFunctionCarrier re-resolve, name/header/registry/backend/MIR inference; Fail-fast: reject before receiver/argument effects; Smallest next slice: source-adoption D0 for the exact relation crosswalk; Non-claims: no Method(Some) cutover, loan, Call schema, VM/backend, panic/throw/exit, or guard cleanup."
 next_execution = "superseded__see_MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+
+[mir_call_me_declared_instance_resolver_relation_i0_2026_08_31]
+status = "fast_open"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+observed_commit = "da00098e2a"
+implementation_permission = true
+box_kind = "resolver-owned AST-free source-site/declaration relation"
+decision = "Within the existing final callable-semantic batch with_callable_semantic_syntax HRTB, after the single existing forest/body-shape resolver returns, issue one non-Clone DeclaredInstanceCallSourceDispositionV1 and retain it on VerifiedResolvedCallableSemanticBatchV1. This is a source relation only; it does not issue a target or open production call lowering."
+source_authority = "The live final parser/resolver source, its opaque CallableDeclarationIdentityV1/provenance/final syntax rows, and the already-issued same-session resolved forest/body-shape products."
+canonical_issuer = "A new small resolved_semantics relation sibling called exactly once by callable_semantic_batch/issuer.rs in the existing HRTB; no package-side issuer and no second resolver/parser handoff."
+non_authority = [
+  "name/arity as identity or a second lookup key",
+  "batch/Builder keys, ordinals, headers, symbols, registries, MIR, backend, fixtures",
+  "InstanceMethodFunctionCarrierIssuerV1 or standalone ParserBoxResolverSourceHandoffV1",
+  "package declaration_for, target repair, family-specific loan, fallback, retry",
+]
+fail_fast = "Reject the whole unpublished disposition before receiver ValueId materialization, argument descent/effects, target/result/effect/ABI/package/loan construction, MIR, or backend publication."
+allowed_files = [
+  "src/mir/resolved_semantics/declared_instance_call_relation.rs",
+  "src/mir/resolved_semantics/instance_method_declaration.rs",
+  "src/mir/resolved_semantics/declared_instance_contract.rs",
+  "src/mir/resolved_semantics/mod.rs",
+  "src/mir/callable_semantic_batch/issuer.rs",
+  "src/mir/callable_semantic_batch/model.rs",
+  "src/mir/callable_semantic_batch/mod.rs",
+  "src/mir/callable_semantic_batch/declared_instance_call_relation_tests.rs",
+  "src/mir/resolved_semantics/README.md",
+  "src/mir/callable_semantic_batch/README.md",
+  "tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py (lazy dispatch only)",
+  "docs/reference/language/function-call-evaluation.md (status line only at closeout)",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "parser source issuance and body_shape.rs",
+  "normal_callable_semantic_package/**",
+  "src/mir/builder/**",
+  "effect/result/physical-signature/C/backend/VM/JSON/runtime routes",
+  "workstream/taskboard and guard registry/shell",
+]
+disposition = [
+  "NoRootDeclaredInstanceCall: complete root census with no eligible root direct instance call",
+  "Published(catalog): one complete same-session root relation catalog",
+  "all missing/foreign/duplicate/ambiguous/non-root/static/generated/delegate cases: typed reject; no partial publish",
+]
+relation_row = "caller parser identity + root FunctionOwnerIdV1 + exact call_site/receiver_site + root Receiver binding -> target parser identity + DeclaredInstanceMethodIdentityV1 + target owner + source arity under the same resolver brand/provenance. No ValueId, Callee, ABI, effect, result, symbol, key, or arguments."
+partition = [
+  "RootDeclaredInstance only",
+  "StaticCurrentOwner remains the landed sibling",
+  "Nested/upvar, arbitrary-object local, generated/delegate-only, Dynamic/core/qualified/FreeStatic remain outside this row",
+]
+acceptance = [
+  "existing final batch HRTB invokes the relation issuer exactly once after the existing forest/body-shape resolution",
+  "batch owns exactly one non-Clone NoRoot/Published disposition; no empty/default receipt or partial catalog",
+  "same nominal Box selector is unique and arity only validates; same-name methods on different Boxes remain independent",
+  "foreign parser provenance/brand, wrong root receiver binding, duplicate visible name/site, missing/ambiguous declaration, and wrong arity reject atomically",
+  "focused relation tests, quick lib check, reusable guard, diff check, and every touched source under 760 lines",
+]
+focused_test_filter = "cargo test --profile quick --lib declared_instance_call_relation -- --test-threads=1"
+secondary_test_filter = "cargo test --profile quick --lib callable_semantic_batch -- --test-threads=1"
+guard_command = "python3 tools/checks/lib/mir_call_d1b_declared_instance_relation_guard.py ."
+line_budget = "new relation <=300 lines; focused tests <=360; issuer 337-><=380; model 462-><=490; declaration accessor 417-><=440; mod <=370; 800 hard stop"
+old_edge_metric = "3 -> 3; this I0 issues no Method(Some), emits no Call, and deletes no legacy edge"
+closeout = "Record focused evidence and relation inventory, then set status=landed, implementation_permission=false, restore work_mode=design_stop/current_execution_row/current_design_stop/next_design_card to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0, and clear next_execution_card."
+non_claims = "No Method(Some) emission, receiver ValueId, package co-seal, effect/result/ABI/selected-C/common affine consumer, Builder/MIR/backend/VM/JSON/Call schema change, delegate/nested/upvar activation, language change, fallback, retry, or old-edge deletion."
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]
 status = "landed"

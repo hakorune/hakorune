@@ -1,20 +1,19 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0:
-retain ordinary me.method and replace only its legacy implementation. Exact
-target selection belongs to one resolver-owned nominal declaration relation;
-the package-side issuer hypothesis is rejected. The unannotated
-OpaqueObservable effect Decision and the one-name-per-Box method namespace
-Decision are accepted. Selected Cataloged result/Completion carriage now
-lands at e1976b8ba1, but live DeclaredInstance target/effect/receiver/full-lane
-ABI issuance and the common affine consumer remain CutoverBlockerOpen. Do not
-infer from package keys, names, headers, registries, MIR, fixtures, or
-backends; do not add a family loan, fallback, retry, Method(None), Call schema,
-VM/llvmlite/WASM, panic/throw/Result/?, or unrelated guard cleanup.
+MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0:
+inside the existing final callable-semantic batch HRTB, after the one existing
+forest/body-shape resolution, issue exactly one AST-free non-Clone
+DeclaredInstance source-site/declaration relation and store its explicit
+NoRoot/Published disposition on the batch. Reject missing/foreign/duplicate/
+ambiguous/root-receiver/arity cases atomically before receiver or argument
+effects. Do not run a second resolver or parser handoff, and do not infer from
+name/ordinal/header/registry/package/MIR/backend. This row does not issue
+Method(Some), ValueId, effect/result/ABI meaning, package loan, Builder/MIR,
+backend code, fallback, retry, or language changes.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -47,10 +46,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The selected Cataloged result/Completion retention cohort landed at e1976b8ba1; true DeclaredInstance target/effect/receiver/ABI issuance remains closed."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The selected Cataloged result/Completion retention cohort landed at e1976b8ba1. The current fast row issues only the resolver-owned DeclaredInstance source-site/declaration relation; target/effect/receiver/ABI and production migration remain closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "MIR-CALL-ME-DECLARED-INSTANCE-RESOLVER-RELATION-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
