@@ -1,20 +1,17 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0:
-the source relation, result/Completion carriage, and resolver-owned
-OpaqueObservable/Query effect sibling are landed. Name one existing
-source-backed full physical lane under the same parser/resolver session and
-freeze a backend-neutral package locator. Selected-C is a separate downstream
-admission gate, not a semantic package issuer; its existing source-backed
-capability count is currently zero and its receiver-presence/full-lane/result/
-effect contract must be designed before implementation. Keep receiver
-materialization, Method(Some), package/loan, MIR, backend, fallback, retry, and
-Call-schema publication closed until both boundaries have exact owners and the
-verification prerequisites are accepted.
+MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0:
+co-seal only the already-issued DeclaredInstance relation, result/Completion,
+resolver-owned OpaqueObservable/Query effect, and source-backed physical-lane
+products into one backend-neutral private locator. Do not issue a target,
+receiver ValueId, selected-C token, Method(Some), MIR, or backend route. The
+selected-C admission capability remains a separate downstream design blocker
+with existing source-backed capability count zero; no C/JSON inference,
+args[0] repair, numeric-zero presence, fallback, retry, or Call-schema change.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -47,9 +44,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The selected-C 8MiB snapshot blocker is closed at 46b2ee72e3 after heap-owning both invocation-local snapshots with fresh-FFI guard evidence. Package co-seal remains the design stop: one existing full physical lane and a backend-neutral locator are not yet named; selected-C admission is a separate downstream capability and its existing source-backed count is zero. Receiver ValueId, Method(Some), package/loan, MIR, fallback, retry, and Call-schema cutover remain closed."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, and resolver-owned OpaqueObservable/Query effect facts at 11d9dadada. The selected-C 8MiB snapshot blocker is closed at 46b2ee72e3 after heap-owning both invocation-local snapshots with fresh-FFI guard evidence. The bounded fast row now co-seals a backend-neutral private locator from those existing semantic products; selected-C admission remains a separate downstream capability with source-backed count zero. Receiver ValueId, Method(Some), package/loan consumption, MIR, fallback, retry, and Call-schema cutover remain closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

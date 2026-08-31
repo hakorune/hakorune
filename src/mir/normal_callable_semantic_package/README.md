@@ -109,6 +109,20 @@ issues one move-only physical-header projection. The package loan transports
 that projection to A-prime exactly once; A-prime consumes it for the physical
 header and never re-observes the AST/root declaration.
 
+## DeclaredInstance package locator (2026-08-31)
+
+The package now cross-checks the already-issued root lexical `me.method(...)`
+products with one private, non-`Clone` locator catalog. A locator row contains
+only the owned source site and batch/row ordinals for the relation, semantic
+effect, selected target, result/Completion, and physical-signature siblings.
+It does not contain a `Callee`, receiver `ValueId`, AST, arguments, physical
+symbol, `EffectMask`, or backend capability, and it never performs a lookup or
+issues meaning. The issuer publishes either an explicit no-root disposition or
+a complete catalog; missing, foreign, duplicate, ambiguous, and coverage
+drift cases reject before lowering effects. Selected-C admission remains a
+separate downstream NoSafeSlice until an existing source-backed capability can
+validate the full relation and lane contract.
+
 ## Callable physical signature mapping (2026-08-16)
 
 The package now issues one non-`Clone` physical-signature cohort from the same

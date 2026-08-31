@@ -124,6 +124,12 @@ DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW = (
 DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY = (
     "mir_call_me_declared_instance_package_coseal_d0_2026_08_31"
 )
+DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
+)
+DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY = (
+    "mir_call_me_declared_instance_package_private_locator_i0_2026_08_31"
+)
 SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 
@@ -457,6 +463,78 @@ def check_declared_instance_package_coseal_d0(state: dict, card: dict) -> None:
         fail("DeclaredInstance package co-seal requires the landed effect issuer")
 
 
+def check_declared_instance_package_locator_i0(
+    state: dict, card: dict, root: Path
+) -> None:
+    if state.get("work_mode") != "fast":
+        fail("DeclaredInstance private locator I0 must be fast")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
+        fail("DeclaredInstance private locator I0 row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("DeclaredInstance private locator I0 must clear current_design_stop")
+    if state.get("next_execution_card") != DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
+        fail("DeclaredInstance private locator I0 next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("DeclaredInstance private locator I0 card path drifted")
+    row = card.get(DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
+        fail("DeclaredInstance private locator task id drifted")
+    if row.get("status") != "selected_fast":
+        fail("DeclaredInstance private locator must be selected_fast")
+    if row.get("implementation_permission") is not True:
+        fail("DeclaredInstance private locator must permit only its bounded implementation")
+    package = card.get(DECLARED_INSTANCE_PACKAGE_COSEAL_D0_KEY)
+    if not isinstance(package, dict) or package.get("status") != "accepted_design_stop":
+        fail("private locator requires the accepted package co-seal design")
+    if package.get("implementation_permission") is not False:
+        fail("package co-seal must remain closed while locator is selected")
+    for key, label in (
+        ("mir_call_me_declared_instance_resolver_relation_i0_2026_08_31", "relation"),
+        ("mir_normal_callable_result_contract_retention_d0_i0_2026_08_31", "result"),
+        (DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY, "effect"),
+    ):
+        child = card.get(key)
+        if not isinstance(child, dict) or not str(child.get("status", "")).startswith("landed"):
+            fail(f"private locator requires landed {label} product")
+    source_files = {
+        "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+        "src/mir/normal_callable_semantic_package/mod.rs",
+        "src/mir/normal_callable_semantic_package/model.rs",
+        "src/mir/normal_callable_semantic_package/issuer.rs",
+    }
+    for rel in source_files:
+        path = root / rel
+        if not path.is_file():
+            fail(f"private locator owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 760:
+            fail(f"private locator source reached the 760-line boundary: {rel}")
+    locator = (root / "src/mir/normal_callable_semantic_package/declared_instance_locator.rs").read_text(
+        encoding="utf-8"
+    )
+    if "OwnedExprSiteV1" not in locator or "ValueId" in locator or "Callee" in locator:
+        fail("private locator must contain only source-site/slot locator data")
+    if "NoRootDeclaredInstanceCall" not in locator or "finish_empty" in locator:
+        fail("private locator must be explicit no-root/ready data, not a loan consumer")
+    issuer = (root / "src/mir/normal_callable_semantic_package/issuer.rs").read_text(
+        encoding="utf-8"
+    )
+    if "issue_declared_instance_call_package_locator_v1" not in issuer:
+        fail("package issuer does not invoke the sole private locator issuer")
+    allowed = set(require_text_list(row.get("allowed_files"), "private locator allowed_files"))
+    required = source_files | {
+        "src/mir/normal_callable_semantic_package/result_contract.rs",
+        "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
+        "src/mir/normal_callable_semantic_package/README.md",
+        str(HELPER_REL),
+        str(STATE_REL),
+        str(CARD_REL),
+    }
+    if not required <= allowed:
+        fail(f"private locator allowed_files omit {sorted(required - allowed)}")
+
+
 def check_selected_c_stack_row(state: dict, card: dict, root: Path) -> None:
     if state.get("work_mode") not in {"fast", "closeout"}:
         fail("selected-C stack row requires fast or closeout work_mode")
@@ -673,6 +751,8 @@ def main() -> None:
         check_declared_instance_effect_issuer_i0(state, card, root)
     elif row == DECLARED_INSTANCE_PACKAGE_COSEAL_D0_ROW:
         check_declared_instance_package_coseal_d0(state, card)
+    elif row == DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_ROW:
+        check_declared_instance_package_locator_i0(state, card, root)
     elif row == SELECTED_C_STACK_ROW:
         check_selected_c_stack_row(state, card, root)
     else:

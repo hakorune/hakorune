@@ -54,23 +54,19 @@ blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
 birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
-Current design stop:
-`MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0` retains ordinary
-`me.method`; the source/site/declaration relation landed at `845bd72641`,
-result/Completion carriage at `e1976b8ba1`, and resolver-owned
-OpaqueObservable/Query effect facts at `11d9dadada`. The next design work is to
-name one existing full physical lane under the same parser/resolver session and
-freeze a backend-neutral package locator. Selected-C is a separate downstream
-admission gate, not a semantic issuer; the selected Boundary pure-first C
-consumer exists, but its source-backed admission capability count is zero and
-it still lacks receiver-presence, full-lane, and source-backed result/effect
-acceptance. Receiver materialization, Method(Some), package/loan, MIR, backend,
-fallback/retry, and nonselected backend work remain closed; whole-lib health is
-a separate prerequisite, and the selected-C launch plus planned-definition
-snapshot stack blocker is now landed at `46b2ee72e3` with a fresh-FFI repeated
-8 MiB guard. A future common disposition may carry only private locators and
-borrow the already-issued semantic siblings together; it is design-only until
-the separate selected-C admission capability and common callsite port exist.
+Current fast row:
+`MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0` retains ordinary
+`me.method` and co-seals only a backend-neutral private locator from the
+already-issued source/site/declaration relation (`845bd72641`), result/
+Completion carriage (`e1976b8ba1`), resolver-owned OpaqueObservable/Query
+effect facts (`11d9dadada`), and the existing source-backed physical lane. It
+does not issue a target, receiver ValueId, selected-C token, Method(Some), MIR,
+or backend route. Selected-C is a separate downstream admission gate, not a
+semantic issuer; its source-backed capability count is zero. Receiver
+materialization, package/loan consumption, MIR, backend, fallback/retry, and
+nonselected backend work remain closed; whole-lib health is a separate
+prerequisite, and the selected-C launch plus planned-definition snapshot stack
+blocker is landed at `46b2ee72e3` with a fresh-FFI repeated 8 MiB guard.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

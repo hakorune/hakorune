@@ -3702,6 +3702,70 @@ selected_c_admission_non_authority = [
 ]
 selected_c_reopen_trigger = "A production non-Clone same-session API exists that accepts the backend-neutral locator, validates relation/result/Completion/effect/full lane including ExactText pairs and receiver presence independent of ValueId 0, then returns an opaque selected-C admission token consumed exactly once before C emission; missing/foreign/duplicate/coverage/residual reject pre-effect."
 reopen_trigger = "Open implementation only when the same-session source relation, result/Completion, semantic effect, full lane, and selected-C capability are all exact, verification prerequisites are recorded, and one atomic common disposition can delete the selected legacy edges with fallback/retry zero."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0__pending_current_pointer_switch"
+
+[mir_call_me_declared_instance_package_private_locator_i0_2026_08_31]
+status = "selected_fast"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-PRIVATE-LOCATOR-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+ceremony_tier = "T1"
+box_kind = "BoxCount backend-neutral semantic package locator co-seal"
+implementation_permission = true
+decision = "Consume no new meaning: issue one private non-Clone locator catalog by exact crosswalk of the already-issued DeclaredInstance relation, resolver-owned semantic effect, result/Completion cohort, selected identity mapping, and source-backed PhysicalCallableSignature row. Selected-C remains a separate downstream admission gate and is not required or implemented by this row."
+source_authority = "VerifiedDeclaredInstanceCallRelationCatalogV1, VerifiedDeclaredInstanceCallEffectCatalogV1, VerifiedCallableResultContractCohortV1, VerifiedSelectedCallableBatchMapV1, and VerifiedCallablePhysicalSignatureCohortV1 from the same resolver/package session."
+canonical_issuer = "One package-private locator issuer in src/mir/normal_callable_semantic_package/declared_instance_locator.rs, called once after the existing physical-signature issuer and before package publication; it only stores private row ordinals/slots and exact OwnedExprSiteV1 cross-references."
+non_authority = [
+  "name/arity lookup, package keys as semantic identity, target symbols, Callee, ValueId, AST/arguments, EffectMask, FunctionSignature/body inference, headers, C/JSON metadata, selected-C, backend/VM, fixtures, fallback, retry",
+  "numeric ValueId(0) or args[0] as receiver presence, family-specific loan, or any package-side declaration_for/re-resolution",
+]
+fail_fast_boundary = "Missing/foreign/duplicate/ambiguous relation, effect, result/Completion, selected mapping, target lane, receiver-lane shape, or coverage drift rejects before receiver materialization, argument effects, Const/MIR publication, C need-scan, fallback, or retry. A locator is unpublished on any row failure."
+census_boundary = "same-session resolver/package products -> private DeclaredInstance locator rows; includes root lexical DeclaredInstance me.method only and excludes StaticCurrentOwner, nested/upvar me, delegates, selected-C admission, receiver ValueId, Method(Some), common affine consumption, MIR/Call, backend, and schema changes."
+finite_states = [
+  "NoRootDeclaredInstanceCall: relation and effect are both explicit absence; publish an empty locator disposition",
+  "Ready: every relation row has exactly one effect row, target selected slot, result/Completion row, and full instance physical signature",
+  "MissingOrForeign: required product or same-session identity is absent; typed reject",
+  "DuplicateOrAmbiguous: crosswalk has more than one candidate; typed reject",
+  "CoverageDrift: row counts, source site, owner, declaration, role, receiver lane, or lane indices do not close; typed reject",
+]
+ordered_tasks = [
+  "production-borrow result/Completion only if the existing private row cannot be validated without a test-only accessor; do not copy the contract",
+  "issue the private non-Clone locator catalog in a new module and validate relation/effect/result/full-lane exact crosswalk",
+  "add focused positive/negative/structural evidence; keep selected-C admission as a separate NoSafeSlice",
+]
+acceptance = "The package publishes either explicit no-root or a complete private locator catalog. Each row stores only exact site/slot/ordinal locator data; all existing products are borrowed by identity and session, no target/receiver/effect/ABI meaning is reissued, and all missing/foreign/duplicate/coverage/residual cases reject before effects. Touched Rust stays below 760/800 lines."
+no_safe_slice = "Return to design_stop if relation/effect/result/Completion/full-lane products cannot be borrowed in production, if the package must look up by name/key/symbol, if the locator needs AST/ValueId/MIR/effect copies, or if selected-C admission must be created in this row."
+non_claims = "No selected-C admission, physical token, receiver materialization, Method(Some), common direct-call loan, Builder/MIR/backend switch, Call-schema change, Method(None) cleanup, fallback, retry, or old-edge deletion."
+allowed_files = [
+  "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+  "src/mir/normal_callable_semantic_package/mod.rs",
+  "src/mir/normal_callable_semantic_package/model.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/result_contract.rs",
+  "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "lang/c-abi/shims/**",
+  "MIR Call schema",
+  "VM/backend/JSON/runtime",
+]
+focused_test_filters = [
+  "declared_instance_locator",
+  "normal_callable_semantic_package",
+]
+verification_prerequisites = [
+  "cargo check --profile quick --lib",
+  "focused locator tests must be nonzero and green",
+  "pointer/active-surface guard and diff check",
+  "whole-lib baseline remains separate and must not be claimed green",
+]
+implementation_base_commit = "b6529cc27b"
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [mir_builder_boxshape_port_surface_r0_2026_08_31]

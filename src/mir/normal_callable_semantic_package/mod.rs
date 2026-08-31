@@ -6,6 +6,7 @@
 //! consumption, physical ABI, or fallback route.
 
 mod completion_seed;
+mod declared_instance_locator;
 mod direct_call_loan;
 mod dynamic_admission;
 mod install;
@@ -37,6 +38,8 @@ impl BuilderInstallTokenV1 {
 
 #[cfg(test)]
 mod brand_catalog_tests;
+#[cfg(test)]
+mod declared_instance_locator_tests;
 #[cfg(test)]
 mod main_static_child_tests;
 #[cfg(test)]

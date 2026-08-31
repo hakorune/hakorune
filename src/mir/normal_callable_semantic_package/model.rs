@@ -46,6 +46,8 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) result_contracts: super::result_contract::VerifiedCallableResultContractCohortV1,
     pub(super) physical_signature:
         super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
+    pub(super) declared_instance_call_locators:
+        super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
     pub(super) s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     pub(super) s6c_storage_header:
         Option<super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1>,
@@ -116,6 +118,12 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         &self,
     ) -> &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1 {
         &self.instance_constructors
+    }
+
+    pub(super) fn declared_instance_call_locators(
+        &self,
+    ) -> &super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1 {
+        &self.declared_instance_call_locators
     }
 
     #[cfg(test)]

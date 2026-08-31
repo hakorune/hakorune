@@ -37,6 +37,9 @@ use std::rc::Rc;
 mod app_main_relation;
 
 use super::completion_seed::issue_callable_completion_seed_cohort_v1;
+use super::declared_instance_locator::{
+    issue_declared_instance_call_package_locator_v1, DeclaredInstanceCallPackageLocatorIssueV1,
+};
 use super::direct_call_loan::{
     AppMainDirectCallDispositionLoanV1, AppMainDirectCallDispositionRowV1,
 };
@@ -336,6 +339,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     },
     PhysicalSignature {
         _error: CallablePhysicalSignatureIssueV1,
+    },
+    DeclaredInstanceLocator {
+        _error: DeclaredInstanceCallPackageLocatorIssueV1,
     },
     S6CChild {
         _error: S6CSemanticChildIssueV1,
@@ -637,6 +643,15 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         &parameter_contracts,
     )
     .map_err(|error| NormalCallableSemanticPackageIssueV1::PhysicalSignature { _error: error })?;
+    let declared_instance_call_locators = issue_declared_instance_call_package_locator_v1(
+        &batch,
+        &selected,
+        &result_contracts,
+        &physical_signature,
+    )
+    .map_err(
+        |error| NormalCallableSemanticPackageIssueV1::DeclaredInstanceLocator { _error: error },
+    )?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
@@ -649,6 +664,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         parameter_contracts,
         result_contracts,
         physical_signature,
+        declared_instance_call_locators,
         s6c_child,
         s6c_storage_header,
         physical_header,
