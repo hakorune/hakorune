@@ -4322,6 +4322,8 @@ allowed_files = [
   "src/mir/builder/normal_callable_semantic_lowering_state.rs",
   "src/mir/builder/normal_callable_semantic_receiver_crosswalk.rs",
   "src/mir/builder/recursive_child_lowering.rs",
+  "src/mir/builder/recursive_child_lowering_port.rs",
+  "src/mir/builder/raw_invocation_source_transport/child_lowering_impl.rs",
   "src/mir/builder/method_call_handlers.rs",
   "src/mir/builder/method_call_handlers/**",
   "src/mir/builder/calls/member_route.rs",
