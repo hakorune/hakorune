@@ -2417,7 +2417,7 @@ parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 trigger = "dev_gate quick reaches CorePlan variable_map boundary after the refreshed lib baseline and observes 51 direct insert sites against max_insert_count=48"
 box_kind = "design-only finite current-owner census; implementation closed"
 implementation_permission = false
-decision = "Classify all 51 current sites before changing the historical 48 bound. Select exactly one outcome: reseal live writers through the current owner, prune obsolete/test-only scope behind an equal-or-stronger guard, or retire the guard and quick step only with caller-zero/redundant-successor evidence. No raw count bump is an accepted outcome."
+decision = "The finite 51-site census is now role-aware (raw=51, test-only=16, disconnected=1, live=34, canonical=1, reseal=33): reseal live cache writers through the current owner, prune test-only/disconnected scope behind an equal-or-stronger guard, and keep whole-guard retirement conditional on caller-zero/redundant-successor evidence. The historical 48 is not raised to 51; no raw count bump is an accepted outcome."
 source_authority = "The exact current source matches under control_flow/plan and ssa, current var_map_scope/Recipe ownership, and the live dev_gate quick consumer."
 non_authority = [
   "the historical phase card or number 48 alone",
@@ -2426,13 +2426,13 @@ non_authority = [
   "removing the quick step without an equal-or-stronger successor",
 ]
 census_boundary = "direct variable_map insert issue sites under src/mir/builder/control_flow/plan and src/mir/builder/ssa -> current semantic/physical writer owner -> helper or bypass -> quick guard consumer; includes production and test sites and excludes unrelated MirBuilder Call, selected-C, VM/backend, and schema routes."
-finite_dispositions = [
-  "Reseal: live production write belongs behind the current var_map_scope/Recipe owner",
-  "Prune: site is test-only or superseded and can be removed without reducing production coverage",
-  "Retire: the entire historical count guard is redundant to an equal-or-stronger current invariant and has caller-zero after quick rewiring",
-  "OpenBlocker: owner or reachability is unresolved; implementation remains closed",
+inventory_role_map = [
+  "Prune(test-only): src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs@406,411,467,472; src/mir/builder/control_flow/plan/features/generic_loop_body/nested_depth_observer_tests.rs@126; src/mir/builder/control_flow/plan/features/generic_loop_located_composer_tests.rs@95; src/mir/builder/control_flow/plan/features/generic_loop_whole_parity_tests.rs@337; src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs@381,425,536,541; src/mir/builder/control_flow/plan/normalizer/tests.rs@115,161,166; src/mir/builder/control_flow/plan/parts/associated_source/located_hook_tests.rs@125; src/mir/builder/control_flow/plan/parts/associated_source/located_parity_tests.rs@393",
+  "Prune(disconnected): src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs@189",
+  "Reseal(live): src/mir/builder/control_flow/plan/features/carrier_merge.rs@25,47,71; src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs@44,174,191,220,238; src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs@25; src/mir/builder/control_flow/plan/features/loop_cond_bc.rs@154; src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs@535; src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs@89; src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs@99,147,266; src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs@85; src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs@62; src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs@99; src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs@505,522; src/mir/builder/control_flow/plan/lowerer/loop_completion.rs@107; src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs@96,179,205,229,312; src/mir/builder/control_flow/plan/parts/associated_source/raw_lowering.rs@258; src/mir/builder/control_flow/plan/parts/dispatch/if_join.rs@161,518; src/mir/builder/control_flow/plan/parts/if_general.rs@182; src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs@129,176,401",
+  "Keep(canonical): src/mir/builder/control_flow/plan/parts/var_map_scope.rs@86",
 ]
-acceptance = "Every one of the 51 sites has one owner/reachability/disposition row; current production and test boundaries are explicit; the existing guard's unique coverage and all consumers are finite; one bounded next implementation names exact files, old-edge deletion, focused evidence, and quick recovery."
+acceptance = "The role map above covers all 51 sites with owner/reachability/disposition: test-only and disconnected sites are Prune from the production census, 33 live sites are Reseal candidates, and var_map_scope.rs is the sole canonical cache owner. The next bounded slice is DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0: update coreplan_varmap_boundary_inventory_guard.sh and its existing dev_gate quick consumer to assert the finite role inventory, delete the raw 48-count/role-blind edge only, run the guard plus pointer/diff evidence, and leave loop_cond_bc_item_stmt.rs nested-loop fallback as a separate blocker; no compiler, MIR, Call, backend, or semantic change."
 no_safe_slice = "Do not edit source, bound, allowlist, phase card, quick step, or guard until the finite inventory is exhausted and exactly one Reseal, Prune, or Retire slice is accepted."
 allowed_design_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
@@ -2446,7 +2446,7 @@ read_only_census_roots = [
   "tools/checks/lib/dev_gate_quick_steps.sh",
   "docs/development/current/main/phases/phase-293x/293x-1022-COREPLAN-VARMAP-BOUNDARY-001.md",
 ]
-next_execution = "none__design_stop"
+next_execution = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0__design_stop"
 
 [row_exit_changed_test_exec_p0_2026_08_31]
 status = "accepted_design_stop"

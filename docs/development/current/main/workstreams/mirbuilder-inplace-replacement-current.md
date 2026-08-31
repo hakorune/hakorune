@@ -58,10 +58,11 @@ Current execution:
 the exact lib receipt refresh landed at `484d58585f`: three observations agree
 at 7562/7394/139/29, the nine new names are the landed crosswalk tests, and the
 139 failure names/SHA are unchanged. The runner passes. Full quick now stops
-at `DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0`: 51 current direct
-`variable_map` insert sites exceed the historical 48 bound. Do not bump or
-delete the guard by assumption. Classify every site and choose one reseal,
-prune, or caller-zero/equal-successor retirement slice. The receiver crosswalk
+at `DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0`: the raw 51 sites versus
+historical 48 are now classified as test-only 16, disconnected 1, live 34, and
+one canonical cache owner (33 live reseal candidates). Do not bump or delete
+the guard by assumption; the next bounded slice is role-aware Prune/R0, with
+live writes resealed through `publish_emission_cache`. The receiver crosswalk
 at `dc68fa2910` remains valid and Global/manual-prefix output is unchanged.
 Only after quick reaches every later step may selected-C admission resume.
 Option B remains final: name one exact Hako LLVM-text physical owner/ABI and
