@@ -2154,13 +2154,14 @@ reopen_trigger = "Reopen the prerequisite only when the canonical command or tes
 next_execution = "Return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop after this verification prerequisite is landed; keep production implementation closed until effect issuer and selected-C capability are co-sealed."
 
 [verification_health_quick_lib_baseline_p0_b1_fastmem_order_r0_2026_09_01]
-status = "selected_fast"
+status = "landed"
 task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0"
 parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
 depends_on = "verification_health_quick_lib_baseline_p0_2026_08_31"
 ceremony_tier = "T0"
 box_kind = "BoxShape test-only exact-membership stabilization"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "39d5188d9d"
 decision = "Replace one order-sensitive FastMem test assertion with exact order-independent field membership. The production HashMap representation and all MIR semantics remain unchanged; this row only removes nondeterministic evidence from the baseline prerequisite."
 source_authority = "The existing FastMem test's emitted MemOpKind/field_id inventory is the observed contract; membership and cardinality are meaningful, while HashMap iteration order is not."
 canonical_issuer = "None. This row changes no production issuer or route; it only observes the already-emitted MemOp facts in a deterministic test assertion."
@@ -2202,6 +2203,12 @@ focused_test_filters = [
 changed_test_names = [
   "mir::builder::fastmem::tests::branch::fastmem_source_lowers_owner_eq_branch_cfg_pilot",
 ]
+focused_test_runs = [
+  "cargo test --profile quick --lib mir::builder::fastmem::tests::branch::fastmem_source_lowers_owner_eq_branch_cfg_pilot -- --exact --test-threads=1: 1 passed; 0 failed in ten separate processes",
+  "cargo test --profile quick --lib mir::builder::fastmem::tests -- --test-threads=1: 20 passed; 0 failed",
+  "cargo check --profile quick --lib: pass",
+  "rustfmt --edition 2021 --check src/mir/builder/fastmem/tests/branch.rs: pass",
+]
 verification_prerequisites = [
   "exact target filter must run nonzero and green in at least ten separate processes",
   "the complete mir::builder::fastmem::tests module must run nonzero and green",
@@ -2212,6 +2219,9 @@ acceptance = "The named FastMem test accepts any HashMap iteration order while e
 no_safe_slice = "Return to design_stop if the assertion cannot prove exact membership without production changes, if a second nondeterministic owner is found, if the full fastmem module has current-change red, if the row needs quick-step wiring or baseline seeding, or if any MIR/Call/backend/selected-C file is touched."
 non_claims = "No whole-lib baseline acceptance, no FastMem production change, no CSE/Call convergence credit, no selected-C admission, no Method(Some), no language or backend change, no fallback/retry, and no guard retirement."
 reopen_trigger = "Reopen only if the FastMem test's emitted inventory changes shape, another order-dependent assertion is found within the same baseline owner, or the exact test/module execution becomes non-deterministic again."
+evidence = "Implementation landed at 39d5188d9d: src/mir/builder/fastmem/tests/branch.rs now sorts the observed (MemOpKind, field_id) pairs before the existing exact equality, preserving membership and cardinality while removing HashMap iteration-order dependence. The touched test source is 194 lines. The exact target ran green in ten separate cargo processes (1 passed; 0 failed each), the complete mir::builder::fastmem::tests module ran 20 passed; 0 failed, cargo check --profile quick --lib passed, rustfmt passed, current-state pointer guard passed, and git diff --check passed. No production FastMem/MIR/Call/backend file changed; the whole-lib 139/140-failure observation remains a separate unaccepted baseline."
+red_classification = "No current-change red in the exact test or FastMem module. Existing whole-lib baseline debt and selected-C NoSafeSlice remain outside this row and are not relabeled."
+closeout = "The test-only order stabilization is landed and verified. Return work_mode=design_stop to MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0; do not infer selected-C authority or claim the whole-lib baseline is green."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [row_exit_changed_test_exec_p0_2026_08_31]

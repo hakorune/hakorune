@@ -76,12 +76,12 @@ outside Call convergence and makes no selected-C claim. The current pointer
 returns to the selected-C design stop until a source-backed physical admission
 issuer exists.
 
-The temporary verification prerequisite selected by `CURRENT_STATE.toml` is
-`DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`: one test-only positional
-assertion becomes exact order-independent membership, without changing FastMem
-production MIR, Call, backend, or selected-C semantics. Closeout returns the
-pointer to the selected-C design stop.
-
+The temporary verification prerequisite `DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0`
+landed at `39d5188d9d`: one test-only positional assertion now checks exact
+order-independent membership, without changing FastMem production MIR, Call,
+backend, or selected-C semantics. Ten exact runs and the 20-test module pass;
+the pointer is back at the selected-C design stop, and the whole-lib red baseline remains
+separate and unaccepted.
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
 the two production callers and one test helper are reconciled, but no exact

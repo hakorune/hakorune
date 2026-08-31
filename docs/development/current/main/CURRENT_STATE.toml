@@ -1,14 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0:
-test-only FastMem branch evidence must compare exact field membership, not
-HashMap iteration order. Touch only the named test assertion; no production
-MIR/Call/backend semantics or selected-C authority may change. After closeout,
-return to the selected-C ParkedSealed/BackendCapabilityMissing design stop.
+MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0:
+No source-backed selected-C admission issuer exists. Keep the semantic package
+and backend-neutral locator separate from downstream C capability. Do not infer
+target/effect/lane/receiver from C/JSON/MIR metadata, args[0], ValueId(0),
+fallback, retry, or a new receipt. Reopen only when one same-session non-Clone
+owner validates the full crosswalk and emits an opaque consume-once token.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -26,8 +27,7 @@ catalog handoff and direct Global(StaticBoxMethod) successor; true
 DeclaredInstance me.method still lacks the complete source/catalog/receiver/ABI
 co-seal and remains a separate design row. Do not retire the me.method language
 feature.
-Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry,
-or guard cleanup.
+Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard cleanup.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked. Before any broad Call-schema cutover, separately restore the dev_gate quick cargo-test step, stabilize the artifact/HashMap full-lib baseline, and require exact changed-test execution coverage; focused row green is not whole-repo health."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -42,27 +42,27 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-Temporary verification prerequisite DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0
-is fast-open: one HashMap-order-dependent FastMem test becomes order-independent
-exact membership; no production semantics or whole-lib baseline claim changes.
-Selected-C remains ParkedSealed/BackendCapabilityMissing; CSE is landed; selected-C design stop resumes after this test-only row closes.
+The temporary verification prerequisite DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0
+landed as test-only exact-membership stabilization; ten independent exact runs,
+the 20-test FastMem module, quick library check, pointer guard, and diff check pass;
+production MIR/Call/backend semantics and the whole-lib red baseline are unchanged.
+Selected-C remains ParkedSealed/BackendCapabilityMissing and is the active design stop.
 Language decisions are fixed: ordinary me.method is retained, static/instance/
 delegate method namespaces are explicit, bare panic is a terminal Fault, and
 Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance
 source relation landed at 845bd72641, result/Completion retention at
-e1976b8ba1, resolver-owned OpaqueObservable/Query effect facts at
-11d9dadada, and the backend-neutral private locator co-seal at 6f40203999.
-The locator install bridge is now landed: the existing disposition survives
-package install and is exposed only through a non-Clone callback-scoped
-Builder view. Selected-C admission is ParkedSealed/BackendCapabilityMissing
-because no source-backed physical issuer exists. The independent
+e1976b8ba1, resolver-owned OpaqueObservable/Query effect facts at 11d9dadada,
+and the backend-neutral private locator co-seal at 6f40203999. The locator
+install bridge is now landed: the existing disposition survives package
+install and is exposed only through a non-Clone callback-scoped Builder view.
+Selected-C admission is ParkedSealed/BackendCapabilityMissing because no source-backed physical issuer exists; the independent
 MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0 row is landed with per-block maps and
 actual-Copy-only statistics, and makes no Call/VM/backend claim. Receiver
 ValueId, Method(Some), selected-C token/wire, MIR, fallback, retry, and
 Call-schema cutover remain closed.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "DEV-GATE-QUICK-LIB-BASELINE-P0-B1-FASTMEM-ORDER-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-01: DeclaredInstance locator install bridge landed: the existing backend-neutral locator is retained in the installed package and lent through a non-Clone callback-scoped Builder view; focused bridge/package tests and active/pointer guards pass. Selected-C admission remains NoSafeSlice.",
+  "2026-09-01: FastMem branch evidence stabilization landed at 39d5188d9d; one test now checks exact field MemOp membership/cardinality independent of HashMap order. Ten exact runs and the 20-test module pass; no production semantics or whole-lib baseline claim.",
   "2026-08-31: selected-C 8 MiB stack health landed at 46b2ee72e3: both invocation-local SameModuleFunctionContextSnapshot values are heap-owned, the definition seam is split under the line budget, and fresh-FFI repeated runtime-helper guard evidence passes; no route, ABI, MIR, or semantic change was made.",
   "2026-08-31: DeclaredInstance effect issuer I0 landed at 11d9dadada4cf533bdea91429afe4e67469e7a65; parser contract disposition and resolver-owned OpaqueObservable/Query facts are retained with focused evidence, while target/receiver/package/MIR publication remains closed.",
 ]
