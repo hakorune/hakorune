@@ -67,12 +67,14 @@ backend work remain closed; whole-lib health is a separate prerequisite. The
 selected-C launch plus planned-definition snapshot stack blocker is landed at
 `46b2ee72e3` with a fresh-FFI repeated 8 MiB guard.
 
-The selected-C lane is `ParkedSealed/BackendCapabilityMissing`. The current
-independent bounded row is `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0`: it owns
-only the existing MIR CSE pass, uses one expression map per basic block, and
-counts only an emitted `Copy`. Same-block positive and sibling/unsupported
-negative evidence are required. This correctness row is outside Call
-convergence and makes no selected-C claim.
+The selected-C lane is `ParkedSealed/BackendCapabilityMissing`. The independent
+bounded row `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at
+`25ab8fb58a`: it owns only the existing MIR CSE pass, uses one expression map
+per basic block, and counts only an emitted `Copy`; same-block positive and
+sibling/unsupported negative evidence are recorded. This correctness row is
+outside Call convergence and makes no selected-C claim. The current pointer
+returns to the selected-C design stop until a source-backed physical admission
+issuer exists.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:

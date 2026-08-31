@@ -2017,12 +2017,12 @@ worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact 
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
 [mir_cse_same_block_stats_determinism_r0_2026_09_01]
-status = "selected_fast"
+status = "landed"
 task_id = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
 parent_row = "MIRBUILDER-FINAL-PIPELINE-v1"
 ceremony_tier = "T1"
 box_kind = "One existing optimizer responsibility; conservative same-block CSE"
-implementation_permission = true
+implementation_permission = false
 decision = "Keep CSE conservative and deterministic by giving each BasicBlock its own expression map. Rewrite only an actually supported pure duplicate in the same block; if no exact same-block proof or rewrite occurs, leave MIR unchanged and report zero elimination."
 source_authority = "The existing MIR optimizer CSE owner, MirInstruction::effects(), instruction_key(), dst_value(), and function metadata value types. This row does not create language semantic effects or a target/recipe issuer."
 canonical_issuer = "src/mir/passes/cse.rs::cse_in_function is the sole optimizer owner; semantic_simplification::apply remains the existing consumer."
@@ -2085,9 +2085,11 @@ changed_test_names = [
   "bundle_runs_landed_cse",
 ]
 coverage_base_commit = "7e4f9869a7"
-implementation_evidence = "Pending implementation; the row is selected only after a read-only audit established the existing CSE owner and the conservative same-block mapping."
+implementation_commit = "25ab8fb58a"
+implementation_evidence = "Landed at 25ab8fb58a: cse_in_function receives one FAST_INT snapshot, creates expression_map per BasicBlock, rewrites only supported same-block duplicates, and increments only after assigning MirInstruction::Copy. Added same-block positive, sibling-block negative, non-numeric zero-count, and bundle integration evidence."
+focused_test_evidence = "cargo test --profile quick --lib cse_ -- --test-threads=1 (6 passed); cargo test --profile quick --lib bundle_runs_landed_cse -- --test-threads=1 (1 passed); cargo check --profile quick --lib passed; active-surface guard, pointer guard, and git diff --check passed."
 red_classification = "Whole-lib baseline remains separate and is not a row acceptance gate; any changed focused test red must be classified against the 7e4f9869a7 parent before closeout."
-next_execution = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0__implementation"
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [verification_health_quick_lib_baseline_p0_2026_08_31]
 status = "accepted_design_stop_prerequisite"
