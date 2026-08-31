@@ -165,6 +165,35 @@ batch brands, body facts, `EffectMask`, or physical ABI. A later aggregate
 co-seal must use the same selected declaration subset and the landed
 `VerifiedHomeAbi` catalog.
 
+## Ordinary unannotated declared-instance call effect
+
+Decision `LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0` is accepted on
+2026-08-31. An exact source-bound ordinary declared-instance method call whose
+declaration has no `CallableContract` carries the named semantic effect
+`OpaqueObservable`.
+This is an explicit language default issued from the verified declaration;
+it is not inferred from MIR, a physical signature, a method name, a backend,
+or observed runtime behavior.
+
+`OpaqueObservable` on this row is an optimization barrier: the call may read,
+write, allocate, perform IO/FFI, synchronize, or Fault, so it cannot be
+elided, duplicated, reordered, hoisted, or commoned as Pure/Query. A later
+physical owner may project this contract, but `EffectMask::ALL` is not its
+semantic source authority.
+
+An explicit `CallableContract(query)` takes precedence and remains governed by
+the Query declaration and conformance rules above. Reusing the effect name
+does not import Dynamic invocation's receiver, Home, suspension, outcome, or
+result-carrier contract; those axes remain owned by their respective source
+relations. Result and completion remain governed by
+`function-exit-and-entry-result.md`, including the distinction between
+unannotated and declared `Void`.
+
+Production issuance for this declared-instance effect row is not live yet. The
+first implementation must issue it from the same resolver declaration identity
+used by the exact call relation, before receiver materialization or argument
+effects, without creating a second resolver or a hidden conservative fallback.
+
 Declaration contracts may be cataloged before bodies are verified so recursive
 and mutually recursive calls can resolve. The current parser→resolver
 handoff, however, intentionally carries no instance-method body, and the

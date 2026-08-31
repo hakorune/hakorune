@@ -70,6 +70,10 @@ Expressions and Calls
   caller-actionable failure; `throw`/`try`/`catch` are not alternatives.
 - Method call: `obj.m(a, b)` — typed `Method(Some(receiver))` を通常の
   canonical target として保持する。
+  - receiver は `callee` に一度だけ保持し、`args` は明示的な source 引数だけを持つ。
+  - `CallableContract(query)` が無い通常の declared-instance call は、source
+    declaration から `OpaqueObservable` effect を発行する。これは最適化barrierであり、
+    Dynamic invocation の result/Home/suspension 契約を流用する意味ではない。
   - 旧 Known/Unique instance→function rewrite は退役済みで、名前・header・suffix
     から別の Global target を再構築しない。
   - Unknown/core の BoxCall routing と明示的な `toString` 系 early route は維持する。

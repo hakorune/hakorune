@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-08-30
+Date: 2026-08-31
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -55,25 +55,14 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current design stop:
-`MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0` is selected again after the
-ordinary-static target-only I0 landed at `3e7f4a1d7f` and the bounded Builder
-operator-call retirement I0 landed at `44555655ab` (closeout metadata is in
-the manifest). The target-only I0 retains an existing exact source/site target
-as a one-shot `TargetOnly` disposition when no result handoff exists, keeps
-`Selected` affine, and rejects `NoExactStaticTarget` before compatibility
-fallback or argument effects. The operator I0 now rejects the three retired
-Builder selectors at five compiler ingresses before effects and removes the
-four compiler publishers; runtime-only operator selectors and direct MIR stay
-separate. Focused owner, ingress, and publication tests are green; no
-Method(None), shared Resolved, Call-schema, package/loan, VM/backend, or other
-SameModule family work was included.
-
-The parent remains `design_stop` for the next finite authority audit. The
-remaining producer families must each identify an existing issuer and a sole
-pre-effect terminal before implementation opens; names, registries, fixtures,
-fallback, and second resolvers are not authority. The earlier GC and
-caller-zero Print retirements remain recorded in the manifest, while the
-dedicated `ASTNode::Print -> builtin_print()` owner stays unchanged.
+`MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0` retains ordinary
+`me.method` and replaces only its legacy wiring. Target selection is owned by
+one resolver nominal-declaration relation; the package may only co-seal
+result/effect/full-lane contracts. The unannotated `OpaqueObservable` effect
+Decision is accepted, but its live issuer, generic result/Completion carriage,
+live resolver adoption, selected C capability, and common affine lifecycle
+remain blockers. Implementation, old-edge deletion, fallback, retry, and
+nonselected backend work are closed.
 
 The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
@@ -100,16 +89,14 @@ six structural source ingresses, one prelude coupling, and finite repo-owned
 writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
 the existing direct arithmetic/comparison/unary MIR remain separate and live.
 
-Six read-only audits split the old broad `LoweredGlobal::Instance` label while
-retaining `me.method`. `StaticBoxMethod`/`StaticCurrentOwner` already has an
-exact caller/site/catalog target and is the accepted next bounded row: direct
-`Global(StaticBoxMethod)`, N source arguments, and no runtime receiver.
-True `InstanceBoxMethod`/`DeclaredInstance` is a separate co-seal D0 whose clean
-MIR is `Method(Some(receiver))` plus N source arguments.
-The series preserves C-class speed: selected LLVM/AOT uses direct same-module
-calls, never runtime name/slot lookup. Header classification, formatted symbol
-reissue, receiver prefix, and their guards retire only after both successors
-prove caller-zero.
+`StaticCurrentOwner me.method` landed at `2b7b3e7489`. True
+`InstanceBoxMethod`/`DeclaredInstance` is now the selected design blocker and
+retains ordinary `me.method` syntax. Its target relation is resolver-owned;
+the package may only co-seal result/effect/full-lane contracts. The clean MIR
+is `Method(Some(receiver))` plus N explicit source arguments, and the selected
+C path remains one direct same-module call. The old header classifier,
+formatted Global/symbol reissuer, and manual receiver prefix retire together
+only after the exact successor is live.
 
 The bounded row
 `MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0` landed at
