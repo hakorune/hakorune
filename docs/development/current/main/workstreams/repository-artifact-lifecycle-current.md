@@ -678,6 +678,14 @@ The 90-day threshold only selects review candidates. Each cohort still needs
 active-root exclusion, exact reference rewrite, collision checks, and strict
 green before `git mv`.
 
+R5 now also classifies each closed cluster as `MoveArchive`, `Tombstone`,
+`RetireFromTree`, or `UnknownRetain`. When there is no stable external entry
+and no retained evidence requirement, prefer `RetireFromTree`: rewrite live
+references to the durable owner, delete the tracked historical body, and use
+Git history rather than copying the body into another tracked archive. The
+first selected R5 retirement batch must strictly reduce tracked docs files and
+lines; a pure `git mv` does not satisfy that metric.
+
 ### R6 — design and investigation retirement
 
 Only after phase relocation is routine:
@@ -693,6 +701,12 @@ keep one durable artifact-lifecycle guard
 
 The actual design registry is `design/INDEX.md`. Policy and tooling must agree
 on that path before any design mass move.
+
+R6 uses the same absolute-reduction rule for investigation clusters. A stable
+external entry may retain one compact tombstone; a closed, reference-free
+cluster is removed from the tree without an in-repo full-body copy. The exact
+batch reports current/main investigation files/lines before and after, while
+unknown owner/reference cases remain `UnknownRetain`.
 
 ## Commit train
 

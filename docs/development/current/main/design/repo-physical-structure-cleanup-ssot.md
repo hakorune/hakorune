@@ -1,7 +1,7 @@
 ---
 Status: SSOT
-Decision: accepted-for-final-convergence-tasking; implementation remains parked behind the active Loop cutover
-Date: 2026-08-07
+Decision: accepted-for-final-convergence-tasking; implementation remains parked behind the active product cutover
+Date: 2026-09-01
 Scope: repo の物理構造を docs/設計の責務分離に追いつかせるための BoxShape cleanup 順序を固定する。即時の `src/mir` crate split や broad rename は扱わない。
 Related:
   - CURRENT_TASK.md
@@ -12,6 +12,20 @@ Related:
 ---
 
 # Repo Physical Structure Cleanup (SSOT)
+
+## Current Capsule
+
+- **Current decision:** physical cleanup must reduce tracked files/lines when
+  it claims repository reduction; moves and renames are tracked separately.
+- **Current implementation status:** the absolute-reduction train is taskized
+  and parked; the active MirBuilder production row remains first.
+- **Next ordered task:** when explicitly selected, reconcile the stale
+  lifecycle receipt before the first legacy-test or guard retirement batch.
+- **Production stop line:** no cleanup row changes language/compiler behavior,
+  current authority, a selected backend, or an unresolved test/guard contract.
+- **Retirement finish line:** every selected batch has caller/reference zero,
+  equal-or-stronger retained evidence, no copied full-body archive, and
+  strictly lower tracked file and line counts.
 
 ## Goal
 
@@ -50,6 +64,88 @@ These counts prove repository-topology pressure, not semantic ownership.
 `cfg(test)` presence does not make a file legacy, and seed/pilot names do not
 authorize deletion. The root-module namespace gap and its post-cutover rows are
 owned by `mir-root-facade-contract-ssot.md`.
+
+### Absolute reduction refresh (2026-09-01)
+
+The reduction baseline measured at `9ed98f1088` is tracked content, not every
+physical file in the checkout:
+
+```text
+tracked docs                          = 13,262 files / 1,692,367 lines
+tracked Markdown                      = 11,456 files / 1,325,375 lines
+current phase Markdown                =  5,428 files /   451,340 lines
+current investigations               =  1,028 files /   294,162 lines
+tools/checks all tracked paths        =  3,804 files /   486,483 lines
+tools/checks Python+shell scripts     =  3,583 files /   407,012 lines
+legacy-tests gated module roots       =     34 files /     3,653 lines
+tracked generated Hako artifacts      =    108 files /    13,461 lines
+Rust MIR interpreter                  =     93 files /    18,449 lines
+```
+
+The physical docs count is 17,530 files / 2,016,957 lines, but its untracked
+`docs/private` component is outside this SSOT. Moving tracked history from one
+repo directory to another changes navigation, not the absolute footprint.
+
+### `REPO-ABSOLUTE-REDUCTION-R0` parked task train
+
+This train is nonblocking cleanup and does not preempt the selected MirBuilder
+production vertical. It may run only when `CURRENT_STATE.toml` explicitly
+selects a clean-worktree cleanup window. The source/guard/docs reductions are
+separate bounded commits; they never share a semantic implementation commit.
+
+```text
+REPO-LIFECYCLE-BASELINE-REFRESH-R0
+  -> LEGACY-TESTS-FATE-D0 / LEGACY-TESTS-RETIRE-R0
+  -> GUARD-FAMILY-RETIREMENT-R0
+  -> DOCS-HISTORY-RETIRE-R0
+  -> GENERATED-ARTIFACT-RETENTION-D0
+```
+
+1. `REPO-LIFECYCLE-BASELINE-REFRESH-R0` first adjudicates the currently red
+   strict lifecycle manifest. The generated census observes 13,262 docs,
+   3,804 checks, 4,727 src paths, and 7,424 tools paths while the committed
+   receipt still records 13,023 / 3,662 / 4,490 / 7,283. Do not run `--write`
+   as an automatic waiver; classify the exact additions before accepting a
+   new baseline.
+2. `LEGACY-TESTS-FATE-D0` uses the existing Call-card owner. Current scope is
+   one Cargo feature, 34 `cfg(feature = "legacy-tests")` module roots in four
+   registration files, and 3,653 body lines. If selected acceptance/CI/caller
+   count remains zero, `LEGACY-TESTS-RETIRE-R0` removes the feature, gates,
+   and exclusively owned historical bodies atomically. It does not repair the
+   two historical `mir_static_box_naming` reds merely to preserve the suite.
+3. `GUARD-FAMILY-RETIREMENT-R0` reuses
+   `guard_surface_inventory.py`. Its current 3,804-row inventory classifies
+   94 stable entries, 114 manifest cases, 212 focused behavior tests, and
+   3,384 `unknown_retain` rows. Unknown is not delete permission. Each batch
+   must select one finite family, install or identify equal-or-stronger
+   central coverage, reach caller-zero, delete the superseded scripts and
+   index rows, and strictly reduce both script count and script lines. It may
+   not add a new guard to prove guard deletion.
+4. `DOCS-HISTORY-RETIRE-R0` extends existing R5/R6 lifecycle work with the
+   `RetireFromTree` / `Tombstone` dispositions from the archive policy. The
+   first batch takes one reference-closed phase or investigation cluster and
+   strictly reduces tracked docs files and lines. A move into another tracked
+   archive is navigation progress only and does not close this row.
+5. `GENERATED-ARTIFACT-RETENTION-D0` classifies the 108 generated files by
+   generator, canonical input, reproducibility, production caller, and release
+   need. Only reproducible caller-zero copies may be deleted; missing generator
+   ownership is `UnknownRetain`, not a reason to regenerate or remove them.
+
+The already-taskized MirBuilder test-inventory retirement owns root test-count
+reduction. VM removal remains the existing post-Call MS3 lane; this train does
+not create a second VM retirement owner.
+
+Every implementation batch has one measurable finish line:
+
+```text
+selected tracked files  before > after
+selected tracked lines  before > after
+replacement coverage / current authority remains green
+unclassified deletion candidates = 0
+copied full-body archive replacement = 0
+```
+
+A census-only, docs-only, rename-only, or net-zero move batch is progress zero.
 
 ## Reading Rule
 

@@ -1649,8 +1649,11 @@ status = "parked_sealed_separate_lane"
 implementation_permission = false
 observed_head = "17cfd7cf83"
 current_evidence = "cargo check and cargo test --no-run with features legacy-tests,vm-reference succeed; the exact mir_static_box_naming filter executes two tests and both fail at GenericLoop carrier representation with MissingTransientType."
+current_census_2026_09_01 = "At 9ed98f1088 the feature gates 34 module roots through src/tests/mod.rs, src/tests/mir/mod.rs, src/tests/parser/mod.rs, and src/tests/vtable/mod.rs. Those named bodies total 3,653 lines; exclusive ownership is still a D0 acceptance check. The whole src/tests tree is 21,738 lines and is not the delete set."
 selected_direction = "RetireHistorical unless a finite caller/cfg census finds a selected current acceptance owner. Do not repair the two reds or add a legacy feature CI lane merely to preserve the old suite."
 decision = "D0 proves the selected acceptance owner/caller count. If it remains zero, remove the legacy-tests cfg surface, affected historical tests, and Cargo feature declaration in one bounded retirement and preserve history in Git. Only a newly found selected owner may reopen RetainSupported as a separate Decision. Silent compilation-only retention is forbidden."
+retirement_successor = "LEGACY-TESTS-RETIRE-R0"
+retirement_acceptance = "Selected acceptance, CI, manifest, and direct caller counts are zero; the Cargo feature, all 34 cfg registrations, and only the proven exclusively-owned bodies are removed in one bounded series; default-feature focused tests and no-new-red baseline stay unchanged; tracked source file and line counts strictly decrease; no in-repo archive copy or replacement compatibility feature is added."
 does_not_block = "MIR-CALL-COMPAT-RAW-SCRIPT-RETIRE-I0, the queued proof reliability rows, or the Method corridor unless a selected acceptance gate explicitly depends on legacy-tests."
 reopen_trigger = "CURRENT_STATE selects this D0, a selected gate names legacy-tests, or the feature gains a nonzero supported caller/CI owner."
 

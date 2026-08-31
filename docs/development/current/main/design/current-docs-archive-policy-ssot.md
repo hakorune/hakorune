@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-28
+Date: 2026-09-01
 Scope: current docs archive and slimming policy.
 Related:
   - docs/development/current/main/DOCS_LAYOUT.md
@@ -11,6 +11,22 @@ Related:
 ---
 
 # Current Docs Archive Policy
+
+## Current Capsule
+
+- **Current decision:** current navigation and durable authority stay tracked;
+  closed history may move, shrink to a stable tombstone, or leave the working
+  tree entirely. A move within the repository is not absolute reduction.
+- **Current implementation status:** reference-closed move tooling is landed;
+  absolute tracked-footprint retirement is taskized but not selected.
+- **Next ordered task:** when the cleanup lane is explicitly reopened, first
+  reconcile the red lifecycle inventory, then select one finite closed-history
+  cohort whose tracked file and line counts both decrease.
+- **Production stop line:** history cleanup never changes compiler semantics,
+  current pointers, source/reference authority, tests, or guard behavior.
+- **Retirement finish line:** every removed body has zero current authority,
+  zero unresolved inbound reference, one replacement or reopen trigger, and a
+  strictly negative tracked file/line delta; Git history is the detailed archive.
 
 ## Decision
 
@@ -39,6 +55,54 @@ historical execution:
   landed ledger
   old cards with optional forwarding stubs
 ```
+
+## Absolute tracked-footprint law
+
+Archive placement and repository reduction are separate outcomes:
+
+```text
+MoveArchive:
+  current surface shrinks, repository file/line count is unchanged
+
+Tombstone:
+  an unrewritable stable entry remains, full body is removed, Git owns detail
+
+RetireFromTree:
+  no stable entry is required; tracked body is deleted and Git owns detail
+```
+
+Use exactly these finite dispositions for a reviewed historical cluster:
+
+```text
+KeepLive | MoveArchive | Tombstone | RetireFromTree | UnknownRetain
+```
+
+`UnknownRetain` is the default when owner, inbound references, or replacement
+evidence is incomplete. Age, path naming, large size, or an inactive guard is
+not retirement authority. `MoveArchive` is useful navigation work but counts
+as zero progress toward absolute repository reduction.
+
+The 2026-09-01 boundary measured at `9ed98f1088` is deliberately split:
+
+```text
+physical docs checkout               = 17,530 files / 2,016,957 lines
+tracked docs                         = 13,262 files / 1,692,367 lines
+tracked Markdown                     = 11,456 files / 1,325,375 lines
+current/main/phases Markdown         =  5,428 files /   451,340 lines
+current/main/investigations          =  1,028 files /   294,162 lines
+tracked archive roots                =  3,819 files /   458,119 lines
+```
+
+The physical/tracked gap includes `docs/private` (4,263 files / 317,586
+lines at this checkout). It is user-local/untracked material and is excluded
+from repository retirement unless a separate private-data retention Decision
+explicitly selects it.
+
+An absolute-reduction batch must report before/after tracked files and lines.
+It must be strictly negative in both dimensions, leave no copied full body in
+another tracked archive path, and keep current pointers/reference owners and
+the strict lifecycle inventory green. A docs-only census, an archive move, or
+a full-body copy plus stub is progress zero for this metric.
 
 ## What Stays Live
 
