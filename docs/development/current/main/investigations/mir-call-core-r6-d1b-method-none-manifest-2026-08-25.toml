@@ -2019,6 +2019,62 @@ non_claims = "No claim that the 139/140 failures are repaired or accepted foreve
 reopen_trigger = "Reopen the prerequisite only when the canonical command or test inventory changes, a quick step is added/removed, a new failure appears/disappears, or the baseline receipt can no longer be reproduced exactly."
 next_execution = "Return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop after this verification prerequisite is landed; keep production implementation closed until effect issuer and selected-C capability are co-sealed."
 
+[mir_metadata_consumer_manifest_anchor_refresh_d0_2026_08_31]
+status = "accepted_design_stop_prerequisite"
+task_id = "MIR-METADATA-CONSUMER-MANIFEST-ANCHOR-REFRESH-D0"
+parent_row = "DEV-GATE-QUICK-LIB-BASELINE-P0"
+box_kind = "BoxShape verification receipt refresh only"
+implementation_permission = false
+decision = "Keep the metadata source, checker, and guard unchanged. Refresh every stale manifest anchor to the current line containing the same observed token; do not change owners, counts, categories, backend roles, caller states, or observed revision. A single root.rs:140 edit is incomplete: the exhaustive refresh is 16 literal occurrences across 11 old-to-current anchor mappings."
+source_authority = "The live source statement is the observation authority. The JSON manifest is a historical census receipt, and the Python checker plus shell guard validate it; none is semantic authority and none may force source movement or weaken validation."
+non_authority = [
+  "manifest line numbers as semantic meaning",
+  "checker/guard success as proof of an exhaustive current owner census",
+  "owner/count/category/backend-role/caller-state changes",
+  "observed_revision refresh",
+  "DeclaredInstance, Call schema, backend, VM, JSON behavior, or source edits",
+]
+fail_fast_boundary = "Stop before any quick-baseline claim if any manifest anchor is missing, stale, duplicated, or points at a changed statement; do not continue from the first error by updating only one anchor."
+census_boundary = "tools/checks/manifests/mir_function_metadata_consumer_manifest_v1.json anchors -> current source token statements -> metadata checker -> metadata catalog guard -> dev_gate quick metadata step; includes only literal anchor refresh, excludes live owner recensus, source behavior, manifest semantics, and gate wiring."
+finite_inventory = [
+  "pinned_text_access_plans egress: root.rs:140 -> root.rs:153 (1)",
+  "pinned_text_residence_backend_carrier egress: root.rs:122 -> root.rs:135 (1)",
+  "is_entry_point producer/consumer: module_lifecycle.rs:363 -> module_lifecycle.rs:380 (2)",
+  "value_origin_callers consumer: builder_emit.rs:417 -> builder_emit.rs:433 (1)",
+  "runes egress: root.rs:219 -> root.rs:232 (1)",
+  "string_dead_text_region_plans producer/consumer: string_dead_text_region_plan.rs:149 -> :146 (2)",
+  "direct_array_access_plans producer/reference: handlers/calls/mod.rs:140 -> :130 (2)",
+  "extern_call_routes producer/consumer: route.rs:222 -> :224 (2)",
+  "builtin_global_call_routes producer/consumer: global_call_route_plan.rs:550 -> :551 (2)",
+  "exact_seed_backend_route producer: mir/mod.rs:331 -> :365 (1)",
+  "exact_seed_backend_route consumer: mir/mod.rs:123 -> :155 (1)",
+]
+ordered_tasks = [
+  "D0: verify the 16 literal occurrences and 11 old-to-current mappings against the current source without changing source or manifest semantics",
+  "R0: refresh only those manifest anchors, preserving observed_revision, owners, counts, classes, roles, and caller states byte-for-byte",
+  "C0: run the metadata checker, metadata manifest guard, metadata catalog guard, pointer guard, and diff check; rerun dev_gate quick only to record the next first failure, never to claim whole quick green",
+  "Separate D0: record the historical-vs-live owner-census temporal semantics and any stale owner paths before using this manifest for retirement or production cutover evidence",
+]
+allowed_files = [
+  "tools/checks/manifests/mir_function_metadata_consumer_manifest_v1.json",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/runner/mir_json_emit/root.rs",
+  "src/mir/**",
+  "tools/checks/mir_metadata_consumer_manifest.py",
+  "tools/checks/mir_metadata_consumer_manifest_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "dev_gate order or registry",
+  "reference/backend/VM/JSON behavior",
+  "DeclaredInstance/Method/Call semantics",
+]
+acceptance = "All 16 stale anchor literals are refreshed and the manifest checker, metadata manifest guard, and metadata catalog guard pass; owners/counts/classes/roles/caller states/observed_revision are unchanged; dev_gate quick advances past this metadata step and records its next first failure; no whole-quick or whole-lib green claim is made."
+no_safe_slice = "Remain in design_stop if an anchor token moved semantically, the owner/count/category must change, the checker rejects a current statement, or a source/guard/gate edit is needed. Send those findings to a separate temporal-semantics recensus row."
+non_claims = "No current exhaustive metadata owner census, no field retirement authority, no source behavior change, no quick/full-lib green claim, no DeclaredInstance issuer/co-seal, no Method(Some) production switch, no Call-schema or backend change."
+reopen_trigger = "Reopen the refresh only when one of the 16 statements moves again, the manifest schema/checker changes, or the manifest is about to be used as current exhaustive evidence; in the latter case require a separate live-owner recensus first."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop after the verification prerequisite is closed; keep semantic implementation permission false."
+
 [mir_call_cataloged_print_target_arm_prune_r0_2026_08_31]
 status = "landed"
 task_id = "MIR-CALL-SAME-MODULE-CATALOGED-PRINT-TARGET-ARM-PRUNE-R0"
