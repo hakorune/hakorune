@@ -2130,6 +2130,84 @@ reopen_trigger = "Implementation opens only after E1/R0/T0/P0 are live in the sa
 smallest_next_slice = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0: design the live package carriage of the already-issued declared result and Completion states without changing target selection or physical ABI."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0__design_stop"
 
+[mir_normal_callable_result_contract_retention_d0_i0_2026_08_31]
+status = "accepted_design_ready_for_fast"
+task_id = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+ceremony_tier = "T1"
+box_kind = "BoxShape package carriage; preserve an already-issued language contract"
+implementation_permission = true
+decision = "Keep one existing verify_function_completion_v1 result for every selected Cataloged callable row through package install. Preserve the three source states Unannotated, Void, and Annotated(name); do not use Option<ExactTrivialScalarAbiV1> as the semantic carrier. The package-private cohort owns the original non-Clone VerifiedFunctionCompletionV1 and borrows its DeclaredFunctionResultContractV1. S6C remains an exclusive MovedToS6CChild disposition; all other rows use RetainedGeneric. Physical header remains a sparse projection (None for Unannotated/Void, ExactTrivialScalar(I64) for the existing supported scalar) and never owns or clones Completion."
+source_authority = "The existing resolver-owned verify_function_completion_v1 result and DeclaredFunctionResultContractV1 are the sole semantic authority. issue_callable_completion_seed_cohort_v1 is the one package invocation that obtains them; the new result_contract.rs assembler only retains and co-seals those products."
+canonical_issuer = "Existing verify_function_completion_v1; no second result/completion verifier is introduced. result_contract.rs may issue only a package-private retention cohort from the existing seed rows."
+non_authority = [
+  "FunctionSignature, MirType, MIR/body shape, physical header presence, backend plan, tests, fixtures, name/arity, and target symbols",
+  "None as a semantic result state, empty/default receipt, result inference, Completion clone, fallback, or retry",
+]
+fail_fast_boundary = "Missing, duplicate, foreign, owner/identity/role mismatch, unsupported annotation, or storage-disposition collision rejects during package assembly/install before Builder receiver/argument effects, physical-header projection, backend emission, or fallback."
+census_boundary = "selected Cataloged completion seed -> package-private retained result/completion row -> optional sparse physical-header projection -> install/selected input borrow; includes ordinary selected Cataloged rows and the one S6C child disposition, excludes TopLevel, Dynamic semantic meaning, DeclaredInstance target issuance, new ABI carriers, Call schema, VM/backend, and language syntax changes."
+finite_states = [
+  "Unannotated: semantic result contract retained; physical header absent",
+  "Void: explicit Unit contract retained; physical header absent",
+  "AnnotatedI64: semantic contract retained; sparse ExactTrivialScalar(I64) projection may be borrowed",
+  "AnnotatedUnsupported: typed UnsupportedResultAnnotation before package publication",
+  "MovedToS6CChild: one selected S6C row owns Completion in the existing child; generic cohort must not also retain it",
+  "RetainedGeneric: non-S6C selected Cataloged row owns Completion in the generic cohort",
+  "MissingOrDuplicate: typed issue before install; no silent drop",
+]
+owned_shape = [
+  "exact batch_slot + owner + parser CallableDeclarationIdentity + selected role",
+  "original VerifiedFunctionCompletionV1 moved once",
+  "DeclaredFunctionResultContractV1 borrowed from that Completion",
+  "optional existing ExactTrivialScalarAbiV1 physical projection, never the semantic source",
+  "exclusive RetainedGeneric | MovedToS6CChild storage disposition",
+]
+ordered_tasks = [
+  "D0: accept this bounded selected-Cataloged retention boundary without changing target selection, physical ABI, or language syntax",
+  "I0-A: add one private result_contract.rs cohort and move remaining completion seeds into it after the existing S6C child consumes its one seed",
+  "I0-B: make physical_header.rs a sparse projection over the retained cohort; preserve current header consumers through a composite borrowed view",
+  "I0-C: carry the retained cohort through VerifiedNormalCallableSemanticPackageV1 -> InstalledNormalCallableSemanticPackageV1 -> SelectedCallableLoweringInputRefV1",
+  "I0-D: add focused Unannotated/Void/AnnotatedI64/S6C exclusivity and mismatch tests, then run exact changed filters and package guards",
+  "C0: record residual non-i64/TopLevel ABI as separate NoSafeSlice and return to MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0 design_stop",
+]
+allowed_files = [
+  "src/mir/normal_callable_semantic_package/completion_seed.rs",
+  "src/mir/normal_callable_semantic_package/result_contract.rs",
+  "src/mir/normal_callable_semantic_package/result_contract_tests.rs",
+  "src/mir/normal_callable_semantic_package/physical_header.rs",
+  "src/mir/normal_callable_semantic_package/model.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/selected_input.rs",
+  "src/mir/normal_callable_semantic_package/mod.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
+  "docs/reference/language/function-exit-and-entry-result.md",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/resolved_control_flow/function_control.rs",
+  "src/mir/resolved_semantics/body_shape.rs",
+  "src/mir/builder/method_call_handlers.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "Call schema",
+  "VM/backend/JSON/runtime",
+  "panic/throw/Result/? syntax or parser",
+]
+line_budget = "result_contract.rs <= 240 lines; result_contract_tests.rs <= 320; issuer.rs <= 680; install.rs <= 630; all touched Rust sources <760 and 800 hard stop; do not add semantic responsibility to tests.rs (743), body_shape.rs (733), normal_callable_semantic_loan_port.rs (748), or builder.rs (747)."
+acceptance = "Every selected Cataloged row is either RetainedGeneric or MovedToS6CChild; Unannotated and Void remain present in package storage; AnnotatedI64 retains the existing sparse physical projection; unsupported annotations reject; no Completion is cloned, silently dropped, or verified twice; existing header consumers still receive the same observable view; exact focused tests and quick checks are green. This row does not claim DeclaredInstance target issuance or a production call switch."
+no_safe_slice = "Stop in design_stop if retention requires a new language result state, TopLevel completion issuance, non-i64 physical ABI, Completion cloning, body/MIR/backend inference, a second verifier, or changes outside the allowed boundary."
+non_claims = "No Method(Some) cutover, resolver source relation, effect issuer, receiver ValueId, direct-call loan, Call schema, VM/backend, panic/throw/Result/? activation, fallback, retry, or legacy deletion."
+focused_test_filters = [
+  "explicit_result_annotation_lends_one_complete_header_view",
+  "absent_result_annotation_keeps_ordinary_package_without_physical_header",
+  "valid_void_siblings_do_not_poison_sparse_physical_header_cohort",
+  "non_i64_result_annotation_is_not_reclassified_as_a_physical_header",
+]
+guard = "Use current_state_pointer_guard, exact changed-test --list coverage, package completion/physical-header guards, line-budget and git diff checks. A filtered run matching zero tests is a filter failure, not green evidence."
+reopen_trigger = "Reopen the parent DeclaredInstance row only after this cohort is landed and a resolver-owned source-site relation, ordinary effect issuer, selected full-lane capability, and common affine consumer are all named; never widen this row to fill those gaps."
+
 [mir_builder_boxshape_generic_lease_tail_test_s0_2026_08_31]
 status = "landed_with_baseline_guard_red"
 task_id = "MIR-BUILDER-BOXSHAPE-GENERIC-LEASE-TAIL-TEST-S0"

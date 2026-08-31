@@ -1,20 +1,18 @@
 date = "2026-08-31"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
+work_mode = "fast"
+current_execution_row = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0:
-retain ordinary me.method and replace only its legacy implementation. Exact
-target selection belongs to one resolver-owned nominal declaration relation;
-the package-side issuer hypothesis is rejected. The unannotated
-OpaqueObservable effect Decision and the one-name-per-Box method namespace
-Decision are accepted, but their live issuer/consumer work, generic
-result/Completion carriage, live resolver source adoption, full-lane selected
-C capability, and common affine lifecycle remain CutoverBlockerOpen. Do not
-infer from package keys, names, headers, registries, MIR, fixtures, or
-backends; do not add a family loan, fallback, retry, Method(None), Call schema,
-VM/llvmlite/WASM, panic/throw/Result/?, or unrelated guard cleanup.
+MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0:
+preserve the already-issued VerifiedFunctionCompletionV1 and its
+DeclaredFunctionResultContractV1 for every selected Cataloged row through
+package install. RetainedGeneric and MovedToS6CChild are exclusive; physical
+header remains a sparse projection and never owns semantic Completion. This
+row does not change target selection, physical ABI, or language syntax. Do not
+add TopLevel issuance, non-i64 ABI, Completion clone, body/MIR/backend
+inference, fallback, retry, Call schema, or unrelated cleanup. Return to the
+DeclaredInstance design stop after focused tests and closeout.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -47,10 +45,10 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "True DeclaredInstance me.method is retained with a resolver-owned target relation; package-side target issuance is rejected. LANG-ORDINARY-DECLARED-INSTANCE-CALL-EFFECT-D0 accepts OpaqueObservable, and LANG-BOX-METHOD-NAMESPACE-D0 fixes one visible method name per nominal Box while keeping FreeStatic name/arity separate. Production remains closed until result/Completion carriage, live resolver adoption, full-lane selected C capability, and common affine consumption are co-sealed."
+latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The selected bounded implementation only retains existing result/Completion products for selected Cataloged package rows; true DeclaredInstance target/effect/receiver/ABI issuance remains closed."
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-RELATION-ISSUER-D0"
-next_execution_card = "none"
-next_execution_card_path = ""
+next_execution_card = "MIR-NORMAL-CALLABLE-RESULT-CONTRACT-RETENTION-D0-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
