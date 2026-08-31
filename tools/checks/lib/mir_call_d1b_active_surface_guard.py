@@ -144,6 +144,8 @@ DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_KEY = (
 )
 SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
+CSE_SAME_BLOCK_ROW = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
+CSE_SAME_BLOCK_KEY = "mir_cse_same_block_stats_determinism_r0_2026_09_01"
 
 
 def fail(message: str) -> None:
@@ -884,6 +886,10 @@ def main() -> None:
         check_declared_instance_selected_c_admission_d0(state, card)
     elif row == SELECTED_C_STACK_ROW:
         check_selected_c_stack_row(state, card, root)
+    elif row == CSE_SAME_BLOCK_ROW:
+        from mir_cse_same_block_guard import check_cse_same_block_r0
+
+        check_cse_same_block_r0(state, card, root, api)
     else:
         fail(f"unsupported current row for this stable guard: {row!r}")
     print(f"[{TAG}] row={row} ok")

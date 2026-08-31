@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0:
-the backend-neutral DeclaredInstance locator is now retained through install
-and lent only as a non-Clone callback-scoped Builder view. No source-backed
-selected-C physical admission issuer exists yet, so keep selected-C at
-NoSafeSlice. Never infer a target, receiver ValueId, effect, lane, or token
-from JSON, target symbols, ABI shape, ValueId(0), or args[0].
+MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0:
+use the existing MIR CSE owner only for exact same-basic-block pure
+expressions. A missing same-block proof is a no-op with zero statistics.
+Do not widen to cross-block dominance, add a new resolver/receipt, or touch
+Call/VM/backend semantics. The selected-C DeclaredInstance lane is explicitly
+ParkedSealed because its source-backed physical admission issuer is absent.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,9 +42,24 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card_summary = "Language decisions are fixed: ordinary me.method is retained, static/instance/delegate method namespaces are explicit, bare panic is a terminal Fault, and Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance source relation landed at 845bd72641, result/Completion retention at e1976b8ba1, resolver-owned OpaqueObservable/Query effect facts at 11d9dadada, and the backend-neutral private locator co-seal at 6f40203999. The locator install bridge is now landed: the existing disposition survives package install and is exposed only through a non-Clone callback-scoped Builder view. Selected-C admission remains a separate NoSafeSlice with source-backed capability count zero. Receiver ValueId, Method(Some), selected-C token/wire, MIR, fallback, retry, and Call-schema cutover remain closed."
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none"
+latest_card_summary = """
+Language decisions are fixed: ordinary me.method is retained, static/instance/
+delegate method namespaces are explicit, bare panic is a terminal Fault, and
+Result/?/cleanup are separate non-throwing surfaces. The DeclaredInstance
+source relation landed at 845bd72641, result/Completion retention at
+e1976b8ba1, resolver-owned OpaqueObservable/Query effect facts at
+11d9dadada, and the backend-neutral private locator co-seal at 6f40203999.
+The locator install bridge is now landed: the existing disposition survives
+package install and is exposed only through a non-Clone callback-scoped
+Builder view. Selected-C admission is
+ParkedSealed/BackendCapabilityMissing because no source-backed physical issuer
+exists. The independent MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0 row is the
+current bounded fast slice: per-block maps, actual-Copy-only statistics, and no
+Call/VM/backend claim. Receiver ValueId, Method(Some), selected-C token/wire,
+MIR, fallback, retry, and Call-schema cutover remain closed.
+"""
+next_design_card = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
+next_execution_card = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

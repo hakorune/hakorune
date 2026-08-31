@@ -2016,6 +2016,78 @@ worker_audit_head = "1a026f82c4"
 worker_audit_result = "Read-only audits at audit HEAD 1a026f82c4 found no exact bare-provider issuer. Bare error/now have named unsupported terminals. A later language Decision accepts panic only as a ParkedSealed terminal-Fault target; exit remains NoIssuer. Physical thunk and true DeclaredInstance remain separate issuer-missing families. Legacy guard cleanup has no proven SupersededDelete candidate and remains parked under the parent guard policy."
 next_execution = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0__design_stop"
 
+[mir_cse_same_block_stats_determinism_r0_2026_09_01]
+status = "selected_fast"
+task_id = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
+parent_row = "MIRBUILDER-FINAL-PIPELINE-v1"
+ceremony_tier = "T1"
+box_kind = "One existing optimizer responsibility; conservative same-block CSE"
+implementation_permission = true
+decision = "Keep CSE conservative and deterministic by giving each BasicBlock its own expression map. Rewrite only an actually supported pure duplicate in the same block; if no exact same-block proof or rewrite occurs, leave MIR unchanged and report zero elimination."
+source_authority = "The existing MIR optimizer CSE owner, MirInstruction::effects(), instruction_key(), dst_value(), and function metadata value types. This row does not create language semantic effects or a target/recipe issuer."
+canonical_issuer = "src/mir/passes/cse.rs::cse_in_function is the sole optimizer owner; semantic_simplification::apply remains the existing consumer."
+non_authority = [
+  "function-wide expression reuse",
+  "HashMap block traversal order as a dominance proof",
+  "sibling-block values",
+  "backend/VM/Call metadata",
+  "name/symbol lookup, AST or fixture inference",
+  "an elimination counter without a physical Copy rewrite",
+]
+fail_fast_boundary = "A duplicate is eligible only when its exact key and prior definition are in the same BasicBlock and the existing FAST_INT/support/effect rules permit the rewrite. Otherwise the instruction remains unchanged and the counter is zero; no cross-block fallback or retry exists."
+census_boundary = "src/mir/passes/cse.rs expression_map lifetime and elimination accounting -> existing semantic_simplification consumer; includes same-block pure rewrites and sibling-block/unsupported negatives, excludes Call schema, Builder lowering, VM/backend, and general dominance analysis."
+old_edge_delete_set = [
+  "function-wide expression_map reused across BasicBlocks",
+  "sibling-block value reuse without a dominance proof",
+  "unconditional eliminated += 1 when no Copy was emitted",
+]
+finite_states = [
+  "SameBlockRewrite: exact prior same-block supported pure expression becomes one Copy and increments once",
+  "SameBlockNoRewrite: duplicate exists but FAST_INT/support/effect rules forbid rewrite; MIR and count stay unchanged",
+  "CrossBlockNoRewrite: same key in another block is never reused",
+  "UnsupportedNoRewrite: unsupported or non-numeric form remains untouched with zero count",
+]
+ordered_tasks = [
+  "I0-A: move the expression map inside the per-block loop without changing the existing instruction-key vocabulary",
+  "I0-B: increment the statistic only in the branch that actually replaces the instruction with Copy",
+  "I0-C: add same-block positive, sibling-block negative, unsupported/non-numeric zero-count, and deterministic repeat tests",
+  "I0-D: run the changed tests, quick library check, active-surface guard, pointer guard, and diff check; close out without Call or backend claims",
+]
+acceptance = "CSE never reuses a value across BasicBlocks; every counted elimination corresponds to one emitted Copy; same-block supported behavior remains green; sibling-block and unsupported/non-numeric cases are unchanged with zero statistics; source/test/guard evidence is present and no Call/VM/backend semantics change."
+no_safe_slice = "Return to design_stop if same-block correctness requires a new dominance analysis, a new semantic receipt, a cross-block rewrite, a source/AST scan, or any Call/VM/backend change."
+non_claims = "No MirBuilder Call cutover, no selected-C progress, no language semantic change, no generic dominance/CSE widening, no fallback/retry change, no Call schema change, and no whole-lib green claim."
+allowed_files = [
+  "src/mir/passes/cse.rs",
+  "src/mir/passes/semantic_simplification.rs",
+  "docs/development/current/main/design/current-optimization-mechanisms-ssot.md",
+  "tools/checks/lib/mir_cse_same_block_guard.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml",
+]
+forbidden_files = [
+  "src/mir/builder/**",
+  "src/mir/instruction.rs",
+  "VM/backend/JSON/C ABI",
+  "Call schema",
+]
+focused_test_filters = [
+  "cse_same_block",
+  "cse_does_not_reuse_across_sibling_blocks",
+  "cse_counts_only_actual_rewrites",
+]
+changed_test_names = [
+  "cse_rewrites_only_duplicate_pure_instructions_in_same_block",
+  "cse_does_not_reuse_duplicate_pure_instructions_across_sibling_blocks",
+  "cse_counts_only_actual_copy_rewrites",
+  "bundle_runs_landed_cse",
+]
+coverage_base_commit = "7e4f9869a7"
+implementation_evidence = "Pending implementation; the row is selected only after a read-only audit established the existing CSE owner and the conservative same-block mapping."
+red_classification = "Whole-lib baseline remains separate and is not a row acceptance gate; any changed focused test red must be classified against the 7e4f9869a7 parent before closeout."
+next_execution = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0__implementation"
+
 [verification_health_quick_lib_baseline_p0_2026_08_31]
 status = "accepted_design_stop_prerequisite"
 task_id = "DEV-GATE-QUICK-LIB-BASELINE-P0"
