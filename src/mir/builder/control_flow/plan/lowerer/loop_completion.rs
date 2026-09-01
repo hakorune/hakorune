@@ -11,6 +11,7 @@
 
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -101,11 +102,7 @@ pub fn finalize_loop_variables(
 
     // Step 6: Update variable_map for final values
     for (name, value_id) in final_values {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        publish_emission_cache(builder, name.clone(), *value_id);
     }
 
     // Step 7: Setup after_bb for subsequent AST lowering

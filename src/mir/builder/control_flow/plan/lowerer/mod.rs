@@ -367,4 +367,40 @@ mod tests {
         let result = PlanLowerer::lower(&mut builder, CorePlan::Loop(loop_plan), &ctx);
         assert!(result.is_ok());
     }
+
+    #[test]
+    fn test_finalize_loop_variables_reseals_final_values_in_emission_cache() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("test_loop_completion_final_values".to_string());
+
+        let after_bb = builder.next_block_id();
+        let final_value = builder.alloc_value_for_test();
+        let cond = ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            span: Span::unknown(),
+        };
+        let body: Vec<ASTNode> = vec![];
+        let ctx = make_ctx(&cond, &body);
+
+        let result = super::loop_completion::finalize_loop_variables(
+            &mut builder,
+            &[("i".to_string(), final_value)],
+            after_bb,
+            &ctx,
+        )
+        .expect("loop finalization should succeed");
+
+        assert!(result.is_some(), "loop finalization returns Void");
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("i"),
+            Some(&final_value),
+            "final_values must be visible through the emission cache"
+        );
+        assert_eq!(
+            builder.current_block_for_test().expect("after block"),
+            after_bb,
+            "finalization must preserve the after-block transition"
+        );
+    }
 }
