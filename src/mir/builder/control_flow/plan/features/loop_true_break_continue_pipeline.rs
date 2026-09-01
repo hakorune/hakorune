@@ -502,7 +502,7 @@ fn lower_simple_stmt(
                 LOOP_TRUE_ERR,
             )?;
             current_bindings.insert(name.clone(), value_id);
-            builder.function_state.variable_ctx.variable_map.insert(name, value_id);
+            parts::var_map_scope::publish_emission_cache(builder, name, value_id);
             Ok(effects_to_plans(effects))
         }
         ASTNode::Local {
@@ -519,7 +519,7 @@ fn lower_simple_stmt(
             )?;
             for (name, value_id) in inits {
                 current_bindings.insert(name.clone(), value_id);
-                builder.function_state.variable_ctx.variable_map.insert(name, value_id);
+                parts::var_map_scope::publish_emission_cache(builder, name, value_id);
             }
             Ok(effects_to_plans(effects))
         }
