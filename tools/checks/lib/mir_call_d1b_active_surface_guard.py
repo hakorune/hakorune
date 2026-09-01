@@ -110,6 +110,10 @@ CSE_SAME_BLOCK_ROW = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
 CSE_SAME_BLOCK_KEY = "mir_cse_same_block_stats_determinism_r0_2026_09_01"
 CALLTARGET_GUARD_REHOME_ROW = "MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0"
 CALLTARGET_GUARD_REHOME_KEY = "mir_builder_calltarget_guard_rehome_r0_2026_09_01"
+STATIC_PUBLICATION_SPINE_ROW = (
+    "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
+)
+STATIC_PUBLICATION_SPINE_KEY = "mir_call_canonical_call_substrate_rebuild_d0_2026_09_02"
 
 
 def fail(message: str) -> None:
@@ -337,6 +341,37 @@ def check_declared_instance_relation_issuer_d0(state: dict, card: dict) -> None:
     child = card.get("mir_call_me_declared_instance_resolver_relation_i0_2026_08_31")
     if not isinstance(child, dict) or child.get("status") != "landed":
         fail("DeclaredInstance relation issuer requires the source relation child to be landed")
+
+
+def check_static_publication_spine_landed(state: dict, card: dict) -> None:
+    """Keep the stable lane guard aware of the landed branch closeout row.
+
+    This is not a second semantic guard: it only verifies that a branch which
+    selected the publication-spine row has returned to design_stop and that
+    the manifest marks that bounded cohort as closed.
+    """
+    if state.get("work_mode") != "design_stop":
+        fail("StaticBoxMethod publication spine must return to design_stop")
+    if state.get("current_execution_row") != STATIC_PUBLICATION_SPINE_ROW:
+        fail("StaticBoxMethod publication spine row is not selected by CURRENT_STATE")
+    if state.get("next_design_card") != STATIC_PUBLICATION_SPINE_ROW:
+        fail("StaticBoxMethod publication spine next design card drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("StaticBoxMethod publication spine must keep next_execution_card=none")
+    stop = state.get("current_design_stop")
+    if not isinstance(stop, str) or "StaticBoxMethod publication vertical is landed" not in stop:
+        fail("StaticBoxMethod publication spine closeout stop is missing")
+    row = card.get(STATIC_PUBLICATION_SPINE_KEY)
+    if not isinstance(row, dict):
+        fail(f"{STATIC_PUBLICATION_SPINE_KEY} section is missing")
+    if row.get("task_id") != STATIC_PUBLICATION_SPINE_ROW:
+        fail("StaticBoxMethod publication spine task id drifted")
+    if row.get("status") != "landed":
+        fail("StaticBoxMethod publication spine must be landed before design_stop")
+    if row.get("implementation_permission") is not False:
+        fail("StaticBoxMethod publication spine cannot retain implementation permission")
+    if not isinstance(row.get("closeout"), str) or "complete" not in row["closeout"].lower():
+        fail("StaticBoxMethod publication spine closeout evidence is missing")
 
 
 def check_declared_instance_effect_issuer_d0(state: dict, card: dict) -> None:

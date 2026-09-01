@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
-current_design_stop = "none"
+current_design_stop = "static StaticBoxMethod publication vertical is landed; select the next exact family"
 current_blocker_token = """
-Decision: this isolated fast branch is the sole implementation lane for the accepted canonical publication-spine series. Parent SHA 731d7abc01 is immutable. Reuse the existing StaticCurrentOwner source authority and StaticBoxMethod callable key, then repair collector -> Atomic Publish -> typed selected-C in five commits or abort.
-Source authority + canonical issuer: VerifiedSourceStaticCallTargetCatalogV1 and VerifiedStaticCallResultPublicationOwnerV1 issue the exact target before arguments; NormalCatalogedBoxMethodDraftAdmissionV1 and normal collector are identity-loss seams; NyashRunner::execute_mir_mode --emit-exe is the production switch.
-Non-authority: source spelling after publish, physical symbol, JSON/name/header/registry, args[0], ValueId(0), EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or duplicate key/receipt.
-Fail-fast boundary: key/definition/arity/projection drift, callee=None, unsupported published op/type, incomplete coverage, or typed object failure stops before JSON retry. Selected-family modules are typed-ready or UnsupportedBeforeObject; only modules with zero selected calls may use explicit compatibility.
-Smallest next slice: Commit 1 preserves the key and atomically publishes definition relation. Commit 4 must switch --emit-exe and delete selected-family JSON/name/args0 reachability. Commit 5 is evidence/repayment only.
-Non-claims: no DeclaredInstance/Method(Some), whole Call-schema/R6 cutover, arbitrary UserBox selected-C support, semantic-effect issuance, VM/selfhost, broad JSON/test purge, fallback, retry, or main-branch migration red.
+Decision: the isolated StaticBoxMethod publication vertical is complete on the branch; the parent/main remains unchanged and this pointer now waits for the next exact family.
+Source authority + canonical issuer: the existing source/catalog key, normal collector, Atomic MirModule definition relation, borrowed PublishedMirBackendView, typed C ingress, and switched --emit-exe caller are the sole landed chain.
+Non-authority: source spelling after publish, physical symbol, JSON/name/header/registry target lookup, args[0], ValueId(0), EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or duplicate key/receipt.
+Fail-fast boundary: key/definition/arity/projection drift, callee=None, unsupported published op/type, incomplete coverage, or typed object failure stops before compatibility retry. Unselected families retain their explicit compatibility route.
+Smallest next slice: choose one new family with an exact source key, published definition, typed consumer, named production caller, and finite old-edge delete set; no new D0 for the landed StaticBoxMethod cohort.
+Non-claims: no DeclaredInstance/Method(Some), whole Call-schema/R6 cutover, arbitrary selected-C UserBox support, semantic-effect issuance, VM/selfhost, broad JSON/test purge, fallback, retry, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -52,19 +52,16 @@ JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
 owner. The end-to-end tuple census is zero, so this family is now explicitly
 ParkedSealed__PublishedTargetAndBackendCoverageMissing rather than the active blocker. Add no D0,
 fixture, receipt, adapter, or guard; reopen only with one complete tuple and
-finite old-edge set. LEGACY-TESTS-
-RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-
-only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
-residual boundary are recorded in the active card. Publication-spine S0 names the StaticCurrentOwner source half, normal key-loss seams, Atomic Publish owner, and execute_mir_mode --emit-exe switch; the fixed branch creates the missing published view/typed consumer and must switch by commit four or abort without another D0.
+finite old-edge set. LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit residual boundary are recorded in the active card. Publication-spine S0 landed the StaticCurrentOwner source half, key preservation, Atomic Publish relation, borrowed typed view, selected-C ingress, runner switch, stable brand identity, and scalar me.helper() proof returning 7. This cohort is closed; parent/main remains untouched while the next exact family is selected.
 """
-next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-S0"
-next_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
+next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
-accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0 (branch/worktree only; first branch commit records the immutable parent and sets branch work_mode=fast)"
+accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0 (landed on isolated branch; parent/main remains unchanged; next family selection is required)"
 parked_mirbuilder_canonical_call_rebuild_task = "none__superseded_by_accepted_branch_execution_card"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

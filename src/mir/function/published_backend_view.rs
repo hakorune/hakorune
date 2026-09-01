@@ -8,8 +8,8 @@ use std::ffi::CString;
 use std::os::raw::c_char;
 
 use hakorune_mir_defs::{
-    CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1,
-    CanonicalSameModuleGlobalTargetV1, SameModuleCallableNamespaceV1,
+    CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1, CanonicalSameModuleGlobalTargetV1,
+    SameModuleCallableNamespaceV1,
 };
 
 use crate::mir::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
@@ -221,10 +221,7 @@ impl<'module> PublishedMirBackendView<'module> {
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
                     let MirInstruction::Call {
-                        func,
-                        callee,
-                        args,
-                        ..
+                        func, callee, args, ..
                     } = instruction
                     else {
                         continue;
@@ -233,13 +230,8 @@ impl<'module> PublishedMirBackendView<'module> {
                     match callee {
                         Some(Callee::Global(target)) => {
                             if let Some(key) = static_method_key(target) {
-                                let published_key = validate_static_call(
-                                    module,
-                                    function_name,
-                                    key,
-                                    *func,
-                                    args,
-                                )?;
+                                let published_key =
+                                    validate_static_call(module, function_name, key, *func, args)?;
                                 static_method_calls.push(PublishedStaticMethodCallRef {
                                     function_name: function_name.as_str(),
                                     block_id: block_id.as_u32(),
@@ -288,9 +280,7 @@ impl<'module> PublishedMirBackendView<'module> {
     }
 }
 
-fn validate_definition_table(
-    module: &MirModule,
-) -> Result<(), PublishedMirBackendViewErrorV1> {
+fn validate_definition_table(module: &MirModule) -> Result<(), PublishedMirBackendViewErrorV1> {
     for (key, symbol) in &module.canonical_callable_definitions {
         let Some(function) = module.functions.get(symbol) else {
             return Err(PublishedMirBackendViewErrorV1::DefinitionMissing { key: key.clone() });
@@ -335,10 +325,12 @@ fn validate_static_call<'module>(
         .iter()
         .find(|(published_key, _)| *published_key == &key)
     else {
-        return Err(PublishedMirBackendViewErrorV1::StaticCallDefinitionMissing {
-            function: function_name.to_owned(),
-            key,
-        });
+        return Err(
+            PublishedMirBackendViewErrorV1::StaticCallDefinitionMissing {
+                function: function_name.to_owned(),
+                key,
+            },
+        );
     };
     let expected = key.arity() as usize;
     if args.len() != expected {
@@ -350,16 +342,20 @@ fn validate_static_call<'module>(
         });
     }
     let Some(function) = module.functions.get(symbol) else {
-        return Err(PublishedMirBackendViewErrorV1::StaticCallDefinitionMissing {
-            function: function_name.to_owned(),
-            key,
-        });
+        return Err(
+            PublishedMirBackendViewErrorV1::StaticCallDefinitionMissing {
+                function: function_name.to_owned(),
+                key,
+            },
+        );
     };
     if function.signature.return_type != crate::mir::MirType::Integer {
-        return Err(PublishedMirBackendViewErrorV1::StaticMethodRequiresIntegerReturn {
-            function: function_name.to_owned(),
-            key,
-        });
+        return Err(
+            PublishedMirBackendViewErrorV1::StaticMethodRequiresIntegerReturn {
+                function: function_name.to_owned(),
+                key,
+            },
+        );
     }
     debug_assert_eq!(symbol, &key.mir_symbol_projection());
     Ok(published_key)
@@ -373,13 +369,11 @@ fn expected_physical_arity(key: &CanonicalSameModuleCallableKeyV1) -> usize {
 }
 
 fn static_method_key(target: &CanonicalGlobalTargetV1) -> Option<CanonicalSameModuleCallableKeyV1> {
-    let CanonicalGlobalTargetV1::SameModule(
-        CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
-            owner,
-            method,
-            arity,
-        },
-    ) = target
+    let CanonicalGlobalTargetV1::SameModule(CanonicalSameModuleGlobalTargetV1::StaticBoxMethod {
+        owner,
+        method,
+        arity,
+    }) = target
     else {
         return None;
     };

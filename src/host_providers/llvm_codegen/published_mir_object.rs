@@ -60,11 +60,7 @@ pub(crate) fn emit_published_static_method_exe(
         compile_published_static_method_object(module, &object_path)?;
         let runtime_dir = nyrt_dir
             .map(PathBuf::from)
-            .or_else(|| {
-                std::env::var("NYASH_EMIT_EXE_NYRT")
-                    .ok()
-                    .map(PathBuf::from)
-            })
+            .or_else(|| std::env::var("NYASH_EMIT_EXE_NYRT").ok().map(PathBuf::from))
             .unwrap_or_else(|| PathBuf::from("target/release"));
         let runtime_archive = runtime_dir.join("libnyash_kernel.a");
         super::link_object_capi_v2(

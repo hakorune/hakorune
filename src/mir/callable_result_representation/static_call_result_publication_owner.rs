@@ -117,7 +117,7 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         if !results.is_branded_by(declarations, targets) {
             return Err(StaticCallResultPublicationOwnerErrorV1::ResultCatalogBrandMismatch);
         }
-        let catalog_identity = declarations as *const _ as usize;
+        let catalog_identity = declarations.brand().identity();
         let mut exact_targets = BTreeMap::new();
         let mut selected_targets = BTreeMap::new();
         let mut target_only_targets = BTreeMap::new();
@@ -261,7 +261,7 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         site: &SourceExprSiteV1,
     ) -> Result<StaticCallResultPublicationTakeV1, StaticCallResultPublicationOwnerTakeErrorV1>
     {
-        if self.catalog_identity != declarations as *const _ as usize {
+        if self.catalog_identity != declarations.brand().identity() {
             return Err(StaticCallResultPublicationOwnerTakeErrorV1::CatalogBrandMismatch);
         }
         let key = (caller.clone(), site.clone());

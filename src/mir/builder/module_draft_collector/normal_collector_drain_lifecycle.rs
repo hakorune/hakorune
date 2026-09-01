@@ -190,22 +190,23 @@ impl SealedNormalCollectorDrainReceiptV1 {
                         && matches!(
                             &admission.replacement,
                             CollectedDraftReplacementDispositionV1::Inserted
-                        ) => {
-                            if !canonical_keys.insert(canonical_key.clone()) {
-                                return Err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition(
-                                    CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey {
-                                        key: canonical_key.clone(),
-                                    },
-                                ));
-                            }
-                            target
-                                .preflight_cataloged_box_method(
-                                    canonical_key,
-                                    admission.symbol.as_ref(),
-                                    admission.arity,
-                                )
-                                .map_err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition)?;
-                        }
+                        ) =>
+                {
+                    if !canonical_keys.insert(canonical_key.clone()) {
+                        return Err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition(
+                            CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey {
+                                key: canonical_key.clone(),
+                            },
+                        ));
+                    }
+                    target
+                        .preflight_cataloged_box_method(
+                            canonical_key,
+                            admission.symbol.as_ref(),
+                            admission.arity,
+                        )
+                        .map_err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition)?;
+                }
                 _ => {
                     return Err(match key {
                         FunctionDraftKeyV1::LegacySymbol(_) => {

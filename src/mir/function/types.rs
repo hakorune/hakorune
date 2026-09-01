@@ -278,8 +278,7 @@ pub struct MirModule {
 
     /// Source-cataloged callable definitions published with this module.
     /// Legacy/unkeyed functions intentionally do not enter this relation.
-    pub(crate) canonical_callable_definitions:
-        BTreeMap<CanonicalSameModuleCallableKeyV1, String>,
+    pub(crate) canonical_callable_definitions: BTreeMap<CanonicalSameModuleCallableKeyV1, String>,
 }
 
 /// Typed rejection for publication that would replace an existing function.
@@ -325,7 +324,10 @@ pub enum CanonicalCallableDefinitionPublicationErrorV1 {
 
 impl std::fmt::Display for CanonicalCallableDefinitionPublicationErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[freeze:contract][canonical-callable-publication] {self:?}")
+        write!(
+            formatter,
+            "[freeze:contract][canonical-callable-publication] {self:?}"
+        )
     }
 }
 

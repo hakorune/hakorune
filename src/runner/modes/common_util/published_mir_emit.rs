@@ -11,9 +11,6 @@ pub(crate) fn try_emit_published_static_method_exe(
     extra_libs: Option<&str>,
 ) -> Result<bool, String> {
     crate::host_providers::llvm_codegen::emit_published_static_method_exe(
-        module,
-        exe_out,
-        nyrt_dir,
-        extra_libs,
+        module, exe_out, nyrt_dir, extra_libs,
     )
 }

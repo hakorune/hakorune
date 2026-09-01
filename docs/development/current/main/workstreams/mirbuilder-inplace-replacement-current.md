@@ -35,18 +35,19 @@ source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The first end-to-end product vertical is now named: preserve the existing
-StaticBoxMethod callable key through Atomic Publish, lend one typed backend
-view, switch the normal `--emit-exe` edge, and remove selected-family reach to
-JSON/name/`args[0]` repair. Main remains `design_stop`; the accepted work runs
-only in one isolated five-commit/seven-day branch. Arbitrary UserBox
-DeclaredInstance stays `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
+The first end-to-end product vertical has landed on the isolated branch:
+StaticBoxMethod preserves its callable key through Atomic Publish, lends one
+typed backend view, switches the normal `--emit-exe` edge, and removes the
+selected-family reach to JSON/name/`args[0]` repair. The scalar source proof
+`me.helper()` emits and runs with `Result: 7`. Main remains `design_stop` while
+the next exact family is selected; arbitrary UserBox DeclaredInstance stays
+`ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
 
 ### Current family disposition
 
 | family | status | reopen/next condition |
 |---|---|---|
-| published `StaticBoxMethod` | branch-ready first vertical; source half and all integration seams named | fixed I0/I1/I2/R0/P0 series; abort without another D0 if commit four cannot switch |
+| published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -57,13 +58,10 @@ DeclaredInstance stays `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
 ### Bounded execution order
 
 ```text
-0. MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0
-   commit 1 key/definition Atomic Publish
-   commit 2 borrow-only view + finite whole-module admission
-   commit 3 typed C ABI/consumer + reused scalar me.method proof
-   commit 4 named --emit-exe switch + selected-family old reachability zero
-   commit 5 source-to-EXE/no-new-red/temporary-surface closeout
-   Any extra D0, semantic fix in commit 5, JSON retry, or expired bound aborts.
+0. MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0 (landed)
+   key/definition Atomic Publish -> borrow-only view -> typed C ingress
+   -> named --emit-exe switch -> scalar source-to-EXE proof. The cohort is
+   closed; no extra D0 or compatibility retry is allowed.
 
 1. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal

@@ -30,10 +30,7 @@ impl MirModule {
         let expected_symbol = key.mir_symbol_projection();
         if symbol != expected_symbol {
             return Err(
-                CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch {
-                    key,
-                    symbol,
-                },
+                CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch { key, symbol },
             );
         }
         let expected_arity = match key.namespace() {
@@ -60,9 +57,7 @@ impl MirModule {
         if self.canonical_callable_definitions.contains_key(&key)
             || self.functions.contains_key(&symbol)
         {
-            return Err(
-                CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey { key },
-            );
+            return Err(CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey { key });
         }
         self.functions.insert(symbol.clone(), function);
         self.canonical_callable_definitions.insert(key, symbol);

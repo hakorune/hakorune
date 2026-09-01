@@ -63,9 +63,7 @@ impl CanonicalSameModuleCallableKeyV1 {
 
     /// Project an already-selected static declaration into the structural
     /// global carrier.  Catalog/session authority remains with the caller.
-    pub fn canonical_global_target_v1(
-        &self,
-    ) -> Result<CanonicalGlobalTargetV1, String> {
+    pub fn canonical_global_target_v1(&self) -> Result<CanonicalGlobalTargetV1, String> {
         if self.namespace != SameModuleCallableNamespaceV1::StaticBoxMethod {
             return Err("only static box methods have a global target".to_owned());
         }

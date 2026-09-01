@@ -54,8 +54,8 @@ mod ll_emit_compare_source;
 mod ll_tool_driver;
 pub mod mir_json_text_object;
 mod normalize;
-mod published_mir_object;
 mod provider_keep;
+mod published_mir_object;
 #[allow(dead_code)] // Phase 291x-126: hako-ll recipe route is staged, not default-owned.
 mod route;
 #[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge temp-file helpers.

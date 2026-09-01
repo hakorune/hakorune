@@ -15,6 +15,16 @@ impl SameModuleCallableCatalogBrandV1 {
         Self(Arc::new(()))
     }
 
+    /// Stable allocation identity that survives moving the catalog value.
+    ///
+    /// The catalog itself is moved into the compilation context during
+    /// installation, so its struct address is not a valid session identity.
+    /// The private `Arc` allocation is the identity that all cloned views
+    /// intentionally share.
+    pub(in crate::mir) fn identity(&self) -> usize {
+        Arc::as_ptr(&self.0) as usize
+    }
+
     pub(in crate::mir) fn is_same(&self, other: &Self) -> bool {
         Arc::ptr_eq(&self.0, &other.0)
     }
