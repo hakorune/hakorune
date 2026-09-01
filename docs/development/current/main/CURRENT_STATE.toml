@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-TRUE-BC-R0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-ONLY-R0"
 current_design_stop = "none"
 current_blocker_token = """
-Decision: close out the two-site loop_true_break_continue cache-only BoxShape reseal.
-Source authority + canonical issuer: LoopTrueBreakContinue facts/current bindings/PHI state and existing publish_emission_cache sole owner.
-Non-authority: variable_map as PHI truth, AST/name lookup, fixtures, route/fallback choice, MIR/Call/backend/selected-C semantics, fallback, retry.
-Fail-fast boundary: any timing/value/order drift, route-specific authority, direct-site growth, remove/clear, second owner, or 760/800-line drift.
-Smallest next slice: record focused evidence, synchronize the landed finite census, and push closeout; no new plan family or semantic route enters this row.
-Non-claims: no loop_cond_co/loop_cond_bc/cond-prelude, fallback retirement, Call/MIR/backend, selected-C, resolver, receipt, fixture, retry, or schema cutover.
+Decision: implement the one-site loop_cond_continue_only cache-only BoxShape reseal.
+Source authority + canonical issuer: CoreLoopFrame carrier_header_phis/current_bindings and existing publish_emission_cache sole owner.
+Non-authority: variable_map as PHI truth, AST/name lookup, fixtures, route selection, loop fallback, MIR/Call/backend/selected-C semantics, fallback, retry.
+Fail-fast boundary: any timing/value/order drift, route-specific authority, direct-site growth, remove/clear, second owner, plan/ValueId/MIR drift, or 760/800-line drift.
+Smallest next slice: delegate only the one existing header-PHI cache write, preserve normal/nested route order and values, and run route/verifier evidence.
+Non-claims: no loop_true/loop_cond_bc/continue-with-return/return-in-body/cond-prelude, fallback retirement, Call/MIR/backend, selected-C, resolver, receipt, fixture, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -46,14 +46,13 @@ The deterministic default-feature receipt remains fixed at 7562/7394/139/29.
 CorePlan varmap role census, generic-loop-body, carrier/pipeline, the
 six-site loop_cond_bc reseal, and the two-site loop_true_break_continue
 reseal are landed through the existing publish_emission_cache owner. The
-loop-true row is in closeout with direct_sites=0 and post-reseal raw=34/
-test-only=16/disconnected=1/live=17/canonical=1/reseal=16/
-remove_or_clear=0. Focused verifier 3/3 and PHI materializer 1/1 passed;
-this remains separate from Call semantics and makes no fallback, backend,
-selected-C, resolver, fixture, retry, receipt, or schema claim.
+next bounded row audits the one loop_cond_continue_only header-PHI cache
+write in the same cache-only shape family; it is separate from Call
+semantics. No loop fallback, MIR/Call, backend, selected-C, resolver,
+fixture, fallback, retry, receipt, or schema change is open.
 """
-next_design_card = "none__closeout"
-next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-TRUE-BC-R0"
+next_design_card = "none__fast"
+next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-ONLY-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

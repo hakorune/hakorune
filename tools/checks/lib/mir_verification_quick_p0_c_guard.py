@@ -26,6 +26,8 @@ VARMAP_LOOP_COND_BC_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
 VARMAP_LOOP_COND_BC_KEY = "dev_gate_coreplan_varmap_reseal_loop_cond_bc_r0_2026_09_01"
 VARMAP_LOOP_TRUE_BC_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-TRUE-BC-R0"
 VARMAP_LOOP_TRUE_BC_KEY = "dev_gate_coreplan_varmap_reseal_loop_true_bc_r0_2026_09_01"
+VARMAP_LOOP_COND_CONTINUE_ONLY_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-ONLY-R0"
+VARMAP_LOOP_COND_CONTINUE_ONLY_KEY = "dev_gate_coreplan_varmap_reseal_loop_cond_continue_only_r0_2026_09_01"
 BASELINE = Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
 INVENTORY = Path("tools/checks/manifests/cargo_lib_red_baseline.tests.txt")
 FAILURES = Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")
@@ -695,3 +697,62 @@ def check_verification_coreplan_varmap_reseal_loop_true_bc_r0(
         f"[{api.TAG}] CorePlan loop-true reseal row ok "
         f"status={status} direct_sites={len(target)}"
     )
+
+
+def check_verification_coreplan_varmap_reseal_loop_cond_continue_only_r0(
+    state: dict, card: dict, root: Path, _parent_api=api
+) -> None:
+    """Validate the one-site continue-only header cache reseal row."""
+    mode = state.get("work_mode")
+    row_name = VARMAP_LOOP_COND_CONTINUE_ONLY_ROW
+    if mode not in {"design_stop", "fast", "closeout"}:
+        api.fail("CorePlan continue-only reseal mode is invalid")
+    if state.get("current_execution_row") != row_name:
+        api.fail("CorePlan continue-only reseal is not selected")
+    if mode == "design_stop":
+        if state.get("current_design_stop") != row_name or state.get("next_execution_card") != "none__design_stop":
+            api.fail("CorePlan continue-only reseal design-stop pointer drifted")
+    else:
+        if state.get("current_design_stop") != "none" or state.get("next_execution_card") != row_name:
+            api.fail("CorePlan continue-only reseal execution pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("CorePlan continue-only reseal card path drifted")
+    row = card.get(VARMAP_LOOP_COND_CONTINUE_ONLY_KEY)
+    if not isinstance(row, dict) or _text(row, "task_id") != row_name:
+        api.fail("CorePlan continue-only reseal section/task is missing")
+    status = _text(row, "status")
+    expected = {"active_design_stop"} if mode == "design_stop" else {"fast_open", "landed"}
+    if status not in expected or row.get("implementation_permission") is not (status == "fast_open"):
+        api.fail("CorePlan continue-only reseal status/permission drifted")
+    if _text(row, "parent_row") != VARMAP_CARRIER_PIPELINE_ROW:
+        api.fail("CorePlan continue-only reseal parent drifted")
+    decision = _text(row, "decision").lower()
+    for token in ("one", "publish_emission_cache", "current_bindings", "cache-only"):
+        if token not in decision:
+            api.fail(f"CorePlan continue-only decision lacks {token}")
+    if "second owner" not in _text(row, "no_safe_slice").lower():
+        api.fail("CorePlan continue-only reseal must reject a second owner")
+    allowed = {
+        "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs",
+        "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        str(api.STATE_REL), str(api.CARD_REL),
+    }
+    if set(_list(row, "allowed_files")) != allowed:
+        api.fail("CorePlan continue-only reseal allowed-file boundary drifted")
+    writes, remove_or_clear = _collect_varmap_sites(root)
+    target_path = "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs"
+    target = [site for site in writes if site[0] == target_path]
+    expected_sites = {0} if status == "landed" else {0, 1}
+    if len(target) not in expected_sites or any(site[2] != "insert" for site in target):
+        api.fail(f"CorePlan continue-only source inventory drifted: sites={len(target)}")
+    if remove_or_clear:
+        api.fail("CorePlan continue-only reseal found remove/clear")
+    source = root / target_path
+    if len(source.read_text(encoding="utf-8").splitlines()) > 760:
+        api.fail("CorePlan continue-only source reached the 760-line boundary")
+    if not target and "publish_emission_cache" not in source.read_text(encoding="utf-8"):
+        api.fail("CorePlan continue-only source lacks the canonical cache helper")
+    if "publish_emission_cache" not in (root / "src/mir/builder/control_flow/plan/parts/var_map_scope.rs").read_text(encoding="utf-8"):
+        api.fail("CorePlan continue-only reseal helper owner is missing")
+    print(f"[{api.TAG}] CorePlan continue-only reseal row ok status={status} direct_sites={len(target)}")
