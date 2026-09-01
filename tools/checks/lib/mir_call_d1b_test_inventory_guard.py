@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 import re
+import subprocess
 import tomllib
 
 import mir_call_d1b_active_surface_guard as api
@@ -22,6 +23,60 @@ QUEUE_REL = Path(
 )
 DISPATCH_REL = Path("tools/checks/lib/mir_call_d1b_active_surface_dispatch.py")
 SELF_REL = Path("tools/checks/lib/mir_call_d1b_test_inventory_guard.py")
+
+LEGACY_TESTS_RETIRE_ROW = "LEGACY-TESTS-RETIRE-R0"
+LEGACY_TESTS_RETIRE_KEY = "legacy_tests_retire_r0_2026_09_02"
+LEGACY_TESTS_DELETE_RELS = (
+    Path("src/tests/flow/mod.rs"),
+    Path("src/tests/if_no_phi/mod.rs"),
+    Path("src/tests/if_form_no_phi_tests.rs"),
+    Path("src/tests/if_in_loop_no_phi_regression.rs"),
+    Path("src/tests/loop_continue_break_no_phi_tests.rs"),
+    Path("src/tests/loop_nested_no_phi_tests.rs"),
+    Path("src/tests/loop_return_no_phi_tests.rs"),
+    Path("src/tests/json_lint_stringutils_min_vm.rs"),
+    Path("src/tests/stage1_cli_entry_ssa_smoke.rs"),
+    Path("src/tests/mir_controlflow_extras.rs"),
+    Path("src/tests/mir_ctrlflow_break_continue.rs"),
+    Path("src/tests/mir_funcscanner_parse_params_trim_min.rs"),
+    Path("src/tests/mir_funcscanner_skip_ws.rs"),
+    Path("src/tests/mir_funcscanner_skip_ws_min.rs"),
+    Path("src/tests/mir_funcscanner_ssa.rs"),
+    Path("src/tests/mir_funcscanner_trim_min.rs"),
+    Path("src/tests/mir_lambda_functionbox.rs"),
+    Path("src/tests/mir_loopform_complex.rs"),
+    Path("src/tests/mir_loopform_conditional_reassign.rs"),
+    Path("src/tests/mir_loopform_exit_phi.rs"),
+    Path("src/tests/mir_no_phi_merge_tests.rs"),
+    Path("src/tests/mir_phi_basic_verify.rs"),
+    Path("src/tests/mir_pure_locals_normalized.rs"),
+    Path("src/tests/mir_pure_only_core13.rs"),
+    Path("src/tests/mir_qmark_lower.rs"),
+    Path("src/tests/mir_stage1_cli_stage1_main_verify.rs"),
+    Path("src/tests/mir_stage1_staticcompiler_receiver.rs"),
+    Path("src/tests/mir_stage1_using_resolver_verify.rs"),
+    Path("src/tests/mir_stage1_using_resolver_verify_parts/fragment.rs"),
+    Path("src/tests/mir_stage1_using_resolver_verify_parts/modules_map.rs"),
+    Path("src/tests/mir_stage1_using_resolver_verify_parts/parser_harness.rs"),
+    Path("src/tests/mir_stage1_using_resolver_verify_parts/shared.rs"),
+    Path("src/tests/mir_stageb_like_args_length.rs"),
+    Path("src/tests/mir_stageb_loop_break_continue.rs"),
+    Path("src/tests/mir_stageb_string_utils_skip_ws.rs"),
+    Path("src/tests/mir_static_box_naming.rs"),
+    Path("src/tests/parser_block_postfix_catch.rs"),
+    Path("src/tests/parser_expr_postfix_catch.rs"),
+    Path("src/tests/parser_lambda.rs"),
+    Path("src/tests/parser_peek_block.rs"),
+    Path("src/tests/parser_semicolon.rs"),
+    Path("src/tests/vtable_map_boundaries.rs"),
+    Path("src/tests/vtable_string_boundaries.rs"),
+)
+LEGACY_TESTS_BARREL_RELS = (
+    Path("src/tests/mod.rs"),
+    Path("src/tests/mir/mod.rs"),
+    Path("src/tests/parser/mod.rs"),
+    Path("src/tests/vtable/mod.rs"),
+)
 
 
 def _canonical_lines_sha256(lines: list[str]) -> str:
@@ -404,3 +459,127 @@ def check_loop_if_exit_dedup_r0(
     ) != failure_sha:
         parent_api.fail("loop-if-exit retirement failure receipt SHA drifted")
     print(f"[{parent_api.TAG}] loop-if-exit test retirement ok status={status}")
+
+
+def check_legacy_tests_retire_r0(
+    state: dict, card: dict, root: Path, parent_api=api
+) -> None:
+    """Guard the one-time removal of the disabled pre-JoinIR test surface."""
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        parent_api.fail("legacy-tests retirement requires fast or closeout work_mode")
+    if state.get("current_execution_row") != LEGACY_TESTS_RETIRE_ROW:
+        parent_api.fail("legacy-tests retirement row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        parent_api.fail("legacy-tests retirement must clear current_design_stop")
+    if state.get("next_execution_card") != LEGACY_TESTS_RETIRE_ROW:
+        parent_api.fail("legacy-tests retirement pointer drifted")
+    if state.get("next_execution_card_path") != str(parent_api.CARD_REL):
+        parent_api.fail("legacy-tests retirement card path drifted")
+
+    row = card.get(LEGACY_TESTS_RETIRE_KEY)
+    if not isinstance(row, dict):
+        parent_api.fail(f"{LEGACY_TESTS_RETIRE_KEY} section is missing")
+    if row.get("task_id") != LEGACY_TESTS_RETIRE_ROW:
+        parent_api.fail("legacy-tests retirement task id drifted")
+    status = row.get("status")
+    if status not in {"fast_open", "landed"}:
+        parent_api.fail("legacy-tests retirement status is not finite")
+    if row.get("implementation_permission") is not (status == "fast_open"):
+        parent_api.fail("legacy-tests retirement permission/status drifted")
+
+    barrel_rels = LEGACY_TESTS_BARREL_RELS
+    expected_allowed = {
+        Path("Cargo.toml"),
+        *LEGACY_TESTS_DELETE_RELS,
+        *barrel_rels,
+        BASELINE_REL,
+        INVENTORY_REL,
+        Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt"),
+        Path("tools/checks/lib/mir_call_d1b_active_surface_dispatch.py"),
+        SELF_REL,
+        parent_api.STATE_REL,
+        parent_api.CARD_REL,
+        Path("docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"),
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or {Path(item) for item in allowed} != expected_allowed:
+        parent_api.fail("legacy-tests retirement allowed-file boundary drifted")
+
+    for rel in LEGACY_TESTS_DELETE_RELS:
+        path = root / rel
+        if status == "fast_open" and not path.is_file():
+            parent_api.fail(f"legacy-tests candidate is missing before deletion: {rel}")
+        if status == "landed" and path.exists():
+            parent_api.fail(f"legacy-tests retired path remains: {rel}")
+    for rel in barrel_rels:
+        path = root / rel
+        if not path.is_file():
+            parent_api.fail(f"legacy-tests module barrel is missing: {rel}")
+
+    feature_text = (root / "Cargo.toml").read_text(encoding="utf-8")
+    barrel_text = "\n".join(
+        (root / rel).read_text(encoding="utf-8") for rel in barrel_rels
+    )
+    if status == "fast_open":
+        if 'legacy-tests = []' not in feature_text:
+            parent_api.fail("legacy-tests feature disappeared before retirement")
+        if barrel_text.count('#[cfg(feature = "legacy-tests")]') != 34:
+            parent_api.fail("legacy-tests cfg root count drifted before deletion")
+    else:
+        if "legacy-tests" in feature_text or "legacy-tests" in barrel_text:
+            parent_api.fail("legacy-tests feature/cfg reference remains after retirement")
+
+    result = subprocess.run(
+        ["git", "grep", "-n", "legacy-tests", "--", "Cargo.toml", "src", ".github", "tools"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    references = {
+        line.split(":", 1)[0]
+        for line in result.stdout.splitlines()
+        if line.strip()
+    }
+    allowed_refs = {"tools/checks/lib/mir_call_d1b_test_inventory_guard.py"}
+    if status == "fast_open":
+        allowed_refs |= {"Cargo.toml", *(str(rel) for rel in barrel_rels)}
+    if references != allowed_refs:
+        parent_api.fail(
+            "legacy-tests references escaped the finite surface: "
+            f"{sorted(references - allowed_refs)}"
+        )
+
+    baseline = tomllib.loads((root / BASELINE_REL).read_text(encoding="utf-8"))
+    if baseline.get("expected_passed") != 7386:
+        parent_api.fail("legacy-tests retirement changed the accepted passed count")
+    if baseline.get("expected_failed") != 139 or baseline.get("expected_ignored") != 29:
+        parent_api.fail("legacy-tests retirement changed the known-red partition")
+    failure_sha = "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041"
+    if baseline.get("failures_sha256") != failure_sha:
+        parent_api.fail("legacy-tests retirement failure-name SHA drifted")
+    inventory = [line for line in (root / INVENTORY_REL).read_text(encoding="utf-8").splitlines() if line]
+    if len(inventory) != 7554 or inventory != sorted(set(inventory)):
+        parent_api.fail("legacy-tests retirement default inventory drifted")
+    failure_lines = [
+        line
+        for line in (root / Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")).read_text(
+            encoding="utf-8"
+        ).splitlines()
+        if line
+    ]
+    if _canonical_lines_sha256(failure_lines) != failure_sha:
+        parent_api.fail("legacy-tests retirement failure receipt SHA drifted")
+
+    if status == "landed":
+        base = parent_api.require_text(
+            row.get("base_commit"), "legacy-tests retirement base_commit"
+        )
+        changed_paths = parent_api.git_diff_paths(root, base)
+        expected_paths = {str(path) for path in expected_allowed}
+        if not changed_paths.issubset(expected_paths):
+            parent_api.fail(
+                "legacy-tests retirement changed paths escaped allowed set: "
+                f"{sorted(changed_paths - expected_paths)}"
+            )
+    print(f"[{parent_api.TAG}] legacy-tests retirement ok status={status}")

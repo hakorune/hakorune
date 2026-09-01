@@ -55,6 +55,19 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
+`CURRENT_STATE.toml` temporarily selects `LEGACY-TESTS-RETIRE-R0` as a
+shrink-only T0 row. The selected-C DeclaredInstance admission remains a
+CoverageMissing design stop: its exact source-backed tuple census is zero, so
+no Method(Some), backend view, fixture, receipt, or second pipeline may be
+opened. The legacy row owns only the explicitly disabled pre-JoinIR test
+feature and returns here after its default-feature baseline is unchanged.
+
+The canonical backend decision remains source -> published MirModule ->
+lossless borrowed typed view -> selected backend; direct package-to-Hako is
+ParkedSealed. `legacy-tests` has no in-repo caller or CI owner; the retirement
+delete set is the four cfg barrels, 34 roots, and nine exclusive support files.
+
+Current execution history:
 the exact lib receipt now records 7554/7386/139/29 after the
 production-neutral PlannerContext mismatch test retirement at `3e4f66ee82`
 and the earlier binding-shadow retirement at `70b061f8f2`. The 139 failure
