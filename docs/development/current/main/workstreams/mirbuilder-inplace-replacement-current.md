@@ -73,12 +73,14 @@ The behavior-neutral
 `MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0` landed at
 `35f59702b5`: it moved only the derived route lookup block into a private
 child and left the 47-row catalog, public API, and generated/C behavior
-unchanged. The current pointer is back at the selected-C CoverageMissing
-design stop. The next nonblocking cleanup queue is deliberately separate: run
-the existing deterministic baseline-refresh row once, then activate the
-existing test-inventory parent for the exact eight-test loop-if-exit duplicate
-cohort. This queue may reduce the daily root without issuing semantic
-authority; it does not reopen selected-C or create a second pipeline. The later
+unchanged. The fixed baseline-refresh row landed at `ee886f4cc1`: three
+fixed-stack observations and the comparator agree on 7562/7394/139/29 with
+unchanged failure names. The current pointer is back at the selected-C
+CoverageMissing design stop. The next nonblocking cleanup is deliberately
+separate: activate the existing test-inventory parent for the exact eight-test
+loop-if-exit duplicate cohort. This queue may reduce the daily root without
+issuing semantic authority; it does not reopen selected-C or create a second
+pipeline. The later
 production work will verticalize and delete that
 family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric

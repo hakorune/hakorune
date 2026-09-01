@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement. This fast row only refreshes the fixed known-red lib receipt.
+Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement. The fixed known-red lib baseline refresh is landed; semantic work remains stopped at the missing caller tuple.
 Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, and exact receiver crosswalk; the daily backend only consumes their one-way physical projection after canonical MIR publication.
 Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, fallback, retry, or a new semantic receipt/loan.
 Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, and one finite old-edge delete set.
-Smallest next slice: run the existing fixed-stack baseline/list observation and comparator three times, accepting only identical 7562/7394/139/29 results and the current failure-name SHA; then close this row. No source or test semantics change. The next nonblocking cleanup is the ready eight-test duplicate retirement cohort.
-Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, test deletion, or semantic cleanup row.
+Smallest next slice: the existing D0 census still has zero live Selected-C tuples. Do not open another semantic bridge; the next nonblocking fast row is the ready eight-test duplicate retirement cohort after this closeout. No source or test semantics changed in the baseline row.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,20 +39,19 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The selected-C admission is ParkedSealed: the existing D0 census found zero
-live source/package/TypedObjectPlan tuples, so direct package-to-Hako remains a
+Selected-C remains ParkedSealed: the existing D0 census found zero live
+source/package/TypedObjectPlan tuples, so direct package-to-Hako remains a
 future post-publish backend replacement and no Method(Some) implementation is
 open. The existing daily ny-llvmc Boundary remains the chosen lossless backend
-view after canonical MirModule publication. The current fast row is the
-one-time deterministic baseline refresh; its committed receipt is 7562/7394/
-139/29 with failure SHA 86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041
-and inventory SHA f049ea4f066c7b027215f4c5edb74000bcf6f8962868c2a3744f5a919b5f8ca0.
-After that receipt is revalidated, the ready nonblocking cohort may retire
-exactly eight duplicate loop-if-exit tests; no semantic route or new receipt
-is implied. No fallback, retry, or Call-schema claim is open.
+view after canonical MirModule publication. The deterministic fixed-stack
+baseline refresh is landed at ee886f4cc1: 7562/7394/139/29, inventory SHA
+f049ea4f066c7b027215f4c5edb74000bcf6f8962868c2a3744f5a919b5f8ca0, and failure
+SHA 86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041 across
+three observations. The next ready nonblocking row is the exact eight-test
+loop-if-exit duplicate retirement; no semantic route or new receipt is implied.
 """
-next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
