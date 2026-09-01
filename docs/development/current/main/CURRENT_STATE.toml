@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-COND-PRELUDE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: close out the five existing cond_lowering_prelude cache reseals through the canonical cache owner.
-Source authority + canonical issuer: existing statement-only prelude bindings/map state and existing publish_emission_cache sole owner.
-Non-authority: variable_map as logical binding truth, AST/name lookup, fixtures, route selection, bindings/map restoration authority, PHI/Select/ValueId/MIR reissue, loop fallback, Call/backend/selected-C semantics, fallback, retry.
-Fail-fast boundary: any unrecorded bindings/map restoration, timing/value/order, Select/effects, loop rejection, direct-site, remove/clear, second-owner, PHI/Select/ValueId/MIR, or 760/800 drift.
-Smallest next slice: record implementation/evidence, synchronize the finite census, and push closeout; no new plan family or semantic route enters this row.
-Non-claims: no cond_lowering_if_plan/loop-header route change, no raw_lowering/loop_v0 change, no other loop-family change, fallback retirement, Call/MIR/backend, selected-C, resolver, receipt, fixture, retry, or schema cutover.
+Decision: keep the existing selected-C admission design stop as the only next row; semantic products are complete, but the physical Hako owner is missing.
+Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; no physical issuer is selected yet.
+Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
+Fail-fast boundary: until one exact Hako LLVM-text owner, lossless ABI, named production caller, and matching old-edge delete set are finite, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
+Smallest next slice: record the existing CoverageMissing/ParkedSealed state and one observable reopen trigger; do not add an intermediate co-seal row.
+Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -43,18 +43,16 @@ latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
 The deterministic default-feature receipt remains fixed at 7562/7394/139/29.
-CorePlan varmap role census through cond_lowering_prelude is landed through
-the existing publish_emission_cache owner; direct_sites=0 and the finite role
-census is
-raw=22/test-only=16/disconnected=1/live=5/canonical=1/reseal=4/
-remove_or_clear=0. Focused prelude/BlockExpr/parity tests, quick lib check,
-active-surface, inventory, pointer, and diff checks passed. This
-behavior-preserving BoxShape remains separate from Call semantics and makes
-no fallback, backend, selected-C, resolver, fixture, retry, receipt, or schema
-claim; full default-feature suite remains the recorded baseline.
+CorePlan varmap cache-only cleanup is complete through the clear final family:
+direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/
+canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
+DeclaredInstance selected-C admission row: relation, effect, result/Completion,
+physical lane, package locator, and exact receiver crosswalk are named, but
+Hako owner/caller/ABI coverage is still zero (CoverageMissing/ParkedSealed).
+No Method(Some), backend switch, fallback, retry, or Call-schema claim is open.
 """
-next_design_card = "none__closeout"
-next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-COND-PRELUDE-R0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
