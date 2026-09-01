@@ -201,8 +201,8 @@ def check_ordinary_static_target_only_residual_i0(
         api.fail("target-only residual owner lacks both pending dispositions")
     if "Option<VerifiedStaticCallResultPublicationOwnerV1>" not in program.read_text():
         api.fail("program lowering does not carry the optional source-backed owner")
-    if "if let Some(owner)" not in collector.read_text():
-        api.fail("collector does not conditionally install the source-backed owner")
+    if "if let Some(owner)" not in program.read_text():
+        api.fail("program lowering does not conditionally install the source-backed owner")
     if "finish_empty" not in lifecycle.read_text():
         api.fail("normal drain does not check publication-owner residuals")
     if "VerifiedStaticCallResultPublicationOwnerV1::issue" in post_install.read_text():

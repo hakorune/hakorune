@@ -7,7 +7,7 @@ current_blocker_token = """
 Decision: harden the existing ordinary-static target-only owner without opening a new semantic route.
 Source authority + canonical issuer: existing VerifiedStaticCallResultPublicationOwnerV1 rows keyed by exact caller/site; compatibility keeps the existing Unavailable ingress, while source-backed normal keeps the owner.
 Non-authority: silent Drop, len() as completion proof, name/registry/header lookup, resolver replay, package/loan, fallback, retry, or a new receipt.
-Fail-fast boundary: source-backed normal owner residuals reject before normal collector drain or draft/module mutation; compatibility roots do not construct/install this owner.
+Fail-fast boundary: source-backed normal owner residuals reject before module publication/commit; rejection retains collector drafts and leaves the module unchanged. Compatibility roots do not construct/install this owner.
 Smallest next slice: add typed finish_empty checks and conditional owner installation, then return to the selected-C design stop.
 Non-claims: no target issuance, ordinary-static route change, Method(Some), backend/VM, Call schema, or old-edge deletion.
 """

@@ -19,12 +19,7 @@ use crate::mir::builder::{
     MirBuilder, MirModule, NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
     UnpublishedCallableLoopRootScopeV1,
 };
-use crate::mir::callable_result_representation::{
-    VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationOwnerV1,
-};
-use crate::mir::source_call_target::{
-    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
-};
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 
 pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package>(
     builder: &mut MirBuilder,
@@ -40,7 +35,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     preflight_static_result_publication_owner: &mut Option<
         VerifiedStaticCallResultPublicationOwnerV1,
     >,
-    import_rows: &[(String, String)],
+    _import_rows: &[(String, String)],
     target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
 ) -> Result<MirModule, NormalDefaultRootCatalogLifecycleErrorV1> {
@@ -62,45 +57,29 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         None => None,
     };
 
-    let static_result_publication_owner = match preflight_static_result_publication_owner.take() {
-        Some(owner) => owner,
-        None => {
-            let declarations =
-                builder
-                    .comp_ctx
-                    .callable_declaration_catalog()
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/static-result-owner/catalog] {error}").into(),
-                        )
-                    })?;
-            let imports =
-                VerifiedStaticImportAliasViewV1::seal(declarations, import_rows.iter().cloned())
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/static-result-owner/imports] {error:?}").into(),
-                        )
-                    })?;
-            let inventory =
-                VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/static-result-owner/targets] {error:?}").into(),
-                        )
-                    })?;
-            let targets = inventory.into_targets();
-            let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
-                .map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                        format!("[mir/static-result-owner/results] {error:?}").into(),
-                    )
-                })?;
-            VerifiedStaticCallResultPublicationOwnerV1::issue(declarations, &targets, &results)
-                .map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                        format!("[mir/static-result-owner/issue] {error:?}").into(),
-                    )
-                })?
+    let source_backed = matches!(
+        &callable_mode,
+        NormalCallableSemanticPackageMode::Installed(_)
+    );
+    let static_result_publication_owner = match (
+        source_backed,
+        preflight_static_result_publication_owner.take(),
+    ) {
+        (true, Some(owner)) => Some(owner),
+        (true, None) => {
+            return Err(
+                NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                    "[mir/static-result-owner/source-backed/missing]".into(),
+                ),
+            );
+        }
+        (false, None) => None,
+        (false, Some(_)) => {
+            return Err(
+                NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                    "[mir/static-result-owner/compatibility/drift]".into(),
+                ),
+            );
         }
     };
 

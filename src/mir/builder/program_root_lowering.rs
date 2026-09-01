@@ -148,7 +148,7 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
-        static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
+        static_result_publication_owner: Option<VerifiedStaticCallResultPublicationOwnerV1>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
@@ -179,13 +179,15 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
-        static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
+        static_result_publication_owner: Option<VerifiedStaticCallResultPublicationOwnerV1>,
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         callable_loop_root_scope.validate_collector(&collector)?;
-        collector.install_static_result_publication_owner(static_result_publication_owner)?;
+        if let Some(owner) = static_result_publication_owner {
+            collector.install_static_result_publication_owner(owner)?;
+        }
         let installed_app_main_root = matches!(
             (&callable_mode, expansion),
             (

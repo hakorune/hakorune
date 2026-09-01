@@ -57,6 +57,20 @@ pub(crate) enum StaticCallResultPublicationOwnerTakeErrorV1 {
     },
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum StaticCallResultPublicationOwnerFinishErrorV1 {
+    UnconsumedSelected {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    },
+    UnconsumedTargetOnly {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    },
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum StaticCallResultPublicationTakeV1 {
     NoExactStaticTarget,
@@ -180,8 +194,64 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
         })
     }
 
-    pub(crate) fn len(&self) -> usize {
+    pub(crate) fn pending_len(&self) -> usize {
+        self.rows.len() + self.target_only_targets.len()
+    }
+
+    pub(crate) fn pending_selected_len(&self) -> usize {
         self.rows.len()
+    }
+
+    pub(crate) fn pending_target_only_len(&self) -> usize {
+        self.target_only_targets.len()
+    }
+
+    pub(crate) fn finish_empty(&self) -> Result<(), StaticCallResultPublicationOwnerFinishErrorV1> {
+        if let Some(((caller, site), _handoff)) = self.rows.iter().next() {
+            let target = self
+                .selected_targets
+                .get(&(caller.clone(), site.clone()))
+                .cloned()
+                .expect("selected publication row must retain its target index");
+            return Err(
+                StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedSelected {
+                    caller: caller.clone(),
+                    site: site.clone(),
+                    target,
+                },
+            );
+        }
+        if let Some(((caller, site), target)) = self.target_only_targets.iter().next() {
+            return Err(
+                StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly {
+                    caller: caller.clone(),
+                    site: site.clone(),
+                    target: target.clone(),
+                },
+            );
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(crate) fn target_only_for_test(
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    ) -> Self {
+        let key = (caller, site);
+        let mut exact_targets = BTreeMap::new();
+        exact_targets.insert(key.clone(), target.clone());
+        let mut target_only_targets = BTreeMap::new();
+        target_only_targets.insert(key, target);
+        Self {
+            catalog_identity: 0,
+            exact_targets,
+            selected_targets: BTreeMap::new(),
+            target_only_targets,
+            rows: BTreeMap::new(),
+            consumed_sites: BTreeSet::new(),
+        }
     }
 
     pub(crate) fn take_for_source(

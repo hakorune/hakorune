@@ -1,8 +1,9 @@
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::super::{
-    StaticCallResultPublicationOwnerTakeErrorV1, StaticCallResultPublicationTakeV1,
-    VerifiedCallableResultRepresentationV1, VerifiedStaticCallResultPublicationOwnerV1,
+    StaticCallResultPublicationOwnerFinishErrorV1, StaticCallResultPublicationOwnerTakeErrorV1,
+    StaticCallResultPublicationTakeV1, VerifiedCallableResultRepresentationV1,
+    VerifiedStaticCallResultPublicationOwnerV1,
 };
 use super::support::{
     declarations, extend_current_owner_targets, key, qualified_targets, seal_with_targets, site,
@@ -56,7 +57,9 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
     let mut owner =
         VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
             .expect("source-bound owner must issue exact rows");
-    assert_eq!(owner.len(), 1);
+    assert_eq!(owner.pending_len(), 1);
+    assert_eq!(owner.pending_selected_len(), 1);
+    assert_eq!(owner.pending_target_only_len(), 0);
 
     let caller = key(&declarations, "StringHelpers", "int_to_str", 1);
     let target = key(&declarations, "StringHelpers", "to_i64", 1);
@@ -78,6 +81,7 @@ fn issuer_keeps_exact_source_row_and_consumes_it_once() {
             }
         )
     );
+    assert!(owner.finish_empty().is_ok());
 }
 
 #[test]
@@ -244,15 +248,138 @@ fn exact_source_target_without_an_i64_result_stays_target_only() {
     let mut owner =
         VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
             .expect("non-i64 row must remain a valid unselected source target");
+    let target = key(&declarations, "TextOwner", "text", 0);
+
+    assert_eq!(owner.pending_len(), 1);
+    assert_eq!(owner.pending_selected_len(), 0);
+    assert_eq!(owner.pending_target_only_len(), 1);
+    assert_eq!(
+        owner.finish_empty(),
+        Err(
+            StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly {
+                caller: caller.clone(),
+                site: call_site.clone(),
+                target: target.clone(),
+            }
+        )
+    );
 
     assert_eq!(
         owner
             .take_for_source(&declarations, &caller, &call_site)
             .expect("target-only lookup remains well-formed"),
-        StaticCallResultPublicationTakeV1::TargetOnly(key(&declarations, "TextOwner", "text", 0,))
+        StaticCallResultPublicationTakeV1::TargetOnly(target)
     );
     assert!(matches!(
         owner.take_for_source(&declarations, &caller, &call_site),
         Err(StaticCallResultPublicationOwnerTakeErrorV1::RowAlreadyConsumed { .. })
     ));
+    assert!(owner.finish_empty().is_ok());
+}
+
+#[test]
+fn issuer_finish_empty_rejects_unconsumed_selected_and_accepts_after_take() {
+    let declarations = declarations(SOURCE);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "StringHelpers",
+            caller_name: "int_to_str",
+            caller_arity: 1,
+            site: call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("selected row must issue");
+    let caller = key(&declarations, "StringHelpers", "int_to_str", 1);
+    let target = key(&declarations, "StringHelpers", "to_i64", 1);
+
+    assert_eq!(
+        owner.finish_empty(),
+        Err(
+            StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedSelected {
+                caller: caller.clone(),
+                site: call_site(),
+                target,
+            }
+        )
+    );
+    assert!(matches!(
+        owner
+            .take_for_source(&declarations, &caller, &call_site())
+            .expect("selected row must be consumed"),
+        StaticCallResultPublicationTakeV1::Selected(_)
+    ));
+    assert!(owner.finish_empty().is_ok());
+}
+
+#[test]
+fn issuer_finish_empty_rejects_mixed_selected_and_target_only_rows() {
+    let source = r#"
+        static box StringHelpers {
+            int_to_str(n) { local value = me.to_i64("x") return value }
+            to_i64(x) { return x + 1 }
+        }
+        static box TextOwner {
+            caller() { return me.text() }
+            text() { return "text" }
+        }
+    "#;
+    let declarations = declarations(source);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[
+            CallSiteSpecV1 {
+                caller_owner: "StringHelpers",
+                caller_name: "int_to_str",
+                caller_arity: 1,
+                site: call_site(),
+            },
+            CallSiteSpecV1 {
+                caller_owner: "TextOwner",
+                caller_name: "caller",
+                caller_arity: 0,
+                site: return_call_site(),
+            },
+        ],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("mixed selected and target-only rows must issue");
+    let selected_caller = key(&declarations, "StringHelpers", "int_to_str", 1);
+    let target_only_caller = key(&declarations, "TextOwner", "caller", 0);
+
+    assert_eq!(owner.pending_selected_len(), 1);
+    assert_eq!(owner.pending_target_only_len(), 1);
+    assert!(matches!(
+        owner.finish_empty(),
+        Err(StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedSelected { .. })
+            | Err(StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly { .. })
+    ));
+    assert!(matches!(
+        owner
+            .take_for_source(&declarations, &selected_caller, &call_site())
+            .expect("selected mixed row must be consumed"),
+        StaticCallResultPublicationTakeV1::Selected(_)
+    ));
+    assert!(matches!(
+        owner.finish_empty(),
+        Err(StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly { .. })
+    ));
+    let target_only_target = key(&declarations, "TextOwner", "text", 0);
+    assert_eq!(
+        owner
+            .take_for_source(&declarations, &target_only_caller, &return_call_site())
+            .expect("target-only mixed row must be consumed"),
+        StaticCallResultPublicationTakeV1::TargetOnly(target_only_target)
+    );
+    assert_eq!(owner.pending_len(), 0);
+    assert!(owner.finish_empty().is_ok());
 }

@@ -8,6 +8,7 @@
 use std::collections::BTreeSet;
 
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::callable_result_representation::StaticCallResultPublicationOwnerFinishErrorV1;
 use crate::mir::function::FunctionPublicationErrorV1;
 use crate::mir::MirModule;
 
@@ -22,6 +23,7 @@ pub(in crate::mir::builder) enum NormalCollectorDrainLifecycleErrorV1 {
     NonLegacyPolicy { key: FunctionDraftKeyV1 },
     SymbolIndexDrift { symbol: String },
     Publication(FunctionPublicationErrorV1),
+    StaticResultPublicationResidual(StaticCallResultPublicationOwnerFinishErrorV1),
 }
 
 impl std::fmt::Display for NormalCollectorDrainLifecycleErrorV1 {
@@ -109,6 +111,16 @@ impl ModuleDraftCollectorV1 {
         PreparedNormalCollectorDrainLifecycleV1<'module>,
         RejectedNormalCollectorDrainLifecycleV1,
     > {
+        let residual = self
+            .static_result_publication_owner
+            .as_ref()
+            .and_then(|owner| owner.finish_empty().err());
+        if let Some(error) = residual {
+            return Err(reject(
+                self,
+                NormalCollectorDrainLifecycleErrorV1::StaticResultPublicationResidual(error),
+            ));
+        }
         let receipt = match SealedNormalCollectorDrainReceiptV1::seal(&self, target, brand) {
             Ok(receipt) => receipt,
             Err(error) => return Err(reject(self, error)),
@@ -217,6 +229,8 @@ fn reject(
 mod tests {
     use super::*;
     use crate::mir::builder::module_draft_collector::CompletedDraftSignatureViewV1;
+    use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
+    use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
 
     fn brand() -> ModuleInvocationBrandV1 {
@@ -419,5 +433,41 @@ mod tests {
         let (collector, _) = rejected.into_parts();
         assert_eq!(collector.symbol_count(), 1);
         assert!(target.function_names().is_empty());
+    }
+
+    #[test]
+    fn normal_drain_rejects_unconsumed_static_publication_before_commit() {
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+        collect(&mut collector, "same/0");
+        let caller = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "Owner", "caller", 0,
+        );
+        let target = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "Owner", "target", 0,
+        );
+        let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+        ]));
+        collector
+            .install_static_result_publication_owner(
+                VerifiedStaticCallResultPublicationOwnerV1::target_only_for_test(
+                    caller, site, target,
+                ),
+            )
+            .unwrap();
+        let mut module = MirModule::new("normal".to_owned());
+
+        let rejected = collector
+            .prepare_normal_collector_drain(&mut module, brand())
+            .unwrap_err();
+        assert!(matches!(
+            rejected.error(),
+            NormalCollectorDrainLifecycleErrorV1::StaticResultPublicationResidual(
+                StaticCallResultPublicationOwnerFinishErrorV1::UnconsumedTargetOnly { .. }
+            )
+        ));
+        let (collector, _) = rejected.into_parts();
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(module.function_names().is_empty());
     }
 }
