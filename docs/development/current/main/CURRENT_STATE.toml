@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
-current_design_stop = "static StaticBoxMethod publication vertical is landed; select the next exact family"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: the isolated StaticBoxMethod publication vertical is complete on the branch; the parent/main remains unchanged and this pointer now waits for the next exact family.
-Source authority + canonical issuer: the existing source/catalog key, normal collector, Atomic MirModule definition relation, borrowed PublishedMirBackendView, typed C ingress, and switched --emit-exe caller are the sole landed chain.
-Non-authority: source spelling after publish, physical symbol, JSON/name/header/registry target lookup, args[0], ValueId(0), EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or duplicate key/receipt.
-Fail-fast boundary: key/definition/arity/projection drift, callee=None, unsupported published op/type, incomplete coverage, or typed object failure stops before compatibility retry. Unselected families retain their explicit compatibility route.
-Smallest next slice: choose one new family with an exact source key, published definition, typed consumer, named production caller, and finite old-edge delete set; no new D0 for the landed StaticBoxMethod cohort.
-Non-claims: no DeclaredInstance/Method(Some), whole Call-schema/R6 cutover, arbitrary selected-C UserBox support, semantic-effect issuance, VM/selfhost, broad JSON/test purge, fallback, retry, or whole-library green claim.
+Decision: run a real FreeStatic publication-spine vertical on this isolated branch. Extend the existing neutral callable key once, preserve the already-issued App Main FreeStatic product through collector and Atomic Publish, consume it through the borrowed typed backend view, and switch one named production caller. This is an in-place extension, not a second MirBuilder.
+Source authority + canonical issuer: the existing same-session App Main CallableIndex and VerifiedTrivialDirectCallV1/AppMainDirectCallDispositionLoanV1 issue the exact FreeStatic source product before argument descent; the existing canonical collector and MirModule publication owner remain the sole physical issuers.
+Non-authority: name/arity lookup after issue, physical symbol, JSON/name/header/registry target reconstruction, args[0], ValueId(0), EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a second FreeStatic key/receipt family.
+Fail-fast boundary: missing/duplicate/foreign App Main product, namespace/owner/arity/definition drift, legacy func carrier, unsupported lane/type, incomplete typed backend coverage, or object failure stops before JSON compatibility retry.
+Smallest next slice: one scalar App Main FreeStatic call with the existing affine loan, one neutral-key FreeFunction namespace, one published key-to-definition row, one typed C consumer, and one finite caller-exclusive old-edge delete set. Do not add another design card for the missing substrate; implementing that substrate is this row.
+Non-claims: no DeclaredInstance/Method(Some), whole Call-schema/R6 cutover, arbitrary UserBox support, Builtin Print runtime descriptor, semantic-effect issuance, VM/selfhost, broad JSON/test purge, fallback, retry, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -52,16 +52,16 @@ JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
 owner. The end-to-end tuple census is zero, so this family is now explicitly
 ParkedSealed__PublishedTargetAndBackendCoverageMissing rather than the active blocker. Add no D0,
 fixture, receipt, adapter, or guard; reopen only with one complete tuple and
-finite old-edge set. LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit residual boundary are recorded in the active card. Publication-spine S0 landed the StaticCurrentOwner source half, key preservation, Atomic Publish relation, borrowed typed view, selected-C ingress, runner switch, stable brand identity, and scalar me.helper() proof returning 7. This cohort is closed; parent/main remains untouched while the next exact family is selected.
+finite old-edge set. LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit residual boundary are recorded in the active card. Publication-spine S0 landed the StaticCurrentOwner source half, key preservation, Atomic Publish relation, borrowed typed view, selected-C ingress, runner switch, stable brand identity, and scalar me.helper() proof returning 7. This cohort is closed; the branch now opens one exact App Main FreeStatic extension of the same spine. Builtin Print remains a separate runtime-descriptor row.
 """
-next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
-next_execution_card = "none__design_stop"
+next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0"
+next_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
-accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0 (landed on isolated branch; parent/main remains unchanged; next family selection is required)"
+accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0 (branch-only fast row; parent/main remains unchanged; StaticBoxMethod cohort is already landed)"
 parked_mirbuilder_canonical_call_rebuild_task = "none__superseded_by_accepted_branch_execution_card"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

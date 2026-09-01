@@ -39,15 +39,18 @@ The first end-to-end product vertical has landed on the isolated branch:
 StaticBoxMethod preserves its callable key through Atomic Publish, lends one
 typed backend view, switches the normal `--emit-exe` edge, and removes the
 selected-family reach to JSON/name/`args[0]` repair. The scalar source proof
-`me.helper()` emits and runs with `Result: 7`. Main remains `design_stop` while
-the next exact family is selected; arbitrary UserBox DeclaredInstance stays
-`ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
+`me.helper()` emits and runs with `Result: 7`. The branch now has one real
+follow-on row for an App Main FreeStatic scalar call; this is an implementation
+row, not another design-only census. Main remains `design_stop` until the
+branch closeout is selected for integration. Arbitrary UserBox DeclaredInstance
+stays `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
 
 ### Current family disposition
 
 | family | status | reopen/next condition |
 |---|---|---|
 | published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
+| App Main `FreeStatic` | next branch-only vertical: reuse existing CallableIndex/affine loan and extend the neutral key once | one scalar caller must reach typed selected-C without JSON/name/args[0] repair; then delete that cohort's old edge |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -63,24 +66,29 @@ the next exact family is selected; arbitrary UserBox DeclaredInstance stays
    -> named --emit-exe switch -> scalar source-to-EXE proof. The cohort is
    closed; no extra D0 or compatibility retry is allowed.
 
-1. MS1-P family batches
+1. MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0 (branch-only active)
+   extend the neutral key with the existing FreeFunction namespace, preserve
+   the App Main product through Atomic Publish, consume one typed selected-C
+   row, and delete that caller's name/JSON fallback edge in the same series.
+
+2. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
    families; each batch switches one production family and deletes its old
    reachability/assets in the same bounded series.
 
-2. MS1-P product convergence
+3. MS1-P product convergence
    every currently complete production family reaches canonical Call/Atomic Publish
    product resolver/recovery/fallback/Method(None)/callee=None writers = 0
 
-3. MS1-C compatibility quarantine
+4. MS1-C compatibility quarantine
    Compatibility(AST), old JSON and harness/mock routes live behind one named boundary
    canonical rejection has retry/fallback = 0
 
-4. MS1-D Call R6/R7
+5. MS1-D Call R6/R7
    adapt or quarantine compiled consumers, then delete func, optional Callee/receiver,
    INVALID/0 targets, old writers, and their exclusive proof surface
 
-5. post-Call integration and repository repayment
+6. post-Call integration and repository repayment
    shrink context/port/barrel owners by finite caller; remeasure tracked files/lines
 ```
 

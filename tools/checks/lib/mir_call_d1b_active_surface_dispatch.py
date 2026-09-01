@@ -142,6 +142,8 @@ def _dispatch_coreplan_varmap_reseal_row(
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
+    elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:
+        api.check_free_static_publication_spine_i0(state, card)
     elif row == api.METHOD_ROW:
         check_proof_row(state, card, proof, root)
     elif row == api.RAW_ROOT_ROW:

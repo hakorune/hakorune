@@ -114,6 +114,12 @@ STATIC_PUBLICATION_SPINE_ROW = (
     "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
 )
 STATIC_PUBLICATION_SPINE_KEY = "mir_call_canonical_call_substrate_rebuild_d0_2026_09_02"
+FREE_STATIC_PUBLICATION_SPINE_ROW = (
+    "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0"
+)
+FREE_STATIC_PUBLICATION_SPINE_KEY = (
+    "mir_call_canonical_call_substrate_free_static_i0_2026_09_02"
+)
 
 
 def fail(message: str) -> None:
@@ -372,6 +378,38 @@ def check_static_publication_spine_landed(state: dict, card: dict) -> None:
         fail("StaticBoxMethod publication spine cannot retain implementation permission")
     if not isinstance(row.get("closeout"), str) or "complete" not in row["closeout"].lower():
         fail("StaticBoxMethod publication spine closeout evidence is missing")
+
+
+def check_free_static_publication_spine_i0(state: dict, card: dict) -> None:
+    """Validate the one active FreeStatic extension without inspecting code semantics.
+
+    The stable active-surface guard only checks pointer/manifest coherence here;
+    the implementation row owns its focused and source-to-object evidence.
+    """
+    if state.get("work_mode") != "fast":
+        fail("FreeStatic publication spine must run in fast")
+    if state.get("current_execution_row") != FREE_STATIC_PUBLICATION_SPINE_ROW:
+        fail("FreeStatic publication spine row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("FreeStatic publication spine must clear current_design_stop")
+    if state.get("next_execution_card") != FREE_STATIC_PUBLICATION_SPINE_ROW:
+        fail("FreeStatic publication spine next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("FreeStatic publication spine card path drifted")
+    row = card.get(FREE_STATIC_PUBLICATION_SPINE_KEY)
+    if not isinstance(row, dict):
+        fail(f"{FREE_STATIC_PUBLICATION_SPINE_KEY} section is missing")
+    if row.get("task_id") != FREE_STATIC_PUBLICATION_SPINE_ROW:
+        fail("FreeStatic publication spine task id drifted")
+    if row.get("status") != "branch_only_fast":
+        fail("FreeStatic publication spine must remain branch_only_fast until closeout")
+    if row.get("implementation_permission") is not True:
+        fail("FreeStatic publication spine must retain implementation permission")
+    if row.get("branch_base_head") != "1f0e0ca544":
+        fail("FreeStatic publication spine base head drifted")
+    for field in ("decision", "source_authority", "canonical_issuer", "first_cohort", "fail_fast_boundary", "acceptance", "no_safe_slice"):
+        if not isinstance(row.get(field), str) or not row[field].strip():
+            fail(f"FreeStatic publication spine manifest field is missing: {field}")
 
 
 def check_declared_instance_effect_issuer_d0(state: dict, card: dict) -> None:
