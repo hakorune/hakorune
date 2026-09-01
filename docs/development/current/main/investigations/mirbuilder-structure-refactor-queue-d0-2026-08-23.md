@@ -136,7 +136,8 @@ the pre/post test symbol set unchanged.
 
 ## Builder test-home R0 receipt — 2026-08-23
 
-`MIRBUILDER-BUILDER-TEST-HOME-R0` is complete. The four existing tests remain
+`MIRBUILDER-BUILDER-TEST-HOME-R0` is complete. At the time of that historical
+receipt, the four existing tests remained
 under the logical `mir::builder::binding_id_tests` module, while their bodies
 now live in `src/mir/builder/builder_binding_id_tests.rs` behind the parent
 `#[cfg(test)]` path declaration. No production module registration,
@@ -741,3 +742,18 @@ informational census. A line-count reduction without symbol/dependency
 evidence is not completion. The R0 and architecture rows remain parked until
 the selected baseline census is complete and `CURRENT_STATE.toml` explicitly
 selects one bounded cleanup row.
+
+## Binding-shadow duplicate retirement R0 — selected
+
+`MIR-BUILDER-TEST-INVENTORY-BINDING-SHADOW-DEDUP-R0` selects only the
+positive-only `test_shadowing_binding_restore` for `SupersededDelete`. The
+lexical-scope owner already covers shadowing, BindingId restoration, and
+`variable_map` restoration; its snapshot test plus the existing
+`scoped_transaction_*` tests retain identity and failure contracts. The
+candidate has no production caller.
+
+The row may delete one daily-root test only after its exact inventory,
+known-red partition, test-home guard, and successor filters agree. On landing,
+three binding-id tests remain in the extracted test-home cluster; the deleted
+test remains addressable through Git history and is not counted as daily
+evidence.

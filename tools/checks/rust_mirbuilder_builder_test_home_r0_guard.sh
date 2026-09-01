@@ -32,21 +32,21 @@ guard_expect_fixed_in_file "$TAG" 'test_binding_map_initialization' "$TESTS" \
   "binding test symbol must remain in the extracted cluster"
 guard_expect_fixed_in_file "$TAG" 'test_binding_allocation_sequential' "$TESTS" \
   "binding allocation test symbol must remain in the extracted cluster"
-guard_expect_fixed_in_file "$TAG" 'test_shadowing_binding_restore' "$TESTS" \
-  "shadowing test symbol must remain in the extracted cluster"
 guard_expect_fixed_in_file "$TAG" 'test_valueid_binding_parallel_allocation' "$TESTS" \
   "parallel allocator test symbol must remain in the extracted cluster"
+if rg -n -F 'test_shadowing_binding_restore' "$TESTS"; then
+  guard_fail "$TAG" "superseded shadowing test remains in the daily test-home cluster"
+fi
 guard_expect_fixed_in_file "$TAG" 'MIRBUILDER-BUILDER-TEST-HOME-R0' "$CARD" \
   "structure queue must retain the selected BoxShape row"
 
 for symbol in \
   test_binding_map_initialization \
   test_binding_allocation_sequential \
-  test_shadowing_binding_restore \
   test_valueid_binding_parallel_allocation; do
   if rg -n -F "$symbol" "$BUILDER"; then
     guard_fail "$TAG" "test symbol remains embedded in production barrel: $symbol"
   fi
 done
 
-echo "[$TAG] ok (builder=$builder_lines lines, test_home=$test_lines lines, four symbols preserved)"
+echo "[$TAG] ok (builder=$builder_lines lines, test_home=$test_lines lines, three symbols preserved)"

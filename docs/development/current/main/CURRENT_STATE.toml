@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-TEST-INVENTORY-BINDING-SHADOW-DEDUP-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: keep the existing selected-C admission design stop as the only next row; the sole LLVM-text substrate candidate is known, but no source-backed admission owner exists.
-Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer.
-Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
-Fail-fast boundary: until one exact Hako LLVM-text admission path can lend receiver/result/effect/full-lane data losslessly from the installed package to a named caller, with a matching old-edge delete set, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
-Smallest next slice: record the existing CoverageMissing/NoSafeSlice state and keep the boundary-external backend replacement lane ParkedSealed with one observable reopen trigger; do not add an intermediate co-seal row.
-Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
+Decision: retire one positive-only binding-shadow test that has an equal-or-stronger lexical-scope successor; keep all production and negative coverage unchanged.
+Source authority + canonical issuer: vars::lexical_scope production binding/scope owner and its existing shadow/identity/snapshot tests.
+Non-authority: raw test count, historical phase prose, guard strings, fixture age, or a passing filter without a successor and reopen trigger.
+Fail-fast boundary: candidate, successor, inventory, baseline partition, and test-home guard must agree; any missing successor, changed failure set, or production/negative coverage change aborts before deletion.
+Smallest next slice: delete only `mir::builder::binding_id_tests::test_shadowing_binding_restore`, rehome its receipt/guard/docs references, refresh the exact daily inventory, and then return to the selected-C design stop.
+Non-claims: no production source change, no lexical-scope API change, no selected-C/Method(Some), no Call/backend change, no guard deletion, no fallback, retry, or schema change.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,17 +42,17 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic default-feature receipt remains fixed at 7562/7394/139/29.
+The deterministic default-feature receipt remains fixed at 7562/7394/139/29 until the active one-test retirement row is landed.
 CorePlan varmap cache-only cleanup is complete through the clear final family:
 direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/
 canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
 DeclaredInstance selected-C admission row: relation, effect, result/Completion,
 physical lane, package locator, and exact receiver crosswalk are named, but
 Hako admission owner/caller/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the boundary-external backend replacement lane is ParkedSealed, and `LlTextEmitBox.emit_module` is a substrate candidate only with no lossless package admission.
-No Method(Some), backend switch, fallback, retry, or Call-schema claim is open.
+No Method(Some), backend switch, fallback, retry, or Call-schema claim is open; the selected-C row remains the next design stop after this T0 cleanup.
 """
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "MIR-BUILDER-TEST-INVENTORY-BINDING-SHADOW-DEDUP-R0"
+next_execution_card = "MIR-BUILDER-TEST-INVENTORY-BINDING-SHADOW-DEDUP-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

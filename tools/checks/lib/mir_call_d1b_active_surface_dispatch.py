@@ -40,6 +40,10 @@ from mir_call_d1b_method_corridor_guard import (
     check_static_receipt_target_before_args_i0,
     check_test_split_s0,
 )
+from mir_call_d1b_test_inventory_guard import (
+    ROW as TEST_INVENTORY_BINDING_SHADOW_ROW,
+    check_binding_shadow_dedup_r0,
+)
 from mir_call_d1b_rewrite_known_guard import (
     ROW as REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW,
     check_rewrite_known_caller_zero_s0,
@@ -134,6 +138,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_guard_split_s0(state, card, root, api)
     elif row == TEST_SPLIT_ROW:
         check_test_split_s0(state, card, root, api)
+    elif row == TEST_INVENTORY_BINDING_SHADOW_ROW:
+        check_binding_shadow_dedup_r0(state, card, root, api)
     elif row == EXACT1_RETIRE_ROW:
         check_exact1_retire_i0(state, card, root, api)
     elif row == METHOD_NONE_TERMINAL_ROW:
