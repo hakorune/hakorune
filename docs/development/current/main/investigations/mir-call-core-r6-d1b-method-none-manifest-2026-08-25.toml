@@ -130,12 +130,12 @@ closeout = "Verification-only guard rehome landed. The compiler, selected-C rout
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [canonical_tool_entrypoint_mode_i0_2026_09_02]
-status = "fast_open"
+status = "landed"
 task_id = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 ceremony_tier = "T0"
 box_kind = "BoxShape canonical tool entrypoint permission hygiene"
-implementation_permission = true
+implementation_permission = false
 decision = "Only the public direct MIR/selfhost entrypoints are tracked as executable. Set selfhost_build.sh and emit_mir_route.sh to 100755, keep helper/test scripts bash-invoked, and enforce the contract through the existing lightweight caller guard."
 source_authority = "The documented direct tool entrypoints, their shebangs, the tracked git index mode, and existing bash-based smoke runner own the executable boundary."
 canonical_issuer = "Existing tools/checks/hakorune_emit_mir_direct_caller_guard.sh; this row issues no compiler meaning, receipt, or runtime capability."
@@ -151,6 +151,11 @@ acceptance = "Exactly the four canonical direct entrypoints are executable in bo
 no_safe_slice = "Return to design_stop if another public executable owner appears, a helper requires mass chmod, direct invocation depends on changing smoke files, or compiler/selected-C semantics are touched."
 reopen_trigger = "Reopen only when a documented direct tool entrypoint is added/renamed or its invocation contract changes; do not reopen for individual helper/test scripts."
 non_claims = "No MirBuilder semantic implementation, no Method(Some), no backend/VM/Call-schema change, no smoke fixture mode rewrite, no legacy route restoration, and no full test-suite claim."
+base_commit = "61423ee804"
+implementation_commit = "06454bd084"
+implementation_evidence = "The two previously non-executable documented route entrypoints are tracked as 100755 and executable in the checkout; tools/selfhost/run.sh and tools/smokes/v2/run.sh remain 100755. The existing hakorune_emit_mir_direct_caller_guard.sh now checks the four canonical modes and is registered in pilot/quick-static. Direct emit --help and all pointer/active-surface/diff checks pass; helper/test scripts remain 0644 and bash-invoked. No compiler or smoke semantics changed."
+closeout = "The permission blocker is closed as a tooling-only BoxShape repair. Canonical direct entrypoints have a finite tracked executable surface, helper/test modes remain unchanged, and the CURRENT_STATE pointer returns to MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 design_stop."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [legacy_tests_retire_r0_2026_09_02]
 status = "landed"

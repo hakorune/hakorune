@@ -1,15 +1,19 @@
 date = "2026-09-02"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: repair the canonical direct-tool entrypoint mode contract without changing compiler semantics.
-Source authority + canonical issuer: the two public MIR/selfhost entrypoints and the existing caller guard; helper/test scripts remain bash-invoked.
-Non-authority: mass chmod, shell filename conventions, filesystem-only mode, compiler/Call/selected-C code, fallback, retry, or a new semantic receipt.
-Fail-fast boundary: the tracked index mode and checked-out executable bit of every canonical entrypoint must be 100755; noncanonical helpers remain 100644 and are invoked through bash.
-Smallest next slice: mark only the canonical selfhost_build.sh and emit_mir_route.sh entrypoints executable, register the existing lightweight caller guard, and record the policy in the tool READMEs.
-Non-claims: no MirBuilder semantic implementation, selected-C admission, backend/VM change, smoke-suite mode rewrite, or mass permission change.
+Decision: keep one canonical published-MirModule pipeline; the selected-C admission remains a separate design stop because no source-backed capability co-seals the full DeclaredInstance tuple.
+The architecture choice is the canonical path: source/package products stop at
+Atomic Publish, then a lossless borrowed typed backend view may feed the
+selected backend. Direct package-to-Hako emission is superseded and remains
+ParkedSealed, not an alternate production pipeline.
+Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
+Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
+Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
+Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge. A minimal Counter probe is only conditional evidence until the current tree contains its source-backed entry, return contract, and exact wire/object tuple; do not amend a fixture to force admission.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,7 +43,7 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The Pair/Page EXE smoke launch remains blocked by pre-existing tracked 100644 script permissions, so no runtime green claim is made. The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
+The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The Pair/Page EXE smoke launch was initially blocked by tracked 100644 route-entrypoint modes; the bounded tooling row MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0 corrected only the two public route modes and registered a permanent index/checkout guard. The original closeout made no runtime green claim. The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
 93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and unchanged
 failure SHA; the CallTarget guard was rehomed at cde0250481 with no compiler
 semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
@@ -56,7 +60,7 @@ only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
 residual boundary are recorded in the active card.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
