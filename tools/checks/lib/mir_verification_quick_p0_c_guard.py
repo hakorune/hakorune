@@ -75,6 +75,13 @@ def _list(row: dict, name: str) -> list[str]:
     return list(value)
 
 
+def _nonnegative_int(row: dict, name: str) -> int:
+    value = row.get(name)
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        api.fail(f"baseline refresh integer field is malformed: {name}")
+    return value
+
+
 def _check_landed_files(root: Path, row: dict) -> None:
     for path in (BASELINE, INVENTORY, FAILURES, QUICK_STEPS):
         if not (root / path).is_file():
@@ -194,6 +201,7 @@ def check_verification_quick_lib_baseline_refresh_r0(
     expected_allowed = {
         str(BASELINE),
         str(INVENTORY),
+        str(FAILURES),
         str(api.STATE_REL),
         "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
         str(api.CARD_REL),
@@ -210,24 +218,28 @@ def check_verification_quick_lib_baseline_refresh_r0(
     expected_fields = {
         "expected_status": "FAILED",
         "expected_exit_code": 101,
-        "expected_passed": 7386,
-        "expected_failed": 139,
-        "expected_ignored": 29,
+        "expected_passed": _nonnegative_int(row, "expected_passed"),
+        "expected_failed": _nonnegative_int(row, "expected_failed"),
+        "expected_ignored": _nonnegative_int(row, "expected_ignored"),
         "expected_measured": 0,
         "expected_filtered": 0,
-        "inventory_sha256": "93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0",
-        "failures_sha256": "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041",
+        "inventory_sha256": _text(row, "inventory_sha256"),
+        "failures_sha256": _text(row, "failures_sha256"),
     }
+    expected_total = _nonnegative_int(row, "expected_total")
     for name, expected in expected_fields.items():
         if manifest.get(name) != expected:
             api.fail(f"baseline refresh manifest drifted: {name}")
 
     inventory = (root / INVENTORY).read_text(encoding="utf-8").splitlines()
     failures = (root / FAILURES).read_text(encoding="utf-8").splitlines()
-    if len(inventory) != 7554 or inventory != sorted(set(inventory)):
-        api.fail("baseline refresh inventory must contain 7554 unique sorted tests")
-    if len(failures) != 139 or failures != sorted(set(failures)):
-        api.fail("baseline refresh failure receipt must keep 139 unique sorted names")
+    if len(inventory) != expected_total or inventory != sorted(set(inventory)):
+        api.fail(f"baseline refresh inventory must contain {expected_total} unique sorted tests")
+    if len(failures) != expected_fields["expected_failed"] or failures != sorted(set(failures)):
+        api.fail(
+            "baseline refresh failure receipt must keep "
+            f"{expected_fields['expected_failed']} unique sorted names"
+        )
     if _canonical_lines_sha256(inventory) != expected_fields["inventory_sha256"]:
         api.fail("baseline refresh inventory SHA drifted")
     if _canonical_lines_sha256(failures) != expected_fields["failures_sha256"]:

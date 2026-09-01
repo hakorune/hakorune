@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: selected-C stays live as a backend, but its exhausted DeclaredInstance D0 is ParkedSealed__CoverageMissing and no longer blocks unrelated Call families.
-Source authority + canonical issuer: an existing source-backed caller must carry one complete target/relation/result/effect/full-ABI/receiver/object tuple through canonical Atomic Publish; a backend may only consume a lossless post-publish projection.
-Non-authority: JSON/name/header/registry inference, MIR EffectMask or FunctionSignature as semantic proof, args[0], ValueId(0), fixture injection, direct package-to-Hako transport, fallback, retry, or a new receipt/guard.
-Fail-fast boundary: reopen DeclaredInstance only when exactly one live me.method product caller, one lossless backend view, one daily consumer, and one finite old-edge delete set exist. Zero or multiple keeps the whole family parked without another D0.
-Smallest next slice: first run the two existing ordinary-new Pair/Page smokes as a Ghost Task; then the ready BoxShape may consolidate six identical normal-script lexical parity tests into one six-case matrix with no production change and no new guard.
-Non-claims: no Method(Some), selected-C retirement, backend/Call schema change, compatibility purge, VM work, broad test deletion, fallback, retry, or inferred semantic owner.
+Decision: perform the existing one-time deterministic full-lib baseline refresh before any semantic Call work.
+Source authority + canonical issuer: the fixed-stack cargo test/list commands, their complete sorted receipts, and the existing baseline comparator.
+Non-authority: cargo check, filtered green, count-only output, auto-rebaseline, historical prose, MIR/backend facts, or the parked selected-C tuple.
+Fail-fast boundary: any summary, inventory, failure-name, hash, or quick-run mismatch stops this bounded verification row; no semantic work opens from a partial receipt.
+Smallest next slice: reconcile the current 7558-test inventory and 138-name known-red set, then return to the selected-C design stop without changing compiler semantics.
+Non-claims: no known-red repair, test retirement, Method(Some), selected-C admission, backend/Call schema change, fallback, retry, or inferred semantic owner.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -56,8 +56,8 @@ RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-
 only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
 residual boundary are recorded in the active card.
 """
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
