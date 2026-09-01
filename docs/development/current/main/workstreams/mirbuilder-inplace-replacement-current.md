@@ -136,12 +136,13 @@ the two production callers and one test helper are reconciled, but no exact
 same-session `main/0` Callee issuer exists. Ordinary-new is no longer an
 unexplained carrier dead-end. The partial landing at `d81d91d800` established
 the parser constructor product, package recipe, shared ABI, and selected-normal
-claim transport, but its claimed Birth consumer still emits the legacy
-name-Const/`func` carrier through `emit_legacy_call`. The corrective bounded
-row `MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0` is now
-active: replace only that claimed writer with `MirInstruction::call`, preserve
-no-claim compatibility, and close the residual before returning to selected-C
-design stop. The cataloged-provider audit leaves bare `exit` as `NoIssuer`;
+claim transport. Its premature tombstone was corrected and the claimed Birth
+physical carrier cut over at `4b2db34ee3`: the existing recipe target is selected
+before argument descent, the canonical typed Call is emitted after NewBox, and
+the no-claim compatibility writer remains unchanged. Focused ordinary-new tests
+and structural guards pass; Pair/Page EXE smoke launch is a pre-existing
+tracked-script permission blocker, so no runtime green claim is made. The
+cataloged-provider audit leaves bare `exit` as `NoIssuer`;
 the later `LANG-PANIC-TERMINAL-FAULT-D0` decision gives exact bare `panic/1`
 an accepted terminal-Fault target (production 0), although no live issuer
 exists yet. The canonical Call SSOT gives bare `error` and `now` unsupported

@@ -1,15 +1,19 @@
-date = "2026-09-01"
+date = "2026-09-02"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: complete only the already-issued ordinary-new Birth recipe's physical carrier cutover; keep one canonical published-MirModule pipeline and leave selected-C as a separate CoverageMissing design stop.
-Source authority + canonical issuer: parser-owned ConstructorSourceIdV1/Birth(N) co-sealed by the existing VerifiedOrdinaryNewBirthRecipeV1 claim ledger; the claimed physical consumer only consumes that typed recipe.
-Non-authority: birth text, class/name/arity lookup, AST/header/registry scans, name Const, legacy func carrier, fallback, retry, no-claim compatibility, selected-C, VM/backend, or Call-schema inference.
-Fail-fast boundary: validate the exact claim, source/physical arity, ABI, and residual state before call-carrier Const/ValueId allocation or argument effects; after NewBox, emit one canonical typed birth Call and no legacy carrier.
-Smallest next slice: replace only the claimed Birth branch's emit_legacy_call with MirInstruction::call, run the existing ordinary-new focused evidence, and close out to selected-C design_stop.
-Non-claims: no no-claim compatibility change, no Method(Some), no selected-C/backend implementation, no VM/JSON/Call-schema cutover, no new receipt/resolver, fallback, or retry.
+Decision: keep one canonical published-MirModule pipeline; the selected-C admission remains a separate design stop because no source-backed capability co-seals the full DeclaredInstance tuple.
+The architecture choice is the canonical path: source/package products stop at
+Atomic Publish, then a lossless borrowed typed backend view may feed the
+selected backend. Direct package-to-Hako emission is superseded and remains
+ParkedSealed, not an alternate production pipeline.
+Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
+Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
+Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
+Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge. A minimal Counter probe is only conditional evidence until the current tree contains its source-backed entry, return contract, and exact wire/object tuple; do not amend a fixture to force admission.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,18 +43,24 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The selected-C admission remains ParkedSealed/NoSafeSlice: the physical ingress
-audit found only the Rust borrowed-MirModule seam and no lossless typed
-DeclaredInstance tuple. The active bounded row is the corrective ordinary-new
-Birth carrier cutover: d81d91d800 landed the parser/package recipe and ABI, but
-the claimed consumer still used emit_legacy_call, so the former tombstone was
-reopened honestly. Replace only that claimed writer with MirInstruction::call,
-run the existing Pair/Page smoke and claim lifecycle evidence, then return to
-the selected-C design stop. No-claim compatibility, Method(Some), backend/VM,
-JSON, Call schema, fallback, retry, or new receipt/resolver work is allowed.
+The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The Pair/Page EXE smoke launch remains blocked by pre-existing tracked 100644 script permissions, so no runtime green claim is made. The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
+93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and unchanged
+failure SHA; the CallTarget guard was rehomed at cde0250481 with no compiler
+semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
+has zero source-backed admission capabilities. Keep the canonical path:
+publish one complete MirModule, then lend a borrowed typed backend view;
+direct package-to-Hako remains ParkedSealed. Fresh audit at 479a027863 finds
+only the Rust borrowed-MirModule seam; selected C/Hako/LLVM still consumes a
+JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
+owner. Keep this row ParkedSealed/NoSafeSlice: add no D0, fixture, receipt,
+adapter, or guard; reopen only with one complete tuple and finite old-edge set.
+The exact tuple census is zero; Method(Some) remains a design stop. LEGACY-TESTS-
+RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-
+only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
+residual boundary are recorded in the active card.
 """
-next_design_card = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
-next_execution_card = "MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -64,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-01: binding-shadow duplicate retirement landed at 70b061f8f2: the positive-only mir::builder::binding_id_tests::test_shadowing_binding_restore was deleted with lexical_scope shadow/identity/snapshot successors and scoped_transaction negatives retained; daily inventory is 7563/7395/139/29 and failure SHA is unchanged.",
-  "2026-09-01: CorePlan if_join join reseal landed at 37fe154ea0 and if_general join reseal landed at b7df21d204; direct_sites=0 and the role-aware cache census remains closed without Call/backend/selected-C changes.",
+  "2026-09-02: ordinary-new Birth corrective cutover landed at 4b2db34ee3: claimed Birth now selects the existing recipe target before argument descent and emits the canonical typed Call after NewBox; no-claim compatibility remains unchanged. Focused ordinary_new tests and structural guards passed; Pair/Page smoke launch remains blocked by pre-existing tracked script mode 100644.",
+  "2026-09-01: binding-shadow duplicate retirement landed at 70b061f8f2; CorePlan if_join/if_general join reseals landed at 37fe154ea0/b7df21d204. The retained shadow/snapshot negatives, direct_sites=0 role-aware cache census, daily inventory 7563/7395/139/29, and unchanged failure SHA are recorded in the active card.",
   "2026-09-01: LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65: removed the explicitly disabled pre-JoinIR feature, 34 cfg-gated roots, and nine exclusive support files; default baseline 7554/7386/139/29 and failure SHA are unchanged, then returned to selected-C design_stop.",
 ]
