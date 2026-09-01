@@ -74,7 +74,12 @@ The behavior-neutral
 `35f59702b5`: it moved only the derived route lookup block into a private
 child and left the 47-row catalog, public API, and generated/C behavior
 unchanged. The current pointer is back at the selected-C CoverageMissing
-design stop. The later production work will verticalize and delete that
+design stop. The next nonblocking cleanup queue is deliberately separate: run
+the existing deterministic baseline-refresh row once, then activate the
+existing test-inventory parent for the exact eight-test loop-if-exit duplicate
+cohort. This queue may reduce the daily root without issuing semantic
+authority; it does not reopen selected-C or create a second pipeline. The later
+production work will verticalize and delete that
 family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
