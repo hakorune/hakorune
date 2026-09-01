@@ -108,6 +108,8 @@ SELECTED_C_STACK_ROW = "NY-LLVMC-SELECTED-LAUNCH-SNAPSHOT-STACK-RETIRE-R0"
 SELECTED_C_STACK_KEY = "ny_llvmc_selected_launch_snapshot_stack_retire_r0_2026_08_31"
 CSE_SAME_BLOCK_ROW = "MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0"
 CSE_SAME_BLOCK_KEY = "mir_cse_same_block_stats_determinism_r0_2026_09_01"
+CALLTARGET_GUARD_REHOME_ROW = "MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0"
+CALLTARGET_GUARD_REHOME_KEY = "mir_builder_calltarget_guard_rehome_r0_2026_09_01"
 
 
 def fail(message: str) -> None:
@@ -622,6 +624,49 @@ def check_declared_instance_locator_install_bridge_i0(
     }
     if not required <= allowed:
         fail(f"locator install bridge allowed_files omit {sorted(required - allowed)}")
+
+
+def check_calltarget_guard_rehome_r0(
+    state: dict, card: dict, root: Path
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        fail("CallTarget guard rehome requires fast or closeout work_mode")
+    if state.get("current_execution_row") != CALLTARGET_GUARD_REHOME_ROW:
+        fail("CallTarget guard rehome row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("CallTarget guard rehome must clear current_design_stop")
+    if state.get("next_execution_card") != CALLTARGET_GUARD_REHOME_ROW:
+        fail("CallTarget guard rehome next_execution_card drifted")
+    row = card.get(CALLTARGET_GUARD_REHOME_KEY)
+    if not isinstance(row, dict) or row.get("task_id") != CALLTARGET_GUARD_REHOME_ROW:
+        fail("CallTarget guard rehome row is missing")
+    if row.get("status") not in {"fast_open", "landed"}:
+        fail("CallTarget guard rehome status is not finite")
+    if row.get("implementation_permission") is not (row.get("status") == "fast_open"):
+        fail("CallTarget guard rehome permission/status drifted")
+    required = {
+        "tools/checks/mir_builder_calltarget_owner_guard.sh",
+        str(HELPER_REL),
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        str(STATE_REL),
+        str(CARD_REL),
+    }
+    allowed = set(require_text_list(row.get("allowed_files"), "CallTarget guard allowed_files"))
+    if not required <= allowed:
+        fail(f"CallTarget guard allowed_files omit {sorted(required - allowed)}")
+    guard = root / "tools/checks/mir_builder_calltarget_owner_guard.sh"
+    if not guard.is_file():
+        fail("CallTarget guard owner is missing")
+    result = subprocess.run(
+        ["bash", str(guard)],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = (result.stdout + result.stderr).strip()[-800:]
+        fail(f"CallTarget guard rehome failed: {detail}")
 
 
 def check_selected_c_stack_row(state: dict, card: dict, root: Path) -> None:

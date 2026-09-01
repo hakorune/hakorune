@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement. The fixed baseline receipt is reconciled at 7554/7386/139/29, but dev_gate quick is stopped by a separate existing CallTarget owner guard path drift.
-Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
-Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
-Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
-Smallest next slice: repair or rehome the existing CallTarget owner guard through its own bounded verification task; do not open another semantic bridge while the selected-C census remains zero.
-Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
+Decision: repair the existing CallTarget guard in place by following the current production policy owners; the retired method_resolution.rs path is not restored.
+Source authority + canonical issuer: the existing CalleeBoxKind and CallName policy modules plus the current resolver/boxcall/preflight consumers; this row issues no compiler meaning.
+Non-authority: retired paths, stale count expectations, source names, fixtures, local green, fallback, retry, or any new guard/receipt.
+Fail-fast boundary: stop on an unexpected production consumer, missing policy owner, changed ownership contract, or any semantic source change; the rehomed guard must retain root ownership and policy exclusivity.
+Smallest next slice: update the one existing shell guard to the finite current consumer inventory, run its focused structural checks, then return to the selected-C design stop.
+Non-claims: no MirBuilder semantic implementation, Method(Some), backend/Hako/Call-schema change, VM work, fallback, retry, or retirement of the separate Method corridor guard.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,17 +39,15 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The existing baseline receipt has been rechecked three times after the
-loop-if-exit retirement: 7554/7386/139/29 with inventory SHA
-93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and the
-139-name failure SHA unchanged. The full quick gate is not green: it stops at
-the existing MIR builder CallTarget owner guard because its required
-method_resolution.rs path is retired. Keep that verification debt separate;
-the selected-C census remains zero and direct package-to-Hako remains
-ParkedSealed.
+The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
+93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and an
+unchanged 139-name failure SHA. The first quick stop was a stale CallTarget
+owner guard requiring retired method_resolution.rs; the bounded rehome keeps
+the existing policy owners and changes no compiler semantics. After this
+verification repair, return to the selected-C CoverageMissing design stop.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_execution_card = "MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

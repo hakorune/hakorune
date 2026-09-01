@@ -226,6 +226,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_declared_instance_selected_c_admission_d0(state, card)
     elif row == api.SELECTED_C_STACK_ROW:
         api.check_selected_c_stack_row(state, card, root)
+    elif row == api.CALLTARGET_GUARD_REHOME_ROW:
+        api.check_calltarget_guard_rehome_r0(state, card, root)
     elif row == api.CSE_SAME_BLOCK_ROW:
         from mir_cse_same_block_guard import check_cse_same_block_r0
 

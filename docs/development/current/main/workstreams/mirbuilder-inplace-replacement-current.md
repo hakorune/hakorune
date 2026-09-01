@@ -66,7 +66,11 @@ builder CallTarget owner guard, which still requires the retired
 varmap census remains closed at raw=22, test-only=16, disconnected=1, live=5,
 canonical=1, reseal=4, remove_or_clear=0. The receiver crosswalk at
 `dc68fa2910` remains valid and
-Global/manual-prefix output is unchanged. Only after the selected-C
+Global/manual-prefix output is unchanged. The current bounded verification
+row is `MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0`: it rehomes the existing guard
+to resolver/boxcall/preflight policy consumers without restoring the retired
+file or changing compiler semantics. Its closeout returns to the selected-C
+CoverageMissing design stop. Only after the selected-C
 caller-first boundary gains one exact live `me.method` source/wire/object tuple
 may Method(Some) admission resume. The selected physical owner is the existing
 daily ny-llvmc Boundary after canonical MirModule publication. The former
@@ -82,8 +86,8 @@ unchanged failure names after the exact eight-test loop-if-exit duplicate
 cohort was retired at `ed1332f16d`. The reconciliation stops at the existing
 CallTarget owner guard path drift, so whole quick is not claimed green. The
 common owner retains nine contract tests; the
-normalized-shadow production route is unchanged, and the current pointer is
-back at the selected-C CoverageMissing design stop. This cleanup reduced the
+normalized-shadow production route is unchanged, and the current pointer now
+selects the bounded CallTarget guard rehome. This cleanup reduced the
 daily root without issuing semantic authority; it did not reopen selected-C or
 create a second pipeline. The later
 production work will verticalize and delete that
