@@ -66,11 +66,57 @@ VERIFICATION_VARMAP_LOOP_COND_BC_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-CON
 VERIFICATION_VARMAP_LOOP_TRUE_BC_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-TRUE-BC-R0"
 VERIFICATION_VARMAP_LOOP_COND_CONTINUE_ONLY_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-ONLY-R0"
 VERIFICATION_VARMAP_LOOP_COND_CONTINUE_WITH_RETURN_PHI_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-WITH-RETURN-PHI-R0"
+VERIFICATION_VARMAP_LOOP_COND_RETURN_IN_BODY_PHI_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-RETURN-IN-BODY-PHI-R0"
 CROSSWALK_D0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 CROSSWALK_I0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
     "MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0"
 )
+
+
+def _dispatch_coreplan_varmap_reseal_row(
+    row: str, state: dict, card: dict, root: Path, api
+) -> None:
+    """Dispatch future varmap reseal rows through one manifest-driven checker."""
+    from mir_verification_quick_p0_c_guard import (
+        _check_coreplan_varmap_reseal_single_site,
+        _coreplan_varmap_reseal_allowed_files,
+    )
+
+    matches = [
+        (key, value)
+        for key, value in card.items()
+        if isinstance(value, dict) and value.get("task_id") == row
+    ]
+    if len(matches) != 1:
+        api.fail(f"CorePlan varmap reseal row must have one manifest entry: {row!r}")
+    row_key, manifest_row = matches[0]
+    target_paths = manifest_row.get("target_paths")
+    if not isinstance(target_paths, list) or not target_paths or not all(
+        isinstance(path, str) and path.strip() for path in target_paths
+    ):
+        api.fail(f"CorePlan varmap reseal target_paths are malformed: {row!r}")
+    expected_direct_sites = manifest_row.get("expected_direct_sites")
+    if not isinstance(expected_direct_sites, int) or expected_direct_sites <= 0:
+        api.fail(f"CorePlan varmap reseal expected_direct_sites is malformed: {row!r}")
+    expected_direct_sites_token = manifest_row.get("expected_direct_sites_token")
+    label = manifest_row.get("label")
+    parent_row = manifest_row.get("parent_row")
+    if not all(isinstance(value, str) and value.strip() for value in (expected_direct_sites_token, label, parent_row)):
+        api.fail(f"CorePlan varmap reseal metadata is malformed: {row!r}")
+    _check_coreplan_varmap_reseal_single_site(
+        state,
+        card,
+        root,
+        row_name=row,
+        row_key=row_key,
+        parent_row=parent_row,
+        label=label,
+        target_paths=set(target_paths),
+        expected_direct_sites=expected_direct_sites,
+        expected_direct_sites_token=expected_direct_sites_token,
+        allowed_files=_coreplan_varmap_reseal_allowed_files(target_paths[0]),
+    )
 
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
@@ -262,5 +308,7 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         )
 
         check_verification_coreplan_varmap_reseal_loop_cond_continue_with_return_phi_r0(state, card, root, api)
+    elif isinstance(row, str) and row.startswith("DEV-GATE-COREPLAN-VARMAP-RESEAL-"):
+        _dispatch_coreplan_varmap_reseal_row(row, state, card, root, api)
     else:
         api.fail(f"unsupported current row for this stable guard: {row!r}")
