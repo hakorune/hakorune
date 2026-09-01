@@ -7,6 +7,7 @@ use crate::mir::builder::control_flow::plan::normalizer::stmt_only_prelude_view:
     stmt_only_prelude_view, StmtOnlyPreludeView,
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId};
@@ -90,11 +91,7 @@ fn lower_stmt_only_prelude_stmts(
                         error_prefix,
                     )?;
                 bindings.insert(name.clone(), value_id);
-                builder
-                    .function_state
-                    .variable_ctx
-                    .variable_map
-                    .insert(name, value_id);
+                publish_emission_cache(builder, name, value_id);
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
             }
@@ -173,11 +170,7 @@ fn lower_stmt_only_prelude_stmts(
                     if then_id == else_id {
                         if then_id != base_id {
                             bindings.insert(name.clone(), then_id);
-                            builder
-                                .function_state
-                                .variable_ctx
-                                .variable_map
-                                .insert(name, then_id);
+                            publish_emission_cache(builder, name, then_id);
                         }
                         continue;
                     }
@@ -199,11 +192,7 @@ fn lower_stmt_only_prelude_stmts(
                         else_val: else_id,
                     });
                     bindings.insert(name.clone(), merged_id);
-                    builder
-                        .function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(name, merged_id);
+                    publish_emission_cache(builder, name, merged_id);
                 }
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
             }
@@ -223,11 +212,7 @@ fn lower_stmt_only_prelude_stmts(
                 )?;
                 for (name, value_id) in inits {
                     bindings.insert(name.clone(), value_id);
-                    builder
-                        .function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(name, value_id);
+                    publish_emission_cache(builder, name, value_id);
                 }
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
@@ -306,11 +291,7 @@ fn sync_stmt_only_prelude_variable_map(
 ) {
     builder.function_state.variable_ctx.variable_map = base_var_map.clone();
     for (name, value_id) in bindings {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        publish_emission_cache(builder, name.clone(), *value_id);
     }
 }
 
