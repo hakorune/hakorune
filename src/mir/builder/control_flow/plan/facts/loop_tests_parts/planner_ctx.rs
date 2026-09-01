@@ -10,37 +10,6 @@ fn v(name: &str) -> ASTNode {
 }
 
 #[test]
-fn loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch() {
-    let condition = ASTNode::BinaryOp {
-        operator: BinaryOperator::Less,
-        left: Box::new(v("i")),
-        right: Box::new(ASTNode::Literal {
-            value: LiteralValue::Integer(3),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    let step = ASTNode::Assignment {
-        target: Box::new(v("i")),
-        value: Box::new(ASTNode::BinaryOp {
-            operator: BinaryOperator::Add,
-            left: Box::new(v("i")),
-            right: Box::new(ASTNode::Literal {
-                value: LiteralValue::Integer(1),
-                span: Span::unknown(),
-            }),
-            span: Span::unknown(),
-        }),
-        span: Span::unknown(),
-    };
-    let ctx = PlannerContext::from_environment();
-
-    let facts = try_build_loop_facts_with_ctx(&ctx, &condition, &[step]).expect("Ok");
-    let facts = facts.expect("Some");
-    assert!(facts.loop_simple_while.is_some());
-}
-
-#[test]
 fn loopfacts_ctx_allows_simple_while_route_when_kind_matches() {
     let condition = ASTNode::BinaryOp {
         operator: BinaryOperator::Less,

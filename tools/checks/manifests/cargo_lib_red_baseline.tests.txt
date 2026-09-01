@@ -1165,7 +1165,6 @@ mir::builder::control_flow::plan::facts::loop_tests::invariants::loop_facts_requ
 mir::builder::control_flow::plan::facts::loop_tests::multi_candidate::loopfacts_keeps_loop_cond_owner_for_multi_candidate_conditional_update
 mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box
 mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::loopfacts_ctx_allows_simple_while_route_when_kind_matches
-mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch
 mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::loopfacts_ok_none_when_condition_not_supported
 mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::loopfacts_ok_none_when_step_var_differs_from_condition_var
 mir::builder::control_flow::plan::facts::loop_tests::scan_with_init::loopfacts_ok_some_for_canonical_scan_with_init_minimal

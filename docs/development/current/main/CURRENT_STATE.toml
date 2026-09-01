@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-TEST-INVENTORY-PLANNER-CONTEXT-DEDUP-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: keep the existing selected-C admission design stop as the only next row; the sole LLVM-text substrate candidate is known, but no source-backed admission owner exists.
-Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer.
-Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
-Fail-fast boundary: until one exact Hako LLVM-text admission path can lend receiver/result/effect/full-lane data losslessly from the installed package to a named caller, with a matching old-edge delete set, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
-Smallest next slice: record the existing CoverageMissing/NoSafeSlice state and keep the boundary-external backend replacement lane ParkedSealed with one observable reopen trigger; do not add an intermediate co-seal row.
-Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
+Decision: retire one stale positive-only PlannerContext mismatch test whose route_kind/in_static_box/debug inputs are no longer production inputs; retain the exact-match successor and unsupported-shape negatives.
+Source authority + canonical issuer: current PlannerContext/LoopFacts production owner; the existing exact-match test is the successor evidence and the baseline/test-home inventory owns the daily test surface.
+Non-authority: test spelling, historical phase prose, raw counts, fixture age, or a local green filter without exact successor and negative coverage.
+Fail-fast boundary: candidate, exact successor, three negative paths, baseline failure-name set, inventory hash, and the reusable lane guard must agree; any production change, route-kind reintroduction, missing successor, or new failure blocks deletion.
+Smallest next slice: delete only `loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch`, refresh the exact root inventory, run exact successor/negative filters, then return to the selected-C design stop.
+Non-claims: no loop production change, no accepted-shape change, no selected-C/Method(Some), no Call/backend/VM change, no new guard, fallback, retry, or schema change.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,8 +42,11 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic default-feature receipt is now 7563/7395/139/29 after the
-one-test binding-shadow retirement; the 139 failure names and SHA are unchanged.
+The deterministic default-feature receipt remains 7563/7395/139/29 with the
+139 failure names and SHA unchanged. A T0 test-inventory row is active only for
+the stale PlannerContext mismatch case; its exact-match successor and three
+negative paths are retained. The selected-C admission row remains the semantic
+design stop because Hako admission owner/caller/ABI coverage is still zero.
 CorePlan varmap cache-only cleanup is complete through the clear final family:
 direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/
 canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
@@ -51,10 +54,10 @@ DeclaredInstance selected-C admission row: relation, effect, result/Completion,
 physical lane, package locator, and exact receiver crosswalk are named, but
 Hako admission owner/caller/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the boundary-external backend replacement lane is ParkedSealed, and `LlTextEmitBox.emit_module` is a substrate candidate only with no lossless package admission.
 No Method(Some), backend switch, fallback, retry, or Call-schema claim is open;
-the selected-C row remains the sole next design stop.
+the selected-C row remains the next design stop after this nonblocking T0.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_execution_card = "MIR-BUILDER-TEST-INVENTORY-PLANNER-CONTEXT-DEDUP-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -118,3 +118,112 @@ def check_binding_shadow_dedup_r0(
         for successor in SUCCESSOR_NAMES:
             if successor not in names:
                 parent_api.fail(f"binding-shadow successor missing from inventory: {successor}")
+
+
+PLANNER_CONTEXT_ROW = "MIR-BUILDER-TEST-INVENTORY-PLANNER-CONTEXT-DEDUP-R0"
+PLANNER_CONTEXT_KEY = "mir_builder_test_inventory_planner_context_dedup_r0_2026_09_01"
+PLANNER_CONTEXT_SOURCE_REL = Path(
+    "src/mir/builder/control_flow/plan/facts/loop_tests_parts/planner_ctx.rs"
+)
+PLANNER_CONTEXT_CANDIDATE = (
+    "mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::"
+    "loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch"
+)
+PLANNER_CONTEXT_SUCCESSOR = (
+    "mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::"
+    "loopfacts_ctx_allows_simple_while_route_when_kind_matches"
+)
+PLANNER_CONTEXT_NEGATIVES = (
+    "mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::"
+    "loopfacts_ok_none_when_condition_not_supported",
+    "mir::builder::control_flow::plan::facts::loop_tests::planner_ctx::"
+    "loopfacts_ok_none_when_step_var_differs_from_condition_var",
+    "mir::builder::control_flow::plan::facts::loop_simple_while_facts::tests::"
+    "loop_simple_while_facts_reject_nested_loop_even_when_step_exists",
+)
+
+
+def check_planner_context_dedup_r0(
+    state: dict, card: dict, root: Path, parent_api=api
+) -> None:
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        parent_api.fail("planner-context test retirement requires fast or closeout work_mode")
+    if state.get("current_execution_row") != PLANNER_CONTEXT_ROW:
+        parent_api.fail("planner-context test retirement row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        parent_api.fail("planner-context test retirement must clear current_design_stop")
+    if state.get("next_execution_card") != PLANNER_CONTEXT_ROW:
+        parent_api.fail("planner-context test retirement pointer drifted")
+    if state.get("next_execution_card_path") != str(parent_api.CARD_REL):
+        parent_api.fail("planner-context test retirement card path drifted")
+
+    row = card.get(PLANNER_CONTEXT_KEY)
+    if not isinstance(row, dict):
+        parent_api.fail(f"{PLANNER_CONTEXT_KEY} section is missing")
+    if row.get("task_id") != PLANNER_CONTEXT_ROW:
+        parent_api.fail("planner-context test retirement task id drifted")
+    status = row.get("status")
+    if status not in {"fast_open", "landed"}:
+        parent_api.fail("planner-context test retirement status is not finite")
+    if row.get("implementation_permission") is not (status == "fast_open"):
+        parent_api.fail("planner-context test retirement permission/status drifted")
+
+    expected_allowed = {
+        str(PLANNER_CONTEXT_SOURCE_REL),
+        str(BASELINE_REL),
+        str(INVENTORY_REL),
+        str(DISPATCH_REL),
+        str(SELF_REL),
+        str(parent_api.STATE_REL),
+        str(parent_api.CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        parent_api.fail("planner-context test retirement allowed-file boundary drifted")
+
+    source = root / PLANNER_CONTEXT_SOURCE_REL
+    if not source.is_file():
+        parent_api.fail(f"planner-context test retirement owner is missing: {source}")
+    if sum(1 for _ in source.open(encoding="utf-8")) >= 800:
+        parent_api.fail(f"planner-context test retirement owner reached 800 lines: {source}")
+    source_text = source.read_text(encoding="utf-8")
+    expected_candidate_count = 1 if status == "fast_open" else 0
+    if source_text.count(
+        "fn loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch("
+    ) != expected_candidate_count:
+        parent_api.fail("planner-context candidate presence does not match the row status")
+    if source_text.count(
+        "fn loopfacts_ctx_allows_simple_while_route_when_kind_matches("
+    ) != 1:
+        parent_api.fail("planner-context exact-match successor is not unique")
+    for name in (
+        "loopfacts_ok_none_when_condition_not_supported",
+        "loopfacts_ok_none_when_step_var_differs_from_condition_var",
+    ):
+        if source_text.count(f"fn {name}(") != 1:
+            parent_api.fail(f"planner-context negative is not unique: {name}")
+
+    baseline = tomllib.loads((root / BASELINE_REL).read_text(encoding="utf-8"))
+    expected_total = 7563 if status == "fast_open" else 7562
+    expected_passed = 7395 if status == "fast_open" else 7394
+    if baseline.get("expected_passed") != expected_passed:
+        parent_api.fail("planner-context retirement baseline passed count is not reconciled")
+    if baseline.get("expected_failed") != 139 or baseline.get("expected_ignored") != 29:
+        parent_api.fail("planner-context retirement changed the known-red partition")
+    if baseline.get("failures_sha256") != (
+        "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041"
+    ):
+        parent_api.fail("planner-context retirement failure-name SHA drifted")
+    inventory = (root / INVENTORY_REL).read_text(encoding="utf-8").splitlines()
+    names = {line for line in inventory if line}
+    if len(names) != expected_total:
+        parent_api.fail(
+            f"planner-context retirement inventory count drifted: {len(names)} != {expected_total}"
+        )
+    candidate_present = PLANNER_CONTEXT_CANDIDATE in names
+    if candidate_present is (status == "landed"):
+        parent_api.fail("planner-context candidate inventory presence does not match row status")
+    for required in (PLANNER_CONTEXT_SUCCESSOR, *PLANNER_CONTEXT_NEGATIVES):
+        if required not in names:
+            parent_api.fail(f"planner-context retained contract missing from inventory: {required}")
