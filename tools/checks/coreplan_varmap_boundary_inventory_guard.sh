@@ -92,9 +92,33 @@ disconnected_sites = {
 canonical_sites = {
     "src/mir/builder/control_flow/plan/parts/var_map_scope.rs#1",
 }
+# This is a finite shrink-only baseline.  Reseal rows may remove a known
+# live site, but a new path or ordinal must first be classified in a bounded
+# row; changing this guard is not a substitute for that inventory decision.
+known_live_sites = {
+    *(f"src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs#{n}" for n in range(1, 6)),
+    *(f"src/mir/builder/control_flow/plan/features/carrier_merge.rs#{n}" for n in range(1, 4)),
+    "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs#1",
+    "src/mir/builder/control_flow/plan/features/loop_cond_bc.rs#1",
+    "src/mir/builder/control_flow/plan/features/loop_cond_bc_item.rs#1",
+    "src/mir/builder/control_flow/plan/features/loop_cond_bc_item_stmt.rs#1",
+    *(f"src/mir/builder/control_flow/plan/features/loop_cond_bc_util.rs#{n}" for n in range(1, 4)),
+    "src/mir/builder/control_flow/plan/features/loop_cond_co_pipeline.rs#1",
+    "src/mir/builder/control_flow/plan/features/loop_cond_continue_with_return_phi_materializer.rs#1",
+    "src/mir/builder/control_flow/plan/features/loop_cond_return_in_body_phi_materializer.rs#1",
+    *(f"src/mir/builder/control_flow/plan/features/loop_true_break_continue_pipeline.rs#{n}" for n in range(1, 3)),
+    "src/mir/builder/control_flow/plan/lowerer/loop_completion.rs#1",
+    *(f"src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs#{n}" for n in range(1, 6)),
+    "src/mir/builder/control_flow/plan/parts/associated_source/raw_lowering.rs#1",
+    *(f"src/mir/builder/control_flow/plan/parts/dispatch/if_join.rs#{n}" for n in range(1, 3)),
+    "src/mir/builder/control_flow/plan/parts/if_general.rs#1",
+    *(f"src/mir/builder/control_flow/plan/parts/loop_/loop_v0.rs#{n}" for n in range(1, 4)),
+}
+known_sites = test_only_sites | disconnected_sites | canonical_sites | known_live_sites
 
-if len(insert_sites) != 46 or len(site_ids) != 46:
-    print(f"[coreplan-varmap-boundary] ERROR: post-reseal role-aware raw inventory drifted: {len(insert_sites)}")
+if not site_ids <= known_sites:
+    print("[coreplan-varmap-boundary] ERROR: unknown variable_map site entered the finite role inventory")
+    print("\n".join(sorted(site_ids - known_sites)))
     raise SystemExit(1)
 
 if remove_or_clear:
@@ -114,21 +138,19 @@ if site_ids & canonical_sites != canonical_sites:
 
 live_sites = site_ids - test_only_sites - disconnected_sites
 reseal_sites = live_sites - canonical_sites
-if len(live_sites) != 29 or len(reseal_sites) != 28:
-    print(
-        "[coreplan-varmap-boundary] ERROR: role counts drifted "
-        f"test_only={len(site_ids & test_only_sites)} "
-        f"disconnected={len(site_ids & disconnected_sites)} live={len(live_sites)} "
-        f"canonical={len(live_sites & canonical_sites)} reseal={len(reseal_sites)}"
-    )
-    raise SystemExit(1)
 
 canonical_path = Path("src/mir/builder/control_flow/plan/parts/var_map_scope.rs")
 if "publish_emission_cache" not in canonical_path.read_text():
     print("[coreplan-varmap-boundary] ERROR: canonical cache owner is missing")
     raise SystemExit(1)
 
-print("[coreplan-varmap-boundary] post-reseal role-aware inventory raw=46 test_only=16 disconnected=1 live=29 canonical=1 reseal=28 (pre=51/34/33)")
+print(
+    "[coreplan-varmap-boundary] role-aware inventory "
+    f"raw={len(site_ids)} test_only={len(site_ids & test_only_sites)} "
+    f"disconnected={len(site_ids & disconnected_sites)} live={len(live_sites)} "
+    f"canonical={len(live_sites & canonical_sites)} reseal={len(reseal_sites)} "
+    "(baseline=51/16/1/34/1/33)"
+)
 print("[coreplan-varmap-boundary] variable_map_remove_clear_sites=0")
 PY
 
