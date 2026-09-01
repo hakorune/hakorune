@@ -38,11 +38,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut current_bindings = phi_bindings.clone();
     for (name, value_id) in phi_bindings {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
     }
 
     let has_nested_loop_stmt = detect_nested_loop(&facts.body.body)
@@ -168,11 +164,7 @@ fn lower_body_stmt_v1(
                     let ASTNode::Variable { name, .. } = target.as_ref() else {
                         unreachable!();
                     };
-                    builder
-                        .function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(name.clone(), value_id);
+                    parts::var_map_scope::publish_emission_cache(builder, name.clone(), value_id);
                     phi_bindings.insert(name.clone(), value_id);
                     return Ok(plans);
                 }
@@ -185,11 +177,7 @@ fn lower_body_stmt_v1(
                 GENERIC_LOOP_ERR,
             )?;
             if let Some((name, value_id)) = binding {
-                builder
-                    .function_state
-                    .variable_ctx
-                    .variable_map
-                    .insert(name.clone(), value_id);
+                parts::var_map_scope::publish_emission_cache(builder, name.clone(), value_id);
                 if let ASTNode::Variable { name, .. } = target.as_ref() {
                     phi_bindings.insert(name.clone(), value_id);
                 }
@@ -214,11 +202,11 @@ fn lower_body_stmt_v1(
                         init,
                     )? {
                         let name = variables[0].clone();
-                        builder
-                            .function_state
-                            .variable_ctx
-                            .variable_map
-                            .insert(name.clone(), value_id);
+                        parts::var_map_scope::publish_emission_cache(
+                            builder,
+                            name.clone(),
+                            value_id,
+                        );
                         phi_bindings.insert(name, value_id);
                         return Ok(plans);
                     }
@@ -232,11 +220,7 @@ fn lower_body_stmt_v1(
                 GENERIC_LOOP_ERR,
             )?;
             for (name, value_id) in inits {
-                builder
-                    .function_state
-                    .variable_ctx
-                    .variable_map
-                    .insert(name.clone(), value_id);
+                parts::var_map_scope::publish_emission_cache(builder, name.clone(), value_id);
                 phi_bindings.insert(name, value_id);
             }
             Ok(effects_to_plans(effects))

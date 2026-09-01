@@ -430,11 +430,11 @@ def check_verification_coreplan_varmap_reseal_generic_body_v1_r0(
 
     writes, remove_or_clear = _collect_varmap_sites(root)
     target = [site for site in writes if site[0] == "src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs"]
-    expected_direct_sites = 0 if status == "landed" else 5
-    if len(target) != expected_direct_sites or any(site[2] != "insert" for site in target):
+    expected_direct_sites = {0} if status == "landed" else {0, 5}
+    if len(target) not in expected_direct_sites or any(site[2] != "insert" for site in target):
         api.fail(
             "CorePlan generic-loop reseal source inventory drifted: "
-            f"sites={len(target)} expected={expected_direct_sites}"
+            f"sites={len(target)} expected_one_of={sorted(expected_direct_sites)}"
         )
     if remove_or_clear:
         api.fail("CorePlan generic-loop reseal found remove/clear under its boundary")

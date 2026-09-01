@@ -93,8 +93,8 @@ canonical_sites = {
     "src/mir/builder/control_flow/plan/parts/var_map_scope.rs#1",
 }
 
-if len(insert_sites) != 51 or len(site_ids) != 51:
-    print(f"[coreplan-varmap-boundary] ERROR: role-aware raw inventory drifted: {len(insert_sites)}")
+if len(insert_sites) != 46 or len(site_ids) != 46:
+    print(f"[coreplan-varmap-boundary] ERROR: post-reseal role-aware raw inventory drifted: {len(insert_sites)}")
     raise SystemExit(1)
 
 if remove_or_clear:
@@ -114,7 +114,7 @@ if site_ids & canonical_sites != canonical_sites:
 
 live_sites = site_ids - test_only_sites - disconnected_sites
 reseal_sites = live_sites - canonical_sites
-if len(live_sites) != 34 or len(reseal_sites) != 33:
+if len(live_sites) != 29 or len(reseal_sites) != 28:
     print(
         "[coreplan-varmap-boundary] ERROR: role counts drifted "
         f"test_only={len(site_ids & test_only_sites)} "
@@ -128,7 +128,7 @@ if "publish_emission_cache" not in canonical_path.read_text():
     print("[coreplan-varmap-boundary] ERROR: canonical cache owner is missing")
     raise SystemExit(1)
 
-print("[coreplan-varmap-boundary] role-aware inventory raw=51 test_only=16 disconnected=1 live=34 canonical=1 reseal=33")
+print("[coreplan-varmap-boundary] post-reseal role-aware inventory raw=46 test_only=16 disconnected=1 live=29 canonical=1 reseal=28 (pre=51/34/33)")
 print("[coreplan-varmap-boundary] variable_map_remove_clear_sites=0")
 PY
 
