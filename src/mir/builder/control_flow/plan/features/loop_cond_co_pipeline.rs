@@ -12,6 +12,7 @@ use crate::mir::builder::control_flow::plan::features::loop_cond_co_phi_material
 use crate::mir::builder::control_flow::plan::features::loop_cond_co_verifier::verify_loop_cond_continue_only_phi_closure;
 use crate::mir::builder::control_flow::plan::features::step_mode;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::{
     build_standard5_internal_wires, collect_carrier_inits, empty_carriers_args,
 };
@@ -79,11 +80,7 @@ fn lower_loop_cond_continue_only_stepbb(
     // Set up current_bindings with header PHI destinations
     let mut current_bindings = frame.carrier_header_phis.clone();
     for (name, value_id) in &current_bindings {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
     }
 
     // Phase 2b-1: Short-circuit evaluation for loop header condition
