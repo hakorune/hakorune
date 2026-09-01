@@ -30,14 +30,44 @@ impl ModuleLoweringPortV1<'_> {
             usize,
         ),
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        self.commit_pending_with_policy(
+            pending,
+            key,
+            symbol,
+            arity,
+            DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        )
+    }
+
+    pub(in crate::mir::builder) fn commit_cataloged_box_method_pending(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        (key, symbol, arity): (
+            super::module_draft_collector::FunctionDraftKeyV1,
+            String,
+            usize,
+        ),
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        self.commit_pending_with_policy(
+            pending,
+            key,
+            symbol,
+            arity,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        )
+    }
+
+    fn commit_pending_with_policy(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        key: super::module_draft_collector::FunctionDraftKeyV1,
+        symbol: String,
+        arity: usize,
+        policy: DraftPublicationPolicyV1,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         pending.complete_before_restore(|draft| {
             let prepared = self
-                .prepare_draft_admission(
-                    key,
-                    symbol,
-                    arity,
-                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
-                )
+                .prepare_draft_admission(key, symbol, arity, policy)
                 .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
             prepared
                 .seal(draft)

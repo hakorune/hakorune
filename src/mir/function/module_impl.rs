@@ -1,7 +1,9 @@
 use super::{
-    ClosureBodyId, FunctionPublicationErrorV1, MirFunction, MirModule, ModuleMetadata, ModuleStats,
+    CanonicalCallableDefinitionPublicationErrorV1, ClosureBodyId, FunctionPublicationErrorV1,
+    MirFunction, MirModule, ModuleMetadata, ModuleStats,
 };
 use crate::mir::ConstValue;
+use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 impl MirModule {
@@ -12,7 +14,121 @@ impl MirModule {
             functions: BTreeMap::new(),
             globals: HashMap::new(),
             metadata: ModuleMetadata::default(),
+            canonical_callable_definitions: BTreeMap::new(),
         }
+    }
+
+    /// Check and publish one cataloged function together with its exact
+    /// source key.  The key is retained until this atomic publication point;
+    /// consumers never recover it from the physical symbol.
+    pub(crate) fn add_cataloged_box_method(
+        &mut self,
+        key: CanonicalSameModuleCallableKeyV1,
+        function: MirFunction,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        let symbol = function.signature.name.clone();
+        let expected_symbol = key.mir_symbol_projection();
+        if symbol != expected_symbol {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch {
+                    key,
+                    symbol,
+                },
+            );
+        }
+        let expected_arity = match key.namespace() {
+            SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
+            SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+                (key.arity() as usize).checked_add(1).ok_or_else(|| {
+                    CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch {
+                        key: key.clone(),
+                        expected: usize::MAX,
+                        actual: function.signature.params.len(),
+                    }
+                })?
+            }
+        };
+        if function.signature.params.len() != expected_arity {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch {
+                    key,
+                    expected: expected_arity,
+                    actual: function.signature.params.len(),
+                },
+            );
+        }
+        if self.canonical_callable_definitions.contains_key(&key)
+            || self.functions.contains_key(&symbol)
+        {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey { key },
+            );
+        }
+        self.functions.insert(symbol.clone(), function);
+        self.canonical_callable_definitions.insert(key, symbol);
+        Ok(())
+    }
+
+    /// Preflight the key/physical pair before a normal collector commits any
+    /// function.  Batch duplicate detection remains with the collector.
+    pub(crate) fn preflight_cataloged_box_method(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        symbol: &str,
+        physical_arity: usize,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        if symbol != key.mir_symbol_projection() {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch {
+                    key: key.clone(),
+                    symbol: symbol.to_owned(),
+                },
+            );
+        }
+        let expected_arity = match key.namespace() {
+            SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
+            SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+                (key.arity() as usize).checked_add(1).ok_or_else(|| {
+                    CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch {
+                        key: key.clone(),
+                        expected: usize::MAX,
+                        actual: physical_arity,
+                    }
+                })?
+            }
+        };
+        if physical_arity != expected_arity {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch {
+                    key: key.clone(),
+                    expected: expected_arity,
+                    actual: physical_arity,
+                },
+            );
+        }
+        if self.canonical_callable_definitions.contains_key(key)
+            || self.functions.contains_key(symbol)
+        {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey { key: key.clone() },
+            );
+        }
+        Ok(())
+    }
+
+    /// Borrow the published physical definition symbol for a source key.
+    /// This is a one-way publication lookup, not a resolver.
+    pub(crate) fn canonical_callable_definition_symbol(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&str> {
+        self.canonical_callable_definitions
+            .get(key)
+            .map(String::as_str)
+    }
+
+    pub(crate) fn canonical_callable_definition_count(&self) -> usize {
+        self.canonical_callable_definitions.len()
     }
 
     /// Add a function to the module

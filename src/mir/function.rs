@@ -55,7 +55,8 @@ pub use typed_array_contract::{
 pub use types::{
     ArrayElementWriteWitness, ArrayStateTerm, ArrayStateTermId, ArrayStateTermKind, ClosureBodyId,
     ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
-    FunctionPublicationErrorV1, FunctionSignature, FunctionStats, LocalContractWriteKind,
+    CanonicalCallableDefinitionPublicationErrorV1, FunctionPublicationErrorV1, FunctionSignature,
+    FunctionStats, LocalContractWriteKind,
     LocalIdentityEvidence, LocalSlotContract, MirEnumDecl, MirEnumVariantDecl, MirFunction,
     MirModule, MirParamDecl, ModuleMetadata, ModuleStats, ParameterEntryContract,
     ParameterEntryContractKind, RecordContractDisposition, RecordFieldValueContract,

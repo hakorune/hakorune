@@ -8,6 +8,7 @@ use super::object_metadata::{
     WeakFieldContractSpec,
 };
 use crate::mir::{BasicBlock, BasicBlockId, ConstValue, EffectMask, MirType, ValueId};
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 /// Stable identifier for externalized closure bodies in module metadata.
@@ -274,6 +275,11 @@ pub struct MirModule {
 
     /// Module metadata
     pub metadata: ModuleMetadata,
+
+    /// Source-cataloged callable definitions published with this module.
+    /// Legacy/unkeyed functions intentionally do not enter this relation.
+    pub(crate) canonical_callable_definitions:
+        BTreeMap<CanonicalSameModuleCallableKeyV1, String>,
 }
 
 /// Typed rejection for publication that would replace an existing function.
@@ -297,6 +303,33 @@ impl std::fmt::Display for FunctionPublicationErrorV1 {
 }
 
 impl std::error::Error for FunctionPublicationErrorV1 {}
+
+/// Failure while publishing the source-catalog key alongside its physical
+/// function definition.  This is a physical publication invariant: it does
+/// not issue a new source meaning and it never permits symbol-based recovery.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum CanonicalCallableDefinitionPublicationErrorV1 {
+    DuplicateKey {
+        key: CanonicalSameModuleCallableKeyV1,
+    },
+    KeySymbolMismatch {
+        key: CanonicalSameModuleCallableKeyV1,
+        symbol: String,
+    },
+    KeyArityMismatch {
+        key: CanonicalSameModuleCallableKeyV1,
+        expected: usize,
+        actual: usize,
+    },
+}
+
+impl std::fmt::Display for CanonicalCallableDefinitionPublicationErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "[freeze:contract][canonical-callable-publication] {self:?}")
+    }
+}
+
+impl std::error::Error for CanonicalCallableDefinitionPublicationErrorV1 {}
 
 /// Metadata for MIR modules
 #[derive(Debug, Clone, Default)]

@@ -131,18 +131,18 @@ impl NormalCatalogedBoxMethodDraftAdmissionV1 {
         self.physical_arity
     }
 
-    pub(in crate::mir::builder) fn into_legacy_collector_parts(
+    pub(in crate::mir::builder) fn into_collector_parts(
         self,
     ) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
-            source_key: _,
+            source_key,
             physical_symbol,
             physical_arity,
             _seal: _,
         } = self;
         let symbol = physical_symbol.into_string();
         (
-            FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
+            FunctionDraftKeyV1::CatalogedBoxMethod(source_key),
             symbol,
             physical_arity,
         )
@@ -155,7 +155,7 @@ impl ModuleLoweringPortV1<'_> {
         pending: LegacyFunctionPendingSessionV1<'_>,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.commit_legacy_symbol_pending(pending, admission.into_legacy_collector_parts())
+        self.commit_cataloged_box_method_pending(pending, admission.into_collector_parts())
     }
 }
 

@@ -9,7 +9,9 @@ use std::collections::BTreeSet;
 
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::callable_result_representation::StaticCallResultPublicationOwnerFinishErrorV1;
-use crate::mir::function::FunctionPublicationErrorV1;
+use crate::mir::function::{
+    CanonicalCallableDefinitionPublicationErrorV1, FunctionPublicationErrorV1,
+};
 use crate::mir::MirModule;
 
 use super::receipt::CollectedDraftReplacementDispositionV1;
@@ -23,6 +25,7 @@ pub(in crate::mir::builder) enum NormalCollectorDrainLifecycleErrorV1 {
     NonLegacyPolicy { key: FunctionDraftKeyV1 },
     SymbolIndexDrift { symbol: String },
     Publication(FunctionPublicationErrorV1),
+    CanonicalDefinition(CanonicalCallableDefinitionPublicationErrorV1),
     StaticResultPublicationResidual(StaticCallResultPublicationOwnerFinishErrorV1),
 }
 
@@ -94,7 +97,14 @@ impl PreparedNormalCollectorDrainLifecycleV1<'_> {
                 .drafts
                 .remove(&key)
                 .expect("prepared normal collector key must own one draft");
-            target.add_function(entry.draft);
+            match key {
+                FunctionDraftKeyV1::CatalogedBoxMethod(canonical_key) => {
+                    target
+                        .add_cataloged_box_method(canonical_key, entry.draft)
+                        .expect("sealed cataloged box-method publication must remain valid");
+                }
+                _ => target.add_function(entry.draft),
+            }
         }
     }
 }
@@ -154,6 +164,7 @@ impl SealedNormalCollectorDrainReceiptV1 {
         }
 
         let mut symbols = BTreeSet::new();
+        let mut canonical_keys = BTreeSet::new();
         let mut ordered_keys = Vec::with_capacity(collector.drafts.len());
         for (key, entry) in &collector.drafts {
             let admission = &entry.admission;
@@ -174,12 +185,27 @@ impl SealedNormalCollectorDrainReceiptV1 {
                             CollectedDraftReplacementDispositionV1::Inserted
                                 | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
                         ) => {}
-                FunctionDraftKeyV1::CatalogedBoxMethod(_)
+                FunctionDraftKeyV1::CatalogedBoxMethod(canonical_key)
                     if admission.policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate
                         && matches!(
                             &admission.replacement,
                             CollectedDraftReplacementDispositionV1::Inserted
-                        ) => {}
+                        ) => {
+                            if !canonical_keys.insert(canonical_key.clone()) {
+                                return Err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition(
+                                    CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey {
+                                        key: canonical_key.clone(),
+                                    },
+                                ));
+                            }
+                            target
+                                .preflight_cataloged_box_method(
+                                    canonical_key,
+                                    admission.symbol.as_ref(),
+                                    admission.arity,
+                                )
+                                .map_err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition)?;
+                        }
                 _ => {
                     return Err(match key {
                         FunctionDraftKeyV1::LegacySymbol(_) => {
@@ -302,6 +328,16 @@ mod tests {
             target.function_names(),
             vec!["ParserScanLoopBox.skip_while/4", "legacy/0"]
         );
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        );
+        assert_eq!(target.canonical_callable_definition_count(), 1);
+        assert_eq!(
+            target.canonical_callable_definition_symbol(&key),
+            Some("ParserScanLoopBox.skip_while/4")
+        );
     }
 
     #[test]
@@ -337,6 +373,7 @@ mod tests {
         let (collector, _) = rejected.into_parts();
         assert_eq!(collector.symbol_count(), 1);
         assert!(target.function_names().is_empty());
+        assert_eq!(target.canonical_callable_definition_count(), 0);
     }
 
     #[test]

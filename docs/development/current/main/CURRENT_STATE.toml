@@ -1,15 +1,15 @@
 date = "2026-09-02"
-development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-S0"
-current_design_stop = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-S0"
+development_branch_ssot = "codex/mir-static-method-publication-spine"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: the bounded canonical publication-spine rebuild is accepted and its S0 census is closed. Reuse the existing StaticCurrentOwner source authority and StaticBoxMethod callable key, then repair the in-place collector -> Atomic Publish -> typed selected-C path in one isolated five-commit series. Do not create a second MirBuilder.
-Source authority + canonical issuer: VerifiedSourceStaticCallTargetCatalogV1 and VerifiedStaticCallResultPublicationOwnerV1 already issue one exact caller/site/StaticBoxMethod target before arguments. NormalCatalogedBoxMethodDraftAdmissionV1 and the normal collector are the named identity-loss seams; NyashRunner::execute_mir_mode --emit-exe is the named production switch.
-Non-authority: source spelling after publication, physical symbol text, JSON/name/header/registry lookup, args[0], ValueId(0), EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a duplicate published key/receipt.
-Fail-fast boundary: missing/duplicate/foreign key, key-definition/arity/projection mismatch, callee=None, unsupported published op/type, incomplete module coverage, or typed object failure stops without JSON retry. A module containing the selected StaticBoxMethod family is either fully typed-ready or UnsupportedBeforeObject; only modules with zero selected-family calls may enter explicit compatibility.
-Smallest next slice: create an isolated branch/worktree from this taskification commit and open MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0. The branch records its exact parent SHA before code, has at most five commits or seven days, and must switch the named caller plus delete selected-family JSON/name/args0 reachability by commit four.
-Non-claims: no DeclaredInstance/Method(Some), whole Call-schema/R6 cutover, arbitrary UserBox selected-C support, semantic-effect issuance, VM retirement, selfhost, broad JSON/test purge, fallback, retry, or main-branch migration red.
+Decision: this isolated fast branch is the sole implementation lane for the accepted canonical publication-spine series. Parent SHA 731d7abc01 is immutable. Reuse the existing StaticCurrentOwner source authority and StaticBoxMethod callable key, then repair collector -> Atomic Publish -> typed selected-C in five commits or abort.
+Source authority + canonical issuer: VerifiedSourceStaticCallTargetCatalogV1 and VerifiedStaticCallResultPublicationOwnerV1 issue the exact target before arguments; NormalCatalogedBoxMethodDraftAdmissionV1 and normal collector are identity-loss seams; NyashRunner::execute_mir_mode --emit-exe is the production switch.
+Non-authority: source spelling after publish, physical symbol, JSON/name/header/registry, args[0], ValueId(0), EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or duplicate key/receipt.
+Fail-fast boundary: key/definition/arity/projection drift, callee=None, unsupported published op/type, incomplete coverage, or typed object failure stops before JSON retry. Selected-family modules are typed-ready or UnsupportedBeforeObject; only modules with zero selected calls may use explicit compatibility.
+Smallest next slice: Commit 1 preserves the key and atomically publishes definition relation. Commit 4 must switch --emit-exe and delete selected-family JSON/name/args0 reachability. Commit 5 is evidence/repayment only.
+Non-claims: no DeclaredInstance/Method(Some), whole Call-schema/R6 cutover, arbitrary UserBox selected-C support, semantic-effect issuance, VM/selfhost, broad JSON/test purge, fallback, retry, or main-branch migration red.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -58,7 +58,7 @@ only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
 residual boundary are recorded in the active card. Publication-spine S0 names the StaticCurrentOwner source half, normal key-loss seams, Atomic Publish owner, and execute_mir_mode --emit-exe switch; the fixed branch creates the missing published view/typed consumer and must switch by commit four or abort without another D0.
 """
 next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-S0"
-next_execution_card = "none__design_stop"
+next_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

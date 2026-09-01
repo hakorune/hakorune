@@ -335,13 +335,14 @@ closeout = "LEGACY-TESTS-RETIRE-R0 is closed and history remains in Git only. Th
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [mir_call_canonical_call_substrate_rebuild_d0_2026_09_02]
-status = "accepted_branch_ready"
+status = "fast_open"
 task_id = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
 s0_task_id = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-S0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 ceremony_tier = "T2"
-implementation_permission = false
-branch_permission = "The isolated branch/worktree may set work_mode=fast only after its first commit records the exact immutable parent SHA. Main remains design_stop."
+implementation_permission = true
+branch_base_head = "731d7abc01"
+branch_permission = "This branch is fast only for the fixed series; its parent SHA is recorded above and immutable. Main remains design_stop."
 decision = """
 Repair the existing publication spine in place; do not build a second
 MirBuilder. Preserve the already-issued CanonicalSameModuleCallableKeyV1 from
