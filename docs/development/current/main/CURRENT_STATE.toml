@@ -1,14 +1,14 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
 current_design_stop = "none"
 current_blocker_token = """
-Decision: replace the stale role-blind 48-site upper bound with the finite role-aware 51-site census; this fast row changes only the existing verification guard and its current-row dispatch.
-Source authority + canonical issuer: exact variable_map.insert sites under CorePlan/plan and SSA, current var_map_scope cache ownership, and the existing dev_gate quick consumer; the guard issues the verification result.
-Non-authority: historical 48, filenames, fixtures, raw count bumps, compiler/MIR facts, selected-C, backend, loop fallback, or any new semantic receipt.
-Fail-fast boundary: any raw count, role, remove/clear, unclassified-site, guard-consumer, or pointer mismatch fails before the next semantic row.
-Smallest next slice: DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0; assert raw=51, test-only=16, disconnected=1, live=34, canonical=1, reseal=33, remove/clear=0.
+Decision: the role-aware CorePlan variable_map guard slice is implemented and closed; evidence is limited to verification infrastructure.
+Source authority + canonical issuer: exact current variable_map sites and the existing guard/quick consumer; the role-aware guard owns only the verification result.
+Non-authority: raw counts as semantic truth, compiler/MIR facts, selected-C/backend, loop fallback, fixtures, or any new semantic receipt.
+Fail-fast boundary: role inventory, remove/clear, guard consumer, or pointer drift remains blocking for the next row.
+Smallest next slice: return to design_stop for DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0 and inspect the one live generic-loop owner before any source edit.
 Non-claims: no reseal implementation, MIR/Call/backend semantics, selected-C decision, loop fallback retirement, test repair, fallback, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
