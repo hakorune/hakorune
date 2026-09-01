@@ -65,6 +65,7 @@ VERIFICATION_VARMAP_CARRIER_PIPELINE_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARR
 VERIFICATION_VARMAP_LOOP_COND_BC_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
 VERIFICATION_VARMAP_LOOP_TRUE_BC_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-TRUE-BC-R0"
 VERIFICATION_VARMAP_LOOP_COND_CONTINUE_ONLY_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-ONLY-R0"
+VERIFICATION_VARMAP_LOOP_COND_CONTINUE_WITH_RETURN_PHI_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-CONTINUE-WITH-RETURN-PHI-R0"
 CROSSWALK_D0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 CROSSWALK_I0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
@@ -255,5 +256,11 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         )
 
         check_verification_coreplan_varmap_reseal_loop_cond_continue_only_r0(state, card, root, api)
+    elif row == VERIFICATION_VARMAP_LOOP_COND_CONTINUE_WITH_RETURN_PHI_ROW:
+        from mir_verification_quick_p0_c_guard import (
+            check_verification_coreplan_varmap_reseal_loop_cond_continue_with_return_phi_r0,
+        )
+
+        check_verification_coreplan_varmap_reseal_loop_cond_continue_with_return_phi_r0(state, card, root, api)
     else:
         api.fail(f"unsupported current row for this stable guard: {row!r}")
