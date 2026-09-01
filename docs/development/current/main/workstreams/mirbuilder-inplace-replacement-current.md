@@ -134,11 +134,14 @@ The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
 the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
 the two production callers and one test helper are reconciled, but no exact
 same-session `main/0` Callee issuer exists. Ordinary-new is no longer an
-unexplained carrier dead-end. Its bounded exact constructor cutover landed at
-`d81d91d800`: the parser constructor product, package recipe, shared ABI, and
-selected-normal consumer now replace birth-text/AST-scan/class-arity
-reconstruction. No-claim compatibility and every other SameModule family
-remain closed. The cataloged-provider audit leaves bare `exit` as `NoIssuer`;
+unexplained carrier dead-end. The partial landing at `d81d91d800` established
+the parser constructor product, package recipe, shared ABI, and selected-normal
+claim transport, but its claimed Birth consumer still emits the legacy
+name-Const/`func` carrier through `emit_legacy_call`. The corrective bounded
+row `MIR-CALL-SAME-MODULE-ORDINARY-NEW-EXACT-CONSTRUCTOR-CUTOVER-I0` is now
+active: replace only that claimed writer with `MirInstruction::call`, preserve
+no-claim compatibility, and close the residual before returning to selected-C
+design stop. The cataloged-provider audit leaves bare `exit` as `NoIssuer`;
 the later `LANG-PANIC-TERMINAL-FAULT-D0` decision gives exact bare `panic/1`
 an accepted terminal-Fault target (production 0), although no live issuer
 exists yet. The canonical Call SSOT gives bare `error` and `now` unsupported
@@ -193,8 +196,10 @@ Known/Unique/equals instance-to-Global writers and selector pins are retired,
 while the existing typed `Method(Some(receiver))` owner and explicit early
 str-like route remain. The historical ON/OFF probes are evidence only, not a
 parity gate; no new Global issuer, post-effect reject, fallback, or second
-resolver was added. The ordinary-new exact-constructor cutover remains landed
-at `d81d91d800`, and the parent design stop resumes.
+resolver was added. The ordinary-new recipe/ABI partial landing remains
+recorded at `d81d91d800`; its physical claimed Birth carrier is the current
+bounded implementation row, while the parent design stop remains the
+post-closeout destination.
 
 Guard cleanup is a separate parked lane. The only currently proven
 `SupersededDelete` was the stale whole-writer overlay removed by the landed

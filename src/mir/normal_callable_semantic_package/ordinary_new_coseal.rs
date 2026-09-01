@@ -37,6 +37,10 @@ impl VerifiedOrdinaryNewBirthRecipeV1 {
         self.target
     }
 
+    pub(crate) fn target_ref(&self) -> &CanonicalGlobalTargetV1 {
+        &self.target
+    }
+
     pub(crate) const fn abi(&self) -> InstanceConstructorAbiV1 {
         self.abi
     }
@@ -435,6 +439,23 @@ mod tests {
         };
         assert!(recipe.source_id().same_as(&source_id));
         assert_eq!(recipe.abi(), abi);
+        assert_eq!(recipe.target(), target);
+    }
+
+    #[test]
+    fn ordinary_new_recipe_target_is_selected_before_consumption() {
+        let source_id = crate::parser::ConstructorSourceIdV1::test_new(8);
+        let abi = InstanceConstructorAbiV1::issue(1).expect("constructor ABI");
+        let target =
+            CanonicalGlobalTargetV1::new_static_box_method("Pair".into(), "birth".into(), 1)
+                .expect("birth target");
+        let recipe = VerifiedOrdinaryNewBirthRecipeV1 {
+            source_id,
+            target: target.clone(),
+            abi,
+        };
+
+        assert_eq!(recipe.target_ref(), &target);
         assert_eq!(recipe.target(), target);
     }
 

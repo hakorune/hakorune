@@ -607,6 +607,27 @@ def check_ordinary_new_i0(state: dict, card: dict, root: Path) -> None:
     abi = root / "src/mir/instance_constructor_abi.rs"
     if abi.exists() and len(abi.read_text(encoding="utf-8").splitlines()) >= 760:
         fail("ordinary-new ABI owner reached the 760-line split boundary")
+    admission = root / "src/mir/builder/ordinary_new_admission.rs"
+    admission_text = admission.read_text(encoding="utf-8")
+    claimed_start = admission_text.find("if let Some(constructor) = constructor {")
+    compatibility_start = admission_text.find("// Prefer a lowered global")
+    if claimed_start < 0 or compatibility_start <= claimed_start:
+        fail("ordinary-new claimed Birth boundary cannot be located")
+    claimed = admission_text[claimed_start:compatibility_start]
+    target_pos = admission_text.find("let birth_target = constructor.as_ref().and_then")
+    arguments_pos = admission_text.find("let mut arg_values = Vec::new()")
+    newbox_pos = admission_text.find("MirInstruction::NewBox")
+    call_pos = claimed.find("MirInstruction::call")
+    if target_pos < 0 or arguments_pos < 0 or target_pos > arguments_pos:
+        fail("ordinary-new target selection is not before argument descent")
+    if newbox_pos < 0 or call_pos < 0:
+        fail("ordinary-new claimed Birth canonical writer is missing")
+    if "emit_legacy_call" in claimed:
+        fail("ordinary-new claimed Birth still uses the legacy Call writer")
+    if "Callee::Global" not in claimed or "EffectMask::IO" not in claimed:
+        fail("ordinary-new claimed Birth lost its typed target or physical effect projection")
+    if "emit_legacy_call(None, CallTarget::Global(target), argv)" not in admission_text:
+        fail("ordinary-new no-claim compatibility writer was removed unexpectedly")
     if row.get("status") == "landed":
         check_test_coverage(root, row)
         base = require_text(row.get("coverage_base_commit"), "ordinary-new coverage_base_commit")

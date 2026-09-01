@@ -10,6 +10,7 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
     RawOrdinaryNewClaimPortV1,
 };
+use crate::mir::definitions::call_unified::Callee;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewConstructorDispositionV1;
 use crate::mir::slot_registry::resolve_slot_by_type_name;
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
@@ -34,6 +35,12 @@ where
             .validate(arguments.len(), physical_arity)
             .map_err(|error| format!("[freeze:contract][ordinary-new/abi/{error:?}]"))?;
     }
+    let birth_target = constructor.as_ref().and_then(|constructor| {
+        let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor else {
+            return None;
+        };
+        Some(recipe.target_ref().clone())
+    });
     let mut arg_values = Vec::new();
     for arg in arguments {
         arg_values.push(drive_legacy_expression_v1(builder, port, arg)?);
@@ -57,11 +64,22 @@ where
         .insert(dst, class.to_owned());
 
     if let Some(constructor) = constructor {
-        if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
+        if let OrdinaryNewConstructorDispositionV1::Birth(_recipe) = constructor {
             let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arg_values.len());
             argv.push(dst);
             argv.extend(arg_values.iter().copied());
-            builder.emit_legacy_call(None, CallTarget::Global(recipe.target()), argv)?;
+            // The package-owned recipe is already the semantic target.  Keep
+            // the existing physical effect projection, but publish through
+            // the canonical typed Call writer so no name Const or synthetic
+            // legacy `func` carrier is created for the claimed cohort.
+            builder.emit_instruction(MirInstruction::call(
+                None,
+                Callee::Global(
+                    birth_target.expect("Birth claim target was selected before arguments"),
+                ),
+                argv,
+                EffectMask::IO,
+            ))?;
         }
         return Ok(dst);
     }
