@@ -583,3 +583,127 @@ def check_legacy_tests_retire_r0(
                 f"{sorted(changed_paths - expected_paths)}"
             )
     print(f"[{parent_api.TAG}] legacy-tests retirement ok status={status}")
+
+
+LEXICAL_PARITY_MATRIX_ROW = "MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0"
+LEXICAL_PARITY_MATRIX_KEY = "mir_builder_normal_script_lexical_parity_matrix_s0_2026_09_02"
+LEXICAL_PARITY_MATRIX_SOURCE_REL = Path(
+    "src/mir/builder/normal_script_semantic_source_tests.rs"
+)
+LEXICAL_PARITY_MATRIX_CANDIDATES = (
+    "selected_normal_print_lexical_closure_matches_legacy",
+    "real_print_fixture_uses_the_selected_normal_request",
+    "selected_normal_binary_lexical_closure_matches_legacy",
+    "selected_normal_await_lexical_closure_matches_legacy",
+    "selected_normal_check_lexical_closure_matches_legacy",
+    "selected_normal_and_or_lexical_closure_matches_legacy",
+)
+LEXICAL_PARITY_MATRIX_SUCCESSOR = "selected_normal_lexical_closure_matrix_matches_legacy"
+LEXICAL_PARITY_MATRIX_CASES = (
+    ('local x = 1\\nprint(-x)', "script-unary.hako"),
+    ("print(1)", "script-print.hako"),
+    ('local x = 1\\nprint((x * 2) + 3)', "script-binary.hako"),
+    ('local x = 1\\nprint(await -(x + 2))', "script-await.hako"),
+    ('local x = true\\nprint(check { x })', "script-check.hako"),
+    ('local x = true\\nprint(x and x)\\nprint(x or x)', "script-andor.hako"),
+)
+LEXICAL_PARITY_MATRIX_FAILURE_SHA = (
+    "29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1"
+)
+
+
+def check_normal_script_lexical_parity_matrix_s0(
+    state: dict, card: dict, root: Path, parent_api=api
+) -> None:
+    """Guard one exact test-only wrapper consolidation."""
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        parent_api.fail("lexical parity matrix requires fast or closeout work_mode")
+    if state.get("current_execution_row") != LEXICAL_PARITY_MATRIX_ROW:
+        parent_api.fail("lexical parity matrix row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        parent_api.fail("lexical parity matrix must clear current_design_stop")
+    if state.get("next_execution_card") != LEXICAL_PARITY_MATRIX_ROW:
+        parent_api.fail("lexical parity matrix pointer drifted")
+    if state.get("next_execution_card_path") != str(parent_api.CARD_REL):
+        parent_api.fail("lexical parity matrix card path drifted")
+
+    row = card.get(LEXICAL_PARITY_MATRIX_KEY)
+    if not isinstance(row, dict):
+        parent_api.fail(f"{LEXICAL_PARITY_MATRIX_KEY} section is missing")
+    if row.get("task_id") != LEXICAL_PARITY_MATRIX_ROW:
+        parent_api.fail("lexical parity matrix task id drifted")
+    status = row.get("status")
+    if status not in {"fast_open", "landed"}:
+        parent_api.fail("lexical parity matrix status is not finite")
+    if row.get("implementation_permission") is not (status == "fast_open"):
+        parent_api.fail("lexical parity matrix permission/status drifted")
+
+    expected_allowed = {
+        str(LEXICAL_PARITY_MATRIX_SOURCE_REL),
+        str(BASELINE_REL),
+        str(INVENTORY_REL),
+        str(DISPATCH_REL),
+        str(SELF_REL),
+        str(parent_api.STATE_REL),
+        str(parent_api.CARD_REL),
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+    }
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or set(allowed) != expected_allowed:
+        parent_api.fail("lexical parity matrix allowed-file boundary drifted")
+
+    source = root / LEXICAL_PARITY_MATRIX_SOURCE_REL
+    if not source.is_file():
+        parent_api.fail("lexical parity matrix source owner is missing")
+    source_text = source.read_text(encoding="utf-8")
+    for name in LEXICAL_PARITY_MATRIX_CANDIDATES:
+        count = source_text.count(f"fn {name}(")
+        expected = 1 if status == "fast_open" else 0
+        if count != expected:
+            parent_api.fail(f"lexical parity candidate presence drifted: {name}")
+    successor_count = source_text.count(f"fn {LEXICAL_PARITY_MATRIX_SUCCESSOR}(")
+    if successor_count != (0 if status == "fast_open" else 1):
+        parent_api.fail("lexical parity matrix successor presence drifted")
+
+    for source_case, hint in LEXICAL_PARITY_MATRIX_CASES:
+        if status == "fast_open":
+            if source_text.count(source_case) != 1 or source_text.count(hint) != 1:
+                parent_api.fail(f"lexical parity candidate case is missing: {hint}")
+        elif source_case not in source_text or hint not in source_text:
+            parent_api.fail(f"lexical parity matrix case is missing: {hint}")
+
+    if sum(1 for _ in source.open(encoding="utf-8")) >= 800:
+        parent_api.fail("lexical parity matrix source reached 800 lines")
+    if status == "landed" and sum(1 for _ in source.open(encoding="utf-8")) > 760:
+        parent_api.fail("lexical parity matrix source exceeds the 760-line design boundary")
+
+    baseline = tomllib.loads((root / BASELINE_REL).read_text(encoding="utf-8"))
+    expected_total = 7558 if status == "fast_open" else 7553
+    expected_passed = 7391 if status == "fast_open" else 7386
+    if baseline.get("expected_passed") != expected_passed:
+        parent_api.fail("lexical parity matrix baseline passed count is not reconciled")
+    if baseline.get("expected_failed") != 138 or baseline.get("expected_ignored") != 29:
+        parent_api.fail("lexical parity matrix changed the known-red partition")
+    if baseline.get("failures_sha256") != LEXICAL_PARITY_MATRIX_FAILURE_SHA:
+        parent_api.fail("lexical parity matrix failure-name SHA drifted")
+    inventory = (root / INVENTORY_REL).read_text(encoding="utf-8").splitlines()
+    if len(inventory) != expected_total or inventory != sorted(set(inventory)):
+        parent_api.fail("lexical parity matrix inventory is not sorted and unique")
+    candidate_names = {
+        "mir::builder::normal_script_semantic_source::tests::" + name
+        for name in LEXICAL_PARITY_MATRIX_CANDIDATES
+    }
+    successor_name = (
+        "mir::builder::normal_script_semantic_source::tests::"
+        + LEXICAL_PARITY_MATRIX_SUCCESSOR
+    )
+    names = set(inventory)
+    if status == "fast_open" and not candidate_names.issubset(names):
+        parent_api.fail("lexical parity candidate inventory is incomplete")
+    if status == "landed" and candidate_names.intersection(names):
+        parent_api.fail("retired lexical parity candidates remain in inventory")
+    if (successor_name in names) is (status == "fast_open"):
+        parent_api.fail("lexical parity successor inventory presence drifted")
+    if _canonical_lines_sha256(inventory) != baseline.get("inventory_sha256"):
+        parent_api.fail("lexical parity matrix inventory SHA drifted")
+    print(f"[{parent_api.TAG}] lexical parity matrix ok status={status}")

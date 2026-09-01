@@ -49,6 +49,8 @@ from mir_call_d1b_test_inventory_guard import (
     check_loop_if_exit_dedup_r0,
     LEGACY_TESTS_RETIRE_ROW,
     check_legacy_tests_retire_r0,
+    LEXICAL_PARITY_MATRIX_ROW,
+    check_normal_script_lexical_parity_matrix_s0,
 )
 from mir_call_d1b_rewrite_known_guard import (
     ROW as REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW,
@@ -160,6 +162,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_loop_if_exit_dedup_r0(state, card, root, api)
     elif row == LEGACY_TESTS_RETIRE_ROW:
         check_legacy_tests_retire_r0(state, card, root, api)
+    elif row == LEXICAL_PARITY_MATRIX_ROW:
+        check_normal_script_lexical_parity_matrix_s0(state, card, root, api)
     elif row == EXACT1_RETIRE_ROW:
         check_exact1_retire_i0(state, card, root, api)
     elif row == METHOD_NONE_TERMINAL_ROW:

@@ -8,7 +8,7 @@ Decision: selected-C stays live as a backend, but its exhausted DeclaredInstance
 Source authority + canonical issuer: an existing source-backed caller must carry one complete target/relation/result/effect/full-ABI/receiver/object tuple through canonical Atomic Publish; a backend may only consume a lossless post-publish projection.
 Non-authority: JSON/name/header/registry inference, MIR EffectMask or FunctionSignature as semantic proof, args[0], ValueId(0), fixture injection, direct package-to-Hako transport, fallback, retry, or a new receipt/guard.
 Fail-fast boundary: reopen DeclaredInstance only when exactly one live me.method product caller, one lossless backend view, one daily consumer, and one finite old-edge delete set exist. Zero or multiple keeps the whole family parked without another D0.
-Smallest next slice: the baseline refresh is now reconciled at 7558/7391/138/29; next perform only the existing bounded Ghost Task or test matrix, and reopen selected-C only with a complete tuple.
+Smallest next slice: the deterministic baseline and six-case lexical matrix are closed; reopen a semantic family only with a complete exact tuple, otherwise keep the existing Ghost/cleanup queue bounded.
 Non-claims: no Method(Some), selected-C retirement, backend/Call schema change, compatibility purge, VM work, broad test deletion, fallback, retry, or inferred semantic owner.
 """
 previous_parent_blocker_context = """
@@ -39,8 +39,8 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The route-entrypoint mode blocker was repaired at 06454bd084 and closed at c78889dc0b; interpreter-dispatched manifest helpers were aligned at b22a87392 without mass chmod. The two existing Pair/Page EXE smokes were run at cc7bb2cb2a43 and both stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary; no runtime green claim is made. The deterministic lib baseline refresh landed at 878480e395 with 7558/7391/138/29, inventory SHA
-96349b30d4d7e70c52d7622e87120b186c3fbeff78ddb146735e32081ed1a94b and failure
+The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The route-entrypoint mode blocker was repaired at 06454bd084 and closed at c78889dc0b; interpreter-dispatched manifest helpers were aligned at b22a87392 without mass chmod. The two existing Pair/Page EXE smokes were run at cc7bb2cb2a43 and both stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary; no runtime green claim is made. The deterministic lib baseline refresh landed at 878480e395, then the lexical parity matrix landed at the current closeout with 7553/7386/138/29, inventory SHA
+4f7534bd7614aec4aee56ae1a19e410621c47d3e407fedec52186ce40bfde202 and failure
 SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1; the CallTarget guard was rehomed at cde0250481 with no compiler
 semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
 has zero source-backed admission capabilities. Keep the canonical path:
@@ -72,6 +72,5 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-02: canonical entrypoint mode repair/closeout landed at 06454bd084/c78889dc0b, and interpreter-dispatched guard helpers were aligned at b22a87392d. Public direct entrypoints are executable; bash/python helpers remain 0644 by policy.",
-  "2026-09-02: ordinary-new Birth corrective cutover landed at 4b2db34ee3: claimed Birth selects the existing recipe target before argument descent and emits the canonical typed Call after NewBox; no-claim compatibility remains unchanged. Pair/Page runtime evidence is still pending.",
-  "2026-09-02: DEV-GATE-LIB-BASELINE-REFRESH-R0 landed at 878480e395: deterministic default-feature lib baseline is 7558/7391/138/29 with inventory SHA 96349b30d4d7e70c52d7622e87120b186c3fbeff78ddb146735e32081ed1a94b and failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1; known red remains explicit debt.",
+  "2026-09-02: lexical parity matrix S0 landed after baseline refresh: six duplicate normal-script parity wrappers became one six-case matrix; source is 760 lines, inventory is 7553/7386/138/29, and failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1 is unchanged.",
 ]

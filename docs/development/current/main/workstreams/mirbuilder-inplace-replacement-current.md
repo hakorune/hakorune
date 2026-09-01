@@ -57,12 +57,13 @@ receipt, fixture, adapter, or guard.
 ### Bounded execution order
 
 ```text
-0. Ghost evidence
-   run existing Pair/Page ordinary-new EXE smokes; add no row or fixture
+0. Ghost evidence (recorded)
+   existing Pair/Page ordinary-new EXE smokes stop before MIR at the known
+   Stage1 RootPreservation/CompatibilityLoss boundary; no workaround added
 
-1. MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0
-   six identical wrappers -> one labelled six-case matrix
-   tests -5, tracked lines down, no production change, no new guard
+1. MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0 (landed)
+   six identical wrappers -> one labelled six-case matrix; source 760 lines,
+   inventory -5, known-red set unchanged, no production change
 
 2. Next production family (triggered, not guessed)
    exactly one live family + owner + caller + old-edge delete set
@@ -95,7 +96,9 @@ receipt, fixture, adapter, or guard.
 - ordinary-new claimed Birth cutover: `4b2db34ee3`.
 - disabled `legacy-tests` surface retired: `bcc9a6ba65`.
 - canonical direct entrypoint modes/helper policy: `06454bd084`, `c78889dc0b`, `b22a87392d`.
-- deterministic lib baseline is `7558/7391/138/29`; focused green is not a whole-repo green claim, and the 138-name receipt remains known debt.
+- deterministic lib baseline refresh: `878480e395` (`7558/7391/138/29`).
+- lexical parity matrix shrink: current closeout (`7553/7386/138/29`), no production change.
+- focused green is not a whole-repo green claim; the 138-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive
 tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive

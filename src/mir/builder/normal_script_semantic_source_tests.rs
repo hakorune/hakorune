@@ -9,7 +9,6 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{MirCompiler, MirPrinter, NormalCompileRequestV1};
 use crate::parser::NyashParser;
-
 fn assert_selected_parity(source: &str, hint: &str) {
     let mut legacy = MirCompiler::with_options(false);
     let legacy = legacy
@@ -180,7 +179,6 @@ fn literal_program_seals_one_shared_script_owner_and_projection() {
     };
     let product = VerifiedScriptSemanticSourceV1::seal(&source, owner, &window)
         .expect("Script source product");
-
     assert_eq!(product.forest().owner_count(), 1);
     assert_eq!(product.runtime_source_indices(), &[0]);
     assert!(product
@@ -212,7 +210,6 @@ fn bare_me_seals_script_source_then_uses_existing_rootlower_diagnostic() {
         .expect("bare Me Script source");
     assert_eq!(product.forest().owner_count(), 1);
     assert_eq!(product.receiver_absent_sites().count(), 1);
-
     let mut legacy = MirCompiler::with_options(false);
     let legacy_error = legacy
         .compile_with_source(program.clone(), Some("script-bare-me.hako"))
@@ -304,7 +301,6 @@ fn bare_this_seals_script_source_then_uses_existing_unsupported_diagnostic() {
         .expect("bare This Script source");
     assert_eq!(product.forest().owner_count(), 1);
     assert_eq!(product.bare_this_unsupported_sites().count(), 1);
-
     let mut legacy = MirCompiler::with_options(false);
     let legacy_error = legacy
         .compile_with_source(program.clone(), Some("script-bare-this.hako"))
@@ -368,7 +364,6 @@ fn context_scope_is_complete_without_observing_value_or_body() {
         .expect("ContextScope Script source");
     assert_eq!(product.forest().owner_count(), 1);
     assert_eq!(product.existing_diagnostic_sites().count(), 1);
-
     let mut legacy = MirCompiler::with_options(false);
     let legacy_error = legacy
         .compile_with_source(program.clone(), Some("script-context-scope.hako"))
@@ -572,36 +567,20 @@ fn outbox_receipt_completes_without_observing_initializers() {
 }
 
 #[test]
-fn selected_normal_print_lexical_closure_matches_legacy() {
-    assert_selected_parity("local x = 1\nprint(-x)", "script-unary.hako");
-}
-
-#[test]
-fn real_print_fixture_uses_the_selected_normal_request() {
-    assert_selected_parity("print(1)", "script-print.hako");
-}
-
-#[test]
-fn selected_normal_binary_lexical_closure_matches_legacy() {
-    assert_selected_parity("local x = 1\nprint((x * 2) + 3)", "script-binary.hako");
-}
-
-#[test]
-fn selected_normal_await_lexical_closure_matches_legacy() {
-    assert_selected_parity("local x = 1\nprint(await -(x + 2))", "script-await.hako");
-}
-
-#[test]
-fn selected_normal_check_lexical_closure_matches_legacy() {
-    assert_selected_parity("local x = true\nprint(check { x })", "script-check.hako");
-}
-
-#[test]
-fn selected_normal_and_or_lexical_closure_matches_legacy() {
-    assert_selected_parity(
-        "local x = true\nprint(x and x)\nprint(x or x)",
-        "script-andor.hako",
-    );
+fn selected_normal_lexical_closure_matrix_matches_legacy() {
+    for (source, hint) in [
+        ("local x = 1\nprint(-x)", "script-unary.hako"),
+        ("print(1)", "script-print.hako"),
+        ("local x = 1\nprint((x * 2) + 3)", "script-binary.hako"),
+        ("local x = 1\nprint(await -(x + 2))", "script-await.hako"),
+        ("local x = true\nprint(check { x })", "script-check.hako"),
+        (
+            "local x = true\nprint(x and x)\nprint(x or x)",
+            "script-andor.hako",
+        ),
+    ] {
+        assert_selected_parity(source, hint);
+    }
 }
 
 #[test]
@@ -756,7 +735,6 @@ fn task_scope_early_exit_stays_deferred_to_existing_preflight() {
             .expect("TaskScope resolve"),
         ResolveScriptOutcomeV1::Deferred(_)
     ));
-
     let mut compiler = MirCompiler::with_options(false);
     let error = compiler
         .compile_normal(
