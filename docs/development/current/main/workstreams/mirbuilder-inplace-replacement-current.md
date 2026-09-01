@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-08-31
+Date: 2026-09-01
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -65,7 +65,9 @@ test-only=16, disconnected=1, live=5, canonical=1, reseal=4,
 remove_or_clear=0. The receiver crosswalk at `dc68fa2910` remains valid and
 Global/manual-prefix output is unchanged. Only after the selected-C
 CoverageMissing boundary gains one exact Hako owner/caller/ABI tuple may
-Method(Some) admission resume.
+Method(Some) admission resume. The final physical-Recipe refinement is
+recorded in the active manifest as part of this same design stop; it is not a
+new semantic co-seal row or implementation permission.
 vertical and delete that family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry

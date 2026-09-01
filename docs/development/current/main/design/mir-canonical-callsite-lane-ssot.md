@@ -24,17 +24,18 @@ Related:
   and the explicit `vm-reference` feature check is green. The MIR Call core
   still stores `func`, `Option<Callee>`, and transitional optional Method
   receivers. Observer facts, forest-wide package admission, FreeStatic
-  pre-effect handoff, and Main identity/catalog co-seal I0 are landed; the
-  raw ordinary Call spine still awaits the D1 source-owner/lineage and affine
-  loan cutover.
+  pre-effect handoff, Main identity/catalog co-seal I0, and the receiver
+  crosswalk are landed. The selected-C DeclaredInstance boundary remains
+  CoverageMissing; its final physical-Recipe contract is recorded as a
+  design-only refinement, not an issuer or implementation route.
 - **Next ordered task:**
-  `MIR-CALL-D1B-MAIN-RAW-LINEAGE-HANDOFF-D1`, selected by
-  `CURRENT_STATE.toml` as the current design stop. The landed package-side
-  Main owner/forest validation is not enough to create a raw lineage: this row
-  must identify an existing production Main raw-scope owner/callback and its
-  exact session relation, or keep the boundary NoSafeSlice. It emits no target,
-  loan, or Call; package/loan and Cataloged dispatcher cutover remain later
-  atomic rows.
+  `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`, selected by
+  `CURRENT_STATE.toml` as the current design stop. The manifest also records
+  the bounded `MIR-CALL-ME-DECLARED-INSTANCE-HAKO-SEALED-PHYSICAL-CALL-D0`
+  refinement: one session-local physical Recipe is permitted only as a
+  design contract until an exact Hako owner/caller/ABI tuple exists. It emits
+  no target, loan, or Call; Method(Some), backend, and schema cutovers remain
+  closed.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.

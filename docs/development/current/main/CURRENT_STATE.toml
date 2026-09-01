@@ -8,7 +8,7 @@ Decision: keep the existing selected-C admission design stop as the only next ro
 Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer.
 Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
 Fail-fast boundary: until one exact Hako LLVM-text admission path can lend receiver/result/effect/full-lane data losslessly from the installed package to a named caller, with a matching old-edge delete set, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
-Smallest next slice: record the existing CoverageMissing/NoSafeSlice state and keep the boundary-external backend replacement lane ParkedSealed with one observable reopen trigger; do not add an intermediate co-seal row.
+Smallest next slice: keep the existing CoverageMissing/NoSafeSlice state and record only the final physical Recipe contract as a refinement of this stop; do not add a new semantic co-seal row or grant implementation permission. The boundary-external backend replacement lane remains ParkedSealed with one observable reopen trigger.
 Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
 """
 previous_parent_blocker_context = """
@@ -47,7 +47,9 @@ the production-neutral PlannerContext mismatch test retirement at
 3e4f66ee82; the 139 failure names and SHA remain unchanged. The exact-match
 successor and three negative paths are retained and each passed 1/1. The
 selected-C admission row remains the semantic design stop because Hako
-admission owner/caller/ABI coverage is still zero.
+admission owner/caller/ABI coverage is still zero. A bounded physical-Recipe
+refinement is recorded in the same active manifest only: it does not add a
+semantic receipt, package-only bypass, or implementation permission.
 CorePlan varmap cache-only cleanup is complete through the clear final family:
 direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/
 canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
