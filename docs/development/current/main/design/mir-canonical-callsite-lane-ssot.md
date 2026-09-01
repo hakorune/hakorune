@@ -30,17 +30,19 @@ Related:
   It is the selected physical owner for the first DeclaredInstance vertical;
   direct package-to-Hako emission is not a second pipeline and is ParkedSealed
   as a future replacement strictly after `published MirModule`.
-- **Next ordered task:**
-  `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`, selected by
-  `CURRENT_STATE.toml` as the current caller-first tuple gate. The daily
-  consumer and finite old-edge families are known, but implementation remains
-  closed because no live `me.method` source tuple has yet proved all of:
-  canonical MirModule publication, source-backed target/result/effect/full
-  lanes, `TypedObjectPlan` plus exact definition, and a lossless wire contract.
-  The Counter candidate stops at `ExactSourceChanged` and is not authority.
-  Select this tuple once in the existing D0; exactly one opens a fixed 4-5
-  commit vertical, while zero/multiple ParkedSeals it without another D0,
-  receipt, fixture, or per-row guard.
+- **Current bounded task:**
+  `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` remains the current
+  design-stop row, but its one-time caller census is now exhausted with zero
+  live tuples. The daily consumer and finite old-edge families are known;
+  implementation remains closed because no existing `me.method` source tuple
+  proves canonical MirModule publication, source-backed target/result/effect/
+  full lanes, `TypedObjectPlan` plus exact definition, and a lossless wire
+  contract. The Counter/minimal route enters `Compatibility(AST)`, lacks the
+  callable-source/package/object tuple, and the normal source-backed route
+  stops at `ExactSourceChanged` (or publish-preflight imbalance). It is not an
+  authority. Do not create a bridge, fixture, receipt, resolver, or per-row
+  guard; reopen only from an existing published-MirModule source caller with
+  exactly one complete tuple.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.

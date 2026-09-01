@@ -79,11 +79,14 @@ family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
 remain non-authorities. The daily backend has a generic Method(Some) consumer,
-but the Counter candidate is not a live caller: its source route stops at
-`ExactSourceChanged` before published MirModule and its current fixture has no
-source-generated TypedObjectPlan. The existing D0 therefore permits one finite
-tuple selection only. Exactly one live caller opens the fixed vertical series;
-zero/multiple ParkedSeals it without another D0, receipt, fixture, or guard.
+but the Counter/minimal candidate is not a live source-backed caller: it enters
+`Compatibility(AST)`, has no callable-source/package/TypedObjectPlan tuple, and
+normal source-backed runs stop at `ExactSourceChanged` (or the later
+resolved-binding publish-preflight imbalance). The existing D0 census is
+therefore zero live tuples. ParkedSealed this vertical without another D0,
+receipt, fixture, adapter, or guard; reopen only from an existing published
+MirModule source caller with one lossless wire/object tuple. The daily backend
+choice remains valid, but no Method(Some) implementation permission is open.
 Whole-lib known-red health is separate. The
 independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
