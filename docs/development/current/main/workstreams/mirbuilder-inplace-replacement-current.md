@@ -48,7 +48,7 @@ receipt, fixture, adapter, or guard.
 | family | status | reopen/next condition |
 |---|---|---|
 | DeclaredInstance `me.method` | public syntax retained; selected-C admission parked | exactly one complete published-MIR tuple + lossless view + finite old-edge set |
-| ordinary-new claimed Birth | production cutover landed at `4b2db34ee3` | run the existing Pair/Page smokes as Ghost evidence |
+| ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
 | physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |
 | generic CorePlan GlobalCall | portable Loop M10b owner; parked | M8/M9/precutover deletion-manifest readiness |
