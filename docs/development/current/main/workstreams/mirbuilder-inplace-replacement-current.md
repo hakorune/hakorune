@@ -49,7 +49,7 @@ receipt, adapter, fixture, guard, or implementation permission.
 
 | family | status | reopen/next condition |
 |---|---|---|
-| DeclaredInstance `me.method` | public syntax retained; semantic package ready, publication/backend parked | exact published Method target/definition + one Hako family + named caller/delete set |
+| DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
 | physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |

@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: MIR Call target authority, compatibility ingress, and core retirement order
 Decision: finite typed structural Global and exact MIR JSON v2 accepted
-Updated: 2026-08-28
+Updated: 2026-09-02
 Related:
 - docs/development/current/main/CURRENT_STATE.toml
 - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
@@ -27,8 +27,10 @@ Related:
   pre-effect handoff, Main identity/catalog co-seal I0, and the receiver
   crosswalk are landed. DeclaredInstance relation, effect, result/Completion,
   full signature, and receiver crosswalk are ready through the package boundary.
-  The missing products are an exact published Method target/definition relation
-  and one lossless product-backend family. The daily ny-llvmc Boundary remains a
+  The accepted future direct-method identity is the existing source-catalog
+  `CanonicalSameModuleCallableKeyV1`; it is not yet retained as an exact
+  published Method target/definition relation. A lossless product-backend
+  family is also absent. The daily ny-llvmc Boundary remains a
   live JSON/name/registry compatibility consumer, not a semantic issuer or an
   exact DeclaredInstance physical owner. Direct package-to-Hako emission remains
   forbidden; backend admission begins only after canonical module publication.
@@ -97,11 +99,23 @@ Call {
 
 For DeclaredInstance, the current `box_name`/`method` fields are a transitional
 carrier and physical projection, not a published callable-definition identity.
-The Call/R6 vocabulary must eventually add or reuse one backend-neutral exact
-direct-method target key and atomically relate it to the published function
-definition. Whether that key is the existing structural owner/method/arity key
-or a module-local opaque ID remains a single future decision; no backend-specific
-ID, inverse parser, package side channel, or new receipt is introduced here.
+The accepted backend-neutral exact direct-method key is the existing
+source-catalog-issued `CanonicalSameModuleCallableKeyV1`:
+`InstanceBoxMethod + owner + method + source arity`. Call/R6 must retain that
+same key and atomically relate it to the published function definition. Moving
+the type to a shared MIR vocabulary location is representation neutral; it does
+not create a second issuer. `resolved_semantics::CanonicalCallableKeyV1` is
+FreeStatic-only, `FunctionDraftKeyV1` is routing vocabulary, and a module-local
+opaque/backend ID is not introduced.
+
+The 2026-09-02 finite audit also closes the tempting key-only intermediate.
+The normal cataloged path currently drops the source key to `LegacySymbol`, and
+the collector can validate `CatalogedBoxMethod` before publication, but
+`MirModule` stores functions by physical `String` and has no post-publish key
+consumer. Therefore key retention by itself is consumer-zero and may not land.
+The next implementation requires the key/definition relation, one named
+callsite consumer, one lossless backend family, and its finite old-edge delete
+set in the same bounded series.
 
 `CanonicalGlobalTargetV1` is a self-describing structural value in the
 serde-free `hakorune_mir_defs` crate:
