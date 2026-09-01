@@ -25,23 +25,22 @@ Related:
   still stores `func`, `Option<Callee>`, and transitional optional Method
   receivers. Observer facts, forest-wide package admission, FreeStatic
   pre-effect handoff, Main identity/catalog co-seal I0, and the receiver
-  crosswalk are landed. The selected-C DeclaredInstance boundary remains
-  CoverageMissing: a named launcher chain reaches `LlTextEmitBox.emit_module`,
-  but its source ingress is Hako MirBuilder/JSON and no lossless package
-  admission ABI or source-backed issuer exists. Its final physical-Recipe and
-  transport contract is recorded as a design-only refinement, not an issuer or
-  implementation route.
+  crosswalk are landed. The daily ny-llvmc Boundary already consumes canonical
+  published MIR and has a generic `Method(Some(receiver))` physical consumer.
+  It is the selected physical owner for the first DeclaredInstance vertical;
+  direct package-to-Hako emission is not a second pipeline and is ParkedSealed
+  as a future replacement strictly after `published MirModule`.
 - **Next ordered task:**
   `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`, selected by
-  `CURRENT_STATE.toml` as the current CoverageMissing/NoSafeSlice design
-  stop. The behavior-neutral `MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0`
-  prerequisite is landed: only derived lookup code moved to a private child,
-  while the route catalog and public API remain unchanged. The manifest also records
-  the bounded `MIR-CALL-ME-DECLARED-INSTANCE-HAKO-SEALED-PHYSICAL-CALL-D0`
-  refinement: one session-local physical Recipe is permitted only as a
-  design contract until an exact Hako owner/caller/ABI tuple exists. It emits
-  no target, loan, or Call; Method(Some), backend, and schema cutovers remain
-  closed.
+  `CURRENT_STATE.toml` as the current caller-first tuple gate. The daily
+  consumer and finite old-edge families are known, but implementation remains
+  closed because no live `me.method` source tuple has yet proved all of:
+  canonical MirModule publication, source-backed target/result/effect/full
+  lanes, `TypedObjectPlan` plus exact definition, and a lossless wire contract.
+  The Counter candidate stops at `ExactSourceChanged` and is not authority.
+  Select this tuple once in the existing D0; exactly one opens a fixed 4-5
+  commit vertical, while zero/multiple ParkedSeals it without another D0,
+  receipt, fixture, or per-row guard.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
@@ -61,8 +60,14 @@ The final physical issuer is deliberately thin:
 typed source producer or owner-private compatibility ingress
   -> exact Callee
   -> MirInstruction::call(dst, callee, args, effects)
-  -> stored target projection / execution
+  -> Atomic Publish of canonical MirModule
+  -> selected backend projection / execution
 ```
+
+No backend may receive source/package products around Atomic Publish. A future
+Hako emitter may replace the selected backend only through a borrowed,
+lossless view of the published canonical MirModule; it may not become a second
+source-to-physical pipeline.
 
 The target and Call shapes converge to:
 

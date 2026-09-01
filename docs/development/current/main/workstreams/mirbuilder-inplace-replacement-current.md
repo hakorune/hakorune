@@ -64,10 +64,11 @@ owned and is not claimed green: its role-aware CorePlan varmap census is closed 
 test-only=16, disconnected=1, live=5, canonical=1, reseal=4,
 remove_or_clear=0. The receiver crosswalk at `dc68fa2910` remains valid and
 Global/manual-prefix output is unchanged. Only after the selected-C
-CoverageMissing boundary gains one exact Hako owner/caller/ABI tuple may
-Method(Some) admission resume. The final physical-Recipe refinement is
-recorded in the active manifest as part of this same design stop; it is not a
-new semantic co-seal row or implementation permission.
+caller-first boundary gains one exact live `me.method` source/wire/object tuple
+may Method(Some) admission resume. The selected physical owner is the existing
+daily ny-llvmc Boundary after canonical MirModule publication. The former
+direct package-to-Hako physical-Recipe proposal is superseded and ParkedSealed
+as a future post-publish backend replacement; it is not a second pipeline.
 The behavior-neutral
 `MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0` landed at
 `35f59702b5`: it moved only the derived route lookup block into a private
@@ -77,10 +78,13 @@ design stop. The later production work will verticalize and delete that
 family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
-remain non-authorities. A named Hako launcher substrate exists, but its source
-ingress is the Hako MirBuilder/JSON route; source-backed LLVM-text
-DeclaredInstance coverage and a lossless admission ABI are still zero. Whole-lib
-known-red health is separate. The
+remain non-authorities. The daily backend has a generic Method(Some) consumer,
+but the Counter candidate is not a live caller: its source route stops at
+`ExactSourceChanged` before published MirModule and its current fixture has no
+source-generated TypedObjectPlan. The existing D0 therefore permits one finite
+tuple selection only. Exactly one live caller opens the fixed vertical series;
+zero/multiple ParkedSeals it without another D0, receipt, fixture, or guard.
+Whole-lib known-red health is separate. The
 independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
@@ -120,9 +124,11 @@ the existing direct arithmetic/comparison/unary MIR remain separate and live.
 retains ordinary `me.method` syntax. Its target relation is resolver-owned;
 the package may only co-seal result/effect/full-lane contracts. The clean MIR
 is `Method(Some(receiver))` plus N explicit source arguments, and the selected
-C path remains one direct same-module call. The old header classifier,
-formatted Global/symbol reissuer, and manual receiver prefix retire together
-only after the exact successor is live.
+C path remains one direct same-module call through the daily Boundary. The
+fixed successor series is: borrow-only package physical view; caller switch to
+Method(Some) before arguments; lossless route/effect/object preservation and
+strict pure-first consumption; end-to-end proof plus selected old-edge/seed
+retirement. No package-view commit may close without the rest of that series.
 
 The bounded row
 `MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0` landed at

@@ -4,12 +4,12 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: keep the selected-C DeclaredInstance admission at CoverageMissing/NoSafeSlice; the route-spec lookup BoxShape prerequisite is landed without semantic change.
-Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; no source-backed Hako LLVM-text issuer or lossless ABI exists yet.
-Non-authority: Hako MirBuilder/JSON substrate, MIR/JSON metadata, FunctionSignature/EffectMask inference, names, registry, args[0], ValueId(0), fallback, retry, or a new receipt/loan.
-Fail-fast boundary: do not issue Method(Some), lower arguments, emit objects, or enter LLVM text until one exact source/owner/site, receiver, result, effect, ordered physical lanes, selected-C capability, explicit Hako caller, and old-edge delete set are co-sealed in one session.
-Smallest next slice: design-only refinement of the existing selected-C stop; name one source-backed Hako admission owner/ABI or keep the lane ParkedSealed. The landed route-spec split is only physical BoxShape cleanup.
-Non-claims: no selected-C implementation, Method(Some), backend switch, Call-schema change, fallback, retry, or broad cleanup.
+Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement.
+Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, and exact receiver crosswalk; the daily backend only consumes their one-way physical projection after canonical MIR publication.
+Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, fallback, retry, or a new semantic receipt/loan.
+Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, and one finite old-edge delete set.
+Smallest next slice: within this existing D0 only, select that live tuple once; Counter is not it because the daily source route stops at ExactSourceChanged. Exactly one opens the fixed 4-5 commit vertical; zero/multiple ParkedSeals the vertical without another D0/receipt/guard.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,22 +42,22 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic default-feature receipt is now 7562/7394/139/29 after
-the production-neutral PlannerContext mismatch test retirement at
-3e4f66ee82; the 139 failure names and SHA remain unchanged. The exact-match
-successor and three negative paths are retained and each passed 1/1. The
-selected-C admission remains the parent semantic design stop because Hako
-source-backed admission owner/ABI coverage is still zero; its named launcher
-substrate begins at Hako MirBuilder/JSON and cannot losslessly carry the package
-Recipe. The route-spec lookup BoxShape split landed at 35f59702b5: parent
-route_spec.rs is 723 lines, private catalog_lookup.rs is 77 lines, and the
+The deterministic default-feature receipt is 7562/7394/139/29 after the
+PlannerContext test retirement at 3e4f66ee82; its 139 failure names/SHA are
+unchanged, and the exact-match successor plus three negatives passed 1/1. The
+selected-C admission remains the parent design stop, but its architecture is
+now narrower: the first Method(Some) vertical uses the existing daily ny-llvmc
+Boundary after canonical MirModule publication. Direct package-to-Hako emission
+is superseded and ParkedSealed as a future post-publish backend replacement.
+The route-spec split landed at 35f59702b5: route_spec.rs is 723 lines, private catalog_lookup.rs is 77 lines, and the
 47-variant/47-row catalog plus public API remain unchanged. It adds no
 semantic receipt, package bypass, or selected-C permission.
-CorePlan varmap cache-only cleanup is complete through the clear final family: direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
-DeclaredInstance selected-C admission row: relation, effect, result/Completion, physical lane, package locator, and exact receiver crosswalk are named, but
-Hako source-backed admission owner/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the named launcher chain is a substrate candidate only because its ingress is Hako MirBuilder/JSON, and `LlTextEmitBox.emit_module` has no lossless package admission. The boundary-external backend replacement lane is ParkedSealed.
-No Method(Some), backend switch, fallback, retry, or Call-schema claim is open;
-the route-spec split is closed and the selected-C design stop is active again.
+CorePlan cache cleanup remains closed. The existing daily boundary proves a
+generic Method(Some) consumer, but the proposed Counter source stops before
+published MirModule and lacks source-generated TypedObjectPlan coverage. The
+remaining gate is one live me.method caller plus one lossless source-backed
+wire tuple; no package-view implementation may land alone. No Method(Some),
+backend switch, fallback, retry, or Call-schema claim is open.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 next_execution_card = "none__design_stop"
