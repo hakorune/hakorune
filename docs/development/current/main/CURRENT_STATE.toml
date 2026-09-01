@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
+current_design_stop = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
 current_blocker_token = """
-Decision: close out the four-site carrier/pipeline cache-only BoxShape reseal.
-Source authority + canonical issuer: existing current_bindings/carrier state and loop-header value; parts::var_map_scope::publish_emission_cache remains the sole cache owner.
-Non-authority: variable_map as logical PHI truth, AST/name lookup, fixtures, route choice, loop fallback, MIR/Call/backend/selected-C facts, fallback, or retry.
-Fail-fast boundary: direct-site growth, remove/clear, second owner, timing/value drift, or 760/800-line drift reopens this row.
-Smallest next slice: record the focused evidence and commit/push the landed BoxShape; no other plan family or semantic route enters this closeout.
-Non-claims: no loop fallback retirement, Call/MIR/backend change, selected-C decision, fixture rewrite, resolver, fallback, retry, receipt, or schema cutover.
+Decision: audit and select the six-site loop_cond_bc cache-only BoxShape reseal.
+Source authority + canonical issuer: LoopCondBreakContinue current bindings/PHI/prelude values; existing publish_emission_cache sole owner.
+Non-authority: variable_map as PHI truth, AST/name lookup, fixtures, route/fallback choice, MIR/Call/backend/selected-C semantics, fallback, retry.
+Fail-fast boundary: any timing/value/order drift, route-specific authority, direct-site growth, remove/clear, second owner, or 760/800-line drift.
+Smallest next slice: keep design_stop until the finite row/guard is accepted; then delegate only the six existing writes and run route/verifier evidence.
+Non-claims: no loop_cond_co/loop_true/cond-prelude, fallback retirement, Call/MIR/backend, selected-C, resolver, receipt, fixture, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,22 +42,16 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic default-feature receipt was refreshed at 484d58585f after
-three identical 7562/7394/139/29 observations; all 139 failure names and their
-SHA remained byte-identical. The runner now passes. CorePlan variable_map role
-census and generic-loop-body reseal are landed; carrier/pipeline reseal
-77038e18b0 delegates all four remaining cache writes to the sole helper,
-leaving raw=42/test-only=16/disconnected=1/live=25/canonical=1/reseal=24.
-The finite guard remains shrink-only and remove/clear=0. Focused accepted-plan
-6/6 and source-bridge 2/2 passed; whole-parity's two failures match the known
-baseline manifest and are not claimed as new green. This row is separate from
-Call semantics. Language decisions remain fixed: retain ordinary me.method,
-use explicit static/instance/delegate namespaces, terminal panic Fault, and
-non-throwing Result/?/cleanup. Option B and the receiver crosswalk remain
-unchanged; selected-C admission stays gated by its own receipt.
+The deterministic default-feature receipt remains fixed at 7562/7394/139/29.
+CorePlan varmap role census, generic-loop-body reseal, and the four-site
+carrier/pipeline reseal are landed. The next design-stop row audits the six
+remaining loop_cond_bc cache writes and permits only delegation to the existing
+publish_emission_cache owner; it is separate from Call semantics. No loop
+fallback, MIR/Call, backend, selected-C, resolver, fixture, fallback, retry,
+receipt, or schema change is open.
 """
-next_design_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
-next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
+next_design_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
