@@ -2,6 +2,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::CoreEffectPlan;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
@@ -19,11 +20,7 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
     // the builder map before lowering the RHS so map-first value lookup cannot
     // read a stale pre-loop value for carrier variables.
     for (name, value_id) in current_bindings.iter() {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        publish_emission_cache(builder, name.clone(), *value_id);
     }
     let (binding, effects) = loop_body_lowering::lower_assignment_stmt(
         builder,
@@ -41,11 +38,7 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
     if carrier_phis.contains_key(&name) || current_bindings.contains_key(&name) {
         current_bindings.insert(name.clone(), value_id);
     }
-    builder
-        .function_state
-        .variable_ctx
-        .variable_map
-        .insert(name, value_id);
+    publish_emission_cache(builder, name, value_id);
     Ok(effects)
 }
 
@@ -65,11 +58,7 @@ pub(in crate::mir::builder) fn lower_local_init_stmt(
     )?;
     for (name, value_id) in inits {
         current_bindings.insert(name.clone(), value_id);
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name, value_id);
+        publish_emission_cache(builder, name, value_id);
     }
     Ok(effects)
 }

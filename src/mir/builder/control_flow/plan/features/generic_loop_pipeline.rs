@@ -6,6 +6,7 @@ use crate::mir::builder::control_flow::plan::features::{generic_loop_body, gener
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
 };
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
 use crate::mir::builder::MirBuilder;
 
@@ -19,11 +20,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
     // Keep loop-step lowering anchored to the current header PHI in v0 route.
     // Without this rebinding, post_body_map can retain the init value and
     // step-only loops (e.g. i = i + k) become constant updates.
-    builder
-        .function_state
-        .variable_ctx
-        .variable_map
-        .insert(facts.loop_var.clone(), skeleton.loop_var_current);
+    publish_emission_cache(builder, facts.loop_var.clone(), skeleton.loop_var_current);
 
     let body_plans =
         generic_loop_body::lower_generic_loop_v0_body(builder, facts, &skeleton.phi_bindings, ctx)?;
