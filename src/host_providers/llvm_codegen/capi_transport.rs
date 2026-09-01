@@ -6,6 +6,7 @@ use super::normalize;
 use super::transport_io;
 use super::transport_paths;
 use super::Opts;
+use crate::mir::function::PublishedStaticMethodCallCRowV1;
 
 #[cfg(feature = "plugins")]
 fn resolve_ffi_library_path() -> Result<PathBuf, String> {
@@ -129,6 +130,107 @@ pub(super) fn compile_via_capi(
     }
 }
 
+/// Compile a published module through the typed StaticBoxMethod ingress.
+/// Unlike `compile_via_capi`, this entry passes the selected call-site rows
+/// directly to the C consumer; it never selects a JSON/name fallback route.
+#[cfg(feature = "plugins")]
+pub(super) fn compile_published_static_method_v1(
+    json_in: &Path,
+    obj_out: &Path,
+    rows: &[PublishedStaticMethodCallCRowV1],
+    opts: &Opts,
+) -> Result<(), String> {
+    use std::os::raw::{c_char, c_int, c_void};
+
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
+
+    if rows.is_empty() {
+        return Err("published StaticBoxMethod ingress requires at least one row".to_owned());
+    }
+
+    unsafe {
+        let lib = load_ffi_library()?;
+        type CompileFn = unsafe extern "C" fn(
+            *const c_char,
+            *const PublishedStaticMethodCallCRowV1,
+            usize,
+            *const c_char,
+            *mut *mut c_char,
+        ) -> c_int;
+        let func: libloading::Symbol<CompileFn> = lib
+            .get(b"hako_llvmc_compile_published_static_method_v1\0")
+            .map_err(|e| format!("dlsym failed for typed published MIR ingress: {}", e))?;
+        let cin = CString::new(json_in.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid json path".to_owned())?;
+        let cout = CString::new(obj_out.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid out path".to_owned())?;
+        let mut err_ptr: *mut c_char = std::ptr::null_mut();
+        let prev_recipe = std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok();
+        let prev_replay = std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok();
+        let prev_hako_opt = std::env::var("HAKO_LLVM_OPT_LEVEL").ok();
+        let prev_nyash_opt = std::env::var("NYASH_LLVM_OPT_LEVEL").ok();
+        if let Some(value) = opts.compile_recipe.as_deref() {
+            std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", value);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
+        }
+        if let Some(value) = opts.compat_replay.as_deref() {
+            std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", value);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY");
+        }
+        if let Some(level) = opts.opt_level.as_ref() {
+            std::env::set_var("HAKO_LLVM_OPT_LEVEL", level);
+            std::env::set_var("NYASH_LLVM_OPT_LEVEL", level);
+        }
+
+        let rc = func(
+            cin.as_ptr(),
+            rows.as_ptr(),
+            rows.len(),
+            cout.as_ptr(),
+            &mut err_ptr as *mut *mut c_char,
+        );
+
+        if let Some(value) = prev_recipe {
+            std::env::set_var("HAKO_BACKEND_COMPILE_RECIPE", value);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPILE_RECIPE");
+        }
+        if let Some(value) = prev_replay {
+            std::env::set_var("HAKO_BACKEND_COMPAT_REPLAY", value);
+        } else {
+            std::env::remove_var("HAKO_BACKEND_COMPAT_REPLAY");
+        }
+        if let Some(value) = prev_hako_opt {
+            std::env::set_var("HAKO_LLVM_OPT_LEVEL", value);
+        } else {
+            std::env::remove_var("HAKO_LLVM_OPT_LEVEL");
+        }
+        if let Some(value) = prev_nyash_opt {
+            std::env::set_var("NYASH_LLVM_OPT_LEVEL", value);
+        } else {
+            std::env::remove_var("NYASH_LLVM_OPT_LEVEL");
+        }
+
+        if rc != 0 {
+            let msg = if !err_ptr.is_null() {
+                CStr::from_ptr(err_ptr).to_string_lossy().into_owned()
+            } else {
+                "typed published MIR compile failed".to_owned()
+            };
+            if !err_ptr.is_null() {
+                free(err_ptr as *mut c_void);
+            }
+            return Err(msg);
+        }
+        transport_io::ensure_backend_artifact_written(obj_out, "object")?;
+        Ok(())
+    }
+}
+
 pub(super) fn compile_via_capi_keep(
     mir_json: &str,
     compile_symbol: &[u8],
@@ -158,6 +260,16 @@ pub(super) fn compile_via_capi(
     _compile_symbol: &[u8],
     _compile_recipe: Option<&str>,
     _compat_replay: Option<&str>,
+    _opts: &Opts,
+) -> Result<(), String> {
+    Err("capi not available (plugins feature disabled)".into())
+}
+
+#[cfg(not(feature = "plugins"))]
+pub(super) fn compile_published_static_method_v1(
+    _json_in: &Path,
+    _obj_out: &Path,
+    _rows: &[PublishedStaticMethodCallCRowV1],
     _opts: &Opts,
 ) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())
@@ -220,11 +332,78 @@ pub(super) fn link_via_capi(
     }
 }
 
+#[cfg(feature = "plugins")]
+pub(super) fn link_via_capi_v2(
+    obj_in: &Path,
+    exe_out: &Path,
+    runtime_archive: &Path,
+    extra_ldflags: Option<&str>,
+) -> Result<(), String> {
+    use std::os::raw::{c_char, c_int, c_void};
+
+    extern "C" {
+        fn free(ptr: *mut c_void);
+    }
+
+    unsafe {
+        let lib = load_ffi_library()?;
+        type LinkFn = unsafe extern "C" fn(
+            *const c_char,
+            *const c_char,
+            *const c_char,
+            *const c_char,
+            *mut *mut c_char,
+        ) -> c_int;
+        let func: libloading::Symbol<LinkFn> = lib
+            .get(b"hako_llvmc_link_obj_v2\0")
+            .map_err(|e| format!("dlsym failed for explicit link: {}", e))?;
+        let cobj = CString::new(obj_in.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid obj path".to_owned())?;
+        let cexe = CString::new(exe_out.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid exe path".to_owned())?;
+        let car = CString::new(runtime_archive.to_string_lossy().as_bytes())
+            .map_err(|_| "invalid runtime archive path".to_owned())?;
+        let cflags = extra_ldflags
+            .map(|flags| CString::new(flags).map_err(|_| "invalid ldflags".to_owned()))
+            .transpose()?;
+        let mut err_ptr: *mut c_char = std::ptr::null_mut();
+        let rc = func(
+            cobj.as_ptr(),
+            cexe.as_ptr(),
+            car.as_ptr(),
+            cflags.as_ref().map_or(std::ptr::null(), |v| v.as_ptr()),
+            &mut err_ptr as *mut *mut c_char,
+        );
+        if rc != 0 {
+            let msg = if !err_ptr.is_null() {
+                CStr::from_ptr(err_ptr).to_string_lossy().into_owned()
+            } else {
+                "explicit link failed".to_owned()
+            };
+            if !err_ptr.is_null() {
+                free(err_ptr as *mut c_void);
+            }
+            return Err(msg);
+        }
+        transport_io::ensure_backend_artifact_written(exe_out, "exe")
+    }
+}
+
 #[cfg(not(feature = "plugins"))]
 pub(super) fn link_via_capi(
     _obj_in: &Path,
     _exe_out: &Path,
     _extra: Option<&str>,
+) -> Result<(), String> {
+    Err("capi not available (plugins feature disabled)".into())
+}
+
+#[cfg(not(feature = "plugins"))]
+pub(super) fn link_via_capi_v2(
+    _obj_in: &Path,
+    _exe_out: &Path,
+    _runtime_archive: &Path,
+    _extra_ldflags: Option<&str>,
 ) -> Result<(), String> {
     Err("capi not available (plugins feature disabled)".into())
 }

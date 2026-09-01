@@ -503,6 +503,36 @@
         long long dst = read_int(ins, "dst");
         int rc = 0;
         if (!same_module_function_read_call_payload(ins, &cal, &args)) return 0;
+        {
+          const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
+          uint32_t typed_arity = 0;
+          const char* typed_symbol =
+              hako_llvmc_published_static_method_symbol_for_site(
+                  active_function_name, bid, ii, &typed_arity);
+          if (typed_symbol) {
+            const char* typed_kind = same_module_function_call_type(op, cal);
+            if (!(typed_kind && !strcmp(typed_kind, "Global"))) return 0;
+            if (!(args && yyjson_is_arr(args) &&
+                  yyjson_arr_size(args) == (size_t)typed_arity)) {
+              return 0;
+            }
+            {
+              char typed_args[1024];
+              typed_args[0] = '\0';
+              for (size_t ai = 0; ai < (size_t)typed_arity; ai++) {
+                long long arg_reg = 0;
+                if (!same_module_function_read_arg_reg(args, ai, &arg_reg)) return 0;
+                append_i64_arg_ref(
+                    typed_args,
+                    sizeof(typed_args),
+                    arg_reg,
+                    typed_args[0] == '\0');
+              }
+              same_module_function_emit_i64_call(dst, typed_symbol, typed_args);
+              return 1;
+            }
+          }
+        }
         ctype = same_module_function_call_type(op, cal);
         rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         if (rc != 0) {

@@ -54,6 +54,7 @@ mod ll_emit_compare_source;
 mod ll_tool_driver;
 pub mod mir_json_text_object;
 mod normalize;
+mod published_mir_object;
 mod provider_keep;
 #[allow(dead_code)] // Phase 291x-126: hako-ll recipe route is staged, not default-owned.
 mod route;
@@ -62,6 +63,8 @@ mod transport_io;
 #[allow(dead_code)] // Phase 291x-126: includes staged hako-ll bridge path helpers.
 mod transport_paths;
 pub use defaults::boundary_default_object_opts;
+
+pub(crate) use published_mir_object::emit_published_static_method_exe;
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
 pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {
     let out_path = transport_paths::resolve_backend_object_output(&opts);
@@ -80,6 +83,16 @@ pub fn link_object_capi(
         llvm_emit_debug!("[hb:link:ldflags] {}", extra_ldflags.unwrap_or("<none>"));
     }
     capi_transport::link_via_capi(obj_in, exe_out, extra_ldflags)
+}
+
+/// Link a typed published-MIR object with an explicit runtime archive.
+pub fn link_object_capi_v2(
+    obj_in: &Path,
+    exe_out: &Path,
+    runtime_archive: &Path,
+    extra_ldflags: Option<&str>,
+) -> Result<(), String> {
+    capi_transport::link_via_capi_v2(obj_in, exe_out, runtime_archive, extra_ldflags)
 }
 
 pub fn normalize_mir_json_for_backend(mir_json: &str) -> Result<String, String> {

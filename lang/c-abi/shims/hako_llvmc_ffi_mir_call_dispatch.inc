@@ -158,6 +158,50 @@
           unsigned char* skip_inst) {
         char ab[256];
         ab[0] = '\0';
+        /*
+         * The published static-method row is the authority for the selected
+         * cohort.  Consume it before any generic route can inspect a name,
+         * registry, or receiver convention.  This hook lives in the generic
+         * MIR-call dispatcher as well as the same-module body emitter because
+         * the entry function uses this path directly.
+         */
+        {
+          const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
+          uint32_t typed_arity = 0;
+          const char* typed_symbol =
+              hako_llvmc_published_static_method_symbol_for_site(
+                  active_function_name, bid, ii, &typed_arity);
+          if (typed_symbol) {
+            char typed_args[1024];
+            typed_args[0] = '\0';
+            if (!(ctype && !strcmp(ctype, "Global") && args &&
+                  yyjson_is_arr(args) &&
+                  yyjson_arr_size(args) == (size_t)typed_arity)) {
+              return -1;
+            }
+            for (size_t ai = 0; ai < (size_t)typed_arity; ai++) {
+              long long arg_reg = 0;
+              if (!hako_llvmc_mir_call_arg_reg_at(args, ai, &arg_reg)) {
+                return -1;
+              }
+              append_i64_arg_ref(
+                  typed_args,
+                  sizeof(typed_args),
+                  arg_reg,
+                  typed_args[0] == '\0');
+            }
+            if (dst) {
+              EMIT("  %%r%lld = call i64 @\"%s\"(%s)\n",
+                   dst,
+                   typed_symbol,
+                   typed_args);
+              set_type(dst, T_I64);
+            } else {
+              EMIT("  call i64 @\"%s\"(%s)\n", typed_symbol, typed_args);
+            }
+            return 1;
+          }
+        }
         if (hako_llvmc_route_trace_enabled() && generic_call_trace_budget > 0) {
           char extra[384];
           snprintf(extra, sizeof(extra),

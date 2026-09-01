@@ -54,8 +54,8 @@ pub use typed_array_contract::{
     TYPED_ARRAY_EXACT_NUMERIC_CAPABILITY,
 };
 pub(crate) use published_backend_view::{
-    PublishedMirBackendView, PublishedMirBackendViewErrorV1, PublishedStaticMethodCallRef,
-    PublishedStaticMethodRouteV1,
+    PublishedMirBackendView, PublishedMirBackendViewErrorV1, PublishedStaticMethodCFrameV1,
+    PublishedStaticMethodCallCRowV1, PublishedStaticMethodRouteV1,
 };
 pub use types::{
     ArrayElementWriteWitness, ArrayStateTerm, ArrayStateTermId, ArrayStateTermKind, ClosureBodyId,

@@ -466,6 +466,32 @@ int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out,
   return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
 }
 
+// Canonical published-MIR ingress.  The module body is still read from the
+// existing physical JSON transport for this bounded cohort, but selected
+// StaticBoxMethod call targets are consumed exclusively from the typed rows.
+// There is no retry through the generic JSON/name route for a selected row.
+__attribute__((visibility("default")))
+int hako_llvmc_compile_published_static_method_v1(
+    const char* json_in,
+    const hako_llvmc_published_static_method_call_v1* calls,
+    size_t call_count,
+    const char* obj_out,
+    char** err_out) {
+  int rc;
+  if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
+    return -1;
+  }
+  if (hako_llvmc_published_static_method_rows_begin(calls, call_count, err_out) != 0) {
+    return -1;
+  }
+  rc = compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+  if (rc == 0) {
+    rc = hako_llvmc_published_static_method_rows_finish(err_out);
+  }
+  hako_llvmc_published_static_method_rows_end();
+  return rc;
+}
+
 // Explicit compatibility ABI.  It does not read replay environment state;
 // reaching this symbol is itself the named admission.
 __attribute__((visibility("default")))

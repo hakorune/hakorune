@@ -20,6 +20,7 @@
 
 // hako_aot.h provides hako_aot_compile_json / hako_aot_link_obj
 #include "../include/hako_aot.h"
+#include "../include/hako_llvmc_ffi.h"
 #include "hako_json_v1.h"
 #include "yyjson.h"
 #if !defined(_WIN32)
@@ -27,6 +28,7 @@
 #endif
 
 #include "hako_llvmc_ffi_common.inc"
+#include "published_mir/hako_llvmc_ffi_published_static_method.inc"
 #include "hako_llvmc_ffi_pinned_text_backend_frame.inc"
 #include "hako_llvmc_ffi_pinned_text_residence_carrier.inc"
 #include "hako_llvmc_ffi_pinned_text_target_machine_session.inc"
