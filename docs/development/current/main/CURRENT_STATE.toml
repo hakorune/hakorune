@@ -1,15 +1,19 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TARGET-ONLY-RESIDUAL-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: harden the existing ordinary-static target-only owner without opening a new semantic route.
-Source authority + canonical issuer: existing VerifiedStaticCallResultPublicationOwnerV1 rows keyed by exact caller/site; compatibility keeps the existing Unavailable ingress, while source-backed normal keeps the owner.
-Non-authority: silent Drop, len() as completion proof, name/registry/header lookup, resolver replay, package/loan, fallback, retry, or a new receipt.
-Fail-fast boundary: source-backed normal owner residuals reject before module publication/commit; rejection retains collector drafts and leaves the module unchanged. Compatibility roots do not construct/install this owner.
-Smallest next slice: add typed finish_empty checks and conditional owner installation, then return to the selected-C design stop.
-Non-claims: no target issuance, ordinary-static route change, Method(Some), backend/VM, Call schema, or old-edge deletion.
+Decision: keep one canonical published-MirModule pipeline; the selected-C admission remains a separate design stop because no source-backed capability co-seals the full DeclaredInstance tuple.
+The architecture choice is the canonical path: source/package products stop at
+Atomic Publish, then a lossless borrowed typed backend view may feed the
+selected backend. Direct package-to-Hako emission is superseded and remains
+ParkedSealed, not an alternate production pipeline.
+Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
+Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
+Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
+Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge. A minimal Counter probe is only conditional evidence until the current tree contains its source-backed entry, return contract, and exact wire/object tuple; do not amend a fixture to force admission.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -53,11 +57,10 @@ package-to-Hako route remains superseded/ParkedSealed. The minimal Counter
 probe is conditional evidence only and is not a live tuple in the current tree.
 The exact selected-C tuple census is zero, so Method(Some) remains a design stop;
 the LEGACY-TESTS-RETIRE-R0 shrink row landed at bcc9a6ba65 with its default baseline unchanged.
-The current bounded row is target-only residual I0: compatibility owner construction is removed, source-backed owner residuals fail closed before drain, and focused evidence must land before returning to selected-C.
-The target-only residual I0 implementation landed at c939ee81cd: selected and target-only pending rows now have typed finish checks, compatibility keeps the existing Unavailable path, and the normal pre-drain boundary rejects residual ownership before module publication/commit while retaining collector drafts. Closeout evidence is recorded in the active card; the pointer returns to selected-C after this closeout.
+The target-only residual I0 landed at c939ee81cd, with closeout evidence in the active card: selected and target-only pending rows have typed finish checks, compatibility keeps the existing Unavailable path, and the normal pre-drain boundary rejects residual ownership before module publication/commit while retaining collector drafts. The pointer now returns to the selected-C design stop.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TARGET-ONLY-RESIDUAL-I0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
