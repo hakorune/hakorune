@@ -3724,14 +3724,6 @@ mir::control_tree::normalized_shadow::parity_contract::tests::test_full_parity_o
 mir::control_tree::normalized_shadow::parity_contract::tests::test_full_parity_writes_mismatch
 mir::control_tree::normalized_shadow::parity_contract::tests::test_writes_parity_match
 mir::control_tree::normalized_shadow::parity_contract::tests::test_writes_parity_mismatch
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_loop_if_exit_then_eq
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_p0_break_only
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_validate_p0_break_ok
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_validate_p0_continue_not_supported
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_validate_p0_else_not_supported
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_validate_p1_break_ok
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_validate_p1_continue_ok
-mir::control_tree::normalized_shadow::tests::phase143_loop_if_exit_contract::test_shape_validate_p2_break_else_continue_ok
 mir::control_tree::step_tree::tests::build_step_tree_if_only_nested_if_is_structural
 mir::control_tree::step_tree::tests::contract_extracts_loop_exits_and_writes_minimal
 mir::control_tree::step_tree::tests::step_tree_cond_ast_is_populated

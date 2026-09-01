@@ -532,5 +532,5 @@ impl LoopTrueIfBreakContinueBuilderBox {
     }
 }
 
-// Unit tests are in: normalized_shadow/tests/phase143_loop_if_exit_contract.rs
-// (Refactored in Phase 143 R0 to separate concerns)
+// Contract tests are in: normalized_shadow/common/loop_if_exit_contract.rs
+// (the common owner is the single Phase 143 contract surface)

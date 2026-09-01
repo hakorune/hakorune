@@ -55,7 +55,7 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-the exact lib receipt now records 7562/7394/139/29 after the
+the exact lib receipt now records 7554/7386/139/29 after the
 production-neutral PlannerContext mismatch test retirement at `3e4f66ee82`
 and the earlier binding-shadow retirement at `70b061f8f2`. The 139 failure
 names/SHA remain unchanged; the exact-match PlannerContext successor and
@@ -74,13 +74,13 @@ The behavior-neutral
 `35f59702b5`: it moved only the derived route lookup block into a private
 child and left the 47-row catalog, public API, and generated/C behavior
 unchanged. The fixed baseline-refresh row landed at `ee886f4cc1`: three
-fixed-stack observations and the comparator agree on 7562/7394/139/29 with
-unchanged failure names. The current pointer is back at the selected-C
-CoverageMissing design stop. The next nonblocking cleanup is deliberately
-separate: activate the existing test-inventory parent for the exact eight-test
-loop-if-exit duplicate cohort. This queue may reduce the daily root without
-issuing semantic authority; it does not reopen selected-C or create a second
-pipeline. The later
+fixed-stack observations and the comparator agree on 7554/7386/139/29 with
+unchanged failure names after the exact eight-test loop-if-exit duplicate
+cohort was retired. The common owner retains nine contract tests; the
+normalized-shadow production route is unchanged, and the current pointer is
+back at the selected-C CoverageMissing design stop. This cleanup reduced the
+daily root without issuing semantic authority; it did not reopen selected-C or
+create a second pipeline. The later
 production work will verticalize and delete that
 family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric

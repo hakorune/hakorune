@@ -60,6 +60,3 @@ pub fn log_step_tree_gate_root(func_name: &str) {
         let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
     }
 }
-
-#[cfg(test)]
-mod tests; // Phase 143 R0: Separated unit tests

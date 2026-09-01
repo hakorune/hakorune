@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "MIR-BUILDER-TEST-INVENTORY-LOOP-IF-EXIT-DEDUP-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: keep one canonical published-MirModule pipeline; this fast row is a production-neutral test-surface retirement and does not reopen the ParkedSealed Selected-C lane.
-Source authority + canonical issuer: exact cargo --list inventory, the common loop-if-exit contract owner, the normalized-shadow production route, and the fixed known-red baseline receipt.
-Non-authority: raw test count, age/phase labels, filtered local green, fixture spelling, file movement, production inference, known-red forgiveness, or any new semantic receipt.
-Fail-fast boundary: candidate/successor body, module wiring, inventory/hash, failure-name set, or test execution mismatch stops before deletion; production and loop semantics remain untouched.
-Smallest next slice: run the eight candidate tests, delete only their duplicate module and empty test barrel, retarget the stale comment, refresh the exact 7554/7386/139/29 inventory, then closeout.
-Non-claims: no Method(Some), Call/backend/VM change, selected-C admission, loop behavior change, guard deletion, fallback, retry, or broad test purge.
+Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement. The fixed known-red lib baseline and the production-neutral loop-if-exit duplicate retirement are landed; semantic work remains stopped at the missing caller tuple.
+Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, and exact receiver crosswalk; the daily backend only consumes their one-way physical projection after canonical MIR publication.
+Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, fallback, retry, or a new semantic receipt/loan.
+Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, and one finite old-edge delete set.
+Smallest next slice: the existing D0 census still has zero live Selected-C tuples. Do not open another semantic bridge; use the next nonblocking cleanup only when its existing row is selected, and keep the selected-C design stop authoritative.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,14 +42,14 @@ latest_card_summary = """
 Selected-C remains ParkedSealed: the existing D0 census found zero live
 source/package/TypedObjectPlan tuples, so direct package-to-Hako remains a
 future post-publish backend replacement and no Method(Some) implementation is
-open. The deterministic fixed-stack baseline is landed at ee886f4cc1 and
-records 7562/7394/139/29 with unchanged failure SHA. This fast row only removes
-the eight duplicate Phase 143 contract tests from the daily root; the common
-owner retains nine tests and the production route is unchanged. After closeout
-the pointer returns to the Selected-C design stop.
+open. The deterministic fixed-stack baseline currently records 7554/7386/139/29
+with unchanged failure SHA. The eight duplicate Phase
+143 contract tests are retired from the daily root; the common owner retains
+nine tests and the production route is unchanged. The pointer is back at the
+Selected-C design stop.
 """
-next_design_card = "MIR-BUILDER-TEST-INVENTORY-LOOP-IF-EXIT-DEDUP-R0"
-next_execution_card = "MIR-BUILDER-TEST-INVENTORY-LOOP-IF-EXIT-DEDUP-R0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
