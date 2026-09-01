@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
+current_design_stop = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
 current_blocker_token = """
-Decision: the role-aware CorePlan variable_map guard slice is implemented and closed; evidence is limited to verification infrastructure.
-Source authority + canonical issuer: exact current variable_map sites and the existing guard/quick consumer; the role-aware guard owns only the verification result.
-Non-authority: raw counts as semantic truth, compiler/MIR facts, selected-C/backend, loop fallback, fixtures, or any new semantic receipt.
-Fail-fast boundary: role inventory, remove/clear, guard consumer, or pointer drift remains blocking for the next row.
-Smallest next slice: return to design_stop for DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0 and inspect the one live generic-loop owner before any source edit.
-Non-claims: no reseal implementation, MIR/Call/backend semantics, selected-C decision, loop fallback retirement, test repair, fallback, retry, or schema cutover.
+Decision: keep the CorePlan varmap role census as the verification owner and inspect one cache-only generic-loop family before any source edit.
+Source authority + canonical issuer: generic_loop_body/v1.rs current binding values and the existing parts::var_map_scope::publish_emission_cache helper; no new issuer is permitted.
+Non-authority: variable_map as PHI truth, AST/name lookup, fixtures, route selection, compiler/MIR/Call/backend/selected-C facts, fallback, or retry.
+Fail-fast boundary: the five-site family, helper timing/value preservation, direct-write count, and 760/800-line boundary must be closed before fast mode.
+Smallest next slice: DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0 design audit, then one delegate-only implementation if the existing helper is exact.
+Non-claims: no accepted shape, loop fallback retirement, MIR/Call/backend semantics, selected-C decision, new receipt, fixture rewrite, fallback, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -59,7 +59,7 @@ before arguments and residuals reject; selected-C admission resumes only after
 the verification receipt and every quick step are classified.
 """
 next_design_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
-next_execution_card = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -18,6 +18,8 @@ VARMAP_RECONCILE_ROW = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
 VARMAP_RECONCILE_KEY = "verification_health_coreplan_varmap_boundary_reconcile_d0_2026_09_01"
 VARMAP_ROLE_CENSUS_ROW = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
 VARMAP_ROLE_CENSUS_KEY = "dev_gate_coreplan_varmap_role_census_prune_r0_2026_09_01"
+VARMAP_RESEAL_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
+VARMAP_RESEAL_KEY = "dev_gate_coreplan_varmap_reseal_generic_body_v1_r0_2026_09_01"
 BASELINE = Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
 INVENTORY = Path("tools/checks/manifests/cargo_lib_red_baseline.tests.txt")
 FAILURES = Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")
@@ -373,3 +375,57 @@ def check_verification_coreplan_varmap_role_census_prune_r0(
         f"[{api.TAG}] CorePlan varmap role census ok "
         "raw=51 test_only=16 disconnected=1 live=34 canonical=1 reseal=33"
     )
+
+
+def check_verification_coreplan_varmap_reseal_generic_body_v1_r0(
+    state: dict, card: dict, root: Path, _parent_api=api
+) -> None:
+    """Keep the next generic-loop reseal at a design-only boundary."""
+    if state.get("work_mode") != "design_stop":
+        api.fail("CorePlan generic-loop reseal requires design_stop")
+    if state.get("current_execution_row") != VARMAP_RESEAL_ROW:
+        api.fail("CorePlan generic-loop reseal is not selected")
+    if state.get("current_design_stop") != VARMAP_RESEAL_ROW:
+        api.fail("CorePlan generic-loop reseal design-stop pointer drifted")
+    if state.get("next_execution_card") != "none__design_stop":
+        api.fail("CorePlan generic-loop reseal must not open implementation")
+
+    row = card.get(VARMAP_RESEAL_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"CorePlan generic-loop reseal section is missing: {VARMAP_RESEAL_KEY}")
+    if _text(row, "task_id") != VARMAP_RESEAL_ROW:
+        api.fail("CorePlan generic-loop reseal task id drifted")
+    if _text(row, "status") != "active_design_stop":
+        api.fail("CorePlan generic-loop reseal status drifted")
+    if row.get("implementation_permission") is not False:
+        api.fail("CorePlan generic-loop reseal must keep implementation closed")
+    if _text(row, "parent_row") != VARMAP_ROLE_CENSUS_ROW:
+        api.fail("CorePlan generic-loop reseal parent drifted")
+    decision = _text(row, "decision").lower()
+    for token in ("five", "publish_emission_cache", "current_bindings", "no accepted shape"):
+        if token not in decision:
+            api.fail(f"CorePlan generic-loop reseal decision lacks {token}")
+    if set(_list(row, "allowed_files")) != {
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs",
+        "tools/checks/coreplan_varmap_boundary_inventory_guard.sh",
+        "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+    }:
+        api.fail("CorePlan generic-loop reseal allowed-file boundary drifted")
+    if _text(row, "no_safe_slice").lower().find("second owner") < 0:
+        api.fail("CorePlan generic-loop reseal must reject a second owner")
+
+    writes, remove_or_clear = _collect_varmap_sites(root)
+    target = [site for site in writes if site[0] == "src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs"]
+    if len(target) != 5 or any(site[2] != "insert" for site in target):
+        api.fail(f"CorePlan generic-loop reseal source inventory drifted: sites={len(target)}")
+    if remove_or_clear:
+        api.fail("CorePlan generic-loop reseal found remove/clear under its boundary")
+    if len((root / "src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs").read_text(encoding="utf-8").splitlines()) > 760:
+        api.fail("CorePlan generic-loop reseal source is at or beyond the 760-line design boundary")
+    helper = root / "src/mir/builder/control_flow/plan/parts/var_map_scope.rs"
+    if "publish_emission_cache" not in helper.read_text(encoding="utf-8"):
+        api.fail("CorePlan generic-loop reseal helper owner is missing")
+    print(f"[{api.TAG}] CorePlan generic-loop reseal design row ok direct_sites={len(target)}")
