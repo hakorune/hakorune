@@ -7,6 +7,7 @@
 use crate::mir::builder::control_flow::plan::features::coreloop_frame::{
     build_header_step_phis, CoreLoopFrame,
 };
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::CorePhiInfo;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -56,11 +57,7 @@ impl LoopCondContinueWithReturnPhiMaterializer {
     ) -> Self {
         let current_bindings = frame.carrier_header_phis.clone();
         for (name, value_id) in &current_bindings {
-            builder
-                .function_state
-                .variable_ctx
-                .variable_map
-                .insert(name.clone(), *value_id);
+            parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
         }
 
         Self {
