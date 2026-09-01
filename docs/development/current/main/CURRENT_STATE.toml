@@ -1,6 +1,6 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TARGET-ONLY-RESIDUAL-I0"
 current_design_stop = "none"
 current_blocker_token = """
@@ -54,6 +54,7 @@ probe is conditional evidence only and is not a live tuple in the current tree.
 The exact selected-C tuple census is zero, so Method(Some) remains a design stop;
 the LEGACY-TESTS-RETIRE-R0 shrink row landed at bcc9a6ba65 with its default baseline unchanged.
 The current bounded row is target-only residual I0: compatibility owner construction is removed, source-backed owner residuals fail closed before drain, and focused evidence must land before returning to selected-C.
+The target-only residual I0 implementation landed at c939ee81cd: selected and target-only pending rows now have typed finish checks, compatibility keeps the existing Unavailable path, and the normal pre-drain boundary rejects residual ownership before module publication/commit while retaining collector drafts. Closeout evidence is recorded in the active card; the pointer returns to selected-C after this closeout.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 next_execution_card = "MIR-CALL-SAME-MODULE-ORDINARY-STATIC-TARGET-ONLY-RESIDUAL-I0"
