@@ -1,14 +1,14 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COMPLETION-FINAL-VALUES-R0"
 current_design_stop = "none"
 current_blocker_token = """
-Decision: reseal the one existing loop_completion final_values cache write through the canonical cache owner.
+Decision: close out the one existing loop_completion final_values cache reseal through the canonical cache owner.
 Source authority + canonical issuer: CorePlan::Loop final_values and existing publish_emission_cache sole owner.
 Non-authority: variable_map as logical binding truth, AST/name lookup, fixtures, route selection, loop fallback, MIR/Call/backend/selected-C semantics, fallback, retry.
-Fail-fast boundary: any timing/value/order drift, route-specific authority, direct-site growth, remove/clear, second owner, CorePlan/PHI/ValueId/MIR drift, or 760/800-line drift.
-Smallest next slice: delegate the single existing final_values cache write, run focused parity/guard evidence, and close out; no new plan family or semantic route enters this row.
+Fail-fast boundary: any unrecorded timing/value/order drift, route-specific authority, direct-site growth, remove/clear, second owner, CorePlan/PHI/ValueId/MIR drift, or 760/800-line drift.
+Smallest next slice: record the implementation/evidence, synchronize the finite census, and push closeout; no new plan family or semantic route enters this row.
 Non-claims: no other loop-family change, fallback retirement, Call/MIR/backend, selected-C, resolver, receipt, fixture, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
@@ -43,17 +43,17 @@ latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
 The deterministic default-feature receipt remains fixed at 7562/7394/139/29.
-CorePlan varmap role census through loop_cond_return_in_body PHI is landed
+CorePlan varmap role census through loop_completion final_values is landed
 through the existing publish_emission_cache owner; direct_sites=0 and the
-finite role census is raw=31/test-only=16/disconnected=1/live=14/
-canonical=1/reseal=13/remove_or_clear=0. The current fast row is the
-single shared loop_completion final_values cache write, expected to reduce
-the census to raw=30/test-only=16/disconnected=1/live=13/canonical=1/
-reseal=12/remove_or_clear=0. This remains separate from Call semantics and
-makes no fallback, backend, selected-C, resolver, fixture, retry, receipt,
-or schema claim.
+finite role census is raw=30/test-only=16/disconnected=1/live=13/
+canonical=1/reseal=12/remove_or_clear=0. Focused final-values visibility,
+direct semantic/physical parity, lowerer sequence/if-effect tests, quick
+lib check, active-surface, inventory, pointer, and diff checks passed. This
+behavior-preserving BoxShape remains separate from Call semantics and makes
+no fallback, backend, selected-C, resolver, fixture, retry, receipt, or
+schema claim; full default-feature suite remains the recorded baseline.
 """
-next_design_card = "none__fast"
+next_design_card = "none__closeout"
 next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COMPLETION-FINAL-VALUES-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
