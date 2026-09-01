@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
@@ -483,11 +482,6 @@ def collect_closeout_manifest(root: Path, rows: list[dict[str, Any]]) -> tuple[d
             errors.append(f"{rid}: wrapper missing: {wrapper_path}")
         if not impl.is_file():
             errors.append(f"{rid}: implementation command missing: {impl_path}")
-        if wrapper.is_file() and not os.access(wrapper, os.X_OK):
-            errors.append(f"{rid}: wrapper is not executable: {wrapper_path}")
-        if impl.is_file() and not os.access(impl, os.X_OK):
-            errors.append(f"{rid}: implementation command is not executable: {impl_path}")
-
         expected[rid] = {"wrapper": wrapper_path, "impl": impl_path}
 
     if not expected:

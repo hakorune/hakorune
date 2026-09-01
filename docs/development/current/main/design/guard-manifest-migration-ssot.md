@@ -109,10 +109,18 @@ For manifest-backed public `k2_wide_*` wrappers:
 
 ```text
 tools/checks/k2_wide_*_guard.sh:
-  must be executable
+  must be executable when referenced as a direct command target
   must call tools/checks/run_row_guard.sh --only <id>
   must not embed guard_common / rg / python / mktemp guard bodies
+```
 
+Rows dispatched as `bash tools/checks/...` (including the
+`hako-alloc-closeout` profile) are interpreter-dispatched helpers; their
+wrappers and implementation scripts intentionally remain tracked as 0644.
+The direct-executable requirement applies only when the command itself is
+invoked without an explicit interpreter.
+
+```text
 tools/checks/guard_rows.toml:
   cmd must point at tools/checks/impl/<stable-command>.sh
 ```
@@ -167,6 +175,11 @@ The inventory row guard is:
 ```text
 tools/checks/guard_manifest_inventory_guard.sh
 ```
+
+The registry invokes this wrapper with `bash` and its inventory owner with
+`python3`; both remain tracked as non-executable helpers.  Executable mode is
+reserved for public direct/closeout entrypoints and is not required by this
+inventory row.
 
 It must keep this contract true:
 

@@ -13,7 +13,9 @@ CLOSEOUT_CARD="docs/development/current/main/phases/phase-293x/293x-584-GUARD-MA
 
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$MANIFEST" "$DESIGN" "$FIRST_WRAPPER_CARD" "$CLOSEOUT_CARD"
-guard_require_exec_files "$TAG" "$0"
+# This guard is dispatched through bash by the registry and the documented
+# checks. It is a helper, not a public direct executable entrypoint.
+guard_require_files "$TAG" "$0"
 
 guard_expect_in_file "$TAG" "tools/checks/impl" "$DESIGN" "migration SSOT must name implementation command location"
 guard_expect_in_file "$TAG" "hako-alloc-closeout" "$DESIGN" "migration SSOT must name closeout profile"
@@ -23,7 +25,6 @@ guard_expect_in_file "$TAG" "hako-alloc-closeout" \
   "$CLOSEOUT_CARD" "GM010 card must name profile-derived closeout guard"
 
 python3 - "$ROOT_DIR" "$MANIFEST" <<'PY'
-import os
 import pathlib
 import sys
 import tomllib
@@ -124,11 +125,6 @@ for row_id, spec in sorted(expected.items()):
     if not impl.is_file():
         errors.append(f"{row_id}: implementation command missing: {spec['impl']}")
         continue
-    if not os.access(wrapper, os.X_OK):
-        errors.append(f"{row_id}: wrapper is not executable: {spec['wrapper']}")
-    if not os.access(impl, os.X_OK):
-        errors.append(f"{row_id}: implementation command is not executable: {spec['impl']}")
-
     text = wrapper.read_text(encoding="utf-8")
     if (
         f"run_row_guard.sh --only {row_id}" not in text

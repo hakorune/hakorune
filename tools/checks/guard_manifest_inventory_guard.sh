@@ -14,7 +14,10 @@ INDEX="docs/tools/check-scripts-index.md"
 
 guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$MANIFEST" "$INVENTORY" "$DESIGN" "$CARD" "$INDEX"
-guard_require_exec_files "$TAG" "$0" "$INVENTORY"
+# This row is dispatched explicitly through bash and its inventory owner is
+# dispatched explicitly through python3.  Neither file is a public direct
+# entrypoint, so their tracked 0644 mode is intentional.
+guard_require_files "$TAG" "$0" "$INVENTORY"
 
 guard_expect_in_file "$TAG" "Batch Migration Inventory" "$DESIGN" \
   "guard manifest SSOT must describe batch migration inventory"
