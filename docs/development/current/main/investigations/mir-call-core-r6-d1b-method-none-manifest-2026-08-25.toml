@@ -129,6 +129,29 @@ implementation_evidence = "The existing CallTarget owner guard now names only li
 closeout = "Verification-only guard rehome landed. The compiler, selected-C route, Method corridor, Call schema, and all semantic authority remain unchanged. Full quick now reaches the next pre-existing K2-wide OSVM first-row guard, whose four compile tests fail at explicit-extern/missing-resolved-relation; that red is separate and not attributed to this row."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
+[canonical_tool_entrypoint_mode_i0_2026_09_02]
+status = "fast_open"
+task_id = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+ceremony_tier = "T0"
+box_kind = "BoxShape canonical tool entrypoint permission hygiene"
+implementation_permission = true
+decision = "Only the public direct MIR/selfhost entrypoints are tracked as executable. Set selfhost_build.sh and emit_mir_route.sh to 100755, keep helper/test scripts bash-invoked, and enforce the contract through the existing lightweight caller guard."
+source_authority = "The documented direct tool entrypoints, their shebangs, the tracked git index mode, and existing bash-based smoke runner own the executable boundary."
+canonical_issuer = "Existing tools/checks/hakorune_emit_mir_direct_caller_guard.sh; this row issues no compiler meaning, receipt, or runtime capability."
+non_authority = ["mass chmod", "filesystem-only mode", "shell filename conventions", "smoke fixture count", "compiler/Call/selected-C code", "fallback", "retry"]
+fail_fast_boundary = "The tracked index mode and checked-out executable bit of each canonical entrypoint must be 100755. Noncanonical helpers and smoke tests remain 100644 and are invoked through bash."
+census_boundary = "Public selfhost/run.sh, selfhost_build.sh, smokes/v2/run.sh, and smokes/v2/lib/emit_mir_route.sh entrypoints -> existing direct callers and lightweight route guard; excludes compiler semantics, selected-C, backend, VM, Call schema, and broad shell-mode changes."
+finite_inventory = ["canonical executable entrypoints=4", "mode corrections=2 (selfhost_build.sh, emit_mir_route.sh)", "canonical caller guard=tools/checks/hakorune_emit_mir_direct_caller_guard.sh", "shell helper/test scripts remain bash-invoked=all noncanonical 0644"]
+ordered_tasks = ["A: mark only the two documented direct route entrypoints executable and add exact tracked-mode checks to the existing caller guard", "B: register the existing lightweight caller guard in pilot/quick-static and record the bash-invocation policy in tool READMEs", "C: run pointer, active-surface, caller, mode, and diff checks; close out and return to the selected-C design stop"]
+allowed_files = ["tools/selfhost/selfhost_build.sh", "tools/smokes/v2/lib/emit_mir_route.sh", "tools/selfhost/README.md", "docs/tools/README.md", "tools/checks/hakorune_emit_mir_direct_caller_guard.sh", "tools/checks/guard_rows.toml", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "tools/checks/lib/mir_script_entrypoint_mode_guard.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"]
+forbidden_files = ["tools/smokes/v2/profiles/**", "tools/selfhost/lib/**", "src/**", "lang/**", "apps/**", "Call schema", "selected-C", "backend", "VM", "fallback", "retry", "mass chmod", "new semantic receipt"]
+focused_tests = ["bash tools/checks/hakorune_emit_mir_direct_caller_guard.sh", "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .", "bash tools/checks/current_state_pointer_guard.sh", "git diff --check"]
+acceptance = "Exactly the four canonical direct entrypoints are executable in both the checkout and tracked index; the existing caller guard is registered and green; helper/test scripts remain bash-invoked; no compiler or smoke semantics change; and the CURRENT_STATE pointer returns to selected-C design_stop."
+no_safe_slice = "Return to design_stop if another public executable owner appears, a helper requires mass chmod, direct invocation depends on changing smoke files, or compiler/selected-C semantics are touched."
+reopen_trigger = "Reopen only when a documented direct tool entrypoint is added/renamed or its invocation contract changes; do not reopen for individual helper/test scripts."
+non_claims = "No MirBuilder semantic implementation, no Method(Some), no backend/VM/Call-schema change, no smoke fixture mode rewrite, no legacy route restoration, and no full test-suite claim."
+
 [legacy_tests_retire_r0_2026_09_02]
 status = "landed"
 task_id = "LEGACY-TESTS-RETIRE-R0"

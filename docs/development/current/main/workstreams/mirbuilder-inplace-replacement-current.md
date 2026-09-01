@@ -55,9 +55,13 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-`CURRENT_STATE.toml` is back at the selected-C DeclaredInstance admission
-design stop. The exact source-backed tuple census is zero, so no Method(Some),
-backend view, fixture, receipt, or second pipeline may be opened. The bounded
+`CURRENT_STATE.toml` temporarily selects the bounded tooling-only
+`MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0` row. It changes only the tracked mode
+of the two documented direct route entrypoints and reuses the existing caller
+guard; compiler semantics and the selected-C DeclaredInstance design stop stay
+closed. After closeout the pointer returns to the selected-C design stop. The
+exact source-backed tuple census remains zero, so no Method(Some), backend view,
+fixture, receipt, or second pipeline may be opened. The bounded
 `LEGACY-TESTS-RETIRE-R0` shrink-only row landed at `bcc9a6ba65`: the explicitly
 disabled pre-JoinIR test feature, its four cfg barrels, 34 roots, and nine
 exclusive support files were removed; the default-feature baseline is unchanged.

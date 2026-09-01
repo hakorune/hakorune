@@ -69,6 +69,8 @@ from mir_call_d1b_extern_route_spec_boxshape_guard import (
     check_extern_route_spec_boxshape_s0,
 )
 
+SCRIPT_ENTRYPOINT_MODE_ROW = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
+
 BACKEND_OWNER_ROW = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 RECEIVER_VALUE_OWNER_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
 VERIFICATION_P0_A_ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
@@ -272,6 +274,10 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_exact_binding_value_accessor_s0(state, card, root, api)
     elif row == EXTERN_ROUTE_SPEC_BOXSHAPE_ROW:
         check_extern_route_spec_boxshape_s0(state, card, root, api)
+    elif row == SCRIPT_ENTRYPOINT_MODE_ROW:
+        from mir_script_entrypoint_mode_guard import check as check_script_entrypoint_mode
+
+        check_script_entrypoint_mode(state, card, root)
     elif row == VERIFICATION_P0_A_ROW:
         from mir_verification_quick_p0_a_guard import (
             check_verification_quick_p0_a_inc_debt_reconcile_r0,

@@ -163,6 +163,16 @@ route の意味:
 - `tools/hakorune_emit_mir_mainline.sh` / `tools/hakorune_emit_mir_compat.sh` は薄い互換ラッパとして維持。
 - `tools/hakorune_emit_mir.sh` は内部実装であり、新規スクリプトからの直呼びは行わない。
 
+実行権限の契約:
+- 直接起動する公開入口は `tools/selfhost/run.sh`、
+  `tools/selfhost/selfhost_build.sh`、`tools/smokes/v2/run.sh`、
+  `tools/smokes/v2/lib/emit_mir_route.sh` の4本だけで、追跡モードは
+  `100755` に固定する。
+- その他の noncanonical shell helper/testは意図的に `0644` のままにし、
+  `bash <path>` で起動する。リポジトリ全体への `chmod` は行わない。
+- この境界は `tools/checks/hakorune_emit_mir_direct_caller_guard.sh` が
+  git indexとcheckoutの両方を検査する。
+
 ## 8. Perf Gate Preset Runner (Phase 21.5)
 
 phase21.5 perf gate の optional toggles をまとめて実行:

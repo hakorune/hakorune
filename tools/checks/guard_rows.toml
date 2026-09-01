@@ -40,6 +40,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/current_state_pointer_guard.sh"]
 
 [[rows]]
+id = "hakorune-emit-mir-direct-caller"
+label = "canonical MIR emit caller and entrypoint mode guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/hakorune_emit_mir_direct_caller_guard.sh"]
+
+[[rows]]
 id = "stage1-entry-shape"
 label = "canonical Stage1 Main.main/0 entry-shape guard"
 profiles = ["pilot", "quick-static"]

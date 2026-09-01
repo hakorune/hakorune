@@ -84,6 +84,13 @@ Script
     - NYASH_ROOT: repo root (auto-detected)
     - NYASH_SELFHOST_KEEP_RAW: retired for this facade; use the explicit dev probe
     - BuildBox emit-only is retired from the default caller path; use the direct/source route instead
+
+実行権限の契約:
+- `run.sh`、`selfhost_build.sh`、および `emit_mir_route.sh` は、READMEの
+  直接実行例を支える公開入口として追跡モード `100755` を保つ。
+- `tools/selfhost/lib/` の noncanonical helperやsmoke bodyは公開入口ではないため、
+  追跡モードを一律に変更しない。必要なときは `bash <script>` で起動する。
+- modeのドリフトは `tools/checks/hakorune_emit_mir_direct_caller_guard.sh` が検出する。
 - tools/archive/legacy-selfhost/engineering/promote_tier2_case.sh
   - Parser handoff Tier-2 の 1件PROMOTEを 1コマンドで同期するヘルパー。
   - 同期対象:
