@@ -45,6 +45,8 @@ from mir_call_d1b_test_inventory_guard import (
     check_binding_shadow_dedup_r0,
     PLANNER_CONTEXT_ROW as TEST_INVENTORY_PLANNER_CONTEXT_ROW,
     check_planner_context_dedup_r0,
+    LOOP_IF_EXIT_ROW as TEST_INVENTORY_LOOP_IF_EXIT_ROW,
+    check_loop_if_exit_dedup_r0,
 )
 from mir_call_d1b_rewrite_known_guard import (
     ROW as REWRITE_KNOWN_CALLER_ZERO_PRUNE_S0_ROW,
@@ -148,6 +150,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_binding_shadow_dedup_r0(state, card, root, api)
     elif row == TEST_INVENTORY_PLANNER_CONTEXT_ROW:
         check_planner_context_dedup_r0(state, card, root, api)
+    elif row == TEST_INVENTORY_LOOP_IF_EXIT_ROW:
+        check_loop_if_exit_dedup_r0(state, card, root, api)
     elif row == EXACT1_RETIRE_ROW:
         check_exact1_retire_i0(state, card, root, api)
     elif row == METHOD_NONE_TERMINAL_ROW:
