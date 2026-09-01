@@ -77,6 +77,17 @@ receipt, adapter, fixture, guard, or implementation permission.
    DeclaredInstance order: semantic package -> published exact direct-method
    target/definition -> exact Hako family -> caller switch -> RetireAfterReplacement
 
+   If every small family is zero/multiple, use the accepted
+   MIR-CALL-CANONICAL-CALL-SUBSTRATE-REBUILD-D0 escape hatch: reuse existing
+   source/Facts/Recipe owners, publish the key-definition relation and a
+   borrow-only typed MirModule view, then switch one complete Global/
+   StaticCurrentOwner cohort to one backend. This is a single isolated
+   branch/worktree series, not a second MirBuilder. Migration-red is tracked
+   by exact test names, owner, reason, successor, and expiry (five commits or
+   seven days); the parent baseline is never rewritten and main is not updated
+   with unclassified red. The cohort finish line is callee=None/name-registry/
+   fallback/Method(None)/JSON-repair zero plus same-series old-edge repayment.
+
 3. MS1-P product convergence
    every currently complete production family reaches canonical Call/Atomic Publish
    product resolver/recovery/fallback/Method(None)/callee=None writers = 0

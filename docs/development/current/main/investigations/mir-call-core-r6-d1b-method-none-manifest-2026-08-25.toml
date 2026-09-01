@@ -333,3 +333,71 @@ implementation_commit = "bcc9a6ba65"
 implementation_evidence = "The exact delete set landed as a shrink-only change: 43 legacy test/support paths plus the Cargo feature and four barrel declarations were removed (5848 tracked lines including declaration cleanup). The default-feature cargo baseline runner returned KNOWN BASELINE with 7554 inventory entries, 7386 passed, 139 failed, 29 ignored, and failure SHA 86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041. Python compilation and pre-commit diff checks passed; no production MIR/Call/backend/VM file changed."
 closeout = "LEGACY-TESTS-RETIRE-R0 is closed and history remains in Git only. The CURRENT_STATE pointer returned to MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 design_stop; selected-C remains CoverageMissing with no inferred bridge."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
+
+[mir_call_canonical_call_substrate_rebuild_d0_2026_09_02]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-CANONICAL-CALL-SUBSTRATE-REBUILD-D0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+ceremony_tier = "T2"
+implementation_permission = false
+decision = """
+When no complete small-family owner/caller/consumer/delete tuple exists, permit
+one branch/worktree-isolated canonical Call substrate rewrite. Reuse existing
+source/catalog/Facts/Recipe authorities and CanonicalSameModuleCallableKeyV1.
+Add only the missing key-to-definition publication relation and a borrow-only
+PublishedMirBackendView; neither is a second semantic issuer or MirBuilder.
+The old JSON/name/registry route is compatibility-only and may not be a
+fallback for the new caller.
+"""
+source_authority = "Existing parser/resolver callable catalog, source relation/effect/result/ABI owners, and the sealed MirModule; the published view only projects already-issued meaning."
+canonical_issuer = "The existing source-catalog key issuer plus the canonical MirInstruction::call/atomic MirModule publication owner. No new Verified*/Prepared* semantic receipt is introduced."
+first_cohort = """
+Select exactly one already complete Global or StaticCurrentOwner family in S0;
+the audit must name its source owner, definition relation, production caller,
+one typed backend consumer, and same-series old-edge delete set. Do not assume
+DeclaredInstance, selected-C arbitrary UserBox, CorePlan, ordinary-new no-claim,
+or physical thunk is complete.
+"""
+non_authority = ["physical symbol or String name", "JSON/Map metadata", "registry/header lookup", "args[0] or ValueId(0)", "MIR EffectMask/FunctionSignature as semantic proof", "local green or fixture injection", "fallback/retry", "a second MirBuilder or source-to-physical pipeline"]
+fail_fast_boundary = """
+Missing/duplicate/foreign key, key-definition mismatch, source/physical lane or
+result/effect mismatch, unsupported descriptor tag, or absent backend definition
+rejects before object emission. A zero/multiple first-cohort tuple parks the
+task and creates no additional D0, receipt, adapter, fixture, or guard.
+"""
+temporary_red_contract = """
+Only the isolated branch/worktree may carry migration-red. The parent baseline
+7553/7386/138/29 and its failure/inventory hashes are immutable. Every delta is
+an exact test-name list with owner, reason, successor, and expiry. The window is
+at most five rewrite commits or seven calendar days, whichever comes first;
+expiry means stop/park. No #[ignore], red-test deletion, baseline rewrite, or
+main update while an unclassified delta remains.
+"""
+completion_definition = """
+For the selected cohort: one named production caller consumes the published
+typed view, callee=None writers=0, name/registry/header target lookup=0,
+canonical-caller fallback/retry=0, Method(None) writers=0, JSON/name/args[0]
+repair=0, and all cohort-exclusive old assets are deleted in the same series.
+The old route may remain only in an unreachable explicit compatibility module.
+"""
+ordered_tasks = ["S0: freeze parent baseline and enumerate one complete first cohort plus exact migration-red deltas", "I0: preserve CanonicalSameModuleCallableKeyV1 and atomically publish key-to-definition relation with mandatory Callee", "I1: add borrow-only PublishedMirBackendView and versioned repr(C) flat FFI projection; implement one exact typed backend family", "R0: switch one named production caller and delete its JSON/name/repair/fallback edges in the same series", "P0/closeout: run exact focused tests plus no-new-red delta comparison, remove cohort-only scaffolding, and return to design_stop"]
+allowed_files = ["crates/hakorune_mir_defs/src/**", "src/mir/instruction/**", "src/mir/function/**", "src/mir/builder/callable_declaration_catalog/**", "src/mir/builder/normal_cataloged_box_method_admission.rs", "src/mir/builder/normal_collector_drain_lifecycle.rs", "src/host_providers/llvm_codegen/capi_transport.rs", "lang/c-abi/include/**", "lang/c-abi/shims/**", "tools/checks/manifests/cargo_lib_red_baseline*", "tools/checks/lib/cargo_lib_red_baseline.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
+forbidden_files = ["src/parser/**", "lang/src/** except the selected typed backend family", "selfhost/**", "new MirBuilder crate or duplicate implementation", "new semantic receipt or source/package-to-backend bypass", "unselected DeclaredInstance/selected-C arbitrary UserBox/CorePlan/ordinary-new no-claim/physical thunk families", "fallback/retry", "#[ignore] red hiding", "broad test purge"]
+acceptance = """
+The row is implementation-ready only after S0 names exactly one complete first
+cohort and records its caller/delete set. During the fixed series the parent
+baseline is preserved, every temporary-red test is individually accounted for,
+and the canonical typed view reaches one backend without reverse inference.
+Closeout requires the cohort completion definition, no unclassified red,
+caller-zero old assets, and no permanent second pipeline.
+"""
+no_safe_slice = """
+Remain in design_stop if the first cohort is zero/multiple, source authority or
+definition publication is missing, the backend needs JSON/name/registry repair,
+the production caller cannot be named, old assets cannot be repaid in-series,
+the red delta has no exact test names/expiry, or the change needs a second
+semantic issuer, fallback, retry, or a permanent parallel route.
+"""
+reopen_trigger = "One exact source/definition/caller/backend/delete tuple is named and the selected branch can be isolated; otherwise this design remains parked and the existing selected-C stop is unchanged."
+non_claims = "No DeclaredInstance support, arbitrary selected-C UserBox support, all-backend parity, VM retirement, selfhost, broad JSON purge, or whole-library green claim."
+next_execution = "none__design_stop"

@@ -52,6 +52,88 @@ Related:
   selected terminal consumes the stored typed target, and `func`, `None`,
   sentinels, retry, and impossible-state guards are absent.
 
+## Accepted canonical-rewrite escape hatch (2026-09-02)
+
+The four remaining small-family audits found no complete
+`owner/caller/consumer/delete-set` tuple. That is a reason to stop those
+families, not a reason to grow another chain of D0 cards. If a small in-place
+slice cannot be formed, a **single branch/worktree-isolated canonical Call
+rewrite** is permitted. It is a bounded replacement of the Call substrate,
+not a second MirBuilder or a second source-to-physical pipeline.
+
+The rewrite reuses the existing source/catalog/Facts owners and the existing
+`CanonicalSameModuleCallableKeyV1`. It may add only the missing canonical
+publication relation and a backend-neutral borrowed view of a sealed
+`MirModule`; that view is a projection, never a semantic issuer or a new
+`Verified*`/`Prepared*` receipt. The first cohort is selected once from an
+already complete Global/StaticCurrentOwner family. DeclaredInstance,
+selected-C arbitrary UserBox, CorePlan, ordinary-new no-claim, and physical
+thunk remain parked until their own source products exist.
+
+```text
+source/catalog Facts and Recipe (existing authority)
+  -> mandatory typed Callee and definition relation
+  -> candidate MirModule, verified and atomically published
+  -> PublishedMirBackendView<'m> (borrow-only, no source/package access)
+  -> one selected typed backend consumer
+```
+
+At the FFI boundary, Rust layout is never exposed. A versioned `repr(C)` flat
+arena may own borrowed-view projections for the duration of one call. The
+consumer accepts target identity, receiver/value operands, result contract,
+effects, and physical lanes as data already sealed by MIR. It never searches
+by name, JSON, registry, header, `args[0]`, or `ValueId(0)`, and it never falls
+back to the old JSON/name route.
+
+### Temporary-red contract
+
+The fixed rewrite may be compile/test-red only in its isolated branch or
+worktree. The accepted parent receipt remains immutable (`7553/7386/138/29`
+plus the failure-name and inventory hashes). Every temporary failure is an
+exact test-name delta with an owner, reason, successor, and expiry. The delta
+window is at most five rewrite commits or seven calendar days, whichever
+comes first; expiry means stop/park, not silent extension. `main` is not
+updated while an unclassified migration-red remains. `#[ignore]`, deleting a
+red test, or rewriting the parent baseline is forbidden.
+
+### Product completion definition
+
+The rewrite is complete for a cohort only when its named production caller
+uses the canonical published view and the same series deletes that cohort's
+old edges. The MS1-P production finish line is observable, not a slogan:
+
+```text
+callee=None production writers              = 0
+name/registry/header target lookup           = 0
+fallback/retry from the canonical caller    = 0
+Method(None) production writers              = 0
+JSON/name/args[0] repair for the cohort      = 0
+caller switched + old exclusive assets      = 1 / 0
+```
+
+The old route may remain only as an explicit compatibility module that is
+unreachable from the switched production caller. Coexistence ends at the
+series closeout and cannot become a permanent second authority.
+
+### Fixed task series
+
+`MIR-CALL-CANONICAL-CALL-SUBSTRATE-REBUILD-D0` is the single design task for
+this escape hatch. Once its first-cohort census is accepted, it opens one
+bounded five-step series: (1) freeze the parent baseline and exact migration
+delta ledger; (2) preserve the existing callable key and publish the typed
+key-to-definition relation with mandatory `Callee`; (3) add the borrowed
+published view, flat FFI projection, and one exact backend family; (4) switch
+one named caller and delete its JSON/name/repair/fallback edges in the same
+series; (5) run focused plus no-new-red evidence, remove cohort-only
+scaffolding, and close out. A zero/multiple first-cohort census returns to
+`ParkedSealed` without another receipt, adapter, fixture, guard, or D0.
+
+This task does not claim DeclaredInstance support, selected-C arbitrary
+UserBox support, all-backend parity, VM retirement, selfhost, or a green whole
+library. It is the finite route from the current design stop to one clean
+canonical Call family; later families repeat only after the first closeout
+proves the old-edge deletion and repository-surface repayment pattern.
+
 This file is the compact current Call owner. Landed chronology and the full
 writer inventories live in Git history, the linked archive, and finite
 investigation manifests.
