@@ -83,11 +83,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
             condition, body, ..
         } => {
             for (name, value_id) in current_bindings.iter() {
-                builder
-                    .function_state
-                    .variable_ctx
-                    .variable_map
-                    .insert(name.clone(), *value_id);
+                parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
             }
             // Prefer the recipe-first nested-loop lowering path when possible.
             // Keep the unified nested_loop_depth1 path as a fallback to avoid acceptance loss.

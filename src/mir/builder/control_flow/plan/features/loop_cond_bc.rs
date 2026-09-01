@@ -148,11 +148,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     // any body recipe is lowered.
     for (name, value_id) in &carrier_phis {
         current_bindings.insert(name.clone(), *value_id);
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
     }
 
     let wires = vec![

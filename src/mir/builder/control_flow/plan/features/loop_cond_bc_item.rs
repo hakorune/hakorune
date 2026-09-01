@@ -529,11 +529,7 @@ fn lower_nested_loop_depth1_item(
     };
 
     for (name, value_id) in current_bindings.iter() {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(name.clone(), *value_id);
+        parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
     }
 
     // Only propagate nested carriers for NestedLoopOnly patterns

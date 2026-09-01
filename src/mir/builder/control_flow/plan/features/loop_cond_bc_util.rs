@@ -5,6 +5,7 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
     lower_assignment_stmt, lower_local_init_stmt,
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, CoreEffectPlan, CorePlan, LoweredRecipe,
@@ -93,11 +94,7 @@ pub(super) fn lower_simple_effect_stmt(
                     if carrier_phis.contains_key(name) || current_bindings.contains_key(name) {
                         current_bindings.insert(name.clone(), value_id);
                     }
-                    builder
-                        .function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(name.clone(), value_id);
+                    publish_emission_cache(builder, name.clone(), value_id);
                     return Ok(Some(plans));
                 }
             }
@@ -141,11 +138,7 @@ pub(super) fn lower_simple_effect_stmt(
                     )?;
                     plans.append(&mut init_plans);
                     current_bindings.insert(name.clone(), value_id);
-                    builder
-                        .function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(name.clone(), value_id);
+                    publish_emission_cache(builder, name.clone(), value_id);
                 }
                 return Ok(Some(plans));
             }
@@ -260,11 +253,7 @@ fn lower_value_stmt_with_blockexpr_loop_prelude(
     for name in outer_binding_names {
         if let Some(value_id) = block_bindings.get(&name).copied() {
             current_bindings.insert(name.clone(), value_id);
-            builder
-                .function_state
-                .variable_ctx
-                .variable_map
-                .insert(name, value_id);
+            publish_emission_cache(builder, name, value_id);
         }
     }
     Ok((tail_id, plans))
