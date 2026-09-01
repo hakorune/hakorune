@@ -129,12 +129,12 @@ closeout = "Verification-only guard rehome landed. The compiler, selected-C rout
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [legacy_tests_retire_r0_2026_09_02]
-status = "fast_open"
+status = "landed"
 task_id = "LEGACY-TESTS-RETIRE-R0"
 parent_row = "LEGACY-TESTS-FATE-D0"
 ceremony_tier = "T0"
 box_kind = "RetireHistorical of an explicitly disabled pre-JoinIR test feature"
-implementation_permission = true
+implementation_permission = false
 decision = "The legacy-tests feature has no in-repo production, CI, or selected acceptance caller. Remove the feature declaration, its four cfg module barrels, the 34 cfg-gated module roots, and their exclusively owned support files; preserve history only in Git."
 source_authority = "Cargo.toml, the four src/tests module barrels, and the exact git-tracked module/support inventory own the delete set; the default-feature deterministic baseline owns no-new-red evidence."
 canonical_issuer = "Existing test-inventory lane guard; no new semantic issuer, receipt, compatibility feature, or archive copy."
@@ -150,3 +150,8 @@ acceptance = "The 34 cfg-gated roots and nine exclusive support files are absent
 no_safe_slice = "Return to design_stop if any non-test owner appears, a root is shared, the default baseline changes beyond the delete set, a compatibility replacement or archive copy is proposed, or any production/semantic file is touched."
 reopen_trigger = "Reopen only if CURRENT_STATE selects this row again because a supported CI/production/acceptance owner is added, or an exact shared legacy root is discovered."
 non_claims = "No legacy test repair, no legacy feature CI lane, no production MIR/Call/backend/VM change, no selected-C/Method(Some), no fallback, retry, or schema change."
+base_commit = "409d8a05f1"
+implementation_commit = "bcc9a6ba65"
+implementation_evidence = "The exact delete set landed as a shrink-only change: 43 legacy test/support paths plus the Cargo feature and four barrel declarations were removed (5848 tracked lines including declaration cleanup). The default-feature cargo baseline runner returned KNOWN BASELINE with 7554 inventory entries, 7386 passed, 139 failed, 29 ignored, and failure SHA 86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041. Python compilation and pre-commit diff checks passed; no production MIR/Call/backend/VM file changed."
+closeout = "LEGACY-TESTS-RETIRE-R0 is closed and history remains in Git only. The CURRENT_STATE pointer returned to MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 design_stop; selected-C remains CoverageMissing with no inferred bridge."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"

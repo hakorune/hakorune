@@ -1,15 +1,19 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "LEGACY-TESTS-RETIRE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: retire the explicitly disabled pre-JoinIR legacy-tests feature; it has no in-repo CI, production, or selected acceptance caller.
-Source authority + canonical issuer: Cargo.toml feature declaration and the four src/tests module barrels own the finite cfg-gated roots; the existing deterministic default-feature baseline owns no-new-red evidence.
-Non-authority: test age, historical phase labels, feature compilation alone, local filtered green, fixtures, or a copied archive.
-Fail-fast boundary: any non-test caller/CI owner, missing exclusive root, changed default-feature failure set, or unlisted reference blocks deletion; no compatibility feature is added.
-Smallest next slice: delete only the 34 cfg-gated module roots plus their exclusively owned support files, remove the feature/cfg declarations, run the unchanged default baseline, and close out.
-Non-claims: no production MIR/Call/backend/VM change, no legacy test repair, no new guard/receipt, no selected-C or Method(Some) work.
+Decision: keep one canonical published-MirModule pipeline; the selected-C admission remains a separate design stop because no source-backed capability co-seals the full DeclaredInstance tuple.
+The architecture choice is the canonical path: source/package products stop at
+Atomic Publish, then a lossless borrowed typed backend view may feed the
+selected backend. Direct package-to-Hako emission is superseded and remains
+ParkedSealed, not an alternate production pipeline.
+Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
+Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
+Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
+Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge. A minimal Counter probe is only conditional evidence until the current tree contains its source-backed entry, return contract, and exact wire/object tuple; do not amend a fixture to force admission.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -51,19 +55,17 @@ the canonical architecture: publish one complete MirModule, then lend a
 borrow-only typed backend view to the selected backend; the direct
 package-to-Hako route remains superseded/ParkedSealed. The minimal Counter
 probe is conditional evidence only and is not a live tuple in the current tree.
-The exact selected-C tuple census is zero, so no Method(Some) implementation is
-open. The current bounded task is the existing LEGACY-TESTS-RETIRE-R0 row:
-remove the 34 exclusively owned pre-JoinIR test roots and feature cfg surface,
-then return to the selected-C design stop. No child card, fixture, receipt,
-direct Hako bridge, or production semantic change is opened.
+The exact selected-C tuple census is zero, so no Method(Some) implementation is open;
+the LEGACY-TESTS-RETIRE-R0 shrink row landed at bcc9a6ba65 with its default baseline unchanged.
+The only task sequence is the existing active card: exact tuple census, caller-first Method(Some) vertical, post-publish typed backend view, then residual-zero closeout; no child card or direct Hako bridge is opened.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "LEGACY-TESTS-RETIRE-R0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
-parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (active shrink-only row; return to selected-C design_stop)"
+parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
@@ -73,6 +75,6 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-01: binding-shadow duplicate retirement landed at 70b061f8f2: the positive-only mir::builder::binding_id_tests::test_shadowing_binding_restore was deleted with lexical_scope shadow/identity/snapshot successors and scoped_transaction negatives retained; daily inventory is 7563/7395/139/29 and failure SHA is unchanged.",
-  "2026-09-01: CorePlan if_join join reseal remains landed at 37fe154ea0; direct_sites=0 and the role-aware cache census remains closed without Call/backend/selected-C changes.",
-  "2026-09-01: CorePlan if_general join reseal remains landed at b7df21d204; direct_sites=0 and the role-aware cache census remains closed without Call/backend/selected-C changes.",
+  "2026-09-01: CorePlan if_join join reseal landed at 37fe154ea0 and if_general join reseal landed at b7df21d204; direct_sites=0 and the role-aware cache census remains closed without Call/backend/selected-C changes.",
+  "2026-09-01: LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65: removed the explicitly disabled pre-JoinIR feature, 34 cfg-gated roots, and nine exclusive support files; default baseline 7554/7386/139/29 and failure SHA are unchanged, then returned to selected-C design_stop.",
 ]

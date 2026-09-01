@@ -55,12 +55,12 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-`CURRENT_STATE.toml` temporarily selects `LEGACY-TESTS-RETIRE-R0` as a
-shrink-only T0 row. The selected-C DeclaredInstance admission remains a
-CoverageMissing design stop: its exact source-backed tuple census is zero, so
-no Method(Some), backend view, fixture, receipt, or second pipeline may be
-opened. The legacy row owns only the explicitly disabled pre-JoinIR test
-feature and returns here after its default-feature baseline is unchanged.
+`CURRENT_STATE.toml` is back at the selected-C DeclaredInstance admission
+design stop. The exact source-backed tuple census is zero, so no Method(Some),
+backend view, fixture, receipt, or second pipeline may be opened. The bounded
+`LEGACY-TESTS-RETIRE-R0` shrink-only row landed at `bcc9a6ba65`: the explicitly
+disabled pre-JoinIR test feature, its four cfg barrels, 34 roots, and nine
+exclusive support files were removed; the default-feature baseline is unchanged.
 
 The canonical backend decision remains source -> published MirModule ->
 lossless borrowed typed view -> selected backend; direct package-to-Hako is
