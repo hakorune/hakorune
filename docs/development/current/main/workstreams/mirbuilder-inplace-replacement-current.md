@@ -55,18 +55,18 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-the exact lib receipt refresh landed at `484d58585f`: three observations agree
-at 7562/7394/139/29, the nine new names are the landed crosswalk tests, and the
-139 failure names/SHA are unchanged. The runner passes. Full quick now stops
-at `DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0`: the raw 51 sites versus
-historical 48 are now classified as test-only 16, disconnected 1, live 34, and
-one canonical cache owner (33 live reseal candidates). Do not bump or delete
-the guard by assumption; the next bounded slice is role-aware Prune/R0, with
-live writes resealed through `publish_emission_cache`. The receiver crosswalk
-at `dc68fa2910` remains valid and Global/manual-prefix output is unchanged.
-Only after quick reaches every later step may selected-C admission resume.
-Option B remains final: name one exact Hako LLVM-text physical owner/ABI and
-one production caller, then open one source-to-AOT `Method(Some(receiver))`
+the exact lib receipt now records 7563/7395/139/29 after one
+production-neutral binding-shadow test was retired at `70b061f8f2`. The
+committed 7562/7394 receipt was stale by two landed CorePlan tests; the new
+inventory includes those two names, and the 139 failure names/SHA remain
+unchanged. The remaining binding-id cluster and lexical-scope successor plus
+negative filters are green. Full quick remains separately owned and is not
+claimed green: its role-aware CorePlan varmap census is closed at raw=22,
+test-only=16, disconnected=1, live=5, canonical=1, reseal=4,
+remove_or_clear=0. The receiver crosswalk at `dc68fa2910` remains valid and
+Global/manual-prefix output is unchanged. Only after the selected-C
+CoverageMissing boundary gains one exact Hako owner/caller/ABI tuple may
+Method(Some) admission resume.
 vertical and delete that family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
