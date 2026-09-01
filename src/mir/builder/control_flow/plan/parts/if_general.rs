@@ -11,6 +11,7 @@ use crate::mir::builder::control_flow::facts::extractors::common_helpers::{
     count_control_flow, ControlFlowDetector,
 };
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_branch;
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
@@ -176,11 +177,7 @@ where
     )?;
 
     for join in &joins {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(join.name.clone(), join.dst);
+        publish_emission_cache(builder, join.name.clone(), join.dst);
         if carrier_phis.contains_key(&join.name) || current_bindings.contains_key(&join.name) {
             current_bindings.insert(join.name.clone(), join.dst);
         }
@@ -417,6 +414,12 @@ mod tests {
                 "recipe-authority wrapper should lower the same general-if in release"
             );
             assert_ne!(default_bindings.get("x"), release_bindings.get("x"));
+            let release_value = *release_bindings.get("x").expect("joined x binding");
+            assert_eq!(
+                builder.function_state.variable_ctx.variable_map.get("x"),
+                Some(&release_value),
+                "general-if join must reseal the emission cache from the joined binding"
+            );
 
             builder.exit_function_for_test();
 
