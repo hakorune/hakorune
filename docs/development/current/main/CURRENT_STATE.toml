@@ -42,8 +42,9 @@ latest_card_summary = """
 Selected-C remains ParkedSealed: the existing D0 census found zero live
 source/package/TypedObjectPlan tuples, so direct package-to-Hako remains a
 future post-publish backend replacement and no Method(Some) implementation is
-open. The deterministic fixed-stack baseline currently records 7554/7386/139/29
-with unchanged failure SHA. The eight duplicate Phase
+open. The deterministic fixed-stack baseline and duplicate-test retirement are
+landed at ed1332f16d and currently record 7554/7386/139/29 with unchanged
+failure SHA. The eight duplicate Phase
 143 contract tests are retired from the daily root; the common owner retains
 nine tests and the production route is unchanged. The pointer is back at the
 Selected-C design stop.
