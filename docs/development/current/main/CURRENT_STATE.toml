@@ -4,11 +4,11 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: keep the existing selected-C admission design stop as the only next row; semantic products are complete, but the physical Hako owner is missing.
-Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; no physical issuer is selected yet.
+Decision: keep the existing selected-C admission design stop as the only next row; the sole LLVM-text substrate candidate is known, but no source-backed admission owner exists.
+Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer.
 Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
-Fail-fast boundary: until one exact Hako LLVM-text owner, lossless ABI, named production caller, and matching old-edge delete set are finite, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
-Smallest next slice: record the existing CoverageMissing/ParkedSealed state and one observable reopen trigger; do not add an intermediate co-seal row.
+Fail-fast boundary: until one exact Hako LLVM-text admission path can lend receiver/result/effect/full-lane data losslessly from the installed package to a named caller, with a matching old-edge delete set, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
+Smallest next slice: record the existing CoverageMissing/NoSafeSlice state and keep the boundary-external backend replacement lane ParkedSealed with one observable reopen trigger; do not add an intermediate co-seal row.
 Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
 """
 previous_parent_blocker_context = """
@@ -48,7 +48,7 @@ direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/
 canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
 DeclaredInstance selected-C admission row: relation, effect, result/Completion,
 physical lane, package locator, and exact receiver crosswalk are named, but
-Hako owner/caller/ABI coverage is still zero (CoverageMissing/ParkedSealed).
+Hako admission owner/caller/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the boundary-external backend replacement lane is ParkedSealed, and `LlTextEmitBox.emit_module` is a substrate candidate only with no lossless package admission.
 No Method(Some), backend switch, fallback, retry, or Call-schema claim is open.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
