@@ -26,8 +26,11 @@ Related:
   receivers. Observer facts, forest-wide package admission, FreeStatic
   pre-effect handoff, Main identity/catalog co-seal I0, and the receiver
   crosswalk are landed. The selected-C DeclaredInstance boundary remains
-  CoverageMissing; its final physical-Recipe contract is recorded as a
-  design-only refinement, not an issuer or implementation route.
+  CoverageMissing: a named launcher chain reaches `LlTextEmitBox.emit_module`,
+  but its source ingress is Hako MirBuilder/JSON and no lossless package
+  admission ABI or source-backed issuer exists. Its final physical-Recipe and
+  transport contract is recorded as a design-only refinement, not an issuer or
+  implementation route.
 - **Next ordered task:**
   `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`, selected by
   `CURRENT_STATE.toml` as the current design stop. The manifest also records

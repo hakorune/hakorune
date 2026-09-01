@@ -71,8 +71,10 @@ new semantic co-seal row or implementation permission.
 vertical and delete that family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
-remain non-authorities. Hako LLVM-text root DeclaredInstance coverage and a
-named caller are still zero; whole-lib known-red health is separate. The
+remain non-authorities. A named Hako launcher substrate exists, but its source
+ingress is the Hako MirBuilder/JSON route; source-backed LLVM-text
+DeclaredInstance coverage and a lossless admission ABI are still zero. Whole-lib
+known-red health is separate. The
 independent bounded row
 `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
 existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline

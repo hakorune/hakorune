@@ -4,11 +4,11 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: keep the existing selected-C admission design stop as the only next row; the sole LLVM-text substrate candidate is known, but no source-backed admission owner exists.
-Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer.
+Decision: keep the existing selected-C admission design stop as the only next row; a named launcher substrate exists, but no source-backed admission owner or lossless ABI exists.
+Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer. The named substrate chain is `cmd_build_exe -> emit_exe_from_source_root_checked -> compile_obj_root -> LlvmBackendBox.compile_obj_root -> RecipeFactsV0Box.analyze_root -> LlTextEmitBox.emit_module`, but its ingress is Hako MirBuilder/JSON and is not the source-backed issuer.
 Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
 Fail-fast boundary: until one exact Hako LLVM-text admission path can lend receiver/result/effect/full-lane data losslessly from the installed package to a named caller, with a matching old-edge delete set, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
-Smallest next slice: keep the existing CoverageMissing/NoSafeSlice state and record only the final physical Recipe contract as a refinement of this stop; do not add a new semantic co-seal row or grant implementation permission. The boundary-external backend replacement lane remains ParkedSealed with one observable reopen trigger.
+Smallest next slice: keep the existing CoverageMissing/NoSafeSlice state and record only the final physical Recipe and transport contract as refinements of this stop; do not add a new semantic co-seal row or grant implementation permission. Before any connector design is reopened, the route-spec physical BoxShape boundary and an explicit Rust source-root/API owner must be named. The boundary-external backend replacement lane remains ParkedSealed with one observable reopen trigger.
 Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
 """
 previous_parent_blocker_context = """
@@ -47,15 +47,14 @@ the production-neutral PlannerContext mismatch test retirement at
 3e4f66ee82; the 139 failure names and SHA remain unchanged. The exact-match
 successor and three negative paths are retained and each passed 1/1. The
 selected-C admission row remains the semantic design stop because Hako
-admission owner/caller/ABI coverage is still zero. A bounded physical-Recipe
-refinement is recorded in the same active manifest only: it does not add a
-semantic receipt, package-only bypass, or implementation permission.
-CorePlan varmap cache-only cleanup is complete through the clear final family:
-direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/
-canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
-DeclaredInstance selected-C admission row: relation, effect, result/Completion,
-physical lane, package locator, and exact receiver crosswalk are named, but
-Hako admission owner/caller/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the boundary-external backend replacement lane is ParkedSealed, and `LlTextEmitBox.emit_module` is a substrate candidate only with no lossless package admission.
+source-backed admission owner/ABI coverage is still zero; a named launcher
+substrate exists but begins at Hako MirBuilder/JSON and cannot losslessly carry
+the installed package's physical Recipe. A bounded physical-Recipe/transport
+refinement is recorded in the same active manifest only: it adds no semantic
+receipt, package-only bypass, or implementation permission.
+CorePlan varmap cache-only cleanup is complete through the clear final family: direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
+DeclaredInstance selected-C admission row: relation, effect, result/Completion, physical lane, package locator, and exact receiver crosswalk are named, but
+Hako source-backed admission owner/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the named launcher chain is a substrate candidate only because its ingress is Hako MirBuilder/JSON, and `LlTextEmitBox.emit_module` has no lossless package admission. The boundary-external backend replacement lane is ParkedSealed.
 No Method(Some), backend switch, fallback, retry, or Call-schema claim is open;
 the selected-C row remains the sole next design stop after this nonblocking T0.
 """
