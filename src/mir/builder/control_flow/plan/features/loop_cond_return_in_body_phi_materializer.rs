@@ -6,6 +6,7 @@
 //! - route-local continue-exit / phi / final-value closure
 
 use crate::mir::builder::control_flow::plan::features::loop_cond_return_in_body_join;
+use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::{CoreExitPlan, CorePhiInfo};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType, ValueId};
@@ -93,11 +94,7 @@ impl LoopCondReturnInBodyPhiMaterializer {
 
         let current_bindings = carrier_phis.clone();
         for (name, value_id) in &current_bindings {
-            builder
-                .function_state
-                .variable_ctx
-                .variable_map
-                .insert(name.clone(), *value_id);
+            parts::var_map_scope::publish_emission_cache(builder, name.clone(), *value_id);
         }
 
         let continue_target = if use_header_continue_target {
@@ -167,6 +164,33 @@ impl LoopCondReturnInBodyPhiMaterializer {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn prepare_reseals_header_phis_into_emission_cache() {
+        let mut builder = MirBuilder::new();
+        let init = builder.alloc_typed(MirType::Integer);
+        parts::var_map_scope::publish_emission_cache(&mut builder, "i".to_string(), init);
+
+        let materializer = LoopCondReturnInBodyPhiMaterializer::prepare(
+            &mut builder,
+            &["i".to_string()],
+            false,
+            BasicBlockId(10),
+            BasicBlockId(11),
+            "loop_cond_return_in_body",
+        )
+        .expect("materializer");
+        let expected = materializer
+            .carrier_phis()
+            .get("i")
+            .copied()
+            .expect("header phi");
+
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("i"),
+            Some(&expected)
+        );
+    }
 
     #[test]
     fn phi_closure_uses_step_continue_target_for_fallthrough_loop() {
