@@ -25,6 +25,7 @@ use super::block::{
 use crate::mir::builder::control_flow::plan::parts::join_scope::{
     collect_branch_local_vars_from_maps, filter_branch_locals_from_maps,
 };
+use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 
 fn snapshot_branch_map(
     builder: &MirBuilder,
@@ -155,11 +156,7 @@ where
     if !exit_shape.both_sides_exit {
         builder.function_state.variable_ctx.variable_map = pre_if_map;
         for join in &joins {
-            builder
-                .function_state
-                .variable_ctx
-                .variable_map
-                .insert(join.name.clone(), join.dst);
+            publish_emission_cache(builder, join.name.clone(), join.dst);
             if should_update_binding(&join.name, current_bindings) {
                 current_bindings.insert(join.name.clone(), join.dst);
             }
@@ -512,11 +509,7 @@ where
         lower_cond_value(builder, current_bindings, cond_view, error_prefix)?;
 
     for join in &joins {
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert(join.name.clone(), join.dst);
+        publish_emission_cache(builder, join.name.clone(), join.dst);
         if should_update_binding(&join.name, current_bindings) {
             current_bindings.insert(join.name.clone(), join.dst);
             on_join_applied(&join.name, join.dst);
