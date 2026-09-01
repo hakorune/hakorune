@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: keep the existing selected-C admission design stop as the only next row; a named launcher substrate exists, but no source-backed admission owner or lossless ABI exists.
-Source authority + canonical issuer: resolver-issued DeclaredInstance relation/effect, retained result/Completion, source-backed physical lane, package locator, and exact receiver crosswalk; `LlTextEmitBox.emit_module` is only a physical substrate candidate, not a semantic issuer. The named substrate chain is `cmd_build_exe -> emit_exe_from_source_root_checked -> compile_obj_root -> LlvmBackendBox.compile_obj_root -> RecipeFactsV0Box.analyze_root -> LlTextEmitBox.emit_module`, but its ingress is Hako MirBuilder/JSON and is not the source-backed issuer.
-Non-authority: JSON/MIR target metadata, C headers/symbols, FunctionSignature/EffectMask inference, args[0], ValueId(0), variable_map, name lookup, fallback, retry, or a new receipt/loan.
-Fail-fast boundary: until one exact Hako LLVM-text admission path can lend receiver/result/effect/full-lane data losslessly from the installed package to a named caller, with a matching old-edge delete set, Method(Some), argument descent on the new route, object emission, caller switch, fallback, and retry remain closed.
-Smallest next slice: keep the existing CoverageMissing/NoSafeSlice state and record only the final physical Recipe and transport contract as refinements of this stop; do not add a new semantic co-seal row or grant implementation permission. Before any connector design is reopened, the route-spec physical BoxShape boundary and an explicit Rust source-root/API owner must be named. The boundary-external backend replacement lane remains ParkedSealed with one observable reopen trigger.
-Non-claims: no Method(Some) production, selected-C implementation, backend/Call schema change, old-edge deletion, fallback, retry, or broad cleanup.
+Decision: move only the derived extern-route lookup helpers to a private child; preserve the route catalog, public API, and generated/C behavior byte-for-byte.
+Source authority + canonical issuer: `route_spec.rs` remains the sole `ExternCallRouteKind`/`ExternCallRouteSpec`/`EXTERN_CALL_ROUTE_SPECS` catalog owner; the child only delegates lookup against that catalog.
+Non-authority: new routes, codegen/C output, tests, Hako/Recipe, symbol/header parsing, or selected-C admission.
+Fail-fast boundary: any variant/row/order/field/API/classification change, visibility expansion, `include!`, codegen edit, or parent/child source reaching 760/800 lines stops this row.
+Smallest next slice: move only `ExternCallRouteKind`'s derived lookup impl plus the three free lookup functions into `route_spec/catalog_lookup.rs`, re-exporting those functions from the parent; selected-C remains closed as the parent design stop.
+Non-claims: no new extern route/ABI, semantic receipt, Hako/Rust physical Recipe, selected-C implementation, fallback, retry, production switch, or Call/backend change.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -46,20 +46,19 @@ The deterministic default-feature receipt is now 7562/7394/139/29 after
 the production-neutral PlannerContext mismatch test retirement at
 3e4f66ee82; the 139 failure names and SHA remain unchanged. The exact-match
 successor and three negative paths are retained and each passed 1/1. The
-selected-C admission row remains the semantic design stop because Hako
-source-backed admission owner/ABI coverage is still zero; a named launcher
-substrate exists but begins at Hako MirBuilder/JSON and cannot losslessly carry
-the installed package's physical Recipe. A bounded physical-Recipe/transport
-refinement is recorded in the same active manifest only: it adds no semantic
-receipt, package-only bypass, or implementation permission.
+selected-C admission remains the parent semantic design stop because Hako
+source-backed admission owner/ABI coverage is still zero; its named launcher
+substrate begins at Hako MirBuilder/JSON and cannot losslessly carry the package
+Recipe. The current execution is only a behavior-neutral route-spec BoxShape
+split; it adds no semantic receipt, package bypass, or selected-C permission.
 CorePlan varmap cache-only cleanup is complete through the clear final family: direct_sites=0 and role census raw=22/test-only=16/disconnected=1/live=5/canonical=1/reseal=4/remove_or_clear=0. The next design stop is the existing
 DeclaredInstance selected-C admission row: relation, effect, result/Completion, physical lane, package locator, and exact receiver crosswalk are named, but
 Hako source-backed admission owner/ABI coverage is still zero (CoverageMissing/NoSafeSlice); the named launcher chain is a substrate candidate only because its ingress is Hako MirBuilder/JSON, and `LlTextEmitBox.emit_module` has no lossless package admission. The boundary-external backend replacement lane is ParkedSealed.
 No Method(Some), backend switch, fallback, retry, or Call-schema claim is open;
-the selected-C row remains the sole next design stop after this nonblocking T0.
+the route-spec split must close before returning to the selected-C design stop.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_execution_card = "MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

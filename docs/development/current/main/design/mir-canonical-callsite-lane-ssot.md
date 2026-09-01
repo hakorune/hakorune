@@ -32,8 +32,11 @@ Related:
   transport contract is recorded as a design-only refinement, not an issuer or
   implementation route.
 - **Next ordered task:**
-  `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0`, selected by
-  `CURRENT_STATE.toml` as the current design stop. The manifest also records
+  `MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0`, selected by
+  `CURRENT_STATE.toml` as the current behavior-neutral fast row. It moves
+  only derived lookup code so the physical boundary is clean; after closeout,
+  `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` remains the parent
+  design stop. The manifest also records
   the bounded `MIR-CALL-ME-DECLARED-INSTANCE-HAKO-SEALED-PHYSICAL-CALL-D0`
   refinement: one session-local physical Recipe is permitted only as a
   design contract until an exact Hako owner/caller/ABI tuple exists. It emits
