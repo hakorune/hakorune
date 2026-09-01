@@ -44,20 +44,20 @@ latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
 The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
-93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and an
-unchanged 139-name failure SHA. The existing CallTarget owner guard was
-rehomed at cde0250481 after its retired method_resolution.rs requirement was
-removed; no compiler semantics changed. Full quick now reaches the separate
-K2-wide OSVM first-row guard, whose four existing compile tests fail at
-explicit-extern/missing-resolved-relation. Selected-C remains CoverageMissing
-with zero source-backed admission capabilities. The worker comparison confirms
-the canonical architecture: publish one complete MirModule, then lend a
-borrow-only typed backend view to the selected backend; the direct
-package-to-Hako route remains superseded/ParkedSealed. The minimal Counter
-probe is conditional evidence only and is not a live tuple in the current tree.
-The exact selected-C tuple census is zero, so Method(Some) remains a design stop;
-the LEGACY-TESTS-RETIRE-R0 shrink row landed at bcc9a6ba65 with its default baseline unchanged.
-The target-only residual I0 landed at c939ee81cd, with closeout evidence in the active card: selected and target-only pending rows have typed finish checks, compatibility keeps the existing Unavailable path, and the normal pre-drain boundary rejects residual ownership before module publication/commit while retaining collector drafts. The pointer now returns to the selected-C design stop.
+93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and unchanged
+failure SHA; the CallTarget guard was rehomed at cde0250481 with no compiler
+semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
+has zero source-backed admission capabilities. Keep the canonical path:
+publish one complete MirModule, then lend a borrowed typed backend view;
+direct package-to-Hako remains ParkedSealed. Fresh audit at 479a027863 finds
+only the Rust borrowed-MirModule seam; selected C/Hako/LLVM still consumes a
+JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
+owner. Keep this row ParkedSealed/NoSafeSlice: add no D0, fixture, receipt,
+adapter, or guard; reopen only with one complete tuple and finite old-edge set.
+The exact tuple census is zero; Method(Some) remains a design stop. LEGACY-TESTS-
+RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-
+only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
+residual boundary are recorded in the active card.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 next_execution_card = "none__design_stop"
