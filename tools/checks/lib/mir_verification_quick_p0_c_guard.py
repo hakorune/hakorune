@@ -215,7 +215,7 @@ def check_verification_quick_lib_baseline_refresh_r0(
         "expected_ignored": 29,
         "expected_measured": 0,
         "expected_filtered": 0,
-        "inventory_sha256": "39c71a21a2abfd0d65e2f988aa593f9446de0dfc9b7d7dc14e39ff967ea91bcb",
+        "inventory_sha256": "f049ea4f066c7b027215f4c5edb74000bcf6f8962868c2a3744f5a919b5f8ca0",
         "failures_sha256": "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041",
     }
     for name, expected in expected_fields.items():

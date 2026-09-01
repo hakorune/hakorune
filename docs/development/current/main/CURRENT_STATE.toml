@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement.
+Decision: keep one canonical published-MirModule pipeline; use the existing daily ny-llvmc Boundary for the first DeclaredInstance Method(Some) vertical, and ParkedSeal direct package-to-Hako emission as a future post-publish backend replacement. This fast row only refreshes the fixed known-red lib receipt.
 Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, and exact receiver crosswalk; the daily backend only consumes their one-way physical projection after canonical MIR publication.
 Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, fallback, retry, or a new semantic receipt/loan.
 Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, and one finite old-edge delete set.
-Smallest next slice: the one-time existing-D0 census is now complete and found zero live tuples. Counter/minimal is not a caller: it enters Compatibility(AST), lacks callable-source/package/TypedObjectPlan authority, and the source-backed route stops at ExactSourceChanged or publish-preflight imbalance. ParkedSealed this vertical without another D0/receipt/fixture/guard; before any semantic cutover, run the existing baseline-refresh row once, then use the existing test-inventory parent for one exact eight-test duplicate retirement cohort.
-Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row; the baseline/test queue is nonblocking and production-neutral.
+Smallest next slice: run the existing fixed-stack baseline/list observation and comparator three times, accepting only identical 7562/7394/139/29 results and the current failure-name SHA; then close this row. No source or test semantics change. The next nonblocking cleanup is the ready eight-test duplicate retirement cohort.
+Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, test deletion, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,33 +39,25 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic default-feature receipt is 7562/7394/139/29 after the
-PlannerContext test retirement at 3e4f66ee82; its 139 failure names/SHA are
-unchanged, and the exact-match successor plus three negatives passed 1/1. The
-selected-C admission remains the parent design stop, but its architecture is
-now narrower: the first Method(Some) vertical uses the existing daily ny-llvmc
-Boundary after canonical MirModule publication. Direct package-to-Hako emission
-is superseded and ParkedSealed as a future post-publish backend replacement.
-The route-spec split landed at 35f59702b5: route_spec.rs is 723 lines, private catalog_lookup.rs is 77 lines, and the
-47-variant/47-row catalog plus public API remain unchanged; it adds no semantic
-receipt, package bypass, or selected-C permission. CorePlan cache cleanup remains
-closed. The existing daily boundary proves a generic Method(Some) consumer, but
-the proposed Counter/minimal route is not a source-backed production caller: it
-enters Compatibility(AST), has no callable-source/package/TypedObjectPlan tuple,
-and normal source-backed runs stop at ExactSourceChanged (or later
-resolved-binding publish-preflight imbalance). The D0 census is zero live tuples
-and the DeclaredInstance vertical is ParkedSealed; do not add a package-view
-bridge, fixture, receipt, resolver, or guard. Reopen only from an existing
-published MirModule source caller with one lossless wire tuple. No Method(Some),
-backend switch, fallback, retry, or Call-schema claim is open.
+The selected-C admission is ParkedSealed: the existing D0 census found zero
+live source/package/TypedObjectPlan tuples, so direct package-to-Hako remains a
+future post-publish backend replacement and no Method(Some) implementation is
+open. The existing daily ny-llvmc Boundary remains the chosen lossless backend
+view after canonical MirModule publication. The current fast row is the
+one-time deterministic baseline refresh; its committed receipt is 7562/7394/
+139/29 with failure SHA 86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041
+and inventory SHA f049ea4f066c7b027215f4c5edb74000bcf6f8962868c2a3744f5a919b5f8ca0.
+After that receipt is revalidated, the ready nonblocking cohort may retire
+exactly eight duplicate loop-if-exit tests; no semantic route or new receipt
+is implied. No fallback, retry, or Call-schema claim is open.
 """
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
-parked_mirbuilder_test_inventory_retirement_task = "MIR-BUILDER-TEST-INVENTORY-RETIRE-R0 (recorded in the active Call card; nonblocking)"
+parked_mirbuilder_test_inventory_retirement_task = "MIR-BUILDER-TEST-INVENTORY-RETIRE-R0 (ready after baseline refresh; nonblocking)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
