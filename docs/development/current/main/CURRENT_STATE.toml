@@ -1,14 +1,14 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
 current_design_stop = "none"
 current_blocker_token = """
-Decision: implement the six-site loop_cond_bc cache-only BoxShape reseal.
+Decision: close out the six-site loop_cond_bc cache-only BoxShape reseal.
 Source authority + canonical issuer: LoopCondBreakContinue current bindings/PHI/prelude values; existing publish_emission_cache sole owner.
 Non-authority: variable_map as PHI truth, AST/name lookup, fixtures, route/fallback choice, MIR/Call/backend/selected-C semantics, fallback, retry.
 Fail-fast boundary: any timing/value/order drift, route-specific authority, direct-site growth, remove/clear, second owner, or 760/800-line drift.
-Smallest next slice: delegate only the six existing writes, preserve call order/values, and run route/verifier evidence.
+Smallest next slice: record focused evidence, synchronize the landed finite census, and push closeout; no new plan family or semantic route enters this row.
 Non-claims: no loop_cond_co/loop_true/cond-prelude, fallback retirement, Call/MIR/backend, selected-C, resolver, receipt, fixture, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
@@ -43,14 +43,16 @@ latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
 The deterministic default-feature receipt remains fixed at 7562/7394/139/29.
-CorePlan varmap role census, generic-loop-body reseal, and the four-site
-carrier/pipeline reseal are landed. The next design-stop row audits the six
-remaining loop_cond_bc cache writes and permits only delegation to the existing
-publish_emission_cache owner; it is separate from Call semantics. No loop
-fallback, MIR/Call, backend, selected-C, resolver, fixture, fallback, retry,
-receipt, or schema change is open.
+CorePlan varmap role census, generic-loop-body, carrier/pipeline, and the
+six-site loop_cond_bc reseals are landed through the existing
+publish_emission_cache owner. The loop-cond row is in closeout with direct
+sites=0 and post-reseal raw=36/test-only=16/disconnected=1/live=19/
+canonical=1/reseal=18/remove_or_clear=0. Focused verifier 3/3, PHI
+materializer 1/1, and cleanup 2/2 passed; this remains separate from Call
+semantics and makes no fallback, backend, selected-C, resolver, fixture,
+retry, receipt, or schema claim.
 """
-next_design_card = "none__fast"
+next_design_card = "none__closeout"
 next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-LOOP-COND-BC-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -65,7 +67,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-01: default-feature --lib receipt refresh landed at 484d58585f after three identical 7562/7394/139/29 observations; the 139 failure names/SHA are unchanged. CorePlan varmap reseals now include carrier/pipeline commit 77038e18b0; the finite role census is raw=42/test-only=16/disconnected=1/live=25/canonical=1/reseal=24/remove_or_clear=0.",
+  "2026-09-01: CorePlan loop_cond_bc reseal landed at 010d0b4fff after six direct cache writes delegated to publish_emission_cache; direct_sites=0 and finite role census is raw=36/test-only=16/disconnected=1/live=19/canonical=1/reseal=18/remove_or_clear=0. Default-feature receipt remains 7562/7394/139/29 from 484d58585f.",
   "2026-09-01: DeclaredInstance receiver crosswalk I0 landed at dc68fa2910; the exact package locator and BindingRef owner now replace ambient receiver authority before arguments, with take-once/residual-zero evidence and unchanged Global/manual-prefix output.",
   "2026-09-01: FastMem branch evidence stabilization landed at 39d5188d9d; one test now checks exact field MemOp membership/cardinality independent of HashMap order. Ten exact runs and the 20-test module pass; no production semantics or whole-lib baseline claim.",
 ]
