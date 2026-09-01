@@ -16,7 +16,6 @@ default = ["cli", "plugins"]
 # Legacy features removed - archive cleaned up
 e2e = []
 cli = []
-legacy-tests = [] # Legacy/phi-off test suites (pre-JoinIR). Disabled by default.
 plugins-only = []
 builtin-core = []
 builtin-filebox = []  # Enable built-in FileBox provider (SSOT)

@@ -6,18 +6,9 @@ pub mod box_tests;
 #[cfg(feature = "vm-reference")]
 pub mod core13_smoke_array;
 pub mod exec_parity;
-// Legacy PHI-off flow shape tests (pre-JoinIR). Disable by default.
-#[cfg(feature = "legacy-tests")]
-pub mod flow;
 pub mod host_reverse_slot;
-// Legacy PHI-off if/merge shape tests (pre-JoinIR). Disable by default.
-#[cfg(feature = "legacy-tests")]
-pub mod if_no_phi;
 #[cfg(feature = "vm-reference")]
 pub mod if_return_exec;
-// Legacy StringUtils VM parity smoke (pre-JoinIR). Disable by default.
-#[cfg(feature = "legacy-tests")]
-pub mod json_lint_stringutils_min_vm; // Phase 21.7++: using StringUtils alias resolution fix
 #[cfg(feature = "vm-reference")]
 pub mod llvm_bitops_test;
 pub mod macro_tests;
@@ -31,9 +22,6 @@ pub mod nyash_abi_basic;
 pub mod parser;
 pub mod plugin_hygiene;
 pub mod policy_mutdeny;
-// Stage1 CLI SSA smoke (pre-JoinIR expectations). Disable by default.
-#[cfg(feature = "legacy-tests")]
-pub mod stage1_cli_entry_ssa_smoke;
 pub mod sugar;
 pub mod typebox_tlv_diff;
 #[cfg(feature = "vm-reference")]
