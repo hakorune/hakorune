@@ -1,15 +1,15 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
-current_design_stop = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: do not raise 48 to 51 or delete the CorePlan variable_map guard by assumption; classify the finite current surface and choose reseal, prune, or retire.
-Source authority + canonical issuer: the 51 matched current source sites, current var_map_scope/Recipe ownership, and the quick-step consumer; historical phase counts issue no current meaning.
-Non-authority: the raw count alone, old phase prose, a formerly green quick run, filenames, tests, or a replacement allowlist without owner equivalence.
-Fail-fast boundary: no guard edit or selected-C/Method vertical until every site is classified and an equal-or-stronger current invariant or caller-zero retirement is named.
-Smallest next slice: census 51 sites as production authority, test fixture, superseded writer, or helper bypass; select exactly one bounded reseal/prune/retire implementation.
-Non-claims: no count bump, blind guard deletion, MIR/Call/backend semantics, test repair, Method(Some), selected-C decision, fallback, retry, or schema cutover.
+Decision: replace the stale role-blind 48-site upper bound with the finite role-aware 51-site census; this fast row changes only the existing verification guard and its current-row dispatch.
+Source authority + canonical issuer: exact variable_map.insert sites under CorePlan/plan and SSA, current var_map_scope cache ownership, and the existing dev_gate quick consumer; the guard issues the verification result.
+Non-authority: historical 48, filenames, fixtures, raw count bumps, compiler/MIR facts, selected-C, backend, loop fallback, or any new semantic receipt.
+Fail-fast boundary: any raw count, role, remove/clear, unclassified-site, guard-consumer, or pointer mismatch fails before the next semantic row.
+Smallest next slice: DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0; assert raw=51, test-only=16, disconnected=1, live=34, canonical=1, reseal=33, remove/clear=0.
+Non-claims: no reseal implementation, MIR/Call/backend semantics, selected-C decision, loop fallback retirement, test repair, fallback, retry, or schema cutover.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -47,7 +47,9 @@ three identical 7562/7394/139/29 observations; all 139 failure names and their
 SHA remained byte-identical. The runner now passes. Full quick then exposed its
 next independent red: the CorePlan variable_map guard still bounds 48 direct
 insert sites while the current finite surface is 51 (confirmed since at least
-3fa2f72d4d). Reconcile that guard before returning to product work.
+3fa2f72d4d). The role-aware 51-site census is accepted; the active fast row
+only replaces the guard's raw bound with raw=51/test-only=16/disconnected=1/
+live=34/canonical=1/reseal=33 before returning to product work.
 Language decisions are fixed: retain ordinary me.method, use explicit static/
 instance/delegate namespaces, terminal panic Fault, and non-throwing Result/?/cleanup.
 Option B publishes canonical Method(Some(receiver)) and replaces selected-C
@@ -56,8 +58,8 @@ at dc68fa2910: exact locator/site/binding now supplies the existing ValueId
 before arguments and residuals reject; selected-C admission resumes only after
 the verification receipt and every quick step are classified.
 """
-next_design_card = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
+next_execution_card = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

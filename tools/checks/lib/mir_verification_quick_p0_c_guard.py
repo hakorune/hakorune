@@ -16,10 +16,35 @@ REFRESH_ROW = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 REFRESH_KEY = "verification_health_quick_lib_baseline_refresh_r0_2026_09_01"
 VARMAP_RECONCILE_ROW = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
 VARMAP_RECONCILE_KEY = "verification_health_coreplan_varmap_boundary_reconcile_d0_2026_09_01"
+VARMAP_ROLE_CENSUS_ROW = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
+VARMAP_ROLE_CENSUS_KEY = "dev_gate_coreplan_varmap_role_census_prune_r0_2026_09_01"
 BASELINE = Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
 INVENTORY = Path("tools/checks/manifests/cargo_lib_red_baseline.tests.txt")
 FAILURES = Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")
 QUICK_STEPS = Path("tools/checks/lib/dev_gate_quick_steps.sh")
+
+VARMAP_ROOTS = (
+    Path("src/mir/builder/control_flow/plan"),
+    Path("src/mir/builder/ssa"),
+)
+VARMAP_TEST_ONLY_SITES = frozenset(
+    {
+        *(f"src/mir/builder/control_flow/plan/composer/coreloop_v2_nested_minimal.rs#{n}" for n in range(1, 5)),
+        "src/mir/builder/control_flow/plan/features/generic_loop_body/nested_depth_observer_tests.rs#1",
+        "src/mir/builder/control_flow/plan/features/generic_loop_located_composer_tests.rs#1",
+        "src/mir/builder/control_flow/plan/features/generic_loop_whole_parity_tests.rs#1",
+        *(f"src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs#{n}" for n in range(1, 5)),
+        *(f"src/mir/builder/control_flow/plan/normalizer/tests.rs#{n}" for n in range(1, 4)),
+        "src/mir/builder/control_flow/plan/parts/associated_source/located_hook_tests.rs#1",
+        "src/mir/builder/control_flow/plan/parts/associated_source/located_parity_tests.rs#1",
+    }
+)
+VARMAP_DISCONNECTED_SITES = frozenset(
+    {"src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs#1"}
+)
+VARMAP_CANONICAL_SITES = frozenset(
+    {"src/mir/builder/control_flow/plan/parts/var_map_scope.rs#1"}
+)
 
 
 def _text(row: dict, name: str) -> str:
@@ -248,3 +273,103 @@ def check_verification_coreplan_varmap_boundary_reconcile_d0(
     if "max_insert_count = 48" not in guard:
         api.fail("CorePlan varmap historical upper-bound premise drifted")
     print(f"[{api.TAG}] CorePlan varmap reconciliation premise ok sites=51 bound=48")
+
+
+def _collect_varmap_sites(root: Path) -> tuple[list[tuple[str, int, str]], list[tuple[str, int, str]]]:
+    pattern = re.compile(r"variable_map\s*\.\s*(insert|remove|clear)\s*\(")
+    occurrences: dict[str, int] = {}
+    writes: list[tuple[str, int, str]] = []
+    for relative in VARMAP_ROOTS:
+        for path in sorted((root / relative).rglob("*.rs")):
+            text = path.read_text(encoding="utf-8")
+            for match in pattern.finditer(text):
+                path_key = str(path.relative_to(root))
+                occurrences[path_key] = occurrences.get(path_key, 0) + 1
+                writes.append(
+                    (path_key, occurrences[path_key], match.group(1))
+                )
+    return writes, [site for site in writes if site[2] in {"remove", "clear"}]
+
+
+def check_verification_coreplan_varmap_role_census_prune_r0(
+    state: dict, card: dict, root: Path, _parent_api=api
+) -> None:
+    """Validate the finite role census without changing CorePlan semantics."""
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail("CorePlan varmap role census requires fast or closeout")
+    if state.get("current_execution_row") != VARMAP_ROLE_CENSUS_ROW:
+        api.fail("CorePlan varmap role census is not selected")
+    if state.get("current_design_stop") != "none":
+        api.fail("CorePlan varmap role census must clear current_design_stop")
+    if state.get("next_execution_card") != VARMAP_ROLE_CENSUS_ROW:
+        api.fail("CorePlan varmap role census execution pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("CorePlan varmap role census card path drifted")
+
+    row = card.get(VARMAP_ROLE_CENSUS_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"CorePlan varmap role census section is missing: {VARMAP_ROLE_CENSUS_KEY}")
+    if _text(row, "task_id") != VARMAP_ROLE_CENSUS_ROW:
+        api.fail("CorePlan varmap role census task id drifted")
+    status = _text(row, "status")
+    if status not in {"fast_open", "landed"}:
+        api.fail("CorePlan varmap role census status is not finite")
+    if row.get("implementation_permission") is not (status == "fast_open"):
+        api.fail("CorePlan varmap role census permission/status drifted")
+    if _text(row, "parent_row") != VARMAP_RECONCILE_ROW:
+        api.fail("CorePlan varmap role census parent drifted")
+    decision = _text(row, "decision").lower()
+    for token in ("raw=51", "test-only=16", "disconnected=1", "live=34", "canonical=1", "reseal=33"):
+        if token not in decision:
+            api.fail(f"CorePlan varmap role census decision lacks {token}")
+    for token in ("raising the bound", "fixtures", "selected-c"):
+        if token not in " ".join(_list(row, "non_authority")).lower():
+            api.fail(f"CorePlan varmap role census non-authority lacks {token}")
+    allowed = {
+        "tools/checks/coreplan_varmap_boundary_inventory_guard.sh",
+        "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+    }
+    if set(_list(row, "allowed_files")) != allowed:
+        api.fail("CorePlan varmap role census allowed-file boundary drifted")
+
+    writes, remove_or_clear = _collect_varmap_sites(root)
+    insert_sites = [site for site in writes if site[2] == "insert"]
+    site_ids = {f"{path}#{ordinal}" for path, ordinal, _ in insert_sites}
+    if len(insert_sites) != 51 or len(site_ids) != 51:
+        api.fail(f"CorePlan varmap role census raw inventory drifted: inserts={len(insert_sites)}")
+    if remove_or_clear:
+        api.fail("CorePlan varmap role census found forbidden remove/clear")
+    if site_ids & VARMAP_TEST_ONLY_SITES != VARMAP_TEST_ONLY_SITES:
+        api.fail("CorePlan varmap test-only role inventory drifted")
+    if site_ids & VARMAP_DISCONNECTED_SITES != VARMAP_DISCONNECTED_SITES:
+        api.fail("CorePlan varmap disconnected role inventory drifted")
+    if site_ids & VARMAP_CANONICAL_SITES != VARMAP_CANONICAL_SITES:
+        api.fail("CorePlan varmap canonical owner inventory drifted")
+    live_sites = site_ids - VARMAP_TEST_ONLY_SITES - VARMAP_DISCONNECTED_SITES
+    reseal_sites = live_sites - VARMAP_CANONICAL_SITES
+    if len(live_sites) != 34 or len(reseal_sites) != 33:
+        api.fail(
+            "CorePlan varmap role counts drifted: "
+            f"test_only={len(site_ids & VARMAP_TEST_ONLY_SITES)} "
+            f"disconnected={len(site_ids & VARMAP_DISCONNECTED_SITES)} "
+            f"live={len(live_sites)} canonical={len(live_sites & VARMAP_CANONICAL_SITES)} "
+            f"reseal={len(reseal_sites)}"
+        )
+    canonical_path = root / "src/mir/builder/control_flow/plan/parts/var_map_scope.rs"
+    canonical_text = canonical_path.read_text(encoding="utf-8")
+    if "publish_emission_cache" not in canonical_text:
+        api.fail("CorePlan varmap canonical cache owner is missing")
+    guard = (root / "tools/checks/coreplan_varmap_boundary_inventory_guard.sh").read_text(
+        encoding="utf-8"
+    )
+    if "max_insert_count = 48" in guard or "variable_map_direct_insert_sites=48" in guard:
+        api.fail("CorePlan varmap role guard still contains the stale 48-count contract")
+    if "role-aware" not in guard.lower():
+        api.fail("CorePlan varmap role guard is not role-aware")
+    print(
+        f"[{api.TAG}] CorePlan varmap role census ok "
+        "raw=51 test_only=16 disconnected=1 live=34 canonical=1 reseal=33"
+    )
