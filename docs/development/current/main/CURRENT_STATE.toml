@@ -5,10 +5,14 @@ current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
 Decision: keep one canonical published-MirModule pipeline; the selected-C admission remains a separate design stop because no source-backed capability co-seals the full DeclaredInstance tuple.
+The architecture choice is the canonical path: source/package products stop at
+Atomic Publish, then a lossless borrowed typed backend view may feed the
+selected backend. Direct package-to-Hako emission is superseded and remains
+ParkedSealed, not an alternate production pipeline.
 Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
 Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
 Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
-Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge.
+Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge. A minimal Counter probe is only conditional evidence until the current tree contains its source-backed entry, return contract, and exact wire/object tuple; do not amend a fixture to force admission.
 Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
 """
 previous_parent_blocker_context = """
@@ -46,7 +50,14 @@ rehomed at cde0250481 after its retired method_resolution.rs requirement was
 removed; no compiler semantics changed. Full quick now reaches the separate
 K2-wide OSVM first-row guard, whose four existing compile tests fail at
 explicit-extern/missing-resolved-relation. Selected-C remains CoverageMissing
-with zero source-backed admission capabilities.
+with zero source-backed admission capabilities. The worker comparison confirms
+the canonical architecture: publish one complete MirModule, then lend a
+borrow-only typed backend view to the selected backend; the direct
+package-to-Hako route remains superseded/ParkedSealed. The minimal Counter
+probe is conditional evidence only and is not a live tuple in the current tree.
+The only task sequence is the existing active card: exact tuple census,
+caller-first Method(Some) vertical, post-publish typed backend view, then
+residual-zero closeout; no child card or direct Hako bridge is opened.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 next_execution_card = "none__design_stop"
