@@ -186,7 +186,7 @@ def check_verification_quick_lib_baseline_refresh_r0(
     if _text(row, "parent_row") != "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0":
         api.fail("baseline refresh parent row drifted")
     status = _text(row, "status")
-    if status not in {"fast_open", "landed"}:
+    if status not in {"fast_open", "stopped_later_quick_red", "landed"}:
         api.fail("baseline refresh status is not finite")
     if row.get("implementation_permission") is not (status == "fast_open"):
         api.fail("baseline refresh permission/status drifted")
@@ -210,12 +210,12 @@ def check_verification_quick_lib_baseline_refresh_r0(
     expected_fields = {
         "expected_status": "FAILED",
         "expected_exit_code": 101,
-        "expected_passed": 7394,
+        "expected_passed": 7386,
         "expected_failed": 139,
         "expected_ignored": 29,
         "expected_measured": 0,
         "expected_filtered": 0,
-        "inventory_sha256": "f049ea4f066c7b027215f4c5edb74000bcf6f8962868c2a3744f5a919b5f8ca0",
+        "inventory_sha256": "93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0",
         "failures_sha256": "86b8c383eb3d20f1851f33278e30fd431cae97dcc716aad9ac2fe13b586d9041",
     }
     for name, expected in expected_fields.items():
@@ -224,8 +224,8 @@ def check_verification_quick_lib_baseline_refresh_r0(
 
     inventory = (root / INVENTORY).read_text(encoding="utf-8").splitlines()
     failures = (root / FAILURES).read_text(encoding="utf-8").splitlines()
-    if len(inventory) != 7562 or inventory != sorted(set(inventory)):
-        api.fail("baseline refresh inventory must contain 7562 unique sorted tests")
+    if len(inventory) != 7554 or inventory != sorted(set(inventory)):
+        api.fail("baseline refresh inventory must contain 7554 unique sorted tests")
     if len(failures) != 139 or failures != sorted(set(failures)):
         api.fail("baseline refresh failure receipt must keep 139 unique sorted names")
     if _canonical_lines_sha256(inventory) != expected_fields["inventory_sha256"]:

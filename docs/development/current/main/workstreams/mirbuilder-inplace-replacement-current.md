@@ -60,9 +60,12 @@ production-neutral PlannerContext mismatch test retirement at `3e4f66ee82`
 and the earlier binding-shadow retirement at `70b061f8f2`. The 139 failure
 names/SHA remain unchanged; the exact-match PlannerContext successor and
 three retained negative paths each passed 1/1. Full quick remains separately
-owned and is not claimed green: its role-aware CorePlan varmap census is closed at raw=22,
-test-only=16, disconnected=1, live=5, canonical=1, reseal=4,
-remove_or_clear=0. The receiver crosswalk at `dc68fa2910` remains valid and
+owned and is not claimed green: its first observed stop is the existing MIR
+builder CallTarget owner guard, which still requires the retired
+`src/mir/builder/calls/method_resolution.rs` path. The role-aware CorePlan
+varmap census remains closed at raw=22, test-only=16, disconnected=1, live=5,
+canonical=1, reseal=4, remove_or_clear=0. The receiver crosswalk at
+`dc68fa2910` remains valid and
 Global/manual-prefix output is unchanged. Only after the selected-C
 caller-first boundary gains one exact live `me.method` source/wire/object tuple
 may Method(Some) admission resume. The selected physical owner is the existing
@@ -76,8 +79,9 @@ child and left the 47-row catalog, public API, and generated/C behavior
 unchanged. The fixed baseline-refresh row landed at `ee886f4cc1`: three
 fixed-stack observations and the comparator agree on 7554/7386/139/29 with
 unchanged failure names after the exact eight-test loop-if-exit duplicate
-cohort was retired at `ed1332f16d`. The common owner retains nine contract
-tests; the
+cohort was retired at `ed1332f16d`. The reconciliation stops at the existing
+CallTarget owner guard path drift, so whole quick is not claimed green. The
+common owner retains nine contract tests; the
 normalized-shadow production route is unchanged, and the current pointer is
 back at the selected-C CoverageMissing design stop. This cleanup reduced the
 daily root without issuing semantic authority; it did not reopen selected-C or
