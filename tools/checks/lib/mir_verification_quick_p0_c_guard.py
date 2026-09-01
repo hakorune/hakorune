@@ -521,7 +521,7 @@ def check_verification_coreplan_varmap_reseal_carrier_pipeline_r0(
         source = root / relative
         if len(source.read_text(encoding="utf-8").splitlines()) > 760:
             api.fail(f"CorePlan carrier/pipeline source reached the 760-line boundary: {relative}")
-        if status != "active_design_stop" and "publish_emission_cache" not in source.read_text(encoding="utf-8"):
+        if len(target) == 0 and "publish_emission_cache" not in source.read_text(encoding="utf-8"):
             api.fail(f"CorePlan carrier/pipeline source lacks the canonical cache helper: {relative}")
     helper = root / "src/mir/builder/control_flow/plan/parts/var_map_scope.rs"
     if "publish_emission_cache" not in helper.read_text(encoding="utf-8"):

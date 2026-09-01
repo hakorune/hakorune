@@ -1,14 +1,14 @@
 date = "2026-09-01"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
-current_design_stop = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: treat carrier_merge.rs (three writes) and generic_loop_pipeline.rs (one write) as one cache-only BoxShape reseal family.
+Decision: implement the four-site carrier/pipeline cache-only BoxShape reseal.
 Source authority + canonical issuer: existing current_bindings/carrier state and loop-header value; parts::var_map_scope::publish_emission_cache is the sole cache owner.
 Non-authority: variable_map as logical PHI truth, AST/name lookup, fixtures, route choice, loop fallback, MIR/Call/backend/selected-C facts, fallback, or retry.
 Fail-fast boundary: timing/value change, route-specific authority, direct-site growth, remove/clear, second owner, or 760/800-line drift keeps this row closed.
-Smallest next slice: confirm the four-site mapping, then open one four-delegation fast row; no other plan family or semantic route may enter.
+Smallest next slice: delegate the four existing writes to the helper, then run focused route/parity evidence; no other plan family or semantic route may enter.
 Non-claims: no loop fallback retirement, Call/MIR/backend change, selected-C decision, fixture rewrite, resolver, fallback, retry, receipt, or schema cutover.
 """
 previous_parent_blocker_context = """
@@ -60,7 +60,7 @@ before arguments and residuals reject; selected-C admission resumes only after
 the verification receipt and every quick step are classified.
 """
 next_design_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
-next_execution_card = "none__design_stop"
+next_execution_card = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
