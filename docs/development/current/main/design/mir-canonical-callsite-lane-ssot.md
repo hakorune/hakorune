@@ -52,87 +52,115 @@ Related:
   selected terminal consumes the stored typed target, and `func`, `None`,
   sentinels, retry, and impossible-state guards are absent.
 
-## Accepted canonical-rewrite escape hatch (2026-09-02)
+## Accepted canonical publication-spine rebuild (2026-09-02)
 
-The four remaining small-family audits found no complete
-`owner/caller/consumer/delete-set` tuple. That is a reason to stop those
-families, not a reason to grow another chain of D0 cards. If a small in-place
-slice cannot be formed, a **single branch/worktree-isolated canonical Call
-rewrite** is permitted. It is a bounded replacement of the Call substrate,
-not a second MirBuilder or a second source-to-physical pipeline.
+The remaining family audits exposed one shared loss point rather than a need
+for more source receipts: the normal catalog admission already owns
+`CanonicalSameModuleCallableKeyV1`, but converts it to `LegacySymbol`, and the
+normal collector then publishes only a String-keyed function. A single
+branch/worktree-isolated in-place rebuild repairs that spine. It is not a
+second MirBuilder or a second source-to-physical pipeline.
 
-The rewrite reuses the existing source/catalog/Facts owners and the existing
-`CanonicalSameModuleCallableKeyV1`. It may add only the missing canonical
-publication relation and a backend-neutral borrowed view of a sealed
-`MirModule`; that view is a projection, never a semantic issuer or a new
-`Verified*`/`Prepared*` receipt. The first cohort is selected once from an
-already complete Global/StaticCurrentOwner family. DeclaredInstance,
-selected-C arbitrary UserBox, CorePlan, ordinary-new no-claim, and physical
-thunk remain parked until their own source products exist.
+The former gate required a complete typed backend before opening the task that
+creates that backend. That gate was self-blocking and is retired. I0/I1 start
+from one exact source half plus named publication, runner, and backend seams.
+R0 alone requires the newly completed typed backend tuple and exact cutover
+edge. Failure aborts the bounded branch; it does not create another D0.
+
+The first source proof is StaticCurrentOwner `me.method`, while the canonical
+backend cohort is the published `StaticBoxMethod` key namespace. Source
+spelling is intentionally absent after publication: `me.target()` and an
+already-verified qualified static call that select the same key are one
+backend family, not two target authorities.
 
 ```text
 source/catalog Facts and Recipe (existing authority)
-  -> mandatory typed Callee and definition relation
-  -> candidate MirModule, verified and atomically published
+  -> existing mandatory typed target before arguments
+  -> normal collector preserves key and atomically publishes its definition
   -> PublishedMirBackendView<'m> (borrow-only, no source/package access)
-  -> one selected typed backend consumer
+  -> versioned typed C view -> one selected-C physical consumer
 ```
 
-At the FFI boundary, Rust layout is never exposed. A versioned `repr(C)` flat
-arena may own borrowed-view projections for the duration of one call. The
-consumer accepts target identity, receiver/value operands, result contract,
-effects, and physical lanes as data already sealed by MIR. It never searches
-by name, JSON, registry, header, `args[0]`, or `ValueId(0)`, and it never falls
-back to the old JSON/name route.
+`MirModule` owns the one key-to-definition relation. The backend view borrows
+it and owns no AST, resolver, catalog clone, name index, registry, retry state,
+or independently issued meaning. At the FFI boundary Rust layout is never
+exposed; a versioned `repr(C)` flat arena is valid for one call only. Physical
+`EffectMask` may be transported as an existing MIR field, but this cohort does
+not claim to issue a new source-backed semantic effect.
+
+The stored repository-wide `MirInstruction::Call { func, callee: Option<_> }`
+schema is not globally rewritten in this five-commit series. The published
+view admits selected calls only when `callee=Some`, `func=INVALID`, and the
+target joins exactly one definition. Global `Call`/`LegacyCallV0` schema
+deletion remains R6 after family reachability is reduced; changing roughly all
+Call consumers now would mix the vertical cutover with an unrelated mass
+compile break.
+
+Before any backend attempt, the facade chooses exactly one state:
+
+```text
+selected StaticBoxMethod present + whole module supported -> CanonicalTyped
+selected StaticBoxMethod present + any unsupported shape -> UnsupportedBeforeObject
+selected StaticBoxMethod absent                         -> ExplicitCompatibility
+```
+
+Typed failure never retries JSON. Environment flags cannot choose two routes
+for the same selected module. The compatibility implementation may remain for
+unselected families, but the switched family has zero reachability to JSON,
+name/registry lookup, and `args[0]` repair.
 
 ### Temporary-red contract
 
 The fixed rewrite may be compile/test-red only in its isolated branch or
 worktree. The accepted parent receipt remains immutable (`7553/7386/138/29`
-plus the failure-name and inventory hashes). Every temporary failure is an
-exact test-name delta with an owner, reason, successor, and expiry. The delta
-window is at most five rewrite commits or seven calendar days, whichever
-comes first; expiry means stop/park, not silent extension. `main` is not
+plus the failure-name and inventory hashes). The branch records its immutable
+parent SHA before code and never merges or rebases. Every temporary failure is
+an exact test-name delta with owner, reason, successor, expiry, and a finite
+state: `ExpectedCompileBreak`, `ExpectedTestMigration`, `Unexpected`, or
+`Resolved`. At most one consecutive compile-red commit is allowed. The window
+ends at the earlier of five rewrite commits or seven calendar days; expiry or
+one `Unexpected` failure aborts instead of extending the design. `main` is not
 updated while an unclassified migration-red remains. `#[ignore]`, deleting a
 red test, or rewriting the parent baseline is forbidden.
 
 ### Product completion definition
 
-The rewrite is complete for a cohort only when its named production caller
-uses the canonical published view and the same series deletes that cohort's
-old edges. The MS1-P production finish line is observable, not a slogan:
+The first cohort is complete only when `NyashRunner::execute_mir_mode
+--emit-exe` uses the typed facade for every selected module and the same series
+deletes the selected family's reachability to its old edges:
 
 ```text
-callee=None production writers              = 0
+published key -> exact definition            = 1
+borrowed mandatory-call view + typed C consumer = 1 / 1
+callee=None / Method(None) in selected view  = 0 / 0
 name/registry/header target lookup           = 0
-fallback/retry from the canonical caller    = 0
-Method(None) production writers              = 0
-JSON/name/args[0] repair for the cohort      = 0
-caller switched + old exclusive assets      = 1 / 0
+JSON/name/args[0] selected-family reachability = 0
+fallback/retry from the canonical caller     = 0
+named caller switched                         = 1
 ```
 
-The old route may remain only as an explicit compatibility module that is
-unreachable from the switched production caller. Coexistence ends at the
-series closeout and cannot become a permanent second authority.
+Shared old helpers earn no deletion credit while compatibility callers remain.
+Temporary cohort-only adapters, tests, docs, and guards are repaid in-series;
+the existing `apps/tests/me_method_call.hako` proof is simplified/reused rather
+than adding another fixture file.
 
 ### Fixed task series
 
-`MIR-CALL-CANONICAL-CALL-SUBSTRATE-REBUILD-D0` is the single design task for
-this escape hatch. Once its first-cohort census is accepted, it opens one
-bounded five-step series: (1) freeze the parent baseline and exact migration
-delta ledger; (2) preserve the existing callable key and publish the typed
-key-to-definition relation with mandatory `Callee`; (3) add the borrowed
-published view, flat FFI projection, and one exact backend family; (4) switch
-one named caller and delete its JSON/name/repair/fallback edges in the same
-series; (5) run focused plus no-new-red evidence, remove cohort-only
-scaffolding, and close out. A zero/multiple first-cohort census returns to
-`ParkedSealed` without another receipt, adapter, fixture, guard, or D0.
+`MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0` is a fixed series:
+(1) preserve the neutral key through Atomic Publish; (2) add the borrow-only
+view and finite coverage admission; (3) add the versioned flat C ABI and one
+minimal scalar typed consumer; (4) switch the named `--emit-exe` edge and make
+the old route unreachable for selected modules; (5) prove source-to-EXE,
+compare exact red deltas, repay temporary surface, and close out. Commit five
+cannot contain a semantic fix. Commit four not switching the production edge,
+or any need for JSON/name repair, aborts the branch without another D0.
 
 This task does not claim DeclaredInstance support, selected-C arbitrary
-UserBox support, all-backend parity, VM retirement, selfhost, or a green whole
-library. It is the finite route from the current design stop to one clean
-canonical Call family; later families repeat only after the first closeout
-proves the old-edge deletion and repository-surface repayment pattern.
+UserBox support, source semantic-effect issuance, whole Call-schema cutover,
+all-backend parity, VM retirement, selfhost, or a green whole library. It is
+the finite route to the first product vertical. After it lands, remaining
+Global/Method/Value/Extern/Terminal families migrate in bounded family batches,
+then compatibility quarantine and R6/R7 delete the physical legacy schema.
 
 This file is the compact current Call owner. Landed chronology and the full
 writer inventories live in Git history, the linked archive, and finite

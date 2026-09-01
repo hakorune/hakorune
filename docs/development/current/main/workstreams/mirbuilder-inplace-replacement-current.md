@@ -35,20 +35,18 @@ source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The selected-C backend remains live, but arbitrary UserBox DeclaredInstance is
-`ParkedSealed__PublishedTargetAndBackendCoverageMissing`. Existing package
-products are not backend permission: publication and backend admission are
-separate transactions joined only by canonical published identity.
-Readiness projection (status only; never execution authority):
-`SemanticPackageReady=yes`, `PublishedCanonicalCallReady=no`,
-`ProductBackendReady=no`, and `EndToEndVerticalReady=no`. Existing package,
-selected-C, and backend-owner rows own this projection; it creates no task,
-receipt, adapter, fixture, guard, or implementation permission.
+The first end-to-end product vertical is now named: preserve the existing
+StaticBoxMethod callable key through Atomic Publish, lend one typed backend
+view, switch the normal `--emit-exe` edge, and remove selected-family reach to
+JSON/name/`args[0]` repair. Main remains `design_stop`; the accepted work runs
+only in one isolated five-commit/seven-day branch. Arbitrary UserBox
+DeclaredInstance stays `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
 
 ### Current family disposition
 
 | family | status | reopen/next condition |
 |---|---|---|
+| published `StaticBoxMethod` | branch-ready first vertical; source half and all integration seams named | fixed I0/I1/I2/R0/P0 series; abort without another D0 if commit four cannot switch |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -59,48 +57,32 @@ receipt, adapter, fixture, guard, or implementation permission.
 ### Bounded execution order
 
 ```text
-0. Ghost evidence (recorded)
-   existing Pair/Page ordinary-new EXE smokes stop before MIR at the known
-   Stage1 RootPreservation/CompatibilityLoss boundary; no workaround added
+0. MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0
+   commit 1 key/definition Atomic Publish
+   commit 2 borrow-only view + finite whole-module admission
+   commit 3 typed C ABI/consumer + reused scalar me.method proof
+   commit 4 named --emit-exe switch + selected-family old reachability zero
+   commit 5 source-to-EXE/no-new-red/temporary-surface closeout
+   Any extra D0, semantic fix in commit 5, JSON retry, or expired bound aborts.
 
-1. MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0 (landed)
-   six identical wrappers -> one labelled six-case matrix; source 760 lines,
-   inventory -5, known-red set unchanged, no production change
+1. MS1-P family batches
+   use the landed spine for remaining Global/Method/Value/Extern/Terminal
+   families; each batch switches one production family and deletes its old
+   reachability/assets in the same bounded series.
 
-2. Next production family (triggered, not guessed)
-   exactly one live family + owner + caller + old-edge delete set
-   -> fixed 2-5 commit vertical
-   -> caller switch and old edge deletion in the same series
-   -> delete family-exclusive tests/guards/docs/adapters
-   zero or multiple -> ParkedSealed; no additional D0
-
-   DeclaredInstance order: semantic package -> published exact direct-method
-   target/definition -> exact Hako family -> caller switch -> RetireAfterReplacement
-
-   If every small family is zero/multiple, use the accepted
-   MIR-CALL-CANONICAL-CALL-SUBSTRATE-REBUILD-D0 escape hatch: reuse existing
-   source/Facts/Recipe owners, publish the key-definition relation and a
-   borrow-only typed MirModule view, then switch one complete Global/
-   StaticCurrentOwner cohort to one backend. This is a single isolated
-   branch/worktree series, not a second MirBuilder. Migration-red is tracked
-   by exact test names, owner, reason, successor, and expiry (five commits or
-   seven days); the parent baseline is never rewritten and main is not updated
-   with unclassified red. The cohort finish line is callee=None/name-registry/
-   fallback/Method(None)/JSON-repair zero plus same-series old-edge repayment.
-
-3. MS1-P product convergence
+2. MS1-P product convergence
    every currently complete production family reaches canonical Call/Atomic Publish
    product resolver/recovery/fallback/Method(None)/callee=None writers = 0
 
-4. MS1-C compatibility quarantine
+3. MS1-C compatibility quarantine
    Compatibility(AST), old JSON and harness/mock routes live behind one named boundary
    canonical rejection has retry/fallback = 0
 
-5. MS1-D Call R6/R7
+4. MS1-D Call R6/R7
    adapt or quarantine compiled consumers, then delete func, optional Callee/receiver,
    INVALID/0 targets, old writers, and their exclusive proof surface
 
-6. post-Call integration and repository repayment
+5. post-Call integration and repository repayment
    shrink context/port/barrel owners by finite caller; remeasure tracked files/lines
 ```
 

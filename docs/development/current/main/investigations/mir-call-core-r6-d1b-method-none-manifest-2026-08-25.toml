@@ -335,69 +335,105 @@ closeout = "LEGACY-TESTS-RETIRE-R0 is closed and history remains in Git only. Th
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
 [mir_call_canonical_call_substrate_rebuild_d0_2026_09_02]
-status = "accepted_design_stop"
-task_id = "MIR-CALL-CANONICAL-CALL-SUBSTRATE-REBUILD-D0"
+status = "accepted_branch_ready"
+task_id = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
+s0_task_id = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-S0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 ceremony_tier = "T2"
 implementation_permission = false
+branch_permission = "The isolated branch/worktree may set work_mode=fast only after its first commit records the exact immutable parent SHA. Main remains design_stop."
 decision = """
-When no complete small-family owner/caller/consumer/delete tuple exists, permit
-one branch/worktree-isolated canonical Call substrate rewrite. Reuse existing
-source/catalog/Facts/Recipe authorities and CanonicalSameModuleCallableKeyV1.
-Add only the missing key-to-definition publication relation and a borrow-only
-PublishedMirBackendView; neither is a second semantic issuer or MirBuilder.
-The old JSON/name/registry route is compatibility-only and may not be a
-fallback for the new caller.
+Repair the existing publication spine in place; do not build a second
+MirBuilder. Preserve the already-issued CanonicalSameModuleCallableKeyV1 from
+normal cataloged admission through the normal collector and Atomic Publish,
+then lend one borrow-only PublishedMirBackendView to a versioned typed C ABI.
+The first canonical backend family is the StaticBoxMethod key namespace. The
+source proof begins with StaticCurrentOwner me.method, but source spelling is
+not carried beyond publication and is not backend authority.
 """
-source_authority = "Existing parser/resolver callable catalog, source relation/effect/result/ABI owners, and the sealed MirModule; the published view only projects already-issued meaning."
-canonical_issuer = "The existing source-catalog key issuer plus the canonical MirInstruction::call/atomic MirModule publication owner. No new Verified*/Prepared* semantic receipt is introduced."
+source_authority = "VerifiedSourceStaticCallTargetCatalogV1::extend_current_owner plus VerifiedStaticCallResultPublicationOwnerV1 issue the exact caller/site/StaticBoxMethod target before argument descent. NormalCatalogedBoxMethodDraftAdmissionV1 already owns the same source key."
+canonical_issuer = "The existing source-catalog key issuer remains sole semantic authority. The normal collector publishes a physical key-to-definition relation and MirInstruction::call continues to issue the already-selected typed target. PublishedMirBackendView issues no target, effect, result, or ABI meaning."
+s0_census = """
+source semantic issuer = 1; source publication owner = 1; normal source caller
+= 1; identity-loss seams = 2 (into_legacy_collector_parts and normal collector
+commit); Atomic Publish seam = 1 (MirModule); production --emit-exe switch = 1
+(NyashRunner::execute_mir_mode); selected-family JSON reachability edge = 1.
+The lossless published view and typed C consumer are intentionally zero because
+I0/I1 create them. Requiring those products before I0 was the self-blocking
+condition retired by this Decision.
+"""
 first_cohort = """
-Select exactly one already complete Global or StaticCurrentOwner family in S0;
-the audit must name its source owner, definition relation, production caller,
-one typed backend consumer, and same-series old-edge delete set. Do not assume
-DeclaredInstance, selected-C arbitrary UserBox, CorePlan, ordinary-new no-claim,
-or physical thunk is complete.
+Canonical cohort: CanonicalSameModuleCallableKeyV1::StaticBoxMethod definitions
+and Global(StaticBoxMethod) calls. Initial source proof: StaticCurrentOwner
+me.method with exact source site and no receiver prefix. Backend admission is
+by the published key family, never by me/qualified spelling, owner-name parsing,
+or a fixture name.
 """
 non_authority = ["physical symbol or String name", "JSON/Map metadata", "registry/header lookup", "args[0] or ValueId(0)", "MIR EffectMask/FunctionSignature as semantic proof", "local green or fixture injection", "fallback/retry", "a second MirBuilder or source-to-physical pipeline"]
 fail_fast_boundary = """
 Missing/duplicate/foreign key, key-definition mismatch, source/physical lane or
-result/effect mismatch, unsupported descriptor tag, or absent backend definition
-rejects before object emission. A zero/multiple first-cohort tuple parks the
-task and creates no additional D0, receipt, adapter, fixture, or guard.
+result mismatch, callee=None, unsupported descriptor/op/type, incomplete module
+coverage, or absent backend definition rejects before object emission. The
+existing EffectMask may be transported only as an already-emitted physical
+field; this row makes no source-backed semantic-effect claim.
+"""
+start_gate = """
+I0/I1 require the exact source half, named normal Atomic Publish seam, named
+runner/backend seam, and finite future cutover reachability; all are named by
+S0. R0 additionally requires one typed-ready StaticBoxMethod module cohort and
+the exact no-fallback switch. Missing backend substrate before I0 is not a
+reason to open another D0 because creating that substrate is this task.
+"""
+route_disposition = """
+The new facade classifies a sealed module before attempting a backend: a module
+with at least one selected StaticBoxMethod call is CanonicalTyped only when its
+whole published op/type/callee set is supported, otherwise it is
+UnsupportedBeforeObject. A module with zero selected-family calls may enter the
+explicit compatibility route. Typed failure never retries JSON, and env flags
+cannot choose two routes for the same selected module.
 """
 temporary_red_contract = """
 Only the isolated branch/worktree may carry migration-red. The parent baseline
 7553/7386/138/29 and its failure/inventory hashes are immutable. Every delta is
-an exact test-name list with owner, reason, successor, and expiry. The window is
-at most five rewrite commits or seven calendar days, whichever comes first;
-expiry means stop/park. No #[ignore], red-test deletion, baseline rewrite, or
-main update while an unclassified delta remains.
+an exact test-name list with owner, reason, successor, expiry, and one of
+ExpectedCompileBreak/ExpectedTestMigration/Unexpected/Resolved. The branch
+records its exact parent SHA before code and never merges or rebases. The window
+is the earlier of five rewrite commits or seven calendar days; at most one
+consecutive compile-red commit is allowed. Unexpected red, expiry, or a semantic
+change in commit five aborts the branch. No #[ignore], red-test deletion,
+baseline rewrite, or main update while an unclassified delta remains.
 """
 completion_definition = """
-For the selected cohort: one named production caller consumes the published
-typed view, callee=None writers=0, name/registry/header target lookup=0,
-canonical-caller fallback/retry=0, Method(None) writers=0, JSON/name/args[0]
-repair=0, and all cohort-exclusive old assets are deleted in the same series.
-The old route may remain only in an unreachable explicit compatibility module.
+For a module containing the selected cohort: exact key-to-definition relation
+=1, mandatory typed call view=1, one typed C consumer=1, and the named
+execute_mir_mode --emit-exe caller is switched. From that selected family,
+callee=None, Method(None), name/registry/header lookup, JSON transport, args[0]
+repair, and fallback/retry are all zero. Shared JSON code may remain only for
+modules with zero selected-family calls; it earns no deletion credit until its
+remaining callers reach zero. Cohort-only temporary adapters/tests/docs are
+repaid in the same series.
 """
-ordered_tasks = ["S0: freeze parent baseline and enumerate one complete first cohort plus exact migration-red deltas", "I0: preserve CanonicalSameModuleCallableKeyV1 and atomically publish key-to-definition relation with mandatory Callee", "I1: add borrow-only PublishedMirBackendView and versioned repr(C) flat FFI projection; implement one exact typed backend family", "R0: switch one named production caller and delete its JSON/name/repair/fallback edges in the same series", "P0/closeout: run exact focused tests plus no-new-red delta comparison, remove cohort-only scaffolding, and return to design_stop"]
-allowed_files = ["crates/hakorune_mir_defs/src/**", "src/mir/instruction/**", "src/mir/function/**", "src/mir/builder/callable_declaration_catalog/**", "src/mir/builder/normal_cataloged_box_method_admission.rs", "src/mir/builder/normal_collector_drain_lifecycle.rs", "src/host_providers/llvm_codegen/capi_transport.rs", "lang/c-abi/include/**", "lang/c-abi/shims/**", "tools/checks/manifests/cargo_lib_red_baseline*", "tools/checks/lib/cargo_lib_red_baseline.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
-forbidden_files = ["src/parser/**", "lang/src/** except the selected typed backend family", "selfhost/**", "new MirBuilder crate or duplicate implementation", "new semantic receipt or source/package-to-backend bypass", "unselected DeclaredInstance/selected-C arbitrary UserBox/CorePlan/ordinary-new no-claim/physical thunk families", "fallback/retry", "#[ignore] red hiding", "broad test purge"]
+ordered_tasks = ["Commit 1 / I0: record immutable branch parent; move/re-export the existing callable key into neutral MIR defs; preserve CatalogedBoxMethod through normal admission; atomically publish the key-to-definition relation. Keep global Call schema unchanged.", "Commit 2 / I1: add borrow-only PublishedMirBackendView and finite StaticBoxMethod coverage admission; selected calls require callee=Some and exact definitions. Enumerate the minimal scalar proof module op/type set; an unexpected shape aborts rather than opening D0.", "Commit 3 / I2: add one versioned repr(C) flat typed arena and selected-C entry that consumes the borrowed view; reuse loader/error/output/link mechanics only. Reuse and simplify apps/tests/me_method_call.hako as the scalar proof instead of adding a fixture file.", "Commit 4 / R0: replace the execute_mir_mode --emit-exe edge with the typed facade; selected-family modules cannot reach clone/semantic-refresh/legacy projection/JSON/name/args0/fallback. Modules with zero selected calls use the explicitly named compatibility branch.", "Commit 5 / P0: source-to-EXE proof, exact changed-test and no-new-red comparison, selected-family reachability census, temporary surface repayment, closeout. Any semantic fix here aborts the series."]
+allowed_files = ["crates/hakorune_mir_defs/src/callable_key.rs", "crates/hakorune_mir_defs/src/global_target.rs", "crates/hakorune_mir_defs/src/lib.rs", "src/mir/function/types.rs", "src/mir/function/module_impl.rs", "src/mir/function/published_backend_view.rs", "src/mir/function.rs", "src/mir/builder/callable_declaration_catalog/key.rs", "src/mir/builder/normal_cataloged_box_method_admission.rs", "src/mir/builder/module_draft_collector/normal_collector_drain_lifecycle.rs", "src/host_providers/llvm_codegen.rs", "src/host_providers/llvm_codegen/capi_transport.rs", "src/host_providers/llvm_codegen/published_mir_object.rs", "src/runner/modes/mir.rs", "src/runner/modes/common_util/mod.rs", "src/runner/modes/common_util/published_mir_emit.rs", "lang/c-abi/include/hako_llvmc_ffi.h", "lang/c-abi/shims/hako_llvmc_ffi_route.inc", "lang/c-abi/shims/published_mir/**", "apps/tests/me_method_call.hako", "tools/checks/manifests/cargo_lib_red_baseline*", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
+forbidden_files = ["src/mir/instruction.rs global Call schema", "src/mir/builder/method_call_handlers.rs except deletion-only fallout", "src/runner/modes/common_util/exec.rs growth (already 780 lines)", "src/parser/**", "lang/src/**", "selfhost/**", "new MirBuilder crate or duplicate implementation", "new semantic Verified*/Prepared* receipt", "source/package-to-backend bypass", "unselected DeclaredInstance/selected-C arbitrary UserBox/CorePlan/ordinary-new no-claim/physical thunk families", "typed failure -> JSON fallback/retry", "#[ignore] red hiding", "new fixture file", "new per-row guard", "broad test purge"]
 acceptance = """
-The row is implementation-ready only after S0 names exactly one complete first
-cohort and records its caller/delete set. During the fixed series the parent
-baseline is preserved, every temporary-red test is individually accounted for,
-and the canonical typed view reaches one backend without reverse inference.
-Closeout requires the cohort completion definition, no unclassified red,
-caller-zero old assets, and no permanent second pipeline.
+S0 is closed and the isolated branch series is ready. During the fixed series
+the parent baseline is preserved, every temporary-red test is individually
+accounted for, and the canonical typed view reaches selected-C without reverse
+inference. Commit four must switch the named production edge and make the old
+route unreachable for selected-family modules. Closeout requires the cohort
+completion definition, no unclassified red, no cohort-only temporary surface,
+and no permanent second semantic pipeline.
 """
 no_safe_slice = """
-Remain in design_stop if the first cohort is zero/multiple, source authority or
-definition publication is missing, the backend needs JSON/name/registry repair,
-the production caller cannot be named, old assets cannot be repaid in-series,
-the red delta has no exact test names/expiry, or the change needs a second
-semantic issuer, fallback, retry, or a permanent parallel route.
+Abort this branch without another D0 if the source key cannot survive normal
+Atomic Publish without duplicate authority, the finite scalar module requires
+JSON/name/registry/args0 repair, the typed C ABI needs AST/source/package data,
+the selected family can still choose compatibility, the named caller cannot be
+switched by commit four, exact red deltas cannot be classified, or the five-
+commit/seven-day bound is reached. The main-branch selected-C design stop then
+remains parked; do not extend the experiment.
 """
-reopen_trigger = "One exact source/definition/caller/backend/delete tuple is named and the selected branch can be isolated; otherwise this design remains parked and the existing selected-C stop is unchanged."
-non_claims = "No DeclaredInstance support, arbitrary selected-C UserBox support, all-backend parity, VM retirement, selfhost, broad JSON purge, or whole-library green claim."
-next_execution = "none__design_stop"
+reopen_trigger = "No further design reopen is allowed inside the fixed series. Success returns with one landed StaticBoxMethod product vertical; abort returns main to the parked selected-C boundary and preserves the failed branch without adding D0/receipt/guard scope."
+non_claims = "No DeclaredInstance/Method(Some), whole Call schema/R6 cutover, arbitrary selected-C UserBox support, semantic-effect issuance, all-backend parity, VM retirement, selfhost, broad JSON purge, or whole-library green claim."
+next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0__branch_only"
