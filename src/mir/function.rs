@@ -15,6 +15,7 @@ mod function_impl;
 mod metadata;
 mod module_impl;
 mod object_metadata;
+mod published_backend_view;
 mod typed_array_contract;
 mod types;
 
@@ -51,6 +52,10 @@ pub use typed_array_contract::{
     TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,
     TypedArrayContractSource, TypedArrayContractSourceIdentity, TypedArrayElementContract,
     TYPED_ARRAY_EXACT_NUMERIC_CAPABILITY,
+};
+pub(crate) use published_backend_view::{
+    PublishedMirBackendView, PublishedMirBackendViewErrorV1, PublishedStaticMethodCallRef,
+    PublishedStaticMethodRouteV1,
 };
 pub use types::{
     ArrayElementWriteWitness, ArrayStateTerm, ArrayStateTermId, ArrayStateTermKind, ClosureBodyId,
