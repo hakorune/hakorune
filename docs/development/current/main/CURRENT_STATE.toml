@@ -44,12 +44,13 @@ latest_card_path = "docs/development/current/main/investigations/mir-call-core-r
 latest_card_summary = """
 The deterministic default-feature receipt was refreshed at 484d58585f after
 three identical 7562/7394/139/29 observations; all 139 failure names and their
-SHA remained byte-identical. The runner now passes. Full quick then exposed its
-next independent red: the CorePlan variable_map guard still bounds 48 direct
-insert sites while the current finite surface is 51 (confirmed since at least
-3fa2f72d4d). The role-aware 51-site census is accepted; the active fast row
-only replaces the guard's raw bound with raw=51/test-only=16/disconnected=1/
-live=34/canonical=1/reseal=33 before returning to product work.
+SHA remained byte-identical. The runner now passes. The role-aware CorePlan
+variable_map census then landed at 51 raw sites and the generic-loop-body
+reseal landed at 5649b8834e, reducing the live surface to raw=46/test-only=16/
+disconnected=1/live=29/canonical=1/reseal=28. Guard hardening at 323183e9fb
+now keeps that inventory finite and shrink-only: unknown path/ordinal sites
+fail before a later reseal row can open. The next semantic row remains a
+separate design-stop selection; this guard is not a replacement for that decision.
 Language decisions are fixed: retain ordinary me.method, use explicit static/
 instance/delegate namespaces, terminal panic Fault, and non-throwing Result/?/cleanup.
 Option B publishes canonical Method(Some(receiver)) and replaces selected-C
@@ -73,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-01: default-feature --lib receipt refresh landed at 484d58585f after three identical 7562/7394/139/29 observations; the 139 failure names/SHA are unchanged. The runner passes, while full quick now stops at the independent CorePlan variable_map 51-vs-48 guard drift.",
+  "2026-09-01: default-feature --lib receipt refresh landed at 484d58585f after three identical 7562/7394/139/29 observations; the 139 failure names/SHA are unchanged. The runner passes. CorePlan variable_map role census + generic-loop reseal landed at 5649b8834e, and finite shrink-only guard hardening landed at 323183e9fb (raw=46/test-only=16/disconnected=1/live=29/canonical=1/reseal=28).",
   "2026-09-01: DeclaredInstance receiver crosswalk I0 landed at dc68fa2910; the exact package locator and BindingRef owner now replace ambient receiver authority before arguments, with take-once/residual-zero evidence and unchanged Global/manual-prefix output.",
   "2026-09-01: FastMem branch evidence stabilization landed at 39d5188d9d; one test now checks exact field MemOp membership/cardinality independent of HashMap order. Ten exact runs and the 20-test module pass; no production semantics or whole-lib baseline claim.",
 ]
