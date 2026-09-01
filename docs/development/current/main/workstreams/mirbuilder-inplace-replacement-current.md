@@ -68,12 +68,13 @@ CoverageMissing boundary gains one exact Hako owner/caller/ABI tuple may
 Method(Some) admission resume. The final physical-Recipe refinement is
 recorded in the active manifest as part of this same design stop; it is not a
 new semantic co-seal row or implementation permission.
-The current fast row is the behavior-neutral
-`MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0`: it moves only the
-derived route lookup block and leaves the 47-row catalog, public API, and
-generated/C behavior unchanged. Closeout returns to the selected-C
-CoverageMissing design stop. The later production work will verticalize and
-delete that family's old Global/manual-prefix and selected-C
+The behavior-neutral
+`MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0` landed at
+`35f59702b5`: it moved only the derived route lookup block into a private
+child and left the 47-row catalog, public API, and generated/C behavior
+unchanged. The current pointer is back at the selected-C CoverageMissing
+design stop. The later production work will verticalize and delete that
+family's old Global/manual-prefix and selected-C
 edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
 zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
 remain non-authorities. A named Hako launcher substrate exists, but its source
