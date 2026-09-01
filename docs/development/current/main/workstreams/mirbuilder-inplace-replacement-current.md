@@ -95,7 +95,7 @@ receipt, fixture, adapter, or guard.
 - ordinary-new claimed Birth cutover: `4b2db34ee3`.
 - disabled `legacy-tests` surface retired: `bcc9a6ba65`.
 - canonical direct entrypoint modes/helper policy: `06454bd084`, `c78889dc0b`, `b22a87392d`.
-- lib baseline is `7554/7386/139/29`; focused green is not a whole-repo green claim.
+- deterministic lib baseline is `7558/7391/138/29`; focused green is not a whole-repo green claim, and the 138-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive
 tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive

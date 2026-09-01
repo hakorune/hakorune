@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: perform the existing one-time deterministic full-lib baseline refresh before any semantic Call work.
-Source authority + canonical issuer: the fixed-stack cargo test/list commands, their complete sorted receipts, and the existing baseline comparator.
-Non-authority: cargo check, filtered green, count-only output, auto-rebaseline, historical prose, MIR/backend facts, or the parked selected-C tuple.
-Fail-fast boundary: any summary, inventory, failure-name, hash, or quick-run mismatch stops this bounded verification row; no semantic work opens from a partial receipt.
-Smallest next slice: reconcile the current 7558-test inventory and 138-name known-red set, then return to the selected-C design stop without changing compiler semantics.
-Non-claims: no known-red repair, test retirement, Method(Some), selected-C admission, backend/Call schema change, fallback, retry, or inferred semantic owner.
+Decision: selected-C stays live as a backend, but its exhausted DeclaredInstance D0 is ParkedSealed__CoverageMissing and no longer blocks unrelated Call families.
+Source authority + canonical issuer: an existing source-backed caller must carry one complete target/relation/result/effect/full-ABI/receiver/object tuple through canonical Atomic Publish; a backend may only consume a lossless post-publish projection.
+Non-authority: JSON/name/header/registry inference, MIR EffectMask or FunctionSignature as semantic proof, args[0], ValueId(0), fixture injection, direct package-to-Hako transport, fallback, retry, or a new receipt/guard.
+Fail-fast boundary: reopen DeclaredInstance only when exactly one live me.method product caller, one lossless backend view, one daily consumer, and one finite old-edge delete set exist. Zero or multiple keeps the whole family parked without another D0.
+Smallest next slice: the baseline refresh is now reconciled at 7558/7391/138/29; next perform only the existing bounded Ghost Task or test matrix, and reopen selected-C only with a complete tuple.
+Non-claims: no Method(Some), selected-C retirement, backend/Call schema change, compatibility purge, VM work, broad test deletion, fallback, retry, or inferred semantic owner.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,9 +39,9 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The route-entrypoint mode blocker was repaired at 06454bd084 and closed at c78889dc0b; interpreter-dispatched manifest helpers were aligned at b22a87392 without mass chmod. The two existing Pair/Page EXE smokes were run at cc7bb2cb2a43 and both stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary; no runtime green claim is made. The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
-93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and unchanged
-failure SHA; the CallTarget guard was rehomed at cde0250481 with no compiler
+The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The route-entrypoint mode blocker was repaired at 06454bd084 and closed at c78889dc0b; interpreter-dispatched manifest helpers were aligned at b22a87392 without mass chmod. The two existing Pair/Page EXE smokes were run at cc7bb2cb2a43 and both stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary; no runtime green claim is made. The deterministic lib baseline refresh landed at 878480e395 with 7558/7391/138/29, inventory SHA
+96349b30d4d7e70c52d7622e87120b186c3fbeff78ddb146735e32081ed1a94b and failure
+SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1; the CallTarget guard was rehomed at cde0250481 with no compiler
 semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
 has zero source-backed admission capabilities. Keep the canonical path:
 publish one complete MirModule, then lend a borrowed typed backend view;
@@ -56,8 +56,8 @@ RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-
 only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
 residual boundary are recorded in the active card.
 """
-next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -73,5 +73,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-02: canonical entrypoint mode repair/closeout landed at 06454bd084/c78889dc0b, and interpreter-dispatched guard helpers were aligned at b22a87392d. Public direct entrypoints are executable; bash/python helpers remain 0644 by policy.",
   "2026-09-02: ordinary-new Birth corrective cutover landed at 4b2db34ee3: claimed Birth selects the existing recipe target before argument descent and emits the canonical typed Call after NewBox; no-claim compatibility remains unchanged. Pair/Page runtime evidence is still pending.",
-  "2026-09-01: LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65: removed the disabled pre-JoinIR feature, 34 cfg-gated roots, and nine exclusive support files; default baseline 7554/7386/139/29 and failure SHA are unchanged.",
+  "2026-09-02: DEV-GATE-LIB-BASELINE-REFRESH-R0 landed at 878480e395: deterministic default-feature lib baseline is 7558/7391/138/29 with inventory SHA 96349b30d4d7e70c52d7622e87120b186c3fbeff78ddb146735e32081ed1a94b and failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1; known red remains explicit debt.",
 ]
