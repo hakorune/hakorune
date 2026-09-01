@@ -60,7 +60,9 @@ from mir_call_d1b_rewrite_known_policy_guard import (
 )
 from mir_call_d1b_same_module_target_only_guard import (
     ORDINARY_STATIC_TARGET_ONLY_I0_ROW,
+    ORDINARY_STATIC_TARGET_ONLY_RESIDUAL_I0_ROW,
     check_ordinary_static_target_only_i0,
+    check_ordinary_static_target_only_residual_i0,
 )
 from mir_call_d1b_extern_route_spec_boxshape_guard import (
     ROW as EXTERN_ROUTE_SPEC_BOXSHAPE_ROW,
@@ -174,6 +176,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_cataloged_print_target_arm_prune_r0(state, card, root, api)
     elif row == ORDINARY_STATIC_TARGET_ONLY_I0_ROW:
         check_ordinary_static_target_only_i0(state, card, root, api)
+    elif row == ORDINARY_STATIC_TARGET_ONLY_RESIDUAL_I0_ROW:
+        check_ordinary_static_target_only_residual_i0(state, card, root, api)
     elif row == api.RAW_LEGACY_ROW:
         check_raw_legacy_resume(state, card)
     elif row == api.RAW_LEGACY_I0_ROW:
