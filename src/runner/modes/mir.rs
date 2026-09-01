@@ -138,12 +138,20 @@ impl NyashRunner {
             "mir",
             false,
             |exe_out| {
-                crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_lib(
+                match crate::runner::modes::common_util::published_mir_emit::try_emit_published_static_method_exe(
                     &compile_result.module,
                     exe_out,
                     groups.emit.emit_exe_nyrt.as_deref(),
                     groups.emit.emit_exe_libs.as_deref(),
-                )
+                )? {
+                    true => Ok(()),
+                    false => crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_lib(
+                        &compile_result.module,
+                        exe_out,
+                        groups.emit.emit_exe_nyrt.as_deref(),
+                        groups.emit.emit_exe_libs.as_deref(),
+                    ),
+                }
             },
         );
 

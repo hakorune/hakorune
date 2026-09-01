@@ -13,6 +13,7 @@ pub mod hako;
 pub mod io;
 pub mod legacy;
 pub(crate) mod normal_callable;
+pub(crate) mod published_mir_emit;
 pub mod plugin_guard;
 pub mod provider_registry;
 pub mod resolve;
