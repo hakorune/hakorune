@@ -129,6 +129,43 @@ implementation_evidence = "The existing CallTarget owner guard now names only li
 closeout = "Verification-only guard rehome landed. The compiler, selected-C route, Method corridor, Call schema, and all semantic authority remain unchanged. Full quick now reaches the next pre-existing K2-wide OSVM first-row guard, whose four compile tests fail at explicit-extern/missing-resolved-relation; that red is separate and not attributed to this row."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
+[mir_call_me_declared_instance_selected_c_admission_d0_2026_09_02]
+status = "parked_sealed__coverage_missing"
+task_id = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+implementation_permission = false
+decision = "Keep selected-C/ny-llvmc as a live physical backend, but close this exhausted D0 as ParkedSealed because the complete source-backed DeclaredInstance tuple count is zero. It must not serialize unrelated Call families."
+source_authority = "An existing live me.method caller must carry target relation, result, semantic effect, full receiver+N signature, exact receiver value, TypedObjectPlan/definition coverage, and one lossless post-publish backend view through the canonical Atomic Publish pipeline."
+canonical_issuer = "The existing source/package owners issue semantic products before Atomic Publish; the selected backend is a downstream consumer only and cannot issue or repair target/effect/ABI meaning."
+non_authority = ["Compatibility(AST) fixture", "Counter seed", "JSON/name/header/registry scan", "MIR EffectMask or FunctionSignature inference", "args[0]", "ValueId(0)", "direct package-to-Hako transport", "fallback", "retry", "new semantic receipt/loan/guard"]
+census_boundary = "source-backed me.method ingress -> canonical published MirModule -> selected-C/Hako/LLVM consumer; includes the exact DeclaredInstance tuple and finite old-edge set, excludes other Call families, generic Method(Some) consumers, compatibility-only fixtures, Call R6, VM retirement, and backend replacement."
+finite_inventory = ["source-backed compiler ingress=live", "published MirModule borrow seam=live", "selected-C JSON/C consumer=live", "complete live DeclaredInstance tuple=0", "lossless typed Hako view=0"]
+next_ghost_evidence = ["tools/smokes/v2/profiles/integration/apps/typed_object_birth_min_exe.sh", "tools/smokes/v2/profiles/integration/apps/typed_object_birth_param_min_exe.sh"]
+reopen_trigger = "Reopen only when exactly one existing source-backed me.method product caller reaches published MIR with the complete tuple, one lossless backend view, one daily consumer, and one finite old-edge delete set. Zero or multiple remains parked without another D0, receipt, fixture, adapter, or guard."
+non_claims = "No me.method language retirement, no selected-C code deletion, no Method(Some), no package-to-Hako second pipeline, no backend/Call schema change, no VM work, no fallback, retry, or parity claim."
+
+[mir_builder_normal_script_lexical_parity_matrix_s0_2026_09_02]
+status = "ready_bounded_boxshape"
+task_id = "MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0"
+parent_row = "MIR-BUILDER-TEST-INVENTORY-RETIRE-R0"
+ceremony_tier = "T0"
+box_kind = "Test-only BoxShape: six identical lexical parity wrappers become one six-case matrix"
+implementation_permission = false
+decision = "Replace exactly six positive tests that only call assert_selected_parity(source, hint) with one six-case matrix. Preserve every source/hint case and failure label; change no production owner, accepted shape, compiler route, or semantic assertion."
+source_authority = "The existing assert_selected_parity helper, the six exact source/hint pairs, and the deterministic cargo-lib inventory/failure comparator."
+canonical_issuer = "One matrix test in the existing normal_script_semantic_source_tests owner; no new test module, fixture, receipt, guard, or production issuer."
+non_authority = ["raw test count alone", "test age", "legacy parity as production authority", "local green without exact list/baseline comparison", "file move or include sibling", "Call/selected-C/backend semantics"]
+fail_fast_boundary = "All six existing names and case pairs must be present before the edit; the matrix must execute every case with an identifying hint, the known 139-name failure set must not change, production files must remain untouched, and the edited file must end at or below the 760-line design boundary."
+census_boundary = "normal_script_semantic_source_tests.rs six lexical-parity wrappers -> existing assert_selected_parity helper -> one six-case matrix -> daily cargo --lib inventory; excludes adjacent outbox/fastmem/scope tests, production compiler code, Call, selected-C, backend, VM, fallback, and retry."
+finite_inventory = ["selected_normal_print_lexical_closure_matches_legacy", "real_print_fixture_uses_the_selected_normal_request", "selected_normal_binary_lexical_closure_matches_legacy", "selected_normal_await_lexical_closure_matches_legacy", "selected_normal_check_lexical_closure_matches_legacy", "selected_normal_and_or_lexical_closure_matches_legacy", "successor=selected_normal_lexical_closure_matrix_matches_legacy", "test delta=6 -> 1", "expected root inventory=7554 -> 7549", "expected passed=7386 -> 7381", "failed=139 unchanged", "ignored=29 unchanged"]
+ordered_tasks = ["A: run/list the six exact tests and confirm the baseline before editing", "B: replace only the six wrappers with one labelled six-case matrix; do not add a file or guard", "C: run the matrix plus adjacent unique tests, rustfmt, exact cargo --list/baseline comparison, pointer/active-surface/diff checks, and record strict tracked line/test reduction"]
+allowed_files = ["src/mir/builder/normal_script_semantic_source_tests.rs", "tools/checks/manifests/cargo_lib_red_baseline.toml", "tools/checks/manifests/cargo_lib_red_baseline.tests.txt", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"]
+forbidden_files = ["src/mir/builder production files", "src/mir/builder/calls/**", "src/backend/**", "src/runner/**", "lang/**", "new test file", "new guard", "new receipt", "Call schema", "selected-C", "VM", "fallback", "retry"]
+focused_tests = ["the six pre-edit exact test names", "selected_normal_lexical_closure_matrix_matches_legacy", "lexical_fastmem_scope_matches_legacy", "script outbox semantic source test", "cargo_lib_red_baseline.py", "current_state_pointer_guard.sh"]
+acceptance = "The six individual test names are absent, one matrix executes all six exact source/hint pairs with useful failure identity, adjacent unique tests remain, the source is <=760 lines, root inventory is 7549/7381/139/29 with unchanged failure SHA, tracked tests and lines strictly decrease, existing guards pass, and no production/semantic file changes."
+no_safe_slice = "Keep the six tests and return to design_stop if any body has unique setup/assertions, rustfmt cannot bring the existing file to <=760 without unrelated edits, the failure set changes, a new file/guard is required, or production semantics are touched."
+next_execution = "After closeout, do not reopen selected-C or another semantic family unless its exact live owner/caller/delete tuple is one."
+non_claims = "No broad test purge, no coverage weakening, no test-binary split, no production MirBuilder refactor, no selected-C/Method(Some), no Call/backend/VM change, no fallback, retry, or schema change."
+
 [canonical_tool_entrypoint_mode_i0_2026_09_02]
 status = "landed"
 task_id = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"

@@ -1,17 +1,11 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-09-01
+Date: 2026-09-02
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
 North star:
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
-Call owner:
-  - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
-Active card:
-  - use `CURRENT_STATE.toml.latest_card_path`
-Task map:
-  - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
 
 # MirBuilder In-Place Replacement Workstream
@@ -31,215 +25,82 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and active-row authority. The Method
-corridor is Exhausted: Rust exact-1 methodize, the Global-to-`Method(None)`
-reissuer, the receiverless Builder terminal, `current_static_box + has_method`,
-and the caller-zero shared `Resolved` corridor are retired. The final RET0
-landed at `598530d23b`: RawRootMain ordinary direct injection now reaches
-`RawRootMainRetired` before effects, while the Resolved variant/consumer and
-its exclusive resolver/recovery/name-Const/tail-env owners were physically
-deleted. Cataloged/AppMain and special precedence remain green; no replacement
-target was issued.
+`CURRENT_STATE.toml` is the sole mode and row authority. Rust Builder
+`Method(None)`, the shared `Resolved` corridor, post-argument resolver/recovery,
+and their exclusive name-Const/tail owners are retired. The canonical product
+shape remains one-way:
 
-Two independent read-only audits then corrected item 15: its old three labels
-were semantic families, not an exhaustive file list. The finite Rust Builder
-boundary has nine production families plus one test-only outside owner; physical
-thunk, default-on `rewrite/known`, ordinary-new birth, and cataloged provider
-are separate blockers. Only the exact static receipt family has a closed mapping.
-The exact static-receipt I0 landed at `e5120589dc`: its three production callers
-already owned `CanonicalSameModuleCallableKeyV1`, projected the typed Global
-target before argument/recipe descent, and passed that target to a
-consumer-only receipt terminal. The wider SameModule parent remains
-blocker-open; ordinary static, CorePlan, operators, rewrite, thunk,
-birth/provider, VM/backend, and Call schema remain closed until each has its
-own exact issuer or typed pre-effect retirement.
+```text
+source -> exact Facts/Recipe -> typed target before arguments
+       -> canonical Call -> Seal -> Atomic Publish
+```
 
-Current execution:
-`CURRENT_STATE.toml` is back at the selected-C DeclaredInstance admission
-design stop. The bounded tooling-only
-`MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0` row landed at `06454bd084`: only the
-two documented direct route entrypoints changed to tracked `100755`, the
-existing caller guard now checks the four public modes, and helper/test scripts
-remain bash-invoked. The exact source-backed tuple census remains zero, so no
-Method(Some), backend view, fixture, receipt, or second pipeline may be opened. The bounded
-`LEGACY-TESTS-RETIRE-R0` shrink-only row landed at `bcc9a6ba65`: the explicitly
-disabled pre-JoinIR test feature, its four cfg barrels, 34 roots, and nine
-exclusive support files were removed; the default-feature baseline is unchanged.
+The selected-C backend remains live, but
+`MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` is
+`ParkedSealed__CoverageMissing`: the source-backed compiler ingress, published
+MirModule seam, and JSON/C consumer exist, while the complete live
+DeclaredInstance tuple and lossless typed Hako view are both zero. This zero
+tuple must not block unrelated Call families and must not create another D0,
+receipt, fixture, adapter, or guard.
 
-The canonical backend decision remains source -> published MirModule ->
-lossless borrowed typed view -> selected backend; direct package-to-Hako is
-ParkedSealed. `legacy-tests` has no in-repo caller or CI owner; the retirement
-delete set is the four cfg barrels, 34 roots, and nine exclusive support files.
+### Current family disposition
 
-Current execution history:
-the exact lib receipt now records 7554/7386/139/29 after the
-production-neutral PlannerContext mismatch test retirement at `3e4f66ee82`
-and the earlier binding-shadow retirement at `70b061f8f2`. The 139 failure
-names/SHA remain unchanged; the exact-match PlannerContext successor and
-three retained negative paths each passed 1/1. The existing MIR builder
-CallTarget owner guard was rehomed at `cde0250481`: its retired
-`src/mir/builder/calls/method_resolution.rs` requirement is gone, while root
-ownership and current policy consumers remain checked. Full quick remains
-separately owned and is not claimed green; it now reaches the separate
-K2-wide OSVM first-row guard. The role-aware CorePlan
-varmap census remains closed at raw=22, test-only=16, disconnected=1, live=5,
-canonical=1, reseal=4, remove_or_clear=0. The receiver crosswalk at
-`dc68fa2910` remains valid and
-Global/manual-prefix output is unchanged. The bounded verification row
-`MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0` is landed: it rehomes the existing
-guard to resolver/boxcall/preflight policy consumers without restoring the
-retired file or changing compiler semantics. Its closeout returned to the
-selected-C CoverageMissing design stop. Only after the selected-C
-caller-first boundary gains one exact live `me.method` source/wire/object tuple
-may Method(Some) admission resume. The selected physical owner is the existing
-daily ny-llvmc Boundary after canonical MirModule publication. The former
-direct package-to-Hako physical-Recipe proposal is superseded and ParkedSealed
-as a future post-publish backend replacement; it is not a second pipeline.
-The behavior-neutral
-`MIR-BUILDER-EXTERN-ROUTE-SPEC-CATALOG-LOOKUP-BOXSHAPE-S0` landed at
-`35f59702b5`: it moved only the derived route lookup block into a private
-child and left the 47-row catalog, public API, and generated/C behavior
-unchanged. The fixed baseline-refresh row landed at `ee886f4cc1`: three
-fixed-stack observations and the comparator agree on 7554/7386/139/29 with
-unchanged failure names after the exact eight-test loop-if-exit duplicate
-cohort was retired at `ed1332f16d`. The reconciliation now stops at the
-separate K2-wide OSVM first-row guard: its four existing boxcall compile tests
-fail at explicit-extern/missing-resolved-relation, so whole quick is not
-claimed green. The common owner retains nine contract tests; the
-normalized-shadow production route and compiler semantics are unchanged, and
-the current pointer is back at the selected-C CoverageMissing design stop.
-This cleanup reduced the
-daily root without issuing semantic authority; it did not reopen selected-C or
-create a second pipeline. The later
-production work will verticalize and delete that
-family's old Global/manual-prefix and selected-C
-edges in the same bounded series. `variable_map`, param0, `args[0]`, numeric
-zero, AST reread, names, registry, JSON/C/backend metadata, fallback, and retry
-remain non-authorities. The daily backend has a generic Method(Some) consumer,
-but the Counter/minimal candidate is not a live source-backed caller: it enters
-`Compatibility(AST)`, has no callable-source/package/TypedObjectPlan tuple, and
-normal source-backed runs stop at `ExactSourceChanged` (or the later
-resolved-binding publish-preflight imbalance). The existing D0 census is
-therefore zero live tuples. ParkedSealed this vertical without another D0,
-receipt, fixture, adapter, or guard; reopen only from an existing published
-MirModule source caller with one lossless wire/object tuple. The daily backend
-choice remains valid, but no Method(Some) implementation permission is open.
-Whole-lib known-red health is separate. The
-independent bounded row
-`MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` landed at `25ab8fb58a`; it owns only
-existing MIR CSE and makes no selected-C claim. The `.inc` no-growth baseline
-prerequisite landed at `e3cfa78488`; the original baseline runner landed at
-`1115d70687`, and its exact receipt refresh landed at `484d58585f`; whole quick
-is still red at the separately owned CorePlan boundary guard.
-The temporary FastMem verification prerequisite landed at `39d5188d9d`: the
-test-only order-independent membership assertion passes in ten exact runs and
-the 20-test module; whole-lib red remains separate and unaccepted.
-The physical-thunk and selected-exact CorePlan audits remain `ParkedSealed`;
-the physical-thunk closure is specifically `RelationPresentIssuerMissing`:
-the two production callers and one test helper are reconciled, but no exact
-same-session `main/0` Callee issuer exists. Ordinary-new is no longer an
-unexplained carrier dead-end. The partial landing at `d81d91d800` established
-the parser constructor product, package recipe, shared ABI, and selected-normal
-claim transport. Its premature tombstone was corrected and the claimed Birth
-physical carrier cut over at `4b2db34ee3`: the existing recipe target is selected
-before argument descent, the canonical typed Call is emitted after NewBox, and
-the no-claim compatibility writer remains unchanged. Focused ordinary-new tests
-and structural guards pass; Pair/Page EXE smoke launch is a pre-existing
-tracked-script permission blocker, so no runtime green claim is made. The
-cataloged-provider audit leaves bare `exit` as `NoIssuer`;
-the later `LANG-PANIC-TERMINAL-FAULT-D0` decision gives exact bare `panic/1`
-an accepted terminal-Fault target (production 0), although no live issuer
-exists yet. The canonical Call SSOT gives bare `error` and `now` unsupported
-pre-effect contracts, recorded in one-name D0 cards. Qualified Extern, Math,
-and GC owners stay separate. The parent finite producer census remains closed
-while this contract boundary is reconciled. Bare `error` retirement landed at
-`69680b983f` and bare `now` retirement landed at `3e35e4f39c`, both through the
-existing pre-effect Rejected terminal; bare `panic` is a parked terminal-Fault
-lane and bare `exit` remains a separate NoIssuer lane.
-The user selected retirement for only the legacy
-`NYASH_BUILDER_OPERATOR_BOX_{ALL,ADD,COMPARE}_CALL` route. Read-only worker
-audits closed the boundary at three compiler ingresses, four target publishers,
-six structural source ingresses, one prelude coupling, and finite repo-owned
-writers. `NYASH_OPERATOR_BOX_*`, `--dev`, runtime/observe/adopt behavior, and
-the existing direct arithmetic/comparison/unary MIR remain separate and live.
+| family | status | reopen/next condition |
+|---|---|---|
+| DeclaredInstance `me.method` | public syntax retained; selected-C admission parked | exactly one complete published-MIR tuple + lossless view + finite old-edge set |
+| ordinary-new claimed Birth | production cutover landed at `4b2db34ee3` | run the existing Pair/Page smokes as Ghost evidence |
+| ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
+| physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |
+| generic CorePlan GlobalCall | portable Loop M10b owner; parked | M8/M9/precutover deletion-manifest readiness |
+| unified legacy emission | cross-family compatibility owner; retained | all production variants classified or caller-zero |
 
-`StaticCurrentOwner me.method` landed at `2b7b3e7489`. True
-`InstanceBoxMethod`/`DeclaredInstance` is now the selected design blocker and
-retains ordinary `me.method` syntax. Its target relation is resolver-owned;
-the package may only co-seal result/effect/full-lane contracts. The clean MIR
-is `Method(Some(receiver))` plus N explicit source arguments, and the selected
-C path remains one direct same-module call through the daily Boundary. The
-fixed successor series is: borrow-only package physical view; caller switch to
-Method(Some) before arguments; lossless route/effect/object preservation and
-strict pure-first consumption; end-to-end proof plus selected old-edge/seed
-retirement. No package-view commit may close without the rest of that series.
+### Bounded execution order
 
-The bounded row
-`MIR-CALL-SAME-MODULE-ORDINARY-STATIC-LEGACY-COMPAT-RETIRE-I0` landed at
-`b1755febfb` with terminal-type and guard-ordering corrections at
-`7c834d021a`. It retires only the unissued generic `StaticReceiver`,
-`StaticThis`, `Me` `StaticFallback`, and `LoweredGlobal::Static` compatibility
-fallbacks before argument effects. Exact Cataloged handoffs, scalar/inline
-owners, qualified `Math`, Env/Extern, `Method(Some(receiver))`, and
-`LoweredGlobal::Instance` remain live. It created no issuer or receipt and did
-not alter VM/backend, JSON, Call schema, fallback/retry, or guard cleanup. The
-SameModule parent returns to `design_stop`; any need to change a preserved
-owner reopens the parent instead of widening this row.
+```text
+0. Ghost evidence
+   run existing Pair/Page ordinary-new EXE smokes; add no row or fixture
 
-Three read-only audits reconciled the Generic CorePlan child with the final
-Loop architecture. The production-live legacy registry route
-`LoopRouteId::GenericLoopV0/V1` is an internal execution route whose retirement
-is already owned by the portable Loop M10b cutover; it is not a new language
-decision. The source-backed canonical V1 path is a separate retained semantic
-owner and must not be deleted with the registry route. The Call child is
-therefore `ParkedSealed` until the 389-row accepted corpus has portable-owner or
-approved typed-reject coverage and the M8/M9/precutover deletion manifest is
-ready. No immediate GlobalCall-only or whole-loop retirement row is open.
+1. MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0
+   six identical wrappers -> one labelled six-case matrix
+   tests -5, tracked lines down, no production change, no new guard
 
-The user-selected rewrite/known policy I0 landed at `7a6fb9e2db`: the optional
-Known/Unique/equals instance-to-Global writers and selector pins are retired,
-while the existing typed `Method(Some(receiver))` owner and explicit early
-str-like route remain. The historical ON/OFF probes are evidence only, not a
-parity gate; no new Global issuer, post-effect reject, fallback, or second
-resolver was added. The ordinary-new recipe/ABI partial landing remains
-recorded at `d81d91d800`; its physical claimed Birth carrier is the current
-bounded implementation row, while the parent design stop remains the
-post-closeout destination.
+2. Next production family (triggered, not guessed)
+   exactly one live family + owner + caller + old-edge delete set
+   -> fixed 2-5 commit vertical
+   -> caller switch and old edge deletion in the same series
+   -> delete family-exclusive tests/guards/docs/adapters
+   zero or multiple -> ParkedSealed; no additional D0
 
-Guard cleanup is a separate parked lane. The only currently proven
-`SupersededDelete` was the stale whole-writer overlay removed by the landed
-type-fact S0; the nine live checks are kept and five are rehomed. Future guard
-deletion requires a finite invocation/profile census, caller-zero or an equal
-or stronger successor, focused positive/negative proof, and a reopen trigger;
-age, pilot-only status, or a red result alone never authorizes deletion.
-A fresh read-only registry census on 2026-08-30 found no additional
-`SupersededDelete` candidate (117 registered rows and 2646 unregistered
-surfaces). Unregistered, pilot-only, and compatibility-navigation surfaces
-remain `Keep`/`unknown_retain` until an owner, successor, and reopen trigger
-are proven; no new guard-retirement row is opened. The parked follow-up is
-deliberately small: when a guard family is next touched, record its finite
-entry/profile/consumer boundary; only a proven `SupersededDelete` may remove
-its guard, test, and index claim together, with focused proof and a reopen
-trigger.
+3. MS1-P product convergence
+   every currently complete production family reaches canonical Call/Atomic Publish
+   product resolver/recovery/fallback/Method(None)/callee=None writers = 0
 
-Preflight found that the inherited 786-line type-fact composite guard is
-pilot-only and already red before operator work. Its 15 independent checks
-are now fate-classified as `Keep=9`, `SupersededDelete=1`, `Rehome=5`,
-`Unresolved=0`. The sole deletion is the stale whole-repo writer overlay with
-20 drifted paths. The five live red checks move to current owners: the two
-Const emission forms, literal lowering, production direct-call emission,
-generic call receipt/post-success, and typed Map replay. The immutable fixture
-and five-row anchor sweep remain. The bounded S0 landed at `24db147172`: the
-stale overlay was removed, five live checks were rehomed, the parent is below
-760 lines, and the retained guard is in quick-static; the composite guard
-itself was not deleted.
+4. MS1-C compatibility quarantine
+   Compatibility(AST), old JSON and harness/mock routes live behind one named boundary
+   canonical rejection has retry/fallback = 0
 
-With that proof surface green, the next atomic
-`MIR-CALL-SAME-MODULE-OPERATOR-CALL-RETIRE-I0` parses all three selectors once
-across three conceptual ingress families and five physical public methods,
-then deletes the publishers, downstream reads, Builder prelude OR, and
-repo-owned Builder writers together. Validator-only, publisher-only,
-whole-guard deletion, and runtime-lane changes are not permitted.
+5. MS1-D Call R6/R7
+   adapt or quarantine compiled consumers, then delete func, optional Callee/receiver,
+   INVALID/0 targets, old writers, and their exclusive proof surface
+
+6. post-Call integration and repository repayment
+   shrink context/port/barrel owners by finite caller; remeasure tracked files/lines
+```
+
+### Compact closed tail
+
+- Method corridor RET0 and shared `Resolved` deletion: `598530d23b`.
+- exact static receipt and StaticCurrentOwner handoffs: `e5120589dc`, `2b7b3e7489`.
+- operator/rewrite-known retirements: `44555655ab`, `7a6fb9e2db`.
+- ordinary-new claimed Birth cutover: `4b2db34ee3`.
+- disabled `legacy-tests` surface retired: `bcc9a6ba65`.
+- canonical direct entrypoint modes/helper policy: `06454bd084`, `c78889dc0b`, `b22a87392d`.
+- lib baseline is `7554/7386/139/29`; focused green is not a whole-repo green claim.
+
+Each production family closeout repays its own old implementation, exclusive
+tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive
+copies earn zero reduction credit. A standalone broad test/guard purge stays
+parked unless caller-zero plus an equal-or-stronger successor is proved.
 
 ## Historical rolling context (non-authoritative)
 
@@ -431,14 +292,15 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
 
 1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
    retire production force-hv1; the legacy arithmetic snapshot is 116 lexical leaves (33 direct,
-   74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38 non-force
-   residual consumers with migration blockers=9. Body/environment observation is 120 lexical sites:
+   74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38 non-force residual consumers with migration blockers=9. Body/environment observation is 120 lexical sites:
    33/33 direct-force sealed, 44/45 conditional-force candidate, 35/35 explicit-core residual,
    and 4/7 unresolved dynamic; conditional/unresolved rows are CutoverBlockerOpen and cannot be
    ParkedSealed. Standard-v1 reroute is forbidden.
    Design order: body-derived census schema -> direct HistoricalDelete R0a owner review/exception validation -> Stage1 Proof/AOT
    -> Map exact AOT -> Array push capability -> Array exact AOT -> four dynamic fates
    -> narrow helper cut with explicit-core residuals preserved -> startup tombstone and closeout.
+   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed; `SMOKE-OWNER-PACK-ZERO-MATCH-D0`
+   and `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` remain historical owner markers.
 
 1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
    strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and
@@ -895,10 +757,8 @@ handlers to explicit `superseded_by` tombstones instead of making old lanes
 replayable at HEAD, keep only the active origin-retirement family, machine-check
 that every changed test is covered by a nonzero focused filter, and add the two
 missing `SiteCoverageMismatch` negatives. Then return immediately to the next
-origin retirement. `legacy-tests` is a separate parked retirement census; its
-two red `mir_static_box_naming` tests are not repaired or promoted to CI unless
-a selected current acceptance owner is found. Exact evidence and stop lines
-live in the current Method manifest.
+origin retirement. The disabled `legacy-tests` family is retired at
+`bcc9a6ba65`; Git history and the current Method manifest own its evidence.
 
 ## Short closed tail
 
@@ -911,8 +771,9 @@ live in the current Method manifest.
   closed at their owning manifests; PyVM remains outside.
 - canonical Call writers through D1X, late callsite target rewrite retirement,
   duplicate projection validation, exact-target child, and the App Main
-  package/loan/raw-port handoff are closed. Named Resolved/recovery descendants,
-  Method ingress policy, Method(None), and final Call schema remain open.
+  package/loan/raw-port handoff are closed. Rust Builder `Method(None)` and the
+  shared `Resolved` corridor are retired; Stage1/backend compatibility and the
+  final Call schema remain separate open lanes.
 - FunctionMetadata owner split is closed at 718 lines; the 127-row consumer
   manifest remains the future sub-owner census authority.
 

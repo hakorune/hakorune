@@ -4,16 +4,12 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: keep one canonical published-MirModule pipeline; the selected-C admission remains a separate design stop because no source-backed capability co-seals the full DeclaredInstance tuple.
-The architecture choice is the canonical path: source/package products stop at
-Atomic Publish, then a lossless borrowed typed backend view may feed the
-selected backend. Direct package-to-Hako emission is superseded and remains
-ParkedSealed, not an alternate production pipeline.
-Source authority + canonical issuer: resolver-issued relation/effect, retained result/Completion/full signature, package locator, exact receiver crosswalk, and the fixed baseline comparator; the daily backend only consumes their one-way physical projection after canonical MIR publication.
-Non-authority: semantic-refresh MIR/name scans, JSON strings, FunctionSignature/EffectMask inference, args[0], ValueId(0), Counter closed-form seeds, direct package-to-Hako Recipe, stale guard paths, fallback, retry, or a new semantic receipt/loan.
-Fail-fast boundary: implementation stays closed until exactly one live me.method source reaches published MirModule with source-backed TypedObjectPlan/definition coverage, one lossless wire contract, one daily consumer, one finite old-edge delete set, and verification health with no unclassified quick red.
-Smallest next slice: define or find one source-backed selected-C admission owner for the published-MirModule tuple; with the current capability census at zero, keep this row in design_stop and do not infer a bridge. A minimal Counter probe is only conditional evidence until the current tree contains its source-backed entry, return contract, and exact wire/object tuple; do not amend a fixture to force admission.
-Non-claims: no Hako backend implementation, Method(Some), backend schema or Call-schema cutover, broad selected-C deletion, VM work, fallback, retry, or semantic cleanup row.
+Decision: selected-C stays live as a backend, but its exhausted DeclaredInstance D0 is ParkedSealed__CoverageMissing and no longer blocks unrelated Call families.
+Source authority + canonical issuer: an existing source-backed caller must carry one complete target/relation/result/effect/full-ABI/receiver/object tuple through canonical Atomic Publish; a backend may only consume a lossless post-publish projection.
+Non-authority: JSON/name/header/registry inference, MIR EffectMask or FunctionSignature as semantic proof, args[0], ValueId(0), fixture injection, direct package-to-Hako transport, fallback, retry, or a new receipt/guard.
+Fail-fast boundary: reopen DeclaredInstance only when exactly one live me.method product caller, one lossless backend view, one daily consumer, and one finite old-edge delete set exist. Zero or multiple keeps the whole family parked without another D0.
+Smallest next slice: first run the two existing ordinary-new Pair/Page smokes as a Ghost Task; then the ready BoxShape may consolidate six identical normal-script lexical parity tests into one six-case matrix with no production change and no new guard.
+Non-claims: no Method(Some), selected-C retirement, backend/Call schema change, compatibility purge, VM work, broad test deletion, fallback, retry, or inferred semantic owner.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -30,7 +26,7 @@ co-seal and remains a separate design row. Do not retire the me.method language
 feature.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard cleanup.
 """
-guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> pre-effect terminal row at a time. A new row needs a named issuer, finite owner/terminal inventory, focused positive/negative evidence, and old-edge deletion; do not infer from names or fixtures. Legacy guards are deleted only as SupersededDelete with caller-zero or an equal/stronger successor, focused proof, and a reopen trigger; otherwise Keep/Rehome/Parked. A fresh 2026-08-30 registry census (117 registered rows, 2646 unregistered surfaces) found no new SupersededDelete candidate, so guard cleanup remains parked. Before any broad Call-schema cutover, separately restore the dev_gate quick cargo-test step, stabilize the artifact/HashMap full-lib baseline, and require exact changed-test execution coverage; focused row green is not whole-repo health."
+guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> named production switch -> old-edge deletion row at a time. Zero/multiple owner-caller-delete tuples park the whole family; do not add another D0, receipt, adapter, fixture, or guard. Tests/guards/docs retire only with their caller-zero family or an equal/stronger successor. The current guard census has no new SupersededDelete candidate, so broad guard cleanup remains parked. Before Call R6, require deterministic no-new-red comparison and exact changed-test execution coverage; focused green is not whole-repo health."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder in-place production responsibility replacement"
@@ -43,7 +39,7 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The Pair/Page EXE smoke launch was initially blocked by tracked 100644 route-entrypoint modes; the bounded tooling row MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0 corrected only the two public route modes and registered a permanent index/checkout guard. The original closeout made no runtime green claim. The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
+The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The route-entrypoint mode blocker was repaired at 06454bd084 and closed at c78889dc0b; interpreter-dispatched manifest helpers were aligned at b22a87392d without mass chmod. The two existing Pair/Page EXE smokes remain the next Ghost evidence and no runtime green claim is recorded yet. The deterministic lib baseline remains 7554/7386/139/29 with inventory SHA
 93eae6a870691bd421f6233cdea73e52ee2ba2d6927860b5d94c14c5b03f2cb0 and unchanged
 failure SHA; the CallTarget guard was rehomed at cde0250481 with no compiler
 semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
@@ -52,9 +48,10 @@ publish one complete MirModule, then lend a borrowed typed backend view;
 direct package-to-Hako remains ParkedSealed. Fresh audit at 479a027863 finds
 only the Rust borrowed-MirModule seam; selected C/Hako/LLVM still consumes a
 JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
-owner. Keep this row ParkedSealed/NoSafeSlice: add no D0, fixture, receipt,
-adapter, or guard; reopen only with one complete tuple and finite old-edge set.
-The exact tuple census is zero; Method(Some) remains a design stop. LEGACY-TESTS-
+owner. The exact tuple census is zero, so this family is now explicitly
+ParkedSealed__CoverageMissing rather than the active blocker. Add no D0,
+fixture, receipt, adapter, or guard; reopen only with one complete tuple and
+finite old-edge set. LEGACY-TESTS-
 RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-
 only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit
 residual boundary are recorded in the active card.
@@ -74,7 +71,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-02: ordinary-new Birth corrective cutover landed at 4b2db34ee3: claimed Birth now selects the existing recipe target before argument descent and emits the canonical typed Call after NewBox; no-claim compatibility remains unchanged. Focused ordinary_new tests and structural guards passed; Pair/Page smoke launch remains blocked by pre-existing tracked script mode 100644.",
-  "2026-09-01: binding-shadow duplicate retirement landed at 70b061f8f2; CorePlan if_join/if_general join reseals landed at 37fe154ea0/b7df21d204. The retained shadow/snapshot negatives, direct_sites=0 role-aware cache census, daily inventory 7563/7395/139/29, and unchanged failure SHA are recorded in the active card.",
-  "2026-09-01: LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65: removed the explicitly disabled pre-JoinIR feature, 34 cfg-gated roots, and nine exclusive support files; default baseline 7554/7386/139/29 and failure SHA are unchanged, then returned to selected-C design_stop.",
+  "2026-09-02: canonical entrypoint mode repair/closeout landed at 06454bd084/c78889dc0b, and interpreter-dispatched guard helpers were aligned at b22a87392d. Public direct entrypoints are executable; bash/python helpers remain 0644 by policy.",
+  "2026-09-02: ordinary-new Birth corrective cutover landed at 4b2db34ee3: claimed Birth selects the existing recipe target before argument descent and emits the canonical typed Call after NewBox; no-claim compatibility remains unchanged. Pair/Page runtime evidence is still pending.",
+  "2026-09-01: LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65: removed the disabled pre-JoinIR feature, 34 cfg-gated roots, and nine exclusive support files; default baseline 7554/7386/139/29 and failure SHA are unchanged.",
 ]

@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted-for-final-convergence-tasking; implementation remains parked behind the active product cutover
-Date: 2026-09-01
+Date: 2026-09-02
 Scope: repo の物理構造を docs/設計の責務分離に追いつかせるための BoxShape cleanup 順序を固定する。即時の `src/mir` crate split や broad rename は扱わない。
 Related:
   - CURRENT_TASK.md
@@ -22,7 +22,7 @@ Related:
 - **Current implementation status:** the absolute-reduction train is taskized
   and parked; the active MirBuilder production row remains first.
 - **Next ordered task:** when explicitly selected, reconcile the stale
-  lifecycle receipt before the first legacy-test or guard retirement batch.
+  lifecycle receipt before the first guard-family retirement batch.
 - **Production stop line:** no cleanup row changes language/compiler behavior,
   current authority, a selected backend, or an unresolved test/guard contract.
 - **Retirement finish line:** every selected batch has caller/reference zero,
@@ -79,7 +79,7 @@ current phase Markdown                =  5,428 files /   451,340 lines
 current investigations               =  1,028 files /   294,162 lines
 tools/checks all tracked paths        =  3,804 files /   486,483 lines
 tools/checks Python+shell scripts     =  3,583 files /   407,012 lines
-legacy-tests gated module roots       =     34 files /     3,653 lines
+legacy-tests pre-retirement snapshot  =     34 files /     3,653 lines
 tracked generated Hako artifacts      =    108 files /    13,461 lines
 Rust MIR interpreter                  =     93 files /    18,449 lines
 ```
@@ -97,7 +97,6 @@ separate bounded commits; they never share a semantic implementation commit.
 
 ```text
 REPO-LIFECYCLE-BASELINE-REFRESH-R0
-  -> LEGACY-TESTS-FATE-D0 / LEGACY-TESTS-RETIRE-R0
   -> GUARD-FAMILY-RETIREMENT-R0
   -> DOCS-HISTORY-RETIRE-R0
   -> GENERATED-ARTIFACT-RETENTION-D0
@@ -109,13 +108,12 @@ REPO-LIFECYCLE-BASELINE-REFRESH-R0
    receipt still records 13,023 / 3,662 / 4,490 / 7,283. Do not run `--write`
    as an automatic waiver; classify the exact additions before accepting a
    new baseline.
-2. `LEGACY-TESTS-FATE-D0` uses the existing Call-card owner. Current scope is
-   one Cargo feature, 34 `cfg(feature = "legacy-tests")` module roots in four
-   registration files, and 3,653 body lines. If selected acceptance/CI/caller
-   count remains zero, `LEGACY-TESTS-RETIRE-R0` removes the feature, gates,
-   and exclusively owned historical bodies atomically. It does not repair the
-   two historical `mir_static_box_naming` reds merely to preserve the suite.
-3. `GUARD-FAMILY-RETIREMENT-R0` reuses
+Closed tombstone: `LEGACY-TESTS-RETIRE-R0` landed at `bcc9a6ba65`. The disabled
+feature, four cfg barrels, 34 roots, and nine exclusive support files were
+retired from the tree; Git history owns the detailed delete set. It is not a
+future cleanup-train step.
+
+2. `GUARD-FAMILY-RETIREMENT-R0` reuses
    `guard_surface_inventory.py`. Its current 3,804-row inventory classifies
    94 stable entries, 114 manifest cases, 212 focused behavior tests, and
    3,384 `unknown_retain` rows. Unknown is not delete permission. Each batch
@@ -123,19 +121,19 @@ REPO-LIFECYCLE-BASELINE-REFRESH-R0
    central coverage, reach caller-zero, delete the superseded scripts and
    index rows, and strictly reduce both script count and script lines. It may
    not add a new guard to prove guard deletion.
-4. `DOCS-HISTORY-RETIRE-R0` extends existing R5/R6 lifecycle work with the
+3. `DOCS-HISTORY-RETIRE-R0` extends existing R5/R6 lifecycle work with the
    `RetireFromTree` / `Tombstone` dispositions from the archive policy. The
    first batch takes one reference-closed phase or investigation cluster and
    strictly reduces tracked docs files and lines. A move into another tracked
    archive is navigation progress only and does not close this row.
-5. `GENERATED-ARTIFACT-RETENTION-D0` classifies the 108 generated files by
+4. `GENERATED-ARTIFACT-RETENTION-D0` classifies the 108 generated files by
    generator, canonical input, reproducibility, production caller, and release
    need. Only reproducible caller-zero copies may be deleted; missing generator
    ownership is `UnknownRetain`, not a reason to regenerate or remove them.
 
-The already-taskized MirBuilder test-inventory retirement owns root test-count
-reduction. VM removal remains the existing post-Call MS3 lane; this train does
-not create a second VM retirement owner.
+The landed MirBuilder test-inventory retirement and later family-owned
+consolidations own root test-count reduction. VM removal remains the existing
+post-Call MS3 lane; this train does not create a second VM retirement owner.
 
 Every implementation batch has one measurable finish line:
 
