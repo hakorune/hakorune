@@ -55,13 +55,12 @@ birth/provider, VM/backend, and Call schema remain closed until each has its
 own exact issuer or typed pre-effect retirement.
 
 Current execution:
-the exact lib receipt now records 7563/7395/139/29 after one
-production-neutral binding-shadow test was retired at `70b061f8f2`. The
-committed 7562/7394 receipt was stale by two landed CorePlan tests; the new
-inventory includes those two names, and the 139 failure names/SHA remain
-unchanged. The remaining binding-id cluster and lexical-scope successor plus
-negative filters are green. Full quick remains separately owned and is not
-claimed green: its role-aware CorePlan varmap census is closed at raw=22,
+the exact lib receipt now records 7562/7394/139/29 after the
+production-neutral PlannerContext mismatch test retirement at `3e4f66ee82`
+and the earlier binding-shadow retirement at `70b061f8f2`. The 139 failure
+names/SHA remain unchanged; the exact-match PlannerContext successor and
+three retained negative paths each passed 1/1. Full quick remains separately
+owned and is not claimed green: its role-aware CorePlan varmap census is closed at raw=22,
 test-only=16, disconnected=1, live=5, canonical=1, reseal=4,
 remove_or_clear=0. The receiver crosswalk at `dc68fa2910` remains valid and
 Global/manual-prefix output is unchanged. Only after the selected-C
