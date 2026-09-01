@@ -129,24 +129,6 @@ implementation_evidence = "The existing CallTarget owner guard now names only li
 closeout = "Verification-only guard rehome landed. The compiler, selected-C route, Method corridor, Call schema, and all semantic authority remain unchanged. Full quick now reaches the next pre-existing K2-wide OSVM first-row guard, whose four compile tests fail at explicit-extern/missing-resolved-relation; that red is separate and not attributed to this row."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
-[mir_call_me_declared_instance_selected_c_admission_d0_2026_09_02]
-status = "parked_sealed__coverage_missing"
-task_id = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-implementation_permission = false
-decision = "Keep selected-C/ny-llvmc as a live physical backend, but close this exhausted D0 as ParkedSealed because the complete source-backed DeclaredInstance tuple count is zero. It must not serialize unrelated Call families."
-source_authority = "An existing live me.method caller must carry target relation, result, semantic effect, full receiver+N signature, exact receiver value, TypedObjectPlan/definition coverage, and one lossless post-publish backend view through the canonical Atomic Publish pipeline."
-canonical_issuer = "The existing source/package owners issue semantic products before Atomic Publish; the selected backend is a downstream consumer only and cannot issue or repair target/effect/ABI meaning."
-non_authority = ["Compatibility(AST) fixture", "Counter seed", "JSON/name/header/registry scan", "MIR EffectMask or FunctionSignature inference", "args[0]", "ValueId(0)", "direct package-to-Hako transport", "fallback", "retry", "new semantic receipt/loan/guard"]
-census_boundary = "source-backed me.method ingress -> canonical published MirModule -> selected-C/Hako/LLVM consumer; includes the exact DeclaredInstance tuple and finite old-edge set, excludes other Call families, generic Method(Some) consumers, compatibility-only fixtures, Call R6, VM retirement, and backend replacement."
-finite_inventory = ["source-backed compiler ingress=live", "published MirModule borrow seam=live", "selected-C JSON/C consumer=live", "complete live DeclaredInstance tuple=0", "lossless typed Hako view=0"]
-next_ghost_evidence = ["tools/smokes/v2/profiles/integration/apps/typed_object_birth_min_exe.sh", "tools/smokes/v2/profiles/integration/apps/typed_object_birth_param_min_exe.sh"]
-ghost_evidence_status = "blocked_before_mir__known_stage1_source_preservation"
-ghost_evidence_head = "cc7bb2cb2a43"
-ghost_evidence_result = "Both Pair/Page EXE smokes stop during selfhost MIR emission at ExactSourceChanged(RootPreservation(CompatibilityLoss)); no MIR artifact, AOT trace, or runtime result is produced. This matches the recorded Stage1 source-preservation boundary and is not a selected-C tuple or Builder target regression claim."
-ghost_evidence_policy = "Keep the selected-C family ParkedSealed__CoverageMissing; do not add a receipt, adapter, fixture, fallback, retry, or backend workaround. Reopen only when the existing Stage1 owner has an artifact-capable successor or the route is explicitly retired."
-reopen_trigger = "Reopen only when exactly one existing source-backed me.method product caller reaches published MIR with the complete tuple, one lossless backend view, one daily consumer, and one finite old-edge delete set. Zero or multiple remains parked without another D0, receipt, fixture, adapter, or guard."
-non_claims = "No me.method language retirement, no selected-C code deletion, no Method(Some), no package-to-Hako second pipeline, no backend/Call schema change, no VM work, no fallback, retry, or parity claim."
-
 [mir_builder_normal_script_lexical_parity_matrix_s0_2026_09_02]
 status = "landed"
 task_id = "MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0"

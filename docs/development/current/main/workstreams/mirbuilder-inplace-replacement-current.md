@@ -35,19 +35,21 @@ source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The selected-C backend remains live, but
-`MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` is
-`ParkedSealed__CoverageMissing`: the source-backed compiler ingress, published
-MirModule seam, and JSON/C consumer exist, while the complete live
-DeclaredInstance tuple and lossless typed Hako view are both zero. This zero
-tuple must not block unrelated Call families and must not create another D0,
-receipt, fixture, adapter, or guard.
+The selected-C backend remains live, but arbitrary UserBox DeclaredInstance is
+`ParkedSealed__PublishedTargetAndBackendCoverageMissing`. Existing package
+products are not backend permission: publication and backend admission are
+separate transactions joined only by canonical published identity.
+Readiness projection (status only; never execution authority):
+`SemanticPackageReady=yes`, `PublishedCanonicalCallReady=no`,
+`ProductBackendReady=no`, and `EndToEndVerticalReady=no`. Existing package,
+selected-C, and backend-owner rows own this projection; it creates no task,
+receipt, adapter, fixture, guard, or implementation permission.
 
 ### Current family disposition
 
 | family | status | reopen/next condition |
 |---|---|---|
-| DeclaredInstance `me.method` | public syntax retained; selected-C admission parked | exactly one complete published-MIR tuple + lossless view + finite old-edge set |
+| DeclaredInstance `me.method` | public syntax retained; semantic package ready, publication/backend parked | exact published Method target/definition + one Hako family + named caller/delete set |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
 | physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |
@@ -72,6 +74,9 @@ receipt, fixture, adapter, or guard.
    -> delete family-exclusive tests/guards/docs/adapters
    zero or multiple -> ParkedSealed; no additional D0
 
+   DeclaredInstance order: semantic package -> published exact direct-method
+   target/definition -> exact Hako family -> caller switch -> RetireAfterReplacement
+
 3. MS1-P product convergence
    every currently complete production family reaches canonical Call/Atomic Publish
    product resolver/recovery/fallback/Method(None)/callee=None writers = 0
@@ -90,24 +95,17 @@ receipt, fixture, adapter, or guard.
 
 ### Compact closed tail
 
-- Method corridor RET0 and shared `Resolved` deletion: `598530d23b`.
-- exact static receipt and StaticCurrentOwner handoffs: `e5120589dc`, `2b7b3e7489`.
-- operator/rewrite-known retirements: `44555655ab`, `7a6fb9e2db`.
-- ordinary-new claimed Birth cutover: `4b2db34ee3`.
-- disabled `legacy-tests` surface retired: `bcc9a6ba65`.
-- canonical direct entrypoint modes/helper policy: `06454bd084`, `c78889dc0b`, `b22a87392d`.
-- deterministic lib baseline refresh: `878480e395` (`7558/7391/138/29`).
-- lexical parity matrix shrink: current closeout (`7553/7386/138/29`), no production change.
+- Core/Call retirement tombstones: `598530d23b`, `e5120589dc`, `2b7b3e7489`,
+  `44555655ab`, `7a6fb9e2db`, and ordinary-new `4b2db34ee3`.
+- Repository/tooling tombstones: legacy-tests `bcc9a6ba65`; entrypoint policy
+  `06454bd084`/`c78889dc0b`/`b22a87392d`; baseline/matrix
+  `878480e395`/`80dc7102fb` (`7553/7386/138/29`).
 - focused green is not a whole-repo green claim; the 138-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive
 tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive
 copies earn zero reduction credit. A standalone broad test/guard purge stays
 parked unless caller-zero plus an equal-or-stronger successor is proved.
-
-## Historical rolling context (non-authoritative)
-
-Closed detail for earlier VM, smoke, Wpre, Global-target, and guard phases is owned by Git history and the linked phase/archive records. It is not current selection authority. The current lane, blocker, selected backend role, and next cutover are stated above and in `CURRENT_STATE.toml`; do not restore historical prose here.
 
 ## Current architecture decision
 

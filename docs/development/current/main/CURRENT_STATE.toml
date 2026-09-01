@@ -4,12 +4,12 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 current_blocker_token = """
-Decision: selected-C stays live as a backend, but its exhausted DeclaredInstance D0 is ParkedSealed__CoverageMissing and no longer blocks unrelated Call families.
-Source authority + canonical issuer: an existing source-backed caller must carry one complete target/relation/result/effect/full-ABI/receiver/object tuple through canonical Atomic Publish; a backend may only consume a lossless post-publish projection.
+Decision: selected-C stays live as a backend, while arbitrary UserBox DeclaredInstance remains ParkedSealed__PublishedTargetAndBackendCoverageMissing and does not block unrelated Call families. The language form me.method remains accepted.
+Source authority + canonical issuer: the existing resolver/package owners already co-seal relation, result/Completion, semantic effect, physical signature, and receiver BindingRef/ValueId crosswalk. The missing canonical issuer is a published exact Method target/definition relation; backend admission is a separate post-publish consumer transaction.
 Non-authority: JSON/name/header/registry inference, MIR EffectMask or FunctionSignature as semantic proof, args[0], ValueId(0), fixture injection, direct package-to-Hako transport, fallback, retry, or a new receipt/guard.
-Fail-fast boundary: reopen DeclaredInstance only when exactly one live me.method product caller, one lossless backend view, one daily consumer, and one finite old-edge delete set exist. Zero or multiple keeps the whole family parked without another D0.
-Smallest next slice: the deterministic baseline and six-case lexical matrix are closed; reopen a semantic family only with a complete exact tuple, otherwise keep the existing Ghost/cleanup queue bounded.
-Non-claims: no Method(Some), selected-C retirement, backend/Call schema change, compatibility purge, VM work, broad test deletion, fallback, retry, or inferred semantic owner.
+Fail-fast boundary: publication stops before canonical MIR if exact target identity/definition is absent; backend stops before object emission if exact family coverage is absent. selected-C retirement opens only after one Hako replacement family, one named caller switch, and one same-series old-edge delete set exist, or after an explicit product decision plus a source-backed rejection owner.
+Smallest next slice: keep the existing selected-C/backend rows parked. Reuse the existing Call/R6 vocabulary to design one published exact direct-method target/definition relation; do not create a selected-C source issuer or profile-wide retirement row.
+Non-claims: no Method(Some) publication, selected-C deletion, UnsupportedBeforeObject implementation, backend/Call schema change, compatibility purge, VM work, broad test deletion, fallback, retry, or inferred semantic owner.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -43,13 +43,14 @@ The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the exis
 4f7534bd7614aec4aee56ae1a19e410621c47d3e407fedec52186ce40bfde202 and failure
 SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1; the CallTarget guard was rehomed at cde0250481 with no compiler
 semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
-has zero source-backed admission capabilities. Keep the canonical path:
+has zero source-backed admission capabilities; the DeclaredInstance semantic
+package is ready only through its locator/crosswalk boundary. Keep the canonical path:
 publish one complete MirModule, then lend a borrowed typed backend view;
 direct package-to-Hako remains ParkedSealed. Fresh audit at 479a027863 finds
 only the Rust borrowed-MirModule seam; selected C/Hako/LLVM still consumes a
 JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
-owner. The exact tuple census is zero, so this family is now explicitly
-ParkedSealed__CoverageMissing rather than the active blocker. Add no D0,
+owner. The end-to-end tuple census is zero, so this family is now explicitly
+ParkedSealed__PublishedTargetAndBackendCoverageMissing rather than the active blocker. Add no D0,
 fixture, receipt, adapter, or guard; reopen only with one complete tuple and
 finite old-edge set. LEGACY-TESTS-
 RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-

@@ -25,24 +25,24 @@ Related:
   still stores `func`, `Option<Callee>`, and transitional optional Method
   receivers. Observer facts, forest-wide package admission, FreeStatic
   pre-effect handoff, Main identity/catalog co-seal I0, and the receiver
-  crosswalk are landed. The daily ny-llvmc Boundary already consumes canonical
-  published MIR and has a generic `Method(Some(receiver))` physical consumer.
-  It is the selected physical owner for the first DeclaredInstance vertical;
-  direct package-to-Hako emission is not a second pipeline and is ParkedSealed
-  as a future replacement strictly after `published MirModule`.
+  crosswalk are landed. DeclaredInstance relation, effect, result/Completion,
+  full signature, and receiver crosswalk are ready through the package boundary.
+  The missing products are an exact published Method target/definition relation
+  and one lossless product-backend family. The daily ny-llvmc Boundary remains a
+  live JSON/name/registry compatibility consumer, not a semantic issuer or an
+  exact DeclaredInstance physical owner. Direct package-to-Hako emission remains
+  forbidden; backend admission begins only after canonical module publication.
 - **Current bounded task:**
   `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` remains the current
-  design-stop row, but its one-time caller census is now exhausted with zero
-  live tuples. The daily consumer and finite old-edge families are known;
-  implementation remains closed because no existing `me.method` source tuple
-  proves canonical MirModule publication, source-backed target/result/effect/
-  full lanes, `TypedObjectPlan` plus exact definition, and a lossless wire
-  contract. The Counter/minimal route enters `Compatibility(AST)`, lacks the
-  callable-source/package/object tuple, and the normal source-backed route
-  stops at `ExactSourceChanged` (or publish-preflight imbalance). It is not an
-  authority. Do not create a bridge, fixture, receipt, resolver, or per-row
-  guard; reopen only from an existing published-MirModule source caller with
-  exactly one complete tuple.
+  design-stop row. Its readiness projection is
+  `SemanticPackageReady=yes`, `PublishedCanonicalCallReady=no`,
+  `ProductBackendReady=no`, and `EndToEndVerticalReady=no`; this projection is
+  status only. Arbitrary UserBox Method has live selected-C callers, so a
+  profile-wide retirement row is not safe, and `UnsupportedBeforeObject` is not
+  yet a source-backed terminal. Reopen only from one exact Hako replacement
+  family plus a named caller/delete set, or an explicit product decision plus a
+  source-backed rejection owner. Do not create a selected-C source issuer,
+  bridge, fixture, receipt, resolver, adapter, or per-row guard.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
@@ -94,6 +94,14 @@ Call {
     effects: EffectMask,
 }
 ```
+
+For DeclaredInstance, the current `box_name`/`method` fields are a transitional
+carrier and physical projection, not a published callable-definition identity.
+The Call/R6 vocabulary must eventually add or reuse one backend-neutral exact
+direct-method target key and atomically relate it to the published function
+definition. Whether that key is the existing structural owner/method/arity key
+or a module-local opaque ID remains a single future decision; no backend-specific
+ID, inverse parser, package side channel, or new receipt is introduced here.
 
 `CanonicalGlobalTargetV1` is a self-describing structural value in the
 serde-free `hakorune_mir_defs` crate:
