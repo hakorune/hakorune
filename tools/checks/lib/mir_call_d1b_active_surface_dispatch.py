@@ -61,6 +61,7 @@ VERIFICATION_REFRESH_ROW = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 VERIFICATION_VARMAP_RECONCILE_ROW = "DEV-GATE-COREPLAN-VARMAP-BOUNDARY-RECONCILE-D0"
 VERIFICATION_VARMAP_ROLE_CENSUS_ROW = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
 VERIFICATION_VARMAP_RESEAL_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
+VERIFICATION_VARMAP_CARRIER_PIPELINE_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
 CROSSWALK_D0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-D0"
 CROSSWALK_I0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
@@ -227,5 +228,11 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         )
 
         check_verification_coreplan_varmap_reseal_generic_body_v1_r0(state, card, root, api)
+    elif row == VERIFICATION_VARMAP_CARRIER_PIPELINE_ROW:
+        from mir_verification_quick_p0_c_guard import (
+            check_verification_coreplan_varmap_reseal_carrier_pipeline_r0,
+        )
+
+        check_verification_coreplan_varmap_reseal_carrier_pipeline_r0(state, card, root, api)
     else:
         api.fail(f"unsupported current row for this stable guard: {row!r}")

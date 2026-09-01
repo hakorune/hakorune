@@ -20,6 +20,8 @@ VARMAP_ROLE_CENSUS_ROW = "DEV-GATE-COREPLAN-VARMAP-ROLE-CENSUS-PRUNE-R0"
 VARMAP_ROLE_CENSUS_KEY = "dev_gate_coreplan_varmap_role_census_prune_r0_2026_09_01"
 VARMAP_RESEAL_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-GENERIC-BODY-V1-R0"
 VARMAP_RESEAL_KEY = "dev_gate_coreplan_varmap_reseal_generic_body_v1_r0_2026_09_01"
+VARMAP_CARRIER_PIPELINE_ROW = "DEV-GATE-COREPLAN-VARMAP-RESEAL-CARRIER-PIPELINE-R0"
+VARMAP_CARRIER_PIPELINE_KEY = "dev_gate_coreplan_varmap_reseal_carrier_pipeline_r0_2026_09_01"
 BASELINE = Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
 INVENTORY = Path("tools/checks/manifests/cargo_lib_red_baseline.tests.txt")
 FAILURES = Path("tools/checks/manifests/cargo_lib_red_baseline.failures.txt")
@@ -445,5 +447,86 @@ def check_verification_coreplan_varmap_reseal_generic_body_v1_r0(
         api.fail("CorePlan generic-loop reseal helper owner is missing")
     print(
         f"[{api.TAG}] CorePlan generic-loop reseal row ok "
+        f"status={status} direct_sites={len(target)}"
+    )
+
+
+def check_verification_coreplan_varmap_reseal_carrier_pipeline_r0(
+    state: dict, card: dict, root: Path, _parent_api=api
+) -> None:
+    """Validate the four-site carrier/pipeline cache-only reseal row."""
+    mode = state.get("work_mode")
+    if mode not in {"design_stop", "fast", "closeout"}:
+        api.fail("CorePlan carrier/pipeline reseal mode is invalid")
+    if state.get("current_execution_row") != VARMAP_CARRIER_PIPELINE_ROW:
+        api.fail("CorePlan carrier/pipeline reseal is not selected")
+    if mode == "design_stop":
+        if state.get("current_design_stop") != VARMAP_CARRIER_PIPELINE_ROW:
+            api.fail("CorePlan carrier/pipeline reseal design-stop pointer drifted")
+        if state.get("next_execution_card") != "none__design_stop":
+            api.fail("CorePlan carrier/pipeline reseal must not open implementation")
+    else:
+        if state.get("current_design_stop") != "none":
+            api.fail("CorePlan carrier/pipeline reseal must clear current_design_stop")
+        if state.get("next_execution_card") != VARMAP_CARRIER_PIPELINE_ROW:
+            api.fail("CorePlan carrier/pipeline reseal execution pointer drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("CorePlan carrier/pipeline reseal card path drifted")
+
+    row = card.get(VARMAP_CARRIER_PIPELINE_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"CorePlan carrier/pipeline reseal section is missing: {VARMAP_CARRIER_PIPELINE_KEY}")
+    if _text(row, "task_id") != VARMAP_CARRIER_PIPELINE_ROW:
+        api.fail("CorePlan carrier/pipeline reseal task id drifted")
+    status = _text(row, "status")
+    expected_statuses = {"active_design_stop"} if mode == "design_stop" else {"fast_open", "landed"}
+    if status not in expected_statuses:
+        api.fail("CorePlan carrier/pipeline reseal status drifted")
+    if row.get("implementation_permission") is not (status == "fast_open"):
+        api.fail("CorePlan carrier/pipeline reseal permission/status drifted")
+    if _text(row, "parent_row") != VARMAP_RESEAL_ROW:
+        api.fail("CorePlan carrier/pipeline reseal parent drifted")
+    decision = _text(row, "decision").lower()
+    for token in ("four", "publish_emission_cache", "current_bindings", "boxshape"):
+        if token not in decision:
+            api.fail(f"CorePlan carrier/pipeline reseal decision lacks {token}")
+    if "second owner" not in _text(row, "no_safe_slice").lower():
+        api.fail("CorePlan carrier/pipeline reseal must reject a second owner")
+    allowed = {
+        "src/mir/builder/control_flow/plan/features/carrier_merge.rs",
+        "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs",
+        "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+    }
+    if set(_list(row, "allowed_files")) != allowed:
+        api.fail("CorePlan carrier/pipeline reseal allowed-file boundary drifted")
+
+    writes, remove_or_clear = _collect_varmap_sites(root)
+    target_paths = {
+        "src/mir/builder/control_flow/plan/features/carrier_merge.rs",
+        "src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs",
+    }
+    target = [site for site in writes if site[0] in target_paths]
+    expected_direct_sites = {0} if status == "landed" else {0, 4}
+    if len(target) not in expected_direct_sites or any(site[2] != "insert" for site in target):
+        api.fail(
+            "CorePlan carrier/pipeline reseal source inventory drifted: "
+            f"sites={len(target)} expected_one_of={sorted(expected_direct_sites)}"
+        )
+    if remove_or_clear:
+        api.fail("CorePlan carrier/pipeline reseal found remove/clear under its boundary")
+    for relative in sorted(target_paths):
+        source = root / relative
+        if len(source.read_text(encoding="utf-8").splitlines()) > 760:
+            api.fail(f"CorePlan carrier/pipeline source reached the 760-line boundary: {relative}")
+        if status != "active_design_stop" and "publish_emission_cache" not in source.read_text(encoding="utf-8"):
+            api.fail(f"CorePlan carrier/pipeline source lacks the canonical cache helper: {relative}")
+    helper = root / "src/mir/builder/control_flow/plan/parts/var_map_scope.rs"
+    if "publish_emission_cache" not in helper.read_text(encoding="utf-8"):
+        api.fail("CorePlan carrier/pipeline helper owner is missing")
+    print(
+        f"[{api.TAG}] CorePlan carrier/pipeline reseal row ok "
         f"status={status} direct_sites={len(target)}"
     )
