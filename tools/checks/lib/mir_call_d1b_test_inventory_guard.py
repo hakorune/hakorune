@@ -95,12 +95,12 @@ def check_binding_shadow_dedup_r0(
     queue = (root / QUEUE_REL).read_text(encoding="utf-8")
     if ROW not in queue:
         parent_api.fail("structure queue lacks the binding-shadow disposition")
-    if status == "landed" and "three tests remain" not in queue:
+    if status == "landed" and "three binding-id tests remain" not in queue:
         parent_api.fail("structure queue lacks the post-retirement three-test receipt")
 
     baseline = tomllib.loads((root / BASELINE_REL).read_text(encoding="utf-8"))
-    expected_total = 7562 if status == "fast_open" else 7561
-    expected_passed = 7394 if status == "fast_open" else 7393
+    expected_total = 7564 if status == "fast_open" else 7563
+    expected_passed = 7396 if status == "fast_open" else 7395
     if baseline.get("expected_passed") != expected_passed:
         parent_api.fail("binding-shadow retirement baseline passed count is not reconciled")
     if baseline.get("expected_failed") != 139 or baseline.get("expected_ignored") != 29:

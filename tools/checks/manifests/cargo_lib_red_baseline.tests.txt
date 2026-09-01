@@ -513,7 +513,6 @@ mir::boxed_sum_abi_plan::tests::variant_make_none_uses_payload_type_as_instantia
 mir::boxed_sum_abi_plan::tests::variant_make_some_payload_zero_is_still_payload_present
 mir::builder::binding_id_tests::test_binding_allocation_sequential
 mir::builder::binding_id_tests::test_binding_map_initialization
-mir::builder::binding_id_tests::test_shadowing_binding_restore
 mir::builder::binding_id_tests::test_valueid_binding_parallel_allocation
 mir::builder::brand_constructor_lowering_projection::tests::exact_sites_distinguish_constructor_and_non_brand
 mir::builder::brand_constructor_lowering_projection::tests::missing_foreign_and_outside_sites_reject
@@ -1254,6 +1253,7 @@ mir::builder::control_flow::plan::features::loop_cond_return_in_body_join::tests
 mir::builder::control_flow::plan::features::loop_cond_return_in_body_join::tests::join_sig_skips_continue_for_all_exit_body
 mir::builder::control_flow::plan::features::loop_cond_return_in_body_phi_materializer::tests::phi_closure_keeps_header_target_when_continue_joins_at_header
 mir::builder::control_flow::plan::features::loop_cond_return_in_body_phi_materializer::tests::phi_closure_uses_step_continue_target_for_fallthrough_loop
+mir::builder::control_flow::plan::features::loop_cond_return_in_body_phi_materializer::tests::prepare_reseals_header_phis_into_emission_cache
 mir::builder::control_flow::plan::features::loop_cond_return_in_body_verifier::tests::verifier_accepts_fallthrough_step_target_shape
 mir::builder::control_flow::plan::features::loop_cond_return_in_body_verifier::tests::verifier_rejects_all_exit_continue_edge
 mir::builder::control_flow::plan::features::loop_cond_return_in_body_verifier::tests::verifier_rejects_missing_fallthrough_continue_exit
@@ -1400,6 +1400,7 @@ mir::builder::control_flow::plan::loop_physical_input::tests::physical_role_plan
 mir::builder::control_flow::plan::lowerer::effect_emission::tests::select_as_phi_uses_the_ready_two_predecessor_merge
 mir::builder::control_flow::plan::lowerer::emission_port::tests::selected_terminal_rejects_unknown_required_argument_before_call_or_result_publication
 mir::builder::control_flow::plan::lowerer::emission_port::tests::selected_terminal_uses_claim_target_not_raw_global_spelling
+mir::builder::control_flow::plan::lowerer::tests::test_finalize_loop_variables_reseals_final_values_in_emission_cache
 mir::builder::control_flow::plan::lowerer::tests::test_lower_branchn_does_not_fail
 mir::builder::control_flow::plan::lowerer::tests::test_lower_exit_return_sets_terminator
 mir::builder::control_flow::plan::lowerer::tests::test_lower_if_emits_branch
