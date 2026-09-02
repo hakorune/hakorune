@@ -1,15 +1,15 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0"
+current_execution_row = "MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0"
 current_design_stop = "none"
 current_blocker_token = """
-Closeout for MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0: the existing
-publication/view validators now have direct tests for duplicate, missing,
-symbol/arity/result drift, legacy-carrier, and builtin shape errors. Finish
-only evidence/pointer/commit synchronization. Do not widen into C transport,
-runner, phi coordinates, non-scalar lane authority, Call schema, or a new
-semantic receipt. The broader transport dedup row remains NoSafeSlice.
+MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0 closeout: the one duplicate
+cfg(test) body and its inventory row are retired. The retained successor is
+green; the executable known-red baseline is refreshed to 7577/7410/138/29
+with the same 138-name failure receipt. No production, semantic, Call,
+backend, fallback, or broad test purge changed. Closeout evidence and pointer
+guards must remain green before commit/push.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,18 +39,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
-The snapshot I0, both post-audit P0 gate repairs, and the narrow B-S0 direct
-negative coverage slice are landed and pushed. Normal/raw and canonical
-ambient-flip evidence is recorded, vm-reference has explicit
-SameModuleInstance arms, and the Call guard delegates its non-Call performance
-row to current-state-pointer. B-S0 covers existing publication/view validators
-without widening into C transport, phi layout, non-scalar lane semantics, or
-Call schema. The broader transport dedup task is parked as NoSafeSlice until
-its alternative-entry caller/delete set is finite; whole-library health remains
-a separate known-red baseline.
+The snapshot I0, vm-reference arm, stable dispatch repair, baseline refresh,
+B-S0 direct negative coverage, and the duplicate mutable-accumulator test
+retirement are landed and pushed. The retained executable baseline is
+7577/7410/138/29 with an unchanged 138-name failure receipt. No semantic
+family or transport/backend route is reopened; whole-library health remains a
+classified known-red baseline.
 """
 next_design_card = "none__accepted_d0"
-next_execution_card = "MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0"
+next_execution_card = "MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

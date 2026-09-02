@@ -709,3 +709,52 @@ typed trace and unsupported arms). The stable D1B guard now dispatches the
 current B-S0 row through its named performance-card delegation; both that
 guard and `current_state_pointer_guard.sh` pass. No new compiler, Call, backend,
 or semantic route is claimed by this verification repair.
+
+#### `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0`
+
+Status: **landed**. This was one production-neutral test-surface
+reduction, selected only after the baseline comparator and both stable guards
+returned green. Delete exactly `test_string_accumulator_spec` from
+`src/mir/loop_route_detection/support/locals/mutable_accumulator.rs`; retain
+`test_mutable_accumulator_spec_simple`. Their AST input, analyzer call, and
+assertions are identical after comments and function names are removed; the
+candidate has no production reference.
+
+Source authority + canonical issuer: the existing mutable-accumulator test
+module and its retained successor; the baseline inventory/comparator is the
+only count and failure-receipt owner. Non-authority is the test name alone,
+raw counts, local green, historical phase prose, or worker silence.
+
+Fail-fast boundary: before deletion, both exact test names occur once, the
+normalized bodies match, the candidate occurs only in `cfg(test)` source and
+the inventory, and the baseline is exactly `7578/7411/138/29` with inventory
+SHA `db572fea583c934661886b020801b325408c7ed47bf8025a1e2895077c17c1f1` and
+failure SHA `29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`.
+Any mismatch aborts without editing.
+
+Ordered tasks:
+
+```text
+A. run the exact module focused suite and the stable/pointer guards;
+B. remove only the candidate body and its one sorted inventory line;
+C. refresh the existing baseline to 7577/7410/138/29, preserve the failure
+   names/SHA, run the exact retained successor and comparator, then close the
+   row with status=landed and no archive/stub/new guard.
+```
+
+Acceptance after closeout: the candidate and inventory row are absent, the
+successor remains and passes, baseline is `7577/7410/138/29` with the same
+138-name failure SHA, the active/pointer guards pass, and no production source
+path changed. `test_string_accumulator_spec`,
+`test_mutable_accumulator_spec_simple`, and `cargo_lib_red_baseline.py` are
+the required evidence anchors for this row.
+
+Implementation evidence: the candidate body and its single sorted inventory
+row were removed; the retained successor ran `1 passed; 0 failed`; the
+baseline comparator reports `7577 total / 7410 passed / 138 failed / 29
+ignored` with inventory SHA-256
+`c87404eb91f1436274b93f95d60921273f72f487f314773bffb2efa0a1f324fb` and the
+unchanged 138-name failure SHA-256
+`29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`.
+The stable active-surface and current-state pointer guards pass, and no
+production source path changed.

@@ -285,6 +285,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_performance_row(state, root)
     elif row == api.PUBLISHED_VIEW_NEGATIVE_COVERAGE_B_S0_ROW:
         api.check_delegated_performance_evidence_row(state, root, row)
+    elif row == api.MUTABLE_ACCUMULATOR_DUPLICATE_RETIRE_R0_ROW:
+        api.check_delegated_performance_cleanup_row(state, root, row)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

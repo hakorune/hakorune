@@ -442,45 +442,6 @@ mod tests {
     }
 
     #[test]
-    fn test_string_accumulator_spec() {
-        // Phase 100 P3-1: String accumulator with Variable RHS
-        // Build AST for: out = out + ch (ch is string-typed variable)
-        // Note: At AST-only stage, Variable defaults to Int
-        // Type refinement happens in loop-route wiring (P3-3)
-        let loop_body = vec![ASTNode::Assignment {
-            target: Box::new(ASTNode::Variable {
-                name: "out".to_string(),
-                span: Span::unknown(),
-            }),
-            value: Box::new(ASTNode::BinaryOp {
-                operator: BinaryOperator::Add,
-                left: Box::new(ASTNode::Variable {
-                    name: "out".to_string(),
-                    span: Span::unknown(),
-                }),
-                right: Box::new(ASTNode::Variable {
-                    name: "ch".to_string(),
-                    span: Span::unknown(),
-                }),
-                span: Span::unknown(),
-            }),
-            span: Span::unknown(),
-        }];
-
-        let result = MutableAccumulatorAnalyzer::analyze(&loop_body).unwrap();
-        assert!(result.is_some());
-
-        let spec = result.unwrap();
-        assert_eq!(spec.target_name, "out");
-        assert_eq!(spec.rhs_expr_kind, RhsExprKind::Var);
-        assert_eq!(spec.rhs_var_or_lit, "ch");
-        assert_eq!(spec.op, BinaryOperator::Add);
-        // Phase 100 P3-1: Variable RHS defaults to Int at AST stage
-        // Will be refined to String in P3-3 based on actual types
-        assert_eq!(spec.kind, AccumulatorKind::Int);
-    }
-
-    #[test]
     fn test_int_accumulator_spec_unchanged() {
         // Phase 100 P3-1: Integer accumulator (existing behavior)
         // Build AST for: count = count + 1

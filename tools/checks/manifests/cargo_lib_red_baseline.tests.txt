@@ -4652,7 +4652,6 @@ mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_mut
 mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_mutable_accumulator_spec_simple
 mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_no_accumulator_when_no_assignment
 mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_non_binop_assignment_not_accumulator
-mir::loop_route_detection::support::locals::mutable_accumulator::tests::test_string_accumulator_spec
 mir::loop_route_detection::support::locals::pinned::tests::test_empty_candidates_returns_empty
 mir::loop_route_detection::support::locals::pinned::tests::test_empty_loop_body_returns_error
 mir::loop_route_detection::support::locals::pinned::tests::test_not_pinned_when_assigned

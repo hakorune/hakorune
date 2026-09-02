@@ -32,6 +32,9 @@ PERFORMANCE_SNAPSHOT_ROW = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
 PUBLISHED_VIEW_NEGATIVE_COVERAGE_B_S0_ROW = (
     "MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0"
 )
+MUTABLE_ACCUMULATOR_DUPLICATE_RETIRE_R0_ROW = (
+    "MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0"
+)
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
@@ -281,6 +284,93 @@ def check_delegated_performance_evidence_row(
         if evidence not in section:
             fail(f"{row} owning evidence is missing: {evidence}")
     print(f"[{TAG}] row={row} delegated=current-state-pointer")
+
+
+def check_delegated_performance_cleanup_row(
+    state: dict, root: Path, row: str
+) -> None:
+    """Dispatch one explicitly named test-only cleanup row.
+
+    The performance card owns the cleanup evidence; this stable entrypoint
+    only verifies the exact pointer and the selected/landed state.  It never
+    treats an arbitrary row or an inactive card as a pass.
+    """
+    if row != MUTABLE_ACCUMULATOR_DUPLICATE_RETIRE_R0_ROW:
+        fail(f"unsupported performance cleanup row: {row!r}")
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        fail(f"{row} delegation requires fast or closeout work_mode")
+    if state.get("current_execution_row") != row:
+        fail(f"{row} delegation row drifted")
+    if state.get("current_design_stop") != "none":
+        fail(f"{row} delegation requires current_design_stop=none")
+    if state.get("latest_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} delegation requires the performance card path")
+    if state.get("current_execution_design") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} delegation current_execution_design drifted")
+    if state.get("next_execution_card") != row:
+        fail(f"{row} delegation next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} delegation next_execution_card_path drifted")
+    card_path = root / PERFORMANCE_CARD_REL
+    if not card_path.is_file():
+        fail(f"{row} owning performance card is missing")
+    card_text = card_path.read_text(encoding="utf-8")
+    marker = f"#### `{row}`"
+    if marker not in card_text:
+        fail(f"{row} is absent from its owning performance card")
+    section = card_text.split(marker, 1)[1].split("\n###", 1)[0]
+    status = "selected_fast" if mode == "fast" else "landed"
+    if f"Status: **{status}**" not in section:
+        fail(f"{row} owning status is not {status}")
+    for token in (
+        "test_string_accumulator_spec",
+        "test_mutable_accumulator_spec_simple",
+        "cargo_lib_red_baseline.py",
+    ):
+        if token not in section:
+            fail(f"{row} owning cleanup evidence is missing: {token}")
+    source = root / Path(
+        "src/mir/loop_route_detection/support/locals/mutable_accumulator.rs"
+    )
+    inventory_path = root / Path(
+        "tools/checks/manifests/cargo_lib_red_baseline.tests.txt"
+    )
+    baseline = load_toml(
+        root / Path("tools/checks/manifests/cargo_lib_red_baseline.toml")
+    )
+    source_text = source.read_text(encoding="utf-8")
+    inventory = [line for line in inventory_path.read_text(encoding="utf-8").splitlines() if line]
+    expected_candidate = 1 if mode == "fast" else 0
+    if source_text.count("fn test_string_accumulator_spec(") != expected_candidate:
+        fail(f"{row} candidate source presence does not match {status}")
+    if source_text.count("fn test_mutable_accumulator_spec_simple(") != 1:
+        fail(f"{row} retained successor is not unique")
+    candidate_name = (
+        "mir::loop_route_detection::support::locals::mutable_accumulator::tests::"
+        "test_string_accumulator_spec"
+    )
+    if (candidate_name in inventory) != (mode == "fast"):
+        fail(f"{row} candidate inventory presence does not match {status}")
+    expected_total = 7578 if mode == "fast" else 7577
+    expected_passed = 7411 if mode == "fast" else 7410
+    if len(inventory) != expected_total or inventory != sorted(set(inventory)):
+        fail(f"{row} baseline inventory is not {expected_total} sorted unique rows")
+    expected_inventory_sha = (
+        "db572fea583c934661886b020801b325408c7ed47bf8025a1e2895077c17c1f1"
+        if mode == "fast"
+        else "c87404eb91f1436274b93f95d60921273f72f487f314773bffb2efa0a1f324fb"
+    )
+    if (
+        baseline.get("expected_passed") != expected_passed
+        or baseline.get("expected_failed") != 138
+        or baseline.get("expected_ignored") != 29
+        or baseline.get("inventory_sha256") != expected_inventory_sha
+        or baseline.get("failures_sha256")
+        != "29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1"
+    ):
+        fail(f"{row} executable baseline receipt does not match {status}")
+    print(f"[{TAG}] row={row} delegated=performance-card-cleanup")
 
 
 def git_diff(root: Path, base: str) -> str:
