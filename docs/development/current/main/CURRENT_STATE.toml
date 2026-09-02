@@ -1,16 +1,16 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0"
+current_design_stop = "MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0: perform one finite read-only Call writer/reader/repair census before R6; no implementation, new receipt, adapter, fixture, guard, fallback, or retry."
 current_blocker_token = """
-MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0 closeout: the existing lifecycle
-test was renamed and expanded (no new #[test]) to prove source-backed
-print(42) emits exactly one typed builtin Print call and that
-PublishedMirBackendView classifies it CanonicalTyped. Keep this evidence-only:
-no new semantic issuer, C/runner/JSON/VM/Call-schema change, fallback, retry,
-or standalone guard. The exact test, known-red baseline comparison, pointer,
-and stable active-surface guard are recorded; do not reopen the Print spine.
+MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0 design stop: enumerate each
+production-reachable Call writer, reader, optional target, name/registry
+repair, compatibility ingress, backend consumer, and fallback/retry terminal
+exactly once. Classify only as Canonical, CompatibilityOuterIngress,
+ExplicitUnsupported, or DeadDeleteCandidate; test/reference-only occurrences
+remain a separate bucket. No implementation permission and no new
+Verified*/Prepared* receipt, adapter, fixture, guard, fallback, or retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -36,23 +36,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
-latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+latest_card = "mirbuilder-final-pipeline-ssot"
+latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The snapshot I0, vm-reference arm, stable dispatch repair, baseline refresh,
-B-S0 direct negative coverage, duplicate mutable-accumulator test retirement,
-published-C dual-consumer BoxShape, and Print producer coverage are landed and
-pushed. The Print producer proof reuses and renames one existing lifecycle
-test, so the #[test] count does not increase; whole-library health remains the
-classified 7577/7410/138/29 known-red baseline. The authoritative next order is
-closed-checkpoint integration, one Call census, remaining-family disposition,
-compatibility quarantine, mandatory-Callee R6, backend family cutover, R7
-retirement, then physical thinning and selected legacy-backend retirement.
+The publication spine and Print producer coverage are closed and the
+checkpoint is integrated into hakorune/main at 7049cbb729. Whole-library
+health remains the classified 7577/7410/138/29 known-red baseline. The current
+design stop is the single finite Call producer/consumer census; after it, only
+the fixed M1→M9 order in the final-pipeline SSOT may select work. Landed
+families are not reopened and zero/multiple authority tuples remain
+ParkedSealed without new design assets.
 """
-next_design_card = "none__accepted_d0"
-next_execution_card = "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+next_design_card = "MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0"
+next_execution_card = "none__accepted_d0"
+next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

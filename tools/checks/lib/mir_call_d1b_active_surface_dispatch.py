@@ -99,6 +99,55 @@ EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
 )
 
 
+def _check_call_r6_census_r0(state: dict, root: Path, api) -> None:
+    """Validate the one finite Call census design-stop.
+
+    This dispatch records the next bounded classification step without
+    authorizing a new producer, receipt, adapter, or backend route. The
+    final-pipeline document is the owner; the historical D1B manifest remains
+    the stable guard registry and is not replayed as a second task ledger.
+    """
+    row = api.CALL_R6_CENSUS_R0_ROW
+    if state.get("work_mode") != "design_stop":
+        api.fail(f"{row} must remain design_stop")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop", "") == "none":
+        api.fail(f"{row} current_design_stop is missing")
+    if state.get("next_design_card") != row:
+        api.fail(f"{row} next_design_card drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        api.fail(f"{row} must keep next_execution_card=none")
+    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
+    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} current_execution_design drifted")
+    path = root / api.FINAL_PIPELINE_REL
+    if not path.is_file():
+        api.fail(f"{row} owning final-pipeline SSOT is missing")
+    text = path.read_text(encoding="utf-8")
+    marker = f"### M1 census contract — `{row}`"
+    if marker not in text:
+        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
+    section = text.split(marker, 1)[1].split("\n### ", 1)[0]
+    for token in (
+        "status = `accepted_design_stop`",
+        "MirInstruction::Call writers",
+        "canonical producer",
+        "CompatibilityOuterIngress",
+        "ExplicitUnsupported",
+        "DeadDeleteCandidate",
+        "implementation permission = false",
+        "callee=None",
+        "Method(None)",
+        "args[0]",
+        "fallback/retry",
+    ):
+        if token not in section:
+            api.fail(f"{row} contract is missing: {token}")
+    print(f"[{api.TAG}] row={row} delegated=call-r6-census-design-stop")
+
+
 def _dispatch_coreplan_varmap_reseal_row(
     row: str, state: dict, card: dict, root: Path, api
 ) -> None:
@@ -291,6 +340,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_published_c_boxshape_row(state, root, row)
     elif row == api.PRINT_PRODUCER_COVERAGE_S0_ROW:
         api.check_delegated_print_producer_coverage_row(state, root, row)
+    elif row == api.CALL_R6_CENSUS_R0_ROW:
+        _check_call_r6_census_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

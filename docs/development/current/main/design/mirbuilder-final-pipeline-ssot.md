@@ -218,6 +218,34 @@ After M0 and before the next semantic implementation family, the independent
 `DOCS-HISTORY-RETIRE-R1` repayment may remove its four pre-classified closed
 cards. It is skipped on any census drift and does not block M1.
 
+### M1 census contract — `MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0`
+
+```text
+status = `accepted_design_stop`
+implementation permission = false
+```
+
+This is one finite, read-only census before Call R6. It starts at all
+`MirInstruction::Call writers` and target-bearing construction owners in the
+MirBuilder, CorePlan, compatibility emitter, published-module, object, C/JSON,
+Hako, VM, verifier, optimizer, serializer, and rewrite surfaces. It ends at
+the canonical `MirModule` publish boundary and every downstream Call reader,
+legacy fallback/retry/repair terminal, and object-emission decision. The
+inventory records each production-reachable site once; test/reference-only
+occurrences are a separate non-production bucket.
+
+The only accepted dispositions are `Canonical`, `CompatibilityOuterIngress`,
+`ExplicitUnsupported`, and `DeadDeleteCandidate`. The census must name the
+source authority, canonical producer, consumer, and finite old-edge delete set
+for every production site. `callee=None`, `Method(None)`, string/name/header or
+registry lookup, `args[0]` or `ValueId(0)` receiver repair, and
+`fallback/retry` are never canonical dispositions. A zero/multiple authority
+tuple is `NoSafeSlice`/`ParkedSealed`; it does not authorize a new receipt,
+adapter, fixture, guard, or implementation row. This row grants **no
+implementation permission** and does not reopen the landed StaticBoxMethod,
+FreeStatic, FreeFunction, Builtin Print, or root-lexical SameModuleInstance
+families.
+
 M1 has one finite state vocabulary:
 
 | disposition | meaning | next action |
