@@ -673,13 +673,49 @@ finite_states = [
   "ArityOrSignatureDrift: source and definition disagree; typed pre-effect reject",
   "UnsupportedProfile: semantic source shape is valid but selected backend has no published consumer; reject before object with no retry",
 ]
+readiness_matrix = """
+SemanticPackageReady = present: the source-backed TopLevel identity, same-session
+callable index, and source-plan acceptance are already observable.
+PublishedCanonicalFreeFunctionReady = absent: source-backed catalog rows and
+NormalTopLevelFunctionDraftAdmissionV1 still lose the key before Atomic Publish.
+TypedBackendConsumerReady = absent for FreeFunction: the existing borrowed view
+and C transport are typed for StaticBoxMethod/Print only.
+EndToEndVerticalReady = absent: no named TopLevel production caller reaches a
+typed object path with an exclusive old-edge delete set.
+These states are intentionally separate; a source/package tuple is not an
+end-to-end production claim.
+"""
+existing_owner_chain = """
+source/index = source_backed callable catalog plus SelectedTopLevelFunctionKeyV1
+and the same-resolver callable index;
+admission = NormalTopLevelFunctionDraftAdmissionV1;
+collector = FunctionDraftKeyV1::CatalogedBoxMethod and the existing generic
+module collector drain;
+publish = MirModule::add_cataloged_box_method and its canonical definition table;
+backend seam = PublishedMirBackendView plus the existing typed C frame/transport,
+extended only if the FreeFunction row is exact.
+No new semantic receipt, resolver, or backend authority is permitted.
+"""
+decision_correction_2026_09_02 = """
+The completed StaticBoxMethod/App-Main nested FreeStatic and Builtin Print
+verticals are closed and must not be reopened. The next source-backed family is
+true top-level FreeFunction, with the mixed App Main plus top-level helper as its
+acceptance probe. DeclaredInstance me.method remains a retained language feature
+and a separate parked family; it is not the next workaround target. A backend
+consumer is a later proof-chain stage, not a source semantic issuer.
+"""
 ordered_tasks = [
   "D0-A: record the mixed-source acceptance probe and reconcile source-plan, selected-source inventory, TopLevel admission, and AppMain package behavior",
   "D0-B: enumerate the exact key-preserving collector/publish owner, the selected backend consumer, and the cohort-exclusive LegacySymbol/PublishedTargetNotCataloged delete set",
   "D0-C: classify the six finite states above; if any state has no named owner or the delete set is shared, keep the family ParkedSealed and do not open I0",
   "D0-D: keep the H-1 mixed-source contract difference explicit: source-plan admission is not publication readiness, and PublishedTargetNotCataloged remains the current pre-effect stop until a FreeFunction definition row exists",
-  "D0-E: before opening I0, require one exact production runner/C-ingress proof, a mechanical no-new-red baseline comparison, and representative direct rejects for missing/duplicate/foreign/arity drift; focused view tests alone do not satisfy this gate",
-  "I0 only after D0 acceptance: preserve the existing FreeFunction key through Atomic Publish, switch one named caller, and delete that cohort's old edge in the same series",
+  "D0-E: name the reusable existing typed-view/C-transport seam and its FreeFunction row kind without implementing it; defer source-to-object execution, exact changed-test execution, no-new-red comparison, and direct negative tests to I0 acceptance so the entry gate is not circular",
+  "I0 only after D0 acceptance: preserve the existing FreeFunction key through source-backed catalog admission, collector drain, and Atomic Publish; switch one named mixed-source caller; add one typed backend row; and delete that cohort's old edge in the same bounded series",
+  "I0-A: reuse CanonicalSameModuleCallableKeyV1::FreeFunction and VerifiedSameModuleCallableDeclarationV1 for TopLevel rows; reject duplicate/foreign/arity/signature drift before argument effects",
+  "I0-B: change only the selected TopLevel admission from LegacySymbol to the existing CatalogedBoxMethod collector path; keep raw compatibility TopLevel separate",
+  "I0-C: map SelectedNormalCallableKeyV1::TopLevel to the exact FreeFunction key in the AppMain loan by same-session declaration identity; do not convert it to StaticBoxMethod",
+  "I0-D: extend PublishedMirBackendView and the existing C transport with one explicit FreeFunction kind/row; consume target identity and ordered source args without JSON/name/registry/args[0] repair",
+  "I0-E: run the mixed-source source-to-object probe, changed-test names, representative negative cases, phi/overwrite guards, and deterministic no-new-red comparison; only then close out",
 ]
 checkpoint_2026_09_02_status = "CutoverBlockerOpen"
 checkpoint_2026_09_02_findings = [
@@ -690,10 +726,36 @@ checkpoint_2026_09_02_findings = [
 ]
 pre_i0_gates = [
   "mixed-source helper probe has a named expected outcome: canonical FreeFunction publication or explicit pre-effect unsupported terminal; no one-off App Main exception",
-  "one production source-to-object runner/C-ingress test exercises the typed route and proves no JSON/name/registry/args[0] fallback",
-  "the exact changed-test names are executed and recorded; the fixed known-red baseline comparison reports no added failure name",
-  "at least one direct negative test covers each selected failure family: missing definition, duplicate/foreign relation, arity/signature drift, and legacy carrier",
-  "phi layout is asserted and cataloged publication rejects duplicate or overwrite-prone definition rows",
+  "the existing generic collector/publish API is confirmed to accept a FreeFunction key and the existing borrowed typed C seam is named as the only reusable backend owner; no second issuer, receipt, or backend path is needed",
+  "the cohort-exclusive old-edge set is finite: TopLevel admission -> LegacySymbol, its legacy commit, and AppMain PublishedTargetNotCataloged are the only selected-family edges",
+  "source-to-object runner/C-ingress execution, exact changed-test names, direct negative cases, phi layout assertion, overwrite protection, and deterministic no-new-red comparison are I0 acceptance evidence, not prerequisites that must already exist",
+]
+i0_acceptance_contract = """
+The first implementation row is allowed only after the D0 owner chain above is
+accepted. Its success unit is one mixed source containing an App Main and one
+ordinary top-level helper with scalar arguments/result. The source key must
+survive catalog admission, collector drain, and Atomic Publish; the call must
+refer to the same published FreeFunction definition; the typed backend must
+consume that published row without JSON/name/registry/args[0] repair; and the
+selected old LegacySymbol/PublishedTargetNotCataloged edges must be removed or
+closed behind an explicit compatibility boundary in the same series.
+
+The implementation series may be as many commits as the coherent change needs;
+there is no artificial five-commit quota. It remains branch/worktree scoped and
+must stop on an unexpected red, a second authority, an unbounded delete set, or
+any need to touch DeclaredInstance, Print, Call R6, VM, Hako backend, or raw
+compatibility routes.
+"""
+implementation_files = [
+  "src/mir/builder/callable_declaration_catalog/source_backed.rs",
+  "src/mir/builder/normal_top_level_function_admission.rs",
+  "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/function/module_impl.rs",
+  "src/mir/function/published_backend_view.rs",
+  "src/host_providers/llvm_codegen/published_mir_object.rs",
+  "src/host_providers/llvm_codegen/capi_transport.rs",
+  "lang/c-abi/include/hako_llvmc_ffi.h",
+  "lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc",
 ]
 acceptance = """
 D0 is accepted only when the mixed-source probe, source authority, canonical
