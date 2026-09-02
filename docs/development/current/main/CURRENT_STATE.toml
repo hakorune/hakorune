@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
-current_execution_row = "MIR-COMPILE-COST-BASELINE-P0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
+current_design_stop = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
 current_blocker_token = """
-Decision: measure the existing compiler fixed-cost owners before changing Builder emission; the former Hako physical-ingress family stays ParkedSealed.
-Source authority + canonical issuer: one compiler invocation plus the existing compile_timing.rs and mir_compile_scaling.py owners, with fixed source/binary/profile/environment identity.
-Non-authority: review estimates, LOC/frame counts, one wall-clock sample, generated-program runtime, global OnceLock, or a guessed speedup.
-Fail-fast boundary: source digest, compiler binary, profile, environment, result, or route drift rejects the observation; this row changes no semantic owner, fallback, Builder emission, or backend behavior.
-Smallest next slice: extend only the existing scaling owner with one warmup, five retained runs, median output, explicit binary identity, and the selected env/clone counters; park any hotspot not visible in the observation.
-Non-claims: no env snapshot implementation, clone deletion, forwarding merge, barrel/dead-code cleanup, direct-default change, VM decision, Call schema, backend switch, or whole-library green claim.
+Decision: the repeatable compile-cost baseline is complete; before changing Builder emission, design the exact compilation-owned debug/strict snapshot seam. The former Hako physical-ingress family stays ParkedSealed.
+Source authority + canonical issuer: the existing compilation invocation/config owners and the existing emit/debug policy owners; the snapshot must be installed once below the current compilation-owned context and borrowed by emit code.
+Non-authority: process-global OnceLock, per-instruction env reads, ChildPort field growth, dispatch-port supertraits, forwarding parameters, review estimates, LOC/frame counts, generated-program runtime, or a guessed speedup.
+Fail-fast boundary: preserve current defaults, aliases, debug-off behavior, and two independently configured compiler sessions; if the invocation-owned seam cannot be named without a new capability axis or semantic route change, remain in design_stop.
+Smallest next slice: identify one existing config/invocation context owner for the snapshot and record the exact keys, lifetime, construction point, borrow path, and test override boundary. Do not implement until that map is accepted.
+Non-claims: no env policy change, clone deletion, forwarding merge, barrel/dead-code cleanup, direct-default change, VM decision, Call schema, backend switch, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -40,13 +40,16 @@ latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
 The architecture audit is dispositioned without a new card. The Hako physical
-ingress stays ParkedSealed; the selected row measures the existing compiler
-fixed-cost owners before any change. Its successors are one compilation-owned
-debug/strict snapshot with no new port axis, then one emit move/clone removal.
-Layer thinning, namespace cleanup, and direct-storage defaults remain separate.
+ingress stays ParkedSealed. The repeatable compile-cost baseline is now
+recorded from the rebuilt quick binary: one warmup, five retained samples,
+median/p95, source/binary identity, and strict shadow rows for the accepted
+static-method probes. The next row is a design-stop census for one
+compilation-owned debug/strict snapshot with no new port axis, followed only
+after acceptance by the emit move/clone row. Layer thinning, namespace cleanup,
+and direct-storage defaults remain separate.
 """
 next_design_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
-next_execution_card = "MIR-COMPILE-COST-BASELINE-P0"
+next_execution_card = "none__awaiting_design_stop_acceptance"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -64,7 +67,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-02: compile-cost baseline runner landed at 84ca1b8069: the existing MIR scaling owner now uses an accepted static Main probe, one warmup plus five retained samples, median/p95, binary/source SHA-256, NYASH_/HAKO_ environment fingerprint, and strict shadow-contract evidence. Loop-bound probes remain explicit route rejections and are not treated as green; no semantic or backend owner changed.",
   "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
-  "2026-09-02: Builtin Print publication vertical and its deterministic lib-baseline follow-up landed on the isolated branch: one typed kind=2 row reaches selected-C before generic dispatch, the Print-only env/Extern fallback was removed, focused view tests are 8/8, the traced source-to-exe probe printed 42, and three fixed baseline observations agree at 7563/7396/138/29 (inventory SHA 5e1c9e89fd17c029838ac7f0d8a5c5933c030cd89adf89bcb6651ecf691cb22c; failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1). Known red remains explicit debt; the audit's top-level helper and negative-coverage items remain follow-up boundaries.",
 ]
