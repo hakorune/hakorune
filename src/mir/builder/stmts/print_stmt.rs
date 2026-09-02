@@ -283,20 +283,13 @@ pub(in crate::mir::builder) fn build_print_from_value(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    // Phase 3.2: Use unified call for print statements
-    let use_unified = super::super::calls::call_unified::is_unified_call_enabled();
-
-    if use_unified {
-        // Unified path: treat print as global function.
-        builder.emit_unified_call(
-            None,
-            CallTarget::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print()),
-            vec![value],
-        )?;
-    } else {
-        // Compatibility path when unified calls are disabled.
-        builder.emit_extern_call("env.console", "log", vec![value], None)?;
-    }
+    // Print is a reserved builtin with one canonical target.  Its source
+    // owner must not silently fall back to the legacy Extern route when the
+    // ambient unified-call flag is disabled.
+    builder.emit_unified_call_required_v1(
+        CallTarget::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print()),
+        vec![value],
+    )?;
     Ok(value)
 }
 

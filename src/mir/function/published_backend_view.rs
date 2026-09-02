@@ -8,8 +8,8 @@ use std::ffi::CString;
 use std::os::raw::c_char;
 
 use hakorune_mir_defs::{
-    CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1, CanonicalSameModuleGlobalTargetV1,
-    SameModuleCallableNamespaceV1,
+    CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1,
+    CanonicalSameModuleGlobalTargetV1, SameModuleCallableNamespaceV1,
 };
 
 use crate::mir::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
@@ -23,6 +23,16 @@ pub(crate) enum PublishedStaticMethodRouteV1 {
     /// No selected StaticBoxMethod call exists; an explicit compatibility
     /// caller may consume the module without pretending it is canonical.
     ExplicitCompatibility,
+}
+
+/// Physical row kinds carried across the typed C frame.  This is deliberately
+/// a transport discriminator, not a second semantic target authority: the
+/// canonical global target was already selected before this view is built.
+#[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PublishedCallKindV1 {
+    StaticMethod = 1,
+    BuiltinPrint = 2,
 }
 
 /// Publication/view failures are physical admission failures.  They never
@@ -59,6 +69,19 @@ pub(crate) enum PublishedMirBackendViewErrorV1 {
     StaticMethodRequiresIntegerReturn {
         function: String,
         key: CanonicalSameModuleCallableKeyV1,
+    },
+    BuiltinPrintUsesLegacyFunctionCarrier {
+        function: String,
+        func: ValueId,
+    },
+    BuiltinPrintHasDestination {
+        function: String,
+        dst: ValueId,
+    },
+    BuiltinPrintArityMismatch {
+        function: String,
+        expected: usize,
+        actual: usize,
     },
 }
 
@@ -106,6 +129,35 @@ impl<'module> PublishedStaticMethodCallRef<'module> {
     }
 }
 
+/// A reserved builtin print call borrowed from the published module.  Unlike
+/// same-module methods it has no definition-table key: its finite builtin
+/// identity is already carried by the canonical global target.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct PublishedBuiltinPrintCallRef<'module> {
+    function_name: &'module str,
+    block_id: u32,
+    instruction_index: u32,
+    args: &'module [ValueId],
+}
+
+impl<'module> PublishedBuiltinPrintCallRef<'module> {
+    pub(crate) fn function_name(self) -> &'module str {
+        self.function_name
+    }
+
+    pub(crate) const fn block_id(self) -> u32 {
+        self.block_id
+    }
+
+    pub(crate) const fn instruction_index(self) -> u32 {
+        self.instruction_index
+    }
+
+    pub(crate) fn args(self) -> &'module [ValueId] {
+        self.args
+    }
+}
+
 /// Read-only projection of an already atomically-published module.
 ///
 /// No AST, resolver, registry, JSON, fallback state, or independently-owned
@@ -117,6 +169,7 @@ pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
+    builtin_print_calls: Vec<PublishedBuiltinPrintCallRef<'module>>,
 }
 
 /// Borrow-independent C transport rows. The C consumer receives only this
@@ -129,6 +182,7 @@ pub(crate) struct PublishedStaticMethodCallCRowV1 {
     pub(crate) instruction_index: u32,
     pub(crate) target_symbol: *const c_char,
     pub(crate) arity: u32,
+    pub(crate) kind: u32,
 }
 
 /// Owned strings keep C row pointers valid for exactly one synchronous
@@ -144,9 +198,10 @@ impl PublishedStaticMethodCFrameV1 {
     pub(crate) fn from_view(
         view: &PublishedMirBackendView<'_>,
     ) -> Result<Self, PublishedMirBackendViewErrorV1> {
-        let mut function_names = Vec::with_capacity(view.static_method_calls.len());
+        let total = view.static_method_calls.len() + view.builtin_print_calls.len();
+        let mut function_names = Vec::with_capacity(total);
         let mut target_symbols = Vec::with_capacity(view.static_method_calls.len());
-        let mut rows = Vec::with_capacity(view.static_method_calls.len());
+        let mut rows = Vec::with_capacity(total);
         for call in &view.static_method_calls {
             let symbol = call.key.mir_symbol_projection();
             let function_name = CString::new(call.function_name).map_err(|_| {
@@ -177,6 +232,29 @@ impl PublishedStaticMethodCFrameV1 {
                 instruction_index: call.instruction_index,
                 target_symbol: target_symbol_ptr,
                 arity: call.key.arity(),
+                kind: PublishedCallKindV1::StaticMethod as u32,
+            });
+        }
+        for call in &view.builtin_print_calls {
+            let function_name = CString::new(call.function_name).map_err(|_| {
+                PublishedMirBackendViewErrorV1::BuiltinPrintArityMismatch {
+                    function: call.function_name.to_owned(),
+                    expected: 1,
+                    actual: call.args.len(),
+                }
+            })?;
+            function_names.push(function_name);
+            let function_name_ptr = function_names
+                .last()
+                .expect("just-pushed builtin function name")
+                .as_ptr();
+            rows.push(PublishedStaticMethodCallCRowV1 {
+                function_name: function_name_ptr,
+                block_id: call.block_id,
+                instruction_index: call.instruction_index,
+                target_symbol: std::ptr::null(),
+                arity: 1,
+                kind: PublishedCallKindV1::BuiltinPrint as u32,
             });
         }
         Ok(Self {
@@ -211,6 +289,7 @@ impl<'module> PublishedMirBackendView<'module> {
         validate_definition_table(module)?;
 
         let mut static_method_calls = Vec::new();
+        let mut builtin_print_calls = Vec::new();
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
             block_ids.sort();
@@ -221,7 +300,11 @@ impl<'module> PublishedMirBackendView<'module> {
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
                     let MirInstruction::Call {
-                        func, callee, args, ..
+                        dst,
+                        func,
+                        callee,
+                        args,
+                        ..
                     } = instruction
                     else {
                         continue;
@@ -239,6 +322,14 @@ impl<'module> PublishedMirBackendView<'module> {
                                     key: published_key,
                                     args: args.as_slice(),
                                 });
+                            } else if is_builtin_print_target(target) {
+                                validate_builtin_print_call(function_name, *dst, *func, args)?;
+                                builtin_print_calls.push(PublishedBuiltinPrintCallRef {
+                                    function_name: function_name.as_str(),
+                                    block_id: block_id.as_u32(),
+                                    instruction_index: instruction_index as u32,
+                                    args: args.as_slice(),
+                                });
                             }
                         }
                         Some(_) | None => {}
@@ -247,17 +338,19 @@ impl<'module> PublishedMirBackendView<'module> {
             }
         }
 
-        if static_method_calls.is_empty() {
+        if static_method_calls.is_empty() && builtin_print_calls.is_empty() {
             return Ok(Self {
                 module,
                 route: PublishedStaticMethodRouteV1::ExplicitCompatibility,
                 static_method_calls,
+                builtin_print_calls,
             });
         }
         Ok(Self {
             module,
             route: PublishedStaticMethodRouteV1::CanonicalTyped,
             static_method_calls,
+            builtin_print_calls,
         })
     }
 
@@ -269,6 +362,10 @@ impl<'module> PublishedMirBackendView<'module> {
         &self.static_method_calls
     }
 
+    pub(crate) fn builtin_print_calls(&self) -> &[PublishedBuiltinPrintCallRef<'module>] {
+        &self.builtin_print_calls
+    }
+
     /// Borrow the one published physical definition for an already-selected
     /// key.  This is a relation lookup, not a name resolver.
     pub(crate) fn definition(
@@ -278,6 +375,43 @@ impl<'module> PublishedMirBackendView<'module> {
         let symbol = self.module.canonical_callable_definition_symbol(key)?;
         self.module.functions.get(symbol)
     }
+}
+
+fn is_builtin_print_target(target: &CanonicalGlobalTargetV1) -> bool {
+    matches!(
+        target,
+        CanonicalGlobalTargetV1::Builtin(CanonicalBuiltinGlobalV1::Print)
+    )
+}
+
+fn validate_builtin_print_call(
+    function_name: &str,
+    dst: Option<ValueId>,
+    func: ValueId,
+    args: &[ValueId],
+) -> Result<(), PublishedMirBackendViewErrorV1> {
+    if func != ValueId::INVALID {
+        return Err(
+            PublishedMirBackendViewErrorV1::BuiltinPrintUsesLegacyFunctionCarrier {
+                function: function_name.to_owned(),
+                func,
+            },
+        );
+    }
+    if let Some(dst) = dst {
+        return Err(PublishedMirBackendViewErrorV1::BuiltinPrintHasDestination {
+            function: function_name.to_owned(),
+            dst,
+        });
+    }
+    if args.len() != 1 {
+        return Err(PublishedMirBackendViewErrorV1::BuiltinPrintArityMismatch {
+            function: function_name.to_owned(),
+            expected: 1,
+            actual: args.len(),
+        });
+    }
+    Ok(())
 }
 
 fn validate_definition_table(module: &MirModule) -> Result<(), PublishedMirBackendViewErrorV1> {
@@ -449,9 +583,102 @@ mod tests {
         assert_eq!(row.block_id, 0);
         assert_eq!(row.instruction_index, 0);
         assert_eq!(row.arity, 2);
+        assert_eq!(row.kind, PublishedCallKindV1::StaticMethod as u32);
         assert!(!row.function_name.is_null());
         assert!(!row.target_symbol.is_null());
         assert!(!frame.as_ptr().is_null());
+    }
+
+    fn builtin_print_function(
+        func: ValueId,
+        dst: Option<ValueId>,
+        args: Vec<ValueId>,
+    ) -> MirFunction {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".to_owned(),
+                params: vec![MirType::Integer],
+                return_type: MirType::Integer,
+                effects: EffectMask::IO,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry block")
+            .add_instruction(MirInstruction::Call {
+                dst,
+                func,
+                callee: Some(Callee::Global(CanonicalGlobalTargetV1::builtin_print())),
+                args,
+                effects: EffectMask::IO,
+            });
+        function
+    }
+
+    #[test]
+    fn published_builtin_print_is_typed_and_has_no_definition_lookup() {
+        let mut module = MirModule::new("builtin-print".to_owned());
+        module.add_function(builtin_print_function(
+            ValueId::INVALID,
+            None,
+            vec![ValueId::new(1)],
+        ));
+
+        let view = PublishedMirBackendView::try_new(&module).expect("typed builtin view");
+        assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
+        assert!(view.static_method_calls().is_empty());
+        assert_eq!(view.builtin_print_calls().len(), 1);
+        assert_eq!(view.builtin_print_calls()[0].args(), &[ValueId::new(1)]);
+
+        let frame = PublishedStaticMethodCFrameV1::from_view(&view).expect("builtin C frame");
+        let row = frame.row(0);
+        assert_eq!(row.kind, PublishedCallKindV1::BuiltinPrint as u32);
+        assert_eq!(row.arity, 1);
+        assert!(!row.function_name.is_null());
+        assert!(row.target_symbol.is_null());
+    }
+
+    #[test]
+    fn published_builtin_print_rejects_legacy_function_carrier() {
+        let mut module = MirModule::new("builtin-print-legacy".to_owned());
+        module.add_function(builtin_print_function(
+            ValueId::new(9),
+            None,
+            vec![ValueId::new(1)],
+        ));
+
+        let error = PublishedMirBackendView::try_new(&module).unwrap_err();
+        assert!(matches!(
+            error,
+            PublishedMirBackendViewErrorV1::BuiltinPrintUsesLegacyFunctionCarrier { .. }
+        ));
+    }
+
+    #[test]
+    fn published_builtin_print_rejects_destination_and_wrong_arity() {
+        let mut with_destination = MirModule::new("builtin-print-dst".to_owned());
+        with_destination.add_function(builtin_print_function(
+            ValueId::INVALID,
+            Some(ValueId::new(2)),
+            vec![ValueId::new(1)],
+        ));
+        assert!(matches!(
+            PublishedMirBackendView::try_new(&with_destination).unwrap_err(),
+            PublishedMirBackendViewErrorV1::BuiltinPrintHasDestination { .. }
+        ));
+
+        let mut wrong_arity = MirModule::new("builtin-print-arity".to_owned());
+        wrong_arity.add_function(builtin_print_function(
+            ValueId::INVALID,
+            None,
+            Vec::new(),
+        ));
+        assert!(matches!(
+            PublishedMirBackendView::try_new(&wrong_arity).unwrap_err(),
+            PublishedMirBackendViewErrorV1::BuiltinPrintArityMismatch { .. }
+        ));
     }
 
     #[test]

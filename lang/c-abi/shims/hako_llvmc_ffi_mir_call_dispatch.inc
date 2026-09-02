@@ -167,11 +167,32 @@
          */
         {
           const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
-          uint32_t typed_arity = 0;
-          const char* typed_symbol =
-              hako_llvmc_published_static_method_symbol_for_site(
-                  active_function_name, bid, ii, &typed_arity);
-          if (typed_symbol) {
+          const hako_llvmc_published_static_method_call_v1* typed_row =
+              hako_llvmc_published_static_method_row_for_site(
+                  active_function_name, bid, ii);
+          if (typed_row &&
+              typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT) {
+            long long print_arg = 0;
+            hako_llvmc_emit_route_trace(
+                "published_call", "consume", "builtin_print", "kind=2");
+            if (!(ctype && !strcmp(ctype, "Global") && dst == 0 && args &&
+                  yyjson_is_arr(args) && yyjson_arr_size(args) == 1 &&
+                  hako_llvmc_mir_call_arg_reg_at(args, 0, &print_arg))) {
+              return -1;
+            }
+            return emit_global_mir_call(
+                f,
+                HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT,
+                bid,
+                ii,
+                print_arg);
+          }
+          if (typed_row &&
+              typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD) {
+            uint32_t typed_arity = typed_row->arity;
+            const char* typed_symbol = typed_row->target_symbol;
+            hako_llvmc_emit_route_trace(
+                "published_call", "consume", "static_method", "kind=1");
             char typed_args[1024];
             typed_args[0] = '\0';
             if (!(ctype && !strcmp(ctype, "Global") && args &&

@@ -47,12 +47,16 @@ backend-view row, and the real scalar `--emit-exe` probe returns `2`.
 The parent/main remains `design_stop` until this isolated branch is selected
 for integration. Arbitrary UserBox DeclaredInstance stays
 `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
-The next isolated branch row is the exact Builtin Print publication cohort:
-reuse `CanonicalGlobalTargetV1::builtin_print()`, add one typed physical row
-to the existing borrowed published view, and remove only the Print-specific
-legacy Extern/env fallback after a real source-to-exe probe. This is an
-implementation slice, not a five-commit quota; commits may be split at real
-buildable boundaries while the single-family scope stays fixed.
+The Builtin Print publication cohort is now landed on this isolated branch:
+the existing `CanonicalGlobalTargetV1::builtin_print()` target is carried by
+one typed physical row in the borrowed view, selected-C consumes that row, and
+the Print-specific legacy Extern/env fallback is gone. The source-to-exe probe
+returned `42`; the focused Rust view tests, C ABI build, route trace, and
+structural guards are recorded in the active card. The branch has returned to
+`design_stop`; no five-commit quota was imposed. The audit's top-level-helper,
+broad negative-coverage, runner/C unit-test, phi-order, and baseline-health
+findings remain explicit follow-up boundaries and are not silently claimed
+closed by this cohort.
 
 ### Current family disposition
 
@@ -60,7 +64,7 @@ buildable boundaries while the single-family scope stays fixed.
 |---|---|---|
 | published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
 | App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
-| Builtin `Print` | active branch-only bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, then Print-only legacy fallback deletion | exact print/1 typed row and source-to-exe evidence; no artificial commit-count quota |
+| Builtin `Print` | landed bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, Print-only legacy fallback deletion, and source-to-exe result `42` | do not reopen; choose the next exact family after the recorded audit follow-ups |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -85,12 +89,13 @@ buildable boundaries while the single-family scope stays fixed.
    for this nested helper. Choose the next exact family; do not reopen this
    cohort.
 
-2. MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (active branch-only)
-   reuse the existing reserved Print target and publication spine; add the
-   typed physical row and selected-C consumer, switch one named print caller,
-   and delete the Print-specific env/Extern fallback in the same coherent
-   series. No new semantic receipt, JSON target lookup, or artificial
-   five-commit limit is allowed.
+2. MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed)
+   the existing reserved Print target and publication spine now carry one
+   typed physical row to selected-C; one named print caller is switched, the
+   Print-specific env/Extern fallback is deleted, and the normal source-to-exe
+   probe prints `42`. No new semantic receipt, JSON target lookup, or
+   artificial five-commit limit was used. Return to design_stop before opening
+   another family.
 
 3. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
@@ -126,6 +131,17 @@ Each production family closeout repays its own old implementation, exclusive
 tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive
 copies earn zero reduction credit. A standalone broad test/guard purge stays
 parked unless caller-zero plus an equal-or-stronger successor is proved.
+
+### Audit follow-up boundary
+
+The landed Print slice does not claim whole-exit proof or whole-repository
+health. Before widening the next family, the named follow-ups are: one mixed
+App Main/top-level helper behavior test for the existing `TopLevel` rejection,
+the deterministic known-red baseline/no-new-red gate, and a minimal negative
+coverage set for the remaining published-view/join variants. Phi ordering,
+definition overwrite protection, non-scalar argument admission, and the
+legacy harness edge remain separate design work. These items do not reopen the
+completed Print cohort and do not authorize a second semantic pipeline.
 
 ## Current architecture decision
 

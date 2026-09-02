@@ -1,9 +1,11 @@
-/* Typed, synchronous StaticBoxMethod ingress for the canonical MIR publish.
+/* Typed, synchronous published-call ingress for the canonical MIR publish.
  *
  * The rows are borrowed from Rust for one compile call.  This file contains
  * no resolver, registry, or symbol-to-key parser.  A row is consumed by its
  * exact function/block/instruction coordinate; every supplied row must be
- * consumed before a successful object is returned.
+ * consumed before a successful object is returned.  The historical symbol
+ * name is retained for the bounded API, while `kind` distinguishes the
+ * selected StaticBoxMethod and Builtin Print physical consumers.
  */
 
 static const hako_llvmc_published_static_method_call_v1*
@@ -34,8 +36,14 @@ static int hako_llvmc_published_static_method_rows_begin(
          sizeof(hako_llvmc_published_static_method_row_used));
   for (size_t i = 0; i < row_count; i++) {
     const hako_llvmc_published_static_method_call_v1* row = &rows[i];
-    if (!(row->function_name && row->function_name[0] &&
-          hako_llvmc_published_static_method_symbol_safe(row->target_symbol))) {
+    int valid_kind =
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT;
+    int valid_payload =
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD
+            ? hako_llvmc_published_static_method_symbol_safe(row->target_symbol)
+            : (row->target_symbol == NULL && row->arity == 1);
+    if (!(row->function_name && row->function_name[0] && valid_kind && valid_payload)) {
       return set_err_owned(
           err_out,
           "[freeze:contract][published-mir-static-method] malformed typed row");
@@ -63,11 +71,11 @@ static void hako_llvmc_published_static_method_rows_end(void) {
          sizeof(hako_llvmc_published_static_method_row_used));
 }
 
-static const char* hako_llvmc_published_static_method_symbol_for_site(
+static const hako_llvmc_published_static_method_call_v1*
+    hako_llvmc_published_static_method_row_for_site(
     const char* function_name,
     long long block_id,
-    size_t instruction_index,
-    uint32_t* arity_out) {
+    size_t instruction_index) {
   if (!hako_llvmc_published_static_method_rows || !function_name || block_id < 0) {
     return NULL;
   }
@@ -81,8 +89,7 @@ static const char* hako_llvmc_published_static_method_symbol_for_site(
       continue;
     }
     hako_llvmc_published_static_method_row_used[i] = 1;
-    if (arity_out) *arity_out = row->arity;
-    return row->target_symbol;
+    return row;
   }
   return NULL;
 }

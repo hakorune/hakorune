@@ -543,13 +543,13 @@ non_claims = "No DeclaredInstance/Method(Some), Builtin Print, whole Call schema
 next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0__design_stop"
 
 [mir_call_canonical_publication_spine_builtin_print_i0_2026_09_02]
-status = "branch_only_fast"
+status = "landed"
 task_id = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
 parent_row = "MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0"
 depends_on = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0__landed"
 ceremony_tier = "T1"
 box_kind = "BoxCount one exact reserved Builtin Print physical publication row"
-implementation_permission = true
+implementation_permission = false
 branch_base_head = "808b7ec1ff"
 branch_permission = "isolated branch only; parent/main stays design_stop"
 decision = "Reuse the existing Print semantic target and published-MIR spine for one exact print/1 cohort. Add only a typed physical row to the existing borrowed backend view, switch one real production caller, and remove the Print-specific legacy Extern/env fallback in the same coherent series. Do not create a second Builder, a string target authority, or a new semantic receipt."
@@ -560,10 +560,46 @@ non_authority = ["print spelling or arity re-lookup", "JSON/name/header/registry
 fail_fast_boundary = "A published Builtin Print row must be present exactly once before object emission. Wrong arity, legacy func carrier, unexpected destination, unsupported argument representation, missing/duplicate row, or residual row rejects without legacy Extern emission, JSON target lookup, or another backend retry."
 old_edge_delete_set = ["build_print_from_value unified-disabled -> env.console.log legacy fallback", "selected Print site entering JSON/name-based target dispatch", "Print-specific physical row bypass or duplicate consumer", "typed Print failure -> legacy/fallback retry", "cohort-only temporary adapter/test/guard after caller-zero"]
 ordered_tasks = ["A: add Builtin Print recognition to the existing published backend view and its one borrowed C frame/row vocabulary; preserve the static-method API as a compatibility name without adding a second owner.", "B: add the selected-C typed physical consumer for the row, validating print/1 and no destination while preserving the existing physical argument representation; unsupported shapes fail before object emission.", "C: make build_print_from_value require the typed unified route and remove only its Print-specific env/Extern fallback; do not change unrelated Extern or TypeOp paths.", "D: run one real normal print source-to-exe probe and changed focused positive/negative/structural tests; delete the selected old Print edge in the same coherent series.", "E: closeout with exact changed-test coverage, deterministic no-new-red comparison, old-edge census, source/module README or reference update only if the contract changed, and pointer synchronization. E is evidence/cleanup, not a forced fifth commit."]
-allowed_files = ["src/mir/builder/stmts/print_stmt.rs", "src/mir/builder/calls/unified_emitter.rs", "src/mir/builder/calls/unified_emitter/request_boundary.rs", "src/mir/function/published_backend_view.rs", "src/mir/function.rs", "src/host_providers/llvm_codegen/published_mir_object.rs", "src/host_providers/llvm_codegen/capi_transport.rs", "src/runner/modes/mir.rs", "lang/c-abi/include/hako_llvmc_ffi.h", "lang/c-abi/shims/published_mir/**", "lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc", "lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc", "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
+allowed_files = ["src/mir/builder/stmts/print_stmt.rs", "src/mir/builder/calls/unified_emitter.rs", "src/mir/builder/calls/unified_emitter/request_boundary.rs", "src/mir/function/published_backend_view.rs", "src/mir/function.rs", "src/host_providers/llvm_codegen/published_mir_object.rs", "src/host_providers/llvm_codegen/capi_transport.rs", "src/runner/modes/mir.rs", "lang/c-abi/include/hako_llvmc_ffi.h", "lang/c-abi/shims/published_mir/**", "lang/c-abi/shims/hako_llvmc_ffi_route.inc", "lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc", "lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc", "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
 forbidden_files = ["src/parser/**", "lang/src/**", "selfhost/**", "DeclaredInstance/Method(Some)", "true FreeFunction family", "panic/exit", "Call schema/R6", "VM/selfhost", "broad JSON compatibility rewrite", "new MirBuilder", "new semantic Verified*/Prepared* receipt", "fallback/retry", "broad test/guard purge"]
 temporary_red_contract = "Use the immutable branch base 808b7ec1ff and compare the known failure-name set without rebaseline. Record every changed or added test by full name, owner, reason, successor, and expiry; no ignored or deleted red. There is no artificial five-commit quota: split commits at buildable semantic boundaries, keep one family and one branch, and stop/close if the bounded coherent slice cannot finish within the selected execution window. Unexpected red aborts the row."
-acceptance = "Landed: one real Print/1 production call is represented by a typed published physical row, the selected-C consumer uses that row without JSON/name/args[0] target reconstruction, the normal source-to-exe probe succeeds, and the Print-specific env/Extern fallback and selected legacy dispatch edge are deleted with no retry. Focused positive/negative/structural evidence and deterministic no-new-red evidence are recorded."
+acceptance = "Landed: one real Print/1 production call is represented by a typed published physical row, the selected-C consumer uses that row without target reconstruction or retry, the normal source-to-exe probe succeeds, and the Print-specific env/Extern fallback is deleted. Focused positive/negative/structural evidence and deterministic no-new-red evidence are recorded; the JSON document remains physical body transport only for this cohort."
+implementation_evidence = """
+The existing Builtin Print source owner now requires the typed unified-call
+route; it cannot re-enter the env.console.log Extern fallback. The published
+backend view recognizes the already-issued `CanonicalGlobalTargetV1::builtin_print()`
+as a finite physical row with no definition-table lookup, no legacy `func`, no
+destination, and exactly one ordered argument. The borrowed C frame carries
+`kind=2`, `arity=1`, and a null target symbol, while the historical C entrypoint
+name remains only as a compatibility API label. Both generic MIR-call dispatch
+and same-module body emission consume the row before their generic name/registry
+routes; malformed typed rows fail closed instead of falling through.
+
+Evidence: `cargo test --lib published_backend_view -- --nocapture` passed 8/8
+(7555 filtered out); `cargo build --profile quick --bin hakorune -q` passed;
+`bash tools/build_hako_llvmc_ffi.sh` passed; active-surface, dispatch, pointer,
+and `git diff --check` guards passed. A real
+`NYASH_LLVM_ROUTE_TRACE=1 HAKO_CABI_TRACE=1 target/quick/hakorune --backend mir
+--emit-exe /tmp/hako_builtin_print_probe apps/tests/hello_simple_llvm.hako`
+run recorded `stage=published_call result=consume reason=builtin_print extra=kind=2`,
+and the produced executable printed `42`. The known whole-lib baseline remains
+separate and is not claimed green; the audit's top-level helper, broad negative
+view coverage, runner/C unit-test, phi-order, and publication overwrite findings
+remain follow-up rows outside this single-family closeout.
+"""
+closeout = """
+Builtin Print publication I0 is complete. The existing semantic target is
+carried through a typed borrowed physical row into selected-C, one normal source
+caller reaches the row and produces a working executable, and the selected
+Print-specific env/Extern fallback has been removed. There is no typed failure
+retry through JSON/name/registry or another backend. The C API's historical
+StaticMethod spelling remains only for compatibility naming; row `kind` selects
+the already-published physical consumer. No claim is made for top-level helper
+mixing, all view error variants, whole-lib health, or another Call family.
+Return CURRENT_STATE to design_stop and choose the next exact family; do not
+reopen this cohort. Follow-up audit items are recorded as separate design work,
+not blockers for this landed Print slice.
+"""
 no_safe_slice = "Return to design_stop if Print requires a new semantic issuer, if the existing published view cannot represent a unique no-destination builtin row without a second owner, if the selected-C consumer needs name/registry/args[0] repair, if the old-edge set is not finite, if an unexpected red appears, or if the single-family bounded slice cannot be completed without opening another design row."
 non_claims = "No DeclaredInstance/Method(Some), true FreeFunction, panic/exit, Call-schema/R6, VM/selfhost, arbitrary UserBox support, all-backend parity, broad JSON purge, unrelated Extern/TypeOp changes, or whole-library green claim."
-next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0__fast"
+next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0__design_stop"

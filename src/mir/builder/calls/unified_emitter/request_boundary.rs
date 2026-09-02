@@ -10,7 +10,7 @@ use crate::mir::builder::{MirBuilder, ValueId};
 
 use super::{
     post_success::UnifiedCallSignaturePublicationV1, CompletedUnifiedValueCallEmissionV1,
-    UnifiedCallAlternateRouteV1, UnifiedCallEmitterBox,
+    UnifiedCallAlternateRouteV1, UnifiedCallEmissionOutcomeV1, UnifiedCallEmitterBox,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -55,6 +55,34 @@ pub(in crate::mir::builder) enum UnifiedValueCallReceiptErrorV1 {
 }
 
 impl UnifiedCallEmitterBox {
+    /// Emit one generic physical Call for a caller that has no compatibility
+    /// route.  Unlike the ordinary facade this refuses legacy emission and
+    /// accepts a no-destination generic Call, which is the shape used by the
+    /// reserved Builtin Print statement.
+    pub(in crate::mir::builder) fn emit_unified_call_required_v1(
+        builder: &mut MirBuilder,
+        target: CallTarget,
+        args: Vec<ValueId>,
+    ) -> Result<(), String> {
+        let outcome = Self::emit_unified_call_outcome_with_lookup_and_map_replay(
+            builder,
+            None,
+            target,
+            args,
+            None,
+            None,
+            UnifiedCompatibilityDispositionV1::RequireGenericReceipt,
+            UnifiedCallSignaturePublicationV1::Existing,
+        )
+        .map_err(UnifiedCallAttemptErrorV1::into_ordinary_string)?;
+        match outcome {
+            UnifiedCallEmissionOutcomeV1::Generic(_) => Ok(()),
+            UnifiedCallEmissionOutcomeV1::Alternate(route) => Err(format!(
+                "[freeze:contract][unified_call/required] alternate route is not allowed: {route:?}"
+            )),
+        }
+    }
+
     /// Emit one generic value-producing physical Call and return its exact
     /// post-success destination receipt.
     pub(in crate::mir::builder) fn emit_unified_value_call_with_lookup_receipt_v1(

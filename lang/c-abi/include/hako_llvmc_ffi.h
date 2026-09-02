@@ -1,9 +1,9 @@
 // hako_llvmc_ffi.h — versioned typed MIR backend ingress.
 //
 // This boundary is deliberately smaller than the JSON compatibility entry:
-// the caller supplies an already-published StaticBoxMethod call site and its
-// one-way physical symbol projection.  The C consumer may use the rows only
-// for that exact site; it must not resolve names or repair receiver operands.
+// the caller supplies already-published call sites and one-way physical
+// projections.  The C consumer may use each row only for that exact site; it
+// must not resolve names or repair receiver operands.
 
 #pragma once
 
@@ -20,10 +20,16 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
   uint32_t instruction_index;
   const char* target_symbol;
   uint32_t arity;
+  uint32_t kind;
 } hako_llvmc_published_static_method_call_v1;
 
-// Compile a module whose selected StaticBoxMethod call sites are described by
-// the typed rows.  json_in remains a physical body transport for this bounded
+// Physical transport discriminators.  These values are not semantic target
+// authority; they select the already-published row consumer only.
+#define HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD 1u
+#define HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT 2u
+
+// Compile a module whose selected published call sites are described by the
+// typed rows.  json_in remains a physical body transport for this bounded
 // cohort; target identity for selected calls comes only from `calls`.
 int hako_llvmc_compile_published_static_method_v1(
     const char* json_in,

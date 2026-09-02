@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
-current_design_stop = "none"
+current_design_stop = "Builtin Print publication vertical is landed; select the next exact family after the recorded audit follow-ups."
 current_blocker_token = """
-Decision: extend the existing published-MIR spine for exactly one reserved Builtin Print call. Keep the semantic target issued by the existing Print source owner, publish a typed physical row, and switch one production print caller without creating a second Builder or a string-based target authority.
-Source authority + canonical issuer: ASTNode::Print and build_print_from_value issue CanonicalGlobalTargetV1::builtin_print() through the existing unified-call owner; the existing Atomic MirModule publication and borrowed PublishedMirBackendView remain the sole publication owners.
+Decision: the Builtin Print publication vertical is landed; return to design_stop and choose the next exact family only after its finite owner/caller/delete-set census.
+Source authority + canonical issuer: the existing ASTNode::Print and build_print_from_value owner issue CanonicalGlobalTargetV1::builtin_print(); Atomic MirModule publication and the borrowed PublishedMirBackendView remain the sole physical owners.
 Non-authority: print spelling re-lookup, JSON/name/header/registry target reconstruction, physical symbol text, args[0] repair, EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a new semantic Verified*/Prepared* receipt.
-Fail-fast boundary: exact Print/1 typed rows are validated before object emission; wrong arity, legacy function carrier, missing typed row, unsupported argument/result representation, or residual row rejects without legacy emission or JSON/backend retry.
-Smallest next slice: add the existing Builtin Print physical row to the borrowed published view and selected-C ingress, make Print require that typed route, run one real print source-to-exe probe, then remove the Print-specific legacy env/Extern fallback in the same coherent series.
-Non-claims: no DeclaredInstance/Method(Some), true FreeFunction family, panic/exit, whole Call-schema/R6 cutover, VM/selfhost, arbitrary UserBox support, broad JSON/test purge, or whole-library green claim.
+Fail-fast boundary: the published Print/1 row is consumed before generic dispatch; malformed row, wrong arity, legacy carrier, destination, or residual state has no legacy/JSON/backend retry.
+Smallest next slice: perform one finite census for the next exact family; if owner/caller/delete-set is not exactly one, keep it ParkedSealed without another D0 or receipt.
+Non-claims: no top-level helper behavior decision, full published-view negative coverage, whole-lib green, DeclaredInstance/Method(Some), FreeStatic expansion, panic/exit, Call-schema/R6, VM/selfhost, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,29 +39,21 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The corrective ordinary-new Birth carrier cutover landed at 4b2db34ee3: the existing parser/package recipe target is selected before argument descent, the claimed branch emits a canonical typed Call after NewBox, and the no-claim compatibility writer remains unchanged. The route-entrypoint mode blocker was repaired at 06454bd084 and closed at c78889dc0b; interpreter-dispatched manifest helpers were aligned at b22a87392 without mass chmod. The two existing Pair/Page EXE smokes were run at cc7bb2cb2a43 and both stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary; no runtime green claim is made. The deterministic lib baseline refresh landed at 878480e395, then the lexical parity matrix landed at 80dc7102fb with 7553/7386/138/29, inventory SHA
-4f7534bd7614aec4aee56ae1a19e410621c47d3e407fedec52186ce40bfde202 and failure
-SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1; the CallTarget guard was rehomed at cde0250481 with no compiler
-semantic change. Full quick reaches the separate K2-wide OSVM guard. Selected-C
-has zero source-backed admission capabilities; the DeclaredInstance semantic
-package is ready only through its locator/crosswalk boundary. Keep the canonical path:
-publish one complete MirModule, then lend a borrowed typed backend view;
-direct package-to-Hako remains ParkedSealed. Fresh audit at 479a027863 finds
-only the Rust borrowed-MirModule seam; selected C/Hako/LLVM still consumes a
-JSON path ABI and has no lossless typed DeclaredInstance tuple or admission
-owner. The end-to-end tuple census is zero, so this family is now explicitly
-ParkedSealed__PublishedTargetAndBackendCoverageMissing rather than the active blocker. Add no D0,
-fixture, receipt, adapter, or guard; reopen only with one complete tuple and
-finite old-edge set. LEGACY-TESTS-RETIRE-R0 landed at bcc9a6ba65 with its default baseline unchanged. The target-only residual I0 landed at c939ee81cd; its typed finish checks and pre-commit residual boundary are recorded in the active card. Publication-spine S0 landed the StaticCurrentOwner source half, key preservation, Atomic Publish relation, borrowed typed view, selected-C ingress, runner switch, stable brand identity, and scalar me.helper() proof returning 7. The App Main FreeStatic extension then landed on the isolated branch at 61db816f39/b106753721: its exact source product joins the nested StaticBoxMethod key, the published definition survives normal compilation, and the typed backend-view probe is CanonicalTyped. Builtin Print remains a separate runtime-descriptor row.
+The deterministic lib baseline is 7553/7386/138/29; focused green is not whole-lib green.
+StaticBoxMethod and App Main FreeStatic publication spines are landed on this branch.
+Builtin Print I0 is landed: typed kind=2 row, selected-C consumption before generic
+dispatch, Print-only env/Extern fallback deletion, and traced source-to-exe result 42.
+DeclaredInstance arbitrary UserBox remains ParkedSealed; the audit's top-level-helper,
+negative-coverage, phi-order, and baseline-health findings remain follow-up boundaries.
 """
 next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
-next_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
-accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (branch-only fast row; reuse the existing Print target, Atomic Publish, borrowed view, and selected-C ingress; no artificial commit-count quota; parent/main remains unchanged)"
+accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
 parked_mirbuilder_canonical_call_rebuild_task = "none__superseded_by_accepted_branch_execution_card"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -72,7 +64,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-02: canonical entrypoint mode repair/closeout landed at 06454bd084/c78889dc0b, and interpreter-dispatched guard helpers were aligned at b22a87392d. Public direct entrypoints are executable; bash/python helpers remain 0644 by policy.",
   "2026-09-02: lexical parity matrix S0 landed after baseline refresh: six duplicate normal-script parity wrappers became one six-case matrix; source is 760 lines, inventory is 7553/7386/138/29, and failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1 is unchanged.",
   "2026-09-02: FreeStatic publication vertical landed on the isolated branch at 61db816f39/b106753721: App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. Parent/main remains design_stop; choose the next exact family.",
+  "2026-09-02: Builtin Print publication vertical landed on the isolated branch: one typed kind=2 row reaches selected-C before generic dispatch, the Print-only env/Extern fallback was removed, focused view tests are 8/8, and the traced source-to-exe probe printed 42. Return to design_stop; the audit's top-level helper, broad negative coverage, and known-red baseline items remain follow-up boundaries.",
 ]

@@ -20,7 +20,7 @@ pub(crate) fn compile_published_static_method_object(
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
     if view.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
-        return Err("published MIR module has no canonical StaticBoxMethod call".to_owned());
+        return Err("published MIR module has no canonical typed call".to_owned());
     }
     let frame = PublishedStaticMethodCFrameV1::from_view(&view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
@@ -41,9 +41,9 @@ pub(crate) fn compile_published_static_method_object(
     result
 }
 
-/// Emit and link one canonical published StaticBoxMethod module. `false`
-/// means the module has no selected-family call and must use its explicit
-/// compatibility caller; `true` means the typed path owned the emission.
+/// Emit and link one canonical published-call module. `false` means the
+/// module has no selected-family call and must use its explicit compatibility
+/// caller; `true` means the typed path owned the emission.
 pub(crate) fn emit_published_static_method_exe(
     module: &MirModule,
     exe_out: &str,

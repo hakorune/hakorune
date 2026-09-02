@@ -130,7 +130,7 @@ pub(super) fn compile_via_capi(
     }
 }
 
-/// Compile a published module through the typed StaticBoxMethod ingress.
+/// Compile a published module through the typed published-call ingress.
 /// Unlike `compile_via_capi`, this entry passes the selected call-site rows
 /// directly to the C consumer; it never selects a JSON/name fallback route.
 #[cfg(feature = "plugins")]
@@ -147,7 +147,7 @@ pub(super) fn compile_published_static_method_v1(
     }
 
     if rows.is_empty() {
-        return Err("published StaticBoxMethod ingress requires at least one row".to_owned());
+        return Err("published-call ingress requires at least one row".to_owned());
     }
 
     unsafe {

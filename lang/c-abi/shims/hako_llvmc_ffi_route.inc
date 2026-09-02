@@ -468,7 +468,7 @@ int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out,
 
 // Canonical published-MIR ingress.  The module body is still read from the
 // existing physical JSON transport for this bounded cohort, but selected
-// StaticBoxMethod call targets are consumed exclusively from the typed rows.
+// published call targets are consumed exclusively from the typed rows.
 // There is no retry through the generic JSON/name route for a selected row.
 __attribute__((visibility("default")))
 int hako_llvmc_compile_published_static_method_v1(

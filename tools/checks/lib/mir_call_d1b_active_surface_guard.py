@@ -451,22 +451,43 @@ def check_builtin_print_publication_spine_i0(state: dict, card: dict) -> None:
     ):
         if not isinstance(row.get(field), str) or not row[field].strip():
             fail(f"Builtin Print publication spine manifest field is missing: {field}")
-    if row.get("status") != "branch_only_fast":
-        fail("Builtin Print publication spine must remain branch_only_fast")
-    if state.get("work_mode") != "fast":
-        fail("Builtin Print publication spine must run in fast")
-    if state.get("current_execution_row") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
-        fail("Builtin Print publication spine row is not selected by CURRENT_STATE")
-    if state.get("current_design_stop") != "none":
-        fail("Builtin Print publication spine must clear current_design_stop")
-    if state.get("next_execution_card") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
-        fail("Builtin Print publication spine next_execution_card drifted")
-    if state.get("next_execution_card_path") != str(CARD_REL):
-        fail("Builtin Print publication spine card path drifted")
-    if row.get("implementation_permission") is not True:
-        fail("Builtin Print publication spine must retain implementation permission")
+    status = row.get("status")
     if row.get("branch_base_head") != "808b7ec1ff":
         fail("Builtin Print publication spine base head drifted")
+    if status == "branch_only_fast":
+        if state.get("work_mode") != "fast":
+            fail("Builtin Print publication spine must run in fast")
+        if state.get("current_execution_row") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+            fail("Builtin Print publication spine row is not selected by CURRENT_STATE")
+        if state.get("current_design_stop") != "none":
+            fail("Builtin Print publication spine must clear current_design_stop")
+        if state.get("next_execution_card") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+            fail("Builtin Print publication spine next_execution_card drifted")
+        if state.get("next_execution_card_path") != str(CARD_REL):
+            fail("Builtin Print publication spine card path drifted")
+        if row.get("implementation_permission") is not True:
+            fail("Builtin Print publication spine must retain implementation permission")
+        return
+    if status == "landed":
+        if state.get("work_mode") != "design_stop":
+            fail("landed Builtin Print publication spine must return to design_stop")
+        if state.get("current_execution_row") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+            fail("landed Builtin Print publication spine row is not selected by CURRENT_STATE")
+        if state.get("next_design_card") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+            fail("landed Builtin Print publication spine next design card drifted")
+        if not str(state.get("next_execution_card", "")).startswith("none"):
+            fail("landed Builtin Print publication spine must keep next_execution_card=none")
+        stop = state.get("current_design_stop")
+        if not isinstance(stop, str) or "Builtin Print publication vertical is landed" not in stop:
+            fail("Builtin Print publication spine closeout stop is missing")
+        if row.get("implementation_permission") is not False:
+            fail("landed Builtin Print publication spine cannot retain implementation permission")
+        if not isinstance(row.get("implementation_evidence"), str) or not row["implementation_evidence"].strip():
+            fail("Builtin Print publication spine implementation evidence is missing")
+        if not isinstance(row.get("closeout"), str) or "complete" not in row["closeout"].lower():
+            fail("Builtin Print publication spine closeout evidence is missing")
+        return
+    fail("Builtin Print publication spine status is not a finite branch or landed state")
 
 
 def check_declared_instance_effect_issuer_d0(state: dict, card: dict) -> None:

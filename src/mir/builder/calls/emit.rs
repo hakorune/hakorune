@@ -23,6 +23,19 @@ impl MirBuilder {
         super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call(self, dst, target, args)
     }
 
+    /// Emit a typed no-destination Call without allowing the legacy
+    /// compatibility emitter to re-enter.  Reserved builtins use this narrow
+    /// ingress when their source owner has already selected the target.
+    pub(in crate::mir::builder) fn emit_unified_call_required_v1(
+        &mut self,
+        target: CallTarget,
+        args: Vec<ValueId>,
+    ) -> Result<(), String> {
+        super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call_required_v1(
+            self, target, args,
+        )
+    }
+
     /// Invocation-header sibling.  The lookup is borrowed for one call only;
     /// legacy callers continue through `emit_unified_call` unchanged.
     pub(in crate::mir::builder) fn emit_unified_call_with_lookup(
