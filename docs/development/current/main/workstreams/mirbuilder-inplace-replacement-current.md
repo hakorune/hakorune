@@ -67,6 +67,17 @@ next decision is the existing DeclaredInstance package co-seal, while whole-
 library red and generic phi/overwrite/non-scalar/runner-C negative coverage
 remain explicit follow-ups.
 
+The DeclaredInstance decision is now narrower: Q1 receiver ABI and Q3
+source/package ownership are settled. The remaining bounded seam is Q2/Q4:
+retain the existing `CanonicalSameModuleCallableKeyV1::InstanceBoxMethod`
+from callsite through the published definition, carry a mandatory receiver,
+and switch one root-lexical `Method(Some)` caller. The three old edges are
+`generate_method_function_name`/header target selection, `LoweredGlobal`
+formatted-symbol reissue, and post-argument manual receiver prefix. selected-C
+is a downstream typed consumer/retirement lane, not a semantic issuer or
+precondition; no second resolver, receipt, family loan, or backend fallback is
+allowed.
+
 ### Current family disposition
 
 | family | status | reopen/next condition |
@@ -75,7 +86,7 @@ remain explicit follow-ups.
 | App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
 | Builtin `Print` | landed bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, Print-only legacy fallback deletion, and source-to-exe result `42` | do not reopen; choose the next exact family after the recorded audit follow-ups |
 | top-level `FreeFunction` | landed bounded vertical at `042cd56aa2`: mixed App Main plus scalar helper preserves the existing FreeFunction key through Atomic Publish and typed kind=3 selected-C ingress; source-to-exe result `3` | do not reopen; keep non-scalar/nested helpers and broad backend negatives parked |
-| DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
+| DeclaredInstance `me.method` | syntax retained; relation/effect/result/full-lane/locator/receiver crosswalk is landed; the remaining gap is the exact `InstanceBoxMethod` key + mandatory receiver call carrier and one published key-to-definition consumer | open one root-lexical `Method(Some)` vertical with a finite old-edge delete set; selected-C is downstream and not a semantic prerequisite |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
 | physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |

@@ -4,6 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 current_blocker_token = """
+Amendment (2026-09-02): Q1 receiver ABI and Q3 source/package products are settled and landed. The only open boundary is the existing InstanceBoxMethod key-to-callsite/published-definition carrier plus one root-lexical Method(Some) production switch; selected-C is downstream and is not a semantic prerequisite.
 Decision: the true top-level FreeFunction publication cohort is landed; return to the existing DeclaredInstance package-co-seal design stop. Do not open Method(Some) production until the existing relation, effect, result/Completion, physical lane, locator, and receiver ValueId owners are joined without a second authority.
 Source authority + canonical issuer: the same-session DeclaredInstance source relation/effect issuers, retained result/Completion and physical-signature products, installed locator, and CallableSemanticLoweringState crosswalk. Package assembly may co-seal these products but must not issue a new target or backend meaning.
 Non-authority: physical symbols, names/arity, headers/registry, JSON/C/Hako metadata, variable_map["me"], param0, args[0], numeric ValueId(0), MIR EffectMask/FunctionSignature inference, selected-C success, fixture green, fallback, retry, or a new Verified*/Prepared* receipt.

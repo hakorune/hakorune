@@ -35,16 +35,16 @@ Related:
   exact DeclaredInstance physical owner. Direct package-to-Hako emission remains
   forbidden; backend admission begins only after canonical module publication.
 - **Current bounded task:**
-  `MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0` remains the current
-  design-stop row. Its readiness projection is
-  `SemanticPackageReady=yes`, `PublishedCanonicalCallReady=no`,
-  `ProductBackendReady=no`, and `EndToEndVerticalReady=no`; this projection is
-  status only. Arbitrary UserBox Method has live selected-C callers, so a
-  profile-wide retirement row is not safe, and `UnsupportedBeforeObject` is not
-  yet a source-backed terminal. Reopen only from one exact Hako replacement
-  family plus a named caller/delete set, or an explicit product decision plus a
-  source-backed rejection owner. Do not create a selected-C source issuer,
-  bridge, fixture, receipt, resolver, adapter, or per-row guard.
+  `MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0` remains the current
+  design-stop row. Q1 receiver ABI and Q3 source/package ownership are settled;
+  the remaining seam is the exact `InstanceBoxMethod` key + mandatory receiver
+  call carrier, its key-to-definition publication relation, and one
+  root-lexical `Method(Some)` production caller. The readiness projection is
+  `SemanticPackageReady=yes`, `ReceiverCrosswalkReady=yes`,
+  `PublishedCanonicalCallReady=no`, and `EndToEndVerticalReady=no`.
+  selected-C is a downstream typed consumer/RetireAfterReplacement lane, not a
+  source semantic issuer or prerequisite. Do not create a selected-C source
+  issuer, second resolver, family loan, fixture, receipt, adapter, or fallback.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
