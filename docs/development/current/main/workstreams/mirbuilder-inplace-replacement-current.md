@@ -125,7 +125,7 @@ allowed.
    or fallback was added. Return to the DeclaredInstance package-co-seal
    design stop before opening another family.
 
-3a. MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0 (next bounded slice)
+3a. MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0 (active bounded slice)
     reuse the landed relation/effect/result/full-lane/locator/crosswalk. Add
     only the canonical `InstanceBoxMethod` key + mandatory receiver callsite
     carrier, retain its key-to-definition relation through publication, and
