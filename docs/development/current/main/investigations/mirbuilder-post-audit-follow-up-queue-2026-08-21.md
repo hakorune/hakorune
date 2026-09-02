@@ -23,6 +23,7 @@ selected only from source appearance.
 | `MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` | Parked design | `unified_emitter.rs` + exact callers | no layer merge until `PermitLegacy` and `RequireGenericReceipt` callers have a finite contract-preserving delete set |
 | `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` | Bounded BoxShape | `variable_read.rs` | move only direct read access to the existing variable owner; do not privatize or clone-rewrite the whole map |
 | `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` | Separate design | value/ABI + storage/runtime owners | keep safe defaults until generation/lease/lifetime/thread/failure contracts are fixed |
+| `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` | Candidate cleanup | `mutable_accumulator.rs` test surface | after the active perf row; delete one body-identical test only with baseline inventory update |
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | High confidence | unified-call observer ingress | gate candidate projection and JSON construction before work, preserving observer output exactly |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
@@ -191,6 +192,100 @@ generation, lease, stable-address, thread, and escape contracts. Only a
 source-backed MIR route decision may select NativeDirect; env/name/JSON/C-plan
 success is not authority. One exact AOT family can become default only after
 that contract and its fail-fast proof land.
+
+## 2026-09-02 all-worker re-audit consensus
+
+Six independent read-only audits were run against HEAD `72b7df0eeb` with a
+clean tree. They agree on the following finite boundary:
+
+```text
+confirmed physical debt:
+  builder.rs barrel / wide context visibility / direct variable_map access
+  ordinary emit env reads and unconditional clone work
+  method_call_handlers.rs at 766 lines
+  Call { func, callee: Option<Callee> } and selected legacy entrypoints
+
+not confirmed as an immediate task:
+  24-frame cost as a removable single chain
+  direct exact modes as defaults
+  VM as the product mainline
+  bulk guard deletion
+  a second semantic owner or a new family loan
+```
+
+The raw counts are not interchangeable metrics. `builder.rs` is 747 lines
+with 269 top-level module declarations (the 268 count excludes one test/path
+form); `CompilationContext` has 22 fields, 19 public, and its descendant
+access is broad. The `variable_map` census is 571 raw tokens across 152 files,
+81 clones (68 in non-test files), 67 assignments (64 non-test), and 53 map
+operations (35 non-test). These are an access-boundary map, not proof that all
+uses are one owner or that all clones are removable. Builder-level
+`#[allow(dead_code)]` has 40 annotated module declarations; 33 carry an
+explanation, 7 do not, and five have no module-path reference, but inherent
+method callers and dynamic/CI references remain possible.
+
+The guard inventory is `rows=3807`, `unknown_retain=3386`, and
+`delete_after_equivalent=0`. Unregistered or old guards are not deletion
+evidence. The VM audit confirms the existing SSOT: LLVM/EXE/AOT is the product
+and performance mainline; Rust VM is reference/bootstrap/compatibility and
+retires only after Call R7/HMI. Direct object/array modes remain explicit
+diagnostic lanes with safe defaults until handle generation, lease, lifetime,
+stable address, thread/escape, and exact-failure contracts are complete.
+
+The worker consensus therefore fixes this execution order:
+
+```text
+CURRENT: MIR-COMPILE-COST-BASELINE-P0
+  -> MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0/P0
+  -> MIR-EMIT-MOVE-COMMIT-R0
+  -> MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0
+  -> MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0
+  -> post-Call barrel / visibility / dead_code census
+```
+
+The first row remains the only active row. The snapshot opens only if the
+baseline observes the selected env owner and must live under the existing
+compilation context; no ChildPort field, dispatch supertrait, top-level
+Builder field, or forwarding parameter may be added. The move-commit row owns
+only proven emit clones. The lookup-facade row removes exactly one private
+forwarder (`MirBuilder::emit_unified_call_with_lookup`) after the perf row;
+its two production and one test callers are known, and its receipt/legacy
+policy contracts are unchanged. The variable-read row changes only
+`variable_read.rs` and uses the existing `VariableContext` accessor; it does
+not privatize, clone-rewrite, or snapshot the whole map.
+
+`method_call_handlers.rs` must receive a behavior-neutral policy/legacy
+boundary split before further semantic growth because it is already over the
+760-line design threshold. This is not permission to inline its StaticCurrentOwner,
+Math, DeclaredInstance, and legacy branches together. `unified_emitter` may be
+thinned only after an exact caller census proves a pure forwarder with one
+contract-preserving delete set; frame count alone is insufficient.
+
+The following remain explicitly parked and must not be smuggled into the
+active series: bulk `#[allow(dead_code)]` removal, full `variable_map`
+privatization, `CompilationContext` repartition, BTreeMap-to-HashMap changes,
+Compare/refresh fusion, direct-mode default changes, VM redesign, Call R6/R7,
+and guard-family deletion. A missing successor or a mixed authority returns
+the affected item to `ParkedSealed` without another D0/receipt/adapter.
+
+The all-worker test-surface audit found one additional finite cleanup
+candidate, but it is not the current execution row:
+
+```text
+MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0
+  delete: src/mir/loop_route_detection/support/locals/mutable_accumulator.rs
+          test_string_accumulator_spec (around line 445)
+  retain: test_mutable_accumulator_spec_simple (around line 239)
+```
+
+The normalized bodies, input, analyzer owner, and assertions are identical;
+the supposedly String-specific test actually uses `AccumulatorKind::Int`.
+There is no production caller and the current known-red failure names are
+unchanged. This row may open only after the active performance row closes and
+must update the existing baseline inventory once (expected `7571/7404/138/29`
+to `7570/7403/138/29`, failure SHA unchanged). It may not become a broad test
+purge, remove the other unverified duplicate pair, or alter production/MIR
+semantics.
 
 ### Bounded structural contracts
 
