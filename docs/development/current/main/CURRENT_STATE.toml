@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
-current_design_stop = "Builtin Print publication vertical is landed; select the next exact family after the recorded audit follow-ups."
+work_mode = "closeout"
+current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: the Builtin Print publication vertical is landed; return to design_stop and choose the next exact family only after its finite owner/caller/delete-set census.
-Source authority + canonical issuer: the existing ASTNode::Print and build_print_from_value owner issue CanonicalGlobalTargetV1::builtin_print(); Atomic MirModule publication and the borrowed PublishedMirBackendView remain the sole physical owners.
-Non-authority: print spelling re-lookup, JSON/name/header/registry target reconstruction, physical symbol text, args[0] repair, EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a new semantic Verified*/Prepared* receipt.
-Fail-fast boundary: the published Print/1 row is consumed before generic dispatch; malformed row, wrong arity, legacy carrier, destination, or residual state has no legacy/JSON/backend retry.
-Smallest next slice: perform one finite census for the next exact family; if owner/caller/delete-set is not exactly one, keep it ParkedSealed without another D0 or receipt.
-Non-claims: no top-level helper behavior decision, full published-view negative coverage, whole-lib green, DeclaredInstance/Method(Some), FreeStatic expansion, panic/exit, Call-schema/R6, VM/selfhost, or broad JSON/test purge.
+Decision: refresh the deterministic known-red lib receipt once after the landed Builtin Print tests; do not change compiler semantics.
+Source authority + canonical issuer: the fixed cargo --list inventory, serial cargo test --lib summary/failure names, and cargo_lib_red_baseline.py comparator.
+Non-authority: focused green, cargo check, count-only guesses, automatic rebaseline, historical prose, MIR/backend output, or any semantic test edit.
+Fail-fast boundary: three identical complete observations are required; inventory, summary, failure names, hashes, abort, zero/filtered, and disappeared/new names stop the row.
+Smallest next slice: reconcile the checked-in inventory/hash and known-red counts, run the comparator and guards, then return to design_stop for the next semantic family.
+Non-claims: no known-failure repair, whole-quick green, TopLevel helper, FreeFunction, DeclaredInstance/Method(Some), Call schema, VM/backend, fallback, retry, or test purge.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,15 +39,13 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The deterministic lib baseline is 7553/7386/138/29; focused green is not whole-lib green.
-StaticBoxMethod and App Main FreeStatic publication spines are landed on this branch.
-Builtin Print I0 is landed: typed kind=2 row, selected-C consumption before generic
-dispatch, Print-only env/Extern fallback deletion, and traced source-to-exe result 42.
-DeclaredInstance arbitrary UserBox remains ParkedSealed; the audit's top-level-helper,
-negative-coverage, phi-order, and baseline-health findings remain follow-up boundaries.
+The Builtin Print publication vertical is landed. A one-time verification row is
+refreshing the stale known-red receipt: current fixed observations are
+7563/7396/138/29 with no failure-name delta; this is not whole-lib green.
+After closeout, return to design_stop and choose the next exact semantic family.
 """
-next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
-next_execution_card = "none__design_stop"
+next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
