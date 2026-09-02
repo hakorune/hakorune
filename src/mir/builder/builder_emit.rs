@@ -1,5 +1,5 @@
 use self::builder_emit_core::append_instruction_core;
-use super::{observe, origin, utils};
+use super::{observe, origin};
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
 use crate::mir::BasicBlock;
@@ -43,6 +43,7 @@ impl MirBuilder {
     ) -> Result<(), String> {
         // Capture caller location at function entry (before any closures) for accurate reporting
         let caller = std::panic::Location::caller();
+        let emit_debug_policy = *self.comp_ctx.emit_debug_policy();
 
         let block_id = self
             .function_state
@@ -160,7 +161,7 @@ impl MirBuilder {
         // Record caller only when emission succeeds.
         // If we record before validation/emit and the emit path returns Err, diagnostics may
         // retain non-existent dst ValueIds and trigger false typed-without-def freezes.
-        let dst_value_for_metadata = if crate::config::env::joinir_dev::debug_enabled() {
+        let dst_value_for_metadata = if emit_debug_policy.joinir_debug_enabled() {
             match &instruction {
                 MirInstruction::Const { dst, .. } => Some(*dst),
                 MirInstruction::BinOp { dst, .. } => Some(*dst),
@@ -181,7 +182,7 @@ impl MirBuilder {
         };
         let emit_result = if let Some(ref mut function) = self.function_state.current_function {
             // Fail-fast: non-dominating Copy should not be emitted (strict/dev+planner_required only).
-            if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+            if emit_debug_policy.strict_planner_required_debug_enabled() {
                 if let MirInstruction::Copy { src, .. } = &instruction {
                     let def_blocks = crate::mir::verification::utils::compute_def_blocks(function);
                     let dominators = crate::mir::verification::utils::compute_dominators(function);
@@ -200,7 +201,7 @@ impl MirBuilder {
                 }
             }
             // Fail-fast: BinOp operands must be defined (strict/dev+planner_required only)
-            if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
+            if emit_debug_policy.strict_planner_required_debug_enabled() {
                 if let MirInstruction::BinOp { op, lhs, rhs, .. } = &instruction {
                     let def_blocks = crate::mir::verification::utils::compute_def_blocks(function);
 
@@ -216,7 +217,7 @@ impl MirBuilder {
                                 .unwrap_or_else(|| "unknown".to_string());
 
                             // Debug-only: dump MIR to help identify where undefined operand is used (written once per error)
-                            let mir_dump_path = if crate::config::env::joinir_dev::debug_enabled() {
+                            let mir_dump_path = if emit_debug_policy.joinir_debug_enabled() {
                                 let fn_name_sanitized = sanitize_for_path(&function.signature.name);
                                 let pid = std::process::id();
                                 let path = format!(
@@ -276,7 +277,7 @@ impl MirBuilder {
             if function.get_block(block_id).is_some() {
                 // CRITICAL: Copy専用トレース（LocalSSA調査用）
                 if let MirInstruction::Copy { dst, src } = &instruction {
-                    if crate::config::env::builder_local_ssa_trace() {
+                    if emit_debug_policy.local_ssa_trace() {
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!(
                             "[emit-inst] fn={} bb={:?} COPY %{} <- %{}",
@@ -292,7 +293,7 @@ impl MirBuilder {
                 if let MirInstruction::Call { callee, .. } = &instruction {
                     if callee.is_none() {
                         return Err("builder invariant violated: MirInstruction::Call.callee must be Some (unified call)".into());
-                    } else if crate::config::env::builder_local_ssa_trace() {
+                    } else if emit_debug_policy.local_ssa_trace() {
                         use crate::mir::definitions::call_unified::Callee;
                         if let Some(Callee::Method {
                             box_name,
@@ -311,7 +312,7 @@ impl MirBuilder {
                                 r.0
                             ));
                         }
-                    } else if crate::config::env::builder_trace_recv() {
+                    } else if emit_debug_policy.trace_recv() {
                         use crate::mir::definitions::call_unified::Callee;
                         if let Some(Callee::Method {
                             box_name,
@@ -341,7 +342,7 @@ impl MirBuilder {
                         }
                     }
                 }
-                if utils::builder_debug_enabled() {
+                if emit_debug_policy.builder_debug_enabled() {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[BUILDER] emit @bb{} -> {}",
