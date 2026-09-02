@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted-for-final-convergence-tasking; implementation remains parked behind the active product cutover
-Date: 2026-09-02
+Date: 2026-09-03
 Scope: repo の物理構造を docs/設計の責務分離に追いつかせるための BoxShape cleanup 順序を固定する。即時の `src/mir` crate split や broad rename は扱わない。
 Related:
   - CURRENT_TASK.md
@@ -243,6 +243,44 @@ selected batch measured one tracked file/75 lines before and zero afterward.
 The generated lifecycle receipt and existing guards were refreshed in the same
 closeout, and no compiler, MIR, test, or guard semantics changed.
 
+### `DOCS-HISTORY-RETIRE-R1` (queued after Call checkpoint integration)
+
+Reuse the existing docs-history owner for one exact `RetireFromTree` batch.
+The current reference census found four closed phase-296x cards at phase
+ordinals `1448 / 1450 / 1452 / 1454`; their full paths remain owned only by
+the generated lifecycle inventory so that this task record does not itself
+make them externally referenced. The separately listed ordinal `3455` is
+excluded because it still has live current-tree consumers.
+
+```text
+Decision:
+  retire exactly these four closed cards from the tracked tree after the
+  closed Call publication branch is integrated; Git history owns their detail.
+Source authority + canonical issuer:
+  CURRENT_STATE, durable trim/condition owners, and the existing strict
+  repository lifecycle inventory/reference scan.
+Non-authority:
+  age, filename, closed status alone, LOC alone, worker output, or an archive
+  copy.
+Fail-fast boundary:
+  any current pointer, guard/index/task-token reference, missing successor,
+  inventory drift, or unclassified red cancels the entire batch.
+Smallest next slice:
+  delete only the four files, refresh the existing lifecycle receipt, and run
+  the existing docs-slim/pointer/active-surface/diff checks.
+Non-claims:
+  no broad phase purge, investigation purge, compiler/MIR/backend change,
+  guard/test retirement, or new cleanup guard.
+Census boundary: lifecycle archive candidates at ordinals 1448/1450/1452/1454
+  -> current-tree path/basename/task references and durable successors;
+  excludes ordinal 3455, all other phase/investigation files, source, tests,
+  guards, generated assets, and archives.
+```
+
+Acceptance is a real reduction of exactly four tracked files and 276 tracked
+lines, with no tracked archive/stub copy. This row does not open a semantic
+family and is skipped if integration or the reference census drifts.
+
 ### `MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0` (landed)
 
 This is one production-neutral test-surface reduction under the same absolute
@@ -359,6 +397,29 @@ Closed execution prose defaults to Git history. `Tombstone` and tracked
 archive retention remain exceptions owned by
 `current-docs-archive-policy-ssot.md`; neither counts as absolute reduction
 unless tracked files and lines actually decrease without a copied full body.
+
+For the Call completion program, the budget is applied at these exact points:
+
+```text
+family disposition / production switch
+  -> delete the selected old edge and exclusive temporary assets in-series
+mandatory-Callee R6
+  -> retain compatibility evidence, but move it outside the canonical core
+Call R7 caller-zero
+  -> delete legacy Call/Method(None)/callee=None/repair readers and their
+     exclusive tests, guards, docs, adapters, and fixtures
+post-R7 thinning
+  -> delete dead barrel exports, raw ports, stale wrappers, false
+     #[allow(dead_code)] allowances, and disconnected proof modules leaf-first
+backend replacement
+  -> delete selected-C/Rust-VM family consumers only after equal-or-stronger
+     selected product coverage and caller-zero evidence
+```
+
+Tests are not deleted by count, age, filename, or current failure status. A
+test retires only with a caller-zero implementation/compatibility family or an
+equal-or-stronger successor. The known-red inventory remains a comparison
+owner; rebaselining, ignoring, or renaming-away a failure is not reduction.
 
 ## Reading Rule
 

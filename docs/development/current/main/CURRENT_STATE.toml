@@ -27,10 +27,10 @@ landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or
 semantic-family widening into verification-only rows.
 """
-guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> named production switch -> old-edge deletion row at a time. Zero/multiple owner-caller-delete tuples park the whole family; do not add another D0, receipt, adapter, fixture, or guard. Tests/guards/docs retire only with their caller-zero family or an equal/stronger successor. The current guard census has no new SupersededDelete candidate, so broad guard cleanup remains parked. Before Call R6, require deterministic no-new-red comparison and exact changed-test execution coverage; focused green is not whole-repo health. The snapshot I0, both post-audit P0 gate repairs, and B-S0 direct negative evidence are landed. Transport dedup remains NoSafeSlice pending a finite alternative-entry census; phi and non-scalar lanes remain separate design questions."
+guard_followup = "After this Print closeout, integrate the closed publication-spine checkpoint, run one current-HEAD Call producer/consumer census, disposition the remaining families, quarantine compatibility outside the canonical core, then perform mandatory-Callee R6. Zero/multiple authority tuples stay ParkedSealed without another D0, receipt, adapter, fixture, or guard. Each family deletes its selected old edge and exclusive temporary tests/guards/docs before the next family; R7 owns caller-zero Call compatibility deletion and post-R7 owns physical thinning. Known-red comparison and exact changed-test execution remain mandatory."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder owner-first compile-cost and physical thinning"
+active_lane = "MirBuilder Call completion and legacy retirement"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -45,7 +45,10 @@ B-S0 direct negative coverage, duplicate mutable-accumulator test retirement,
 published-C dual-consumer BoxShape, and Print producer coverage are landed and
 pushed. The Print producer proof reuses and renames one existing lifecycle
 test, so the #[test] count does not increase; whole-library health remains the
-classified 7577/7410/138/29 known-red baseline.
+classified 7577/7410/138/29 known-red baseline. The authoritative next order is
+closed-checkpoint integration, one Call census, remaining-family disposition,
+compatibility quarantine, mandatory-Callee R6, backend family cutover, R7
+retirement, then physical thinning and selected legacy-backend retirement.
 """
 next_design_card = "none__accepted_d0"
 next_execution_card = "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0"

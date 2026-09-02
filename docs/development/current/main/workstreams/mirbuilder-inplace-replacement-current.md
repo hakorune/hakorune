@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-09-02
+Date: 2026-09-03
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -25,242 +25,61 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and row authority. Rust Builder
-`Method(None)`, the shared `Resolved` corridor, post-argument resolver/recovery,
-and their exclusive name-Const/tail owners are retired. The canonical product
-shape remains one-way:
+`CURRENT_STATE.toml` is the sole mode and row authority. The current branch is
+the closed publication-spine checkpoint; StaticBoxMethod, FreeStatic,
+FreeFunction, Builtin Print, and one root-lexical SameModuleInstance semantic
+vertical are landed and must not be redesigned. The canonical product remains:
 
 ```text
 source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The first end-to-end product vertical has landed on the isolated branch:
-StaticBoxMethod preserves its callable key through Atomic Publish, lends one
-typed backend view, switches the normal `--emit-exe` edge, and removes the
-selected-family reach to JSON/name/`args[0]` repair. The scalar source proof
-`me.helper()` emits and runs with `Result: 7`. The follow-on App Main
-FreeStatic extension is now landed: its source product joins once to the
-nested Main helper's exact StaticBoxMethod catalog key before publication,
-the normal compiler retains one published definition and one `CanonicalTyped`
-backend-view row, and the real scalar `--emit-exe` probe returns `2`.
-The parent/main remains `design_stop` until this isolated branch is selected
-for integration. Arbitrary UserBox DeclaredInstance stays
-`ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
-The Builtin Print publication cohort is now landed on this isolated branch:
-the existing `CanonicalGlobalTargetV1::builtin_print()` target is carried by
-one typed physical row in the borrowed view, selected-C consumes that row, and
-the Print-specific legacy Extern/env fallback is gone. The source-to-exe probe
-returned `42`; the focused Rust view tests, C ABI build, route trace, and
-structural guards are recorded in the active card. The branch has returned to
-`design_stop`; no five-commit quota was imposed. The audit's top-level-helper,
-broad negative-coverage, runner/C unit-test, phi-order, and baseline-health
-findings remain explicit follow-up boundaries and are not silently claimed
-closed by this cohort.
-The follow-on true top-level FreeFunction cohort is now also landed at
-`042cd56aa2`: a mixed App Main plus scalar helper preserves the existing
-`CanonicalSameModuleCallableKeyV1::FreeFunction` through catalog/admission,
-collector, Atomic Publish, and typed kind=3 C ingress; the real executable
-probe returns `3`. Its focused positive/negative evidence and C-shim build are
-recorded in the active card. The branch has returned to `design_stop`; the
-DeclaredInstance package/crosswalk and root-lexical Method(Some) vertical are
-already landed, while whole-library red and generic phi/overwrite/non-scalar/
-runner-C negative coverage remain explicit follow-ups.
-
-The DeclaredInstance decision is now closed for the bounded root-lexical
-cohort: Q1 receiver ABI, Q3 source/package ownership, the existing
-`CanonicalSameModuleCallableKeyV1::InstanceBoxMethod`, and the mandatory
-receiver carrier are all landed. The selected `Ready -> CanonicalInstance`
-branch has zero reachability to the three old edges
-(`generate_method_function_name`/header target selection, `LoweredGlobal`
-formatted-symbol reissue, and post-argument manual receiver prefix). Their
-compatibility implementations remain outside this cohort until their own
-caller-zero rows close. selected-C is a downstream typed consumer/retirement
-lane, not a semantic issuer or precondition; arbitrary UserBox admission stays
-`ParkedSealed` and no second resolver, receipt, family loan, or backend
-fallback is allowed.
-
-The follow-up Hako physical-ingress audit is now closed as
-`ParkedSealed__HakoIngressMissing`: `lang/**` has zero
-`PublishedMirBackendView` references, Hako's current owner consumes a hydrated
-`Map`/`RecipeFacts` rather than a borrowed Rust view, and the available scalar
-Probe has no production runtime caller. Do not open another Hako D0. The
-separate repository cleanup lane has landed the explicitly bounded
-`REPO-LIFECYCLE-BASELINE-REFRESH-R0` task, which reconciled its generated
-receipt once without starting a reduction batch.
-The follow-up `GUARD-FAMILY-RETIREMENT-R0` audit found no new finite
-caller/reference-zero family with an equal-or-stronger successor, so guard
-deletion remains `ParkedSealed__NoSupersededDeleteCandidate`.
-
-### 2026-09-02 next-family audit
-
-The root-lexical DeclaredInstance `Method(Some)` vertical is already landed;
-it is not waiting on the old Q1-Q4 design questions. A read-only audit of the
-three plausible follow-up families found no admissible production tuple under
-the current authority rules:
-
-| candidate | disposition | blocking premise |
-|---|---|---|
-| broad Extern | `ParkedSealed / NoSafeSlice` | ExplicitExtern, EnvMethod, and route/runtime consumers have split authorities; no one source-backed effect/result/ABI issuer and lossless consumer |
-| Value/closure invocation | `ParkedSealed / NoSafeSlice` | source records prove binding/site facts but no callable-membership issuer exists; raw and CorePlan have two production-capable callers; the reference VM rejects the family |
-| explicit object `obj.method(...)` | `ParkedSealed / NoSafeSlice` | the existing nominal DeclaredInstance issuer is root-only; the shared compatibility route would require name/type/receiver reconstruction and has no finite caller-exclusive delete set |
-
-This is a finite audit result, not permission to create another D0. Keep the
-existing selected-C design stop as the current boundary. Reopen a production
-family only when one existing source authority, one canonical issuer, one live
-caller, one lossless downstream consumer, and a finite same-series old-edge
-delete set are all named. Otherwise use the existing verification/cleanup
-lanes, or leave the family parked; do not manufacture a receipt, adapter,
-family loan, fallback, or retry to force progress.
-
-### Verification baseline refresh (2026-09-02)
-
-The existing `DEV-GATE-LIB-BASELINE-REFRESH-R0` is the sole temporary fast row:
-the fixed serial `cargo test --lib` receipt now agrees at `7572 / 7405 / 138 /
-29`, with inventory SHA
-`3bc6cb495886662962ec8d41afa3124633dd29191ec9e1a7ee9020fb07f255a8` and an
-unchanged 138-name failure set. This is a deterministic known-red receipt,
-not a whole-library-green claim or semantic work. After closeout, the pointer
-returns to the existing selected-C design stop; no new semantic row is opened
-by this refresh.
-
-### Current family disposition
-
-| family | status | reopen/next condition |
-|---|---|---|
-| published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
-| App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
-| Builtin `Print` | landed bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, Print-only legacy fallback deletion, and source-to-exe result `42` | do not reopen; choose the next exact family after the recorded audit follow-ups |
-| top-level `FreeFunction` | landed bounded vertical at `042cd56aa2`: mixed App Main plus scalar helper preserves the existing FreeFunction key through Atomic Publish and typed kind=3 selected-C ingress; source-to-exe result `3` | do not reopen; keep non-scalar/nested helpers and broad backend negatives parked |
-| DeclaredInstance `me.method` | syntax retained; relation/effect/result/full-lane/locator/receiver crosswalk, the exact `InstanceBoxMethod` key carrier, and one root-lexical source-backed canonical MIR caller are landed on the branch | Hako physical ingress is `ParkedSealed__HakoIngressMissing`; reopen only after one borrow-only ingress, one real runtime caller, and a finite delete set exist |
-| ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
-| ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
-| physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |
-| generic CorePlan GlobalCall | portable Loop M10b owner; parked | M8/M9/precutover deletion-manifest readiness |
-| unified legacy emission | cross-family compatibility owner; retained | all production variants classified or caller-zero |
-
-### Bounded execution order
+The next work is fixed by `mirbuilder-final-pipeline-ssot.md`:
 
 ```text
-0. MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0 (landed)
-   key/definition Atomic Publish -> borrow-only view -> typed C ingress
-   -> named --emit-exe switch -> scalar source-to-EXE proof. The cohort is
-   closed; no extra D0 or compatibility retry is allowed.
-
-1. MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0 (landed)
-   the App Main FreeStatic source product joins the exact nested
-   StaticBoxMethod catalog key, the key survives Atomic Publish, one typed
-   selected-C row consumes the published view, and the selected caller's
-   name/JSON fallback edge is gone. The neutral FreeFunction namespace
-   remains available for a true top-level definition; it was not fabricated
-   for this nested helper. Choose the next exact family; do not reopen this
-   cohort.
-
-2. MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed)
-   the existing reserved Print target and publication spine now carry one
-   typed physical row to selected-C; one named print caller is switched, the
-   Print-specific env/Extern fallback is deleted, and the normal source-to-exe
-   probe prints `42`. No new semantic receipt, JSON target lookup, or
-   artificial five-commit limit was used. Return to design_stop before opening
-   another family.
-
-3. MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (landed)
-   the mixed App Main plus scalar top-level helper preserves the existing
-   FreeFunction key through collector/Atomic Publish and typed kind=3 ingress;
-   the source-to-exe probe returns `3`. No Static conversion, name/JSON repair,
-   or fallback was added. Return to the DeclaredInstance package-co-seal
-   design stop before opening another family.
-
-3a. MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0 (landed)
-    reused the landed relation/effect/result/full-lane/locator/crosswalk. The
-    branch now carries the canonical `InstanceBoxMethod` key plus mandatory
-    receiver through the source-backed callsite and publishes its
-    key-definition relation; one root-lexical caller is proven. The selected
-    route's old-edge reachability is mechanically zero for name/header target
-    selection, `LoweredGlobal` symbol reissue, and post-argument manual
-    receiver prefix. Compatibility helpers remain only for unarmed/other
-    families. selected-C is still a separate downstream design stop; its
-    arbitrary UserBox path is not inferred from this landed MIR route.
-
-3b. MIR-CALL-PUBLICATION-SPINE-MAIN-INTEGRATION-R0 (landed at 7a03921005)
-    clean fast-forward ancestry, focused evidence, pointer/active-surface, and
-    the deterministic known-red baseline were rechecked; the closed branch was
-    fast-forwarded to main. This was integration only, not a semantic change.
-
-3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (landed at 48770b5c6c)
-    canonical `SameModuleInstance` is classified by the existing published
-    view as `UnsupportedBeforeObject` before JSON/C/object admission. The old
-    route remains reachable only from one explicit compatibility entry; no
-    retry or partial emission is allowed. This is a quarantine, not physical
-    retirement or permanent language removal. Focused route tests pass 13/13;
-    return to design_stop and keep the Hako physical-ingress lane parked.
-
-3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (ParkedSealed)
-    `LlvmBackendBox` / `LlTextEmitBox` are the intended physical owners, but a
-    synchronous Rust `PublishedMirBackendView` -> Hako borrow-only production
-    ingress and a real runtime scalar caller are both zero. The bounded audit
-    found no lossless seam, so this row is closed as
-    `ParkedSealed__HakoIngressMissing`; do not add another D0, receipt, adapter,
-    fixture, or fallback.
-
-3e. Hako scalar I0 -> selected-C family R0 (parked)
-    extend the existing view with a private `SameModuleInstance` projection,
-    emit `[receiver] + source args` exactly once through the Hako LLVM-text
-    owner, prove source-to-object/exe with a real runtime caller, then remove
-    the same-family JSON/name/registry/args0/selected-C reachability and finish
-    residual-zero. Reopen only after 3d's trigger is satisfied; an object/link-
-    only Probe that Main never calls does not qualify.
-
-3f. REPO-LIFECYCLE-BASELINE-REFRESH-R0 (landed)
-    This separate cleanup window compared the generated lifecycle census with
-    the committed receipt and wrote it once. Strict inventory, docs-slim,
-    pointer, active-surface, and diff checks passed. It made no
-    deletion/archive claim and changed no compiler, backend, test, or guard
-    semantics; the pointer returned to the Hako ParkedSealed boundary.
-
-3g. GUARD-FAMILY-RETIREMENT-R0 (ParkedSealed)
-    The current guard census is `rows=3807`, `unknown_retain=3386`, and
-    `delete_after_equivalent=0`; no new delete set exists. Existing retired
-    loop guards remain protected by their navigation tombstones. Do not open
-    another guard row until a named successor and caller/reference-zero proof
-    exist.
-
-3h. DOCS-HISTORY-RETIRE-R0 (landed)
-    The first absolute-reduction batch removed exactly one 75-line,
-    reference-closed `superseded_not_needed` ProgramRoot investigation.
-    Detail remains in Git history (no archive copy); the existing lifecycle
-    receipt and guards were refreshed, and the pointer returned to the Hako
-    ParkedSealed stop. No broad docs/phase purge or compiler change was made.
-
-3i. MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0 (landed)
-    Remove only the duplicate `fact_attached_to_src_before_check_rejects`
-    assertion; retain its identical `mapstore_i64_key_from_dynamic_src_after_checked_local_write`
-    successor. Reconcile the existing 7572/7405/138/29 known-red inventory to
-    7571/7404/138/29 with the failure-name set unchanged. This is test-surface
-    reduction only; no production fact, MirBuilder, backend, or semantic route
-    changes were made. The focused successor passed 1/1 and full-lib matched
-    the accepted 138-name red set; the pointer returned to Hako ParkedSealed.
-
-4. MS1-P family batches
-   use the landed spine for remaining Global/Method/Value/Extern/Terminal
-   families; each batch switches one production family and deletes its old
-   reachability/assets in the same bounded series.
-
-5. MS1-P product convergence
-   every currently complete production family reaches canonical Call/Atomic Publish
-   product resolver/recovery/fallback/Method(None)/callee=None writers = 0
-
-6. MS1-C compatibility quarantine
-   Compatibility(AST), old JSON and harness/mock routes live behind one named boundary
-   canonical rejection has retry/fallback = 0
-
-7. MS1-D Call R6/R7
-   adapt or quarantine compiled consumers, then delete func, optional Callee/receiver,
-   INVALID/0 targets, old writers, and their exclusive proof surface
-
-8. post-Call integration and repository repayment
-   shrink context/port/barrel owners by finite caller; remeasure tracked files/lines
+closed checkpoint integration
+  -> one current-HEAD Call producer/consumer census
+  -> remaining family disposition
+  -> compatibility outer-ingress quarantine
+  -> mandatory-Callee R6
+  -> selected backend family cutover
+  -> R7 caller-zero legacy deletion
+  -> physical Builder/repository thinning
+  -> selected-C/Rust-VM retirement after replacement
 ```
+
+Broad Extern, Value/closure, explicit object method, nested/upvar receiver,
+ordinary-new no-claim, generic CorePlan GlobalCall, and physical thunk are not
+implicit next implementation rows. They reopen only with exactly one existing
+source authority, canonical issuer, live caller, lossless selected consumer,
+and finite old-edge delete set. Otherwise they stay `ParkedSealed` and no
+additional D0/receipt/adapter/fixture/guard is created.
+
+Hako SameModuleInstance remains `ParkedSealed__HakoIngressMissing`: the Rust
+published-view owner exists, but Hako has no borrow-only ingress and no real
+scalar production caller. This does not block mandatory-Callee MirBuilder core
+completion. selected-C arbitrary UserBox remains typed
+`UnsupportedBeforeObject`; it is a compatibility/backend fate, not a language
+or semantic issuer.
+
+Repository reduction is coupled to the same queue. Every switched family
+deletes its selected old edge and exclusive temporary assets before the next
+family. R7 owns Call-only legacy tests/guards/docs/adapters after caller-zero;
+post-R7 thinning owns dead barrel exports, raw ports, stale wrappers, false
+dead-code allowances, and disconnected proof modules. Closed detail belongs
+to Git history; tracked archive copies receive zero reduction credit.
+
+The superseded 2026-09-02 family audit, baseline refresh detail, and landed
+family table are retained by Git history and the owning manifest. They are not
+a second executable queue.
+
+### Execution order authority
+
+The executable order is the compact M0--M9 Call completion program in
+`mirbuilder-final-pipeline-ssot.md`. Landed row narratives and exact evidence
+remain in Git history and the owning machine-readable manifest; this
+workstream does not duplicate them.
 
 ### Compact closed tail
 
@@ -268,7 +87,8 @@ by this refresh.
   `44555655ab`, `7a6fb9e2db`, and ordinary-new `4b2db34ee3`.
 - Repository/tooling tombstones: legacy-tests `bcc9a6ba65`; entrypoint policy
   `06454bd084`/`c78889dc0b`/`b22a87392d`; baseline/matrix
-  `878480e395`/`80dc7102fb` (`7553/7386/138/29`).
+  `878480e395`/`80dc7102fb`; current accepted receipt is
+  `7577/7410/138/29`.
 - focused green is not a whole-repo green claim; the 138-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive

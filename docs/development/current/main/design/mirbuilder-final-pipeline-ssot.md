@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-30
+Date: 2026-09-03
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -24,23 +24,25 @@ Related:
 
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
-- **Current implementation status:** the package/install bridge and many Call
-  writers are closed. B0 census/provenance guards are landed; outside fates and
-  Stage1/direct arbitration are accepted design decisions. The bounded
-  reference-child private transport I0 is landed with a guarded private one-of
-  handoff; CanonicalV1 Value flow is landed. Full Rust VM retirement is accepted
-  as a later sibling, while CoreDirect and force-hv1 remain the two pre-Wpre
-  bypass families. Typed Global, late recovery, receiver ABI, and
-  mandatory-Callee remain closed.
-- **Next ordered task:** design-close the finite force-hv1 caller fate, then do
-  force-hv1 migration and strict Value seams before opening the
-  shared-runner Wpre-I0. The exact ProductAot substring successor is landed.
+- **Current implementation status:** the typed publication spine is landed for
+  StaticBoxMethod, FreeStatic, FreeFunction, Builtin Print, and one root-lexical
+  DeclaredInstance source family. The exact key survives Atomic Publish and the
+  selected static/free/Print backend rows are typed. The public Call schema is
+  still transitional (`func` plus optional `callee`), broad compatibility
+  consumers remain reachable, and Hako has no borrow-only published-view
+  ingress for SameModuleInstance.
+- **Next ordered task:** integrate the closed publication-spine checkpoint,
+  close one current-HEAD Call producer/consumer census, quarantine every
+  noncanonical production ingress, then perform the mandatory-Callee R6
+  cutover. Do not reopen landed source families or add another precursor D0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
 - **Retirement finish line:** canonical source families use the one pipeline,
   Call fallback/retry is zero, transitional integration hubs are reduced by
-  finite owner, and legacy code/docs/guards are retired rather than mirrored.
+  finite owner, and each switched family repays its exclusive legacy
+  code/tests/guards/docs before the next family. Closed detail lives in Git,
+  not a copied current-tree archive.
 
 ## Decision
 
@@ -165,6 +167,100 @@ CoreDirect and force-hv1 bypass closure precede Wpre. Broad/default Rust route
 retirement, current vm-hako retirement, independent AOT HMI construction, and
 Rust `MirInterpreter` physical deletion follow Call R7 and post-Call integration
 in the order owned by `vm-active-lane-retirement-ssot.md`.
+
+## Call completion and retirement program (2026-09-03)
+
+This is the authoritative Call projection of the global pipeline above. It is
+not a second MirBuilder, a second task ledger, or permission to recreate a
+landed family. The three completion levels are deliberately separate:
+
+```text
+MS1-M  MirBuilder core
+       every production source family issues one mandatory typed target or a
+       named pre-effect rejection; target selection precedes arguments; the
+       module is published atomically; resolver/recovery/fallback/retry are 0
+
+MS1-B  product backend
+       each selected product family consumes the borrowed published module;
+       unsupported profiles stop before object emission without semantic repair
+
+MS1-D  physical retirement
+       old Call schema, compatibility readers, family-only tests/guards/docs,
+       selected-C/VM legacy consumers, and disconnected Builder surfaces are 0
+```
+
+The fixed order is:
+
+```text
+M0  MIR-CALL-PUBLICATION-SPINE-INTEGRATION-R0
+    closed checkpointを検証して統合。semantic changeなし
+M1  MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0
+    current-HEADのwriter/reader/optional target/repair/backendを一度だけ分類
+M2  MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0
+    残familyを4状態へ閉じ、zero/multiple tupleは追加D0なしでpark
+M3  MIR-CALL-COMPATIBILITY-QUARANTINE-R0
+    legacy/JSON/Unified-OFF/name repairをcore外へ隔離。retryなし
+M4  MIR-CALL-MANDATORY-CALLEE-R6
+    mandatory Calleeへatomic cutoverし、canonical func/optional stateを削除
+M5  MIR-CALL-HAKO-PUBLISHED-VIEW-INGRESS-I0
+    real caller + borrow-only lossless ingressがexactly oneの時だけ再開
+M6  MIR-CALL-BACKEND-FAMILY-CUTOVER-R0
+    一familyを切替え、旧edgeと専有temporary assetsを同じseriesで削除
+M7  MIR-CALL-COMPATIBILITY-RETIRE-R7
+    caller-zero後に旧Call/Method(None)/repair/fallback/retryを削除
+M8  MIRBUILDER-PHYSICAL-THINNING-R0
+    barrel/raw port/variable_map bypass/stale wrapper/dead proofをleaf-first削除
+M9  MIRBACKEND-LEGACY-RETIRE-R0
+    replacement coverageとcaller-zero後にselected-C/Rust-VM consumerを退役
+```
+
+After M0 and before the next semantic implementation family, the independent
+`DOCS-HISTORY-RETIRE-R1` repayment may remove its four pre-classified closed
+cards. It is skipped on any census drift and does not block M1.
+
+M1 has one finite state vocabulary:
+
+| disposition | meaning | next action |
+| --- | --- | --- |
+| `Canonical` | exact source authority and mandatory typed target exist | retain and include in R6 |
+| `CompatibilityOuterIngress` | public/fixture compatibility still owns the shape | isolate outside canonical core |
+| `ExplicitUnsupported` | language/profile combination is intentionally unsupported | typed reject before effect/object |
+| `DeadDeleteCandidate` | structural asset has caller zero and no public contract | delete with its exclusive evidence |
+
+`Method(None)`, `callee=None`, a string target, backend success, JSON, a
+registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target
+authority. Construction terminators such as NewBox/NewClosure remain outside
+the Call schema census unless they consume or recreate a Call target.
+
+The currently landed source families are not reopened by M1/M2:
+StaticBoxMethod, FreeStatic, FreeFunction, Builtin Print, and the root-lexical
+SameModuleInstance semantic vertical. Broad Extern, Value/closure invocation,
+explicit object method ingress, nested/upvar receiver, ordinary-new no-claim,
+generic CorePlan GlobalCall, and physical thunk stay parked unless the census
+finds exactly one existing source authority, one canonical issuer, one live
+caller, one lossless selected consumer, and one finite old-edge delete set.
+
+MirBuilder core completion is reached at MS1-M, not after repository cleanup:
+
+```text
+supported source family -> Facts/Recipe -> mandatory typed target
+                        -> arguments once -> canonical Call -> Atomic Publish
+unsupported family      -> named typed reject before source/object effect
+
+production callee=None                         = 0
+production Method(None)                        = 0
+target repair by AST/name/header/registry      = 0
+receiver inference from args[0]/ValueId(0)     = 0
+fallback / retry / profile reselection         = 0
+partial module publication                     = 0
+```
+
+Hako published-view coverage and physical legacy deletion remain required for
+MS1-B/MS1-D, but they do not authorize another semantic Builder design cycle.
+Each M2/M6 family closeout applies the Family Repository Surface Budget from
+`repo-physical-structure-cleanup-ssot.md`: the selected old edge and exclusive
+temporary assets are deleted, tracked files/lines are remeasured, and a move or
+archive copy receives zero reduction credit.
 
 Canonical coreの最終targetはopaque IDやphysical symbolではなく、wire-stableな
 typed structural identityである。少なくともbuiltinとsame-module staticを有限に
@@ -571,7 +667,10 @@ backendは`MirType`、metadata、ABI manifest、storage planを独立に再結�
 
 ## Completion authority
 
-MirBuilder再構築は、次がproduction graphで成立したときに着地する。
+`MIRBUILDER-FINAL-PIPELINE-v1`全体は、次がproduction graphで成立した
+ときに着地する。MirBuilder core単体のMS1-M境界は上のCall completion
+programが所有し、backend coverageと物理retirementをcoreの再設計条件へ
+逆流させない。
 
 ```text
 accepted production source families enter one authority pipeline = all
