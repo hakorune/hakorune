@@ -492,29 +492,24 @@ implementation permission = false
 scope = JoinIR/JSON outer ingress -> first MIR Call/module publication
 Decision = ParkedSealed__JoinIrAndJsonHaveMultipleIngressOwners
 ```
-
-Canonical source/package publication remains the only semantic issuer (the
-sole semantic issuer). JoinIR
+Canonical source/package publication remains the only semantic issuer (the sole semantic issuer). JoinIR
 structured bridge, MIR JSON v0/v1, Program JSON v0, and JSON egress are
 separate compatibility owners/callers; wire names, `func`/Const, `args[0]`,
 receiver defaults, registry lookup, parser retry, and backend success are not
 authority. Each outer ingress validates schema/target/receiver/arity and
 fail-closes without canonical or alternate-parser fallback.
-
-Smallest next slice: separate four outer-ingress censuses, read-only, for (1) structured JoinIR
-bridge, (2) MIR JSON v0/v1, (3) Program JSON v0, and (4) JSON egress. Do not
-delete JoinIR/JSON, change Call R6, add a receipt/adapter, or alter backend/VM
-until one owner, one live caller, and an exclusive finite delete-set are proven
-for one ingress. The M3-C boundary excludes canonical MirBuilder publication,
-C/LLVM lowering, and already-landed source families.
-
+Smallest next slice: separate four outer-ingress censuses, read-only, for JoinIR,
+MIR JSON v0/v1, Program JSON v0, and JSON egress. Do not delete JoinIR/JSON,
+change Call R6, add a receipt/adapter, or alter backend/VM until one owner, one
+live caller, and an exclusive finite delete-set are proven for one ingress. The
+M3-C boundary excludes canonical MirBuilder publication, C/LLVM lowering, and
+already-landed source families.
 Owner roots are `src/mir/join_ir_to_mir`, `src/runner/mir_json_v0`, `json_v1_bridge`,
 `json_v0_bridge`, and `mir_json_emit`. Structured JoinIR has
 no production caller (two tests only), so it is a `DeadDeleteCandidate`, not an
 immediate delete: public API, dedicated evidence, and independence from builder
 JoinIR merge must close first. Its string/alias/`args[0]` projection never
 re-enters canonical publication.
-
 The MIR JSON v0/v1 sub-census is also `NoSafeSlice`: direct file, artifact,
 direct text, and selfhost/Stage-A are four production caller series. v1→v0,
 canonicalize, and Program JSON fallback remain compatibility selection, so
@@ -526,6 +521,11 @@ closeout applies the Family Repository Surface Budget from
 `repo-physical-structure-cleanup-ssot.md`: the selected old edge and exclusive
 temporary assets are deleted, tracked files/lines are remeasured, and a move or
 archive copy receives zero reduction credit.
+
+Program JSON v0 is also `NoSafeSlice`: artifact, host/provider, selfhost,
+runtime, and public callers share name/catalog reconstruction and fallback
+layers. Split caller families before parser/Call R6/fallback deletion; JSON is
+never semantic authority.
 
 Canonical coreの最終targetはopaque IDやphysical symbolではなく、wire-stableな
 typed structural identityである。少なくともbuiltinとsame-module staticを有限に
