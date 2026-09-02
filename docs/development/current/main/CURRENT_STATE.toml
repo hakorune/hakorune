@@ -47,9 +47,12 @@ backend transport, and a real executable probe returning 3. Focused positive
 and negative evidence, C-shim build, pointer/active-surface guards, and diff
 checks passed. Known whole-lib red remains separate and is not claimed green;
 generic phi/overwrite/non-scalar/runner-C negative coverage remains follow-up.
-The next row is the existing DeclaredInstance package-co-seal design stop;
-relation/effect/result/lane/locator products are retained, but Method(Some)
-production is still closed.
+The next row is the existing DeclaredInstance package-co-seal design stop.
+Q1 receiver ABI and Q3 source/package ownership are settled; the remaining
+bounded seam is the exact InstanceBoxMethod key + mandatory receiver callsite
+carrier, its published key-to-definition relation, and one root-lexical
+Method(Some) production switch. selected-C is downstream and not a semantic
+prerequisite.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 next_execution_card = "none"

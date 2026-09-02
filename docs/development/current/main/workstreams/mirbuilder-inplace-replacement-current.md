@@ -125,6 +125,17 @@ allowed.
    or fallback was added. Return to the DeclaredInstance package-co-seal
    design stop before opening another family.
 
+3a. MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0 (next bounded slice)
+    reuse the landed relation/effect/result/full-lane/locator/crosswalk. Add
+    only the canonical `InstanceBoxMethod` key + mandatory receiver callsite
+    carrier, retain its key-to-definition relation through publication, and
+    switch one root-lexical `Method(Some)` caller. The selected old edges are
+    name/header target selection, `LoweredGlobal` symbol reissue, and the
+    post-argument manual receiver prefix. selected-C remains a downstream
+    typed consumer; no JSON/name/registry repair, fallback, retry, second
+    resolver, or family-specific loan is allowed. If the existing key cannot
+    be carried losslessly, stop as `NoSafeSlice` instead of adding a new D0.
+
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
    families; each batch switches one production family and deletes its old
