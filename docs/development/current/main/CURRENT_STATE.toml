@@ -1,13 +1,14 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0"
-current_design_stop = "MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0: Group A landed at 45c6759962. Perform one
-read-only current-HEAD census of remaining Call writers/readers, legacy carriers,
-and compatibility boundaries before the next R6 slice; no code, fixture, fallback,
-resolver, schema variant, or production switch is permitted.
+MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0: Group A landed at 45c6759962 and the
+current-HEAD re-census selected one bounded reader slice. Add only the existing
+typed Builtin(Print) arm to MirInterpreter::execute_instruction; wrong arity and
+non-Print canonical calls fail closed before legacy/name dispatch. No new issuer,
+receipt, variant, fallback, retry, VM product promotion, or legacy deletion.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -47,15 +48,15 @@ reads and zero legacy emission calls while the outer compatibility owner is
 preserved. M3-B is parked because two unclaimed writers share the existing
 compatibility APIs. M3-C's four ingress censuses are complete and parked.
 M4 R6 Group A is closed at 45c6759962: canonical `Call(MirCall)` and explicit
-`LegacyCallV0` now have separate instruction shapes, central readers support
-both, and focused/feature-build/guard evidence is green. The current row is
-the read-only R6 current-HEAD re-census before any Group B schema/reader
-migration. Continue only through the fixed M3-B/M3-C/M4→M9 order. Landed
+`LegacyCallV0` have separate instruction shapes, central readers support both,
+and focused/feature-build/guard evidence is green. The one read-only re-census
+then selected Group B's bounded VM canonical Print reader arm; this fast row
+does not claim schema completion, VM product promotion, or R7 deletion. Landed
 families are not reopened and zero/multiple authority tuples remain
 ParkedSealed without new design assets.
 """
-next_design_card = "MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0"
-next_execution_card = "none"
+next_design_card = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
+next_execution_card = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

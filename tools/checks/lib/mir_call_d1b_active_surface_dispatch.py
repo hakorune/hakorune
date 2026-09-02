@@ -458,6 +458,57 @@ def _check_free_function_publication_i0(
             api.fail(f"true FreeFunction publication I0 implementation owner reached 800 lines: {rel}")
 
 
+def _check_r6_group_b_vm_canonical_print_i0(state: dict, root: Path, api) -> None:
+    """Validate the one-reader canonical Print implementation boundary."""
+    row = api.GROUP_B_VM_CANONICAL_PRINT_I0_ROW
+    if state.get("work_mode") != "fast":
+        api.fail(f"{row} must run in fast")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} requires current_design_stop=none")
+    if state.get("next_design_card") != row:
+        api.fail(f"{row} next_design_card drifted")
+    if state.get("next_execution_card") != row:
+        api.fail(f"{row} next_execution_card drifted")
+    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
+    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} current_execution_design drifted")
+    card_path = root / api.FINAL_PIPELINE_REL
+    if not card_path.is_file():
+        api.fail(f"{row} owning final-pipeline SSOT is missing")
+    card_text = card_path.read_text(encoding="utf-8")
+    marker = f"### R6 Group B — `{row}`"
+    if marker not in card_text:
+        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
+    section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
+    for token in (
+        "existing source-backed Print issuer",
+        "MirInterpreter::execute_instruction",
+        "exact Builtin(Print) target",
+        "LegacyCallV0",
+        "wrong arity",
+        "non-Print canonical calls",
+        "no VM product promotion",
+        "no R7 deletion",
+    ):
+        if token not in section:
+            api.fail(f"{row} contract is missing: {token}")
+    implementation_files = (
+        "src/backend/mir_interpreter/handlers/mod.rs",
+        "src/backend/mir_interpreter/handlers/calls/global.rs",
+        "src/backend/mir_interpreter/handlers/calls/mod.rs",
+    )
+    for rel in implementation_files:
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=vm-canonical-print-reader")
+
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
         api.check_delegated_performance_row(state, root)
@@ -471,6 +522,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_print_producer_coverage_row(state, root, row)
     elif row == api.CALL_R6_CENSUS_R0_ROW:
         _check_call_r6_census_r0(state, root, api)
+    elif row == api.GROUP_B_VM_CANONICAL_PRINT_I0_ROW:
+        _check_r6_group_b_vm_canonical_print_i0(state, root, api)
     elif row == api.M3_B_COMPATIBILITY_QUARANTINE_ROW:
         _check_m3_b_ordinary_new_design_stop(state, root, api)
     elif row == api.M3_C_COMPATIBILITY_QUARANTINE_ROW:

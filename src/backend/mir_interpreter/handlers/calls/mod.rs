@@ -250,6 +250,56 @@ impl MirInterpreter {
 mod tests {
     use super::*;
     use crate::backend::vm_types::VMError;
+    use crate::mir::definitions::MirCall;
+    use hakorune_mir_defs::CanonicalGlobalTargetV1;
+
+    #[test]
+    fn canonical_print_call_executes_through_instruction_dispatch() {
+        let mut interp = MirInterpreter::new();
+        let arg = ValueId::new(1);
+        interp.regs.insert(arg, VMValue::Integer(42));
+        let instruction = MirInstruction::Call(MirCall::new(
+            None,
+            Callee::Global(CanonicalGlobalTargetV1::builtin_print()),
+            vec![arg],
+        ));
+
+        interp
+            .execute_instruction(&instruction)
+            .expect("canonical Print must be handled by the instruction reader");
+    }
+
+    #[test]
+    fn canonical_print_call_rejects_wrong_arity_before_dispatch() {
+        let mut interp = MirInterpreter::new();
+        let instruction = MirInstruction::Call(MirCall::new(
+            None,
+            Callee::Global(CanonicalGlobalTargetV1::builtin_print()),
+            Vec::new(),
+        ));
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("Print/0 must fail before provider dispatch");
+        assert!(error.to_string().contains("expects 1 arg"), "{error}");
+    }
+
+    #[test]
+    fn canonical_non_print_call_rejects_without_legacy_dispatch() {
+        let mut interp = MirInterpreter::new();
+        let target = CanonicalGlobalTargetV1::new_free_function("print".into(), 0)
+            .expect("test free-function target must be valid");
+        let instruction =
+            MirInstruction::Call(MirCall::new(None, Callee::Global(target), Vec::new()));
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("non-builtin Print-shaped target must fail closed");
+        assert!(
+            error.to_string().contains("only builtin Print is admitted"),
+            "{error}"
+        );
+    }
 
     #[test]
     fn missing_callee_rejects_before_legacy_register_lookup() {

@@ -11,7 +11,7 @@ impl MirInterpreter {
     /// never parsed, completed from the argument count, or fed back into
     /// target selection.  The legacy string entry point remains only for the
     /// still-separate Method(None) compatibility route.
-    pub(super) fn execute_global_target(
+    pub(in crate::backend::mir_interpreter::handlers) fn execute_global_target(
         &mut self,
         target: &CanonicalGlobalTargetV1,
         args: &[ValueId],

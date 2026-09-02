@@ -27,14 +27,13 @@ Related:
 - **Current implementation status:** the typed publication spine is landed for
   StaticBoxMethod, FreeStatic, FreeFunction, Builtin Print, and one root-lexical
   DeclaredInstance source family. The exact key survives Atomic Publish and the
-  selected static/free/Print backend rows are typed. The public Call schema is
-  still transitional (`func` plus optional `callee`), broad compatibility
-  consumers remain reachable, and Hako has no borrow-only published-view
-  ingress for SameModuleInstance.
-- **Next ordered task:** integrate the closed publication-spine checkpoint,
-  close one current-HEAD Call producer/consumer census, quarantine every
-  noncanonical production ingress, then perform the mandatory-Callee R6
-  cutover. Do not reopen landed source families or add another precursor D0.
+  selected static/free/Print backend rows are typed. Group A now separates the
+  canonical `Call(MirCall)` shape from the explicit `LegacyCallV0` outer shape;
+  broad compatibility consumers remain reachable, and Hako has no borrow-only
+  published-view ingress for SameModuleInstance.
+- **Next ordered task:** execute one canonical Print reader slice in the VM
+  reference consumer, then continue the finite R6 reader/producer migration.
+  Do not reopen landed source families or add another precursor D0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -213,6 +212,43 @@ M8  MIRBUILDER-PHYSICAL-THINNING-R0
 M9  MIRBACKEND-LEGACY-RETIRE-R0
     replacement coverageとcaller-zero後にselected-C/Rust-VM consumerを退役
 ```
+
+## S-class completion gates (post-M9, non-executable navigation)
+
+The M0--M9 order is the MirBuilder/product completion program. A stronger
+release claim is allowed only after these five independent gates are observed;
+they add no alternate pipeline and do not authorize work in the current R6
+slice.
+
+```text
+S1 Enforce
+   the critical Resolve→...→Atomic Publish boundaries have private
+   constructors/capabilities or equivalent negative guards; an invalid
+   pre-publish or backend-repair transition is not representable through the
+   production API.
+
+S2 Prove
+   VM/reference and LLVM/AOT compare observable results, failures, and side
+   effect order for the selected language corpus; optimized MIR is checked
+   against the same witness.
+
+S3 Delete
+   LegacyCallV0 has zero production writers, reissuers, and readers; the
+   compatibility ingress is explicit and caller-zero before physical removal.
+
+S4 Bootstrap
+   fixed stage0→stage1→stage2 selfhost output is reproducible and its
+   semantic/identity comparison is machine-checked.
+
+S5 Release
+   a clean checkout with pinned tools builds and runs the documented sample
+   ladder, records limitations, and publishes regression evidence for a
+   third-party user.
+```
+
+These are completion gates, not current implementation rows. The active
+`CURRENT_STATE.toml` and the linked owner documents remain the only execution
+authority.
 
 After M0 and before the next semantic implementation family, the independent
 `DOCS-HISTORY-RETIRE-R1` repayment may remove its four pre-classified closed
@@ -580,6 +616,59 @@ re-census closes the Group-A inventory but does not authorize global schema
 deletion. Group B must choose one existing reader/family, add no new issuer,
 and prove a finite old-edge delete set before implementation permission is
 opened.
+
+### R6 Group B — `MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0`
+
+```text
+status = `accepted_fast`
+implementation permission = true
+```
+
+The first Group-B candidate is deliberately one reader and one canonical
+family. The existing source-backed Print issuer is the only semantic owner;
+the VM reference backend is merely a typed consumer. This row does not make VM
+the product backend and does not delete the legacy carrier.
+
+```text
+source authority:
+  print_stmt::build_print_from_value -> unified typed Print target
+
+canonical issuer:
+  emit_unified_call_required_v1 -> physical terminal -> MirInstruction::call
+
+consumer:
+  MirInterpreter::execute_instruction -> execute_global_target(Print)
+
+non-authority:
+  func/Option<Callee>, name lookup, registry, args[0], fallback, retry,
+  and the legacy handle_call entrypoint
+
+fail-fast:
+  canonical Call is accepted only for the exact Builtin(Print) target in this
+  row; wrong arity is rejected before provider dispatch and every other
+  canonical target remains an explicit unsupported error.
+
+old-edge delete set:
+  the single canonical Print-to-wildcard unsupported branch in the VM reader.
+  LegacyCallV0 writers/readers and all other backend routes are out of scope.
+
+acceptance:
+  execute_instruction runs one canonical Print call, rejects wrong arity and
+  non-Print canonical calls without legacy/name fallback, and existing VM
+  feature build plus focused tests remain green.
+
+non-claims:
+  no VM product promotion, no SameModuleInstance support, no R7 deletion,
+  no JSON/JoinIR migration, no Call schema redesign, no new receipt/variant.
+```
+
+The bounded reader implementation is now complete: canonical Print is handled
+directly by `execute_instruction`, wrong arity and non-Print canonical calls
+fail closed, and `LegacyCallV0` remains untouched as explicit outer
+compatibility. Focused positive/negative tests, the existing VM feature build,
+the active-surface dispatch, the current-state pointer guard, and diff checks
+are the required evidence. This closeout does not claim whole-schema reader
+caller-zero or any product-backend/VM retirement.
 
 このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
 selected shadow profileでDeferredになりpackage発行へ到達できないため、target

@@ -1,4 +1,5 @@
 use super::*;
+use hakorune_mir_defs::{CanonicalBuiltinGlobalV1, CanonicalGlobalTargetV1};
 
 // VM dispatch trace macro (used across handlers)
 macro_rules! trace_dispatch {
@@ -168,6 +169,21 @@ impl MirInterpreter {
                 *tag,
                 payload_type.as_ref(),
             )?,
+            MirInstruction::Call(call) => {
+                let Callee::Global(target) = &call.callee else {
+                    return Err(self.err_unsupported(
+                        "[vm-reference/canonical-call] only builtin Print is admitted",
+                    ));
+                };
+                let CanonicalGlobalTargetV1::Builtin(CanonicalBuiltinGlobalV1::Print) = target
+                else {
+                    return Err(self.err_unsupported(
+                        "[vm-reference/canonical-call] only builtin Print is admitted",
+                    ));
+                };
+                let call_result = self.execute_global_target(target, &call.args)?;
+                self.write_result(call.dst, call_result);
+            }
             MirInstruction::LegacyCallV0 {
                 dst,
                 func,
