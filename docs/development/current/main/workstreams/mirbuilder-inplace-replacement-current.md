@@ -80,6 +80,27 @@ their own caller-zero rows close. selected-C is a downstream typed
 consumer/retirement lane, not a semantic issuer or precondition; no second
 resolver, receipt, family loan, or backend fallback is allowed.
 
+### 2026-09-02 next-family audit
+
+The root-lexical DeclaredInstance `Method(Some)` vertical is already landed;
+it is not waiting on the old Q1-Q4 design questions. A read-only audit of the
+three plausible follow-up families found no admissible production tuple under
+the current authority rules:
+
+| candidate | disposition | blocking premise |
+|---|---|---|
+| broad Extern | `ParkedSealed / NoSafeSlice` | ExplicitExtern, EnvMethod, and route/runtime consumers have split authorities; no one source-backed effect/result/ABI issuer and lossless consumer |
+| Value/closure invocation | `ParkedSealed / NoSafeSlice` | source records prove binding/site facts but no callable-membership issuer exists; raw and CorePlan have two production-capable callers; the reference VM rejects the family |
+| explicit object `obj.method(...)` | `ParkedSealed / NoSafeSlice` | the existing nominal DeclaredInstance issuer is root-only; the shared compatibility route would require name/type/receiver reconstruction and has no finite caller-exclusive delete set |
+
+This is a finite audit result, not permission to create another D0. Keep the
+existing selected-C design stop as the current boundary. Reopen a production
+family only when one existing source authority, one canonical issuer, one live
+caller, one lossless downstream consumer, and a finite same-series old-edge
+delete set are all named. Otherwise use the existing verification/cleanup
+lanes, or leave the family parked; do not manufacture a receipt, adapter,
+family loan, fallback, or retry to force progress.
+
 ### Current family disposition
 
 | family | status | reopen/next condition |

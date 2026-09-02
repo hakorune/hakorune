@@ -250,6 +250,45 @@ implementation_evidence = "The existing CallTarget owner guard now names only li
 closeout = "Verification-only guard rehome landed. The compiler, selected-C route, Method corridor, Call schema, and all semantic authority remain unchanged. Full quick now reaches the next pre-existing K2-wide OSVM first-row guard, whose four compile tests fail at explicit-extern/missing-resolved-relation; that red is separate and not attributed to this row."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
 
+[mir_call_next_family_audit_2026_09_02]
+status = "closed_design_stop"
+decision = "NoSafeSlice"
+implementation_permission = false
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+source_authority = "Read-only premise audit over existing source, semantic, package, collector, and backend owners; no new issuer is created."
+canonical_issuer = "No next-family issuer satisfies the existing one-owner/one-caller/one-consumer rule."
+non_authority = [
+  "worker-local green",
+  "name/arity/symbol/registry/header inference",
+  "MIR/JSON/VM/C observations",
+  "fixture or route-catalog identity",
+  "fallback",
+  "retry",
+  "new Verified*/Prepared* receipt",
+  "new adapter or family loan",
+]
+fail_fast_boundary = "Do not open a production row unless one existing source authority, one canonical issuer, one live production caller, one lossless downstream consumer, and a finite same-series old-edge delete set are all named."
+census_boundary = "Current selected-C design stop -> candidate Extern, Value/closure, and explicit-object receiver families -> their source issuers, production callers, consumers, and old edges; excludes the already-landed StaticBoxMethod, FreeStatic, Print, FreeFunction, and root-lexical DeclaredInstance cohorts."
+candidate_dispositions = [
+  "broad Extern = ParkedSealed__SemanticAuthorityMissing__NamedConsumerMissing; ExplicitExtern and EnvMethod are independent owners and no single effect/result/ABI product reaches one consumer",
+  "Value/closure invocation = ParkedSealed__CallableMembershipIssuerMissing; source facts are not callable membership, two production-capable callers exist, and the reference VM rejects the family",
+  "explicit object obj.method = ParkedSealed__NominalReceiverRelationMissing; the existing DeclaredInstance issuer is root-only and the shared compatibility route has reconstruction/shared-edge risk",
+]
+ordered_tasks = [
+  "Keep the selected-C arbitrary UserBox admission row in design_stop; do not infer support from the landed canonical MIR route",
+  "Do not create another D0, semantic receipt, adapter, family loan, fallback, or retry for these three candidates",
+  "Use an existing verification or cleanup lane for non-semantic progress, or reopen only after the exact-one tuple condition is satisfied",
+]
+acceptance = "The three candidate families are explicitly named with finite boundaries, blocking premises, and parked fates; the current pointer remains selected-C design_stop and no implementation permission is granted."
+no_safe_slice = "Any attempt to merge split Extern owners, invent callable-value membership, widen the root-only receiver issuer, or reconstruct target/receiver/effect/ABI from physical state returns to this same design_stop."
+non_claims = "No broad Extern cutover, no Value/closure invocation, no explicit-object receiver widening, no selected-C UserBox admission, no Call R6/R7, no backend/VM migration, and no whole-library green claim."
+evidence = [
+  "worker /root/extern_next_family_current: broad Extern split between ExplicitExtern, EnvMethod, and route/runtime consumers",
+  "worker /root/value_next_family_current: no callable-membership issuer, two production-capable invocation callers, and no typed reference consumer",
+  "worker /root/explicit_receiver_next_family_current: existing DeclaredInstance issuer accepts root receiver only; obj.method remains compatibility reconstruction",
+]
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
+
 [mir_builder_normal_script_lexical_parity_matrix_s0_2026_09_02]
 status = "landed"
 task_id = "MIR-BUILDER-NORMAL-SCRIPT-LEXICAL-PARITY-MATRIX-S0"
