@@ -13,25 +13,14 @@ use super::{
     UnifiedCallAlternateRouteV1, UnifiedCallEmissionOutcomeV1, UnifiedCallEmitterBox,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum UnifiedCompatibilityDispositionV1 {
-    PermitLegacy,
-    RequireGenericReceipt,
-}
-
 pub(super) enum UnifiedCallAttemptErrorV1 {
     Emission(String),
-    UnifiedDisabledForReceipt,
 }
 
 impl UnifiedCallAttemptErrorV1 {
     pub(super) fn into_ordinary_string(self) -> String {
         match self {
             Self::Emission(detail) => detail,
-            Self::UnifiedDisabledForReceipt => {
-                "[freeze:contract][unified_call/physical_receipt_disabled] generic physical Call receipt requires unified emission"
-                    .to_owned()
-            }
         }
     }
 
@@ -40,7 +29,6 @@ impl UnifiedCallAttemptErrorV1 {
             Self::Emission(detail) => UnifiedValueCallReceiptErrorV1::Emission {
                 detail: detail.into_boxed_str(),
             },
-            Self::UnifiedDisabledForReceipt => UnifiedValueCallReceiptErrorV1::UnifiedDisabled,
         }
     }
 }
@@ -71,7 +59,6 @@ impl UnifiedCallEmitterBox {
             args,
             None,
             None,
-            UnifiedCompatibilityDispositionV1::RequireGenericReceipt,
             UnifiedCallSignaturePublicationV1::Existing,
         )
         .map_err(UnifiedCallAttemptErrorV1::into_ordinary_string)?;
@@ -99,7 +86,6 @@ impl UnifiedCallEmitterBox {
             args,
             lookup,
             None,
-            UnifiedCompatibilityDispositionV1::RequireGenericReceipt,
             UnifiedCallSignaturePublicationV1::Existing,
         )
         .map_err(UnifiedCallAttemptErrorV1::into_receipt_error)?
@@ -121,7 +107,6 @@ impl UnifiedCallEmitterBox {
             args,
             None,
             None,
-            UnifiedCompatibilityDispositionV1::RequireGenericReceipt,
             UnifiedCallSignaturePublicationV1::ExternalSourceBound,
         )
         .map_err(UnifiedCallAttemptErrorV1::into_receipt_error)?

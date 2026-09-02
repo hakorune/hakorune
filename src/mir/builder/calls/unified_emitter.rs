@@ -74,8 +74,8 @@ pub(in crate::mir::builder) use physical_terminal::{
     CompletedUnifiedValueCallEmissionV1, UnifiedCallAlternateRouteV1,
 };
 use post_success::UnifiedCallSignaturePublicationV1;
+use request_boundary::UnifiedCallAttemptErrorV1;
 pub(in crate::mir::builder) use request_boundary::UnifiedValueCallReceiptErrorV1;
-use request_boundary::{UnifiedCallAttemptErrorV1, UnifiedCompatibilityDispositionV1};
 
 impl UnifiedCallEmitterBox {
     /// Unified call emission - replaces all emit_*_call methods
@@ -139,7 +139,6 @@ impl UnifiedCallEmitterBox {
             args,
             lookup,
             map_write_replay,
-            UnifiedCompatibilityDispositionV1::PermitLegacy,
             UnifiedCallSignaturePublicationV1::Existing,
         )
         .map(drop)
@@ -155,7 +154,6 @@ impl UnifiedCallEmitterBox {
         map_write_replay: Option<
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
-        compatibility: UnifiedCompatibilityDispositionV1,
         signature_publication: UnifiedCallSignaturePublicationV1,
     ) -> Result<UnifiedCallEmissionOutcomeV1, UnifiedCallAttemptErrorV1> {
         // Debug: Check recursion depth
@@ -180,38 +178,19 @@ impl UnifiedCallEmitterBox {
             return Err(error);
         }
 
-        // Check environment variable for unified call usage
-        let result = if !call_unified::is_unified_call_enabled() {
-            if compatibility == UnifiedCompatibilityDispositionV1::RequireGenericReceipt {
-                Err(UnifiedCallAttemptErrorV1::UnifiedDisabledForReceipt)
-            } else if lookup.is_some() {
-                Err(UnifiedCallAttemptErrorV1::Emission(
-                    "[freeze:contract][headerport/unified_call_disabled] explicit header lookup cannot retry through legacy emission"
-                        .to_owned(),
-                ))
-            } else {
-                // Use the compatibility call entry when unified calls are disabled.
-                builder
-                    .emit_legacy_call(dst, target, args)
-                    .map(|()| {
-                        UnifiedCallEmissionOutcomeV1::Alternate(
-                            UnifiedCallAlternateRouteV1::LegacyCompatibility,
-                        )
-                    })
-                    .map_err(UnifiedCallAttemptErrorV1::Emission)
-            }
-        } else {
-            Self::emit_unified_call_outcome_impl_with_lookup_and_map_replay(
-                builder,
-                dst,
-                target,
-                args,
-                lookup,
-                map_write_replay,
-                signature_publication,
-            )
-            .map_err(UnifiedCallAttemptErrorV1::Emission)
-        };
+        // Environment/profile selection belongs to the outer MirBuilder
+        // compatibility facade.  This box is the typed core and never
+        // re-enters legacy emission or reads ambient configuration.
+        let result = Self::emit_unified_call_outcome_impl_with_lookup_and_map_replay(
+            builder,
+            dst,
+            target,
+            args,
+            lookup,
+            map_write_replay,
+            signature_publication,
+        )
+        .map_err(UnifiedCallAttemptErrorV1::Emission);
         builder.recursion_depth -= 1;
         result
     }

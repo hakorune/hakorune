@@ -6,6 +6,9 @@
 //! - emit_global_call/emit_method_call/emit_constructor_call: 便利ラッパー
 
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
+use super::unified_emitter::{
+    CompletedUnifiedValueCallEmissionV1, UnifiedCallEmitterBox, UnifiedValueCallReceiptErrorV1,
+};
 use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::definitions::call_unified::TypeCertainty;
@@ -20,7 +23,10 @@ impl MirBuilder {
         target: CallTarget,
         args: Vec<ValueId>,
     ) -> Result<(), String> {
-        super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call(self, dst, target, args)
+        if !super::call_unified::is_unified_call_enabled() {
+            return self.emit_legacy_call(dst, target, args);
+        }
+        UnifiedCallEmitterBox::emit_unified_call(self, dst, target, args)
     }
 
     /// Emit a typed no-destination Call without allowing the legacy
@@ -31,9 +37,13 @@ impl MirBuilder {
         target: CallTarget,
         args: Vec<ValueId>,
     ) -> Result<(), String> {
-        super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call_required_v1(
-            self, target, args,
-        )
+        if !super::call_unified::is_unified_call_enabled() {
+            return Err(
+                "[freeze:contract][unified_call/physical_receipt_disabled] generic physical Call receipt requires unified emission"
+                    .to_owned(),
+            );
+        }
+        UnifiedCallEmitterBox::emit_unified_call_required_v1(self, target, args)
     }
 
     /// Invocation-header sibling.  The lookup is borrowed for one call only;
@@ -45,8 +55,76 @@ impl MirBuilder {
         args: Vec<ValueId>,
         lookup: Option<&dyn FunctionSignatureLookupV1>,
     ) -> Result<(), String> {
-        super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call_with_lookup(
-            self, dst, target, args, lookup,
+        if !super::call_unified::is_unified_call_enabled() {
+            if lookup.is_some() {
+                return Err(
+                    "[freeze:contract][headerport/unified_call_disabled] explicit header lookup cannot retry through legacy emission"
+                        .to_owned(),
+                );
+            }
+            return self.emit_legacy_call(dst, target, args);
+        }
+        UnifiedCallEmitterBox::emit_unified_call_with_lookup(self, dst, target, args, lookup)
+    }
+
+    /// Map-replay sibling whose profile choice is made by this outer facade.
+    /// The inner emitter remains a configuration-free typed core.
+    pub(in crate::mir::builder) fn emit_unified_call_with_map_replay(
+        &mut self,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
+    ) -> Result<(), String> {
+        if !super::call_unified::is_unified_call_enabled() {
+            return self.emit_legacy_call(dst, target, args);
+        }
+        UnifiedCallEmitterBox::emit_unified_call_with_map_replay(
+            self,
+            dst,
+            target,
+            args,
+            map_write_replay,
+        )
+    }
+
+    /// Receipt-required value call with profile choice at the outer facade.
+    pub(in crate::mir::builder) fn emit_unified_value_call_with_lookup_receipt_v1(
+        &mut self,
+        destination: ValueId,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+    ) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
+        if !super::call_unified::is_unified_call_enabled() {
+            return Err(UnifiedValueCallReceiptErrorV1::UnifiedDisabled);
+        }
+        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
+            self,
+            destination,
+            target,
+            args,
+            lookup,
+        )
+    }
+
+    /// Receipt-required value call whose result publication is source-owned.
+    pub(in crate::mir::builder) fn emit_unified_value_call_with_external_result_publication_receipt_v1(
+        &mut self,
+        destination: ValueId,
+        target: CallTarget,
+        args: Vec<ValueId>,
+    ) -> Result<CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1> {
+        if !super::call_unified::is_unified_call_enabled() {
+            return Err(UnifiedValueCallReceiptErrorV1::UnifiedDisabled);
+        }
+        UnifiedCallEmitterBox::emit_unified_value_call_with_external_result_publication_receipt_v1(
+            self,
+            destination,
+            target,
+            args,
         )
     }
 

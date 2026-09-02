@@ -211,13 +211,7 @@ impl super::super::MirBuilder {
                 method: method.clone(),
                 receiver: box_val,
             };
-            return super::super::calls::unified_emitter::UnifiedCallEmitterBox::emit_unified_call_with_map_replay(
-                self,
-                dst,
-                target,
-                args,
-                map_write_replay,
-            );
+            return self.emit_unified_call_with_map_replay(dst, target, args, map_write_replay);
         }
 
         // Canonical implementation (RCL-3-min3): emit Call(callee=Method)

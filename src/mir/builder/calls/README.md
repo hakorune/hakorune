@@ -109,6 +109,14 @@ never issue that receipt. `unified_emitter/request_boundary.rs` owns the
 receipt-required sibling API; it rejects alternate and legacy routes without
 retry and owns no source classification or result-type publication.
 
+The unified emitter is a configuration-free typed core. The outer
+`MirBuilder` call facade alone reads the explicit unified-call profile and,
+when disabled, enters `emit_legacy_call` for compatibility callers. Required
+receipt ingress and header-aware calls reject the disabled profile before the
+core; the emitter itself never reads the environment or re-enters the legacy
+owner. This keeps compatibility policy at one outer boundary without adding a
+second target authority.
+
 ROUTE0 is one behavior-neutral Refactor Series: S0 adds this disconnected port,
 GUARD0 restores one exact recursion-depth guard around raw expression descent,
 R0 threads exact reserved-route child demand, and M0 threads TypeOp and the

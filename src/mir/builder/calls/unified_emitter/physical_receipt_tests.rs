@@ -69,6 +69,36 @@ fn canonical_snapshot_preserves_runtime_static_global_target() {
 }
 
 #[test]
+fn typed_core_ignores_disabled_profile_without_legacy_reentry() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
+        let mut builder = builder_with_entry("physical_core_profile_independent/0");
+
+        UnifiedCallEmitterBox::emit_unified_call(
+            &mut builder,
+            None,
+            runtime_static_method_target(),
+            vec![],
+        )
+        .expect("typed core must not consult the outer profile gate");
+
+        let (func, callee) = builder
+            .current_function_instructions()
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Call {
+                    func,
+                    callee: Some(callee),
+                    ..
+                } => Some((*func, callee.clone())),
+                _ => None,
+            })
+            .expect("typed core must emit one Call");
+        assert_eq!(func, ValueId::INVALID);
+        assert!(matches!(callee, Callee::Global(_)));
+    });
+}
+
+#[test]
 fn generic_value_call_receipt_matches_the_emitted_final_destination() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         let mut builder = builder_with_entry("physical_receipt_success/0");
@@ -303,34 +333,43 @@ fn receipt_requirement_rejects_unified_disabled_without_legacy_fallback() {
         let mut receipt_builder = builder_with_entry("physical_receipt_disabled/0");
         let destination = receipt_builder.alloc_value_for_test();
 
-        let error = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-            &mut receipt_builder,
-            destination,
-            CallTarget::Global(crate::mir::test_global_target(
-                "physical_receipt_probe/0".to_string(),
-            )),
-            vec![],
-            None,
-        )
-        .expect_err("receipt-required route must not retry through legacy emission");
+        let error = receipt_builder
+            .emit_unified_value_call_with_lookup_receipt_v1(
+                destination,
+                CallTarget::Global(crate::mir::test_global_target(
+                    "physical_receipt_probe/0".to_string(),
+                )),
+                vec![],
+                None,
+            )
+            .expect_err("receipt-required route must not retry through legacy emission");
 
         assert_eq!(error, UnifiedValueCallReceiptErrorV1::UnifiedDisabled);
         assert!(call_destinations(&receipt_builder).is_empty());
 
         let mut ordinary_builder = builder_with_entry("physical_receipt_legacy_parity/0");
         let ordinary_destination = ordinary_builder.alloc_value_for_test();
-        UnifiedCallEmitterBox::emit_unified_call(
-            &mut ordinary_builder,
-            Some(ordinary_destination),
-            CallTarget::Global(crate::mir::test_global_target(
-                "physical_receipt_probe/0".to_string(),
-            )),
-            vec![],
-        )
-        .expect("ordinary compatibility facade retains legacy behavior");
+        ordinary_builder
+            .emit_unified_call(
+                Some(ordinary_destination),
+                CallTarget::Global(crate::mir::test_global_target(
+                    "physical_receipt_probe/0".to_string(),
+                )),
+                vec![],
+            )
+            .expect("ordinary compatibility facade retains legacy behavior");
         assert_eq!(
             call_destinations(&ordinary_builder),
             vec![Some(ordinary_destination)]
         );
+        let legacy_func = ordinary_builder
+            .current_function_instructions()
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Call { func, .. } => Some(*func),
+                _ => None,
+            })
+            .expect("legacy facade must emit one Call");
+        assert_ne!(legacy_func, ValueId::INVALID);
     });
 }

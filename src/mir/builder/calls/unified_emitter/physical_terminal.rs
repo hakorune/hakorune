@@ -41,7 +41,6 @@ pub(super) enum CompletedUnifiedCallEmissionV1 {
 /// A successful unified-emitter route which is not the generic Call terminal.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum UnifiedCallAlternateRouteV1 {
-    LegacyCompatibility,
     EarlyStringLikeRewrite,
     KnownArrayWrite,
     BoxCall,

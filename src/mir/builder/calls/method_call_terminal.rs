@@ -9,9 +9,7 @@ use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
     AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
 };
-use super::unified_emitter::{
-    CompletedUnifiedValueCallEmissionV1, UnifiedCallEmitterBox, UnifiedValueCallReceiptErrorV1,
-};
+use super::unified_emitter::{CompletedUnifiedValueCallEmissionV1, UnifiedValueCallReceiptErrorV1};
 use super::CallTarget;
 use crate::mir::builder::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
@@ -386,8 +384,7 @@ pub(in crate::mir::builder) fn emit_static_global_value_terminal_with_receipt_v1
     // This terminal is entered only after an exact source-bound result demand
     // was selected.  Signature annotation would be a second result publisher;
     // the caller commits that demand after this physical receipt succeeds.
-    UnifiedCallEmitterBox::emit_unified_value_call_with_external_result_publication_receipt_v1(
-        builder,
+    builder.emit_unified_value_call_with_external_result_publication_receipt_v1(
         destination,
         CallTarget::Global(target),
         arguments,
@@ -403,14 +400,14 @@ pub(in crate::mir::builder) fn emit_static_global_target_value_terminal_v1(
     arguments: Vec<ValueId>,
 ) -> Result<ValueId, String> {
     let destination = builder.next_value_id();
-    let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-        builder,
-        destination,
-        CallTarget::Global(target),
-        arguments,
-        None,
-    )
-    .map_err(|error| format!("[freeze:contract][static-target-only/call] {error:?}"))?;
+    let emission = builder
+        .emit_unified_value_call_with_lookup_receipt_v1(
+            destination,
+            CallTarget::Global(target),
+            arguments,
+            None,
+        )
+        .map_err(|error| format!("[freeze:contract][static-target-only/call] {error:?}"))?;
     Ok(emission.final_destination())
 }
 
@@ -479,8 +476,7 @@ where
 {
     let request = PreparedStandardValueCallRequestV1::prepare(builder, receiver, method, arguments);
     port.with_function_headers(|lookup| {
-        UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-            builder,
+        builder.emit_unified_value_call_with_lookup_receipt_v1(
             request.destination,
             request.target,
             request.arguments,

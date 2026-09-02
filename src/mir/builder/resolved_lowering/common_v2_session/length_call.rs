@@ -12,7 +12,6 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{Callee, MirInstruction};
 
 use super::super::super::calls::call_target::CallTarget;
-use super::super::super::calls::unified_emitter::UnifiedCallEmitterBox;
 use super::*;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -194,44 +193,48 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
                 {
                     return Err("receiver/condition target drift".to_owned());
                 }
-                let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_external_result_publication_receipt_v1(
-                    builder,
-                    destination,
-                    CallTarget::Method {
-                        box_type: Some(plan.box_name().to_owned()),
-                        method: plan.method_name().to_owned(),
-                        receiver: receiver.physical_value(),
-                    },
-                    Vec::new(),
-                )
-                .map_err(|error| format!("{error:?}"))?;
+                let emission = builder
+                    .emit_unified_value_call_with_external_result_publication_receipt_v1(
+                        destination,
+                        CallTarget::Method {
+                            box_type: Some(plan.box_name().to_owned()),
+                            method: plan.method_name().to_owned(),
+                            receiver: receiver.physical_value(),
+                        },
+                        Vec::new(),
+                    )
+                    .map_err(|error| format!("{error:?}"))?;
                 if emission.final_destination() != destination {
                     return Err("generic Call destination drift".to_owned());
                 }
                 let instructions = builder.current_function_instructions();
                 let Some((call_destination, box_name, method, call_receiver, first_arg, effects)) =
-                    instructions.iter().rev().find_map(|instruction| match instruction {
-                        MirInstruction::Call {
-                            dst: Some(call_destination),
-                            callee: Some(Callee::Method {
-                                box_name,
-                                method,
-                                receiver: Some(call_receiver),
+                    instructions
+                        .iter()
+                        .rev()
+                        .find_map(|instruction| match instruction {
+                            MirInstruction::Call {
+                                dst: Some(call_destination),
+                                callee:
+                                    Some(Callee::Method {
+                                        box_name,
+                                        method,
+                                        receiver: Some(call_receiver),
+                                        ..
+                                    }),
+                                args,
+                                effects,
                                 ..
-                            }),
-                            args,
-                            effects,
-                            ..
-                        } => Some((
-                            *call_destination,
-                            box_name.as_str(),
-                            method.as_str(),
-                            *call_receiver,
-                            args.first().copied(),
-                            *effects,
-                        )),
-                        _ => None,
-                    })
+                            } => Some((
+                                *call_destination,
+                                box_name.as_str(),
+                                method.as_str(),
+                                *call_receiver,
+                                args.first().copied(),
+                                *effects,
+                            )),
+                            _ => None,
+                        })
                 else {
                     return Err("generic Call receipt missing final instruction".to_owned());
                 };

@@ -80,7 +80,6 @@ impl PreparedScriptDirectStaticResultPublicationV1 {
 mod tests {
     use super::*;
     use crate::mir::builder::calls::call_target::CallTarget;
-    use crate::mir::builder::calls::unified_emitter::UnifiedCallEmitterBox;
 
     fn builder() -> MirBuilder {
         let mut builder = MirBuilder::new();
@@ -93,14 +92,14 @@ mod tests {
         crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
             let mut builder = builder();
             let destination = builder.alloc_value_for_test();
-            let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-                &mut builder,
-                destination,
-                CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
-                vec![],
-                None,
-            )
-            .expect("generic receipt");
+            let emission = builder
+                .emit_unified_value_call_with_lookup_receipt_v1(
+                    destination,
+                    CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
+                    vec![],
+                    None,
+                )
+                .expect("generic receipt");
             let publication = PreparedScriptDirectStaticResultPublicationV1::prepare(
                 &VerifiedCallableResultRepresentationV1::ExactI64,
                 emission,
@@ -119,14 +118,14 @@ mod tests {
         crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
             let mut builder = builder();
             let destination = builder.alloc_value_for_test();
-            let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-                &mut builder,
-                destination,
-                CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
-                vec![],
-                None,
-            )
-            .expect("generic receipt");
+            let emission = builder
+                .emit_unified_value_call_with_lookup_receipt_v1(
+                    destination,
+                    CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
+                    vec![],
+                    None,
+                )
+                .expect("generic receipt");
             let error = PreparedScriptDirectStaticResultPublicationV1::prepare(
                 &VerifiedCallableResultRepresentationV1::ExactNominalBox {
                     box_name: "Box".to_owned(),
@@ -150,14 +149,14 @@ mod tests {
                 .function_state
                 .type_ctx
                 .set_type(destination, MirType::Integer);
-            let emission = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
-                &mut builder,
-                destination,
-                CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
-                vec![],
-                None,
-            )
-            .expect("generic receipt");
+            let emission = builder
+                .emit_unified_value_call_with_lookup_receipt_v1(
+                    destination,
+                    CallTarget::Global(crate::mir::test_global_target("Helpers.run/1".to_owned())),
+                    vec![],
+                    None,
+                )
+                .expect("generic receipt");
             let publication = PreparedScriptDirectStaticResultPublicationV1::prepare(
                 &VerifiedCallableResultRepresentationV1::ExactI64,
                 emission,
