@@ -296,6 +296,7 @@ new task:
   and the claimed `Birth` branch of `ordinary_new_admission.rs`;
 * compatibility ingress owners: `calls/unified_emitter/compat_entrypoints.rs`,
   `builder/exprs_call.rs` unified-off, `join_ir_to_mir/call_generator.rs`,
+  `join_ir_to_mir/convert.rs`,
   `join_ir_to_mir/joinir_block_converter/handlers.rs`,
   `runner/mir_json_v0/{call.rs,module.rs}`,
   `runner/json_v0_bridge/lowering/expr/call_ops.rs`, and
@@ -318,6 +319,46 @@ Occurrences under `#[cfg(test)]`, test-only modules, archives, and diagnostic
 fixtures are retained in the separate test/reference bucket.  This index is
 the cross-check input for M1; it does not turn a structural reader into a
 producer and does not grant R6 implementation permission.
+
+#### M1 closeout (read-only census)
+
+The direct-site cross-check found no unclassified production-reachable Call
+owner inside the stated boundary.  The canonical writer set is the four
+source/package owners above plus the claimed ordinary-new `Birth` branch; the
+compatibility writer set is the named unified-off, JoinIR, JSON, explicit
+runtime, and ordinary-new fallback ingress; the remaining production matches
+are structural readers/reissuers, explicit profile rejects, or the one parked
+physical-thunk owner.  Test/reference-only occurrences remain outside this
+result.  M1 is therefore closed as a census, not as an implementation or
+schema-cutover claim.
+
+### M2 remaining-family disposition — `MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0`
+
+```text
+status = `accepted_design_stop`
+implementation permission = false
+```
+
+M2 consumes the closed M1 owner map and assigns each remaining family one
+fate before compatibility quarantine or R6.  A family with zero or multiple
+authority tuples is `ParkedSealed`; it must not receive another D0, receipt,
+adapter, fixture, guard, fallback, or retry.  A family is not reopened merely
+because a legacy reader or backend still contains a matching string shape.
+
+| remaining family | disposition | authority/consumer decision | next action |
+| --- | --- | --- | --- |
+| explicit `Extern` provider calls and runtime helper reissuers | `CompatibilityOuterIngress` | explicit provider contract is retained at the outer boundary; no source target is reconstructed from the string | isolate during M3, preserve the typed `Extern` callee in R6 |
+| indirect `Value`/closure invocation | `ExplicitUnsupported` | no single published target/definition consumer is available for the selected product profile | reject before selected object/VM execution; reopen only with an exact tuple |
+| explicit receiver, nested, and upvar instance methods | `ParkedSealed` | receiver/source ingress and a lossless selected consumer are not a single existing owner | no new family asset; reopen trigger is one exact carrier and finite delete set |
+| ordinary-new unclaimed/builtin fallback | `CompatibilityOuterIngress` | claimed `Birth` is canonical; unclaimed builtin/plugin lowering remains an outer compatibility route | quarantine after caller census; no new semantic issuer |
+| physical normal-main thunk | `ParkedSealed__RelationPresentIssuerMissing` | physical owner exists but no source-backed issuer can legally supply its target | leave parked; do not synthesize a symbol or target |
+| arbitrary UserBox on selected-C / Hako published ingress | `ExplicitUnsupported` | current profiles have no lossless published-view consumer for this family | fail before object emission; language `me.method` remains retained |
+| constructor/closure creation (`NewBox`/`NewClosure`) | `Canonical` (outside Call) | these are construction terminators, not Call target producers in this census | keep their existing owners; do not widen the Call schema row |
+
+M2 is complete only when every M1 group is represented by exactly one of the
+four dispositions or an explicitly recorded `ParkedSealed` boundary above.
+The next executable row remains M3 compatibility quarantine; no semantic
+family is reopened by this table.
 
 `Method(None)`, `callee=None`, a string target, backend success, JSON, a
 registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target

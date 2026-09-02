@@ -35,12 +35,11 @@ source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The next work is fixed by `mirbuilder-final-pipeline-ssot.md`:
+The M1 current-HEAD Call producer/consumer census is closed in
+`mirbuilder-final-pipeline-ssot.md`.  The next work is fixed there:
 
 ```text
-closed checkpoint integration
-  -> one current-HEAD Call producer/consumer census
-  -> remaining family disposition
+remaining family disposition
   -> compatibility outer-ingress quarantine
   -> mandatory-Callee R6
   -> selected backend family cutover

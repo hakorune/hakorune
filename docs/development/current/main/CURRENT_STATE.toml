@@ -1,16 +1,15 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0"
-current_design_stop = "MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0: perform one finite read-only Call writer/reader/repair census before R6; no implementation, new receipt, adapter, fixture, guard, fallback, or retry."
+current_execution_row = "MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0"
+current_design_stop = "MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0: assign each remaining Call family one finite fate before compatibility quarantine or R6; no implementation, new receipt, adapter, fixture, guard, fallback, or retry."
 current_blocker_token = """
-MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0 design stop: enumerate each
-production-reachable Call writer, reader, optional target, name/registry
-repair, compatibility ingress, backend consumer, and fallback/retry terminal
-exactly once. Classify only as Canonical, CompatibilityOuterIngress,
-ExplicitUnsupported, or DeadDeleteCandidate; test/reference-only occurrences
-remain a separate bucket. No implementation permission and no new
-Verified*/Prepared* receipt, adapter, fixture, guard, fallback, or retry.
+MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0 design stop: consume the closed
+M1 owner map and assign every remaining family exactly one fate. Use only
+Canonical, CompatibilityOuterIngress, ExplicitUnsupported, or
+DeadDeleteCandidate; zero/multiple authority tuples are ParkedSealed. No
+implementation permission and no new Verified*/Prepared* receipt, adapter,
+fixture, guard, fallback, or retry.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -27,7 +26,7 @@ landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or
 semantic-family widening into verification-only rows.
 """
-guard_followup = "After this Print closeout, integrate the closed publication-spine checkpoint, run one current-HEAD Call producer/consumer census, disposition the remaining families, quarantine compatibility outside the canonical core, then perform mandatory-Callee R6. Zero/multiple authority tuples stay ParkedSealed without another D0, receipt, adapter, fixture, or guard. Each family deletes its selected old edge and exclusive temporary tests/guards/docs before the next family; R7 owns caller-zero Call compatibility deletion and post-R7 owns physical thinning. Known-red comparison and exact changed-test execution remain mandatory."
+guard_followup = "The M1 current-HEAD Call producer/consumer census is closed in the final-pipeline SSOT. Next, disposition the remaining families, quarantine compatibility outside the canonical core, then perform mandatory-Callee R6. Zero/multiple authority tuples stay ParkedSealed without another D0, receipt, adapter, fixture, or guard. Each family deletes its selected old edge and exclusive temporary tests/guards/docs before the next family; R7 owns caller-zero Call compatibility deletion and post-R7 owns physical thinning. Known-red comparison and exact changed-test execution remain mandatory."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -42,13 +41,14 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 The publication spine and Print producer coverage are closed and the
 checkpoint is integrated into hakorune/main at 7049cbb729. Whole-library
-health remains the classified 7577/7410/138/29 known-red baseline. The current
-design stop is the single finite Call producer/consumer census; after it, only
-the fixed M1→M9 order in the final-pipeline SSOT may select work. Landed
-families are not reopened and zero/multiple authority tuples remain
-ParkedSealed without new design assets.
+health remains the classified 7577/7410/138/29 known-red baseline. The finite
+M1 Call producer/consumer census is closed and recorded in the final-pipeline
+SSOT; the current design stop is M2 remaining-family disposition. After M2,
+only the fixed M3→M9 order may select work. Landed families are not reopened
+and zero/multiple authority tuples remain ParkedSealed without new design
+assets.
 """
-next_design_card = "MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0"
+next_design_card = "MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0"
 next_execution_card = "none__accepted_d0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
