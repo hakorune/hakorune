@@ -148,6 +148,12 @@ REPO_LIFECYCLE_BASELINE_REFRESH_R0_ROW = "REPO-LIFECYCLE-BASELINE-REFRESH-R0"
 REPO_LIFECYCLE_BASELINE_REFRESH_R0_KEY = (
     "repo_lifecycle_baseline_refresh_r0_2026_09_02"
 )
+DOCS_HISTORY_RETIRE_R0_ROW = "DOCS-HISTORY-RETIRE-R0"
+DOCS_HISTORY_RETIRE_R0_KEY = "docs_history_retire_r0_2026_09_02"
+DOCS_HISTORY_RETIRE_R0_CANDIDATE = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml"
+)
 
 
 def fail(message: str) -> None:
@@ -885,6 +891,94 @@ def check_repo_lifecycle_baseline_refresh_r0(
     generator = root / "tools/docs/repository_artifact_lifecycle_inventory.py"
     if not generator.is_file():
         fail("repository lifecycle inventory generator is missing")
+
+
+def check_docs_history_retire_r0(state: dict, card: dict, root: Path) -> None:
+    """Guard one reference-closed investigation retirement window.
+
+    This is deliberately a single-candidate check. It proves that the
+    selected historical body is unreachable and has a landed successor before
+    allowing the caller to remove that file; it is not a bulk archive policy.
+    """
+    if state.get("work_mode") != "fast":
+        fail("docs history retirement must be fast")
+    if state.get("current_execution_row") != DOCS_HISTORY_RETIRE_R0_ROW:
+        fail("docs history retirement row is not selected")
+    if state.get("current_design_stop") != "none":
+        fail("docs history retirement must clear current_design_stop")
+    if state.get("next_execution_card") != DOCS_HISTORY_RETIRE_R0_ROW:
+        fail("docs history retirement next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("docs history retirement card path drifted")
+    row = card.get(DOCS_HISTORY_RETIRE_R0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DOCS_HISTORY_RETIRE_R0_KEY} section is missing")
+    if row.get("task_id") != DOCS_HISTORY_RETIRE_R0_ROW:
+        fail("docs history retirement task id drifted")
+    if row.get("status") != "selected_fast":
+        fail("docs history retirement must be selected_fast")
+    if row.get("implementation_permission") is not True:
+        fail("docs history retirement permission drifted")
+    base = require_text(row.get("base_head"), "docs history retirement base_head")
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or not allowed or not all(
+        isinstance(item, str) and item.strip() for item in allowed
+    ):
+        fail("docs history retirement allowed_files are missing")
+    changed = git_diff_paths(root, base)
+    if not changed <= set(allowed):
+        fail(f"docs history retirement changed paths escaped: {sorted(changed - set(allowed))}")
+
+    candidate = root / DOCS_HISTORY_RETIRE_R0_CANDIDATE
+    if not candidate.is_file():
+        fail("docs history retirement candidate is missing before deletion")
+    tracked = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", str(DOCS_HISTORY_RETIRE_R0_CANDIDATE)],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if tracked.returncode != 0:
+        fail("docs history retirement candidate is not tracked")
+    if sum(1 for _ in candidate.open(encoding="utf-8")) != 75:
+        fail("docs history retirement candidate line count drifted")
+    body = candidate.read_text(encoding="utf-8")
+    if 'status = "superseded_not_needed"' not in body:
+        fail("docs history retirement candidate status drifted")
+    if "superseded_by = \"ffcae72725:" not in body:
+        fail("docs history retirement successor evidence drifted")
+    successor = root / "src/mir/builder/program_root_work_plan.rs"
+    validator = root / "src/mir/builder/program_root_work_plan/selected_projection_validator.rs"
+    if not successor.is_file() or not validator.is_file():
+        fail("docs history retirement successor owner is missing")
+    if sum(1 for _ in successor.open(encoding="utf-8")) >= 760:
+        fail("docs history retirement successor crossed the split threshold")
+    if sum(1 for _ in validator.open(encoding="utf-8")) >= 760:
+        fail("docs history retirement validator crossed the split threshold")
+
+    for pattern in (
+        str(DOCS_HISTORY_RETIRE_R0_CANDIDATE),
+        "mir-call-d1b-program-root-toplevel-work-split",
+    ):
+        result = subprocess.run(
+            ["git", "grep", "-n", "-F", "--", pattern],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        inbound = [
+            line
+            for line in result.stdout.splitlines()
+            if line
+            and line.split(":", 1)[0] not in set(allowed)
+            and line.split(":", 1)[0] != str(DOCS_HISTORY_RETIRE_R0_CANDIDATE)
+        ]
+        if result.returncode == 0 and inbound:
+            fail(f"docs history retirement candidate still has inbound references: {pattern}")
+        if result.returncode not in (0, 1):
+            fail(f"docs history retirement reference scan failed: {result.stderr.strip()}")
 
 
 def check_declared_instance_locator_install_bridge_i0(

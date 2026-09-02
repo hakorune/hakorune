@@ -20,12 +20,13 @@ Related:
 - **Current decision:** physical cleanup must reduce tracked files/lines when
   it claims repository reduction; moves and renames are tracked separately.
 - **Current implementation status:** the receipt-only
-  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task is landed; the absolute-reduction
-  train remains parked and Hako physical ingress is
+  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task is landed; guard retirement remains
+  parked, while one reference-closed investigation is selected for the first
+  absolute-reduction batch. Hako physical ingress remains
   `ParkedSealed__HakoIngressMissing`.
-- **Next ordered task:** keep guard/docs retirement parked until one finite
-  family has caller/reference-zero and equal-or-stronger successor evidence.
-  The lifecycle refresh was receipt synchronization, not a reduction claim.
+- **Next ordered task:** `DOCS-HISTORY-RETIRE-R0` deletes only the selected
+  superseded investigation after its reference and successor checks; no broad
+  archive or phase purge is implied.
 - **Production stop line:** no cleanup row changes language/compiler behavior,
   current authority, a selected backend, or an unresolved test/guard contract.
 - **Retirement finish line:** every selected batch has caller/reference zero,
@@ -199,6 +200,42 @@ Closed tombstone: `LEGACY-TESTS-RETIRE-R0` landed at `bcc9a6ba65`. The disabled
 feature, four cfg barrels, 34 roots, and nine exclusive support files were
 retired from the tree; Git history owns the detailed delete set. It is not a
 future cleanup-train step.
+
+### `DOCS-HISTORY-RETIRE-R0` (selected fast)
+
+This is the first absolute-reduction candidate after the receipt refresh. It
+uses `RetireFromTree`, not a tracked archive copy: the candidate is a
+superseded 75-line investigation with no current pointer, lifecycle, filename,
+or title references, and its surviving ProgramRoot owner plus duplicate
+validator are both below the 760-line split threshold.
+
+```text
+Decision:
+  Delete exactly one reference-closed investigation body; Git history keeps
+  the detail and no archive/stub is added.
+Source authority + canonical issuer:
+  current ProgramRootWorkPlan owner, landed ffcae72725 validator, and the
+  existing lifecycle inventory/reference scan.
+Non-authority:
+  age, line count alone, filename, worker silence, archive copies, broad counts.
+Fail-fast boundary:
+  current pointer, tracked status, status/superseded_by evidence, inbound refs,
+  successor line budgets, and strict receipt must all remain unchanged.
+Smallest next slice:
+  remove `docs/development/current/main/investigations/mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml`,
+  regenerate the existing receipt, run the existing guards, and return to Hako.
+Non-claims:
+  no phase/investigation bulk purge, archive migration, semantic/compiler/MIR,
+  guard/test retirement, or whole-repository health claim.
+Census boundary: one tracked current investigation -> inbound refs and landed
+  successor; excludes all other docs, phases, archives, and source lanes.
+```
+
+Acceptance is `-1` tracked docs file and `-75` tracked lines for this selected
+batch, strict lifecycle/docs-slim/pointer/active-surface/diff checks green, and
+the pointer returned to the Hako `ParkedSealed` boundary. If any additional
+candidate or reference appears, keep this row parked and do not open another
+cleanup card.
 
 2. `GUARD-FAMILY-RETIREMENT-R0` reuses
    `guard_surface_inventory.py`. Its current 3,804-row inventory classifies

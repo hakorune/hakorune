@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-current_design_stop = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+work_mode = "fast"
+current_execution_row = "DOCS-HISTORY-RETIRE-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject, and the Hako physical-ingress lane is ParkedSealed because its required production seams are absent.
-Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
-Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, selected-C success, or object/link-only probes.
-Fail-fast boundary: reject before JSON preparation, C/Hako transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
-Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; lifecycle refresh is landed, and guard retirement is ParkedSealed because no finite delete-safe family exists.
-Non-claims: no Hako implementation, Call schema/R6, VM/selfhost, shared exec/JSON deletion, selected-C feature expansion, archive/delete, or whole-library green claim.
+Decision: retire exactly one reference-closed superseded investigation; Git history keeps detail and no archive copy is made.
+Source authority + canonical issuer: current ProgramRootWorkPlan successor, landed ffcae72725 validator, and the existing lifecycle/reference scan.
+Non-authority: age, line count alone, filename, worker silence, archive copies, broad counts, or compiler semantics.
+Fail-fast boundary: candidate status, tracked state, inbound refs, successor line budgets, current pointer, and strict receipt must remain exact.
+Smallest next slice: delete the named 75-line candidate, regenerate the existing receipt, run existing guards, then return to the Hako ParkedSealed stop.
+Non-claims: no broad docs/phase purge, archive migration, semantic/compiler/MIR change, guard/test retirement, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -53,10 +53,10 @@ arguments once, and has zero reachability to the three selected legacy helpers;
 compatibility implementations remain outside this cohort. Deterministic lib
 baseline is refreshed at 7572/7405/138/29 after the selected-C quarantine tests;
 selected-C remains design stop.
-Hako physical-ingress is `ParkedSealed__HakoIngressMissing` (zero `lang/**` borrow/runtime callers); lifecycle refresh is landed, guard retirement has no candidate, and known red is not green.
+Hako physical-ingress is `ParkedSealed__HakoIngressMissing` (zero `lang/**` borrow/runtime callers); guard retirement has no candidate. The selected docs-history row removes exactly one superseded investigation, then returns here; known red is not green.
 """
-next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "DOCS-HISTORY-RETIRE-R0"
+next_execution_card = "DOCS-HISTORY-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

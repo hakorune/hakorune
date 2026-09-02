@@ -314,3 +314,26 @@ implementation_evidence = "Landed; source-backed Probe.me.wrap(7), site-mismatch
 red_classification = "Selected focused suites had no current-change red; the known whole-lib red remains a separate baseline."
 closeout = "complete; root-lexical Method(Some) is closed and arbitrary selected-C support is not inferred."
 next_execution = "none__design_stop"
+
+[docs_history_retire_r0_2026_09_02]
+status = "selected_fast"
+task_id = "DOCS-HISTORY-RETIRE-R0"
+parent_row = "REPO-ABSOLUTE-REDUCTION-R0"
+implementation_permission = true
+base_head = "acabc44454"
+decision = "Retire exactly one superseded, reference-closed investigation body from the tracked current tree. Git history retains the detail; no archive copy or stub is created."
+source_authority = "The current ProgramRootWorkPlan owner and the landed ffcae72725 duplicate validator; the candidate itself records superseded_not_needed and its reopen threshold."
+canonical_issuer = "The existing repository lifecycle inventory generator and current-tree reference scan; this row issues no compiler or semantic product."
+non_authority = ["age", "line count alone", "filename", "worker silence", "tracked archive copies", "broad phase/investigation counts"]
+fail_fast_boundary = "Before deletion, recheck the current pointer, candidate status, tracked inbound references, successor line budgets, and strict lifecycle receipt; any drift or unclassified reference stops the row."
+census_boundary = "One tracked current/main investigation candidate -> its current-tree inbound references and landed successor; includes the exact ProgramRoot work split, excludes phase bulk deletion, other investigations, archives, compiler code, tests, and guards."
+candidate = "docs/development/current/main/investigations/mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml"
+successor = ["src/mir/builder/program_root_work_plan.rs", "src/mir/builder/program_root_work_plan/selected_projection_validator.rs"]
+delete_set = ["docs/development/current/main/investigations/mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml"]
+ordered_tasks = ["A: verify the exact 75-line tracked candidate, superseded_by=ffcae72725 evidence, zero inbound path/title references, and successor files below 760 lines", "B: delete only the candidate with no archive copy or replacement stub", "C: regenerate the existing lifecycle receipt, run strict/docs-slim/pointer/active-surface/diff checks, record -1 file/-75 lines, and return the pointer to the Hako ParkedSealed boundary"]
+allowed_files = ["docs/development/current/main/investigations/mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml", "tools/checks/manifests/repository_artifact_lifecycle_v0.json", "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py"]
+forbidden_files = ["docs/development/current/main/phases/**", "other investigations", "archive/**", "src/**", "lang/**", "crates/**", "apps/**", "tests/**", "new guard", "new receipt family", "semantic Verified*/Prepared* product"]
+focused_checks = ["python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict", "bash tools/checks/docs_slim_001_archive_policy_guard.sh", "bash tools/checks/current_state_pointer_guard.sh", "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .", "git diff --check"]
+acceptance = "The exact candidate is removed from the tracked tree; lifecycle strict check remains green; current pointer returns to Hako ParkedSealed; the selected batch decreases tracked docs by one file and 75 lines; no archive copy, semantic change, or broad cleanup claim is made."
+no_safe_slice = "Do not delete if the candidate is missing, referenced, status-drifted, successor budgets cross 760, the pointer/worktree changed, or any additional candidate appears. Keep DOCS-HISTORY-RETIRE-R0 parked and re-census once."
+non_claims = "No phase/investigation bulk purge, archive migration, guard/test retirement, compiler/MIR/backend change, Hako ingress, Call R6/R7, or whole-repository green claim."

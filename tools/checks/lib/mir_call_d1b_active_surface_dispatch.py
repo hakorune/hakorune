@@ -397,6 +397,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_hako_same_module_instance_physical_ingress_d0(state, card)
     elif row == api.REPO_LIFECYCLE_BASELINE_REFRESH_R0_ROW:
         api.check_repo_lifecycle_baseline_refresh_r0(state, card, root)
+    elif row == api.DOCS_HISTORY_RETIRE_R0_ROW:
+        api.check_docs_history_retire_r0(state, card, root)
     elif row == api.SELECTED_C_STACK_ROW:
         api.check_selected_c_stack_row(state, card, root)
     elif row == api.CALLTARGET_GUARD_REHOME_ROW:
