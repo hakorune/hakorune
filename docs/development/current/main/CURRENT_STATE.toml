@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
 current_blocker_token = """
-Decision: implement one bounded true top-level FreeFunction publication vertical in the existing spine. The mixed App Main plus scalar top-level helper is the sole production probe; no second MirBuilder or semantic receipt is allowed.
-Source authority + canonical issuer: same-resolver-session SelectedTopLevelFunctionKeyV1 and exact declaration/site issue the existing CanonicalSameModuleCallableKeyV1::FreeFunction declaration; existing parameter/completion/physical products, collector, Atomic MirModule publisher, and PublishedMirBackendView are the sole owners.
-Non-authority: LegacySymbol, physical symbol text, name/arity or formatted-symbol lookup, JSON/name/header/registry search, args[0] or ValueId(0) repair, FunctionSignature/EffectMask inference, fixture green, fallback, retry, or a guessed Verified*/Prepared* receipt.
-Fail-fast boundary: before argument effects, MIR mutation, Atomic Publish, or object emission, require one same-session key, one declaration/parameter/completion/physical relation, one published definition identity, and one typed backend consumer; missing, duplicate, foreign, drifted, or unsupported states reject without fallback.
-Smallest next slice: switch only the mixed Main + top-level scalar helper cohort through key-preserving admission, collector, Atomic Publish, typed backend transport, and its finite LegacySymbol/PublishedTargetNotCataloged delete set. Nested top-level calls and non-scalar ABI remain outside.
-Non-claims: no App Main exception, StaticBoxMethod conversion, DeclaredInstance/Method(Some), Builtin Print reopen, panic/exit, Call-schema/R6, VM/selfhost, whole-lib green, or broad JSON/test purge.
+Decision: the true top-level FreeFunction publication cohort is landed; return to the existing DeclaredInstance package-co-seal design stop. Do not open Method(Some) production until the existing relation, effect, result/Completion, physical lane, locator, and receiver ValueId owners are joined without a second authority.
+Source authority + canonical issuer: the same-session DeclaredInstance source relation/effect issuers, retained result/Completion and physical-signature products, installed locator, and CallableSemanticLoweringState crosswalk. Package assembly may co-seal these products but must not issue a new target or backend meaning.
+Non-authority: physical symbols, names/arity, headers/registry, JSON/C/Hako metadata, variable_map["me"], param0, args[0], numeric ValueId(0), MIR EffectMask/FunctionSignature inference, selected-C success, fixture green, fallback, retry, or a new Verified*/Prepared* receipt.
+Fail-fast boundary: before receiver materialization, argument effects, MIR publication, or backend admission, require exactly one same-session relation/result/effect/full-lane row and an exact locator/crosswalk; missing, duplicate, foreign, drifted, or unsupported products remain typed design-stop/rejects.
+Smallest next slice: resolve only the existing package co-seal and downstream backend-admission boundary for root lexical DeclaredInstance. If a required owner is absent or multiple, keep the family ParkedSealed; do not add another D0, adapter, receipt, or family loan.
+Non-claims: no Method(Some) production, selected-C user-box admission, Hako implementation, Call-schema/R6, VM/selfhost, whole-lib green, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,22 +39,26 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The Builtin Print publication vertical is landed. The one-time baseline refresh
-records fixed observations at 7563/7396/138/29 with no failure-name delta;
-known red remains explicit debt and is not whole-lib green. The next selected
-execution row is MIR-CALL-FREE-FUNCTION-PUBLICATION-I0. The accepted D0 found
-that TopLevel currently drops to LegacySymbol, parameter/completion/physical
-products have no FreeFunction branch, and the AppMain loan rejects TopLevel;
-I0 now connects those existing owners through the typed publication spine.
+The true top-level FreeFunction publication vertical is landed at 042cd56aa2.
+The mixed App Main plus scalar top-level helper now preserves the existing
+FreeFunction key through catalog/admission, collector, Atomic Publish, typed
+backend transport, and a real executable probe returning 3. Focused positive
+and negative evidence, C-shim build, pointer/active-surface guards, and diff
+checks passed. Known whole-lib red remains separate and is not claimed green;
+generic phi/overwrite/non-scalar/runner-C negative coverage remains follow-up.
+The next row is the existing DeclaredInstance package-co-seal design stop;
+relation/effect/result/lane/locator products are retained, but Method(Some)
+production is still closed.
 """
-next_design_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0"
-next_execution_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0"
+next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"
+accepted_free_function_execution_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (landed at 042cd56aa2; existing FreeFunction key preserved through Atomic Publish and typed kind=3 selected-C ingress; mixed source-to-exe result 3; known whole-lib red remains separate)"
 parked_mirbuilder_canonical_call_rebuild_task = "none__superseded_by_accepted_branch_execution_card"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -65,7 +69,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-02: lexical parity matrix S0 landed before the final baseline refresh: six duplicate normal-script parity wrappers became one six-case matrix; the later fixed baseline is 7563/7396/138/29, and failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1 is unchanged.",
+  "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed on the isolated branch at 61db816f39/b106753721: App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. Parent/main remains design_stop; choose the next exact family.",
   "2026-09-02: Builtin Print publication vertical and its deterministic lib-baseline follow-up landed on the isolated branch: one typed kind=2 row reaches selected-C before generic dispatch, the Print-only env/Extern fallback was removed, focused view tests are 8/8, the traced source-to-exe probe printed 42, and three fixed baseline observations agree at 7563/7396/138/29 (inventory SHA 5e1c9e89fd17c029838ac7f0d8a5c5933c030cd89adf89bcb6651ecf691cb22c; failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1). Known red remains explicit debt; the audit's top-level helper and negative-coverage items remain follow-up boundaries.",
 ]

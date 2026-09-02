@@ -57,6 +57,15 @@ structural guards are recorded in the active card. The branch has returned to
 broad negative-coverage, runner/C unit-test, phi-order, and baseline-health
 findings remain explicit follow-up boundaries and are not silently claimed
 closed by this cohort.
+The follow-on true top-level FreeFunction cohort is now also landed at
+`042cd56aa2`: a mixed App Main plus scalar helper preserves the existing
+`CanonicalSameModuleCallableKeyV1::FreeFunction` through catalog/admission,
+collector, Atomic Publish, and typed kind=3 C ingress; the real executable
+probe returns `3`. Its focused positive/negative evidence and C-shim build are
+recorded in the active card. The branch has returned to `design_stop`; the
+next decision is the existing DeclaredInstance package co-seal, while whole-
+library red and generic phi/overwrite/non-scalar/runner-C negative coverage
+remain explicit follow-ups.
 
 ### Current family disposition
 
@@ -65,6 +74,7 @@ closed by this cohort.
 | published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
 | App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
 | Builtin `Print` | landed bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, Print-only legacy fallback deletion, and source-to-exe result `42` | do not reopen; choose the next exact family after the recorded audit follow-ups |
+| top-level `FreeFunction` | landed bounded vertical at `042cd56aa2`: mixed App Main plus scalar helper preserves the existing FreeFunction key through Atomic Publish and typed kind=3 selected-C ingress; source-to-exe result `3` | do not reopen; keep non-scalar/nested helpers and broad backend negatives parked |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -97,24 +107,31 @@ closed by this cohort.
    artificial five-commit limit was used. Return to design_stop before opening
    another family.
 
-3. MS1-P family batches
+3. MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (landed)
+   the mixed App Main plus scalar top-level helper preserves the existing
+   FreeFunction key through collector/Atomic Publish and typed kind=3 ingress;
+   the source-to-exe probe returns `3`. No Static conversion, name/JSON repair,
+   or fallback was added. Return to the DeclaredInstance package-co-seal
+   design stop before opening another family.
+
+4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
    families; each batch switches one production family and deletes its old
    reachability/assets in the same bounded series.
 
-4. MS1-P product convergence
+5. MS1-P product convergence
    every currently complete production family reaches canonical Call/Atomic Publish
    product resolver/recovery/fallback/Method(None)/callee=None writers = 0
 
-5. MS1-C compatibility quarantine
+6. MS1-C compatibility quarantine
    Compatibility(AST), old JSON and harness/mock routes live behind one named boundary
    canonical rejection has retry/fallback = 0
 
-6. MS1-D Call R6/R7
+7. MS1-D Call R6/R7
    adapt or quarantine compiled consumers, then delete func, optional Callee/receiver,
    INVALID/0 targets, old writers, and their exclusive proof surface
 
-7. post-Call integration and repository repayment
+8. post-Call integration and repository repayment
    shrink context/port/barrel owners by finite caller; remeasure tracked files/lines
 ```
 
@@ -134,14 +151,15 @@ parked unless caller-zero plus an equal-or-stronger successor is proved.
 
 ### Audit follow-up boundary
 
-The landed Print slice does not claim whole-exit proof or whole-repository
-health. Before widening the next family, the named follow-ups are: one mixed
-App Main/top-level helper behavior test for the existing `TopLevel` rejection,
-the deterministic known-red baseline/no-new-red gate, and a minimal negative
-coverage set for the remaining published-view/join variants. Phi ordering,
-definition overwrite protection, non-scalar argument admission, and the
-legacy harness edge remain separate design work. These items do not reopen the
-completed Print cohort and do not authorize a second semantic pipeline.
+The landed Print and true FreeFunction slices do not claim whole-exit proof or
+whole-repository health. The mixed App Main/top-level helper regression is now
+covered by the FreeFunction cohort. Before widening the next family, the
+remaining named follow-ups are the deterministic known-red/no-new-red gate,
+representative runner/C negative evidence, and minimal negative coverage for
+the remaining published-view/join variants. Phi ordering, definition
+overwrite protection, and non-scalar argument admission remain separate design
+work. These items do not reopen either completed cohort and do not authorize a
+second semantic pipeline.
 
 ## Current architecture decision
 
