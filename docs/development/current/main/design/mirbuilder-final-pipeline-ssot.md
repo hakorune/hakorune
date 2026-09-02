@@ -511,26 +511,26 @@ immediate delete: public API, dedicated evidence, and independence from builder
 JoinIR merge must close first. Its string/alias/`args[0]` projection never
 re-enters canonical publication.
 The MIR JSON v0/v1 sub-census is also `NoSafeSlice`: direct file, artifact,
-direct text, and selfhost/Stage-A are four production caller series. v1→v0,
-canonicalize, and Program JSON fallback remain compatibility selection, so
-parser deletion or Call R6 is not authorized. Split one caller series at a time
-and require one owner, one live caller, and an exclusive finite delete-set.
+direct text, and selfhost/Stage-A are four caller series; v1→v0, canonicalize,
+and Program JSON fallback remain compatibility selection. Split one series at a
+time and require one owner, one live caller, and an exclusive finite delete-set.
 Hako published-view coverage and physical legacy deletion remain required for MS1-B/MS1-D;
 they do not authorize another Builder design cycle. Each M2/M6
 closeout applies the Family Repository Surface Budget from
 `repo-physical-structure-cleanup-ssot.md`: the selected old edge and exclusive
 temporary assets are deleted, tracked files/lines are remeasured, and a move or
 archive copy receives zero reduction credit.
-
 Program JSON v0 is also `NoSafeSlice`: artifact, host/provider, selfhost,
 runtime, and public callers share name/catalog reconstruction and fallback
-layers. Split caller families before parser/Call R6/fallback deletion; JSON is
-never semantic authority.
-
-Canonical coreの最終targetはopaque IDやphysical symbolではなく、wire-stableな
-typed structural identityである。少なくともbuiltinとsame-module staticを有限に
-区別し、追加familyはproduction censusが必要性を証明した場合だけ加える。legacy
-Stringはowner-private compatibility ingressで一度だけ解決し、coreへは入れない。
+layers. Split caller families before parser/Call R6/fallback deletion; JSON
+never becomes semantic authority.
+JSON egress is also `NoSafeSlice`: V0/V1 profiles have multiple production
+callers and retain legacy downgrade, reparse, and typed-to-legacy fallback.
+`receiver.unwrap_or(func)` and string wire fields remain compatibility-only;
+no egress deletion or R6 cutover is authorized until caller families split.
+Canonical coreの最終targetはopaque IDやphysical symbolではなくwire-stableなtyped
+structural identityである。追加familyはproduction censusが証明した場合だけ加え、
+legacy Stringはowner-private compatibility ingressで一度だけ解決しcoreへ入れない。
 
 このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
 selected shadow profileでDeferredになりpackage発行へ到達できないため、target
