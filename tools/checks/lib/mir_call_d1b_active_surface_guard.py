@@ -120,6 +120,12 @@ FREE_STATIC_PUBLICATION_SPINE_ROW = (
 FREE_STATIC_PUBLICATION_SPINE_KEY = (
     "mir_call_canonical_call_substrate_free_static_i0_2026_09_02"
 )
+BUILTIN_PRINT_PUBLICATION_SPINE_ROW = (
+    "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
+)
+BUILTIN_PRINT_PUBLICATION_SPINE_KEY = (
+    "mir_call_canonical_publication_spine_builtin_print_i0_2026_09_02"
+)
 
 
 def fail(message: str) -> None:
@@ -425,6 +431,42 @@ def check_free_static_publication_spine_i0(state: dict, card: dict) -> None:
             fail("FreeStatic publication spine closeout evidence is missing")
         return
     fail("FreeStatic publication spine status is not a finite branch or landed state")
+
+
+def check_builtin_print_publication_spine_i0(state: dict, card: dict) -> None:
+    """Validate the bounded Builtin Print publication row."""
+    row = card.get(BUILTIN_PRINT_PUBLICATION_SPINE_KEY)
+    if not isinstance(row, dict):
+        fail(f"{BUILTIN_PRINT_PUBLICATION_SPINE_KEY} section is missing")
+    if row.get("task_id") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+        fail("Builtin Print publication spine task id drifted")
+    for field in (
+        "decision",
+        "source_authority",
+        "canonical_issuer",
+        "first_cohort",
+        "fail_fast_boundary",
+        "acceptance",
+        "no_safe_slice",
+    ):
+        if not isinstance(row.get(field), str) or not row[field].strip():
+            fail(f"Builtin Print publication spine manifest field is missing: {field}")
+    if row.get("status") != "branch_only_fast":
+        fail("Builtin Print publication spine must remain branch_only_fast")
+    if state.get("work_mode") != "fast":
+        fail("Builtin Print publication spine must run in fast")
+    if state.get("current_execution_row") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+        fail("Builtin Print publication spine row is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("Builtin Print publication spine must clear current_design_stop")
+    if state.get("next_execution_card") != BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
+        fail("Builtin Print publication spine next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("Builtin Print publication spine card path drifted")
+    if row.get("implementation_permission") is not True:
+        fail("Builtin Print publication spine must retain implementation permission")
+    if row.get("branch_base_head") != "808b7ec1ff":
+        fail("Builtin Print publication spine base head drifted")
 
 
 def check_declared_instance_effect_issuer_d0(state: dict, card: dict) -> None:

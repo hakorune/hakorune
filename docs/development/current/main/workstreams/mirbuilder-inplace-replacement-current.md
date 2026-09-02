@@ -47,6 +47,12 @@ backend-view row, and the real scalar `--emit-exe` probe returns `2`.
 The parent/main remains `design_stop` until this isolated branch is selected
 for integration. Arbitrary UserBox DeclaredInstance stays
 `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
+The next isolated branch row is the exact Builtin Print publication cohort:
+reuse `CanonicalGlobalTargetV1::builtin_print()`, add one typed physical row
+to the existing borrowed published view, and remove only the Print-specific
+legacy Extern/env fallback after a real source-to-exe probe. This is an
+implementation slice, not a five-commit quota; commits may be split at real
+buildable boundaries while the single-family scope stays fixed.
 
 ### Current family disposition
 
@@ -54,6 +60,7 @@ for integration. Arbitrary UserBox DeclaredInstance stays
 |---|---|---|
 | published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
 | App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
+| Builtin `Print` | active branch-only bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, then Print-only legacy fallback deletion | exact print/1 typed row and source-to-exe evidence; no artificial commit-count quota |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -78,24 +85,31 @@ for integration. Arbitrary UserBox DeclaredInstance stays
    for this nested helper. Choose the next exact family; do not reopen this
    cohort.
 
-2. MS1-P family batches
+2. MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (active branch-only)
+   reuse the existing reserved Print target and publication spine; add the
+   typed physical row and selected-C consumer, switch one named print caller,
+   and delete the Print-specific env/Extern fallback in the same coherent
+   series. No new semantic receipt, JSON target lookup, or artificial
+   five-commit limit is allowed.
+
+3. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
    families; each batch switches one production family and deletes its old
    reachability/assets in the same bounded series.
 
-3. MS1-P product convergence
+4. MS1-P product convergence
    every currently complete production family reaches canonical Call/Atomic Publish
    product resolver/recovery/fallback/Method(None)/callee=None writers = 0
 
-4. MS1-C compatibility quarantine
+5. MS1-C compatibility quarantine
    Compatibility(AST), old JSON and harness/mock routes live behind one named boundary
    canonical rejection has retry/fallback = 0
 
-5. MS1-D Call R6/R7
+6. MS1-D Call R6/R7
    adapt or quarantine compiled consumers, then delete func, optional Callee/receiver,
    INVALID/0 targets, old writers, and their exclusive proof surface
 
-6. post-Call integration and repository repayment
+7. post-Call integration and repository repayment
    shrink context/port/barrel owners by finite caller; remeasure tracked files/lines
 ```
 
