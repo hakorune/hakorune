@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-current_design_stop = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+work_mode = "fast"
+current_execution_row = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject, and the Hako physical-ingress lane is ParkedSealed because its required production seams are absent.
-Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
-Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, selected-C success, or object/link-only probes.
-Fail-fast boundary: reject before JSON preparation, C/Hako transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
-Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; lifecycle refresh and the one-file docs retirement are landed, and guard retirement remains ParkedSealed because no further finite delete-safe family exists.
-Non-claims: no Hako implementation, Call schema/R6, VM/selfhost, shared exec/JSON deletion, selected-C feature expansion, further archive/delete, or whole-library green claim.
+Decision: delete exactly one duplicate cfg(test) assertion and retain its identical successor; no production or semantic change.
+Source authority + canonical issuer: existing exact_numeric_value_facts refresh owner and the retained successor test; no new issuer.
+Non-authority: test name/counts, historical card, worker report, local green, fixture spelling, or production fact inference.
+Fail-fast boundary: identical bodies, cfg(test)-only owner, no production reference, deterministic 7572/7405/138/29 baseline, and exact allowlist must hold before deletion.
+Smallest next slice: run the selected guard, delete one function and one inventory row, reconcile the existing baseline, run the exact successor, then return to the Hako ParkedSealed boundary.
+Non-claims: no production refactor, broad test purge, guard deletion, generated-artifact cleanup, Call/backend/VM change, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,24 +39,14 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The true top-level FreeFunction publication vertical is landed at 042cd56aa2.
-The mixed App Main plus scalar top-level helper now preserves the existing
-FreeFunction key through catalog/admission, collector, Atomic Publish, typed
-backend transport, and a real executable probe returning 3. Focused positive
-and negative evidence, C-shim build, pointer/active-surface guards, and diff
-checks passed. Known whole-lib red remains separate and is not claimed green;
-generic phi/overwrite/non-scalar/runner-C negative coverage remains follow-up.
-The root-lexical DeclaredInstance Method(Some) vertical is landed at
-13f8a2513f. Its selected Ready -> CanonicalInstance route carries the existing
-InstanceBoxMethod key and mandatory receiver through publication, lowers source
-arguments once, and has zero reachability to the three selected legacy helpers;
-compatibility implementations remain outside this cohort. Deterministic lib
-baseline is refreshed at 7572/7405/138/29 after the selected-C quarantine tests;
-selected-C remains design stop.
-Hako physical-ingress is `ParkedSealed__HakoIngressMissing` (zero `lang/**` borrow/runtime callers); lifecycle refresh and the one-file docs retirement are landed, guard retirement has no further candidate, and known red is not green.
+The selected repository-reduction row removes one identical local-contract test
+and its baseline inventory entry. The successor, production-neutral boundary,
+and pre-delete known-red receipt are fixed by the active manifest and existing
+guard. After closeout the pointer returns to the Hako physical-ingress
+ParkedSealed boundary; no MirBuilder semantic or backend work is included.
 """
-next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
+next_execution_card = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

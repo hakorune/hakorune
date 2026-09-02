@@ -103,6 +103,7 @@ separate bounded commits; they never share a semantic implementation commit.
 REPO-LIFECYCLE-BASELINE-REFRESH-R0
   -> GUARD-FAMILY-RETIREMENT-R0
   -> DOCS-HISTORY-RETIRE-R0
+  -> MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0
   -> GENERATED-ARTIFACT-RETENTION-D0
 ```
 
@@ -241,6 +242,41 @@ Implementation evidence: the candidate was deleted with no archive copy; the
 selected batch measured one tracked file/75 lines before and zero afterward.
 The generated lifecycle receipt and existing guards were refreshed in the same
 closeout, and no compiler, MIR, test, or guard semantics changed.
+
+### `MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0` (selected)
+
+This is one production-neutral test-surface reduction under the same absolute
+reduction policy. The selected function is byte-for-byte equivalent in its
+assertion body to the retained `mapstore_i64_key_from_dynamic_src_after_checked_local_write`
+successor, has no production caller, and is present only in the existing daily
+baseline inventory and a closed historical note. The historical note remains
+in Git history; it is not edited or copied.
+
+```text
+Decision:
+  remove exactly the duplicate test and its one baseline inventory row.
+Source authority + canonical issuer:
+  existing exact_numeric_value_facts refresh owner and retained successor test.
+Non-authority:
+  test names/counts, historical age, worker output, and local green alone.
+Fail-fast boundary:
+  identical body, cfg(test)-only owner, no production reference, deterministic
+  baseline/failure receipt, and the exact allowlist must all hold before delete.
+Smallest next slice:
+  select the row, delete one function, reconcile the existing baseline, run
+  the named successor and existing guards, then return to Hako ParkedSealed.
+Non-claims:
+  no fact implementation change, broad test purge, guard deletion, or semantic
+  compiler/backend change.
+Census boundary: one local_contract_write duplicate -> retained successor and
+  baseline inventory; excludes other tests, historical cards, generated files,
+  and all MirBuilder semantic lanes.
+```
+
+Acceptance is one fewer tracked test function and one fewer inventory row,
+`7571 / 7404 / 138 / 29` with the existing failure-name SHA unchanged, and no
+production-path diff. If the body, owner, or baseline is not exactly as named,
+the row is not safe and no replacement card is opened.
 
 2. `GUARD-FAMILY-RETIREMENT-R0` reuses
    `guard_surface_inventory.py`. Its current 3,804-row inventory classifies

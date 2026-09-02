@@ -232,6 +232,14 @@ by this refresh.
     receipt and guards were refreshed, and the pointer returned to the Hako
     ParkedSealed stop. No broad docs/phase purge or compiler change was made.
 
+3i. MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0 (selected)
+    Remove only the duplicate `fact_attached_to_src_before_check_rejects`
+    assertion; retain its identical `mapstore_i64_key_from_dynamic_src_after_checked_local_write`
+    successor. Reconcile the existing 7572/7405/138/29 known-red inventory to
+    7571/7404/138/29 with the failure-name set unchanged. This is test-surface
+    reduction only; no production fact, MirBuilder, backend, or semantic route
+    changes are allowed, and the pointer returns to the Hako ParkedSealed stop.
+
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
    families; each batch switches one production family and deletes its old

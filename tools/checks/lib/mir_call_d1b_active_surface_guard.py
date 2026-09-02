@@ -154,6 +154,27 @@ DOCS_HISTORY_RETIRE_R0_CANDIDATE = Path(
     "docs/development/current/main/investigations/"
     "mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml"
 )
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_ROW = (
+    "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
+)
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_KEY = (
+    "mir_test_local_contract_fact_duplicate_retire_r0_2026_09_02"
+)
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_SOURCE = Path(
+    "src/mir/exact_numeric_value_facts/tests/local_contract_write.rs"
+)
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_CANDIDATE = (
+    "fact_attached_to_src_before_check_rejects"
+)
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_SUCCESSOR = (
+    "mapstore_i64_key_from_dynamic_src_after_checked_local_write"
+)
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_BASELINE = Path(
+    "tools/checks/manifests/cargo_lib_red_baseline.toml"
+)
+TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_INVENTORY = Path(
+    "tools/checks/manifests/cargo_lib_red_baseline.tests.txt"
+)
 
 
 def fail(message: str) -> None:
@@ -979,6 +1000,88 @@ def check_docs_history_retire_r0(state: dict, card: dict, root: Path) -> None:
             fail(f"docs history retirement candidate still has inbound references: {pattern}")
         if result.returncode not in (0, 1):
             fail(f"docs history retirement reference scan failed: {result.stderr.strip()}")
+
+
+def check_test_local_contract_fact_duplicate_retire_r0(
+    state: dict, card: dict, root: Path
+) -> None:
+    row_name = TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_ROW
+    if any(
+        (
+            state.get("work_mode") != "fast",
+            state.get("current_execution_row") != row_name,
+            state.get("current_design_stop") != "none",
+            state.get("next_execution_card") != row_name,
+            state.get("next_execution_card_path") != str(CARD_REL),
+        )
+    ):
+        fail("duplicate local-contract test retirement pointer is not selected")
+    row = card.get(TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_KEY)
+    if not isinstance(row, dict) or any(
+        (
+            row.get("task_id") != row_name,
+            row.get("status") != "selected_fast",
+            row.get("implementation_permission") is not True,
+            row.get("base_head") != "f8ee738b33",
+        )
+    ):
+        fail("duplicate local-contract test retirement card drifted")
+    expected_allowed = {
+        str(TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_SOURCE),
+        str(TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_BASELINE),
+        str(TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_INVENTORY),
+        str(STATE_REL), str(CARD_REL), str(HELPER_REL),
+        "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md",
+        "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+    }
+    if set(row.get("allowed_files", ())) != expected_allowed:
+        fail("duplicate local-contract allowed-file boundary drifted")
+    if not git_diff_paths(root, row["base_head"]) <= expected_allowed:
+        fail("duplicate local-contract changed paths escaped")
+
+    source = root / TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_SOURCE
+    if not source.is_file():
+        fail("duplicate local-contract source is missing")
+    source_text = source.read_text(encoding="utf-8")
+    candidate = TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_CANDIDATE
+    successor = TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_SUCCESSOR
+    if any(source_text.count(f"fn {name}(") != 1 for name in (candidate, successor)):
+        fail("duplicate local-contract candidate/successor is not unique")
+
+    def test_body(name: str) -> str:
+        marker = f"fn {name}() {{"
+        start = source_text.index(marker)
+        end = source_text.index("\n}\n", start) + 2
+        return source_text[start:end].replace(marker, "fn <same>() {", 1)
+
+    if test_body(candidate) != test_body(successor):
+        fail("duplicate local-contract test bodies differ")
+    scan = subprocess.run(
+        ["git", "grep", "-n", "-F", candidate, "--", "src"],
+        cwd=root, capture_output=True, text=True, check=False,
+    )
+    if scan.returncode not in (0, 1):
+        fail("duplicate local-contract production scan failed")
+    if any(
+        line and line.split(":", 1)[0]
+        != str(TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_SOURCE)
+        for line in scan.stdout.splitlines()
+    ):
+        fail("duplicate local-contract candidate has a production reference")
+
+    baseline = load_toml(root / TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_BASELINE)
+    if tuple(baseline.get(key) for key in ("expected_passed", "expected_failed", "expected_ignored")) != (7405, 138, 29):
+        fail("duplicate local-contract baseline is not pre-delete")
+    inventory = (root / TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_INVENTORY).read_text(encoding="utf-8").splitlines()
+    prefix = "mir::exact_numeric_value_facts::tests::local_contract_write::"
+    if len([line for line in inventory if line]) != 7572 or not all(
+        prefix + name in inventory for name in (candidate, successor)
+    ):
+        fail("duplicate local-contract baseline inventory drifted")
+    if baseline.get("inventory_sha256") != "3bc6cb495886662962ec8d41afa3124633dd29191ec9e1a7ee9020fb07f255a8" or baseline.get("failures_sha256") != "29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1":
+        fail("duplicate local-contract receipt drifted")
+    print(f"[{TAG}] duplicate local-contract test retirement ok")
 
 
 def check_declared_instance_locator_install_bridge_i0(
