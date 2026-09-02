@@ -131,6 +131,35 @@ The executable order is the compact M0--M9 Call completion program in
 remain in Git history and the owning machine-readable manifest; this
 workstream does not duplicate them.
 
+### S-class gate coverage (navigation only)
+
+The five post-M9 S-class gates are already defined by the final-pipeline SSOT;
+they are not additional current execution rows. Their concrete coverage is
+kept explicit here so a release claim cannot be mistaken for the current R6
+closeout:
+
+```text
+S1 Enforce       M4/M6/M7 + M8; private boundary constructors/capabilities
+                 and negative guards must be observed before release.
+S2 Prove         M5/M6 evidence is necessary but not sufficient. A future
+                 MIR-VERIFY-VM-LLVM-DIFFERENTIAL-R0 must compare observable
+                 results/failures/effect order, and a compact spec-ID trace
+                 matrix must link each rule to positive and reject evidence.
+S3 Delete        M3/M4/M7/M9; LegacyCallV0 production writers/reissuers/
+                 readers and compatibility repair must reach caller-zero.
+S4 Bootstrap     owner: selfhost-bootstrap-route-ssot; stage0->stage1->stage2
+                 reproducibility and identity comparison are post-M9 gates.
+S5 Release       owner: hakoruneup-release-distribution-ssot; clean checkout,
+                 pinned tools, sample ladder, limitations, and regression
+                 evidence are post-M9 gates.
+```
+
+S2's differential harness, rule traceability, S4 bootstrap proof, and S5
+release packaging are therefore planned but deliberately unopened while the
+R6 reader census is `NoSafeSlice`. The current `138`-name whole-library red
+receipt is known debt, not a green claim; it must be classified and excluded
+from any future S2/S5 completion assertion rather than silently rebaselined.
+
 ### Compact closed tail
 
 - Core/Call retirement tombstones: `598530d23b`, `e5120589dc`, `2b7b3e7489`,
