@@ -508,18 +508,21 @@ until one owner, one live caller, and an exclusive finite delete-set are proven
 for one ingress. The M3-C boundary excludes canonical MirBuilder publication,
 C/LLVM lowering, and already-landed source families.
 
-Initial owner roots are `src/mir/join_ir_to_mir`, `src/runner/mir_json_v0` plus
-`json_v1_bridge`, `src/runner/json_v0_bridge`, and `src/runner/mir_json_emit`.
-The first sub-census finds `lower_structured_joinir_to_mir` with no
-production caller (two test callers only), so the bridge is a
-`DeadDeleteCandidate`, not an immediate delete: its public API, dedicated
-tests/README/guard, and independence from builder JoinIR merge must be closed
-before a deletion row is opened. Its string/alias/`args[0]` projection remains
-compatibility-only and never re-enters canonical publication.
+Owner roots are `src/mir/join_ir_to_mir`, `src/runner/mir_json_v0`, `json_v1_bridge`,
+`json_v0_bridge`, and `mir_json_emit`. Structured JoinIR has
+no production caller (two tests only), so it is a `DeadDeleteCandidate`, not an
+immediate delete: public API, dedicated evidence, and independence from builder
+JoinIR merge must close first. Its string/alias/`args[0]` projection never
+re-enters canonical publication.
 
-Hako published-view coverage and physical legacy deletion remain required for
-MS1-B/MS1-D, but they do not authorize another semantic Builder design cycle.
-Each M2/M6 family closeout applies the Family Repository Surface Budget from
+The MIR JSON v0/v1 sub-census is also `NoSafeSlice`: direct file, artifact,
+direct text, and selfhost/Stage-A are four production caller series. v1→v0,
+canonicalize, and Program JSON fallback remain compatibility selection, so
+parser deletion or Call R6 is not authorized. Split one caller series at a time
+and require one owner, one live caller, and an exclusive finite delete-set.
+Hako published-view coverage and physical legacy deletion remain required for MS1-B/MS1-D;
+they do not authorize another Builder design cycle. Each M2/M6
+closeout applies the Family Repository Surface Budget from
 `repo-physical-structure-cleanup-ssot.md`: the selected old edge and exclusive
 temporary assets are deleted, tracked files/lines are remeasured, and a move or
 archive copy receives zero reduction credit.
