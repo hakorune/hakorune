@@ -29,6 +29,9 @@ PERFORMANCE_CARD_REL = Path(
     "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 )
 PERFORMANCE_SNAPSHOT_ROW = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
+PUBLISHED_VIEW_NEGATIVE_COVERAGE_B_S0_ROW = (
+    "MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0"
+)
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
@@ -233,6 +236,51 @@ def check_delegated_performance_row(state: dict, root: Path) -> None:
         f"[{TAG}] row={PERFORMANCE_SNAPSHOT_ROW} delegated="
         "current-state-pointer"
     )
+
+
+def check_delegated_performance_evidence_row(
+    state: dict, root: Path, row: str
+) -> None:
+    """Validate a named evidence row owned by the performance card.
+
+    The stable D1B entrypoint owns the dispatch decision, while the pointed
+    performance card owns the row's evidence.  This is an explicit bridge for
+    a landed B-S0 row, not a wildcard pass for arbitrary performance rows.
+    """
+    if state.get("work_mode") != "closeout":
+        fail(f"{row} delegation requires closeout work_mode")
+    if state.get("current_execution_row") != row:
+        fail(f"{row} delegation row drifted")
+    if state.get("current_design_stop") != "none":
+        fail(f"{row} delegation requires current_design_stop=none")
+    if state.get("latest_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} delegation requires the performance card path")
+    if state.get("current_execution_design") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} delegation current_execution_design drifted")
+    if state.get("next_execution_card") != row:
+        fail(f"{row} delegation next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} delegation next_execution_card_path drifted")
+
+    card_path = root / PERFORMANCE_CARD_REL
+    if not card_path.is_file():
+        fail(f"{row} delegation card is missing")
+    card_text = card_path.read_text(encoding="utf-8")
+    marker = f"#### `{row}`"
+    if marker not in card_text:
+        fail(f"{row} is absent from its owning performance card")
+    closeout_marker = "### B-S0 closeout evidence"
+    if closeout_marker not in card_text:
+        fail(f"{row} closeout evidence heading is missing")
+    section = card_text.split(closeout_marker, 1)[1].split("\n###", 1)[0]
+    for evidence in (
+        "Status: **landed**",
+        "18 passed; 0 failed",
+        "published_backend_view::tests",
+    ):
+        if evidence not in section:
+            fail(f"{row} owning evidence is missing: {evidence}")
+    print(f"[{TAG}] row={row} delegated=current-state-pointer")
 
 
 def git_diff(root: Path, base: str) -> str:

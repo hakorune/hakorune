@@ -529,9 +529,9 @@ observed evidence:
 #### `MIR-GUARD-ACTIVE-ROW-DISPATCH-REPAIR-P0`
 
 Status: **landed**. The stable D1B guard keeps its fixed Call-card authority;
-the selected performance row is an explicit, exact delegation to the
-existing `current-state-pointer` owner. No wildcard, unconditional skip, or
-second shell guard was introduced.
+the selected performance snapshot and the landed B-S0 evidence row are
+explicit, exact delegations to the existing `current-state-pointer` owner. No
+wildcard, unconditional skip, or second shell guard was introduced.
 
 Observed failure: the stable
 `mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh` dispatches through
@@ -693,3 +693,19 @@ known-red baseline comparison.
 The two P0 rows and B-S0 are now landed. A remains parked until its
 alternative-entry caller census closes; the next semantic family is not
 selected by this evidence-only closeout.
+
+### Verification refresh after B-S0 (2026-09-03)
+
+The seven B-S0 and snapshot tests are now included in the executable baseline:
+7578 total / 7411 passed / 138 failed / 29 ignored, inventory SHA-256
+`db572fea583c934661886b020801b325408c7ed47bf8025a1e2895077c17c1f1`, and the
+unchanged 138-name failure SHA-256
+`29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`. The
+baseline comparator passes with this classified known-red result.
+
+`CARGO_BUILD_JOBS=4 cargo build --profile quick --features vm-reference --lib`
+also completes successfully (the `SameModuleInstance` consumer has explicit
+typed trace and unsupported arms). The stable D1B guard now dispatches the
+current B-S0 row through its named performance-card delegation; both that
+guard and `current_state_pointer_guard.sh` pass. No new compiler, Call, backend,
+or semantic route is claimed by this verification repair.
