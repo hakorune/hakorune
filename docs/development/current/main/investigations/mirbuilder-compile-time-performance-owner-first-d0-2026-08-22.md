@@ -466,3 +466,150 @@ not claim that all environment reads in the repository are gone.
 Any production emitter outside the finite reader boundary, a changed alias or
 default, a need for live environment rereads, or a request to include DebugHub
 or backend consumers returns the work to design_stop instead of widening I0.
+
+### I0 closeout evidence (2026-09-03)
+
+The one `CompilationContext` snapshot is installed by both invocation forms;
+the normal/raw and canonical session tests each preserve independent policy
+values across an ambient environment flip. The selected reader census remains
+free of direct process-environment reads, and the Builder module README records
+the ownership boundary. The two post-audit gate repairs below are included in
+this closeout so the next family is not opened on a broken feature build or an
+inactive stable dispatch gate. Whole-library health is still a separately
+classified known-red baseline, not a green claim.
+
+## Post-audit follow-up queue (2026-09-03)
+
+The following findings were independently checked at the current snapshot I0
+boundary. They are taskized here so that the next family cannot silently
+inherit a broken feature build or an inactive proof gate. This queue does not
+change I0's implementation permission and does not claim that the whole
+library is green.
+
+### Confirmed P0 — before opening another semantic family
+
+#### `MIR-BUILDER-VM-REFERENCE-CALLEE-EXHAUSTIVENESS-P0`
+
+Status: **landed**. The VM reference consumer now has explicit typed arms
+for `SameModuleInstance`: tracing records the key/receiver, while execution
+returns the existing typed unsupported result because this lane has no exact
+same-module definition owner. No name or registry recovery was added.
+
+Observed failure: `cargo check --profile quick --features vm-reference --lib`
+fails with E0004 in
+`src/backend/mir_interpreter/handlers/calls/mod.rs` because the existing
+`Callee::SameModuleInstance { .. }` variant has no match arm at the callee
+classification and execution sites. The normal library build does not cover
+this feature, so the failure is not a known-green claim.
+
+```text
+source authority + canonical issuer:
+  the existing typed Callee::SameModuleInstance key/receiver product;
+  the VM is a reference consumer only.
+
+allowed:
+  add the explicit VM arm(s), focused vm-reference evidence, and one feature
+  guard. If the VM has no exact execution owner, the arm must be a typed
+  Unsupported/terminal result rather than a name or registry recovery.
+
+forbidden:
+  wildcard match, target reconstruction, args[0] receiver repair, VM-to-C/
+  JSON fallback, new semantic Callee variant, or changing the product backend.
+
+acceptance:
+  vm-reference quick check/build is green; SameModuleInstance is handled by
+  an explicit typed arm; no fallback/retry or semantic authority moves into
+  the VM.
+
+observed evidence:
+  `CARGO_BUILD_JOBS=4 cargo check --profile quick --features vm-reference --lib`
+  exits 0 after the two explicit arms landed.
+```
+
+#### `MIR-GUARD-ACTIVE-ROW-DISPATCH-REPAIR-P0`
+
+Status: **landed**. The stable D1B guard keeps its fixed Call-card authority;
+the selected performance row is an explicit, exact delegation to the
+existing `current-state-pointer` owner. No wildcard, unconditional skip, or
+second shell guard was introduced.
+
+Observed failure: the stable
+`mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh` dispatches through
+`mir_call_d1b_active_surface_guard.py`, but the current
+`MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0` row is absent from the declarative dispatch
+table and the guard exits rc=1 with `unsupported current row`. The generic
+pointer guard passing is not a substitute for this lane guard.
+
+```text
+source authority + canonical issuer:
+  the existing guard registry and one stable dispatch owner.
+
+allowed:
+  register the current performance row through the same manifest-driven
+  dispatch path, or explicitly retarget the stable guard to its owning lane;
+  validate the actual active-card/pointer and keep the guard green at HEAD.
+
+forbidden:
+  unconditional skip, wildcard acceptance, a second shell guard, or a fake
+  pass that ignores current_execution_row.
+
+acceptance:
+  the stable guard returns 0 for the selected row, rejects a drifted row in a
+  negative fixture, and keeps the existing Call-row handlers unchanged.
+
+observed evidence:
+  `python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .` and
+  `bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh`
+  both exit 0 for `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0`; a non-performance row
+  still follows the fixed D1B dispatch and remains fail-closed. The direct
+  negative delegation probe rejects a performance row paired with the fixed
+  D1B card path.
+```
+
+The two P0s are gate repairs, not a reason to widen the snapshot semantic
+slice. They must be closed (or explicitly ParkedSealed with a recorded owner
+and reopen trigger) before the next Call family is opened.
+
+### P1 — bounded published-transport hardening
+
+#### `MIR-CALL-PUBLISHED-TRANSPORT-DEDUP-P1`
+
+The selected-C published-call dispatch currently repeats the same Print and
+FreeFunction/static-kind handling in
+`lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc` and
+`lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc`. A second
+production emit edge also remains in `harness_executor.rs`. Extract one
+shared include-level helper, keep the typed published row as the sole
+authority, add a producer-to-consumer smoke test, and remove the duplicate
+edge only after caller-zero is observed.
+
+#### `MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-P1`
+
+Add the smallest direct negative set for the already-published view: join/view
+reject variants, phi-at-head coordinate invariant, duplicate definition
+publication, and non-scalar argument-lane mismatch. Each case must reject
+before object emission and must not re-enter JSON/name/registry repair. Do not
+inflate the positive fixture matrix or add a new receipt family.
+
+These P1 tasks remain separate from the next DeclaredInstance or other
+semantic-family cutover. Their evidence must distinguish changed-test green
+from the known whole-library red baseline.
+
+### P2 — bounded cleanup after the gates are healthy
+
+* `MIR-CALL-ME-DECLARED-INSTANCE-QUARANTINE-R0`: retain `me.method` in the
+  language, but keep unsupported arbitrary UserBox selected-C routes as one
+  typed quarantine until a published descriptor consumer exists.
+* `MIR-CALL-PUBLISHED-TRANSPORT-STALE-SURFACE-R0`: remove stale SSOT wording,
+  dead variants, and the old second cleanup value only after their caller-zero
+  evidence is recorded. This is physical cleanup, not a new semantic owner.
+* The existing duplicate-test retirement
+  `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` remains a separate
+  test-only row; it is not folded into a Builder or transport row.
+
+### Gate rule
+
+Until both P0 rows have a green, observable owner, no new Call family is
+opened. A focused snapshot test passing is useful evidence for I0 only; it
+does not waive the vm-reference feature build, stable dispatch guard, or the
+known-red baseline comparison.

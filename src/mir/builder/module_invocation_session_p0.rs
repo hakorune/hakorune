@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use super::emit_debug_policy::BuilderEmitDebugPolicySnapshotV1;
 use super::module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderCoreIdSeedV1, BuilderCoreSeedPolicyV1,
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
@@ -60,6 +61,39 @@ fn assert_module_session_rejected(
     assert_eq!(rejected.error(), &expected);
     let (_session, error) = rejected.into_parts();
     assert_eq!(error, expected);
+}
+
+fn debug_policy_updates(enabled: bool) -> [(&'static str, Option<&'static str>); 11] {
+    let value = if enabled { Some("1") } else { Some("0") };
+    [
+        ("HAKO_JOINIR_DEBUG", value),
+        ("NYASH_JOINIR_DEBUG", value),
+        ("HAKO_JOINIR_STRICT", value),
+        ("NYASH_JOINIR_STRICT", value),
+        ("HAKO_JOINIR_PLANNER_REQUIRED", value),
+        ("NYASH_LOCAL_SSA_TRACE", value),
+        ("NYASH_BUILDER_TRACE_RECV", value),
+        (
+            "NYASH_BUILDER_DEBUG",
+            if enabled { Some("1") } else { None },
+        ),
+        ("NYASH_STATIC_CALL_TRACE", value),
+        ("NYASH_STATIC_METHOD_TRACE", value),
+        ("NYASH_CALL_RESOLVE_TRACE", value),
+    ]
+}
+
+fn debug_policy_bits(policy: BuilderEmitDebugPolicySnapshotV1) -> [bool; 8] {
+    [
+        policy.joinir_debug_enabled(),
+        policy.strict_planner_required_debug_enabled(),
+        policy.local_ssa_trace(),
+        policy.trace_recv(),
+        policy.builder_debug_enabled(),
+        policy.static_call_trace(),
+        policy.static_method_trace(),
+        policy.call_resolve_trace(),
+    ]
 }
 
 #[test]
@@ -159,6 +193,10 @@ fn snapshot_installs_all_explicit_builder_inputs() {
         candidate.comp_ctx.quiet_internal_logs
     );
     assert_eq!(
+        config.emit_debug_policy(),
+        *candidate.comp_ctx.emit_debug_policy()
+    );
+    assert_eq!(
         config.using_import_boxes(),
         &candidate.comp_ctx.using_import_boxes
     );
@@ -174,6 +212,30 @@ fn snapshot_installs_all_explicit_builder_inputs() {
         config.core_id_seed(),
         BuilderCoreIdSeedV1::ContinueLive(_)
     ));
+}
+
+#[test]
+fn invocation_debug_policy_survives_ambient_flip() {
+    let policy_a = crate::test_support::with_env_vars(&debug_policy_updates(true), || {
+        let live = MirBuilder::new();
+        let config = BuilderInvocationConfigV1::snapshot_for_raw(&live, None);
+        let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
+        debug_policy_bits(*session.builder_mut().comp_ctx.emit_debug_policy())
+    });
+    let policy_b = crate::test_support::with_env_vars(&debug_policy_updates(false), || {
+        let live = MirBuilder::new();
+        let config = BuilderInvocationConfigV1::snapshot_for_raw(&live, None);
+        let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);
+        debug_policy_bits(*session.builder_mut().comp_ctx.emit_debug_policy())
+    });
+
+    crate::test_support::with_env_vars(&debug_policy_updates(false), || {
+        assert_eq!(policy_a, [true, true, true, true, true, true, true, true]);
+        assert_eq!(
+            policy_b,
+            [false, false, false, false, false, false, false, false]
+        );
+    });
 }
 
 #[test]

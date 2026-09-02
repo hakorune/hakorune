@@ -6,6 +6,7 @@
 
 use std::collections::HashMap;
 
+use super::emit_debug_policy::BuilderEmitDebugPolicySnapshotV1;
 use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
@@ -69,6 +70,7 @@ pub(in crate::mir::builder) enum BuilderCoreSeedPolicyV1 {
 pub(in crate::mir) struct BuilderInvocationConfigV1 {
     repl_mode: bool,
     quiet_internal_logs: bool,
+    emit_debug_policy: BuilderEmitDebugPolicySnapshotV1,
     using_import_boxes: HashMap<String, String>,
     plugin_method_sigs: HashMap<(String, String), MirType>,
     source_file: Option<String>,
@@ -116,6 +118,7 @@ impl BuilderInvocationConfigV1 {
         Self {
             repl_mode: current.repl_mode,
             quiet_internal_logs: current.comp_ctx.quiet_internal_logs,
+            emit_debug_policy: BuilderEmitDebugPolicySnapshotV1::from_environment(),
             using_import_boxes: current.comp_ctx.using_import_boxes.clone(),
             plugin_method_sigs: current.comp_ctx.plugin_method_sigs.clone(),
             source_file: current.current_source_file(),
@@ -136,9 +139,10 @@ impl BuilderInvocationConfigV1 {
         Self::snapshot(current, seed)
     }
 
-    fn install_into(&self, candidate: &mut MirBuilder) {
+    pub(in crate::mir) fn install_into(&self, candidate: &mut MirBuilder) {
         candidate.repl_mode = self.repl_mode;
         candidate.comp_ctx.quiet_internal_logs = self.quiet_internal_logs;
+        candidate.comp_ctx.emit_debug_policy = self.emit_debug_policy;
         candidate.comp_ctx.using_import_boxes = self.using_import_boxes.clone();
         candidate.comp_ctx.plugin_method_sigs = self.plugin_method_sigs.clone();
         match &self.source_file {
@@ -160,6 +164,10 @@ impl BuilderInvocationConfigV1 {
 
     pub(in crate::mir::builder) fn quiet_internal_logs(&self) -> bool {
         self.quiet_internal_logs
+    }
+
+    pub(in crate::mir::builder) fn emit_debug_policy(&self) -> BuilderEmitDebugPolicySnapshotV1 {
+        self.emit_debug_policy
     }
 
     pub(in crate::mir::builder) fn using_import_boxes(&self) -> &HashMap<String, String> {

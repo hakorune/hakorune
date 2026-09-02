@@ -2,6 +2,20 @@ use super::MirBuilder;
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId};
 
 impl MirBuilder {
+    pub(crate) fn emit_debug_policy_bits_for_test(&self) -> [bool; 8] {
+        let policy = *self.comp_ctx.emit_debug_policy();
+        [
+            policy.joinir_debug_enabled(),
+            policy.strict_planner_required_debug_enabled(),
+            policy.local_ssa_trace(),
+            policy.trace_recv(),
+            policy.builder_debug_enabled(),
+            policy.static_call_trace(),
+            policy.static_method_trace(),
+            policy.call_resolve_trace(),
+        ]
+    }
+
     pub fn enter_function_for_test(&mut self, name: String) {
         let entry_block = self.core_ctx.next_block();
         let signature = FunctionSignature {

@@ -66,6 +66,15 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
+### Invocation-owned emit policy snapshot
+
+Selected Builder debug/strict flags are captured once by
+`BuilderInvocationConfigV1` at normal/raw or canonical invocation ingress,
+installed as one immutable child of `CompilationContext`, and borrowed by
+the selected emit readers. Emit code must not reread process environment;
+DebugHub and backend policy remain separate owners. This boundary transports
+configuration only and cannot select a semantic target or call route.
+
 ### MIR Call R6 D1S PublicationSubstring issuer (landed)
 
 The landed bounded Call row (`5d5c564e82`) replaced only the

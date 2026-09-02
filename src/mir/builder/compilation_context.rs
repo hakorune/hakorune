@@ -58,6 +58,7 @@ use super::callable_declaration_catalog::{
     SameModuleCallableDeclarationCatalogSessionErrorV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
+use super::emit_debug_policy::BuilderEmitDebugPolicySnapshotV1;
 use super::module_compat_policy::CallableMainCompatibilityPolicyV1;
 use super::properties::PropertyRegistry;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
@@ -98,6 +99,11 @@ pub(crate) struct CompilationContext {
     /// One module-ingress snapshot; body lowering never reads the env toggle.
     pub(in crate::mir::builder) callable_main_compatibility_policy:
         CallableMainCompatibilityPolicyV1,
+
+    /// Invocation-owned debug/strict policy for the selected emit boundary.
+    /// The process environment is never consulted by those readers after the
+    /// module session installs this snapshot.
+    pub(in crate::mir::builder) emit_debug_policy: BuilderEmitDebugPolicySnapshotV1,
 
     /// Names of user-defined boxes declared in the current module
     /// Phase 285LLVM-1.1: Extended to track fields (box name → field names)
@@ -203,6 +209,7 @@ impl CompilationContext {
             compilation_context: None,
             current_static_box: None,
             callable_main_compatibility_policy: CallableMainCompatibilityPolicyV1::Omitted,
+            emit_debug_policy: BuilderEmitDebugPolicySnapshotV1::default(),
             user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
             brand_decls: HashMap::new(),
             user_box_field_decls: HashMap::new(),
@@ -223,6 +230,12 @@ impl CompilationContext {
             plugin_method_sigs: HashMap::new(),
             quiet_internal_logs: false, // File mode: 常に false
         }
+    }
+
+    pub(in crate::mir::builder) const fn emit_debug_policy(
+        &self,
+    ) -> &BuilderEmitDebugPolicySnapshotV1 {
+        &self.emit_debug_policy
     }
 
     /// Create a new CompilationContext with plugin method signatures

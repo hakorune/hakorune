@@ -9,6 +9,8 @@ use crate::mir::definitions::call_unified::Callee;
 ///   - Ensure the receiver has an in-block definition via LocalSSA (Copy in the current block).
 /// - Args の LocalSSA は別レイヤ（ssa::local）で扱う。
 pub fn finalize_method_receiver(builder: &mut MirBuilder, callee: &mut Callee) {
+    let emit_debug_policy = *builder.comp_ctx.emit_debug_policy();
+
     if let Callee::Method {
         box_name,
         method,
@@ -21,7 +23,7 @@ pub fn finalize_method_receiver(builder: &mut MirBuilder, callee: &mut Callee) {
         let r_pinned = builder.pin_to_slot(r, "@recv").unwrap_or(r);
 
         // Optional dev trace for receiver aliases
-        if crate::config::env::builder_trace_recv() {
+        if emit_debug_policy.trace_recv() {
             let current_fn = builder
                 .function_state
                 .current_function

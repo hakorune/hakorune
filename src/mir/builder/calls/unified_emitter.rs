@@ -260,8 +260,10 @@ impl UnifiedCallEmitterBox {
         >,
         signature_publication: UnifiedCallSignaturePublicationV1,
     ) -> Result<UnifiedCallEmissionOutcomeV1, String> {
+        let emit_debug_policy = *builder.comp_ctx.emit_debug_policy();
+
         // Phase 287 P4: Debug trace to see what CallTarget is passed
-        if crate::config::env::builder_static_call_trace() {
+        if emit_debug_policy.static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
                 "[P287-TRACE] emit_unified_call_impl: target={:?}, dst={:?}, args={:?}",
@@ -446,7 +448,7 @@ impl UnifiedCallEmitterBox {
         resolver.validate_args(&callee, &args)?;
 
         // Dev trace: resolved callee (static vs instance) and receiver origin
-        if crate::config::env::builder_call_resolve_trace() {
+        if emit_debug_policy.call_resolve_trace() {
             use crate::mir::definitions::call_unified::Callee;
             match &callee {
                 Callee::Method {
@@ -536,8 +538,7 @@ impl UnifiedCallEmitterBox {
                 arity_for_try,
             );
             if let crate::mir::builder::router::policy::Route::BoxCall = route {
-                if crate::mir::builder::utils::builder_debug_enabled()
-                    || crate::config::env::builder_local_ssa_trace()
+                if emit_debug_policy.builder_debug_enabled() || emit_debug_policy.local_ssa_trace()
                 {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
@@ -616,7 +617,7 @@ impl UnifiedCallEmitterBox {
             // instance method のみ receiver を追加（static box method は追加しない）
             if !is_static_box_method {
                 args_local.insert(0, *recv);
-            } else if crate::config::env::builder_static_method_trace() {
+            } else if emit_debug_policy.static_method_trace() {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(
                     "[hotfix7] skipped receiver for static box method: {}.{}",
@@ -635,9 +636,7 @@ impl UnifiedCallEmitterBox {
         let mir_call = call_unified::create_mir_call(dst, callee.clone(), args_local.clone());
 
         // Dev trace: show final callee/recv right before emission (guarded)
-        if crate::config::env::builder_local_ssa_trace()
-            || crate::mir::builder::utils::builder_debug_enabled()
-        {
+        if emit_debug_policy.local_ssa_trace() || emit_debug_policy.builder_debug_enabled() {
             if let Callee::Method {
                 method,
                 receiver,

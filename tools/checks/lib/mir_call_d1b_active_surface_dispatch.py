@@ -281,7 +281,9 @@ def _check_free_function_publication_i0(
 
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
-    if row == api.STATIC_PUBLICATION_SPINE_ROW:
+    if row == api.PERFORMANCE_SNAPSHOT_ROW:
+        api.check_delegated_performance_row(state, root)
+    elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:
         api.check_free_static_publication_spine_i0(state, card)

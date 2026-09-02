@@ -36,6 +36,16 @@ impl MirInterpreter {
                     method,
                     args.len()
                 )),
+                Some(Callee::SameModuleInstance { key, receiver }) => {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[hb:path] call Callee::SameModuleInstance {}.{} / {} recv=%{} argc={}",
+                        key.owner(),
+                        key.name(),
+                        key.arity(),
+                        receiver.as_u32(),
+                        args.len()
+                    ));
+                }
                 Some(Callee::Constructor { box_type }) => {
                     crate::runtime::get_global_ring0().log.debug(&format!(
                         "[hb:path] call Callee::Constructor {} argc={}",
@@ -220,6 +230,9 @@ impl MirInterpreter {
                 receiver,
                 ..
             } => self.execute_method_callee(box_name, method, receiver, args),
+            Callee::SameModuleInstance { .. } => Err(self.err_unsupported(
+                "SameModuleInstance calls are unsupported in the VM reference lane",
+            )),
             Callee::Constructor { box_type } => {
                 Err(self.err_unsupported(&format!("Constructor calls for {}", box_type)))
             }

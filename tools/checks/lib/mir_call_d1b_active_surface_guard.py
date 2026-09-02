@@ -24,6 +24,11 @@ STATE_REL = Path("docs/development/current/main/CURRENT_STATE.toml")
 REGISTRY_REL = Path("tools/checks/guard_rows.toml")
 ENTRY_REL = Path("tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh")
 HELPER_REL = Path("tools/checks/lib/mir_call_d1b_active_surface_guard.py")
+PERFORMANCE_CARD_REL = Path(
+    "docs/development/current/main/investigations/"
+    "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+)
+PERFORMANCE_SNAPSHOT_ROW = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
@@ -204,6 +209,30 @@ def require_text_list(value: object, label: str) -> list[str]:
     ):
         fail(f"{label} must be a non-empty string list")
     return list(value)
+
+
+def check_delegated_performance_row(state: dict, root: Path) -> None:
+    """Keep the D1B guard fail-closed while leaving other lanes to the pointer guard.
+
+    The D1B card is intentionally fixed to the Call lane.  A selected row from
+    the performance card must therefore be an explicit delegation, not a
+    wildcard success or an unobservable skip.  The paired pointer guard owns
+    the performance card's semantic acceptance.
+    """
+    if state.get("latest_card_path") != str(PERFORMANCE_CARD_REL):
+        fail("performance delegation requires the performance card path")
+    if state.get("current_execution_row") != PERFORMANCE_SNAPSHOT_ROW:
+        fail("performance delegation row drifted")
+    if state.get("next_execution_card") != PERFORMANCE_SNAPSHOT_ROW:
+        fail("performance delegation next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(PERFORMANCE_CARD_REL):
+        fail("performance delegation next_execution_card_path drifted")
+    if not (root / PERFORMANCE_CARD_REL).is_file():
+        fail("performance delegation card is missing")
+    print(
+        f"[{TAG}] row={PERFORMANCE_SNAPSHOT_ROW} delegated="
+        "current-state-pointer"
+    )
 
 
 def git_diff(root: Path, base: str) -> str:
