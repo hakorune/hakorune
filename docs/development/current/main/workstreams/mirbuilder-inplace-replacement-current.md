@@ -170,10 +170,10 @@ by this refresh.
     families. selected-C is still a separate downstream design stop; its
     arbitrary UserBox path is not inferred from this landed MIR route.
 
-3b. MIR-CALL-PUBLICATION-SPINE-MAIN-INTEGRATION-R0 (planned closeout)
-    recheck clean fast-forward ancestry, focused evidence, pointer/active-surface,
-    and the deterministic known-red/no-new-red baseline; then fast-forward the
-    closed branch. This is integration only, not a semantic change.
+3b. MIR-CALL-PUBLICATION-SPINE-MAIN-INTEGRATION-R0 (landed at 7a03921005)
+    clean fast-forward ancestry, focused evidence, pointer/active-surface, and
+    the deterministic known-red baseline were rechecked; the closed branch was
+    fast-forwarded to main. This was integration only, not a semantic change.
 
 3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (planned)
     canonical `SameModuleInstance` without a typed product consumer terminates
