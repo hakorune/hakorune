@@ -202,6 +202,47 @@ fn normal_ingress_materializes_required_callable_main_without_changing_script() 
 }
 
 #[test]
+fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }",
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .expect("App source");
+        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact callable transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("App source must remain source-backed")
+        };
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+                source,
+                Some("app-main-free-static.hako"),
+                HashMap::new(),
+            ))
+            .expect("App compile");
+        assert_eq!(result.module.canonical_callable_definition_count(), 1);
+        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "Main", "helper", 1,
+        );
+        assert_eq!(
+            result.module.canonical_callable_definition_symbol(&key),
+            Some("Main.helper/1")
+        );
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module)
+            .expect("published App Main FreeStatic view");
+        assert_eq!(
+            view.route(),
+            crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
+        );
+        assert_eq!(view.static_method_calls().len(), 1);
+    });
+}
+
+#[test]
 fn normal_ingress_snapshots_runtime_inputs_permissively_at_compile_time() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = "static box Main { main(args) { return 0 } }";
