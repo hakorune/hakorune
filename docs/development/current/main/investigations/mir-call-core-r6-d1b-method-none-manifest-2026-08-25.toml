@@ -131,21 +131,29 @@ non_claims = "No selected-C arbitrary UserBox support, Hako ingress, Call R6/R7,
 closeout = "Landed at 48770b5c6c. The current state returns to design_stop with MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 selected; no selected-C UserBox support or permanent language removal is claimed."
 
 [mir_call_hako_same_module_instance_physical_ingress_d0_2026_09_02]
-status = "accepted_design_stop"
+status = "parked_sealed"
 task_id = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 parent_row = "MIR-CALL-POST-SPINE-HAKO-SAME-MODULE-INSTANCE-ORDER-R0"
 implementation_permission = false
-decision = "Design one synchronous borrow-only PublishedMirBackendView -> Hako physical ingress for one explicit scalar SameModuleInstance family. Do not reopen selected-C admission or add a backend semantic issuer."
+fate = "ParkedSealed__HakoIngressMissing"
+decision = "The Hako physical-ingress family is explicitly parked: the existing Rust PublishedMirBackendView has no synchronous borrow-only Hako caller and no real runtime scalar caller. Do not force an ingress, reopen selected-C admission, or add a backend semantic issuer."
 source_authority = "Landed Callee::SameModuleInstance { key, receiver }, published key-to-definition relation, source arguments, result/effect/full physical lanes, and the existing PublishedMirBackendView."
 canonical_issuer = "The existing MirBuilder publication owner; Hako LlvmBackendBox/LlTextEmitBox may consume a published view but cannot issue target, receiver, effect, result, or ABI meaning."
 non_authority = ["Hako Map/JSON", "names and registry", "args[0] or ValueId(0)", "selected-C success", "backend plan inference", "fallback/retry", "object/link-only fixture"]
 fail_fast_boundary = "Before object emission, require one synchronous borrow-only caller, one exact target-definition relation, mandatory receiver lane 0, ordered source lanes, and a real runtime caller; missing or multiple seams remain ParkedSealed without a new D0."
 census_boundary = "PublishedMirBackendView -> one Hako physical owner -> env.codegen.compile_ll_text -> object/exe for one explicit scalar root-lexical instance family; excludes source/package changes, selected-C support, default derive, explicit/nested/upvar receivers, non-scalar ABI, Call R6/R7, VM, and selfhost."
-ordered_tasks = ["A: name exactly one synchronous Rust-to-Hako borrow-only ingress and one production scalar caller from the existing Hako owners", "B: verify the published descriptor is consumed without serialization, cloning, name lookup, registry lookup, args[0] repair, or backend fallback", "C: if exactly one seam and finite delete set exist, open the scalar implementation row; otherwise keep this design stop and do not add another D0"]
+ordered_tasks = ["A: audit the existing Hako owners for a synchronous Rust-to-Hako borrow-only ingress and a real production scalar caller", "B: record the finite result: PublishedMirBackendView references in lang/** = 0, Hako compile_obj_root consumes Map/RecipeFacts rather than a borrowed view, and the existing scalar Probe has no production runtime caller", "C: keep this row ParkedSealed and do not create another Hako D0, receipt, adapter, fixture, or fallback; reopen only after the named trigger is satisfied"]
 allowed_files = ["docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py"]
 forbidden_files = ["src/mir/builder/**", "src/mir/normal_callable_semantic_package/**", "src/host_providers/llvm_codegen/**", "lang/src/shared/backend/**", "lang/c-abi/**", "Call schema", "VM/selfhost", "new semantic Verified*/Prepared* receipt"]
 no_safe_slice = "Remain ParkedSealed if zero or multiple synchronous callers exist, if the view must be serialized/cloned, if Hako reconstructs source meaning, if the scalar proof is object/link-only, if old-edge deletion is shared/non-finite, or if selected-C fallback remains necessary."
 non_claims = "No Hako implementation, selected-C arbitrary UserBox support, Call R6/R7, default derive, explicit/nested/upvar receiver, non-scalar ABI, VM/selfhost, broad JSON deletion, or whole-library green claim."
+production_borrow_ingress_count = 0
+runtime_scalar_caller_count = 0
+candidate_hako_owners = ["lang/src/shared/backend/llvm_backend_box.hako::compile_obj_root(Map, evidence_json_path)", "lang/src/shared/backend/ll_emit/ll_text_emit_box.hako::emit_module(root, facts)"]
+worker_audit_result = "NoSafeSlice__HakoIngressMissing: lang/** contains zero PublishedMirBackendView references; the Hako owners consume hydrated Map/RecipeFacts and the available scalar Probe is not called by Main."
+evidence = "Read-only audit: src/host_providers/llvm_codegen/published_mir_object.rs is the only production PublishedMirBackendView consumer; lang/** has zero references; compile_obj_root re-analyzes a Hako Map through RecipeFactsV0Box; src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs contains a scalar Probe definition but no production caller."
+reopen_trigger = "Reopen only when exactly one synchronous borrow-only Rust-to-Hako PublishedMirBackendView ingress, one real runtime scalar caller, one lossless receiver-lane projection, and a finite same-series old-edge delete set are present. A new source issuer, JSON/name lookup, args[0]/ValueId(0) repair, or object/link-only Probe does not qualify."
+closeout = "ParkedSealed after the bounded worker audit. The Hako lane is not blocked by missing semantic products; it is outside the current executable surface because its physical ingress and runtime caller are both absent. Git history retains the audit detail; no implementation permission is granted."
 
 [mir_builder_calltarget_guard_rehome_r0_2026_09_01]
 status = "tombstone"

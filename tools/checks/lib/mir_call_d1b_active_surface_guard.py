@@ -804,8 +804,8 @@ def check_hako_same_module_instance_physical_ingress_d0(
         fail(f"{HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_KEY} section is missing")
     if row.get("task_id") != HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_ROW:
         fail("Hako physical ingress task id drifted")
-    if row.get("status") != "accepted_design_stop":
-        fail("Hako physical ingress must remain an accepted design stop")
+    if row.get("status") not in {"accepted_design_stop", "parked_sealed"}:
+        fail("Hako physical ingress must remain an accepted design stop or parked_sealed")
     if row.get("implementation_permission") is not False:
         fail("Hako physical ingress cannot permit implementation")
     quarantine = card.get(SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_KEY)
@@ -814,6 +814,16 @@ def check_hako_same_module_instance_physical_ingress_d0(
     for field in ("source_authority", "canonical_issuer", "fail_fast_boundary", "no_safe_slice"):
         if not isinstance(row.get(field), str) or not row[field].strip():
             fail(f"Hako physical ingress field is missing: {field}")
+    if row.get("status") == "parked_sealed":
+        if row.get("fate") != "ParkedSealed__HakoIngressMissing":
+            fail("Hako physical ingress parked fate drifted")
+        if row.get("production_borrow_ingress_count") != 0:
+            fail("Hako physical ingress must record zero production borrow callers")
+        if row.get("runtime_scalar_caller_count") != 0:
+            fail("Hako physical ingress must record zero runtime scalar callers")
+        for field in ("worker_audit_result", "evidence", "reopen_trigger", "closeout"):
+            if not isinstance(row.get(field), str) or not row[field].strip():
+                fail(f"Hako physical ingress parked evidence is missing: {field}")
 
 
 def check_declared_instance_locator_install_bridge_i0(

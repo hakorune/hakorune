@@ -4,12 +4,12 @@ work_mode = "design_stop"
 current_execution_row = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 current_design_stop = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 current_blocker_token = """
-Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject and only an explicit compatibility caller may return false.
+Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject, and the Hako physical-ingress lane is ParkedSealed because its required production seams are absent.
 Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
-Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, or selected-C success.
-Fail-fast boundary: reject before JSON preparation, C transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
-Smallest next slice: design-only MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0; name one synchronous borrow-only PublishedMirBackendView ingress and one runtime scalar caller before implementation.
-Non-claims: no Hako, Call schema/R6, VM/selfhost, shared exec/JSON deletion, or selected-C feature expansion.
+Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, selected-C success, or object/link-only probes.
+Fail-fast boundary: reject before JSON preparation, C/Hako transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
+Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; the separate REPO-LIFECYCLE-BASELINE-REFRESH-R0 cleanup window is ready only when explicitly selected and must reconcile its receipt once before any reduction batch.
+Non-claims: no Hako implementation, Call schema/R6, VM/selfhost, shared exec/JSON deletion, selected-C feature expansion, archive/delete, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -53,7 +53,7 @@ arguments once, and has zero reachability to the three selected legacy helpers;
 compatibility implementations remain outside this cohort. Deterministic lib
 baseline is refreshed at 7572/7405/138/29 after the selected-C quarantine tests;
 selected-C remains design stop.
-Arbitrary UserBox support is not inferred; known red remains debt, not green.
+Hako physical-ingress is `ParkedSealed__HakoIngressMissing` (zero `lang/**` borrow/runtime callers); lifecycle refresh is taskized but unselected, and known red is not green.
 """
 next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 next_execution_card = "none__design_stop"

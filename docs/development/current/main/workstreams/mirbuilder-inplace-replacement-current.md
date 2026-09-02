@@ -63,9 +63,9 @@ The follow-on true top-level FreeFunction cohort is now also landed at
 collector, Atomic Publish, and typed kind=3 C ingress; the real executable
 probe returns `3`. Its focused positive/negative evidence and C-shim build are
 recorded in the active card. The branch has returned to `design_stop`; the
-next decision is the existing DeclaredInstance package co-seal, while whole-
-library red and generic phi/overwrite/non-scalar/runner-C negative coverage
-remain explicit follow-ups.
+DeclaredInstance package/crosswalk and root-lexical Method(Some) vertical are
+already landed, while whole-library red and generic phi/overwrite/non-scalar/
+runner-C negative coverage remain explicit follow-ups.
 
 The DeclaredInstance decision is now closed for the bounded root-lexical
 cohort: Q1 receiver ABI, Q3 source/package ownership, the existing
@@ -79,6 +79,15 @@ caller-zero rows close. selected-C is a downstream typed consumer/retirement
 lane, not a semantic issuer or precondition; arbitrary UserBox admission stays
 `ParkedSealed` and no second resolver, receipt, family loan, or backend
 fallback is allowed.
+
+The follow-up Hako physical-ingress audit is now closed as
+`ParkedSealed__HakoIngressMissing`: `lang/**` has zero
+`PublishedMirBackendView` references, Hako's current owner consumes a hydrated
+`Map`/`RecipeFacts` rather than a borrowed Rust view, and the available scalar
+Probe has no production runtime caller. Do not open another Hako D0. The
+separate repository cleanup lane has one ready-but-unselected task,
+`REPO-LIFECYCLE-BASELINE-REFRESH-R0`, which only reconciles its generated
+receipt once before any reduction batch.
 
 ### 2026-09-02 next-family audit
 
@@ -120,7 +129,7 @@ by this refresh.
 | App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
 | Builtin `Print` | landed bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, Print-only legacy fallback deletion, and source-to-exe result `42` | do not reopen; choose the next exact family after the recorded audit follow-ups |
 | top-level `FreeFunction` | landed bounded vertical at `042cd56aa2`: mixed App Main plus scalar helper preserves the existing FreeFunction key through Atomic Publish and typed kind=3 selected-C ingress; source-to-exe result `3` | do not reopen; keep non-scalar/nested helpers and broad backend negatives parked |
-| DeclaredInstance `me.method` | syntax retained; relation/effect/result/full-lane/locator/receiver crosswalk, the exact `InstanceBoxMethod` key carrier, and one root-lexical source-backed canonical MIR caller are landed on the branch | integrate the closed branch, quarantine selected-C compatibility, then open only the Hako physical-ingress D0 |
+| DeclaredInstance `me.method` | syntax retained; relation/effect/result/full-lane/locator/receiver crosswalk, the exact `InstanceBoxMethod` key carrier, and one root-lexical source-backed canonical MIR caller are landed on the branch | Hako physical ingress is `ParkedSealed__HakoIngressMissing`; reopen only after one borrow-only ingress, one real runtime caller, and a finite delete set exist |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
 | physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |
@@ -181,22 +190,29 @@ by this refresh.
     route remains reachable only from one explicit compatibility entry; no
     retry or partial emission is allowed. This is a quarantine, not physical
     retirement or permanent language removal. Focused route tests pass 13/13;
-    return to design_stop and select the Hako physical-ingress D0.
+    return to design_stop and keep the Hako physical-ingress lane parked.
 
-3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (accepted design_stop)
+3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (ParkedSealed)
     `LlvmBackendBox` / `LlTextEmitBox` are the intended physical owners, but a
     synchronous Rust `PublishedMirBackendView` -> Hako borrow-only production
-    ingress currently has zero callers. Name exactly one lifetime/caller seam
-    and one real scalar proof entry. Zero or multiple candidates remain
-    `ParkedSealed`; do not add another D0 or semantic receipt.
+    ingress and a real runtime scalar caller are both zero. The bounded audit
+    found no lossless seam, so this row is closed as
+    `ParkedSealed__HakoIngressMissing`; do not add another D0, receipt, adapter,
+    fixture, or fallback.
 
-3e. Hako scalar I0 -> selected-C family R0 (conditional)
+3e. Hako scalar I0 -> selected-C family R0 (parked)
     extend the existing view with a private `SameModuleInstance` projection,
     emit `[receiver] + source args` exactly once through the Hako LLVM-text
-    owner, prove source-to-object/exe, then remove the same-family JSON/name/
-    registry/args0/selected-C reachability and finish residual-zero. An
-    object/link-only Probe that Main never calls does not prove runtime method
-    behavior.
+    owner, prove source-to-object/exe with a real runtime caller, then remove
+    the same-family JSON/name/registry/args0/selected-C reachability and finish
+    residual-zero. Reopen only after 3d's trigger is satisfied; an object/link-
+    only Probe that Main never calls does not qualify.
+
+3f. REPO-LIFECYCLE-BASELINE-REFRESH-R0 (ready, not selected)
+    This separate cleanup window compares the generated lifecycle census with
+    the committed receipt, classifies the finite drift, and writes the receipt
+    once. It makes no deletion/archive claim and must not change compiler,
+    backend, test, or guard semantics.
 
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal

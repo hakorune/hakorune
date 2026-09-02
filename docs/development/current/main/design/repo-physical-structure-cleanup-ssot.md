@@ -20,9 +20,12 @@ Related:
 - **Current decision:** physical cleanup must reduce tracked files/lines when
   it claims repository reduction; moves and renames are tracked separately.
 - **Current implementation status:** the absolute-reduction train is taskized
-  and parked; the active MirBuilder production row remains first.
+  and ready for an explicitly selected cleanup window; the active Hako
+  physical-ingress lane is `ParkedSealed__HakoIngressMissing` and no semantic
+  production row is being forced open.
 - **Next ordered task:** when explicitly selected, reconcile the stale
-  lifecycle receipt before the first guard-family retirement batch.
+  lifecycle receipt once before the first guard-family retirement batch. This
+  is receipt synchronization, not a reduction claim.
 - **Production stop line:** no cleanup row changes language/compiler behavior,
   current authority, a selected backend, or an unresolved test/guard contract.
 - **Retirement finish line:** every selected batch has caller/reference zero,
@@ -103,11 +106,58 @@ REPO-LIFECYCLE-BASELINE-REFRESH-R0
 ```
 
 1. `REPO-LIFECYCLE-BASELINE-REFRESH-R0` first adjudicates the currently red
-   strict lifecycle manifest. The generated census observes 13,262 docs,
-   3,804 checks, 4,727 src paths, and 7,424 tools paths while the committed
-   receipt still records 13,023 / 3,662 / 4,490 / 7,283. Do not run `--write`
-   as an automatic waiver; classify the exact additions before accepting a
-   new baseline.
+   strict lifecycle manifest. The current generated census observes
+   `13,262` docs, `3,807` checks, `4,687` src paths, and `7,427` tools paths;
+   the committed receipt still records `13,023 / 3,662 / 4,490 / 7,283`.
+   The measured drift is finite and has no registry violation, but `--write`
+   is not an automatic waiver: classify the exact additions before accepting
+   a new baseline.
+
+### `REPO-LIFECYCLE-BASELINE-REFRESH-R0` (ready for explicit selection)
+
+This is a one-time BoxShape/receipt task, not a repository reduction batch and
+not a MirBuilder semantic implementation. It may run only after
+`CURRENT_STATE.toml` selects the row in a clean worktree.
+
+```text
+Decision:
+  Reconcile the generated lifecycle receipt with the current tracked tree once;
+  do not delete, archive, rename, or reinterpret any artifact in this row.
+Source authority + canonical issuer:
+  repository_artifact_lifecycle_inventory.py over the current git tree;
+  the generated JSON is the sole receipt writer.
+Non-authority:
+  the stale receipt, LOC/grep counts, unknown_retain labels, --write itself,
+  warning-only guards, and any presumed historical age.
+Fail-fast boundary:
+  classify every changed count/registry entry and verify allowlist/strict
+  consistency; any unclassified drift or registry violation stops the row.
+Smallest next slice:
+  compare a temporary generated receipt, record the finite drift, write the
+  existing manifest once, then run the existing docs-slim/pointer/diff guards.
+Non-claims:
+  no archive/delete, no test or guard retirement, no compiler/backend/MIR
+  change, no baseline health claim, and no new guard or receipt family.
+Census boundary: committed lifecycle JSON -> generator output over the current
+  git tree; includes counts, registry, and allowlist drift, excludes artifact
+  deletion, archive copies, unknown-retain adjudication, and semantic lanes.
+```
+
+Finite preflight recorded by the worker audit:
+
+```text
+counts: checks 3662 -> 3807; docs 13023 -> 13262;
+        current 8803 -> 9039; src 4490 -> 4687; tools 7283 -> 7427
+registry/allowlist violations: 0
+permitted files: lifecycle manifest, cleanup SSOT, lifecycle workstream,
+                 CURRENT_STATE pointer
+```
+
+Acceptance is exactly one receipt update whose strict check passes, with the
+same generated schema and no deletion/archive or semantic diff. After this
+row closes, the pointer returns to the Hako `ParkedSealed` boundary; the next
+guard/docs retirement batch still requires a separate explicit selection and
+finite caller/reference-zero evidence.
 Closed tombstone: `LEGACY-TESTS-RETIRE-R0` landed at `bcc9a6ba65`. The disabled
 feature, four cfg barrels, 34 roots, and nine exclusive support files were
 retired from the tree; Git history owns the detailed delete set. It is not a
