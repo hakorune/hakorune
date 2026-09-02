@@ -77,6 +77,15 @@ deletion. The next row is the fresh design-only
 `MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0` census; no second reader family or
 R7 deletion is open yet.
 
+That census is closed at `bb41e2e880` with
+`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`. The finite boundary
+covered canonical Call readers through the published view and downstream
+VM/WASM/LLVM/Hako/selected-C/JSON consumers. Remaining surfaces either belong
+to landed families or combine compatibility authorities, so none has one live
+production caller and an exclusive delete-set. Keep those families
+`ParkedSealed`; do not add another reader receipt/adapter, and reopen only
+when the exact source-authority/issuer/consumer/caller/delete-set tuple exists.
+
 After that row, the next work is fixed there:
 
 ```text

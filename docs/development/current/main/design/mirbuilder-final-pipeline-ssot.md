@@ -685,6 +685,19 @@ Reclassify only the changed canonical-reader surface and its downstream
 compatibility boundaries. Do not reopen Print, add a new semantic issuer, or
 select another reader until one finite owner/caller/delete-set is named.
 
+The post-Group-B census is closed at `bb41e2e880` as
+`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`. Its boundary covered
+the changed canonical `MirInstruction::Call(MirCall)` surface through the
+published view and downstream VM, WASM, LLVM/AOT, Hako, selected-C, and JSON
+consumers. The remaining surfaces either belong to landed families or still
+combine compatibility authorities: WASM reads `LegacyCallV0`, product
+LLVM/Hako/selected-C have no single lossless consumer, and Extern,
+Constructor, and Value/Closure have no one live caller with an exclusive
+delete-set. Do not open a second reader family, schema cutover, backend retry,
+new receipt, or R7 deletion from this census. Reopen only when an existing
+source authority, canonical issuer, lossless consumer, one production caller,
+and finite old-edge delete-set are all named.
+
 このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
 selected shadow profileでDeferredになりpackage発行へ到達できないため、target
 loanより前に次を設計しなければならない。

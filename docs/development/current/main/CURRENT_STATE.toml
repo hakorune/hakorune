@@ -3,13 +3,7 @@ development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
 current_design_stop = "none"
-current_blocker_token = """
-MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0: closed at cce62db090. The existing
-typed Builtin(Print) arm now executes through MirInterpreter::execute_instruction;
-wrong arity and non-Print canonical calls fail closed before legacy/name
-dispatch. No new issuer, receipt, variant, fallback, retry, VM product
-promotion, or legacy deletion. Next is a fresh design-only reader census.
-"""
+current_blocker_token = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0 closed at cce62db090; post-Group-B census closed at bb41e2e880 as NoSafeSlice__NoSingleRemainingCanonicalReaderFamily. WASM still reads LegacyCallV0; LLVM/Hako/selected-C retain multiple compatibility authorities; Extern/Constructor/Value-Closure lack one live caller with an exclusive delete-set. No second reader family, schema cutover, new receipt, backend retry, or R7 deletion until exact authority/issuer/lossless consumer/caller/delete-set exists."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,8 +46,11 @@ M4 R6 Group A is closed at 45c6759962: canonical `Call(MirCall)` and explicit
 and focused/feature-build/guard evidence is green. Group B then closed at
 cce62db090 with the bounded VM canonical Print reader arm and three focused
 tests; this does not claim schema completion, VM product promotion, or R7
-deletion. Landed families are not reopened and zero/multiple authority tuples
-remain ParkedSealed without new design assets.
+deletion. The post-Group-B reader census closed at bb41e2e880 as
+NoSafeSlice__NoSingleRemainingCanonicalReaderFamily; remaining families are
+ParkedSealed until an exact authority/consumer/caller/delete-set tuple exists.
+Landed families are not reopened and zero/multiple authority tuples remain
+ParkedSealed without new design assets.
 """
 next_design_card = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 next_execution_card = "none"
