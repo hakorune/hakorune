@@ -75,6 +75,8 @@ SCRIPT_ENTRYPOINT_MODE_ROW = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
 
 FREE_FUNCTION_PUBLICATION_D0_ROW = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
 FREE_FUNCTION_PUBLICATION_D0_KEY = "mir_call_free_function_publication_d0_2026_09_02"
+FREE_FUNCTION_PUBLICATION_I0_ROW = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0"
+FREE_FUNCTION_PUBLICATION_I0_KEY = "mir_call_free_function_publication_i0_2026_09_02"
 
 BACKEND_OWNER_ROW = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 RECEIVER_VALUE_OWNER_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
@@ -192,6 +194,92 @@ def _check_free_function_publication_d0(
         api.fail("true FreeFunction publication D0 finite state table is missing")
 
 
+def _check_free_function_publication_i0(
+    state: dict, card: dict, root: Path, api
+) -> None:
+    """Open only the one selected TopLevel FreeFunction vertical.
+
+    The D0 remains the design record.  This transition guard makes the
+    implementation permission explicit and finite: the existing source,
+    collector, publisher, and typed backend owners may be connected, but no
+    second builder or semantic receipt may be introduced.
+    """
+    if state.get("work_mode") != "fast":
+        api.fail("true FreeFunction publication I0 must run in fast")
+    if state.get("current_execution_row") != FREE_FUNCTION_PUBLICATION_I0_ROW:
+        api.fail("true FreeFunction publication I0 is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        api.fail("true FreeFunction publication I0 must clear current_design_stop")
+    if state.get("next_execution_card") != FREE_FUNCTION_PUBLICATION_I0_ROW:
+        api.fail("true FreeFunction publication I0 next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail("true FreeFunction publication I0 card path drifted")
+
+    row = card.get(FREE_FUNCTION_PUBLICATION_I0_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"{FREE_FUNCTION_PUBLICATION_I0_KEY} section is missing")
+    if row.get("task_id") != FREE_FUNCTION_PUBLICATION_I0_ROW:
+        api.fail("true FreeFunction publication I0 task id drifted")
+    if row.get("status") != "selected_fast":
+        api.fail("true FreeFunction publication I0 status is not selected_fast")
+    if row.get("implementation_permission") is not True:
+        api.fail("true FreeFunction publication I0 must permit only its bounded implementation")
+    if row.get("branch_scope") != "branch_or_worktree_only":
+        api.fail("true FreeFunction publication I0 must remain branch/worktree scoped")
+    if row.get("base_head") != "f669e0271d":
+        api.fail("true FreeFunction publication I0 base head drifted")
+
+    d0 = card.get(FREE_FUNCTION_PUBLICATION_D0_KEY)
+    if not isinstance(d0, dict) or d0.get("status") != "accepted_design_stop":
+        api.fail("true FreeFunction publication I0 requires the accepted D0 design")
+    if d0.get("implementation_permission") is not False:
+        api.fail("true FreeFunction publication D0 must remain closed")
+
+    for field in (
+        "decision",
+        "source_authority",
+        "canonical_issuer",
+        "fail_fast_boundary",
+        "census_boundary",
+        "first_cohort",
+        "acceptance",
+        "no_safe_slice",
+        "migration_red",
+    ):
+        value = row.get(field)
+        if not isinstance(value, str) or not value.strip():
+            api.fail(f"true FreeFunction publication I0 field is missing: {field}")
+    for field in ("non_authority", "old_edge_delete_set", "negative_cases", "implementation_files", "allowed_files", "forbidden_files", "focused_tests"):
+        value = row.get(field)
+        if not isinstance(value, list) or not value or not all(
+            isinstance(item, str) and item.strip() for item in value
+        ):
+            api.fail(f"true FreeFunction publication I0 list is missing: {field}")
+
+    allowed = set(row["allowed_files"])
+    required = {
+        "src/mir/builder/callable_declaration_catalog/source_backed.rs",
+        "src/mir/builder/normal_top_level_function_admission.rs",
+        "src/mir/normal_callable_semantic_package/issuer.rs",
+        "src/mir/function/published_backend_view.rs",
+        "tools/checks/lib/mir_call_d1b_active_surface_guard.py",
+        "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+        str(api.STATE_REL),
+        str(api.CARD_REL),
+    }
+    if not required <= allowed:
+        api.fail(f"true FreeFunction publication I0 allowed_files omit {sorted(required - allowed)}")
+
+    for rel in row["implementation_files"]:
+        if "**" in rel:
+            continue
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"true FreeFunction publication I0 implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"true FreeFunction publication I0 implementation owner reached 800 lines: {rel}")
+
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
@@ -201,6 +289,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_builtin_print_publication_spine_i0(state, card)
     elif row == FREE_FUNCTION_PUBLICATION_D0_ROW:
         _check_free_function_publication_d0(state, card, root, api)
+    elif row == FREE_FUNCTION_PUBLICATION_I0_ROW:
+        _check_free_function_publication_i0(state, card, root, api)
     elif row == api.METHOD_ROW:
         check_proof_row(state, card, proof, root)
     elif row == api.RAW_ROOT_ROW:
