@@ -8,7 +8,7 @@ Decision: the Builtin Print publication vertical is landed; return to design_sto
 Source authority + canonical issuer: the existing ASTNode::Print and build_print_from_value owner issue CanonicalGlobalTargetV1::builtin_print(); Atomic MirModule publication and the borrowed PublishedMirBackendView remain the sole physical owners.
 Non-authority: print spelling re-lookup, JSON/name/header/registry target reconstruction, physical symbol text, args[0] repair, EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a new semantic Verified*/Prepared* receipt.
 Fail-fast boundary: the published Print/1 row is consumed before generic dispatch; malformed row, wrong arity, legacy carrier, destination, or residual state has no legacy/JSON/backend retry.
-Smallest next slice: perform one finite census for the next exact family; if owner/caller/delete-set is not exactly one, keep it ParkedSealed without another D0 or receipt.
+Smallest next slice: perform one finite census for the next exact family; the read-only audit has named MIR-CALL-FREE-FUNCTION-PUBLICATION-D0 as the candidate. If owner/caller/delete-set is not exactly one, keep it ParkedSealed without another D0 or receipt.
 Non-claims: no top-level helper behavior decision, full published-view negative coverage, whole-lib green, DeclaredInstance/Method(Some), FreeStatic expansion, panic/exit, Call-schema/R6, VM/selfhost, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
@@ -41,8 +41,10 @@ latest_card_path = "docs/development/current/main/investigations/mir-call-core-r
 latest_card_summary = """
 The Builtin Print publication vertical is landed. The one-time baseline refresh
 now records fixed observations at 7563/7396/138/29 with no failure-name delta;
-known red remains explicit debt and is not whole-lib green. Choose the next
-exact semantic family after the recorded follow-up boundaries.
+known red remains explicit debt and is not whole-lib green. A read-only audit
+named MIR-CALL-FREE-FUNCTION-PUBLICATION-D0 as the next design candidate; the
+pointer remains in the landed Print design stop until that candidate is
+selected and guarded.
 """
 next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
 next_execution_card = "none__design_stop"

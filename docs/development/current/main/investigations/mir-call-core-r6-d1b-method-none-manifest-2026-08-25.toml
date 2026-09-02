@@ -603,3 +603,105 @@ not blockers for this landed Print slice.
 no_safe_slice = "Return to design_stop if Print requires a new semantic issuer, if the existing published view cannot represent a unique no-destination builtin row without a second owner, if the selected-C consumer needs name/registry/args[0] repair, if the old-edge set is not finite, if an unexpected red appears, or if the single-family bounded slice cannot be completed without opening another design row."
 non_claims = "No DeclaredInstance/Method(Some), true FreeFunction, panic/exit, Call-schema/R6, VM/selfhost, arbitrary UserBox support, all-backend parity, broad JSON purge, unrelated Extern/TypeOp changes, or whole-library green claim."
 next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0__design_stop"
+
+[mir_call_free_function_publication_d0_2026_09_02]
+status = "accepted_design_stop"
+task_id = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
+parent_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
+ceremony_tier = "T0"
+primary_missing_boundary = "MaterializationRelationMissing"
+implementation_permission = false
+decision = """
+Treat the mixed App Main plus top-level helper shape as the acceptance probe
+for a true FreeFunction publication family. Preserve the source-backed
+top-level identity through admission, collector drain, Atomic MirModule
+publish, and a typed backend view, or reject the whole shape before argument
+effects with one explicit unsupported terminal. Do not add a one-off App Main
+exception, convert the helper to StaticBoxMethod, or reconstruct a target from
+name/arity after publication.
+"""
+source_authority = """
+The same-resolver-session SelectedTopLevelFunctionKeyV1, its exact source
+declaration/site, the existing callable declaration catalog/index, and the
+source-plan contract that admits an App Main plus top-level helper. The D0
+issues no new semantic product and treats the existing FreeFunction key
+vocabulary as a candidate only until its definition relation is proven.
+"""
+canonical_issuer = """
+No live canonical FreeFunction issuer is connected at this boundary. The
+existing NormalTopLevelFunctionDraftAdmissionV1 currently drops TopLevel to
+LegacySymbol, while issue_app_main_direct_call_loan_v1 rejects TopLevel as
+PublishedTargetNotCataloged. The next I0 may reuse these owners only after a
+key-preserving admission and one Atomic Publish definition relation are
+demonstrated; it may not invent a new Verified*/Prepared* receipt.
+"""
+non_authority = [
+  "physical symbol text",
+  "LegacySymbol",
+  "name/arity or formatted symbol lookup",
+  "JSON/name/header/registry backend search",
+  "args[0] or ValueId(0) receiver repair",
+  "FunctionSignature or EffectMask semantic inference",
+  "source-plan acceptance alone",
+  "focused green, fixture identity, fallback, or retry",
+]
+fail_fast_boundary = """
+Before argument descent, MIR block mutation, Atomic Publish, or object emission,
+the exact top-level source key must have one same-session catalog definition,
+one matching owner/name/arity relation, one published definition identity, and
+one named typed backend consumer. Missing, duplicate, foreign, drifted,
+unsupported, or residual states reject without LegacySymbol publication,
+JSON/name recovery, or alternate-backend retry.
+"""
+census_boundary = """
+SelectedNormal top-level FunctionDeclaration in a mixed App Main source
+-> same-session source/index mapping
+-> NormalTopLevelFunctionDraftAdmissionV1
+-> module collector drain
+-> Atomic MirModule definition table
+-> published typed backend consumer/object boundary; includes the H-1 mixed
+source probe, TopLevel key, catalog/index, LegacySymbol drop, and the existing
+PublishedTargetNotCataloged terminal; excludes Main itself, nested
+StaticBoxMethod, FreeStatic, Builtin Print, DeclaredInstance, panic/exit,
+VM/backend redesign, Call schema/R6, and broad compatibility cleanup.
+"""
+finite_states = [
+  "ExactlyOnePublished: one exact source key and one definition survive to publish; eligible for I0",
+  "AbsentDefinition: source key exists but no catalog definition is issued; reject before effects and remain design-blocked",
+  "LegacyDropped: admission would emit LegacySymbol; this is the old edge to remove, never a canonical success",
+  "ForeignOrDuplicate: session/owner/site/key relation is not unique; typed pre-effect reject",
+  "ArityOrSignatureDrift: source and definition disagree; typed pre-effect reject",
+  "UnsupportedProfile: semantic source shape is valid but selected backend has no published consumer; reject before object with no retry",
+]
+ordered_tasks = [
+  "D0-A: record the mixed-source acceptance probe and reconcile source-plan, selected-source inventory, TopLevel admission, and AppMain package behavior",
+  "D0-B: enumerate the exact key-preserving collector/publish owner, the selected backend consumer, and the cohort-exclusive LegacySymbol/PublishedTargetNotCataloged delete set",
+  "D0-C: classify the six finite states above; if any state has no named owner or the delete set is shared, keep the family ParkedSealed and do not open I0",
+  "I0 only after D0 acceptance: preserve the existing FreeFunction key through Atomic Publish, switch one named caller, and delete that cohort's old edge in the same series",
+]
+acceptance = """
+D0 is accepted only when the mixed-source probe, source authority, canonical
+issuer candidate, publication relation, typed backend consumer, and exclusive
+old-edge delete set are all named. ExactlyOnePublished must be a real bounded
+I0 possibility; otherwise the family is explicitly ParkedSealed. No production
+code, fixture, fallback, or new semantic receipt is authorized by this D0.
+"""
+no_safe_slice = """
+Remain in design_stop if TopLevel cannot retain one canonical identity through
+collector and Atomic Publish, if the only successor is LegacySymbol/name
+lookup, if App Main requires a one-off exception, if backend consumption needs
+JSON/registry/args[0] repair, if the old edge is shared with another family,
+or if any unclassified red appears. Do not add another D0 to force a path.
+"""
+reopen_trigger = """
+Reopen for I0 only when one named TopLevel production caller, one
+FreeFunction key-to-definition publication relation, one typed backend
+consumer, and a finite caller-exclusive delete set are proven. Otherwise keep
+the language/source-plan shape recorded and park the implementation family.
+"""
+non_claims = """
+No TopLevel helper implementation, App Main exception, StaticBoxMethod
+conversion, DeclaredInstance/Method(Some), Builtin Print reopen, panic/exit,
+Call schema/R6, VM/selfhost, whole-lib green, or broad JSON/test purge.
+"""
+next_execution = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0__pending_pointer_selection"
