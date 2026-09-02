@@ -1,5 +1,5 @@
 ---
-Status: baseline observation complete; implementation successors remain gated
+Status: baseline observation complete; all-worker surface audit complete; snapshot successor remains design-stop gated
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
@@ -282,3 +282,107 @@ baseline is accepted by the current pointer and the exact invocation-owned
 configuration seam is named. No Builder, Call/backend semantic, environment
 policy, clone, forwarding-layer, direct-storage-default, or VM-selection
 change is authorized by the completed baseline itself.
+
+## All-worker surface audit (2026-09-03)
+
+Six read-only workers audited the remaining MirBuilder surface after the
+compile-cost baseline. Their reports agree on the following disposition:
+
+`CURRENT_STATE.toml` plus this pointed active card are the current-row SSOT for
+this design stop. Do not create a second design card. If the implementation
+row changes a durable compiler contract, promote only the settled rule to the
+existing perf SSOT and the affected module README/reference during closeout.
+
+```text
+Decision:
+  The semantic spine is substantially clean for the landed StaticBoxMethod,
+  FreeStatic/FreeFunction, Print, and root-lexical DeclaredInstance cohorts.
+  Remaining dirt is split between a bounded hot-path policy seam, physical
+  namespace/port surface, and verification/cleanup mass. Do not start a second
+  Builder or a repository-wide purge.
+Source authority + canonical issuer:
+  Existing config/env parsers issue invocation values through
+  BuilderInvocationConfigV1. Existing invocation sessions install them into
+  the compilation-owned CompilationContext; emit code is a borrow-only user.
+Non-authority:
+  per-instruction env reads, process-global OnceLock, DebugHub/backend callers,
+  MIR EffectMask or FunctionSignature inference, LOC/frame counts, test names,
+  guard inactivity, and direct-storage/VM benchmark claims.
+Fail-fast boundary:
+  The selected snapshot must be installed before the first instruction for
+  every included production invocation and remain unchanged after an ambient
+  environment flip. A canonical session that bypasses the config seam, an
+  unclassified hot key, or a live emit path outside the capture boundary keeps
+  this row in design_stop.
+Smallest next slice:
+  Freeze the finite key/capture/install/borrow map for the existing normal/raw
+  and canonical session entrypoints, then open exactly one implementation row:
+  MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0.
+Non-claims:
+  no DebugHub lazy payload change, global cache, Call/backend semantic change,
+  direct-storage default change, VM decision, barrel split, variable_map API
+  rewrite, guard deletion, or broad test/docs purge.
+```
+
+### Finite census boundary
+
+```text
+start: BuilderInvocationConfigV1 / canonical session construction
+  -> install into the candidate CompilationContext
+  -> selected builder_emit, call, copy, SSA, and receiver debug readers
+end: selected MIR Builder emit decision before physical append
+includes: normal/default and canonical production session entrypoints
+excludes: DebugHub consumers outside Builder, backend method_router, VM,
+  semantic Call routes, guard registry, docs/archive, and process-global caches
+```
+
+### What is still dirty, and its disposition
+
+| surface | observed issue | disposition |
+| --- | --- | --- |
+| invocation policy | selected emit code rereads environment on every instruction; measured static counts are ordinary `7`, Copy `8`, Call `9` | current D0, then one context-owned snapshot I0 |
+| canonical ingress | `CanonicalModuleLoweringSessionV1::open` currently copies `quiet_internal_logs` directly and does not visibly consume `BuilderInvocationConfigV1` | blocker to close in D0 map; use the existing canonical snapshot constructor or explicitly exclude the path; no silent bypass |
+| debug events | candidate lookup/`Vec`/JSON payload is built before the Hub gate; Hub is also used outside Builder | separate `MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0`; not part of snapshot I0 |
+| emit clones | unconditional/dead name and instruction clones remain candidates | `MIR-BUILDER-EMIT-CLONE-SHAPE-P0`, only after snapshot and a measured owner |
+| namespace/ports | `builder.rs` is a large registry surface; context and port fields are widely visible; `variable_map` has direct consumers | defer broad physical thinning until the active Call boundary closes; no field growth now |
+| guards | the finite guard audit found no new caller-zero/equal-successor deletion family | retain/park; do not delete by inactivity or filename |
+| tests | one exact duplicate mutable-accumulator test has a stronger same-file successor | future `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0`; no broad purge |
+| direct storage | direct-slot/array defaults and lifetime/lease guarantees are not established | separate `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0`; no default flip |
+| VM/backend | LLVM/EXE/AOT is the product path; VM and nonselected backend are reference/compatibility lanes | no parity or retirement work in this row |
+
+### Ordered task queue
+
+The queue is intentionally finite; a report or local green result does not
+open the next item.
+
+1. `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0` — current design stop. Freeze the
+   exact keys, aliases/defaults, normal/raw capture, canonical capture,
+   `CompilationContext` storage, session lifetime, and `src/test_support.rs`
+   override boundary. No code change.
+2. `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0` — one BoxShape change after D0 is
+   accepted. Reuse `BuilderInvocationConfigV1` and the existing session
+   install seam; keep `MirBuilder` and `RawInvocationChildPortV1` unchanged.
+   Prove A/B snapshots survive an ambient C flip, preserve the current flag
+   matrix, and drive the selected emit readers to zero process-env reads.
+3. `MIR-BUILDER-EMIT-CLONE-SHAPE-P0` — remove only measured dead/unconditional
+   clone work at the sole append point; require MIR parity and the same
+   compile-cost protocol.
+4. `MIR-BUILDER-DEBUG-EVENT-LAZY-ARGS-P0` — separate Hub-owned permit from
+   caller payload construction; default-off must not allocate debug payloads.
+5. `MIR-CALL-EMIT-LOOKUP-FACADE-RETIRE-S0` and the
+   `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` family — defer until Call R7 and a
+   finite caller/consumer/delete set are closed; these are physical thinning,
+   not current semantic work.
+6. `MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0` — one test-only
+   deletion window, with the parent failure-name set unchanged; never mix it
+   into a Builder semantic row.
+7. `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` — separate design stop for direct
+   storage defaults, generation/lease/lifetime, and exact-lane failure.
+8. Historical docs/guard archive work remains in its existing cleanup lane;
+   no new per-row guard or archive copy is created here.
+
+The first row is accepted only when the two existing production ingress forms
+are explicitly covered by the same snapshot vocabulary. If that cannot be
+shown without a new capability axis, the exact outcome is
+`NoSafeSlice__InvocationCaptureBoundaryMissing`; do not add a receipt,
+adapter, fallback, or another D0.

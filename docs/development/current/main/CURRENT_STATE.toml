@@ -1,15 +1,15 @@
-date = "2026-09-02"
+date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "design_stop"
 current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
 current_design_stop = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
 current_blocker_token = """
-Decision: the repeatable compile-cost baseline is complete; before changing Builder emission, design the exact compilation-owned debug/strict snapshot seam. The former Hako physical-ingress family stays ParkedSealed.
-Source authority + canonical issuer: the existing compilation invocation/config owners and the existing emit/debug policy owners; the snapshot must be installed once below the current compilation-owned context and borrowed by emit code.
+Decision: the repeatable compile-cost baseline is complete; before changing Builder emission, design the exact compilation-owned debug/strict snapshot seam. Six read-only workers found the semantic spine substantially clean but confirmed an ingress-boundary gap for the canonical session and a separate DebugHub lazy-payload problem. The former Hako physical-ingress family stays ParkedSealed.
+Source authority + canonical issuer: the existing compilation invocation/config owners and the existing emit/debug policy owners; one snapshot vocabulary must be installed at every included normal/raw and canonical invocation before the first instruction, below the current compilation-owned context, and borrowed by emit code.
 Non-authority: process-global OnceLock, per-instruction env reads, ChildPort field growth, dispatch-port supertraits, forwarding parameters, review estimates, LOC/frame counts, generated-program runtime, or a guessed speedup.
-Fail-fast boundary: preserve current defaults, aliases, debug-off behavior, and two independently configured compiler sessions; if the invocation-owned seam cannot be named without a new capability axis or semantic route change, remain in design_stop.
-Smallest next slice: identify one existing config/invocation context owner for the snapshot and record the exact keys, lifetime, construction point, borrow path, and test override boundary. Do not implement until that map is accepted.
-Non-claims: no env policy change, clone deletion, forwarding merge, barrel/dead-code cleanup, direct-default change, VM decision, Call schema, backend switch, or whole-library green claim.
+Fail-fast boundary: preserve current defaults, aliases, debug-off behavior, and two independently configured compiler sessions; a canonical session bypass, unclassified hot key, or live emit path outside the capture map keeps the row in design_stop.
+Smallest next slice: freeze the finite key/capture/install/borrow map for normal/raw and canonical sessions, then open only MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0. Do not implement while that map is unaccepted.
+Non-claims: no DebugHub lazy payload, global cache, env policy change, clone deletion, forwarding merge, barrel/dead-code cleanup, direct-default change, VM decision, Call schema, backend switch, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -40,13 +40,14 @@ latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
 The architecture audit is dispositioned without a new card. The Hako physical
-ingress stays ParkedSealed. The repeatable compile-cost baseline is now
-recorded from the rebuilt quick binary: one warmup, five retained samples,
-median/p95, source/binary identity, and strict shadow rows for the accepted
-static-method probes. The next row is a design-stop census for one
-compilation-owned debug/strict snapshot with no new port axis, followed only
-after acceptance by the emit move/clone row. Layer thinning, namespace cleanup,
-and direct-storage defaults remain separate.
+ingress stays ParkedSealed. Six read-only workers agree that the landed
+semantic Call cohorts are substantially clean, while the remaining work is a
+bounded invocation snapshot, a separate lazy debug-payload row, and later
+physical/test cleanup. The repeatable compile-cost baseline is recorded from
+the rebuilt quick binary: one warmup, five retained samples, median/p95,
+source/binary identity, and strict shadow rows for the accepted static-method
+probes. Canonical session capture remains the D0 boundary; no semantic or
+backend owner changed.
 """
 next_design_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
 next_execution_card = "none__awaiting_design_stop_acceptance"
