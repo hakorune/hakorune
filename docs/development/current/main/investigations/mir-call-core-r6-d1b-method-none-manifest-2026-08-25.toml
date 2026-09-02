@@ -486,13 +486,13 @@ non_claims = "No DeclaredInstance/Method(Some), whole Call schema/R6 cutover, ar
 next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0__design_stop"
 
 [mir_call_canonical_call_substrate_free_static_i0_2026_09_02]
-status = "branch_only_fast"
+status = "landed"
 task_id = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0"
 parent_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-STATIC-BOX-METHOD-I0"
 ceremony_tier = "T2"
-implementation_permission = true
+implementation_permission = false
 branch_base_head = "1f0e0ca544"
-branch_permission = "This isolated branch only; parent/main remains design_stop. Do not merge/rebase during the bounded series."
+branch_permission = "This isolated branch was the only implementation lane; parent/main remains design_stop until this landed row is selected for integration."
 decision = """
 Extend the landed publication spine in place for one exact App Main
 FreeStatic scalar call. Reuse the existing same-session CallableIndex and
@@ -514,7 +514,30 @@ ordered_tasks = ["A: retain the existing neutral callable-key vocabulary and con
 allowed_files = ["crates/hakorune_mir_defs/src/callable_key.rs", "crates/hakorune_mir_defs/src/global_target.rs", "crates/hakorune_mir_defs/src/lib.rs", "src/mir/builder/module_draft_collector.rs", "src/mir/builder/callable_declaration_catalog/catalog.rs", "src/mir/builder/normal_callable_semantic_loan_port.rs", "src/mir/builder/normal_callable_semantic_source_lookup.rs", "src/mir/builder/normal_cataloged_box_method_admission.rs", "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs", "src/mir/canonical_direct_call.rs", "src/mir/canonical_direct_call_contract.rs", "src/mir/canonical_direct_call_tests.rs", "src/mir/normal_callable_semantic_package/direct_call_loan.rs", "src/mir/normal_callable_semantic_package/issuer.rs", "src/mir/function/types.rs", "src/mir/function/module_impl.rs", "src/mir/function/published_backend_view.rs", "src/mir/function.rs", "src/mir/source_call_target/callable_receiver_policy.rs", "src/host_providers/llvm_codegen/published_mir_object.rs", "src/host_providers/llvm_codegen/capi_transport.rs", "src/runner/modes/mir.rs", "src/runner/modes/common_util/published_mir_emit.rs", "lang/c-abi/include/hako_llvmc_ffi.h", "lang/c-abi/shims/published_mir/**", "apps/tests/stage1_full_program_defs_return42_min.hako", "tools/checks/manifests/cargo_lib_red_baseline*", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
 forbidden_files = ["src/parser/**", "lang/src/**", "selfhost/**", "VM", "Call schema/R6", "DeclaredInstance/Method(Some)", "Builtin Print runtime descriptor", "ordinary-new", "physical thunk", "new MirBuilder", "new semantic Verified*/Prepared* receipt", "JSON compatibility implementation except selected-caller reachability deletion", "fallback/retry", "broad test or guard purge"]
 temporary_red_contract = "Use the immutable branch base 1f0e0ca544 and the accepted failure-name set without rebaseline. Record every changed/added test by full name, owner, reason, successor, and expiry. No ignored or deleted red. Unexpected red aborts. A 7-day window is an upper bound, not a completion quota; if the coherent edge deletion needs more than the bound, close as aborted and return to design_stop rather than adding another D0."
-acceptance = "One App Main FreeStatic production call joins its exact source product to the selected nested StaticBoxMethod catalog key once, preserves that published key through Atomic Publish, is consumed by one typed selected-C view without target JSON/name/args[0] repair, and has its selected post-argument target-reconstruction/fallback edge deleted in the same series. Focused positive/negative/structural tests and deterministic no-new-red evidence are recorded."
+acceptance = "Landed: one App Main FreeStatic production call joins its exact source product to the selected nested StaticBoxMethod catalog key once, preserves that published key through Atomic Publish, is consumed by one typed selected-C view without target JSON/name/args[0] repair, and has its selected post-argument target-reconstruction/fallback edge deleted in the same series. Focused positive/negative/structural tests and deterministic no-new-red evidence are recorded."
+implementation_evidence = """
+The source/package join, key-aware collector publication, and typed backend
+view are landed in 61db816f39. The normal compiler regression test added in
+b106753721 compiles the real App Main FreeStatic source through finish and
+asserts one canonical StaticBoxMethod definition (`Main.helper/1`) plus one
+`CanonicalTyped` backend-view row. The focused source, collector, direct-call,
+backend-view, and ingress tests are green. A real
+`--backend mir --emit-exe` run selected the typed published ingress and
+produced an executable whose scalar probe returned `2`. The known parent
+failure-name set remains unchanged; this row makes no whole-library green
+claim.
+"""
+closeout = """
+The App Main FreeStatic extension is complete as a bounded publication-spine
+vertical. Its exact source product is joined once to the nested StaticBoxMethod
+key, the relation survives normal compilation and Atomic Publish, and the
+selected `--emit-exe` caller consumes the borrow-only typed view. The JSON file
+remains physical body transport only; selected target meaning is not recovered
+from JSON/name/registry/args[0], and a typed failure has no fallback. No
+DeclaredInstance, Builtin Print, whole Call-schema, VM, selfhost, or broad
+test/JSON cleanup is claimed. Return CURRENT_STATE to design_stop and choose
+the next exact family; do not reopen this landed cohort.
+"""
 no_safe_slice = "Abort and return to design_stop if the existing App Main product cannot map to exactly one selected catalog definition, if publication needs a duplicate authority, if selected-C needs JSON/name/registry/args[0] repair, if the caller/delete set is not finite, if an unexpected red appears, or if the coherent slice exceeds the bounded window. Do not add another D0 or receipt to force it."
 non_claims = "No DeclaredInstance/Method(Some), Builtin Print, whole Call schema, VM/selfhost, arbitrary UserBox support, all FreeStatic callers, all-backend parity, broad JSON purge, or whole-library green claim."
-next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0"
+next_execution = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0__design_stop"

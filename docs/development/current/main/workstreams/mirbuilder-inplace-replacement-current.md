@@ -39,12 +39,13 @@ The first end-to-end product vertical has landed on the isolated branch:
 StaticBoxMethod preserves its callable key through Atomic Publish, lends one
 typed backend view, switches the normal `--emit-exe` edge, and removes the
 selected-family reach to JSON/name/`args[0]` repair. The scalar source proof
-`me.helper()` emits and runs with `Result: 7`. The branch now has one real
-follow-on row for an App Main FreeStatic scalar call; its source product is
-joined once to the nested Main helper's exact StaticBoxMethod catalog key
-before publication. This is an implementation row, not another design-only
-census. Main remains `design_stop` until the branch closeout is selected for
-integration. Arbitrary UserBox DeclaredInstance stays
+`me.helper()` emits and runs with `Result: 7`. The follow-on App Main
+FreeStatic extension is now landed: its source product joins once to the
+nested Main helper's exact StaticBoxMethod catalog key before publication,
+the normal compiler retains one published definition and one `CanonicalTyped`
+backend-view row, and the real scalar `--emit-exe` probe returns `2`.
+The parent/main remains `design_stop` until this isolated branch is selected
+for integration. Arbitrary UserBox DeclaredInstance stays
 `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
 
 ### Current family disposition
@@ -52,7 +53,7 @@ integration. Arbitrary UserBox DeclaredInstance stays
 | family | status | reopen/next condition |
 |---|---|---|
 | published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
-| App Main `FreeStatic` | next branch-only vertical: reuse existing CallableIndex/affine loan and join the source FreeStatic product to the exact nested StaticBoxMethod publication key once | one scalar caller must reach typed selected-C without target JSON/name/args[0] repair; then delete that cohort's old edge |
+| App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -68,13 +69,14 @@ integration. Arbitrary UserBox DeclaredInstance stays
    -> named --emit-exe switch -> scalar source-to-EXE proof. The cohort is
    closed; no extra D0 or compatibility retry is allowed.
 
-1. MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0 (branch-only active)
-   join the App Main FreeStatic source product to the exact nested
-   StaticBoxMethod catalog key, preserve that published key through Atomic
-   Publish, consume one typed selected-C row, and delete that caller's
-   name/JSON fallback edge in the same series. The neutral FreeFunction
-   namespace remains available for a true top-level definition; it is not
-   fabricated for this nested helper.
+1. MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0 (landed)
+   the App Main FreeStatic source product joins the exact nested
+   StaticBoxMethod catalog key, the key survives Atomic Publish, one typed
+   selected-C row consumes the published view, and the selected caller's
+   name/JSON fallback edge is gone. The neutral FreeFunction namespace
+   remains available for a true top-level definition; it was not fabricated
+   for this nested helper. Choose the next exact family; do not reopen this
+   cohort.
 
 2. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
