@@ -624,6 +624,30 @@ existing error terminals; includes duplicate/missing/mismatch/arity/carrier
 and builtin-print rows; excludes C transport, phi layout, and lane typing.
 ```
 
+### B-S0 closeout evidence (2026-09-03)
+
+Status: **landed** as a direct evidence-only slice. The focused module suite
+now runs 18 tests with 18 passed and 0 failed, including explicit witnesses
+for duplicate cataloged publication, key/symbol/arity drift, missing published
+definitions, static/free call arity and result drift, legacy function carriers,
+and all existing builtin-print shape errors. The tests exercise the existing
+`MirModule` publication owner and `PublishedMirBackendView` validator; no
+production route, C transport, runner, JSON schema, or semantic receipt was
+added. The source test file remains 581 lines, below the 760/800-line boundary.
+
+Evidence command:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+  'mir::function::published_backend_view::tests'
+-> 18 passed; 0 failed
+```
+
+The broader transport-dedup row remains `NoSafeSlice`; phi coordinate and
+non-scalar lane coverage remain separate design questions rather than silent
+test omissions. The known whole-library red baseline is unchanged and is not
+claimed green by this row.
+
 These P1 tasks remain separate from the next DeclaredInstance or other
 semantic-family cutover. Their evidence must distinguish changed-test green
 from the known whole-library red baseline.
@@ -647,6 +671,6 @@ opened. A focused snapshot test passing is useful evidence for I0 only; it
 does not waive the vm-reference feature build, stable dispatch guard, or the
 known-red baseline comparison.
 
-The two P0 rows are now landed. B-S0 may open only after the snapshot pointer
-is synchronized; A remains parked until its alternative-entry caller census
-closes.
+The two P0 rows and B-S0 are now landed. A remains parked until its
+alternative-entry caller census closes; the next semantic family is not
+selected by this evidence-only closeout.
