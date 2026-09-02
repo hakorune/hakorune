@@ -2,7 +2,7 @@ date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B"
-current_design_stop = "M3-B ordinary-new outer quarantine: confirm the existing Birth owner and the single outer compatibility owner before any code change. Zero/multiple owner or delete-set remains ParkedSealed; no new receipt, adapter, fixture, guard, fallback, or retry."
+current_design_stop = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B: confirm the existing Birth owner and the single outer compatibility owner before any code change. Zero/multiple owner or delete-set remains ParkedSealed; no new receipt, adapter, fixture, guard, fallback, or retry."
 current_blocker_token = """
 MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B: census only the ordinary-new
 admission -> Birth selection or unclaimed compatibility fallback boundary.
