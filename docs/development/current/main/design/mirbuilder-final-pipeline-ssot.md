@@ -543,6 +543,44 @@ not claim producer/reader caller-zero, R7 deletion, Hako/VM retirement, or a
 green whole-library suite. The next boundary is the read-only
 `MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0`; Group B and R7 remain unopened.
 
+### R6 current-HEAD re-census — `MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0`
+
+The post-Group-A scan is bounded to active `src/`, `crates/`, and `tests/`
+Rust/`inc` files (excluding `archive/` and `target/`). It starts at the two
+`MirInstruction` call variants and ends at MIR structural consumers,
+publication/view admission, JSON/JoinIR compatibility ingress, and compiled
+backend readers. Raw occurrences are not semantic owner counts:
+
+```text
+canonical `MirInstruction::Call(...)` matches       45 lines / 19 files
+canonical `MirInstruction::call(...)` constructors  31 lines / 16 files
+explicit `LegacyCallV0` matches                    877 lines / 326 files
+receiverless `Callee::Method` shapes                11 files
+`callee: None` literal matches                      32 lines
+`emit_legacy_call(` matches                          5 lines
+```
+
+The finite owner dispositions are:
+
+| owner class | disposition | current evidence and boundary |
+| --- | --- | --- |
+| existing `MirInstruction::call` producers and typed tuple readers | `Canonical` | source/package owners and central MIR structural readers; no new target/effect/ABI issue |
+| Builder legacy facade, JoinIR conversion, JSON v0/v1 parsing, unified-off and explicit compatibility ingress | `CompatibilityOuterIngress` | `LegacyCallV0` is retained at the outer boundary until R7; no canonical fallback into it |
+| instruction methods, value/SSA/optimizer/verifier/printer, callsite rewriters, and published-view validation | `Canonical` / structural | copy or validate an issued callee; they must not select a target or infer a receiver |
+| MIR interpreter, WASM, and product LLVM readers that currently match only `LegacyCallV0` | `CompatibilityOuterIngress` | reader migration is still required; canonical `Call` has no direct backend arm yet and must fail closed rather than fall back |
+| `Callee::Method { receiver: None, .. }`, missing-callee guards, and legacy sentinel fixtures | `ExplicitUnsupported` / compatibility | never a canonical publication shape; keep only at the explicit outer/test boundary |
+
+The scan found no active old struct-style `MirInstruction::Call { ... }`
+literal and no new semantic issuer introduced by the enum split. It did find
+three completion blockers for the next R6 slice: (1) the published backend
+view still accepts both instruction shapes, (2) compiled backend readers do
+not yet consume `Call(MirCall)` directly, and (3) the raw legacy carrier
+remains present across compatibility and structural reissuers. Therefore this
+re-census closes the Group-A inventory but does not authorize global schema
+deletion. Group B must choose one existing reader/family, add no new issuer,
+and prove a finite old-edge delete set before implementation permission is
+opened.
+
 このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
 selected shadow profileでDeferredになりpackage発行へ到達できないため、target
 loanより前に次を設計しなければならない。

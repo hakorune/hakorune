@@ -21,9 +21,12 @@ Related:
 - **Current decision:** canonical Global is `Builtin(Print)` or same-module
   `FreeFunction`/`StaticBoxMethod`; canonical MIR JSON is exact v2.0.
 - **Current implementation status:** the B1 structural Global carrier is landed
-  and the explicit `vm-reference` feature check is green. The MIR Call core
-  still stores `func`, `Option<Callee>`, and transitional optional Method
-  receivers. Observer facts, forest-wide package admission, FreeStatic
+  and the explicit `vm-reference` feature check is green. R6 Group A now
+  separates canonical `MirInstruction::Call(MirCall)` from the explicit
+  compatibility `LegacyCallV0` shape; the remaining writer/backend migration
+  and R7 deletion are not complete. Transitional optional Method receivers and
+  compatibility readers still exist at the outer boundary. Observer facts,
+  forest-wide package admission, FreeStatic
   pre-effect handoff, Main identity/catalog co-seal I0, and the receiver
   crosswalk are landed. DeclaredInstance relation, effect, result/Completion,
   full signature, and receiver crosswalk are ready through the package boundary.
@@ -35,13 +38,13 @@ Related:
   exact DeclaredInstance physical owner. Direct package-to-Hako emission remains
   forbidden; backend admission begins only after canonical module publication.
 - **Current bounded task:**
-  `MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0` remains the current
-  design-stop row. Q1 receiver ABI and Q3 source/package ownership are settled;
-  the remaining seam is the exact `InstanceBoxMethod` key + mandatory receiver
-  call carrier, its key-to-definition publication relation, and one
-  root-lexical `Method(Some)` production caller. The readiness projection is
-  `SemanticPackageReady=yes`, `ReceiverCrosswalkReady=yes`,
-  `PublishedCanonicalCallReady=no`, and `EndToEndVerticalReady=no`.
+  `MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0` is the current design-stop row. Group A
+  is closed at `45c6759962`; perform one finite read-only census of remaining
+  Call writers/readers and compatibility boundaries before opening R6 Group B.
+  No new issuer, receipt, adapter, fixture, fallback, resolver, schema variant,
+  or production switch is permitted during this census. The readiness
+  projection is `SemanticPackageReady=yes`, `ReceiverCrosswalkReady=yes`,
+  `PublishedCanonicalCallReady=group-dependent`, and `EndToEndVerticalReady=no`.
   selected-C is a downstream typed consumer/RetireAfterReplacement lane, not a
   source semantic issuer or prerequisite. Do not create a selected-C source
   issuer, second resolver, family loan, fixture, receipt, adapter, or fallback.
@@ -88,13 +91,13 @@ exposed; a versioned `repr(C)` flat arena is valid for one call only. Physical
 `EffectMask` may be transported as an existing MIR field, but this cohort does
 not claim to issue a new source-backed semantic effect.
 
-The stored repository-wide `MirInstruction::Call { func, callee: Option<_> }`
-schema is not globally rewritten in this five-commit series. The published
-view admits selected calls only when `callee=Some`, `func=INVALID`, and the
-target joins exactly one definition. Global `Call`/`LegacyCallV0` schema
-deletion remains R6 after family reachability is reduced; changing roughly all
-Call consumers now would mix the vertical cutover with an unrelated mass
-compile break.
+The stored repository-wide Call schema is now split into canonical
+`MirInstruction::Call(MirCall)` and explicit `LegacyCallV0`; this Group-A shape
+change did not delete the legacy family. The published view still admits both
+shapes for compatibility while selected family reachability is reduced.
+Global `LegacyCallV0` deletion remains R7 after the remaining writers/readers
+are migrated; changing every compatibility consumer at once would mix the
+vertical cutover with an unrelated mass compile break.
 
 Before any backend attempt, the facade chooses exactly one state:
 
