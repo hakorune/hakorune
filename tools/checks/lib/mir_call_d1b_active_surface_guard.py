@@ -144,6 +144,10 @@ HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_ROW = (
 HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_KEY = (
     "mir_call_hako_same_module_instance_physical_ingress_d0_2026_09_02"
 )
+REPO_LIFECYCLE_BASELINE_REFRESH_R0_ROW = "REPO-LIFECYCLE-BASELINE-REFRESH-R0"
+REPO_LIFECYCLE_BASELINE_REFRESH_R0_KEY = (
+    "repo_lifecycle_baseline_refresh_r0_2026_09_02"
+)
 
 
 def fail(message: str) -> None:
@@ -824,6 +828,63 @@ def check_hako_same_module_instance_physical_ingress_d0(
         for field in ("worker_audit_result", "evidence", "reopen_trigger", "closeout"):
             if not isinstance(row.get(field), str) or not row[field].strip():
                 fail(f"Hako physical ingress parked evidence is missing: {field}")
+
+
+def check_repo_lifecycle_baseline_refresh_r0(
+    state: dict, card: dict, root: Path
+) -> None:
+    """Dispatch the one-time receipt synchronization cleanup window.
+
+    This check only protects the declared file surface and selection state. It
+    deliberately does not turn a generated count into deletion permission.
+    """
+    if state.get("work_mode") != "fast":
+        fail("repository lifecycle baseline refresh must be fast")
+    if state.get("current_execution_row") != REPO_LIFECYCLE_BASELINE_REFRESH_R0_ROW:
+        fail("repository lifecycle baseline refresh row is not selected")
+    if state.get("current_design_stop") != "none":
+        fail("repository lifecycle baseline refresh must clear current_design_stop")
+    if state.get("next_execution_card") != REPO_LIFECYCLE_BASELINE_REFRESH_R0_ROW:
+        fail("repository lifecycle baseline refresh next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("repository lifecycle baseline refresh card path drifted")
+    row = card.get(REPO_LIFECYCLE_BASELINE_REFRESH_R0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{REPO_LIFECYCLE_BASELINE_REFRESH_R0_KEY} section is missing")
+    if row.get("task_id") != REPO_LIFECYCLE_BASELINE_REFRESH_R0_ROW:
+        fail("repository lifecycle baseline refresh task id drifted")
+    if row.get("status") != "selected_fast":
+        fail("repository lifecycle baseline refresh must be selected_fast")
+    if row.get("implementation_permission") is not True:
+        fail("repository lifecycle baseline refresh permission drifted")
+    for field in (
+        "decision",
+        "source_authority",
+        "canonical_issuer",
+        "fail_fast_boundary",
+        "census_boundary",
+        "acceptance",
+        "no_safe_slice",
+        "non_claims",
+    ):
+        if not isinstance(row.get(field), str) or not row[field].strip():
+            fail(f"repository lifecycle baseline refresh field is missing: {field}")
+    for field in ("finite_preflight", "ordered_tasks", "allowed_files", "forbidden_files", "focused_checks"):
+        value = row.get(field)
+        if not isinstance(value, list) or not value or not all(
+            isinstance(item, str) and item.strip() for item in value
+        ):
+            fail(f"repository lifecycle baseline refresh list is missing: {field}")
+    allowed = set(row["allowed_files"])
+    changed = git_diff_paths(root, require_text(row.get("base_head"), "lifecycle refresh base_head"))
+    if not changed <= allowed:
+        fail(f"repository lifecycle baseline refresh changed paths escaped: {sorted(changed - allowed)}")
+    output = root / "tools/checks/manifests/repository_artifact_lifecycle_v0.json"
+    if not output.is_file():
+        fail("repository lifecycle baseline receipt is missing")
+    generator = root / "tools/docs/repository_artifact_lifecycle_inventory.py"
+    if not generator.is_file():
+        fail("repository lifecycle inventory generator is missing")
 
 
 def check_declared_instance_locator_install_bridge_i0(

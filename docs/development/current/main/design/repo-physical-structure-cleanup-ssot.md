@@ -19,13 +19,13 @@ Related:
 
 - **Current decision:** physical cleanup must reduce tracked files/lines when
   it claims repository reduction; moves and renames are tracked separately.
-- **Current implementation status:** the absolute-reduction train is taskized
-  and ready for an explicitly selected cleanup window; the active Hako
-  physical-ingress lane is `ParkedSealed__HakoIngressMissing` and no semantic
-  production row is being forced open.
-- **Next ordered task:** when explicitly selected, reconcile the stale
-  lifecycle receipt once before the first guard-family retirement batch. This
-  is receipt synchronization, not a reduction claim.
+- **Current implementation status:** the receipt-only
+  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task is landed; the absolute-reduction
+  train remains parked and Hako physical ingress is
+  `ParkedSealed__HakoIngressMissing`.
+- **Next ordered task:** explicitly select one finite guard or docs family only
+  after caller/reference-zero evidence exists. The lifecycle refresh was
+  receipt synchronization, not a reduction claim.
 - **Production stop line:** no cleanup row changes language/compiler behavior,
   current authority, a selected backend, or an unresolved test/guard contract.
 - **Retirement finish line:** every selected batch has caller/reference zero,
@@ -105,19 +105,16 @@ REPO-LIFECYCLE-BASELINE-REFRESH-R0
   -> GENERATED-ARTIFACT-RETENTION-D0
 ```
 
-1. `REPO-LIFECYCLE-BASELINE-REFRESH-R0` first adjudicates the currently red
-   strict lifecycle manifest. The current generated census observes
+1. `REPO-LIFECYCLE-BASELINE-REFRESH-R0` landed after adjudicating the strict
+   lifecycle manifest. The generated and committed receipt now agrees at
    `13,262` docs, `3,807` checks, `4,687` src paths, and `7,427` tools paths;
-   the committed receipt still records `13,023 / 3,662 / 4,490 / 7,283`.
-   The measured drift is finite and has no registry violation, but `--write`
-   is not an automatic waiver: classify the exact additions before accepting
-   a new baseline.
+   registry/allowlist violations were `0`.
 
-### `REPO-LIFECYCLE-BASELINE-REFRESH-R0` (ready for explicit selection)
+### `REPO-LIFECYCLE-BASELINE-REFRESH-R0` (landed)
 
-This is a one-time BoxShape/receipt task, not a repository reduction batch and
-not a MirBuilder semantic implementation. It may run only after
-`CURRENT_STATE.toml` selects the row in a clean worktree.
+This was a one-time BoxShape/receipt task, not a repository reduction batch
+and not a MirBuilder semantic implementation. It ran only after
+`CURRENT_STATE.toml` selected the row in a clean worktree.
 
 ```text
 Decision:
@@ -153,11 +150,11 @@ permitted files: lifecycle manifest, cleanup SSOT, lifecycle workstream,
                  CURRENT_STATE pointer
 ```
 
-Acceptance is exactly one receipt update whose strict check passes, with the
-same generated schema and no deletion/archive or semantic diff. After this
-row closes, the pointer returns to the Hako `ParkedSealed` boundary; the next
-guard/docs retirement batch still requires a separate explicit selection and
-finite caller/reference-zero evidence.
+Acceptance was one receipt update whose strict check passed, with the same
+generated schema and no deletion/archive or semantic diff. The pointer has
+returned to the Hako `ParkedSealed` boundary; the next guard/docs retirement
+batch still requires a separate explicit selection and finite
+caller/reference-zero evidence.
 Closed tombstone: `LEGACY-TESTS-RETIRE-R0` landed at `bcc9a6ba65`. The disabled
 feature, four cfg barrels, 34 roots, and nine exclusive support files were
 retired from the tree; Git history owns the detailed delete set. It is not a

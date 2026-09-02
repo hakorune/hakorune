@@ -85,9 +85,9 @@ The follow-up Hako physical-ingress audit is now closed as
 `PublishedMirBackendView` references, Hako's current owner consumes a hydrated
 `Map`/`RecipeFacts` rather than a borrowed Rust view, and the available scalar
 Probe has no production runtime caller. Do not open another Hako D0. The
-separate repository cleanup lane has one ready-but-unselected task,
-`REPO-LIFECYCLE-BASELINE-REFRESH-R0`, which only reconciles its generated
-receipt once before any reduction batch.
+separate repository cleanup lane has landed the explicitly bounded
+`REPO-LIFECYCLE-BASELINE-REFRESH-R0` task, which reconciled its generated
+receipt once without starting a reduction batch.
 
 ### 2026-09-02 next-family audit
 
@@ -208,11 +208,12 @@ by this refresh.
     residual-zero. Reopen only after 3d's trigger is satisfied; an object/link-
     only Probe that Main never calls does not qualify.
 
-3f. REPO-LIFECYCLE-BASELINE-REFRESH-R0 (ready, not selected)
-    This separate cleanup window compares the generated lifecycle census with
-    the committed receipt, classifies the finite drift, and writes the receipt
-    once. It makes no deletion/archive claim and must not change compiler,
-    backend, test, or guard semantics.
+3f. REPO-LIFECYCLE-BASELINE-REFRESH-R0 (landed)
+    This separate cleanup window compared the generated lifecycle census with
+    the committed receipt and wrote it once. Strict inventory, docs-slim,
+    pointer, active-surface, and diff checks passed. It made no
+    deletion/archive claim and changed no compiler, backend, test, or guard
+    semantics; the pointer returned to the Hako ParkedSealed boundary.
 
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal

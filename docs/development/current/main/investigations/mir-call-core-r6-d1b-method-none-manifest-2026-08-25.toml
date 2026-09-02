@@ -155,6 +155,31 @@ evidence = "Read-only audit: src/host_providers/llvm_codegen/published_mir_objec
 reopen_trigger = "Reopen only when exactly one synchronous borrow-only Rust-to-Hako PublishedMirBackendView ingress, one real runtime scalar caller, one lossless receiver-lane projection, and a finite same-series old-edge delete set are present. A new source issuer, JSON/name lookup, args[0]/ValueId(0) repair, or object/link-only Probe does not qualify."
 closeout = "ParkedSealed after the bounded worker audit. The Hako lane is not blocked by missing semantic products; it is outside the current executable surface because its physical ingress and runtime caller are both absent. Git history retains the audit detail; no implementation permission is granted."
 
+[repo_lifecycle_baseline_refresh_r0_2026_09_02]
+status = "landed"
+task_id = "REPO-LIFECYCLE-BASELINE-REFRESH-R0"
+parent_row = "REPO-ABSOLUTE-REDUCTION-R0"
+implementation_permission = false
+base_head = "75cf5dfdf4"
+decision = "Perform one receipt-only reconciliation of the generated repository lifecycle inventory. This cleanup window does not delete, archive, rename, or reinterpret any artifact."
+source_authority = "tools/docs/repository_artifact_lifecycle_inventory.py over the current git tree and its existing JSON output path."
+canonical_issuer = "The existing lifecycle inventory generator is the sole receipt writer; no new inventory, guard, or semantic issuer is introduced."
+non_authority = ["stale receipt", "LOC/grep counts", "unknown_retain labels", "--write itself", "warning-only guard output", "historical age", "worker silence"]
+fail_fast_boundary = "Before accepting the refreshed receipt, classify every changed count/registry entry, verify the existing allowlist, and require the strict generator check to pass. Any unclassified drift, registry violation, or changed semantic path aborts the row."
+census_boundary = "Committed lifecycle JSON -> generator output over the current git tree; includes counts, design registry, reachability, and allowlist drift; excludes deletion, archive copies, unknown-retain adjudication, and compiler/backend/test semantics."
+finite_preflight = ["checks 3662 -> 3807", "docs 13023 -> 13262", "docs/development/current 8803 -> 9039", "src 4490 -> 4687", "tools 7283 -> 7427", "registry/allowlist violations = 0"]
+ordered_tasks = ["A: generate a temporary inventory and compare the exact finite drift with the committed receipt", "B: confirm the drift is receipt-only and within the existing cleanup allowlist; do not classify unknown_retain as deletion permission", "C: write the existing lifecycle JSON once, run strict inventory/docs-slim/pointer/diff guards, and close without archive/delete"]
+allowed_files = ["tools/checks/manifests/repository_artifact_lifecycle_v0.json", "tools/docs/repository_artifact_lifecycle_inventory.py", "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py"]
+forbidden_files = ["src/**", "lang/**", "crates/**", "apps/**", "tests/**", "VM", "Call schema", "archive/**", "new guard", "new receipt family", "semantic Verified*/Prepared* product"]
+focused_checks = ["python3 tools/docs/repository_artifact_lifecycle_inventory.py --check --strict", "bash tools/checks/docs_slim_001_archive_policy_guard.sh", "bash tools/checks/current_state_pointer_guard.sh", "git diff --check"]
+acceptance = "The existing JSON receipt is updated exactly once to the generator output; strict inventory check, docs-slim guard, pointer guard, and diff check pass; no file outside the allowlist changes; no deletion/archive/semantic or whole-library health claim is made."
+no_safe_slice = "Abort and return to the Hako ParkedSealed boundary if the drift cannot be classified, the registry/allowlist changes, the generator requires source changes, the output schema changes, or any deletion/archive/semantic path appears."
+non_claims = "No repository reduction, archive, test/guard retirement, compiler/backend/MIR change, baseline health repair, generated-artifact deletion, or selected cleanup family is claimed by this row."
+implementation_commit = "same closeout commit; see git history"
+implementation_evidence = "The generated receipt was written once after the finite drift audit: checks=3807, docs=13262, docs/development/current=9039, src=4687, tools=7427; registry/allowlist violations=0. Strict inventory check, DOCS-SLIM-001, current-state pointer, active-surface, and git diff checks passed."
+closeout = "Receipt-only lifecycle refresh landed. The tracked JSON now matches the generator; no artifact was deleted, archived, renamed, or semantically reinterpreted. Return the pointer to the Hako ParkedSealed boundary; guard-family retirement remains separately unselected."
+next_execution = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0__design_stop"
+
 [mir_builder_calltarget_guard_rehome_r0_2026_09_01]
 status = "tombstone"
 task_id = "MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0"
