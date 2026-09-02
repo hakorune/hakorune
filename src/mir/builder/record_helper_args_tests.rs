@@ -172,7 +172,7 @@ fn assert_no_helper_terminal(builder: &MirBuilder) {
         block
             .instructions
             .iter()
-            .any(|inst| matches!(inst, MirInstruction::Call { .. }))
+            .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. }))
             || matches!(block.terminator, Some(MirInstruction::Return { .. }))
     }));
 }

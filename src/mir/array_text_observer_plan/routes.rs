@@ -176,7 +176,7 @@ fn match_array_text_indexof_route(
 
 fn match_indexof_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
@@ -199,7 +199,7 @@ fn match_array_get_source(
     let (block, index) = def_map.get(&source_value).copied()?;
     let inst = function.blocks.get(&block)?.instructions.get(index)?;
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -482,7 +482,7 @@ fn is_same_slot_set_consumer(
     index_root: ValueId,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,

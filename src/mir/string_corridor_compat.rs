@@ -21,7 +21,7 @@ pub(crate) fn infer_compat_fact_from_instruction(
     inst: &MirInstruction,
 ) -> Option<(ValueId, StringCorridorFact)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Method {
                 box_name, method, ..
@@ -29,12 +29,12 @@ pub(crate) fn infer_compat_fact_from_instruction(
             args,
             ..
         } => infer_compat_from_method(box_name, method, args.len()).map(|fact| (*dst, fact)),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
         } => infer_compat_from_global(&name.display_name()).map(|fact| (*dst, fact)),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             ..

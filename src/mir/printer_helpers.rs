@@ -345,7 +345,15 @@ pub fn format_instruction(
             )
         }
 
-        MirInstruction::Call {
+        MirInstruction::Call(call) => {
+            let call_display = format_call_target(Some(&call.callee), ValueId::INVALID, &call.args);
+            if let Some(dst) = call.dst {
+                format!("{} {}", format_dst(&dst, types), call_display)
+            } else {
+                call_display
+            }
+        }
+        MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee,

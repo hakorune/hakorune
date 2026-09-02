@@ -36,7 +36,7 @@ fn method_call_arg_lens(module: &MirModule, box_name: &str, method: &str) -> Vec
     for function in module.functions.values() {
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee:
                         Some(Callee::Method {
                             box_name: call_box,
@@ -67,7 +67,7 @@ fn method_call_result_types(
     for function in module.functions.values() {
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     dst,
                     callee:
                         Some(Callee::Method {

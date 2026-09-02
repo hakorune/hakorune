@@ -145,7 +145,7 @@ impl WasmCodegen {
             }
 
             // Phase 9.7: External Function Calls (canonical Call + Callee::Extern)
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(crate::mir::Callee::Extern(extern_name)),
                 args,
@@ -181,7 +181,7 @@ impl WasmCodegen {
             }
 
             // Global function call codegen (canonical Call + Callee::Global)
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(crate::mir::Callee::Global(func_name)),
                 args,
@@ -233,7 +233,7 @@ impl WasmCodegen {
             }
 
             // Method call codegen (canonical Call + Callee::Method with receiver)
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(crate::mir::Callee::Method {

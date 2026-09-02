@@ -40,7 +40,7 @@ fn refresh_function_ordered_map_get_result_origins(function: &mut MirFunction) {
 
     for block in function.blocks.values() {
         for instruction in &block.instructions {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst, callee, args, ..
             } = instruction
             else {
@@ -196,7 +196,7 @@ fn rewrite_runtime_data_receivers_with_published_origins(function: &mut MirFunct
     let mut rewrites: Vec<(BasicBlockId, usize, String)> = Vec::new();
     for (block_id, block) in &function.blocks {
         for (instruction_index, instruction) in block.instructions.iter().enumerate() {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name,
@@ -225,7 +225,7 @@ fn rewrite_runtime_data_receivers_with_published_origins(function: &mut MirFunct
         let Some(block) = function.blocks.get_mut(&block_id) else {
             continue;
         };
-        let Some(MirInstruction::Call {
+        let Some(MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -314,7 +314,7 @@ mod tests {
         args: Vec<u32>,
         effects: EffectMask,
     ) {
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(dst)),
             func: ValueId::INVALID,
             callee: Some(callee),
@@ -347,7 +347,7 @@ mod tests {
         let mut calls = Vec::new();
         for block in function.blocks.values() {
             for instruction in &block.instructions {
-                if let MirInstruction::Call {
+                if let MirInstruction::LegacyCallV0 {
                     callee:
                         Some(Callee::Method {
                             box_name: call_box_name,
@@ -431,7 +431,7 @@ mod tests {
         assert_eq!(ordered_map_get_calls.len(), 1);
         let ordered_map_call = ordered_map_get_calls[0];
         let ordered_map_dst = match ordered_map_call {
-            MirInstruction::Call { dst, args, .. } => {
+            MirInstruction::LegacyCallV0 { dst, args, .. } => {
                 assert_eq!(consts.get(&args[0]), Some(&"carrier_names".to_string()));
                 dst.expect("dst")
             }
@@ -442,7 +442,7 @@ mod tests {
         let nested_calls = method_calls(function, "ArrayBox", "get");
         assert_eq!(nested_calls.len(), 1);
         match nested_calls[0] {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name,
@@ -586,7 +586,7 @@ mod tests {
         let mut seen = BTreeMap::new();
         for call in ordered_map_get_calls {
             match call {
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     args,
                     ..
@@ -605,7 +605,7 @@ mod tests {
         assert_eq!(array_get_calls.len(), 3);
         for call in array_get_calls {
             match call {
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee:
                         Some(Callee::Method {
                             box_name,

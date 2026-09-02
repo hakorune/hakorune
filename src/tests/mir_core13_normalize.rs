@@ -41,32 +41,30 @@ mod tests {
             value: ConstValue::Integer(7),
         });
         // Use canonical Call with Callee::Method (replaces BoxCall)
-        b0.add_instruction(I::Call {
-            dst: Some(get_dst),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
+        b0.add_instruction(I::call(
+            Some(get_dst),
+            Callee::Method {
                 box_name: "ArrayBox".to_string(),
                 method: "get".to_string(),
                 receiver: Some(arr),
                 certainty: TypeCertainty::Known,
                 box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![idx],
-            effects: EffectMask::READ,
-        });
-        b0.add_instruction(I::Call {
-            dst: None,
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
+            },
+            vec![idx],
+            EffectMask::READ,
+        ));
+        b0.add_instruction(I::call(
+            None,
+            Callee::Method {
                 box_name: "ArrayBox".to_string(),
                 method: "set".to_string(),
                 receiver: Some(arr),
                 certainty: TypeCertainty::Known,
                 box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![idx, val],
-            effects: EffectMask::WRITE,
-        });
+            },
+            vec![idx, val],
+            EffectMask::WRITE,
+        ));
         b0.add_instruction(I::Return {
             value: Some(get_dst),
         });
@@ -84,14 +82,12 @@ mod tests {
         let mut saw_set = false;
         for inst in block.all_instructions() {
             match inst {
-                I::Call {
-                    callee: Some(Callee::Method { method, .. }),
-                    ..
-                } if method == "get" => saw_get = true,
-                I::Call {
-                    callee: Some(Callee::Method { method, .. }),
-                    ..
-                } if method == "set" => saw_set = true,
+                I::Call(call) if matches!(&call.callee, Callee::Method { method, .. } if method == "get") => {
+                    saw_get = true
+                }
+                I::Call(call) if matches!(&call.callee, Callee::Method { method, .. } if method == "set") => {
+                    saw_set = true
+                }
                 _ => {}
             }
         }
@@ -129,19 +125,18 @@ mod tests {
             ptr: ref_val,
         });
         // Use canonical Call with Callee::Method (replaces BoxCall)
-        b0.add_instruction(I::Call {
-            dst: None,
-            func: ValueId::INVALID,
-            callee: Some(Callee::Method {
+        b0.add_instruction(I::call(
+            None,
+            Callee::Method {
                 box_name: "InstanceBox".to_string(),
                 method: "setField".to_string(),
                 receiver: Some(ref_val),
                 certainty: TypeCertainty::Known,
                 box_kind: CalleeBoxKind::RuntimeData,
-            }),
-            args: vec![field_name, set_val],
-            effects: EffectMask::WRITE,
-        });
+            },
+            vec![field_name, set_val],
+            EffectMask::WRITE,
+        ));
         b0.add_instruction(I::Return { value: None });
         f.add_block(b0);
 

@@ -15,7 +15,7 @@ pub(super) fn seed_generic_pure_string_corridor_method_values(
     let mut changed = false;
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee:
                     Some(Callee::Method {

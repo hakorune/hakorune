@@ -80,7 +80,7 @@ fn build_mir_json_root_emits_env_now_ms_zero_arg_route() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("env.now_ms/0".to_string())),
@@ -128,7 +128,7 @@ fn build_mir_json_root_emits_string_concat_extern_route() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(12)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("nyash.string.concat_hh/2".to_string())),
@@ -177,7 +177,7 @@ fn build_mir_json_root_emits_string_substring_len_extern_route() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(23)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(

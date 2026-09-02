@@ -325,7 +325,7 @@ mod tests {
             dst: func,
             value: ConstValue::String("dynamic_source".to_string()),
         });
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(call_value),
             func,
             callee: None,

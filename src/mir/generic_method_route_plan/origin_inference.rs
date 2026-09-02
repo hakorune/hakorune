@@ -107,7 +107,7 @@ pub(super) fn infer_typed_object_collection_element_origins(
         let def_map = build_value_def_map(function);
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee:
                         Some(Callee::Method {
                             box_name,
@@ -267,7 +267,7 @@ fn infer_same_module_method_param_box_origins(module: &MirModule) -> MethodParam
                 let Some(block) = function.blocks.get(&route.block()) else {
                     continue;
                 };
-                let Some(MirInstruction::Call { args, .. }) =
+                let Some(MirInstruction::LegacyCallV0 { args, .. }) =
                     block.instructions.get(route.instruction_index())
                 else {
                     continue;
@@ -408,7 +408,8 @@ fn method_returned_collection_element_key(
     let origin = resolve_value_origin(function, def_map, value);
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
-    let MirInstruction::Call { dst, callee, .. } = block.instructions.get(instruction_index)?
+    let MirInstruction::LegacyCallV0 { dst, callee, .. } =
+        block.instructions.get(instruction_index)?
     else {
         return None;
     };
@@ -595,7 +596,7 @@ fn handle_value_origin_box_name_with_context_inner(
                     }
                     return input_box;
                 }
-                MirInstruction::Call { dst, callee, .. } => {
+                MirInstruction::LegacyCallV0 { dst, callee, .. } => {
                     if *dst == Some(origin) {
                         match callee {
                             Some(Callee::Method { .. }) => {

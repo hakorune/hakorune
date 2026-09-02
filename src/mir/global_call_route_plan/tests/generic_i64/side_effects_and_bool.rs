@@ -20,7 +20,7 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_i64_body() {
             dst: ValueId::new(1),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -67,7 +67,7 @@ fn refresh_module_global_call_routes_accepts_print_dead_dst_in_generic_i64_body(
             dst: ValueId::new(1),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -114,7 +114,7 @@ fn refresh_module_global_call_routes_rejects_print_used_dst_in_generic_i64_body(
             dst: ValueId::new(1),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -215,7 +215,7 @@ fn refresh_module_global_call_routes_preserves_bool_dst_from_generic_i64_global_
         .value_types
         .insert(ValueId::new(2), MirType::Bool);
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -317,7 +317,7 @@ fn refresh_module_global_call_routes_accepts_typed_i64_phi_from_unknown_param() 
     );
     callee.params = vec![ValueId::new(1), ValueId::new(2)];
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

@@ -113,17 +113,11 @@ mod tests {
     }
 
     fn core_direct_env_off() -> EnvGuard {
-        EnvGuard::set(&[
-            ("HAKO_CORE_DIRECT", "0"),
-            ("NYASH_CORE_DIRECT", "0"),
-        ])
+        EnvGuard::set(&[("HAKO_CORE_DIRECT", "0"), ("NYASH_CORE_DIRECT", "0")])
     }
 
     fn core_direct_env_on() -> EnvGuard {
-        EnvGuard::set(&[
-            ("HAKO_CORE_DIRECT", "1"),
-            ("NYASH_CORE_DIRECT", "0"),
-        ])
+        EnvGuard::set(&[("HAKO_CORE_DIRECT", "1"), ("NYASH_CORE_DIRECT", "0")])
     }
 
     fn direct_mir_fixture() -> &'static str {

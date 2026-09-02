@@ -145,7 +145,7 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_pure_string_
             lhs: ValueId::new(2),
             rhs: ValueId::new(6),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(8)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -164,7 +164,7 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_pure_string_
             lhs: ValueId::new(12),
             rhs: ValueId::new(8),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

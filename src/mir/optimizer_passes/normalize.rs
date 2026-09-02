@@ -43,7 +43,7 @@ pub fn normalize_python_helper_calls(
             let old_spanned = block.drain_spanned_instructions();
             let mut new_spanned = Vec::with_capacity(old_spanned.len());
             for SpannedInstruction { mut inst, span } in old_spanned {
-                if let I::Call {
+                if let I::LegacyCallV0 {
                     callee:
                         Some(crate::mir::Callee::Method {
                             receiver: Some(receiver),

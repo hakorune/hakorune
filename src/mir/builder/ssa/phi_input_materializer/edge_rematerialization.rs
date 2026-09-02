@@ -220,7 +220,7 @@ pub(super) fn rematerialize_for_pred(
                 else_val,
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(_),
             callee: Some(callee),
             args,

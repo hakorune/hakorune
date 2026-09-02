@@ -34,7 +34,7 @@ fn refresh_module_global_call_routes_accepts_debug_string_concat_in_generic_i64_
             lhs: ValueId::new(1),
             rhs: ValueId::new(2),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -109,7 +109,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_numeric_value_field_proof(
             dst: ValueId::new(3),
             value: ConstValue::String("value".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -156,7 +156,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_numeric_value_field_proof(
             dst: ValueId::new(9),
             src: ValueId::new(8),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

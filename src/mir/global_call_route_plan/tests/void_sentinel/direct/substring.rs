@@ -41,7 +41,7 @@ fn refresh_module_global_call_routes_accepts_substring_void_sentinel_body() {
         else_edge_args: None,
     });
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -122,7 +122,7 @@ fn refresh_module_global_call_routes_accepts_corridor_fact_substring_void_sentin
     });
 
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

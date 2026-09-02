@@ -244,7 +244,7 @@ fn stable_length_relation_for_phi(
 fn is_raw_substring_view_call(inst: &MirInstruction) -> bool {
     matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(super::Callee::Method {
                     method,
@@ -258,7 +258,7 @@ fn is_raw_substring_view_call(inst: &MirInstruction) -> bool {
             && args.first().is_some_and(|arg| arg == receiver)
     ) || matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(super::Callee::Extern(name)),
             args,
             ..

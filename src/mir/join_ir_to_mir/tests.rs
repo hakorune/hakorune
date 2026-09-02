@@ -71,7 +71,7 @@ fn test_convert_print_inst_to_externcall() {
 
     // Should now emit canonical Call with Callee::Extern
     match mir_inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(crate::mir::Callee::Extern(name)),
             args,

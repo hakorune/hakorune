@@ -45,7 +45,7 @@ pub(super) fn infer_collection_element_storages_with_def_maps(
         };
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee:
                         Some(Callee::Method {
                             method,

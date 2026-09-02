@@ -99,7 +99,7 @@ pub(super) fn collect_userbox_method_main_facts(
                     _ => return None,
                 }
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee:
                     Some(Callee::Method {

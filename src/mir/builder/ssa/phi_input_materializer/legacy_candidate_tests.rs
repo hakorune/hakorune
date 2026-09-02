@@ -262,7 +262,7 @@ fn foreign_family_phi(family: RematerializationFamily) -> (MirFunction, usize) {
                     value: ConstValue::Integer(value),
                 });
             }
-            block.add_instruction(MirInstruction::Call {
+            block.add_instruction(MirInstruction::LegacyCallV0 {
                 dst: Some(foreign),
                 func: ValueId::new(u32::MAX),
                 callee: Some(Callee::Method {
@@ -466,7 +466,7 @@ fn candidate_rejects_cycles_and_non_rematerializable_definitions_before_cloning(
 fn candidate_rejects_impure_calls_cursor_faults_and_exception_regions_preflight() {
     let (mut impure_call, _) = foreign_family_phi(RematerializationFamily::SubstringCall);
     let block = impure_call.get_block_mut(BasicBlockId::new(1)).unwrap();
-    let Some(MirInstruction::Call { effects, .. }) = block.instructions.last_mut() else {
+    let Some(MirInstruction::LegacyCallV0 { effects, .. }) = block.instructions.last_mut() else {
         panic!("expected substring call");
     };
     *effects = EffectMask::READ;

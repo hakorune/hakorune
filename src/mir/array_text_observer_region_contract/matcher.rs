@@ -644,7 +644,7 @@ fn is_same_slot_set_consumer(
     index_root: ValueId,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -676,7 +676,7 @@ fn is_same_row_set_consumer(
     row_modulus_const: i64,
 ) -> Option<ValueId> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -708,7 +708,7 @@ fn match_length_result_of(
 ) -> Option<ValueId> {
     let concat_root = root(function, def_map, concat_value);
     block.instructions.iter().find_map(|inst| match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {

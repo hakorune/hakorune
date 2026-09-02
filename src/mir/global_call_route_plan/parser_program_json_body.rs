@@ -95,7 +95,7 @@ impl ParserProgramJsonBodyState {
                 self.const_i64_values.insert(*dst, *value);
                 true
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(Callee::Method {

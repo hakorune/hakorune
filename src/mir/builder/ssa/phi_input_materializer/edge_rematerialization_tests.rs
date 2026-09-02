@@ -41,7 +41,7 @@ fn rematerializes_runtime_data_substring_for_phi_pred() {
 
     func.get_block_mut(BasicBlockId::new(1))
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(substring),
             func: ValueId::new(u32::MAX),
             callee: Some(Callee::Method {
@@ -61,7 +61,7 @@ fn rematerializes_runtime_data_substring_for_phi_pred() {
     let pred = func.get_block(BasicBlockId::new(2)).unwrap();
     assert!(matches!(
         pred.instructions.last(),
-        Some(MirInstruction::Call {
+        Some(MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Method {
                 method,

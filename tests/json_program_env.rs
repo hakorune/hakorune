@@ -31,14 +31,18 @@ fn json_env_get_lowers_to_extern_call() {
     for bb in f.blocks.values() {
         for inst in &bb.instructions {
             // Look for Call with Callee::Extern("env.get")
-            if let nyash_rust::mir::MirInstruction::Call {
-                callee: Some(nyash_rust::mir::Callee::Extern(name)),
-                ..
-            } = inst
-            {
-                if name == "env.get" {
-                    found = true;
+            let is_env_get = match inst {
+                nyash_rust::mir::MirInstruction::Call(call) => {
+                    matches!(&call.callee, nyash_rust::mir::Callee::Extern(name) if name == "env.get")
                 }
+                nyash_rust::mir::MirInstruction::LegacyCallV0 {
+                    callee: Some(nyash_rust::mir::Callee::Extern(name)),
+                    ..
+                } => name == "env.get",
+                _ => false,
+            };
+            if is_env_get {
+                found = true;
             }
         }
     }
@@ -167,14 +171,18 @@ fn json_def_attrs_runes_survive_into_emitted_mir_json() {
     let mut found_env_get = false;
     for bb in main.blocks.values() {
         for inst in &bb.instructions {
-            if let MirInstruction::Call {
-                callee: Some(nyash_rust::mir::Callee::Extern(name)),
-                ..
-            } = inst
-            {
-                if name == "env.get" {
-                    found_env_get = true;
+            let is_env_get = match inst {
+                MirInstruction::Call(call) => {
+                    matches!(&call.callee, nyash_rust::mir::Callee::Extern(name) if name == "env.get")
                 }
+                MirInstruction::LegacyCallV0 {
+                    callee: Some(nyash_rust::mir::Callee::Extern(name)),
+                    ..
+                } => name == "env.get",
+                _ => false,
+            };
+            if is_env_get {
+                found_env_get = true;
             }
         }
     }

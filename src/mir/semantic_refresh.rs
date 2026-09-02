@@ -400,7 +400,7 @@ mod tests {
         let entry = function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block");
-        entry.add_instruction(MirInstruction::Call {
+        entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -475,7 +475,7 @@ mod tests {
         let debug_entry = debug_len
             .get_block_mut(BasicBlockId::new(0))
             .expect("debug entry");
-        debug_entry.add_instruction(MirInstruction::Call {
+        debug_entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -484,7 +484,7 @@ mod tests {
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         });
-        debug_entry.add_instruction(MirInstruction::Call {
+        debug_entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -497,7 +497,7 @@ mod tests {
             args: vec![],
             effects: EffectMask::PURE,
         });
-        debug_entry.add_instruction(MirInstruction::Call {
+        debug_entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -582,7 +582,7 @@ mod tests {
             dst: ValueId::new(4),
             value: ConstValue::Integer(2),
         });
-        caller_entry.add_instruction(MirInstruction::Call {
+        caller_entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -599,7 +599,7 @@ mod tests {
             dst: ValueId::new(6),
             src: ValueId::new(5),
         });
-        caller_entry.add_instruction(MirInstruction::Call {
+        caller_entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

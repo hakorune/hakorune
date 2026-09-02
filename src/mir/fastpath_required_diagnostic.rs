@@ -211,7 +211,7 @@ mod tests {
     }
 
     fn array_set_call() -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(crate::mir::ValueId::new(30)),
             func: crate::mir::ValueId::INVALID,
             callee: Some(Callee::Method {

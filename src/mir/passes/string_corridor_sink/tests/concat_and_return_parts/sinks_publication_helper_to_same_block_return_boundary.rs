@@ -3,7 +3,7 @@ use super::shared;
 
 fn non_pure_extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
     let mut call = shared::extern_call(dst, name, args);
-    if let MirInstruction::Call { effects, .. } = &mut call {
+    if let MirInstruction::LegacyCallV0 { effects, .. } = &mut call {
         *effects = EffectMask::READ;
     }
     call
@@ -159,7 +159,7 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,

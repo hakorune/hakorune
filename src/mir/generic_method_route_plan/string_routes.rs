@@ -24,7 +24,7 @@ pub(super) fn match_generic_substring_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -139,7 +139,7 @@ pub(super) fn match_generic_indexof_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -192,7 +192,7 @@ pub(super) fn match_generic_lastindexof_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -245,7 +245,7 @@ pub(super) fn match_generic_contains_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {

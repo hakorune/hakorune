@@ -10,7 +10,7 @@
 //!     dst: func_name_id,
 //!     value: ConstValue::String(func_name),
 //! });
-//! instructions.push(MirInstruction::Call {
+//! instructions.push(MirInstruction::LegacyCallV0 {
 //!     dst: Some(call_result_id),
 //!     func: func_name_id,
 //!     callee: None,
@@ -93,7 +93,7 @@ pub fn emit_call_pair(
 
     // Phase 188.3 P2: Set callee field for JoinIR function calls
     // JoinIR functions (main, loop_step, inner_step, k_exit, etc.) are global functions
-    instructions.push(MirInstruction::Call {
+    instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(call_result_id),
         func: func_name_id,
         callee: Some(crate::mir::definitions::Callee::Global(
@@ -160,7 +160,7 @@ mod tests {
         }
 
         // Check Call instruction
-        if let MirInstruction::Call {
+        if let MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee,
@@ -219,7 +219,7 @@ mod tests {
 
         assert_eq!(instructions.len(), 2);
 
-        if let MirInstruction::Call { args, .. } = &instructions[1] {
+        if let MirInstruction::LegacyCallV0 { args, .. } = &instructions[1] {
             assert!(args.is_empty());
         } else {
             panic!("Expected Call instruction");

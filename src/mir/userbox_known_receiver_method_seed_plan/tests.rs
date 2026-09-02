@@ -325,7 +325,7 @@ fn binop(dst: u32, lhs: u32, rhs: u32) -> MirInstruction {
 }
 
 fn method_call_inst(dst: u32, box_name: &str, method: &str, receiver: ValueId) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(dst)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

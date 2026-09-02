@@ -317,7 +317,7 @@ pub(super) fn generic_array_flow_origin_box_name(
                             }
                         }
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee:
                             Some(Callee::Method {
@@ -337,7 +337,7 @@ pub(super) fn generic_array_flow_origin_box_name(
                             changed = true;
                         }
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee:
                             Some(Callee::Method {
@@ -363,7 +363,7 @@ pub(super) fn generic_array_flow_origin_box_name(
                             changed = true;
                         }
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee:
                             Some(Callee::Method {
@@ -382,7 +382,7 @@ pub(super) fn generic_array_flow_origin_box_name(
                             changed = true;
                         }
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee: Some(Callee::Method { .. }),
                         ..
@@ -398,7 +398,7 @@ pub(super) fn generic_array_flow_origin_box_name(
                             changed = true;
                         }
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee: Some(Callee::Global(_)),
                         ..
@@ -565,7 +565,7 @@ fn generic_pure_string_flow_marks_instruction(
         {
             mark(string_values, *dst)
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(_)),
             ..

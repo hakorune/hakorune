@@ -28,7 +28,7 @@ fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_strin
             dst: ValueId::new(4),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -88,7 +88,7 @@ fn refresh_module_semantic_metadata_accepts_string_lastindexof_in_generic_pure_s
             dst: ValueId::new(2),
             value: ConstValue::String("\"token\"".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -148,7 +148,7 @@ fn refresh_module_semantic_metadata_accepts_string_contains_in_generic_pure_stri
             dst: ValueId::new(2),
             value: ConstValue::String(".".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

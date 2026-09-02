@@ -57,7 +57,7 @@ impl JsonFragNormalizerFacts {
                     self.map_births += 1;
                 }
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name, method, ..

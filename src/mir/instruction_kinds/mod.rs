@@ -215,7 +215,10 @@ pub fn dst_via_meta(i: &MirInstruction) -> Option<ValueId> {
     if let Some(_k) = DebugInst::from_mir(i) {
         return None;
     }
-    if let MirInstruction::Call { dst, .. } = i {
+    if let MirInstruction::Call(call) = i {
+        return call.dst;
+    }
+    if let MirInstruction::LegacyCallV0 { dst, .. } = i {
         return *dst;
     }
     if let Some(k) = CopyInst::from_mir(i) {
@@ -276,7 +279,10 @@ pub fn used_via_meta(i: &MirInstruction) -> Option<Vec<ValueId>> {
     if let Some(k) = DebugInst::from_mir(i) {
         return Some(k.used());
     }
-    if matches!(i, MirInstruction::Call { .. }) {
+    if matches!(
+        i,
+        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+    ) {
         return Some(i.used_values());
     }
     if let Some(k) = CopyInst::from_mir(i) {

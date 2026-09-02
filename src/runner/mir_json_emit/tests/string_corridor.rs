@@ -378,7 +378,7 @@ fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
             dst: ValueId::new(4),
             value: crate::mir::ConstValue::Integer(5),
         },
-        crate::mir::MirInstruction::Call {
+        crate::mir::MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Extern(
@@ -393,7 +393,7 @@ fn build_mir_json_root_emits_string_kernel_plan_slot_hop_substring() {
             ],
             effects: crate::mir::EffectMask::PURE,
         },
-        crate::mir::MirInstruction::Call {
+        crate::mir::MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Extern(

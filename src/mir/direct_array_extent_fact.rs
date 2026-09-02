@@ -287,7 +287,7 @@ mod tests {
             dst: ValueId::new(12),
             value: ConstValue::Integer(0),
         });
-        body.add_instruction(MirInstruction::Call {
+        body.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -380,7 +380,7 @@ mod tests {
             dst: ValueId::new(12),
             value: ConstValue::Integer(0),
         });
-        body.add_instruction(MirInstruction::Call {
+        body.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -452,7 +452,7 @@ mod tests {
             dst: ValueId::new(12),
             value: ConstValue::Integer(0),
         });
-        body.add_instruction(MirInstruction::Call {
+        body.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

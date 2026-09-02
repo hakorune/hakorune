@@ -146,7 +146,7 @@ fn resolve_known_return_definition_type(
     for (_block_id, block) in function.blocks.iter() {
         for instruction in block.instructions.iter() {
             match instruction {
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee:
                         Some(crate::mir::Callee::Method {
@@ -162,7 +162,7 @@ fn resolve_known_return_definition_type(
                         return Some(ty);
                     }
                 }
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(callee),
                     ..

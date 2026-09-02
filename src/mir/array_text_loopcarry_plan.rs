@@ -118,7 +118,7 @@ fn same_root(function: &MirFunction, def_map: &ValueDefMap, lhs: ValueId, rhs: V
 
 fn match_array_text_get(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
@@ -194,7 +194,7 @@ fn match_extern_call<'a>(
     expected_name: &str,
 ) -> Option<(ValueId, &'a [ValueId])> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
@@ -206,7 +206,7 @@ fn match_extern_call<'a>(
 
 fn match_set_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,

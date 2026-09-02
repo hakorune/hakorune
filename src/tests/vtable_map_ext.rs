@@ -283,7 +283,7 @@ fn vtable_method_callee_map_set_get_roundtrip() {
 
     f.get_block_mut(bb)
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -308,7 +308,7 @@ fn vtable_method_callee_map_set_get_roundtrip() {
     let got = f.next_value_id();
     f.get_block_mut(bb)
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(got),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -380,7 +380,7 @@ fn vtable_method_callee_map_setfield_getfield_roundtrip() {
 
     f.get_block_mut(bb)
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -397,7 +397,7 @@ fn vtable_method_callee_map_setfield_getfield_roundtrip() {
     let got = f.next_value_id();
     f.get_block_mut(bb)
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(got),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

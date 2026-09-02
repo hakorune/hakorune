@@ -10,7 +10,7 @@ fn borrowed_slice_plan_keeps_publication_contract_for_insert_mid_substring_route
     push_const(block, 2, ConstValue::Integer(8));
     push_unknown_span(
         block,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("nyash.string.insert_hsi".to_string())),
@@ -132,7 +132,7 @@ fn refresh_function_carries_corridor_candidates_across_narrow_phi_route() {
     push_const(body, 72, ConstValue::Integer(3));
     push_unknown_span(
         body,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(36)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(

@@ -333,7 +333,7 @@ fn collect_instruction_facts(instruction: &MirInstruction, facts: &mut IndexOfSe
             CompareOp::Eq => facts.compare_eq_count += 1,
             _ => {}
         },
-        MirInstruction::Call { callee, args, .. } => {
+        MirInstruction::LegacyCallV0 { callee, args, .. } => {
             let Some(Callee::Method {
                 box_name, method, ..
             }) = callee.as_ref()
@@ -443,7 +443,7 @@ mod tests {
             block.instructions.retain(|instruction| {
                 !matches!(
                     instruction,
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Method { method, .. }),
                         ..
                     } if method == "set"
@@ -630,7 +630,7 @@ mod tests {
         receiver: u32,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: dst.map(ValueId::new),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

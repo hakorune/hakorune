@@ -240,7 +240,7 @@ impl MirOptimizer {
                 format!("cmp_{:?}_{}_{}", op, lhs.as_u32(), rhs.as_u32())
             }
             // MirInstruction::BoxFieldLoad { box_val, field, .. } => format!("boxload_{}_{}", box_val.as_u32(), field),
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee, func, args, ..
             } => {
                 let args_str = args

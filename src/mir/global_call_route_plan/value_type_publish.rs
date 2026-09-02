@@ -32,7 +32,7 @@ pub(super) fn publish_global_call_route_param_value_types(module: &mut MirModule
             let Some(target_symbol) = route.target_symbol() else {
                 continue;
             };
-            let Some(MirInstruction::Call { args, .. }) =
+            let Some(MirInstruction::LegacyCallV0 { args, .. }) =
                 route_instruction(function, route.block(), route.instruction_index())
             else {
                 continue;

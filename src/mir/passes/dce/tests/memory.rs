@@ -156,7 +156,7 @@ fn test_dce_keeps_load_when_private_carrier_escapes_via_call() {
             value: ConstValue::Integer(0),
         });
         bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Call {
+        bb0.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: v_func,
             callee: Some(Callee::Extern("observe_ptr".to_string())),
@@ -183,10 +183,9 @@ fn test_dce_keeps_load_when_private_carrier_escapes_via_call() {
         .instructions
         .iter()
         .any(|inst| matches!(inst, MirInstruction::RefNew { dst, .. } if *dst == v_ptr)));
-    assert!(bb0
-        .instructions
-        .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { args, .. } if args == &vec![v_ptr])));
+    assert!(bb0.instructions.iter().any(
+        |inst| matches!(inst, MirInstruction::LegacyCallV0 { args, .. } if args == &vec![v_ptr])
+    ));
     assert!(bb0
         .instructions
         .iter()

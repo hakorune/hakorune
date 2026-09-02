@@ -328,7 +328,7 @@ pub(super) fn array_store_value_arg(
             value,
             ..
         } if resolve_value_origin(function, &def_map, *index) == key_origin => Some(*value),
-        MirInstruction::Call { args, .. } => args
+        MirInstruction::LegacyCallV0 { args, .. } => args
             .iter()
             .position(|arg| resolve_value_origin(function, &def_map, *arg) == key_origin)
             .and_then(|index| args.get(index + 1).copied()),

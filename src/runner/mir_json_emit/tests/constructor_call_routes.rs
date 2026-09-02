@@ -11,7 +11,7 @@ fn build_mir_json_root_emits_constructor_call_lowering_plan() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Constructor {

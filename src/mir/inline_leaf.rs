@@ -258,7 +258,7 @@ fn classify_unsupported_instruction(
     inst: &MirInstruction,
 ) -> InlineLeafViolation {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } if name.display_name() == function.signature.name => InlineLeafViolation::instruction(
@@ -269,12 +269,12 @@ fn classify_unsupported_instruction(
             inst,
             "self-recursive call is unsupported for required inline",
         ),
-        MirInstruction::Call { callee: None, .. }
-        | MirInstruction::Call {
+        MirInstruction::LegacyCallV0 { callee: None, .. }
+        | MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method { .. }),
             ..
         }
-        | MirInstruction::Call {
+        | MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Closure { .. }),
             ..
         } => InlineLeafViolation::instruction(
@@ -285,7 +285,7 @@ fn classify_unsupported_instruction(
             inst,
             "dynamic call is unsupported for required inline",
         ),
-        MirInstruction::Call { .. } => InlineLeafViolation::instruction(
+        MirInstruction::LegacyCallV0 { .. } => InlineLeafViolation::instruction(
             "unsupported-call",
             function,
             block,

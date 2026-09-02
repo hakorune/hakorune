@@ -15,7 +15,7 @@ fn refresh_module_global_call_routes_marks_unknown_child_target_shape_reason() {
         BasicBlockId::new(0),
     );
     let block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(

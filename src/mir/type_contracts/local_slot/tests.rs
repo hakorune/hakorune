@@ -214,7 +214,7 @@ static box Main {
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .count();
     let writes = function
         .blocks

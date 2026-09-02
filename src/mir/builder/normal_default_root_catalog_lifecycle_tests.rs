@@ -67,7 +67,7 @@ fn source_backed_print_producer_publishes_typed_builtin_row() {
         .flat_map(|(_, function)| function.blocks.values())
         .flat_map(|block| block.all_instructions())
         .filter_map(|instruction| match instruction {
-            crate::mir::MirInstruction::Call {
+            crate::mir::MirInstruction::LegacyCallV0 {
                 dst,
                 func,
                 callee,
@@ -174,7 +174,9 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Call { .. }))
+        .filter(|instruction| {
+            matches!(instruction, crate::mir::MirInstruction::LegacyCallV0 { .. })
+        })
         .count();
     assert_eq!(calls, 1);
     let callee = main
@@ -182,7 +184,7 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
         .values()
         .flat_map(|block| block.all_instructions())
         .find_map(|instruction| match instruction {
-            crate::mir::MirInstruction::Call { callee, .. } => callee.clone(),
+            crate::mir::MirInstruction::LegacyCallV0 { callee, .. } => callee.clone(),
             _ => None,
         })
         .expect("direct call callee");
@@ -232,7 +234,7 @@ fn source_backed_declared_instance_me_method_emits_mandatory_receiver_call() {
         .values()
         .flat_map(|block| block.all_instructions())
         .find_map(|instruction| match instruction {
-            crate::mir::MirInstruction::Call { callee, args, .. } => {
+            crate::mir::MirInstruction::LegacyCallV0 { callee, args, .. } => {
                 Some((callee.clone(), args.clone()))
             }
             _ => None,

@@ -82,7 +82,7 @@ fn typed_object_collection_field_element_type_map(
         let def_map = build_value_def_map(function);
         for block in function.blocks.values() {
             for instruction in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee:
                         Some(crate::mir::Callee::Method {
                             box_name,
@@ -138,7 +138,7 @@ fn typed_object_field_array_read_origin(
     let origin = resolve_value_origin(function, def_map, value);
     let (block_id, instruction_index) = def_map.get(&origin).copied()?;
     let block = function.blocks.get(&block_id)?;
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(crate::mir::Callee::Method {
@@ -168,7 +168,7 @@ fn observed_method_param_type_map(module: &MirModule) -> ObservedMethodParamType
         let def_map = build_value_def_map(function);
         for block in function.blocks.values() {
             for instruction in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee:
                         Some(crate::mir::Callee::Method {
                             box_name,
@@ -204,7 +204,7 @@ fn refresh_function_typed_object_collection_field_element_value_types(
     let mut facts = Vec::new();
     for block in function.blocks.values() {
         for instruction in &block.instructions {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(crate::mir::Callee::Method {
@@ -531,7 +531,7 @@ mod tests {
             field: "values".to_string(),
             declared_type: Some(MirType::Box("ArrayBox".to_string())),
         });
-        push_block.add_instruction(MirInstruction::Call {
+        push_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -568,7 +568,7 @@ mod tests {
             dst: ValueId::new(3),
             value: ConstValue::Integer(0),
         });
-        read_block.add_instruction(MirInstruction::Call {
+        read_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -636,7 +636,7 @@ mod tests {
             dst: ValueId::new(3),
             src: ValueId::new(1),
         });
-        set_block.add_instruction(MirInstruction::Call {
+        set_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -659,7 +659,7 @@ mod tests {
             dst: ValueId::new(5),
             value: ConstValue::Integer(0),
         });
-        set_block.add_instruction(MirInstruction::Call {
+        set_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(6)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -672,7 +672,7 @@ mod tests {
             args: vec![ValueId::new(5)],
             effects: EffectMask::PURE,
         });
-        set_block.add_instruction(MirInstruction::Call {
+        set_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -707,7 +707,7 @@ mod tests {
             dst: ValueId::new(11),
             value: ConstValue::Integer(7),
         });
-        caller_block.add_instruction(MirInstruction::Call {
+        caller_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -744,7 +744,7 @@ mod tests {
             dst: ValueId::new(3),
             value: ConstValue::Integer(0),
         });
-        read_block.add_instruction(MirInstruction::Call {
+        read_block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

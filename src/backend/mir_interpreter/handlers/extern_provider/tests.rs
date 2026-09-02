@@ -83,7 +83,7 @@ fn module_with_decoded_utf8_byte_len(value: &str) -> MirModule {
         dst: value_id,
         value: ConstValue::String(value.to_string()),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(result_id),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern(

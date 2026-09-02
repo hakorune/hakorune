@@ -268,7 +268,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::Const { .. } => "const",
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
-        MirInstruction::Call { .. } => "mir_call",
+        MirInstruction::LegacyCallV0 { .. } => "mir_call",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
         MirInstruction::Return { .. } => "ret",
@@ -313,7 +313,7 @@ fn method_call_is(
     expected_arg_count: usize,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -372,7 +372,7 @@ mod tests {
         let entry = function
             .get_block_mut(BasicBlockId::new(0))
             .expect("entry block");
-        if let MirInstruction::Call { args, .. } = &mut entry.instructions[2] {
+        if let MirInstruction::LegacyCallV0 { args, .. } = &mut entry.instructions[2] {
             args.push(ValueId::new(99));
         } else {
             panic!("expected initial length call");
@@ -381,12 +381,12 @@ mod tests {
         let exit = function
             .get_block_mut(BasicBlockId::new(21))
             .expect("exit block");
-        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.first_mut() {
+        if let Some(MirInstruction::LegacyCallV0 { args, .. }) = exit.instructions.first_mut() {
             args.push(ValueId::new(100));
         } else {
             panic!("expected left length call");
         }
-        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.get_mut(1) {
+        if let Some(MirInstruction::LegacyCallV0 { args, .. }) = exit.instructions.get_mut(1) {
             args.push(ValueId::new(101));
         } else {
             panic!("expected right length call");
@@ -555,7 +555,7 @@ mod tests {
         receiver: u32,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: dst.map(ValueId::new),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

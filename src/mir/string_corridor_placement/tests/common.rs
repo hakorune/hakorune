@@ -19,7 +19,7 @@ pub(super) fn method_call(
     method: &str,
     args: Vec<ValueId>,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

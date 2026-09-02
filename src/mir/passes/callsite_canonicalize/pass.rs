@@ -73,7 +73,7 @@ fn canonicalize_callsite_instruction(
             body.clear();
             1
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Closure {
@@ -98,7 +98,7 @@ fn canonicalize_callsite_instruction(
             }
             ClosureCallShape::MissingDst | ClosureCallShape::RuntimeArgs => 0,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {
@@ -141,11 +141,11 @@ fn canonicalize_callsite_instruction(
         // A typed Global is already an admitted target.  This post-pass is
         // deliberately not a second resolver: it must not parse a display
         // name, append an arity, or turn a Global into a Method.
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(_)),
             ..
         } => 0,
-        MirInstruction::Call { .. } => 0,
+        MirInstruction::LegacyCallV0 { .. } => 0,
         _ => 0,
     }
 }

@@ -225,7 +225,7 @@ fn build_refget_refset_mir_module() -> MirModule {
     });
 
     // Set field value
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -240,7 +240,7 @@ fn build_refget_refset_mir_module() -> MirModule {
     });
 
     // Get field value
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(result),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -332,7 +332,7 @@ fn build_complete_workflow_mir_module() -> MirModule {
     });
 
     // Get values from both boxes
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(val1),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -346,7 +346,7 @@ fn build_complete_workflow_mir_module() -> MirModule {
         effects: EffectMask::READ,
     });
 
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(val2),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -369,7 +369,7 @@ fn build_complete_workflow_mir_module() -> MirModule {
     });
 
     // Store sum back to first box
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -384,7 +384,7 @@ fn build_complete_workflow_mir_module() -> MirModule {
     });
 
     // Read back the result
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(result),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

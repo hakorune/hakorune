@@ -211,7 +211,7 @@ fn observe_instruction(
                 set_value(values, *dst, class, changed);
             }
         }
-        MirInstruction::Call { dst: Some(dst), .. } => {
+        MirInstruction::LegacyCallV0 { dst: Some(dst), .. } => {
             if let Some(class) = route_value_class(function, block, instruction_index) {
                 set_value(values, *dst, class, changed);
             }

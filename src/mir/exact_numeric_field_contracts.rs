@@ -504,7 +504,7 @@ fn collect_value_producers(function: &MirFunction) -> HashMap<ValueId, ValueProd
                 MirInstruction::VariantProject { dst, .. } => {
                     producers.insert(*dst, ValueProducer::Dynamic("variant_project"));
                 }
-                MirInstruction::Call { dst: Some(dst), .. } => {
+                MirInstruction::LegacyCallV0 { dst: Some(dst), .. } => {
                     producers.insert(*dst, ValueProducer::Dynamic("call"));
                 }
                 MirInstruction::NewClosure { dst, .. } => {

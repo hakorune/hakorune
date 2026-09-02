@@ -70,7 +70,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_call_arg_ori
         dst: ValueId::new(4),
         src: ValueId::new(2),
     });
-    run_block.add_instruction(MirInstruction::Call {
+    run_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -112,7 +112,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_call_arg_ori
         dst: ValueId::new(3),
         value: ConstValue::String("chunk".to_string()),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(4)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -261,7 +261,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_resu
         dst: ValueId::new(1),
         value: ConstValue::Integer(7),
     });
-    put_block.add_instruction(MirInstruction::Call {
+    put_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -278,7 +278,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_resu
         dst: ValueId::new(3),
         src: ValueId::new(2),
     });
-    put_block.add_instruction(MirInstruction::Call {
+    put_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(4)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -314,7 +314,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_generic_resu
         box_type: "Store".to_string(),
         args: Vec::new(),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(21)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -431,7 +431,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
         BasicBlockId::new(0),
     );
     let mut main_block = BasicBlock::new(BasicBlockId::new(0));
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -444,7 +444,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
         dst: ValueId::new(2),
         value: ConstValue::String("k".to_string()),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -453,7 +453,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
         args: Vec::new(),
         effects: EffectMask::PURE,
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -602,7 +602,7 @@ fn refresh_module_user_box_method_routes_propagates_callee_param_box_to_caller_p
         box_type: "Page".to_string(),
         args: Vec::new(),
     });
-    heap_block.add_instruction(MirInstruction::Call {
+    heap_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(16)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

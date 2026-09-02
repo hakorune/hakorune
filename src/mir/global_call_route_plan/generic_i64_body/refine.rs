@@ -304,7 +304,7 @@ pub(super) fn generic_i64_body_refine_instruction(
             };
             set_generic_i64_value_class(values, *dst, selected_class, changed)
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -356,11 +356,11 @@ pub(super) fn generic_i64_body_refine_instruction(
             }
             _ => false,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method { receiver: None, .. }),
             ..
         } => false,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {
@@ -441,7 +441,7 @@ pub(super) fn generic_i64_body_refine_instruction(
                 false
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Global(name)),
             args,
@@ -450,7 +450,7 @@ pub(super) fn generic_i64_body_refine_instruction(
             let name = name.display_name();
             generic_i64_accepts_backend_global_call(function, &name, dst, args)
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Global(name)),
             ..
@@ -461,7 +461,7 @@ pub(super) fn generic_i64_body_refine_instruction(
                 true
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Global(name)),
             ..
@@ -496,7 +496,7 @@ pub(super) fn generic_i64_body_refine_instruction(
                 false
             }
         }
-        MirInstruction::Call { .. } => false,
+        MirInstruction::LegacyCallV0 { .. } => false,
         MirInstruction::Branch { .. }
         | MirInstruction::Jump { .. }
         | MirInstruction::Return { .. }

@@ -103,7 +103,7 @@ fn instruction_key(i: &MirInstruction) -> String {
         MirInstruction::Compare { op, lhs, rhs, .. } => {
             format!("cmp_{:?}_{}_{}", op, lhs.as_u32(), rhs.as_u32())
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee, func, args, ..
         } => {
             let args_str = args
@@ -288,7 +288,7 @@ mod tests {
     }
 
     fn call(callee: Option<Callee>, func: ValueId) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func,
             callee,

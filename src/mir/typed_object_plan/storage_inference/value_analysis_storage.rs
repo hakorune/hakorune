@@ -183,7 +183,7 @@ fn storage_from_origin_instruction(
             return_storage_memo,
             return_def_map_memo,
         ),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } => storage_for_global_return(
@@ -199,7 +199,7 @@ fn storage_from_origin_instruction(
             return_storage_memo,
             return_def_map_memo,
         ),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(callee @ Callee::Method { .. }),
             args,
             ..

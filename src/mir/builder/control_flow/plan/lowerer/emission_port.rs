@@ -236,13 +236,13 @@ mod tests {
             .expect("block");
         assert!(block.instructions.iter().any(|instruction| {
             matches!(instruction,
-                MirInstruction::Call { callee: Some(Callee::Global(symbol)), .. }
+                MirInstruction::LegacyCallV0 { callee: Some(Callee::Global(symbol)), .. }
                     if symbol.display_name() == target.mir_symbol_projection()
             )
         }));
         assert!(block.instructions.iter().all(|instruction| {
             !matches!(instruction,
-                MirInstruction::Call { callee: Some(Callee::Global(symbol)), .. }
+                MirInstruction::LegacyCallV0 { callee: Some(Callee::Global(symbol)), .. }
                     if symbol.display_name() == "forbidden.raw.target/999"
             )
         }));
@@ -283,7 +283,7 @@ mod tests {
         assert!(block
             .instructions
             .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+            .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
         assert_eq!(builder.function_state.type_ctx.value_types.get(&dst), None);
     }
 }

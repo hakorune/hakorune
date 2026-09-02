@@ -87,7 +87,7 @@ fn same_module_instruction_supported(
         | MirInstruction::VariantProject { .. } => true,
         MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } => true,
         instruction if same_module_terminator_supported(instruction) => true,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } => {
@@ -101,11 +101,11 @@ fn same_module_instruction_supported(
                         && route.reason().is_none()
                 })
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(_)),
             ..
         } => true,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -177,7 +177,7 @@ mod tests {
         };
         let mut function = MirFunction::new(signature, entry);
         let mut block = BasicBlock::new(entry);
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(0),
             callee: Some(Callee::Extern("env.console.log".to_string())),
@@ -208,7 +208,7 @@ mod tests {
             box_type: "ArrayBox".to_string(),
             args: vec![],
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(0),
             callee: Some(Callee::Method {
@@ -249,7 +249,7 @@ mod tests {
             dst: ValueId::new(1),
             value: ConstValue::String("name".to_string()),
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(0),
             callee: Some(Callee::Method {
@@ -281,7 +281,7 @@ fn known_same_module_typed_method_call(
 fn known_user_defined_method_call(instruction: &MirInstruction) -> bool {
     matches!(
         instruction,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Known,
                 box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::UserDefined,

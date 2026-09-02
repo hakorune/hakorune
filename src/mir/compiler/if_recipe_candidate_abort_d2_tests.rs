@@ -304,7 +304,7 @@ fn explicit_two_call_rhs_preserves_targets_phi_and_runtime_parity() {
         .values()
         .flat_map(|block| &block.instructions)
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee: Some(Callee::Global(target)),
                 ..

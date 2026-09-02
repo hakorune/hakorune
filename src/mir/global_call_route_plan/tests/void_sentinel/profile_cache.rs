@@ -13,7 +13,7 @@ fn integer_passthrough_with_global_child(child_name: &str) -> MirFunction {
         BasicBlockId::new(0),
     );
     let block = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(child_name))),
@@ -83,7 +83,7 @@ fn integer_with_hostbridge_surface() -> MirFunction {
             dst: ValueId::new(4),
             value: ConstValue::Integer(0),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("hostbridge.extern_invoke".to_string())),

@@ -201,7 +201,7 @@ fn static_current_owner_target_is_taken_before_header_and_arguments() {
         assert!(port.lowered.is_empty(), "no argument may be lowered first");
         assert!(instructions(&builder)
             .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+            .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     });
 }
 
@@ -223,7 +223,7 @@ fn static_current_owner_lowers_source_arguments_once_without_receiver_prefix() {
         let call = instructions(&builder)
             .into_iter()
             .find_map(|instruction| match instruction {
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Global(target)),
                     args,
@@ -304,6 +304,6 @@ fn static_current_owner_argument_failure_does_not_emit_retry_or_fallback() {
         assert_eq!(port.lowered, [0, 1]);
         assert!(instructions(&builder)
             .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+            .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     });
 }

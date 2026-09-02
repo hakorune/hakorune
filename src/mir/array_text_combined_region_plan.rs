@@ -627,7 +627,7 @@ fn same_array_method_call<'a>(
     array_value: ValueId,
 ) -> Option<(&'a str, &'a [ValueId])> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(super::definitions::Callee::Method {
                     box_name,

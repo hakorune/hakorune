@@ -153,7 +153,7 @@ impl BoxTypeInspectorDescribeMarkers {
                 }
                 _ => {}
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name, method, ..
@@ -281,7 +281,7 @@ impl BoxTypeInspectorDescribeFacts {
                 self.set_value(*dst, InspectorValueClass::Bool, changed);
                 None
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(Callee::Method {
@@ -315,7 +315,7 @@ impl BoxTypeInspectorDescribeFacts {
                     ))
                 }
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Extern(name)),
                 args,
@@ -339,7 +339,7 @@ impl BoxTypeInspectorDescribeFacts {
                     ))
                 }
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(name)),
                 args,

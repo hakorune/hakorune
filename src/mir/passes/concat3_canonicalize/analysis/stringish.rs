@@ -30,12 +30,12 @@ pub(super) fn infer_stringish_values(function: &MirFunction) -> HashSet<ValueId>
                         lhs,
                         rhs,
                     } if out.contains(lhs) || out.contains(rhs) => out.insert(*dst),
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee: Some(Callee::Extern(name)),
                         ..
                     } if is_string_concat_symbol(name) => out.insert(*dst),
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst: Some(dst),
                         callee: Some(Callee::Global(name)),
                         ..

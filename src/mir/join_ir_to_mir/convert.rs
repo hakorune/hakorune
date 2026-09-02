@@ -77,7 +77,7 @@ pub(crate) fn convert_mir_like_inst(
             let receiver = args[0];
             let method_args = args[1..].to_vec();
 
-            Ok(MirInstruction::Call {
+            Ok(MirInstruction::LegacyCallV0 {
                 dst: *dst,
                 func: crate::mir::ValueId::INVALID,
                 callee: Some(crate::mir::Callee::Method {

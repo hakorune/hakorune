@@ -118,7 +118,7 @@ fn transaction_commits_exact_source_main_and_physical_thunk() {
 
             let block = physical.entry_block();
             assert_eq!(block.instructions.len(), 1);
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst,
                 func,
                 callee,

@@ -176,7 +176,7 @@ fn classify_receiver_at_site(
             PublicationState::MaybePublished,
             "cross_block_publication_requires_dominance_proof",
         ),
-        MirInstruction::Call { .. } => (
+        MirInstruction::LegacyCallV0 { .. } => (
             "call_result",
             PublicationState::MaybePublished,
             "call_result_requires_callee_publication_summary",
@@ -245,7 +245,7 @@ fn instruction_publishes_any_alias(inst: &MirInstruction, aliases: &BTreeSet<Val
         }
         MirInstruction::Store { value, ptr } => aliases.contains(value) || aliases.contains(ptr),
         MirInstruction::Return { value } => value.is_some_and(|value| aliases.contains(&value)),
-        MirInstruction::Call { .. } => inst
+        MirInstruction::LegacyCallV0 { .. } => inst
             .used_values()
             .into_iter()
             .any(|value| aliases.contains(&value)),
@@ -299,7 +299,7 @@ mod tests {
     }
 
     fn pair_sum_call(receiver: ValueId) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -320,7 +320,7 @@ mod tests {
         callee: Option<Callee>,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee,

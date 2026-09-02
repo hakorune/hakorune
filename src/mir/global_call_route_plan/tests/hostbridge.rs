@@ -48,7 +48,7 @@ fn refresh_module_global_call_routes_accepts_hostbridge_extern_invoke_string_or_
             dst: ValueId::new(5),
             value: ConstValue::String("emit".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(6)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

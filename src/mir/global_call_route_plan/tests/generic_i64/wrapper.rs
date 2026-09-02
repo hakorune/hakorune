@@ -40,7 +40,7 @@ fn refresh_module_global_call_routes_accepts_unknown_return_generic_i64_wrapper(
             dst: ValueId::new(2),
             value: ConstValue::String("\"".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -133,7 +133,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_child_null_guard_in_
     );
     let wrapper_entry = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     wrapper_entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

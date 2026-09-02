@@ -429,7 +429,7 @@ fn match_counter_step_chain_forward_method(
     let mut call_result = None;
 
     for inst in &block.instructions {
-        let MirInstruction::Call {
+        let MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(callee),
             args,

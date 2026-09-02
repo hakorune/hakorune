@@ -334,7 +334,7 @@ fn binop(dst: u32, op: BinaryOp, lhs: u32, rhs: u32) -> MirInstruction {
 }
 
 fn extern_call(dst: u32, name: &str, args: Vec<ValueId>) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(dst)),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern(name.to_string())),
@@ -354,7 +354,7 @@ fn method_call(
     receiver: u32,
     args: Vec<ValueId>,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: dst.map(ValueId::new),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

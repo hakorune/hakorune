@@ -192,7 +192,7 @@ fn test_loop_true_break_once_passes_updated_env_to_k_exit() {
     for f in loop_only_mir.functions.values() {
         for bb in f.blocks.values() {
             for inst in &bb.instructions {
-                if let crate::mir::MirInstruction::Call { func, args, .. } = inst {
+                if let crate::mir::MirInstruction::LegacyCallV0 { func, args, .. } = inst {
                     if *func == k_exit_func_id {
                         if let Some(a0) = args.first().copied() {
                             args0.insert(a0);

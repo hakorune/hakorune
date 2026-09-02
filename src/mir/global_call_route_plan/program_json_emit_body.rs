@@ -115,7 +115,7 @@ impl ProgramJsonEmitBodyState {
             MirInstruction::Compare { dst, op, lhs, rhs } => {
                 self.observe_freeze_compare(*dst, *op, *lhs, *rhs)
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(name)),
                 args,
@@ -301,7 +301,7 @@ impl Stage1RawProgramJsonEmitBodyState {
                 self.null_sentinels.insert(*dst);
                 true
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(name)),
                 args,

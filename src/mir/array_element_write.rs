@@ -118,7 +118,7 @@ pub(crate) fn canonicalize_legacy_array_write_calls(
         .values_mut()
         .flat_map(|block| block.instructions.iter_mut())
     {
-        let MirInstruction::Call {
+        let MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {
@@ -291,7 +291,7 @@ pub(crate) fn project_module_to_legacy_calls(module: &MirModule) -> Result<MirMo
                     ],
                 ),
             };
-            *instruction = MirInstruction::Call {
+            *instruction = MirInstruction::LegacyCallV0 {
                 dst: *dst,
                 func: ValueId::INVALID,
                 callee: Some(Callee::Method {
@@ -439,7 +439,7 @@ fn reject_residual_calls(function: &MirFunction) -> Result<(), String> {
         .values()
         .flat_map(|block| block.instructions.iter())
     {
-        let MirInstruction::Call {
+        let MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -531,7 +531,7 @@ mod tests {
             &projected.functions["main"].blocks[&BasicBlockId::new(0)].instructions[0];
         assert!(matches!(
             instruction,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Method { method, .. }),
                 args,
                 ..

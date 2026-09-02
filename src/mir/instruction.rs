@@ -6,7 +6,7 @@
  */
 
 use super::{EdgeArgs, EffectMask, ValueId};
-use crate::mir::definitions::Callee; // Import Callee from unified definitions
+use crate::mir::definitions::{Callee, MirCall}; // Import canonical and compatibility call shapes
 use crate::mir::pinned_text_access_plan::{PinnedTextAccessKindV1, PinnedTextAccessPlanIdV1};
 use crate::mir::pinned_text_residence_lifecycle::{
     PinnedTextResidencePlanIdV1, TextFormalResidenceIdV1,
@@ -421,17 +421,20 @@ pub enum MirInstruction {
     },
 
     // === Function Calls ===
-    /// Call a function with type-safe target resolution
-    /// `%dst = call %func(%args...)` (legacy)
-    /// `%dst = call Global("print")(%args...)` (new)
+    /// Canonical typed call.  A callee is mandatory and carries all target
+    /// authority; the legacy callable `func` value is not part of this shape.
+    Call(MirCall),
+
+    /// Explicit compatibility ingress for the pre-R6 call carrier.
     ///
-    /// Phase 1 Migration: Both func and callee fields present
-    /// - callee: Some(_) -> Use new type-safe resolution (preferred)
-    /// - callee: None -> Fall back to legacy string-based resolution
-    Call {
+    /// `func` and optional `callee` are intentionally kept together so legacy
+    /// JSON/JoinIR/reference inputs can be migrated without making the
+    /// canonical instruction ambiguous. This must never be emitted by the
+    /// canonical MirBuilder publication path.
+    LegacyCallV0 {
         dst: Option<ValueId>,
-        func: ValueId,          // Legacy: string-based resolution (deprecated)
-        callee: Option<Callee>, // New: type-safe resolution (preferred)
+        func: ValueId,
+        callee: Option<Callee>,
         args: Vec<ValueId>,
         effects: EffectMask,
     },

@@ -28,7 +28,7 @@ fn infer_string_kernel_text_consumer_marks_return_boundary_as_explicit_cold_publ
             dst: ValueId::new(3),
             value: ConstValue::Integer(8),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(
@@ -83,7 +83,7 @@ fn derive_string_kernel_plan_refines_explicit_cold_publish_reason() {
             dst: ValueId::new(3),
             value: ConstValue::Integer(8),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(

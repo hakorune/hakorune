@@ -25,7 +25,7 @@ pub(super) fn match_generic_has_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -133,7 +133,7 @@ pub(super) fn match_generic_get_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -425,7 +425,7 @@ pub(super) fn match_generic_len_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -507,7 +507,7 @@ pub(super) fn match_generic_keys_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {

@@ -94,7 +94,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             PinnedTextResidenceFinish { .. }
             | PinnedTextResidenceEnter { .. }
             | PinnedTextResidenceTrap { .. } => Vec::new(),
-            Call { .. } => inst.used_values(),
+            Call(_) | LegacyCallV0 { .. } => inst.used_values(),
             Return { value } => value.iter().copied().collect(),
             CheckedCallOut {
                 receiver,
@@ -145,7 +145,10 @@ impl<'m> MirQuery for MirQueryBox<'m> {
     }
 
     fn writes_of(&self, inst: &MirInstruction) -> Vec<ValueId> {
-        if matches!(inst, MirInstruction::Call { .. }) {
+        if matches!(
+            inst,
+            MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+        ) {
             return inst.dst_value().into_iter().collect();
         }
 
@@ -224,7 +227,7 @@ mod tests {
     }
 
     fn call(callee: Option<Callee>, dst: Option<ValueId>) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func: ValueId::new(99),
             callee,

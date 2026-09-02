@@ -489,7 +489,7 @@ fn method_call(
     receiver: u32,
     args: Vec<ValueId>,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(dst)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

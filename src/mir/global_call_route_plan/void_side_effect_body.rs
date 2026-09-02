@@ -119,7 +119,7 @@ fn void_side_effect_instruction_supported(
                 .map(|value| void_values.contains(&value))
                 .unwrap_or(true)
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method { .. }),
             ..
         } => {
@@ -145,7 +145,7 @@ fn void_side_effect_instruction_supported(
             }
             supported
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } => {

@@ -187,7 +187,7 @@ fn mir_stage1_cli_static_call_arity_contract_parserbox_hakocli() {
     for func in cr.module.functions.values() {
         for block in func.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee: Some(callee),
                     args,
                     ..

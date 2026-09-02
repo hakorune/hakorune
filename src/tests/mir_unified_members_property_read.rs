@@ -82,7 +82,7 @@ fn assert_property_read_uses_getter(
     let getter_receivers = instructions
         .iter()
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         method,
@@ -92,7 +92,7 @@ fn assert_property_read_uses_getter(
                 args,
                 ..
             } if method == getter_name && args.len() == 1 => Some((*receiver, args[0])),
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..

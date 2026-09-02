@@ -6,7 +6,7 @@ use serde_json::Value;
 
 fn bump_max_value_id_from_call(block: &crate::mir::BasicBlock, max_value_id: &mut u32) {
     if let Some(arg_max) = block.instructions.last().and_then(|i| match i {
-        MirInstruction::Call { args, .. } => args.iter().map(|v| v.as_u32()).max(),
+        MirInstruction::LegacyCallV0 { args, .. } => args.iter().map(|v| v.as_u32()).max(),
         _ => None,
     }) {
         *max_value_id = (*max_value_id).max(arg_max + 1);
@@ -89,7 +89,7 @@ pub(super) fn parse_v1_mir_call(
                 }
             };
             let target = project_global_target(&mapped, argv.len())?;
-            block_ref.add_instruction(MirInstruction::Call {
+            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
                 dst: dst_opt,
                 func: ValueId::new(0),
                 callee: Some(Callee::Global(target)),
@@ -210,7 +210,7 @@ pub(super) fn parse_v1_mir_call(
                 .and_then(Value::as_str)
                 .unwrap_or("")
                 .to_string();
-            block_ref.add_instruction(MirInstruction::Call {
+            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
                 dst: dst_opt,
                 func: ValueId::new(0),
                 callee: Some(Callee::Method {
@@ -316,7 +316,7 @@ pub(super) fn parse_v1_mir_call(
                         argv.push(ValueId::new(id));
                     }
                 }
-                block_ref.add_instruction(MirInstruction::Call {
+                block_ref.add_instruction(MirInstruction::LegacyCallV0 {
                     dst: dst_opt,
                     func: ValueId::new(0),
                     callee: Some(Callee::Value(ValueId::new(fid))),
@@ -341,7 +341,7 @@ pub(super) fn parse_v1_mir_call(
                     )
                 })?
                 .to_string();
-            block_ref.add_instruction(MirInstruction::Call {
+            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
                 dst: dst_opt,
                 func: ValueId::new(0),
                 callee: Some(Callee::Extern(name)),
@@ -366,7 +366,7 @@ pub(super) fn parse_v1_mir_call(
                         func_name
                     )
                 })? as u32;
-            block_ref.add_instruction(MirInstruction::Call {
+            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
                 dst: dst_opt,
                 func: ValueId::new(0),
                 callee: Some(Callee::Value(ValueId::new(fid))),

@@ -72,7 +72,7 @@ fn refresh_module_global_call_routes_accepts_mixed_param_substring_void_sentinel
             dst: ValueId::new(9),
             value: ConstValue::Integer(4),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

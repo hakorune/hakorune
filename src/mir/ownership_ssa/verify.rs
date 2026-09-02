@@ -109,7 +109,7 @@ fn verify_instruction_kinds(
                         value: *src,
                     });
                 }
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst,
                     func,
                     callee,

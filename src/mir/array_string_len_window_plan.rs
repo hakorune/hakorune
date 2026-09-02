@@ -303,7 +303,7 @@ fn inst_is_safe_substring_source_reuse(
     source_roots: &[ValueId],
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,

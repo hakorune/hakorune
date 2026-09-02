@@ -35,7 +35,7 @@ static box Main {
     {
         match instruction {
             MirInstruction::ArrayElementWrite { kind, .. } => kinds.push(*kind),
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name, method, ..

@@ -281,7 +281,7 @@ fn allowed_fastmem_escape_use(inst: &MirInstruction, kind: MemOpKind, value: Val
 }
 
 fn is_mem_call_with_arg(inst: &MirInstruction, value: ValueId) -> bool {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         callee: Some(callee),
         args,
         ..

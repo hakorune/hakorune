@@ -43,7 +43,7 @@ fn benchmark_substring_only_compiles_without_substring_len_calls() {
                     .instructions
                     .iter()
                     .filter_map(move |inst| match inst {
-                        MirInstruction::Call {
+                        MirInstruction::LegacyCallV0 {
                             callee: Some(Callee::Extern(callee)),
                             ..
                         } if callee == SUBSTRING_LEN_EXTERN => {
@@ -82,14 +82,14 @@ fn benchmark_len_substring_views_compiles_without_loop_string_consumers() {
         for (bbid, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(callee)),
                         ..
                     } if callee == SUBSTRING_LEN_EXTERN => leftover_string_consumers.push(format!(
                         "fn={name} bb={} extern={callee} inst={inst:?}",
                         bbid.0
                     )),
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
                                 box_name,
@@ -143,20 +143,20 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         for (bbid, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(callee)),
                         args,
                         ..
                     } if callee == "nyash.string.substring_hii" && args.len() == 3 => {
                         substring_call_count += 1;
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(callee)),
                         ..
                     } if callee == SUBSTRING_CONCAT3_EXTERN
                         || callee == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                         || callee == SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN => {}
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
                                 box_name,
@@ -174,7 +174,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                             bbid.0
                         ));
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Method { method, .. }),
                         args,
                         ..
@@ -183,7 +183,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                     {
                         substring_call_count += 1;
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
                                 box_name,
@@ -201,7 +201,7 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                             bbid.0
                         ));
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(callee)),
                         ..
                     } if callee == SUBSTRING_LEN_EXTERN => {
@@ -285,7 +285,7 @@ fn benchmark_meso_substring_concat_len_compiles_to_arithmetic_len() {
         for (bbid, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(callee)),
                         ..
                     } if callee == SUBSTRING_LEN_EXTERN
@@ -296,7 +296,7 @@ fn benchmark_meso_substring_concat_len_compiles_to_arithmetic_len() {
                             bbid.0
                         ));
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
                                 method,

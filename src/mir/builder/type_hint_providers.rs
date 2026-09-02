@@ -61,7 +61,7 @@ pub(in crate::mir::builder) fn annotate_missing_result_types_from_calls_and_awai
                     };
                     type_ctx.value_types.insert(*dst, inferred);
                 }
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee,
                     ..

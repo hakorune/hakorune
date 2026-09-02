@@ -94,7 +94,7 @@ fn calls(function: &crate::mir::MirFunction) -> Vec<&MirInstruction> {
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .collect()
 }
 
@@ -105,7 +105,7 @@ fn exact_sibling_call_is_order_independent_and_executes() {
         let result = compile(valid_program(order));
         let caller = &result.module.functions["caller/1"];
         let callee = &result.module.functions["callee/1"];
-        let [MirInstruction::Call {
+        let [MirInstruction::LegacyCallV0 {
             dst: Some(call_result),
             callee: Some(Callee::Global(target)),
             ..

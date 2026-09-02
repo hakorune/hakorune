@@ -406,7 +406,7 @@ fn argument_failure_enters_no_terminal_and_builder_reuses() {
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+        .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
 
     port.fail_argument = None;
     port.events.clear();
@@ -604,7 +604,7 @@ fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
         .values()
         .flat_map(|block| &block.instructions)
         .find_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..
@@ -648,7 +648,7 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
         .collect::<Vec<_>>();
     assert!(!failed_instructions
         .iter()
-        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+        .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     assert!(builder
         .function_state
         .type_ctx
@@ -673,7 +673,7 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
             .blocks
             .values()
             .flat_map(|block| &block.instructions)
-            .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+            .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
             .count(),
         1
     );
@@ -719,7 +719,7 @@ fn property_completion_uses_selected_catalog_child_but_raw_terminal() {
     let calls = instructions
         .iter()
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee:
                     Some(Callee::Method {

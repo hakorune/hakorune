@@ -282,7 +282,7 @@ mod tests {
     fn mir_verifier_runs_required_inline_check() {
         let function = function_with_runes(
             required_inline_runes(),
-            vec![MirInstruction::Call {
+            vec![MirInstruction::LegacyCallV0 {
                 dst: None,
                 func: ValueId::new(1),
                 callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -308,7 +308,7 @@ mod tests {
     fn required_inline_rejects_nested_call() {
         let function = function_with_runes(
             required_inline_runes(),
-            vec![MirInstruction::Call {
+            vec![MirInstruction::LegacyCallV0 {
                 dst: None,
                 func: ValueId::new(1),
                 callee: Some(Callee::Global(crate::mir::test_global_target(

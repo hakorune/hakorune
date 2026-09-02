@@ -254,7 +254,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::Const { .. } => "const",
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
-        MirInstruction::Call { .. } => "mir_call",
+        MirInstruction::LegacyCallV0 { .. } => "mir_call",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
         MirInstruction::Return { .. } => "ret",
@@ -291,7 +291,7 @@ fn method_call_is(
     expected_arg_count: usize,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -313,7 +313,7 @@ fn method_call_is_with_receiver_arg(
     expected_arg_count: usize,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -562,7 +562,7 @@ mod tests {
         receiver: u32,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: dst.map(ValueId::new),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

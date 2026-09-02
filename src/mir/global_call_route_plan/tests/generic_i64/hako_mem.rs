@@ -18,7 +18,7 @@ fn generic_i64_body_accepts_hako_mem_alloc_free_extern_routes() {
             dst: ValueId::new(1),
             value: ConstValue::Integer(64),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -27,7 +27,7 @@ fn generic_i64_body_accepts_hako_mem_alloc_free_extern_routes() {
             args: vec![ValueId::new(1)],
             effects: EffectMask::IO,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -52,7 +52,7 @@ fn generic_i64_body_accepts_hako_mem_alloc_free_extern_routes() {
     );
     alloc.params = vec![ValueId::new(10)];
     let alloc_block = alloc.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    alloc_block.instructions.push(MirInstruction::Call {
+    alloc_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(11)),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern("hako_mem_alloc".to_string())),
@@ -75,7 +75,7 @@ fn generic_i64_body_accepts_hako_mem_alloc_free_extern_routes() {
     free.params = vec![ValueId::new(20)];
     let free_block = free.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     free_block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(21)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("hako_mem_free".to_string())),

@@ -115,7 +115,7 @@ fn rewrites_left_assoc_chain_to_concat3() {
     let mut saw_add = false;
     for inst in &block.instructions {
         match inst {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Extern(name)),
                 args,
@@ -152,7 +152,7 @@ fn rewrites_right_assoc_chain_to_concat3() {
     let mut saw_add = false;
     for inst in &block.instructions {
         match inst {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Extern(name)),
                 args,

@@ -61,7 +61,7 @@ fn refresh_module_global_call_routes_accepts_scalar_void_guard_in_string_or_void
     callee.params = vec![ValueId::new(1)];
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

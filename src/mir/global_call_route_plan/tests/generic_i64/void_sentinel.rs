@@ -50,7 +50,7 @@ fn generic_i64_body_accepts_void_sentinel_global_side_call() {
             lhs: ValueId::new(21),
             rhs: ValueId::new(20),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -96,7 +96,7 @@ fn generic_i64_body_accepts_void_sentinel_global_side_call() {
         .insert(ValueId::new(6), MirType::String);
     let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     wrapper_block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -113,7 +113,7 @@ fn generic_i64_body_accepts_void_sentinel_global_side_call() {
             dst: ValueId::new(6),
             value: ConstValue::String("[rawbuf-like:alloc]".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

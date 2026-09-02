@@ -20,7 +20,7 @@ pub(crate) fn make_function_with_call(
         dst: ValueId::new(1),
         value: ConstValue::String("STAGE1_SOURCE_TEXT".to_string()),
     });
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst,
         func: ValueId::INVALID,
         callee: Some(Callee::Extern(callee.to_string())),

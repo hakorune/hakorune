@@ -15,7 +15,7 @@ fn refresh_module_global_call_routes_marks_void_sentinel_child_blocker() {
         BasicBlockId::new(0),
     );
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -111,7 +111,7 @@ fn refresh_module_global_call_routes_marks_void_sentinel_return_child_blocker() 
         else_edge_args: None,
     });
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -198,7 +198,7 @@ fn refresh_module_global_call_routes_marks_void_typed_call_result_child_blocker(
         else_edge_args: None,
     });
     let mut child_block = BasicBlock::new(BasicBlockId::new(1));
-    child_block.instructions.push(MirInstruction::Call {
+    child_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -283,7 +283,7 @@ fn string_return_blocker_ignores_direct_string_child_targets() {
         else_edge_args: None,
     });
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -379,7 +379,7 @@ fn refresh_module_global_call_routes_uses_direct_child_route_over_void_metadata(
     parent.params = vec![ValueId::new(10)];
     let parent_entry = parent.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     parent_entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

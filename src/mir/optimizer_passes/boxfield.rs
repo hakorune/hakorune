@@ -39,7 +39,7 @@ pub fn optimize_boxfield_operations(
                         .unwrap_or_else(Span::unknown);
                     match (&block.instructions[i], &block.instructions[i + 1]) {
                         (
-                            I::Call {
+                            I::LegacyCallV0 {
                                 callee:
                                     Some(crate::mir::Callee::Method {
                                         receiver: Some(b1),
@@ -49,7 +49,7 @@ pub fn optimize_boxfield_operations(
                                 args: a1,
                                 ..
                             },
-                            I::Call {
+                            I::LegacyCallV0 {
                                 dst: Some(dst2),
                                 callee:
                                     Some(crate::mir::Callee::Method {

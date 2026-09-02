@@ -280,7 +280,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::Const { .. } => "const",
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
-        MirInstruction::Call { .. } => "mir_call",
+        MirInstruction::LegacyCallV0 { .. } => "mir_call",
         MirInstruction::ArrayElementWrite { .. } => "array_write",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
@@ -328,7 +328,7 @@ fn method_call_is(
     expected_arg_count: usize,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -386,7 +386,7 @@ mod tests {
         let exit = function
             .get_block_mut(BasicBlockId::new(25))
             .expect("exit block");
-        if let Some(MirInstruction::Call { args, .. }) = exit.instructions.first_mut() {
+        if let Some(MirInstruction::LegacyCallV0 { args, .. }) = exit.instructions.first_mut() {
             args.push(ValueId::new(99));
         } else {
             panic!("expected final length call");
@@ -590,7 +590,7 @@ mod tests {
         receiver: u32,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: dst.map(ValueId::new),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

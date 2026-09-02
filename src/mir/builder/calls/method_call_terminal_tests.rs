@@ -185,7 +185,13 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
     let calls = emitted
         .iter()
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::Call(call) => match &call.callee {
+                Callee::Global(name) if name.display_name() == "TerminalCatalogOwner.call/2" => {
+                    Some((call.dst, call.args.clone()))
+                }
+                _ => None,
+            },
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(name)),
                 args,
@@ -238,7 +244,15 @@ fn static_global_receipt_matches_the_successful_physical_call_destination() {
         let destination = emitted
             .iter()
             .find_map(|instruction| match instruction {
-                MirInstruction::Call {
+                MirInstruction::Call(call) => match &call.callee {
+                    Callee::Global(name)
+                        if name.display_name() == "TerminalCatalogOwner.call/2" =>
+                    {
+                        call.dst
+                    }
+                    _ => None,
+                },
+                MirInstruction::LegacyCallV0 {
                     dst,
                     callee: Some(Callee::Global(name)),
                     ..
@@ -263,7 +277,15 @@ fn static_global_receipt_publishes_the_owned_typed_target() {
 
         let emitted = instructions(&builder);
         let actual = emitted.iter().find_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::Call(call) => match &call.callee {
+                Callee::Global(actual)
+                    if call.dst == Some(receipt.final_destination()) && call.args.is_empty() =>
+                {
+                    Some(actual.clone())
+                }
+                _ => None,
+            },
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(actual)),
                 args,
@@ -290,7 +312,7 @@ fn static_global_receipt_rejects_disabled_unified_without_legacy_retry() {
         assert_eq!(error, UnifiedValueCallReceiptErrorV1::UnifiedDisabled);
         assert!(instructions(&receipt_builder)
             .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+            .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
 
         let mut ordinary_builder = builder("terminal_global_ordinary_disabled/0");
         let mut ordinary_port = RawLegacyChildLoweringPortV1;
@@ -305,7 +327,7 @@ fn static_global_receipt_rejects_disabled_unified_without_legacy_retry() {
             .expect("ordinary static terminal keeps legacy compatibility");
         assert!(instructions(&ordinary_builder)
             .iter()
-            .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+            .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     });
 }
 
@@ -328,7 +350,7 @@ fn failed_static_global_call_emission_issues_no_receipt() {
         );
         assert!(instructions(&builder)
             .iter()
-            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+            .all(|instruction| !matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
     });
 }
 
@@ -362,7 +384,15 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
     let emitted = instructions(&builder);
     assert!(emitted.iter().any(|instruction| matches!(
         instruction,
-        MirInstruction::Call {
+        MirInstruction::Call(crate::mir::definitions::MirCall {
+            dst: Some(dst),
+            callee: Callee::Extern(name),
+            effects: EffectMask::READ,
+            ..
+        }) if *dst == returning_value && name == "env.fs.exists"
+    ) || matches!(
+        instruction,
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             effects: EffectMask::READ,
@@ -371,7 +401,15 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
     )));
     assert!(emitted.iter().any(|instruction| matches!(
         instruction,
-        MirInstruction::Call {
+        MirInstruction::Call(crate::mir::definitions::MirCall {
+            dst: None,
+            callee: Callee::Extern(name),
+            effects,
+            ..
+        }) if name == "env.console.log" && *effects == no_result.effects
+    ) || matches!(
+        instruction,
+        MirInstruction::LegacyCallV0 {
             dst: None,
             callee: Some(Callee::Extern(name)),
             effects,
@@ -397,7 +435,10 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
     let env_calls = emitted
         .iter()
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::Call(call) if matches!(&call.callee, Callee::Extern(_)) => {
+                Some(&call.args)
+            }
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Extern(_)),
                 args,
                 ..
@@ -436,7 +477,17 @@ fn disconnected_standard_terminal_preserves_method_identity_and_completed_destin
     let (actual_receiver, actual_arguments) = emitted
         .iter()
         .find_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::Call(call) => match &call.callee {
+                Callee::Method {
+                    method,
+                    receiver: Some(actual_receiver),
+                    ..
+                } if call.dst == Some(result) && method == "terminalMethod" => {
+                    Some((*actual_receiver, call.args.as_slice()))
+                }
+                _ => None,
+            },
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee:
                     Some(Callee::Method {

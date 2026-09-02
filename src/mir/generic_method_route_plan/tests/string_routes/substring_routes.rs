@@ -7,7 +7,7 @@ fn records_runtime_data_substring_from_generic_global_call_phi_origin() {
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry");
-    entry.add_instruction(MirInstruction::Call {
+    entry.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(

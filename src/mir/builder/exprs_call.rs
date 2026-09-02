@@ -30,7 +30,7 @@ impl super::MirBuilder {
         } else {
             // Unified-off path: still encode callee as Value to avoid by-name resolution
             let dst = self.next_value_id();
-            self.emit_instruction(super::MirInstruction::Call {
+            self.emit_instruction(super::MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 func: callee_id,
                 callee: Some(crate::mir::definitions::call_unified::Callee::Value(

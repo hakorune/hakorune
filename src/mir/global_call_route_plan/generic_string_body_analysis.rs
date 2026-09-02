@@ -64,7 +64,7 @@ pub(super) fn generic_pure_string_instruction_reject_reason(
                 instruction,
             )
         }
-        MirInstruction::Call { .. } => {
+        MirInstruction::LegacyCallV0 { .. } => {
             call_transfer::generic_pure_string_call_reject_reason(&mut ctx, instruction)
         }
         MirInstruction::Branch { .. }

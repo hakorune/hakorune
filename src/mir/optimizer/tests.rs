@@ -213,7 +213,7 @@ fn test_method_call_not_rewritten_even_if_legacy_env_is_set() {
     let mut has_method_call = false;
     for sp in block.all_spanned_instructions() {
         match sp.inst {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(super::super::Callee::Method { .. }),
                 ..
             } => has_method_call = true,

@@ -494,7 +494,7 @@ mod tests {
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(signature, entry);
         let block = func.blocks.get_mut(&entry).expect("entry block must exist");
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::new(1),
             callee: None,
@@ -517,7 +517,7 @@ mod tests {
         let entry = BasicBlockId::new(0);
         let mut func = MirFunction::new(signature, entry);
         let block = func.blocks.get_mut(&entry).expect("entry block must exist");
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Closure {

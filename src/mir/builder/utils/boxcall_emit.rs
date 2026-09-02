@@ -337,7 +337,7 @@ mod tests {
         );
 
         match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: actual_dst,
                 callee:
                     Some(Callee::Method {

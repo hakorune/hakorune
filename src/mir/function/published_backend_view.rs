@@ -387,35 +387,41 @@ impl<'module> PublishedMirBackendView<'module> {
                     .get(&block_id)
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
-                    let MirInstruction::Call {
-                        dst,
-                        func,
-                        callee,
-                        args,
-                        ..
-                    } = instruction
-                    else {
-                        continue;
+                    let (dst, func, callee, args) = match instruction {
+                        MirInstruction::Call(call) => (
+                            call.dst,
+                            ValueId::INVALID,
+                            Some(&call.callee),
+                            call.args.as_slice(),
+                        ),
+                        MirInstruction::LegacyCallV0 {
+                            dst,
+                            func,
+                            callee,
+                            args,
+                            ..
+                        } => (*dst, *func, callee.as_ref(), args.as_slice()),
+                        _ => continue,
                     };
 
                     match callee {
                         Some(Callee::Global(target)) => {
                             if let Some(key) = static_method_key(target) {
                                 let published_key =
-                                    validate_static_call(module, function_name, key, *func, args)?;
+                                    validate_static_call(module, function_name, key, func, args)?;
                                 static_method_calls.push(PublishedStaticMethodCallRef {
                                     function_name: function_name.as_str(),
                                     block_id: block_id.as_u32(),
                                     instruction_index: instruction_index as u32,
                                     key: published_key,
-                                    args: args.as_slice(),
+                                    args,
                                 });
                             } else if let Some(key) = free_function_key(target) {
                                 let published_key = validate_free_function_call(
                                     module,
                                     function_name,
                                     key,
-                                    *func,
+                                    func,
                                     args,
                                 )?;
                                 free_function_calls.push(PublishedFreeFunctionCallRef {
@@ -423,15 +429,15 @@ impl<'module> PublishedMirBackendView<'module> {
                                     block_id: block_id.as_u32(),
                                     instruction_index: instruction_index as u32,
                                     key: published_key,
-                                    args: args.as_slice(),
+                                    args,
                                 });
                             } else if is_builtin_print_target(target) {
-                                validate_builtin_print_call(function_name, *dst, *func, args)?;
+                                validate_builtin_print_call(function_name, dst, func, args)?;
                                 builtin_print_calls.push(PublishedBuiltinPrintCallRef {
                                     function_name: function_name.as_str(),
                                     block_id: block_id.as_u32(),
                                     instruction_index: instruction_index as u32,
-                                    args: args.as_slice(),
+                                    args,
                                 });
                             }
                         }

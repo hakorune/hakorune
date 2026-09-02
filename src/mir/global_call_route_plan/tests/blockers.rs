@@ -27,7 +27,7 @@ fn refresh_module_global_call_routes_propagates_return_child_blocker_transitivel
         else_edge_args: None,
     });
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -57,15 +57,17 @@ fn refresh_module_global_call_routes_propagates_return_child_blocker_transitivel
         BasicBlockId::new(0),
     );
     let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    wrapper_block.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(1)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.map/0".to_string(),
-        ))),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    wrapper_block
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.map/0".to_string(),
+            ))),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     wrapper_block.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(1)),
     });
@@ -210,7 +212,7 @@ fn refresh_module_global_call_routes_accepts_same_module_mixed_runtime_return() 
         box_type: "MapBox".to_string(),
         args: Vec::new(),
     });
-    item_entry.instructions.push(MirInstruction::Call {
+    item_entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -251,19 +253,21 @@ fn refresh_module_global_call_routes_accepts_same_module_mixed_runtime_return() 
         dst: ValueId::new(11),
         value: ConstValue::Integer(0),
     });
-    helper_entry.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(12)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "Node".to_string(),
-            method: "item".to_string(),
-            receiver: Some(ValueId::new(10)),
-            certainty: TypeCertainty::Known,
-            box_kind: CalleeBoxKind::UserDefined,
-        }),
-        args: vec![ValueId::new(11)],
-        effects: EffectMask::PURE,
-    });
+    helper_entry
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(12)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "Node".to_string(),
+                method: "item".to_string(),
+                receiver: Some(ValueId::new(10)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            }),
+            args: vec![ValueId::new(11)],
+            effects: EffectMask::PURE,
+        });
     helper_entry.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(12)),
     });
@@ -348,7 +352,7 @@ fn refresh_module_global_call_routes_accepts_same_module_map_get_return() {
         box_type: "MapBox".to_string(),
         args: Vec::new(),
     });
-    ordered_get_block.add_instruction(MirInstruction::Call {
+    ordered_get_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -394,7 +398,7 @@ fn refresh_module_global_call_routes_accepts_same_module_map_get_return() {
         dst: ValueId::new(6),
         src: ValueId::new(1),
     });
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(4)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -487,15 +491,17 @@ fn refresh_module_global_call_routes_accepts_map_handle_child_field_get_string_b
         .value_types
         .insert(ValueId::new(2), MirType::String);
     let get_value_entry = get_value.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    get_value_entry.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(1)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.make_map/0".to_string(),
-        ))),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    get_value_entry
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.make_map/0".to_string(),
+            ))),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     get_value_entry.instructions.push(MirInstruction::FieldGet {
         dst: ValueId::new(2),
         base: ValueId::new(1),
@@ -695,19 +701,21 @@ fn refresh_module_global_call_routes_allows_null_guard_before_method_blocker() {
         value: Some(ValueId::new(4)),
     });
     let mut method_block = BasicBlock::new(BasicBlockId::new(2));
-    method_block.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(5)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "RuntimeDataBox".to_string(),
-            method: "debugPreview".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: TypeCertainty::Union,
-            box_kind: CalleeBoxKind::RuntimeData,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    method_block
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(5)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "debugPreview".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Union,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     method_block.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(5)),
     });

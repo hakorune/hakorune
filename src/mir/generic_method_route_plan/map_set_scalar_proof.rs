@@ -449,7 +449,7 @@ fn same_receiver_read_shape(
 ) -> bool {
     matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     method,
@@ -463,7 +463,7 @@ fn same_receiver_read_shape(
 }
 
 fn map_set_call_shape(inst: &MirInstruction) -> Option<MapSetCallShape> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         callee:
             Some(Callee::Method {
                 box_name,
@@ -507,7 +507,7 @@ pub(crate) fn instruction_may_escape_or_mutate_receiver(
 
     match inst {
         MirInstruction::Copy { .. } | MirInstruction::KeepAlive { .. } => false,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     method,

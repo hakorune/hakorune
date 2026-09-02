@@ -86,7 +86,7 @@ mod tests {
         );
         assert_eq!(
             rows.iter()
-                .filter(|row| matches!(row, MirInstruction::Call { .. }))
+                .filter(|row| matches!(row, MirInstruction::LegacyCallV0 { .. }))
                 .count(),
             0,
             "{rows:?}"

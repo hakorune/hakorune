@@ -165,7 +165,7 @@ impl MirInterpreter {
                     MirInstruction::RefNew { dst, box_val } => {
                         self.handle_ref_new(*dst, *box_val)?
                     }
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         dst,
                         func,
                         callee,

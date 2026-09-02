@@ -45,7 +45,7 @@ fn refresh_module_user_box_method_routes_accepts_scalar_instance_method_target()
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -124,7 +124,7 @@ fn refresh_module_user_box_method_routes_strips_duplicate_receiver_arg_for_targe
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -202,7 +202,7 @@ fn refresh_module_user_box_method_routes_strips_duplicate_receiver_arg_by_origin
         dst: ValueId::new(2),
         src: ValueId::new(1),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -281,7 +281,7 @@ fn refresh_module_user_box_method_routes_accepts_string_handle_method_target() {
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -389,7 +389,7 @@ fn refresh_module_user_box_method_routes_recovers_route_result_through_nested_ph
     );
     caller.params = vec![ValueId::new(0)];
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(10)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -416,7 +416,7 @@ fn refresh_module_user_box_method_routes_recovers_route_result_through_nested_ph
         dst: ValueId::new(13),
         value: ConstValue::Integer(64),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(14)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -511,7 +511,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_param_origin
         dst: ValueId::new(2),
         value: ConstValue::String("chunk".to_string()),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

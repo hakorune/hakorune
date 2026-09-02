@@ -168,7 +168,7 @@ fn array_store_value_arg(
     let def_map = build_value_def_map(function);
     let key_origin = resolve_value_origin(function, &def_map, key_value);
     match block.instructions.get(instruction_index)? {
-        MirInstruction::Call { args, .. } => args
+        MirInstruction::LegacyCallV0 { args, .. } => args
             .iter()
             .position(|arg| resolve_value_origin(function, &def_map, *arg) == key_origin)
             .and_then(|index| args.get(index + 1).copied()),
@@ -324,7 +324,7 @@ mod tests {
                 value: crate::mir::ConstValue::Integer(0),
             });
         let mut body = BasicBlock::new(BasicBlockId::new(1));
-        body.instructions.push(MirInstruction::Call {
+        body.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -337,7 +337,7 @@ mod tests {
             args: vec![ValueId::new(1), ValueId::new(4)],
             effects: EffectMask::PURE,
         });
-        body.instructions.push(MirInstruction::Call {
+        body.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(21)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -395,7 +395,7 @@ mod tests {
                 value: crate::mir::ConstValue::Integer(0),
             });
         let mut body = BasicBlock::new(BasicBlockId::new(1));
-        body.instructions.push(MirInstruction::Call {
+        body.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(21)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

@@ -53,7 +53,7 @@ pub(super) fn publish_user_box_route_param_value_types(
             let Some(block) = function.blocks.get(&route.block()) else {
                 continue;
             };
-            let Some(MirInstruction::Call { args, .. }) =
+            let Some(MirInstruction::LegacyCallV0 { args, .. }) =
                 block.instructions.get(route.instruction_index())
             else {
                 continue;

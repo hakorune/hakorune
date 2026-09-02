@@ -68,7 +68,7 @@ pub fn refresh_function_hotcore_method_summaries(function: &mut MirFunction) {
                 MirInstruction::Safepoint | MirInstruction::Await { .. } => {
                     safepoint_count += 1;
                 }
-                MirInstruction::Call { callee, .. } => {
+                MirInstruction::LegacyCallV0 { callee, .. } => {
                     nested_call_count += 1;
                     match callee {
                         Some(Callee::Extern(name)) => {

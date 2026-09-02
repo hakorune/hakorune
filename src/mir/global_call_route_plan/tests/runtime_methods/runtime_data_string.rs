@@ -47,7 +47,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method()
     debug_len.params = vec![ValueId::new(1)];
     let block = debug_len.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -56,7 +56,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method()
             args: vec![ValueId::new(1)],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -69,7 +69,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_length_method()
             args: vec![],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -127,7 +127,7 @@ fn refresh_module_semantic_metadata_accepts_stringbox_length_self_arg_in_generic
             dst: ValueId::new(3),
             src: ValueId::new(2),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -202,7 +202,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_substring_metho
             dst: ValueId::new(3),
             value: ConstValue::Integer(64),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -256,7 +256,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_substring_suffi
             dst: ValueId::new(2),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -364,7 +364,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_substring_typed
     });
 
     let mut exit_block = BasicBlock::new(BasicBlockId::new(3));
-    exit_block.instructions.push(MirInstruction::Call {
+    exit_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(8)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -459,7 +459,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_null_guarded_length_
     );
     let entry = preview.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -502,7 +502,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_null_guarded_length_
             dst: ValueId::new(6),
             src: ValueId::new(5),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

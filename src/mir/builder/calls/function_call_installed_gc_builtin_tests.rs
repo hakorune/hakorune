@@ -173,7 +173,7 @@ fn cataloged_bare_error_rejection_does_not_descend_or_publish() {
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .collect::<Vec<_>>();
     assert!(calls.is_empty());
 }
@@ -223,7 +223,7 @@ fn cataloged_bare_now_rejection_does_not_descend_or_publish() {
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .collect::<Vec<_>>();
     assert!(calls.is_empty());
 }
@@ -252,7 +252,7 @@ fn cataloged_print_rejection_does_not_descend_or_publish() {
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .collect::<Vec<_>>();
     assert!(calls.is_empty());
 }
@@ -304,7 +304,7 @@ fn installed_gc_rejection_does_not_descend_or_publish() {
             .blocks
             .values()
             .flat_map(|block| block.all_instructions())
-            .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+            .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
             .collect::<Vec<_>>();
         assert!(calls.is_empty());
     }

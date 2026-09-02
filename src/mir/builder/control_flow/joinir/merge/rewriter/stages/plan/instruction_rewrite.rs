@@ -102,7 +102,7 @@ pub(super) fn process_block_instructions(
         }
 
         // Detect tail calls
-        if let MirInstruction::Call { func, args, .. } = inst {
+        if let MirInstruction::LegacyCallV0 { func, args, .. } = inst {
             if let Some(callee_name) = value_to_func_name.get(func) {
                 if let Some(&target_block) = ctx.function_entry_map.get(callee_name) {
                     // This is a tail call

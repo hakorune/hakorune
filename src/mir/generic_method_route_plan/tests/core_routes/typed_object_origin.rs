@@ -240,7 +240,7 @@ fn records_array_get_result_origin_from_typed_object_collection_push_param_flow(
         dst: ValueId::new(1),
         value: ConstValue::String("chunk-a".to_string()),
     });
-    put_block.add_instruction(MirInstruction::Call {
+    put_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -417,7 +417,7 @@ fn records_array_get_result_origin_from_same_module_returned_arraybox() {
         box_type: "JsonTokenizer".to_string(),
         args: Vec::new(),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

@@ -351,7 +351,7 @@ fn records_runtime_data_string_len_from_generic_global_call_origin() {
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry");
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -411,7 +411,7 @@ fn records_runtime_data_array_len_from_static_array_global_contract() {
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry");
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(

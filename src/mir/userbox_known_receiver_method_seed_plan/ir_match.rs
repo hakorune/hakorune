@@ -148,7 +148,7 @@ pub(super) fn method_call(
     expected_method: &str,
     expected_receiver: ValueId,
 ) -> Option<ValueId> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         callee:
             Some(Callee::Method {
@@ -262,7 +262,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::FieldSet { .. } => "field_set",
         MirInstruction::FieldGet { .. } => "field_get",
         MirInstruction::Copy { .. } => "copy",
-        MirInstruction::Call { .. } => "call",
+        MirInstruction::LegacyCallV0 { .. } => "call",
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Return { .. } => "ret",
         _ => "other",

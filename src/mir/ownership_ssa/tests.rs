@@ -96,7 +96,7 @@ fn none_result_call(
     function
         .get_block_mut(bb(0))
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee,
@@ -427,7 +427,7 @@ fn managed_call_shape_without_abi_witness_is_rejected() {
     function
         .get_block_mut(bb(0))
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: value(0),
             callee: None,
@@ -496,7 +496,7 @@ fn typed_method_and_value_targets_reject_managed_or_unknown_values() {
     borrowed_function
         .get_block_mut(bb(0))
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -541,7 +541,7 @@ fn typed_managed_target_fails_before_generic_liveness() {
     function
         .get_block_mut(bb(0))
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Value(value(0))),
@@ -569,7 +569,7 @@ fn typed_call_arguments_keep_the_existing_trivial_only_policy() {
     function
         .get_block_mut(bb(0))
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

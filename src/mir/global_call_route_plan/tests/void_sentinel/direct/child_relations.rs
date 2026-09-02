@@ -39,7 +39,7 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_or_void_sentine
             dst: ValueId::new(1),
             value: ConstValue::Bool(true),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -136,7 +136,7 @@ fn refresh_module_global_call_routes_accepts_direct_child_string_with_void_compa
     );
     let wrapper_entry = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     wrapper_entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -271,7 +271,7 @@ fn refresh_module_global_call_routes_accepts_debug_print_direct_child_string_gua
     );
     let wrapper_entry = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     wrapper_entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -280,7 +280,7 @@ fn refresh_module_global_call_routes_accepts_debug_print_direct_child_string_gua
             args: vec![],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -313,7 +313,7 @@ fn refresh_module_global_call_routes_accepts_debug_print_direct_child_string_gua
             dst: ValueId::new(5),
             value: ConstValue::String("prefix=".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(6)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -328,7 +328,7 @@ fn refresh_module_global_call_routes_accepts_debug_print_direct_child_string_gua
             lhs: ValueId::new(5),
             rhs: ValueId::new(6),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(8)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

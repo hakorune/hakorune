@@ -22,7 +22,7 @@ impl UnifiedCallEmitterBox {
         let actual_dst = dst.unwrap_or_else(|| builder.next_value_id());
         let mut args = args;
         crate::mir::builder::ssa::local::finalize_args(builder, &mut args)?;
-        builder.emit_instruction(MirInstruction::Call {
+        builder.emit_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(actual_dst),
             func: name_const,
             callee: Some(Callee::Global(target)),
@@ -42,7 +42,7 @@ impl UnifiedCallEmitterBox {
     ) -> Result<(), String> {
         let mut args = args;
         crate::mir::builder::ssa::local::finalize_args(builder, &mut args)?;
-        builder.emit_instruction(MirInstruction::Call {
+        builder.emit_instruction(MirInstruction::LegacyCallV0 {
             dst,
             func: func_val,
             callee: Some(Callee::Value(func_val)),

@@ -15,7 +15,7 @@ fn ncl0_rewrites_call_closure_to_newclosure() {
         .blocks
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(9)),
         func: ValueId::INVALID,
         callee: Some(Callee::Closure {
@@ -73,7 +73,7 @@ fn ncl0_does_not_rewrite_closure_call_with_runtime_args() {
         .blocks
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(9)),
         func: ValueId::INVALID,
         callee: Some(Callee::Closure {
@@ -99,7 +99,7 @@ fn ncl0_does_not_rewrite_closure_call_with_runtime_args() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Closure { .. }),
             args,
             ..
@@ -122,7 +122,7 @@ fn ncl2_does_not_rewrite_closure_call_without_dst() {
         .blocks
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Closure {
@@ -148,7 +148,7 @@ fn ncl2_does_not_rewrite_closure_call_without_dst() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             callee: Some(Callee::Closure { .. }),
             args,

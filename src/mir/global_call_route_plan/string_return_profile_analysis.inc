@@ -93,7 +93,7 @@ fn generic_string_void_sentinel_instruction_may_apply(
         } => true,
         MirInstruction::NewBox { box_type, .. } if box_type == "StringBox" => true,
         MirInstruction::Return { value: None } => true,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(name)),
             args,
             ..
@@ -110,7 +110,7 @@ fn generic_string_void_sentinel_instruction_may_apply(
         {
             true
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -120,12 +120,12 @@ fn generic_string_void_sentinel_instruction_may_apply(
         {
             true
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             args,
             ..
         } if is_hostbridge_extern_invoke_symbol(&name.display_name(), args.len()) => true,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } if !supported_backend_global(&name.display_name()) => lookup_global_call_target(&name.display_name(), targets)
@@ -174,7 +174,7 @@ fn seed_generic_string_return_corridor_values(
 ) {
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee:
                     Some(Callee::Method {
@@ -456,7 +456,7 @@ fn refine_generic_string_return_value_class(
                 changed,
             );
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -480,7 +480,7 @@ fn refine_generic_string_return_value_class(
                 );
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -497,7 +497,7 @@ fn refine_generic_string_return_value_class(
                 );
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {
@@ -527,7 +527,7 @@ fn refine_generic_string_return_value_class(
                 }
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Global(name)),
             args,
@@ -596,7 +596,7 @@ fn refine_generic_string_return_blocker(
     changed: &mut bool,
 ) {
     match instruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..

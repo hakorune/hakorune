@@ -128,7 +128,7 @@ fn infer_call_param_box_origins(
         };
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee: Some(callee),
                     args,
                     ..
@@ -333,7 +333,7 @@ fn infer_call_param_storages(
         };
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::Call {
+                let MirInstruction::LegacyCallV0 {
                     callee: Some(callee),
                     args,
                     ..

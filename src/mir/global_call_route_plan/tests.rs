@@ -24,7 +24,7 @@ fn make_function_with_global_call_args(
         .blocks
         .entry(BasicBlockId::new(0))
         .or_insert_with(|| BasicBlock::new(BasicBlockId::new(0)));
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst,
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(name))),

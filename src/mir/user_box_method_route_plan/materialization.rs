@@ -47,7 +47,7 @@ pub(super) fn refresh_function_user_box_method_routes_with_context(
             continue;
         };
         for (instruction_index, instruction) in block.instructions.iter().enumerate() {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(Callee::Method {

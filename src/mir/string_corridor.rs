@@ -280,7 +280,7 @@ pub fn refresh_function_string_corridor_facts(function: &mut MirFunction) {
 
 fn infer_fact_from_instruction(inst: &MirInstruction) -> Option<(ValueId, StringCorridorFact)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
@@ -349,7 +349,7 @@ mod tests {
         };
         let mut function = MirFunction::new(signature, BasicBlockId::new(0));
         let block = function.get_block_mut(BasicBlockId::new(0)).expect("entry");
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

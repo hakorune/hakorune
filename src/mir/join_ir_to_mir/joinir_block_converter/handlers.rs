@@ -34,7 +34,7 @@ pub(crate) fn handle_method_call(
     args: &[ValueId],
     type_hint: &Option<crate::mir::MirType>,
 ) -> Result<(), JoinIrToMirError> {
-    let mir_inst = MirInstruction::Call {
+    let mir_inst = MirInstruction::LegacyCallV0 {
         dst: Some(*dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -95,19 +95,21 @@ pub(crate) fn handle_conditional_method_call(
 
     // then block: method call
     let mut then_block_obj = crate::mir::BasicBlock::new(then_block);
-    then_block_obj.instructions.push(MirInstruction::Call {
-        dst: Some(then_value),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "RuntimeDataBox".to_string(),
-            method: method.to_string(),
-            receiver: Some(*receiver),
-            certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-        }),
-        args: args.to_vec(),
-        effects: EffectMask::WRITE,
-    });
+    then_block_obj
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(then_value),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: method.to_string(),
+                receiver: Some(*receiver),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: args.to_vec(),
+            effects: EffectMask::WRITE,
+        });
     then_block_obj.instruction_spans.push(Span::unknown());
     then_block_obj.set_terminator(MirInstruction::Jump {
         target: merge_block,

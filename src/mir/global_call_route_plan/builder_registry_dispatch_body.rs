@@ -86,7 +86,7 @@ impl BuilderRegistryDispatchFacts {
             MirInstruction::Compare { op, .. } if matches!(op, CompareOp::Eq | CompareOp::Ne) => {
                 self.string_compares += 1;
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name, method, ..
@@ -98,7 +98,7 @@ impl BuilderRegistryDispatchFacts {
                 ("ArrayBox" | "RuntimeDataBox", "push") => self.array_pushes += 1,
                 _ => {}
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..

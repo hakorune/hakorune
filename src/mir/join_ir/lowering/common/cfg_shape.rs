@@ -84,7 +84,7 @@ pub fn has_string_method(query: &MirQueryBox, bb: BasicBlockId, method: &str) ->
     query.insts_in_block(bb).iter().any(|inst| {
         matches!(
             inst,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(crate::mir::Callee::Method { method: m, .. }),
                 ..
             } if m == method

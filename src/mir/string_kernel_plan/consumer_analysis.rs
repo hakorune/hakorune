@@ -105,7 +105,7 @@ impl StringKernelConsumerAnalysis {
                 self.text_scan_mut(value_root).non_slot_uses += 1;
                 return;
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(crate::mir::Callee::Method {
                         method,

@@ -21,7 +21,7 @@ fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_e
             dst: ValueId::new(1),
             value: ConstValue::String("DEBUG".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -47,7 +47,7 @@ fn refresh_module_global_call_routes_marks_generic_i64_body_direct_target_with_e
     flag.params = vec![ValueId::new(1)];
     let entry = flag.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("env.get".to_string())),

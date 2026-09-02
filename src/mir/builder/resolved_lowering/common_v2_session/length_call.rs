@@ -213,7 +213,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
                         .iter()
                         .rev()
                         .find_map(|instruction| match instruction {
-                            MirInstruction::Call {
+                            MirInstruction::LegacyCallV0 {
                                 dst: Some(call_destination),
                                 callee:
                                     Some(Callee::Method {

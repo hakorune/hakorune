@@ -210,7 +210,7 @@ mod tests {
         receiver: u32,
         args: Vec<u32>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: dst.map(ValueId::new),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

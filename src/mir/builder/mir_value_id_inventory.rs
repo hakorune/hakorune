@@ -31,7 +31,7 @@ impl MirValueIdInventory {
         &self,
         instruction: &MirInstruction,
     ) -> Vec<ValueId> {
-        if let MirInstruction::Call {
+        if let MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee,
@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn call_inventory_uses_callee_operand_projection_before_destination_and_args() {
-        let instruction = MirInstruction::Call {
+        let instruction = MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(30)),
             func: ValueId::INVALID,
             callee: Some(Callee::Closure {
@@ -93,7 +93,7 @@ mod tests {
 
     #[test]
     fn legacy_call_inventory_ignores_invalid_sentinel_but_keeps_real_func() {
-        let instruction = MirInstruction::Call {
+        let instruction = MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(4),
             callee: None,

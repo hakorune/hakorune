@@ -11,7 +11,7 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
         method: &str,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -54,7 +54,7 @@ fn derive_string_kernel_plan_marks_shared_receiver_alias_fact() {
             dst: ValueId::new(4),
             value: ConstValue::Integer(5),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(

@@ -281,7 +281,16 @@ pub(super) fn build_call_instruction(
         .map_err(|error| error.to_string())?;
     let effects = parse_call_effects(call_node)?;
     Ok((
-        MirInstruction::call(dst_opt, callee, args, effects),
+        // JSON-v0 is an explicit compatibility ingress.  Preserve its
+        // pre-R6 carrier until the R7 quarantine instead of silently
+        // reclassifying the wire input as canonical MIR.
+        MirInstruction::LegacyCallV0 {
+            dst: dst_opt,
+            func: ValueId::INVALID,
+            callee: Some(callee),
+            args,
+            effects,
+        },
         dst_opt,
     ))
 }

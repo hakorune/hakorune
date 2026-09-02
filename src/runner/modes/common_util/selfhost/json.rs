@@ -268,7 +268,7 @@ mod tests {
             .instructions;
         assert!(matches!(
             &insts[0],
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Method { method, .. }),
                 ..
             } if method == "id"

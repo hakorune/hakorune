@@ -82,7 +82,7 @@ fn prepared_me_standard_unified_is_effect_free_until_execute() {
         .flat_map(|block| &block.instructions)
         .any(|instruction| matches!(
             instruction,
-            crate::mir::MirInstruction::Call { dst, .. } if *dst == Some(result)
+            crate::mir::MirInstruction::LegacyCallV0 { dst, .. } if *dst == Some(result)
         )));
 }
 

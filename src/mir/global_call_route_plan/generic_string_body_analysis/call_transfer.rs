@@ -31,7 +31,7 @@ pub(super) fn generic_pure_string_call_reject_reason(
     instruction: &MirInstruction,
 ) -> Option<GenericPureStringReject> {
     match instruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -52,7 +52,7 @@ pub(super) fn generic_pure_string_call_reject_reason(
             }
             None
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -63,7 +63,7 @@ pub(super) fn generic_pure_string_call_reject_reason(
             }
             None
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -82,13 +82,13 @@ pub(super) fn generic_pure_string_call_reject_reason(
             }
             None
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(_)),
             ..
         } => Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringUnsupportedExternCall,
         )),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {
@@ -254,17 +254,17 @@ pub(super) fn generic_pure_string_call_reject_reason(
                 GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
             ))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method { .. }),
             ..
         } => Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
         )),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } if supported_backend_global(&name.display_name()) => None,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Global(name)),
             args,
@@ -411,7 +411,7 @@ pub(super) fn generic_pure_string_call_reject_reason(
                 }
             }
         }
-        MirInstruction::Call { .. } => Some(GenericPureStringReject::new(
+        MirInstruction::LegacyCallV0 { .. } => Some(GenericPureStringReject::new(
             GlobalCallTargetShapeReason::GenericStringUnsupportedCall,
         )),
         _ => Some(GenericPureStringReject::new(

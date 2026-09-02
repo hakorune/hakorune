@@ -171,7 +171,7 @@ fn selected_repl_route_preserves_extern_call() {
     assert!(instructions(&builder).any(|instruction| {
         matches!(
             instruction,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Extern(name)),
                 ..
             } if name == "__repl.get"

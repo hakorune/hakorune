@@ -42,7 +42,7 @@ fn schedule_facade_rejects_late_legacy_target_repair() {
         value: crate::mir::ConstValue::Integer(7),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(3)),
         func: ValueId(1),
         callee: None,
@@ -67,7 +67,7 @@ fn schedule_facade_rejects_late_legacy_target_repair() {
         .instructions[2];
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: None,
             ..
@@ -94,7 +94,7 @@ fn program_json_v0_site_does_not_issue_a_late_legacy_target() {
         value: crate::mir::ConstValue::String("Known.run/0".to_string()),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(2)),
         func: ValueId(1),
         callee: None,
@@ -117,6 +117,6 @@ fn program_json_v0_site_does_not_issue_a_late_legacy_target() {
             .get(&BasicBlockId(0))
             .expect("entry block exists")
             .instructions[1],
-        MirInstruction::Call { callee: None, .. }
+        MirInstruction::LegacyCallV0 { callee: None, .. }
     ));
 }

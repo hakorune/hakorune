@@ -127,6 +127,7 @@ fn propagate_used_values(
 fn is_removable_no_dst_pure_instruction(inst: &crate::mir::MirInstruction) -> bool {
     matches!(
         inst,
-        crate::mir::MirInstruction::Safepoint | crate::mir::MirInstruction::Call { dst: None, .. }
+        crate::mir::MirInstruction::Safepoint
+            | crate::mir::MirInstruction::LegacyCallV0 { dst: None, .. }
     )
 }

@@ -100,7 +100,7 @@ impl PatternUtilLocalValueProbeFacts {
                 }
             }
             MirInstruction::Compare { .. } => self.compare_ops += 1,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..

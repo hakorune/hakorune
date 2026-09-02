@@ -120,7 +120,7 @@ pub fn refresh_function_constructor_call_routes(function: &mut MirFunction) {
 
     for (block, bb) in function.blocks.iter() {
         for (instruction_index, instruction) in bb.instructions.iter().enumerate() {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst: Some(result_value),
                 callee: Some(Callee::Constructor { box_type }),
                 ..
@@ -164,7 +164,7 @@ mod tests {
             BasicBlockId::new(0),
         );
         let mut block = BasicBlock::new(BasicBlockId::new(0));
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Constructor {

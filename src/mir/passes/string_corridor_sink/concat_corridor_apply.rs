@@ -488,7 +488,7 @@ fn rewrite_substring_receiver(
     new_receiver: ValueId,
 ) -> Option<MirInstruction> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(
@@ -513,7 +513,7 @@ fn rewrite_substring_receiver(
                 *effects,
             ))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(callee @ Callee::Extern(name)),
             args,

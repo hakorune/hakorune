@@ -483,7 +483,14 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
                 rewrite_value_use(payload, from, to);
             }
         }
-        MirInstruction::Call {
+        MirInstruction::Call(call) => {
+            call.callee
+                .rewrite_value_operands(|value| rewrite_value_use(value, from, to));
+            for arg in &mut call.args {
+                rewrite_value_use(arg, from, to);
+            }
+        }
+        MirInstruction::LegacyCallV0 {
             func, callee, args, ..
         } => {
             if callee.is_none() {
@@ -602,7 +609,7 @@ mod tests {
     fn simplify_cfg_call_use_rewrite_preserves_typed_targets_and_args() {
         let from = ValueId::new(1);
         let to = ValueId::new(2);
-        let mut instruction = MirInstruction::Call {
+        let mut instruction = MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(30)),
             func: ValueId::new(99),
             callee: Some(Callee::Closure {
@@ -616,7 +623,7 @@ mod tests {
 
         rewrite_value_uses_in_instruction(&mut instruction, from, to);
 
-        let MirInstruction::Call {
+        let MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee:
@@ -663,7 +670,7 @@ mod tests {
             },
         ];
         for callee in &mut shapes {
-            let mut instruction = MirInstruction::Call {
+            let mut instruction = MirInstruction::LegacyCallV0 {
                 dst: None,
                 func: ValueId::new(99),
                 callee: Some(callee.clone()),
@@ -671,7 +678,7 @@ mod tests {
                 effects: EffectMask::PURE,
             };
             rewrite_value_uses_in_instruction(&mut instruction, from, to);
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 func,
                 callee: Some(actual),
                 args,
@@ -690,7 +697,7 @@ mod tests {
     fn simplify_cfg_call_use_rewrite_preserves_legacy_func_parity() {
         let from = ValueId::new(1);
         let to = ValueId::new(2);
-        let mut instruction = MirInstruction::Call {
+        let mut instruction = MirInstruction::LegacyCallV0 {
             dst: None,
             func: from,
             callee: None,
@@ -700,7 +707,7 @@ mod tests {
 
         rewrite_value_uses_in_instruction(&mut instruction, from, to);
 
-        let MirInstruction::Call {
+        let MirInstruction::LegacyCallV0 {
             func, callee, args, ..
         } = instruction
         else {

@@ -45,7 +45,7 @@ fn refresh_module_user_box_method_routes_accepts_birth_same_module_target() {
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -103,7 +103,7 @@ fn refresh_module_user_box_method_routes_rejects_unsupported_birth_body() {
     );
     birth.params = vec![ValueId::new(0)];
     let mut birth_block = BasicBlock::new(BasicBlockId::new(0));
-    birth_block.add_instruction(MirInstruction::Call {
+    birth_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -131,7 +131,7 @@ fn refresh_module_user_box_method_routes_rejects_unsupported_birth_body() {
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -214,7 +214,7 @@ fn refresh_module_user_box_method_routes_accepts_birth_with_string_handle_const(
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -270,7 +270,7 @@ fn refresh_module_user_box_method_routes_accepts_void_method_with_generic_route(
     );
     add_chunk.params = vec![ValueId::new(0), ValueId::new(1)];
     let mut add_block = BasicBlock::new(BasicBlockId::new(0));
-    add_block.add_instruction(MirInstruction::Call {
+    add_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -309,7 +309,7 @@ fn refresh_module_user_box_method_routes_accepts_void_method_with_generic_route(
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

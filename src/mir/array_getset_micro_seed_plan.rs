@@ -295,7 +295,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::Const { .. } => "const",
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
-        MirInstruction::Call { .. } => "mir_call",
+        MirInstruction::LegacyCallV0 { .. } => "mir_call",
         MirInstruction::ArrayElementWrite { .. } => "array_write",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
@@ -332,7 +332,7 @@ fn instruction_dst(inst: &MirInstruction) -> Option<ValueId> {
         | MirInstruction::Const { dst, .. }
         | MirInstruction::Copy { dst, .. }
         | MirInstruction::Phi { dst, .. } => Some(*dst),
-        MirInstruction::Call { dst: Some(dst), .. } => Some(*dst),
+        MirInstruction::LegacyCallV0 { dst: Some(dst), .. } => Some(*dst),
         _ => None,
     }
 }
@@ -359,7 +359,7 @@ fn method_call_is(
     expected_arg_count: usize,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method {
                 box_name, method, ..
             }),
@@ -596,7 +596,7 @@ mod tests {
         receiver: u32,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: dst.map(ValueId::new),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

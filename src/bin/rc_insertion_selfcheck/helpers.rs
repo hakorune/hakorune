@@ -193,7 +193,7 @@ pub(super) fn assert_call_overwrite_and_return_queue_order(
         eprintln!("[FAIL] {}: expected instruction[0] to stay Store", label);
         std::process::exit(1);
     }
-    if !matches!(bb.instructions[1], MirInstruction::Call { .. }) {
+    if !matches!(bb.instructions[1], MirInstruction::LegacyCallV0 { .. }) {
         eprintln!("[FAIL] {}: expected instruction[1] to stay Call", label);
         std::process::exit(1);
     }

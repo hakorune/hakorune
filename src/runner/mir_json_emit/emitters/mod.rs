@@ -310,7 +310,16 @@ fn emit_instruction(
         } => Ok(array_write::emit(
             *site_id, *dst, *kind, *producer, *receiver, *index, *value,
         )),
-        I::Call {
+        I::Call(call) => calls::emit_call(
+            &call.dst,
+            &crate::mir::ValueId::INVALID,
+            Some(&call.callee),
+            &call.args,
+            &call.effects,
+            profile,
+        )
+        .ok_or_else(|| "MIR JSON emit contract violation: failed to emit Call".to_string()),
+        I::LegacyCallV0 {
             dst,
             func,
             callee,

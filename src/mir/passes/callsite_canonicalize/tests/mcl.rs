@@ -26,7 +26,7 @@ fn mcl5_does_not_rewrite_legacy_call_with_const_string_func() {
         value: crate::mir::ConstValue::Integer(7),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(3)),
         func: ValueId(1),
         callee: None,
@@ -52,7 +52,7 @@ fn mcl5_does_not_rewrite_legacy_call_with_const_string_func() {
 
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee: None,
@@ -98,7 +98,7 @@ fn mcl5_does_not_rewrite_unsuffixed_legacy_target_even_when_arity_matches() {
         value: crate::mir::ConstValue::Integer(7),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(3)),
         func: ValueId(1),
         callee: None,
@@ -124,7 +124,7 @@ fn mcl5_does_not_rewrite_unsuffixed_legacy_target_even_when_arity_matches() {
 
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: None,
             ..
@@ -157,7 +157,7 @@ fn stage1_buildbox_emit_program_json_null_opts_stays_global_call() {
         value: crate::mir::ConstValue::Void,
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -185,7 +185,7 @@ fn stage1_buildbox_emit_program_json_null_opts_stays_global_call() {
 
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee: Some(Callee::Global(name)),
@@ -227,7 +227,7 @@ fn mcl5_keeps_typed_global_callee_without_suffix_repair() {
         value: crate::mir::ConstValue::Integer(7),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -255,7 +255,7 @@ fn mcl5_keeps_typed_global_callee_without_suffix_repair() {
 
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } if name.display_name() == "RewriteKnownMini.run/0"
@@ -288,7 +288,7 @@ fn mcl6_keeps_typed_global_target_without_runtime_method_repair() {
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
 
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(11)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -316,7 +316,7 @@ fn mcl6_keeps_typed_global_target_without_runtime_method_repair() {
 
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee: Some(Callee::Global(name)),
@@ -345,7 +345,7 @@ fn mcl4_no_legacy_callsite_variants_after_rcl3() {
         .blocks
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(10)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -359,7 +359,7 @@ fn mcl4_no_legacy_callsite_variants_after_rcl3() {
         effects: EffectMask::PURE,
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Extern("env.console.log".to_string())),
@@ -383,14 +383,14 @@ fn mcl4_no_legacy_callsite_variants_after_rcl3() {
 
     assert!(matches!(
         &instructions[0],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Method { .. }),
             ..
         }
     ));
     assert!(matches!(
         &instructions[1],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(_)),
             ..
         }

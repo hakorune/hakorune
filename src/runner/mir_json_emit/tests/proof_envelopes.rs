@@ -16,7 +16,7 @@ fn method_call(
     args: Vec<u32>,
 ) -> MirInstruction {
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: dst.map(ValueId::new),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

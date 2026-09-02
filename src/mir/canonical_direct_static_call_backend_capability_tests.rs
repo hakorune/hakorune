@@ -62,7 +62,7 @@ fn legacy_generic_call_does_not_create_the_capability() {
     function
         .get_block_mut(function.entry_block)
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

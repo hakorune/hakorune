@@ -211,7 +211,7 @@ fn wasm_shape_table_detects_p10_loop_extern_candidate_contract() {
     }
 
     let mut loop_block = BasicBlock::new(loop_bb);
-    loop_block.add_instruction(MirInstruction::Call {
+    loop_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId(99),
         callee: Some(Callee::Extern("env.console.log".to_string())),
@@ -261,7 +261,7 @@ fn wasm_shape_table_rejects_p10_candidate_without_loop_contract() {
         dst: v,
         value: ConstValue::Integer(1),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId(99),
         callee: Some(Callee::Extern("env.console.log".to_string())),
@@ -317,7 +317,7 @@ fn wasm_shape_table_detects_p10_min4_native_promotable_contract() {
         dst: c3,
         value: ConstValue::Integer(3),
     });
-    loop_block.add_instruction(MirInstruction::Call {
+    loop_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId(99),
         callee: Some(Callee::Method {
@@ -373,7 +373,7 @@ fn wasm_shape_table_rejects_p10_min4_native_promotable_with_other_calls_contract
         dst: v,
         value: ConstValue::Integer(3),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId(99),
         callee: Some(Callee::Extern("env.canvas.fillRect".to_string())),
@@ -428,7 +428,7 @@ fn make_p10_loop_console_method_module(method: &str) -> MirModule {
         dst: c3,
         value: ConstValue::Integer(3),
     });
-    loop_block.add_instruction(MirInstruction::Call {
+    loop_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId(99),
         callee: Some(Callee::Method {

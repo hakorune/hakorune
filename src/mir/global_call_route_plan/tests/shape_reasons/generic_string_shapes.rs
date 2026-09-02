@@ -28,7 +28,7 @@ fn refresh_module_global_call_routes_marks_method_call_shape_reason() {
             dst: ValueId::new(3),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -175,7 +175,7 @@ fn refresh_module_global_call_routes_accepts_generic_body_env_get_canonical_spel
     );
     callee.params = vec![ValueId::new(1)];
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern("env.get".to_string())),

@@ -7,7 +7,7 @@ fn method_call(
     receiver: ValueId,
     args: Vec<ValueId>,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -23,7 +23,7 @@ fn method_call(
 }
 
 fn global_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(name))),

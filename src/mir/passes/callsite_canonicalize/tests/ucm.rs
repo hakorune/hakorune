@@ -31,7 +31,7 @@ fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
         .blocks
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -62,7 +62,7 @@ fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(3)),
             func,
             callee: Some(Callee::Method {
@@ -106,7 +106,7 @@ fn ucm1_keeps_typed_user_box_global_target_without_method_repair() {
         .blocks
         .get_mut(&BasicBlockId(0))
         .expect("entry block exists");
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(4)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -133,7 +133,7 @@ fn ucm1_keeps_typed_user_box_global_target_without_method_repair() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(4)),
             func,
             callee: Some(Callee::Global(name)),

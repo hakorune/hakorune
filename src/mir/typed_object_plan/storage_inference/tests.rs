@@ -427,7 +427,7 @@ fn build_typed_object_plans_infers_birth_param_storage_through_same_module_metho
         dst: ValueId::new(2),
         value: ConstValue::String("item-a".to_string()),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -542,7 +542,7 @@ fn build_typed_object_plans_infers_handle_from_same_module_string_like_global_re
         dst: ValueId::new(1),
         value: ConstValue::Integer(13),
     });
-    seal_block.add_instruction(MirInstruction::Call {
+    seal_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(

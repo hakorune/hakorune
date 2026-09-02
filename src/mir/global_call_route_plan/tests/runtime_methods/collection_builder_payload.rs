@@ -55,7 +55,7 @@ fn refresh_module_semantic_metadata_accepts_array_push_write_any_payload_in_stri
             dst: ValueId::new(6),
             src: ValueId::new(0),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -76,7 +76,7 @@ fn refresh_module_semantic_metadata_accepts_array_push_write_any_payload_in_stri
             dst: ValueId::new(9),
             value: ConstValue::String("emit".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

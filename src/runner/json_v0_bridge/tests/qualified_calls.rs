@@ -47,6 +47,13 @@ fn assert_no_target_const(instructions: &[&MirInstruction], target: &str) {
     }));
 }
 
+fn canonical_call(instruction: &MirInstruction) -> Option<&crate::mir::definitions::MirCall> {
+    match instruction {
+        MirInstruction::Call(call) => Some(call),
+        _ => None,
+    }
+}
+
 #[test]
 fn qualified_static_method_issues_canonical_global_without_target_const() {
     let module = parse(json!({
@@ -75,28 +82,19 @@ fn qualified_static_method_issues_canonical_global_without_target_const() {
     let instructions = instructions(&module, "main");
     let call = instructions
         .iter()
-        .find(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .find_map(|instruction| canonical_call(instruction))
         .expect("main contains the qualified call");
 
-    let MirInstruction::Call {
-        dst,
-        func,
-        callee,
-        args,
-        effects,
-    } = call
-    else {
-        unreachable!()
-    };
+    let dst = call.dst;
+    let callee = &call.callee;
+    let args = &call.args;
+    let effects = call.effects;
     assert!(dst.is_some());
-    assert_eq!(*func, ValueId::INVALID);
     assert_eq!(
         callee,
-        &Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.id/1".to_string()
-        )))
+        &Callee::Global(crate::mir::test_global_target("Helper.id/1".to_string()))
     );
-    assert_eq!(*effects, EffectMask::READ);
+    assert_eq!(effects, EffectMask::READ);
     assert_eq!(args.len(), 1);
     assert_integer_def(&instructions, args[0], 7);
     assert_no_target_const(&instructions, "Helper.id/1");
@@ -142,28 +140,19 @@ fn qualified_instance_method_keeps_me_arg_and_issues_canonical_global_without_ta
     let instructions = instructions(&module, "Helper.caller/0");
     let call = instructions
         .iter()
-        .find(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .find_map(|instruction| canonical_call(instruction))
         .expect("Helper.caller/0 contains the qualified call");
 
-    let MirInstruction::Call {
-        dst,
-        func,
-        callee,
-        args,
-        effects,
-    } = call
-    else {
-        unreachable!()
-    };
+    let dst = call.dst;
+    let callee = &call.callee;
+    let args = &call.args;
+    let effects = call.effects;
     assert!(dst.is_some());
-    assert_eq!(*func, ValueId::INVALID);
     assert_eq!(
         callee,
-        &Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.id/2".to_string()
-        )))
+        &Callee::Global(crate::mir::test_global_target("Helper.id/2".to_string()))
     );
-    assert_eq!(*effects, EffectMask::READ);
+    assert_eq!(effects, EffectMask::READ);
     assert_eq!(args.len(), 2);
     assert!(instructions.iter().any(|instruction| {
         matches!(
@@ -203,21 +192,15 @@ fn generic_unqualified_call_uses_unique_local_name_and_arity() {
         }]
     }));
     let instructions = instructions(&module, "main");
-    let MirInstruction::Call {
-        func, callee, args, ..
-    } = instructions
+    let call = instructions
         .iter()
-        .find(|instruction| matches!(instruction, MirInstruction::Call { .. }))
-        .expect("main contains the generic call")
-    else {
-        unreachable!()
-    };
-    assert_eq!(*func, ValueId::INVALID);
+        .find_map(|instruction| canonical_call(instruction))
+        .expect("main contains the generic call");
+    let callee = &call.callee;
+    let args = &call.args;
     assert_eq!(
         callee,
-        &Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.id/1".to_string()
-        )))
+        &Callee::Global(crate::mir::test_global_target("Helper.id/1".to_string()))
     );
     assert_eq!(args.len(), 1);
     assert_no_target_const(&instructions, "Helper.id/1");
@@ -251,15 +234,13 @@ fn generic_qualified_unsuffixed_call_uses_local_arity_once() {
     let call = instructions
         .iter()
         .find_map(|instruction| match instruction {
-            MirInstruction::Call { callee, .. } => Some(callee),
+            MirInstruction::Call(call) => Some(&call.callee),
             _ => None,
         })
         .expect("main contains the generic call");
     assert_eq!(
         call,
-        &Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.id/1".to_string()
-        )))
+        &Callee::Global(crate::mir::test_global_target("Helper.id/1".to_string()))
     );
     assert_no_target_const(&instructions, "Helper.id/1");
 }
@@ -282,11 +263,8 @@ fn generic_extern_call_strips_only_numeric_arity_suffix() {
     assert!(instructions.iter().any(|instruction| {
         matches!(
             instruction,
-            MirInstruction::Call {
-                func,
-                callee: Some(Callee::Extern(name)),
-                ..
-            } if *func == ValueId::INVALID && name == "env.console.log"
+            MirInstruction::Call(call)
+                if matches!(&call.callee, Callee::Extern(name) if name == "env.console.log")
         )
     }));
 }
@@ -309,11 +287,8 @@ fn generic_unknown_name_is_an_exact_global_terminal() {
     assert!(instructions.iter().any(|instruction| {
         matches!(
             instruction,
-            MirInstruction::Call {
-                func,
-                callee: Some(Callee::Global(name)),
-                ..
-            } if *func == ValueId::INVALID && name.display_name() == "unknown/0"
+            MirInstruction::Call(call)
+                if matches!(&call.callee, Callee::Global(name) if name.display_name() == "unknown/0")
         )
     }));
 }

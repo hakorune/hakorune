@@ -8,7 +8,7 @@ use crate::mir::{Callee, MirInstruction, ValueId};
 
 pub(crate) fn match_dead_text_len_call(inst: &MirInstruction) -> Option<(ValueId, Vec<ValueId>)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
@@ -23,7 +23,7 @@ pub(crate) fn match_dead_text_len_call(inst: &MirInstruction) -> Option<(ValueId
             values.extend(args.iter().copied());
             Some((*dst, values))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
@@ -31,7 +31,7 @@ pub(crate) fn match_dead_text_len_call(inst: &MirInstruction) -> Option<(ValueId
         } if args.len() == 1 && is_runtime_len_handle_export(name) => {
             Some((*dst, args.iter().copied().collect::<Vec<_>>()))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             args,

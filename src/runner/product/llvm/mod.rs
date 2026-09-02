@@ -398,7 +398,7 @@ mod tests {
             entry,
         );
         function.blocks.get_mut(&entry).unwrap().instructions.push(
-            crate::mir::MirInstruction::Call {
+            crate::mir::MirInstruction::LegacyCallV0 {
                 dst: None,
                 func: crate::mir::ValueId::INVALID,
                 callee: None,

@@ -8,7 +8,7 @@ fn method_call(
     receiver: ValueId,
     args: Vec<ValueId>,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -120,7 +120,7 @@ fn build_mir_json_root_emits_direct_plan_for_box_type_inspector_describe_contrac
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(30)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

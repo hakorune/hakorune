@@ -293,7 +293,7 @@ fn value_origin_is_runtime_data_get(
     let Some(block) = function.blocks.get(&block_id) else {
         return false;
     };
-    let Some(MirInstruction::Call {
+    let Some(MirInstruction::LegacyCallV0 {
         callee: Some(Callee::Method {
             box_name, method, ..
         }),

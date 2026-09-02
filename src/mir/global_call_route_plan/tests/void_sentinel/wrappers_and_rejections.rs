@@ -40,7 +40,7 @@ fn refresh_module_global_call_routes_accepts_unknown_return_string_or_void_wrapp
             dst: ValueId::new(3),
             value: ConstValue::Bool(true),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -158,7 +158,7 @@ fn refresh_module_global_call_routes_accepts_string_typed_string_or_void_passthr
             dst: ValueId::new(3),
             value: ConstValue::Bool(true),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -461,7 +461,7 @@ fn refresh_module_global_call_routes_accepts_string_concat_loop_with_env_set() {
             dst: ValueId::new(2),
             value: ConstValue::String("0".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("env.set/2".to_string())),

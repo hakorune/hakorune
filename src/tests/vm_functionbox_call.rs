@@ -52,7 +52,7 @@ fn vm_call_functionbox_returns_42() {
     let res = f.next_value_id();
     f.get_block_mut(bb)
         .unwrap()
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(res),
             func: func_id,
             callee: None, // Legacy mode

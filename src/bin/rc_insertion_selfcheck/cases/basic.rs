@@ -73,7 +73,7 @@ pub(super) fn run() {
     let mut block = BasicBlock::new(BasicBlockId::new(0));
     block.instructions = vec![
         MirInstruction::Store { value: v_old, ptr },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(v_new),
             func: call_func,
             callee: Some(Callee::Global(

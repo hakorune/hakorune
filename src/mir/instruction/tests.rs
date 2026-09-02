@@ -97,7 +97,7 @@ fn test_call_instruction() {
     let arg1 = ValueId::new(2);
     let arg2 = ValueId::new(3);
 
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func,
         callee: None, // Legacy mode for test
@@ -154,7 +154,7 @@ fn typed_call_used_values_project_callee_operands_before_args() {
     ];
 
     for (callee, target_values) in cases {
-        let inst = MirInstruction::Call {
+        let inst = MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: typed_func_sentinel,
             callee: Some(callee),
@@ -171,7 +171,7 @@ fn typed_call_used_values_project_callee_operands_before_args() {
 fn call_kind_metadata_delegates_to_canonical_call_methods() {
     use crate::mir::definitions::Callee;
 
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::new(99),
         callee: Some(Callee::Value(ValueId::new(7))),
@@ -191,7 +191,7 @@ fn call_kind_metadata_delegates_to_canonical_call_methods() {
 
 #[test]
 fn test_call_instruction_extern_name() {
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(crate::mir::Callee::Extern(
@@ -286,18 +286,16 @@ fn test_method_call_instruction() {
 
     assert!(matches!(
         &inst,
-        MirInstruction::Call {
-            func,
-            callee: Some(Callee::Method {
+        MirInstruction::Call(crate::mir::definitions::MirCall {
+            callee: Callee::Method {
                 box_name,
                 method,
                 receiver: Some(recv),
                 certainty,
                 box_kind,
-            }),
+            },
             ..
-        } if *func == ValueId::INVALID
-            && box_name == "ArrayBox"
+        }) if box_name == "ArrayBox"
             && method == "push"
             && *recv == receiver
             && *certainty == TypeCertainty::Known
@@ -440,11 +438,10 @@ fn test_extern_call_instruction() {
 
     assert!(matches!(
         &inst,
-        MirInstruction::Call {
-            func,
-            callee: Some(Callee::Extern(name)),
+        MirInstruction::Call(crate::mir::definitions::MirCall {
+            callee: Callee::Extern(name),
             ..
-        } if *func == ValueId::INVALID && name == "env.console.log"
+        }) if name == "env.console.log"
     ));
 
     assert_eq!(inst.dst_value(), Some(dst));

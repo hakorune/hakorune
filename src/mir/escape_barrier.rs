@@ -60,7 +60,7 @@ pub fn classify_escape_uses(inst: &MirInstruction) -> Vec<EscapeUse> {
         MirInstruction::Throw { exception, .. } => {
             vec![EscapeUse::new(*exception, EscapeBarrier::Throw)]
         }
-        MirInstruction::Call { callee, args, .. } => {
+        MirInstruction::LegacyCallV0 { callee, args, .. } => {
             let mut uses = Vec::with_capacity(args.len() + 1);
             if let Some(callee) = callee {
                 let barrier = if matches!(callee, Callee::Closure { .. }) {
@@ -116,7 +116,7 @@ mod tests {
     fn method_call_marks_receiver_and_args_as_call_barriers() {
         let receiver = ValueId::new(10);
         let arg = ValueId::new(11);
-        let uses = classify_escape_uses(&MirInstruction::Call {
+        let uses = classify_escape_uses(&MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -149,7 +149,7 @@ mod tests {
     fn typed_value_target_is_a_call_barrier_and_stale_func_is_ignored() {
         let target = ValueId::new(12);
         let arg = ValueId::new(13);
-        let uses = classify_escape_uses(&MirInstruction::Call {
+        let uses = classify_escape_uses(&MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(14)),
             func: ValueId::new(99),
             callee: Some(crate::mir::Callee::Value(target)),
@@ -177,7 +177,7 @@ mod tests {
         let capture = ValueId::new(20);
         let me = ValueId::new(21);
         let arg = ValueId::new(22);
-        let uses = classify_escape_uses(&MirInstruction::Call {
+        let uses = classify_escape_uses(&MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(23)),
             func: ValueId::new(98),
             callee: Some(crate::mir::Callee::Closure {
@@ -219,7 +219,7 @@ mod tests {
     fn legacy_missing_callee_keeps_func_out_of_shared_barriers() {
         let legacy_func = ValueId::new(30);
         let arg = ValueId::new(31);
-        let uses = classify_escape_uses(&MirInstruction::Call {
+        let uses = classify_escape_uses(&MirInstruction::LegacyCallV0 {
             dst: None,
             func: legacy_func,
             callee: None,
@@ -256,7 +256,7 @@ mod tests {
         ];
 
         for callee in callees {
-            let uses = classify_escape_uses(&MirInstruction::Call {
+            let uses = classify_escape_uses(&MirInstruction::LegacyCallV0 {
                 dst: None,
                 func: ValueId::new(99),
                 callee: Some(callee),

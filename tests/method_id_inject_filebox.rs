@@ -53,7 +53,7 @@ f.open("/tmp/test.txt", "r")
         for block in func.blocks.values() {
             for inst in &block.instructions {
                 match inst {
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
                                 box_name, method, ..

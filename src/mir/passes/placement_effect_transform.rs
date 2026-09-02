@@ -55,7 +55,7 @@ mod tests {
         };
         let mut function = MirFunction::new(signature, BasicBlockId(0));
         let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(3)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Method {
@@ -68,7 +68,7 @@ mod tests {
             args: vec![ValueId(1), ValueId(2)],
             effects: EffectMask::PURE,
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(4)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Method {
@@ -113,7 +113,7 @@ mod tests {
         };
         let mut function = MirFunction::new(signature, BasicBlockId(0));
         let block = function.blocks.get_mut(&BasicBlockId(0)).expect("entry");
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(3)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Method {
@@ -126,7 +126,7 @@ mod tests {
             args: vec![ValueId(1), ValueId(2)],
             effects: EffectMask::PURE,
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(4)),
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Method {

@@ -172,7 +172,7 @@ fn singleton_program_accepts_finite_repeated_and_nested_self_calls() {
             .blocks
             .values()
             .flat_map(|block| &block.instructions)
-            .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+            .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
             .count();
         assert_eq!(call_count, expected_calls);
     }

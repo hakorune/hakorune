@@ -150,7 +150,7 @@ fn refresh_function_generic_method_routes_with_context(
                     ),
                     super::ArrayElementWriteKind::Insert => None,
                 },
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Method { method, .. }),
                     ..
                 } => match method.as_str() {

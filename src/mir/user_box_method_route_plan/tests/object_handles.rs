@@ -45,7 +45,7 @@ fn refresh_module_user_box_method_routes_accepts_object_handle_method_target() {
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -145,7 +145,7 @@ fn refresh_module_user_box_method_routes_accepts_nullable_object_handle_method_t
         box_type: "Allocator".to_string(),
         args: Vec::new(),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(4)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -234,7 +234,7 @@ fn refresh_module_user_box_method_routes_declared_object_return_overrides_void_i
         box_type: "Parser".to_string(),
         args: Vec::new(),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -385,7 +385,7 @@ fn refresh_module_user_box_method_routes_accepts_loop_carried_nullable_object_re
         box_type: "Queue".to_string(),
         args: Vec::new(),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(11)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -451,7 +451,7 @@ fn refresh_module_user_box_method_routes_accepts_mixed_runtime_get_return() {
         box_type: "MapBox".to_string(),
         args: Vec::new(),
     });
-    item_block.add_instruction(MirInstruction::Call {
+    item_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -491,7 +491,7 @@ fn refresh_module_user_box_method_routes_accepts_mixed_runtime_get_return() {
         dst: ValueId::new(11),
         value: ConstValue::Integer(0),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(12)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -605,7 +605,7 @@ fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_r
         .value_types
         .insert(ValueId::new(2), MirType::Void);
     let mut consume_block = BasicBlock::new(BasicBlockId::new(0));
-    consume_block.add_instruction(MirInstruction::Call {
+    consume_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -618,7 +618,7 @@ fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_r
         args: Vec::new(),
         effects: EffectMask::PURE,
     });
-    consume_block.add_instruction(MirInstruction::Call {
+    consume_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -651,7 +651,7 @@ fn refresh_module_user_box_method_routes_refines_void_placeholder_object_route_r
         box_type: "Factory".to_string(),
         args: Vec::new(),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(11)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

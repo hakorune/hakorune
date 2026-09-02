@@ -48,7 +48,7 @@ mod tests {
                 dst: ValueId::new(1),
                 value: ConstValue::String("猫".to_string()),
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(2)),
                 func: ValueId::INVALID,
                 callee: Some(Callee::Extern(

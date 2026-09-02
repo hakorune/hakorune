@@ -87,7 +87,7 @@ fn same_root(function: &MirFunction, def_map: &ValueDefMap, lhs: ValueId, rhs: V
 
 fn match_array_text_get(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {

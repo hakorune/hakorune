@@ -477,7 +477,7 @@ mod tests {
             .position(|inst| {
                 matches!(
                     inst,
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(name)),
                         ..
                     } if name == "env.console.log"

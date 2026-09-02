@@ -141,7 +141,7 @@ fn rewrites_concat_slice_consumers_to_corridor_helpers() {
         .filter(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Extern(name)),
                     ..
                 } if name == SUBSTRING_LEN_EXTERN
@@ -176,12 +176,12 @@ fn rewrites_concat_slice_consumers_to_corridor_helpers() {
         .instructions
         .iter()
         .filter(|inst| match inst {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Method { method, .. }),
                 args,
                 ..
             } => args.len() == 2 && matches!(method.as_str(), "substring" | "slice"),
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Extern(name)),
                 args,
                 ..

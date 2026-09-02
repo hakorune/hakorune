@@ -640,7 +640,7 @@ fn value_reaches_stringhelpers_to_i64(
 ) -> bool {
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Global(name)),
                 args,
                 ..

@@ -522,7 +522,7 @@ impl super::MirBuilder {
                             let mut last_const_name: Option<String> = None;
                             while j < insns.len() && j <= idx + 3 {
                                 match &insns[j] {
-                                    MirInstruction::Call {
+                                    MirInstruction::LegacyCallV0 {
                                         callee:
                                             Some(
                                                 crate::mir::definitions::call_unified::Callee::Method {
@@ -543,7 +543,7 @@ impl super::MirBuilder {
                                             last_const_name = Some(s.clone());
                                         }
                                     }
-                                    MirInstruction::Call { func: _, .. } => {
+                                    MirInstruction::LegacyCallV0 { func: _, .. } => {
                                         // If immediately preceded by matching Const String, accept
                                         if let Some(prev) = last_const_name.as_ref() {
                                             if prev == &expect_tail {

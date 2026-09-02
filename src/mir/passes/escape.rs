@@ -191,7 +191,7 @@ mod tests {
             op: crate::mir::BarrierOp::Write,
             ptr: alias,
         });
-        block.add_instruction(MirInstruction::Call {
+        block.add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

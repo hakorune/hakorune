@@ -43,7 +43,7 @@ fn push_pattern_util_scan_surface(block: &mut BasicBlock, next: &mut u32) {
 
 fn push_global_call(block: &mut BasicBlock, dst: u32, name: &str, args: Vec<ValueId>) -> ValueId {
     let dst = ValueId::new(dst);
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(name))),

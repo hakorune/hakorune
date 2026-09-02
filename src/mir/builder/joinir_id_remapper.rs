@@ -108,7 +108,14 @@ impl JoinIrIdRemapper {
                 vals
             }
             VariantTag { dst, value, .. } | VariantProject { dst, value, .. } => vec![*dst, *value],
-            Call {
+            Call(call) => {
+                let mut vals = Vec::new();
+                call.callee.for_each_value_operand(|value| vals.push(value));
+                vals.extend(call.dst.iter().copied());
+                vals.extend(call.args.iter().copied());
+                vals
+            }
+            LegacyCallV0 {
                 dst,
                 func,
                 callee,
@@ -440,13 +447,24 @@ impl JoinIrIdRemapper {
                 tag: *tag,
                 payload_type: payload_type.clone(),
             },
-            Call {
+            Call(call) => Call(crate::mir::definitions::MirCall {
+                dst: call.dst.map(remap),
+                callee: {
+                    let mut callee = call.callee.clone();
+                    callee.rewrite_value_operands(|value| *value = remap(*value));
+                    callee
+                },
+                args: call.args.iter().map(|&arg| remap(arg)).collect(),
+                flags: call.flags,
+                effects: call.effects,
+            }),
+            LegacyCallV0 {
                 dst,
                 func,
                 callee,
                 args,
                 effects,
-            } => Call {
+            } => LegacyCallV0 {
                 dst: dst.map(remap),
                 func: remap(*func),
                 callee: callee.as_ref().map(remap_callee),

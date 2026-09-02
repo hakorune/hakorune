@@ -404,7 +404,7 @@ fn box_origin_for_value_inner(
                         Some(BoxOriginInference::Conflict) | None => None,
                     }
                 }
-                MirInstruction::Call { callee, args, .. } => box_origin_for_call_return(
+                MirInstruction::LegacyCallV0 { callee, args, .. } => box_origin_for_call_return(
                     module,
                     function,
                     def_map,

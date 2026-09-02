@@ -66,7 +66,7 @@ fn refresh_module_global_call_routes_accepts_unknown_return_void_sentinel_body()
             dst: ValueId::new(8),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(9)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

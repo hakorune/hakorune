@@ -15,7 +15,7 @@ fn method_set_callee(receiver: Option<ValueId>, method: &str) -> Callee {
 #[test]
 fn rewrite_method_set_value_preserves_typed_call_fields_and_replaces_only_value() {
     let callee = method_set_callee(Some(ValueId(1)), "set");
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(9)),
         func: ValueId(99),
         callee: Some(callee.clone()),
@@ -25,7 +25,7 @@ fn rewrite_method_set_value_preserves_typed_call_fields_and_replaces_only_value(
 
     let rewritten = rewrite_method_set_value(&inst, ValueId(4)).expect("set call rewrite");
     match rewritten {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee: Some(actual_callee),
@@ -48,7 +48,7 @@ fn rewrite_method_set_value_rejects_finite_non_method_set_shapes() {
     let cases = vec![
         (
             "method-none",
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId(9)),
                 func: ValueId(99),
                 callee: Some(method_set_callee(None, "set")),
@@ -58,7 +58,7 @@ fn rewrite_method_set_value_rejects_finite_non_method_set_shapes() {
         ),
         (
             "global",
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId(9)),
                 func: ValueId(99),
                 callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -70,7 +70,7 @@ fn rewrite_method_set_value_rejects_finite_non_method_set_shapes() {
         ),
         (
             "missing-callee",
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId(9)),
                 func: ValueId(99),
                 callee: None,
@@ -80,7 +80,7 @@ fn rewrite_method_set_value_rejects_finite_non_method_set_shapes() {
         ),
         (
             "wrong-method",
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId(9)),
                 func: ValueId(99),
                 callee: Some(method_set_callee(Some(ValueId(1)), "get")),
@@ -90,7 +90,7 @@ fn rewrite_method_set_value_rejects_finite_non_method_set_shapes() {
         ),
         (
             "wrong-arity",
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId(9)),
                 func: ValueId(99),
                 callee: Some(method_set_callee(Some(ValueId(1)), "set")),

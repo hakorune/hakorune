@@ -102,7 +102,7 @@ fn call_count(function: &crate::mir::MirFunction) -> usize {
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .count()
 }
 
@@ -240,7 +240,7 @@ fn one_call_rhs_branch_preserves_call_phi_and_parity() {
         .values()
         .flat_map(|block| &block.instructions)
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee: Some(crate::mir::Callee::Global(target)),
                 args,
@@ -329,7 +329,7 @@ fn one_call_rhs_implicit_fallthrough_preserves_call_phi_and_baseline() {
         .values()
         .flat_map(|block| &block.instructions)
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee: Some(crate::mir::Callee::Global(target)),
                 args,

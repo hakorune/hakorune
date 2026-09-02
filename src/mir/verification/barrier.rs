@@ -107,7 +107,7 @@ pub fn check_barrier_context(function: &MirFunction) -> Result<(), Vec<Verificat
                     other,
                     MirInstruction::Load { .. }
                         | MirInstruction::Store { .. }
-                        | MirInstruction::Call { .. }
+                        | MirInstruction::LegacyCallV0 { .. }
                 ) {
                     has_mem_neighbor = true;
                     break;

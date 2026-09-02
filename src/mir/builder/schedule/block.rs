@@ -271,7 +271,7 @@ impl BlockScheduleBox {
 
         // 2) If a Copy is immediately before a Call-like, prefer it to be derived from after-PHIs copy
         let is_call_like =
-            |mi: &MirInstruction| -> bool { matches!(mi, MirInstruction::Call { .. }) };
+            |mi: &MirInstruction| -> bool { matches!(mi, MirInstruction::LegacyCallV0 { .. }) };
         for w in bb.instructions.windows(2) {
             if let [MirInstruction::Copy { dst: _, src }, call] = w {
                 if is_call_like(call) {

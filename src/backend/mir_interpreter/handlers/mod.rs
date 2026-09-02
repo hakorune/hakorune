@@ -168,7 +168,7 @@ impl MirInterpreter {
                 *tag,
                 payload_type.as_ref(),
             )?,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 func,
                 callee,

@@ -51,7 +51,7 @@ pub(crate) fn intake_loop_form(
 
     for inst in query.insts_in_block(loop_form.preheader) {
         match inst {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee:
                     Some(crate::mir::Callee::Method {

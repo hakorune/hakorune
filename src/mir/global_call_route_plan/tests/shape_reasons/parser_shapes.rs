@@ -29,7 +29,7 @@ fn refresh_module_global_call_routes_marks_parser_known_receiver_method_blocker(
             dst: ValueId::new(3),
             src: ValueId::new(2),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -42,7 +42,7 @@ fn refresh_module_global_call_routes_marks_parser_known_receiver_method_blocker(
             args: vec![],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -111,7 +111,7 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
             dst: ValueId::new(4),
             src: ValueId::new(3),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -128,7 +128,7 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
             dst: ValueId::new(6),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -149,7 +149,7 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
             dst: ValueId::new(9),
             src: ValueId::new(2),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -162,7 +162,7 @@ fn refresh_module_global_call_routes_marks_parser_program_json_contract_direct_t
             args: vec![ValueId::new(9)],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -233,7 +233,7 @@ fn refresh_module_global_call_routes_marks_program_json_emit_body_direct_target(
             dst: ValueId::new(3),
             value: ConstValue::Void,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

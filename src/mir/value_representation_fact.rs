@@ -128,7 +128,7 @@ fn refresh_instruction_fact(
                 facts.insert(*dst, fact);
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
@@ -137,7 +137,7 @@ fn refresh_instruction_fact(
                 facts.insert(*dst, fact);
             }
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {
@@ -326,7 +326,7 @@ mod tests {
 
         let mut caller = empty_function("main");
         let entry = caller.get_block_mut(BasicBlockId::new(0)).unwrap();
-        entry.add_instruction(MirInstruction::Call {
+        entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -395,7 +395,7 @@ mod tests {
             payload: Some(ValueId::new(3)),
             payload_type: Some(MirType::Integer),
         });
-        entry.add_instruction(MirInstruction::Call {
+        entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -408,7 +408,7 @@ mod tests {
             args: vec![ValueId::new(1), ValueId::new(2), ValueId::new(4)],
             effects: EffectMask::PURE,
         });
-        entry.add_instruction(MirInstruction::Call {
+        entry.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

@@ -19,7 +19,8 @@ fn call_destinations(builder: &MirBuilder) -> Vec<Option<ValueId>> {
         .current_function_instructions()
         .iter()
         .filter_map(|instruction| match instruction {
-            MirInstruction::Call { dst, .. } => Some(*dst),
+            MirInstruction::Call(call) => Some(call.dst),
+            MirInstruction::LegacyCallV0 { dst, .. } => Some(*dst),
             _ => None,
         })
         .collect()
@@ -37,7 +38,8 @@ fn emitted_callee(builder: &MirBuilder) -> Callee {
         .current_function_instructions()
         .iter()
         .find_map(|instruction| match instruction {
-            MirInstruction::Call {
+            MirInstruction::Call(call) => Some(call.callee.clone()),
+            MirInstruction::LegacyCallV0 {
                 callee: Some(callee),
                 ..
             } => Some(callee.clone()),
@@ -85,7 +87,8 @@ fn typed_core_ignores_disabled_profile_without_legacy_reentry() {
             .current_function_instructions()
             .iter()
             .find_map(|instruction| match instruction {
-                MirInstruction::Call {
+                MirInstruction::Call(call) => Some((ValueId::INVALID, call.callee.clone())),
+                MirInstruction::LegacyCallV0 {
                     func,
                     callee: Some(callee),
                     ..
@@ -366,7 +369,7 @@ fn receipt_requirement_rejects_unified_disabled_without_legacy_fallback() {
             .current_function_instructions()
             .iter()
             .find_map(|instruction| match instruction {
-                MirInstruction::Call { func, .. } => Some(*func),
+                MirInstruction::LegacyCallV0 { func, .. } => Some(*func),
                 _ => None,
             })
             .expect("legacy facade must emit one Call");

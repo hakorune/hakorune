@@ -148,7 +148,7 @@ fn optimizer_natural_failure_retains_discard_only_owner() {
     function
         .get_block_mut(function.entry_block)
         .expect("optimizer fixture entry block")
-        .add_instruction_before_terminator(MirInstruction::Call {
+        .add_instruction_before_terminator(MirInstruction::LegacyCallV0 {
             dst: None,
             func: receiver,
             callee: Some(Callee::Method {

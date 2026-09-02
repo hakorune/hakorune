@@ -151,7 +151,7 @@ fn rewrites_publication_helper_substring_via_plan_metadata() {
     }
 
     let helper_call = block.instructions.iter().find_map(|inst| match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,

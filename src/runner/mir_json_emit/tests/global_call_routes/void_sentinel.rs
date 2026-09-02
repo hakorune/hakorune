@@ -9,7 +9,7 @@ fn build_mir_json_root_emits_string_or_void_sentinel_direct_route() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -111,7 +111,7 @@ fn build_mir_json_root_emits_substring_string_or_void_sentinel_direct_route() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -154,7 +154,7 @@ fn build_mir_json_root_emits_substring_string_or_void_sentinel_direct_route() {
     });
 
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -215,7 +215,7 @@ fn build_mir_json_root_emits_child_blocker_for_string_or_void_sentinel_candidate
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -234,7 +234,7 @@ fn build_mir_json_root_emits_child_blocker_for_string_or_void_sentinel_candidate
         BasicBlockId::new(0),
     );
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -326,7 +326,7 @@ fn build_mir_json_root_emits_void_sentinel_const_shape_reason() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -393,7 +393,7 @@ fn build_mir_json_root_emits_object_return_abi_shape_reason() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -449,7 +449,7 @@ fn build_mir_json_root_emits_method_blocker_after_null_guard() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -497,19 +497,21 @@ fn build_mir_json_root_emits_method_blocker_after_null_guard() {
         value: Some(ValueId::new(4)),
     });
     let mut method_block = BasicBlock::new(BasicBlockId::new(2));
-    method_block.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(5)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
-            box_name: "RuntimeDataBox".to_string(),
-            method: "debugPreview".to_string(),
-            receiver: Some(ValueId::new(1)),
-            certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
-            box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
-        }),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    method_block
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(5)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "RuntimeDataBox".to_string(),
+                method: "debugPreview".to_string(),
+                receiver: Some(ValueId::new(1)),
+                certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
+                box_kind: crate::mir::definitions::call_unified::CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     method_block.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(5)),
     });

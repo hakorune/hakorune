@@ -298,7 +298,7 @@ mod tests {
             method: &str,
             args: Vec<ValueId>,
         ) -> MirInstruction {
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 func: ValueId::INVALID,
                 callee: Some(crate::mir::Callee::Method {
@@ -337,7 +337,7 @@ mod tests {
                 dst: ValueId::new(3),
                 value: ConstValue::Integer(5),
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(10)),
                 func: ValueId::INVALID,
                 callee: Some(crate::mir::Callee::Extern(
@@ -391,7 +391,7 @@ mod tests {
                 dst: ValueId::new(3),
                 value: ConstValue::Integer(5),
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(10)),
                 func: ValueId::INVALID,
                 callee: Some(crate::mir::Callee::Extern(

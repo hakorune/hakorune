@@ -2,7 +2,7 @@ use super::*;
 
 fn non_pure_extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
     let mut call = extern_call(dst, name, args);
-    if let MirInstruction::Call { effects, .. } = &mut call {
+    if let MirInstruction::LegacyCallV0 { effects, .. } = &mut call {
         *effects = EffectMask::READ;
     }
     call
@@ -178,7 +178,7 @@ fn sinks_publication_helper_to_same_block_store_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
@@ -391,7 +391,7 @@ fn sinks_publication_helper_to_same_block_fieldset_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
@@ -505,7 +505,7 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         rhs: ValueId(9),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(11)),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
@@ -595,7 +595,7 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
@@ -613,7 +613,7 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Method { box_name, method, receiver: Some(receiver), .. }),
                     args,
@@ -628,7 +628,7 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         .expect("rewritten runtime-data set");
     assert!(matches!(
         &block.instructions[helper_idx],
-        MirInstruction::Call { effects, .. } if *effects == EffectMask::READ
+        MirInstruction::LegacyCallV0 { effects, .. } if *effects == EffectMask::READ
     ));
     assert!(
         helper_idx < set_idx,

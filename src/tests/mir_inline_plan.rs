@@ -271,7 +271,7 @@ static box Main {
         block.all_instructions().any(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Global(name)),
                     ..
                 } if name.display_name() == "AllocFastProof.size_to_bin/1"

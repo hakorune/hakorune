@@ -20,7 +20,7 @@ fn refresh_module_semantic_metadata_accepts_read_char_unknown_receiver_from_stri
     read_char.params = vec![ValueId::new(0), ValueId::new(1)];
     let block = read_char.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -43,7 +43,7 @@ fn refresh_module_semantic_metadata_accepts_read_char_unknown_receiver_from_stri
             lhs: ValueId::new(1),
             rhs: ValueId::new(3),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -203,7 +203,7 @@ fn refresh_module_semantic_metadata_accepts_read_char_null_guard_string_body() {
 
     let mut bounds_guard_block = BasicBlock::new(BasicBlockId::new(6));
     bounds_guard_block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -254,7 +254,7 @@ fn refresh_module_semantic_metadata_accepts_read_char_null_guard_string_body() {
             lhs: ValueId::new(1),
             rhs: ValueId::new(14),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(16)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -335,7 +335,7 @@ fn refresh_module_global_call_routes_accepts_print_in_generic_pure_string_body()
             lhs: ValueId::new(2),
             rhs: ValueId::new(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -551,7 +551,7 @@ fn refresh_module_semantic_metadata_accepts_array_size_in_generic_pure_string_bo
             dst: ValueId::new(6),
             src: ValueId::new(5),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(8)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -663,7 +663,7 @@ fn refresh_module_semantic_metadata_accepts_array_string_push_in_generic_pure_st
             dst: ValueId::new(6),
             value: ConstValue::String("obj".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

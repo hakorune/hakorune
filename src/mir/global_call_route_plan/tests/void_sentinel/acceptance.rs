@@ -185,15 +185,17 @@ fn refresh_module_global_call_routes_accepts_string_or_void_child_forward_phi_bo
         BasicBlockId::new(0),
     );
     let wrapper_entry = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    wrapper_entry.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(1)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.maybe_text/0".to_string(),
-        ))),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    wrapper_entry
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.maybe_text/0".to_string(),
+            ))),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     wrapper_entry.set_terminator(MirInstruction::Jump {
         target: BasicBlockId::new(1),
         edge_args: None,
@@ -356,15 +358,17 @@ fn refresh_module_global_call_routes_accepts_void_typed_direct_sentinel_child_re
             else_edge_args: None,
         });
     let mut parent_text_block = BasicBlock::new(BasicBlockId::new(1));
-    parent_text_block.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(2)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.child/0".to_string(),
-        ))),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    parent_text_block
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.child/0".to_string(),
+            ))),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     parent_text_block.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(2)),
     });

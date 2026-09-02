@@ -176,7 +176,7 @@ impl<'f> PhiTypeResolver<'f> {
             | MirInstruction::TypeOp { dst, .. }
             | MirInstruction::Load { dst, .. }
             | MirInstruction::NewBox { dst, .. } => Some((*dst, DefKind::Base)),
-            MirInstruction::Call { dst: Some(dst), .. } => Some((*dst, DefKind::Base)),
+            MirInstruction::LegacyCallV0 { dst: Some(dst), .. } => Some((*dst, DefKind::Base)),
             _ => None,
         }
     }

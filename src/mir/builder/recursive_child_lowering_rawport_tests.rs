@@ -398,7 +398,7 @@ fn raw_invocation_port_preserves_call_and_from_children() {
         drive_legacy_expression_v1(builder, &mut port, from).unwrap();
         assert!(instructions(builder)
             .iter()
-            .any(|row| matches!(row, MirInstruction::Call { .. })));
+            .any(|row| matches!(row, MirInstruction::LegacyCallV0 { .. })));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }
@@ -426,7 +426,7 @@ fn raw_invocation_port_preserves_function_preflight_children() {
         )));
         assert!(instructions(builder).iter().any(|row| matches!(
             row,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee: Some(crate::mir::Callee::Extern(_)),
                 ..

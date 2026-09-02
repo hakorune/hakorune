@@ -464,7 +464,7 @@ mod tests {
         });
 
         let mut body = BasicBlock::new(body_id);
-        body.add_instruction(MirInstruction::Call {
+        body.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(30)),
             func: ValueId::new(0),
             callee: Some(Callee::Method {
@@ -477,7 +477,7 @@ mod tests {
             args: vec![ValueId::new(21)],
             effects: EffectMask::PURE,
         });
-        body.add_instruction(MirInstruction::Call {
+        body.add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(31)),
             func: ValueId::new(0),
             callee: Some(Callee::Method {

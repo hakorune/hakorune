@@ -23,7 +23,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::PinnedTextResidenceFinish { .. } => "PinnedTextResidenceFinish",
         MirInstruction::PinnedTextResidenceEnter { .. } => "PinnedTextResidenceEnter",
         MirInstruction::PinnedTextResidenceTrap { .. } => "PinnedTextResidenceTrap",
-        MirInstruction::Call { .. } => "Call",
+        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",
         MirInstruction::Jump { .. } => "Jump",
@@ -151,7 +151,8 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::Barrier { .. }
         | MirInstruction::BinOp { .. }
         | MirInstruction::Branch { .. }
-        | MirInstruction::Call { .. }
+        | MirInstruction::Call(_)
+        | MirInstruction::LegacyCallV0 { .. }
         | MirInstruction::Catch { .. }
         | MirInstruction::Compare { .. }
         | MirInstruction::StaticDataLoad { .. }

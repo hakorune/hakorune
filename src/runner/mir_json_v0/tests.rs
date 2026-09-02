@@ -87,7 +87,7 @@ fn parse_call_accepts_extern_callee_without_func() {
         .instructions;
     assert!(matches!(
         &insts[1],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: Some(Callee::Extern(name)),
             args,
@@ -166,7 +166,7 @@ fn parse_call_accepts_top_level_name_as_global_callee_without_func() {
         .instructions;
     assert!(matches!(
         &insts[0],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: Some(Callee::Global(name)),
             args,
@@ -201,7 +201,7 @@ fn parse_call_accepts_method_callee_without_func() {
         .instructions;
     assert!(matches!(
         &insts[0],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: Some(Callee::Method {
                 box_name,
@@ -241,7 +241,7 @@ fn parse_mir_call_accepts_nested_callee_shape() {
         .instructions;
     assert!(matches!(
         &insts[0],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: Some(Callee::Method {
                 box_name,
@@ -283,7 +283,7 @@ fn parse_mir_call_parses_effect_tokens() {
         .instructions;
     assert!(matches!(
         &insts[0],
-        MirInstruction::Call { effects, .. }
+        MirInstruction::LegacyCallV0 { effects, .. }
             if effects.contains(Effect::Io) && effects.contains(Effect::WriteHeap)
     ));
 }
@@ -436,7 +436,7 @@ fn parse_legacy_func_resolves_exact_local_string_const() {
         .instructions;
     assert!(matches!(
         &instructions[1],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: Some(Callee::Global(name)),
             ..
@@ -461,7 +461,7 @@ fn parse_legacy_func_resolves_const_from_later_block() {
         .instructions;
     assert!(matches!(
         &instructions[0],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
         } if name.display_name() == "later/0"
@@ -482,7 +482,7 @@ fn parse_nested_legacy_mir_call_uses_same_catalog_and_outer_dst() {
         .instructions;
     assert!(matches!(
         &instructions[1],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             ..
@@ -504,7 +504,7 @@ fn parse_explicit_callee_ignores_legacy_decoration() {
         .instructions;
     assert!(matches!(
         &instructions[0],
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             func,
             callee: Some(Callee::Global(name)),
             ..

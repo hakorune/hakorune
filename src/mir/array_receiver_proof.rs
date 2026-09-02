@@ -43,7 +43,7 @@ pub(crate) fn same_value_root(
 
 pub(crate) fn match_array_get_call(inst: &MirInstruction) -> Option<ArrayGetCall<'_>> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {

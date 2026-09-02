@@ -515,7 +515,7 @@ pub(super) fn rewrite_method_set_value(
     inst: &MirInstruction,
     new_value: ValueId,
 ) -> Option<MirInstruction> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee: Some(callee),
         args,

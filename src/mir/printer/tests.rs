@@ -52,7 +52,7 @@ fn test_function_printing() {
 
 #[test]
 fn typed_printer_projects_callee_and_ignores_stale_func() {
-    let instruction = MirInstruction::Call {
+    let instruction = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(1)),
         func: ValueId::new(99),
         callee: Some(Callee::Value(ValueId::new(7))),
@@ -72,7 +72,7 @@ fn typed_printer_projects_callee_and_ignores_stale_func() {
 
 #[test]
 fn printer_preserves_explicit_legacy_call_rendering() {
-    let instruction = MirInstruction::Call {
+    let instruction = MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::new(99),
         callee: None,

@@ -74,7 +74,7 @@ fn cfg_successors_are_synced(function: &MirFunction) -> bool {
 }
 
 fn method_receiver(inst: &MirInstruction) -> Option<ValueId> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         callee:
             Some(Callee::Method {
                 receiver: Some(receiver),
@@ -118,7 +118,7 @@ fn rewrite_method_receiver(
     old_receiver: ValueId,
     new_receiver: ValueId,
 ) -> bool {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         callee:
             Some(Callee::Method {
                 receiver: Some(receiver),

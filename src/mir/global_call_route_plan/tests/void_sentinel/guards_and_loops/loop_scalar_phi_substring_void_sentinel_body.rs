@@ -88,7 +88,7 @@ fn refresh_module_global_call_routes_accepts_loop_scalar_phi_substring_void_sent
     });
 
     let mut text_block = BasicBlock::new(BasicBlockId::new(4));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(10)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

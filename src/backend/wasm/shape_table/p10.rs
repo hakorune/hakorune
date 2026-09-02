@@ -29,7 +29,7 @@ pub(crate) fn detect_p10_loop_extern_call_candidate(
         for inst in &block.instructions {
             if matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(crate::mir::Callee::Extern(_)),
                     ..
                 }
@@ -73,7 +73,7 @@ pub(crate) fn detect_p10_min4_native_promotable_shape(
                     value: ConstValue::Integer(3),
                     ..
                 } => has_const_3 = true,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(callee),
                     ..
                 } => match callee {
@@ -95,7 +95,7 @@ pub(crate) fn detect_p10_min4_native_promotable_shape(
                     }
                     _ => has_other_call = true,
                 },
-                MirInstruction::Call { .. } => has_other_call = true,
+                MirInstruction::LegacyCallV0 { .. } => has_other_call = true,
                 _ => {}
             }
         }
@@ -192,7 +192,7 @@ pub(crate) fn detect_p10_fixed4_console_method_native_shape(
                     value: ConstValue::Integer(4),
                     ..
                 } => has_const_4 = true,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(callee),
                     ..
                 } => match callee {
@@ -214,7 +214,7 @@ pub(crate) fn detect_p10_fixed4_console_method_native_shape(
                     }
                     _ => has_other_call = true,
                 },
-                MirInstruction::Call { .. } => has_other_call = true,
+                MirInstruction::LegacyCallV0 { .. } => has_other_call = true,
                 _ => {}
             }
         }
@@ -258,7 +258,7 @@ pub(crate) fn detect_p10_min5_expansion_inventory_shape(
                     value: ConstValue::Integer(3),
                     ..
                 } => has_const_3 = true,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(callee),
                     ..
                 } => {
@@ -295,7 +295,7 @@ pub(crate) fn detect_p10_min5_expansion_inventory_shape(
                         has_other_call = true;
                     }
                 }
-                MirInstruction::Call { .. } => has_other_call = true,
+                MirInstruction::LegacyCallV0 { .. } => has_other_call = true,
                 _ => {}
             }
         }

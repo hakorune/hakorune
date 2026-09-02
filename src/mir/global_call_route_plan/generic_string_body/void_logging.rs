@@ -140,13 +140,13 @@ fn generic_string_void_logging_has_logging_call(
             .any(|instruction| {
                 matches!(
                     instruction,
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Global(name)),
                         ..
                     } if name.display_name() == "print"
                 ) || matches!(
                     instruction,
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Global(name)),
                         ..
                     } if super::super::lookup_global_call_target(&name.display_name(), targets)

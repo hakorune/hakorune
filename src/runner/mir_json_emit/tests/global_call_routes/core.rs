@@ -132,7 +132,7 @@ fn refresh_module_global_call_routes_publishes_print_need_kind() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -176,7 +176,7 @@ fn build_mir_json_root_emits_target_shape_reason_for_existing_unsupported_target
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -250,7 +250,7 @@ fn build_mir_json_root_emits_target_return_type_for_return_abi_blocker() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

@@ -23,7 +23,7 @@ fn static_function(key: &CanonicalSameModuleCallableKeyV1, func: ValueId) -> Mir
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func,
             callee: Some(Callee::Global(target)),
@@ -55,7 +55,7 @@ fn instance_function(
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func,
             callee: Some(Callee::SameModuleInstance {
@@ -97,7 +97,7 @@ fn free_function_with_args(
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func,
             callee: Some(Callee::Global(target)),
@@ -214,7 +214,7 @@ fn builtin_print_function(func: ValueId, dst: Option<ValueId>, args: Vec<ValueId
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("entry block")
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst,
             func,
             callee: Some(Callee::Global(CanonicalGlobalTargetV1::builtin_print())),
@@ -305,7 +305,7 @@ fn selected_static_method_keeps_other_families_on_compatibility_routes() {
         .blocks
         .get_mut(&BasicBlockId::new(0))
         .expect("legacy entry block")
-        .add_instruction(MirInstruction::Call {
+        .add_instruction(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(1),
             callee: None,
@@ -458,7 +458,7 @@ fn published_view_rejects_static_call_definition_arity_and_result_drift() {
     wrong_arity
         .add_cataloged_box_method(key.clone(), static_function(&key, ValueId::INVALID))
         .expect("publish relation");
-    if let MirInstruction::Call { args, .. } = &mut wrong_arity
+    if let MirInstruction::LegacyCallV0 { args, .. } = &mut wrong_arity
         .functions
         .get_mut(&symbol)
         .expect("published definition")

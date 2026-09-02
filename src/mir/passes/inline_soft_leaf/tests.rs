@@ -50,7 +50,7 @@ fn make_main_calling_add1() -> MirFunction {
         dst: arg,
         value: ConstValue::Integer(41),
     });
-    entry.add_instruction(MirInstruction::Call {
+    entry.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(result),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -79,7 +79,7 @@ fn inline_soft_leaf_rewrites_same_module_prefer_global_call() {
     assert!(!entry
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
     assert!(entry.instructions.iter().any(|inst| matches!(
         inst,
         MirInstruction::Copy {
@@ -105,7 +105,7 @@ fn inline_soft_leaf_keeps_call_without_prefer_plan() {
         .entry_block()
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn inline_soft_leaf_rewrites_verified_required_global_call() {
         .entry_block()
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
 }
 
 fn make_reset_inline_function() -> MirFunction {
@@ -203,7 +203,7 @@ fn make_main_calling_implicit_reset() -> MirFunction {
     };
     let mut function = MirFunction::new(signature, BasicBlockId(0));
     let mut entry = BasicBlock::new(BasicBlockId(0));
-    entry.add_instruction(MirInstruction::Call {
+    entry.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -231,7 +231,7 @@ fn make_main_calling_reset() -> MirFunction {
         dst: receiver,
         value: ConstValue::Null,
     });
-    entry.add_instruction(MirInstruction::Call {
+    entry.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -259,7 +259,7 @@ fn make_main_calling_method_reset() -> MirFunction {
         dst: receiver,
         value: ConstValue::Null,
     });
-    entry.add_instruction(MirInstruction::Call {
+    entry.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -295,7 +295,7 @@ fn inline_soft_leaf_rewrites_verified_required_receiver_fieldset_call() {
     assert!(!entry
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
     assert!(entry.instructions.iter().any(|inst| matches!(
         inst,
         MirInstruction::FieldSet {
@@ -326,7 +326,7 @@ fn inline_soft_leaf_rewrites_verified_required_user_method_call() {
     assert!(!entry
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
     assert!(entry.instructions.iter().any(|inst| matches!(
         inst,
         MirInstruction::FieldSet {
@@ -355,7 +355,7 @@ fn inline_soft_leaf_rewrites_verified_required_implicit_receiver_fieldset_call()
     assert!(!entry
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { .. })));
     assert!(entry.instructions.iter().any(|inst| matches!(
         inst,
         MirInstruction::FieldSet {
@@ -376,7 +376,7 @@ fn inline_soft_leaf_keeps_recursive_call() {
         .get_mut(&BasicBlockId(0))
         .expect("entry")
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

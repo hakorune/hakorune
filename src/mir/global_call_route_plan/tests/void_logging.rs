@@ -30,7 +30,7 @@ fn refresh_module_global_call_routes_accepts_void_logging_string_body() {
             lhs: ValueId::new(2),
             rhs: ValueId::new(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -108,7 +108,7 @@ fn refresh_module_global_call_routes_accepts_void_logging_child_wrapper() {
             lhs: ValueId::new(2),
             rhs: ValueId::new(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -148,7 +148,7 @@ fn refresh_module_global_call_routes_accepts_void_logging_child_wrapper() {
             lhs: ValueId::new(2),
             rhs: ValueId::new(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -218,7 +218,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_wrapper_returning_vo
             lhs: ValueId::new(2),
             rhs: ValueId::new(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -267,7 +267,7 @@ fn refresh_module_global_call_routes_accepts_string_or_void_wrapper_returning_vo
         value: Some(ValueId::new(3)),
     });
     let mut fail_block = BasicBlock::new(BasicBlockId::new(2));
-    fail_block.instructions.push(MirInstruction::Call {
+    fail_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(4)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(

@@ -249,7 +249,7 @@ fn get_instruction_dst(instr: &MirInstruction) -> Option<ValueId> {
         | MirInstruction::WeakRef { dst, .. }
         | MirInstruction::FutureNew { dst, .. }
         | MirInstruction::Await { dst, .. } => Some(*dst),
-        MirInstruction::Call { dst, .. } => *dst,
+        MirInstruction::LegacyCallV0 { dst, .. } => *dst,
         _ => None,
     }
 }

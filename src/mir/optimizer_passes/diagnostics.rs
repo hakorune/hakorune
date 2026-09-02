@@ -14,7 +14,7 @@ pub fn diagnose_unlowered_type_ops(
         for (_bb, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(crate::mir::Callee::Method { method, .. }),
                         ..
                     } if method == "is"
@@ -70,14 +70,14 @@ mod tests {
             dst: ValueId::new(9),
             value: ConstValue::String("isType".to_string()),
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(9),
             callee: None,
             args: vec![],
             effects: EffectMask::PURE,
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(99),
             callee: Some(Callee::Method {

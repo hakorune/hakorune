@@ -166,7 +166,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
         dst: ValueId::new(4),
         value: ConstValue::Integer(7),
     });
-    store_put_block.add_instruction(MirInstruction::Call {
+    store_put_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -205,7 +205,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
         dst: ValueId::new(4),
         value: ConstValue::Integer(4),
     });
-    ingest_block.add_instruction(MirInstruction::Call {
+    ingest_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -218,7 +218,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
         args: vec![ValueId::new(3), ValueId::new(4)],
         effects: EffectMask::PURE,
     });
-    ingest_block.add_instruction(MirInstruction::Call {
+    ingest_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(6)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -257,7 +257,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
         dst: ValueId::new(3),
         value: ConstValue::String("payload".to_string()),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -387,7 +387,7 @@ fn build_typed_object_plans_infers_birth_param_storage_from_collection_get_eleme
         dst: ValueId::new(2),
         value: ConstValue::Integer(7),
     });
-    seed_block.add_instruction(MirInstruction::Call {
+    seed_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -423,7 +423,7 @@ fn build_typed_object_plans_infers_birth_param_storage_from_collection_get_eleme
         dst: ValueId::new(2),
         value: ConstValue::Integer(0),
     });
-    allocate_block.add_instruction(MirInstruction::Call {
+    allocate_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

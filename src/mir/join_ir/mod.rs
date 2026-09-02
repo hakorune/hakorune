@@ -210,7 +210,7 @@ pub enum JoinInst {
     /// - ループでは末尾再帰として使うのが典型的
     ///
     /// # MIR 変換
-    /// - `MirInstruction::Call { func, args, ... }` を生成
+    /// - `MirInstruction::LegacyCallV0 { func, args, ... }` を生成
     ///
     /// # Constraints (Phase 31/34 時点)
     /// - **k_next は常に None にすること！**

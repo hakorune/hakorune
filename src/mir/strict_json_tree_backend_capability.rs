@@ -69,7 +69,7 @@ mod tests {
                 dst: ValueId::new(2),
                 value: ConstValue::Integer(0),
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(3)),
                 func: ValueId::INVALID,
                 callee: Some(Callee::Extern(

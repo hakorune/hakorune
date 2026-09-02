@@ -108,7 +108,7 @@ fn p0_rejects_every_unsupported_value_definition_family() {
             let dst = fixture.typed_value();
             fixture.add_instruction(
                 0,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     func: fixture.receiver(),
                     callee: Some(Callee::Global(crate::mir::test_global_target(

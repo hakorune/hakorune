@@ -528,7 +528,7 @@ fn test_dce_prunes_pure_no_dst_call_and_its_dead_operand_chain() {
             value: ConstValue::Integer(123),
         });
         bb0.instruction_spans.push(Span::unknown());
-        bb0.instructions.push(MirInstruction::Call {
+        bb0.instructions.push(MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId(999),
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -555,5 +555,5 @@ fn test_dce_prunes_pure_no_dst_call_and_its_dead_operand_chain() {
     assert!(!bb0
         .instructions
         .iter()
-        .any(|inst| matches!(inst, MirInstruction::Call { dst: None, .. })));
+        .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { dst: None, .. })));
 }

@@ -280,7 +280,7 @@ mod tests {
             .filter(|instruction| {
                 matches!(
                     instruction,
-                    MirInstruction::Call {
+                    MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Method {
                             box_name,
                             method,

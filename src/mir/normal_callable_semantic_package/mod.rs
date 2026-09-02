@@ -56,8 +56,7 @@ mod s6c_child_tests;
 mod tests;
 
 pub(in crate::mir) use declared_instance_locator::{
-    DeclaredInstanceCallLocatorScopeV1,
-    DeclaredInstanceCallLocatorViewV1,
+    DeclaredInstanceCallLocatorScopeV1, DeclaredInstanceCallLocatorViewV1,
 };
 pub(crate) use direct_call_loan::{
     AppMainDirectCallDispositionLoanV1, AppMainDirectCallDispositionRowV1,

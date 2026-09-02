@@ -11,8 +11,8 @@ use crate::mir::{Callee, MirInstruction};
 /// - other closure-call shapes are rejected with shape-specific reason codes.
 pub fn legacy_callsite_reject_code(inst: &MirInstruction) -> Option<&'static str> {
     match inst {
-        MirInstruction::Call { callee: None, .. } => Some("call-missing-callee"),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 { callee: None, .. } => Some("call-missing-callee"),
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Closure { .. }),
             args,
@@ -59,7 +59,8 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::VariantMake { .. }
             | MirInstruction::VariantTag { .. }
             | MirInstruction::VariantProject { .. }
-            | MirInstruction::Call { .. }
+            | MirInstruction::Call(_)
+            | MirInstruction::LegacyCallV0 { .. }
             | MirInstruction::NewBox { .. }
             | MirInstruction::NewClosure { .. }
             | MirInstruction::Branch { .. }
@@ -120,7 +121,8 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::VariantProject { .. }
             | MirInstruction::Load { .. }
             | MirInstruction::Store { .. }
-            | MirInstruction::Call { .. }
+            | MirInstruction::Call(_)
+            | MirInstruction::LegacyCallV0 { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::Select { .. }
             | MirInstruction::WeakRef { .. }
@@ -158,7 +160,9 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::VariantMake { .. } => &["variant_make"],
         MirInstruction::VariantTag { .. } => &["variant_tag"],
         MirInstruction::VariantProject { .. } => &["variant_project"],
-        MirInstruction::Call { .. } => &["mir_call", "call", "boxcall", "externcall"],
+        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => {
+            &["mir_call", "call", "boxcall", "externcall"]
+        }
         MirInstruction::Branch { .. } => &["branch"],
         MirInstruction::Jump { .. } => &["jump"],
         MirInstruction::Return { .. } => &["ret"],

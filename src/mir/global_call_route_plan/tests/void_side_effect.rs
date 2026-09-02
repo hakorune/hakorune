@@ -24,7 +24,7 @@ fn refresh_module_semantic_metadata_accepts_void_side_effect_array_push_body() {
             dst: ValueId::new(2),
             value: ConstValue::Integer(42),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

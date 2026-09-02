@@ -109,7 +109,7 @@ pub(super) fn match_generic_set_route(
             .with_array_write_site_id(*site_id),
         );
     }
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {
@@ -193,7 +193,7 @@ pub(super) fn match_generic_delete_route(
     instruction_index: usize,
     inst: &MirInstruction,
 ) -> Option<GenericMethodRoute> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee:
             Some(Callee::Method {

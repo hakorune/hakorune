@@ -278,7 +278,9 @@ fn observe_instruction(
         MirInstruction::Return { .. } => {
             add_barrier(analyses, &roots, SumObjectizationBarrier::Return)
         }
-        MirInstruction::Call { .. } => add_barrier(analyses, &roots, SumObjectizationBarrier::Call),
+        MirInstruction::LegacyCallV0 { .. } => {
+            add_barrier(analyses, &roots, SumObjectizationBarrier::Call)
+        }
         MirInstruction::Store { .. } | MirInstruction::FieldSet { .. } => {
             add_barrier(analyses, &roots, SumObjectizationBarrier::StoreLike)
         }

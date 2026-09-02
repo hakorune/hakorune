@@ -175,7 +175,7 @@ pub(super) fn refresh_function_extern_call_routes(function: &mut MirFunction) {
             continue;
         };
         for (instruction_index, instruction) in block.instructions.iter_mut().enumerate() {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(callee),
                 args,
@@ -282,7 +282,7 @@ mod tests {
             dst: ValueId::new(1),
             value: ConstValue::String("KEY".to_string()),
         });
-        block.instructions.push(MirInstruction::Call {
+        block.instructions.push(MirInstruction::LegacyCallV0 {
             dst,
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(symbol.to_string())),

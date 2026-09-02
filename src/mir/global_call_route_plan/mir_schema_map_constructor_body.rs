@@ -177,7 +177,7 @@ impl MirSchemaMapWrapperCandidateFacts {
                     self.insert_array_wrapped_map(*dst, changed);
                 }
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name,
@@ -196,7 +196,7 @@ impl MirSchemaMapWrapperCandidateFacts {
                     self.saw_array_push_map = true;
                 }
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee:
                     Some(Callee::Method {
                         box_name,
@@ -211,7 +211,7 @@ impl MirSchemaMapWrapperCandidateFacts {
             {
                 self.saw_map_set = true;
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
                 callee: Some(Callee::Global(name)),
                 args,
@@ -375,7 +375,7 @@ impl MirSchemaMapConstructorFacts {
                 }
                 None
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(Callee::Method {
@@ -455,7 +455,7 @@ impl MirSchemaMapConstructorFacts {
                     GlobalCallTargetShapeReason::GenericStringUnsupportedMethodCall,
                 ))
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(name)),
                 args,

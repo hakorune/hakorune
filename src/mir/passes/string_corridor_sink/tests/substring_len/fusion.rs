@@ -115,7 +115,7 @@ fn fuses_complementary_substring_len_pair_back_to_source_length() {
         block.instructions.iter().all(|inst| {
             !matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Extern(name)),
                     ..
                 } if name == SUBSTRING_LEN_EXTERN
@@ -232,7 +232,7 @@ fn keeps_non_complementary_substring_len_pair() {
         .filter(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Extern(name)),
                     ..
                 } if name == SUBSTRING_LEN_EXTERN
@@ -427,7 +427,7 @@ fn fuses_complementary_substring_len_pair_with_entry_len_and_duplicated_const_so
         block.instructions.iter().all(|inst| {
             !matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Extern(name)),
                     ..
                 } if name == SUBSTRING_LEN_EXTERN
@@ -550,7 +550,7 @@ fn rewrites_retained_slice_length_consumer_across_blocks() {
         block.instructions.iter().any(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,

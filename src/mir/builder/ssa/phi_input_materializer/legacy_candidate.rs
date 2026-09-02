@@ -546,7 +546,7 @@ impl<'a> PhiRepairPlannerV1<'a> {
                 then_value: self.plan_value(predecessor, then_val)?,
                 else_value: self.plan_value(predecessor, else_val)?,
             }),
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 func,
                 callee:
                     Some(Callee::Method {
@@ -769,7 +769,7 @@ fn materialize_instruction(
             args,
             receiver,
             effects,
-        } => Ok(MirInstruction::Call {
+        } => Ok(MirInstruction::LegacyCallV0 {
             dst: Some(destination),
             func: *func,
             callee: Some(Callee::Method {

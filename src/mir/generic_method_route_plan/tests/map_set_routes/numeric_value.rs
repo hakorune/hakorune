@@ -17,7 +17,7 @@ fn proves_mir_json_numeric_value_field_runtime_data_get() {
         dst: ValueId::new(4),
         src: ValueId::new(3),
     });
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -68,7 +68,7 @@ fn rejects_mir_json_numeric_value_field_get_outside_owner() {
         value: crate::mir::ConstValue::String("value".to_string()),
     });
     block.add_instruction(method_call(Some(3), "RuntimeDataBox", "get", 1, vec![2]));
-    block.add_instruction(MirInstruction::Call {
+    block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(5)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(

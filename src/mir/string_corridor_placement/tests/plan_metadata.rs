@@ -179,7 +179,7 @@ fn runtime_export_substring_concat_keeps_publication_sink_candidate() {
     push_binop(block, 9, BinaryOp::Add, 1, 8);
     push_unknown_span(
         block,
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Extern(

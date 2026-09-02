@@ -75,7 +75,7 @@ fn mir_json_allowlist_rejects_throw() {
 
 #[test]
 fn mir_json_allowlist_rejects_legacy_callsite_shapes() {
-    let missing_callee = MirInstruction::Call {
+    let missing_callee = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(0)),
         func: ValueId::new(1),
         callee: None,
@@ -91,7 +91,7 @@ fn mir_json_allowlist_rejects_legacy_callsite_shapes() {
 
 #[test]
 fn vm_allowlist_rejects_call_without_callee() {
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(0)),
         func: ValueId::new(1),
         callee: None,
@@ -107,7 +107,7 @@ fn vm_allowlist_rejects_call_without_callee() {
 
 #[test]
 fn callsite_rejects_call_with_closure_callee() {
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(0)),
         func: ValueId::INVALID,
         callee: Some(Callee::Closure {
@@ -128,7 +128,7 @@ fn callsite_rejects_call_with_closure_callee() {
 
 #[test]
 fn callsite_rejects_closure_call_without_dst() {
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Closure {
@@ -149,7 +149,7 @@ fn callsite_rejects_closure_call_without_dst() {
 
 #[test]
 fn callsite_rejects_closure_call_with_runtime_args() {
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(0)),
         func: ValueId::INVALID,
         callee: Some(Callee::Closure {

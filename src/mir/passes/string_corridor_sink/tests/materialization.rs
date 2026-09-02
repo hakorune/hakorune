@@ -2,7 +2,7 @@ use super::*;
 
 fn non_pure_extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
     let mut call = extern_call(dst, name, args);
-    if let MirInstruction::Call { effects, .. } = &mut call {
+    if let MirInstruction::LegacyCallV0 { effects, .. } = &mut call {
         *effects = EffectMask::READ;
     }
     call
@@ -155,7 +155,7 @@ fn sinks_materialization_helper_to_array_store_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
@@ -175,7 +175,7 @@ fn sinks_materialization_helper_to_array_store_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
                     args,
@@ -322,7 +322,7 @@ fn reuses_store_side_const_suffix_for_trailing_substring() {
         block.instructions.iter().any(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee:
                         Some(Callee::Method {
@@ -527,7 +527,7 @@ fn sinks_materialization_helper_with_trailing_length_observer() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
@@ -547,7 +547,7 @@ fn sinks_materialization_helper_with_trailing_length_observer() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::Call {
+                MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
                     args,

@@ -98,7 +98,7 @@ pub(crate) fn match_add_in_block(
 
 pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, EffectMask)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
@@ -113,7 +113,7 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
             let view = method_call_operand_view(*receiver, args, 0)?;
             Some((*dst, view.operand_receiver, *effects))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
@@ -122,7 +122,7 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
         } if args.len() == 1 && is_runtime_len_handle_export(name) => {
             Some((*dst, args[0], *effects))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Global(name)),
             args,
@@ -139,7 +139,7 @@ pub(crate) fn match_substring_len_call(
     inst: &MirInstruction,
 ) -> Option<(ValueId, ValueId, ValueId, ValueId)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
@@ -155,7 +155,7 @@ pub(crate) fn match_substring_call(
     inst: &MirInstruction,
 ) -> Option<(ValueId, ValueId, ValueId, ValueId, EffectMask)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
@@ -173,7 +173,7 @@ pub(crate) fn match_substring_call(
             };
             Some((*dst, view.operand_receiver, *start, *end, *effects))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
@@ -190,7 +190,7 @@ pub(crate) fn match_substring_concat3_helper_call(
     inst: &MirInstruction,
 ) -> Option<SubstringConcat3HelperShape> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
@@ -213,7 +213,7 @@ pub(crate) fn match_substring_concat3_helper_call(
 
 pub(crate) fn match_method_set_call(inst: &MirInstruction) -> Option<MethodSetCallShape> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -235,7 +235,7 @@ pub(crate) fn match_method_set_call(inst: &MirInstruction) -> Option<MethodSetCa
 
 pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     method,
@@ -251,7 +251,7 @@ pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, 
             };
             Some((view.operand_receiver, *start, *end))
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(name)),
             args,
             ..
@@ -287,7 +287,7 @@ pub(crate) fn match_concat_triplet_from_extern(
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
     match block.instructions.get(idx)? {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(name)),
             args,
             ..

@@ -91,7 +91,7 @@ fn make_registry_dispatch(child_name: &str) -> MirFunction {
             box_type: "ArrayBox".to_string(),
             args: vec![],
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -125,7 +125,7 @@ fn make_registry_dispatch(child_name: &str) -> MirFunction {
 
     let mut match_block = BasicBlock::new(BasicBlockId::new(1));
     match_block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(6)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -159,7 +159,7 @@ fn make_registry_dispatch(child_name: &str) -> MirFunction {
 
     let mut child_block = BasicBlock::new(BasicBlockId::new(2));
     child_block.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(9)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(child_name))),
@@ -261,7 +261,7 @@ fn make_unsupported_child(name: &str) -> MirFunction {
     );
     function.params = vec![ValueId::new(1)];
     let entry = function.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

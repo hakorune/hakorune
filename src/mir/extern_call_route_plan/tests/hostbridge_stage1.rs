@@ -14,7 +14,7 @@ fn refresh_function_extern_call_routes_records_hostbridge_extern_invoke_global_s
         BasicBlockId::new(0),
     );
     let mut block = BasicBlock::new(BasicBlockId::new(0));
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(10)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target("hostbridge.extern_invoke/3".to_string()))),

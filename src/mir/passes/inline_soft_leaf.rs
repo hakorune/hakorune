@@ -180,7 +180,7 @@ fn inline_calls_in_function(
 }
 
 fn inlineable_call(inst: &MirInstruction) -> Option<InlineCall> {
-    let MirInstruction::Call {
+    let MirInstruction::LegacyCallV0 {
         dst,
         callee: Some(callee),
         args,

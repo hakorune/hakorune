@@ -159,7 +159,7 @@ impl EffectSummaryClassifier {
                     self.handle_publications += 1;
                 }
             }
-            MirInstruction::Call { .. } => {
+            MirInstruction::LegacyCallV0 { .. } => {
                 self.nested_call_count += 1;
             }
             MirInstruction::NewBox { .. }
@@ -182,7 +182,7 @@ impl EffectSummaryClassifier {
             MirInstruction::Jump { .. } => {
                 self.loop_like_count += 1;
             }
-            MirInstruction::Call { .. } => {
+            MirInstruction::LegacyCallV0 { .. } => {
                 self.nested_call_count += 1;
             }
             MirInstruction::Safepoint | MirInstruction::Await { .. } => {

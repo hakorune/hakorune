@@ -70,7 +70,8 @@ pub(super) fn map_storage_receiver_value(
     let Some(block) = function.blocks.get(&route.block()) else {
         return route.receiver_value();
     };
-    let Some(MirInstruction::Call { args, .. }) = block.instructions.get(route.instruction_index())
+    let Some(MirInstruction::LegacyCallV0 { args, .. }) =
+        block.instructions.get(route.instruction_index())
     else {
         return route.receiver_value();
     };
@@ -89,7 +90,8 @@ pub(super) fn set_route_key_value_operands(
     route: &GenericMethodRoute,
 ) -> Option<(ValueId, ValueId)> {
     let block = function.blocks.get(&route.block())?;
-    let MirInstruction::Call { args, .. } = block.instructions.get(route.instruction_index())?
+    let MirInstruction::LegacyCallV0 { args, .. } =
+        block.instructions.get(route.instruction_index())?
     else {
         return None;
     };

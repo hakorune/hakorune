@@ -11,7 +11,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -42,7 +42,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
             dst: ValueId::new(4),
             src: ValueId::new(3),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -59,7 +59,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
             dst: ValueId::new(6),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -80,7 +80,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
             dst: ValueId::new(9),
             src: ValueId::new(2),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(10)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -93,7 +93,7 @@ fn build_mir_json_root_emits_direct_plan_for_parser_program_json_contract() {
             args: vec![ValueId::new(9)],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(11)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -159,7 +159,7 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(20)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -186,7 +186,7 @@ fn build_mir_json_root_emits_direct_plan_for_program_json_emit_body() {
             dst: ValueId::new(2),
             value: ConstValue::Void,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -283,7 +283,7 @@ fn build_mir_json_root_emits_runtime_plan_for_buildbox_emit_program_json_null_op
                 dst: ValueId::new(2),
                 value: ConstValue::Void,
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(3)),
                 func: ValueId::INVALID,
                 callee: Some(Callee::Global(crate::mir::test_global_target(

@@ -101,7 +101,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
         MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
         MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
-        MirInstruction::Call { .. } => inst.used_values(),
+        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => inst.used_values(),
         MirInstruction::Phi { inputs, .. } => inputs.iter().map(|(_, value)| *value).collect(),
         MirInstruction::Branch {
             condition,
@@ -214,7 +214,7 @@ mod tests {
         method: &str,
         args: Vec<ValueId>,
     ) -> MirInstruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Method {
@@ -308,14 +308,14 @@ mod tests {
             .get_mut(&BasicBlockId::new(0))
             .expect("entry");
         block.instructions.extend([
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(20)),
                 func: ValueId::new(99),
                 callee: Some(crate::mir::Callee::Value(captured)),
                 args: vec![],
                 effects: EffectMask::PURE,
             },
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(21)),
                 func: ValueId::new(98),
                 callee: Some(crate::mir::Callee::Closure {
@@ -354,7 +354,7 @@ mod tests {
             .get_mut(&BasicBlockId::new(0))
             .expect("entry");
         block.instructions.extend([
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(56)),
                 func: stale_func,
                 callee: Some(crate::mir::Callee::Global(crate::mir::test_global_target(
@@ -395,7 +395,7 @@ mod tests {
             .get_mut(&BasicBlockId::new(0))
             .expect("entry");
         block.instructions.extend([
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst: None,
                 func: legacy_func,
                 callee: None,

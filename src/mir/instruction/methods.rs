@@ -6,7 +6,7 @@
 //! - Used values collection (used_values())
 
 use super::super::{Effect, EffectMask, ValueId};
-use crate::mir::definitions::Callee;
+use crate::mir::definitions::{Callee, MirCall};
 use crate::mir::instruction::MirInstruction;
 use crate::mir::instruction_kinds as inst_meta;
 use crate::mir::types::{BarrierOp, WeakRefOp};
@@ -19,19 +19,19 @@ impl MirInstruction {
         args: Vec<ValueId>,
         effects: EffectMask,
     ) -> Self {
-        Self::Call {
-            dst,
-            func: ValueId::INVALID,
-            callee: Some(callee),
-            args,
-            effects,
-        }
+        let mut call = MirCall::new(dst, callee, args);
+        call.effects = effects;
+        Self::Call(call)
     }
 
     /// Get the external callee name for unified extern call instructions.
     pub fn extern_name(&self) -> Option<&str> {
         match self {
-            MirInstruction::Call {
+            MirInstruction::Call(MirCall {
+                callee: Callee::Extern(name),
+                ..
+            }) => Some(name.as_str()),
+            MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Extern(name)),
                 ..
             } => Some(name.as_str()),
@@ -80,7 +80,8 @@ impl MirInstruction {
             | MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
 
             // Function calls use provided effect mask
-            MirInstruction::Call { effects, .. } => *effects,
+            MirInstruction::Call(call) => call.effects,
+            MirInstruction::LegacyCallV0 { effects, .. } => *effects,
             MirInstruction::MemOp { effects, .. } => *effects,
             MirInstruction::PinnedTextOp { .. } => EffectMask::READ,
             MirInstruction::PinnedTextResidenceEnter { .. } => {
@@ -170,7 +171,8 @@ impl MirInstruction {
             | MirInstruction::Select { dst, .. } => Some(*dst),
             MirInstruction::NewClosure { dst, .. } => Some(*dst),
 
-            MirInstruction::Call { dst, .. } => *dst,
+            MirInstruction::Call(call) => call.dst,
+            MirInstruction::LegacyCallV0 { dst, .. } => *dst,
             MirInstruction::ArrayElementWrite { dst, .. } => *dst,
             MirInstruction::MemOp { dst, .. } => *dst,
             MirInstruction::PinnedTextOp { dst, .. } => Some(*dst),
@@ -210,19 +212,27 @@ impl MirInstruction {
     pub fn used_values(&self) -> Vec<ValueId> {
         // Handle Call instructions here (not through generic metadata) so the
         // Callee projection remains the single source of truth for operands.
-        if let MirInstruction::Call {
-            callee, func, args, ..
-        } = self
-        {
-            let mut used: Vec<ValueId> = Vec::new();
-            if let Some(callee) = callee {
-                callee.for_each_value_operand(|value| used.push(value));
-            } else {
-                // Legacy path: func ValueId is the callable.
-                used.push(*func);
+        match self {
+            MirInstruction::Call(call) => {
+                let mut used = Vec::new();
+                call.callee.for_each_value_operand(|value| used.push(value));
+                used.extend(call.args.iter().copied());
+                return used;
             }
-            used.extend(args.iter().copied());
-            return used;
+            MirInstruction::LegacyCallV0 {
+                callee, func, args, ..
+            } => {
+                let mut used = Vec::new();
+                if let Some(callee) = callee {
+                    callee.for_each_value_operand(|value| used.push(value));
+                } else {
+                    // Legacy path: func ValueId is the callable.
+                    used.push(*func);
+                }
+                used.extend(args.iter().copied());
+                return used;
+            }
+            _ => {}
         }
 
         match self {
@@ -332,7 +342,7 @@ impl MirInstruction {
             MirInstruction::Return { value } => value.map(|v| vec![v]).unwrap_or_default(),
 
             // Call is handled by early return above (single source of truth)
-            MirInstruction::Call { .. } => {
+            MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => {
                 unreachable!("Call should be handled by early return in used_values()")
             }
             MirInstruction::NewClosure { captures, me, .. } => {

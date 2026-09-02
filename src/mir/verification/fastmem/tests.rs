@@ -173,7 +173,7 @@ fn rejects_memop_value_escape_to_call_arg() {
             None,
             EffectMask::PURE,
         ),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(crate::mir::Callee::Extern("env.test.sink".to_string())),
@@ -197,7 +197,7 @@ fn rejects_memop_value_escape_to_typed_value_target() {
             None,
             EffectMask::PURE,
         ),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Value(ValueId::new(1))),
@@ -221,7 +221,7 @@ fn rejects_memop_value_escape_to_closure_capture() {
             None,
             EffectMask::PURE,
         ),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(2)),
             func: ValueId::INVALID,
             callee: Some(Callee::Closure {
@@ -249,7 +249,7 @@ fn keeps_legacy_func_as_fastmem_ordinary_use() {
             None,
             EffectMask::PURE,
         ),
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::new(1),
             callee: None,

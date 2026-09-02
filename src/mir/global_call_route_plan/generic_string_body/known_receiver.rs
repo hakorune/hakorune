@@ -52,7 +52,7 @@ fn update_generic_pure_string_known_receiver_return_blockers(
     changed: &mut bool,
 ) {
     match instruction {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee: Some(Callee::Method {
                 box_name, method, ..

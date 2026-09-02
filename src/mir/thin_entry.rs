@@ -255,7 +255,7 @@ fn infer_candidate(
                 },
             })
         }
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee:
                 Some(Callee::Method {

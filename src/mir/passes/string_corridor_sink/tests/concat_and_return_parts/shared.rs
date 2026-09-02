@@ -9,7 +9,7 @@ pub(super) fn method_call(
     ty: MirType,
 ) -> MirInstruction {
     let _ = ty;
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -25,7 +25,7 @@ pub(super) fn method_call(
 }
 
 pub(super) fn extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern(name.to_string())),

@@ -21,7 +21,7 @@ fn method_call(
     method: &str,
     args: Vec<ValueId>,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -116,7 +116,7 @@ fn build_narrow_phi_function() -> MirFunction {
         value: ConstValue::Integer(3),
     });
     body.instruction_spans.push(Span::unknown());
-    body.instructions.push(MirInstruction::Call {
+    body.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId(36)),
         func: ValueId::INVALID,
         callee: Some(Callee::Extern(

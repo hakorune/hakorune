@@ -56,7 +56,7 @@ fn rewrites_single_use_substring_length_chain_to_direct_extern() {
     assert_eq!(block.instructions.len(), block.instruction_spans.len());
     assert_eq!(block.instructions.len(), 1);
     match &block.instructions[0] {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
@@ -145,7 +145,7 @@ fn rewrites_runtime_data_substring_length_chain_through_copy_chain() {
     let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
     assert_eq!(block.instructions.len(), 1);
     match &block.instructions[0] {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst,
             callee: Some(Callee::Extern(name)),
             args,

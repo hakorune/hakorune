@@ -9,7 +9,7 @@ fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -32,7 +32,7 @@ fn build_mir_json_root_emits_target_shape_child_blocker_for_unknown_child_target
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(1)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -96,7 +96,7 @@ fn build_mir_json_root_emits_void_sentinel_return_child_blocker() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -128,7 +128,7 @@ fn build_mir_json_root_emits_void_sentinel_return_child_blocker() {
     });
 
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -201,7 +201,7 @@ fn build_mir_json_root_emits_transitive_void_sentinel_return_child_blocker() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -233,7 +233,7 @@ fn build_mir_json_root_emits_transitive_void_sentinel_return_child_blocker() {
     });
 
     let mut text_block = BasicBlock::new(BasicBlockId::new(1));
-    text_block.instructions.push(MirInstruction::Call {
+    text_block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(2)),
         func: ValueId::INVALID,
         callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -265,15 +265,17 @@ fn build_mir_json_root_emits_transitive_void_sentinel_return_child_blocker() {
         BasicBlockId::new(0),
     );
     let wrapper_block = wrapper.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    wrapper_block.instructions.push(MirInstruction::Call {
-        dst: Some(ValueId::new(1)),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "Helper.map/0".to_string(),
-        ))),
-        args: vec![],
-        effects: EffectMask::PURE,
-    });
+    wrapper_block
+        .instructions
+        .push(MirInstruction::LegacyCallV0 {
+            dst: Some(ValueId::new(1)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(crate::mir::test_global_target(
+                "Helper.map/0".to_string(),
+            ))),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
     wrapper_block.set_terminator(MirInstruction::Return {
         value: Some(ValueId::new(1)),
     });

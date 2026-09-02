@@ -41,7 +41,7 @@ mod tests {
                 block.all_spanned_instructions().any(|sp| {
                     matches!(
                         &sp.inst,
-                        MirInstruction::Call {
+                        MirInstruction::LegacyCallV0 {
                             callee: Some(Callee::Method {
                                 box_name,
                                 method,
@@ -64,7 +64,7 @@ mod tests {
                 block.all_spanned_instructions().any(|sp| {
                     matches!(
                         &sp.inst,
-                        MirInstruction::Call {
+                        MirInstruction::LegacyCallV0 {
                             callee: Some(Callee::Global(name)),
                             ..
                         } if name.display_name() == "Counter.step/0"

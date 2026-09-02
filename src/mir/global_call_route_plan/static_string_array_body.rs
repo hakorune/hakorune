@@ -77,7 +77,7 @@ impl StaticStringArrayFacts {
                 self.values.insert(*dst, class);
                 true
             }
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 dst,
                 callee:
                     Some(Callee::Method {

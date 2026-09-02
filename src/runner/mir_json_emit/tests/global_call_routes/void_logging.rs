@@ -9,7 +9,7 @@ fn build_mir_json_root_emits_direct_plan_for_void_logging_contract() {
         .get_mut(&BasicBlockId::new(0))
         .unwrap()
         .instructions
-        .push(MirInstruction::Call {
+        .push(MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -41,7 +41,7 @@ fn build_mir_json_root_emits_direct_plan_for_void_logging_contract() {
             lhs: ValueId::new(2),
             rhs: ValueId::new(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(

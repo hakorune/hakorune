@@ -170,7 +170,7 @@ fn is_same_slot_set(
     index_root: ValueId,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     box_name,
@@ -255,7 +255,7 @@ fn is_length_call_on(
     receiver_root: ValueId,
 ) -> Option<ValueId> {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:
                 Some(Callee::Method {
@@ -282,7 +282,7 @@ fn is_set_value_use(
     value_root: ValueId,
 ) -> bool {
     match inst {
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {
                     method,

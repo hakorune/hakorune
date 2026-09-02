@@ -52,7 +52,7 @@ impl MirBuilder {
 
         if matches!(
             &instruction,
-            MirInstruction::Call {
+            MirInstruction::LegacyCallV0 {
                 callee: Some(crate::mir::Callee::Method { receiver: None, .. }),
                 ..
             }
@@ -126,14 +126,18 @@ impl MirBuilder {
         // CRITICAL: Final receiver materialization for MethodCall
         // This ensures the receiver has an in-block definition in the same block as the Call.
         // Must happen BEFORE function mutable borrow to avoid borrowck conflicts.
-        if let MirInstruction::Call {
-            callee: Some(callee),
-            dst,
-            args,
-            effects,
-            ..
-        } = &instruction
-        {
+        let call_parts = match &instruction {
+            MirInstruction::Call(call) => Some((call.dst, &call.callee, &call.args, call.effects)),
+            MirInstruction::LegacyCallV0 {
+                dst,
+                callee: Some(callee),
+                args,
+                effects,
+                ..
+            } => Some((*dst, callee, args, *effects)),
+            _ => None,
+        };
+        if let Some((dst, callee, args, effects)) = call_parts {
             use crate::mir::definitions::call_unified::Callee;
             if let Callee::Method {
                 box_name,
@@ -154,7 +158,7 @@ impl MirBuilder {
                     certainty,
                     box_kind,
                 };
-                instruction = MirInstruction::call(*dst, new_callee, args.clone(), *effects);
+                instruction = MirInstruction::call(dst, new_callee, args.clone(), effects);
             }
         }
 
@@ -169,7 +173,8 @@ impl MirBuilder {
                 MirInstruction::Compare { dst, .. } => Some(*dst),
                 MirInstruction::Load { dst, .. } => Some(*dst),
                 MirInstruction::StaticDataLoad { dst, .. } => Some(*dst),
-                MirInstruction::Call { dst, .. } => *dst,
+                MirInstruction::Call(call) => call.dst,
+                MirInstruction::LegacyCallV0 { dst, .. } => *dst,
                 MirInstruction::Phi { dst, .. } => Some(*dst),
                 MirInstruction::NewClosure { dst, .. } => Some(*dst),
                 MirInstruction::NewBox { dst, .. } => Some(*dst),
@@ -290,17 +295,25 @@ impl MirBuilder {
                 }
 
                 // Invariant: Call must always carry a Callee (unified path).
-                if let MirInstruction::Call { callee, .. } = &instruction {
-                    if callee.is_none() {
-                        return Err("builder invariant violated: MirInstruction::Call.callee must be Some (unified call)".into());
-                    } else if emit_debug_policy.local_ssa_trace() {
+                let canonical_callee = match &instruction {
+                    MirInstruction::Call(call) => Some(&call.callee),
+                    MirInstruction::LegacyCallV0 { callee, .. } => {
+                        if callee.is_none() {
+                            return Err("builder invariant violated: MirInstruction::Call.callee must be Some (unified call)".into());
+                        }
+                        callee.as_ref()
+                    }
+                    _ => None,
+                };
+                if let Some(callee) = canonical_callee {
+                    if emit_debug_policy.local_ssa_trace() {
                         use crate::mir::definitions::call_unified::Callee;
-                        if let Some(Callee::Method {
+                        if let Callee::Method {
                             box_name,
                             method,
                             receiver: Some(r),
                             ..
-                        }) = callee
+                        } = callee
                         {
                             let ring0 = crate::runtime::get_global_ring0();
                             ring0.log.debug(&format!(
@@ -314,12 +327,12 @@ impl MirBuilder {
                         }
                     } else if emit_debug_policy.trace_recv() {
                         use crate::mir::definitions::call_unified::Callee;
-                        if let Some(Callee::Method {
+                        if let Callee::Method {
                             box_name,
                             method,
                             receiver: Some(r),
                             ..
-                        }) = callee
+                        } = callee
                         {
                             let names: Vec<String> = self
                                 .function_state
@@ -350,7 +363,9 @@ impl MirBuilder {
                         match &instruction {
                             MirInstruction::TypeOp { dst, op, value, ty } =>
                                 format!("typeop {:?} {} {:?} -> {}", op, value, ty, dst),
-                            MirInstruction::Call {
+                            MirInstruction::Call(call) =>
+                                format!("call {:?}({:?}) -> {:?}", call.callee, call.args, call.dst),
+                            MirInstruction::LegacyCallV0 {
                                 func,
                                 callee,
                                 args,

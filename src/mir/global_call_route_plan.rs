@@ -507,7 +507,7 @@ fn refresh_function_global_call_routes_with_targets(
             continue;
         };
         for (instruction_index, instruction) in block.instructions.iter().enumerate() {
-            let MirInstruction::Call {
+            let MirInstruction::LegacyCallV0 {
                 dst,
                 callee: Some(Callee::Global(name)),
                 args,

@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn test_unsupported_extern_call_fails_fast_with_supported_list() {
         let mut codegen = WasmCodegen::new();
-        let result = codegen.generate_instruction(&MirInstruction::Call {
+        let result = codegen.generate_instruction(&MirInstruction::LegacyCallV0 {
             dst: None,
             func: ValueId::INVALID,
             callee: Some(Callee::Extern("env.console.trace".to_string())),

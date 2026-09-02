@@ -24,7 +24,7 @@ fn refresh_module_global_call_routes_marks_string_scan_generic_i64_body() {
         .insert(ValueId::new(3), MirType::Integer);
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -37,7 +37,7 @@ fn refresh_module_global_call_routes_marks_string_scan_generic_i64_body() {
             args: vec![],
             effects: EffectMask::PURE,
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -56,7 +56,7 @@ fn refresh_module_global_call_routes_marks_string_scan_generic_i64_body() {
             lhs: ValueId::new(3),
             rhs: ValueId::new(5),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(7)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -136,7 +136,7 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_i64_body() {
     callee.params = vec![ValueId::new(0), ValueId::new(1), ValueId::new(2)];
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
     entry.instructions.extend([
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -191,7 +191,7 @@ fn refresh_module_global_call_routes_accepts_self_recursive_generic_i64_body() {
             lhs: ValueId::new(2),
             rhs: ValueId::new(6),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(9)),
             func: ValueId::INVALID,
             callee: Some(Callee::Global(crate::mir::test_global_target(
@@ -261,7 +261,7 @@ fn refresh_module_global_call_routes_accepts_generic_i64_select_flow() {
             lhs: ValueId::new(2),
             rhs: ValueId::new(3),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(5)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -339,7 +339,7 @@ fn refresh_module_global_call_routes_accepts_string_contains_not_scalar_body() {
             dst: ValueId::new(2),
             value: ConstValue::String("\"version\"".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -427,7 +427,7 @@ fn refresh_module_global_call_routes_accepts_string_indexof_generic_i64_body() {
             dst: ValueId::new(2),
             value: ConstValue::String("\"version\":0".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -489,7 +489,7 @@ fn refresh_module_global_call_routes_accepts_string_lastindexof_generic_i64_body
             dst: ValueId::new(2),
             value: ConstValue::String("\"version\"".to_string()),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(3)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {
@@ -546,7 +546,7 @@ fn refresh_module_global_call_routes_infers_unknown_string_search_needle_generic
     );
     callee.params = vec![ValueId::new(1), ValueId::new(2)];
     let entry = callee.blocks.get_mut(&BasicBlockId::new(0)).unwrap();
-    entry.instructions.push(MirInstruction::Call {
+    entry.instructions.push(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -611,7 +611,7 @@ fn refresh_module_global_call_routes_accepts_string_ordered_compare_generic_i64_
             dst: ValueId::new(3),
             value: ConstValue::Integer(1),
         },
-        MirInstruction::Call {
+        MirInstruction::LegacyCallV0 {
             dst: Some(ValueId::new(4)),
             func: ValueId::INVALID,
             callee: Some(Callee::Method {

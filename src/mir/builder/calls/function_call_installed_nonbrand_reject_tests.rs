@@ -28,7 +28,7 @@ fn installed_nonbrand_caller_none_rejects_before_arguments() {
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
         .count();
     assert_eq!(calls, 0);
 }

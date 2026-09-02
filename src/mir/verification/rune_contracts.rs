@@ -218,7 +218,7 @@ mod tests {
     fn no_alloc_contract_rejects_alloc_effect_call() {
         let function = test_function_with_contracts(
             &["no_alloc"],
-            vec![MirInstruction::Call {
+            vec![MirInstruction::LegacyCallV0 {
                 dst: Some(ValueId::new(1)),
                 func: ValueId::new(99),
                 callee: None,

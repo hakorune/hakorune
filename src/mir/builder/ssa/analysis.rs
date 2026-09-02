@@ -75,7 +75,7 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::PinnedTextResidenceFinish { .. } => "PinnedTextResidenceFinish",
         MirInstruction::PinnedTextResidenceEnter { .. } => "PinnedTextResidenceEnter",
         MirInstruction::PinnedTextResidenceTrap { .. } => "PinnedTextResidenceTrap",
-        MirInstruction::Call { .. } => "Call",
+        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",
         MirInstruction::Jump { .. } => "Jump",
@@ -170,7 +170,7 @@ pub(crate) fn dominated_call_result_root(
         let (block, inst) = find_value_def(builder, current)?;
         match inst {
             MirInstruction::Copy { src, .. } => current = src,
-            MirInstruction::Call { .. } => {
+            MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => {
                 if block == current_block {
                     return Some(current);
                 }

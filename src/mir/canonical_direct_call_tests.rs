@@ -54,31 +54,21 @@ fn materializes_exact_callee_without_legacy_resolution() {
     let instruction = emission
         .materialize(ValueId::new(9), vec![ValueId::new(3)])
         .unwrap();
-    let MirInstruction::Call {
-        dst,
-        func,
-        callee,
-        args,
-        effects,
-    } = instruction
-    else {
+    let MirInstruction::Call(call) = instruction else {
         unreachable!()
     };
-    assert_eq!(dst, Some(ValueId::new(9)));
-    assert_eq!(func, ValueId::INVALID);
+    assert_eq!(call.dst, Some(ValueId::new(9)));
     assert_eq!(
-        callee,
-        Some(Callee::Global(crate::mir::test_global_target(
-            "countdown/1".to_string()
-        )))
+        call.callee,
+        Callee::Global(crate::mir::test_global_target("countdown/1".to_string()))
     );
-    assert_eq!(args, vec![ValueId::new(3)]);
-    assert_eq!(effects, expected_effects);
-    assert!(effects.contains(Effect::Barrier));
-    assert!(!effects.contains(Effect::Pure));
-    assert!(!effects.is_read_only());
-    assert!(!effects.is_parallel_safe());
-    assert!(!effects.is_moveable());
+    assert_eq!(call.args, vec![ValueId::new(3)]);
+    assert_eq!(call.effects, expected_effects);
+    assert!(call.effects.contains(Effect::Barrier));
+    assert!(!call.effects.contains(Effect::Pure));
+    assert!(!call.effects.is_read_only());
+    assert!(!call.effects.is_parallel_safe());
+    assert!(!call.effects.is_moveable());
 }
 
 #[test]
@@ -96,12 +86,12 @@ fn materializes_the_already_published_definition_key_without_source_relookup() {
     let instruction = emission
         .materialize(ValueId::new(9), vec![ValueId::new(3)])
         .expect("published target projection");
-    let MirInstruction::Call { callee, .. } = instruction else {
+    let MirInstruction::Call(call) = instruction else {
         unreachable!()
     };
     assert_eq!(
-        callee,
-        Some(Callee::Global(
+        call.callee,
+        Callee::Global(
             hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
                 "Main",
                 "countdown",
@@ -109,7 +99,7 @@ fn materializes_the_already_published_definition_key_without_source_relookup() {
             )
             .canonical_global_target_v1()
             .expect("published static target"),
-        ))
+        )
     );
 }
 

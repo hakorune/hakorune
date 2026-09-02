@@ -82,7 +82,7 @@ fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_fi
         dst: ValueId::new(14),
         src: ValueId::new(11),
     });
-    put_block.add_instruction(MirInstruction::Call {
+    put_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(15)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -112,7 +112,7 @@ fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_fi
     );
     read_data.params = vec![ValueId::new(20), ValueId::new(21)];
     let mut read_block = BasicBlock::new(BasicBlockId::new(0));
-    read_block.add_instruction(MirInstruction::Call {
+    read_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(22)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -162,7 +162,7 @@ fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_fi
         dst: ValueId::new(41),
         value: ConstValue::String("chunk".to_string()),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -175,7 +175,7 @@ fn refresh_module_user_box_method_routes_refines_placeholder_param_for_string_fi
         args: vec![ValueId::new(41)],
         effects: EffectMask::PURE,
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(42)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -322,7 +322,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_field_origin
         dst: ValueId::new(2),
         src: ValueId::new(1),
     });
-    put_block.add_instruction(MirInstruction::Call {
+    put_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(3)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {
@@ -355,7 +355,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_field_origin
         box_type: "Store".to_string(),
         args: Vec::new(),
     });
-    main_block.add_instruction(MirInstruction::Call {
+    main_block.add_instruction(MirInstruction::LegacyCallV0 {
         dst: Some(ValueId::new(11)),
         func: ValueId::INVALID,
         callee: Some(Callee::Method {

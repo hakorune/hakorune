@@ -104,7 +104,7 @@ pub(crate) fn infer_user_box_method_param_box_origins(
                     continue;
                 };
                 for instruction in &block.instructions {
-                    let MirInstruction::Call {
+                    let MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
                                 box_name,
@@ -368,7 +368,7 @@ pub(crate) fn infer_user_box_field_box_origins(
                                 value_box,
                             );
                         }
-                        MirInstruction::Call {
+                        MirInstruction::LegacyCallV0 {
                             callee:
                                 Some(Callee::Method {
                                     box_name,

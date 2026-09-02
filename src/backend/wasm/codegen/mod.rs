@@ -386,7 +386,7 @@ fn reachable_function_names(mir_module: &MirModule) -> BTreeSet<String> {
         };
         for block in function.blocks.values() {
             for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-                if let MirInstruction::Call {
+                if let MirInstruction::LegacyCallV0 {
                     callee: Some(Callee::Global(target)),
                     ..
                 } = instruction

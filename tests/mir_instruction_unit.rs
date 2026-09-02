@@ -37,7 +37,7 @@ fn test_call_instruction() {
     let func = ValueId::new(1);
     let arg1 = ValueId::new(2);
     let arg2 = ValueId::new(3);
-    let inst = MirInstruction::Call {
+    let inst = MirInstruction::LegacyCallV0 {
         dst: Some(dst),
         func,
         callee: None, // Legacy mode for test

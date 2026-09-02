@@ -450,7 +450,7 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                             .and_then(Value::as_str)
                             .unwrap_or("RuntimeDataBox")
                             .to_string();
-                        block_ref.add_instruction(MirInstruction::Call {
+                        block_ref.add_instruction(MirInstruction::LegacyCallV0 {
                             dst: dst_opt,
                             func: ValueId::INVALID,
                             callee: Some(Callee::Method {

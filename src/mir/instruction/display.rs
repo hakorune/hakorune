@@ -4,6 +4,7 @@
 
 use crate::mir::instruction::MirInstruction;
 use crate::mir::printer_helpers::format_call_target;
+use crate::mir::ValueId;
 use std::fmt;
 
 impl fmt::Display for MirInstruction {
@@ -76,7 +77,16 @@ impl fmt::Display for MirInstruction {
                 "{} = variant.project {} as {}::{} tag={}",
                 dst, value, enum_name, variant, tag
             ),
-            MirInstruction::Call {
+            MirInstruction::Call(call) => {
+                let call_display =
+                    format_call_target(Some(&call.callee), ValueId::INVALID, &call.args);
+                if let Some(dst) = call.dst {
+                    write!(f, "{} = {}; effects: {}", dst, call_display, call.effects)
+                } else {
+                    write!(f, "{}; effects: {}", call_display, call.effects)
+                }
+            }
+            MirInstruction::LegacyCallV0 {
                 dst,
                 func,
                 callee,

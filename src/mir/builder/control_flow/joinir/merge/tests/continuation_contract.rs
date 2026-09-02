@@ -47,7 +47,7 @@ fn case_a_pure_k_exit_return_is_skippable() {
 fn case_b_k_exit_tailcall_post_k_is_not_skippable() {
     let mut func = make_function("join_func_2");
     let block = func.blocks.get_mut(&func.entry_block).unwrap();
-    block.instructions.push(MirInstruction::Call {
+    block.instructions.push(MirInstruction::LegacyCallV0 {
         dst: None,
         func: ValueId(0),
         callee: None,

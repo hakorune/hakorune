@@ -27,7 +27,7 @@ fn generic_string_return_profile_cache_key(
     let mut callees = BTreeSet::<String>::new();
     for block in function.blocks.values() {
         for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-            if let MirInstruction::Call {
+            if let MirInstruction::LegacyCallV0 {
                 callee: Some(Callee::Global(name)),
                 ..
             } = instruction
