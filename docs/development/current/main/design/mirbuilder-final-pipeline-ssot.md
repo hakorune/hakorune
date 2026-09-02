@@ -420,6 +420,31 @@ At least one focused positive required-ingress test and one negative
 legacy-reachability test must be recorded. Existing known-red baseline
 comparison remains mandatory; an unclassified red aborts the row.
 
+M3-A closeout is accepted at `474e8518b0`:
+
+```text
+UnifiedCallEmitter core env reads                         = 0
+UnifiedCallEmitter core `emit_legacy_call` calls          = 0
+required ingress -> legacy route                         = 0
+explicit compatibility outer callers                    = preserved
+Call schema / target authority                            = unchanged
+```
+
+The outer `MirBuilder` facade now owns the profile decision; the typed core
+is configuration-free, and required/receipt ingress fails closed when the
+profile is disabled. Focused evidence is `physical_receipt` 23/23,
+`method_call_terminal` 8/8, and
+`normal_script_direct_static_physical_publication` 3/3. The fixed baseline
+runner was observed three times with identical
+`7578 total / 7411 passed / 138 failed / 29 ignored`, inventory SHA
+`0632d98fe396207747dd7b597563f08e81b1dfaf4054340b4cb411edc2ac12dd`, and
+failure SHA `29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`.
+The inventory grew by one passing focused test; the 138-name known-red set
+did not change. The manifest refresh is therefore an explicit baseline
+receipt update, not a green-suite claim. Python comparator tests (15/15),
+pointer guard, and diff check pass. No Call-schema, ordinary-new, JoinIR,
+JSON, backend, VM, fallback, or retry semantics changed.
+
 `Method(None)`, `callee=None`, a string target, backend success, JSON, a
 registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target
 authority. Construction terminators such as NewBox/NewClosure remain outside
@@ -447,6 +472,50 @@ receiver inference from args[0]/ValueId(0)     = 0
 fallback / retry / profile reselection         = 0
 partial module publication                     = 0
 ```
+
+### M3-B ordinary-new outer quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B`
+
+```text
+status = `accepted_design_stop`
+implementation permission = false
+scope = ordinary-new Birth versus unclaimed compatibility fallback
+```
+
+```text
+Decision:
+  Birth is the sole canonical ordinary-new owner. Any unclaimed
+  builtin/plugin lowering remains an explicit outer compatibility ingress;
+  it must not reissue an ordinary-new target from a name or registry.
+
+Source authority + canonical issuer:
+  The existing Birth route and its source/package disposition own claimed
+  ordinary-new semantics. The existing outer compatibility owner owns only
+  unclaimed fallback; no new semantic issuer is introduced.
+
+Non-authority:
+  spelling/name scans, registry or header lookup, JSON, JoinIR labels,
+  backend success, fallback results, args[0], and a new receipt/adapter.
+
+Fail-fast boundary:
+  A claimed Birth shape is selected before argument effects. An unclaimed
+  shape either enters the existing explicit compatibility boundary or is
+  rejected; it never retries through canonical Birth or another resolver.
+
+Smallest next slice:
+  Perform one finite census from ordinary-new admission to its fallback
+  branch, name the live outer compatibility owner and its finite delete set,
+  then implement only if exactly one owner/caller/delete set is found.
+
+Non-claims:
+  No JoinIR/JSON quarantine, mandatory-Callee R6, Call-schema change,
+  backend/VM change, new target authority, or ordinary-new semantic widening.
+```
+
+The M3-B census boundary is `ordinary-new admission -> Birth selection or
+unclaimed fallback`. It excludes JoinIR/JSON, Extern, Value/closure, backend,
+VM, and all already-landed source families. If the owner/caller/delete-set is
+zero or multiple, M3-B remains `ParkedSealed` and receives no new D0,
+receipt, adapter, fixture, or guard.
 
 Hako published-view coverage and physical legacy deletion remain required for
 MS1-B/MS1-D, but they do not authorize another semantic Builder design cycle.

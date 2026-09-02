@@ -703,6 +703,7 @@ mir::builder::calls::unified_emitter::physical_receipt_tests::generic_value_call
 mir::builder::calls::unified_emitter::physical_receipt_tests::receipt_requirement_rejects_unified_disabled_without_legacy_fallback
 mir::builder::calls::unified_emitter::physical_receipt_tests::rewrite_retire_equals_uses_canonical_method_terminal
 mir::builder::calls::unified_emitter::physical_receipt_tests::rewrite_retire_user_method_uses_canonical_method_terminal
+mir::builder::calls::unified_emitter::physical_receipt_tests::typed_core_ignores_disabled_profile_without_legacy_reentry
 mir::builder::calls::unified_emitter::physical_receipt_tests::unified_depth_overflow_restores_entry_depth_without_publication
 mir::builder::calls::unified_emitter::post_success::tests::external_source_bound_publication_suppresses_signature_annotation
 mir::builder::calls::unified_emitter::post_success::tests::global_payload_keeps_the_final_signature_and_collection_shape

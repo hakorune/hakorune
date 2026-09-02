@@ -1,14 +1,15 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B"
+current_design_stop = "M3-B ordinary-new outer quarantine: confirm the existing Birth owner and the single outer compatibility owner before any code change. Zero/multiple owner or delete-set remains ParkedSealed; no new receipt, adapter, fixture, guard, fallback, or retry."
 current_blocker_token = """
-MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A: move only the environment-disabled
-legacy fallback out of UnifiedCallEmitterBox. Required ingress remains typed
-and never calls emit_legacy_call; explicit compatibility callers retain the
-existing outer owner. No new receipt, adapter, resolver, fallback, retry, or
-schema change. Stop if canonical and compatibility callers cannot be separated.
+MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B: census only the ordinary-new
+admission -> Birth selection or unclaimed compatibility fallback boundary.
+Birth remains the sole canonical owner; an unclaimed shape may use the
+existing explicit outer compatibility owner but may not reissue a target from
+name/registry or retry through another resolver. Do not edit code until the
+owner, live caller, and finite old-edge delete set are exactly one.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -40,17 +41,19 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 The publication spine and Print producer coverage are closed and the
 checkpoint is integrated into hakorune/main at 7049cbb729. Whole-library
-health remains the classified 7577/7410/138/29 known-red baseline. The finite
-M1 Call producer/consumer census and M2 remaining-family disposition are
-closed and recorded in the final-pipeline SSOT. The current bounded fast row
-is M3-A: fence the environment-disabled legacy fallback inside
-UnifiedCallEmitterBox while preserving explicit compatibility ingress. After
-M3-A, continue only through the fixed M3-B/M3-C/M4→M9 order. Landed families
-are not reopened and zero/multiple authority tuples remain ParkedSealed
-without new design assets.
+health remains the classified 7578/7411/138/29 known-red baseline; the
+inventory refresh added one passing focused test and did not change the
+138-name failure set. The finite M1 Call producer/consumer census and M2
+remaining-family disposition are closed and recorded in the final-pipeline
+SSOT. M3-A is closed at 474e8518b0: the UnifiedCallEmitter core has zero env
+reads and zero legacy emission calls while the outer compatibility owner is
+preserved. The current design-stop row is M3-B ordinary-new outer quarantine;
+continue only through the fixed M3-B/M3-C/M4→M9 order. Landed families are
+not reopened and zero/multiple authority tuples remain ParkedSealed without
+new design assets.
 """
-next_design_card = "none__m2_closed"
-next_execution_card = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A"
+next_design_card = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B"
+next_execution_card = "none__m3b_design_stop"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -68,7 +71,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-02: compile-cost baseline runner landed at 84ca1b8069: the existing MIR scaling owner now uses an accepted static Main probe, one warmup plus five retained samples, median/p95, binary/source SHA-256, NYASH_/HAKO_ environment fingerprint, and strict shadow-contract evidence. Loop-bound probes remain explicit route rejections and are not treated as green; no semantic or backend owner changed.",
   "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
+  "2026-09-03: M3-A compatibility quarantine landed at 474e8518b0; the UnifiedCallEmitter core has zero env reads and zero legacy-emission calls, required ingress remains fail-closed, and explicit compatibility stays at the outer MirBuilder owner. Three fixed baseline observations agree at 7578/7411/138/29 with unchanged 138-name failure set; next row is the M3-B ordinary-new outer quarantine design stop.",
 ]

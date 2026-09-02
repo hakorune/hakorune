@@ -36,13 +36,18 @@ source -> exact Facts/Recipe -> typed target before arguments
 ```
 
 The M1 current-HEAD Call producer/consumer census and M2 remaining-family
-disposition are closed in `mirbuilder-final-pipeline-ssot.md`. The current
-bounded fast row is M3-A, also fixed there:
+disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
+closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
+reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
+preserves explicit compatibility and required ingress stays fail-closed.
+The fixed baseline was observed three times at `7578/7411/138/29`; the
+inventory gained one passing test and the 138-name known-red set is unchanged.
+The next bounded design-stop row is M3-B ordinary-new outer quarantine:
 
 ```text
-UnifiedCallEmitter core env-disabled fallback fence
-  -> explicit compatibility outer owner remains
-  -> required ingress cannot reach emit_legacy_call
+Birth is the canonical ordinary-new owner
+  -> unclaimed builtin/plugin fallback stays at the outer compatibility edge
+  -> no ordinary-new target is reissued from a name or registry
 ```
 
 After that row, the next work is fixed there:
@@ -96,7 +101,7 @@ workstream does not duplicate them.
 - Repository/tooling tombstones: legacy-tests `bcc9a6ba65`; entrypoint policy
   `06454bd084`/`c78889dc0b`/`b22a87392d`; baseline/matrix
   `878480e395`/`80dc7102fb`; current accepted receipt is
-  `7577/7410/138/29`.
+  `7578/7411/138/29` after the explicit M3-A focused-test inventory refresh.
 - focused green is not a whole-repo green claim; the 138-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive
