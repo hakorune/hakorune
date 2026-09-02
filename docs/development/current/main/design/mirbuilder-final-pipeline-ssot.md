@@ -360,6 +360,66 @@ four dispositions or an explicitly recorded `ParkedSealed` boundary above.
 The next executable row remains M3 compatibility quarantine; no semantic
 family is reopened by this table.
 
+M2 closeout is accepted: the worker premise audit cross-checked the named
+UnifiedCall, ordinary-new, JoinIR/JSON, explicit-runtime, structural, and
+parked physical owners against this table. No second semantic issuer or
+unclassified production-reachable owner was found. M2 is therefore closed as
+a finite disposition, not as an implementation or Call-schema claim.
+
+### M3-A compatibility quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A`
+
+```text
+status = `accepted_fast`
+implementation permission = true
+scope = `UnifiedCallEmitterBox` environment-disabled fallback only
+```
+
+```text
+Decision:
+  Fence the existing env-disabled legacy fallback outside the canonical
+  UnifiedCallEmitterBox core. Keep the explicit compatibility owner intact.
+
+Source authority + canonical issuer:
+  Existing source/package issuer and `emit_unified_call_required_v1` issue
+  the typed call. The compatibility outer caller owns legacy emission.
+
+Non-authority:
+  env reads inside the core, JSON, JoinIR names, registry/header lookup,
+  args[0], backend success, fallback results, and a new receipt or adapter.
+
+Fail-fast boundary:
+  Required ingress must never reach `emit_legacy_call`. If canonical and
+  compatibility callers cannot be separated, stop before changing code.
+
+Smallest next slice:
+  Remove the `!unified_call_enabled -> emit_legacy_call` branch from
+  `UnifiedCallEmitterBox`; route explicit compatibility through its existing
+  outer owner without changing Call schema or ordinary-new/JoinIR/JSON paths.
+
+Non-claims:
+  No M3-B ordinary-new change, no M3-C JoinIR/JSON change, no mandatory-Callee
+  R6, no backend/VM change, and no new semantic target authority.
+```
+
+Census boundary: `UnifiedCallEmitterBox::emit_unified_call` entry -> its
+`emit_legacy_call` branch and required-ingress terminal; includes the env
+disabled branch and `RequireGenericReceipt`, excludes `exprs_call.rs`,
+`boxcall_emit.rs`, ordinary-new, JoinIR, JSON, VM, and backend consumers.
+
+M3-A acceptance is mechanical:
+
+```text
+UnifiedCallEmitter core env reads                         = 0
+UnifiedCallEmitter core `emit_legacy_call` calls          = 0
+required ingress -> legacy route                         = 0
+explicit compatibility outer callers                    = preserved
+Call schema / target authority                            = unchanged
+```
+
+At least one focused positive required-ingress test and one negative
+legacy-reachability test must be recorded. Existing known-red baseline
+comparison remains mandatory; an unclassified red aborts the row.
+
 `Method(None)`, `callee=None`, a string target, backend success, JSON, a
 registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target
 authority. Construction terminators such as NewBox/NewClosure remain outside

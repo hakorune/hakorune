@@ -1,15 +1,14 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0"
-current_design_stop = "MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0: assign each remaining Call family one finite fate before compatibility quarantine or R6; no implementation, new receipt, adapter, fixture, guard, fallback, or retry."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A"
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0 design stop: consume the closed
-M1 owner map and assign every remaining family exactly one fate. Use only
-Canonical, CompatibilityOuterIngress, ExplicitUnsupported, or
-DeadDeleteCandidate; zero/multiple authority tuples are ParkedSealed. No
-implementation permission and no new Verified*/Prepared* receipt, adapter,
-fixture, guard, fallback, or retry.
+MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A: move only the environment-disabled
+legacy fallback out of UnifiedCallEmitterBox. Required ingress remains typed
+and never calls emit_legacy_call; explicit compatibility callers retain the
+existing outer owner. No new receipt, adapter, resolver, fallback, retry, or
+schema change. Stop if canonical and compatibility callers cannot be separated.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,14 +41,16 @@ latest_card_summary = """
 The publication spine and Print producer coverage are closed and the
 checkpoint is integrated into hakorune/main at 7049cbb729. Whole-library
 health remains the classified 7577/7410/138/29 known-red baseline. The finite
-M1 Call producer/consumer census is closed and recorded in the final-pipeline
-SSOT; the current design stop is M2 remaining-family disposition. After M2,
-only the fixed M3→M9 order may select work. Landed families are not reopened
-and zero/multiple authority tuples remain ParkedSealed without new design
-assets.
+M1 Call producer/consumer census and M2 remaining-family disposition are
+closed and recorded in the final-pipeline SSOT. The current bounded fast row
+is M3-A: fence the environment-disabled legacy fallback inside
+UnifiedCallEmitterBox while preserving explicit compatibility ingress. After
+M3-A, continue only through the fixed M3-B/M3-C/M4→M9 order. Landed families
+are not reopened and zero/multiple authority tuples remain ParkedSealed
+without new design assets.
 """
-next_design_card = "MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0"
-next_execution_card = "none__accepted_d0"
+next_design_card = "none__m2_closed"
+next_execution_card = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

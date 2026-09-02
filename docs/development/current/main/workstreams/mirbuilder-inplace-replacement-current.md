@@ -35,12 +35,21 @@ source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The M1 current-HEAD Call producer/consumer census is closed in
-`mirbuilder-final-pipeline-ssot.md`.  The next work is fixed there:
+The M1 current-HEAD Call producer/consumer census and M2 remaining-family
+disposition are closed in `mirbuilder-final-pipeline-ssot.md`. The current
+bounded fast row is M3-A, also fixed there:
 
 ```text
-remaining family disposition
-  -> compatibility outer-ingress quarantine
+UnifiedCallEmitter core env-disabled fallback fence
+  -> explicit compatibility outer owner remains
+  -> required ingress cannot reach emit_legacy_call
+```
+
+After that row, the next work is fixed there:
+
+```text
+M3-B ordinary-new outer quarantine
+  -> M3-C JoinIR/JSON outer quarantine
   -> mandatory-Callee R6
   -> selected backend family cutover
   -> R7 caller-zero legacy deletion
