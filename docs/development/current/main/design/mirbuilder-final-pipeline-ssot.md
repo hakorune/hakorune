@@ -620,8 +620,8 @@ opened.
 ### R6 Group B — `MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0`
 
 ```text
-status = `accepted_fast`
-implementation permission = true
+status = `closed`
+implementation permission = false
 ```
 
 The first Group-B candidate is deliberately one reader and one canonical
@@ -669,6 +669,21 @@ compatibility. Focused positive/negative tests, the existing VM feature build,
 the active-surface dispatch, the current-state pointer guard, and diff checks
 are the required evidence. This closeout does not claim whole-schema reader
 caller-zero or any product-backend/VM retirement.
+
+The next design-only boundary is one fresh post-Group-B Call reader census;
+until that census is accepted, no second reader family or R7 deletion opens.
+
+### R6 post-Group-B reader census — `MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0`
+
+```text
+status = `design_stop`
+implementation permission = false
+scope = fresh finite reader/producer census after Group-B Print
+```
+
+Reclassify only the changed canonical-reader surface and its downstream
+compatibility boundaries. Do not reopen Print, add a new semantic issuer, or
+select another reader until one finite owner/caller/delete-set is named.
 
 このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
 selected shadow profileでDeferredになりpackage発行へ到達できないため、target

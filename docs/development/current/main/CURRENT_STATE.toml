@@ -1,14 +1,14 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
 current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0: Group A landed at 45c6759962 and the
-current-HEAD re-census selected one bounded reader slice. Add only the existing
-typed Builtin(Print) arm to MirInterpreter::execute_instruction; wrong arity and
-non-Print canonical calls fail closed before legacy/name dispatch. No new issuer,
-receipt, variant, fallback, retry, VM product promotion, or legacy deletion.
+MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0: closed at cce62db090. The existing
+typed Builtin(Print) arm now executes through MirInterpreter::execute_instruction;
+wrong arity and non-Print canonical calls fail closed before legacy/name
+dispatch. No new issuer, receipt, variant, fallback, retry, VM product
+promotion, or legacy deletion. Next is a fresh design-only reader census.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -49,14 +49,14 @@ preserved. M3-B is parked because two unclaimed writers share the existing
 compatibility APIs. M3-C's four ingress censuses are complete and parked.
 M4 R6 Group A is closed at 45c6759962: canonical `Call(MirCall)` and explicit
 `LegacyCallV0` have separate instruction shapes, central readers support both,
-and focused/feature-build/guard evidence is green. The one read-only re-census
-then selected Group B's bounded VM canonical Print reader arm; this fast row
-does not claim schema completion, VM product promotion, or R7 deletion. Landed
-families are not reopened and zero/multiple authority tuples remain
-ParkedSealed without new design assets.
+and focused/feature-build/guard evidence is green. Group B then closed at
+cce62db090 with the bounded VM canonical Print reader arm and three focused
+tests; this does not claim schema completion, VM product promotion, or R7
+deletion. Landed families are not reopened and zero/multiple authority tuples
+remain ParkedSealed without new design assets.
 """
-next_design_card = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
-next_execution_card = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
+next_design_card = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-03: R6 Group A landed at 45c6759962. MirInstruction::Call now carries mandatory typed MirCall, old func/Option<Callee> fields are isolated as LegacyCallV0, all active struct-style Call literals were migrated mechanically, and focused/full target-compile/vm-reference/guard evidence passed. R6 current-HEAD re-census is the next read-only boundary; Group B and R7 remain unopened.",
+  "2026-09-03: R6 Group B closed at cce62db090 after the current-HEAD census: the VM reference reader executes canonical Builtin(Print) directly through execute_instruction, wrong arity and non-Print canonical targets fail closed, focused tests and vm-reference build pass, and no VM promotion or R7 deletion is claimed. Next is a fresh design-only reader census.",
   "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
 ]

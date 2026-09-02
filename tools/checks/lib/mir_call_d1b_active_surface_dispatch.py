@@ -461,16 +461,22 @@ def _check_free_function_publication_i0(
 def _check_r6_group_b_vm_canonical_print_i0(state: dict, root: Path, api) -> None:
     """Validate the one-reader canonical Print implementation boundary."""
     row = api.GROUP_B_VM_CANONICAL_PRINT_I0_ROW
-    if state.get("work_mode") != "fast":
-        api.fail(f"{row} must run in fast")
+    if state.get("work_mode") not in {"fast", "closeout"}:
+        api.fail(f"{row} must run in fast or closeout")
     if state.get("current_execution_row") != row:
         api.fail(f"{row} pointer row drifted")
     if state.get("current_design_stop") != "none":
         api.fail(f"{row} requires current_design_stop=none")
-    if state.get("next_design_card") != row:
+    if state.get("work_mode") == "fast" and state.get("next_design_card") != row:
         api.fail(f"{row} next_design_card drifted")
-    if state.get("next_execution_card") != row:
+    if state.get("work_mode") == "closeout" and state.get("next_design_card") != "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0":
+        api.fail(f"{row} closeout next_design_card drifted")
+    if state.get("work_mode") == "fast" and state.get("next_execution_card") != row:
         api.fail(f"{row} next_execution_card drifted")
+    if state.get("work_mode") == "closeout" and not str(
+        state.get("next_execution_card", "")
+    ).startswith("none"):
+        api.fail(f"{row} closeout must clear next_execution_card")
     if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
         api.fail(f"{row} requires the final-pipeline SSOT as its owner")
     if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
@@ -483,7 +489,15 @@ def _check_r6_group_b_vm_canonical_print_i0(state: dict, root: Path, api) -> Non
     if marker not in card_text:
         api.fail(f"{row} contract is absent from the final-pipeline SSOT")
     section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
+    expected_status = "status = `accepted_fast`" if state.get("work_mode") == "fast" else "status = `closed`"
+    expected_permission = (
+        "implementation permission = true"
+        if state.get("work_mode") == "fast"
+        else "implementation permission = false"
+    )
     for token in (
+        expected_status,
+        expected_permission,
         "existing source-backed Print issuer",
         "MirInterpreter::execute_instruction",
         "exact Builtin(Print) target",

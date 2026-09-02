@@ -48,9 +48,10 @@ exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
 and parked. M4 R6 Group A closed at `45c6759962`: canonical `Call(MirCall)` and
 explicit `LegacyCallV0` now have separate instruction shapes, central readers
 support both, and the bounded focused/feature-build/guard evidence is green.
-The read-only R6 current-HEAD re-census is closed. The current fast row is the
-existing VM reference reader's canonical Builtin(Print) arm; it is not VM
-promotion or a new semantic owner:
+The read-only R6 current-HEAD re-census and Group-B implementation are closed.
+The branch is at a clean closeout boundary after the existing VM reference
+reader's canonical Builtin(Print) arm; this was not VM promotion or a new
+semantic owner:
 
 ```text
 R6 Group A is closed; do not claim whole-schema completion
@@ -72,7 +73,9 @@ The Group-B closeout evidence is bounded to the three VM reader/handler files,
 three direct tests (positive, wrong-arity, non-Print rejection), the existing
 `cargo build --features vm-reference`, and the reusable pointer/active-surface
 guards. It does not claim VM promotion, whole-schema completion, or R7 legacy
-deletion.
+deletion. The next row is the fresh design-only
+`MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0` census; no second reader family or
+R7 deletion is open yet.
 
 After that row, the next work is fixed there:
 
