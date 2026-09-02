@@ -1,7 +1,7 @@
 ---
-Status: parked; design_stop
+Status: selected baseline; implementation successors remain gated
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
-Date: 2026-08-22
+Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
 Parent: MIRBUILDER-FINAL-PIPELINE-v1
 NextCard: MIR-COMPILE-TIME-PERF-BASELINE-P0
@@ -106,6 +106,20 @@ defaults, aliases, and debug-off behavior. Acceptance is equal flag values
 under the existing environment matrix plus a reduced hot-call count; no
 semantic route change.
 
+The physical placement is also fixed. The snapshot is one field below the
+existing compilation-owned context (`comp_ctx` or its existing config child),
+not a new top-level `MirBuilder` axis. It must not add a field to
+`RawInvocationChildPortV1`, add a dispatch-port supertrait, or be copied through
+the Call forwarding stack. Emit code borrows the already-installed snapshot.
+One context-owned config field may replace scattered process-env reads; the
+number of cross-layer capability axes must not increase.
+
+The measured current debug-OFF static counts are ordinary emit `7`, Copy `8`,
+and Call `9` process-env reads. The later P0 closes only when the selected emit
+boundary reaches zero while two separately-created compiler sessions can
+still observe two explicit test configurations. The supplied `7-13` range is
+not used as an acceptance value.
+
 ### P2 — `MIR-BUILDER-EMIT-CLONE-SHAPE-P0`
 
 Remove only proven dead or unconditional clone work at the emit seam:
@@ -201,7 +215,11 @@ pass fusion that crosses the active canonical/legacy boundary
 
 ## Current status
 
-This card is intentionally parked. The active lane remains
-`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0`; performance is not a production
-blocker or an implementation permission. The next allowed performance action
-is the baseline/census P0 after the active design stop is selected for work.
+The former Hako SameModuleInstance physical-ingress lane is ParkedSealed, so
+the owner-first compile-cost train is now selected without reopening that
+semantic family. The only executable row is
+`MIR-COMPILE-COST-BASELINE-P0`. It may improve the existing timing/scaling
+owner and record a repeatable observation; it may not change Builder,
+Call/backend semantics, env policy, clones, forwarding layers, direct-storage
+defaults, or VM selection. The snapshot and move/clone rows open only in the
+recorded order and only when the immutable baseline observes their owner.

@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-current_design_stop = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+work_mode = "fast"
+current_execution_row = "MIR-COMPILE-COST-BASELINE-P0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject, and the Hako physical-ingress lane is ParkedSealed because its required production seams are absent.
-Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
-Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, selected-C success, or object/link-only probes.
-Fail-fast boundary: reject before JSON preparation, C/Hako transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
-Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; the one-file docs retirement and one duplicate-test reduction are landed, and no further finite delete-safe semantic family is selected.
-Non-claims: no Hako implementation, Call schema/R6, VM/selfhost, shared exec/JSON deletion, selected-C feature expansion, further archive/delete, or whole-library green claim.
+Decision: measure the existing compiler fixed-cost owners before changing Builder emission; the former Hako physical-ingress family stays ParkedSealed.
+Source authority + canonical issuer: one compiler invocation plus the existing compile_timing.rs and mir_compile_scaling.py owners, with fixed source/binary/profile/environment identity.
+Non-authority: review estimates, LOC/frame counts, one wall-clock sample, generated-program runtime, global OnceLock, or a guessed speedup.
+Fail-fast boundary: source digest, compiler binary, profile, environment, result, or route drift rejects the observation; this row changes no semantic owner, fallback, Builder emission, or backend behavior.
+Smallest next slice: extend only the existing scaling owner with one warmup, five retained runs, median output, explicit binary identity, and the selected env/clone counters; park any hotspot not visible in the observation.
+Non-claims: no env snapshot implementation, clone deletion, forwarding merge, barrel/dead-code cleanup, direct-default change, VM decision, Call schema, backend switch, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -29,27 +29,27 @@ semantic-family widening into verification-only rows.
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> named production switch -> old-edge deletion row at a time. Zero/multiple owner-caller-delete tuples park the whole family; do not add another D0, receipt, adapter, fixture, or guard. Tests/guards/docs retire only with their caller-zero family or an equal/stronger successor. The current guard census has no new SupersededDelete candidate, so broad guard cleanup remains parked. Before Call R6, require deterministic no-new-red comparison and exact changed-test execution coverage; focused green is not whole-repo health."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder in-place production responsibility replacement"
+active_lane = "MirBuilder owner-first compile-cost and physical thinning"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
-latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
-latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
-The selected repository-reduction row is landed: one identical local-contract
-test and its baseline inventory entry were removed. The exact successor passed
-and the full quick lib run matched the accepted 138-name known-red set; no
-production or semantic source changed. The Hako physical-ingress lane remains
-ParkedSealed with no implementation permission.
+The architecture audit is dispositioned without a new card. The Hako physical
+ingress stays ParkedSealed; the selected row measures the existing compiler
+fixed-cost owners before any change. Its successors are one compilation-owned
+debug/strict snapshot with no new port axis, then one emit move/clone removal.
+Layer thinning, namespace cleanup, and direct-storage defaults remain separate.
 """
-next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-next_execution_card = "none__design_stop"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+next_design_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
+next_execution_card = "MIR-COMPILE-COST-BASELINE-P0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
-parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
+active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
 accepted_branch_execution_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0 (landed bounded branch row; typed kind=2 published row, selected-C consumer, Print-only legacy fallback deletion, and source-to-exe result 42; no artificial commit-count quota)"

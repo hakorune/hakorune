@@ -1,5 +1,5 @@
-Status: parked correctness/compile-cost follow-up SSOT; selection remains owned only by CURRENT_STATE.toml
-Date: 2026-08-22
+Status: correctness/compile-cost follow-up SSOT; selection remains owned only by CURRENT_STATE.toml
+Date: 2026-09-02
 Parent: `CURRENT_STATE.toml` and `perf-owner-first-optimization-ssot.md`
 ---
 
@@ -19,6 +19,10 @@ selected only from source appearance.
 | `MIR-COMPILE-COST-BASELINE-P0` | Parked prerequisite | existing compile timing/scaling tools | select before claiming any compiler-speed keeper |
 | `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0` | High confidence | config ingress + Builder session | choose a request/session owner; a process-global `OnceLock` is not accepted by source inspection alone |
 | `MIR-EMIT-MOVE-COMMIT-R0` | High confidence | `builder_emit.rs` | after debug-policy ownership is fixed; do not overlap a semantic writer row |
+| `MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` | Required before growth | `method_call_handlers.rs` | behavior-neutral split at the publication-ingress policy / legacy prepare-execute boundary; the file is 766 lines |
+| `MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` | Parked design | `unified_emitter.rs` + exact callers | no layer merge until `PermitLegacy` and `RequireGenericReceipt` callers have a finite contract-preserving delete set |
+| `MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` | Bounded BoxShape | `variable_read.rs` | move only direct read access to the existing variable owner; do not privatize or clone-rewrite the whole map |
+| `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` | Separate design | value/ABI + storage/runtime owners | keep safe defaults until generation/lease/lifetime/thread/failure contracts are fixed |
 | `MIR-DEBUG-PAYLOAD-LAZY-P0` | High confidence | unified-call observer ingress | gate candidate projection and JSON construction before work, preserving observer output exactly |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
@@ -121,6 +125,104 @@ MIR-COMPILE-COST-BASELINE-P0
 The three small emit candidates may eventually land as separate commits in one
 measurement series, but each keeps its own revert boundary. A single source
 review does not authorize bundling them or claiming their combined speedup.
+
+## 2026-09-02 architecture-audit disposition
+
+The review is directionally correct, but its observations belong to four
+different trains. They are not one cleanup series.
+
+| Claim | Current-tree result | Decision |
+| --- | --- | --- |
+| `builder.rs` is a namespace barrel | confirmed: 747 lines and 268 distinct top-level module registrations | retain through Call closure; census production/compatibility/migration/test exports before thinning |
+| Builder contexts are physically split | confirmed, but encapsulation is not closed | 22 `CompilationContext` fields include 19 public fields; broad descendant access remains cleanup debt |
+| stale `#[allow(dead_code)]` hides dead code | partially confirmed | 40 annotated Builder modules include 28 explicitly labelled candidate/disconnected rows and 5 zero-module-path-reference candidates; annotation age is not caller-zero proof |
+| `variable_map` is an accessor-owned boundary | refuted | raw Builder census finds 251 tokens, 81 clones in 45 files, 67 assignments in 29 files, and no `variable_map_mut`; do one read-only seam first, not blanket privatization |
+| per-instruction env tax exists | confirmed for the ordinary writer | debug-OFF static counts are ordinary `7`, Copy `8`, Call `9`; generic `OnceLock` remains rejected |
+| dead/deep emit clones exist | confirmed | use the existing move-commit row after snapshot ownership; do not mix backend lookup or Compare traversal |
+| four forwarding hops can be merged now | refuted as an implementation permission | receipt, recursion, legacy-policy, core, and terminal contracts differ; exact caller census is still missing |
+| unreferenced guards can be deleted in bulk | refuted | inventory has 3,807 rows and zero `delete_after_equivalent` candidates; lack of quick registration is not reference-zero |
+| direct exact modes should become defaults now | rejected | typed object/array generation, lease, lifetime, thread, escape, and exact-failure contracts are incomplete |
+| VM mainline choice is still open | stale | VM is reference/bootstrap/compatibility; broad physical retirement remains ordered after Call R7/HMI |
+
+The selected compiler fixed-cost train is exactly:
+
+```text
+MIR-COMPILE-COST-BASELINE-P0
+  -> MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0 / P0
+  -> MIR-EMIT-MOVE-COMMIT-R0
+```
+
+Task 1 installs one typed immutable policy below the existing
+compilation-owned context and removes selected emit-path process-env reads. It
+adds no ChildPort field, dispatch supertrait, top-level `MirBuilder` field, or
+Call forwarding parameter. Task 2 removes only the proven dead String work,
+in-place receiver rebuild clones, and full non-Phi instruction clone at the
+sole append owner. Backend `BTreeMap` lookup and Compare scans are separate,
+unmeasured owners and are not included.
+
+Layer thinning is a separate structural train:
+
+```text
+MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0
+  -> MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0
+  -> one facade deletion only if the census produces exactly one finite
+     contract-preserving caller/delete set
+```
+
+`method_call_handlers.rs` is already 766 lines, so it must be split before
+semantic growth. The current `unified_emitter` chain may not be flattened from
+frame counts alone: `PermitLegacy` and `RequireGenericReceipt` have different
+fail-fast contracts. No second request object, receipt, port capability, or
+semantic owner may be introduced merely to reduce hop count.
+
+Namespace/privacy thinning remains post-Call work except for the bounded
+`MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0`, which replaces only direct reads in
+`variable_read.rs` with the existing variable-context accessor while
+preserving undefined-variable and `__pin$` behavior. It does not mutate PHI,
+Loop snapshots, assignments, lexical scopes, or map clones. `builder.rs`
+barrel breakup and stale `#[allow(dead_code)]` removal still require a finite
+caller/visibility census; neither is progress merely because a file or
+annotation is old.
+
+Generated-code speed is a separate policy train. Keep `safe_mutex` and
+`safe_rwlock` defaults. `MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` first fixes the
+finite mode table, invocation snapshot, invalid-handle/OOB behavior,
+generation, lease, stable-address, thread, and escape contracts. Only a
+source-backed MIR route decision may select NativeDirect; env/name/JSON/C-plan
+success is not authority. One exact AOT family can become default only after
+that contract and its fail-fast proof land.
+
+### Bounded structural contracts
+
+`MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` moves only the existing
+StaticCurrentOwner publication-ingress policy into one private child while
+leaving Math compatibility and unavailable prepare/execute behavior in the
+facade. Logical module paths, visibility, callers, bytes, ordering, errors,
+and tests remain unchanged. Acceptance is `method_call_handlers.rs < 760`,
+all moved symbols have exactly one definition, and no caller or route edge is
+added. Compression is not an exit.
+
+`MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` records every caller of the public,
+lookup, map-replay, receipt, policy, core, and physical-terminal entries. Each
+row is classified as semantic owner, validator, compatibility policy, or pure
+forwarder. A later S0 exists only when exactly one pure facade and every caller
+can be deleted without combining `PermitLegacy` and `RequireGenericReceipt`,
+changing recursion/error behavior, or adding a request object. Otherwise the
+layer remains ParkedSealed.
+
+`MIR-BUILDER-VARIABLE-READ-ACCESSOR-S0` touches only
+`variable_read.rs` and the existing owner README/guard surface. Direct
+`variable_map.get` in that file becomes zero through the existing
+`VariableContext` read API. Undefined-variable diagnostics and `__pin$`
+handling remain byte-equivalent. Whole-map cloning, writes, PHI/Loop state,
+lexical snapshots, and field visibility are out of scope.
+
+`MIR-C-SPEED-EXACT-MODE-CONTRACT-D0` is docs/design only. Its exit is one
+finite table covering mode spelling/default, config lifetime, invalid and OOB
+failure, handle generation, lease, stable address, thread/escape rules, MIR
+route owner, backend consumer, and VM non-authority. Any unknown row keeps
+NativeDirect non-default and returns `NoSafeSlice`; no env toggle alone may
+promote it.
 
 ## `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0`
 
