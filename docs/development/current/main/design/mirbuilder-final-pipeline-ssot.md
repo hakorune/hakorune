@@ -510,6 +510,12 @@ C/LLVM lowering, and already-landed source families.
 
 Initial owner roots are `src/mir/join_ir_to_mir`, `src/runner/mir_json_v0` plus
 `json_v1_bridge`, `src/runner/json_v0_bridge`, and `src/runner/mir_json_emit`.
+The first sub-census finds `lower_structured_joinir_to_mir` with no
+production caller (two test callers only), so the bridge is a
+`DeadDeleteCandidate`, not an immediate delete: its public API, dedicated
+tests/README/guard, and independence from builder JoinIR merge must be closed
+before a deletion row is opened. Its string/alias/`args[0]` projection remains
+compatibility-only and never re-enters canonical publication.
 
 Hako published-view coverage and physical legacy deletion remain required for
 MS1-B/MS1-D, but they do not authorize another semantic Builder design cycle.
