@@ -159,19 +159,27 @@ by this refresh.
    or fallback was added. Return to the DeclaredInstance package-co-seal
    design stop before opening another family.
 
-3a. MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0 (active bounded slice)
-    reuse the landed relation/effect/result/full-lane/locator/crosswalk. The
+3a. MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0 (landed)
+    reused the landed relation/effect/result/full-lane/locator/crosswalk. The
     branch now carries the canonical `InstanceBoxMethod` key plus mandatory
     receiver through the source-backed callsite and publishes its
-    key-definition relation; one root-lexical caller is proven. Close only
-    after the selected route's old-edge reachability is mechanically zero:
-    name/header target selection, `LoweredGlobal` symbol reissue, and
-    post-argument manual receiver prefix. Compatibility helpers may remain for
-    unarmed/other families and are not counted as this cohort's production
-    route. selected-C remains a downstream typed consumer; no JSON/name/
-    registry repair, fallback, retry, second resolver, or family-specific loan
-    is allowed. If the existing key cannot be carried losslessly, stop as
-    `NoSafeSlice` instead of adding a new D0.
+    key-definition relation; one root-lexical caller is proven. The selected
+    route's old-edge reachability is mechanically zero for name/header target
+    selection, `LoweredGlobal` symbol reissue, and post-argument manual
+    receiver prefix. Compatibility helpers remain only for unarmed/other
+    families. selected-C is still a separate downstream design stop; its
+    arbitrary UserBox path is not inferred from this landed MIR route.
+
+3b. selected-C root-lexical typed coverage (conditional, not active)
+    A read-only ingress audit found a possible bounded consumer-only cohort for
+    one existing scalar `SameModuleInstance` publication row, but no current
+    source-to-object positive proof and no selected-C implementation permission
+    have been granted. Keep arbitrary UserBox methods
+    `UnsupportedBeforeObject/RetireAfterReplacement`; do not add a new
+    semantic issuer, backend repair path, or child card until the existing
+    selected-C design stop is explicitly reopened with a finite caller and
+    delete set. This conditional finding is not a Q1-Q4 blocker for the landed
+    root-lexical MIR route.
 
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
