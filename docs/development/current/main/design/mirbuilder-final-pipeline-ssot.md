@@ -255,6 +255,37 @@ M1 has one finite state vocabulary:
 | `ExplicitUnsupported` | language/profile combination is intentionally unsupported | typed reject before effect/object |
 | `DeadDeleteCandidate` | structural asset has caller zero and no public contract | delete with its exclusive evidence |
 
+### M1 observed production census (2026-09-03)
+
+The first pass is now mapped by owner rather than by raw `Call` occurrence.
+The raw search includes structural readers and test fixtures; those are not
+independent semantic producers.  The following owner groups cover the
+production-reachable boundary from source publication through backend/object
+admission.  Each group has one disposition; no group is silently counted in
+two rows.
+
+This is an observed owner-group map, not a completion claim: M1 remains open
+until the direct production sites and their reissue/reader edges are
+cross-checked against this grouping exactly once.  No implementation row is
+authorized by this map alone.
+
+| owner group | disposition | source/target authority | downstream consumer | finite old-edge set |
+| --- | --- | --- | --- | --- |
+| `UnifiedCallEmitterBox::emit_canonical_instance_value_terminal_v1`, `physical_terminal::emit_finalized_generic_call_v1`, `MirBuilder::emit_prepared_cataloged_call_v1`, and the published-key branch of `VerifiedCanonicalDirectCallEmissionV1::materialize` | `Canonical` | existing source/package handoff, selected `Callee`, and catalog key | `MirInstruction::call` then `MirModule` publication | none for landed families; R6 must preserve the typed callee |
+| `MirBuilder::emit_legacy_call`, unified-OFF `compat_entrypoints`, `exprs_call` unified-OFF, and ordinary-new fallback | `CompatibilityOuterIngress` | legacy `CallTarget`/value ingress only | BoxCall/NewBox/legacy Call consumers | legacy emitter, name carrier, unified-OFF fallback, and ordinary-new fallback |
+| JoinIR `call_generator`/`convert`/block handlers plus JSON v0/v1 parsers | `CompatibilityOuterIngress` | JoinIR or wire payload; not source semantic authority | compatibility MIR module/JSON consumers | Const+Call pair, `func` carrier, `args[0]` receiver convention, wire-name reconstruction |
+| `ssot::method_call`, callsite canonicalization, generic/global method route repair, and string-corridor Call rewriters | `CompatibilityOuterIngress` | existing MIR callee or explicit runtime helper contract; no new source target | optimizer/route metadata and runtime compatibility consumers | string `Method` shape, optional receiver, post-MIR name/box repair, and helper reissuance |
+| `builder_emit` receiver materialization, PHI edge rematerialization, instruction/value/SSA/optimizer/verifier/printer readers | `Canonical` (structural) | already-issued callee and ValueId only; no target lookup | canonical MIR structural consumers | none; adapt mechanically during R6, without semantic re-resolution |
+| published backend view/object admission for landed Global/Print rows | `Canonical` | published module definition table and typed row | selected-C typed transport/object emitter | no name lookup; retain the existing published row |
+| selected-C JSON/name compatibility path, Hako published ingress, and VM reference `SameModuleInstance` arm for arbitrary UserBox | `ExplicitUnsupported` | published-module/profile boundary | object emission or reference executor | no new arbitrary-UserBox admission; reject before object/VM execution |
+| `ssa::phi_input_materializer::legacy_candidate::prepare_legacy_phi_repair_candidate_v1` | `DeadDeleteCandidate` | no production caller; test-only candidate API | exclusive legacy-candidate tests | candidate module plus its exclusive test surface, after caller-zero guard |
+
+The census confirms that the remaining `Call` work is not a new semantic
+resolver: it is compatibility quarantine plus a mechanical R6 schema change.
+The legacy groups remain live until their named caller-zero conditions are
+met.  The PHI candidate is the only currently observed delete candidate; its
+tests are not deleted by this design-stop row.
+
 `Method(None)`, `callee=None`, a string target, backend success, JSON, a
 registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target
 authority. Construction terminators such as NewBox/NewClosure remain outside
