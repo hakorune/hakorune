@@ -1,16 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-current_design_stop = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+work_mode = "fast"
+current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+current_design_stop = "none"
 current_blocker_token = """
-Amendment (2026-09-02): the root-lexical DeclaredInstance Method(Some) vertical is landed on the isolated branch at 13f8a2513f. The selected Ready -> CanonicalInstance route now carries the existing InstanceBoxMethod key and mandatory receiver through publication, lowers source arguments once, and is mechanically unable to re-enter its three legacy helpers. Compatibility implementations remain outside this cohort.
-Decision: keep the language me.method feature and leave selected-C arbitrary UserBox admission as a separate design stop. Do not infer a backend capability from the landed MIR route, and do not reopen the closed cohort.
-Source authority + canonical issuer: same-session DeclaredInstance relation/effect/result/full-lane/locator/crosswalk and existing callable catalog issue the exact InstanceBoxMethod key; the canonical MirBuilder publisher owns the mandatory receiver-bearing call. Backend code only consumes the published product.
-Non-authority: physical symbols, names/arity, headers/registry, JSON/C/Hako metadata, variable_map["me"], param0, args[0], numeric ValueId(0), MIR EffectMask/FunctionSignature inference, selected-C success, fixture green, fallback, retry, or a new Verified*/Prepared* receipt.
-Fail-fast boundary: selected-C may reopen only with a lossless published target/definition consumer and a finite old-edge set. Missing source-backed admission, receiver/lane/result/effect coverage, or typed consumer remains ParkedSealed/UnsupportedBeforeObject; no JSON/name/args0 repair or backend fallback is allowed.
-Smallest next slice: one bounded selected-C profile retirement/coverage decision, or another named canonical family if selected-C remains parked. No implementation is permitted at this design stop until an existing downstream owner, one live caller, and a finite delete set are named.
-Non-claims: no selected-C user-box admission, Hako implementation, Call-schema/R6, VM/selfhost, whole-lib green, nested/upvar/explicit-receiver family, or broad JSON/test purge.
+Decision: refresh the existing deterministic full-lib known-red receipt after the landed Call tests changed the inventory.
+Source authority + canonical issuer: cargo_lib_red_baseline.py owns the fixed command and comparison; the checked-in receipts are observation data.
+Non-authority: focused green, count-only baselines, regex waivers, inferred HEAD^, auto-rebaseline, or semantic/MIR inference.
+Fail-fast boundary: missing summary, stack abort, compile failure, zero tests, changed/added/disappeared failure name, or nondeterministic inventory blocks the row.
+Smallest next slice: run the fixed serial lib command three times, accept only identical inventory/failure partitions, and update the existing receipt.
+Non-claims: no whole-library green claim; the known red remains visible debt until an exact three-run baseline is accepted.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -22,10 +21,10 @@ because its source/exit/MIR/runtime chain is absent; bare exit remains NoIssuer.
 Physical thunk remains RelationPresentIssuerMissing and ParkedSealed; the former LoweredGlobal::Instance bucket is now split:
 StaticCurrentOwner me.method has landed as an exact same-session source/site/
 catalog handoff and direct Global(StaticBoxMethod) successor; true
-DeclaredInstance me.method still lacks the complete source/catalog/receiver/ABI
-co-seal and remains a separate design row. Do not retire the me.method language
-feature.
-Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or guard cleanup.
+DeclaredInstance me.method now has the root-lexical source/catalog/receiver
+vertical landed; selected-C arbitrary UserBox remains a separate design stop.
+Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry,
+or semantic-family widening into the verification row.
 """
 guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> named production switch -> old-edge deletion row at a time. Zero/multiple owner-caller-delete tuples park the whole family; do not add another D0, receipt, adapter, fixture, or guard. Tests/guards/docs retire only with their caller-zero family or an equal/stronger successor. The current guard census has no new SupersededDelete candidate, so broad guard cleanup remains parked. Before Call R6, require deterministic no-new-red comparison and exact changed-test execution coverage; focused green is not whole-repo health."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -51,12 +50,13 @@ The root-lexical DeclaredInstance Method(Some) vertical is landed at
 13f8a2513f. Its selected Ready -> CanonicalInstance route carries the existing
 InstanceBoxMethod key and mandatory receiver through publication, lowers source
 arguments once, and has zero reachability to the three selected legacy helpers;
-compatibility implementations remain outside this cohort. The next frontier is
-the existing selected-C admission design stop; arbitrary UserBox support is not
-being inferred from the canonical MIR result.
+compatibility implementations remain outside this cohort. The current bounded
+task is the existing deterministic full-lib baseline refresh; selected-C
+admission remains a design stop and arbitrary UserBox support is not inferred
+from canonical MIR.
 """
-next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
-next_execution_card = "none__design_stop"
+next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

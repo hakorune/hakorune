@@ -101,6 +101,17 @@ delete set are all named. Otherwise use the existing verification/cleanup
 lanes, or leave the family parked; do not manufacture a receipt, adapter,
 family loan, fallback, or retry to force progress.
 
+### Verification baseline refresh (2026-09-02)
+
+The existing `DEV-GATE-LIB-BASELINE-REFRESH-R0` is the sole temporary fast row:
+three fixed serial `cargo test --lib` observations agree at `7570 / 7403 /
+138 / 29`, with inventory SHA
+`2898920c3dfe96537a126d6d4d0c9b4600dd2a85408695b6c4ec660803222a1f` and an
+unchanged 138-name failure set. This is a deterministic known-red receipt,
+not a whole-library-green claim or semantic work. After closeout, the pointer
+returns to the existing selected-C design stop; no new semantic row is opened
+by this refresh.
+
 ### Current family disposition
 
 | family | status | reopen/next condition |
