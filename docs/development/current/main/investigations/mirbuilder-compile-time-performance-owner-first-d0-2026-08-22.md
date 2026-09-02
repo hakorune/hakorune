@@ -268,20 +268,20 @@ pass fusion that crosses the active canonical/legacy boundary
 
 ## Current status
 
-The former Hako SameModuleInstance physical-ingress lane is ParkedSealed, so
-the owner-first compile-cost train is selected without reopening that semantic
-family. `MIR-COMPILE-COST-BASELINE-P0` completed on 2026-09-02: the existing
-runner now has an immutable binary/source/environment identity, one warmup,
-five retained samples, median/p95 output, and strict shadow-contract evidence
-for the accepted static-method probes. The optional loop-bound probes remain a
-separate route-coverage rejection and are not a false green.
+The former Hako SameModuleInstance physical-ingress lane remains
+`ParkedSealed__HakoIngressMissing`: no existing Hako LLVM-text consumer
+borrows `PublishedMirBackendView`, and no family-exclusive caller/delete set
+was found. `MIR-COMPILE-COST-BASELINE-P0` completed on 2026-09-02, and the
+snapshot I0 plus its post-audit gate repairs are landed. B-S0 then added direct
+negative evidence for the existing publication/view validators. The optional
+loop-bound probes remain a separate route-coverage rejection and are not a
+false green.
 
-The next row is design-stop gated:
-`MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0`. It may open only after the recorded
-baseline is accepted by the current pointer and the exact invocation-owned
-configuration seam is named. No Builder, Call/backend semantic, environment
-policy, clone, forwarding-layer, direct-storage-default, or VM-selection
-change is authorized by the completed baseline itself.
+There is no next implementation row selected. Keep this card in closeout until
+either a finite Hako published-view ingress is found or an independent cleanup
+candidate has a caller-zero/equal-successor proof. Do not reopen the old
+snapshot D0/I0 wording and do not add a second Builder, adapter, fallback, or
+semantic receipt merely to manufacture a next row.
 
 ## All-worker surface audit (2026-09-03)
 
@@ -315,9 +315,9 @@ Fail-fast boundary:
   unclassified hot key, or a live emit path outside the capture boundary keeps
   this row in design_stop.
 Smallest next slice:
-  Freeze the finite key/capture/install/borrow map for the existing normal/raw
-  and canonical session entrypoints, then open exactly one implementation row:
-  MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0.
+  None is selected. The snapshot row and its gate repairs are landed; the
+  Hako physical-ingress census found no existing borrow-only consumer. Reopen
+  only with a finite source -> published-view -> backend caller/delete set.
 Non-claims:
   no DebugHub lazy payload change, global cache, Call/backend semantic change,
   direct-storage default change, VM decision, barrel split, variable_map API
@@ -651,6 +651,25 @@ claimed green by this row.
 These P1 tasks remain separate from the next DeclaredInstance or other
 semantic-family cutover. Their evidence must distinguish changed-test green
 from the known whole-library red baseline.
+
+### Post-B-S0 Hako ingress census (2026-09-03)
+
+The read-only physical-ingress audit found no safe existing route from
+`PublishedMirBackendView` into the Hako LLVM-text emitter. Rust has published
+StaticBoxMethod/FreeFunction definitions and a typed selected-C path, but Hako
+currently consumes `RecipeFacts`/JSON and rejects non-print Global rows. Its
+Method route still relies on names, registries, and receiver repair, so it is
+not a canonical Instance key consumer. The selected-C entry is shared by
+Static/Free/Print families; no family-exclusive deletion boundary exists.
+
+```text
+task: MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0
+status: ParkedSealed__HakoIngressMissing
+reopen: borrowed published-view ingress + one exact family + named caller
+         + finite old-edge delete set + no JSON/name/registry/args[0] repair
+non-claims: no Hako extension, selected-C retirement, Call-schema change,
+            or new semantic/physical adapter in this closeout
+```
 
 ### P2 — bounded cleanup after the gates are healthy
 
