@@ -247,11 +247,11 @@ closeout, and no compiler, MIR, test, or guard semantics changed.
 
 Reuse the existing docs-history owner for one exact `RetireFromTree` batch.
 The current reference census found four closed phase-296x cards at phase
-ordinals `1448 / 1450 / 1452 / 1454`. A follow-up exact grep found that the
-archived predecessor card for ordinal 1449 still names ordinal 1448, so the
-batch is not yet reference-closed. The generated lifecycle inventory also
-lists the four paths, and the separately listed ordinal `3455` remains
-excluded because it has live current-tree consumers.
+ordinals `1448 / 1450 / 1452 / 1454`. A follow-up exact grep found that each
+candidate is still named by its archived predecessor (`1449 / 1451 / 1453 /
+1455` respectively), so the batch is not yet reference-closed. The generated
+lifecycle inventory also lists the four paths, and the separately listed
+ordinal `3455` remains excluded because it has live current-tree consumers.
 
 ```text
 Decision:
