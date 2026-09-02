@@ -1,14 +1,14 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
-current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
-current_design_stop = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
+work_mode = "fast"
+current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
+current_design_stop = "none"
 current_blocker_token = """
-Decision: the repeatable compile-cost baseline is complete; before changing Builder emission, design the exact compilation-owned debug/strict snapshot seam. Six read-only workers found the semantic spine substantially clean but confirmed an ingress-boundary gap for the canonical session and a separate DebugHub lazy-payload problem. The former Hako physical-ingress family stays ParkedSealed.
-Source authority + canonical issuer: the existing compilation invocation/config owners and the existing emit/debug policy owners; one snapshot vocabulary must be installed at every included normal/raw and canonical invocation before the first instruction, below the current compilation-owned context, and borrowed by emit code.
+Decision: the debug/strict snapshot D0 is accepted. Implement one context-owned snapshot through the existing normal/raw and canonical invocation constructors; DebugHub/backend consumers stay outside this row. The former Hako physical-ingress family stays ParkedSealed.
+Source authority + canonical issuer: existing config/env parsers issue one Debug/Strict snapshot through BuilderInvocationConfigV1; normal/raw sessions and CanonicalModuleLoweringSessionV1::open install it into CompilationContext, and selected emit code borrows it.
 Non-authority: process-global OnceLock, per-instruction env reads, ChildPort field growth, dispatch-port supertraits, forwarding parameters, review estimates, LOC/frame counts, generated-program runtime, or a guessed speedup.
-Fail-fast boundary: preserve current defaults, aliases, debug-off behavior, and two independently configured compiler sessions; a canonical session bypass, unclassified hot key, or live emit path outside the capture map keeps the row in design_stop.
-Smallest next slice: freeze the finite key/capture/install/borrow map for normal/raw and canonical sessions, then open only MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0. Do not implement while that map is unaccepted.
+Fail-fast boundary: preserve current defaults, aliases, debug-off behavior, and two independently configured compiler sessions; a canonical bypass, unclassified key, or live emit path outside the selected reader boundary aborts I0 without widening it.
+Smallest next slice: MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0 — add the one CompilationContext child, install it at both existing invocation forms, and replace only the selected builder_emit/call/receiver readers.
 Non-claims: no DebugHub lazy payload, global cache, env policy change, clone deletion, forwarding merge, barrel/dead-code cleanup, direct-default change, VM decision, Call schema, backend switch, or whole-library green claim.
 """
 previous_parent_blocker_context = """
@@ -40,17 +40,16 @@ latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
 The architecture audit is dispositioned without a new card. The Hako physical
-ingress stays ParkedSealed. Six read-only workers agree that the landed
-semantic Call cohorts are substantially clean, while the remaining work is a
-bounded invocation snapshot, a separate lazy debug-payload row, and later
-physical/test cleanup. The repeatable compile-cost baseline is recorded from
-the rebuilt quick binary: one warmup, five retained samples, median/p95,
-source/binary identity, and strict shadow rows for the accepted static-method
-probes. Canonical session capture remains the D0 boundary; no semantic or
-backend owner changed.
+ingress stays ParkedSealed. Six read-only workers found the landed semantic
+Call cohorts substantially clean and the snapshot D0 is now accepted. I0 is
+limited to one context-owned Debug/Strict snapshot across normal/raw and
+canonical session constructors; DebugHub lazy payloads and later physical/test
+cleanup remain separate. The repeatable compile-cost baseline is recorded from
+the rebuilt quick binary with one warmup, five retained samples, median/p95,
+source/binary identity, and strict shadow evidence.
 """
-next_design_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0"
-next_execution_card = "none__awaiting_design_stop_acceptance"
+next_design_card = "none__accepted_d0"
+next_execution_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

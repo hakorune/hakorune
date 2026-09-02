@@ -1,5 +1,5 @@
 ---
-Status: baseline observation complete; all-worker surface audit complete; snapshot successor remains design-stop gated
+Status: baseline observation complete; snapshot D0 accepted; I0 implementation selected
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
@@ -386,3 +386,83 @@ are explicitly covered by the same snapshot vocabulary. If that cannot be
 shown without a new capability axis, the exact outcome is
 `NoSafeSlice__InvocationCaptureBoundaryMissing`; do not add a receipt,
 adapter, fallback, or another D0.
+
+## D0 decision and I0 contract (accepted 2026-09-03)
+
+The design stop is closed with one existing configuration authority and two
+already-existing invocation constructors. This is one semantic snapshot type,
+not two policy owners:
+
+```text
+normal/raw ingress:
+  BuilderInvocationConfigV1::snapshot_for_raw[_with_imports]
+  -> ModuleBuilderInvocationSessionV1::open_with_identity
+  -> config.install_into(candidate)
+
+canonical ingress:
+  CanonicalModuleLoweringSessionV1::open
+  -> BuilderInvocationConfigV1::snapshot_for_canonical
+  -> the same config.install_into(candidate)
+
+both:
+  candidate.comp_ctx owns one immutable Debug/Strict snapshot
+  selected emit code borrows a Copy view; it never reads process env
+```
+
+The canonical `open` path is therefore included in I0; it may not keep the
+current `quiet_internal_logs`-only copy as a silent bypass. Direct test-only
+`MirBuilder::new()` fixtures outside an invocation session are not a production
+hot-path claim and must use the existing explicit test configuration helpers.
+
+### I0 finite key and reader boundary
+
+I0 captures only the keys already read by the selected Builder emit/call
+boundary. The existing parser functions remain the vocabulary authority and
+their alias/default behavior is unchanged:
+
+```text
+joinir_dev::debug_enabled()
+joinir_dev::strict_enabled()
+joinir_dev::planner_required_enabled()
+builder_local_ssa_trace()
+builder_trace_recv()
+builder_debug_enabled()
+builder_static_call_trace()
+builder_static_method_trace()
+builder_call_resolve_trace()
+```
+
+The snapshot keeps the three JoinIR inputs separately and derives the existing
+strict+planner+debug predicate; it does not collapse aliases into a guessed
+single flag. The selected reader set is:
+
+```text
+builder_emit.rs
+calls/unified_emitter.rs
+receiver.rs
+```
+
+The free `emission/copy_emitter.rs`, `utils::builder_debug_log`, DebugHub's
+`NYASH_DEBUG_*` gate/payload, router/observe OnceLock caches, and other
+non-selected readers remain outside I0 and are named follow-up owners. I0 must
+not claim that all environment reads in the repository are gone.
+
+### I0 acceptance
+
+```text
+1. no new MirBuilder field, RawInvocationChildPort field, dispatch supertrait,
+   forwarding parameter, semantic receipt, or global OnceLock;
+2. one snapshot field below CompilationContext and one install owner;
+3. normal/raw and canonical sessions each capture before their first MIR
+   instruction and retain independent A/B values after an ambient C flip;
+4. selected builder_emit/call/receiver readers use the installed snapshot and
+   contain zero direct process-env calls;
+5. defaults, aliases, debug-off behavior, strict/planner behavior, MIR bytes,
+   and debug output remain unchanged under the existing test matrix;
+6. existing pointer/active-surface guards are reused; no new per-row shell
+   guard is introduced.
+```
+
+Any production emitter outside the finite reader boundary, a changed alias or
+default, a need for live environment rereads, or a request to include DebugHub
+or backend consumers returns the work to design_stop instead of widening I0.
