@@ -128,6 +128,33 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
         .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Call { .. }))
         .count();
     assert_eq!(calls, 1);
+    let callee = main
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call { callee, .. } => callee.clone(),
+            _ => None,
+        })
+        .expect("direct call callee");
+    assert_eq!(
+        callee,
+        crate::mir::Callee::Global(
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                "Main", "helper", 1,
+            )
+            .canonical_global_target_v1()
+            .expect("static helper target"),
+        )
+    );
+    assert_eq!(module.canonical_callable_definition_count(), 1);
+    let backend_view = crate::mir::function::PublishedMirBackendView::try_new(&module)
+        .expect("published App Main direct-call view");
+    assert_eq!(
+        backend_view.route(),
+        crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
+    );
+    assert_eq!(backend_view.static_method_calls().len(), 1);
 }
 
 #[test]

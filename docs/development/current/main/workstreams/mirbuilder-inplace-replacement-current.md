@@ -40,17 +40,19 @@ StaticBoxMethod preserves its callable key through Atomic Publish, lends one
 typed backend view, switches the normal `--emit-exe` edge, and removes the
 selected-family reach to JSON/name/`args[0]` repair. The scalar source proof
 `me.helper()` emits and runs with `Result: 7`. The branch now has one real
-follow-on row for an App Main FreeStatic scalar call; this is an implementation
-row, not another design-only census. Main remains `design_stop` until the
-branch closeout is selected for integration. Arbitrary UserBox DeclaredInstance
-stays `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
+follow-on row for an App Main FreeStatic scalar call; its source product is
+joined once to the nested Main helper's exact StaticBoxMethod catalog key
+before publication. This is an implementation row, not another design-only
+census. Main remains `design_stop` until the branch closeout is selected for
+integration. Arbitrary UserBox DeclaredInstance stays
+`ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
 
 ### Current family disposition
 
 | family | status | reopen/next condition |
 |---|---|---|
 | published `StaticBoxMethod` | landed first vertical; key, Atomic Publish, typed view, selected-C ingress, runner switch, and source proof are closed | do not reopen; select the next exact family |
-| App Main `FreeStatic` | next branch-only vertical: reuse existing CallableIndex/affine loan and extend the neutral key once | one scalar caller must reach typed selected-C without JSON/name/args[0] repair; then delete that cohort's old edge |
+| App Main `FreeStatic` | next branch-only vertical: reuse existing CallableIndex/affine loan and join the source FreeStatic product to the exact nested StaticBoxMethod publication key once | one scalar caller must reach typed selected-C without target JSON/name/args[0] repair; then delete that cohort's old edge |
 | DeclaredInstance `me.method` | syntax retained; package ready; structural key selected; publish consumer/backend/caller tuple = 0 | key/definition + exact Hako family + named caller/delete set must appear together |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
@@ -67,9 +69,12 @@ stays `ParkedSealed__PublishedTargetAndBackendCoverageMissing`.
    closed; no extra D0 or compatibility retry is allowed.
 
 1. MIR-CALL-CANONICAL-PUBLICATION-SPINE-FREE-STATIC-I0 (branch-only active)
-   extend the neutral key with the existing FreeFunction namespace, preserve
-   the App Main product through Atomic Publish, consume one typed selected-C
-   row, and delete that caller's name/JSON fallback edge in the same series.
+   join the App Main FreeStatic source product to the exact nested
+   StaticBoxMethod catalog key, preserve that published key through Atomic
+   Publish, consume one typed selected-C row, and delete that caller's
+   name/JSON fallback edge in the same series. The neutral FreeFunction
+   namespace remains available for a true top-level definition; it is not
+   fabricated for this nested helper.
 
 2. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal

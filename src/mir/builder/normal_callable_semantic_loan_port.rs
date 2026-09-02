@@ -145,6 +145,7 @@ fn validate_selected_signature_loan(
     input.with_selected_and_admission(|selected, admission| {
         let key = admission.source_key();
         let expected_receiver_lane_count = match key.namespace() {
+            SameModuleCallableNamespaceV1::FreeFunction => 0,
             SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
         };

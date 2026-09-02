@@ -363,6 +363,7 @@ fn validate_static_call<'module>(
 
 fn expected_physical_arity(key: &CanonicalSameModuleCallableKeyV1) -> usize {
     match key.namespace() {
+        SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
         SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
         SameModuleCallableNamespaceV1::InstanceBoxMethod => key.arity() as usize + 1,
     }

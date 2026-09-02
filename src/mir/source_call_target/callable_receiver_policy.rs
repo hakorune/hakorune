@@ -10,6 +10,7 @@ use crate::mir::resolved_semantics::ReceiverPolicyV1;
 /// install a Builder/runtime singleton.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SameModuleCallableSourceReceiverPolicyV1 {
+    Absent,
     StaticCurrentOwner,
     DeclaredInstance,
 }
@@ -17,6 +18,7 @@ pub(crate) enum SameModuleCallableSourceReceiverPolicyV1 {
 impl SameModuleCallableSourceReceiverPolicyV1 {
     pub(crate) const fn from_namespace(namespace: SameModuleCallableNamespaceV1) -> Self {
         match namespace {
+            SameModuleCallableNamespaceV1::FreeFunction => Self::Absent,
             SameModuleCallableNamespaceV1::StaticBoxMethod => Self::StaticCurrentOwner,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => Self::DeclaredInstance,
         }
@@ -24,6 +26,7 @@ impl SameModuleCallableSourceReceiverPolicyV1 {
 
     pub(in crate::mir) const fn into_shadow_policy(self) -> ReceiverPolicyV1 {
         match self {
+            Self::Absent => ReceiverPolicyV1::Absent,
             Self::StaticCurrentOwner => ReceiverPolicyV1::StaticCurrentOwner,
             Self::DeclaredInstance => ReceiverPolicyV1::DeclaredInstance,
         }

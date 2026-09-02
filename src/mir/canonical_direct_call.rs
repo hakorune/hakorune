@@ -39,12 +39,26 @@ pub(crate) struct VerifiedCanonicalDirectCallEmissionV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DirectCallEmissionErrorV1 {
     ArgumentCardinality { expected: usize, actual: usize },
+    TargetProjection { key: String },
 }
 
 impl VerifiedCanonicalDirectCallEmissionV1 {
     pub(crate) fn conservative_from_header(header: &VerifiedCallableHeaderV1) -> Self {
         Self {
             target: VerifiedTrivialDirectCallTargetV1::from_header(header),
+            effect: VerifiedDirectCallEffectV1::ConservativeBarrier,
+        }
+    }
+
+    pub(crate) fn from_header_with_published_key(
+        header: &VerifiedCallableHeaderV1,
+        published_key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    ) -> Self {
+        Self {
+            target: VerifiedTrivialDirectCallTargetV1::from_header_with_published_key(
+                header,
+                published_key,
+            ),
             effect: VerifiedDirectCallEffectV1::ConservativeBarrier,
         }
     }
@@ -76,18 +90,24 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
                 actual: args.len(),
             });
         }
+        let target = if let Some(key) = self.target.published_key() {
+            key.canonical_global_target_v1().map_err(|_| {
+                DirectCallEmissionErrorV1::TargetProjection {
+                    key: key.mir_symbol_projection(),
+                }
+            })?
+        } else {
+            CanonicalGlobalTargetV1::new_free_function(
+                self.target.source_key().name().into(),
+                self.target.source_key().arity(),
+            )
+            .map_err(|_| DirectCallEmissionErrorV1::TargetProjection {
+                key: self.target.source_key().name().to_owned(),
+            })?
+        };
         Ok(MirInstruction::call(
             Some(dst),
-            Callee::Global(
-                CanonicalGlobalTargetV1::new_free_function(
-                    self.target.source_key().name().into(),
-                    self.target.source_key().arity(),
-                )
-                .map_err(|_| DirectCallEmissionErrorV1::ArgumentCardinality {
-                    expected,
-                    actual: args.len(),
-                })?,
-            ),
+            Callee::Global(target),
             args,
             materialize_direct_call_effect_v1(self.effect),
         ))

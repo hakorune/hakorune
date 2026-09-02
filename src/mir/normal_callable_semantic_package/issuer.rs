@@ -81,6 +81,12 @@ pub(crate) enum AppMainDirectCallDispositionIssueV1 {
     TargetMissing,
     HeaderLookup(CallableLookupErrorV1),
     TargetOwnerMismatch,
+    PublishedTargetMissing,
+    PublishedTargetDuplicate,
+    PublishedTargetNotCataloged,
+    PublishedTargetNamespaceMismatch,
+    PublishedTargetNameMismatch,
+    PublishedTargetArityMismatch,
     CompilationBrandMismatch,
     TargetNameMismatch,
     ArityMismatch,
@@ -224,7 +230,9 @@ fn validate_cataloged_source_co_seal_v1(
 /// callable index.  This helper only joins those existing products by their
 /// owner/site relation; it never resolves a name or emits a new target.
 fn issue_app_main_direct_call_loan_v1(
+    catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
     app_main_identity: &crate::parser::CallableDeclarationIdentityV1,
 ) -> Result<Option<AppMainDirectCallDispositionLoanV1>, AppMainDirectCallDispositionIssueV1> {
     let Some((main_slot, callable_index)) = batch.main_callable_index() else {
@@ -271,6 +279,50 @@ fn issue_app_main_direct_call_loan_v1(
                     if header.callable().owner() != target.callable().owner() {
                         return Err(AppMainDirectCallDispositionIssueV1::TargetOwnerMismatch);
                     }
+                    let published_key = {
+                        let mut matches = batch
+                            .declarations()
+                            .filter(|declaration| declaration.owner() == target.callable().owner());
+                        let declaration = matches
+                            .next()
+                            .ok_or(AppMainDirectCallDispositionIssueV1::PublishedTargetMissing)?;
+                        if matches.next().is_some() {
+                            return Err(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetDuplicate,
+                            );
+                        }
+                        let selected_key = selected
+                            .key_for_batch_slot(declaration.batch_slot())
+                            .ok_or(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetMissing,
+                            )?;
+                        let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                            return Err(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetNotCataloged,
+                            );
+                        };
+                        if key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
+                            return Err(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetNamespaceMismatch,
+                            );
+                        }
+                        if key.name() != header.source_key().name() {
+                            return Err(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetNameMismatch,
+                            );
+                        }
+                        if key.arity() != header.source_key().arity() {
+                            return Err(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetArityMismatch,
+                            );
+                        }
+                        if catalog.catalog().declaration(key).is_none() {
+                            return Err(
+                                AppMainDirectCallDispositionIssueV1::PublishedTargetMissing,
+                            );
+                        }
+                        key.clone()
+                    };
                     if header.callable().owner().compilation_brand()
                         != owner.compilation_brand()
                     {
@@ -287,8 +339,10 @@ fn issue_app_main_direct_call_loan_v1(
                     if header.signature().arity() != observation.argument_sites().len() {
                         return Err(AppMainDirectCallDispositionIssueV1::ArgumentSiteMismatch);
                     }
-                    let emission =
-                        crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(header);
+                    let emission = crate::mir::canonical_direct_call::VerifiedCanonicalDirectCallEmissionV1::from_header_with_published_key(
+                        header,
+                        published_key,
+                    );
                     rows.push((
                         site.clone(),
                         AppMainDirectCallDispositionRowV1::new(
@@ -451,11 +505,10 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     app_main_relation::validate_app_main_root_owner_relation_v1(&catalog, &batch)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::AppMainRoot { _error: error })?;
     let app_main_direct_call_loan = match app_main_identity.as_ref() {
-        Some(identity) => {
-            issue_app_main_direct_call_loan_v1(&batch, identity).map_err(|error| {
-                NormalCallableSemanticPackageIssueV1::AppMainDirectCall { _error: error }
-            })?
-        }
+        Some(identity) => issue_app_main_direct_call_loan_v1(&catalog, &batch, &selected, identity)
+            .map_err(
+                |error| NormalCallableSemanticPackageIssueV1::AppMainDirectCall { _error: error },
+            )?,
         None => None,
     };
     let parameter_contracts = {

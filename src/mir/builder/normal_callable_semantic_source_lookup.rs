@@ -58,6 +58,7 @@ pub(super) fn view_for_key<'source>(
     let receiver = match key {
         SelectedNormalCallableKeyV1::TopLevel(_) => ReceiverPolicyV1::Absent,
         SelectedNormalCallableKeyV1::Cataloged(key) => match key.namespace() {
+            SameModuleCallableNamespaceV1::FreeFunction => ReceiverPolicyV1::Absent,
             SameModuleCallableNamespaceV1::StaticBoxMethod => ReceiverPolicyV1::StaticCurrentOwner,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => ReceiverPolicyV1::DeclaredInstance,
         },

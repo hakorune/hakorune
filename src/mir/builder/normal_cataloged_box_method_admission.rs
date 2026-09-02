@@ -104,6 +104,7 @@ impl NormalCatalogedBoxMethodDraftAdmissionV1 {
         let source_arity = usize::try_from(source_key.arity())
             .map_err(|_| NormalCatalogedBoxMethodAdmissionErrorV1::PhysicalArityOverflow)?;
         let physical_arity = match source_key.namespace() {
+            SameModuleCallableNamespaceV1::FreeFunction => source_arity,
             SameModuleCallableNamespaceV1::StaticBoxMethod => source_arity,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => source_arity
                 .checked_add(1)

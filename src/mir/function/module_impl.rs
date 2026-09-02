@@ -34,6 +34,7 @@ impl MirModule {
             );
         }
         let expected_arity = match key.namespace() {
+            SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
             SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => {
                 (key.arity() as usize).checked_add(1).ok_or_else(|| {
@@ -81,6 +82,7 @@ impl MirModule {
             );
         }
         let expected_arity = match key.namespace() {
+            SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
             SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => {
                 (key.arity() as usize).checked_add(1).ok_or_else(|| {

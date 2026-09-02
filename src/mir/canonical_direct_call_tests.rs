@@ -82,6 +82,38 @@ fn materializes_exact_callee_without_legacy_resolution() {
 }
 
 #[test]
+fn materializes_the_already_published_definition_key_without_source_relookup() {
+    let header = header();
+    let published_key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
+        "Main",
+        "countdown",
+        1,
+    );
+    let emission = VerifiedCanonicalDirectCallEmissionV1::from_header_with_published_key(
+        &header,
+        published_key,
+    );
+    let instruction = emission
+        .materialize(ValueId::new(9), vec![ValueId::new(3)])
+        .expect("published target projection");
+    let MirInstruction::Call { callee, .. } = instruction else {
+        unreachable!()
+    };
+    assert_eq!(
+        callee,
+        Some(Callee::Global(
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
+                "Main",
+                "countdown",
+                1,
+            )
+            .canonical_global_target_v1()
+            .expect("published static target"),
+        ))
+    );
+}
+
+#[test]
 fn rejects_argument_cardinality_before_materialization() {
     let emission = VerifiedCanonicalDirectCallEmissionV1::conservative_from_header(&header());
     assert_eq!(
