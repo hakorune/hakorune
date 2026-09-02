@@ -35,6 +35,9 @@ PUBLISHED_VIEW_NEGATIVE_COVERAGE_B_S0_ROW = (
 MUTABLE_ACCUMULATOR_DUPLICATE_RETIRE_R0_ROW = (
     "MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0"
 )
+PUBLISHED_C_DUAL_CONSUMER_PREPARE_BOXSHAPE_S0_ROW = (
+    "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0"
+)
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
@@ -371,6 +374,77 @@ def check_delegated_performance_cleanup_row(
     ):
         fail(f"{row} executable baseline receipt does not match {status}")
     print(f"[{TAG}] row={row} delegated=performance-card-cleanup")
+
+
+def check_delegated_published_c_boxshape_row(
+    state: dict, root: Path, row: str
+) -> None:
+    """Validate the finite published-C BoxShape row owned by the perf card.
+
+    The stable Call guard only dispatches this explicitly named row.  The
+    implementation may share row admission across the two existing C
+    consumers, but it may not broaden into LLVM emission, JSON repair, or a
+    new semantic owner.
+    """
+    if row != PUBLISHED_C_DUAL_CONSUMER_PREPARE_BOXSHAPE_S0_ROW:
+        fail(f"unsupported published-C BoxShape row: {row!r}")
+    mode = state.get("work_mode")
+    if mode not in {"design_stop", "fast", "closeout"}:
+        fail(f"{row} requires design_stop, fast, or closeout work_mode")
+    if state.get("current_execution_row") != row:
+        fail(f"{row} pointer row drifted")
+    if state.get("latest_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} requires the performance card path")
+    if state.get("current_execution_design") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} current_execution_design drifted")
+    card_path = root / PERFORMANCE_CARD_REL
+    if not card_path.is_file():
+        fail(f"{row} owning performance card is missing")
+    card_text = card_path.read_text(encoding="utf-8")
+    marker = f"#### `{row}`"
+    if marker not in card_text:
+        fail(f"{row} is absent from its owning performance card")
+    section = card_text.split(marker, 1)[1].split("\n###", 1)[0]
+    expected_status = {
+        "design_stop": "accepted_design_stop",
+        "fast": "selected_fast",
+        "closeout": "landed",
+    }[mode]
+    if f"Status: **{expected_status}**" not in section:
+        fail(f"{row} owning status is not {expected_status}")
+    if mode == "design_stop":
+        if state.get("next_design_card") != row:
+            fail(f"{row} design pointer drifted")
+        if not str(state.get("next_execution_card", "")).startswith("none"):
+            fail(f"{row} design stop must keep next_execution_card=none")
+        if not str(state.get("current_design_stop", "")).startswith(row):
+            fail(f"{row} current_design_stop is missing")
+    else:
+        if state.get("current_design_stop") != "none":
+            fail(f"{row} implementation/closeout must clear current_design_stop")
+        if state.get("next_execution_card") != row:
+            fail(f"{row} execution pointer drifted")
+        if state.get("next_execution_card_path") != str(PERFORMANCE_CARD_REL):
+            fail(f"{row} execution card path drifted")
+    for token in (
+        "hako_llvmc_ffi_published_static_method.inc",
+        "hako_llvmc_ffi_mir_call_dispatch.inc",
+        "hako_llvmc_ffi_same_module_body_emit.inc",
+        "row_for_site",
+        "take_once",
+        "fallback/retry = 0",
+        "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0",
+    ):
+        if token not in section:
+            fail(f"{row} owning BoxShape contract is missing: {token}")
+    for rel in (
+        "lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc",
+        "lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc",
+        "lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc",
+    ):
+        if not (root / rel).is_file():
+            fail(f"{row} implementation owner is missing: {rel}")
+    print(f"[{TAG}] row={row} delegated=performance-card-published-c-boxshape")
 
 
 def git_diff(root: Path, base: str) -> str:

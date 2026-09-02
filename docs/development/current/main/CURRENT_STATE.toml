@@ -1,15 +1,16 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0"
+current_design_stop = "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0: accept only the existing published-row exact-site take and Global shape admission as a shared BoxShape; keep local C emission and all generic compatibility routes separate."
 current_blocker_token = """
-MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0 closeout: the one duplicate
-cfg(test) body and its inventory row are retired. The retained successor is
-green; the executable known-red baseline is refreshed to 7577/7410/138/29
-with the same 138-name failure receipt. No production, semantic, Call,
-backend, fallback, or broad test purge changed. Closeout evidence and pointer
-guards must remain green before commit/push.
+MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0: source-backed
+published rows already have one owner and exactly two C consumers. Before
+implementation, freeze a helper that takes the exact site once and validates
+Global/dst/arity/numeric-argument shape; Absent, Ready, Malformed, and
+Residual remain distinct. Do not share LLVM emission, add state/callback
+ports, add a semantic receipt, or introduce fallback/retry. The next queued
+evidence-only Print producer test is not selected by this row.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -41,13 +42,13 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-comp
 latest_card_summary = """
 The snapshot I0, vm-reference arm, stable dispatch repair, baseline refresh,
 B-S0 direct negative coverage, and the duplicate mutable-accumulator test
-retirement are landed and pushed. The retained executable baseline is
-7577/7410/138/29 with an unchanged 138-name failure receipt. No semantic
-family or transport/backend route is reopened; whole-library health remains a
-classified known-red baseline.
+retirement are landed and pushed. The next design stop is the finite
+published-C dual-consumer BoxShape (exact-site take and shape admission only);
+whole-library health remains the classified 7577/7410/138/29 known-red
+baseline. Print producer coverage is queued separately.
 """
-next_design_card = "none__accepted_d0"
-next_execution_card = "MIR-TEST-MUTABLE-ACCUMULATOR-DUPLICATE-RETIRE-R0"
+next_design_card = "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0"
+next_execution_card = "none__accepted_d0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

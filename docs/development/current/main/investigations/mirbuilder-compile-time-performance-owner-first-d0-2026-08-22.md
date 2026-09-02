@@ -758,3 +758,67 @@ unchanged 138-name failure SHA-256
 `29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`.
 The stable active-surface and current-state pointer guards pass, and no
 production source path changed.
+
+#### `MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0`
+
+Status: **accepted_design_stop**. This is the next bounded BoxShape slice for
+the already-landed published-C transport. It is not a new MIR semantic family
+and it does not reopen the Hako ingress or selected-C UserBox design stop.
+
+Decision: share only the exact-site published-row take and the common Global
+shape admission used by the two existing C consumers. Keep LLVM text emission,
+argument formatting, tracing, and generic compatibility routes local to each
+consumer. The existing published-row owner remains the sole issuer.
+
+Source authority + canonical issuer: the existing
+`hako_llvmc_published_static_method_rows_begin` / `row_for_site` /
+`rows_finish` owner in
+`lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc`;
+the Rust published view and typed row are only inputs to that existing owner.
+The two finite consumers are
+`hako_llvmc_ffi_mir_call_dispatch.inc` and
+`hako_llvmc_ffi_same_module_body_emit.inc`.
+
+Non-authority: JSON/name/registry lookup, physical symbol parsing, `args[0]`,
+`ValueId(0)`, `EMIT`/`set_type`/`append_i64_arg_ref`, local route traces, or
+backend success. No new semantic receipt, target identity, fallback, or retry
+may be introduced.
+
+Fail-fast boundary: a typed row is taken exactly once at its function/block/
+instruction site. The shared admission checks the Global shape, destination,
+arity, and numeric argument-row shape before either local emitter runs.
+`Absent` leaves the existing non-published route untouched; `Ready` returns a
+borrowed row for one local emission; `Malformed` returns `-1` with no fallback;
+`Residual` is rejected by the existing `rows_finish` owner. Duplicate sites
+remain rejected at `rows_begin`.
+
+Census boundary: start at the two existing `row_for_site` callsites and end at
+their local typed static/Free/Print emission or the existing residual terminal;
+includes StaticBoxMethod, Builtin Print, and FreeFunction rows; excludes
+generic LLVM emission, Hako ingress, JSON transport removal, Method(Some),
+non-scalar lane semantics, and Call schema changes.
+
+Smallest next slice: add one helper in the existing published-row `.inc`,
+replace the two direct lookups with that helper, and keep both local emitters.
+The helper performs `take_once` at the existing exact site.
+The helper must not require new state or a callback port. The 800-line
+`same_module_body_emit.inc` must shrink below the hard boundary; the other two
+owners remain below 760 lines.
+
+Acceptance: direct `row_for_site` calls are `2 -> 0` outside the helper; the
+existing Static/Print/Free source-to-exe probes remain equivalent; one
+non-entry published call is covered; malformed shape and residual rows fail
+before object emission; `fallback/retry = 0`; and no semantic/MIR/JSON/backend
+authority changes. The row may advance to `selected_fast` only after these
+conditions and its exact allowed-file set are rechecked.
+
+NoSafeSlice: stop if the helper needs nested local state/callback plumbing,
+changes a return-code or trace contract, mixes a third consumer, or requires
+sharing LLVM emission/argument formatting. In that case keep the broader
+`MIR-CALL-PUBLISHED-TRANSPORT-DEDUP-P1` parked and do not add another adapter.
+
+Queued follow-up (not selected in this row):
+`MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0` adds one source-backed
+`print(42)` producer assertion through the existing lifecycle seam. It must
+not reopen the landed Print cutover or add a standalone guard; its producer
+test is evidence-only and follows this BoxShape preparation.
