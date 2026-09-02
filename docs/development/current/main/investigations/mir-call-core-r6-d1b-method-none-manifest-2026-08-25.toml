@@ -994,10 +994,10 @@ implementation_evidence = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib p
 closeout = "The existing FreeFunction key now survives source catalog/admission, parameter/completion/physical products, collector drain, Atomic MirModule publication, and the borrowed typed backend/C row. The App Main mixed-source regression is fixed, legacy carrier and missing-definition/arity/duplicate negative cases are covered, and the selected typed path reaches a real executable without JSON/name/registry/args[0] repair. No second builder, resolver, receipt, backend path, or fallback was added. Return CURRENT_STATE to the existing DeclaredInstance package-co-seal design stop; do not reopen this cohort."
 next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0__design_stop"
 [mir_call_me_declared_instance_method_some_vertical_i0_2026_09_02]
-status = "active_fast"
+status = "landed"
 task_id = "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-PACKAGE-COSEAL-D0"
-implementation_permission = true
+implementation_permission = false
 scope = "one root-lexical DeclaredInstance production caller"
 source_authority = "landed same-session relation/effect/result/full-lane/locator/crosswalk plus existing callable catalog"
 canonical_issuer = "canonical MirBuilder call publisher; existing CanonicalSameModuleCallableKeyV1::InstanceBoxMethod"
@@ -1013,3 +1013,8 @@ backend = "downstream typed consumer only; selected-C/Hako is not a semantic pre
 acceptance = "one production caller emits Method(Some) with exact InstanceBoxMethod key and receiver, source args lower once, key-definition relation publishes once, the selected Ready -> CanonicalInstance branch cannot reach any of the three old edges, and no name/registry/JSON/args0/fallback/retry path remains in that branch"
 forbidden = "second resolver, new semantic receipt, family-specific loan, target/effect/ABI inference, selected-C source issuer, backend fallback, Call-schema/R6, nested/upvar/explicit-receiver widening"
 no_safe_slice = "stop and restore design_stop if the existing key cannot be carried losslessly, receiver is reconstructed, a required owner is absent/multiple, old edges cannot be deleted in the same cohort, or an unexpected red appears"
+implementation_commit = "13f8a2513f"
+implementation_evidence = "The existing InstanceBoxMethod key is retained through the locator, BindingRef-to-ValueId crosswalk, canonical SameModuleInstance carrier, collector admission, and published key-definition relation. The source-backed root-lexical Probe.me.wrap(7) proof passed and asserts receiver/value separation, InstanceBoxMethod owner/name/arity, symbol Probe.wrap/1, and two published definitions. The canonical site-mismatch negative passed before argument descent; the existing missing-target locator negative and one-shot locator tests passed 6/6. The branch-aware active-surface guard passes by requiring both Ready -> CanonicalInstance handoffs, one source-argument descent followed by the canonical terminal, and no legacy helper token inside that route. Full quick --lib remains the accepted known-red baseline (7570 inventory, 138 failures, 29 ignored; failure SHA unchanged), not a green claim."
+red_classification = "No current-change red was observed in the selected positive/negative/locator suites. The whole-library 138-name known-red set is unchanged and remains outside this row."
+closeout = "The root-lexical DeclaredInstance Method(Some) production route now uses the existing source-issued InstanceBoxMethod identity and a mandatory receiver-bearing canonical carrier. Its selected Ready -> CanonicalInstance branch has no path back to name/header target selection, LoweredGlobal reissue, or post-argument receiver prefix; compatibility helpers remain only for unarmed/other families. Return CURRENT_STATE to the existing selected-C admission design stop; do not reopen this cohort or infer arbitrary UserBox backend support."
+next_execution = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0__design_stop"
