@@ -225,13 +225,12 @@ by this refresh.
     another guard row until a named successor and caller/reference-zero proof
     exist.
 
-3h. DOCS-HISTORY-RETIRE-R0 (selected fast)
-    The first absolute-reduction batch is one 75-line, reference-closed
-    `superseded_not_needed` ProgramRoot investigation. Delete only that file,
-    keep detail in Git history (no archive copy), regenerate the existing
-    lifecycle receipt, and return the pointer to the Hako ParkedSealed stop.
-    Any new inbound reference, candidate, or successor line-budget drift parks
-    the row; no broad docs/phase purge or compiler change is included.
+3h. DOCS-HISTORY-RETIRE-R0 (landed)
+    The first absolute-reduction batch removed exactly one 75-line,
+    reference-closed `superseded_not_needed` ProgramRoot investigation.
+    Detail remains in Git history (no archive copy); the existing lifecycle
+    receipt and guards were refreshed, and the pointer returned to the Hako
+    ParkedSealed stop. No broad docs/phase purge or compiler change was made.
 
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal

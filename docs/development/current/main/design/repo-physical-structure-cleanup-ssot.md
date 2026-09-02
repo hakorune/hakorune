@@ -20,12 +20,12 @@ Related:
 - **Current decision:** physical cleanup must reduce tracked files/lines when
   it claims repository reduction; moves and renames are tracked separately.
 - **Current implementation status:** the receipt-only
-  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task is landed; guard retirement remains
-  parked, while one reference-closed investigation is selected for the first
-  absolute-reduction batch. Hako physical ingress remains
+  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task and the first one-file
+  `DOCS-HISTORY-RETIRE-R0` reduction are landed; guard retirement remains
+  parked. Hako physical ingress remains
   `ParkedSealed__HakoIngressMissing`.
-- **Next ordered task:** `DOCS-HISTORY-RETIRE-R0` deletes only the selected
-  superseded investigation after its reference and successor checks; no broad
+- **Next ordered task:** keep broad guard/docs retirement parked until another
+  finite reference-zero family has an equal-or-stronger successor; no bulk
   archive or phase purge is implied.
 - **Production stop line:** no cleanup row changes language/compiler behavior,
   current authority, a selected backend, or an unresolved test/guard contract.
@@ -201,9 +201,9 @@ feature, four cfg barrels, 34 roots, and nine exclusive support files were
 retired from the tree; Git history owns the detailed delete set. It is not a
 future cleanup-train step.
 
-### `DOCS-HISTORY-RETIRE-R0` (selected fast)
+### `DOCS-HISTORY-RETIRE-R0` (landed)
 
-This is the first absolute-reduction candidate after the receipt refresh. It
+This was the first absolute-reduction candidate after the receipt refresh. It
 uses `RetireFromTree`, not a tracked archive copy: the candidate is a
 superseded 75-line investigation with no current pointer, lifecycle, filename,
 or title references, and its surviving ProgramRoot owner plus duplicate
@@ -236,6 +236,11 @@ batch, strict lifecycle/docs-slim/pointer/active-surface/diff checks green, and
 the pointer returned to the Hako `ParkedSealed` boundary. If any additional
 candidate or reference appears, keep this row parked and do not open another
 cleanup card.
+
+Implementation evidence: the candidate was deleted with no archive copy; the
+selected batch measured one tracked file/75 lines before and zero afterward.
+The generated lifecycle receipt and existing guards were refreshed in the same
+closeout, and no compiler, MIR, test, or guard semantics changed.
 
 2. `GUARD-FAMILY-RETIREMENT-R0` reuses
    `guard_surface_inventory.py`. Its current 3,804-row inventory classifies

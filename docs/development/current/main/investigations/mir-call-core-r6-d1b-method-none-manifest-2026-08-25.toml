@@ -316,10 +316,10 @@ closeout = "complete; root-lexical Method(Some) is closed and arbitrary selected
 next_execution = "none__design_stop"
 
 [docs_history_retire_r0_2026_09_02]
-status = "selected_fast"
+status = "landed"
 task_id = "DOCS-HISTORY-RETIRE-R0"
 parent_row = "REPO-ABSOLUTE-REDUCTION-R0"
-implementation_permission = true
+implementation_permission = false
 base_head = "acabc44454"
 decision = "Retire exactly one superseded, reference-closed investigation body from the tracked current tree. Git history retains the detail; no archive copy or stub is created."
 source_authority = "The current ProgramRootWorkPlan owner and the landed ffcae72725 duplicate validator; the candidate itself records superseded_not_needed and its reopen threshold."
@@ -337,3 +337,6 @@ focused_checks = ["python3 tools/docs/repository_artifact_lifecycle_inventory.py
 acceptance = "The exact candidate is removed from the tracked tree; lifecycle strict check remains green; current pointer returns to Hako ParkedSealed; the selected batch decreases tracked docs by one file and 75 lines; no archive copy, semantic change, or broad cleanup claim is made."
 no_safe_slice = "Do not delete if the candidate is missing, referenced, status-drifted, successor budgets cross 760, the pointer/worktree changed, or any additional candidate appears. Keep DOCS-HISTORY-RETIRE-R0 parked and re-census once."
 non_claims = "No phase/investigation bulk purge, archive migration, guard/test retirement, compiler/MIR/backend change, Hako ingress, Call R6/R7, or whole-repository green claim."
+implementation_commit = "recorded in Git history"
+implementation_evidence = "The one tracked candidate was deleted with no archive copy; before/after selected census is 1 file/75 lines -> 0; lifecycle receipt and existing guards were refreshed."
+closeout = "Landed; return the pointer to MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0__design_stop and do not reopen this candidate."
