@@ -88,6 +88,9 @@ Probe has no production runtime caller. Do not open another Hako D0. The
 separate repository cleanup lane has landed the explicitly bounded
 `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task, which reconciled its generated
 receipt once without starting a reduction batch.
+The follow-up `GUARD-FAMILY-RETIREMENT-R0` audit found no new finite
+caller/reference-zero family with an equal-or-stronger successor, so guard
+deletion remains `ParkedSealed__NoSupersededDeleteCandidate`.
 
 ### 2026-09-02 next-family audit
 
@@ -214,6 +217,13 @@ by this refresh.
     pointer, active-surface, and diff checks passed. It made no
     deletion/archive claim and changed no compiler, backend, test, or guard
     semantics; the pointer returned to the Hako ParkedSealed boundary.
+
+3g. GUARD-FAMILY-RETIREMENT-R0 (ParkedSealed)
+    The current guard census is `rows=3807`, `unknown_retain=3386`, and
+    `delete_after_equivalent=0`; no new delete set exists. Existing retired
+    loop guards remain protected by their navigation tombstones. Do not open
+    another guard row until a named successor and caller/reference-zero proof
+    exist.
 
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal

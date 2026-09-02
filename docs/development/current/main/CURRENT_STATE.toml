@@ -8,7 +8,7 @@ Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical S
 Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
 Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, selected-C success, or object/link-only probes.
 Fail-fast boundary: reject before JSON preparation, C/Hako transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
-Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; lifecycle receipt refresh is landed, and no new cleanup reduction or semantic family is selected.
+Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; lifecycle refresh is landed, and guard retirement is ParkedSealed because no finite delete-safe family exists.
 Non-claims: no Hako implementation, Call schema/R6, VM/selfhost, shared exec/JSON deletion, selected-C feature expansion, archive/delete, or whole-library green claim.
 """
 previous_parent_blocker_context = """
@@ -53,7 +53,7 @@ arguments once, and has zero reachability to the three selected legacy helpers;
 compatibility implementations remain outside this cohort. Deterministic lib
 baseline is refreshed at 7572/7405/138/29 after the selected-C quarantine tests;
 selected-C remains design stop.
-Hako physical-ingress is `ParkedSealed__HakoIngressMissing` (zero `lang/**` borrow/runtime callers); the lifecycle receipt refresh is landed, and known red is not green.
+Hako physical-ingress is `ParkedSealed__HakoIngressMissing` (zero `lang/**` borrow/runtime callers); lifecycle refresh is landed, guard retirement has no candidate, and known red is not green.
 """
 next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 next_execution_card = "none__design_stop"

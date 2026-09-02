@@ -23,9 +23,9 @@ Related:
   `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task is landed; the absolute-reduction
   train remains parked and Hako physical ingress is
   `ParkedSealed__HakoIngressMissing`.
-- **Next ordered task:** explicitly select one finite guard or docs family only
-  after caller/reference-zero evidence exists. The lifecycle refresh was
-  receipt synchronization, not a reduction claim.
+- **Next ordered task:** keep guard/docs retirement parked until one finite
+  family has caller/reference-zero and equal-or-stronger successor evidence.
+  The lifecycle refresh was receipt synchronization, not a reduction claim.
 - **Production stop line:** no cleanup row changes language/compiler behavior,
   current authority, a selected backend, or an unresolved test/guard contract.
 - **Retirement finish line:** every selected batch has caller/reference zero,
@@ -155,6 +155,46 @@ generated schema and no deletion/archive or semantic diff. The pointer has
 returned to the Hako `ParkedSealed` boundary; the next guard/docs retirement
 batch still requires a separate explicit selection and finite
 caller/reference-zero evidence.
+
+### `GUARD-FAMILY-RETIREMENT-R0` (ParkedSealed)
+
+The read-only guard census found no new deletion-safe family. Keep this train
+parked; do not convert `unknown_retain` into delete permission or remove an
+existing navigation tombstone.
+
+```text
+Decision:
+  NoSafeSlice; no guard deletion row is opened.
+Source authority + canonical issuer:
+  guard_surface_inventory.py, guard_rows.toml, docs/check index, and proof_apps.
+Non-authority:
+  unknown_retain, age, file name, pilot profile, grep absence, or tombstone text.
+Fail-fast boundary:
+  finite owner + caller/reference-zero + equal-or-stronger successor +
+  positive/negative evidence + observable reopen trigger must all exist.
+Smallest next slice:
+  run one fresh bounded recensus only after a named successor and old family
+  appear; otherwise remain parked.
+Non-claims:
+  no guard/index/tombstone deletion, no new guard or receipt, and no compiler,
+  MIR, test, or backend change.
+Census boundary: tools/checks tracked guard surface -> docs index/registry/
+  proof_apps/quick profile; includes active and historical guard ownership,
+  excludes unknown-retain adjudication and semantic lanes.
+```
+
+Current machine census:
+
+```text
+rows=3807; stable_public_entry=94; family_manifest_case=115;
+focused_behavior_test=212; unknown_retain=3386;
+historical_archive=0; delete_after_equivalent=0;
+index_untracked=0; manifest_untracked=0
+```
+
+The two closest rows are already retired (`13ca2339a3`) with the successor
+`hako_bounded_body_loop_feature_summary_v0_guard.sh`; their tombstones remain
+the evidence owner. No new delete set exists at this boundary.
 Closed tombstone: `LEGACY-TESTS-RETIRE-R0` landed at `bcc9a6ba65`. The disabled
 feature, four cfg barrels, 34 roots, and nine exclusive support files were
 retired from the tree; Git history owns the detailed delete set. It is not a
