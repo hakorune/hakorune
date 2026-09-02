@@ -1,7 +1,7 @@
 //! Canonical published-MIR object ingress for the first backend cohort.
 //!
 //! The JSON file here is only the existing physical body transport.  The
-//! selected StaticBoxMethod target/site relation is passed separately through
+//! selected published-call target/site relation is passed separately through
 //! the versioned typed C rows; a typed failure never retries the JSON route.
 
 use std::path::{Path, PathBuf};

@@ -26,11 +26,11 @@ impl SelectedTopLevelFunctionKeyV1 {
         self.statement_index
     }
 
-    pub(in crate::mir::builder) fn declared_name(&self) -> &str {
+    pub(in crate::mir) fn declared_name(&self) -> &str {
         &self.declared_name
     }
 
-    pub(in crate::mir::builder) const fn declared_arity(&self) -> usize {
+    pub(in crate::mir) const fn declared_arity(&self) -> usize {
         self.declared_arity
     }
 }
@@ -261,7 +261,7 @@ mod tests {
     }
 
     #[test]
-    fn distinct_top_level_occurrences_share_one_legacy_physical_projection() {
+    fn distinct_top_level_occurrences_share_one_canonical_free_function_projection() {
         let first = NormalTopLevelFunctionDraftAdmissionV1::from_catalog_key(
             super::SelectedTopLevelFunctionKeyV1::new(2, "same", 1),
         );
@@ -275,8 +275,17 @@ mod tests {
         );
         assert_eq!(first.physical_symbol(), "same/1");
         assert_eq!(second.physical_arity(), 1);
-        let (key, symbol, arity) = second.into_legacy_collector_parts();
-        assert_eq!(key, FunctionDraftKeyV1::LegacySymbol("same/1".to_owned()));
+        assert_eq!(
+            second.canonical_key(),
+            &CanonicalSameModuleCallableKeyV1::free_function("same", 1)
+        );
+        let (key, symbol, arity) = second.into_collector_parts();
+        assert_eq!(
+            key,
+            FunctionDraftKeyV1::CatalogedBoxMethod(
+                CanonicalSameModuleCallableKeyV1::free_function("same", 1)
+            )
+        );
         assert_eq!(symbol, "same/1");
         assert_eq!(arity, 1);
     }

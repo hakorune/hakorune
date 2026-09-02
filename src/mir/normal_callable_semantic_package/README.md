@@ -131,6 +131,22 @@ a later lowering step. This is transport of the existing source-backed locator
 only. Selected-C admission, receiver materialization, target/effect
 reclassification, and physical publication remain separate downstream owners.
 
+## Top-level FreeFunction publication (2026-09-02)
+
+The bounded normal-call publication path also retains the exact source identity
+of a selected top-level helper. `SelectedTopLevelFunctionKeyV1` is crosswalked
+once, in the same source-backed catalog session, to the existing
+`CanonicalSameModuleCallableKeyV1::FreeFunction` key. The key survives normal
+draft admission and the generic collector into the atomic module definition
+table; a published backend view borrows that relation and projects the physical
+symbol only in its temporary transport frame.
+
+This is not a name/arity resolver and does not convert a top-level helper into a
+`StaticBoxMethod`. Missing, duplicate, foreign, or signature-drifted rows fail
+before argument effects or object emission. The selected typed backend consumes
+the published FreeFunction row directly; JSON, registry, header, `args[0]`, and
+alternate-backend retry remain compatibility-only and are not authorities.
+
 ## Callable physical signature mapping (2026-08-16)
 
 The package now issues one non-`Clone` physical-signature cohort from the same

@@ -114,7 +114,25 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
     pub(super) fn seal(
         view: CallableHeaderSyntaxViewV1<'_>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
-        validate_exact_i64_header(view)?;
+        validate_exact_i64_header(view, true)?;
+        Self::from_validated_view(view)
+    }
+
+    /// Seal a top-level source function for the App Main free-call index.
+    /// Top-level functions are receiver-less even though their AST function
+    /// flag is not the static-box method flag.  The caller supplies this role
+    /// from the source-bound resolver identity; it is never inferred later
+    /// from a symbol.
+    pub(super) fn seal_top_level(
+        view: CallableHeaderSyntaxViewV1<'_>,
+    ) -> Result<Self, CallableIndexSealErrorV1> {
+        validate_exact_i64_header(view, false)?;
+        Self::from_validated_view(view)
+    }
+
+    fn from_validated_view(
+        view: CallableHeaderSyntaxViewV1<'_>,
+    ) -> Result<Self, CallableIndexSealErrorV1> {
         let arity = u32::try_from(view.params().len())
             .map_err(|_| CallableIndexSealErrorV1::ArityOverflow)?;
         let source_key = CanonicalCallableKeyV1::free_static(view.name(), arity);
@@ -311,8 +329,9 @@ impl CallableIndexDraftV1 {
 
 fn validate_exact_i64_header(
     view: CallableHeaderSyntaxViewV1<'_>,
+    require_static: bool,
 ) -> Result<(), CallableIndexSealErrorV1> {
-    if !view.is_static() {
+    if require_static && !view.is_static() {
         return Err(CallableIndexSealErrorV1::StaticRequired);
     }
     if view.name() == "main" {

@@ -251,6 +251,24 @@ fn app_main_direct_call_observation_issues_one_affine_loan() {
 }
 
 #[test]
+fn app_main_direct_call_accepts_top_level_free_function() {
+    let source = final_source(
+        "function helper(value: i64): i64 { return value }\n\
+         static box Main { main() { return helper(2) } }",
+    );
+    let mut resolver = FunctionSemanticResolverSessionV1::new(107).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source)
+        .expect("mixed App Main plus top-level FreeFunction package");
+    assert!(package.has_app_main_direct_call_loan());
+    assert!(package
+        .declaration_catalog()
+        .declaration(
+            &crate::mir::builder::CanonicalSameModuleCallableKeyV1::free_function("helper", 1,)
+        )
+        .is_some());
+}
+
+#[test]
 fn app_main_direct_call_wrong_arity_rejects_before_install() {
     let source = final_source(
         "static box Main { main() { return helper() } helper(value: i64): i64 { return value } }",

@@ -515,7 +515,9 @@
             }
             return emit_global_mir_call(f, HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT, bid, ii, print_arg);
           }
-          if (typed_row && typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD) {
+          if (typed_row &&
+              (typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
+               typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)) {
             uint32_t typed_arity = typed_row->arity;
             const char* typed_symbol = typed_row->target_symbol;
             const char* typed_kind = same_module_function_call_type(op, cal);

@@ -5,7 +5,8 @@
  * exact function/block/instruction coordinate; every supplied row must be
  * consumed before a successful object is returned.  The historical symbol
  * name is retained for the bounded API, while `kind` distinguishes the
- * selected StaticBoxMethod and Builtin Print physical consumers.
+ * selected StaticBoxMethod, Builtin Print, and FreeFunction physical
+ * consumers.
  */
 
 static const hako_llvmc_published_static_method_call_v1*
@@ -38,9 +39,11 @@ static int hako_llvmc_published_static_method_rows_begin(
     const hako_llvmc_published_static_method_call_v1* row = &rows[i];
     int valid_kind =
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
-        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT;
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT ||
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION;
     int valid_payload =
-        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD
+        (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
+         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)
             ? hako_llvmc_published_static_method_symbol_safe(row->target_symbol)
             : (row->target_symbol == NULL && row->arity == 1);
     if (!(row->function_name && row->function_name[0] && valid_kind && valid_payload)) {

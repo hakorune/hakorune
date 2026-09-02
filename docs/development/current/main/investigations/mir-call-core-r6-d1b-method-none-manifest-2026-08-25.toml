@@ -886,18 +886,21 @@ many coherent commits as the single cohort needs, but it must include a
 production caller switch and cohort old-edge deletion before closeout.
 """
 implementation_files = [
+  "src/mir/builder/callable_declaration_catalog/README.md",
   "src/mir/builder/callable_declaration_catalog/source_backed.rs",
   "src/mir/builder/callable_declaration_catalog/selected_source_inventory.rs",
   "src/mir/builder/normal_top_level_function_admission.rs",
   "src/mir/builder/program_root_work_plan.rs",
   "src/mir/builder/program_root_work_plan/selected_projection_validator.rs",
   "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
   "src/mir/callable_parameter_contract/issuer.rs",
   "src/mir/normal_callable_semantic_package/completion_seed.rs",
   "src/mir/normal_callable_semantic_package/physical_signature.rs",
   "src/mir/normal_callable_semantic_package/install.rs",
   "src/mir/function/module_impl.rs",
   "src/mir/function/published_backend_view.rs",
+  "src/mir/function/published_backend_view_tests.rs",
   "src/host_providers/llvm_codegen/published_mir_object.rs",
   "src/host_providers/llvm_codegen/capi_transport.rs",
   "lang/c-abi/include/hako_llvmc_ffi.h",
@@ -907,17 +910,20 @@ implementation_files = [
 ]
 allowed_files = [
   "src/mir/builder/callable_declaration_catalog/source_backed.rs",
+  "src/mir/builder/callable_declaration_catalog/README.md",
   "src/mir/builder/callable_declaration_catalog/selected_source_inventory.rs",
   "src/mir/builder/normal_top_level_function_admission.rs",
   "src/mir/builder/program_root_work_plan.rs",
   "src/mir/builder/program_root_work_plan/selected_projection_validator.rs",
   "src/mir/normal_callable_semantic_package/issuer.rs",
+  "src/mir/normal_callable_semantic_package/README.md",
   "src/mir/callable_parameter_contract/issuer.rs",
   "src/mir/normal_callable_semantic_package/completion_seed.rs",
   "src/mir/normal_callable_semantic_package/physical_signature.rs",
   "src/mir/normal_callable_semantic_package/install.rs",
   "src/mir/function/module_impl.rs",
   "src/mir/function/published_backend_view.rs",
+  "src/mir/function/published_backend_view_tests.rs",
   "src/host_providers/llvm_codegen/published_mir_object.rs",
   "src/host_providers/llvm_codegen/capi_transport.rs",
   "lang/c-abi/include/hako_llvmc_ffi.h",
@@ -936,7 +942,7 @@ forbidden_files = [
   "src/backend/**",
   "src/runner/**",
   "apps/**",
-  "tests/**",
+  "unrelated tests/**",
   "VM",
   "Call schema",
   "DeclaredInstance",
@@ -944,24 +950,36 @@ forbidden_files = [
   "new receipt or resolver",
 ]
 focused_tests = [
-  "app_main_direct_call_observation_issues_one_affine_loan",
-  "selected_normal_top_level_physical_projections",
-  "published FreeFunction view positive and negative rows",
-  "typed C ingress FreeFunction kind",
-  "mixed source top-level helper source-to-object probe",
+  "mir::builder::callable_declaration_catalog::selected_source_inventory::tests::distinct_top_level_occurrences_share_one_canonical_free_function_projection",
+  "mir::normal_callable_semantic_package::resolver_deferred_tests::app_main_direct_call_accepts_top_level_free_function",
+  "mir::compiler::normal_default_pipeline::tests::normal_ingress_preserves_top_level_free_function_after_finish",
+  "mir::function::published_backend_view::tests::published_free_function_is_typed_and_definition_backed",
+  "mir::function::published_backend_view::tests::published_free_function_rejects_legacy_carrier_and_wrong_arity",
+  "mir::function::published_backend_view::tests::published_free_function_rejects_missing_definition",
+  "mir::builder::program_root_work_plan::tests::selected_top_level_functions_reject_duplicate_physical_projection",
+  "manual source-to-object probe: mixed top-level helper; traced typed C kind=3; executable result 3",
 ]
 acceptance = """
 One mixed Main + top-level helper source publishes a mandatory canonical
 FreeFunction call whose exact key survives source catalog, admission, generic
 collector, Atomic MirModule publication, and the borrowed typed backend view.
 The typed C ingress consumes the same definition without JSON/name/registry or
-args[0] repair. The H-1 regression is covered, representative negatives for
-duplicate/foreign/mismatch/missing/overwrite/phi/legacy paths are observed,
-the changed tests run exactly, and the cohort LegacySymbol/Static
-classification/PublishedTargetNotCataloged edges are zero or explicit
-compatibility-only. No new failure is unclassified and no other family is
-touched.
+args[0] repair. The H-1 regression is covered, and the selected cohort has
+direct positive/negative evidence for the published FreeFunction key, legacy
+carrier, wrong arity, missing definition, and duplicate source projection.
+The mixed source-to-object probe reaches the typed C kind=3 row and produces
+the expected executable result. Generic phi-position, broad definition
+overwrite, non-scalar lane, and untriggered join/view variants remain explicit
+follow-up boundaries outside this scalar cohort; they are not claimed closed
+here. No new failure is unclassified and no other family is touched.
 """
+follow_up_boundaries = [
+  "generic published-view phi-position invariant: add an explicit assertion or typed reject before widening the next family",
+  "generic MirModule::add_function overwrite protection: keep canonical definition insertion collision-safe before schema cutover",
+  "non-scalar FreeFunction argument/result admission: remain parked until a physical lane owner is selected",
+  "direct runner/C negative integration tests: the scalar source-to-object trace is positive evidence; add a bounded negative harness test before broad backend migration",
+  "known cargo-lib red baseline remains a separate receipt; no whole-library green claim",
+]
 no_safe_slice = """
 Abort and restore design_stop if any FreeFunction product still requires a
 second source authority, a new receipt/resolver, Static conversion, name or

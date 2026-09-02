@@ -20,8 +20,14 @@ enum AppMainFreeStaticHeaderDispositionV1 {
 
 fn classify_app_main_free_static_header_v1(
     view: CallableHeaderSyntaxViewV1<'_>,
+    top_level: bool,
 ) -> AppMainFreeStaticHeaderDispositionV1 {
-    match VerifiedOwnerFreeCallableHeaderV1::seal(view) {
+    let result = if top_level {
+        VerifiedOwnerFreeCallableHeaderV1::seal_top_level(view)
+    } else {
+        VerifiedOwnerFreeCallableHeaderV1::seal(view)
+    };
+    match result {
         Ok(header) => AppMainFreeStaticHeaderDispositionV1::Candidate(header),
         Err(_outside_exact_profile) => AppMainFreeStaticHeaderDispositionV1::OutsideExactProfile,
     }
@@ -109,7 +115,7 @@ impl FunctionSemanticResolverSessionV1 {
             // unrelated helper lies outside the exact FreeStatic profile;
             // a direct call to that helper is rejected by the root policy
             // below instead of being repaired from its name or arity.
-            match classify_app_main_free_static_header_v1(header) {
+            match classify_app_main_free_static_header_v1(header, input.is_top_level_callable()) {
                 AppMainFreeStaticHeaderDispositionV1::Candidate(header) => {
                     headers.push(header.attach_owner(*owner))
                 }

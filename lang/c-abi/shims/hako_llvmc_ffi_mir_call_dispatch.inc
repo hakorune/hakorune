@@ -188,11 +188,18 @@
                 print_arg);
           }
           if (typed_row &&
-              typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD) {
+              (typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
+               typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)) {
             uint32_t typed_arity = typed_row->arity;
             const char* typed_symbol = typed_row->target_symbol;
             hako_llvmc_emit_route_trace(
-                "published_call", "consume", "static_method", "kind=1");
+                "published_call", "consume",
+                typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION
+                    ? "free_function"
+                    : "static_method",
+                typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION
+                    ? "kind=3"
+                    : "kind=1");
             char typed_args[1024];
             typed_args[0] = '\0';
             if (!(ctype && !strcmp(ctype, "Global") && args &&

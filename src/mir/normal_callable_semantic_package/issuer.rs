@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::mir::builder::{
-    issue_source_backed_same_module_callable_catalog_v1,
+    issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, ConsumedNormalRootCallableSourceV1,
     SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1, SourceBackedCallableCatalogIssueV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
@@ -296,12 +296,26 @@ fn issue_app_main_direct_call_loan_v1(
                             .ok_or(
                                 AppMainDirectCallDispositionIssueV1::PublishedTargetMissing,
                             )?;
-                        let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
-                            return Err(
-                                AppMainDirectCallDispositionIssueV1::PublishedTargetNotCataloged,
-                            );
+                        let (key, expected_namespace) = match selected_key {
+                            SelectedNormalCallableKeyV1::Cataloged(key) => {
+                                (key.clone(), SameModuleCallableNamespaceV1::StaticBoxMethod)
+                            }
+                            SelectedNormalCallableKeyV1::TopLevel(top_level) => {
+                                let arity = u32::try_from(top_level.declared_arity()).map_err(
+                                    |_| {
+                                        AppMainDirectCallDispositionIssueV1::PublishedTargetArityMismatch
+                                    },
+                                )?;
+                                (
+                                    CanonicalSameModuleCallableKeyV1::free_function(
+                                        top_level.declared_name(),
+                                        arity,
+                                    ),
+                                    SameModuleCallableNamespaceV1::FreeFunction,
+                                )
+                            }
                         };
-                        if key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
+                        if key.namespace() != expected_namespace {
                             return Err(
                                 AppMainDirectCallDispositionIssueV1::PublishedTargetNamespaceMismatch,
                             );
@@ -316,7 +330,7 @@ fn issue_app_main_direct_call_loan_v1(
                                 AppMainDirectCallDispositionIssueV1::PublishedTargetArityMismatch,
                             );
                         }
-                        if catalog.catalog().declaration(key).is_none() {
+                        if catalog.catalog().declaration(&key).is_none() {
                             return Err(
                                 AppMainDirectCallDispositionIssueV1::PublishedTargetMissing,
                             );

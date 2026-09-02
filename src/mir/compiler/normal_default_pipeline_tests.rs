@@ -155,14 +155,16 @@ fn compatibility_origin_moves_through_request_and_prepared_root() {
 #[test]
 fn llvm_request_transports_one_invocation_target_capability_without_reissuing_it() {
     let profile = crate::mir::compiler::target_capability::PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1;
-    let capability = crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityIssuerV1::issue(
-        profile,
-    )
-    .expect("compile invocation capability");
+    let capability =
+        crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityIssuerV1::issue(
+            profile,
+        )
+        .expect("compile invocation capability");
     let invocation = capability.invocation_ordinal();
-    let request = NormalCompileRequestV1::for_llvm_source(program(), Some("llvm.hako"), HashMap::new())
-        .expect("program root")
-        .with_compile_target_capability(capability);
+    let request =
+        NormalCompileRequestV1::for_llvm_source(program(), Some("llvm.hako"), HashMap::new())
+            .expect("program root")
+            .with_compile_target_capability(capability);
     let (_, _, _, _, _, transported) = request.into_parts();
     let transported = transported.expect("capability remains in request");
     assert_eq!(transported.invocation_ordinal(), invocation);
@@ -239,6 +241,45 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
             crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
         );
         assert_eq!(view.static_method_calls().len(), 1);
+    });
+}
+
+#[test]
+fn normal_ingress_preserves_top_level_free_function_after_finish() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "function helper(value: i64): i64 { return value }\n\
+             static box Main { main() { return helper(2) } }",
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .expect("mixed App source");
+        let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact callable transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("App source must remain source-backed")
+        };
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler
+            .compile_normal(NormalCompileRequestV1::for_mir_mode_callable_source(
+                source,
+                Some("app-main-free-function.hako"),
+                HashMap::new(),
+            ))
+            .expect("App compile");
+        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::free_function("helper", 1);
+        assert_eq!(
+            result.module.canonical_callable_definition_symbol(&key),
+            Some("helper/1")
+        );
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module)
+            .expect("published App Main FreeFunction view");
+        assert_eq!(
+            view.route(),
+            crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
+        );
+        assert_eq!(view.free_function_calls().len(), 1);
     });
 }
 

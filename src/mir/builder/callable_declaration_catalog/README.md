@@ -14,11 +14,15 @@ The durable lookup catalog owns:
 The admitted inventory is exactly:
 
 - every function method in a non-sync, non-record static box;
-- every non-static method in a non-sync, non-record ordinary box.
+- every non-static method in a non-sync, non-record ordinary box;
+- the selected normal top-level function rows that have an exact
+  `SelectedTopLevelFunctionKeyV1` source identity.
 
-Constructors, top-level functions, ordinary-box static methods, record methods,
-and sync-box methods stay outside this catalog. Instance rows never enter
-static candidate lookup.
+Constructors, ordinary-box static methods, record methods, and sync-box methods
+stay outside this catalog. Top-level rows use the existing
+`CanonicalSameModuleCallableKeyV1::FreeFunction` namespace; they do not become
+static-box methods and their physical symbol is only a one-way projection of
+that key. Instance rows never enter static candidate lookup.
 
 It does not own:
 

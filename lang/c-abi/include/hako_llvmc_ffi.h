@@ -27,6 +27,7 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 // authority; they select the already-published row consumer only.
 #define HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD 1u
 #define HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT 2u
+#define HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION 3u
 
 // Compile a module whose selected published call sites are described by the
 // typed rows.  json_in remains a physical body transport for this bounded

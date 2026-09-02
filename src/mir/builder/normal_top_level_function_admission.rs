@@ -2,9 +2,11 @@
 //!
 //! A top-level declaration occurrence is not a Box method.  Its source key is
 //! therefore local to the Program work plan, while its physical draft contract
-//! deliberately preserves the legacy `name/arity` collector identity.
+//! is paired with the existing canonical FreeFunction collector identity.
 
-use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
+use super::callable_declaration_catalog::{
+    CanonicalSameModuleCallableKeyV1, SelectedTopLevelFunctionKeyV1,
+};
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1};
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
@@ -15,15 +17,17 @@ use crate::mir::MirBuilder;
 /// One declaration occurrence in the source-order Program statement vector.
 ///
 /// `statement_index` distinguishes source declarations that project to the
-/// same legacy physical symbol.  It is not a collector key and never changes
-/// legacy replacement behavior.
+/// same physical symbol.  The source occurrence and canonical key remain
+/// distinct; the physical symbol is only a one-way projection.
 /// Cloning transports the same Program occurrence into the recursive source
 /// carrier; it does not issue another source identity.
-/// One selected-normal top-level declaration paired with its legacy physical
-/// draft relation.  It owns no AST, Builder borrow, or collector state.
+/// One selected-normal top-level declaration paired with its canonical
+/// FreeFunction draft relation.  It owns no AST, Builder borrow, or collector
+/// state.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct NormalTopLevelFunctionDraftAdmissionV1 {
     source_key: SelectedTopLevelFunctionKeyV1,
+    canonical_key: CanonicalSameModuleCallableKeyV1,
     physical_symbol: Box<str>,
     physical_arity: usize,
     _seal: NormalTopLevelFunctionDraftAdmissionSealV1,
@@ -43,7 +47,13 @@ impl NormalTopLevelFunctionDraftAdmissionV1 {
         )
         .into_boxed_str();
         let physical_arity = source_key.declared_arity();
+        let canonical_arity = u32::try_from(source_key.declared_arity())
+            .expect("selected top-level source arity was checked by the catalog");
         Self {
+            canonical_key: CanonicalSameModuleCallableKeyV1::free_function(
+                source_key.declared_name(),
+                canonical_arity,
+            ),
             source_key,
             physical_symbol,
             physical_arity,
@@ -55,6 +65,10 @@ impl NormalTopLevelFunctionDraftAdmissionV1 {
         &self.source_key
     }
 
+    pub(in crate::mir) fn canonical_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.canonical_key
+    }
+
     pub(in crate::mir::builder) fn physical_symbol(&self) -> &str {
         &self.physical_symbol
     }
@@ -63,18 +77,19 @@ impl NormalTopLevelFunctionDraftAdmissionV1 {
         self.physical_arity
     }
 
-    pub(in crate::mir::builder) fn into_legacy_collector_parts(
+    pub(in crate::mir::builder) fn into_collector_parts(
         self,
     ) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
             source_key: _,
+            canonical_key,
             physical_symbol,
             physical_arity,
             _seal: _,
         } = self;
         let symbol = physical_symbol.into_string();
         (
-            FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
+            FunctionDraftKeyV1::CatalogedBoxMethod(canonical_key),
             symbol,
             physical_arity,
         )
@@ -87,7 +102,7 @@ impl ModuleLoweringPortV1<'_> {
         pending: LegacyFunctionPendingSessionV1<'_>,
         admission: NormalTopLevelFunctionDraftAdmissionV1,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.commit_legacy_symbol_pending(pending, admission.into_legacy_collector_parts())
+        self.commit_cataloged_box_method_pending(pending, admission.into_collector_parts())
     }
 }
 

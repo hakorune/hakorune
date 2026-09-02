@@ -151,6 +151,26 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                         else {
                             return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
                         };
+                        // Keep the parser-issued occurrence key for source
+                        // pairing, while issuing the existing canonical
+                        // FreeFunction definition row from the same
+                        // declaration.  Consumers must never recreate this
+                        // key from the physical `name/arity` projection.
+                        let key = CanonicalSameModuleCallableKeyV1::free_function(name, arity);
+                        validate_parameters(&key, params, param_decls)
+                            .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
+                        let declaration = VerifiedSameModuleCallableDeclarationV1 {
+                            key: key.clone(),
+                            params: params.clone().into_boxed_slice(),
+                            param_decls: param_decls.clone().into_boxed_slice(),
+                            return_type_name: return_type_name.clone().map(String::into_boxed_str),
+                            body: body.clone().into_boxed_slice(),
+                            uses: uses.clone().into_boxed_slice(),
+                            attrs: attrs.clone(),
+                        };
+                        if rows_by_key.insert(key, declaration).is_some() {
+                            return Err(SourceBackedCallableCatalogIssueV1::DuplicateCanonicalKey);
+                        }
                         (
                             SelectedNormalCallableKeyV1::TopLevel(
                                 SelectedTopLevelFunctionKeyV1::new(
