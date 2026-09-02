@@ -850,17 +850,79 @@ the already-landed Static/Free source proofs remain the source authority, and
 the current row does not claim a new source semantic route. The active-surface
 guard, current-state pointer guard, and `git diff --check` all pass.
 
-The separate producer-side Print test remains queued as
-`MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0`; this row deliberately does not
-reopen the landed Print cutover or add a new guard.
-
 NoSafeSlice: stop if the helper needs nested local state/callback plumbing,
 changes a return-code or trace contract, mixes a third consumer, or requires
 sharing LLVM emission/argument formatting. In that case keep the broader
 `MIR-CALL-PUBLISHED-TRANSPORT-DEDUP-P1` parked and do not add another adapter.
 
-Queued follow-up (not selected in this row):
-`MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0` adds one source-backed
-`print(42)` producer assertion through the existing lifecycle seam. It must
-not reopen the landed Print cutover or add a standalone guard; its producer
-test is evidence-only and follows this BoxShape preparation.
+#### `MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0`
+
+Status: **landed**. This is a producer-evidence row only; it does not
+reopen the landed Print publication cutover or widen the semantic family.
+
+```text
+Decision: prove that the existing source-backed print producer emits exactly
+one typed builtin Print call and that the already-published view accepts it.
+Reuse the existing normal-default-root lifecycle seam and the existing
+PublishedMirBackendView validator; add no new semantic issuer or transport.
+Source authority + canonical issuer: the existing source-backed lifecycle
+and MirBuilder builtin Print publisher. The test observes the published
+module; it does not issue or reconstruct a target.
+Non-authority: test name, JSON/name/registry lookup, C success, backend
+fallback, fixture identity, or a guessed call shape.
+Fail-fast boundary: source-backed `print(42)` must publish one Global builtin
+Print call with `func == ValueId::INVALID`, no destination, one source
+argument, and a CanonicalTyped published view. Any missing/duplicate/wrong
+shape is a test failure; no alternate route is accepted.
+Smallest next slice: one test in
+`src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs`, reusing the
+existing `session()` and `callable_source()` helpers.
+Non-claims: no C shim/runner/JSON/VM/Call-schema change, no Hako ingress, no
+new guard executable, no fallback/retry change, and no whole-library green
+claim.
+```
+
+Allowed files are limited to the existing lifecycle test, this performance
+card, `CURRENT_STATE.toml`, the rolling workstream, and the existing stable
+D1B dispatch module. The focused test must be named
+`source_backed_print_producer_publishes_typed_builtin_row`. The existing
+stable guard may explicitly dispatch this row, but no standalone guard or
+new guard registry entry is allowed.
+
+Acceptance: the exact test passes; it observes one source-backed Print call,
+`Callee::Global(CanonicalGlobalTargetV1::builtin_print())`, `dst == None`,
+`func == ValueId::INVALID`, one source argument, and
+`PublishedStaticMethodRouteV1::CanonicalTyped` with one builtin Print row and
+zero static/free rows. The existing lifecycle test was renamed and expanded,
+so the `#[test]` count did not increase; the baseline inventory contains the
+new name in the same one-row position and the pre-existing failure-name set
+is unchanged. Pointer and active-surface guards pass, and the row closes
+without changing production semantics.
+
+NoSafeSlice: stop and return to closeout if the existing lifecycle cannot
+expose the published module, if the assertion needs a new source/backend
+owner, if a second Print producer or route is found, or if a new guard,
+fallback, retry, JSON, C, VM, or Call-schema change becomes necessary.
+
+Implementation evidence: (2026-09-03) the existing
+`source_backed_lifecycle_facade_consumes_program_runtime_and_app_once` test
+was renamed to
+`source_backed_print_producer_publishes_typed_builtin_row` and now checks the
+source-backed `print(42)` module before retaining its existing Program/App
+lifecycle assertions. It observes exactly one call with
+`Callee::Global(CanonicalGlobalTargetV1::builtin_print())`, no destination,
+`ValueId::INVALID`, one source argument, and one builtin row in a
+`CanonicalTyped` `PublishedMirBackendView`; static/free rows are empty. No
+new `#[test]` was added. The exact full-path test ran `1 passed; 0 failed`.
+The known-red comparator accepts `7577 total / 7410 passed / 138 failed /
+29 ignored` with inventory SHA-256
+`30764d77ec4ae277300c58b400c7080d0a840ee76065d6395f84fe3d33637739` and the
+unchanged failure SHA-256
+`29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`.
+The stable active-surface guard, current-state pointer guard, and
+`git diff --check` pass. The existing lifecycle module still has four
+pre-existing known-red tests; they were observed but not reclassified by this
+evidence-only row.
+
+Closeout: complete; keep the published Print producer proof in the existing
+lifecycle owner and return to the next bounded semantic/backend decision.

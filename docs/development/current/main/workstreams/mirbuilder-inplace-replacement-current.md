@@ -964,8 +964,9 @@ origin retirement. The disabled `legacy-tests` family is retired at
   generic compatibility remain local. The C shim build, 18 focused view tests,
   non-entry typed ingress probe, negative shape/residual/duplicate probes,
   known-red baseline, and active/pointer guards pass. The producer-side Print
-  assertion remains a separate queued evidence row; no new semantic family or
-  guard was added.
+  assertion is now folded into the existing lifecycle test (renamed rather
+  than added), proving one source-backed builtin row without increasing the
+  test count. No new semantic family or standalone guard was added.
 
 Exact commits, test receipts, and per-row counts live in Git and the linked
 investigation/archive owners, not in this rolling card.

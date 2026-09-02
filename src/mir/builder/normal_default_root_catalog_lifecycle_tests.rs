@@ -6,6 +6,7 @@ use crate::mir::builder::{
     NormalRuntimeInputSnapshotV1, PreparedNormalDefaultProgramRootV1,
 };
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 fn callable_source(source: &str, config: ParserBuildConfig) -> PreparedNormalDefaultProgramRootV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(source, config)
@@ -49,7 +50,55 @@ fn verified_expansion_disposition_reaches_script_and_app_root_lowering() {
 }
 
 #[test]
-fn source_backed_lifecycle_facade_consumes_program_runtime_and_app_once() {
+fn source_backed_print_producer_publishes_typed_builtin_row() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let print_source = callable_source("print(42)", ParserBuildConfig::default());
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            print_source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed Print producer must lower");
+    let (_, module) = completed.into_parts();
+    let calls = module
+        .functions
+        .iter()
+        .flat_map(|(_, function)| function.blocks.values())
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call {
+                dst,
+                func,
+                callee,
+                args,
+                ..
+            } => Some((*dst, *func, callee.clone(), args.len())),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(calls.len(), 1, "Print producer must publish one call");
+    let (dst, func, callee, arg_len) = calls.into_iter().next().expect("Print call");
+    assert_eq!(dst, None, "builtin Print has no destination");
+    assert_eq!(func, crate::mir::ValueId::INVALID);
+    assert_eq!(
+        callee,
+        Some(crate::mir::Callee::Global(
+            CanonicalGlobalTargetV1::builtin_print(),
+        ))
+    );
+    assert_eq!(arg_len, 1, "Print keeps one source argument");
+
+    let backend_view = crate::mir::function::PublishedMirBackendView::try_new(&module)
+        .expect("published Print producer view");
+    assert_eq!(
+        backend_view.route(),
+        crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped
+    );
+    assert_eq!(backend_view.builtin_print_calls().len(), 1);
+    assert!(backend_view.static_method_calls().is_empty());
+    assert!(backend_view.free_function_calls().is_empty());
+
     for (source, expected) in [
         (
             "print(1)",

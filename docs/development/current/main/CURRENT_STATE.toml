@@ -1,17 +1,16 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0"
+current_execution_row = "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0"
 current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0 closeout: the existing
-published-row owner now provides one exact-site take and shared Global/dst/
-arity/numeric-shape admission to the two named C consumers. Keep LLVM
-emission, argument formatting, generic compatibility routes, semantic/MIR/
-JSON schema, and backend authority local; no new state/callback port, receipt,
-fallback, or retry. The measured consumers remain below the source-size hard
-boundary, focused/view/C-ingress/negative/baseline evidence is recorded, and
-the separate Print producer test remains queued rather than being claimed.
+MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0 closeout: the existing lifecycle
+test was renamed and expanded (no new #[test]) to prove source-backed
+print(42) emits exactly one typed builtin Print call and that
+PublishedMirBackendView classifies it CanonicalTyped. Keep this evidence-only:
+no new semantic issuer, C/runner/JSON/VM/Call-schema change, fallback, retry,
+or standalone guard. The exact test, known-red baseline comparison, pointer,
+and stable active-surface guard are recorded; do not reopen the Print spine.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -42,15 +41,14 @@ latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
 The snapshot I0, vm-reference arm, stable dispatch repair, baseline refresh,
-B-S0 direct negative coverage, and the duplicate mutable-accumulator test
-retirement are landed and pushed. The published-C dual-consumer BoxShape row
-is now in closeout after sharing exact-site take and Global shape admission in
-the existing published-row owner; whole-library health remains the classified
-7577/7410/138/29 known-red baseline. Print producer coverage is queued
-separately and is not claimed by this row.
+B-S0 direct negative coverage, duplicate mutable-accumulator test retirement,
+published-C dual-consumer BoxShape, and Print producer coverage are landed and
+pushed. The Print producer proof reuses and renames one existing lifecycle
+test, so the #[test] count does not increase; whole-library health remains the
+classified 7577/7410/138/29 known-red baseline.
 """
 next_design_card = "none__accepted_d0"
-next_execution_card = "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0"
+next_execution_card = "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

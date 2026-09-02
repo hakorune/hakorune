@@ -38,6 +38,7 @@ MUTABLE_ACCUMULATOR_DUPLICATE_RETIRE_R0_ROW = (
 PUBLISHED_C_DUAL_CONSUMER_PREPARE_BOXSHAPE_S0_ROW = (
     "MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0"
 )
+PRINT_PRODUCER_COVERAGE_S0_ROW = "MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0"
 METHOD_ROW = "MIR-CALL-GUARD-ACTIVE-SURFACE-PRUNE-R0"
 RAW_ROOT_ROW = "MIR-CALL-COMPAT-RAW-ROOT-MAIN-RETIRE-I0"
 SCRIPT_ROOT_ROW = "MIR-CALL-COMPAT-SCRIPT-ROOT-RET0"
@@ -445,6 +446,73 @@ def check_delegated_published_c_boxshape_row(
         if not (root / rel).is_file():
             fail(f"{row} implementation owner is missing: {rel}")
     print(f"[{TAG}] row={row} delegated=performance-card-published-c-boxshape")
+
+
+def check_delegated_print_producer_coverage_row(
+    state: dict, root: Path, row: str
+) -> None:
+    """Validate the one existing-lifecycle Print producer evidence row.
+
+    This is an explicit branch of the stable active-surface guard, not a new
+    executable guard.  The row may observe the existing published module but
+    may not add a semantic issuer, transport, or alternate backend route.
+    """
+    if row != PRINT_PRODUCER_COVERAGE_S0_ROW:
+        fail(f"unsupported Print producer coverage row: {row!r}")
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        fail(f"{row} requires fast or closeout work_mode")
+    if state.get("current_execution_row") != row:
+        fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        fail(f"{row} requires current_design_stop=none")
+    if state.get("latest_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} requires the performance card path")
+    if state.get("current_execution_design") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} current_execution_design drifted")
+    if state.get("next_execution_card") != row:
+        fail(f"{row} execution pointer drifted")
+    if state.get("next_execution_card_path") != str(PERFORMANCE_CARD_REL):
+        fail(f"{row} execution card path drifted")
+
+    card_path = root / PERFORMANCE_CARD_REL
+    if not card_path.is_file():
+        fail(f"{row} owning performance card is missing")
+    card_text = card_path.read_text(encoding="utf-8")
+    marker = f"#### `{row}`"
+    if marker not in card_text:
+        fail(f"{row} is absent from its owning performance card")
+    section = card_text.split(marker, 1)[1].split("\n#### ", 1)[0]
+    expected_status = "selected_fast" if mode == "fast" else "landed"
+    if f"Status: **{expected_status}**" not in section:
+        fail(f"{row} owning status is not {expected_status}")
+    for token in (
+        "normal_default_root_catalog_lifecycle_tests.rs",
+        "source_backed_print_producer_publishes_typed_builtin_row",
+        "PublishedMirBackendView",
+        "Callee::Global(CanonicalGlobalTargetV1::builtin_print())",
+        "no standalone guard",
+    ):
+        if token not in section:
+            fail(f"{row} owning producer contract is missing: {token}")
+    source = root / Path(
+        "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs"
+    )
+    if not source.is_file():
+        fail(f"{row} producer test owner is missing")
+    source_text = source.read_text(encoding="utf-8")
+    if source_text.count(
+        "fn source_backed_print_producer_publishes_typed_builtin_row("
+    ) != 1:
+        fail(f"{row} producer test must be present exactly once")
+    if sum(1 for _ in source.open(encoding="utf-8")) >= 800:
+        fail(f"{row} producer test owner reached the 800-line hard stop")
+    if mode == "closeout":
+        if "Implementation evidence:" not in section:
+            fail(f"{row} closeout evidence is missing")
+        if "closeout: complete" not in section.lower():
+            fail(f"{row} closeout contract is missing")
+    print(f"[{TAG}] row={row} delegated=performance-card-print-producer")
 
 
 def git_diff(root: Path, base: str) -> str:
