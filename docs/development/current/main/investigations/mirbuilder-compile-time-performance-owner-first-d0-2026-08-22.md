@@ -578,10 +578,12 @@ The selected-C published-call dispatch currently repeats the same Print and
 FreeFunction/static-kind handling in
 `lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc` and
 `lang/c-abi/shims/hako_llvmc_ffi_same_module_body_emit.inc`. A second
-production emit edge also remains in `harness_executor.rs`. Extract one
-shared include-level helper, keep the typed published row as the sole
-authority, add a producer-to-consumer smoke test, and remove the duplicate
-edge only after caller-zero is observed.
+production emit edge also remains in `harness_executor.rs`. The current
+read-only census found that these are not yet one closed delete set: the C
+sites may be alternative entry paths and the generic JSON branch still has
+other-family callers. Therefore this task is `NoSafeSlice` until a finite
+caller/consumer/delete relation is named; do not extract a helper or add a
+fallback while that relation is open.
 
 #### `MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-P1`
 
@@ -590,6 +592,37 @@ reject variants, phi-at-head coordinate invariant, duplicate definition
 publication, and non-scalar argument-lane mismatch. Each case must reject
 before object emission and must not re-enter JSON/name/registry repair. Do not
 inflate the positive fixture matrix or add a new receipt family.
+
+#### `MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0`
+
+This is the next selected fast row after the snapshot closeout. It is a
+BoxShape-only evidence slice, not a new semantic family. Reuse the existing
+`MirModule::add_cataloged_box_method` / `preflight_cataloged_box_method`
+publication validators and `PublishedMirBackendView::try_new` error owner.
+Add only direct Rust tests for already-issued errors that can be produced
+without a new source-backed authority: duplicate key/symbol publication,
+missing or mismatched definition, arity/legacy-carrier rejection, and the
+builtin-print row shape checks. Do not include phi coordinate or non-scalar
+lane semantics here; those need a separate authority decision. Do not touch
+the C shim, runner, JSON transport, Call schema, or selected-C admission.
+
+```text
+Decision: select B-S0 as the smallest closed negative-evidence slice; keep
+the broader transport dedup task parked as NoSafeSlice.
+Source authority + canonical issuer: existing cataloged publication
+validators and PublishedMirBackendView validator; no new issuer.
+Non-authority: JSON/name/registry/header, physical symbol text, args[0], C
+success, generic add_function, and local fixture identity.
+Fail-fast boundary: the named validator rejects before object admission;
+there is no JSON/name/registry re-entry or backend fallback.
+Smallest next slice: direct Rust tests for the finite existing error rows,
+then one reusable guard/evidence receipt.
+Non-claims: no phi-head contract, non-scalar lane support, C/runner changes,
+JSON deletion, Call-schema cutover, or new receipt family.
+Census boundary: cataloged publication entry and view constructor -> their
+existing error terminals; includes duplicate/missing/mismatch/arity/carrier
+and builtin-print rows; excludes C transport, phi layout, and lane typing.
+```
 
 These P1 tasks remain separate from the next DeclaredInstance or other
 semantic-family cutover. Their evidence must distinguish changed-test green
@@ -613,3 +646,7 @@ Until both P0 rows have a green, observable owner, no new Call family is
 opened. A focused snapshot test passing is useful evidence for I0 only; it
 does not waive the vm-reference feature build, stable dispatch guard, or the
 known-red baseline comparison.
+
+The two P0 rows are now landed. B-S0 may open only after the snapshot pointer
+is synchronized; A remains parked until its alternative-entry caller census
+closes.

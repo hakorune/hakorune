@@ -1,15 +1,15 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0"
 current_design_stop = "none"
 current_blocker_token = """
-Closeout for MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0: the one invocation-owned
-CompilationContext snapshot is installed by normal/raw and canonical sessions,
-and the selected emit readers borrow it. The vm-reference SameModuleInstance
-exhaustiveness debt and stable active-row dispatch debt are repaired as
-bounded gate follow-ups. Finish only evidence/pointer/commit synchronization;
-do not open another semantic family from this closeout.
+MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0: add only direct Rust evidence
+for existing cataloged-publication and PublishedMirBackendView error owners.
+Reject before object admission and never re-enter JSON/name/registry repair.
+Do not touch C transport, runner, phi coordinates, non-scalar lane authority,
+Call schema, or a new semantic receipt. The broader transport dedup row is
+NoSafeSlice until its alternative-entry caller/delete set is finite.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -26,7 +26,7 @@ landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or
 semantic-family widening into verification-only rows.
 """
-guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> named production switch -> old-edge deletion row at a time. Zero/multiple owner-caller-delete tuples park the whole family; do not add another D0, receipt, adapter, fixture, or guard. Tests/guards/docs retire only with their caller-zero family or an equal/stronger successor. The current guard census has no new SupersededDelete candidate, so broad guard cleanup remains parked. Before Call R6, require deterministic no-new-red comparison and exact changed-test execution coverage; focused green is not whole-repo health. The post-audit vm-reference SameModuleInstance exhaustiveness and stable active-row dispatch P0s are now landed; keep the current closeout bounded and select the next family only after pointer synchronization."
+guard_followup = "Use one bounded source -> exact Facts/Recipe -> sole owner -> named production switch -> old-edge deletion row at a time. Zero/multiple owner-caller-delete tuples park the whole family; do not add another D0, receipt, adapter, fixture, or guard. Tests/guards/docs retire only with their caller-zero family or an equal/stronger successor. The current guard census has no new SupersededDelete candidate, so broad guard cleanup remains parked. Before Call R6, require deterministic no-new-red comparison and exact changed-test execution coverage; focused green is not whole-repo health. The snapshot I0 and both post-audit P0 gate repairs are landed. B-S0 is the selected next BoxShape evidence row; transport dedup remains NoSafeSlice pending a finite alternative-entry census."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder owner-first compile-cost and physical thinning"
@@ -39,24 +39,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-compile-time-performance-owner-first-d0-2026-08-22"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 latest_card_summary = """
-The architecture audit is dispositioned without a new card. The Hako physical
-ingress stays ParkedSealed. Six read-only workers found the landed semantic
-Call cohorts substantially clean and the snapshot D0 is now accepted. I0 is
-limited to one context-owned Debug/Strict snapshot across normal/raw and
-canonical session constructors; DebugHub lazy payloads and later physical/test
-cleanup remain separate. The repeatable compile-cost baseline is recorded from
-the rebuilt quick binary with one warmup, five retained samples, median/p95,
-source/binary identity, and strict shadow evidence. The current audit also
-confirmed two gate debts before the next family: vm-reference lacked explicit
-SameModuleInstance match arms, and the stable active-surface dispatch did not
-recognize this performance row. Both P0 repairs are now landed: the VM uses
-explicit typed trace/unsupported arms, and the Call guard explicitly delegates
-this non-Call row to current-state-pointer. Snapshot evidence includes both
-normal/raw and canonical ambient-flip tests; whole-library health remains a
-separate known-red baseline.
+The snapshot I0 and both post-audit P0 gate repairs are landed and pushed.
+Normal/raw and canonical ambient-flip evidence is recorded, vm-reference has
+explicit SameModuleInstance arms, and the Call guard delegates its non-Call
+performance row to current-state-pointer. The next selected row is the narrow
+B-S0 direct negative coverage slice for existing publication/view validators.
+It does not widen into C transport, phi layout, non-scalar lane semantics, or
+Call schema. The broader transport dedup task is parked as NoSafeSlice until
+its alternative-entry caller/delete set is finite; whole-library health remains
+a separate known-red baseline.
 """
 next_design_card = "none__accepted_d0"
-next_execution_card = "MIR-EMIT-DEBUG-POLICY-SNAPSHOT-I0"
+next_execution_card = "MIR-CALL-PUBLISHED-VIEW-NEGATIVE-COVERAGE-B-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
