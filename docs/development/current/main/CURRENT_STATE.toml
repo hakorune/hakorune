@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
+current_design_stop = "Builtin Print publication vertical is landed; select the next exact family after the recorded audit follow-ups."
 current_blocker_token = """
-Decision: refresh the deterministic known-red lib receipt once after the landed Builtin Print tests; do not change compiler semantics.
-Source authority + canonical issuer: the fixed cargo --list inventory, serial cargo test --lib summary/failure names, and cargo_lib_red_baseline.py comparator.
-Non-authority: focused green, cargo check, count-only guesses, automatic rebaseline, historical prose, MIR/backend output, or any semantic test edit.
-Fail-fast boundary: three identical complete observations are required; inventory, summary, failure names, hashes, abort, zero/filtered, and disappeared/new names stop the row.
-Smallest next slice: reconcile the checked-in inventory/hash and known-red counts, run the comparator and guards, then return to design_stop for the next semantic family.
-Non-claims: no known-failure repair, whole-quick green, TopLevel helper, FreeFunction, DeclaredInstance/Method(Some), Call schema, VM/backend, fallback, retry, or test purge.
+Decision: the Builtin Print publication vertical is landed; return to design_stop and choose the next exact family only after its finite owner/caller/delete-set census.
+Source authority + canonical issuer: the existing ASTNode::Print and build_print_from_value owner issue CanonicalGlobalTargetV1::builtin_print(); Atomic MirModule publication and the borrowed PublishedMirBackendView remain the sole physical owners.
+Non-authority: print spelling re-lookup, JSON/name/header/registry target reconstruction, physical symbol text, args[0] repair, EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a new semantic Verified*/Prepared* receipt.
+Fail-fast boundary: the published Print/1 row is consumed before generic dispatch; malformed row, wrong arity, legacy carrier, destination, or residual state has no legacy/JSON/backend retry.
+Smallest next slice: perform one finite census for the next exact family; if owner/caller/delete-set is not exactly one, keep it ParkedSealed without another D0 or receipt.
+Non-claims: no top-level helper behavior decision, full published-view negative coverage, whole-lib green, DeclaredInstance/Method(Some), FreeStatic expansion, panic/exit, Call-schema/R6, VM/selfhost, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,13 +39,13 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The Builtin Print publication vertical is landed. A one-time verification row is
-refreshing the stale known-red receipt: current fixed observations are
-7563/7396/138/29 with no failure-name delta; this is not whole-lib green.
-After closeout, return to design_stop and choose the next exact semantic family.
+The Builtin Print publication vertical is landed. The one-time baseline refresh
+now records fixed observations at 7563/7396/138/29 with no failure-name delta;
+known red remains explicit debt and is not whole-lib green. Choose the next
+exact semantic family after the recorded follow-up boundaries.
 """
-next_design_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
-next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -64,5 +64,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-02: lexical parity matrix S0 landed after baseline refresh: six duplicate normal-script parity wrappers became one six-case matrix; source is 760 lines, inventory is 7553/7386/138/29, and failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1 is unchanged.",
   "2026-09-02: FreeStatic publication vertical landed on the isolated branch at 61db816f39/b106753721: App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. Parent/main remains design_stop; choose the next exact family.",
-  "2026-09-02: Builtin Print publication vertical landed on the isolated branch: one typed kind=2 row reaches selected-C before generic dispatch, the Print-only env/Extern fallback was removed, focused view tests are 8/8, and the traced source-to-exe probe printed 42. Return to design_stop; the audit's top-level helper, broad negative coverage, and known-red baseline items remain follow-up boundaries.",
+  "2026-09-02: Builtin Print publication vertical and its deterministic lib-baseline follow-up landed on the isolated branch: one typed kind=2 row reaches selected-C before generic dispatch, the Print-only env/Extern fallback was removed, focused view tests are 8/8, the traced source-to-exe probe printed 42, and three fixed baseline observations agree at 7563/7396/138/29 (inventory SHA 5e1c9e89fd17c029838ac7f0d8a5c5933c030cd89adf89bcb6651ecf691cb22c; failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1). Known red remains explicit debt; the audit's top-level helper and negative-coverage items remain follow-up boundaries.",
 ]
