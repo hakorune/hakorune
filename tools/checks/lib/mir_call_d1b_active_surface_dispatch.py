@@ -185,18 +185,18 @@ def _check_m3_c_joinir_json_design_stop(state: dict, root: Path, api) -> None:
 
 
 def _check_m4_mandatory_callee_design_stop(state: dict, root: Path, api) -> None:
-    """Keep Call R6 closed until compatibility ingress is quarantined."""
+    """Keep the bounded Call R6 migration on its explicit branch seam."""
     row = api.MANDATORY_CALLEE_R6_ROW
-    if state.get("work_mode") != "design_stop":
-        api.fail(f"{row} must remain design_stop")
+    if state.get("work_mode") != "fast":
+        api.fail(f"{row} Group A must remain fast")
     if state.get("current_execution_row") != row:
         api.fail(f"{row} pointer row drifted")
-    if not str(state.get("current_design_stop", "")).startswith(row):
-        api.fail(f"{row} current_design_stop is missing")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} Group A requires current_design_stop=none")
     if state.get("next_design_card") != row:
         api.fail(f"{row} next_design_card drifted")
-    if not str(state.get("next_execution_card", "")).startswith("none"):
-        api.fail(f"{row} must keep next_execution_card=none")
+    if state.get("next_execution_card") != row:
+        api.fail(f"{row} next_execution_card drifted")
     if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
         api.fail(f"{row} requires the final-pipeline SSOT as its owner")
     if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
@@ -210,14 +210,15 @@ def _check_m4_mandatory_callee_design_stop(state: dict, root: Path, api) -> None
         api.fail(f"{row} contract is absent from the final-pipeline SSOT")
     section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
     for token in (
-        "status = `accepted_design_stop`",
-        "implementation permission = false",
-        "NoSafeSlice__SharedLegacyCallSchemaBeforeM3CClosure",
+        "status = `accepted_fast`",
+        "implementation permission = true",
+        "Group A: MirInstruction Call/LegacyCallV0 type separation",
+        "ExistingMirCallCanonicalAndLegacyCallV0OuterBoundary",
         "mandatory `Callee`",
         "Option<Callee>",
         "callee=None",
         "Method(None)",
-        "no fallback or\nretry",
+        "no fallback/retry",
         "Do not add `CallV2`",
     ):
         if token not in section:

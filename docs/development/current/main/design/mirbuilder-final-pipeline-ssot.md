@@ -509,19 +509,22 @@ exclusive finite delete-set are proven for one ingress. Initial roots are
 ### M4 mandatory-Callee R6 — `MIR-CALL-MANDATORY-CALLEE-R6`
 
 ```text
-status = `accepted_design_stop`
-implementation permission = false
-Decision = NoSafeSlice__SharedLegacyCallSchemaBeforeM3CClosure
+status = `accepted_fast`
+implementation permission = true
+scope = Group A: MirInstruction Call/LegacyCallV0 type separation
+Decision = ExistingMirCallCanonicalAndLegacyCallV0OuterBoundary
 ```
 The existing source/package issuer and typed `MirCall` remain canonical, but
-public `MirInstruction::Call` still permits `func`, `Option<Callee>`,
-`callee=None`, and `Method(None)` alongside JoinIR/JSON compatibility readers.
-Those fields, serializers, remappers, verifiers, backend/VM readers, and
-legacy ingress form one shared migration set; partial deletion would hide red
-failures. Finish M3-C outer quarantine first, then perform one atomic schema
-series with mandatory `Callee`, explicit compatibility ingress, no fallback or
-retry, and the complete changed-test/no-new-red gate. Do not add `CallV2`, a
-second resolver, or a new semantic receipt.
+public `MirInstruction::Call` is now the bounded Group A implementation seam.
+Promote the existing `MirCall` to canonical mandatory `Callee` `Call(MirCall)` and isolate the
+old `func`/`Option<Callee>` fields as `LegacyCallV0`; no target/effect/ABI
+re-resolution is allowed. `callee=None` and `Method(None)` remain explicit
+legacy-only shapes during R6 and are rejected by canonical publication.
+Canonical publish rejects `LegacyCallV0`, while explicit compatibility ingress
+may retain it until R7. Move writers/readers mechanically, classify every
+changed test and red, and keep no fallback/retry. Do not add `CallV2`, a second
+resolver, or a new semantic receipt. Group A ends at compiling central APIs;
+later writer/backend/compatibility migration remains in the same branch series.
 Canonical coreの最終targetはopaque IDやphysical symbolではなくwire-stableなtyped
 structural identityである。追加familyはproduction censusが証明した場合だけ加え、
 legacy Stringはowner-private compatibility ingressで一度だけ解決しcoreへ入れない。

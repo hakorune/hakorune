@@ -1,16 +1,13 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-MANDATORY-CALLEE-R6"
-current_design_stop = "MIR-CALL-MANDATORY-CALLEE-R6: the public Call schema still shares legacy and canonical ingress. Finish M3-C outer quarantine before any partial schema deletion; no new receipt, adapter, fixture, guard, fallback, or retry."
+current_design_stop = "none"
 current_blocker_token = """
-MIR-CALL-MANDATORY-CALLEE-R6: M3-C completed four read-only outer-ingress
-censuses, but none has an exclusive owner/delete-set suitable for immediate
-retirement. The public MirInstruction::Call still shares func,
-Option<Callee>, callee=None, and Method(None) with compatibility readers.
-Do not partially delete the schema. Finish one compatibility ingress boundary,
-then open one atomic mandatory-Callee series with complete changed-test and
-no-new-red evidence.
+MIR-CALL-MANDATORY-CALLEE-R6: Group A is permitted in this branch only.
+Promote existing MirCall to canonical MirInstruction::Call(MirCall) and isolate
+the old fields as LegacyCallV0. Do not change target/effect/ABI semantics, add a
+second resolver, create CallV2, or push a red intermediate state to main.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -50,13 +47,13 @@ SSOT. M3-A is closed at 474e8518b0: the UnifiedCallEmitter core has zero env
 reads and zero legacy emission calls while the outer compatibility owner is
 preserved. M3-B is parked because two unclaimed writers share the existing
 compatibility APIs. M3-C's four ingress censuses are complete and parked; the
-current design-stop row is M4 mandatory-Callee R6. Continue only through the
+current fast row is M4 mandatory-Callee R6 Group A. Continue only through the
 fixed M3-B/M3-C/M4→M9 order. Landed families are
 not reopened and zero/multiple authority tuples remain ParkedSealed without
 new design assets.
 """
 next_design_card = "MIR-CALL-MANDATORY-CALLEE-R6"
-next_execution_card = "none__m4_design_stop"
+next_execution_card = "MIR-CALL-MANDATORY-CALLEE-R6"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
