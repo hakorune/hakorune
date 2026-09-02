@@ -1,14 +1,14 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+current_design_stop = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 current_blocker_token = """
-Decision: canonical SameModuleInstance is UnsupportedBeforeObject at the selected-C published ingress; only an explicit compatibility caller may return false.
-Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver is added.
+Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject and only an explicit compatibility caller may return false.
+Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
 Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, or selected-C success.
 Fail-fast boundary: reject before JSON preparation, C transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
-Smallest next slice: add the third existing route state, classify SameModuleInstance, exhaustively match host ingress, and prove positive/negative paths; then return to design_stop for Hako ingress.
+Smallest next slice: design-only MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0; name one synchronous borrow-only PublishedMirBackendView ingress and one runtime scalar caller before implementation.
 Non-claims: no Hako, Call schema/R6, VM/selfhost, shared exec/JSON deletion, or selected-C feature expansion.
 """
 previous_parent_blocker_context = """
@@ -51,11 +51,12 @@ The root-lexical DeclaredInstance Method(Some) vertical is landed at
 InstanceBoxMethod key and mandatory receiver through publication, lowers source
 arguments once, and has zero reachability to the three selected legacy helpers;
 compatibility implementations remain outside this cohort. Deterministic lib
-baseline is refreshed at 7570/7403/138/29; selected-C remains design stop.
+baseline is refreshed at 7572/7405/138/29 after the selected-C quarantine tests;
+selected-C remains design stop.
 Arbitrary UserBox support is not inferred; known red remains debt, not green.
 """
 next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
-next_execution_card = "MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

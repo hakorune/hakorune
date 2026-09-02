@@ -104,9 +104,9 @@ family loan, fallback, or retry to force progress.
 ### Verification baseline refresh (2026-09-02)
 
 The existing `DEV-GATE-LIB-BASELINE-REFRESH-R0` is the sole temporary fast row:
-three fixed serial `cargo test --lib` observations agree at `7570 / 7403 /
-138 / 29`, with inventory SHA
-`2898920c3dfe96537a126d6d4d0c9b4600dd2a85408695b6c4ec660803222a1f` and an
+the fixed serial `cargo test --lib` receipt now agrees at `7572 / 7405 / 138 /
+29`, with inventory SHA
+`3bc6cb495886662962ec8d41afa3124633dd29191ec9e1a7ee9020fb07f255a8` and an
 unchanged 138-name failure set. This is a deterministic known-red receipt,
 not a whole-library-green claim or semantic work. After closeout, the pointer
 returns to the existing selected-C design stop; no new semantic row is opened
@@ -175,16 +175,15 @@ by this refresh.
     the deterministic known-red baseline were rechecked; the closed branch was
     fast-forwarded to main. This was integration only, not a semantic change.
 
-3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (active_fast)
+3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (landed at 48770b5c6c)
     canonical `SameModuleInstance` is classified by the existing published
     view as `UnsupportedBeforeObject` before JSON/C/object admission. The old
     route remains reachable only from one explicit compatibility entry; no
     retry or partial emission is allowed. This is a quarantine, not physical
-    retirement or permanent language removal. Return to design_stop after the
-    third route state, exhaustive host match, and focused positive/negative
-    evidence land.
+    retirement or permanent language removal. Focused route tests pass 13/13;
+    return to design_stop and select the Hako physical-ingress D0.
 
-3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (design-only)
+3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (accepted design_stop)
     `LlvmBackendBox` / `LlTextEmitBox` are the intended physical owners, but a
     synchronous Rust `PublishedMirBackendView` -> Hako borrow-only production
     ingress currently has zero callers. Name exactly one lifetime/caller seam

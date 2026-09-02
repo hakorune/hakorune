@@ -3902,6 +3902,7 @@ mir::fastpath_required_diagnostic::tests::refresh_records_passed_obligation_when
 mir::function::dynamic_v2_aot_metadata_slot::tests::clone_preserves_empty_slot
 mir::function::dynamic_v2_aot_metadata_slot::tests::clone_scrubs_occupied_candidate_projection
 mir::function::published_backend_view::tests::c_frame_keeps_exact_site_and_one_way_symbol_projection
+mir::function::published_backend_view::tests::mixed_same_module_instance_takes_unsupported_precedence
 mir::function::published_backend_view::tests::module_without_selected_static_method_is_explicit_compatibility
 mir::function::published_backend_view::tests::published_builtin_print_is_typed_and_has_no_definition_lookup
 mir::function::published_backend_view::tests::published_builtin_print_rejects_destination_and_wrong_arity
@@ -3909,6 +3910,7 @@ mir::function::published_backend_view::tests::published_builtin_print_rejects_le
 mir::function::published_backend_view::tests::published_free_function_is_typed_and_definition_backed
 mir::function::published_backend_view::tests::published_free_function_rejects_legacy_carrier_and_wrong_arity
 mir::function::published_backend_view::tests::published_free_function_rejects_missing_definition
+mir::function::published_backend_view::tests::published_same_module_instance_is_unsupported_before_object
 mir::function::published_backend_view::tests::published_static_method_is_typed_and_definition_backed
 mir::function::published_backend_view::tests::selected_static_method_keeps_other_families_on_compatibility_routes
 mir::function::published_backend_view::tests::selected_static_method_rejects_legacy_function_carrier

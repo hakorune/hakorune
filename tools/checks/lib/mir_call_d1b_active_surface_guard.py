@@ -138,6 +138,12 @@ SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW = (
 SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_KEY = (
     "mir_call_selected_c_userbox_compat_quarantine_r0_2026_09_02"
 )
+HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_ROW = (
+    "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+)
+HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_KEY = (
+    "mir_call_hako_same_module_instance_physical_ingress_d0_2026_09_02"
+)
 
 
 def fail(message: str) -> None:
@@ -761,8 +767,8 @@ def check_selected_c_userbox_compat_quarantine_r0(
 
     if state.get("work_mode") != "design_stop":
         fail("landed selected-C quarantine must return to design_stop")
-    if state.get("current_design_stop") != "none":
-        fail("landed selected-C quarantine must not retain a stale design stop")
+    if state.get("current_design_stop") != SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW:
+        fail("landed selected-C quarantine must identify its closed boundary")
     if not str(state.get("next_execution_card", "")).startswith("none"):
         fail("landed selected-C quarantine must keep next_execution_card=none")
     if state.get("next_design_card") != "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0":
@@ -781,6 +787,33 @@ def check_selected_c_userbox_compat_quarantine_r0(
     for name in row.get("focused_tests", ()):
         if name not in tests:
             fail(f"selected-C quarantine focused test is missing: {name}")
+
+
+def check_hako_same_module_instance_physical_ingress_d0(
+    state: dict, card: dict
+) -> None:
+    if state.get("work_mode") != "design_stop":
+        fail("Hako physical ingress must remain design_stop")
+    for field in ("current_execution_row", "current_design_stop", "next_design_card"):
+        if state.get(field) != HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_ROW:
+            fail(f"Hako physical ingress {field} drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("Hako physical ingress must keep next_execution_card=none")
+    row = card.get(HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_KEY} section is missing")
+    if row.get("task_id") != HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_ROW:
+        fail("Hako physical ingress task id drifted")
+    if row.get("status") != "accepted_design_stop":
+        fail("Hako physical ingress must remain an accepted design stop")
+    if row.get("implementation_permission") is not False:
+        fail("Hako physical ingress cannot permit implementation")
+    quarantine = card.get(SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_KEY)
+    if not isinstance(quarantine, dict) or quarantine.get("status") != "landed":
+        fail("Hako physical ingress requires the landed selected-C quarantine")
+    for field in ("source_authority", "canonical_issuer", "fail_fast_boundary", "no_safe_slice"):
+        if not isinstance(row.get(field), str) or not row[field].strip():
+            fail(f"Hako physical ingress field is missing: {field}")
 
 
 def check_declared_instance_locator_install_bridge_i0(

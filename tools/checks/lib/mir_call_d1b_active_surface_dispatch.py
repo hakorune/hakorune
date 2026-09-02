@@ -393,6 +393,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_declared_instance_selected_c_admission_d0(state, card)
     elif row == api.SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW:
         api.check_selected_c_userbox_compat_quarantine_r0(state, card, root)
+    elif row == api.HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_ROW:
+        api.check_hako_same_module_instance_physical_ingress_d0(state, card)
     elif row == api.SELECTED_C_STACK_ROW:
         api.check_selected_c_stack_row(state, card, root)
     elif row == api.CALLTARGET_GUARD_REHOME_ROW:
