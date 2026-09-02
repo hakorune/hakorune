@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
-current_design_stop = "Builtin Print publication vertical is landed; select the next exact family after the recorded audit follow-ups."
+current_execution_row = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
+current_design_stop = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0: finite TopLevel source-to-publication census; implementation remains closed until one key-to-definition consumer chain is proven."
 current_blocker_token = """
-Decision: the Builtin Print publication vertical is landed; return to design_stop and choose the next exact family only after its finite owner/caller/delete-set census.
-Source authority + canonical issuer: the existing ASTNode::Print and build_print_from_value owner issue CanonicalGlobalTargetV1::builtin_print(); Atomic MirModule publication and the borrowed PublishedMirBackendView remain the sole physical owners.
-Non-authority: print spelling re-lookup, JSON/name/header/registry target reconstruction, physical symbol text, args[0] repair, EffectMask as semantic proof, fixture identity, backend success, fallback, retry, or a new semantic Verified*/Prepared* receipt.
-Fail-fast boundary: the published Print/1 row is consumed before generic dispatch; malformed row, wrong arity, legacy carrier, destination, or residual state has no legacy/JSON/backend retry.
-Smallest next slice: perform one finite census for the next exact family; the read-only audit has named MIR-CALL-FREE-FUNCTION-PUBLICATION-D0 as the candidate. If owner/caller/delete-set is not exactly one, keep it ParkedSealed without another D0 or receipt.
-Non-claims: no top-level helper behavior decision, full published-view negative coverage, whole-lib green, DeclaredInstance/Method(Some), FreeStatic expansion, panic/exit, Call-schema/R6, VM/selfhost, or broad JSON/test purge.
+Decision: run only the finite design census for true top-level FreeFunction publication. The mixed App Main plus top-level helper shape is the acceptance probe; no production implementation is authorized yet.
+Source authority + canonical issuer: same-resolver-session SelectedTopLevelFunctionKeyV1, exact source declaration/site, existing callable catalog/index, and the source-plan contract. A live key-preserving canonical issuer is not yet connected.
+Non-authority: LegacySymbol, physical symbol text, name/arity or formatted-symbol lookup, JSON/name/header/registry search, args[0] or ValueId(0) repair, FunctionSignature/EffectMask inference, fixture green, fallback, retry, or a guessed Verified*/Prepared* receipt.
+Fail-fast boundary: before argument effects, MIR mutation, Atomic Publish, or object emission, require one same-session key, one catalog definition, one published definition identity, and one typed backend consumer; missing, duplicate, foreign, drifted, or unsupported states reject without fallback.
+Smallest next slice: reconcile the finite TopLevel source -> admission -> collector -> publish -> typed-consumer boundary and its cohort-exclusive LegacySymbol/PublishedTargetNotCataloged delete set. If it is not exactly one, ParkedSealed without another D0 or receipt.
+Non-claims: no App Main exception, StaticBoxMethod conversion, DeclaredInstance/Method(Some), Builtin Print reopen, panic/exit, Call-schema/R6, VM/selfhost, whole-lib green, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -40,13 +40,12 @@ latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
 The Builtin Print publication vertical is landed. The one-time baseline refresh
-now records fixed observations at 7563/7396/138/29 with no failure-name delta;
-known red remains explicit debt and is not whole-lib green. A read-only audit
-named MIR-CALL-FREE-FUNCTION-PUBLICATION-D0 as the next design candidate; the
-pointer remains in the landed Print design stop until that candidate is
-selected and guarded.
+records fixed observations at 7563/7396/138/29 with no failure-name delta;
+known red remains explicit debt and is not whole-lib green. The next selected
+design stop is MIR-CALL-FREE-FUNCTION-PUBLICATION-D0, using the mixed TopLevel
+helper shape as its finite acceptance probe; implementation remains closed.
 """
-next_design_card = "MIR-CALL-CANONICAL-PUBLICATION-SPINE-BUILTIN-PRINT-I0"
+next_design_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
 next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

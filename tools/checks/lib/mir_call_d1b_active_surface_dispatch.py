@@ -73,6 +73,9 @@ from mir_call_d1b_extern_route_spec_boxshape_guard import (
 
 SCRIPT_ENTRYPOINT_MODE_ROW = "MIR-TOOLS-CANONICAL-ENTRYPOINT-MODE-I0"
 
+FREE_FUNCTION_PUBLICATION_D0_ROW = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
+FREE_FUNCTION_PUBLICATION_D0_KEY = "mir_call_free_function_publication_d0_2026_09_02"
+
 BACKEND_OWNER_ROW = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 RECEIVER_VALUE_OWNER_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
 VERIFICATION_P0_A_ROW = "DEV-GATE-QUICK-LIB-BASELINE-P0-A-INC-DEBT-RECONCILE-R0"
@@ -139,6 +142,56 @@ def _dispatch_coreplan_varmap_reseal_row(
     )
 
 
+def _check_free_function_publication_d0(
+    state: dict, card: dict, root: Path, api
+) -> None:
+    """Keep the true-FreeFunction census at an explicit design stop.
+
+    This is a lane check, not an implementation permission.  It verifies that
+    the finite source-to-publication boundary is recorded before any caller or
+    backend code can be selected.
+    """
+    if state.get("work_mode") != "design_stop":
+        api.fail("true FreeFunction publication D0 must remain design_stop")
+    if state.get("current_execution_row") != FREE_FUNCTION_PUBLICATION_D0_ROW:
+        api.fail("true FreeFunction publication D0 is not selected by CURRENT_STATE")
+    if state.get("next_design_card") != FREE_FUNCTION_PUBLICATION_D0_ROW:
+        api.fail("true FreeFunction publication D0 next design card drifted")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        api.fail("true FreeFunction publication D0 must keep next_execution_card=none")
+    stop = state.get("current_design_stop")
+    if not isinstance(stop, str) or not stop.startswith(FREE_FUNCTION_PUBLICATION_D0_ROW):
+        api.fail("true FreeFunction publication D0 design stop is missing")
+
+    row = card.get(FREE_FUNCTION_PUBLICATION_D0_KEY)
+    if not isinstance(row, dict):
+        api.fail(f"{FREE_FUNCTION_PUBLICATION_D0_KEY} section is missing")
+    if row.get("task_id") != FREE_FUNCTION_PUBLICATION_D0_ROW:
+        api.fail("true FreeFunction publication D0 task id drifted")
+    if row.get("status") != "accepted_design_stop":
+        api.fail("true FreeFunction publication D0 status is not a design stop")
+    if row.get("implementation_permission") is not False:
+        api.fail("true FreeFunction publication D0 must not authorize implementation")
+    for field in (
+        "decision",
+        "source_authority",
+        "canonical_issuer",
+        "fail_fast_boundary",
+        "census_boundary",
+        "acceptance",
+        "no_safe_slice",
+        "non_claims",
+    ):
+        value = row.get(field)
+        if not isinstance(value, str) or not value.strip():
+            api.fail(f"true FreeFunction publication D0 field is missing: {field}")
+    states = row.get("finite_states")
+    if not isinstance(states, list) or not states or not all(
+        isinstance(item, str) and item.strip() for item in states
+    ):
+        api.fail("true FreeFunction publication D0 finite state table is missing")
+
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
@@ -146,6 +199,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_free_static_publication_spine_i0(state, card)
     elif row == api.BUILTIN_PRINT_PUBLICATION_SPINE_ROW:
         api.check_builtin_print_publication_spine_i0(state, card)
+    elif row == FREE_FUNCTION_PUBLICATION_D0_ROW:
+        _check_free_function_publication_d0(state, card, root, api)
     elif row == api.METHOD_ROW:
         check_proof_row(state, card, proof, root)
     elif row == api.RAW_ROOT_ROW:
