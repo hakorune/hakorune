@@ -76,10 +76,11 @@ ceremony_tier = "T1"
 box_kind = "ParkedSealed exact published Method target/definition and backend vertical"
 implementation_permission = false
 decision = """
-Keep selected-C live and keep me.method in the language. Reuse the existing
-source-catalog-issued CanonicalSameModuleCallableKeyV1 as the sole future
-published direct-method identity. Do not create an opaque backend ID, a
-selected-C semantic issuer, or a key-only intermediate with no consumer.
+Keep me.method in the language, but classify arbitrary UserBox DeclaredInstance
+on selected-C as UnsupportedBeforeObject and RetireAfterReplacement. Reuse the
+existing source-catalog-issued CanonicalSameModuleCallableKeyV1 only through a
+future backend-neutral published view. Do not create a selected-C semantic
+issuer, opaque backend ID, key-only intermediate, JSON repair, or fallback.
 """
 source_authority = """
 The landed resolver relation/effect issuers, retained result/Completion and
@@ -133,6 +134,7 @@ finite_inventory = [
 finite_states = [
   "SemanticPackageReady: landed package products and receiver crosswalk",
   "PublishedCanonicalCallMissing: accepted key exists but is not retained",
+  "SelectedCUnsupportedRetireAfterReplacement: language me.method remains accepted; arbitrary UserBox selected-C stops before object until the Hako replacement covers the exact family",
   "ProductBackendMissing: Hako exact family and definition emitter are absent",
   "TupleMissing: consumer/caller/delete set are zero; remain ParkedSealed",
   "VerticalReady: reopen only when all missing cells become exactly one",
