@@ -3816,7 +3816,6 @@ mir::exact_numeric_value_facts::tests::acceptance::publishes_exact_numeric_retur
 mir::exact_numeric_value_facts::tests::acceptance::publishes_field_get_exact_numeric_fact_from_box_param
 mir::exact_numeric_value_facts::tests::acceptance::publishes_sub_and_mul_routes_for_same_exact_operands
 mir::exact_numeric_value_facts::tests::local_contract_write::different_i64_local_slots_phi_has_no_hard_fact
-mir::exact_numeric_value_facts::tests::local_contract_write::fact_attached_to_src_before_check_rejects
 mir::exact_numeric_value_facts::tests::local_contract_write::integer_mirtype_local_has_no_exact_fact
 mir::exact_numeric_value_facts::tests::local_contract_write::local_contract_without_write_does_not_create_fact
 mir::exact_numeric_value_facts::tests::local_contract_write::mapstore_i64_key_from_dynamic_src_after_checked_local_write

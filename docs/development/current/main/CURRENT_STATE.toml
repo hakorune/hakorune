@@ -1,15 +1,15 @@
 date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
-current_execution_row = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+current_design_stop = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
 current_blocker_token = """
-Decision: delete exactly one duplicate cfg(test) assertion and retain its identical successor; no production or semantic change.
-Source authority + canonical issuer: existing exact_numeric_value_facts refresh owner and the retained successor test; no new issuer.
-Non-authority: test name/counts, historical card, worker report, local green, fixture spelling, or production fact inference.
-Fail-fast boundary: identical bodies, cfg(test)-only owner, no production reference, deterministic 7572/7405/138/29 baseline, and exact allowlist must hold before deletion.
-Smallest next slice: run the selected guard, delete one function and one inventory row, reconcile the existing baseline, run the exact successor, then return to the Hako ParkedSealed boundary.
-Non-claims: no production refactor, broad test purge, guard deletion, generated-artifact cleanup, Call/backend/VM change, or whole-library green claim.
+Decision: selected-C arbitrary UserBox compatibility is quarantined; canonical SameModuleInstance is UnsupportedBeforeObject, and the Hako physical-ingress lane is ParkedSealed because its required production seams are absent.
+Source authority + canonical issuer: existing Callee::SameModuleInstance and PublishedMirBackendView::try_new; no semantic receipt or backend resolver was added.
+Non-authority: JSON, names, registry, headers, args[0], ValueId(0), legacy projection, fallback, retry, selected-C success, or object/link-only probes.
+Fail-fast boundary: reject before JSON preparation, C/Hako transport, object emission, or runner fallback; mixed modules reject the whole admission and never partially emit supported calls.
+Smallest next slice: keep MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 parked; the one-file docs retirement and one duplicate-test reduction are landed, and no further finite delete-safe semantic family is selected.
+Non-claims: no Hako implementation, Call schema/R6, VM/selfhost, shared exec/JSON deletion, selected-C feature expansion, further archive/delete, or whole-library green claim.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -39,14 +39,14 @@ current_execution_design = "docs/development/current/main/investigations/mir-cal
 latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
 latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
-The selected repository-reduction row removes one identical local-contract test
-and its baseline inventory entry. The successor, production-neutral boundary,
-and pre-delete known-red receipt are fixed by the active manifest and existing
-guard. After closeout the pointer returns to the Hako physical-ingress
-ParkedSealed boundary; no MirBuilder semantic or backend work is included.
+The selected repository-reduction row is landed: one identical local-contract
+test and its baseline inventory entry were removed. The exact successor passed
+and the full quick lib run matched the accepted 138-name known-red set; no
+production or semantic source changed. The Hako physical-ingress lane remains
+ParkedSealed with no implementation permission.
 """
-next_design_card = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
-next_execution_card = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
+next_design_card = "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0"
+next_execution_card = "none__design_stop"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

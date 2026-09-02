@@ -342,10 +342,10 @@ implementation_evidence = "The one tracked candidate was deleted with no archive
 closeout = "Landed; return the pointer to MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0__design_stop and do not reopen this candidate."
 
 [mir_test_local_contract_fact_duplicate_retire_r0_2026_09_02]
-status = "selected_fast"
+status = "landed"
 task_id = "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
 parent_row = "REPO-ABSOLUTE-REDUCTION-R0"
-implementation_permission = true
+implementation_permission = false
 base_head = "f8ee738b33"
 decision = "Delete exactly one duplicate cfg(test) assertion and retain its identical successor; this is a repository-surface reduction with no production or semantic change."
 source_authority = "The existing exact_numeric_value_facts refresh owner and the retained mapstore_i64_key_from_dynamic_src_after_checked_local_write test; no new issuer is created."
@@ -358,10 +358,13 @@ successor = "src/mir/exact_numeric_value_facts/tests/local_contract_write.rs::ma
 equivalent_body_sha256 = "9322dde86fc3a3ef66a785fd22897ba92377ffc5fb6fe2bf1aee84145bd8293c"
 delete_set = ["src/mir/exact_numeric_value_facts/tests/local_contract_write.rs::fact_attached_to_src_before_check_rejects", "mir::exact_numeric_value_facts::tests::local_contract_write::fact_attached_to_src_before_check_rejects"]
 ordered_tasks = ["A: select this exact row in CURRENT_STATE and run the existing active-surface guard", "B: delete only the duplicate test and remove its one baseline inventory line; do not edit the closed historical card", "C: reconcile the existing baseline to 7571/7404/138/29, verify the unchanged 138-name failure receipt and retained successor, run focused/pointer/active/diff checks, regenerate the lifecycle receipt if needed, and return to the Hako ParkedSealed boundary"]
-allowed_files = ["src/mir/exact_numeric_value_facts/tests/local_contract_write.rs", "tools/checks/manifests/cargo_lib_red_baseline.toml", "tools/checks/manifests/cargo_lib_red_baseline.tests.txt", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py"]
+allowed_files = ["src/mir/exact_numeric_value_facts/tests/local_contract_write.rs", "tools/checks/manifests/cargo_lib_red_baseline.toml", "tools/checks/manifests/cargo_lib_red_baseline.tests.txt", "tools/checks/manifests/repository_artifact_lifecycle_v0.json", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py"]
 forbidden_files = ["src/mir/exact_numeric_value_facts/** except the named test", "historical cards", "docs/development/current/main/phases/**", "lang/**", "crates/**", "apps/**", "new guard", "new receipt family", "semantic Verified*/Prepared* product", "Call/backend/VM"]
 focused_tests = ["mir::exact_numeric_value_facts::tests::local_contract_write::mapstore_i64_key_from_dynamic_src_after_checked_local_write"]
 baseline_reconciliation = "Before deletion: 7572 total / 7405 passed / 138 failed / 29 ignored, inventory SHA 3bc6cb495886662962ec8d41afa3124633dd29191ec9e1a7ee9020fb07f255a8, failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1. Expected after deletion: 7571 / 7404 / 138 / 29, one inventory row removed, and the failure-name SHA unchanged."
 acceptance = "Exactly one duplicate test and one inventory row are removed; the identical successor remains and passes its exact focused test; baseline is reconciled to 7571/7404/138/29 with the same failure SHA; no production source changes; pointer, active-surface, lifecycle, docs-slim, and diff checks pass."
 no_safe_slice = "If the bodies differ, either name has a second owner, the candidate has a production reference, the baseline/failure set is not deterministic, a changed path escapes the allowlist, or the successor cannot be run exactly, do not delete and return to the Hako ParkedSealed boundary."
 non_claims = "No production refactor, fact semantic change, broad legacy-test purge, generated-artifact cleanup, guard deletion, Call/backend/VM change, or whole-library-green claim."
+implementation_commit = "recorded in Git history"
+implementation_evidence = "The duplicate function and one inventory row were removed. The exact retained successor passed 1/1; the full quick lib run remained the accepted 138-name red baseline at 7404 passed / 138 failed / 29 ignored, with failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1 and inventory SHA d3d77699a41ae356053789bbbfd0ed992a63ec9de6ee1cce340541eda54e0084."
+closeout = "Landed; tracked test surface is one case smaller with no production or semantic change. Return the pointer to MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0__design_stop and do not reopen this duplicate."

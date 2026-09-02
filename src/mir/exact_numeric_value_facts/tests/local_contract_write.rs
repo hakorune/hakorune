@@ -249,20 +249,6 @@ fn stale_contract_id_rejects_claim() {
 }
 
 #[test]
-fn fact_attached_to_src_before_check_rejects() {
-    let (function, _, src, dst) = local_function("i64", LocalContractWriteKind::Init);
-    let function = refresh(function);
-    assert!(!function
-        .metadata
-        .exact_numeric_value_facts
-        .contains_key(&src));
-    assert!(function
-        .metadata
-        .exact_numeric_value_facts
-        .contains_key(&dst));
-}
-
-#[test]
 fn wrong_local_slot_id_rejects() {
     let (mut function, _, _, dst) = local_function("i64", LocalContractWriteKind::Init);
     if let MirInstruction::LocalContractWrite { local_slot_id, .. } = &mut function

@@ -243,7 +243,7 @@ selected batch measured one tracked file/75 lines before and zero afterward.
 The generated lifecycle receipt and existing guards were refreshed in the same
 closeout, and no compiler, MIR, test, or guard semantics changed.
 
-### `MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0` (selected)
+### `MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0` (landed)
 
 This is one production-neutral test-surface reduction under the same absolute
 reduction policy. The selected function is byte-for-byte equivalent in its
@@ -273,10 +273,11 @@ Census boundary: one local_contract_write duplicate -> retained successor and
   and all MirBuilder semantic lanes.
 ```
 
-Acceptance is one fewer tracked test function and one fewer inventory row,
-`7571 / 7404 / 138 / 29` with the existing failure-name SHA unchanged, and no
-production-path diff. If the body, owner, or baseline is not exactly as named,
-the row is not safe and no replacement card is opened.
+Acceptance landed as one fewer tracked test function and one fewer inventory
+row, `7571 / 7404 / 138 / 29` with the existing failure-name SHA unchanged,
+and no production-path diff. The exact successor passed; full-lib output
+matched the accepted 138-name known-red receipt. Git history retains the
+removed duplicate and the pointer returned to the Hako ParkedSealed boundary.
 
 2. `GUARD-FAMILY-RETIREMENT-R0` reuses
    `guard_surface_inventory.py`. Its current 3,804-row inventory classifies

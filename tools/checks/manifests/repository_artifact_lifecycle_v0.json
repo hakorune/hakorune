@@ -1936,14 +1936,14 @@
       }
     ],
     "reachable_count": 5473,
-    "root_count": 3895,
+    "root_count": 3896,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
       "current_pointer": 5,
       "design_authority": 271,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3267
+      "reference_src_tools": 3268
     },
     "unreachable_count": 3565,
     "unreachable_pending_count": 2171,
