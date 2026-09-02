@@ -67,18 +67,18 @@ next decision is the existing DeclaredInstance package co-seal, while whole-
 library red and generic phi/overwrite/non-scalar/runner-C negative coverage
 remain explicit follow-ups.
 
-The DeclaredInstance decision is now narrower: Q1 receiver ABI and Q3
-source/package ownership are settled. The remaining bounded seam is Q2/Q4:
-retain the existing `CanonicalSameModuleCallableKeyV1::InstanceBoxMethod`
-from callsite through the published definition, carry a mandatory receiver,
-and switch one root-lexical `Method(Some)` caller. The selected
-`Ready -> CanonicalInstance` branch now has zero reachability to the three old
-edges (`generate_method_function_name`/header target selection,
-`LoweredGlobal` formatted-symbol reissue, and post-argument manual receiver
-prefix). Their compatibility implementations remain outside this cohort until
-their own caller-zero rows close. selected-C is a downstream typed
-consumer/retirement lane, not a semantic issuer or precondition; no second
-resolver, receipt, family loan, or backend fallback is allowed.
+The DeclaredInstance decision is now closed for the bounded root-lexical
+cohort: Q1 receiver ABI, Q3 source/package ownership, the existing
+`CanonicalSameModuleCallableKeyV1::InstanceBoxMethod`, and the mandatory
+receiver carrier are all landed. The selected `Ready -> CanonicalInstance`
+branch has zero reachability to the three old edges
+(`generate_method_function_name`/header target selection, `LoweredGlobal`
+formatted-symbol reissue, and post-argument manual receiver prefix). Their
+compatibility implementations remain outside this cohort until their own
+caller-zero rows close. selected-C is a downstream typed consumer/retirement
+lane, not a semantic issuer or precondition; arbitrary UserBox admission stays
+`ParkedSealed` and no second resolver, receipt, family loan, or backend
+fallback is allowed.
 
 ### 2026-09-02 next-family audit
 
