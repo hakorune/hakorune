@@ -120,7 +120,7 @@ by this refresh.
 | App Main `FreeStatic` | landed bounded vertical: existing CallableIndex/affine loan joins the source FreeStatic product to the exact nested StaticBoxMethod publication key; one published definition and one typed selected-C view are proven by normal compile and scalar `--emit-exe` | do not reopen; select the next exact family |
 | Builtin `Print` | landed bounded vertical: existing `builtin_print()` target, published view, selected-C typed row, one real print caller, Print-only legacy fallback deletion, and source-to-exe result `42` | do not reopen; choose the next exact family after the recorded audit follow-ups |
 | top-level `FreeFunction` | landed bounded vertical at `042cd56aa2`: mixed App Main plus scalar helper preserves the existing FreeFunction key through Atomic Publish and typed kind=3 selected-C ingress; source-to-exe result `3` | do not reopen; keep non-scalar/nested helpers and broad backend negatives parked |
-| DeclaredInstance `me.method` | syntax retained; relation/effect/result/full-lane/locator/receiver crosswalk, the exact `InstanceBoxMethod` key carrier, and one root-lexical source-backed canonical MIR caller are landed on the branch | finish the finite old-edge delete set and closeout; selected-C remains downstream and is not a semantic prerequisite |
+| DeclaredInstance `me.method` | syntax retained; relation/effect/result/full-lane/locator/receiver crosswalk, the exact `InstanceBoxMethod` key carrier, and one root-lexical source-backed canonical MIR caller are landed on the branch | integrate the closed branch, quarantine selected-C compatibility, then open only the Hako physical-ingress D0 |
 | ordinary-new claimed Birth | production cutover landed at `4b2db34ee3`; Pair/Page Ghost smokes stop before MIR at the recorded Stage1 RootPreservation/CompatibilityLoss boundary | keep runtime evidence non-claimed; do not invent a bridge or workaround |
 | ordinary-new no-claim | compatibility-only but production-reachable; parked | one explicit owner/fate and finite delete set |
 | physical thunk | `RelationPresentIssuerMissing`; parked | existing same-session `main/0` issuer |
@@ -170,16 +170,31 @@ by this refresh.
     families. selected-C is still a separate downstream design stop; its
     arbitrary UserBox path is not inferred from this landed MIR route.
 
-3b. selected-C root-lexical typed coverage (conditional, not active)
-    A read-only ingress audit found a possible bounded consumer-only cohort for
-    one existing scalar `SameModuleInstance` publication row, but no current
-    source-to-object positive proof and no selected-C implementation permission
-    have been granted. Keep arbitrary UserBox methods
-    `UnsupportedBeforeObject/RetireAfterReplacement`; do not add a new
-    semantic issuer, backend repair path, or child card until the existing
-    selected-C design stop is explicitly reopened with a finite caller and
-    delete set. This conditional finding is not a Q1-Q4 blocker for the landed
-    root-lexical MIR route.
+3b. MIR-CALL-PUBLICATION-SPINE-MAIN-INTEGRATION-R0 (planned closeout)
+    recheck clean fast-forward ancestry, focused evidence, pointer/active-surface,
+    and the deterministic known-red/no-new-red baseline; then fast-forward the
+    closed branch. This is integration only, not a semantic change.
+
+3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (planned)
+    canonical `SameModuleInstance` without a typed product consumer terminates
+    as `UnsupportedBeforeObject`; it never retries JSON or selected-C. Keep the
+    old route reachable only from one explicit compatibility entry. This is a
+    quarantine, not physical retirement or permanent language removal.
+
+3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (design-only)
+    `LlvmBackendBox` / `LlTextEmitBox` are the intended physical owners, but a
+    synchronous Rust `PublishedMirBackendView` -> Hako borrow-only production
+    ingress currently has zero callers. Name exactly one lifetime/caller seam
+    and one real scalar proof entry. Zero or multiple candidates remain
+    `ParkedSealed`; do not add another D0 or semantic receipt.
+
+3e. Hako scalar I0 -> selected-C family R0 (conditional)
+    extend the existing view with a private `SameModuleInstance` projection,
+    emit `[receiver] + source args` exactly once through the Hako LLVM-text
+    owner, prove source-to-object/exe, then remove the same-family JSON/name/
+    registry/args0/selected-C reachability and finish residual-zero. An
+    object/link-only Probe that Main never calls does not prove runtime method
+    behavior.
 
 4. MS1-P family batches
    use the landed spine for remaining Global/Method/Value/Extern/Terminal
