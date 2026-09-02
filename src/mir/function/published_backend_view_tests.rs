@@ -32,6 +32,41 @@ fn static_function(key: &CanonicalSameModuleCallableKeyV1, func: ValueId) -> Mir
     function
 }
 
+fn instance_key() -> CanonicalSameModuleCallableKeyV1 {
+    CanonicalSameModuleCallableKeyV1::test_instance_box_method("Counter", "step", 1)
+}
+
+fn instance_function(
+    key: &CanonicalSameModuleCallableKeyV1,
+    func: ValueId,
+    receiver: ValueId,
+) -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: key.mir_symbol_projection(),
+            params: vec![MirType::Integer; key.arity() as usize + 1],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block")
+        .add_instruction(MirInstruction::Call {
+            dst: Some(ValueId::new(10)),
+            func,
+            callee: Some(Callee::SameModuleInstance {
+                key: key.clone(),
+                receiver,
+            }),
+            args: vec![ValueId::new(1)],
+            effects: EffectMask::PURE,
+        });
+    function
+}
+
 fn free_key() -> CanonicalSameModuleCallableKeyV1 {
     CanonicalSameModuleCallableKeyV1::free_function("helper", 1)
 }
@@ -296,6 +331,53 @@ fn selected_static_method_rejects_legacy_function_carrier() {
         error,
         PublishedMirBackendViewErrorV1::StaticCallUsesLegacyFunctionCarrier { .. }
     ));
+}
+
+#[test]
+fn published_same_module_instance_is_unsupported_before_object() {
+    let key = instance_key();
+    let mut module = MirModule::new("instance-unsupported".to_owned());
+    module
+        .add_cataloged_box_method(
+            key.clone(),
+            instance_function(&key, ValueId::INVALID, ValueId::new(7)),
+        )
+        .expect("publish instance relation");
+
+    let view = PublishedMirBackendView::try_new(&module).expect("physical admission result");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert!(view.static_method_calls().is_empty());
+    assert!(view.free_function_calls().is_empty());
+    assert!(view.builtin_print_calls().is_empty());
+}
+
+#[test]
+fn mixed_same_module_instance_takes_unsupported_precedence() {
+    let static_key = static_key();
+    let instance_key = instance_key();
+    let mut module = MirModule::new("mixed-instance-unsupported".to_owned());
+    module
+        .add_cataloged_box_method(
+            static_key.clone(),
+            static_function(&static_key, ValueId::INVALID),
+        )
+        .expect("publish static relation");
+    module
+        .add_cataloged_box_method(
+            instance_key.clone(),
+            instance_function(&instance_key, ValueId::INVALID, ValueId::new(7)),
+        )
+        .expect("publish instance relation");
+
+    let view = PublishedMirBackendView::try_new(&module).expect("physical admission result");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+    assert_eq!(view.static_method_calls().len(), 1);
 }
 
 #[test]

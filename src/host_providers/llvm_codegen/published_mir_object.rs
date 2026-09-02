@@ -19,8 +19,17 @@ pub(crate) fn compile_published_static_method_object(
 ) -> Result<(), String> {
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
-    if view.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
-        return Err("published MIR module has no canonical typed call".to_owned());
+    match view.route() {
+        PublishedStaticMethodRouteV1::CanonicalTyped => {}
+        PublishedStaticMethodRouteV1::ExplicitCompatibility => {
+            return Err("published MIR module has no canonical typed call".to_owned())
+        }
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
+            return Err(
+                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: SameModuleInstance has no selected-C consumer"
+                    .to_owned(),
+            )
+        }
     }
     let frame = PublishedStaticMethodCFrameV1::from_view(&view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
@@ -52,8 +61,15 @@ pub(crate) fn emit_published_static_method_exe(
 ) -> Result<bool, String> {
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
-    if view.route() != PublishedStaticMethodRouteV1::CanonicalTyped {
-        return Ok(false);
+    match view.route() {
+        PublishedStaticMethodRouteV1::CanonicalTyped => {}
+        PublishedStaticMethodRouteV1::ExplicitCompatibility => return Ok(false),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
+            return Err(
+                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: SameModuleInstance has no selected-C consumer"
+                    .to_owned(),
+            )
+        }
     }
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {

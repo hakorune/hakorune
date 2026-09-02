@@ -15,7 +15,9 @@ use hakorune_mir_defs::{
 use crate::mir::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
 
 /// The only route decisions a backend may observe for the selected published
-/// call family (static method, builtin print, or free function).
+/// call family (static method, builtin print, or free function).  An instance
+/// call is explicit but has no selected-C consumer yet, so it is a terminal
+/// physical admission state rather than an implicit compatibility fallback.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum PublishedStaticMethodRouteV1 {
     /// At least one selected call exists.  Other call families may remain on
@@ -24,6 +26,10 @@ pub(crate) enum PublishedStaticMethodRouteV1 {
     /// No selected typed call exists; an explicit compatibility caller may
     /// consume the module without pretending it is canonical.
     ExplicitCompatibility,
+    /// A published instance-method call has no lossless selected-C consumer.
+    /// The whole module must stop before JSON/C/object work; it must not be
+    /// silently reclassified as explicit compatibility.
+    UnsupportedBeforeObject,
 }
 
 /// Physical row kinds carried across the typed C frame.  This is deliberately
@@ -371,6 +377,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut static_method_calls = Vec::new();
         let mut free_function_calls = Vec::new();
         let mut builtin_print_calls = Vec::new();
+        let mut has_unsupported_instance_call = false;
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
             block_ids.sort();
@@ -428,12 +435,24 @@ impl<'module> PublishedMirBackendView<'module> {
                                 });
                             }
                         }
+                        Some(Callee::SameModuleInstance { .. }) => {
+                            has_unsupported_instance_call = true;
+                        }
                         Some(_) | None => {}
                     }
                 }
             }
         }
 
+        if has_unsupported_instance_call {
+            return Ok(Self {
+                module,
+                route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,
+                static_method_calls,
+                free_function_calls,
+                builtin_print_calls,
+            });
+        }
         if static_method_calls.is_empty()
             && free_function_calls.is_empty()
             && builtin_print_calls.is_empty()
