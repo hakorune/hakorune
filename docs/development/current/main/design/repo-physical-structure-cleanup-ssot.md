@@ -247,10 +247,11 @@ closeout, and no compiler, MIR, test, or guard semantics changed.
 
 Reuse the existing docs-history owner for one exact `RetireFromTree` batch.
 The current reference census found four closed phase-296x cards at phase
-ordinals `1448 / 1450 / 1452 / 1454`; their full paths remain owned only by
-the generated lifecycle inventory so that this task record does not itself
-make them externally referenced. The separately listed ordinal `3455` is
-excluded because it still has live current-tree consumers.
+ordinals `1448 / 1450 / 1452 / 1454`. A follow-up exact grep found that the
+archived predecessor card for ordinal 1449 still names ordinal 1448, so the
+batch is not yet reference-closed. The generated lifecycle inventory also
+lists the four paths, and the separately listed ordinal `3455` remains
+excluded because it has live current-tree consumers.
 
 ```text
 Decision:
@@ -277,9 +278,11 @@ Census boundary: lifecycle archive candidates at ordinals 1448/1450/1452/1454
   guards, generated assets, and archives.
 ```
 
-Acceptance is a real reduction of exactly four tracked files and 276 tracked
-lines, with no tracked archive/stub copy. This row does not open a semantic
-family and is skipped if integration or the reference census drifts.
+Acceptance remains a real reduction of exactly four tracked files and 276
+tracked lines, with no tracked archive/stub copy, but the row stays queued
+until the archived predecessor reference is either retired by its owner or
+explicitly retained as a named evidence edge. This row does not open a
+semantic family and is skipped if integration or the reference census drifts.
 
 ### `MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0` (landed)
 
