@@ -102,6 +102,30 @@ candidate_physical_owners = ["lang/src/shared/backend/llvm_backend_box.hako::Llv
 no_safe_slice = "Keep Hako at ParkedSealed if no single synchronous PublishedMirBackendView invocation seam and live scalar caller can be named, if the view must be serialized or cloned into semantic state, if source meaning must be reconstructed from Map/JSON/names/registry/args0, if the delete set is shared or non-finite, or if runtime behavior would be claimed from an object/link-only proof."
 non_claims = "No new source/package decision, Q1-Q4 reopening, selected-C feature expansion, new semantic Verified/Prepared receipt, Call schema/R6/R7, default derive integration, explicit/nested/upvar receiver, non-scalar ABI, VM, selfhost, broad JSON deletion, or whole-library green claim."
 
+[mir_call_selected_c_userbox_compat_quarantine_r0_2026_09_02]
+status = "selected_fast"
+task_id = "MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0"
+parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
+base_head = "c47aa735ff"
+implementation_permission = true
+branch_scope = "branch_or_worktree_only"
+box_kind = "BoxShape physical route-state quarantine"
+decision = "Keep language me.method and canonical MIR unchanged. At the selected-C published ingress, any SameModuleInstance call is an explicit UnsupportedBeforeObject terminal; only an explicit compatibility caller may use the false return."
+source_authority = "Existing Callee::SameModuleInstance { key, receiver } and the already published MirModule relation; PublishedMirBackendView::try_new is the sole physical admission owner."
+canonical_issuer = "No new semantic issuer. The view classifies an already-published product; host ingress exhaustively consumes the route state before JSON/C/object work."
+non_authority = ["JSON callee/name fields", "owner/method/arity parsing", "registry/header lookup", "args[0] or ValueId(0)", "legacy projection", "selected-C success", "backend fallback/retry"]
+fail_fast_boundary = "Any SameModuleInstance makes the complete published admission UnsupportedBeforeObject. Reject before JSON preparation, C transport, object emission, and runner fallback; never partially emit supported calls from a mixed module."
+census_boundary = "normal backend=mir --emit-exe published ingress from runner/modes/mir.rs:135 through common_util/published_mir_emit.rs, host_providers/llvm_codegen/published_mir_object.rs, and PublishedMirBackendView::try_new; includes only SameModuleInstance route classification and its explicit compatibility boundary; excludes Hako, C/JSON implementation, builder, Call schema, VM, and language semantics."
+finite_states = ["CanonicalTyped: selected published calls have a typed consumer", "ExplicitCompatibility: no selected typed call and an explicit caller may use false", "UnsupportedBeforeObject: one or more SameModuleInstance calls are present and no object/C/JSON work is allowed"]
+ordered_tasks = ["A: add UnsupportedBeforeObject to the existing PublishedStaticMethodRouteV1 and classify SameModuleInstance with whole-module precedence", "B: exhaustively match CanonicalTyped, ExplicitCompatibility, and UnsupportedBeforeObject in both published object ingress functions; keep false only for explicit compatibility", "C: add instance-only and mixed-module route tests plus retained explicit-compatibility coverage; run focused tests, pointer/active-surface guards, diff check, and return to design_stop with Hako D0 selected"]
+allowed_files = ["src/mir/function/published_backend_view.rs", "src/mir/function/published_backend_view_tests.rs", "src/host_providers/llvm_codegen/published_mir_object.rs", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
+forbidden_files = ["src/mir/builder/**", "src/mir/normal_callable_semantic_package/**", "src/runner/modes/common_util/exec.rs", "src/runner/mir_json_emit.rs", "lang/c-abi/**", "lang/src/shared/backend/**", "Call schema", "VM/selfhost"]
+focused_tests = ["published_same_module_instance_is_unsupported_before_object", "mixed_same_module_instance_takes_unsupported_precedence", "module_without_selected_static_method_is_explicit_compatibility"]
+old_edge_delete_set = ["PublishedMirBackendView Some(_) ignoring SameModuleInstance", "published_mir_object collapsing noncanonical route to a generic error/false", "runner false branch admitting SameModuleInstance to ny_llvmc_emit_exe_lib"]
+acceptance = "The existing published view exposes exactly three route states; instance-only and mixed modules are UnsupportedBeforeObject; explicit compatibility still returns false; canonical typed routes are unchanged; no JSON preparation/C frame/object emission/runner fallback occurs for SameModuleInstance; focused tests and guards are green."
+no_safe_slice = "Abort and return to design_stop if another normal caller must be changed, if UnsupportedBeforeObject requires a new semantic receipt/resolver, if a mixed module must partially emit, if explicit compatibility cannot be separated, or if any fallback/retry remains reachable."
+non_claims = "No selected-C arbitrary UserBox support, Hako ingress, Call R6/R7, VM/selfhost, shared JSON/C deletion, backend feature expansion, whole-library green claim, or permanent removal of me.method."
+
 [mir_builder_calltarget_guard_rehome_r0_2026_09_01]
 status = "tombstone"
 task_id = "MIR-BUILDER-CALLTARGET-GUARD-REHOME-R0"

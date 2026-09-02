@@ -175,11 +175,14 @@ by this refresh.
     the deterministic known-red baseline were rechecked; the closed branch was
     fast-forwarded to main. This was integration only, not a semantic change.
 
-3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (planned)
-    canonical `SameModuleInstance` without a typed product consumer terminates
-    as `UnsupportedBeforeObject`; it never retries JSON or selected-C. Keep the
-    old route reachable only from one explicit compatibility entry. This is a
-    quarantine, not physical retirement or permanent language removal.
+3c. MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0 (active_fast)
+    canonical `SameModuleInstance` is classified by the existing published
+    view as `UnsupportedBeforeObject` before JSON/C/object admission. The old
+    route remains reachable only from one explicit compatibility entry; no
+    retry or partial emission is allowed. This is a quarantine, not physical
+    retirement or permanent language removal. Return to design_stop after the
+    third route state, exhaustive host match, and focused positive/negative
+    evidence land.
 
 3d. MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0 (design-only)
     `LlvmBackendBox` / `LlTextEmitBox` are the intended physical owners, but a

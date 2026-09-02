@@ -132,6 +132,12 @@ DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_ROW = (
 DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_KEY = (
     "mir_call_me_declared_instance_method_some_vertical_i0_2026_09_02"
 )
+SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW = (
+    "MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0"
+)
+SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_KEY = (
+    "mir_call_selected_c_userbox_compat_quarantine_r0_2026_09_02"
+)
 
 
 def fail(message: str) -> None:
@@ -706,6 +712,75 @@ def check_declared_instance_selected_c_admission_d0(state: dict, card: dict) -> 
         fail("selected-C admission requires the landed locator install bridge")
     if bridge.get("implementation_permission") is not False:
         fail("landed locator install bridge must not retain implementation permission")
+
+
+def check_selected_c_userbox_compat_quarantine_r0(
+    state: dict, card: dict, root: Path
+) -> None:
+    """Guard the physical selected-C quarantine without adding semantic ownership.
+
+    The fast phase checks only the declared boundary and changed-file surface;
+    the landed phase additionally checks the route/ingress implementation.
+    """
+    row = card.get(SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_KEY} section is missing")
+    if row.get("task_id") != SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW:
+        fail("selected-C quarantine task id drifted")
+    status = row.get("status")
+    if status not in {"selected_fast", "landed"}:
+        fail("selected-C quarantine must be selected_fast or landed")
+    if state.get("current_execution_row") != SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW:
+        fail("selected-C quarantine row is not selected by CURRENT_STATE")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("selected-C quarantine card path drifted")
+
+    allowed = set(require_text_list(row.get("allowed_files"), "selected-C quarantine allowed_files"))
+    changed = git_diff_paths(root, require_text(row.get("base_head"), "selected-C quarantine base_head"))
+    if not changed <= allowed:
+        fail(f"selected-C quarantine changed files outside allowlist: {sorted(changed - allowed)}")
+    for rel in (
+        "src/mir/function/published_backend_view.rs",
+        "src/mir/function/published_backend_view_tests.rs",
+        "src/host_providers/llvm_codegen/published_mir_object.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            fail(f"selected-C quarantine owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            fail(f"selected-C quarantine owner reached the 800-line hard stop: {rel}")
+
+    if status == "selected_fast":
+        if state.get("work_mode") != "fast" or state.get("current_design_stop") != "none":
+            fail("selected-C quarantine fast phase must be work_mode=fast with no design stop")
+        if state.get("next_execution_card") != SELECTED_C_USERBOX_COMPAT_QUARANTINE_R0_ROW:
+            fail("selected-C quarantine fast next_execution_card drifted")
+        if row.get("implementation_permission") is not True:
+            fail("selected-C quarantine fast phase must permit only its bounded route change")
+        return
+
+    if state.get("work_mode") != "design_stop":
+        fail("landed selected-C quarantine must return to design_stop")
+    if state.get("current_design_stop") != "none":
+        fail("landed selected-C quarantine must not retain a stale design stop")
+    if not str(state.get("next_execution_card", "")).startswith("none"):
+        fail("landed selected-C quarantine must keep next_execution_card=none")
+    if state.get("next_design_card") != "MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0":
+        fail("landed selected-C quarantine must select the Hako physical-ingress D0")
+    if row.get("implementation_permission") is not False:
+        fail("landed selected-C quarantine cannot retain implementation permission")
+    view = (root / "src/mir/function/published_backend_view.rs").read_text(encoding="utf-8")
+    object_ingress = (root / "src/host_providers/llvm_codegen/published_mir_object.rs").read_text(
+        encoding="utf-8"
+    )
+    tests = (root / "src/mir/function/published_backend_view_tests.rs").read_text(encoding="utf-8")
+    if "UnsupportedBeforeObject" not in view or "Callee::SameModuleInstance" not in view:
+        fail("published view does not classify SameModuleInstance as unsupported")
+    if "UnsupportedBeforeObject" not in object_ingress or "match view.route()" not in object_ingress:
+        fail("published object ingress does not exhaustively reject unsupported route")
+    for name in row.get("focused_tests", ()):
+        if name not in tests:
+            fail(f"selected-C quarantine focused test is missing: {name}")
 
 
 def check_declared_instance_locator_install_bridge_i0(
