@@ -492,42 +492,36 @@ implementation permission = false
 scope = JoinIR/JSON outer ingress -> first MIR Call/module publication
 Decision = ParkedSealed__JoinIrAndJsonHaveMultipleIngressOwners
 ```
-Canonical source/package publication remains the only semantic issuer (the sole semantic issuer). JoinIR
-structured bridge, MIR JSON v0/v1, Program JSON v0, and JSON egress are
-separate compatibility owners/callers; wire names, `func`/Const, `args[0]`,
-receiver defaults, registry lookup, parser retry, and backend success are not
-authority. Each outer ingress validates schema/target/receiver/arity and
-fail-closes without canonical or alternate-parser fallback.
-Smallest next slice: separate four outer-ingress censuses, read-only, for JoinIR,
-MIR JSON v0/v1, Program JSON v0, and JSON egress. Do not delete JoinIR/JSON,
-change Call R6, add a receipt/adapter, or alter backend/VM until one owner, one
-live caller, and an exclusive finite delete-set are proven for one ingress. The
-M3-C boundary excludes canonical MirBuilder publication, C/LLVM lowering, and
-already-landed source families.
-Owner roots are `src/mir/join_ir_to_mir`, `src/runner/mir_json_v0`, `json_v1_bridge`,
-`json_v0_bridge`, and `mir_json_emit`. Structured JoinIR has
-no production caller (two tests only), so it is a `DeadDeleteCandidate`, not an
-immediate delete: public API, dedicated evidence, and independence from builder
-JoinIR merge must close first. Its string/alias/`args[0]` projection never
-re-enters canonical publication.
-The MIR JSON v0/v1 sub-census is also `NoSafeSlice`: direct file, artifact,
-direct text, and selfhost/Stage-A are four caller series; v1→v0, canonicalize,
-and Program JSON fallback remain compatibility selection. Split one series at a
-time and require one owner, one live caller, and an exclusive finite delete-set.
-Hako published-view coverage and physical legacy deletion remain required for MS1-B/MS1-D;
-they do not authorize another Builder design cycle. Each M2/M6
-closeout applies the Family Repository Surface Budget from
-`repo-physical-structure-cleanup-ssot.md`: the selected old edge and exclusive
-temporary assets are deleted, tracked files/lines are remeasured, and a move or
-archive copy receives zero reduction credit.
-Program JSON v0 is also `NoSafeSlice`: artifact, host/provider, selfhost,
-runtime, and public callers share name/catalog reconstruction and fallback
-layers. Split caller families before parser/Call R6/fallback deletion; JSON
-never becomes semantic authority.
-JSON egress is also `NoSafeSlice`: V0/V1 profiles have multiple production
-callers and retain legacy downgrade, reparse, and typed-to-legacy fallback.
-`receiver.unwrap_or(func)` and string wire fields remain compatibility-only;
-no egress deletion or R6 cutover is authorized until caller families split.
+Canonical source/package publication remains the only semantic issuer (the sole semantic issuer).
+JoinIR bridge, MIR JSON v0/v1, Program JSON v0, and JSON egress are separate
+compatibility owners; wire names, `func`/Const, `args[0]`, registry lookup,
+parser retry, and backend success are non-authority. Each ingress fail-closes
+without canonical or alternate-parser fallback.
+Four read-only outer-ingress censuses are complete: JoinIR is a test-only
+`DeadDeleteCandidate` pending API/evidence/merge independence; MIR JSON,
+Program JSON, and JSON egress each have multiple caller series and shared
+fallback/reparse edges. No JoinIR/JSON deletion, Call R6, backend/VM change,
+or new receipt/adapter is authorized until one owner, one live caller, and an
+exclusive finite delete-set are proven for one ingress. Initial roots are
+`src/mir/join_ir_to_mir`, `src/runner/mir_json_v0`, `json_v1_bridge`,
+`json_v0_bridge`, and `mir_json_emit`.
+
+### M4 mandatory-Callee R6 — `MIR-CALL-MANDATORY-CALLEE-R6`
+
+```text
+status = `accepted_design_stop`
+implementation permission = false
+Decision = NoSafeSlice__SharedLegacyCallSchemaBeforeM3CClosure
+```
+The existing source/package issuer and typed `MirCall` remain canonical, but
+public `MirInstruction::Call` still permits `func`, `Option<Callee>`,
+`callee=None`, and `Method(None)` alongside JoinIR/JSON compatibility readers.
+Those fields, serializers, remappers, verifiers, backend/VM readers, and
+legacy ingress form one shared migration set; partial deletion would hide red
+failures. Finish M3-C outer quarantine first, then perform one atomic schema
+series with mandatory `Callee`, explicit compatibility ingress, no fallback or
+retry, and the complete changed-test/no-new-red gate. Do not add `CallV2`, a
+second resolver, or a new semantic receipt.
 Canonical coreの最終targetはopaque IDやphysical symbolではなくwire-stableなtyped
 structural identityである。追加familyはproduction censusが証明した場合だけ加え、
 legacy Stringはowner-private compatibility ingressで一度だけ解決しcoreへ入れない。

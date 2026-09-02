@@ -44,21 +44,22 @@ The fixed baseline was observed three times at `7578/7411/138/29`; the
 inventory gained one passing test and the 138-name known-red set is unchanged.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
-exclusive delete-set. The next bounded design-stop row is M3-C JoinIR/JSON
-outer quarantine:
+exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
+and parked; the current design-stop row is M4 mandatory-Callee R6:
 
 ```text
-JoinIR/JSON is split into four outer-ingress censuses
-  -> structured JoinIR bridge
-  -> MIR JSON v0/v1, Program JSON v0, and JSON egress
-  -> no wire/name/registry retry or semantic target reissue
+mandatory Callee is not opened partially
+  -> finish one explicit compatibility boundary first
+  -> then atomic schema cutover with no fallback/retry
+  -> no shared CallV2 or second resolver
 ```
 
 After that row, the next work is fixed there:
 
 ```text
 M3-B ordinary-new outer quarantine (ParkedSealed)
-  -> M3-C JoinIR/JSON outer quarantine (design_stop)
+  -> M3-C JoinIR/JSON outer quarantine (ParkedSealed)
+  -> M4 mandatory-Callee R6 (design_stop)
   -> mandatory-Callee R6
   -> selected backend family cutover
   -> R7 caller-zero legacy deletion
