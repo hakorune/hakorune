@@ -677,14 +677,34 @@ ordered_tasks = [
   "D0-A: record the mixed-source acceptance probe and reconcile source-plan, selected-source inventory, TopLevel admission, and AppMain package behavior",
   "D0-B: enumerate the exact key-preserving collector/publish owner, the selected backend consumer, and the cohort-exclusive LegacySymbol/PublishedTargetNotCataloged delete set",
   "D0-C: classify the six finite states above; if any state has no named owner or the delete set is shared, keep the family ParkedSealed and do not open I0",
+  "D0-D: keep the H-1 mixed-source contract difference explicit: source-plan admission is not publication readiness, and PublishedTargetNotCataloged remains the current pre-effect stop until a FreeFunction definition row exists",
+  "D0-E: before opening I0, require one exact production runner/C-ingress proof, a mechanical no-new-red baseline comparison, and representative direct rejects for missing/duplicate/foreign/arity drift; focused view tests alone do not satisfy this gate",
   "I0 only after D0 acceptance: preserve the existing FreeFunction key through Atomic Publish, switch one named caller, and delete that cohort's old edge in the same series",
+]
+checkpoint_2026_09_02_status = "CutoverBlockerOpen"
+checkpoint_2026_09_02_findings = [
+  "H-1: the source-plan accepts mixed App Main plus top-level helper, but AppMain direct-call loan rejects SelectedNormalCallableKeyV1::TopLevel as PublishedTargetNotCataloged; this is a real FreeFunction publication gap, not a Print regression",
+  "H-2: published_mir_object/capi_transport/C shim exit behavior has no direct focused test proof; manual source-to-exe evidence is insufficient for I0 acceptance",
+  "H-3: most publication/join/view negative variants are untriggered; add only the finite representative rejects needed by the selected FreeFunction row, not a blanket test expansion",
+  "MED: assert the phi-position invariant at the existing publication boundary and reject cataloged-definition overwrite rather than opening a second authority",
+]
+pre_i0_gates = [
+  "mixed-source helper probe has a named expected outcome: canonical FreeFunction publication or explicit pre-effect unsupported terminal; no one-off App Main exception",
+  "one production source-to-object runner/C-ingress test exercises the typed route and proves no JSON/name/registry/args[0] fallback",
+  "the exact changed-test names are executed and recorded; the fixed known-red baseline comparison reports no added failure name",
+  "at least one direct negative test covers each selected failure family: missing definition, duplicate/foreign relation, arity/signature drift, and legacy carrier",
+  "phi layout is asserted and cataloged publication rejects duplicate or overwrite-prone definition rows",
 ]
 acceptance = """
 D0 is accepted only when the mixed-source probe, source authority, canonical
 issuer candidate, publication relation, typed backend consumer, and exclusive
-old-edge delete set are all named. ExactlyOnePublished must be a real bounded
-I0 possibility; otherwise the family is explicitly ParkedSealed. No production
-code, fixture, fallback, or new semantic receipt is authorized by this D0.
+old-edge delete set are all named. The current audit checkpoint remains
+CutoverBlockerOpen because the TopLevel key is still dropped before publish and
+the typed runner/C negative evidence is incomplete. ExactlyOnePublished must be
+a real bounded I0 possibility; otherwise the family is explicitly ParkedSealed.
+No production code, fixture, fallback, or new semantic receipt is authorized by
+this D0. The pre_i0_gates list is an I0 entry condition, not a claim that the
+current design-stop branch has already passed those tests.
 """
 no_safe_slice = """
 Remain in design_stop if TopLevel cannot retain one canonical identity through

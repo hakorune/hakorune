@@ -2,13 +2,13 @@ date = "2026-09-02"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
-current_design_stop = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0: finite TopLevel source-to-publication census; implementation remains closed until one key-to-definition consumer chain is proven."
+current_design_stop = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0: finite TopLevel source-to-publication census; implementation remains closed while the mixed-source contract and typed runner/negative evidence are incomplete."
 current_blocker_token = """
 Decision: run only the finite design census for true top-level FreeFunction publication. The mixed App Main plus top-level helper shape is the acceptance probe; no production implementation is authorized yet.
 Source authority + canonical issuer: same-resolver-session SelectedTopLevelFunctionKeyV1, exact source declaration/site, existing callable catalog/index, and the source-plan contract. A live key-preserving canonical issuer is not yet connected.
 Non-authority: LegacySymbol, physical symbol text, name/arity or formatted-symbol lookup, JSON/name/header/registry search, args[0] or ValueId(0) repair, FunctionSignature/EffectMask inference, fixture green, fallback, retry, or a guessed Verified*/Prepared* receipt.
 Fail-fast boundary: before argument effects, MIR mutation, Atomic Publish, or object emission, require one same-session key, one catalog definition, one published definition identity, and one typed backend consumer; missing, duplicate, foreign, drifted, or unsupported states reject without fallback.
-Smallest next slice: reconcile the finite TopLevel source -> admission -> collector -> publish -> typed-consumer boundary and its cohort-exclusive LegacySymbol/PublishedTargetNotCataloged delete set. If it is not exactly one, ParkedSealed without another D0 or receipt.
+Smallest next slice: reconcile the finite TopLevel source -> admission -> collector -> publish -> typed-consumer boundary and its cohort-exclusive LegacySymbol/PublishedTargetNotCataloged delete set; before I0, require the exact mixed-source outcome, one runner/C-ingress proof, representative rejects, and no-new-red comparison. If it is not exactly one, ParkedSealed without another D0 or receipt.
 Non-claims: no App Main exception, StaticBoxMethod conversion, DeclaredInstance/Method(Some), Builtin Print reopen, panic/exit, Call-schema/R6, VM/selfhost, whole-lib green, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
@@ -43,7 +43,9 @@ The Builtin Print publication vertical is landed. The one-time baseline refresh
 records fixed observations at 7563/7396/138/29 with no failure-name delta;
 known red remains explicit debt and is not whole-lib green. The next selected
 design stop is MIR-CALL-FREE-FUNCTION-PUBLICATION-D0, using the mixed TopLevel
-helper shape as its finite acceptance probe; implementation remains closed.
+helper shape as its finite acceptance probe; H-1 is a real FreeFunction
+publication gap and H-2/H-3 are pre-I0 evidence gates; implementation remains
+closed.
 """
 next_design_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
 next_execution_card = "none__design_stop"
