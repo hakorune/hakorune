@@ -9,6 +9,7 @@ use crate::mir::normal_callable_semantic_package::AppMainDirectCallDispositionRo
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
 use super::control_flow::cleanup::CleanupExitPolicyV1;
 use super::normal_script_semantic_lowering_state::{
@@ -26,10 +27,13 @@ pub(in crate::mir::builder) enum ScriptDirectStaticClaimIngressV1 {
 /// receiver.  `Unarmed` is the explicit compatibility state; `Ready` is only
 /// returned after the package-owned locator and callable state have agreed on
 /// the current source site.  The hook never infers a receiver.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum DeclaredInstanceReceiverIngressV1 {
     Unarmed,
-    Ready(ValueId),
+    Ready {
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+    },
 }
 
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {

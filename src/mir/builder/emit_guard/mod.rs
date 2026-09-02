@@ -36,6 +36,12 @@ fn callee_label(callee: &Callee) -> String {
         Callee::Method {
             box_name, method, ..
         } => format!("Method({}.{})", box_name, method),
+        Callee::SameModuleInstance { key, .. } => format!(
+            "SameModuleInstance({}.{} / {})",
+            key.owner(),
+            key.name(),
+            key.arity()
+        ),
         Callee::Constructor { box_type } => format!("Constructor({})", box_type),
         Callee::Closure { .. } => "Closure".to_string(),
         Callee::Value(v) => format!("Value(%{})", v.0),

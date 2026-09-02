@@ -114,11 +114,12 @@ header and never re-observes the AST/root declaration.
 The package now cross-checks the already-issued root lexical `me.method(...)`
 products with one private, non-`Clone` locator catalog. A locator row contains
 only the owned source site and batch/row ordinals for the relation, semantic
-effect, selected target, result/Completion, and physical-signature siblings.
-It does not contain a `Callee`, receiver `ValueId`, AST, arguments, physical
-symbol, `EffectMask`, or backend capability, and it never performs a lookup or
-issues meaning. The issuer publishes either an explicit no-root disposition or
-a complete catalog; missing, foreign, duplicate, ambiguous, and coverage
+effect, already-issued `InstanceBoxMethod` key, result/Completion, and
+physical-signature siblings. It does not issue a new target and still does not
+contain a `Callee`, receiver `ValueId`, AST, arguments, physical symbol,
+`EffectMask`, or backend capability; it never performs a lookup or reissues
+meaning. The issuer publishes either an explicit no-root disposition or a
+complete catalog; missing, foreign, duplicate, ambiguous, and coverage
 drift cases reject before lowering effects. Selected-C admission remains a
 separate downstream NoSafeSlice until an existing source-backed capability can
 validate the full relation and lane contract.

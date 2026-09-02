@@ -89,6 +89,12 @@ impl EffectsAnalyzerBox {
                 }
             }
 
+            // Canonical same-module instance calls already carry their
+            // source-issued key and mandatory receiver. The semantic effect
+            // is owned by the source package; this physical helper keeps the
+            // conservative read projection used by the legacy MIR builder.
+            Callee::SameModuleInstance { .. } => EffectMask::READ,
+
             Callee::Constructor { .. } => EffectMask::PURE.add(Effect::Alloc),
 
             Callee::Closure { .. } => EffectMask::PURE.add(Effect::Alloc),

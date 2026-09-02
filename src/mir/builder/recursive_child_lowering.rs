@@ -435,7 +435,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                         relation.receiver_site().node(),
                         relation.receiver_binding(),
                     )
-                    .map(DeclaredInstanceReceiverIngressV1::Ready)
+                    .map(|receiver| DeclaredInstanceReceiverIngressV1::Ready {
+                        key: relation.target_key().clone(),
+                        receiver,
+                    })
                     .map_err(|error| error.to_string())
             })
             .map_err(|error| format!("[freeze:contract][declared-instance/locator/{error:?}]"))

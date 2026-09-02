@@ -64,6 +64,16 @@ pub(crate) fn emit_unified_mir_call(
                 "certainty": match certainty { crate::mir::definitions::call_unified::TypeCertainty::Known => "Known", crate::mir::definitions::call_unified::TypeCertainty::Union => "Union" }
             });
         }
+        Callee::SameModuleInstance { key, receiver } => {
+            call_obj["mir_call"]["callee"] = json!({
+                "type": "SameModuleInstance",
+                "namespace": "InstanceBoxMethod",
+                "owner": key.owner(),
+                "name": key.name(),
+                "arity": key.arity(),
+                "receiver": receiver.as_u32()
+            });
+        }
         Callee::Constructor { box_type } => {
             call_obj["mir_call"]["callee"] = json!({
                 "type": "Constructor",

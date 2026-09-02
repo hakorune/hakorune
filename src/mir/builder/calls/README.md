@@ -93,6 +93,14 @@ It exposes one borrowed syntax view plus reusable E0 receiver and ARG0 argument
 descent primitives. It does not select routes or emit calls, effects, types,
 or results, and it is never stored in `MirBuilder`.
 
+Source-backed root-lexical `me.method(...)` calls use the existing package
+locator before descent. A ready row carries an already-issued
+`InstanceBoxMethod` key plus a mandatory receiver into the canonical terminal;
+source arguments are lowered once and never receive a synthetic receiver at
+`args[0]`. The legacy formatted-symbol/optional-receiver route remains only
+for unarmed compatibility ports until the selected caller-zero retirement row
+closes it.
+
 `unified_emitter/physical_terminal.rs` is the sole generic physical
 `MirInstruction::Call` writer. It issues a non-Clone value receipt only after
 the finalized Call succeeds and the existing post-success facts commit.

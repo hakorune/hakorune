@@ -7,6 +7,7 @@
 
 use hakorune_mir_core::{Effect, EffectMask, ValueId};
 
+use crate::callable_key::CanonicalSameModuleCallableKeyV1;
 use crate::global_target::CanonicalGlobalTargetV1;
 
 /// Certainty of callee type information for method calls
@@ -52,6 +53,17 @@ pub enum Callee {
         box_kind: CalleeBoxKind,
     },
 
+    /// Canonical same-module instance method call.
+    ///
+    /// The callable key is issued by the source/catalog owner and carried
+    /// without name-based reconstruction.  The receiver is mandatory and is
+    /// kept separate from the source argument list; physical backends may
+    /// project it to their receiver lane exactly once.
+    SameModuleInstance {
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+    },
+
     /// Constructor call (NewBox equivalent)
     /// Creates new Box instances with birth() method
     Constructor { box_type: String },
@@ -83,6 +95,7 @@ impl Callee {
     pub fn has_receiver(&self) -> bool {
         match self {
             Callee::Method { receiver, .. } => receiver.is_some(),
+            Callee::SameModuleInstance { .. } => true,
             _ => false,
         }
     }
@@ -91,6 +104,7 @@ impl Callee {
     pub fn receiver(&self) -> Option<ValueId> {
         match self {
             Callee::Method { receiver, .. } => *receiver,
+            Callee::SameModuleInstance { receiver, .. } => Some(*receiver),
             _ => None,
         }
     }
@@ -110,6 +124,7 @@ impl Callee {
                     visit(*receiver);
                 }
             }
+            Callee::SameModuleInstance { receiver, .. } => visit(*receiver),
             Callee::Closure {
                 captures,
                 me_capture,
@@ -141,6 +156,7 @@ impl Callee {
                     rewrite(receiver);
                 }
             }
+            Callee::SameModuleInstance { receiver, .. } => rewrite(receiver),
             Callee::Closure {
                 captures,
                 me_capture,
@@ -317,6 +333,32 @@ mod tests {
             shape.for_each_value_operand(|_| calls += 1);
             assert_eq!(calls, 0);
         }
+    }
+
+    #[test]
+    fn same_module_instance_keeps_receiver_as_one_mandatory_operand() {
+        let key = crate::callable_key::CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "Probe", "wrap", 1,
+        );
+        let mut callee = Callee::SameModuleInstance {
+            key: key.clone(),
+            receiver: ValueId::new(4),
+        };
+        assert!(callee.has_receiver());
+        assert_eq!(callee.receiver(), Some(ValueId::new(4)));
+
+        let mut visited = Vec::new();
+        callee.for_each_value_operand(|value| visited.push(value));
+        assert_eq!(visited, vec![ValueId::new(4)]);
+
+        callee.rewrite_value_operands(|value| value.0 += 10);
+        assert_eq!(
+            callee,
+            Callee::SameModuleInstance {
+                key,
+                receiver: ValueId::new(14),
+            }
+        );
     }
 }
 

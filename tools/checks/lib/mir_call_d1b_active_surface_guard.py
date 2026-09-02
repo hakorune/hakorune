@@ -126,6 +126,12 @@ BUILTIN_PRINT_PUBLICATION_SPINE_ROW = (
 BUILTIN_PRINT_PUBLICATION_SPINE_KEY = (
     "mir_call_canonical_publication_spine_builtin_print_i0_2026_09_02"
 )
+DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_ROW = (
+    "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0"
+)
+DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_KEY = (
+    "mir_call_me_declared_instance_method_some_vertical_i0_2026_09_02"
+)
 
 
 def fail(message: str) -> None:
@@ -775,6 +781,191 @@ def check_declared_instance_locator_install_bridge_i0(
     }
     if not required <= allowed:
         fail(f"locator install bridge allowed_files omit {sorted(required - allowed)}")
+
+
+def check_declared_instance_method_some_vertical_i0(
+    state: dict, card: dict, root: Path
+) -> None:
+    """Check the one live DeclaredInstance carrier row without opening backend work.
+
+    This is deliberately a small structural gate.  It proves that the active
+    row has the landed package prerequisites and that the source-backed
+    InstanceBoxMethod carrier is present in the existing owners.  It does not
+    claim selected-C/Hako coverage, final Call-schema retirement, or a whole
+    library green result.
+    """
+    if state.get("work_mode") != "fast":
+        fail("DeclaredInstance Method(Some) vertical must be fast")
+    if state.get("current_execution_row") != DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_ROW:
+        fail("DeclaredInstance Method(Some) vertical is not selected by CURRENT_STATE")
+    if state.get("current_design_stop") != "none":
+        fail("DeclaredInstance Method(Some) vertical must clear current_design_stop")
+    if state.get("next_execution_card") != DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_ROW:
+        fail("DeclaredInstance Method(Some) vertical next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("DeclaredInstance Method(Some) vertical card path drifted")
+
+    row = card.get(DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_KEY)
+    if not isinstance(row, dict):
+        fail(f"{DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_KEY} section is missing")
+    if row.get("task_id") != DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_ROW:
+        fail("DeclaredInstance Method(Some) vertical task id drifted")
+    if row.get("status") != "active_fast":
+        fail("DeclaredInstance Method(Some) vertical must remain active_fast")
+    if row.get("implementation_permission") is not True:
+        fail("DeclaredInstance Method(Some) vertical must permit only its bounded row")
+    if row.get("scope") != "one root-lexical DeclaredInstance production caller":
+        fail("DeclaredInstance Method(Some) vertical scope drifted")
+    for field in (
+        "source_authority",
+        "canonical_issuer",
+        "carrier",
+        "publication",
+        "old_edge_scope",
+        "backend",
+        "acceptance",
+        "forbidden",
+        "no_safe_slice",
+    ):
+        value = row.get(field)
+        if not isinstance(value, str) or not value.strip():
+            fail(f"DeclaredInstance Method(Some) vertical field is missing: {field}")
+    old_edges = row.get("old_edge_delete")
+    if not isinstance(old_edges, list) or len(old_edges) != 3 or not all(
+        isinstance(item, str) and item.strip() for item in old_edges
+    ):
+        fail("DeclaredInstance Method(Some) vertical must retain its three old-edge rows")
+
+    for key, label in (
+        (DECLARED_INSTANCE_PACKAGE_LOCATOR_I0_KEY, "package locator"),
+        (DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_KEY, "locator install bridge"),
+    ):
+        child = card.get(key)
+        if not isinstance(child, dict) or child.get("status") != "landed":
+            fail(f"Method(Some) vertical requires landed {label}")
+        if child.get("implementation_permission") is not False:
+            fail(f"landed {label} must not retain implementation permission")
+    effect = card.get(DECLARED_INSTANCE_EFFECT_ISSUER_I0_KEY)
+    if not isinstance(effect, dict) or effect.get("status") not in {"landed", "tombstone"}:
+        fail("Method(Some) vertical requires the landed semantic effect issuer")
+    if effect.get("status") == "tombstone" and effect.get("evidence_disposition") != "Fulfilled":
+        fail("Method(Some) vertical requires fulfilled effect-issuer evidence")
+
+    source_files = {
+        "crates/hakorune_mir_defs/src/call_unified.rs",
+        "src/mir/normal_callable_semantic_package/declared_instance_locator.rs",
+        "src/mir/builder/recursive_child_lowering_port.rs",
+        "src/mir/builder/recursive_child_lowering.rs",
+        "src/mir/builder/method_call_handlers.rs",
+        "src/mir/builder/module_lowering_invocation.rs",
+        "src/mir/builder/module_lowering_invocation_resolved_loan.rs",
+        "src/mir/builder/normal_cataloged_box_method_lowering.rs",
+        "src/mir/builder/calls/method_call_terminal.rs",
+        "src/mir/builder/calls/unified_emitter.rs",
+        "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs",
+        "src/mir/builder/method_call_handlers_tests.rs",
+        "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs",
+    }
+    for rel in source_files:
+        path = root / rel
+        if not path.is_file():
+            fail(f"Method(Some) vertical owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            fail(f"Method(Some) vertical owner reached the 800-line hard stop: {rel}")
+
+    carrier = (root / "crates/hakorune_mir_defs/src/call_unified.rs").read_text(
+        encoding="utf-8"
+    )
+    if "SameModuleInstance" not in carrier or "CanonicalSameModuleCallableKeyV1" not in carrier:
+        fail("canonical mandatory instance carrier is missing")
+    locator = (
+        root / "src/mir/normal_callable_semantic_package/declared_instance_locator.rs"
+    ).read_text(encoding="utf-8")
+    if "target_key" not in locator or "TargetSelectionModeMismatch" not in locator:
+        fail("locator does not retain and validate the existing InstanceBoxMethod key")
+    handlers = (root / "src/mir/builder/method_call_handlers.rs").read_text(
+        encoding="utf-8"
+    )
+    if "CanonicalInstance" not in handlers or "finish_canonical_instance_value_terminal" not in handlers:
+        fail("Method(Some) caller does not consume the canonical instance carrier")
+
+    # The compatibility helpers intentionally remain in this module for
+    # unarmed/static/other-family callers.  The active row is narrower: the
+    # source-backed Ready branch must enter CanonicalInstance directly, and
+    # that branch must not be able to re-enter any of those helpers.  Checking
+    # the branch shape here prevents a token-only guard from claiming that a
+    # global helper deletion occurred when only the selected route changed.
+    ready_branch = re.compile(
+        r"DeclaredInstanceReceiverIngressV1::Ready\s*\{\s*key,\s*receiver\s*\}\s*"
+        r"=>\s*\{\s*PreparedMeCallExecutionV1::CanonicalInstance\s*\{\s*key,\s*receiver\s*\}\s*\}",
+        re.S,
+    )
+    ready_matches = list(ready_branch.finditer(handlers))
+    if len(ready_matches) != 2:
+        fail(
+            "Method(Some) vertical must have exactly two source-backed Ready -> "
+            f"CanonicalInstance handoffs, found {len(ready_matches)}"
+        )
+    for match in ready_matches:
+        snippet = match.group(0)
+        if any(
+            token in snippet
+            for token in (
+                "Self::prepare",
+                "generate_method_function_name",
+                "execute_lowered_global",
+                "handle_static_method_call_with_descent",
+                "finish_me_lowered_global_value_terminal",
+            )
+        ):
+            fail("Ready -> CanonicalInstance handoff re-enters a legacy helper")
+
+    canonical_start = handlers.find(
+        "PreparedMeCallExecutionV1::CanonicalInstance { key, receiver } => {"
+    )
+    canonical_end = handlers.find(
+        "PreparedMeCallExecutionV1::Standard { receiver, prepared } => {",
+        canonical_start,
+    )
+    if canonical_start < 0 or canonical_end < 0:
+        fail("canonical instance execution arm is not structurally bounded")
+    canonical_arm = handlers[canonical_start:canonical_end]
+    if not re.search(
+        r"let\s+arg_values\s*=\s*descent\.lower_all\(builder\)\?\s*;\s*"
+        r"descent\s*\.\s*finish_canonical_instance_value_terminal",
+        canonical_arm,
+        re.S,
+    ):
+        fail(
+            "CanonicalInstance must lower source arguments once before its "
+            "canonical terminal"
+        )
+    if any(
+        token in canonical_arm
+        for token in (
+            "Self::prepare",
+            "generate_method_function_name",
+            "execute_lowered_global",
+            "handle_static_method_call_with_descent",
+            "finish_me_lowered_global_value_terminal",
+        )
+    ):
+        fail("CanonicalInstance execution arm contains a legacy helper")
+    test_source = (
+        root / "src/mir/builder/normal_default_root_catalog_lifecycle_tests.rs"
+    ).read_text(encoding="utf-8")
+    if "source_backed_declared_instance_me_method_emits_mandatory_receiver_call" not in test_source:
+        fail("source-backed Method(Some) proof test is missing")
+    negative_source = (root / "src/mir/builder/method_call_handlers_tests.rs").read_text(
+        encoding="utf-8"
+    )
+    if "canonical_instance_target_rejects_site_mismatch_before_argument_descent" not in negative_source:
+        fail("Method(Some) pre-effect negative test is missing")
+    locator_negative_source = (
+        root / "src/mir/normal_callable_semantic_package/declared_instance_locator_tests.rs"
+    ).read_text(encoding="utf-8")
+    if "package_rejects_missing_declared_instance_target_before_locator_publication" not in locator_negative_source:
+        fail("DeclaredInstance missing-target negative test is missing")
 
 
 def check_calltarget_guard_rehome_r0(

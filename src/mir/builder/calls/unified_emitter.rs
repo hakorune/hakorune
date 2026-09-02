@@ -13,6 +13,7 @@ use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{Effect, EffectMask, MirBuilder, ValueId};
 use crate::mir::definitions::call_unified::Callee;
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
 /// 統一Call発行専用箱
 ///
@@ -21,6 +22,39 @@ use crate::mir::definitions::call_unified::Callee;
 /// - 状態レス: MirBuilderを引数で受け取る設計
 /// - ピュア関数的: 入力CallTarget → 解決・発行 → MirCall命令
 pub struct UnifiedCallEmitterBox;
+
+/// Emit one source-issued same-module instance call without re-entering the
+/// legacy CallTarget resolver.  The caller has already selected the exact key
+/// and receiver; this function only composes the mandatory callee, emits the
+/// generic physical Call, and returns its existing destination receipt.
+pub(in crate::mir::builder) fn emit_canonical_instance_value_terminal_v1(
+    builder: &mut MirBuilder,
+    key: CanonicalSameModuleCallableKeyV1,
+    receiver: ValueId,
+    arguments: Vec<ValueId>,
+) -> Result<ValueId, String> {
+    let destination = builder.next_value_id();
+    let call = call_unified::create_mir_call(
+        Some(destination),
+        Callee::SameModuleInstance { key, receiver },
+        arguments,
+    );
+    let outcome = physical_terminal::emit_finalized_generic_call_v1(
+        builder,
+        call,
+        None,
+        None,
+        UnifiedCallSignaturePublicationV1::Existing,
+    )?;
+    match outcome {
+        physical_terminal::CompletedUnifiedCallEmissionV1::Value(receipt) => {
+            Ok(receipt.final_destination())
+        }
+        physical_terminal::CompletedUnifiedCallEmissionV1::NoDestination => {
+            Err("[freeze:contract][declared-instance/call] final destination missing".to_owned())
+        }
+    }
+}
 
 #[cfg(test)]
 mod array_write_timing_tests;
@@ -435,6 +469,17 @@ impl UnifiedCallEmitterBox {
                     ring0.log.debug(&format!(
                         "[call-resolve] Method box='{}' method='{}' recv={:?} recv_origin={:?} args={:?}",
                         box_name, method, receiver, recv_meta, args
+                    ));
+                }
+                Callee::SameModuleInstance { key, receiver } => {
+                    let ring0 = crate::runtime::get_global_ring0();
+                    ring0.log.debug(&format!(
+                        "[call-resolve] SameModuleInstance key={}.{} / {} recv=%{} args={:?}",
+                        key.owner(),
+                        key.name(),
+                        key.arity(),
+                        receiver.0,
+                        args
                     ));
                 }
                 Callee::Global(name) => {

@@ -137,3 +137,17 @@ fn explicit_compatibility_override_keeps_mismatch_nonfatal() {
     MeCallPolicyBox::validate_prepared_me_arity_before_descent(&prepared, "route", 1, false)
         .expect("explicit compatibility mode is the only permissive state");
 }
+
+#[test]
+fn canonical_instance_target_rejects_site_mismatch_before_argument_descent() {
+    let prepared = PreparedMeCallExecutionV1::CanonicalInstance {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::test_instance_box_method(
+            "Probe", "wrap", 1,
+        ),
+        receiver: ValueId::new(9),
+    };
+    let error =
+        MeCallPolicyBox::validate_prepared_me_arity_before_descent(&prepared, "other", 1, true)
+            .expect_err("a source-site mismatch must stop before argument lowering");
+    assert!(error.contains("[freeze:contract][declared-instance/arity]"));
+}

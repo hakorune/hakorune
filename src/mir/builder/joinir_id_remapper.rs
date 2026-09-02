@@ -252,6 +252,12 @@ impl JoinIrIdRemapper {
                     certainty: *certainty,
                     box_kind: *box_kind,
                 },
+                crate::mir::Callee::SameModuleInstance { key, receiver } => {
+                    crate::mir::Callee::SameModuleInstance {
+                        key: key.clone(),
+                        receiver: remap(*receiver),
+                    }
+                }
                 crate::mir::Callee::Constructor { box_type } => crate::mir::Callee::Constructor {
                     box_type: box_type.clone(),
                 },

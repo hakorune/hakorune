@@ -4,7 +4,6 @@
 //! following the Single Responsibility Principle.
 
 use crate::ast::ASTNode;
-use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
 use crate::mir::builder::calls::{
     lower_selected_static_result_publication_v1, lower_target_only_static_result_publication_v1,
@@ -23,6 +22,7 @@ use crate::mir::builder::static_result_publication_ingress::{
 };
 use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::TypeOpKind;
+use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
 use super::record_helper_args::{
     PreparedRecordHelperInlineV1, PreparedSameModuleHelperSetterInlineV1,
@@ -61,6 +61,12 @@ pub(in crate::mir::builder) enum PreparedMeCallExecutionV1 {
     LoweredGlobal {
         owner: String,
         prepared: crate::mir::builder::me_call_header_observation::PreparedMeLoweredCallV1,
+    },
+    /// Exact source/catalog-issued instance target. The receiver is kept
+    /// separate from source arguments and is never recovered from args[0].
+    CanonicalInstance {
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
     },
     Standard {
         receiver: ValueId,
@@ -201,14 +207,8 @@ impl MeCallPolicyBox {
             DeclaredInstanceReceiverIngressV1::Unarmed => {
                 Self::prepare(builder, method, arguments, descent)?
             }
-            DeclaredInstanceReceiverIngressV1::Ready(value) => {
-                prepare_me_call_execution_with_receiver_v1(
-                    builder,
-                    method,
-                    arguments,
-                    descent.terminal_port(),
-                    Some(value),
-                )?
+            DeclaredInstanceReceiverIngressV1::Ready { key, receiver } => {
+                PreparedMeCallExecutionV1::CanonicalInstance { key, receiver }
             }
         };
         Self::validate_prepared_me_arity_before_descent(
@@ -283,14 +283,8 @@ impl MeCallPolicyBox {
             DeclaredInstanceReceiverIngressV1::Unarmed => {
                 Self::prepare(builder, method, arguments, descent)?
             }
-            DeclaredInstanceReceiverIngressV1::Ready(value) => {
-                prepare_me_call_execution_with_receiver_v1(
-                    builder,
-                    method,
-                    arguments,
-                    descent.terminal_port(),
-                    Some(value),
-                )?
+            DeclaredInstanceReceiverIngressV1::Ready { key, receiver } => {
+                PreparedMeCallExecutionV1::CanonicalInstance { key, receiver }
             }
         };
         Self::validate_prepared_me_arity_before_descent(
@@ -308,6 +302,31 @@ impl MeCallPolicyBox {
         argument_count: usize,
         strict: bool,
     ) -> Result<(), String> {
+        if let PreparedMeCallExecutionV1::CanonicalInstance { key, .. } = prepared {
+            let provided = u32::try_from(argument_count).map_err(|_| {
+                format!(
+                    "[freeze:contract][declared-instance/arity] source arity exceeds u32: {}",
+                    argument_count
+                )
+            })?;
+            if key.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod {
+                return Err(format!(
+                    "[freeze:contract][declared-instance/target-namespace] expected InstanceBoxMethod, got {:?}",
+                    key.namespace()
+                ));
+            }
+            if key.name() != method || key.arity() != provided {
+                return Err(format!(
+                    "[freeze:contract][declared-instance/arity] target={}.{} / {} source={}/{}",
+                    key.owner(),
+                    key.name(),
+                    key.arity(),
+                    method,
+                    provided
+                ));
+            }
+            return Ok(());
+        }
         let PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared } = prepared else {
             return Ok(());
         };
@@ -365,6 +384,12 @@ impl MeCallPolicyBox {
                         .map(Some);
                 }
                 Self::execute_lowered_global(builder, &owner, method, arguments, descent, prepared)
+                    .map(Some)
+            }
+            PreparedMeCallExecutionV1::CanonicalInstance { key, receiver } => {
+                let arg_values = descent.lower_all(builder)?;
+                descent
+                    .finish_canonical_instance_value_terminal(builder, key, receiver, arg_values)
                     .map(Some)
             }
             PreparedMeCallExecutionV1::Standard { receiver, prepared } => {

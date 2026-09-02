@@ -387,6 +387,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_declared_instance_package_locator_i0(state, card, root)
     elif row == api.DECLARED_INSTANCE_LOCATOR_INSTALL_BRIDGE_I0_ROW:
         api.check_declared_instance_locator_install_bridge_i0(state, card, root)
+    elif row == api.DECLARED_INSTANCE_METHOD_SOME_VERTICAL_I0_ROW:
+        api.check_declared_instance_method_some_vertical_i0(state, card, root)
     elif row == api.DECLARED_INSTANCE_SELECTED_C_ADMISSION_D0_ROW:
         api.check_declared_instance_selected_c_admission_d0(state, card)
     elif row == api.SELECTED_C_STACK_ROW:

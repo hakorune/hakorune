@@ -137,6 +137,7 @@ fn verify_call_ownership(
             receiver: Some(receiver),
             ..
         })
+        | Some(Callee::SameModuleInstance { receiver, .. })
         | Some(Callee::Value(receiver)) => Some(*receiver),
         Some(
             Callee::Global(_)

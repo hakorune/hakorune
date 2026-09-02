@@ -56,6 +56,12 @@ fn package_retains_one_private_locator_for_exact_me_method_site() {
     assert_eq!(row.target_batch_slot(), 1);
     assert_eq!(row.relation_row_ordinal(), 0);
     assert_eq!(row.effect_row_ordinal(), 0);
+    assert_eq!(
+        row.target_key(),
+        &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "Counter", "value", 0,
+        )
+    );
 }
 
 #[test]

@@ -20,3 +20,11 @@ single structural owners for embedded `ValueId` reads and rewrites. Both visit
 occurrences are preserved. `MirInstruction::used_values` delegates its typed
 Call target projection here, then appends Call args. Consumers may apply their
 own policy, but must not reimplement this variant match.
+
+`Callee::SameModuleInstance` is the source-backed instance-call carrier. It
+keeps an already-issued `CanonicalSameModuleCallableKeyV1::InstanceBoxMethod`
+and a mandatory receiver separate from source arguments. The receiver is a
+physical operand only through this typed field; no consumer may recover it from
+`args[0]`, a name, or a numeric sentinel. The final `Call` schema cutover is a
+later row; legacy `Method { ..., receiver: Option<_> }` remains a compatibility
+surface until its caller-zero proof is complete.

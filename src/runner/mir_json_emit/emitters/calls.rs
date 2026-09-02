@@ -74,6 +74,29 @@ pub(crate) fn emit_call(
                 }
                 Some(obj)
             }
+            Callee::SameModuleInstance { key, receiver } => {
+                if profile.is_canonical_v1() {
+                    let effects_str: Vec<&str> = if effects.is_io() { vec!["IO"] } else { vec![] };
+                    let args_u32: Vec<u32> = args.iter().map(|v| v.as_u32()).collect();
+                    return Some(emit_unified_mir_call(
+                        dst.map(|v| v.as_u32()),
+                        callee,
+                        &args_u32,
+                        &effects_str,
+                    ));
+                }
+                Some(emit_call_with_callee_v0(
+                    dst,
+                    args,
+                    json!({
+                        "type": "SameModuleInstance",
+                        "owner": key.owner(),
+                        "name": key.name(),
+                        "arity": key.arity(),
+                        "receiver": receiver.as_u32()
+                    }),
+                ))
+            }
             Callee::Global(name) => {
                 let wire_name = name.display_name();
                 if wire_name == "print" || wire_name == "println" {

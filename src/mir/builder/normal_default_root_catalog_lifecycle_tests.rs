@@ -158,6 +158,58 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
 }
 
 #[test]
+fn source_backed_declared_instance_me_method_emits_mandatory_receiver_call() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "box Probe { wrap(value) { return value } run() { return me.wrap(7) } } static box Main { main() { return 0 } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed declared instance method must lower");
+    let (_, module) = completed.into_parts();
+    let run = module
+        .functions
+        .iter()
+        .find(|(_, function)| function.signature.name == "Probe.run/0")
+        .map(|(_, function)| function)
+        .expect("lowered Probe.run function");
+    let call = run
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call { callee, args, .. } => {
+                Some((callee.clone(), args.clone()))
+            }
+            _ => None,
+        })
+        .expect("declared instance call");
+    assert_eq!(call.1.len(), 1, "receiver must stay outside source args");
+    assert!(matches!(
+        call.0,
+        Some(crate::mir::Callee::SameModuleInstance { ref key, receiver })
+            if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                && key.owner() == "Probe"
+                && key.name() == "wrap"
+                && key.arity() == 1
+                && receiver == crate::mir::ValueId::new(0)
+    ));
+    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+        "Probe", "wrap", 1,
+    );
+    assert_eq!(
+        module.canonical_callable_definition_symbol(&key),
+        Some("Probe.wrap/1")
+    );
+    assert_eq!(module.canonical_callable_definition_count(), 2);
+}
+
+#[test]
 fn root_expansion_failure_precedes_prepare_and_retains_source() {
     let source = NyashParser::parse_from_string(
         r#"

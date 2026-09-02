@@ -101,6 +101,7 @@ pub fn refresh_function_hotcore_method_summaries(function: &mut MirFunction) {
                                 usize::from(is_result_capsule_like_name(box_name))
                                     + usize::from(is_result_capsule_like_name(method));
                         }
+                        Some(Callee::SameModuleInstance { .. }) => {}
                         Some(Callee::Value(_)) | None => {
                             dynamic_route_count += 1;
                         }

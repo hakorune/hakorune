@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
-use super::calls::PendingFunctionSessionCloseV1;
+use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::module_lowering_invocation::ResolvedChildDraftAdmissionV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
@@ -199,37 +199,43 @@ impl RawInvocationChildPortV1<'_, '_> {
         builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
         let (params, param_decls) =
             normalize_instance_box_method_input_v1(&function_name, params, param_decls);
-        let resolved = ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
+        let resolved = ResolvedChildDraftAdmissionV1::cataloged_box_method(
             signature.owner(),
+            admission.source_key().clone(),
             function_name.clone(),
             admission.physical_arity(),
         );
-        let pending: PendingFunctionSessionCloseV1<'_> = {
+        let pending: LegacyFunctionPendingSessionV1<'_> = {
             let mut child_port = self.reborrow();
             builder
-                .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
-                    let prepared = builder.build_instance_method_draft_with_port_v1(
-                        &mut child_port,
-                        function_name,
-                        box_name,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                    )?;
-                    child_port.with_headers(|headers| {
-                        builder.finalize_function_draft_with_headers(prepared, headers)
-                    })
-                })
+                .capture_legacy_function_pending_session_v1(
+                    &session_name,
+                    body.clone(),
+                    move |builder| {
+                        let prepared = builder.build_instance_method_draft_with_port_v1(
+                            &mut child_port,
+                            function_name,
+                            box_name,
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                        )?;
+                        child_port.with_headers(|headers| {
+                            builder.finalize_function_draft_with_headers(prepared, headers)
+                        })
+                    },
+                )
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?
         };
-        self.module_port.complete_resolved_child_with_physical_loan(
-            pending,
-            resolved,
-            signature,
-            target_capability,
-        )
+        self.module_port
+            .complete_cataloged_child_with_physical_loan(
+                pending,
+                resolved,
+                signature,
+                target_capability,
+            )
     }
 }

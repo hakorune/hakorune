@@ -19,6 +19,7 @@ use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPort
 use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use crate::ast::ASTNode;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
@@ -37,6 +38,12 @@ pub(in crate::mir::builder) enum ResolvedChildDraftAdmissionV1 {
         symbol: String,
         arity: usize,
     },
+    CatalogedBoxMethod {
+        owner: FunctionOwnerIdV1,
+        key: CanonicalSameModuleCallableKeyV1,
+        symbol: String,
+        arity: usize,
+    },
 }
 
 impl ResolvedChildDraftAdmissionV1 {
@@ -47,6 +54,20 @@ impl ResolvedChildDraftAdmissionV1 {
     ) -> Self {
         Self::CanonicalResolvedOwner {
             owner,
+            symbol,
+            arity,
+        }
+    }
+
+    pub(in crate::mir::builder) fn cataloged_box_method(
+        owner: FunctionOwnerIdV1,
+        key: CanonicalSameModuleCallableKeyV1,
+        symbol: String,
+        arity: usize,
+    ) -> Self {
+        Self::CatalogedBoxMethod {
+            owner,
+            key,
             symbol,
             arity,
         }
@@ -63,12 +84,16 @@ impl ResolvedChildDraftAdmissionV1 {
                 symbol,
                 arity,
             ),
+            Self::CatalogedBoxMethod {
+                key, symbol, arity, ..
+            } => (FunctionDraftKeyV1::CatalogedBoxMethod(key), symbol, arity),
         }
     }
 
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         match self {
             Self::CanonicalResolvedOwner { owner, .. } => *owner,
+            Self::CatalogedBoxMethod { owner, .. } => *owner,
         }
     }
 }

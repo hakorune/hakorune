@@ -67,6 +67,13 @@ pub(crate) fn format_call_target(
                 )
             }
         }
+        Some(Callee::SameModuleInstance { key, receiver }) => format!(
+            "call_same_module_instance {}.{}({}) [recv: {}]",
+            key.owner(),
+            key.name(),
+            args_str,
+            receiver
+        ),
         Some(Callee::Constructor { box_type }) => {
             format!("call_constructor {}({})", box_type, args_str)
         }

@@ -8,6 +8,7 @@
 
 use std::collections::BTreeSet;
 
+use crate::mir::builder::{SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::resolved_semantics::{
@@ -22,14 +23,17 @@ use super::physical_signature::{
 };
 use super::result_contract::VerifiedCallableResultContractCohortV1;
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
 /// One private cross-reference into the package's already-issued products.
-/// No semantic value is copied into this row.
+/// This row issues no new semantic value; it retains the selected callable
+/// key verbatim so the existing authority can cross the lowering boundary.
 #[derive(Debug)]
 pub(super) struct SealedDeclaredInstanceCallLocatorRowV1 {
     call_site: OwnedExprSiteV1,
     caller_batch_slot: u32,
     target_batch_slot: u32,
+    target_key: CanonicalSameModuleCallableKeyV1,
     relation_row_ordinal: u32,
     effect_row_ordinal: u32,
 }
@@ -45,6 +49,10 @@ impl SealedDeclaredInstanceCallLocatorRowV1 {
 
     pub(super) const fn target_batch_slot(&self) -> u32 {
         self.target_batch_slot
+    }
+
+    pub(super) fn target_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target_key
     }
 
     pub(super) const fn relation_row_ordinal(&self) -> u32 {
@@ -111,6 +119,7 @@ impl<'a> DeclaredInstanceCallLocatorViewV1<'a> {
 #[derive(Debug, Clone, Copy)]
 pub(in crate::mir) struct DeclaredInstanceCallRelationViewV1<'a> {
     row: &'a VerifiedDeclaredInstanceCallRelationV1,
+    target_key: &'a CanonicalSameModuleCallableKeyV1,
 }
 
 impl DeclaredInstanceCallRelationViewV1<'_> {
@@ -132,6 +141,10 @@ impl DeclaredInstanceCallRelationViewV1<'_> {
         &self,
     ) -> crate::mir::resolved_semantics::BindingRefV1 {
         self.row.receiver_binding()
+    }
+
+    pub(in crate::mir) fn target_key(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        self.target_key
     }
 }
 
@@ -218,8 +231,11 @@ impl<'a> DeclaredInstanceCallLocatorScopeV1<'a> {
         if !self.consumed.insert(row.relation_row_ordinal()) {
             return Err(DeclaredInstanceCallLocatorTakeErrorV1::AlreadyTaken);
         }
-        callback(DeclaredInstanceCallRelationViewV1 { row: relation_row })
-            .map_err(|_| DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch)
+        callback(DeclaredInstanceCallRelationViewV1 {
+            row: relation_row,
+            target_key: row.target_key(),
+        })
+        .map_err(|_| DeclaredInstanceCallLocatorTakeErrorV1::RelationMismatch)
     }
 }
 
@@ -255,6 +271,7 @@ pub(in crate::mir) enum DeclaredInstanceCallPackageLocatorIssueV1 {
     EffectIdentityMismatch(SourceExprSiteV1),
     TargetSelectionMissing,
     TargetSelectionDuplicate,
+    TargetSelectionModeMismatch,
     TargetResultMissing,
     TargetResultIdentityMismatch,
     TargetResultOwnerMismatch,
@@ -390,6 +407,19 @@ pub(super) fn issue_declared_instance_call_package_locator_v1(
         let target_role = selected
             .role_for_batch_slot(target_batch_slot)
             .ok_or(DeclaredInstanceCallPackageLocatorIssueV1::TargetSelectionMissing)?;
+        let target_key = selected
+            .key_for_batch_slot(target_batch_slot)
+            .ok_or(DeclaredInstanceCallPackageLocatorIssueV1::TargetSelectionMissing)?;
+        let target_key = match target_key {
+            SelectedNormalCallableKeyV1::Cataloged(key)
+                if key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod =>
+            {
+                key
+            }
+            _ => {
+                return Err(DeclaredInstanceCallPackageLocatorIssueV1::TargetSelectionModeMismatch)
+            }
+        };
         let result_row = result_contracts
             .row(target_batch_slot)
             .ok_or(DeclaredInstanceCallPackageLocatorIssueV1::TargetResultMissing)?;
@@ -417,6 +447,7 @@ pub(super) fn issue_declared_instance_call_package_locator_v1(
             call_site: owned_site,
             caller_batch_slot: caller.batch_slot(),
             target_batch_slot,
+            target_key: target_key.clone(),
             relation_row_ordinal: u32::try_from(relation_row_ordinal)
                 .map_err(|_| DeclaredInstanceCallPackageLocatorIssueV1::LaneCountMismatch)?,
             effect_row_ordinal: u32::try_from(*effect_row_ordinal)

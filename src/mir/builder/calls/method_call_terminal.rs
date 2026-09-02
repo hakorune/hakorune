@@ -17,7 +17,7 @@ use crate::mir::builder::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
 };
 use crate::mir::{MirBuilder, MirInstruction, MirType, TypeOpKind, ValueId};
-use hakorune_mir_defs::CanonicalGlobalTargetV1;
+use hakorune_mir_defs::{CanonicalGlobalTargetV1, CanonicalSameModuleCallableKeyV1};
 
 pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1 {
     fn emit_typeop_value_terminal(
@@ -45,6 +45,19 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1 {
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String>;
+
+    /// Emit an already-issued same-module instance target with a mandatory
+    /// receiver. Compatibility/test ports remain unavailable by default;
+    /// the collector-backed raw invocation uses the blanket implementation.
+    fn emit_canonical_instance_value_terminal(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _key: CanonicalSameModuleCallableKeyV1,
+        _receiver: ValueId,
+        _arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        Err("[freeze:contract][declared-instance/canonical-terminal-unavailable]".to_owned())
+    }
 
     fn emit_env_value_terminal(
         &mut self,
@@ -163,6 +176,18 @@ where
         })
     }
 
+    fn emit_canonical_instance_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        super::unified_emitter::emit_canonical_instance_value_terminal_v1(
+            builder, key, receiver, arguments,
+        )
+    }
+
     fn emit_env_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
@@ -217,6 +242,17 @@ where
             checked_source_arity,
             arguments,
         )
+    }
+
+    pub(in crate::mir::builder) fn finish_canonical_instance_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.terminal_port()
+            .emit_canonical_instance_value_terminal(builder, key, receiver, arguments)
     }
 
     pub(in crate::mir::builder) fn finish_env_value_terminal(

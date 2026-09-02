@@ -4,12 +4,12 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0"
 current_design_stop = "none"
 current_blocker_token = """
-Amendment (2026-09-02): Q1 receiver ABI and Q3 source/package products are settled and landed. The only open boundary is the existing InstanceBoxMethod key-to-callsite/published-definition carrier plus one root-lexical Method(Some) production switch; selected-C is downstream and is not a semantic prerequisite.
-Decision: execute one root-lexical DeclaredInstance Method(Some) vertical in place. Reuse the landed relation/effect/result/full-lane/locator/crosswalk and existing InstanceBoxMethod key; add one mandatory receiver-bearing canonical carrier, publish its key-definition relation, switch one production caller, and delete the selected old edges in the same series.
+Amendment (2026-09-02): Q1 receiver ABI and Q3 source/package products are settled and landed. The receiver-bearing InstanceBoxMethod carrier and one root-lexical source-backed MIR caller are now implemented on this branch; the remaining boundary is selected-cohort old-edge deletion and closeout. selected-C is downstream and is not a semantic prerequisite.
+Decision: execute one root-lexical DeclaredInstance vertical in place. Reuse the landed relation/effect/result/full-lane/locator/crosswalk and existing InstanceBoxMethod key; carry it in the mandatory `SameModuleInstance { key, receiver }` carrier, publish its key-definition relation, keep source arguments separate, switch one production caller, and delete the selected old edges in the same series.
 Source authority + canonical issuer: same-session DeclaredInstance relation/effect issuers, retained result/Completion and physical-signature products, installed locator, CallableSemanticLoweringState crosswalk, and the existing callable catalog. The canonical MirBuilder call publisher is the sole target issuer; package/selected-C/backend code only consumes it.
 Non-authority: physical symbols, names/arity, headers/registry, JSON/C/Hako metadata, variable_map["me"], param0, args[0], numeric ValueId(0), MIR EffectMask/FunctionSignature inference, selected-C success, fixture green, fallback, retry, or a new Verified*/Prepared* receipt.
 Fail-fast boundary: before receiver materialization, argument effects, MIR publication, or backend admission, require exactly one same-session InstanceBoxMethod key, definition, receiver BindingRef->ValueId, result/effect/full-lane row, and locator. Missing, duplicate, foreign, drifted, or unsupported products reject before effects.
-Smallest next slice: exact InstanceBoxMethod key plus mandatory receiver callsite carrier -> Atomic Publish key-definition relation -> one root-lexical Method(Some) caller, with the three selected old edges deleted in the same series. selected-C is downstream; if a required owner is absent or multiple, restore design_stop without another D0, adapter, receipt, or family loan.
+Smallest next slice: close the landed exact InstanceBoxMethod key plus mandatory receiver carrier -> Atomic Publish key-definition relation -> one root-lexical canonical caller, with the three selected old edges deleted in the same series. selected-C is downstream; if a required owner is absent or multiple, restore design_stop without another D0, adapter, receipt, or family loan.
 Non-claims: no selected-C user-box admission, Hako implementation, Call-schema/R6, VM/selfhost, whole-lib green, nested/upvar/explicit-receiver family, or broad JSON/test purge.
 """
 previous_parent_blocker_context = """
@@ -48,11 +48,12 @@ and negative evidence, C-shim build, pointer/active-surface guards, and diff
 checks passed. Known whole-lib red remains separate and is not claimed green;
 generic phi/overwrite/non-scalar/runner-C negative coverage remains follow-up.
 The next row is the existing DeclaredInstance package-co-seal design stop.
-Q1 receiver ABI and Q3 source/package ownership are settled; the remaining
-bounded seam is the exact InstanceBoxMethod key + mandatory receiver callsite
-carrier, its published key-to-definition relation, and one root-lexical
-Method(Some) production switch. selected-C is downstream and not a semantic
-prerequisite.
+Q1 receiver ABI and Q3 source/package ownership are settled. The branch now
+carries the existing InstanceBoxMethod key and mandatory receiver through a
+canonical `SameModuleInstance` carrier, publishes the key-to-definition
+relation, and proves one root-lexical source-backed caller. The remaining work
+is selected-cohort old-edge deletion and closeout; selected-C is downstream
+and not a semantic prerequisite.
 """
 next_design_card = "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0"
 next_execution_card = "MIR-CALL-ME-DECLARED-INSTANCE-METHOD-SOME-VERTICAL-I0"
