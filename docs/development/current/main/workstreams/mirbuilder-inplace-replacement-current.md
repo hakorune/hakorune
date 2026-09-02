@@ -42,19 +42,23 @@ reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
 The fixed baseline was observed three times at `7578/7411/138/29`; the
 inventory gained one passing test and the 138-name known-red set is unchanged.
-The next bounded design-stop row is M3-B ordinary-new outer quarantine:
+M3-B is parked after its finite census: the Birth issuer is unique, but two
+unclaimed compatibility writers share the existing outer APIs and have no
+exclusive delete-set. The next bounded design-stop row is M3-C JoinIR/JSON
+outer quarantine:
 
 ```text
-Birth is the canonical ordinary-new owner
-  -> unclaimed builtin/plugin fallback stays at the outer compatibility edge
-  -> no ordinary-new target is reissued from a name or registry
+JoinIR/JSON is split into four outer-ingress censuses
+  -> structured JoinIR bridge
+  -> MIR JSON v0/v1, Program JSON v0, and JSON egress
+  -> no wire/name/registry retry or semantic target reissue
 ```
 
 After that row, the next work is fixed there:
 
 ```text
-M3-B ordinary-new outer quarantine
-  -> M3-C JoinIR/JSON outer quarantine
+M3-B ordinary-new outer quarantine (ParkedSealed)
+  -> M3-C JoinIR/JSON outer quarantine (design_stop)
   -> mandatory-Callee R6
   -> selected backend family cutover
   -> R7 caller-zero legacy deletion

@@ -1,15 +1,15 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B"
-current_design_stop = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B: confirm the existing Birth owner and the single outer compatibility owner before any code change. Zero/multiple owner or delete-set remains ParkedSealed; no new receipt, adapter, fixture, guard, fallback, or retry."
+current_execution_row = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-C"
+current_design_stop = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-C: JoinIR/JSON is split into four outer-ingress censuses before any code change. Zero/multiple owner or delete-set remains ParkedSealed; no new receipt, adapter, fixture, guard, fallback, or retry."
 current_blocker_token = """
-MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B: census only the ordinary-new
-admission -> Birth selection or unclaimed compatibility fallback boundary.
-Birth remains the sole canonical owner; an unclaimed shape may use the
-existing explicit outer compatibility owner but may not reissue a target from
-name/registry or retry through another resolver. Do not edit code until the
-owner, live caller, and finite old-edge delete set are exactly one.
+MIR-CALL-COMPATIBILITY-QUARANTINE-M3-C: census only one outer ingress at a
+time: structured JoinIR bridge, MIR JSON v0/v1, Program JSON v0, or JSON
+egress. Canonical MirBuilder publication remains the sole semantic issuer;
+wire names/func/Const, args[0], registry lookup, parser retry, and backend
+success are non-authority. Do not edit code until one ingress has exactly one
+owner, one live caller, and one finite exclusive old-edge delete set.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -47,13 +47,14 @@ inventory refresh added one passing focused test and did not change the
 remaining-family disposition are closed and recorded in the final-pipeline
 SSOT. M3-A is closed at 474e8518b0: the UnifiedCallEmitter core has zero env
 reads and zero legacy emission calls while the outer compatibility owner is
-preserved. The current design-stop row is M3-B ordinary-new outer quarantine;
-continue only through the fixed M3-B/M3-C/M4→M9 order. Landed families are
+preserved. M3-B is parked because two unclaimed writers share the existing
+compatibility APIs; the current design-stop row is M3-C JoinIR/JSON outer
+quarantine. Continue only through the fixed M3-B/M3-C/M4→M9 order. Landed families are
 not reopened and zero/multiple authority tuples remain ParkedSealed without
 new design assets.
 """
-next_design_card = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B"
-next_execution_card = "none__m3b_design_stop"
+next_design_card = "MIR-CALL-COMPATIBILITY-QUARANTINE-M3-C"
+next_execution_card = "none__m3c_design_stop"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -73,5 +74,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
-  "2026-09-03: M3-A compatibility quarantine landed at 474e8518b0; the UnifiedCallEmitter core has zero env reads and zero legacy-emission calls, required ingress remains fail-closed, and explicit compatibility stays at the outer MirBuilder owner. Three fixed baseline observations agree at 7578/7411/138/29 with unchanged 138-name failure set; next row is the M3-B ordinary-new outer quarantine design stop.",
+  "2026-09-03: M3-A compatibility quarantine landed at 474e8518b0; the UnifiedCallEmitter core has zero env reads and zero legacy-emission calls, required ingress remains fail-closed, and explicit compatibility stays at the outer MirBuilder owner. Three fixed baseline observations agree at 7578/7411/138/29 with unchanged 138-name failure set. M3-B is parked after its multi-writer census; M3-C now owns the JoinIR/JSON ingress split census.",
 ]

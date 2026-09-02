@@ -475,47 +475,41 @@ partial module publication                     = 0
 
 ### M3-B ordinary-new outer quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B`
 
+`M3-B` is closed as
+`ParkedSealed__OrdinaryNewUnclaimedCompatibilityMultiWriterSharedOwner`.
+The existing `Birth` route is the sole canonical ordinary-new issuer, while
+two unclaimed compatibility writers share the outer legacy APIs; therefore
+there is no exclusive delete-set and no implementation slice. Name/registry
+reissue, fallback/retry, new receipt/adapter, and ordinary-new widening remain
+forbidden. Reopen only when one live outer owner and one finite delete-set are
+proven; otherwise keep this family parked.
+
+### M3-C JoinIR/JSON outer quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-C`
+
 ```text
 status = `accepted_design_stop`
 implementation permission = false
-scope = ordinary-new Birth versus unclaimed compatibility fallback
+scope = JoinIR/JSON outer ingress -> first MIR Call/module publication
+Decision = ParkedSealed__JoinIrAndJsonHaveMultipleIngressOwners
 ```
 
-```text
-Decision:
-  Birth is the sole canonical ordinary-new owner. Any unclaimed
-  builtin/plugin lowering remains an explicit outer compatibility ingress;
-  it must not reissue an ordinary-new target from a name or registry.
+Canonical source/package publication remains the only semantic issuer (the
+sole semantic issuer). JoinIR
+structured bridge, MIR JSON v0/v1, Program JSON v0, and JSON egress are
+separate compatibility owners/callers; wire names, `func`/Const, `args[0]`,
+receiver defaults, registry lookup, parser retry, and backend success are not
+authority. Each outer ingress validates schema/target/receiver/arity and
+fail-closes without canonical or alternate-parser fallback.
 
-Source authority + canonical issuer:
-  The existing Birth route and its source/package disposition own claimed
-  ordinary-new semantics. The existing outer compatibility owner owns only
-  unclaimed fallback; no new semantic issuer is introduced.
+Smallest next slice: separate four outer-ingress censuses, read-only, for (1) structured JoinIR
+bridge, (2) MIR JSON v0/v1, (3) Program JSON v0, and (4) JSON egress. Do not
+delete JoinIR/JSON, change Call R6, add a receipt/adapter, or alter backend/VM
+until one owner, one live caller, and an exclusive finite delete-set are proven
+for one ingress. The M3-C boundary excludes canonical MirBuilder publication,
+C/LLVM lowering, and already-landed source families.
 
-Non-authority:
-  spelling/name scans, registry or header lookup, JSON, JoinIR labels,
-  backend success, fallback results, args[0], and a new receipt/adapter.
-
-Fail-fast boundary:
-  A claimed Birth shape is selected before argument effects. An unclaimed
-  shape either enters the existing explicit compatibility boundary or is
-  rejected; it never retries through canonical Birth or another resolver.
-
-Smallest next slice:
-  Perform one finite census from ordinary-new admission to its fallback
-  branch, name the live outer compatibility owner and its finite delete set,
-  then implement only if exactly one owner/caller/delete set is found.
-
-Non-claims:
-  No JoinIR/JSON quarantine, mandatory-Callee R6, Call-schema change,
-  backend/VM change, new target authority, or ordinary-new semantic widening.
-```
-
-The M3-B census boundary is `ordinary-new admission -> Birth selection or
-unclaimed fallback`. It excludes JoinIR/JSON, Extern, Value/closure, backend,
-VM, and all already-landed source families. If the owner/caller/delete-set is
-zero or multiple, M3-B remains `ParkedSealed` and receives no new D0,
-receipt, adapter, fixture, or guard.
+Initial owner roots are `src/mir/join_ir_to_mir`, `src/runner/mir_json_v0` plus
+`json_v1_bridge`, `src/runner/json_v0_bridge`, and `src/runner/mir_json_emit`.
 
 Hako published-view coverage and physical legacy deletion remain required for
 MS1-B/MS1-D, but they do not authorize another semantic Builder design cycle.
