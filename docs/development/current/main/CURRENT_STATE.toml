@@ -1,13 +1,13 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-MANDATORY-CALLEE-R6"
-current_design_stop = "none"
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0"
+current_design_stop = "MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0"
 current_blocker_token = """
-MIR-CALL-MANDATORY-CALLEE-R6: Group A is permitted in this branch only.
-Promote existing MirCall to canonical MirInstruction::Call(MirCall) and isolate
-the old fields as LegacyCallV0. Do not change target/effect/ABI semantics, add a
-second resolver, create CallV2, or push a red intermediate state to main.
+MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0: Group A landed at 45c6759962. Perform one
+read-only current-HEAD census of remaining Call writers/readers, legacy carriers,
+and compatibility boundaries before the next R6 slice; no code, fixture, fallback,
+resolver, schema variant, or production switch is permitted.
 """
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -21,8 +21,7 @@ StaticCurrentOwner me.method has landed as an exact same-session source/site/
 catalog handoff and direct Global(StaticBoxMethod) successor; true
 DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
-Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or
-semantic-family widening into verification-only rows.
+Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
 guard_followup = "The M1 current-HEAD Call producer/consumer census is closed in the final-pipeline SSOT. Next, disposition the remaining families, quarantine compatibility outside the canonical core, then perform mandatory-Callee R6. Zero/multiple authority tuples stay ParkedSealed without another D0, receipt, adapter, fixture, or guard. Each family deletes its selected old edge and exclusive temporary tests/guards/docs before the next family; R7 owns caller-zero Call compatibility deletion and post-R7 owns physical thinning. Known-red comparison and exact changed-test execution remain mandatory."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -46,14 +45,17 @@ remaining-family disposition are closed and recorded in the final-pipeline
 SSOT. M3-A is closed at 474e8518b0: the UnifiedCallEmitter core has zero env
 reads and zero legacy emission calls while the outer compatibility owner is
 preserved. M3-B is parked because two unclaimed writers share the existing
-compatibility APIs. M3-C's four ingress censuses are complete and parked; the
-current fast row is M4 mandatory-Callee R6 Group A. Continue only through the
-fixed M3-B/M3-C/M4→M9 order. Landed families are
-not reopened and zero/multiple authority tuples remain ParkedSealed without
-new design assets.
+compatibility APIs. M3-C's four ingress censuses are complete and parked.
+M4 R6 Group A is closed at 45c6759962: canonical `Call(MirCall)` and explicit
+`LegacyCallV0` now have separate instruction shapes, central readers support
+both, and focused/feature-build/guard evidence is green. The current row is
+the read-only R6 current-HEAD re-census before any Group B schema/reader
+migration. Continue only through the fixed M3-B/M3-C/M4→M9 order. Landed
+families are not reopened and zero/multiple authority tuples remain
+ParkedSealed without new design assets.
 """
-next_design_card = "MIR-CALL-MANDATORY-CALLEE-R6"
-next_execution_card = "MIR-CALL-MANDATORY-CALLEE-R6"
+next_design_card = "MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -71,7 +73,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-03: R6 Group A landed at 45c6759962. MirInstruction::Call now carries mandatory typed MirCall, old func/Option<Callee> fields are isolated as LegacyCallV0, all active struct-style Call literals were migrated mechanically, and focused/full target-compile/vm-reference/guard evidence passed. R6 current-HEAD re-census is the next read-only boundary; Group B and R7 remain unopened.",
   "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
-  "2026-09-03: M3-A compatibility quarantine landed at 474e8518b0; the UnifiedCallEmitter core has zero env reads and zero legacy-emission calls, required ingress remains fail-closed, and explicit compatibility stays at the outer MirBuilder owner. Three fixed baseline observations agree at 7578/7411/138/29 with unchanged 138-name failure set. M3-B is parked after its multi-writer census; M3-C's JoinIR/JSON ingress censuses are complete and parked; M4 mandatory-Callee R6 is the current design stop.",
 ]

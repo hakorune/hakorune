@@ -45,13 +45,16 @@ inventory gained one passing test and the 138-name known-red set is unchanged.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
-and parked; the current design-stop row is M4 mandatory-Callee R6:
+and parked. M4 R6 Group A closed at `45c6759962`: canonical `Call(MirCall)` and
+explicit `LegacyCallV0` now have separate instruction shapes, central readers
+support both, and the bounded focused/feature-build/guard evidence is green.
+The current design-stop row is the read-only R6 current-HEAD re-census:
 
 ```text
-mandatory Callee is not opened partially
-  -> finish one explicit compatibility boundary first
-  -> then atomic schema cutover with no fallback/retry
-  -> no shared CallV2 or second resolver
+R6 Group A is closed; do not claim whole-schema completion
+  -> inventory remaining Call writers/readers and compatibility boundaries once
+  -> then open the next bounded R6 slice only after the census
+  -> no shared CallV2, second resolver, fallback, or retry
 ```
 
 After that row, the next work is fixed there:
@@ -59,8 +62,8 @@ After that row, the next work is fixed there:
 ```text
 M3-B ordinary-new outer quarantine (ParkedSealed)
   -> M3-C JoinIR/JSON outer quarantine (ParkedSealed)
-  -> M4 mandatory-Callee R6 (design_stop)
-  -> mandatory-Callee R6
+  -> R6 current-HEAD re-census (design_stop)
+  -> mandatory-Callee R6 Group B only after census
   -> selected backend family cutover
   -> R7 caller-zero legacy deletion
   -> physical Builder/repository thinning

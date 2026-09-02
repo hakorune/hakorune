@@ -529,6 +529,20 @@ Canonical coreの最終targetはopaque IDやphysical symbolではなくwire-stab
 structural identityである。追加familyはproduction censusが証明した場合だけ加え、
 legacy Stringはowner-private compatibility ingressで一度だけ解決しcoreへ入れない。
 
+#### Group A closeout — `45c6759962`
+
+`MirInstruction::Call(MirCall)` is now the canonical mandatory-callee shape for
+the bounded Group A seam. The former `func`/`Option<Callee>` carrier is explicit
+`LegacyCallV0`; no active-tree struct-style `MirInstruction::Call { ... }`
+literal remains. Central readers, diagnostics, remappers, and published-view
+admission understand both shapes without re-resolving target, effect, or ABI.
+The evidence is limited to this bounded seam: `cargo test --no-run`,
+`cargo build --features vm-reference`, focused instruction/physical/view/JSON
+tests, pointer/active-surface guards, and `git diff --check` passed. This does
+not claim producer/reader caller-zero, R7 deletion, Hako/VM retirement, or a
+green whole-library suite. The next boundary is the read-only
+`MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0`; Group B and R7 remain unopened.
+
 このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
 selected shadow profileでDeferredになりpackage発行へ到達できないため、target
 loanより前に次を設計しなければならない。
