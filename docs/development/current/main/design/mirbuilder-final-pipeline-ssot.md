@@ -286,6 +286,39 @@ The legacy groups remain live until their named caller-zero conditions are
 met.  The PHI candidate is the only currently observed delete candidate; its
 tests are not deleted by this design-stop row.
 
+The direct-site cross-check index for this pass is finite and is kept here so
+the owner groups can be audited without treating every structural match as a
+new task:
+
+* canonical source/direct owners: `calls/build.rs::emit_prepared_cataloged_call_v1`,
+  `canonical_direct_call.rs::VerifiedCanonicalDirectCallEmissionV1::materialize`,
+  `calls/unified_emitter/physical_terminal.rs::emit_finalized_generic_call_v1`,
+  and the claimed `Birth` branch of `ordinary_new_admission.rs`;
+* compatibility ingress owners: `calls/unified_emitter/compat_entrypoints.rs`,
+  `builder/exprs_call.rs` unified-off, `join_ir_to_mir/call_generator.rs`,
+  `join_ir_to_mir/joinir_block_converter/handlers.rs`,
+  `runner/mir_json_v0/{call.rs,module.rs}`,
+  `runner/json_v0_bridge/lowering/expr/call_ops.rs`, and
+  `runner/json_v1_bridge/parse/mir_call.rs`;
+* explicit runtime/projection owners: `ssot/method_call.rs`,
+  `ssot/extern_call.rs`, `array_element_write.rs::canonicalize_legacy_array_write_calls`,
+  and the string-corridor sink/concat rewriters;
+* structural reissuers: `builder_emit.rs`,
+  `ssa/phi_input_materializer/edge_rematerialization.rs`, and the
+  call-rewrite passes.  They copy an already-issued callee and never select a
+  target;
+* parked physical owner: `normal_module_transaction/physical_thunk.rs`,
+  whose source issuer is still `RelationPresentIssuerMissing`;
+* downstream readers: MIR instruction/value/SSA/optimizer/verifier/printer
+  modules, published-view/object admission, JSON emitters, C/wasm/LLVM
+  consumers, and the VM reference handler.  These are readers or explicit
+  profile rejects, not semantic issuers.
+
+Occurrences under `#[cfg(test)]`, test-only modules, archives, and diagnostic
+fixtures are retained in the separate test/reference bucket.  This index is
+the cross-check input for M1; it does not turn a structural reader into a
+producer and does not grant R6 implementation permission.
+
 `Method(None)`, `callee=None`, a string target, backend success, JSON, a
 registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target
 authority. Construction terminators such as NewBox/NewClosure remain outside
