@@ -97,6 +97,74 @@ static const hako_llvmc_published_static_method_call_v1*
   return NULL;
 }
 
+enum hako_llvmc_published_static_method_shape_status_v1 {
+  HAKO_LLVMC_PUBLISHED_ROW_ABSENT = 0,
+  HAKO_LLVMC_PUBLISHED_ROW_READY = 1,
+  HAKO_LLVMC_PUBLISHED_ROW_MALFORMED = -1,
+};
+
+/*
+ * The two physical consumers share this admission only.  It owns the one
+ * exact-site take and validates the published Global/dst/arity/argument
+ * shape; LLVM emission and argument formatting remain consumer-local.
+ */
+static int hako_llvmc_published_static_method_read_i64_arg_v1(
+    yyjson_val* args,
+    size_t index,
+    long long* out) {
+  yyjson_val* value = args && yyjson_is_arr(args) &&
+                              yyjson_arr_size(args) > index
+                          ? yyjson_arr_get(args, index)
+                          : NULL;
+  if (!(value && yyjson_is_num(value))) return 0;
+  if (out) *out = (long long)yyjson_get_sint(value);
+  return 1;
+}
+
+static int hako_llvmc_published_static_method_take_i64_global_row_v1(
+    const char* function_name,
+    long long block_id,
+    size_t instruction_index,
+    const char* call_type,
+    long long dst,
+    yyjson_val* args,
+    const hako_llvmc_published_static_method_call_v1** out_row) {
+  const hako_llvmc_published_static_method_call_v1* row =
+      hako_llvmc_published_static_method_row_for_site(
+          function_name, block_id, instruction_index);
+  if (out_row) *out_row = NULL;
+  if (!row) return HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
+  if (!(call_type && !strcmp(call_type, "Global"))) {
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  }
+  if (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT) {
+    long long ignored_arg = 0;
+    if (!(dst == 0 && args && yyjson_is_arr(args) &&
+          yyjson_arr_size(args) == 1 &&
+          hako_llvmc_published_static_method_read_i64_arg_v1(
+              args, 0, &ignored_arg))) {
+      return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+    }
+  } else if (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
+             row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION) {
+    if (!(args && yyjson_is_arr(args) &&
+          yyjson_arr_size(args) == (size_t)row->arity)) {
+      return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+    }
+    for (size_t ai = 0; ai < (size_t)row->arity; ai++) {
+      long long ignored_arg = 0;
+      if (!hako_llvmc_published_static_method_read_i64_arg_v1(
+              args, ai, &ignored_arg)) {
+        return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+      }
+    }
+  } else {
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  }
+  if (out_row) *out_row = row;
+  return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
+
 static int hako_llvmc_published_static_method_rows_finish(char** err_out) {
   for (size_t i = 0; i < hako_llvmc_published_static_method_row_count; i++) {
     if (!hako_llvmc_published_static_method_row_used[i]) {

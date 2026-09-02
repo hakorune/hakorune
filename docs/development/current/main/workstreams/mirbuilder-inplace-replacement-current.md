@@ -958,6 +958,14 @@ origin retirement. The disabled `legacy-tests` family is retired at
   final Call schema remain separate open lanes.
 - FunctionMetadata owner split is closed at 718 lines; the 127-row consumer
   manifest remains the future sub-owner census authority.
+- The published-C dual-consumer BoxShape row is closed in the existing
+  published-row `.inc`: exact-site take and Global/dst/arity/numeric-shape
+  admission are shared by the two named C consumers, while LLVM emission and
+  generic compatibility remain local. The C shim build, 18 focused view tests,
+  non-entry typed ingress probe, negative shape/residual/duplicate probes,
+  known-red baseline, and active/pointer guards pass. The producer-side Print
+  assertion remains a separate queued evidence row; no new semantic family or
+  guard was added.
 
 Exact commits, test receipts, and per-row counts live in Git and the linked
 investigation/archive owners, not in this rolling card.

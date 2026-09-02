@@ -503,35 +503,33 @@
         long long dst = read_int(ins, "dst");
         int rc = 0;
         if (!same_module_function_read_call_payload(ins, &cal, &args)) return 0;
+        ctype = same_module_function_call_type(op, cal);
         {
           const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
           const hako_llvmc_published_static_method_call_v1* typed_row =
-              hako_llvmc_published_static_method_row_for_site(
-                  active_function_name, bid, ii);
-          if (typed_row && typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT) {
+              NULL;
+          int typed_shape_rc = hako_llvmc_published_static_method_take_i64_global_row_v1(
+              active_function_name, bid, ii,
+              ctype, dst, args,
+              &typed_row);
+          if (typed_shape_rc < 0) return -1;
+          if (typed_shape_rc > 0 &&
+              typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_BUILTIN_PRINT) {
             long long print_arg = 0;
-            if (!(same_module_function_call_type(op, cal) && !strcmp(same_module_function_call_type(op, cal), "Global") && dst == 0 && args && yyjson_is_arr(args) && yyjson_arr_size(args) == 1 && same_module_function_read_arg_reg(args, 0, &print_arg))) {
-              return -1;
-            }
+            same_module_function_read_arg_reg(args, 0, &print_arg);
             return emit_global_mir_call(f, HAKO_LLVMC_MIR_CALL_GLOBAL_SURFACE_PRINT, bid, ii, print_arg);
           }
-          if (typed_row &&
+          if (typed_shape_rc > 0 &&
               (typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
                typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)) {
             uint32_t typed_arity = typed_row->arity;
             const char* typed_symbol = typed_row->target_symbol;
-            const char* typed_kind = same_module_function_call_type(op, cal);
-            if (!(typed_kind && !strcmp(typed_kind, "Global"))) return -1;
-            if (!(args && yyjson_is_arr(args) &&
-                  yyjson_arr_size(args) == (size_t)typed_arity)) {
-              return -1;
-            }
             {
               char typed_args[1024];
               typed_args[0] = '\0';
               for (size_t ai = 0; ai < (size_t)typed_arity; ai++) {
                 long long arg_reg = 0;
-                if (!same_module_function_read_arg_reg(args, ai, &arg_reg)) return -1;
+                same_module_function_read_arg_reg(args, ai, &arg_reg);
                 append_i64_arg_ref(
                     typed_args,
                     sizeof(typed_args),
@@ -543,7 +541,6 @@
             }
           }
         }
-        ctype = same_module_function_call_type(op, cal);
         rc = emit_extern_call_lowering_plan_mir_call(f, bid, ii, dst, args);
         if (rc != 0) {
           return rc;

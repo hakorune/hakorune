@@ -761,7 +761,7 @@ production source path changed.
 
 #### `MIR-CALL-PUBLISHED-C-DUAL-CONSUMER-PREPARE-BOXSHAPE-S0`
 
-Status: **accepted_design_stop**. This is the next bounded BoxShape slice for
+Status: **landed** (2026-09-03). This was the bounded BoxShape slice selected for
 the already-landed published-C transport. It is not a new MIR semantic family
 and it does not reopen the Hako ingress or selected-C UserBox design stop.
 
@@ -809,8 +809,50 @@ Acceptance: direct `row_for_site` calls are `2 -> 0` outside the helper; the
 existing Static/Print/Free source-to-exe probes remain equivalent; one
 non-entry published call is covered; malformed shape and residual rows fail
 before object emission; `fallback/retry = 0`; and no semantic/MIR/JSON/backend
-authority changes. The row may advance to `selected_fast` only after these
-conditions and its exact allowed-file set are rechecked.
+authority changes.
+
+Implementation evidence: the existing published-row `.inc` now owns one
+`take_i64_global_row_v1` admission helper. It performs the exact-site
+`row_for_site` take once, validates `Global`, destination, arity, and numeric
+argument shape, and returns distinct `Absent`/`Ready`/`Malformed` statuses;
+the existing `rows_finish` owner still rejects `Residual`, and duplicate sites
+remain rejected by `rows_begin`. Both C consumers call this helper while
+retaining their own LLVM emission, argument formatting, and traces. No
+callback/state port, receipt, fallback, retry, or semantic/MIR/JSON change was
+added. The measured files are 177 lines (published-row owner), 383 lines
+(`mir_call_dispatch.inc`), and 797 lines (`same_module_body_emit.inc`), with
+consumer-side direct `row_for_site` calls reduced from 2 to 0.
+
+Evidence commands/results:
+
+```text
+bash tools/build_hako_llvmc_ffi.sh
+  -> shared library built successfully
+CARGO_BUILD_JOBS=4 cargo build --profile quick --bin hakorune -q
+  -> success (existing baseline warnings only)
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+  'mir::function::published_backend_view::tests' -- --nocapture
+  -> 18 passed; 0 failed
+RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 CARGO_INCREMENTAL=0
+python3 tools/checks/lib/cargo_lib_red_baseline.py --root .
+  -> 7577 total / 7410 passed / 138 failed / 29 ignored;
+     unchanged 138-name failure SHA-256
+```
+
+The real Print source probe still emits and runs with result `42`. A direct C
+ingress probe against
+`apps/tests/mir_shape_guard/lowering_plan_stage1_emit_program_json_runtime_helper_same_module_min_v1.mir.json`
+also consumed a non-entry helper row at `b1.i2` and returned `rc=0` with an
+object. The same typed C entry rejects malformed shape, an unconsumed
+residual coordinate, and duplicate rows with `rc=-1`; the Static and Free
+physical branches accept their typed rows. These are transport/shape proofs;
+the already-landed Static/Free source proofs remain the source authority, and
+the current row does not claim a new source semantic route. The active-surface
+guard, current-state pointer guard, and `git diff --check` all pass.
+
+The separate producer-side Print test remains queued as
+`MIR-CALL-BUILTIN-PRINT-PRODUCER-COVERAGE-S0`; this row deliberately does not
+reopen the landed Print cutover or add a new guard.
 
 NoSafeSlice: stop if the helper needs nested local state/callback plumbing,
 changes a return-code or trace contract, mixes a third consumer, or requires
