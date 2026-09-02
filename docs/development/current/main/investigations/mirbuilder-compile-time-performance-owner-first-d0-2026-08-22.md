@@ -1,5 +1,5 @@
 ---
-Status: selected baseline; implementation successors remain gated
+Status: baseline observation complete; implementation successors remain gated
 Task: MIR-COMPILE-TIME-PERF-OWNER-FIRST-D0
 Date: 2026-09-02
 Priority: measure compiler-time fixed costs before changing the canonical MIR spine
@@ -58,10 +58,10 @@ Before code changes, fix one compile-only protocol:
 
 ```text
 same source digest
-same target/quick compiler binary digest
+same prebuilt target/quick compiler binary digest
 same backend and env snapshot
 warm process and cold process reported separately
->= 9 samples per case
+one warmup followed by five retained samples per case
 median + p95, not one best sample
 correctness/probe result recorded beside timing
 ```
@@ -70,6 +70,16 @@ Use a small source, a representative MIR-heavy source, and the existing
 merged callable probe. External `/usr/bin/time` is acceptable for the first
 observation; phase counters may be test-only or debug-off observation fields.
 Do not use generated executable runtime time as compile-time evidence.
+
+The existing runner is the only owner. It now emits schema
+`mir-compile-scaling-v1`, pins generated probes to the accepted `static box
+Main` root and `NYASH_DISABLE_PLUGINS=1`, records the compiler binary SHA-256,
+source SHA-256, selected environment, and keeps one warmup plus five retained
+subprocess observations. Shadow-route rows remain strict by default; a caller
+must opt in to `--allow-missing-shadow-contract` when measuring a source that
+does not expose those rows. The optional loop-bound probes are still allowed
+to report a compile rejection; they are not silently counted as a timing
+baseline.
 
 Required counters/census rows:
 
@@ -88,6 +98,49 @@ source read/parse count
 Exit: a checked-in report or machine-readable observation with the protocol,
 not a speed winner. If a proposed hotspot is not visible in the baseline,
 park it.
+
+### P0 observation — 2026-09-02
+
+Command:
+
+```text
+python3 tools/perf/mir_compile_scaling.py \
+  --bin target/quick/hakorune --profile-label quick \
+  --warmup-runs 1 --repeat-runs 5
+```
+
+The compiler binary was rebuilt from the active HEAD before this run:
+
+```text
+path:   target/quick/hakorune
+bytes:  40,799,544
+sha256: e4ecbad221fb101fc5ac98149e961ed815b074c2fd37c01acfa387b430d335c0
+env:    NYASH_DISABLE_PLUGINS=1, NYASH_MIR_COMPILE_TRACE=1
+env fingerprint (NYASH_/HAKO_ keys): 7ce1910d777280fe211c8154b0bdbaecc0daf8bf842e71f24e81a7932663beed
+shadow: strict contract passed for every retained sample
+```
+
+The generated `static_methods` probes all compiled successfully. Values are
+wall-clock milliseconds for the five retained subprocesses; the warmup is
+listed separately and is not included in the median or p95.
+
+| shape | source SHA-256 | warmup ms | retained ms | median | p95 | `build_module` median | `semantic_refresh` median |
+| --- | --- | ---: | --- | ---: | ---: | ---: | ---: |
+| 50 methods | `c9002d7351c92caf7baa47d526bcbc423faa7f3747a4869cb4eeffc20d1c9d80` | 17 | 14, 14, 13, 14, 14 | 14 | 14 | 4 | 1 |
+| 100 methods | `c0b894697aa7efa03680230785810ce612f1bec6362c664c32ee7520a6f225d6` | 29 | 54, 57, 65, 69, 70 | 65 | 70 | 40 | 3 |
+| 250 methods | `0c4e579b50c912b12c9c827aee8cbb96a3ddfc473578f671c516dec69b8eb462` | 232 | 227, 205, 235, 231, 224 | 227 | 235 | 200 | 8 |
+
+This is an observation, not a performance budget or a speedup claim. The
+optional literal/dynamic loop-bound probes were also rechecked; both are
+rejected before timing with the current `callable-loop/route-not-front-selected`
+contract (`GenericLoopV0`/`GenericLoopV1` overlap). They remain a separately
+parked route-coverage observation and are not converted into a false green
+baseline.
+
+The first measured hot owner is therefore the existing per-instruction
+configuration/emit path. No clone or environment policy change is authorized
+by this observation alone; the next row must still name the exact invocation
+snapshot owner and preserve the existing environment matrix.
 
 ### P1 — `MIR-BUILDER-HOT-CONFIG-SNAPSHOT-P0`
 
@@ -216,10 +269,16 @@ pass fusion that crosses the active canonical/legacy boundary
 ## Current status
 
 The former Hako SameModuleInstance physical-ingress lane is ParkedSealed, so
-the owner-first compile-cost train is now selected without reopening that
-semantic family. The only executable row is
-`MIR-COMPILE-COST-BASELINE-P0`. It may improve the existing timing/scaling
-owner and record a repeatable observation; it may not change Builder,
-Call/backend semantics, env policy, clones, forwarding layers, direct-storage
-defaults, or VM selection. The snapshot and move/clone rows open only in the
-recorded order and only when the immutable baseline observes their owner.
+the owner-first compile-cost train is selected without reopening that semantic
+family. `MIR-COMPILE-COST-BASELINE-P0` completed on 2026-09-02: the existing
+runner now has an immutable binary/source/environment identity, one warmup,
+five retained samples, median/p95 output, and strict shadow-contract evidence
+for the accepted static-method probes. The optional loop-bound probes remain a
+separate route-coverage rejection and are not a false green.
+
+The next row is design-stop gated:
+`MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0`. It may open only after the recorded
+baseline is accepted by the current pointer and the exact invocation-owned
+configuration seam is named. No Builder, Call/backend semantic, environment
+policy, clone, forwarding-layer, direct-storage-default, or VM-selection
+change is authorized by the completed baseline itself.

@@ -4,8 +4,10 @@ import unittest
 
 from tools.perf.mir_compile_scaling import (
     TIMING_RE,
+    aggregate_stage_runs,
     loop_source,
     method_source,
+    percentile_nearest_rank,
     shadow_contract_error,
 )
 
@@ -15,6 +17,8 @@ class MirCompileScalingTests(unittest.TestCase):
         source = method_source(3)
         self.assertEqual(source.count("value_"), 3)
         self.assertNotIn("loop(", source)
+        self.assertIn("static box Main", source)
+        self.assertIn("main()", source)
 
     def test_loop_sources_differ_only_at_bound_owner(self) -> None:
         literal = loop_source(False)
@@ -51,6 +55,21 @@ class MirCompileScalingTests(unittest.TestCase):
         self.assertEqual(
             shadow_contract_error(invalid), "full_refresh_parity_mismatch"
         )
+
+    def test_repeated_stage_observations_use_common_keys_and_median(self) -> None:
+        self.assertEqual(
+            aggregate_stage_runs(
+                [
+                    {"build_module": 5, "verify": 1},
+                    {"build_module": 7, "verify": 3},
+                    {"build_module": 6, "verify": 2},
+                ]
+            ),
+            {"build_module": 6, "verify": 2},
+        )
+
+    def test_percentile_uses_nearest_rank_without_best_sample_bias(self) -> None:
+        self.assertEqual(percentile_nearest_rank([9, 2, 7, 4, 5], 0.95), 9)
 
 
 if __name__ == "__main__":
