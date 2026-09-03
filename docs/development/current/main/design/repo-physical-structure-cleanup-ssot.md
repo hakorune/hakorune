@@ -186,16 +186,16 @@ Census boundary: tools/checks tracked guard surface -> docs index/registry/
 ```
 
 One observed candidate is the unregistered
-`tools/checks/mir_call_canonical_corridor_guard.sh`. It still asserts several
-retired Call spellings and currently fails on a stale token, while the active
-post-census lane is owned by `mir_call_d1b_active_surface_guard.py`. Do not
-repair this shell guard piecemeal or count its old historical references as
-active callers. Reopen the existing guard-retirement train only after a
-finite reference census proves that no active manifest, registry, or selected
-gate invokes it; then retire the script from the tree and compress closed
-investigations to hash-plus-one-line tombstones. Until that evidence exists,
-the candidate remains `ParkedSealed` and receives no new guard, adapter, or
-semantic assertion.
+`tools/checks/mir_call_canonical_corridor_guard.sh`. At the current HEAD the
+active `mir_call_d1b_active_surface_guard.py` and pointer guard pass, while
+the old shell guard fails only on a retired Call spelling; an exact search
+found no active manifest, registry, dev-gate, or CI invocation. Do not repair
+this shell guard piecemeal or count its historical references as active
+callers. Reopen the existing guard-retirement train only after the finite
+successor-equivalence census is complete; then retire the script and active
+index row together, compressing closed investigations to hash-plus-one-line
+tombstones. Until that evidence exists, the candidate remains `ParkedSealed`
+and receives no new guard, adapter, or semantic assertion.
 
 Current machine census:
 
