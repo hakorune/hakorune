@@ -216,13 +216,14 @@ public_path_impact = "zero"
 authority_impact = "zero"
 receipt_impact = "zero"
 guard_impact = "one reusable maintenance dispatch; zero per-cell guards"
-implementation_permission = true
+implementation_permission = false
 
 [boxshape_maintenance_t0]
 task_id = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
-status = "selected_fast"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 base_head = "8dc84e7588"
+landed_commit = "d121a5d500"
 ceremony_tier = "T0"
 decision = "Move existing cfg(test) bodies behind path-preserving module/include boundaries; production behavior and test names stay unchanged."
 source_authority = "The existing production modules and existing tests remain the sole owners; this row issues no semantic product."
