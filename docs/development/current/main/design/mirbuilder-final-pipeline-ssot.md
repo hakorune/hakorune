@@ -396,15 +396,14 @@ The following are one dependency program, not simultaneously active cards.
 
 #### V0 — reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode
 
-This is a finite verification incident, not a baseline acceptance. Current
-fixed-command observations are `7579 total`, `7314/236/29` and `7313/237/29`;
-the immutable accepted failure set remains `7411/138/29`. The
-current-minus-accepted comparison has 98 added failure names on the
-236-failure run and 99 on the 237-failure run; one variable qmark row accounts
-for the difference and there are no removed names. Seven additions are
-reproducibly owned by the canonical-call result-hint omission, while the
-remaining 91-92 are not yet classified and must not be collapsed into that
-cause. This is unclassified evidence, not permission to rebaseline.
+This is a finite verification incident, not a baseline acceptance. The latest
+fixed-command observation is `7579 total`, `7357/193/29`; the immutable
+accepted failure set remains `7411/138/29`. The current-minus-accepted
+comparison has 55 added failure names and no removed names. A bounded repair of
+four canonical-call reader owners reduced the prior delta, but the residual
+set spans prior compatibility-stop, VM/WASM, parser, route, and
+semantic-contract changes. This remains unclassified evidence, not permission
+to rebaseline or widen the repair.
 
 The exact App-Main/FreeFunction canonical-call tests also reproduce a common
 failure at `return_type_strategy.rs`: after the R6 shape split,

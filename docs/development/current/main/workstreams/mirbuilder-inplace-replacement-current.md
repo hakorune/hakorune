@@ -40,16 +40,15 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The accepted 138-name failure receipt remains immutable. The current HEAD has
-one additional test and fixed-command observations of `7579/7314/236/29` and
-`7579/7313/237/29`; the current-minus-accepted comparison has 98 or 99 added
-failure names depending on one variable qmark row, no removals, and seven
-additions reproducibly tied to a canonical Call result-hint omission. The
-remaining 91-92 names are still unclassified. After Group A,
-`type_hint_providers.rs` scans only
-`LegacyCallV0`, so return inference rejects the missing hint. Reuse
-`DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode;
-do not rebaseline or open another semantic/cleanup family first.
+The accepted 138-name failure receipt remains immutable. A bounded repair of
+the canonical-call reader owners reduced the fixed observation to
+`7579/7357/193/29`; the current-minus-accepted comparison now has 55 added
+failure names and no removals. The repaired four-owner scope is preserved but
+not landed because the residual set spans prior compatibility-stop, VM/WASM,
+parser, route, and semantic-contract changes rather than one remaining owner.
+This is still unclassified evidence, not permission to rebaseline or open
+another semantic/cleanup family. Reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in
+reconcile mode only after the residual causes have finite owners.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
