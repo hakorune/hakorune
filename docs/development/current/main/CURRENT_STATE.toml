@@ -46,7 +46,7 @@ analyzer owner and internal return types. T3-S0 then removed one caller-zero
 lexical push test facade while preserving production lexical scope and the used
 pop helper. Parent/current full-lib
 observation remains 7578 total / 7311 passed / 238 failed / 29 ignored against
-the immutable accepted 7411/138/29 receipt. The VM Value legacy-reader stop then
+the immutable accepted 7411/138/29 receipt. Fresh fixed-command revalidation observed 7579 total with 7314/236/29 and 7313/237/29 across three runs; only qmark_missing_operand_keeps_root_lower_diagnostic_and_fresh_reuse varied, so the baseline refresh remains unaccepted. The VM Value legacy-reader stop then
 landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 The VM LegacyCallV0(Callee::Method) reader then stopped before trace,
