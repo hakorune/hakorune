@@ -737,3 +737,44 @@ dispatcher and migrate proof fixtures only when its caller-zero and successor
 evidence are complete. A separate later row owns the seven
 transport/proof-centered MemOps that currently lack a full execution backend;
 that row must not be merged with public syntax retirement.
+
+### Conditional follow-up tasks (named, not opened)
+
+These are routing outcomes of the D0, not simultaneous execution permission:
+
+```text
+MIR-FMEM-SOURCE-ORDINARY-ROUTE-MIGRATE-I0:
+  open only when Product caller > 0 and exactly one ordinary
+  source/planner owner plus one production caller is identified.
+  Migrate one semantic family to region obligation -> verified plan -> the
+  existing MemOp path, and delete that family's old source edge in the same
+  slice.  No new source dialect or second planner is allowed.
+
+MIR-FMEM-SOURCE-SURFACE-RETIRE-R0:
+  open only when Product caller = 0, the ordinary successor is proven, and
+  the finite delete set is closed.  Retire the public parser/AST/source
+  dispatcher and source-only smoke/proof fixtures that have a successor;
+  keep MIR MemOp, plans, verifier, LLVM lowering, and their contract tests.
+
+MIR-FMEM-MEMOP-TRANSPORT-CENSUS-D0:
+  separately classify all 17 MemOp kinds by producer, plan/verifier,
+  transport, backend, and test/reference use.  Do not infer deletion from
+  LLVM/VM support alone.
+
+MIR-FMEM-UNUSED-MEMOP-RETIRE-R0:
+  open only for a MemOp kind whose producer, consumer, and required evidence
+  are all zero or have one equal-or-stronger successor.  Remove its
+  transport/proof-only fixtures and guards together; retain shared vocabulary
+  and tests for still-live kinds.
+
+MIR-FMEM-SOURCE-FIXTURE-GUARD-PRUNE-R0:
+  run only after the source fate or MemOp fate row reaches caller-zero.
+  Delete duplicate/obsolete source fixtures and guards with that family's
+  old edge, while preserving verifier/plan negative coverage and recording
+  the exact changed-test names.
+```
+
+If the D0 returns zero, multiple, or unknown ordinary owners, none of the
+conditional implementation/retirement rows opens.  The result is recorded as
+`ParkedSealed__NoOrdinaryRegionOwner`; cleanup remains limited to unrelated
+historical documentation whose own lifecycle owner and references are closed.
