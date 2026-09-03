@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "main"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0"
-current_design_stop = "none"
-current_blocker_token = "Close out the VM LegacyCallV0(Callee::Method) reader stop with focused VM evidence; preserve canonical MirCall handling and method helper owners, and make no whole-lib green claim."
+current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
+current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
+current_blocker_token = "The finite R6 reader census has no remaining Promote tuple. Landed M7-S Stop cohorts, including VM LegacyCallV0(Callee::Method), remain closed; do not repeat the census or treat this family-local NoSafeSlice as a repository-wide halt."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
