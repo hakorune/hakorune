@@ -569,8 +569,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_raw_root_resume(state, card, proof, root)
     elif row == RAW_ROOT_BODY_CLEANUP_ROW:
         item = card.get(RAW_ROOT_BODY_CLEANUP_KEY)
-        if not isinstance(item, dict) or item.get("status") != "selected_fast":
-            api.fail(f"{RAW_ROOT_BODY_CLEANUP_ROW} manifest entry is not selected_fast")
+        if not isinstance(item, dict) or item.get("status") not in {"selected_fast", "landed"}:
+            api.fail(f"{RAW_ROOT_BODY_CLEANUP_ROW} manifest entry is not selected_fast or landed")
         if api.subprocess.run(["python3", str(root / RAW_ROOT_BODY_CLEANUP_GUARD)], cwd=root).returncode:
             api.fail(f"{RAW_ROOT_BODY_CLEANUP_ROW} delegated guard failed")
     elif row == api.SCRIPT_ROOT_ROW:

@@ -224,8 +224,14 @@ or explicit parking. No deletion and no route/PHI changes.
 Work from leaf to root in small buildable commits. Start with independent,
 guard-free rows (`drain_policy_p0`, `raw_root_body_p0`, `raw_root_drain_p0`)
 only after their evidence is moved to stable owner-local contract tests. The
-currently selected bounded row is
+the selected bounded row was
 `MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0`.
+
+T1-S0 is now landed at `f5b268e741`: the two existing proofs remain under
+their owner-local modules, the old shell and registration are gone, and the
+parent/current full-lib observation is unchanged at `7311/238/29` against the
+immutable accepted receipt `7411/138/29`. This known baseline drift is not
+reclassified by the cleanup row.
 Defer the four finalization dependents until the shared finalization evidence
 is migrated. Keep `raw_public_cutover_parity_success_p0` parked while its
 2/6 baseline is red. For each row, retarget every guard, run the focused test

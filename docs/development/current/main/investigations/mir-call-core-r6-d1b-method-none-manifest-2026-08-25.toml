@@ -370,10 +370,10 @@ implementation_evidence = "The duplicate function and one inventory row were rem
 closeout = "Landed; tracked test surface is one case smaller with no production or semantic change. Return the pointer to MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0__design_stop and do not reopen this duplicate."
 
 [mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
 parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
-implementation_permission = true
+implementation_permission = false
 base_head = "93cbf5bba082c9f136d0383a436bd58ac9bf96db"
 box_kind = "BoxShape test-only owner migration"
 decision = "Move exactly two existing BODY0 recipe-boundary proofs into their already-loaded owner-local test modules, remove only the redundant compiler test shell and registration, and preserve test names, assertions, production code, and route semantics."
@@ -389,6 +389,9 @@ allowed_files = ["src/mir/compiler/raw_root_body_p0.rs", "src/mir/compiler/mod.r
 forbidden_files = ["src/mir/compiler/raw_root_drain_p0.rs", "src/mir/raw_root_body_recipe.rs", "src/mir/builder/raw_root_body_lowering.rs", "src/mir/builder.rs", "src/mir/compiler/** except the named registration/file", "lang/**", "src/backend/**", "src/runner/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
 focused_tests = ["mir::compiler::raw_root_source_facts::script_result_p0::empty_script_post_install_facts_produce_linear_recipe", "mir::builder::raw_root_body_lowering_p0::recipe_rejects_duplicate_source_paths"]
 ordered_tasks = ["A: select this exact cleanup row and run the existing active-surface/BODY0 guards", "B: move the two existing test bodies, delete only the old module registration/file, and update the two inventory paths", "C: run exact successors, reconcile only the inventory hash, then close out without changing the known-red failure set"]
-acceptance = "Both successor tests run by exact path; the old module/file/registration are zero; the cargo inventory count and pass/fail/ignored counts are unchanged; the existing BODY0, active-surface, pointer, and diff guards pass; all touched source remains below 800 lines; no production or semantic file changes."
+acceptance = "Both successor tests run by exact path; the old module/file/registration are zero; cargo inventory remains 7578 and the parent/current full-lib observation remains 7311 passed / 238 failed / 29 ignored; the accepted 7411/138/29 receipt is not rebaselined; the existing BODY0, active-surface, pointer, and diff guards pass; all touched source remains below 800 lines; no production or semantic file changes."
 no_safe_slice = "If either successor owner needs a new semantic import/API, the old shell has another reference, the inventory shows an unexpected test/count drift, a guard must be weakened, or any route/Recipe/PHI/SSA behavior changes, return to design_stop and do not delete."
 non_claims = "No raw_root_drain_p0 retirement, no production compiler change, no Call/backend/VM change, no test deletion, no baseline failure reclassification, no broad _p0 batch, and no new guard/receipt."
+implementation_commit = "f5b268e741"
+implementation_evidence = "The redundant 44-line shell, its compiler registration, and both old inventory paths were removed. The exact successors passed 1/1 each; cargo --list reports 7578 tests with inventory SHA a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d; cargo check --profile quick --lib passed; parent and current full-lib runs both observed 7311/238/29, so the fixed accepted 7411/138/29 receipt remains a pre-existing baseline drift and was not rewritten."
+closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
