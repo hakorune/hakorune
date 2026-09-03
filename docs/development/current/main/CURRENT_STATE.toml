@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-READER-STOP-VM-VALUE-R0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0"
 current_design_stop = "none"
-current_blocker_token = "Close out the landed VM LegacyCallV0(Callee::Value) reader stop; preserve the canonical VM Global consumer and record the focused Value reject, vm-reference feature check, old-repair absence, pointer, active-surface, and diff evidence."
+current_blocker_token = "Retarget the existing DynamicV2 authority guard from the stale install.rs path to the current install/lowering_port.rs admission-loan owner; no source, semantic, production, test, receipt, or fallback change."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,7 +52,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -545,6 +545,10 @@ Fail-fast = before execute_callee_call/register load/dispatch with `[vm-referenc
 Delete-set = VM Value reader arm and its pre-dispatch reg_load; no Call R6 schema.
 Family-local only: no canonical Value consumer, Method/Constructor/Closure migration, JSON/backend fallback, or scheduler stop.
 
+##### Selected guard-only maintenance — `MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0`
+Retarget the existing DynamicV2 admission-loan expectation to its current
+`install/lowering_port.rs` owner; no compiler or production route changes.
+
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
 Open only when every production legacy writer, reissuer, and reader is
