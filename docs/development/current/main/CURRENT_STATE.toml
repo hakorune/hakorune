@@ -40,7 +40,7 @@ observation remains 7578 total / 7311 passed / 238 failed / 29 ignored against
 the immutable accepted 7411/138/29 receipt.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
