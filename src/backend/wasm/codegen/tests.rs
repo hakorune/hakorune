@@ -57,7 +57,7 @@ mod tests {
     }
 
     #[test]
-    fn test_unsupported_extern_call_fails_fast_with_supported_list() {
+    fn test_legacy_extern_call_has_no_codegen_reader() {
         let mut codegen = WasmCodegen::new();
         let result = codegen.generate_instruction(&MirInstruction::LegacyCallV0 {
             dst: None,
@@ -69,10 +69,7 @@ mod tests {
 
         match result {
             Err(WasmError::UnsupportedInstruction(msg)) => {
-                assert!(msg.contains("Unsupported extern call: env.console.trace"));
-                assert!(msg.contains("supported:"));
-                assert!(msg.contains("env.console.log"));
-                assert!(msg.contains("env.console.debug"));
+                assert!(msg.contains("Instruction not yet supported"));
             }
             other => panic!("expected unsupported extern error, got: {:?}", other),
         }

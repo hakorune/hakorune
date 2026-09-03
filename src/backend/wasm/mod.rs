@@ -104,31 +104,36 @@ pub fn compile_hako_native_shape_bytes(
 }
 
 fn enforce_wasm_mir_backend_supported(mir_module: &MirModule) -> Result<(), WasmError> {
-    reject_legacy_global_calls(mir_module)?;
+    reject_legacy_call_readers(mir_module)?;
     crate::mir::backend_capability::enforce_mir_backend_supported(mir_module, "wasm")
         .map_err(WasmError::CodegenError)
 }
 
 const WASM_LEGACY_GLOBAL_CALL_STOPPED_TAG: &str =
     "[freeze:contract][wasm/legacy-global-call-stopped]";
+const WASM_LEGACY_EXTERN_CALL_STOPPED_TAG: &str =
+    "[freeze:contract][wasm/legacy-extern-call-stopped]";
 
-/// Stop the obsolete name-based Global compatibility reader before any WASM
-/// shape selection, code generation, or fallback route can observe it.
-fn reject_legacy_global_calls(mir_module: &MirModule) -> Result<(), WasmError> {
+/// Stop obsolete name-based call readers before WASM shape selection,
+/// code generation, or fallback routes can observe them.
+fn reject_legacy_call_readers(mir_module: &MirModule) -> Result<(), WasmError> {
     for (function_name, function) in &mir_module.functions {
         for block in function.blocks.values() {
             for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-                if matches!(
-                    instruction,
+                let (tag, kind) = match instruction {
                     MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Global(_)),
                         ..
-                    }
-                ) {
-                    return Err(WasmError::UnsupportedInstruction(format!(
-                        "{WASM_LEGACY_GLOBAL_CALL_STOPPED_TAG} function `{function_name}` contains a legacy global call"
-                    )));
-                }
+                    } => (WASM_LEGACY_GLOBAL_CALL_STOPPED_TAG, "global"),
+                    MirInstruction::LegacyCallV0 {
+                        callee: Some(Callee::Extern(_)),
+                        ..
+                    } => (WASM_LEGACY_EXTERN_CALL_STOPPED_TAG, "extern"),
+                    _ => continue,
+                };
+                return Err(WasmError::UnsupportedInstruction(format!(
+                    "{tag} function `{function_name}` contains a legacy {kind} call"
+                )));
             }
         }
     }

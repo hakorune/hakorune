@@ -53,6 +53,40 @@ fn legacy_global_call_rejects_before_wasm_codegen() {
 }
 
 #[test]
+fn legacy_extern_call_rejects_before_wasm_codegen() {
+    let entry = BasicBlockId::new(0);
+    let mut main = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Void,
+            effects: crate::mir::EffectMask::IO,
+        },
+        entry,
+    );
+    let block = main.get_block_mut(entry).expect("main entry block");
+    block.add_instruction(MirInstruction::LegacyCallV0 {
+        dst: None,
+        func: ValueId::INVALID,
+        callee: Some(Callee::Extern("env.console.log".to_string())),
+        args: Vec::new(),
+        effects: crate::mir::EffectMask::IO,
+    });
+    block.add_instruction(MirInstruction::Return { value: None });
+
+    let mut module = MirModule::new("legacy-extern-stop".to_string());
+    module.add_function(main);
+
+    let mut backend = WasmBackend::new();
+    let error = backend
+        .compile_hako_default_lane(module)
+        .expect_err("legacy extern calls must stop before shape matching or WAT generation");
+    let message = error.to_string();
+    assert!(message.contains("[freeze:contract][wasm/legacy-extern-call-stopped]"));
+    assert!(!message.contains("call $console_log"));
+}
+
+#[test]
 fn test_compile_to_wasm_skips_unreachable_branch_helper_contract() {
     let mut module = MirModule::new("test".to_string());
 

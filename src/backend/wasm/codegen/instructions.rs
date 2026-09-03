@@ -1,6 +1,5 @@
 use super::WasmCodegen;
 use super::WasmError;
-use crate::backend::wasm::extern_contract::{extern_import_name, supported_extern_calls_csv};
 use crate::mir::MirInstruction;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
 
@@ -142,42 +141,6 @@ impl WasmCodegen {
                     // Otherwise, fall through to else_bb
                     format!("br $block_{}", else_bb.as_u32()),
                 ])
-            }
-
-            // Phase 9.7: External Function Calls (canonical Call + Callee::Extern)
-            MirInstruction::LegacyCallV0 {
-                dst,
-                callee: Some(crate::mir::Callee::Extern(extern_name)),
-                args,
-                ..
-            } => {
-                // Generate call to external function import
-                let call_target = extern_import_name(extern_name).ok_or_else(|| {
-                    WasmError::UnsupportedInstruction(format!(
-                        "Unsupported extern call: {} (supported: {})",
-                        extern_name,
-                        supported_extern_calls_csv()
-                    ))
-                })?;
-
-                let mut instructions = Vec::new();
-
-                // Load all arguments onto stack in order
-                for arg in args {
-                    instructions.push(format!("local.get ${}", self.get_local_index(*arg)?));
-                }
-
-                // Call the external function
-                instructions.push(format!("call ${}", call_target));
-
-                // Store result if destination is provided
-                if let Some(dst) = dst {
-                    // For void functions, we still need to provide a dummy value
-                    instructions.push("i32.const 0".to_string()); // Void result
-                    instructions.push(format!("local.set ${}", self.get_local_index(*dst)?));
-                }
-
-                Ok(instructions)
             }
 
             // Method call codegen (canonical Call + Callee::Method with receiver)
