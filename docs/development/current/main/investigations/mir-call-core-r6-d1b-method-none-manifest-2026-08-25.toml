@@ -497,10 +497,10 @@ closeout = "Landed as guard-contract cleanup only. Return to cleanup scheduling;
 next_execution = "none__asn0_l0_stale_guard_contract_retired"
 
 [mirbuilder_cleanup_access0_meheader_located_adapter_guard_retire_r0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0"
 parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
-implementation_permission = true
+implementation_permission = false
 box_kind = "BoxShape stale header-observation guard contract retirement"
 decision = "Retarget the existing ACCESS0-MEHEADER guard to the two live raw route adapters after the located adapter retirement. Preserve the shared policy, short observation loan, and no-fallback assertions; change no Rust, fixture, or semantic behavior."
 source_authority = "RawLegacyChildLoweringPortV1 and RawInvocationChildPortV1 are the two live MeCallHeaderObservationPortV1 adapters; MeCallPolicyBox remains the sole shared policy owner."
@@ -517,10 +517,10 @@ known_related_guard_red = "me_call_arity_failfast_guard.sh remains pre-existing 
 acceptance = "The existing header-observation guard runs directly and through active-surface dispatch; it requires exactly two live raw adapters, rejects any reappearance of the retired located adapter, and preserves policy/fallback/loan checks. No Rust or fixture file changes occur and touched check files remain below 800 lines."
 no_safe_slice = "Abort and return to closeout if the located adapter reappears, a third live adapter exists, the policy/owner changes, a guard must be weakened or added, or any source/fixture/semantic diff is needed."
 non_claims = "No me-call semantic change, adapter deletion, test deletion, Call R6/R7, backend/VM/WASM change, baseline refresh, or broad guard cleanup."
-implementation_commit = "pending"
-implementation_evidence = "Selection only; implementation and direct/active-surface evidence are pending."
+implementation_commit = "8def150e1d"
+implementation_evidence = "Retargeted the existing guard to the two live raw adapters, removed the retired located adapter read/require/count, and updated the stale call-site assertions. The direct guard, active-surface dispatch, located-retire guard, pointer guard, TOML parse, Python compile, and diff check passed; no Rust or fixture file changed. The separate me-call arity guard remains a pre-existing red because its handler-size assertion sees 766 lines and is not weakened here."
 closeout = "Open fast only for the guard-only retarget; after evidence, return to cleanup scheduling and do not reopen unless a located adapter or third live route reappears."
-next_execution = "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0"
+next_execution = "none__access0_meheader_located_adapter_guard_retired"
 
 [mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03]
 status = "landed"

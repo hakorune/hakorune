@@ -560,10 +560,10 @@ status = landed; implementation permission = false; commit = `7965b1f2f9`.
 The existing assignment guard no longer reads the retired ASN0-L0 located surface; live ASN0-S0/I0/P0 assertions remain green, with no source, fixture, semantic, or new-guard change.
 
 ##### Selected guard-only cleanup — `MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0`
-status = selected_fast; implementation permission = true. Retarget the existing
-ACCESS0-MEHEADER guard from the retired located adapter to the two live raw
-adapters; preserve the shared policy, short observation loan, and no-fallback
-assertions, with no Rust or fixture semantics changed.
+status = landed; implementation permission = false; commit = `8def150e1d`.
+Retargeted the existing ACCESS0-MEHEADER guard from the retired located adapter
+to the two live raw adapters; the shared policy, short observation loan, and
+no-fallback assertions remain enforced, with no Rust or fixture semantics changed.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

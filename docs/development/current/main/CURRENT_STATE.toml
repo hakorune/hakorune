@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0"
 current_design_stop = "none"
-current_blocker_token = "Retarget the existing ACCESS0-MEHEADER guard to the two live raw adapters after the located adapter retirement; preserve the live observation policy and change no Rust or test semantics."
+current_blocker_token = "Close out the ACCESS0-MEHEADER stale located-adapter guard contract; preserve the two live raw adapters and record direct, active-surface, pointer, and diff evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,7 +52,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0"
+next_execution_card = "none__access0_meheader_located_adapter_guard_retired"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
