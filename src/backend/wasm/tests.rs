@@ -1,6 +1,6 @@
 use super::*;
 use crate::mir::{
-    BasicBlock, BasicBlockId, ConstValue, FunctionSignature, MirFunction, MirInstruction,
+    BasicBlock, BasicBlockId, Callee, ConstValue, FunctionSignature, MirFunction, MirInstruction,
     MirModule, MirType, ValueId,
 };
 
@@ -16,6 +16,40 @@ fn test_empty_module_compilation() {
     let module = MirModule::new("test".to_string());
     let result = backend.compile_to_wat(module);
     assert!(result.is_ok());
+}
+
+#[test]
+fn legacy_global_call_rejects_before_wasm_codegen() {
+    let entry = BasicBlockId::new(0);
+    let mut main = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Void,
+            effects: crate::mir::EffectMask::PURE,
+        },
+        entry,
+    );
+    let block = main.get_block_mut(entry).expect("main entry block");
+    block.add_instruction(MirInstruction::LegacyCallV0 {
+        dst: None,
+        func: ValueId::INVALID,
+        callee: Some(Callee::Global(crate::mir::test_global_target("helper/0"))),
+        args: Vec::new(),
+        effects: crate::mir::EffectMask::PURE,
+    });
+    block.add_instruction(MirInstruction::Return { value: None });
+
+    let mut module = MirModule::new("legacy-global-stop".to_string());
+    module.add_function(main);
+
+    let mut backend = WasmBackend::new();
+    let error = backend
+        .compile_hako_default_lane(module)
+        .expect_err("legacy global calls must stop before shape matching or WAT generation");
+    let message = error.to_string();
+    assert!(message.contains("[freeze:contract][wasm/legacy-global-call-stopped]"));
+    assert!(!message.contains("call $helper/0"));
 }
 
 #[test]

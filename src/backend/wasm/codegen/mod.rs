@@ -6,8 +6,8 @@
  */
 
 use super::{enforce_wasm_mir_backend_supported, MemoryManager, RuntimeImports, WasmError};
-use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, MirModule, MirType, ValueId};
-use std::collections::{BTreeSet, HashMap, VecDeque};
+use crate::mir::{BasicBlockId, MirFunction, MirModule, MirType, ValueId};
+use std::collections::{BTreeSet, HashMap};
 
 mod builtins;
 mod instructions;
@@ -84,9 +84,6 @@ pub struct WasmCodegen {
     /// String literals and their data segment offsets
     string_literals: HashMap<String, u32>,
     next_data_offset: u32,
-    /// Function signature lookup for global call lowering.
-    function_param_counts: HashMap<String, usize>,
-    function_return_types: HashMap<String, MirType>,
 }
 
 impl WasmCodegen {
@@ -96,8 +93,6 @@ impl WasmCodegen {
             next_local_index: 0,
             string_literals: HashMap::new(),
             next_data_offset: 0x1000, // Start data after initial heap space
-            function_param_counts: HashMap::new(),
-            function_return_types: HashMap::new(),
         }
     }
 
@@ -111,14 +106,6 @@ impl WasmCodegen {
         enforce_wasm_mir_backend_supported(&mir_module)?;
 
         let mut wasm_module = WasmModule::new();
-        self.function_param_counts.clear();
-        self.function_return_types.clear();
-        for (name, function) in &mir_module.functions {
-            self.function_param_counts
-                .insert(name.clone(), function.params.len());
-            self.function_return_types
-                .insert(name.clone(), function.signature.return_type.clone());
-        }
         let reachable_function_names = reachable_function_names(&mir_module);
 
         // Add memory declaration (64KB initial)
@@ -266,34 +253,6 @@ impl WasmCodegen {
         Ok(self.next_local_index)
     }
 
-    pub(crate) fn get_function_param_count(&self, name: &str) -> Option<usize> {
-        self.function_param_counts.get(name).copied()
-    }
-
-    pub(crate) fn function_has_return_value(&self, name: &str) -> Result<bool, WasmError> {
-        let ty = self.function_return_types.get(name).ok_or_else(|| {
-            WasmError::UnsupportedInstruction(format!("Unknown global callee: {}", name))
-        })?;
-        wasm_result_type(ty)
-            .map(|result_ty| result_ty.is_some())
-            .map_err(|_| {
-                WasmError::UnsupportedInstruction(format!(
-                    "Unsupported global return type for {}: {:?}",
-                    name, ty
-                ))
-            })
-    }
-
-    pub(crate) fn supported_global_calls_csv(&self) -> String {
-        let mut names: Vec<&str> = self
-            .function_param_counts
-            .keys()
-            .map(String::as_str)
-            .collect();
-        names.sort_unstable();
-        names.join(", ")
-    }
-
     /// Generate WASM instructions for a basic block
     fn generate_basic_block(
         &mut self,
@@ -374,32 +333,7 @@ fn reachable_function_names(mir_module: &MirModule) -> BTreeSet<String> {
         return mir_module.functions.keys().cloned().collect();
     }
 
-    let mut reachable = BTreeSet::new();
-    let mut worklist = VecDeque::from([String::from("main")]);
-
-    while let Some(name) = worklist.pop_front() {
-        if !reachable.insert(name.clone()) {
-            continue;
-        }
-        let Some(function) = mir_module.functions.get(&name) else {
-            continue;
-        };
-        for block in function.blocks.values() {
-            for instruction in block.instructions.iter().chain(block.terminator.iter()) {
-                if let MirInstruction::LegacyCallV0 {
-                    callee: Some(Callee::Global(target)),
-                    ..
-                } = instruction
-                {
-                    if mir_module.functions.contains_key(target) && !reachable.contains(target) {
-                        worklist.push_back(target.clone());
-                    }
-                }
-            }
-        }
-    }
-
-    reachable
+    BTreeSet::from([String::from("main")])
 }
 
 fn wasm_result_type(ty: &MirType) -> Result<Option<&'static str>, WasmError> {
