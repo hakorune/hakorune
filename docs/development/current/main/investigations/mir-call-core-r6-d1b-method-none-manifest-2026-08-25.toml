@@ -397,10 +397,10 @@ implementation_evidence = "The redundant 44-line shell, its compiler registratio
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
 [mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0"
 parent_row = "MIRBUILDER-CLEANUP-T3-D0-TEST-FACADE-AND-NAMING"
-implementation_permission = true
+implementation_permission = false
 box_kind = "BoxShape caller-zero lexical test facade cleanup"
 decision = "Remove only the unused cfg(test) push_lexical_scope_for_test wrapper; keep production push_lexical_scope, the used pop_lexical_scope_for_test helper, and all owner-local tests unchanged."
 source_authority = "MirBuilder::push_lexical_scope and scope_ctx own lexical-scope meaning; the test wrapper is not an issuer."
@@ -416,6 +416,9 @@ focused_checks = ["bash tools/checks/resolved_region_flow_r0_seam_guard.sh", "ex
 acceptance = "The wrapper has zero definitions and zero repository callers; production push_lexical_scope, used pop_lexical_scope_for_test, test_guard, and tests remain unchanged; existing resolved-region, active-surface, pointer, quick-check, and diff guards pass; no touched source file reaches 800 lines."
 no_safe_slice = "Abort and return to closeout if a caller appears, the production owner changes, a guard must be weakened or added, inventory/tests drift, or any lexical/Recipe/semantic diff appears."
 non_claims = "No lexical-scope semantic change, test move/deletion, receipt/guard creation, Call/backend/VM change, T5 cleanup, fallback, retry, or broad _for_test census."
+implementation_commit = "dfaa8c44ac"
+implementation_evidence = "Removed only the caller-zero cfg(test) push_lexical_scope_for_test wrapper; push_lexical_scope, pop_lexical_scope_for_test, test_guard, and owner-local tests remain unchanged. cargo check --profile quick --lib, resolved_region_flow_r0_seam_guard.sh, current_state_pointer_guard.sh, active-surface guard, exact absence check, and git diff --check passed."
+closeout = "Landed with no lexical-scope semantic or production change. Return to cleanup scheduling; reopen only if a caller or owner boundary changes."
 
 [mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03]
 status = "landed"

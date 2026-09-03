@@ -520,7 +520,7 @@ keep sealed-brand forges, failure injection, Builder/SSA mutation, reset, and
 private lifecycle helpers owner-local. Normalize mixed re-exports only after
 the owner boundary is guarded. Do not move PHI/SSA helpers in this lane.
 
-#### Selected bounded row — `MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0`
+#### Landed row — `MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0`
 
 ```text
 Decision:
@@ -555,6 +555,12 @@ Finite census: `lexical_scope.rs::push_lexical_scope_for_test` definition ->
 tracked Rust/docs references. The worker audit found one definition and zero
 callers; `push_lexical_scope`, `pop_lexical_scope_for_test`, and `test_guard`
 are explicitly outside the delete-set.
+
+The row landed at `dfaa8c44ac`. Acceptance was met: the wrapper is absent,
+production push/pop ownership and test_guard remain intact, quick-lib check,
+existing resolved-region, pointer, active-surface, exact-absence, and diff
+checks passed, and the touched source remains below the 760-line trigger. No
+semantic or production behavior changed.
 
 Callable-result exports get a separate C0→C1→C2 series: split direct
 submodule/test-only imports first, then narrow the nine allows, and remove root
