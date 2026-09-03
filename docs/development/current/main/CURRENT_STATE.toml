@@ -9,8 +9,7 @@ MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
 with the finite enum terminal and handler-order guard correction at 7c834d021a.
 Bare error retirement landed at 69680b983f and bare now retirement landed at 3e35e4f39c, both using the canonical unsupported contract and existing typed Rejected terminal before target synthesis/argument effects. Bare
-panic(String) is now an accepted terminal-Fault target but remains ParkedSealed
-because its source/exit/MIR/runtime chain is absent; bare exit remains NoIssuer.
+panic(String) is now an accepted terminal-Fault target but remains ParkedSealed because its source/exit/MIR/runtime chain is absent; bare exit remains NoIssuer.
 Physical thunk remains RelationPresentIssuerMissing and ParkedSealed; the former LoweredGlobal::Instance bucket is now split:
 StaticCurrentOwner me.method has landed as an exact same-session source/site/
 catalog handoff and direct Global(StaticBoxMethod) successor; true
@@ -52,7 +51,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 The VM LegacyCallV0(Callee::Method) reader then stopped before trace,
 hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
-canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed.
+canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed. Current revalidation also finds undefined @Main.helper/0 with empty route/definition metadata and three E0624 private-row lib-test errors; prior source-to-exe receipts are historical and the accepted baseline is not refreshed.
 """
 next_design_card = "none"
 next_execution_card = "none"
