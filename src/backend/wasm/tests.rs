@@ -3,6 +3,7 @@ use crate::mir::{
     BasicBlock, BasicBlockId, Callee, ConstValue, FunctionSignature, MirFunction, MirInstruction,
     MirModule, MirType, ValueId,
 };
+use hakorune_mir_defs::{CalleeBoxKind, TypeCertainty};
 
 #[test]
 fn test_backend_creation() {
@@ -84,6 +85,46 @@ fn legacy_extern_call_rejects_before_wasm_codegen() {
     let message = error.to_string();
     assert!(message.contains("[freeze:contract][wasm/legacy-extern-call-stopped]"));
     assert!(!message.contains("call $console_log"));
+}
+
+#[test]
+fn legacy_method_call_rejects_before_wasm_codegen() {
+    let entry = BasicBlockId::new(0);
+    let mut main = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Void,
+            effects: crate::mir::EffectMask::PURE,
+        },
+        entry,
+    );
+    let block = main.get_block_mut(entry).expect("main entry block");
+    block.add_instruction(MirInstruction::LegacyCallV0 {
+        dst: None,
+        func: ValueId::INVALID,
+        callee: Some(Callee::Method {
+            box_name: "Counter".to_string(),
+            method: "step".to_string(),
+            receiver: Some(ValueId::new(1)),
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::UserDefined,
+        }),
+        args: vec![],
+        effects: crate::mir::EffectMask::PURE,
+    });
+    block.add_instruction(MirInstruction::Return { value: None });
+
+    let mut module = MirModule::new("legacy-method-stop".to_string());
+    module.add_function(main);
+
+    let mut backend = WasmBackend::new();
+    let error = backend
+        .compile_hako_default_lane(module)
+        .expect_err("legacy method calls must stop before shape matching or WAT generation");
+    let message = error.to_string();
+    assert!(message.contains("[freeze:contract][wasm/legacy-method-call-stopped]"));
+    assert!(!message.contains("call $box_"));
 }
 
 #[test]

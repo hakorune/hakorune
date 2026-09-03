@@ -76,25 +76,6 @@ mod tests {
     }
 
     #[test]
-    fn test_unsupported_boxcall_method_fails_fast_with_supported_list() {
-        let mut codegen = WasmCodegen::new();
-        let result = codegen.generate_box_call(None, ValueId::new(0), "trace", &[]);
-
-        match result {
-            Err(WasmError::UnsupportedInstruction(msg)) => {
-                assert!(msg.contains("Unsupported BoxCall method: trace"));
-                assert!(msg.contains("supported:"));
-                assert!(msg.contains("log"));
-                assert!(msg.contains("info"));
-                assert!(msg.contains("debug"));
-                assert!(msg.contains("warn"));
-                assert!(msg.contains("error"));
-            }
-            other => panic!("expected unsupported boxcall error, got: {:?}", other),
-        }
-    }
-
-    #[test]
     fn test_wasm_result_type_accepts_handle_like_returns() {
         for ty in [
             MirType::Integer,

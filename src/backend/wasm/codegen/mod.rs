@@ -9,7 +9,6 @@ use super::{enforce_wasm_mir_backend_supported, MemoryManager, RuntimeImports, W
 use crate::mir::{BasicBlockId, MirFunction, MirModule, MirType, ValueId};
 use std::collections::{BTreeSet, HashMap};
 
-mod builtins;
 mod instructions;
 #[cfg(test)]
 mod tests;

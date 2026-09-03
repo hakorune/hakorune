@@ -113,6 +113,8 @@ const WASM_LEGACY_GLOBAL_CALL_STOPPED_TAG: &str =
     "[freeze:contract][wasm/legacy-global-call-stopped]";
 const WASM_LEGACY_EXTERN_CALL_STOPPED_TAG: &str =
     "[freeze:contract][wasm/legacy-extern-call-stopped]";
+const WASM_LEGACY_METHOD_CALL_STOPPED_TAG: &str =
+    "[freeze:contract][wasm/legacy-method-call-stopped]";
 
 /// Stop obsolete name-based call readers before WASM shape selection,
 /// code generation, or fallback routes can observe them.
@@ -129,6 +131,10 @@ fn reject_legacy_call_readers(mir_module: &MirModule) -> Result<(), WasmError> {
                         callee: Some(Callee::Extern(_)),
                         ..
                     } => (WASM_LEGACY_EXTERN_CALL_STOPPED_TAG, "extern"),
+                    MirInstruction::LegacyCallV0 {
+                        callee: Some(Callee::Method { .. }),
+                        ..
+                    } => (WASM_LEGACY_METHOD_CALL_STOPPED_TAG, "method"),
                     _ => continue,
                 };
                 return Err(WasmError::UnsupportedInstruction(format!(

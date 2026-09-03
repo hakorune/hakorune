@@ -143,19 +143,6 @@ impl WasmCodegen {
                 ])
             }
 
-            // Method call codegen (canonical Call + Callee::Method with receiver)
-            MirInstruction::LegacyCallV0 {
-                dst,
-                callee:
-                    Some(crate::mir::Callee::Method {
-                        receiver: Some(box_val),
-                        method,
-                        ..
-                    }),
-                args,
-                ..
-            } => self.generate_box_call(*dst, *box_val, method, args),
-
             // Unsupported instructions
             _ => Err(WasmError::UnsupportedInstruction(format!(
                 "Instruction not yet supported: {:?}",
