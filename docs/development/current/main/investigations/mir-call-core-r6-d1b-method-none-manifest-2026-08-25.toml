@@ -396,6 +396,27 @@ implementation_commit = "f5b268e741"
 implementation_evidence = "The redundant 44-line shell, its compiler registration, and both old inventory paths were removed. The exact successors passed 1/1 each; cargo --list reports 7578 tests with inventory SHA a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d; cargo check --profile quick --lib passed; parent and current full-lib runs both observed 7311/238/29, so the fixed accepted 7411/138/29 receipt remains a pre-existing baseline drift and was not rewritten."
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
+[mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-T3-D0-TEST-FACADE-AND-NAMING"
+implementation_permission = true
+box_kind = "BoxShape caller-zero lexical test facade cleanup"
+decision = "Remove only the unused cfg(test) push_lexical_scope_for_test wrapper; keep production push_lexical_scope, the used pop_lexical_scope_for_test helper, and all owner-local tests unchanged."
+source_authority = "MirBuilder::push_lexical_scope and scope_ctx own lexical-scope meaning; the test wrapper is not an issuer."
+canonical_issuer = "Existing lexical_scope production owner; this row issues no semantic or production product."
+non_authority = ["wrapper name", "warning/test counts", "broad _for_test census", "production lexical scope", "binding state", "test_guard ownership", "Call/backend/VM"]
+fail_fast_boundary = "Before editing, confirm one wrapper definition and zero repository callers; preserve push_lexical_scope, pop_lexical_scope_for_test, and test_guard. Any caller, owner drift, or semantic diff aborts."
+census_boundary = "src/mir/builder/vars/lexical_scope.rs::push_lexical_scope_for_test definition -> tracked Rust/docs references; includes the one wrapper and existing lexical/resolved-region guard, excludes production push/pop, test_guard, tests, and all T5/Call routes."
+candidate = "src/mir/builder/vars/lexical_scope.rs::push_lexical_scope_for_test"
+delete_set = ["src/mir/builder/vars/lexical_scope.rs::push_lexical_scope_for_test (four-line cfg(test) wrapper)"]
+allowed_files = ["src/mir/builder/vars/lexical_scope.rs", "tools/checks/resolved_region_flow_r0_seam_guard.sh", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/builder/vars/resolved_binding_state.rs", "src/mir/builder/vars/lexical_scope/test_guard.rs", "src/mir/resolved_control_flow/**", "src/mir/resolved_semantics/**", "tests/**", "lang/**", "crates/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_checks = ["bash tools/checks/resolved_region_flow_r0_seam_guard.sh", "exact absence check for push_lexical_scope_for_test", "cargo check --profile quick --lib", "bash tools/checks/current_state_pointer_guard.sh", "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "git diff --check"]
+acceptance = "The wrapper has zero definitions and zero repository callers; production push_lexical_scope, used pop_lexical_scope_for_test, test_guard, and tests remain unchanged; existing resolved-region, active-surface, pointer, quick-check, and diff guards pass; no touched source file reaches 800 lines."
+no_safe_slice = "Abort and return to closeout if a caller appears, the production owner changes, a guard must be weakened or added, inventory/tests drift, or any lexical/Recipe/semantic diff appears."
+non_claims = "No lexical-scope semantic change, test move/deletion, receipt/guard creation, Call/backend/VM change, T5 cleanup, fallback, retry, or broad _for_test census."
+
 [mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"

@@ -520,6 +520,42 @@ keep sealed-brand forges, failure injection, Builder/SSA mutation, reset, and
 private lifecycle helpers owner-local. Normalize mixed re-exports only after
 the owner boundary is guarded. Do not move PHI/SSA helpers in this lane.
 
+#### Selected bounded row — `MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0`
+
+```text
+Decision:
+  Remove only the unused #[cfg(test)] push_lexical_scope_for_test wrapper
+  from vars/lexical_scope.rs.
+
+Source authority + canonical issuer:
+  MirBuilder::push_lexical_scope and scope_ctx own lexical-scope meaning.
+  The test wrapper is not an issuer; pop_lexical_scope_for_test remains in
+  use by owner-local tests and test_guard.
+
+Non-authority:
+  wrapper name, warning/test counts, broad _for_test census, production
+  lexical scope, binding state, test_guard ownership, and Call/backend/VM.
+
+Fail-fast boundary:
+  The exact wrapper must have one definition and zero repository callers.
+  Preserve push_lexical_scope, pop_lexical_scope_for_test, and all tests;
+  any caller or owner drift aborts before deletion.
+
+Smallest next slice:
+  Delete only the four-line wrapper, then reuse
+  resolved_region_flow_r0_seam_guard.sh plus exact absence, quick-lib check,
+  pointer/active guards, and diff check.
+
+Non-claims:
+  No lexical-scope semantics, test move/deletion, new receipt/guard,
+  Call/backend/VM change, T5 cleanup, fallback, retry, or broad T3 census.
+```
+
+Finite census: `lexical_scope.rs::push_lexical_scope_for_test` definition ->
+tracked Rust/docs references. The worker audit found one definition and zero
+callers; `push_lexical_scope`, `pop_lexical_scope_for_test`, and `test_guard`
+are explicitly outside the delete-set.
+
 Callable-result exports get a separate C0→C1→C2 series: split direct
 submodule/test-only imports first, then narrow the nine allows, and remove root
 exports only after caller-zero proof. The census must distinguish the live Raw
