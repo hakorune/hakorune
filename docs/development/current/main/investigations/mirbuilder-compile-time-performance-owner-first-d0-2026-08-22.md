@@ -929,8 +929,10 @@ lifecycle owner and return to the next bounded semantic/backend decision.
 
 #### `MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0`
 
-Status: **accepted_design_stop**. This is a behavior-neutral owner split
+Status: **selected_fast**. This is a behavior-neutral owner split
 before future Call schema growth; it does not reopen semantic publication.
+
+`implementation_permission = true` applies only to this physical split.
 
 ```text
 Decision: move only the C/FFI transport structs from PublishedMirBackendView

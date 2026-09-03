@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "main"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0"
-current_design_stop = "MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0__accepted_design_stop"
-current_blocker_token = "Choose only this behavior-neutral C-transport owner split before any Call schema growth. No semantic target/receipt/guard, route, fallback, or retry change is permitted; implementation opens only after the existing view/transport boundary and public re-exports are fixed."
+current_design_stop = "none"
+current_blocker_token = "Implement only the behavior-neutral C-transport owner split selected by the active performance card. Preserve the existing view/transport boundary and public re-exports; no semantic target, receipt, guard, route, fallback, or retry change is permitted."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -54,8 +54,8 @@ The VM LegacyCallV0(Callee::Method) reader then stopped before trace,
 hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
 canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed.
 """
-next_design_card = "MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
