@@ -33,9 +33,8 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Latest bounded work:** VM Global canonical cutover landed at `111216b539`;
-  the selected next cleanup retargets the stale WSM-G4-min8 success probe to
-  explicit pre-WAT rejection.
+- **Latest bounded work:** VM Global canonical cutover and the stale WSM-G4-min8
+  probe retarget are landed; the next exact reader stop is VM Legacy Extern.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -492,21 +491,22 @@ Owners remain below the 760-line trigger. No canonical WASM reader, Hako W0,
 Extern/Method retirement, general fallback removal, R7 caller-zero, or
 `LegacyCallV0` deletion is claimed.
 
-##### Selected cleanup — `MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0`
+##### Selected next cohort — `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0`
 
 ```text
-status = landed
-implementation permission = false  # implementation c9c62906b1
+status = selected_fast
+implementation permission = true
 ```
 
-Retarget the stale WSM-G4-min8 success probe to the existing canonical
-user-method fixture's explicit pre-WAT rejection. Update only its test marker,
-smoke expectation, and historical lock; keep the direct Legacy Global negative
-proof as the semantic reader-stop evidence. No new fixture, receipt, adapter,
-or guard is allowed.
+Stop the VM `LegacyCallV0(Callee::Extern)` reader at the same shared ingress
+used by the landed Global stop. Keep `execute_extern_function` for canonical
+or direct provider ownership; do not add a canonical Extern consumer or a new
+receipt. Reuse existing Extern fixtures and active-surface/pointer guards.
 
-Acceptance: stale success expectation is zero; focused test and smoke retarget passed;
-non-Global WASM families remain unchanged.
+Acceptance: legacy Extern rejects before provider dispatch/fallback, its VM
+legacy Extern arm is zero, and existing Extern provider tests remain green.
+The terminal is `[vm-reference/legacy-call/extern-stopped]`.
+No Call R6 schema, selected-C/Hako/WASM, or provider retirement is claimed.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 

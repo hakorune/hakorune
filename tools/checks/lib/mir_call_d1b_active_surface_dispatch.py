@@ -387,7 +387,7 @@ def _check_wasm_legacy_global_reader_stop_r0(
 
 
 VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
-WASM_GLOBAL_PROBE_RETIRE_R0_ROW = "MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0"
+VM_EXTERN_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0"
 
 
 def _check_vm_global_canonical_cutover_r0(
@@ -459,9 +459,11 @@ def _check_vm_global_canonical_cutover_r0(
     print(f"[{api.TAG}] row={row} delegated=vm-global-canonical-cutover")
 
 
-def _check_wasm_global_probe_retire_r0(state: dict, root: Path, api) -> None:
-    """Check the bounded retarget of the stale WSM-G4-min8 success probe."""
-    row = WASM_GLOBAL_PROBE_RETIRE_R0_ROW
+def _check_vm_extern_legacy_reader_stop_r0(
+    state: dict, root: Path, api
+) -> None:
+    """Check the one VM Legacy Extern reader-stop cohort."""
+    row = VM_EXTERN_LEGACY_READER_STOP_R0_ROW
     mode = state.get("work_mode")
     if mode not in {"fast", "closeout"}:
         api.fail(f"{row} must be fast or closeout")
@@ -482,9 +484,12 @@ def _check_wasm_global_probe_retire_r0(state: dict, root: Path, api) -> None:
     card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
     for token in (
         row,
-        "stale WSM-G4-min8 success probe",
-        "explicit pre-WAT rejection",
-        "No new fixture, receipt, adapter,\nor guard is allowed.",
+        "LegacyCallV0(Callee::Extern)",
+        "shared ingress",
+        "execute_extern_function",
+        "[vm-reference/legacy-call/extern-stopped]",
+        "before provider dispatch/fallback",
+        "No Call R6 schema",
     ):
         if token not in card_text:
             api.fail(f"{row} contract is missing: {token}")
@@ -496,33 +501,20 @@ def _check_wasm_global_probe_retire_r0(state: dict, root: Path, api) -> None:
         for token in (
             "status = landed",
             "implementation permission = false",
-            "c9c62906b1",
-            "focused test and smoke retarget passed",
+            "focused VM Extern rejection passed",
         ):
             if token not in card_text:
                 api.fail(f"{row} closeout contract is missing: {token}")
-    for rel, tokens in (
-        (
-            "tests/wasm_demo_min_fixture/parity.rs",
-            ("wasm_demo_g4_min8_global_call_probe_rejects_before_wat",),
-        ),
-        (
-            "tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min8_global_call_probe_vm.sh",
-            ("global_call_probe_rejects_before_wat", "pre-WAT rejection"),
-        ),
-        (
-            "docs/development/current/main/phases/phase-29cc/29cc-205-wsm-g4-min8-global-call-native-box-lock-ssot.md",
-            ("Status: Retired", "explicit pre-WAT rejection"),
-        ),
+    for rel in (
+        "src/backend/mir_interpreter/handlers/calls/mod.rs",
+        "src/backend/mir_interpreter/handlers/extern_provider/tests.rs",
     ):
         path = root / rel
         if not path.is_file():
-            api.fail(f"{row} owner is missing: {rel}")
-        text = path.read_text(encoding="utf-8")
-        for token in tokens:
-            if token not in text:
-                api.fail(f"{row} {rel} is missing: {token}")
-    print(f"[{api.TAG}] row={row} delegated=wasm-global-probe-retire")
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=vm-extern-reader-stop")
 
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
@@ -542,8 +534,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_wasm_legacy_global_reader_stop_r0(state, root, api)
     elif row == VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW:
         _check_vm_global_canonical_cutover_r0(state, root, api)
-    elif row == WASM_GLOBAL_PROBE_RETIRE_R0_ROW:
-        _check_wasm_global_probe_retire_r0(state, root, api)
+    elif row == VM_EXTERN_LEGACY_READER_STOP_R0_ROW:
+        _check_vm_extern_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

@@ -60,9 +60,9 @@ canonical WASM reader or general fallback retirement is claimed. The next
 exact tuple `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0` has now landed at
 `111216b539`: the VM canonical Print reader covers same-module
 FreeFunction/StaticBoxMethod, Legacy Global is rejected at the shared ingress,
-and only that finite VM legacy arm was removed. The next bounded cleanup is
-`MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0`, which retargets the stale WSM-G4-min8
-success probe to explicit pre-WAT rejection without adding a new fixture.
+and only that finite VM legacy arm was removed. The stale WSM-G4-min8 success
+probe was retargeted to explicit pre-WAT rejection and its old lock retired.
+The next exact reader stop is `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0`.
 Reopen another family only when source authority, typed issuer, lossless
 selected consumer, real production caller, fail-fast terminal, exclusive
 old-edge delete-set, outside-reader inventory, and source budget form one exact
