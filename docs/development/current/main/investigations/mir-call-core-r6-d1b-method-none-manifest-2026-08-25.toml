@@ -471,6 +471,28 @@ implementation_commit = "f5b268e741"
 implementation_evidence = "The redundant 44-line shell, its compiler registration, and both old inventory paths were removed. The exact successors passed 1/1 each; cargo --list reports 7578 tests with inventory SHA a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d; cargo check --profile quick --lib passed; parent and current full-lib runs both observed 7311/238/29, so the fixed accepted 7411/138/29 receipt remains a pre-existing baseline drift and was not rewritten."
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
+[mirbuilder_cleanup_asn0_l0_stale_guard_contract_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+box_kind = "BoxShape guard-contract retirement only"
+decision = "Retire the stale ASN0-L0 located-assignment contract from the existing assignment guard and keep only the current live ASN0-S0/I0/P0 assertions. Do not change production assignment code, fixtures, semantics, or create a new guard or receipt."
+source_authority = "Current variable_assignment_descent.rs, statement_surface.rs, compound_assignment.rs, and their existing focused fixtures are the live assignment owners; the retired located_legacy_lowering/assignment surface is not an authority."
+canonical_issuer = "Existing assignment descent and completion owners; this row issues no semantic or production product."
+non_authority = ["missing historical located path", "stale ASN0-L0 assertions", "test/line counts alone", "old card wording", "Call/backend/VM behavior", "new receipt or guard"]
+fail_fast_boundary = "Before editing, confirm the three located ASN0-L0 files and their callers are absent, then preserve all live ASN0 checks. Any located caller, owner drift, semantic source change, or need to weaken a live assertion aborts."
+census_boundary = "One existing assignment guard -> retired ASN0-L0 path/read/assertion contract; includes the helper's live ASN0 checks and direct CLI entry, excludes variable-assignment production code, fixtures, other statement guards, and all semantic/Call/backend routes."
+candidate = "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py::retired ASN0-L0 path/read/assertions"
+delete_set = ["stale located_path/located_adapter_path/located_tests_path reads", "ASN0-L0 located adapter/selector/fixture assertions", "detached located caller/count in the guard contract"]
+allowed_files = ["tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
+forbidden_files = ["src/mir/**", "lang/**", "crates/**", "tests/**", "Call schema", "new guard", "new receipt", "fallback", "retry", "production assignment route"]
+focused_checks = ["python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py .", "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .", "bash tools/checks/current_state_pointer_guard.sh", "git diff --check"]
+acceptance = "The existing assignment guard runs directly and through active-surface dispatch; it no longer reads or asserts the retired ASN0-L0 files, keeps the live ASN0-S0/I0/P0 ownership/order/absence checks, and all touched check files remain below 800 lines. No production or fixture file changes occur."
+no_safe_slice = "Abort and return to closeout if a located file/caller reappears, the live assignment owner or guard boundary changes, the helper requires semantic assertions beyond current owners, or any new guard/receipt/source change is needed."
+non_claims = "No assignment semantic change, helper deletion, test deletion, Call R6/R7, backend/VM/WASM change, whole-lib green claim, or broad guard cleanup."
+next_execution = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0__fast"
+
 [mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0"

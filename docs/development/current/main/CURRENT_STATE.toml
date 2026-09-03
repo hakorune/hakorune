@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0"
 current_design_stop = "none"
-current_blocker_token = "Close out the caller-zero DynamicV2 schedule test facade retirement; preserve build_schedule, schedule consumers, and all DynamicV2 semantics while recording exact absence and quick-check evidence."
+current_blocker_token = "Retire only the stale ASN0-L0 located-assignment contract from the existing assignment guard; preserve the live raw/default assignment owner, tests, and semantics with no new guard or receipt."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,7 +52,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "none__dynamic_v2_schedule_test_facade_retired"
+next_execution_card = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
