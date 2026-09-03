@@ -494,8 +494,8 @@ Extern/Method retirement, general fallback removal, R7 caller-zero, or
 ##### Selected next cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
 
 ```text
-status = selected_fast
-implementation permission = true
+status = landed
+implementation permission = false  # implementation 3c7f5ea5bc
 ```
 
 Stop the Rust WASM `LegacyCallV0(Callee::Extern)` reader at the existing
@@ -504,8 +504,7 @@ runtime imports; do not add a canonical WASM Extern consumer or a new receipt.
 Reuse the existing direct negative proof and active-surface/pointer guards.
 
 Acceptance: legacy Extern rejects before shape/WAT/binary/fallback, its WASM
-lowering arm and reader-only name helpers are zero, and the direct negative
-proof is green. Terminal is
+lowering arm and reader-only name helpers are zero, and the focused WASM Extern rejection passed. Terminal is
 `[freeze:contract][wasm/legacy-extern-call-stopped]`.
 No Call R6 schema, selected-C/Hako/VM, or runtime-import retirement is claimed.
 

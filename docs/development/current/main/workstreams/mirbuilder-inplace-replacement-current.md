@@ -64,8 +64,11 @@ and only that finite VM legacy arm was removed. The stale WSM-G4-min8 success
 probe was retargeted to explicit pre-WAT rejection and its old lock retired.
 The exact reader stop `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0` landed at
 `18f08124f8`: Legacy Extern now rejects before provider dispatch and its VM
-legacy arm is gone. The next exact stop is
-`MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`, limited to the Rust WASM reader.
+legacy arm is gone. The exact Rust WASM reader stop
+`MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0` landed at `3c7f5ea5bc`: the
+preflight rejects before shape/WAT/binary/fallback, the legacy Extern lowering
+arm and reader-only name helpers are gone, and `EXTERN_CALL_MAP` remains the
+runtime import contract.
 Reopen another family only when source authority, typed issuer, lossless
 selected consumer, real production caller, fail-fast terminal, exclusive
 old-edge delete-set, outside-reader inventory, and source budget form one exact
