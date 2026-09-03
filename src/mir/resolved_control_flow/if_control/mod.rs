@@ -18,7 +18,6 @@ pub(crate) use product::{
 
 pub(crate) use use_ledger::{
     FunctionIfControlUseErrorV1, FunctionIfControlUseLedgerV1, IfControlCoverageUseErrorV1,
-    IfControlCoverageUseV1,
 };
 
 pub(super) use analyzer::{analyze_resolved_if_control_v1, ResolvedIfControlErrorV1};

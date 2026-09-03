@@ -444,6 +444,30 @@ implementation_commit = "4f3c238367"
 implementation_evidence = "The caller-zero facade re-export was removed from if_control/mod.rs; product.rs remains the sole definition owner and analyzer.rs/use_ledger.rs retain direct internal imports. The existing If-control structure guard, cargo check --profile quick --lib, pointer guard, active-surface guard, exact absence check, and diff check passed. The stale unrelated authority guard was not broadened or repaired in this row."
 closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external caller appears."
 
+[mirbuilder_cleanup_t1_s1_rcf_ifcontrol_coverage_use_reexport_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+box_kind = "BoxShape stale If-control coverage-use facade re-export cleanup"
+decision = "Remove only the unused IfControlCoverageUseV1 re-export from if_control/mod.rs; keep use_ledger.rs ownership, product.rs direct imports, and all coverage behavior unchanged."
+source_authority = "if_control/use_ledger.rs owns and issues IfControlCoverageUseV1; if_control/product.rs consumes it through a direct super::use_ledger import."
+canonical_issuer = "Existing If-control use_ledger/product owners; this row issues no semantic or production product."
+non_authority = ["coverage ledger fields", "If semantics", "Builder/SSA/PHI", "module-level allow attributes", "warning/test counts", "docs names", "Call/backend routes"]
+fail_fast_boundary = "Before editing, confirm the facade symbol has no external caller and preserve direct use_ledger/product imports; any caller or semantic diff aborts."
+census_boundary = "One if_control/mod.rs facade re-export -> if_control/use_ledger.rs owner and product.rs consumer; includes only the one symbol, existing If-control structure guard, pointer, and active dispatch, excludes all product/use_ledger/tests and semantics."
+candidate = "src/mir/resolved_control_flow/if_control/mod.rs::pub(crate) use use_ledger::IfControlCoverageUseV1"
+delete_set = ["src/mir/resolved_control_flow/if_control/mod.rs::IfControlCoverageUseV1 facade re-export"]
+allowed_files = ["src/mir/resolved_control_flow/if_control/mod.rs", "tools/checks/resolved_if_control_structure_r0_guard.sh", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/resolved_control_flow/if_control/use_ledger.rs", "src/mir/resolved_control_flow/if_control/product.rs", "src/mir/resolved_control_flow/if_control/analyzer.rs", "src/mir/resolved_control_flow/if_control_tests.rs", "src/mir/resolved_region_flow/**", "src/mir/resolved_semantics/**", "tests/**", "lang/**", "crates/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_checks = ["bash tools/checks/resolved_if_control_structure_r0_guard.sh", "exact absence check for facade re-export", "cargo check --profile quick --lib", "bash tools/checks/current_state_pointer_guard.sh", "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "git diff --check"]
+acceptance = "The facade re-export is absent with no external caller; use_ledger.rs remains the sole definition/issuer owner and product.rs retains its direct import; the existing If-control structure, active-surface, pointer, and diff guards pass; no touched source file reaches 800 lines."
+no_safe_slice = "Abort and return to closeout if an external caller appears, ownership changes, a guard must be weakened or added, inventory/tests drift, or any semantic/Recipe diff appears."
+non_claims = "No If semantics, production switch, test move/deletion, resolved_region_flow cleanup, resolved_semantics staging, Call/backend/VM change, baseline refresh, or broad dead-code retirement."
+implementation_commit = "pending"
+implementation_evidence = "pending"
+closeout = "Pending; after the bounded deletion, return the pointer to cleanup scheduling and do not reopen this row."
+
 [mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"

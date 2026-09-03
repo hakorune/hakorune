@@ -340,6 +340,43 @@ authority guard was not expanded. An external caller, required guard
 expansion, or semantic diff is `NoSafeSlice`; do not reopen this row to force
 broader cleanup.
 
+#### Next bounded row — `MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0`
+
+```text
+Decision:
+  Remove only the caller-zero IfControlCoverageUseV1 facade re-export from
+  src/mir/resolved_control_flow/if_control/mod.rs.
+
+Source authority + canonical issuer:
+  if_control/use_ledger.rs owns and issues the coverage-use product;
+  if_control/product.rs imports it directly. The facade re-export is not an
+  authority and has no external Rust caller.
+
+Non-authority:
+  coverage ledger fields, If semantics, Builder/SSA/PHI, allow attributes,
+  warning/test counts, docs names, and all backend/Call routes.
+
+Fail-fast boundary:
+  Keep use_ledger.rs, product.rs, and existing tests unchanged. Delete only
+  the one facade line; any external caller or guard drift aborts.
+
+Smallest next slice:
+  One source edit in if_control/mod.rs, then the existing
+  resolved_if_control_structure_r0_guard.sh, cargo check --profile quick
+  --lib, pointer/active guards, and diff check.
+
+Non-claims:
+  No If semantics, production switch, test move, new receipt/guard,
+  resolved_semantics cleanup, Call/backend/VM change, or broad dead-code
+  retirement.
+```
+
+The row is selected by `CURRENT_STATE` in `fast`; its permission is bounded to
+this one source edit and existing checks. Acceptance is caller-zero for the
+facade symbol, unchanged use_ledger/product ownership, all touched sources
+below the 760-line trigger, and green existing guards. An external caller,
+required guard expansion, or semantic diff is `NoSafeSlice`.
+
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 
 The 11 route-specific `XRecipe { arena, root }` structs

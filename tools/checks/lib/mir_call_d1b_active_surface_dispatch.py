@@ -101,11 +101,13 @@ RAW_ROOT_BODY_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
 RAW_ROOT_DRAIN_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
 RRF_COVERAGE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"
 RCF_IFCONTROL_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-LOCATED-REEXPORT-RETIRE-R0"
+RCF_IFCONTROL_COVERAGE_USE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0"
 RAW_ROOT_CLEANUP = {
     RAW_ROOT_BODY_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py")),
     RAW_ROOT_DRAIN_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_final0_guard.py")),
     RRF_COVERAGE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_region_flow_r0_seam_guard.sh")),
     RCF_IFCONTROL_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_located_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
+    RCF_IFCONTROL_COVERAGE_USE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_coverage_use_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
 }
 def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)
@@ -206,7 +208,6 @@ def _check_free_function_publication_d0(
     ):
         api.fail("true FreeFunction publication D0 finite state table is missing")
 
-
 def _check_free_function_publication_i0(
     state: dict, card: dict, root: Path, api
 ) -> None:
@@ -291,7 +292,6 @@ def _check_free_function_publication_i0(
             api.fail(f"true FreeFunction publication I0 implementation owner is missing: {rel}")
         if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
             api.fail(f"true FreeFunction publication I0 implementation owner reached 800 lines: {rel}")
-
 
 def _check_r6_post_group_b_reader_census_c0(
     state: dict, root: Path, api
