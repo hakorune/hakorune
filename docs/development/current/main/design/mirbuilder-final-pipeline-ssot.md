@@ -546,8 +546,9 @@ Delete-set = VM Value reader arm and its pre-dispatch reg_load; no Call R6 schem
 Family-local only: no canonical Value consumer, Method/Constructor/Closure migration, JSON/backend fallback, or scheduler stop.
 
 ##### Selected guard-only maintenance — `MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0`
-Retarget the existing DynamicV2 admission-loan expectation to its current
-`install/lowering_port.rs` owner; no compiler or production route changes.
+status = landed; implementation permission = false; commit = `5690939d04`.
+The existing DynamicV2 admission-loan expectation now targets its current
+`install/lowering_port.rs` owner; no compiler or production route changed.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
