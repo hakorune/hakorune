@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
-current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Do not repeat the closed reader census. Reopen only one existing family when source authority, typed issuer or typed terminal, lossless consumer, real caller, exclusive old-edge delete-set, outside-reader inventory, and source budget form one exact tuple; otherwise keep the family ParkedSealed and allow unrelated eligible families or inventoried compiler-proven T0 cleanup to proceed."
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
+current_design_stop = "none"
+current_blocker_token = "BoxShape-only indexing test-surface split; no semantic route, authority, receipt, fixture, guard, fallback, or baseline change."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -27,9 +27,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-latest_card = "mirbuilder-final-pipeline-ssot"
-latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+latest_card = "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 latest_card_summary = """
 The publication spine, Print producer coverage, WASM Global/Extern/Method stops, VM
 Global/Extern stops, WSM-G4-min8 probe retarget, T1-S0 raw-root shell
@@ -55,8 +55,8 @@ hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
 canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+next_execution_card = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

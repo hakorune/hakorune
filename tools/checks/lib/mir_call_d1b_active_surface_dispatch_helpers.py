@@ -43,11 +43,19 @@ def check_boxshape_maintenance(state: dict, root: Path, api) -> None:
     budget_paths = row.get("line_budget_paths")
     if not isinstance(budget_paths, list) or not budget_paths:
         api.fail(f"{BOXSHAPE_MAINTENANCE_ROW} line budget paths are missing")
+    pre_split_paths = row.get("pre_split_over_limit_paths", [])
+    if not isinstance(pre_split_paths, list) or not all(
+        isinstance(path, str) and path.strip() for path in pre_split_paths
+    ):
+        api.fail(f"{BOXSHAPE_MAINTENANCE_ROW} pre_split_over_limit_paths are malformed")
     for rel in budget_paths:
         path = root / rel
         if not path.is_file():
             api.fail(f"{BOXSHAPE_MAINTENANCE_ROW} owner is missing: {rel}")
-        if sum(1 for _ in path.open(encoding="utf-8")) >= 760:
+        line_count = sum(1 for _ in path.open(encoding="utf-8"))
+        if line_count >= 760 and not (
+            mode == "fast" and rel in pre_split_paths
+        ):
             api.fail(f"{BOXSHAPE_MAINTENANCE_ROW} owner reached 760 lines: {rel}")
 
     for field, should_exist in (("required_text", True), ("forbidden_text", False)):

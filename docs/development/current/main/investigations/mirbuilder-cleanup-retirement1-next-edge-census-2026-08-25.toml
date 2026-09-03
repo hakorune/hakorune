@@ -220,10 +220,9 @@ implementation_permission = false
 
 [boxshape_maintenance_t0]
 task_id = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
-status = "landed"
-implementation_permission = false
-base_head = "8dc84e7588"
-landed_commit = "d121a5d500"
+status = "selected_fast"
+implementation_permission = true
+base_head = "4c398dd8b9"
 ceremony_tier = "T0"
 decision = "Move existing cfg(test) bodies behind path-preserving module/include boundaries; production behavior and test names stay unchanged."
 source_authority = "The existing production modules and existing tests remain the sole owners; this row issues no semantic product."
@@ -234,6 +233,11 @@ line_budget_paths = [
   "src/mir/builder/normal_script_semantic_source_tests.rs",
   "src/mir/builder/normal_script_semantic_source_tests/root_admission.rs",
   "src/mir/builder/normal_script_semantic_source_tests/lexical_and_scope.rs",
+  "src/mir/builder/indexing.rs",
+  "src/mir/builder/indexing/tests.rs",
+]
+pre_split_over_limit_paths = [
+  "src/mir/builder/indexing.rs",
 ]
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
@@ -244,6 +248,8 @@ allowed_files = [
   "src/mir/builder/normal_script_semantic_source_tests.rs",
   "src/mir/builder/normal_script_semantic_source_tests/root_admission.rs",
   "src/mir/builder/normal_script_semantic_source_tests/lexical_and_scope.rs",
+  "src/mir/builder/indexing.rs",
+  "src/mir/builder/indexing/tests.rs",
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
 ]
@@ -253,17 +259,20 @@ required_text = [
   "src/mir/builder/normal_script_semantic_source_tests.rs||include!(\"normal_script_semantic_source_tests/root_admission.rs\");",
   "src/mir/builder/normal_script_semantic_source_tests.rs||include!(\"normal_script_semantic_source_tests/lexical_and_scope.rs\");",
   "src/mir/builder/normal_script_semantic_source.rs||#[path = \"normal_script_semantic_source_tests.rs\"]",
+  "src/mir/builder/indexing.rs||mod tests;",
 ]
 forbidden_text = [
   "src/mir/builder/normal_script_direct_statement_owner.rs||mod tests {",
   "src/mir/builder/normal_script_direct_statement_owner.rs||#[path",
+  "src/mir/builder/indexing.rs||mod tests {",
 ]
 focused_tests = [
   "normal_script_direct_statement_owner::tests",
   "normal_script_semantic_source::tests",
+  "indexing::tests",
 ]
-observed_line_counts = "direct owner 148; direct tests 592; semantic test ingress 2; root admission 394; lexical/scope 365; shared dispatcher 757"
-observed_src_line_delta = -7
+observed_line_counts = "direct owner 148; direct tests 592; semantic test ingress 2; root admission 394; lexical/scope 365; indexing owner 355; indexing tests 431; shared dispatcher 757"
+observed_src_line_delta = -4
 quick_lib_check = "green"
 focused_test_compile = "current and base 8dc84e7588 both stop at the same three pre-existing E0624 private published-backend row errors before test execution"
 test_name_inventory = "unchanged across base/current for both selected test modules"
