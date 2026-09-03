@@ -207,6 +207,10 @@ def check_verification_quick_lib_baseline_refresh_r0(
         str(api.CARD_REL),
         "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
         "tools/checks/lib/mir_verification_quick_p0_c_guard.py",
+        "src/mir/builder/type_hint_providers.rs",
+        "src/mir/builder/return_type_strategy.rs",
+        "src/mir/builder/resolved_lowering/common_v2_session/length_call.rs",
+        "src/tests/mir_corebox_router_unified.rs",
     }
     if set(_list(row, "allowed_files")) != expected_allowed:
         api.fail("baseline refresh allowed-file boundary drifted")

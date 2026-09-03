@@ -1,9 +1,9 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
-current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Verification health is UnclassifiedRed; reuse DEV-GATE-LIB-BASELINE-REFRESH-R0 in reconcile mode, do not repeat the closed census or rebaseline. Fixed runs observe 7579/7314/236/29 or 7579/7313/237/29 versus accepted 138 failures: delta 98 or 99 added names, one variable qmark, no removals. Seven are tied to canonical Call result-hint omission; 91-92 remain unclassified. No semantic, BoxShape, performance, test-retirement, or JSON-v1 Stop work before StableKnownRed; then run generic M7-S. No new D0, receipt, guard, or cohort row."
+work_mode = "fast"
+current_execution_row = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+current_design_stop = "none"
+current_blocker_token = "Reconcile the existing accepted 7578/7411/138/29 boundary without widening it. The exact repair scope is canonical Call readers that still scan LegacyCallV0: type_hint_providers.rs, return_type_strategy.rs, resolved_lowering/common_v2_session/length_call.rs, and the shared corebox-router test observer. No target/effect/ABI change, test deletion/ignore, baseline rewrite, JSON/legacy cleanup, new receipt, guard, or fallback. Stop and return to design_stop on any unclassified production/build red."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -45,8 +45,8 @@ LegacyCallV0 writers stop while Constructor/NewClosure creation stays typed.
 No new D0, receipt, guard, or cohort-specific scheduler branch is planned.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+next_execution_card = "DEV-GATE-LIB-BASELINE-REFRESH-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
