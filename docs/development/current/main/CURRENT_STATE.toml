@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0"
 current_design_stop = "none"
-current_blocker_token = "Delete only the caller-zero cfg(test) DynamicV2PhysicalScheduleRowV1::from_test_parts helper; preserve build_schedule, schedule consumers, and all DynamicV2 semantics."
+current_blocker_token = "Close out the caller-zero DynamicV2 schedule test facade retirement; preserve build_schedule, schedule consumers, and all DynamicV2 semantics while recording exact absence and quick-check evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,7 +52,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0"
+next_execution_card = "none__dynamic_v2_schedule_test_facade_retired"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -71,7 +71,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-03: R6 Group B closed at cce62db090 and the post-Group-B census closed at bb41e2e880 as NoSafeSlice__NoSingleRemainingCanonicalReaderFamily. The VM reference reader executes canonical Builtin(Print), wrong arity and non-Print targets fail closed, and no VM promotion or R7 deletion is claimed. Do not repeat the census; reopen only one exact authority/consumer/caller/delete-set tuple.",
-  "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
-  "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
+  "2026-09-03: DynamicV2 caller-zero schedule test facade retired at f482f84957; only DynamicV2PhysicalScheduleRowV1::from_test_parts was removed, quick cargo check and existing authority/active-surface/pointer guards passed, and production schedule/consumer semantics were unchanged.",
+  "2026-09-03: DynamicV2 authority guard path drift was repaired at f1988e0247 by pointing the existing admission-loan expectation to install/lowering_port.rs; no source or production route changed and the existing guard is green again.",
+  "2026-09-03: VM Value legacy-reader stop landed at c43e9cd09c and closed at 225460576e; Value calls reject before register load/dynamic dispatch, while canonical Value support and whole-lib health remain unclaimed.",
 ]
