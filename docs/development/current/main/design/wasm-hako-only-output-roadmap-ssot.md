@@ -137,7 +137,9 @@ Existing route policy names remain stable; no new route is introduced.
 
 ### Conditional task queue (not current execution permission)
 
-These rows remain parked behind MirBuilder R6/R7 and are opened one at a time:
+These rows are post-R6 migrations and are opened one at a time. They are not
+R7 prerequisites: R7 requires the Rust WASM `LegacyCallV0` reader to be
+stopped or quarantined, not a completed Hako WASM replacement.
 
 ```text
 WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0:

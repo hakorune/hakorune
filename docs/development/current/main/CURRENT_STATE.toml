@@ -1,8 +1,8 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0"
-current_design_stop = "none"
+current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
+current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
 current_blocker_token = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0 closed at cce62db090; post-Group-B census closed at bb41e2e880 as NoSafeSlice__NoSingleRemainingCanonicalReaderFamily. WASM still reads LegacyCallV0; LLVM/Hako/selected-C retain multiple compatibility authorities; Extern/Constructor/Value-Closure lack one live caller with an exclusive delete-set. No second reader family, schema cutover, new receipt, backend retry, or R7 deletion until exact authority/issuer/lossless consumer/caller/delete-set exists."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "The M1 current-HEAD Call producer/consumer census is closed in the final-pipeline SSOT. Next, disposition the remaining families, quarantine compatibility outside the canonical core, then perform mandatory-Callee R6. Zero/multiple authority tuples stay ParkedSealed without another D0, receipt, adapter, fixture, or guard. Each family deletes its selected old edge and exclusive temporary tests/guards/docs before the next family; R7 owns caller-zero Call compatibility deletion and post-R7 owns physical thinning. Known-red comparison and exact changed-test execution remain mandatory."
+guard_followup = "The finite M1/M2 and post-Group-B censuses are closed. Do not repeat them. Reopen one existing R6 family only when source authority, typed issuer, lossless selected consumer, real caller, fail-fast terminal, exclusive old-edge delete-set, outside readers, and the source budget form one exact tuple. After R6, stop or quarantine every product-reachable legacy reader without requiring feature parity; R7 opens only at caller-zero. Reuse existing guards/tests and retire family-private assets with the old edge."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -52,7 +52,7 @@ ParkedSealed until an exact authority/consumer/caller/delete-set tuple exists.
 Landed families are not reopened and zero/multiple authority tuples remain
 ParkedSealed without new design assets.
 """
-next_design_card = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
+next_design_card = "none"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -64,7 +64,7 @@ accepted_free_function_execution_card = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0 (
 parked_mirbuilder_canonical_call_rebuild_task = "none__superseded_by_accepted_branch_execution_card"
 parked_declared_instance_selected_c_task = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0 (ParkedSealed__PublishedTargetAndBackendCoverageMissing; language me.method retained)"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
-parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; R6/R7 prerequisite; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
+parked_wasm_hako_backend_task = "WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0 (ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing; post-R6 migration, not an R7 prerequisite; the Rust LegacyCallV0 reader must stop or quarantine before R7; implementation_permission=false; Rust fate=StopNow__FreezeBeforeR7__HakoDefaultAtW2__RetireAtW3)"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
@@ -72,7 +72,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-03: R6 Group B closed at cce62db090 after the current-HEAD census: the VM reference reader executes canonical Builtin(Print) directly through execute_instruction, wrong arity and non-Print canonical targets fail closed, focused tests and vm-reference build pass, and no VM promotion or R7 deletion is claimed. Next is a fresh design-only reader census.",
+  "2026-09-03: R6 Group B closed at cce62db090 and the post-Group-B census closed at bb41e2e880 as NoSafeSlice__NoSingleRemainingCanonicalReaderFamily. The VM reference reader executes canonical Builtin(Print), wrong arity and non-Print targets fail closed, and no VM promotion or R7 deletion is claimed. Do not repeat the census; reopen only one exact authority/consumer/caller/delete-set tuple.",
   "2026-09-02: true top-level FreeFunction publication landed on the isolated branch at 042cd56aa2: the mixed App Main plus scalar helper preserves CanonicalSameModuleCallableKeyV1::FreeFunction through catalog/admission, collector, Atomic Publish, typed kind=3 backend transport, and a real --emit-exe probe returning 3. Focused positive/negative tests, C-shim build, pointer/active-surface guards, and diff checks passed; whole-lib red and generic phi/overwrite/non-scalar/runner-C negative coverage remain explicit follow-ups.",
   "2026-09-02: FreeStatic publication vertical landed at 61db816f39/b106753721 and the closed publication-spine series was fast-forwarded to main at 7a03921005; App Main source product joins the exact nested StaticBoxMethod key, Atomic Publish retains one definition, the typed backend view is CanonicalTyped, and the real scalar emit-exe probe returned 2. selected-C remains design_stop; choose the next exact family.",
 ]

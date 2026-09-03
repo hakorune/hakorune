@@ -99,184 +99,6 @@ EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
 )
 
 
-def _check_m3_b_ordinary_new_design_stop(state: dict, root: Path, api) -> None:
-    """Keep the ordinary-new quarantine row explicit without opening code."""
-    row = api.M3_B_COMPATIBILITY_QUARANTINE_ROW
-    if state.get("work_mode") != "design_stop":
-        api.fail(f"{row} must remain design_stop")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if not str(state.get("current_design_stop", "")).startswith(row):
-        api.fail(f"{row} current_design_stop is missing")
-    if state.get("next_design_card") != row:
-        api.fail(f"{row} next_design_card drifted")
-    if not str(state.get("next_execution_card", "")).startswith("none"):
-        api.fail(f"{row} must keep next_execution_card=none")
-    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} current_execution_design drifted")
-
-    card_path = root / api.FINAL_PIPELINE_REL
-    if not card_path.is_file():
-        api.fail(f"{row} owning final-pipeline SSOT is missing")
-    card_text = card_path.read_text(encoding="utf-8")
-    marker = f"### M3-B ordinary-new outer quarantine — `{row}`"
-    if marker not in card_text:
-        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
-    section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
-    for token in (
-        "status = `accepted_design_stop`",
-        "implementation permission = false",
-        "Birth is the sole canonical ordinary-new owner",
-        "explicit outer compatibility ingress",
-        "name or registry",
-        "never retries",
-        "No JoinIR/JSON quarantine",
-    ):
-        if token not in section:
-            api.fail(f"{row} contract is missing: {token}")
-    if len(card_text.splitlines()) > 1000:
-        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-    print(f"[{api.TAG}] row={row} delegated=ordinary-new-design-stop")
-
-
-def _check_m3_c_joinir_json_design_stop(state: dict, root: Path, api) -> None:
-    """Keep the multi-ingress JoinIR/JSON census fail-closed."""
-    row = api.M3_C_COMPATIBILITY_QUARANTINE_ROW
-    if state.get("work_mode") != "design_stop":
-        api.fail(f"{row} must remain design_stop")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if not str(state.get("current_design_stop", "")).startswith(row):
-        api.fail(f"{row} current_design_stop is missing")
-    if state.get("next_design_card") != row:
-        api.fail(f"{row} next_design_card drifted")
-    if not str(state.get("next_execution_card", "")).startswith("none"):
-        api.fail(f"{row} must keep next_execution_card=none")
-    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} current_execution_design drifted")
-    card_path = root / api.FINAL_PIPELINE_REL
-    if not card_path.is_file():
-        api.fail(f"{row} owning final-pipeline SSOT is missing")
-    card_text = card_path.read_text(encoding="utf-8")
-    marker = f"### M3-C JoinIR/JSON outer quarantine — `{row}`"
-    if marker not in card_text:
-        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
-    section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
-    for token in (
-        "status = `accepted_design_stop`",
-        "implementation permission = false",
-        "ParkedSealed__JoinIrAndJsonHaveMultipleIngressOwners",
-        "sole semantic issuer",
-        "args[0]",
-        "parser retry",
-        "fail-closes",
-        "four outer-ingress censuses",
-        "one owner, one live caller",
-    ):
-        if token not in section:
-            api.fail(f"{row} contract is missing: {token}")
-    if len(card_text.splitlines()) > 1000:
-        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-    print(f"[{api.TAG}] row={row} delegated=joinir-json-design-stop")
-
-
-def _check_m4_mandatory_callee_design_stop(state: dict, root: Path, api) -> None:
-    """Keep the bounded Call R6 migration on its explicit branch seam."""
-    row = api.MANDATORY_CALLEE_R6_ROW
-    if state.get("work_mode") != "fast":
-        api.fail(f"{row} Group A must remain fast")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if state.get("current_design_stop") != "none":
-        api.fail(f"{row} Group A requires current_design_stop=none")
-    if state.get("next_design_card") != row:
-        api.fail(f"{row} next_design_card drifted")
-    if state.get("next_execution_card") != row:
-        api.fail(f"{row} next_execution_card drifted")
-    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} current_execution_design drifted")
-    card_path = root / api.FINAL_PIPELINE_REL
-    if not card_path.is_file():
-        api.fail(f"{row} owning final-pipeline SSOT is missing")
-    card_text = card_path.read_text(encoding="utf-8")
-    marker = f"### M4 mandatory-Callee R6 — `{row}`"
-    if marker not in card_text:
-        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
-    section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
-    for token in (
-        "status = `accepted_fast`",
-        "implementation permission = true",
-        "Group A: MirInstruction Call/LegacyCallV0 type separation",
-        "ExistingMirCallCanonicalAndLegacyCallV0OuterBoundary",
-        "mandatory `Callee`",
-        "Option<Callee>",
-        "callee=None",
-        "Method(None)",
-        "no fallback/retry",
-        "Do not add `CallV2`",
-    ):
-        if token not in section:
-            api.fail(f"{row} contract is missing: {token}")
-    if len(card_text.splitlines()) > 1000:
-        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-    print(f"[{api.TAG}] row={row} delegated=mandatory-callee-design-stop")
-
-
-def _check_call_r6_census_r0(state: dict, root: Path, api) -> None:
-    """Validate the one finite Call census design-stop.
-
-    This dispatch records the next bounded classification step without
-    authorizing a new producer, receipt, adapter, or backend route. The
-    final-pipeline document is the owner; the historical D1B manifest remains
-    the stable guard registry and is not replayed as a second task ledger.
-    """
-    row = api.CALL_R6_CENSUS_R0_ROW
-    if state.get("work_mode") != "design_stop":
-        api.fail(f"{row} must remain design_stop")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if state.get("current_design_stop", "") == "none":
-        api.fail(f"{row} current_design_stop is missing")
-    if state.get("next_design_card") != row:
-        api.fail(f"{row} next_design_card drifted")
-    if not str(state.get("next_execution_card", "")).startswith("none"):
-        api.fail(f"{row} must keep next_execution_card=none")
-    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} current_execution_design drifted")
-    path = root / api.FINAL_PIPELINE_REL
-    if not path.is_file():
-        api.fail(f"{row} owning final-pipeline SSOT is missing")
-    text = path.read_text(encoding="utf-8")
-    marker = f"### M1 census contract — `{row}`"
-    if marker not in text:
-        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
-    section = text.split(marker, 1)[1].split("\n### ", 1)[0]
-    for token in (
-        "status = `accepted_design_stop`",
-        "MirInstruction::Call writers",
-        "canonical producer",
-        "CompatibilityOuterIngress",
-        "ExplicitUnsupported",
-        "DeadDeleteCandidate",
-        "implementation permission = false",
-        "callee=None",
-        "Method(None)",
-        "args[0]",
-        "fallback/retry",
-    ):
-        if token not in section:
-            api.fail(f"{row} contract is missing: {token}")
-    print(f"[{api.TAG}] row={row} delegated=call-r6-census-design-stop")
-
-
 def _dispatch_coreplan_varmap_reseal_row(
     row: str, state: dict, card: dict, root: Path, api
 ) -> None:
@@ -458,69 +280,55 @@ def _check_free_function_publication_i0(
             api.fail(f"true FreeFunction publication I0 implementation owner reached 800 lines: {rel}")
 
 
-def _check_r6_group_b_vm_canonical_print_i0(state: dict, root: Path, api) -> None:
-    """Validate the one-reader canonical Print implementation boundary."""
-    row = api.GROUP_B_VM_CANONICAL_PRINT_I0_ROW
-    if state.get("work_mode") not in {"fast", "closeout"}:
-        api.fail(f"{row} must run in fast or closeout")
+def _check_r6_post_group_b_reader_census_c0(
+    state: dict, root: Path, api
+) -> None:
+    """Keep the closed post-Group-B census and exact reopen trigger aligned."""
+    row = api.POST_GROUP_B_READER_CENSUS_C0_ROW
+    if state.get("work_mode") != "closeout":
+        api.fail(f"{row} must remain closeout")
     if state.get("current_execution_row") != row:
         api.fail(f"{row} pointer row drifted")
-    if state.get("current_design_stop") != "none":
-        api.fail(f"{row} requires current_design_stop=none")
-    if state.get("work_mode") == "fast" and state.get("next_design_card") != row:
-        api.fail(f"{row} next_design_card drifted")
-    if state.get("work_mode") == "closeout" and state.get("next_design_card") != "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0":
-        api.fail(f"{row} closeout next_design_card drifted")
-    if state.get("work_mode") == "fast" and state.get("next_execution_card") != row:
-        api.fail(f"{row} next_execution_card drifted")
-    if state.get("work_mode") == "closeout" and not str(
-        state.get("next_execution_card", "")
-    ).startswith("none"):
-        api.fail(f"{row} closeout must clear next_execution_card")
+    if state.get("current_design_stop") != (
+        "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
+    ):
+        api.fail(f"{row} design-stop result drifted")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not schedule another census")
+    if state.get("next_execution_card") != "none":
+        api.fail(f"{row} must not grant implementation permission")
     if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
         api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-    if state.get("current_execution_design") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} current_execution_design drifted")
+
     card_path = root / api.FINAL_PIPELINE_REL
-    if not card_path.is_file():
-        api.fail(f"{row} owning final-pipeline SSOT is missing")
     card_text = card_path.read_text(encoding="utf-8")
-    marker = f"### R6 Group B — `{row}`"
+    marker = "### Exact reopen trigger"
     if marker not in card_text:
-        api.fail(f"{row} contract is absent from the final-pipeline SSOT")
+        api.fail(f"{row} exact reopen section is missing")
     section = card_text.split(marker, 1)[1].split("\n### ", 1)[0]
-    expected_status = "status = `accepted_fast`" if state.get("work_mode") == "fast" else "status = `closed`"
-    expected_permission = (
-        "implementation permission = true"
-        if state.get("work_mode") == "fast"
-        else "implementation permission = false"
-    )
     for token in (
-        expected_status,
-        expected_permission,
-        "existing source-backed Print issuer",
-        "MirInterpreter::execute_instruction",
-        "exact Builtin(Print) target",
-        "LegacyCallV0",
-        "wrong arity",
-        "non-Print canonical calls",
-        "no VM product promotion",
-        "no R7 deletion",
+        "No further broad census is permitted",
+        "exactly one existing source authority",
+        "exactly one canonical typed issuer before argument descent",
+        "exactly one lossless selected-product/publication consumer",
+        "exactly one real production caller",
+        "one named fail-fast typed reject boundary",
+        "one finite family-exclusive old-edge delete set",
+        "every compatibility reissuer/reader outside the selected route enumerated",
+        "every touched or new owner below the 760-line source trigger",
+        "canonical rejection re-entry/fallback/retry/reselection = 0",
+        "existing focused positive/negative and lane-guard owners named",
+        "migration red classified separately from the known-red baseline",
     ):
         if token not in section:
             api.fail(f"{row} contract is missing: {token}")
-    implementation_files = (
-        "src/backend/mir_interpreter/handlers/mod.rs",
-        "src/backend/mir_interpreter/handlers/calls/global.rs",
-        "src/backend/mir_interpreter/handlers/calls/mod.rs",
-    )
-    for rel in implementation_files:
-        path = root / rel
-        if not path.is_file():
-            api.fail(f"{row} implementation owner is missing: {rel}")
-        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
-            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
-    print(f"[{api.TAG}] row={row} delegated=vm-canonical-print-reader")
+    if f"{row}:" not in card_text:
+        api.fail(f"{row} tombstone is missing")
+    if "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily" not in card_text:
+        api.fail(f"{row} result is missing")
+    if len(card_text.splitlines()) > 1000:
+        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
+    print(f"[{api.TAG}] row={row} delegated=post-group-b-no-safe-slice")
 
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
@@ -534,16 +342,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_published_c_boxshape_row(state, root, row)
     elif row == api.PRINT_PRODUCER_COVERAGE_S0_ROW:
         api.check_delegated_print_producer_coverage_row(state, root, row)
-    elif row == api.CALL_R6_CENSUS_R0_ROW:
-        _check_call_r6_census_r0(state, root, api)
-    elif row == api.GROUP_B_VM_CANONICAL_PRINT_I0_ROW:
-        _check_r6_group_b_vm_canonical_print_i0(state, root, api)
-    elif row == api.M3_B_COMPATIBILITY_QUARANTINE_ROW:
-        _check_m3_b_ordinary_new_design_stop(state, root, api)
-    elif row == api.M3_C_COMPATIBILITY_QUARANTINE_ROW:
-        _check_m3_c_joinir_json_design_stop(state, root, api)
-    elif row == api.MANDATORY_CALLEE_R6_ROW:
-        _check_m4_mandatory_callee_design_stop(state, root, api)
+    elif row == api.POST_GROUP_B_READER_CENSUS_C0_ROW:
+        _check_r6_post_group_b_reader_census_c0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

@@ -30,10 +30,13 @@ Related:
   selected static/free/Print backend rows are typed. Group A now separates the
   canonical `Call(MirCall)` shape from the explicit `LegacyCallV0` outer shape;
   broad compatibility consumers remain reachable, and Hako has no borrow-only
-  published-view ingress for SameModuleInstance.
-- **Next ordered task:** execute one canonical Print reader slice in the VM
-  reference consumer, then continue the finite R6 reader/producer migration.
-  Do not reopen landed source families or add another precursor D0.
+  published-view ingress for SameModuleInstance. R6 Group B's VM canonical
+  Print reader is landed; the post-Group-B census found no single next reader
+  family with a complete cutover tuple.
+- **Next ordered task:** none while
+  `NoSafeSlice__NoSingleRemainingCanonicalReaderFamily` holds. Reopen only an
+  existing family that satisfies the exact tuple below; do not repeat the
+  census or add a precursor D0, receipt, adapter, fixture, or guard.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -171,47 +174,48 @@ in the order owned by `vm-active-lane-retirement-ssot.md`.
 
 This is the authoritative Call projection of the global pipeline above. It is
 not a second MirBuilder, a second task ledger, or permission to recreate a
-landed family. The three completion levels are deliberately separate:
+landed family. Historical `MS1-M` maps to `MS1-P`; historical `MS1-B` work is
+split between the selected consumer gate and later backend migration. The
+three completion levels are deliberately separate:
 
 ```text
-MS1-M  MirBuilder core
+MS1-P  producer / publication core
        every production source family issues one mandatory typed target or a
        named pre-effect rejection; target selection precedes arguments; the
-       module is published atomically; resolver/recovery/fallback/retry are 0
+       module is published atomically; semantic recovery/fallback/retry are 0
 
-MS1-B  product backend
-       each selected product family consumes the borrowed published module;
-       unsupported profiles stop before object emission without semantic repair
+MS1-C  selected consumer and compatibility stop
+       each selected product family consumes a borrowed typed publication or
+       stops before effect/artifact; legacy readers are either stopped or
+       explicit outer compatibility and cannot be entered after canonical
+       admission. Backend feature parity is not required.
 
 MS1-D  physical retirement
-       old Call schema, compatibility readers, family-only tests/guards/docs,
-       selected-C/VM legacy consumers, and disconnected Builder surfaces are 0
+       after caller-zero, old Call schema, compatibility readers/reissuers,
+       family-only tests/guards/docs, and disconnected Builder surfaces are 0
 ```
 
-The fixed order is:
+The critical finish path is fixed. Backend feature migration is a post-R6
+sibling and cannot block the legacy-reader stop path:
 
 ```text
-M0  MIR-CALL-PUBLICATION-SPINE-INTEGRATION-R0
-    closed checkpointを検証して統合。semantic changeなし
-M1  MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0
-    current-HEADのwriter/reader/optional target/repair/backendを一度だけ分類
-M2  MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0
-    残familyを4状態へ閉じ、zero/multiple tupleは追加D0なしでpark
-M3  MIR-CALL-COMPATIBILITY-QUARANTINE-R0
-    legacy/JSON/Unified-OFF/name repairをcore外へ隔離。retryなし
-M4  MIR-CALL-MANDATORY-CALLEE-R6
-    mandatory Calleeへatomic cutoverし、canonical func/optional stateを削除
-M5  MIR-CALL-HAKO-PUBLISHED-VIEW-INGRESS-I0
-    real caller + borrow-only lossless ingressがexactly oneの時だけ再開
-M6  MIR-CALL-BACKEND-FAMILY-CUTOVER-R0
-    一familyを切替え、旧edgeと専有temporary assetsを同じseriesで削除
-M7  MIR-CALL-COMPATIBILITY-RETIRE-R7
-    caller-zero後に旧Call/Method(None)/repair/fallback/retryを削除
-M8  MIRBUILDER-PHYSICAL-THINNING-R0
-    barrel/raw port/variable_map bypass/stale wrapper/dead proofをleaf-first削除
-M9  MIRBACKEND-LEGACY-RETIRE-R0
-    replacement coverageとcaller-zero後にselected-C/Rust-VM consumerを退役
+closed M0--M3 census/disposition/quarantine
+  -> M4 MIR-CALL-MANDATORY-CALLEE-R6
+  -> M7-S MIR-CALL-LEGACY-READER-STOP-R0
+  -> M7 MIR-CALL-COMPATIBILITY-RETIRE-R7
+  -> M8 MIRBUILDER-PHYSICAL-THINNING-R0
+  -> M9 MIRBACKEND-LEGACY-RETIRE-R0
+
+post-R6 optional migration, only with an exact tuple:
+  M5 MIR-CALL-HAKO-PUBLISHED-VIEW-INGRESS-I0
+  -> M6 MIR-CALL-BACKEND-FAMILY-CUTOVER-R0
 ```
+
+`M7-S` may stop an unsupported legacy product reader without first providing
+feature parity. In particular, stopping/quarantining the Rust WASM
+`LegacyCallV0` reader is an R7 prerequisite; implementing Hako WASM W0 is not.
+Likewise, backend `UnsupportedBeforeArtifact` does not invalidate canonical
+MIR and must not reopen source semantics.
 
 ## S-class completion gates (post-M9, non-executable navigation)
 
@@ -254,469 +258,267 @@ After M0 and before the next semantic implementation family, the independent
 `DOCS-HISTORY-RETIRE-R1` repayment may remove its four pre-classified closed
 cards. It is skipped on any census drift and does not block M1.
 
-### M1 census contract — `MIR-CALL-R6-PRODUCER-CONSUMER-CENSUS-R0`
+### Closed census and current disposition
 
 ```text
-status = `accepted_design_stop`
+status = closeout
 implementation permission = false
+current result = NoSafeSlice__NoSingleRemainingCanonicalReaderFamily
 ```
 
-This is one finite, read-only census before Call R6. It starts at all
-`MirInstruction::Call writers` and target-bearing construction owners in the
-MirBuilder, CorePlan, compatibility emitter, published-module, object, C/JSON,
-Hako, VM, verifier, optimizer, serializer, and rewrite surfaces. It ends at
-the canonical `MirModule` publish boundary and every downstream Call reader,
-legacy fallback/retry/repair terminal, and object-emission decision. The
-inventory records each production-reachable site once; test/reference-only
-occurrences are a separate non-production bucket.
+M1/M2 and the post-Group-B census are complete. Their boundary is finite:
 
-The only accepted dispositions are `Canonical`, `CompatibilityOuterIngress`,
-`ExplicitUnsupported`, and `DeadDeleteCandidate`. The census must name the
-source authority, canonical producer, consumer, and finite old-edge delete set
-for every production site. `callee=None`, `Method(None)`, string/name/header or
-registry lookup, `args[0]` or `ValueId(0)` receiver repair, and
-`fallback/retry` are never canonical dispositions. A zero/multiple authority
-tuple is `NoSafeSlice`/`ParkedSealed`; it does not authorize a new receipt,
-adapter, fixture, guard, or implementation row. This row grants **no
-implementation permission** and does not reopen the landed StaticBoxMethod,
-FreeStatic, FreeFunction, Builtin Print, or root-lexical SameModuleInstance
-families.
+```text
+start:
+  every production-reachable MirInstruction::Call writer/reissuer
+  and target-bearing construction owner
 
-M1 has one finite state vocabulary:
+end:
+  Atomic Publish plus every VM/WASM/LLVM/AOT/Hako/selected-C/JSON/object reader,
+  compatibility repair/retry terminal, and artifact admission decision
 
-| disposition | meaning | next action |
+includes:
+  source/package issuers, structural readers, compatibility outer ingress,
+  selected product readers, typed unsupported terminals, old-edge ownership
+
+excludes:
+  parser grammar, unrelated MemOp, test-only occurrence counts as production
+  callers, backend feature parity, and repository-wide cleanup
+```
+
+Raw grep counts are diagnostic only. A structural visitor, test fixture, or
+serializer occurrence is not an independent semantic producer.
+
+The sole current-state vocabulary is:
+
+| disposition | meaning | permitted action |
 | --- | --- | --- |
-| `Canonical` | exact source authority and mandatory typed target exist | retain and include in R6 |
-| `CompatibilityOuterIngress` | public/fixture compatibility still owns the shape | isolate outside canonical core |
-| `ExplicitUnsupported` | language/profile combination is intentionally unsupported | typed reject before effect/object |
-| `DeadDeleteCandidate` | structural asset has caller zero and no public contract | delete with its exclusive evidence |
+| `Canonical` | exact source authority and mandatory typed target already exist | retain; mechanical schema adaptation only |
+| `CompatibilityOuterIngress` | an explicit legacy/wire/reference boundary still owns the shape | stop or quarantine outside the canonical product path |
+| `ExplicitUnsupported` | the selected profile intentionally cannot consume the shape losslessly | typed reject before effect/artifact; no fallback |
+| `ParkedSealed` | zero/multiple owner, consumer, caller, or delete-set | no new D0/receipt/adapter/fixture/guard; reopen only by the exact trigger |
 
-### M1 observed production census (2026-09-03)
+Historical `DeadDeleteCandidate` is not a fifth semantic disposition. A
+caller-zero private asset stays `ParkedSealed` until its deletion evidence is
+complete, then is removed in the owning family series.
 
-The first pass is now mapped by owner rather than by raw `Call` occurrence.
-The raw search includes structural readers and test fixtures; those are not
-independent semantic producers.  The following owner groups cover the
-production-reachable boundary from source publication through backend/object
-admission.  Each group has one disposition; no group is silently counted in
-two rows.
+### Finite family map
 
-This is an observed owner-group map, not a completion claim: M1 remains open
-until the direct production sites and their reissue/reader edges are
-cross-checked against this grouping exactly once.  No implementation row is
-authorized by this map alone.
-
-| owner group | disposition | source/target authority | downstream consumer | finite old-edge set |
-| --- | --- | --- | --- | --- |
-| `UnifiedCallEmitterBox::emit_canonical_instance_value_terminal_v1`, `physical_terminal::emit_finalized_generic_call_v1`, `MirBuilder::emit_prepared_cataloged_call_v1`, and the published-key branch of `VerifiedCanonicalDirectCallEmissionV1::materialize` | `Canonical` | existing source/package handoff, selected `Callee`, and catalog key | `MirInstruction::call` then `MirModule` publication | none for landed families; R6 must preserve the typed callee |
-| `MirBuilder::emit_legacy_call`, unified-OFF `compat_entrypoints`, `exprs_call` unified-OFF, and ordinary-new fallback | `CompatibilityOuterIngress` | legacy `CallTarget`/value ingress only | BoxCall/NewBox/legacy Call consumers | legacy emitter, name carrier, unified-OFF fallback, and ordinary-new fallback |
-| JoinIR `call_generator`/`convert`/block handlers plus JSON v0/v1 parsers | `CompatibilityOuterIngress` | JoinIR or wire payload; not source semantic authority | compatibility MIR module/JSON consumers | Const+Call pair, `func` carrier, `args[0]` receiver convention, wire-name reconstruction |
-| `ssot::method_call`, callsite canonicalization, generic/global method route repair, and string-corridor Call rewriters | `CompatibilityOuterIngress` | existing MIR callee or explicit runtime helper contract; no new source target | optimizer/route metadata and runtime compatibility consumers | string `Method` shape, optional receiver, post-MIR name/box repair, and helper reissuance |
-| `builder_emit` receiver materialization, PHI edge rematerialization, instruction/value/SSA/optimizer/verifier/printer readers | `Canonical` (structural) | already-issued callee and ValueId only; no target lookup | canonical MIR structural consumers | none; adapt mechanically during R6, without semantic re-resolution |
-| published backend view/object admission for landed Global/Print rows | `Canonical` | published module definition table and typed row | selected-C typed transport/object emitter | no name lookup; retain the existing published row |
-| selected-C JSON/name compatibility path, Hako published ingress, and VM reference `SameModuleInstance` arm for arbitrary UserBox | `ExplicitUnsupported` | published-module/profile boundary | object emission or reference executor | no new arbitrary-UserBox admission; reject before object/VM execution |
-| `ssa::phi_input_materializer::legacy_candidate::prepare_legacy_phi_repair_candidate_v1` | `DeadDeleteCandidate` | no production caller; test-only candidate API | exclusive legacy-candidate tests | candidate module plus its exclusive test surface, after caller-zero guard |
-
-The census confirms that the remaining `Call` work is not a new semantic
-resolver: it is compatibility quarantine plus a mechanical R6 schema change.
-The legacy groups remain live until their named caller-zero conditions are
-met.  The PHI candidate is the only currently observed delete candidate; its
-tests are not deleted by this design-stop row.
-
-The direct-site cross-check index for this pass is finite and is kept here so
-the owner groups can be audited without treating every structural match as a
-new task:
-
-* canonical source/direct owners: `calls/build.rs::emit_prepared_cataloged_call_v1`,
-  `canonical_direct_call.rs::VerifiedCanonicalDirectCallEmissionV1::materialize`,
-  `calls/unified_emitter/physical_terminal.rs::emit_finalized_generic_call_v1`,
-  and the claimed `Birth` branch of `ordinary_new_admission.rs`;
-* compatibility ingress owners: `calls/unified_emitter/compat_entrypoints.rs`,
-  `builder/exprs_call.rs` unified-off, `join_ir_to_mir/call_generator.rs`,
-  `join_ir_to_mir/convert.rs`,
-  `join_ir_to_mir/joinir_block_converter/handlers.rs`,
-  `runner/mir_json_v0/{call.rs,module.rs}`,
-  `runner/json_v0_bridge/lowering/expr/call_ops.rs`, and
-  `runner/json_v1_bridge/parse/mir_call.rs`;
-* explicit runtime/projection owners: `ssot/method_call.rs`,
-  `ssot/extern_call.rs`, `array_element_write.rs::canonicalize_legacy_array_write_calls`,
-  and the string-corridor sink/concat rewriters;
-* structural reissuers: `builder_emit.rs`,
-  `ssa/phi_input_materializer/edge_rematerialization.rs`, and the
-  call-rewrite passes.  They copy an already-issued callee and never select a
-  target;
-* parked physical owner: `normal_module_transaction/physical_thunk.rs`,
-  whose source issuer is still `RelationPresentIssuerMissing`;
-* downstream readers: MIR instruction/value/SSA/optimizer/verifier/printer
-  modules, published-view/object admission, JSON emitters, C/wasm/LLVM
-  consumers, and the VM reference handler.  These are readers or explicit
-  profile rejects, not semantic issuers.
-
-Occurrences under `#[cfg(test)]`, test-only modules, archives, and diagnostic
-fixtures are retained in the separate test/reference bucket.  This index is
-the cross-check input for M1; it does not turn a structural reader into a
-producer and does not grant R6 implementation permission.
-
-#### M1 closeout (read-only census)
-
-The direct-site cross-check found no unclassified production-reachable Call
-owner inside the stated boundary.  The canonical writer set is the four
-source/package owners above plus the claimed ordinary-new `Birth` branch; the
-compatibility writer set is the named unified-off, JoinIR, JSON, explicit
-runtime, and ordinary-new fallback ingress; the remaining production matches
-are structural readers/reissuers, explicit profile rejects, or the one parked
-physical-thunk owner.  Test/reference-only occurrences remain outside this
-result.  M1 is therefore closed as a census, not as an implementation or
-schema-cutover claim.
-
-### M2 remaining-family disposition — `MIR-CALL-REMAINING-FAMILY-DISPOSITION-R0`
-
-```text
-status = `accepted_design_stop`
-implementation permission = false
-```
-
-M2 consumes the closed M1 owner map and assigns each remaining family one
-fate before compatibility quarantine or R6.  A family with zero or multiple
-authority tuples is `ParkedSealed`; it must not receive another D0, receipt,
-adapter, fixture, guard, fallback, or retry.  A family is not reopened merely
-because a legacy reader or backend still contains a matching string shape.
-
-| remaining family | disposition | authority/consumer decision | next action |
-| --- | --- | --- | --- |
-| explicit `Extern` provider calls and runtime helper reissuers | `CompatibilityOuterIngress` | explicit provider contract is retained at the outer boundary; no source target is reconstructed from the string | isolate during M3, preserve the typed `Extern` callee in R6 |
-| indirect `Value`/closure invocation | `ExplicitUnsupported` | no single published target/definition consumer is available for the selected product profile | reject before selected object/VM execution; reopen only with an exact tuple |
-| explicit receiver, nested, and upvar instance methods | `ParkedSealed` | receiver/source ingress and a lossless selected consumer are not a single existing owner | no new family asset; reopen trigger is one exact carrier and finite delete set |
-| ordinary-new unclaimed/builtin fallback | `CompatibilityOuterIngress` | claimed `Birth` is canonical; unclaimed builtin/plugin lowering remains an outer compatibility route | quarantine after caller census; no new semantic issuer |
-| physical normal-main thunk | `ParkedSealed__RelationPresentIssuerMissing` | physical owner exists but no source-backed issuer can legally supply its target | leave parked; do not synthesize a symbol or target |
-| arbitrary UserBox on selected-C / Hako published ingress | `ExplicitUnsupported` | current profiles have no lossless published-view consumer for this family | fail before object emission; language `me.method` remains retained |
-| constructor/closure creation (`NewBox`/`NewClosure`) | `Canonical` (outside Call) | these are construction terminators, not Call target producers in this census | keep their existing owners; do not widen the Call schema row |
-
-M2 is complete only when every M1 group is represented by exactly one of the
-four dispositions or an explicitly recorded `ParkedSealed` boundary above.
-The next executable row remains M3 compatibility quarantine; no semantic
-family is reopened by this table.
-
-M2 closeout is accepted: the worker premise audit cross-checked the named
-UnifiedCall, ordinary-new, JoinIR/JSON, explicit-runtime, structural, and
-parked physical owners against this table. No second semantic issuer or
-unclassified production-reachable owner was found. M2 is therefore closed as
-a finite disposition, not as an implementation or Call-schema claim.
-
-### M3-A compatibility quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-A`
-
-```text
-status = `accepted_fast`
-implementation permission = true
-scope = `UnifiedCallEmitterBox` environment-disabled fallback only
-```
-
-```text
-Decision:
-  Fence the existing env-disabled legacy fallback outside the canonical
-  UnifiedCallEmitterBox core. Keep the explicit compatibility owner intact.
-
-Source authority + canonical issuer:
-  Existing source/package issuer and `emit_unified_call_required_v1` issue
-  the typed call. The compatibility outer caller owns legacy emission.
-
-Non-authority:
-  env reads inside the core, JSON, JoinIR names, registry/header lookup,
-  args[0], backend success, fallback results, and a new receipt or adapter.
-
-Fail-fast boundary:
-  Required ingress must never reach `emit_legacy_call`. If canonical and
-  compatibility callers cannot be separated, stop before changing code.
-
-Smallest next slice:
-  Remove the `!unified_call_enabled -> emit_legacy_call` branch from
-  `UnifiedCallEmitterBox`; route explicit compatibility through its existing
-  outer owner without changing Call schema or ordinary-new/JoinIR/JSON paths.
-
-Non-claims:
-  No M3-B ordinary-new change, no M3-C JoinIR/JSON change, no mandatory-Callee
-  R6, no backend/VM change, and no new semantic target authority.
-```
-
-Census boundary: `UnifiedCallEmitterBox::emit_unified_call` entry -> its
-`emit_legacy_call` branch and required-ingress terminal; includes the env
-disabled branch and `RequireGenericReceipt`, excludes `exprs_call.rs`,
-`boxcall_emit.rs`, ordinary-new, JoinIR, JSON, VM, and backend consumers.
-
-M3-A acceptance is mechanical:
-
-```text
-UnifiedCallEmitter core env reads                         = 0
-UnifiedCallEmitter core `emit_legacy_call` calls          = 0
-required ingress -> legacy route                         = 0
-explicit compatibility outer callers                    = preserved
-Call schema / target authority                            = unchanged
-```
-
-At least one focused positive required-ingress test and one negative
-legacy-reachability test must be recorded. Existing known-red baseline
-comparison remains mandatory; an unclassified red aborts the row.
-
-M3-A closeout is accepted at `474e8518b0`:
-
-```text
-UnifiedCallEmitter core env reads                         = 0
-UnifiedCallEmitter core `emit_legacy_call` calls          = 0
-required ingress -> legacy route                         = 0
-explicit compatibility outer callers                    = preserved
-Call schema / target authority                            = unchanged
-```
-
-The outer `MirBuilder` facade now owns the profile decision; the typed core
-is configuration-free, and required/receipt ingress fails closed when the
-profile is disabled. Focused evidence is `physical_receipt` 23/23,
-`method_call_terminal` 8/8, and
-`normal_script_direct_static_physical_publication` 3/3. The fixed baseline
-runner was observed three times with identical
-`7578 total / 7411 passed / 138 failed / 29 ignored`, inventory SHA
-`0632d98fe396207747dd7b597563f08e81b1dfaf4054340b4cb411edc2ac12dd`, and
-failure SHA `29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1`.
-The inventory grew by one passing focused test; the 138-name known-red set
-did not change. The manifest refresh is therefore an explicit baseline
-receipt update, not a green-suite claim. Python comparator tests (15/15),
-pointer guard, and diff check pass. No Call-schema, ordinary-new, JoinIR,
-JSON, backend, VM, fallback, or retry semantics changed.
-
-`Method(None)`, `callee=None`, a string target, backend success, JSON, a
-registry/header lookup, `args[0]`, and `ValueId(0)` are never canonical target
-authority. Construction terminators such as NewBox/NewClosure remain outside
-the Call schema census unless they consume or recreate a Call target.
-
-The currently landed source families are not reopened by M1/M2:
-StaticBoxMethod, FreeStatic, FreeFunction, Builtin Print, and the root-lexical
-SameModuleInstance semantic vertical. Broad Extern, Value/closure invocation,
-explicit object method ingress, nested/upvar receiver, ordinary-new no-claim,
-generic CorePlan GlobalCall, and physical thunk stay parked unless the census
-finds exactly one existing source authority, one canonical issuer, one live
-caller, one lossless selected consumer, and one finite old-edge delete set.
-
-MirBuilder core completion is reached at MS1-M, not after repository cleanup:
-
-```text
-supported source family -> Facts/Recipe -> mandatory typed target
-                        -> arguments once -> canonical Call -> Atomic Publish
-unsupported family      -> named typed reject before source/object effect
-
-production callee=None                         = 0
-production Method(None)                        = 0
-target repair by AST/name/header/registry      = 0
-receiver inference from args[0]/ValueId(0)     = 0
-fallback / retry / profile reselection         = 0
-partial module publication                     = 0
-```
-
-### M3-B ordinary-new outer quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-B`
-
-`M3-B` is closed as
-`ParkedSealed__OrdinaryNewUnclaimedCompatibilityMultiWriterSharedOwner`.
-The existing `Birth` route is the sole canonical ordinary-new issuer, while
-two unclaimed compatibility writers share the outer legacy APIs; therefore
-there is no exclusive delete-set and no implementation slice. Name/registry
-reissue, fallback/retry, new receipt/adapter, and ordinary-new widening remain
-forbidden. Reopen only when one live outer owner and one finite delete-set are
-proven; otherwise keep this family parked.
-
-### M3-C JoinIR/JSON outer quarantine — `MIR-CALL-COMPATIBILITY-QUARANTINE-M3-C`
-
-```text
-status = `accepted_design_stop`
-implementation permission = false
-scope = JoinIR/JSON outer ingress -> first MIR Call/module publication
-Decision = ParkedSealed__JoinIrAndJsonHaveMultipleIngressOwners
-```
-Canonical source/package publication remains the only semantic issuer (the sole semantic issuer).
-JoinIR bridge, MIR JSON v0/v1, Program JSON v0, and JSON egress are separate
-compatibility owners; wire names, `func`/Const, `args[0]`, registry lookup,
-parser retry, and backend success are non-authority. Each ingress fail-closes
-without canonical or alternate-parser fallback.
-Four read-only outer-ingress censuses are complete: JoinIR is a test-only
-`DeadDeleteCandidate` pending API/evidence/merge independence; MIR JSON,
-Program JSON, and JSON egress each have multiple caller series and shared
-fallback/reparse edges. No JoinIR/JSON deletion, Call R6, backend/VM change,
-or new receipt/adapter is authorized until one owner, one live caller, and an
-exclusive finite delete-set are proven for one ingress. Initial roots are
-`src/mir/join_ir_to_mir`, `src/runner/mir_json_v0`, `json_v1_bridge`,
-`json_v0_bridge`, and `mir_json_emit`.
-
-### M4 mandatory-Callee R6 — `MIR-CALL-MANDATORY-CALLEE-R6`
-
-```text
-status = `accepted_fast`
-implementation permission = true
-scope = Group A: MirInstruction Call/LegacyCallV0 type separation
-Decision = ExistingMirCallCanonicalAndLegacyCallV0OuterBoundary
-```
-The existing source/package issuer and typed `MirCall` remain canonical, but
-public `MirInstruction::Call` is now the bounded Group A implementation seam.
-Promote the existing `MirCall` to canonical mandatory `Callee` `Call(MirCall)` and isolate the
-old `func`/`Option<Callee>` fields as `LegacyCallV0`; no target/effect/ABI
-re-resolution is allowed. `callee=None` and `Method(None)` remain explicit
-legacy-only shapes during R6 and are rejected by canonical publication.
-Canonical publish rejects `LegacyCallV0`, while explicit compatibility ingress
-may retain it until R7. Move writers/readers mechanically, classify every
-changed test and red, and keep no fallback/retry. Do not add `CallV2`, a second
-resolver, or a new semantic receipt. Group A ends at compiling central APIs;
-later writer/backend/compatibility migration remains in the same branch series.
-Canonical coreの最終targetはopaque IDやphysical symbolではなくwire-stableなtyped
-structural identityである。追加familyはproduction censusが証明した場合だけ加え、
-legacy Stringはowner-private compatibility ingressで一度だけ解決しcoreへ入れない。
-
-#### Group A closeout — `45c6759962`
-
-`MirInstruction::Call(MirCall)` is now the canonical mandatory-callee shape for
-the bounded Group A seam. The former `func`/`Option<Callee>` carrier is explicit
-`LegacyCallV0`; no active-tree struct-style `MirInstruction::Call { ... }`
-literal remains. Central readers, diagnostics, remappers, and published-view
-admission understand both shapes without re-resolving target, effect, or ABI.
-The evidence is limited to this bounded seam: `cargo test --no-run`,
-`cargo build --features vm-reference`, focused instruction/physical/view/JSON
-tests, pointer/active-surface guards, and `git diff --check` passed. This does
-not claim producer/reader caller-zero, R7 deletion, Hako/VM retirement, or a
-green whole-library suite. The next boundary is the read-only
-`MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0`; Group B and R7 remain unopened.
-
-### R6 current-HEAD re-census — `MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0`
-
-The post-Group-A scan is bounded to active `src/`, `crates/`, and `tests/`
-Rust/`inc` files (excluding `archive/` and `target/`). It starts at the two
-`MirInstruction` call variants and ends at MIR structural consumers,
-publication/view admission, JSON/JoinIR compatibility ingress, and compiled
-backend readers. Raw occurrences are not semantic owner counts:
-
-```text
-canonical `MirInstruction::Call(...)` matches       45 lines / 19 files
-canonical `MirInstruction::call(...)` constructors  31 lines / 16 files
-explicit `LegacyCallV0` matches                    877 lines / 326 files
-receiverless `Callee::Method` shapes                11 files
-`callee: None` literal matches                      32 lines
-`emit_legacy_call(` matches                          5 lines
-```
-
-The finite owner dispositions are:
-
-| owner class | disposition | current evidence and boundary |
+| family / boundary | disposition | authority / reason |
 | --- | --- | --- |
-| existing `MirInstruction::call` producers and typed tuple readers | `Canonical` | source/package owners and central MIR structural readers; no new target/effect/ABI issue |
-| Builder legacy facade, JoinIR conversion, JSON v0/v1 parsing, unified-off and explicit compatibility ingress | `CompatibilityOuterIngress` | `LegacyCallV0` is retained at the outer boundary until R7; no canonical fallback into it |
-| instruction methods, value/SSA/optimizer/verifier/printer, callsite rewriters, and published-view validation | `Canonical` / structural | copy or validate an issued callee; they must not select a target or infer a receiver |
-| MIR interpreter, WASM, and product LLVM readers that currently match only `LegacyCallV0` | `CompatibilityOuterIngress` | reader migration is still required; canonical `Call` has no direct backend arm yet and must fail closed rather than fall back |
-| `Callee::Method { receiver: None, .. }`, missing-callee guards, and legacy sentinel fixtures | `ExplicitUnsupported` / compatibility | never a canonical publication shape; keep only at the explicit outer/test boundary |
+| Global StaticBoxMethod, FreeStatic, FreeFunction, Builtin Print | `Canonical` | source/package key, mandatory typed callee, and Atomic Publish relation landed |
+| root-lexical SameModuleInstance semantic issuance | `Canonical` | exact InstanceBoxMethod key plus mandatory receiver; backend coverage is separate |
+| claimed Birth and direct NewBox/NewClosure construction | `Canonical` | construction issuer is typed; legacy Call-carried constructor/closure readers are a separate parked boundary |
+| builder/PHI/SSA/verifier/printer call visitors | `Canonical` structural | copy or inspect an issued callee; never select a target |
+| unified-OFF, `emit_legacy_call`, and each unclaimed ordinary-new fallback ingress | `CompatibilityOuterIngress` | individual legacy value/name ingress surfaces; cannot re-enter after canonical admission |
+| each JoinIR, MIR-JSON v0/v1, and Program-JSON/selfhost JSON ingress | `CompatibilityOuterIngress` | individual wire compatibility surfaces, not source semantic authority |
+| runtime string Method/Extern helpers and repair corridors | `CompatibilityOuterIngress` | names, headers, registries, `args[0]`, and backend success are non-authority |
+| selected-C arbitrary UserBox and selected indirect Value/Closure | `ExplicitUnsupported` | no lossless selected-product consumer; reject before object |
+| VM canonical non-Print target | `ExplicitUnsupported` | Print is the only landed canonical VM reader family |
+| explicit/nested/upvar instance and deferred shadow profile | `ParkedSealed` | no single source/issuer/caller/delete-set tuple |
+| ordinary-new multi-writer migration family and combined JoinIR/JSON migration family | `ParkedSealed` | aggregate cutover family has multiple outer owners; this does not reclassify each ingress surface above |
+| Hako SameModuleInstance ingress and mixed LLVM/Hako/selected-C consumer | `ParkedSealed` | no borrow-only lossless Hako consumer/caller |
+| generic CorePlan GlobalCall, physical normal-main thunk, Call-carried Constructor/Closure residual | `ParkedSealed` | missing sole issuer or exclusive delete-set |
+| test-only PHI legacy candidate | `ParkedSealed` pending deletion evidence | private candidate; not a Call-schema completion shortcut |
 
-The scan found no active old struct-style `MirInstruction::Call { ... }`
-literal and no new semantic issuer introduced by the enum split. It did find
-three completion blockers for the next R6 slice: (1) the published backend
-view still accepts both instruction shapes, (2) compiled backend readers do
-not yet consume `Call(MirCall)` directly, and (3) the raw legacy carrier
-remains present across compatibility and structural reissuers. Therefore this
-re-census closes the Group-A inventory but does not authorize global schema
-deletion. Group B must choose one existing reader/family, add no new issuer,
-and prove a finite old-edge delete set before implementation permission is
-opened.
+A family may have canonical semantic issuance and an unsupported or parked
+backend profile at the same time. That is not a conflict: backend capability
+does not flow backward into source validity.
 
-### R6 Group B — `MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0`
+### Backend/profile disposition
 
-```text
-status = `closed`
-implementation permission = false
-```
+| profile | canonical cohort | disposition |
+| --- | --- | --- |
+| selected-C typed published view | StaticBoxMethod, FreeFunction, Builtin Print | `Canonical` typed consumer |
+| selected-C | arbitrary UserBox SameModuleInstance | `ExplicitUnsupported` before object |
+| VM reference | Builtin Print | `Canonical` typed consumer |
+| VM reference | other canonical calls | `ExplicitUnsupported`; legacy VM arm remains outer compatibility |
+| Rust WASM | legacy reader | `CompatibilityOuterIngress`; stop/quarantine before R7 |
+| Hako LLVM-text | current RecipeFacts/JSON/name routes | `CompatibilityOuterIngress`; no semantic authority |
+| Hako published view | SameModuleInstance and general module ingress | `ParkedSealed` until one lossless caller exists |
+| JSON canonical egress | typed structural display/transport | `Canonical` structural consumer |
+| MIR/Program JSON ingress | legacy carrier production | `CompatibilityOuterIngress`; stop before R7 or keep outside product |
 
-The first Group-B candidate is deliberately one reader and one canonical
-family. The existing source-backed Print issuer is the only semantic owner;
-the VM reference backend is merely a typed consumer. This row does not make VM
-the product backend and does not delete the legacy carrier.
+The current selected-C runner still has a dirty automatic transition when no
+typed row is selected. A canonical call family must become either typed
+consumption or `UnsupportedBeforeArtifact`; it must not fall through to the
+JSON selected-C route. Zero-call physical admission is a separate concern.
 
-```text
-source authority:
-  print_stmt::build_print_from_value -> unified typed Print target
+### Exact reopen trigger
 
-canonical issuer:
-  emit_unified_call_required_v1 -> physical terminal -> MirInstruction::call
-
-consumer:
-  MirInterpreter::execute_instruction -> execute_global_target(Print)
-
-non-authority:
-  func/Option<Callee>, name lookup, registry, args[0], fallback, retry,
-  and the legacy handle_call entrypoint
-
-fail-fast:
-  canonical Call is accepted only for the exact Builtin(Print) target in this
-  row; wrong arity is rejected before provider dispatch and every other
-  canonical target remains an explicit unsupported error.
-
-old-edge delete set:
-  the single canonical Print-to-wildcard unsupported branch in the VM reader.
-  LegacyCallV0 writers/readers and all other backend routes are out of scope.
-
-acceptance:
-  execute_instruction runs one canonical Print call, rejects wrong arity and
-  non-Print canonical calls without legacy/name fallback, and existing VM
-  feature build plus focused tests remain green.
-
-non-claims:
-  no VM product promotion, no SameModuleInstance support, no R7 deletion,
-  no JSON/JoinIR migration, no Call schema redesign, no new receipt/variant.
-```
-
-The bounded reader implementation is now complete: canonical Print is handled
-directly by `execute_instruction`, wrong arity and non-Print canonical calls
-fail closed, and `LegacyCallV0` remains untouched as explicit outer
-compatibility. Focused positive/negative tests, the existing VM feature build,
-the active-surface dispatch, the current-state pointer guard, and diff checks
-are the required evidence. This closeout does not claim whole-schema reader
-caller-zero or any product-backend/VM retirement.
-
-The next design-only boundary is one fresh post-Group-B Call reader census;
-until that census is accepted, no second reader family or R7 deletion opens.
-
-### R6 post-Group-B reader census — `MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0`
+No further broad census is permitted. One existing family may reopen only when
+all of the following are named at once:
 
 ```text
-status = `design_stop`
-implementation permission = false
-scope = fresh finite reader/producer census after Group-B Print
+exactly one existing source authority
++ exactly one canonical typed issuer before argument descent
++ exactly one lossless selected-product/publication consumer
++ exactly one real production caller
++ one named fail-fast typed reject boundary
++ one finite family-exclusive old-edge delete set
++ every compatibility reissuer/reader outside the selected route enumerated
++ every touched or new owner below the 760-line source trigger
++ canonical rejection re-entry/fallback/retry/reselection = 0
++ existing focused positive/negative and lane-guard owners named
++ migration red classified separately from the known-red baseline
 ```
 
-Reclassify only the changed canonical-reader surface and its downstream
-compatibility boundaries. Do not reopen Print, add a new semantic issuer, or
-select another reader until one finite owner/caller/delete-set is named.
+Ordinary `FunctionCall` additionally requires one-traversal observer-only
+site/name/arity/argument facts and complete pre-install disposition. If the
+tuple is zero or multiple, the family remains `ParkedSealed`; do not create a
+new semantic `Verified*`/`Prepared*` product or a temporary fallback.
 
-The post-Group-B census is closed at `bb41e2e880` as
-`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`. Its boundary covered
-the changed canonical `MirInstruction::Call(MirCall)` surface through the
-published view and downstream VM, WASM, LLVM/AOT, Hako, selected-C, and JSON
-consumers. The remaining surfaces either belong to landed families or still
-combine compatibility authorities: WASM reads `LegacyCallV0`, product
-LLVM/Hako/selected-C have no single lossless consumer, and Extern,
-Constructor, and Value/Closure have no one live caller with an exclusive
-delete-set. Do not open a second reader family, schema cutover, backend retry,
-new receipt, or R7 deletion from this census. Reopen only when an existing
-source authority, canonical issuer, lossless consumer, one production caller,
-and finite old-edge delete-set are all named.
+### Executable task contracts
 
-このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
-selected shadow profileでDeferredになりpackage発行へ到達できないため、target
-loanより前に次を設計しなければならない。
+The following are one dependency program, not simultaneously active cards.
+
+#### M4 — `MIR-CALL-MANDATORY-CALLEE-R6`
+
+Open only for one family satisfying the exact trigger. The bounded series is:
 
 ```text
-same traversal observer-only site/name/arity/argument observation
-  -> owner tree can complete without issuing a target
-  -> complete inventory is dispositioned before package install
-  -> exact typed target or typed reject / ParkedSealed
+take existing source/package target
+-> own mandatory typed Callee before argument descent
+-> lower arguments once
+-> publish canonical Call(MirCall)
+-> selected typed consume or UnsupportedBeforeArtifact
+-> switch the named production caller
+-> delete the selected semantic repair/re-entry edge
+-> prove fallback/retry = 0
 ```
 
-観測scratchをpackage外へ浮遊させたり、第二AST walkで回収したりしない。既存brand
-で検出できない具体的mispairが無い限り、新しいresolver-session receiptも作らない。
+No `CallV2`, second Builder, new resolver, Global disguise for instance
+methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
+allowed. Group A's instruction-shape split and Group B's VM canonical Print
+reader are closed tombstones; they are not reopened.
 
-Call closure前の巨大integration ownerは保持する。semantic changeで触るsourceが
-760行以上なら、そのrowの直前にbehavior-neutral owner-specific splitを置き、800行
-到達をhard stopにする。Call closure後にだけ、`CompilationContext`、raw ports、
-semantic adapter、ambient root/recursion state、`builder.rs` barrelをfinite owner単位で
-縮める。全面crate splitや第二MirBuilderは作らない。
+#### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
+
+After the R6 canonical core checkpoint, stop each legacy product reader by one
+of exactly three outcomes:
+
+```text
+TypedConsumer
+ExplicitUnsupportedBeforeArtifact
+ExplicitCompatibilityOuterIngress unreachable from product selection
+```
+
+The initial stop inventory is:
+
+1. canonical-to-selected-C JSON automatic fallback;
+2. VM `LegacyCallV0` product reader;
+3. Rust WASM `LegacyCallV0` product reader;
+4. Hako/LLVM legacy product reader;
+5. MIR/Program JSON ingress that still produces a product-reachable legacy
+   carrier.
+
+Each stop is caller-by-caller and must name its delete-set. It does not require
+feature parity or a replacement backend. A stopped unsupported profile is a
+valid result. A compatibility route may remain only as an explicit outer
+entrypoint and must never be selected after canonical failure. If that outer
+entrypoint still has a live production caller, R7 remains closed until the
+caller is removed or migrated.
+
+#### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
+
+Open only when every production legacy writer, reissuer, and reader is
+caller-zero. Then remove in one isolated migration series:
+
+```text
+LegacyCallV0
+Call.func and legacy target Const
+callee=None
+receiverless / name-based Method(None)
+ValueId(0) missing sentinel
+args[0] receiver inference and duplicate-strip repair
+header/registry/name target reconstruction
+typed failure -> JSON/backend fallback or retry
+```
+
+Compiler errors may expose mechanical readers, but are not the sole inventory.
+Serializer/deserializer, verifier, optimizer, printer, SSA rewrite, C shims,
+VM/WASM/Hako/LLVM readers, and public compatibility entrypoints must all be
+accounted for before deletion.
+
+#### M5/M6 — post-R6 backend migration
+
+Hako published-view ingress and backend family replacement are optional
+post-R6 migrations. They use the same published identity and borrow-only view;
+they do not issue source meaning. They may run before or after R7 only if their
+input no longer requires the deleted legacy carrier.
+
+For WASM specifically:
+
+```text
+pre-R7 requirement:
+  stop or quarantine the Rust LegacyCallV0 reader
+
+not an R7 requirement:
+  implement WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0
+
+post-R6 migration:
+  W0 lossless Hako ingress -> W1 scalar FreeFunction -> W2 default cutover
+  -> W3 caller-zero Rust codegen retirement
+```
+
+#### M8/M9 — physical thinning and backend retirement
+
+After R7, remove builder barrel registrations, raw ports, `variable_map`
+bypasses, stale wrappers, disconnected proof modules, and retired backend
+consumers leaf-first. A file move or tracked archive copy receives zero
+reduction credit. Each family deletes its private tests/guards/docs with the
+old edge; durable history remains in Git.
+
+### Evidence reuse and repayment
+
+Do not add an R6/R7-specific guard. Reuse the existing lifecycle, canonical
+corridor, Global-target, pointer, and diff guards. Canonical structure/read
+coverage stays in the existing instruction, printer, ownership-SSA, compiler
+Call, VM/WASM, JSON parser, and published-backend-view test owners.
+
+For each family cutover:
+
+1. keep canonical positive/negative tests;
+2. quarantine compatibility tests while a public compatibility caller lives;
+3. delete caller-zero private tests, fixtures, adapters, and guards;
+4. retire an old guard only when an equal-or-stronger lane guard owns the rule;
+5. compact closed docs to hash plus one-line outcome; do not copy an archive
+   into the tracked tree;
+6. record tracked files/lines and old-edge delta before choosing the next
+   family.
+
+The known-red baseline is separate from migration red. Every changed test is
+named; unclassified new red blocks the cutover.
+
+### Closed history tombstones
+
+```text
+M1/M2:
+  finite producer/consumer census and family disposition closed on 2026-09-03;
+  no unclassified production owner was found inside the stated boundary.
+
+M3-A:
+  canonical UnifiedCallEmitter core has no env read or legacy emission call;
+  outer compatibility remains explicit.
+
+M3-B/M3-C:
+  ordinary-new and JoinIR/JSON multi-owner families are ParkedSealed; no new
+  adapter or receipt was admitted.
+
+R6 Group A:
+  canonical Call(MirCall) and LegacyCallV0 are separate instruction shapes.
+
+R6 Group B:
+  VM consumes canonical Builtin(Print); wrong arity/non-Print fail closed.
+
+MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0:
+  NoSafeSlice__NoSingleRemainingCanonicalReaderFamily.
+```
+
+The exact landed commits and command receipts remain in Git and
+`CURRENT_STATE.toml`; they are not duplicated here. Source files at or above
+760 lines must be split behavior-neutrally before semantic growth; 800 lines is
+a hard stop.
 
 ## Authority map
 
@@ -748,131 +550,33 @@ demand/session境界は`loop-common-physical-demand-and-session-ssot.md`が
 所有する。現在実行中のbounded profileとexact rowは
 `CURRENT_STATE.toml`の`current_execution_design`へ辿り、ここへ複製しない。
 
-### Selected initializer materialization seam
+### Delegated Loop boundary
 
-pre-Builder semantic packageとLowerで初めて割り当てられる物理値は、互いを
-再発行しない兄弟authorityである。selected callableがLoopへ入るときだけ、
-次のrelationを一度co-sealする。
+Loop-specific selected initializer, parameter/result carrier, JoinSig,
+physical-demand/session, A-prime, and common-physicalizer rules are owned only
+by:
 
-```text
-installed-package selected semantic loan
-  requires SelectedCallableSemanticRefV1::Dynamic
-  + request-local completed local materialization
-  + exact located Loop source/schedule
-  -> one scoped selected Dynamic initializer admission
-```
+- `joinir-loop-selfhost-recipe-pipeline-ssot.md`
+- `loop-common-physical-demand-and-session-ssot.md`
+- the exact active Loop card selected by `CURRENT_STATE.toml`
 
-packageはcallable/Recipe/lifecycle意味を所有し、request-local stateは
-`BindingRef -> ValueId`投影だけを所有する。located Loop boundaryは両者を
-co-sealしてsole consumerへ渡すが、source semantics、Recipe、JoinSig、型を
-再発行しない。Ordinary/Staticはこのcellを選択せず、既存の唯一のpost-success
-TypeContext publicationとexact-MirType routeを保つ。Dynamicだけがpackage-loaned
-programからbounded V2 routeへ入る。missing/foreign/duplicate relationはeffect前に
-rejectする。新しいStatic/Dynamic closed sumやfamily arbitrationを作らず、
-Dynamicを`MirType::Unknown`やlegacy GenericLoopで偽装しない。
-
-selected Dynamicの最終source authorityはfinal exit-transaction co-sealから貸す
-narrow initializer viewである。移行中のgeneric source seedは、cutoverでproduction
-callerを0にするか、final programと一つのpackage-internal non-splittable co-seal
-からだけborrow可能にする。二つのsource classifierを独立consumerへ公開しない。
-
-admissionだけをcaller-zero productとして先行発行してはならない。最終co-seal
-はnamed consumerと同じproduction replacement cellでissue/consumeし、旧selected
-edgeを同時に削除する。selfhost header-result carrierとのbootstrap循環で
-source-backed result/ABIが不足する場合、正本sourceへ明示result annotationを
-置き、現在選択中のfrontendがnormalized header rowを一件だけ発行する。現在は
-Rust final-source producer、selfhost parity後はHako producerをatomic cutoverで
-選ぶ。同一compileで両方をadmitせず、frontend固有result receipt、body/Loop/MIR
-inference、compatibility retry、fixture narrowingで循環を越えない。
-
-明示result `: i64`はdeclared-result syntax authorityであって、logical class
-`Dynamic`の物理carrierを`Integer`としてReturnできる証明ではない。bounded
-`ParserScanLoopBox.skip_while/4`は、その変換自体を避けるA-primeを採用する。
+This global pipeline retains only the ordering law:
 
 ```text
-A-prime:
-  pos/end: i64 source contract
-  -> exact parameter transport / BindingRef relation
-  -> exact local copy i = pos
-  -> mixed typed Recipe
-  -> I64 carrier / operations / returns
-  -> ImmediateI64 AOT/LLVM physicalization
-     Rust VM evidence is reference/compatibility-only and non-gating
-
-not selected here:
-  global all-values-as-handles
-  language-wide tagged representation cutover
-  terminal Dynamic-to-i64 helper
+source/package semantic program
+-> verified Recipe and JoinSig
+-> Builder-free physical demand
+-> session-local ValueId/BasicBlockId realization
+-> DraftSeal
+-> Atomic Publish
 ```
 
-source result annotationからcarrierを逆算しない。`pos/end`のsource contract、
-resolver binding、local copy、Recipe class、physical representationを一方向に
-co-sealする。`src`/`pred_chars`とDynamic invocation temporariesはDynamicのまま、
-induction carrierだけをI64にする。consumerがbare bits、metadata、runtime table、
-TypeOp、MirType、sentinel-zero helperから欠落したprovenanceを修復してはならない。
-
-parameter/result境界は二つの時刻へ分ける。
-
-```text
-pre-session demand:
-  exact parameter contracts
-  + mixed Recipe / JoinSig / Completion sites
-  + required target capability
-  ValueId / BasicBlockId / MIRなし
-
-session-local realization:
-  exact demand row + formal/local/PHI/return physical IDs
-  -> ImmediateI64 receipts + site-keyed Completion claims
-```
-
-semantic ownerはsession IDsを持たず、session realizationはresult contract、return
-site、Recipe classを再分類しない。AOT/LLVMはexact selected capabilityがあれば
-`Direct`、なければ`RejectBeforeEffect`であり、A-prime I0に`Checked` helperはない。
-Rust VMはproduction capability、session prerequisite、cutover gateではなく、新しい
-DynamicV2 provider/receipt/representation adapterを追加しない。
-Dynamic temporary Faultとcleanupのprimary/suppressed順序は既存exit transactionが
-所有する。source annotationを理由に既存Dynamic ValueIdへ`MirType::Integer`を
-後付けしてはならない。full tagged Dynamic corridorは将来taskとしてparkし、
-A-prime失敗時に自動選択しない。
-
-### Bounded loop unification boundary
-
-Dynamic full-body cohortがphysical-input/demandまで閉じた後も、common
-physicalizerはRecipeからtransferを再推論してはならない。統一する核は
-次の二つのcomplete protocolだけである。
-
-```text
-verified Recipe placement
-  + JoinSig-owned logical transfer view
-  -> prepared physical layout
-
-complete operation/source-effect ledger
-  -> complete physical demand
-```
-
-`physical_layout`/`recursive_after`は`LoopConditionV1`や`as_recipe()`から
-Predicate/Jump/Backedgeを再構築せず、`segment_allocator`はRecipe条件を再走査
-してHeader/Bodyを再分類しない。common physicalizerのstop lineは
-`ReadyLoopAfterContinuationV1`であり、Callable profile-close、Tail、ABI、
-Completionはcallable ownerが持つ。V1/V2を型変換するadapter、synthetic
-`ItemKey`、名前・順序によるrepair、第二JoinSig/Recipe/physical plannerは
-禁止する。
-
-このcleanupはA-prime parameter/Recipe/physical-input rowsの後に開くparked
-BoxShape laneであり、実行行を先取りしない。詳細なsubtaskとcaller-zeroの
-退役条件は、active Dynamic cardの
-`LOOP-UNIFICATION-AFTER-DYNAMIC-D0` sectionだけを参照する。
-
-Durable order is the exact parameter contract, atomic mixed-Recipe recut, then
-Builder-free physical input. Loop authority cleanup and the AOT/LLVM
-exact-I64 gate are mandatory before site-keyed Completion, DraftSeal
-preparation, and session-local realization open. Rust VM is not a mandatory
-sibling and cannot unlock production. One production replacement follows.
-After the first production cutover, semantic parity and performance
-promotion may proceed as
-sibling proofs; every required sibling must be green before a selfhost
-producer is activated. Exact task tokens and cleanup census remain in the
-active card.
+Loop lowering may not reconstruct Recipe transfer, ABI, result, continuation,
+or source membership from MIR, names, ordering, metadata, or backend success.
+Rust VM is not a production capability gate. A Loop family with no sole
+source authority, consumer, caller, and old-edge delete-set is
+`ParkedSealed`; it does not reopen the Call R6/R7 program or justify a second
+planner, adapter, receipt, or fallback.
 
 ## Non-negotiable laws
 
@@ -1099,7 +803,7 @@ backendは`MirType`、metadata、ABI manifest、storage planを独立に再結�
 ## Completion authority
 
 `MIRBUILDER-FINAL-PIPELINE-v1`全体は、次がproduction graphで成立した
-ときに着地する。MirBuilder core単体のMS1-M境界は上のCall completion
+ときに着地する。MirBuilder core単体のMS1-P境界は上のCall completion
 programが所有し、backend coverageと物理retirementをcoreの再設計条件へ
 逆流させない。
 

@@ -45,59 +45,36 @@ inventory gained one passing test and the 138-name known-red set is unchanged.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
-and parked. M4 R6 Group A closed at `45c6759962`: canonical `Call(MirCall)` and
-explicit `LegacyCallV0` now have separate instruction shapes, central readers
-support both, and the bounded focused/feature-build/guard evidence is green.
-The read-only R6 current-HEAD re-census and Group-B implementation are closed.
-The branch is at a clean closeout boundary after the existing VM reference
-reader's canonical Builtin(Print) arm; this was not VM promotion or a new
-semantic owner:
+and parked.
+R6 Group A closed at `45c6759962` and Group B closed at
+`cce62db090`: canonical and legacy instruction shapes are separate, and the
+VM reference reader directly consumes canonical Builtin(Print) while wrong
+arity and other canonical targets fail closed. The finite post-Group-B census
+closed at `bb41e2e880` with
+`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`.
+
+Do not repeat the census. No next implementation card is selected. Reopen one
+existing family only when source authority, typed issuer, lossless selected
+consumer, real production caller, fail-fast terminal, exclusive old-edge
+delete-set, outside-reader inventory, and source budget form one exact tuple.
+
+The finish path is:
 
 ```text
-R6 Group A is closed; do not claim whole-schema completion
-  -> current-HEAD census is closed
-  -> execute one bounded Group-B reader slice
-  -> no shared CallV2, second resolver, fallback, or retry
+one exact R6 family cutover
+  -> stop/quarantine every product-reachable LegacyCallV0 reader
+  -> R7 caller-zero schema/repair deletion
+  -> Builder physical thinning
+  -> backend retirement after replacement
+
+post-R6 sibling:
+  Hako published-view ingress and backend family migration
 ```
 
-The worker audit selected the smallest Group-B slice:
-
-```text
-MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0
-  execute_instruction accepts only the existing typed Builtin(Print) target
-  for this row; wrong arity and other canonical targets fail closed before
-  legacy/name dispatch. LegacyCallV0 remains outer compatibility only.
-```
-
-The Group-B closeout evidence is bounded to the three VM reader/handler files,
-three direct tests (positive, wrong-arity, non-Print rejection), the existing
-`cargo build --features vm-reference`, and the reusable pointer/active-surface
-guards. It does not claim VM promotion, whole-schema completion, or R7 legacy
-deletion. The next row is the fresh design-only
-`MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0` census; no second reader family or
-R7 deletion is open yet.
-
-That census is closed at `bb41e2e880` with
-`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`. The finite boundary
-covered canonical Call readers through the published view and downstream
-VM/WASM/LLVM/Hako/selected-C/JSON consumers. Remaining surfaces either belong
-to landed families or combine compatibility authorities, so none has one live
-production caller and an exclusive delete-set. Keep those families
-`ParkedSealed`; do not add another reader receipt/adapter, and reopen only
-when the exact source-authority/issuer/consumer/caller/delete-set tuple exists.
-
-After that row, the next work is fixed there:
-
-```text
-M3-B ordinary-new outer quarantine (ParkedSealed)
-  -> M3-C JoinIR/JSON outer quarantine (ParkedSealed)
-  -> R6 current-HEAD re-census (design_stop)
-  -> mandatory-Callee R6 Group B only after census
-  -> selected backend family cutover
-  -> R7 caller-zero legacy deletion
-  -> physical Builder/repository thinning
-  -> selected-C/Rust-VM retirement after replacement
-```
+Backend parity is not an R7 prerequisite. In particular, Rust WASM's legacy
+reader must stop or quarantine before R7, while Hako WASM W0 may land later on
+the mandatory canonical publication. Closed details remain in Git and the
+final-pipeline SSOT; this workstream does not duplicate their task ledger.
 
 Broad Extern, Value/closure, explicit object method, nested/upvar receiver,
 ordinary-new no-claim, generic CorePlan GlobalCall, and physical thunk are not
