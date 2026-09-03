@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0"
 current_design_stop = "none"
-current_blocker_token = "VM LegacyCallV0(Callee::Extern) stop landed at 18f08124f8; closeout evidence is recorded, and no next execution card is opened until a new exact family tuple is selected."
+current_blocker_token = "Stop Rust WASM LegacyCallV0(Callee::Extern) at preflight before shape/WAT/binary/fallback; retain runtime EXTERN_CALL_MAP and make no canonical WASM Extern consumer."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,13 +32,13 @@ latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
 The publication spine, Print producer coverage, WASM Global stop, VM Global
-cutover, WSM-G4-min8 probe retarget, and VM Legacy Extern stop are landed
-(18f08124f8). Focused calls/extern-provider tests passed; whole-library
-7578/7411/138/29 known-red remains unchanged. No new receipt, adapter,
-fixture, schema-wide R6/R7 deletion, or provider/backend promotion is claimed.
+and Extern stops, and WSM-G4-min8 probe retarget are landed. The next bounded
+row stops only the Rust WASM Legacy Extern reader; whole-library
+7578/7411/138/29 known-red remains unchanged. No new receipt, adapter, fixture,
+schema-wide R6/R7 deletion, or runtime-import promotion is claimed.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

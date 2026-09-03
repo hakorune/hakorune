@@ -33,8 +33,8 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Latest bounded work:** VM Global canonical cutover, the stale WSM-G4-min8
-  probe retarget, and VM Legacy Extern stop are landed; no next family is open.
+- **Latest bounded work:** VM Global/Extern reader stops and the stale WSM-G4-min8
+  probe retarget are landed; the next exact stop is WASM Legacy Extern.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -491,23 +491,23 @@ Owners remain below the 760-line trigger. No canonical WASM reader, Hako W0,
 Extern/Method retirement, general fallback removal, R7 caller-zero, or
 `LegacyCallV0` deletion is claimed.
 
-##### Selected next cohort — `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0`
+##### Selected next cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
 
 ```text
-status = landed
-implementation permission = false  # implementation 18f08124f8
+status = selected_fast
+implementation permission = true
 ```
 
-Stop the VM `LegacyCallV0(Callee::Extern)` reader at the same shared ingress
-used by the landed Global stop. Keep `execute_extern_function` for canonical
-or direct provider ownership; do not add a canonical Extern consumer or a new
-receipt. Reuse existing Extern fixtures and active-surface/pointer guards.
+Stop the Rust WASM `LegacyCallV0(Callee::Extern)` reader at the existing
+preflight before shape/WAT/binary/fallback work. Keep `EXTERN_CALL_MAP` for
+runtime imports; do not add a canonical WASM Extern consumer or a new receipt.
+Reuse the existing direct negative proof and active-surface/pointer guards.
 
-Acceptance: legacy Extern rejects before provider dispatch/fallback, its VM
-legacy Extern arm is zero, and existing Extern provider tests remain green.
-The focused VM Extern rejection passed; terminal is
-`[vm-reference/legacy-call/extern-stopped]`.
-No Call R6 schema, selected-C/Hako/WASM, or provider retirement is claimed.
+Acceptance: legacy Extern rejects before shape/WAT/binary/fallback, its WASM
+lowering arm and reader-only name helpers are zero, and the direct negative
+proof is green. Terminal is
+`[freeze:contract][wasm/legacy-extern-call-stopped]`.
+No Call R6 schema, selected-C/Hako/VM, or runtime-import retirement is claimed.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 

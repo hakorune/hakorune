@@ -387,7 +387,7 @@ def _check_wasm_legacy_global_reader_stop_r0(
 
 
 VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
-VM_EXTERN_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0"
+WASM_EXTERN_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0"
 
 
 def _check_vm_global_canonical_cutover_r0(
@@ -459,11 +459,11 @@ def _check_vm_global_canonical_cutover_r0(
     print(f"[{api.TAG}] row={row} delegated=vm-global-canonical-cutover")
 
 
-def _check_vm_extern_legacy_reader_stop_r0(
+def _check_wasm_extern_legacy_reader_stop_r0(
     state: dict, root: Path, api
 ) -> None:
-    """Check the one VM Legacy Extern reader-stop cohort."""
-    row = VM_EXTERN_LEGACY_READER_STOP_R0_ROW
+    """Check the Rust WASM Legacy Extern reader-stop cohort."""
+    row = WASM_EXTERN_LEGACY_READER_STOP_R0_ROW
     mode = state.get("work_mode")
     if mode not in {"fast", "closeout"}:
         api.fail(f"{row} must be fast or closeout")
@@ -485,10 +485,10 @@ def _check_vm_extern_legacy_reader_stop_r0(
     for token in (
         row,
         "LegacyCallV0(Callee::Extern)",
-        "shared ingress",
-        "execute_extern_function",
-        "[vm-reference/legacy-call/extern-stopped]",
-        "before provider dispatch/fallback",
+        "preflight before shape/WAT/binary/fallback",
+        "EXTERN_CALL_MAP",
+        "do not add a canonical WASM Extern consumer",
+        "[freeze:contract][wasm/legacy-extern-call-stopped]",
         "No Call R6 schema",
     ):
         if token not in card_text:
@@ -501,20 +501,32 @@ def _check_vm_extern_legacy_reader_stop_r0(
         for token in (
             "status = landed",
             "implementation permission = false",
-            "focused VM Extern rejection passed",
+            "focused WASM Extern rejection passed",
         ):
             if token not in card_text:
                 api.fail(f"{row} closeout contract is missing: {token}")
     for rel in (
-        "src/backend/mir_interpreter/handlers/calls/mod.rs",
-        "src/backend/mir_interpreter/handlers/extern_provider/tests.rs",
+        "src/backend/wasm/mod.rs",
+        "src/backend/wasm/codegen/instructions.rs",
+        "src/backend/wasm/codegen/tests.rs",
+        "src/backend/wasm/tests.rs",
+        "src/backend/wasm/extern_contract.rs",
     ):
         path = root / rel
         if not path.is_file():
             api.fail(f"{row} implementation owner is missing: {rel}")
         if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
             api.fail(f"{row} implementation owner reached 800 lines: {rel}")
-    print(f"[{api.TAG}] row={row} delegated=vm-extern-reader-stop")
+    instructions = (root / "src/backend/wasm/codegen/instructions.rs").read_text(
+        encoding="utf-8"
+    )
+    contract = (root / "src/backend/wasm/extern_contract.rs").read_text(
+        encoding="utf-8"
+    )
+    for stale in ("extern_import_name", "supported_extern_calls_csv"):
+        if stale in instructions or stale in contract:
+            api.fail(f"{row} stale WASM Extern helper remains: {stale}")
+    print(f"[{api.TAG}] row={row} delegated=wasm-extern-reader-stop")
 
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
@@ -534,8 +546,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_wasm_legacy_global_reader_stop_r0(state, root, api)
     elif row == VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW:
         _check_vm_global_canonical_cutover_r0(state, root, api)
-    elif row == VM_EXTERN_LEGACY_READER_STOP_R0_ROW:
-        _check_vm_extern_legacy_reader_stop_r0(state, root, api)
+    elif row == WASM_EXTERN_LEGACY_READER_STOP_R0_ROW:
+        _check_wasm_extern_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:
