@@ -436,11 +436,11 @@ entrypoint and must never be selected after canonical failure. If that outer
 entrypoint still has a live production caller, R7 remains closed until the
 caller is removed or migrated.
 
-##### Queued cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
+##### Active cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
 
 ```text
-status = ready_to_open_after_current_pointer_cutover
-implementation permission = false
+status = fast_open
+implementation permission = true
 ```
 
 This is the first bounded M7-S `Stop` candidate. It changes no source meaning
@@ -489,9 +489,9 @@ Method, and shape tests remain separate. No test is deleted or ignored, and
 no new fixture, semantic receipt, adapter, registry, route, or guard is added.
 
 All currently identified implementation owners are below the 760-line source
-split trigger. This cohort does not claim a canonical WASM Call reader, Hako
-WASM W0, retirement of Extern/Method readers, general WASM fallback removal,
-R7 caller-zero, or deletion of `LegacyCallV0` itself.
+split trigger. No canonical WASM Call reader, Hako WASM W0, Extern/Method
+reader retirement, general WASM fallback removal, R7 caller-zero, or deletion
+of `LegacyCallV0` itself is claimed by this cohort.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

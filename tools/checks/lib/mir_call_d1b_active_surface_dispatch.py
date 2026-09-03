@@ -331,6 +331,61 @@ def _check_r6_post_group_b_reader_census_c0(
     print(f"[{api.TAG}] row={row} delegated=post-group-b-no-safe-slice")
 
 
+def _check_wasm_legacy_global_reader_stop_r0(
+    state: dict, root: Path, api
+) -> None:
+    """Route the bounded M7-S WASM Global stop through the existing guard."""
+    row = api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW
+    final_rel = str(api.FINAL_PIPELINE_REL)
+    if state.get("work_mode") != "fast":
+        api.fail(f"{row} must be fast")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not open a second design card")
+    if state.get("next_execution_card") != row:
+        api.fail(f"{row} next_execution_card drifted")
+    if state.get("next_execution_card_path") != final_rel:
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != final_rel:
+        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
+
+    card_path = root / api.FINAL_PIPELINE_REL
+    card_text = card_path.read_text(encoding="utf-8")
+    required = (
+        f"{row}",
+        "status = fast_open",
+        "implementation permission = true",
+        "LegacyCallV0(Global)",
+        "[freeze:contract][wasm/legacy-global-call-stopped]",
+        "before shape matching, WAT planning, binary emission",
+        "or selection of a Rust fallback route",
+        "default `--compile-wasm`, explicit Rust route, `--emit-wat`, AOT,",
+        "No canonical WASM Call reader",
+        "no new fixture, semantic receipt, adapter, registry, route, or guard",
+    )
+    for token in required:
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    if len(card_text.splitlines()) > 1000:
+        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
+
+    for rel in (
+        "src/backend/wasm/mod.rs",
+        "src/backend/wasm/codegen/instructions.rs",
+        "src/backend/wasm/codegen/mod.rs",
+        "src/backend/wasm/tests.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=wasm-legacy-global-stop")
+
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
         api.check_delegated_performance_row(state, root)
@@ -344,6 +399,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_print_producer_coverage_row(state, root, row)
     elif row == api.POST_GROUP_B_READER_CENSUS_C0_ROW:
         _check_r6_post_group_b_reader_census_c0(state, root, api)
+    elif row == api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW:
+        _check_wasm_legacy_global_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

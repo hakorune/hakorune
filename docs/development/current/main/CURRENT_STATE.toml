@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
-current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "MIR-CALL-R6-GROUP-B-VM-CANONICAL-PRINT-I0 closed at cce62db090; post-Group-B census closed at bb41e2e880 as NoSafeSlice__NoSingleRemainingCanonicalReaderFamily. WASM still reads LegacyCallV0; LLVM/Hako/selected-C retain multiple compatibility authorities; Extern/Constructor/Value-Closure lack one live caller with an exclusive delete-set. No second reader family, schema cutover, new receipt, backend retry, or R7 deletion until exact authority/issuer/lossless consumer/caller/delete-set exists."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0"
+current_design_stop = "none"
+current_blocker_token = "MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0: stop only the Rust WASM LegacyCallV0(Global) reader at the shared preflight before shape matching, WAT/binary emission, output creation, or any Rust fallback. Keep all other LegacyCallV0 families and backend migrations outside this row."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -53,7 +53,7 @@ Landed families are not reopened and zero/multiple authority tuples remain
 ParkedSealed without new design assets.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
