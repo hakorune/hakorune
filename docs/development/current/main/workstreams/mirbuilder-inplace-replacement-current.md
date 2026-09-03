@@ -158,6 +158,28 @@ failure names remain a separate immutable baseline. A family is eligible only
 when one issuer, lossless consumer or typed terminal, caller, and exclusive
 old-edge delete-set are all proven; otherwise it stays `ParkedSealed`.
 
+### Family-local scheduler reconciliation (worker-audited 2026-09-03)
+
+The aggregate `NoSafeSlice__NoSingleRemainingCanonicalReaderFamily` is a
+schema-wide R6 disposition, not a repository-wide scheduler stop. Existing
+M7-S reader stops are already landed for Rust WASM `Global`, `Extern`, and
+`Method`, and for the VM `Global`, `Extern`, `Value`, and `Method` cohorts;
+do not reopen or duplicate those rows from an older review. The scheduler
+selects only an already-inventoried family with one source/issuer (for Promote)
+or one compatibility reader and typed terminal (for Stop), one real caller,
+an exclusive delete-set, and no unclassified red. A family with zero/multiple
+owners remains `ParkedSealed` while other eligible families may proceed.
+
+The current JSON v0/v1 legacy-target forms remain parked because their parser,
+dispatch, selfhost, and direct-loader callers share an outer owner; no new
+receipt, guard, adapter, or census is opened to force a false single tuple.
+The next executable queue is therefore: finish the selected behavior-neutral
+published-view transport BoxShape row, return to the closed R6 census pointer,
+then select the next exact Promote/Stop/Delete family only when its tuple is
+present. `Stop` may end an unsupported experimental reader without waiting for
+backend parity; `Delete` still requires caller-zero. This is a scheduling rule,
+not a new semantic disposition or a second task ledger.
+
 ### S-class gate coverage (navigation only)
 
 The five post-M9 S-class gates are already defined by the final-pipeline SSOT;

@@ -929,7 +929,7 @@ lifecycle owner and return to the next bounded semantic/backend decision.
 
 #### `MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0`
 
-Status: **selected_fast**. This is a behavior-neutral owner split
+Status: **landed** (2026-09-03). This is a behavior-neutral owner split
 before future Call schema growth; it does not reopen semantic publication.
 
 `implementation_permission = true` applies only to this physical split.
@@ -953,6 +953,21 @@ unchanged, behavior unchanged, new semantic authority = 0, new receipt = 0,
 new guard = 0, fallback/retry = 0, and existing 18 view tests remain green.
 NoSafeSlice: stop if a private-field accessor, error-type split, API change,
 test-path change, semantic validation change, or another consumer is needed.
+
+Implementation evidence: the existing `PublishedCallKindV1`,
+`PublishedStaticMethodCallCRowV1`, and `PublishedStaticMethodCFrameV1`
+definitions now live in the private sibling
+`src/mir/function/published_backend_view_c_transport.rs`; the parent keeps the
+historical `pub(crate)` re-exports and all view validation unchanged. The
+parent is 583 lines and the sibling is 155 lines. `cargo check --profile quick
+--lib`, the exact 18 published-view tests, the current-state pointer guard,
+the active-surface guard, and `git diff --check` passed. No semantic authority,
+receipt, guard, route, fallback, or retry was added.
+
+Closeout: complete. Return the pointer to the existing R6 post-Group-B census
+closeout; the next executable row must be selected only from the already
+closed family-local scheduler and must not reopen the WASM Global/Extern/Method
+reader stops, which are already landed.
 ```
 
 Allowed files are the parent view, the named private sibling, this existing

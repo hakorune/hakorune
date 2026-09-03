@@ -1,6 +1,6 @@
 date = "2026-09-03"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0"
 current_design_stop = "none"
 current_blocker_token = "Implement only the behavior-neutral C-transport owner split selected by the active performance card. Preserve the existing view/transport boundary and public re-exports; no semantic target, receipt, guard, route, fallback, or retry change is permitted."
