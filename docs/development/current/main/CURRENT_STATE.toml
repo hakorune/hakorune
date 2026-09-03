@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
 current_design_stop = "none"
-current_blocker_token = "T1-S0 landed: the redundant raw_root_body_p0 test shell and registration are gone, both owner-local successors pass exactly, and the parent/current full-lib observation is unchanged at 7311/238/29. The accepted 7411/138/29 receipt remains immutable known baseline debt; do not rebaseline in this cleanup row."
+current_blocker_token = "Test-only raw_root_drain_p0 shell migration: move exactly three existing DRAIN proofs into raw_root_finalization_p0, delete only the old registration/file, and keep all compiler/route/Recipe/PHI/SSA semantics unchanged."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,11 +36,12 @@ Global/Extern stops, and WSM-G4-min8 probe retarget are landed. T1-S0 also
 retired the redundant raw_root_body_p0 test shell with two exact owner-local
 successors. Parent/current full-lib observation is 7578 total / 7311 passed /
 238 failed / 29 ignored; the accepted 7411/138/29 receipt is unchanged and
-remains known baseline debt. No production semantic change is claimed.
+remains known baseline debt. The next bounded cleanup is the three-test
+raw_root_drain_p0 shell migration; no production semantic change is claimed.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
+next_execution_card = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

@@ -95,6 +95,30 @@ pub(super) fn drained(
 }
 
 #[test]
+fn empty_script_drains_as_script_product() {
+    let drained = drained(
+        ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        },
+        RawCallableMainSelectionV1::Omitted,
+    );
+    assert!(matches!(drained, RawDrainedInvocationV1::Script(_)));
+}
+
+#[test]
+fn app_omitted_drains_without_callable_main_row() {
+    let drained = drained(app(), RawCallableMainSelectionV1::Omitted);
+    assert!(matches!(drained, RawDrainedInvocationV1::App(_)));
+}
+
+#[test]
+fn app_selected_drains_with_callable_main_evidence() {
+    let drained = drained(app(), RawCallableMainSelectionV1::Required);
+    assert!(matches!(drained, RawDrainedInvocationV1::App(_)));
+}
+
+#[test]
 fn empty_script_finalizes_directly_from_drain() {
     let finalized = drained(
         ASTNode::Program {

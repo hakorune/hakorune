@@ -3448,9 +3448,6 @@ mir::compiler::raw_root_decl_access_p0::script_scalar_tail_uses_source_terminal_
 mir::compiler::raw_root_decl_access_p0::script_statement_tail_commits_unit_result
 mir::compiler::raw_root_decl_access_p0::script_string_tail_has_an_exact_string_return_carrier
 mir::compiler::raw_root_decl_access_p0::script_void_tail_reuses_evaluated_unit_operand
-mir::compiler::raw_root_drain_p0::app_omitted_drains_without_callable_main_row
-mir::compiler::raw_root_drain_p0::app_selected_drains_with_callable_main_evidence
-mir::compiler::raw_root_drain_p0::empty_script_drains_as_script_product
 mir::compiler::raw_root_eligibility::tests::empty_script_is_the_smallest_eligible_catalog
 mir::compiler::raw_root_eligibility::tests::lambda_and_static_data_reject_before_physical_open
 mir::compiler::raw_root_eligibility::tests::physical_open_keeps_app_callable_main_disposition_without_descent
@@ -3473,8 +3470,11 @@ mir::compiler::raw_root_external_commit_p0::crossed_route_is_rejected_with_the_c
 mir::compiler::raw_root_external_commit_p0::prepared_product_retains_complete_evidence
 mir::compiler::raw_root_external_commit_p0::script_prepares_typed_raw_external_commit
 mir::compiler::raw_root_finalization_p0::app_not_selected_finalizes_without_callable_row
+mir::compiler::raw_root_finalization_p0::app_omitted_drains_without_callable_main_row
+mir::compiler::raw_root_finalization_p0::app_selected_drains_with_callable_main_evidence
 mir::compiler::raw_root_finalization_p0::app_selected_finalizes_with_callable_evidence
 mir::compiler::raw_root_finalization_p0::builder_readiness_rejection_retains_the_new_final0_owner
+mir::compiler::raw_root_finalization_p0::empty_script_drains_as_script_product
 mir::compiler::raw_root_finalization_p0::empty_script_finalizes_directly_from_drain
 mir::compiler::raw_root_finalization_p0::module_name_drift_rejects_and_retains_the_drained_owner
 mir::compiler::raw_root_helper_coverage::tests::exact_empty_static_helper_is_sealed_once

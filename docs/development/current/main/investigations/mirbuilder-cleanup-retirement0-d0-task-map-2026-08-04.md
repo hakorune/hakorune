@@ -232,6 +232,12 @@ their owner-local modules, the old shell and registration are gone, and the
 parent/current full-lib observation is unchanged at `7311/238/29` against the
 immutable accepted receipt `7411/138/29`. This known baseline drift is not
 reclassified by the cleanup row.
+
+The next bounded shell row is
+`MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0`: move the three existing drain
+proofs into `raw_root_finalization_p0`, then delete only the old drain shell,
+registration, and inventory paths.
+
 Defer the four finalization dependents until the shared finalization evidence
 is migrated. Keep `raw_public_cutover_parity_success_p0` parked while its
 2/6 baseline is red. For each row, retarget every guard, run the focused test

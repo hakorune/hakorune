@@ -103,11 +103,11 @@ no_safe_slice = "Keep Hako at ParkedSealed if no single synchronous PublishedMir
 non_claims = "No new source/package decision, Q1-Q4 reopening, selected-C feature expansion, new semantic Verified/Prepared receipt, Call schema/R6/R7, default derive integration, explicit/nested/upvar receiver, non-scalar ABI, VM, selfhost, broad JSON deletion, or whole-library green claim."
 
 [mir_call_selected_c_userbox_compat_quarantine_r0_2026_09_02]
-status = "landed"
+status = "selected_fast"
 task_id = "MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 base_head = "c47aa735ff"
-implementation_permission = false
+implementation_permission = true
 branch_scope = "branch_or_worktree_only"
 box_kind = "BoxShape physical route-state quarantine"
 decision = "Keep language me.method and canonical MIR unchanged. At the selected-C published ingress, any SameModuleInstance call is an explicit UnsupportedBeforeObject terminal; only an explicit compatibility caller may use the false return."
@@ -395,3 +395,27 @@ non_claims = "No raw_root_drain_p0 retirement, no production compiler change, no
 implementation_commit = "f5b268e741"
 implementation_evidence = "The redundant 44-line shell, its compiler registration, and both old inventory paths were removed. The exact successors passed 1/1 each; cargo --list reports 7578 tests with inventory SHA a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d; cargo check --profile quick --lib passed; parent and current full-lib runs both observed 7311/238/29, so the fixed accepted 7411/138/29 receipt remains a pre-existing baseline drift and was not rewritten."
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
+
+[mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
+status = "landed"
+task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = false
+base_head = "c1dd75569e"
+box_kind = "BoxShape test-only owner migration"
+decision = "Move exactly three existing DRAIN0 proof tests into the already-loaded raw_root_finalization_p0 owner, remove only the redundant drain test shell and registration, and preserve test assertions, production code, route semantics, and the FINAL0 handoff."
+source_authority = "Existing raw_root_drain::prepare_drain/PreparedRawDrainInvocationV1::drain and raw_root_finalization::RawDrainedInvocationV1; no new semantic issuer."
+canonical_issuer = "The existing finalization owner-local tests remain evidence issuers; this cleanup row issues no production or semantic product."
+non_authority = ["_p0 module name", "test count alone", "AST/MIR inference", "route/Recipe/PHI/SSA behavior", "historical card prose", "worker report", "local green without exact path"]
+fail_fast_boundary = "Before deleting the shell, all three named tests must be present under raw_root_finalization_p0, the old registration/file must be absent, the existing FINAL0 and active-surface guards must remain green, and no production/route/Recipe/PHI/SSA source may change."
+census_boundary = "src/mir/compiler/raw_root_drain_p0.rs three tests -> src/mir/compiler/raw_root_finalization_p0.rs::drained owner -> cargo lib inventory; includes only these three test paths, one registration, one file, existing FINAL0/active/pointer guards and manifest, excludes raw_root_body_p0, raw_root_drain.rs production lowering, raw_root_finalization.rs production handoff, route, backend, Call, and semantic changes."
+candidate = "src/mir/compiler/raw_root_drain_p0.rs::{empty_script_drains_as_script_product,app_omitted_drains_without_callable_main_row,app_selected_drains_with_callable_main_evidence}"
+successors = ["mir::compiler::raw_root_finalization_p0::empty_script_drains_as_script_product", "mir::compiler::raw_root_finalization_p0::app_omitted_drains_without_callable_main_row", "mir::compiler::raw_root_finalization_p0::app_selected_drains_with_callable_main_evidence"]
+delete_set = ["src/mir/compiler/raw_root_drain_p0.rs", "src/mir/compiler/mod.rs::mod raw_root_drain_p0", "cargo inventory paths under mir::compiler::raw_root_drain_p0"]
+allowed_files = ["src/mir/compiler/raw_root_drain_p0.rs", "src/mir/compiler/mod.rs", "src/mir/compiler/raw_root_finalization_p0.rs", "tools/checks/manifests/cargo_lib_red_baseline.toml", "tools/checks/manifests/cargo_lib_red_baseline.tests.txt", "tools/checks/lib/cut0_i0_root0_raw_source0_lower_final0_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/compiler/raw_root_body_p0.rs", "src/mir/raw_root_drain.rs", "src/mir/compiler/raw_root_finalization.rs", "src/mir/builder/raw_root_physical/finalization_terminal.rs", "src/mir/builder.rs", "src/mir/compiler/** except the named registration/file", "lang/**", "src/backend/**", "src/runner/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_tests = ["mir::compiler::raw_root_finalization_p0::empty_script_drains_as_script_product", "mir::compiler::raw_root_finalization_p0::app_omitted_drains_without_callable_main_row", "mir::compiler::raw_root_finalization_p0::app_selected_drains_with_callable_main_evidence"]
+ordered_tasks = ["A: select this exact cleanup row and run the existing active-surface/FINAL0 guards", "B: move the three existing test bodies, delete only the old module registration/file, and update the three inventory paths", "C: run exact successors, reconcile only the inventory hash, then close out without changing the known-red failure set"]
+acceptance = "All three successor tests run by exact path; the old module/file/registration are zero; cargo inventory remains 7578 and the parent/current full-lib observation remains 7311 passed / 238 failed / 29 ignored; the accepted 7411/138/29 receipt is not rebaselined; the existing FINAL0, active-surface, pointer, and diff guards pass; all touched source remains below 800 lines; no production or semantic file changes."
+no_safe_slice = "If a successor needs a new semantic import/API, the old shell has another reference, inventory shows unexpected test/count drift, a guard must be weakened, or route/Recipe/PHI/SSA behavior changes, return to design_stop and do not delete."
+non_claims = "No raw_root_body_p0 or finalization dependent retirement, no production compiler change, no Call/backend/VM change, no test deletion, no baseline failure reclassification, no broad _p0 batch, and no new guard/receipt."
