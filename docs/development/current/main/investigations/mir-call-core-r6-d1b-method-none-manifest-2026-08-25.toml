@@ -445,10 +445,10 @@ implementation_evidence = "The caller-zero facade re-export was removed from if_
 closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external caller appears."
 
 [mirbuilder_cleanup_t1_s1_rcf_ifcontrol_error_reexport_retire_r0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-ERROR-REEXPORT-RETIRE-R0"
 parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
-implementation_permission = true
+implementation_permission = false
 box_kind = "BoxShape caller-zero If-control error facade re-export cleanup"
 decision = "Remove only the unused ResolvedFunctionIfControlContractErrorV1 re-export from if_control/mod.rs; keep analyzer.rs ownership and all direct internal return types unchanged."
 source_authority = "if_control/analyzer.rs owns ResolvedFunctionIfControlContractErrorV1 and the verifier return path; the facade re-export is not an authority."
@@ -464,6 +464,9 @@ focused_checks = ["bash tools/checks/resolved_if_control_structure_r0_guard.sh",
 acceptance = "The facade error re-export is absent with no external caller; analyzer.rs remains the sole definition/return owner; the existing If-control structure, active-surface, pointer, and diff guards pass; no touched source file reaches 800 lines."
 no_safe_slice = "Abort and return to closeout if an external caller appears, analyzer ownership changes, a guard must be weakened or added, inventory/tests drift, or any semantic/Recipe diff appears."
 non_claims = "No If semantics, production switch, test move/deletion, resolved_region_flow cleanup, resolved_semantics staging, Call/backend/VM change, baseline refresh, or broad dead-code retirement."
+implementation_commit = "f4b0e5b667"
+implementation_evidence = "Removed only the caller-zero analyzer error facade re-export from if_control/mod.rs; analyzer.rs retains the sole definition and internal return owner. cargo check --profile quick --lib, resolved_if_control_structure_r0_guard.sh, current_state_pointer_guard.sh, active-surface guard, exact absence check, and git diff --check passed."
+closeout = "Landed with no semantic or production change. Return to cleanup scheduling; reopen only if an external facade caller appears or analyzer ownership changes."
 
 [mirbuilder_cleanup_t1_s1_rcf_ifcontrol_coverage_use_reexport_retire_r0_2026_09_03]
 status = "landed"

@@ -378,7 +378,7 @@ pointer, quick-check, exact-absence, and diff guards are green. An external
 caller, required guard expansion, or semantic diff is `NoSafeSlice`; do not
 reopen this row to force broader cleanup.
 
-#### Next bounded row — `MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-ERROR-REEXPORT-RETIRE-R0`
+#### Landed row — `MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-ERROR-REEXPORT-RETIRE-R0`
 
 ```text
 Decision:
@@ -416,6 +416,12 @@ and all semantic/Call routes. The worker audit found only the definition,
 five analyzer-internal return uses, and the facade line, so the external
 facade caller count is zero. The row is selected only after the pointer
 change; no semantic receipt or new guard is permitted.
+
+The row landed at `f4b0e5b667`. Acceptance was met: the facade re-export is
+absent, analyzer.rs remains the sole definition/return owner, quick-lib check,
+the existing If-control structure guard, pointer guard, active-surface guard,
+exact-absence check, and diff check passed, and all touched source remains
+below the 760-line trigger. No semantic or production behavior changed.
 
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 
