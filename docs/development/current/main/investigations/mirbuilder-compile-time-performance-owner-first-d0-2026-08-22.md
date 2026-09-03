@@ -926,3 +926,35 @@ evidence-only row.
 
 Closeout: complete; keep the published Print producer proof in the existing
 lifecycle owner and return to the next bounded semantic/backend decision.
+
+#### `MIR-CALL-PUBLISHED-BACKEND-VIEW-C-TRANSPORT-BOXSHAPE-S0`
+
+Status: **accepted_design_stop**. This is a behavior-neutral owner split
+before future Call schema growth; it does not reopen semantic publication.
+
+```text
+Decision: move only the C/FFI transport structs from PublishedMirBackendView
+to src/mir/function/published_backend_view_c_transport.rs. Keep validation,
+borrowed view, route decisions, and all existing public paths unchanged.
+Source authority + canonical issuer: existing PublishedMirBackendView and
+published-row owner; this row issues no semantic target or receipt.
+Non-authority: C layout, JSON/name lookup, physical symbol, backend success,
+fallback/retry, and file placement.
+Fail-fast boundary: none is changed; from_view, NUL checks, arity checks, and
+route errors remain owned by the current view/transport contract.
+Smallest next slice: add #[path = "published_backend_view_c_transport.rs"]
+and re-export the three existing C types (`PublishedCallKindV1`,
+`PublishedStaticMethodCallCRowV1`, `PublishedStaticMethodCFrameV1`); move
+their definitions verbatim.
+Acceptance: parent and child are <800 lines, public re-export paths remain
+unchanged, behavior unchanged, new semantic authority = 0, new receipt = 0,
+new guard = 0, fallback/retry = 0, and existing 18 view tests remain green.
+NoSafeSlice: stop if a private-field accessor, error-type split, API change,
+test-path change, semantic validation change, or another consumer is needed.
+```
+
+Allowed files are the parent view, the named private sibling, this existing
+performance card, `CURRENT_STATE.toml`, and the existing active-surface guard
+and dispatcher. No new guard or receipt family is allowed. Implementation is
+branch/worktree scoped and must return to the C0 closeout pointer after the
+row is landed.

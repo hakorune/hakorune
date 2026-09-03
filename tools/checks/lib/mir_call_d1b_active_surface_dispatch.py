@@ -488,6 +488,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_performance_cleanup_row(state, root, row)
     elif row == api.PUBLISHED_C_DUAL_CONSUMER_PREPARE_BOXSHAPE_S0_ROW:
         api.check_delegated_published_c_boxshape_row(state, root, row)
+    elif row == api.PUBLISHED_VIEW_C_TRANSPORT_BOXSHAPE_S0_ROW:
+        api.check_delegated_published_view_c_transport_boxshape_row(state, root, row)
     elif row == api.PRINT_PRODUCER_COVERAGE_S0_ROW:
         api.check_delegated_print_producer_coverage_row(state, root, row)
     elif row == api.POST_GROUP_B_READER_CENSUS_C0_ROW:
