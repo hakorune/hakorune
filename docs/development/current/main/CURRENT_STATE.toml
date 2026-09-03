@@ -1,5 +1,5 @@
 date = "2026-09-03"
-development_branch_ssot = "codex/mir-static-method-publication-spine"
+development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0"
 current_design_stop = "none"
