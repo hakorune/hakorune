@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from mir_call_d1b_active_surface_dispatch_helpers import (
+    check_raw_root_cleanup,
+    dispatch_coreplan_varmap_reseal_row,
+)
 from mir_call_d1b_active_surface_rows import (
     check_active_surface_rows_s0,
     check_cataloged_gc_retire_i0,
@@ -121,56 +125,6 @@ RAW_ROOT_CLEANUP = {
     "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0": ("mirbuilder_cleanup_asn0_l0_stale_guard_contract_retire_r0_2026_09_03", Path("tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py")),
     "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0": ("mirbuilder_cleanup_access0_meheader_located_adapter_guard_retire_r0_2026_09_03", Path("tools/checks/lib/me_call_header_observation_guard.py")),
 }
-def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
-    item = card.get(key)
-    if not isinstance(item, dict) or item.get("status") not in {"selected_fast", "landed"}:
-        api.fail(f"{row} manifest entry is not selected_fast or landed")
-    runner = "bash" if guard.suffix == ".sh" else "python3"
-    if api.subprocess.run([runner, str(root / guard)], cwd=root).returncode:
-        api.fail(f"{row} delegated guard failed")
-def _dispatch_coreplan_varmap_reseal_row(
-    row: str, state: dict, card: dict, root: Path, api
-) -> None:
-    """Dispatch future varmap reseal rows through one manifest-driven checker."""
-    from mir_verification_quick_p0_c_guard import (
-        _check_coreplan_varmap_reseal_single_site,
-        _coreplan_varmap_reseal_allowed_files,
-    )
-
-    matches = [
-        (key, value)
-        for key, value in card.items()
-        if isinstance(value, dict) and value.get("task_id") == row
-    ]
-    if len(matches) != 1:
-        api.fail(f"CorePlan varmap reseal row must have one manifest entry: {row!r}")
-    row_key, manifest_row = matches[0]
-    target_paths = manifest_row.get("target_paths")
-    if not isinstance(target_paths, list) or not target_paths or not all(
-        isinstance(path, str) and path.strip() for path in target_paths
-    ):
-        api.fail(f"CorePlan varmap reseal target_paths are malformed: {row!r}")
-    expected_direct_sites = manifest_row.get("expected_direct_sites")
-    if not isinstance(expected_direct_sites, int) or expected_direct_sites <= 0:
-        api.fail(f"CorePlan varmap reseal expected_direct_sites is malformed: {row!r}")
-    expected_direct_sites_token = manifest_row.get("expected_direct_sites_token")
-    label = manifest_row.get("label")
-    parent_row = manifest_row.get("parent_row")
-    if not all(isinstance(value, str) and value.strip() for value in (expected_direct_sites_token, label, parent_row)):
-        api.fail(f"CorePlan varmap reseal metadata is malformed: {row!r}")
-    _check_coreplan_varmap_reseal_single_site(
-        state,
-        card,
-        root,
-        row_name=row,
-        row_key=row_key,
-        parent_row=parent_row,
-        label=label,
-        target_paths=set(target_paths),
-        expected_direct_sites=expected_direct_sites,
-        expected_direct_sites_token=expected_direct_sites_token,
-        allowed_files=_coreplan_varmap_reseal_allowed_files(target_paths[0]),
-    )
 def _check_free_function_publication_d0(
     state: dict, card: dict, root: Path, api
 ) -> None:
@@ -573,7 +527,7 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_raw_root_resume(state, card, proof, root)
     elif row in RAW_ROOT_CLEANUP:
         key, guard = RAW_ROOT_CLEANUP[row]
-        _check_raw_root_cleanup(row, key, guard, card, root, api)
+        check_raw_root_cleanup(row, key, guard, card, root, api)
     elif row == api.SCRIPT_ROOT_ROW:
         check_script_root_ret0(state, card, root)
     elif row == api.METHOD_CORRIDOR_D0_ROW:
@@ -793,6 +747,6 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
 
         check_verification_coreplan_varmap_reseal_loop_cond_continue_with_return_phi_r0(state, card, root, api)
     elif isinstance(row, str) and row.startswith("DEV-GATE-COREPLAN-VARMAP-RESEAL-"):
-        _dispatch_coreplan_varmap_reseal_row(row, state, card, root, api)
+        dispatch_coreplan_varmap_reseal_row(row, state, card, root, api)
     else:
         api.fail(f"unsupported current row for this stable guard: {row!r}")
