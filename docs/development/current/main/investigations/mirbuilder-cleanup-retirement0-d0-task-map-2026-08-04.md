@@ -378,6 +378,45 @@ pointer, quick-check, exact-absence, and diff guards are green. An external
 caller, required guard expansion, or semantic diff is `NoSafeSlice`; do not
 reopen this row to force broader cleanup.
 
+#### Next bounded row — `MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-ERROR-REEXPORT-RETIRE-R0`
+
+```text
+Decision:
+  Remove only the caller-zero ResolvedFunctionIfControlContractErrorV1
+  facade re-export from if_control/mod.rs.
+
+Source authority + canonical issuer:
+  if_control/analyzer.rs owns the error type and verifier return path.
+  The facade re-export is not an authority and has no external Rust caller.
+
+Non-authority:
+  analyzer implementation, verifier behavior, allow attributes,
+  warning/test counts, docs names, Builder/semantic routes, and all
+  product/use-ledger fields.
+
+Fail-fast boundary:
+  Keep the private analyzer definition and direct internal return types.
+  Delete only the one facade line; any external caller or guard drift aborts.
+
+Smallest next slice:
+  One source edit in if_control/mod.rs, then the existing
+  resolved_if_control_structure_r0_guard.sh, exact absence check,
+  cargo check --profile quick --lib, pointer/active guards, and diff check.
+
+Non-claims:
+  No If semantics, production switch, test move/deletion, new receipt/guard,
+  resolved_region_flow/resolved_semantics cleanup, Call/backend/VM change,
+  baseline refresh, fallback, retry, or broad facade cleanup.
+```
+
+The finite census is `if_control/mod.rs` error facade re-export -> repository
+Rust references. It includes the single facade symbol and its analyzer owner;
+it excludes the analyzer definition/returns, tests, stale historical guards,
+and all semantic/Call routes. The worker audit found only the definition,
+five analyzer-internal return uses, and the facade line, so the external
+facade caller count is zero. The row is selected only after the pointer
+change; no semantic receipt or new guard is permitted.
+
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 
 The 11 route-specific `XRecipe { arena, root }` structs
