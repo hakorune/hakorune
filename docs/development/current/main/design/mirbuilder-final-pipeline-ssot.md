@@ -495,8 +495,8 @@ Extern/Method retirement, general fallback removal, R7 caller-zero, or
 ##### Selected cleanup — `MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0`
 
 ```text
-status = selected_fast
-implementation permission = true
+status = landed
+implementation permission = false  # implementation c9c62906b1
 ```
 
 Retarget the stale WSM-G4-min8 success probe to the existing canonical
@@ -505,8 +505,8 @@ smoke expectation, and historical lock; keep the direct Legacy Global negative
 proof as the semantic reader-stop evidence. No new fixture, receipt, adapter,
 or guard is allowed.
 
-Acceptance: stale success expectation is zero; the existing smoke passes on
-pre-WAT rejection; non-Global WASM families remain unchanged.
+Acceptance: stale success expectation is zero; focused test and smoke retarget passed;
+non-Global WASM families remain unchanged.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 

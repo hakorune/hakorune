@@ -462,15 +462,17 @@ def _check_vm_global_canonical_cutover_r0(
 def _check_wasm_global_probe_retire_r0(state: dict, root: Path, api) -> None:
     """Check the bounded retarget of the stale WSM-G4-min8 success probe."""
     row = WASM_GLOBAL_PROBE_RETIRE_R0_ROW
-    if state.get("work_mode") != "fast":
-        api.fail(f"{row} must be fast")
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
     if state.get("current_execution_row") != row:
         api.fail(f"{row} pointer row drifted")
     if state.get("current_design_stop") != "none":
         api.fail(f"{row} must clear current_design_stop")
     if state.get("next_design_card") != "none":
         api.fail(f"{row} must not open a second design card")
-    if state.get("next_execution_card") != row:
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
         api.fail(f"{row} next_execution_card drifted")
     if state.get("next_execution_card_path") != str(api.FINAL_PIPELINE_REL):
         api.fail(f"{row} next_execution_card_path drifted")
@@ -480,14 +482,25 @@ def _check_wasm_global_probe_retire_r0(state: dict, root: Path, api) -> None:
     card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
     for token in (
         row,
-        "status = selected_fast",
-        "implementation permission = true",
         "stale WSM-G4-min8 success probe",
         "explicit pre-WAT rejection",
         "No new fixture, receipt, adapter,\nor guard is allowed.",
     ):
         if token not in card_text:
             api.fail(f"{row} contract is missing: {token}")
+    if mode == "fast":
+        for token in ("status = selected_fast", "implementation permission = true"):
+            if token not in card_text:
+                api.fail(f"{row} fast contract is missing: {token}")
+    else:
+        for token in (
+            "status = landed",
+            "implementation permission = false",
+            "c9c62906b1",
+            "focused test and smoke retarget passed",
+        ):
+            if token not in card_text:
+                api.fail(f"{row} closeout contract is missing: {token}")
     for rel, tokens in (
         (
             "tests/wasm_demo_min_fixture/parity.rs",
