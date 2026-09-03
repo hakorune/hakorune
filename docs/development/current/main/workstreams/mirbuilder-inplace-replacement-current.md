@@ -40,8 +40,11 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The fixed baseline was observed three times at `7578/7411/138/29`; the
-inventory gained one passing test and the 138-name known-red set is unchanged.
+The accepted receipt remains the immutable `7578/7411/138/29` baseline.  The
+current HEAD has one additional test and fixed-command observations of
+`7579/7314/236/29` and `7579/7313/237/29`; the failure set is therefore not
+accepted as a refreshed baseline, and the existing verification-refresh lane
+must classify it before any new semantic family is opened.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
