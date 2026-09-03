@@ -53,8 +53,11 @@ arity and other canonical targets fail closed. The finite post-Group-B census
 closed at `bb41e2e880` with
 `NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`.
 
-Do not repeat the census. No next implementation card is selected. Reopen one
-existing family only when source authority, typed issuer, lossless selected
+Do not repeat the census. The bounded WASM `LegacyCallV0(Global)` reader stop
+landed at `833eb87a80`: the shared preflight now rejects it before shape/WAT/
+binary/fallback work, and the name/arity/zero-padding reader is gone. No
+canonical WASM reader or general fallback retirement is claimed. No next
+implementation card is selected. Reopen one existing family only when source authority, typed issuer, lossless selected
 consumer, real production caller, fail-fast terminal, exclusive old-edge
 delete-set, outside-reader inventory, and source budget form one exact tuple.
 

@@ -436,11 +436,12 @@ entrypoint and must never be selected after canonical failure. If that outer
 entrypoint still has a live production caller, R7 remains closed until the
 caller is removed or migrated.
 
-##### Active cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
+##### Landed cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
 
 ```text
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
+implementation commit = 833eb87a80
 ```
 
 This is the first bounded M7-S `Stop` candidate. It changes no source meaning
@@ -472,8 +473,11 @@ The finite delete set is:
    `src/backend/wasm/codegen/mod.rs`;
 3. the Global-only name/parameter-count/return-shape helpers and missing-arg
    `i32.const 0` repair left caller-zero by items 1 and 2;
-4. the old success expectation of the existing Global probe, retargeted to
-   the typed pre-artifact rejection rather than deleted.
+4. the direct legacy-Global negative proof in
+   `src/backend/wasm/tests.rs`, which exercises the typed pre-artifact
+   rejection without deleting or rewriting an existing fixture. The older
+   `phase29cc_wsm_g4_min8_global_call_probe_min.hako` now emits canonical
+   `Call(Method)` at this HEAD, so it is outside this legacy-Global cohort.
 
 The acceptance boundary includes every existing caller of the Rust WASM
 compiler: default `--compile-wasm`, explicit Rust route, `--emit-wat`, AOT,
@@ -483,10 +487,20 @@ If any caller bypasses that preflight, the row remains closed until it is
 included in this cohort or explicitly quarantined outside product selection.
 
 Focused evidence reuses the existing call-free Const/Copy/BinOp positives and
-the existing Global probe. The negative proof requires the exact error tag,
-no WAT/bytes/output file, and no bridge/fallback trace. Existing Extern,
-Method, and shape tests remain separate. No test is deleted or ignored, and
-no new fixture, semantic receipt, adapter, registry, route, or guard is added.
+the direct `legacy_global_call_rejects_before_wasm_codegen` test. The negative
+proof requires the exact error tag and exercises the default-lane entry before
+WAT/bytes/output or bridge/fallback selection. Existing Extern, Method, shape,
+and the canonical instance-method probe remain separate. No test is deleted
+or ignored, and no new fixture, semantic receipt, adapter, registry, route, or
+guard is added.
+
+Implementation evidence: the shared preflight is reached by the native-shape,
+full Rust WASM, and WAT paths before lowering; the old Global lowering arm,
+name-based reachability traversal, signature maps, and zero-argument repair are
+gone. `cargo check --profile quick --features wasm-backend --bin hakorune`
+passed, the focused unit test passed, and the 18-test `backend::wasm::tests`
+slice passed. The repository's existing warnings and known whole-library red
+baseline are not relabeled by this row.
 
 All currently identified implementation owners are below the 760-line source
 split trigger. No canonical WASM Call reader, Hako WASM W0, Extern/Method
