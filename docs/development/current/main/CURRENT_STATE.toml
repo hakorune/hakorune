@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Verification health is UnclassifiedRed. Do not repeat the closed Call census or rebaseline: reuse DEV-GATE-LIB-BASELINE-REFRESH-R0 in reconcile mode. Current fixed observations are 7579 with 7314/236/29 and 7313/237/29 versus the accepted 138-name failure SHA; one qmark row varies. Exact App-Main/FreeFunction reproductions also isolate a canonical Call result-hint omission: type_hint_providers.rs scans only LegacyCallV0 after the R6 shape split, then return_type_strategy.rs rejects the missing hint. First classify the complete delta and name the exact existing-owner repair; no semantic, BoxShape, performance, test-retirement, or JSON-v1 Stop work before StableKnownRed. After recovery, run the generic M7-S json_v1_legacy_call_ingress cohort; do not create a new D0, receipt, guard, or per-cohort row."
+current_blocker_token = "Verification health is UnclassifiedRed. Do not repeat the closed Call census or rebaseline: reuse DEV-GATE-LIB-BASELINE-REFRESH-R0 in reconcile mode. Current fixed observations are 7579 with 7314/236/29 and 7313/237/29 versus the accepted 138-name failure SHA; the current-minus-accepted delta is 98 added names with no removals, and one qmark row varies. Seven added names are reproducibly tied to a canonical Call result-hint omission: type_hint_providers.rs scans only LegacyCallV0 after the R6 shape split, then return_type_strategy.rs rejects the missing hint; the remaining 91 are unclassified. First classify the complete delta and name the exact existing-owner repair; no semantic, BoxShape, performance, test-retirement, or JSON-v1 Stop work before StableKnownRed. After recovery, run the generic M7-S json_v1_legacy_call_ingress cohort; do not create a new D0, receipt, guard, or per-cohort row."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,9 +34,11 @@ The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
 cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
 complete because compatibility writers/readers and R7 retirement remain.
 Verification health is UnclassifiedRed: fixed runs saw 7579 tests with 236 or
-237 failures, while the accepted failure receipt has 138 names. The varying
-qmark row and reproducible canonical Call result-hint omission are owned by the
-queued reuse of DEV-GATE-LIB-BASELINE-REFRESH-R0. After StableKnownRed, the next
+237 failures, while the accepted failure receipt has 138 names; the delta is
+98 added names with no removals, seven reproducibly tied to the canonical Call
+result-hint omission and 91 still unclassified. The varying qmark row and
+result-hint repair are owned by the queued reuse of
+DEV-GATE-LIB-BASELINE-REFRESH-R0. After StableKnownRed, the next
 legacy reduction is generic M7-S cohort json_v1_legacy_call_ingress: five
 LegacyCallV0 writers stop while Constructor/NewClosure creation stays typed.
 No new D0, receipt, guard, or cohort-specific scheduler branch is planned.

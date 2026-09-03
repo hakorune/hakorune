@@ -42,10 +42,12 @@ reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
 The accepted 138-name failure receipt remains immutable. The current HEAD has
 one additional test and fixed-command observations of `7579/7314/236/29` and
-`7579/7313/237/29`; one qmark row varies. Exact App-Main/FreeFunction tests also
-reproduce a canonical Call result-hint omission: after Group A,
-`type_hint_providers.rs` scans only `LegacyCallV0`, so return inference rejects
-the missing hint. Reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode;
+`7579/7313/237/29`; the current-minus-accepted comparison has 98 added failure
+names and no removals, with one qmark row varying. Seven of those additions are
+reproducibly tied to a canonical Call result-hint omission; the remaining 91
+are still unclassified. After Group A, `type_hint_providers.rs` scans only
+`LegacyCallV0`, so return inference rejects the missing hint. Reuse
+`DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode;
 do not rebaseline or open another semantic/cleanup family first.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no

@@ -398,8 +398,12 @@ The following are one dependency program, not simultaneously active cards.
 
 This is a finite verification incident, not a baseline acceptance. Current
 fixed-command observations are `7579 total`, `7314/236/29` and `7313/237/29`;
-the immutable accepted failure set remains `7411/138/29`. One varying qmark
-test is nondeterministic evidence, not permission to rebaseline.
+the immutable accepted failure set remains `7411/138/29`. The
+current-minus-accepted comparison has 98 added failure names and no removed
+names; one qmark row varies between runs. Seven of the 98 are reproducibly
+owned by the canonical-call result-hint omission, while the remaining 91 are
+not yet classified and must not be collapsed into that cause. This is
+unclassified evidence, not permission to rebaseline.
 
 The exact App-Main/FreeFunction canonical-call tests also reproduce a common
 failure at `return_type_strategy.rs`: after the R6 shape split,
