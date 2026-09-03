@@ -217,22 +217,27 @@ feature parity. In particular, stopping/quarantining the Rust WASM
 Likewise, backend `UnsupportedBeforeArtifact` does not invalidate canonical
 MIR and must not reopen source semantics.
 
-`NoSafeSlice` is evaluated per `(family, profile, reader boundary)`. The
-current aggregate token means that there is no eligible R6 `Promote` family;
-it does not prohibit an already-inventoried M7-S `Stop` cohort. The following
-words are scheduling projections of the existing dispositions, not new
-semantic states or a second task ledger:
+`NoSafeSlice` is evaluated per `(family, profile, reader boundary)`. Scheduling
+has two independent axes; neither is a new semantic state or task ledger:
 
 ```text
+verification_health:
+  Green | StableKnownRed | UnclassifiedRed
+
+family_action:
 Promote -> Canonical through M4 when the exact reopen tuple exists
 Stop    -> M7-S ExplicitUnsupportedBeforeArtifact or unreachable outer ingress
 Delete  -> M7/M8/M9 only after caller-zero
 Park    -> ParkedSealed until its observable reopen trigger fires
 T0      -> inventoried compiler-proven hygiene; no new authority/guard/receipt; src/ delta <= 0
 ```
-Parking one family never promotes another family and never grants a broad
-schema cutover. It only returns selection to another already-inventoried
-family/profile boundary. `T0` is not R6/R7 progress; its contract lives in the docs policy and selected cleanup manifest.
+Only `UnclassifiedRed` stops all semantic/cleanup work. A parked family returns
+selection to another inventoried family; it never grants a broad cutover. A
+closed census is evidence, not an active waiting row. Priority is
+`verification recovery > Delete > Stop > Promote > required 760-line split >
+T0`; T0 is never selected twice consecutively while a Delete/Stop exists.
+Census-only commits are forbidden; the same series must Promote, Stop, or
+Delete. Progress is the production old-edge delta, not row/guard/test count.
 
 ## S-class completion gates (post-M9, non-executable navigation)
 
@@ -389,6 +394,25 @@ new semantic `Verified*`/`Prepared*` product or a temporary fallback.
 
 The following are one dependency program, not simultaneously active cards.
 
+#### V0 — reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode
+
+This is a finite verification incident, not a baseline acceptance. Current
+fixed-command observations are `7579 total`, `7314/236/29` and `7313/237/29`;
+the immutable accepted failure set remains `7411/138/29`. One varying qmark
+test is nondeterministic evidence, not permission to rebaseline.
+
+The exact App-Main/FreeFunction canonical-call tests also reproduce a common
+failure at `return_type_strategy.rs`: after the R6 shape split,
+`type_hint_providers.rs` scans only `LegacyCallV0`, so canonical `Call(MirCall)`
+results are not registered before return inference. Reconcile the complete
+failure-name delta and prove this root-owner boundary before opening a repair.
+The existing row may be amended with only the exact source/test owners after
+the design-stop proof; do not create a health D0, receipt, guard, or baseline.
+
+Acceptance is the accepted 138-name failure SHA, metadata guard, quick lib
+no-run, and `vm-reference` check restored. Until then no semantic, BoxShape,
+performance, test retirement, or compatibility Stop is permitted.
+
 #### M4 — `MIR-CALL-MANDATORY-CALLEE-R6`
 
 Open only for one family satisfying the exact trigger. The bounded series is:
@@ -436,102 +460,35 @@ entrypoint and must never be selected after canonical failure. If that outer
 entrypoint still has a live production caller, R7 remains closed until the
 caller is removed or migrated.
 
-##### Landed cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
-status = landed; implementation permission = false; implementation commit = `833eb87a80`.
-M7-S Stop: the shared preflight rejects `LegacyCallV0(Global)` with
-`[freeze:contract][wasm/legacy-global-call-stopped]` before shape matching, WAT planning, binary emission, output creation, or selection of a Rust fallback route.
-Resolver/source products, mandatory typed `MirCall`, and Atomic Publish remain the authority; names, symbols, arity maps, zero padding, JSON, validation, and fallback success do not.
-The old Global lowering/reachability/name-arity/zero-padding readers are gone; no canonical WASM reader, Hako W0, broad fallback retirement, R7 caller-zero, or `LegacyCallV0` deletion is claimed.
+Landed M7-S tombstones (full evidence remains in Git and the owning manifest):
 
-##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
-status = landed; implementation permission = false; implementation commit = `3c7f5ea5bc`.
-Stop the Rust WASM `LegacyCallV0(Callee::Extern)` reader at the existing preflight before shape/WAT/binary/fallback; keep `EXTERN_CALL_MAP`, do not add a canonical WASM Extern consumer or a new receipt.
-Acceptance: legacy Extern rejects before shape/WAT/binary/fallback, its lowering arm and reader-only name helpers are zero, with terminal `[freeze:contract][wasm/legacy-extern-call-stopped]`.
-No Call R6 schema, selected-C/Hako/VM, or runtime-import retirement is claimed.
+| boundary | commit | closed result |
+| --- | --- | --- |
+| WASM legacy Global | `833eb87a80` | pre-artifact stop; name/arity/zero repair deleted |
+| WASM legacy Extern | `3c7f5ea5bc` | pre-artifact stop; lowering/name reader deleted |
+| WASM legacy Method | `4b090c5060` | pre-artifact stop; BoxCall/Method reader deleted |
+| VM canonical Global + legacy stop | `111216b539` | typed FreeFunction/StaticBoxMethod; legacy Global zero |
+| VM legacy Value | `c43e9cd09c` | pre-dispatch stop; register repair deleted |
+| VM legacy Method | `9333c530da` | pre-dispatch stop; trace/bridge/repair deleted |
 
-##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0`
-status = landed; implementation permission = false; implementation commit = `4b090c5060`; reader = `LegacyCallV0(Callee::Method)`; successor = `ExplicitUnsupportedBeforeArtifact`.
-Stop the Rust WASM legacy Method reader at the existing preflight before shape/WAT/binary/fallback; Resolver/package/MirCall remains the only semantic issuer and no canonical WASM Method consumer is added.
-Fail-fast tag: `[freeze:contract][wasm/legacy-method-call-stopped]`; the old Method codegen arm, BoxCall owner, and obsolete test are gone. No Call R6 schema, Hako, selected-C, VM, Extern, fallback, retry, or general WASM retirement claim.
+Unrelated landed guard/BoxShape cleanup is historical only (`5690939d04`,
+`f482f84957`, `7965b1f2f9`, `8def150e1d`) and is not M7-S progress.
 
-##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
+##### Queued cohort — `json_v1_legacy_call_ingress`
 
-```text
-status = landed
-base_head = 36c7c15d87
-implementation permission = false
-implementation commit = 111216b539
-focused evidence = 5 canonical dispatch + 1 legacy reject + 8 parameter + 9 return tests
-```
+Open only after V0 restores `StableKnownRed`. Reuse the generic parent row
+`MIR-CALL-LEGACY-READER-STOP-R0`; do not add a cohort row or guard dispatcher.
+The sole compatibility owner is `src/runner/json_v1_bridge/parse/mir_call.rs`.
+Stop its five `LegacyCallV0` writers (`Global`, `Method`, `Extern`, `Value`, and
+value-style `Closure`) before block mutation with
+`[freeze:contract][mir-json-v1/legacy-call-stopped]`.
 
-Decision: extend the existing VM `MirInstruction::Call(MirCall)` Global
-consumer from Builtin Print to the already-issued same-module FreeFunction and
-StaticBoxMethod targets, while rejecting `LegacyCallV0(Global)` at the shared
-call ingress. The VM remains a consumer; no second issuer or semantic receipt
-was added.
-
-Source authority + canonical issuer: existing Resolver/source products,
-`CanonicalGlobalTargetV1`, mandatory `MirCall`, and Atomic Publish. Non-authority
-is function-name lookup, physical symbols, `func`, arity completion, zero
-padding, `ValueId(0)`, JSON, registry, `args[0]`, or fallback/retry.
-
-Fail-fast boundary: `handlers/calls::handle_call` rejects legacy Global before
-trace/dispatch/`execute_callee_call`; canonical Global calls go directly to
-`execute_global_target`, which checks exact arity and the module function table.
-
-Finite implementation/delete set: extend `handlers/mod.rs` canonical Global
-admission; keep `handlers/calls/global.rs` as the sole canonical target
-consumer; remove the VM legacy Global dispatch arm; convert the four existing
-parameter/return contract fixtures to `MirInstruction::call`; retain
-`execute_global_target` and its exact FreeFunction/StaticBoxMethod branches.
-
-Acceptance: canonical FreeFunction and StaticBoxMethod VM calls execute;
-legacy Global rejects before old dispatch; the four fixtures are green; the
-legacy Global arm is zero. The focused slice passed with no new red classification;
-existing active-surface and pointer guards are reused; both passed. No Call R6 schema deletion,
-Method/Extern/Value/Constructor migration, JSON/Hako/LLVM work,
-VM-Hako promotion, or R7-wide retirement is claimed. All touched owners remain
-below the 760-line split trigger.
-
-##### Selected fast cohort — `MIR-CALL-LEGACY-READER-STOP-VM-VALUE-R0`
-status = landed; implementation permission = false; implementation commit = c43e9cd09c; reader = LegacyCallV0(Callee::Value); successor = ExplicitUnsupported; focused evidence = 1 direct reject + 8 VM call-handler tests + vm-reference check.
-Fail-fast = before execute_callee_call/register load/dispatch with `[vm-reference/legacy-call/value-stopped]`.
-Delete-set = VM Value reader arm and its pre-dispatch reg_load; no Call R6 schema.
-Family-local only: no canonical Value consumer, Method/Constructor/Closure migration, JSON/backend fallback, or scheduler stop.
-
-##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0`
-status = landed; implementation permission = false; implementation commit = `9333c530da`.
-The VM `LegacyCallV0(Callee::Method)` reader now stops before trace, hostbridge,
-direct-array, register load, or generic dispatch with
-`[vm-reference/legacy-call/method-stopped]`. The legacy Method trace/bridge/
-direct-array/execute arms and register-loading repair are gone; one direct
-negative test plus VM calls 9/9, existing method helpers 18/18, quick
-vm-reference check, active-surface, pointer, and diff evidence passed.
-Boundary token: `before trace/hostbridge/direct-array/reg_load/dispatch`;
-no canonical VM Method consumer; `No Call R6 schema`.
-Canonical `MirCall` handling and direct `method.rs`/`array_write.rs` helper
-owners remain unchanged. No canonical VM Method consumer, Call R6 schema,
-VM retirement, or whole-lib green claim is made.
-
-##### Selected guard-only maintenance — `MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0`
-status = landed; implementation permission = false; commit = `5690939d04`.
-The existing DynamicV2 admission-loan expectation now targets its current
-`install/lowering_port.rs` owner; no compiler or production route changed.
-
-##### Selected BoxShape cleanup — `MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0`
-status = landed; implementation permission = false; commit = `f482f84957`.
-The caller-zero `#[cfg(test)]` schedule-construction helper was removed;
-production schedule issuance and consumers remain unchanged.
-
-##### Selected guard-only cleanup — `MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0`
-status = landed; implementation permission = false; commit = `7965b1f2f9`.
-The existing assignment guard no longer reads the retired ASN0-L0 located surface; live ASN0-S0/I0/P0 assertions remain green, with no source, fixture, semantic, or new-guard change.
-
-##### Selected guard-only cleanup — `MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0`
-status = landed; implementation permission = false; commit = `8def150e1d`.
-Retargeted the existing ACCESS0-MEHEADER guard from the retired located adapter
-to the two live raw adapters; the shared policy, short observation loan, and
-no-fallback assertions remain enforced, with no Rust or fixture semantics changed.
+Delete `bump_max_value_id_from_call`, Global name/alias/arity parse-back,
+empty-`box_name` Method repair, value-Closure capture argv repair, and unused
+imports when caller-zero. Preserve `Constructor -> NewBox` and new-style
+`Closure -> NewClosure`. Use the existing parser test owner for five exact
+negative cases plus the two construction positives. No canonical target
+reconstruction, test file, receipt, fallback, or per-cohort guard is added.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

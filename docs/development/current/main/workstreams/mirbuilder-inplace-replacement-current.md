@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-09-03
+Date: 2026-09-04
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -40,11 +40,13 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The accepted receipt remains the immutable `7578/7411/138/29` baseline.  The
-current HEAD has one additional test and fixed-command observations of
-`7579/7314/236/29` and `7579/7313/237/29`; the failure set is therefore not
-accepted as a refreshed baseline, and the existing verification-refresh lane
-must classify it before any new semantic family is opened.
+The accepted 138-name failure receipt remains immutable. The current HEAD has
+one additional test and fixed-command observations of `7579/7314/236/29` and
+`7579/7313/237/29`; one qmark row varies. Exact App-Main/FreeFunction tests also
+reproduce a canonical Call result-hint omission: after Group A,
+`type_hint_providers.rs` scans only `LegacyCallV0`, so return inference rejects
+the missing hint. Reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode;
+do not rebaseline or open another semantic/cleanup family first.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
@@ -173,19 +175,16 @@ or one compatibility reader and typed terminal (for Stop), one real caller,
 an exclusive delete-set, and no unclassified red. A family with zero/multiple
 owners remains `ParkedSealed` while other eligible families may proceed.
 
-The current JSON v0/v1 legacy-target forms remain parked because their parser,
-dispatch, selfhost, and direct-loader callers share an outer owner; no new
-receipt, guard, adapter, or census is opened to force a false single tuple.
-The next semantic queue therefore selects the next exact
-Promote/Stop/Delete family only when its tuple is present.  While that queue is
-parked, an already-inventoried compiler-proven T0 cleanup may run without
-claiming R6 progress when it has an exact file/delete-set, adds no semantic
-authority, guard, receipt, fixture, or fallback, and keeps the `src/` delta
-non-positive.  The bounded cleanup series returns the pointer to this closed
-R6 census frontier; it does not add a permanent active-surface dispatcher
-row. `Stop` may end an unsupported experimental reader without waiting for
-backend parity; `Delete` still requires caller-zero. This is a scheduling rule,
-not a new semantic disposition or a second task ledger.
+JSON v0 remains parked with shared external callers. JSON v1 now has one
+bounded Stop cohort, but it is queued behind verification recovery: its sole
+parser owner emits five `LegacyCallV0` forms (`Global`, `Method`, `Extern`,
+`Value`, value-style `Closure`) while typed `NewBox`/`NewClosure` construction
+is separable. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; add no cohort row,
+receipt, guard, adapter, or dispatcher. Until `StableKnownRed`, neither this
+Stop nor T0 cleanup opens. Afterwards select Delete/Stop before Promote/T0 and
+measure production old-edge reduction, not row count. `Stop` may end an
+unsupported experimental reader without backend parity; `Delete` still
+requires caller-zero. This is scheduling, not a second semantic task ledger.
 
 ### S-class gate coverage (navigation only)
 

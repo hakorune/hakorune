@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Do not repeat the closed reader census. The canonical route metadata repair and manifest-anchor refresh are landed; keep its six related route-test failures classified with the parent failure names, do not refresh the accepted whole-lib baseline, and reopen only one existing family when source authority, typed issuer or terminal, lossless consumer, real caller, exclusive old-edge delete-set, and outside-reader inventory form one exact tuple. Unrelated eligible families or inventoried compiler-proven T0 cleanup may proceed. Independently, the metadata manifest guard is green but the lib baseline still has an unclassified delta; if verification work is selected, reuse the existing DEV-GATE-LIB-BASELINE-REFRESH-R0 row rather than creating a duplicate task, and complete that bounded prerequisite before any new semantic family."
+current_blocker_token = "Verification health is UnclassifiedRed. Do not repeat the closed Call census or rebaseline: reuse DEV-GATE-LIB-BASELINE-REFRESH-R0 in reconcile mode. Current fixed observations are 7579 with 7314/236/29 and 7313/237/29 versus the accepted 138-name failure SHA; one qmark row varies. Exact App-Main/FreeFunction reproductions also isolate a canonical Call result-hint omission: type_hint_providers.rs scans only LegacyCallV0 after the R6 shape split, then return_type_strategy.rs rejects the missing hint. First classify the complete delta and name the exact existing-owner repair; no semantic, BoxShape, performance, test-retirement, or JSON-v1 Stop work before StableKnownRed. After recovery, run the generic M7-S json_v1_legacy_call_ingress cohort; do not create a new D0, receipt, guard, or per-cohort row."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -30,29 +30,16 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The publication spine, Print producer coverage, WASM Global/Extern/Method stops, VM
-Global/Extern stops, WSM-G4-min8 probe retarget, T1-S0 raw-root shell
-migrations, and T1-S1 resolved_region_flow coverage re-export cleanup are
-landed. T1-S1 removed four caller-zero root re-exports while preserving
-coverage ownership, internal users, and semantics. T1-S1 RCF removed one
-caller-zero If-control facade re-export while preserving its product owner and
-direct internal imports. T1-S1 RCF coverage-use removed one caller-zero
-IfControlCoverageUseV1 facade re-export while preserving the use_ledger/product
-owners and direct internal imports. T3-S0 then removed one caller-zero
-canonical-session lifecycle test observer while preserving the production
-residence owner. T1-S1 RCF then removed one caller-zero
-ResolvedFunctionIfControlContractErrorV1 facade re-export while preserving the
-analyzer owner and internal return types. T3-S0 then removed one caller-zero
-lexical push test facade while preserving production lexical scope and the used
-pop helper. Parent/current full-lib
-observation remains 7578 total / 7311 passed / 238 failed / 29 ignored against
-the immutable accepted 7411/138/29 receipt. Fresh fixed-command revalidation observed 7579 total with 7314/236/29 and 7313/237/29 across three runs; only qmark_missing_operand_keeps_root_lower_diagnostic_and_fresh_reuse varied, so the baseline refresh remains unaccepted. The VM Value legacy-reader stop then
-landed at c43e9cd09c: Value calls now reject before register load/dynamic
-dispatch; canonical Value support and whole-lib health remain unclaimed.
-The VM LegacyCallV0(Callee::Method) reader then stopped before trace,
-hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
-canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed. The bounded canonical route metadata repair then landed: the focused route test passed, the related route suite remained at the parent six failure names (139 passed / 6 failed on the current branch versus 138 passed / 6 failed at parent), lib-test no-run passed after using the existing slice API, and me_method_call.hako now emits and runs with Result: 7. The accepted whole-lib baseline remains immutable; prior source-to-exe receipts are historical except this revalidated Result: 7.
-The behavior-neutral method-handler BoxShape split landed at a173e5456c (StaticCurrentOwner publication ingress moved to one private child; parent/child 687/100 lines; no caller, route, diagnostic, test, or semantic Call change; two focused-suite baseline reds unchanged).
+The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
+cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
+complete because compatibility writers/readers and R7 retirement remain.
+Verification health is UnclassifiedRed: fixed runs saw 7579 tests with 236 or
+237 failures, while the accepted failure receipt has 138 names. The varying
+qmark row and reproducible canonical Call result-hint omission are owned by the
+queued reuse of DEV-GATE-LIB-BASELINE-REFRESH-R0. After StableKnownRed, the next
+legacy reduction is generic M7-S cohort json_v1_legacy_call_ingress: five
+LegacyCallV0 writers stop while Constructor/NewClosure creation stays typed.
+No new D0, receipt, guard, or cohort-specific scheduler branch is planned.
 """
 next_design_card = "none"
 next_execution_card = "none"
