@@ -419,6 +419,7 @@ def _check_wasm_legacy_global_reader_stop_r0(state: dict, root: Path, api) -> No
 VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
 WASM_EXTERN_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0"
 VM_VALUE_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-VM-VALUE-R0"
+VM_METHOD_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0"
 
 
 def _check_vm_global_canonical_cutover_r0(
@@ -552,6 +553,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
             required=("before execute_callee_call/register load/dispatch", "no Call R6 schema"),
             owners=("src/backend/mir_interpreter/handlers/calls/mod.rs", "src/backend/mir_interpreter/handlers/mod.rs"),
         )
+    elif row == VM_METHOD_LEGACY_READER_STOP_R0_ROW:
+        _check_wasm_legacy_reader_stop_r0(state, root, api, row=row, reader="LegacyCallV0(Callee::Method)", stop_tag="[vm-reference/legacy-call/method-stopped]", required=("before trace/hostbridge/direct-array/reg_load/dispatch", "no canonical VM Method consumer", "No Call R6 schema"), owners=("src/backend/mir_interpreter/handlers/calls/mod.rs", "src/backend/mir_interpreter/handlers/mod.rs", "src/backend/mir_interpreter/exec/block.rs"))
     elif row == WASM_METHOD_LEGACY_READER_STOP_R0_ROW:
         _check_wasm_method_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:

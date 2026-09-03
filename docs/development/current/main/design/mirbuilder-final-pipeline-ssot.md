@@ -437,68 +437,22 @@ entrypoint still has a live production caller, R7 remains closed until the
 caller is removed or migrated.
 
 ##### Landed cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
-
-```text
-status = landed
-implementation permission = false
-implementation commit = 833eb87a80
-```
-
-This landed M7-S `Stop` changes no source meaning and adds no canonical WASM
-consumer. The shared preflight rejects `LegacyCallV0(Global)` with
-`[freeze:contract][wasm/legacy-global-call-stopped]` before shape matching,
-WAT planning, binary emission, output creation, or selection of a Rust
-fallback route. Resolver/source products, mandatory typed `MirCall`, and
-Atomic Publish remain the only authority; names, symbols, arity maps, zero
-padding, JSON, validation, and fallback success are not authority.
-
-Finite delete-set: the old Global lowering arm, name-based reachability
-traversal, Global-only signature/zero-padding helpers, and the direct negative
-proof were handled by the landed series. The focused call-free positives and
-`legacy_global_call_rejects_before_wasm_codegen` evidence passed; known red
-was not relabeled. Bypass or retry keeps the boundary closed. No canonical
-WASM reader, Hako W0, Extern/Method retirement, general fallback removal,
-R7 caller-zero, or `LegacyCallV0` deletion is claimed.
+status = landed; implementation permission = false; implementation commit = `833eb87a80`.
+M7-S Stop: the shared preflight rejects `LegacyCallV0(Global)` with
+`[freeze:contract][wasm/legacy-global-call-stopped]` before shape matching, WAT planning, binary emission, output creation, or selection of a Rust fallback route.
+Resolver/source products, mandatory typed `MirCall`, and Atomic Publish remain the authority; names, symbols, arity maps, zero padding, JSON, validation, and fallback success do not.
+The old Global lowering/reachability/name-arity/zero-padding readers are gone; no canonical WASM reader, Hako W0, broad fallback retirement, R7 caller-zero, or `LegacyCallV0` deletion is claimed.
 
 ##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
-
-```text
-status = landed
-implementation permission = false  # implementation 3c7f5ea5bc
-```
-
-Stop the Rust WASM `LegacyCallV0(Callee::Extern)` reader at the existing
-preflight before shape/WAT/binary/fallback work. Keep `EXTERN_CALL_MAP` for
-runtime imports; do not add a canonical WASM Extern consumer or a new receipt.
-Reuse the existing direct negative proof and active-surface/pointer guards.
-
-Acceptance: legacy Extern rejects before shape/WAT/binary/fallback, its WASM
-lowering arm and reader-only name helpers are zero, and the focused WASM Extern rejection passed. Terminal is
-`[freeze:contract][wasm/legacy-extern-call-stopped]`.
+status = landed; implementation permission = false; implementation commit = `3c7f5ea5bc`.
+Stop the Rust WASM `LegacyCallV0(Callee::Extern)` reader at the existing preflight before shape/WAT/binary/fallback; keep `EXTERN_CALL_MAP`, do not add a canonical WASM Extern consumer or a new receipt.
+Acceptance: legacy Extern rejects before shape/WAT/binary/fallback, its lowering arm and reader-only name helpers are zero, with terminal `[freeze:contract][wasm/legacy-extern-call-stopped]`.
 No Call R6 schema, selected-C/Hako/VM, or runtime-import retirement is claimed.
 
 ##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0`
-
-```text
-status = landed
-implementation permission = false
-implementation commit = 4b090c5060
-focused evidence = 1 direct rejection + 85 backend::wasm tests passed
-reader = LegacyCallV0(Callee::Method)
-successor = ExplicitUnsupportedBeforeArtifact
-```
-
-Stop the Rust WASM legacy Method reader at the existing preflight before
-shape/WAT/binary/fallback work. The canonical Resolver/package/MirCall remains
-the only semantic issuer; no canonical WASM Method consumer is added.
-
-Fail-fast tag: `[freeze:contract][wasm/legacy-method-call-stopped]`.
-Delete only the old WASM Method codegen arm, its sole BoxCall builtin owner,
-and the obsolete direct BoxCall test. The focused rejection and the full
-`backend::wasm` feature test group passed; pointer and active-surface guards
-also passed. P10 shape-table analysis observers and compatibility fixtures
-remain outside this row. No Call R6 schema, Hako, selected-C, VM, Extern,
-fallback, retry, or general WASM retirement claim.
+status = landed; implementation permission = false; implementation commit = `4b090c5060`; reader = `LegacyCallV0(Callee::Method)`; successor = `ExplicitUnsupportedBeforeArtifact`.
+Stop the Rust WASM legacy Method reader at the existing preflight before shape/WAT/binary/fallback; Resolver/package/MirCall remains the only semantic issuer and no canonical WASM Method consumer is added.
+Fail-fast tag: `[freeze:contract][wasm/legacy-method-call-stopped]`; the old Method codegen arm, BoxCall owner, and obsolete test are gone. No Call R6 schema, Hako, selected-C, VM, Extern, fallback, retry, or general WASM retirement claim.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 
@@ -544,6 +498,15 @@ status = landed; implementation permission = false; implementation commit = c43e
 Fail-fast = before execute_callee_call/register load/dispatch with `[vm-reference/legacy-call/value-stopped]`.
 Delete-set = VM Value reader arm and its pre-dispatch reg_load; no Call R6 schema.
 Family-local only: no canonical Value consumer, Method/Constructor/Closure migration, JSON/backend fallback, or scheduler stop.
+
+##### Selected fast cohort — `MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0`
+status = fast_open; implementation permission = true. Stop only the VM
+`LegacyCallV0(Callee::Method)` reader before trace, hostbridge, direct-array,
+register load, or generic dispatch with `[vm-reference/legacy-call/method-stopped]`
+(before trace/hostbridge/direct-array/reg_load/dispatch).
+Preserve canonical `MirCall` handling and
+the direct `method.rs`/`array_write.rs` helper owners; no canonical VM Method consumer
+or Call R6 schema change is included.
 
 ##### Selected guard-only maintenance — `MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0`
 status = landed; implementation permission = false; commit = `5690939d04`.

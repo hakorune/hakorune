@@ -3,7 +3,6 @@
 //! - Missing Callee is a terminal compatibility reject; no by-name lookup
 
 use super::*;
-use crate::boxes::array::ArrayBox;
 
 mod externs;
 mod global;
@@ -16,8 +15,8 @@ impl MirInterpreter {
         _func: ValueId,
         callee: Option<&Callee>,
         args: &[ValueId],
-        block: Option<BasicBlockId>,
-        instruction_index: Option<usize>,
+        _block: Option<BasicBlockId>,
+        _instruction_index: Option<usize>,
     ) -> Result<(), VMError> {
         if matches!(callee, Some(Callee::Value(_))) {
             return Err(self.err_unsupported(
@@ -34,6 +33,11 @@ impl MirInterpreter {
                 "[vm-reference/legacy-call/extern-stopped] canonical Extern target required",
             ));
         }
+        if matches!(callee, Some(Callee::Method { .. })) {
+            return Err(self.err_unsupported(
+                "[vm-reference/legacy-call/method-stopped] canonical Method target required",
+            ));
+        }
         if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
             match callee {
                 Some(Callee::Global(n)) => {
@@ -43,14 +47,6 @@ impl MirInterpreter {
                         args.len()
                     ));
                 }
-                Some(Callee::Method {
-                    box_name, method, ..
-                }) => crate::runtime::get_global_ring0().log.debug(&format!(
-                    "[hb:path] call Callee::Method {}.{} argc={}",
-                    box_name,
-                    method,
-                    args.len()
-                )),
                 Some(Callee::SameModuleInstance { key, receiver }) => {
                     crate::runtime::get_global_ring0().log.debug(&format!(
                         "[hb:path] call Callee::SameModuleInstance {}.{} / {} recv=%{} argc={}",
@@ -86,42 +82,13 @@ impl MirInterpreter {
                         args.len()
                     ));
                 }
+                Some(Callee::Method { .. }) => {
+                    unreachable!("legacy Method calls are rejected before trace dispatch")
+                }
                 None => crate::runtime::get_global_ring0().log.debug(&format!(
                     "[hb:path] call missing-callee argc={}",
                     args.len()
                 )),
-            }
-        }
-        if let Some(Callee::Method {
-            box_name,
-            method,
-            receiver,
-            ..
-        }) = callee
-        {
-            if receiver.is_none() && box_name == "hostbridge" && method == "extern_invoke" {
-                let v = self.execute_extern_function("hostbridge.extern_invoke", args)?;
-                self.write_result(dst, v);
-                return Ok(());
-            }
-        }
-        // F1: DirectArrayI64 fast-path — before generic dispatch
-        let blk = block.or(self.last_block);
-        let inst_idx = instruction_index.or(self.last_inst_index);
-        if let (Some(blk), Some(inst_idx)) = (blk, inst_idx) {
-            if let Some(Callee::Method {
-                method,
-                receiver: Some(recv_id),
-                ..
-            }) = callee
-            {
-                if method == "get" || method == "set" {
-                    if self
-                        .try_direct_array_i64_fastpath(dst, *recv_id, method, args, blk, inst_idx)?
-                    {
-                        return Ok(());
-                    }
-                }
             }
         }
         let Some(callee_type) = callee else {
@@ -130,106 +97,6 @@ impl MirInterpreter {
         let call_result = self.execute_callee_call(callee_type, args)?;
         self.write_result(dst, call_result);
         Ok(())
-    }
-
-    /// F1: DirectArrayI64 fast-path consumer.
-    /// Returns Ok(true) if handled, Ok(false) if no plan (fallthrough), Err on mismatch.
-    fn try_direct_array_i64_fastpath(
-        &mut self,
-        dst: Option<ValueId>,
-        recv_id: ValueId,
-        _method: &str,
-        _args: &[ValueId],
-        block: BasicBlockId,
-        instruction_index: usize,
-    ) -> Result<bool, VMError> {
-        // (a) Plan lookup — mirror numeric_contracts pattern
-        let func_name = match &self.cur_fn {
-            Some(n) => n.clone(),
-            None => return Ok(false),
-        };
-        let func = match self.functions.get(&func_name) {
-            Some(f) => f,
-            None => return Ok(false),
-        };
-        let plan = func.metadata.direct_array_access_plans.iter().find(|p| {
-            p.block() == block
-                && p.instruction_index() == instruction_index
-                && p.receiver_value() == recv_id
-                && p.array_kind() == "DirectArrayI64"
-        });
-        let plan = match plan {
-            Some(p) => p,
-            None => return Ok(false),
-        };
-
-        // (b) Resolve receiver — must be ArrayBox with InlineI64 storage
-        let recv_val = self.reg_load(recv_id)?;
-        let bx = match &recv_val {
-            VMValue::BoxRef(bx) => bx,
-            _ => return Ok(false),
-        };
-        let Some(arr) = bx.as_any().downcast_ref::<ArrayBox>() else {
-            return Ok(false);
-        };
-        if !arr.uses_inline_i64_slots() {
-            return Ok(false);
-        }
-
-        // (c) Resolve index
-        let idx_val = self.reg_load(plan.index_value())?;
-        let idx = match &idx_val {
-            VMValue::Integer(v) => *v,
-            _ => return Err(self.err_invalid("[direct_array_i64] index not i64")),
-        };
-
-        // (d) Execute
-        use crate::mir::direct_array_access_plan::DirectArrayAccessOp;
-        match plan.op() {
-            DirectArrayAccessOp::Load => {
-                let v = arr.slot_load_i64_raw(idx).ok_or_else(|| {
-                    self.err_invalid(format!("[direct_array_i64] load OOB idx={}", idx))
-                })?;
-                if let Some(d) = plan.result_value().or(dst) {
-                    self.write_reg(d, VMValue::Integer(v));
-                }
-                self.emit_direct_array_trace("load", block, instruction_index, idx, v);
-            }
-            DirectArrayAccessOp::Store => {
-                let value_vid = plan.value_value().ok_or_else(|| {
-                    self.err_invalid("[direct_array_i64] store plan missing value_value")
-                })?;
-                let val_reg = self.reg_load(value_vid)?;
-                let val = match &val_reg {
-                    VMValue::Integer(v) => *v,
-                    _ => return Err(self.err_invalid("[direct_array_i64] store value not i64")),
-                };
-                if !arr.slot_store_i64_raw(idx, val) {
-                    return Err(
-                        self.err_invalid(format!("[direct_array_i64] store failed idx={}", idx))
-                    );
-                }
-                if let Some(d) = plan.result_value().or(dst) {
-                    self.write_reg(d, VMValue::Void);
-                }
-                self.emit_direct_array_trace("store", block, instruction_index, idx, val);
-            }
-        }
-        Ok(true)
-    }
-
-    fn emit_direct_array_trace(
-        &self,
-        op: &str,
-        block: BasicBlockId,
-        inst: usize,
-        idx: i64,
-        val: i64,
-    ) {
-        eprintln!(
-            "[vm-trace][direct_array_i64] op={} bb={:?} inst={} idx={} val={} (method dispatch AVOIDED)",
-            op, block, inst, idx, val
-        );
     }
 
     pub(super) fn execute_callee_call(
@@ -241,12 +108,9 @@ impl MirInterpreter {
             Callee::Global(_) => Err(self.err_unsupported(
                 "[vm-reference/legacy-call/global-stopped] canonical Global target required",
             )),
-            Callee::Method {
-                box_name,
-                method,
-                receiver,
-                ..
-            } => self.execute_method_callee(box_name, method, receiver, args),
+            Callee::Method { .. } => Err(self.err_unsupported(
+                "[vm-reference/legacy-call/method-stopped] canonical Method target required",
+            )),
             Callee::SameModuleInstance { .. } => Err(self.err_unsupported(
                 "SameModuleInstance calls are unsupported in the VM reference lane",
             )),
@@ -270,7 +134,7 @@ mod tests {
     use crate::backend::vm_types::VMError;
     use crate::mir::definitions::MirCall;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
-    use hakorune_mir_defs::CanonicalGlobalTargetV1;
+    use hakorune_mir_defs::{CalleeBoxKind, CanonicalGlobalTargetV1, TypeCertainty};
 
     fn void_function(name: &str) -> MirFunction {
         let entry = BasicBlockId::new(0);
@@ -416,6 +280,34 @@ mod tests {
             error
                 .to_string()
                 .contains("[vm-reference/legacy-call/value-stopped]"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn legacy_method_call_rejects_before_method_dispatch() {
+        let mut interp = MirInterpreter::new();
+        let instruction = MirInstruction::LegacyCallV0 {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "ArrayBox".to_owned(),
+                method: "get".to_owned(),
+                receiver: Some(ValueId::new(1)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![ValueId::new(1), ValueId::new(2)],
+            effects: EffectMask::PURE,
+        };
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("legacy Method must stop before method dispatch");
+        assert!(
+            error
+                .to_string()
+                .contains("[vm-reference/legacy-call/method-stopped]"),
             "{error}"
         );
     }
