@@ -297,12 +297,12 @@ and tests remain unchanged. Acceptance is `method_call_handlers.rs < 760`,
 all moved symbols have exactly one definition, and no caller or route edge is
 added. Compression is not an exit.
 
-#### Execution contract (queued, not selected)
+#### Execution contract and closeout (landed)
 
-`MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` is a bounded BoxShape cleanup, not
-Call-R6 progress.  It may be selected only by `CURRENT_STATE.toml`; until then
-`implementation_permission = false` and the current family-local NoSafeSlice
-pointer remains unchanged.  When selected, use one implementation series:
+`MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` was a bounded BoxShape cleanup, not
+Call-R6 progress.  It was selected only by `CURRENT_STATE.toml` and landed at
+`a173e5456c`; the closeout pointer is now back at the family-local NoSafeSlice.
+The contract used for that implementation series was:
 
 ```text
 Decision:
