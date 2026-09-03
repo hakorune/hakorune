@@ -11,7 +11,6 @@ mod analyzer;
 mod product;
 mod use_ledger;
 
-pub(super) use product::VerifiedLocatedIfControlV1;
 pub(crate) use product::{
     ResolvedIfControlMaterializationV1, ResolvedIfElsePortV1, ResolvedIfFallthroughPortV1,
     VerifiedResolvedFunctionIfControlV1,

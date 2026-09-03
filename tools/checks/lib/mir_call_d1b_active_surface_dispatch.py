@@ -100,10 +100,12 @@ EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
 RAW_ROOT_BODY_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
 RAW_ROOT_DRAIN_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
 RRF_COVERAGE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"
+RCF_IFCONTROL_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-LOCATED-REEXPORT-RETIRE-R0"
 RAW_ROOT_CLEANUP = {
     RAW_ROOT_BODY_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py")),
     RAW_ROOT_DRAIN_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_final0_guard.py")),
     RRF_COVERAGE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_region_flow_r0_seam_guard.sh")),
+    RCF_IFCONTROL_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_located_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
 }
 def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)
@@ -155,8 +157,6 @@ def _dispatch_coreplan_varmap_reseal_row(
         expected_direct_sites_token=expected_direct_sites_token,
         allowed_files=_coreplan_varmap_reseal_allowed_files(target_paths[0]),
     )
-
-
 def _check_free_function_publication_d0(
     state: dict, card: dict, root: Path, api
 ) -> None:

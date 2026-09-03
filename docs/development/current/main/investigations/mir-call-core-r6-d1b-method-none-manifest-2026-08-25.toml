@@ -420,6 +420,30 @@ implementation_commit = "7ba0bf6a31"
 implementation_evidence = "The four root coverage re-exports are absent; rg found no root caller; cargo check --profile quick --lib passed; the resolved-region seam guard, active-surface guard, pointer guard, and diff check passed. The stale unrelated authority guard was not broadened or repaired in this row."
 closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external coverage caller appears."
 
+[mirbuilder_cleanup_t1_s1_rcf_ifcontrol_located_reexport_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-LOCATED-REEXPORT-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+box_kind = "BoxShape stale If-control facade re-export cleanup"
+decision = "Remove only the unused VerifiedLocatedIfControlV1 re-export from if_control/mod.rs; keep product.rs ownership and direct internal imports unchanged."
+source_authority = "if_control/product.rs owns VerifiedLocatedIfControlV1; analyzer.rs and use_ledger.rs consume it through super::product."
+canonical_issuer = "Existing If-control product/analyzer owners; this row issues no semantic or production product."
+non_authority = ["module-level allow attributes", "warning/test counts", "docs names", "Builder/semantic routes", "product fields", "accessor implementation"]
+fail_fast_boundary = "Before editing, confirm the facade symbol has no external caller and preserve direct product imports; any caller or semantic diff aborts."
+census_boundary = "One if_control/mod.rs facade re-export -> if_control/product.rs owner; includes only the one symbol, existing If-control structure guard, pointer, and active dispatch, excludes product/analyzer/use_ledger/tests and all semantics."
+candidate = "src/mir/resolved_control_flow/if_control/mod.rs::pub(super) use product::VerifiedLocatedIfControlV1"
+delete_set = ["src/mir/resolved_control_flow/if_control/mod.rs::VerifiedLocatedIfControlV1 root re-export"]
+allowed_files = ["src/mir/resolved_control_flow/if_control/mod.rs", "tools/checks/resolved_if_control_structure_r0_guard.sh", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/resolved_control_flow/if_control/product.rs", "src/mir/resolved_control_flow/if_control/analyzer.rs", "src/mir/resolved_control_flow/if_control/use_ledger.rs", "src/mir/resolved_control_flow/if_control_tests.rs", "src/mir/resolved_region_flow/**", "src/mir/resolved_semantics/**", "tests/**", "lang/**", "crates/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_checks = ["bash tools/checks/resolved_if_control_structure_r0_guard.sh", "exact absence check for facade re-export", "cargo check --profile quick --lib", "bash tools/checks/current_state_pointer_guard.sh", "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "git diff --check"]
+acceptance = "The facade re-export is absent with no external caller; product.rs remains the sole definition owner; the existing If-control structure, active-surface, pointer, and diff guards pass; no touched source file reaches 800 lines."
+no_safe_slice = "Abort and return to closeout if an external caller appears, the product owner changes, a guard must be weakened or added, inventory/tests drift, or any semantic/Recipe diff appears."
+non_claims = "No If semantics, production switch, test move/deletion, resolved_region_flow cleanup, resolved_semantics staging, Call/backend/VM change, baseline refresh, or broad dead-code retirement."
+implementation_commit = "pending"
+implementation_evidence = "pending"
+closeout = "Pending; after the bounded deletion, return the pointer to cleanup scheduling and do not reopen this row."
+
 [mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"

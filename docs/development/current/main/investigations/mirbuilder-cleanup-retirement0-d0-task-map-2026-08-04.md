@@ -302,6 +302,43 @@ source files remain below the 760-line trigger. The stale unrelated authority
 guard was not expanded. A new external caller or any semantic/Recipe diff is
 `NoSafeSlice`; do not open another D0 to force this row.
 
+#### Next bounded row — `MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-LOCATED-REEXPORT-RETIRE-R0`
+
+```text
+Decision:
+  Remove only the stale VerifiedLocatedIfControlV1 re-export from
+  src/mir/resolved_control_flow/if_control/mod.rs.
+
+Source authority + canonical issuer:
+  if_control/product.rs owns the product; analyzer.rs and use_ledger.rs
+  already use super::product directly. The facade re-export is not an
+  authority and has zero external callers.
+
+Non-authority:
+  allow attributes, warning/test counts, docs names, Builder/semantic
+  routes, product fields, and accessor implementation.
+
+Fail-fast boundary:
+  Keep the private product definition and direct internal imports. Delete
+  only the one facade line; any external caller or guard drift aborts.
+
+Smallest next slice:
+  One source edit in if_control/mod.rs, then the existing
+  resolved_if_control_structure_r0_guard.sh, cargo check --profile quick
+  --lib, pointer/active guards, and diff check.
+
+Non-claims:
+  No If semantics, production switch, test move, new receipt/guard,
+  resolved_semantics cleanup, Call/backend/VM change, or broad mask cleanup.
+```
+
+The row is selected by `CURRENT_STATE` in `fast`; its permission is bounded to
+this one source edit and existing checks.
+Acceptance is caller-zero for the facade symbol, unchanged product ownership,
+all touched sources below the 760-line trigger, and green existing guards.
+An external caller, required guard expansion, or semantic diff is
+`NoSafeSlice`.
+
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 
 The 11 route-specific `XRecipe { arena, root }` structs
