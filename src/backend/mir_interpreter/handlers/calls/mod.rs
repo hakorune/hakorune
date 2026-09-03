@@ -24,6 +24,11 @@ impl MirInterpreter {
                 "[vm-reference/legacy-call/global-stopped] canonical Global target required",
             ));
         }
+        if matches!(callee, Some(Callee::Extern(_))) {
+            return Err(self.err_unsupported(
+                "[vm-reference/legacy-call/extern-stopped] canonical Extern target required",
+            ));
+        }
         if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
             match callee {
                 Some(Callee::Global(n)) => {
@@ -248,7 +253,9 @@ impl MirInterpreter {
                 let _ = self.reg_load(*func_val_id)?;
                 Err(self.err_unsupported("First-class function calls in VM"))
             }
-            Callee::Extern(extern_name) => self.execute_extern_function(extern_name, args),
+            Callee::Extern(_) => Err(self.err_unsupported(
+                "[vm-reference/legacy-call/extern-stopped] canonical Extern target required",
+            )),
         }
     }
 }

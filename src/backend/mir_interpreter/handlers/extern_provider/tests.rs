@@ -1,5 +1,5 @@
 use super::lane::{classify_extern_provider_lane, ExternProviderLane};
-use crate::backend::mir_interpreter::{MirInterpreter, VMValue};
+use crate::backend::mir_interpreter::MirInterpreter;
 use crate::mir::{
     BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
     MirInstruction, MirModule, MirType, ValueId,
@@ -102,24 +102,18 @@ fn module_with_decoded_utf8_byte_len(value: &str) -> MirModule {
 }
 
 #[test]
-fn runtime_direct_decoded_utf8_byte_len_counts_unicode_and_embedded_nul() {
-    for (value, expected) in [
-        ("abc", 3),
-        ("猫", 3),
-        ("😸", 4),
-        ("猫😸", 7),
-        ("e\u{0301}", 3),
-        ("é", 2),
-        ("\0", 1),
-        ("a\0b", 3),
-    ] {
-        let actual = MirInterpreter::new()
-            .execute_function_with_args(
-                &module_with_decoded_utf8_byte_len(value),
-                "Main.decoded_utf8_byte_len/0",
-                &[],
-            )
-            .expect("decoded UTF-8 byte-length runtime direct call should succeed");
-        assert_eq!(actual, VMValue::Integer(expected), "value={value:?}");
-    }
+fn legacy_extern_call_rejects_before_provider_dispatch() {
+    let error = MirInterpreter::new()
+        .execute_function_with_args(
+            &module_with_decoded_utf8_byte_len("猫"),
+            "Main.decoded_utf8_byte_len/0",
+            &[],
+        )
+        .expect_err("legacy Extern must stop before provider dispatch");
+    assert!(
+        error
+            .to_string()
+            .contains("[vm-reference/legacy-call/extern-stopped]"),
+        "unexpected VM rejection: {error}"
+    );
 }
