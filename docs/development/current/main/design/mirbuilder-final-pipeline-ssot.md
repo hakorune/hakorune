@@ -556,8 +556,8 @@ The caller-zero `#[cfg(test)]` schedule-construction helper was removed;
 production schedule issuance and consumers remain unchanged.
 
 ##### Selected guard-only cleanup — `MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0`
-status = selected_fast; implementation permission = true.
-Remove only the retired ASN0-L0 located-assignment reads/assertions from the existing assignment guard and retarget its live ASN0 checks; no source, fixture, semantic, or new-guard change.
+status = landed; implementation permission = false; commit = `7965b1f2f9`.
+The existing assignment guard no longer reads the retired ASN0-L0 located surface; live ASN0-S0/I0/P0 assertions remain green, with no source, fixture, semantic, or new-guard change.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0"
 current_design_stop = "none"
-current_blocker_token = "Retire only the stale ASN0-L0 located-assignment contract from the existing assignment guard; preserve the live raw/default assignment owner, tests, and semantics with no new guard or receipt."
+current_blocker_token = "Close out the stale ASN0-L0 assignment-guard contract retirement; preserve the live ASN0 owner and record direct, active-surface, pointer, and diff evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -52,7 +52,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0"
+next_execution_card = "none__asn0_l0_stale_guard_contract_retired"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -71,7 +71,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-03: Stale ASN0-L0 located-assignment guard contract retired at 7965b1f2f9; live ASN0 checks remain green, no Rust/fixture semantics changed, and the retired located surface is no longer read by the guard.",
   "2026-09-03: DynamicV2 caller-zero schedule test facade retired at f482f84957; only DynamicV2PhysicalScheduleRowV1::from_test_parts was removed, quick cargo check and existing authority/active-surface/pointer guards passed, and production schedule/consumer semantics were unchanged.",
   "2026-09-03: DynamicV2 authority guard path drift was repaired at f1988e0247 by pointing the existing admission-loan expectation to install/lowering_port.rs; no source or production route changed and the existing guard is green again.",
-  "2026-09-03: VM Value legacy-reader stop landed at c43e9cd09c and closed at 225460576e; Value calls reject before register load/dynamic dispatch, while canonical Value support and whole-lib health remain unclaimed.",
 ]

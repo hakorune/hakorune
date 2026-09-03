@@ -472,10 +472,10 @@ implementation_evidence = "The redundant 44-line shell, its compiler registratio
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
 [mirbuilder_cleanup_asn0_l0_stale_guard_contract_retire_r0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0"
 parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
-implementation_permission = true
+implementation_permission = false
 box_kind = "BoxShape guard-contract retirement only"
 decision = "Retire the stale ASN0-L0 located-assignment contract from the existing assignment guard and keep only the current live ASN0-S0/I0/P0 assertions. Do not change production assignment code, fixtures, semantics, or create a new guard or receipt."
 source_authority = "Current variable_assignment_descent.rs, statement_surface.rs, compound_assignment.rs, and their existing focused fixtures are the live assignment owners; the retired located_legacy_lowering/assignment surface is not an authority."
@@ -491,7 +491,10 @@ focused_checks = ["python3 tools/checks/lib/callable_result_i0_site0_r0_expr0_sp
 acceptance = "The existing assignment guard runs directly and through active-surface dispatch; it no longer reads or asserts the retired ASN0-L0 files, keeps the live ASN0-S0/I0/P0 ownership/order/absence checks, and all touched check files remain below 800 lines. No production or fixture file changes occur."
 no_safe_slice = "Abort and return to closeout if a located file/caller reappears, the live assignment owner or guard boundary changes, the helper requires semantic assertions beyond current owners, or any new guard/receipt/source change is needed."
 non_claims = "No assignment semantic change, helper deletion, test deletion, Call R6/R7, backend/VM/WASM change, whole-lib green claim, or broad guard cleanup."
-next_execution = "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0__fast"
+implementation_commit = "7965b1f2f9"
+implementation_evidence = "Removed the three retired ASN0-L0 located path reads, adapter/selector/fixture assertions, and detached caller metrics from the existing assignment guard; retargeted only live ASN0 signatures/call shapes and added a direct CLI entry for the same existing helper. The direct assignment guard, active-surface dispatch, pointer guard, manifest parse, Python compile, and diff checks passed. No Rust or fixture file changed."
+closeout = "Landed as guard-contract cleanup only. Return to cleanup scheduling; reopen only if a located assignment caller or live ASN0 owner reappears."
+next_execution = "none__asn0_l0_stale_guard_contract_retired"
 
 [mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03]
 status = "landed"
