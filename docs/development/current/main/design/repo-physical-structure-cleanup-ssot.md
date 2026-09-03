@@ -20,8 +20,8 @@ Related:
 - **Current decision:** physical cleanup must reduce tracked files/lines when
   it claims repository reduction; moves and renames are tracked separately.
 - **Current implementation status:** the receipt-only
-  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task and the first one-file
-  `DOCS-HISTORY-RETIRE-R0` reduction are landed; guard retirement remains
+  `REPO-LIFECYCLE-BASELINE-REFRESH-R0` task and the two bounded
+  `DOCS-HISTORY-RETIRE-R0/R1` reductions are landed; guard retirement remains
   parked. Hako physical ingress remains
   `ParkedSealed__HakoIngressMissing`.
 - **Next ordered task:** keep broad guard/docs retirement parked until another
@@ -255,20 +255,18 @@ selected batch measured one tracked file/75 lines before and zero afterward.
 The generated lifecycle receipt and existing guards were refreshed in the same
 closeout, and no compiler, MIR, test, or guard semantics changed.
 
-### `DOCS-HISTORY-RETIRE-R1` (queued after Call checkpoint integration)
+### `DOCS-HISTORY-RETIRE-R1` (landed)
 
 Reuse the existing docs-history owner for one exact `RetireFromTree` batch.
-The current reference census found four closed phase-296x cards at phase
-ordinals `1448 / 1450 / 1452 / 1454`. A follow-up exact grep found that each
-candidate is still named by its archived predecessor (`1449 / 1451 / 1453 /
-1455` respectively), so the batch is not yet reference-closed. The generated
-lifecycle inventory also lists the four paths, and the separately listed
-ordinal `3455` remains excluded because it has live current-tree consumers.
+The selected four closed phase-296x cards at ordinals `1448 / 1450 / 1452 /
+1454` were reference-closed by retiring their eight predecessor task edges;
+the generated lifecycle inventory was refreshed, and ordinal `3455` remains
+excluded because it has live current-tree consumers.
 
 ```text
 Decision:
-  retire exactly these four closed cards from the tracked tree after the
-  closed Call publication branch is integrated; Git history owns their detail.
+  retire exactly these four closed cards from the tracked tree; Git history
+  owns their detail and no archive copy is created.
 Source authority + canonical issuer:
   CURRENT_STATE, durable trim/condition owners, and the existing strict
   repository lifecycle inventory/reference scan.
@@ -290,11 +288,15 @@ Census boundary: lifecycle archive candidates at ordinals 1448/1450/1452/1454
   guards, generated assets, and archives.
 ```
 
-Acceptance remains a real reduction of exactly four tracked files and 276
-tracked lines, with no tracked archive/stub copy, but the row stays queued
-until the archived predecessor reference is either retired by its owner or
-explicitly retained as a named evidence edge. This row does not open a
-semantic family and is skipped if integration or the reference census drifts.
+Acceptance landed as a real reduction of exactly four tracked files and 276
+tracked lines, with no tracked archive/stub copy. The five archived
+predecessors retain only ordinal/Git-history evidence; no stale candidate task
+edge remains. This row did not open a semantic family.
+
+Implementation evidence: `d17bdff126` removed the four bodies and refreshed
+the lifecycle receipt; existing pointer, active-surface, docs-slim, strict
+lifecycle, and diff checks passed. Return to the family-local Call census and
+do not reopen this batch unless a new inbound reference appears.
 
 ### `MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0` (landed)
 
