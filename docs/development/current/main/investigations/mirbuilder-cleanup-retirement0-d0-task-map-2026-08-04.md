@@ -259,9 +259,9 @@ series; never use a global `force-warn` result as permission to delete schema.
 
 #### Selected bounded row — `MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0`
 
-This row is now selected by `CURRENT_STATE.toml` in `fast`; the implementation
-permission is limited to the bounded source edit below. No semantic or
-production Call work is implied by this selection.
+This row landed at `7ba0bf6a31`. Its implementation permission was limited to
+the bounded source edit below; no semantic or production Call work was
+implied.
 
 ```text
 Decision:
@@ -295,11 +295,12 @@ Non-claims:
   dead-code retirement.
 ```
 
-Acceptance is caller-zero for the four root re-exports, unchanged internal
-coverage ownership, the existing resolved-region seam guard remaining green,
-and all touched source files below the 760-line trigger. A new external caller,
-required guard expansion, or any semantic/Recipe diff is `NoSafeSlice`; do not
-open another D0 to force this row.
+Acceptance was met: the four root re-exports are caller-zero, internal
+coverage ownership is unchanged, the existing resolved-region seam guard,
+active-surface guard, pointer guard, and diff check are green, and all touched
+source files remain below the 760-line trigger. The stale unrelated authority
+guard was not expanded. A new external caller or any semantic/Recipe diff is
+`NoSafeSlice`; do not open another D0 to force this row.
 
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 

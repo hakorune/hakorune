@@ -103,11 +103,11 @@ no_safe_slice = "Keep Hako at ParkedSealed if no single synchronous PublishedMir
 non_claims = "No new source/package decision, Q1-Q4 reopening, selected-C feature expansion, new semantic Verified/Prepared receipt, Call schema/R6/R7, default derive integration, explicit/nested/upvar receiver, non-scalar ABI, VM, selfhost, broad JSON deletion, or whole-library green claim."
 
 [mir_call_selected_c_userbox_compat_quarantine_r0_2026_09_02]
-status = "selected_fast"
+status = "landed"
 task_id = "MIR-CALL-SELECTED-C-USERBOX-COMPAT-QUARANTINE-R0"
 parent_row = "MIR-CALL-ME-DECLARED-INSTANCE-SELECTED-C-ADMISSION-D0"
 base_head = "c47aa735ff"
-implementation_permission = true
+implementation_permission = false
 branch_scope = "branch_or_worktree_only"
 box_kind = "BoxShape physical route-state quarantine"
 decision = "Keep language me.method and canonical MIR unchanged. At the selected-C published ingress, any SameModuleInstance call is an explicit UnsupportedBeforeObject terminal; only an explicit compatibility caller may use the false return."
@@ -416,9 +416,9 @@ focused_checks = ["bash tools/checks/resolved_region_flow_r0_seam_guard.sh", "ex
 acceptance = "The four root re-exports are absent with no external caller; internal super::coverage users and coverage definitions are unchanged; the existing authority and active-surface guards, quick lib check, pointer guard, and diff check pass; no touched source file reaches 800 lines."
 no_safe_slice = "Abort and return to closeout if any external caller appears, an existing guard needs semantic weakening or a new guard, internal coverage ownership changes, inventory/tests drift, or any non-BoxShape diff appears."
 non_claims = "No coverage semantic change, test move/deletion, production switch, resolved_control_flow cleanup, resolved_semantics staging, Call/backend/VM change, baseline refresh, or broad dead-code retirement."
-implementation_commit = "pending"
-implementation_evidence = "pending"
-closeout = "Pending; after the bounded deletion, return the pointer to cleanup scheduling and do not reopen this row."
+implementation_commit = "7ba0bf6a31"
+implementation_evidence = "The four root coverage re-exports are absent; rg found no root caller; cargo check --profile quick --lib passed; the resolved-region seam guard, active-surface guard, pointer guard, and diff check passed. The stale unrelated authority guard was not broadened or repaired in this row."
+closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external coverage caller appears."
 
 [mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
 status = "landed"
