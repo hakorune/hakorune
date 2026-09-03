@@ -33,8 +33,10 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Latest bounded work:** VM Global/Extern reader stops and the stale WSM-G4-min8
-  probe retarget are landed; the next exact stop is WASM Legacy Extern.
+- **Latest bounded work:** VM Global/Extern reader stops, the stale WSM-G4-min8
+  probe retarget, and the Rust WASM Legacy Extern reader stop are landed. No
+  next exact reader tuple is selected; reopen only when the finite authority,
+  consumer, caller, terminal, and delete-set tuple is present.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
