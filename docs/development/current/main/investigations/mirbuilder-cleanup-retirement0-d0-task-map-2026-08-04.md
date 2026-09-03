@@ -363,30 +363,22 @@ JoinSig, physicalizer, fixture, fallback, or retry change was introduced.
 
 ### T2-D1/S1 — trivial canonical policy-matrix consolidation
 
-The four `analyze_trivial_canonical_*` wrappers are policy-matrix delegators,
-not strict byte-identical functions. Add a neutral
-`TrivialCanonicalAnalysisModeV1` (`ordinary/main × closed/finite-direct-call`),
-migrate capability callers and tests, then collapse the shared analyzer kernel.
-Keep `main` role data in the mode even if currently unused. Place the mode in a
-small neutral module (for example `analyzer_mode.rs`):
-`resolved_value_profile/analyzer.rs` is already 766 lines, so adding the enum
-there risks violating the 800-line source limit. Guard the four old symbols at
-zero and the new production entry at one capability owner.
+The four `analyze_trivial_canonical_*` wrappers were policy-matrix delegators,
+not strict byte-identical functions. The accepted cleanup introduced the
+neutral `TrivialCanonicalAnalysisModeV1` (`ordinary/main × closed/finite-direct-call`),
+migrated capability callers and tests to one analyzer entry, and removed the
+four wrapper symbols. `main` role data remains explicit in the mode, and the
+mode lives in the dedicated `analyzer_mode.rs` module so the analyzer stays
+below the source budget.
 
-T2-S1 design audit receipt (2026-08-11): the policy-matrix design is accepted,
-but implementation remains parked while the active provider lane is a design
-stop. The current four wrappers and existing policy enum are still the live
-shape; `TrivialCanonicalAnalysisModeV1` has not been introduced. Do not delete
-the wrappers or change guards in place. When this disjoint refactor is resumed,
-use a short behavior-neutral series: (1) add the mode in a small neutral
-`analyzer_policy`/`analyzer_mode` module while keeping facades and callers
-buildable, (2) move capability callers/tests to one canonical entry and update
-the manifest/guard, then (3) delete wrappers only after caller-zero evidence.
-If the new entry cannot preserve the four policy quadrants without growing
-`analyzer.rs`/`capability.rs` past the refactor band, stop and split the
-facade/module rather than widening either file. No current pointer change,
-fixture expansion, route change, or semantic authority is authorized by this
-cleanup receipt.
+T2-S1 closed fast row (2026-08-20): `ce1543e15e` consolidated the policy
+modes and updated the dedicated
+`tools/checks/trivial_canonical_analyzer_mode_guard.sh`. The four old entry
+definitions/callers are zero, one mode entry owns the quadrants, focused
+analyzer tests and `cargo check --lib` passed, and route/Recipe/SSA/PHI
+behavior remained unchanged. The older design-stop wording is historical;
+do not reopen this already-landed BoxShape row. Its detailed evidence remains
+in `mirbuilder-cleanup-t2-s1-analyzer-mode-i0.md` and Git history.
 
 ### T3-D0..S3 — test facade and naming cleanup
 
