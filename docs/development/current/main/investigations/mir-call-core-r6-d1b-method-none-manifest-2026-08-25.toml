@@ -496,6 +496,32 @@ implementation_evidence = "Removed the three retired ASN0-L0 located path reads,
 closeout = "Landed as guard-contract cleanup only. Return to cleanup scheduling; reopen only if a located assignment caller or live ASN0 owner reappears."
 next_execution = "none__asn0_l0_stale_guard_contract_retired"
 
+[mirbuilder_cleanup_access0_meheader_located_adapter_guard_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+box_kind = "BoxShape stale header-observation guard contract retirement"
+decision = "Retarget the existing ACCESS0-MEHEADER guard to the two live raw route adapters after the located adapter retirement. Preserve the shared policy, short observation loan, and no-fallback assertions; change no Rust, fixture, or semantic behavior."
+source_authority = "RawLegacyChildLoweringPortV1 and RawInvocationChildPortV1 are the two live MeCallHeaderObservationPortV1 adapters; MeCallPolicyBox remains the sole shared policy owner."
+canonical_issuer = "Existing me-call header observation and policy owners; this guard-only row issues no semantic or production product."
+non_authority = ["retired located_legacy_lowering.rs path", "historical three-adapter wording", "test/line counts alone", "worker report", "Call/backend/VM behavior", "new receipt or guard"]
+fail_fast_boundary = "Before editing, confirm the located adapter file is absent and the two raw adapters remain present; preserve policy=1, raw adapter count=2, no current_module fallback, and short-loan checks. Any live located caller or ownership drift aborts."
+census_boundary = "One existing ACCESS0-MEHEADER guard -> retired located adapter path/require/count/output; includes the existing direct guard, active-surface dispatch, pointer, and diff checks, excludes me-call Rust owners, fixtures, tests, and all semantic/Call/backend routes."
+candidate = "tools/checks/lib/me_call_header_observation_guard.py::located adapter assertions and route count"
+delete_set = ["located_legacy_lowering.rs read", "LocatedLegacyLoweringSessionV1 require/count", "three-adapter output wording"]
+allowed_files = ["tools/checks/lib/me_call_header_observation_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"]
+forbidden_files = ["src/mir/**", "lang/**", "crates/**", "tests/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_checks = ["python3 tools/checks/lib/me_call_header_observation_guard.py .", "python3 tools/checks/lib/mir_call_d1b_active_surface_guard.py .", "bash tools/checks/joinir_located_legacy_retire_guard.sh", "bash tools/checks/current_state_pointer_guard.sh", "git diff --check"]
+known_related_guard_red = "me_call_arity_failfast_guard.sh remains pre-existing red because method_call_handlers.rs is 766 lines (the guard's <760 source-size assertion); this row does not weaken or reclassify that separate BoxShape debt."
+acceptance = "The existing header-observation guard runs directly and through active-surface dispatch; it requires exactly two live raw adapters, rejects any reappearance of the retired located adapter, and preserves policy/fallback/loan checks. No Rust or fixture file changes occur and touched check files remain below 800 lines."
+no_safe_slice = "Abort and return to closeout if the located adapter reappears, a third live adapter exists, the policy/owner changes, a guard must be weakened or added, or any source/fixture/semantic diff is needed."
+non_claims = "No me-call semantic change, adapter deletion, test deletion, Call R6/R7, backend/VM/WASM change, baseline refresh, or broad guard cleanup."
+implementation_commit = "pending"
+implementation_evidence = "Selection only; implementation and direct/active-surface evidence are pending."
+closeout = "Open fast only for the guard-only retarget; after evidence, return to cleanup scheduling and do not reopen unless a located adapter or third live route reappears."
+next_execution = "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0"
+
 [mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0"

@@ -2,9 +2,10 @@
 """ACCESS0-MEHEADER-G0 structural guard.
 
 G0 closes the typed source-branded observation seam: one shared `me` policy,
-three route adapters, no direct header fallback, and no long-lived observation
-state.  This guard must fail if a second policy/dispatcher or an implicit
-invocation current-module fallback reappears.
+two live raw route adapters, no direct header fallback, and no long-lived
+observation state.  The retired located adapter is intentionally absent.  This
+guard must fail if a second policy/dispatcher or an implicit invocation
+current-module fallback reappears.
 """
 
 from __future__ import annotations
@@ -37,7 +38,7 @@ def main() -> int:
     builder = BUILDER.read_text()
     handler = HANDLER.read_text()
     raw_port = (ROOT / "src/mir/builder/recursive_child_lowering.rs").read_text()
-    located = (ROOT / "src/mir/builder/located_legacy_lowering.rs").read_text()
+    raw_legacy_port = (ROOT / "src/mir/builder/recursive_child_lowering/legacy_port.rs").read_text()
     descent = (ROOT / "src/mir/builder/calls/method_call_descent.rs").read_text()
     consultation = CONSULTATION.read_text()
 
@@ -65,22 +66,21 @@ def main() -> int:
     forbid(source, "collector: &", "G0 stored collector reference")
     for fragment in (
         "prepare_me_lowered_call_v1",
-        "descent.observe_me_call_parameters",
+        "observer.observe_me_call_parameters",
         "Port: MethodCallLoweringPortV1",
     ):
         require(handler, fragment, "G0 shared me-policy connection")
-    require(descent, "pub(in crate::mir::builder) fn observe_me_call_parameters", "G0 short observation loan")
-    require(raw_port, "impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1", "G0 legacy adapter")
+    require(source, "pub(in crate::mir::builder) trait MeCallHeaderObservationPortV1", "G0 short observation loan")
+    require(raw_legacy_port, "impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1", "G0 legacy adapter")
     require(raw_port, "impl MeCallHeaderObservationPortV1 for RawInvocationChildPortV1", "G0 invocation adapter")
-    require(located, "impl MeCallHeaderObservationPortV1 for LocatedLegacyLoweringSessionV1", "G0 located adapter")
+    if (ROOT / "src/mir/builder/located_legacy_lowering.rs").exists():
+        raise AssertionError("G0 retired located adapter must remain absent")
     if handler.count("struct MeCallPolicyBox;") != 1:
         raise AssertionError("G0 requires one MeCallPolicyBox definition")
     if handler.count("fn resolve_me_call<Port>") != 1:
         raise AssertionError("G0 requires one shared me policy entry")
-    if raw_port.count("impl MeCallHeaderObservationPortV1") != 2:
+    if raw_legacy_port.count("impl MeCallHeaderObservationPortV1") + raw_port.count("impl MeCallHeaderObservationPortV1") != 2:
         raise AssertionError("G0 requires exactly two raw route adapters")
-    if located.count("impl MeCallHeaderObservationPortV1") != 1:
-        raise AssertionError("G0 requires exactly one located route adapter")
     forbid(handler, "module.functions.get(&fname)", "G0 direct me header reader")
     forbid(handler, "is_instance_method", "G0 duplicate receiver classifier")
     require(descent, "port: &'port mut Port", "G0 short-lived argument capability")
@@ -109,7 +109,7 @@ def main() -> int:
         "observation persistence/cache = 0",
     ):
         require(consultation, fragment, "G0 law")
-    print("[me-call-header-observation-guard] ok me_policy=1 route_adapters=3 source_lines=" + str(len(source.splitlines())))
+    print("[me-call-header-observation-guard] ok me_policy=1 route_adapters=2 source_lines=" + str(len(source.splitlines())))
     return 0
 
 

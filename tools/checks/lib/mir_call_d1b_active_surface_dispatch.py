@@ -119,6 +119,7 @@ RAW_ROOT_CLEANUP = {
     T3_S0_DYNAMIC_V2_ADMISSION_GUARD_RETARGET_ROW: ("mirbuilder_cleanup_dynamic_v2_admission_guard_retarget_r0_2026_09_03", Path("tools/checks/dynamic_v2_physical_input_authority_guard.sh")),
     T3_S0_DYNAMIC_V2_SCHEDULE_TEST_FACADE_RETIRE_ROW: ("mirbuilder_cleanup_dynamic_v2_schedule_test_facade_retire_r0_2026_09_03", Path("tools/checks/dynamic_v2_physical_input_authority_guard.sh")),
     "MIRBUILDER-CLEANUP-ASN0-L0-STALE-GUARD-CONTRACT-RETIRE-R0": ("mirbuilder_cleanup_asn0_l0_stale_guard_contract_retire_r0_2026_09_03", Path("tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment.py")),
+    "MIRBUILDER-CLEANUP-ACCESS0-MEHEADER-LOCATED-ADAPTER-GUARD-RETIRE-R0": ("mirbuilder_cleanup_access0_meheader_located_adapter_guard_retire_r0_2026_09_03", Path("tools/checks/lib/me_call_header_observation_guard.py")),
 }
 def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)
