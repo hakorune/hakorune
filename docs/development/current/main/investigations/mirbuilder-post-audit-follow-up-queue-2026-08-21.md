@@ -297,6 +297,68 @@ and tests remain unchanged. Acceptance is `method_call_handlers.rs < 760`,
 all moved symbols have exactly one definition, and no caller or route edge is
 added. Compression is not an exit.
 
+#### Execution contract (queued, not selected)
+
+`MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` is a bounded BoxShape cleanup, not
+Call-R6 progress.  It may be selected only by `CURRENT_STATE.toml`; until then
+`implementation_permission = false` and the current family-local NoSafeSlice
+pointer remains unchanged.  When selected, use one implementation series:
+
+```text
+Decision:
+  Extract only the existing StaticCurrentOwner publication-ingress policy
+  from method_call_handlers.rs into one private child module.  Preserve the
+  facade and all behavior; do not grow the semantic Call surface.
+Source authority + canonical issuer:
+  Existing source-bound static publication ingress and
+  StaticResultPublicationIngressPortV1; the existing
+  VerifiedStaticCallResultPublicationOwnerV1::issue remains the sole issuer.
+Non-authority:
+  method/owner strings, current_static_box, variable_map, raw ValueId/MIR,
+  EffectMask/FunctionSignature, tests/fixtures, backend output, line count,
+  fallback, and retry.
+Fail-fast boundary:
+  The moved policy must preserve the existing publication-before-argument
+  guard, exact error text/order, visibility, and route precedence.  Any path,
+  symbol, or API drift aborts the split; no semantic repair is allowed.
+Smallest next slice:
+  Move only the StaticCurrentOwner policy block (the existing
+  resolve_me_call_with_publication_ingress boundary) to one private child;
+  leave Math compatibility, unavailable prepare/execute, and test modules in
+  the facade.  Do not merge unified_emitter or touch Call schema.
+Non-claims:
+  No producer/consumer switch, receiver/effect/ABI change, receipt, guard
+  family, fixture deletion, baseline refresh, fallback change, or R6/R7 claim.
+```
+
+The exact execution boundary is `method_call_handlers.rs`'s existing private
+`MeCallPolicyBox` publication-ingress policy to a single child module under
+`src/mir/builder/method_call_handlers/`.  The parent facade keeps its logical
+module path and all public/intra-crate entry points.  No new semantic type,
+port axis, receipt, or test file is permitted.  A stable active-surface
+dispatcher branch may be added only when this row is actually selected; a new
+guard file is forbidden.
+
+Execution acceptance is finite:
+
+```text
+src/mir/builder/method_call_handlers.rs < 760
+new private child < 800
+moved symbol definitions = exactly one each
+caller/route/error/order/visibility/test behavior = unchanged
+source semantic delta = 0 (apart from an explicitly recorded module edge)
+new receipt/port/guard/test/fixture/fallback/retry = 0
+quick lib check + existing method-call focused tests = green
+active-surface/pointer guards + git diff --check = green
+```
+
+The row is `NoSafeSlice` (and must return to the queue without a new D0) if
+the block cannot be isolated without changing a public path, adding a port or
+receipt, widening visibility, altering diagnostics/order, crossing the
+760/800-line budget, or introducing a test/fixture/guard migration.  A
+successful split is structural hygiene only; it does not reopen a parked
+semantic family or advance the R6/R7 completion counters.
+
 `MIR-UNIFIED-EMITTER-FORWARDER-CENSUS-D0` records every caller of the public,
 lookup, map-replay, receipt, policy, core, and physical-terminal entries. Each
 row is classified as semantic owner, validator, compatibility policy, or pure
