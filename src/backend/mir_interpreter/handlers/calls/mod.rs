@@ -19,6 +19,11 @@ impl MirInterpreter {
         block: Option<BasicBlockId>,
         instruction_index: Option<usize>,
     ) -> Result<(), VMError> {
+        if matches!(callee, Some(Callee::Value(_))) {
+            return Err(self.err_unsupported(
+                "[vm-reference/legacy-call/value-stopped] canonical Value target required",
+            ));
+        }
         if matches!(callee, Some(Callee::Global(_))) {
             return Err(self.err_unsupported(
                 "[vm-reference/legacy-call/global-stopped] canonical Global target required",
@@ -249,10 +254,9 @@ impl MirInterpreter {
                 Err(self.err_unsupported(&format!("Constructor calls for {}", box_type)))
             }
             Callee::Closure { .. } => Err(self.err_unsupported("Closure creation in VM")),
-            Callee::Value(func_val_id) => {
-                let _ = self.reg_load(*func_val_id)?;
-                Err(self.err_unsupported("First-class function calls in VM"))
-            }
+            Callee::Value(_) => Err(self.err_unsupported(
+                "[vm-reference/legacy-call/value-stopped] canonical Value target required",
+            )),
             Callee::Extern(_) => Err(self.err_unsupported(
                 "[vm-reference/legacy-call/extern-stopped] canonical Extern target required",
             )),
@@ -390,6 +394,28 @@ mod tests {
             error
                 .to_string()
                 .contains("[vm-reference/legacy-call/global-stopped]"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn legacy_value_call_rejects_before_dynamic_dispatch() {
+        let mut interp = MirInterpreter::new();
+        let instruction = MirInstruction::LegacyCallV0 {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Value(ValueId::new(42))),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        };
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("legacy Value must stop before register load or dynamic dispatch");
+        assert!(
+            error
+                .to_string()
+                .contains("[vm-reference/legacy-call/value-stopped]"),
             "{error}"
         );
     }
