@@ -469,10 +469,10 @@ implementation_evidence = "The caller-zero IfControlCoverageUseV1 facade re-expo
 closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external caller appears."
 
 [mirbuilder_cleanup_t3_s0_canonical_session_lifecycle_observer_retire_r0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T3-S0-CANONICAL-SESSION-LIFECYCLE-OBSERVER-RETIRE-R0"
 parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
-implementation_permission = true
+implementation_permission = false
 box_kind = "BoxShape caller-zero canonical-session test observer retirement"
 decision = "Remove only CanonicalSsaFunctionSessionV2::lifecycle_state_for_test from the residence_lifecycle child; preserve the production Enter/Finish lifecycle and state owner unchanged."
 source_authority = "residence_lifecycle.rs production Enter/Finish methods and PinnedTextResidenceLifecycleStateV1 own lifecycle meaning; lifecycle_state_for_test is only a test observer."
@@ -488,9 +488,9 @@ focused_checks = ["bash tools/checks/common_v2_s6c_structure_guard.sh", "exact a
 acceptance = "The helper has zero definitions and zero repository callers; the lifecycle state, Enter, and Finish owners remain unchanged; the existing common_v2 structure, active-surface, pointer, quick-check, exact-absence, and diff guards pass; no touched source file reaches 800 lines."
 no_safe_slice = "Abort and return to closeout if a caller appears, the owner changes, a guard must be weakened or added, inventory/tests drift, or any lifecycle/Recipe/semantic diff appears."
 non_claims = "No lifecycle semantic change, test addition/move, receipt/guard creation, Call/backend/VM change, fallback/retry, or broad T3 facade census."
-implementation_commit = "pending"
-implementation_evidence = "pending"
-closeout = "Pending; after the bounded deletion, return the pointer to cleanup scheduling and do not reopen this row."
+implementation_commit = "3f08d05ceb"
+implementation_evidence = "Removed the caller-zero #[cfg(test)] CanonicalSsaFunctionSessionV2::lifecycle_state_for_test observer while preserving the PinnedTextResidenceLifecycleStateV1 owner and production Enter/Finish methods. The existing common-v2 structure guard was repaired only by retargeting its signature-loan path to the current owner file; source exact-absence, common-v2, active-surface, pointer, quick-check, and diff evidence passed."
+closeout = "Landed with no lifecycle semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external caller appears."
 
 [mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
 status = "landed"

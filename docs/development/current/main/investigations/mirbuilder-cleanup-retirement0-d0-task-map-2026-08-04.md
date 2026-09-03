@@ -450,12 +450,15 @@ Non-claims:
   Call/backend/VM change, fallback/retry, or broad T3 facade census.
 ```
 
-The row is selected by `CURRENT_STATE` in `fast`; its permission is bounded to
-this one `#[cfg(test)]` observer deletion and existing checks. Acceptance is
-definition/caller zero, unchanged residence ownership, all touched sources
-below the 760-line trigger, and green existing structure/pointer guards.
-An external caller, required guard expansion, or semantic diff is
-`NoSafeSlice`.
+The row was selected by `CURRENT_STATE` in `fast` and landed at
+`3f08d05ceb`. Its permission was bounded to this one `#[cfg(test)]` observer
+deletion and existing checks. Acceptance was definition/caller zero,
+unchanged residence ownership, all touched sources below the 760-line
+trigger, and green existing structure/pointer guards. The common-v2 guard had
+one stale path reference to the moved signature-loan owner; the row repaired
+that path only, without changing guard logic or adding a guard. An external
+caller, required guard expansion, or semantic diff remains `NoSafeSlice` for
+this cleanup candidate.
 
 ### T3-D0..S3 — test facade and naming cleanup
 
