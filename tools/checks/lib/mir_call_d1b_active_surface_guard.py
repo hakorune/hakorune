@@ -166,6 +166,16 @@ HAKO_SAME_MODULE_INSTANCE_PHYSICAL_INGRESS_D0_KEY = (
     "mir_call_hako_same_module_instance_physical_ingress_d0_2026_09_02"
 )
 POST_GROUP_B_READER_CENSUS_C0_ROW = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
+METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_ROW = (
+    "MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0"
+)
+METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_KEY = (
+    "mir_method_call_handlers_policy_split_s0_2026_09_04"
+)
+METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_CARD = Path(
+    "docs/development/current/main/investigations/"
+    "mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+)
 WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW = (
     "MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0"
 )

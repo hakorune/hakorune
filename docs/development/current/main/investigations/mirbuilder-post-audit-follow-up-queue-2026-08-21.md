@@ -348,9 +348,16 @@ moved symbol definitions = exactly one each
 caller/route/error/order/visibility/test behavior = unchanged
 source semantic delta = 0 (apart from an explicitly recorded module edge)
 new receipt/port/guard/test/fixture/fallback/retry = 0
-quick lib check + existing method-call focused tests = green
+quick lib check + passing existing method-call focused tests = green
 active-surface/pointer guards + git diff --check = green
 ```
+
+The existing focused filter currently reports `9 passed / 1 failed`; the one
+failure is the unchanged `prepared_me_standard_unified_is_effect_free_until_execute`
+assertion for the pre-existing `LegacyCallV0` shape.  It is recorded as known
+baseline debt and must match the base result; this split neither fixes nor
+reclassifies it.  The passing focused tests and the quick/guard checks are the
+acceptance evidence for this structural row.
 
 The row is `NoSafeSlice` (and must return to the queue without a new D0) if
 the block cannot be isolated without changing a public path, adding a port or

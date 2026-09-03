@@ -120,6 +120,95 @@ def check_boxshape_maintenance(state: dict, root: Path, api) -> None:
     print(f"[{api.TAG}] row={BOXSHAPE_MAINTENANCE_ROW} delegated=boxshape-maintenance delta={delta}")
 
 
+def check_method_call_handlers_policy_split_s0(
+    state: dict, root: Path, api
+) -> None:
+    """Validate the queued, behavior-neutral method-handler owner split."""
+    row = api.METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_ROW
+    card_path = api.METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_CARD
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
+        api.fail(f"{row} next_execution_card drifted")
+    if state.get("latest_card_path") != str(card_path):
+        api.fail(f"{row} latest card path drifted")
+    if state.get("current_execution_design") != str(card_path):
+        api.fail(f"{row} current execution design drifted")
+    if state.get("next_execution_card_path") != str(card_path):
+        api.fail(f"{row} next execution card path drifted")
+
+    with (root / card_path).open("rb") as handle:
+        import tomllib
+
+        card = tomllib.load(handle)
+    task = card.get(api.METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_KEY)
+    if not isinstance(task, dict) or task.get("task_id") != row:
+        api.fail(f"{row} manifest row is missing")
+    expected_status = "selected_fast" if mode == "fast" else "landed"
+    if task.get("status") != expected_status:
+        api.fail(f"{row} manifest status drifted")
+    if task.get("implementation_permission") is not (mode == "fast"):
+        api.fail(f"{row} implementation permission drifted")
+
+    parent = root / "src/mir/builder/method_call_handlers.rs"
+    child = root / "src/mir/builder/method_call_handlers/static_current_owner_policy.rs"
+    if not parent.is_file() or not child.is_file():
+        api.fail(f"{row} split owner is missing")
+    parent_lines = sum(1 for _ in parent.open(encoding="utf-8"))
+    child_lines = sum(1 for _ in child.open(encoding="utf-8"))
+    if parent_lines >= 760:
+        api.fail(f"{row} parent reached 760 lines: {parent_lines}")
+    if child_lines >= 800:
+        api.fail(f"{row} child reached 800 lines: {child_lines}")
+
+    parent_text = parent.read_text(encoding="utf-8")
+    child_text = child.read_text(encoding="utf-8")
+    required_parent = "mod static_current_owner_policy;"
+    required_child = "resolve_me_call_with_publication_ingress"
+    if required_parent not in parent_text:
+        api.fail(f"{row} parent module declaration is missing")
+    if required_child not in child_text:
+        api.fail(f"{row} moved policy implementation is missing")
+    if "fn resolve_me_call_with_publication_ingress<Port>" in parent_text:
+        api.fail(f"{row} policy implementation remains in parent")
+    if child_text.count("fn resolve_me_call_with_publication_ingress<Port>") != 1:
+        api.fail(f"{row} moved policy definition is not unique")
+
+    allowed = task.get("allowed_files")
+    if not isinstance(allowed, list) or not allowed:
+        api.fail(f"{row} allowed_files are missing")
+    base = task.get("base_head")
+    if not isinstance(base, str) or not base:
+        api.fail(f"{row} base_head is missing")
+    changed = api.subprocess.run(
+        ["git", "diff", "--name-only", base, "--"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    untracked = api.subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    unexpected = (set(changed) | set(untracked)) - set(allowed)
+    if unexpected:
+        api.fail(f"{row} changed files escaped allowed_files: {sorted(unexpected)}")
+    print(
+        f"[{api.TAG}] row={row} delegated=method-handler-policy-split "
+        f"parent={parent_lines} child={child_lines}"
+    )
+
+
 def check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)
     if not isinstance(item, dict) or item.get("status") not in {"selected_fast", "landed"}:

@@ -496,6 +496,32 @@ implementation_commit = "f5b268e741"
 implementation_evidence = "The redundant 44-line shell, its compiler registration, and both old inventory paths were removed. The exact successors passed 1/1 each; cargo --list reports 7578 tests with inventory SHA a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d; cargo check --profile quick --lib passed; parent and current full-lib runs both observed 7311/238/29, so the fixed accepted 7411/138/29 receipt remains a pre-existing baseline drift and was not rewritten."
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
+[mir_method_call_handlers_policy_split_s0_2026_09_04]
+status = "selected_fast"
+task_id = "MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0"
+parent_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
+ceremony_tier = "T0"
+box_kind = "BoxShape behavior-neutral private owner split"
+implementation_permission = true
+base_head = "11d84ef2be"
+decision = "Move only the existing StaticCurrentOwner publication-ingress policy out of method_call_handlers.rs into one private child module. Preserve the facade, logical paths, route order, diagnostics, visibility, callers, and tests; do not grow the semantic Call surface."
+source_authority = "The existing source-bound static publication ingress and StaticResultPublicationIngressPortV1 remain the sole source/transport authorities."
+canonical_issuer = "VerifiedStaticCallResultPublicationOwnerV1::issue remains the sole canonical issuer; this row issues no semantic product."
+non_authority = ["method/owner strings", "current_static_box", "variable_map", "raw ValueId/MIR", "EffectMask/FunctionSignature", "tests/fixtures", "backend output", "line count", "fallback", "retry"]
+fail_fast_boundary = "The moved policy must preserve publication-before-argument descent, exact error text/order, visibility, and route precedence. Any API/path/symbol drift aborts the split; no semantic repair or compatibility change is allowed."
+census_boundary = "Existing MeCallPolicyBox publication-ingress policy in src/mir/builder/method_call_handlers.rs -> one private child module under src/mir/builder/method_call_handlers/; includes only the policy implementation and its required imports, excludes Math compatibility, unavailable prepare/execute behavior, tests, unified_emitter, Call schema, backend, and semantic products."
+line_budget_paths = ["src/mir/builder/method_call_handlers.rs", "src/mir/builder/method_call_handlers/static_current_owner_policy.rs"]
+pre_split_over_limit_paths = ["src/mir/builder/method_call_handlers.rs"]
+allowed_files = ["src/mir/builder/method_call_handlers.rs", "src/mir/builder/method_call_handlers/static_current_owner_policy.rs", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md", "tools/checks/lib/mir_call_d1b_active_surface_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py"]
+required_text = ["src/mir/builder/method_call_handlers.rs||mod static_current_owner_policy;", "src/mir/builder/method_call_handlers/static_current_owner_policy.rs||resolve_me_call_with_publication_ingress"]
+forbidden_text = ["src/mir/builder/method_call_handlers.rs||fn resolve_me_call_with_publication_ingress<Port>"]
+focused_tests = ["method_call_handlers", "method_call_handlers_static_legacy_retire"]
+focused_red_classification = "The method_call_handlers filter is 9 passed / 1 failed because prepared_me_standard_unified_is_effect_free_until_execute still asserts the pre-existing LegacyCallV0 shape; the moved policy block is not on that path and the test source/execute owner are unchanged from base 11d84ef2be. The me_method_canonical_cutover filter is 4 passed / 1 failed at static_current_owner_lowers_source_arguments_once_without_receiver_prefix; its test and the moved caller body are unchanged from the same base. These are known baseline debt, not current-change reds."
+ordered_tasks = ["A: select this existing BoxShape row through CURRENT_STATE and run the stable active-surface guard", "B: move only resolve_me_call_with_publication_ingress and its imports into one private child; keep all logical APIs and tests unchanged", "C: run focused method-call tests, quick lib check, line-budget/duplicate-definition checks, then return the pointer to the family-local R6 closeout"]
+acceptance = "The parent method_call_handlers.rs is below 760 lines and the private child is below 800; moved symbols have exactly one definition; caller/route/error/order/visibility/test behavior is unchanged; source semantic delta is zero apart from the explicit module edge; no new receipt/port/guard/test/fixture/fallback/retry is added; cargo check and the passing focused method-call tests plus stable guards pass. The two existing focused-suite failures are recorded above and must match the base result; they are not reclassified or fixed in this BoxShape row."
+no_safe_slice = "Return to the queue without a new D0 if the policy cannot be isolated without a public-path change, visibility widening, new port/receipt, diagnostic/order drift, semantic change, test/fixture migration, or crossing the 760/800-line budget."
+non_claims = "No Call-R6/R7 progress, producer/consumer switch, receiver/effect/ABI change, backend change, test deletion, baseline refresh, unified-emitter merge, or legacy-edge retirement is claimed."
+
 [mir_call_canonical_route_metadata_restore_r0_2026_09_03]
 status = "landed"
 task_id = "MIR-CALL-CANONICAL-ROUTE-METADATA-RESTORE-R0"

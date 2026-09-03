@@ -1,8 +1,8 @@
 date = "2026-09-03"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
-current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
+work_mode = "fast"
+current_execution_row = "MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0"
+current_design_stop = "none"
 current_blocker_token = "Do not repeat the closed reader census. The canonical route metadata repair is landed; keep its six related route-test failures classified with the parent failure names, do not refresh the accepted whole-lib baseline, and reopen only one existing family when source authority, typed issuer or terminal, lossless consumer, real caller, exclusive old-edge delete-set, and outside-reader inventory form one exact tuple. Unrelated eligible families or inventoried compiler-proven T0 cleanup may proceed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
@@ -26,9 +26,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-latest_card = "mirbuilder-final-pipeline-ssot"
-latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+latest_card = "mir-call-core-r6-d1b-method-none-manifest-2026-08-25"
+latest_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 latest_card_summary = """
 The publication spine, Print producer coverage, WASM Global/Extern/Method stops, VM
 Global/Extern stops, WSM-G4-min8 probe retarget, T1-S0 raw-root shell
@@ -54,8 +54,8 @@ hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
 canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed. The bounded canonical route metadata repair then landed: the focused route test passed, the related route suite remained at the parent six failure names (139 passed / 6 failed on the current branch versus 138 passed / 6 failed at parent), lib-test no-run passed after using the existing slice API, and me_method_call.hako now emits and runs with Result: 7. The accepted whole-lib baseline remains immutable; prior source-to-exe receipts are historical except this revalidated Result: 7.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+next_execution_card = "MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
