@@ -257,6 +257,50 @@ After the relevant `_p0` rows are retired, remove stale re-exports/imports in
 only with caller-zero guards. Treat `resolved_semantics` as its own staged API
 series; never use a global `force-warn` result as permission to delete schema.
 
+#### Selected bounded row — `MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0`
+
+This is a planned cleanup row, not the current execution pointer. It may open
+only after the closeout pointer is retargeted to `fast`; no semantic or
+production Call work is implied by this selection.
+
+```text
+Decision:
+  Remove only the four stale coverage re-exports from
+  src/mir/resolved_region_flow/mod.rs.
+
+Source authority + canonical issuer:
+  Internal coverage products remain owned and issued by coverage.rs,
+  analyzer.rs, if_flow.rs, and verifier.rs. The mod.rs re-export is not an
+  authority and has no external callers.
+
+Non-authority:
+  module-level allow attributes, warning counts, test counts, broad
+  dead-code scans, resolved_control_flow, resolved_semantics, and any
+  Recipe/route/PHI/SSA/backend result.
+
+Fail-fast boundary:
+  Keep super::coverage and all eight manifest-listed internal users. Remove
+  only FunctionFlowCoverageDraftV1, IfFlowCoverageDraftV1,
+  VerifiedFunctionFlowCoverageV1, and VerifiedIfFlowCoverageV1 from the
+  root re-export; any external caller or guard drift aborts the row.
+
+Smallest next slice:
+  One source edit in mod.rs, followed by the existing
+  resolved_region_flow_authority_guard.sh, an exact absence check for the
+  four root re-exports, cargo check --lib, pointer guard, and diff check.
+
+Non-claims:
+  No coverage definition change, test move, semantic change, production
+  switch, new receipt, new guard, resolved_semantics cleanup, or broad
+  dead-code retirement.
+```
+
+Acceptance is caller-zero for the four root re-exports, unchanged internal
+coverage ownership, the existing authority guard remaining green, and all
+touched source files below the 760-line trigger. A new external caller,
+required guard expansion, or any semantic/Recipe diff is `NoSafeSlice`; do not
+open another D0 to force this row.
+
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 
 The 11 route-specific `XRecipe { arena, root }` structs
