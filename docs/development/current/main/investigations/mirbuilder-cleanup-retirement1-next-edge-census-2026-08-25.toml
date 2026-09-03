@@ -190,14 +190,33 @@ kind = "design_only_line_budget"
 scope = "raw_invocation_source_transport.rs, normal_script_direct_statement_owner.rs, and normal_script_semantic_source_tests.rs"
 source_authority = "existing module ownership and current source line budget"
 canonical_issuer = "none; define path-preserving split ownership only"
-old_edge = "raw transport is 778 lines and two normal_script owners are above the 760 design threshold; compression is not an acceptable fix"
-smallest_slice = "write one split map per over-limit owner, preserving public paths and tests, with no semantic implementation"
+old_edge = "raw transport was the only over-limit production owner; the two normal_script owners are test-surface-heavy at the 760 design threshold, and compression is not an acceptable fix"
+smallest_slice = "record the already-landed raw transport split as no-op, then define two path-preserving cfg(test) include! splits for the normal_script owners; no semantic implementation"
 acceptance = [
-  "each over-limit owner has a named child boundary and no child is planned above 760 lines",
+  "raw_invocation_source_transport.rs is recorded as already landed at 0bd6732792; no repeat split is scheduled",
+  "normal_script_direct_statement_owner.rs keeps its existing public module path and splits only the cfg(test) body into named include! fragments, with no new #[path] or re-export",
+  "normal_script_semantic_source_tests.rs keeps its existing #[path] module ingress and splits only the cfg(test) body into named include! fragments",
+  "each planned child boundary is below 760 lines and the production owner/caller surface is unchanged",
   "builder.rs 737 and FunctionMetadata 718 remain outside this row",
-  "no test stuffing, #[path] band-aid, or source move lands during D0",
+  "no test stuffing, #[path] band-aid, source move, semantic change, new authority, receipt, or guard lands during D0",
 ]
-non_claims = ["no refactor implementation", "no warning cleanup", "no common_v2 relocation"]
+non_claims = [
+  "no refactor implementation in this D0",
+  "no warning cleanup",
+  "no common_v2 relocation",
+  "no production caller or owner change",
+  "no test deletion, rename, ignore, or baseline refresh",
+]
+
+[candidate.line_budget_split_map]
+raw_invocation_source_transport = "landed_noop__0bd6732792__mod_rs_57__max_child_408"
+normal_script_direct_statement_owner = "pending_boxshape_i0__keep_tests_module__include_common_expression_roots_unsupported_and_fallthrough_control_completion"
+normal_script_semantic_source_tests = "pending_boxshape_i0__keep_tests_module__include_common_root_admission_lexical_matrix_scope_completion"
+public_path_impact = "zero"
+authority_impact = "zero"
+receipt_impact = "zero"
+guard_impact = "zero"
+implementation_permission = false
 
 [[candidate]]
 id = "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0"
