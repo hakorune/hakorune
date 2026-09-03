@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "The finite R6 reader census has no remaining Promote tuple. Landed M7-S Stop cohorts, including VM LegacyCallV0(Callee::Method), remain closed; do not repeat the census or treat this family-local NoSafeSlice as a repository-wide halt."
+current_blocker_token = "The finite R6 reader census has no single Promote tuple: Call schema still has multiple production/compatibility ingresses and legacy readers. This is family-local; do not repeat the census or halt the repository. Select only an already-inventoried M7-S Stop when its reader, caller, fail-fast terminal, and exclusive delete-set are exact; otherwise remain at C0."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

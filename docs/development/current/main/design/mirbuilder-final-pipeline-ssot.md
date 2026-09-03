@@ -624,9 +624,25 @@ R6 Group A:
 
 R6 Group B:
   VM consumes canonical Builtin(Print); wrong arity/non-Print fail closed.
-
 MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0:
   NoSafeSlice__NoSingleRemainingCanonicalReaderFamily.
+
+R6 schema readiness (worker-audited 2026-09-03):
+  NoSafeSlice__CallSchemaHasMultipleProductionIngressesAndLegacyReaders;
+  canonical MirCall is ready, but LegacyCallV0 has multiple shared ingress,
+  reader, serializer, and reissuer owners. Do not repeat the census, add
+  CallV2/receipt/guard, or remove one legacy field in isolation.
+  Scheduler rule: NoSafeSlice is family-local, not repository-global.
+  Promote only with one source issuer, lossless consumer, caller, terminal,
+  and exclusive delete-set; Stop a compatibility reader only with the same
+  finite proof; Delete only at caller-zero; otherwise ParkedSealed.
+  Next bounded queue (not active until an exact tuple exists):
+    1. keep C0 and audit no new reader/ingress;
+    2. prefer an existing M7-S stop cohort over schema cutover;
+    3. open R6 only for one separated Global/JSON subfamily;
+    4. open R7 only after all production legacy callers reach zero.
+  Current JSON v0 name/func stop remains parked: shared external callers
+  prevent an exclusive delete-set. No implementation claim.
 ```
 
 The exact landed commits and command receipts remain in Git and
