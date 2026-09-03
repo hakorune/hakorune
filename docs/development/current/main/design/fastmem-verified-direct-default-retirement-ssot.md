@@ -655,3 +655,85 @@ the shared builder paths while verified-direct evidence remains intact.
 ### Current Next Row
 
 `phase-296x next lane selection pending`
+
+## Source Surface Fate Gate (queued, not an execution permission)
+
+The public `fastmem Contract { ... }` surface, `mem.assume*` proof calls, and
+the internal `MemOp` dialect have different fates. Do not delete the source
+surface or the internal dialect from a textual grep result. The source surface
+is a retirement candidate; the internal `MemOp`, access plans, verifier facts,
+and LLVM lowering remain kept unless a separate producer/consumer census
+proves otherwise.
+
+### MIR-FMEM-SOURCE-REGION-ORDINARY-OWNER-CENSUS-D0
+
+```text
+Decision:
+  Run one read-only, finite census before opening any source-retirement row.
+  Treat FastMemRegion source syntax, mem.assume* proof vocabulary, and the
+  internal MemOp dialect as separate fate decisions.
+
+Source authority + canonical issuer:
+  Existing parser/AST FastMemRegion, region registration in fastmem.rs, and
+  MemOp issuance in fastmem/ops.rs are the inventory anchors. The census must
+  name the one ordinary-source/planner owner, if one exists, that can issue the
+  same region obligation without a second source authority.
+
+Non-authority:
+  JSON/report text, mem.* strings outside the region contract, fixture names,
+  LLVM symbols, VM/CArtifact support, registry lookups, and product-activation
+  flags do not prove a production caller or a replacement owner.
+
+Fail-fast boundary:
+  The census starts at the FastMemRegion parser/source entry and ends at every
+  source/wire/MemOp/verified-plan/backend consumer. Missing proof, region
+  escape, unsupported backend shape, or an unclassified use blocks deletion.
+  No source syntax is removed before an equal-or-stronger ordinary owner and
+  a finite successor/delete set are named.
+
+Smallest next slice:
+  Inventory every FastMem source file/fixture row, all 17 MemOp kinds, and
+  their producer/consumer classes. Classify each use as Product,
+  InternalCompiler, Proof, Test, or Historical; record the exact product
+  caller count and the ordinary owner candidate. Code, fixtures, and guards
+  remain unchanged in D0.
+
+Non-claims:
+  No immediate syntax deletion, MemOp deletion, allocator activation,
+  generic ContractRegion execution, VM/CArtifact enablement, or legacy test /
+  guard purge.
+```
+
+The census boundary includes parser/AST, the Hako parser mirror, source/wire
+projection, region registration, `mem.*` source admission, MemOp producers,
+verified access plans, JSON/report consumers, and LLVM consumers. It excludes
+ordinary external `mem.get/set/alloc/free` calls that are not part of the
+FastMem region contract.
+
+The required outcome is one of these finite states:
+
+```text
+Product caller = 0 and one ordinary owner + finite successor exists:
+  eligible for a later source-surface retirement row
+
+Product caller > 0:
+  name the migration owner and keep the source surface until the ordinary
+  route has source/proof evidence; do not delete in D0
+
+ordinary owner = 0, multiple, or unknown:
+  ParkedSealed__NoOrdinaryRegionOwner; do not add another receipt, adapter,
+  fixture, or guard to search for a different answer
+```
+
+`mem.assume*` must be counted separately from operational `mem.*` calls. It
+is a proof/contract injection vocabulary, not a normal runtime call. A future
+replacement must be compiler-issued or an explicitly bounded internal
+contract, not an unrestricted user-level trust-me path. Operational source
+forms may only be retired after their ordinary source shape, access-site facts,
+planner proof, and existing MemOp lowering have one named owner.
+
+After this D0, a source-retirement row may remove the parser/AST/source
+dispatcher and migrate proof fixtures only when its caller-zero and successor
+evidence are complete. A separate later row owns the seven
+transport/proof-centered MemOps that currently lack a full execution backend;
+that row must not be merged with public syntax retirement.
