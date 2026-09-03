@@ -41,7 +41,8 @@ before re-opening executable trim route decisions.
 ## Decision
 
 ```text
-selected_next_task=CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001
+selected_next_task=retired_in_git_history
+retired_successor_ordinal=1448
 selected_scope=additive read-only CarrierInfo adapter plus focused unit tests
 selected_reason=condition-binding identity has a design and proof vectors, but
 no code-level adapter exists yet. Implementing the adapter before trim lowering

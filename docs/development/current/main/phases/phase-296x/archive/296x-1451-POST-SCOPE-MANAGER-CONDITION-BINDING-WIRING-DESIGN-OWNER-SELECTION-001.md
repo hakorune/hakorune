@@ -12,7 +12,7 @@ This row must not change lookup behavior.
 ## Selected By
 
 ```text
-296x-1450-SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001
+historical_successor_ordinal=1450 (retired from tracked tree; Git history only)
 ```
 
 ## Candidate Owners
@@ -42,7 +42,8 @@ lookup order before reopening trim route lowering.
 ## Decision
 
 ```text
-selected_next_task=SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001
+selected_next_task=retired_in_git_history
+retired_successor_ordinal=1452
 selected_scope=add explicit condition_bindings input and focused lookup tests
 selected_reason=the adapter exists and the wiring design fixed the lookup
 boundary. The smallest next step is to let ScopeManager consume the adapter

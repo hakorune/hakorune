@@ -13,7 +13,7 @@ This row must not emit trim route lowering.
 ## Selected By
 
 ```text
-296x-1452-SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001
+historical_successor_ordinal=1452 (retired from tracked tree; Git history only)
 ```
 
 ## Candidate Owners
@@ -45,7 +45,8 @@ trim route lowering decision as a proof update before any executable lowering.
 ## Decision
 
 ```text
-selected_next_task=TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
+selected_next_task=retired_in_git_history
+retired_successor_ordinal=1454
 selected_scope=docs/fixture proof update only; no backend lowering
 selected_reason=the prior MissingPromotedCarrierIdentity dependency now has a
 condition-binding identity path, but executable trim lowering still needs a

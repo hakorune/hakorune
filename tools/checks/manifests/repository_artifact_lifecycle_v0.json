@@ -2,12 +2,12 @@
   "counts": {
     "checks": 3807,
     "design_direct": 869,
-    "docs": 13261,
+    "docs": 13257,
     "docs_development_archive": 2792,
-    "docs_development_current": 9038,
+    "docs_development_current": 9034,
     "main_direct": 168,
     "phase_296x_archive": 2315,
-    "phase_296x_direct": 1039,
+    "phase_296x_direct": 1035,
     "private": 0,
     "src": 4685,
     "tools": 7427
@@ -948,11 +948,11 @@
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
-    "archived_in_place_count": 1394,
-    "document_count": 9038,
+    "archived_in_place_count": 1389,
+    "document_count": 9034,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
-      "cluster_count": 1369,
+      "cluster_count": 1364,
       "first_batch": {
         "cluster_count": 200,
         "documents": [
@@ -1614,9 +1614,9 @@
       },
       {
         "phase": "phase-296x",
-        "reachable_files": 1960,
-        "total_files": 3354,
-        "unreachable_files": 1394,
+        "reachable_files": 1961,
+        "total_files": 3350,
+        "unreachable_files": 1389,
         "whole_phase_unreachable": false
       },
       {
@@ -1935,17 +1935,17 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5474,
-    "root_count": 3897,
+    "reachable_count": 5475,
+    "root_count": 3898,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
-      "active_phase_296x_direct": 1039,
+      "active_phase_296x_direct": 1035,
       "current_pointer": 5,
       "design_authority": 271,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3269
+      "reference_src_tools": 3274
     },
-    "unreachable_count": 3564,
+    "unreachable_count": 3559,
     "unreachable_pending_count": 2170,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
@@ -1953,15 +1953,11 @@
   },
   "inventory": "repository-artifact-lifecycle-v0",
   "phase_296x": {
-    "archive_candidate_count": 5,
+    "archive_candidate_count": 1,
     "archive_candidates": [
-      "docs/development/current/main/phases/phase-296x/296x-1448-CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1450-SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1452-SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001.md",
-      "docs/development/current/main/phases/phase-296x/296x-1454-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001.md",
       "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
     ],
-    "card_count": 1036,
+    "card_count": 1032,
     "externally_referenced": [
       "docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md",
       "docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md",
@@ -3001,7 +2997,7 @@
     "review_count": 179,
     "status_counts": {
       "active_like": 120,
-      "closed": 241,
+      "closed": 237,
       "other_or_missing": 675
     }
   },
@@ -3624,13 +3620,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 1039,
+        "direct_files": 1035,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 1376,
+        "external_reference_count": 1378,
         "phase": "phase-296x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-296x/STATUS.md",
-        "total_files": 3354
+        "total_files": 3350
       },
       {
         "current_pointer": false,

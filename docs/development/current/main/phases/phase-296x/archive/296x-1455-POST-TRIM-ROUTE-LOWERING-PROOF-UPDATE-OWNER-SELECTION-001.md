@@ -13,7 +13,7 @@ This row must not emit backend trim route lowering.
 ## Selected By
 
 ```text
-296x-1454-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001
+historical_successor_ordinal=1454 (retired from tracked tree; Git history only)
 ```
 
 ## Candidate Owners

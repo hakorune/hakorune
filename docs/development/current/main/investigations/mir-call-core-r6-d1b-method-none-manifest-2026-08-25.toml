@@ -620,10 +620,10 @@ implementation_evidence = "The caller-zero facade re-export was removed from if_
 closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external caller appears."
 
 [docs_history_retire_r1_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "DOCS-HISTORY-RETIRE-R1"
 parent_row = "REPO-ABSOLUTE-REDUCTION-R0"
-implementation_permission = true
+implementation_permission = false
 base_head = "9a7431cf74"
 decision = "Retire exactly four closed phase-296x card bodies from the tracked tree after retiring their five archived-predecessor task edges. Git history retains the detail; no archive copy or replacement stub is created."
 source_authority = "The existing repo-physical-structure-cleanup SSOT, the phase predecessor chain, and the strict repository lifecycle inventory/reference scan; this row issues no compiler or semantic product."
@@ -642,9 +642,9 @@ focused_checks = ["python3 tools/docs/repository_artifact_lifecycle_inventory.py
 acceptance = "The exact four candidate files are absent from the tracked tree, all five predecessor files remain with no stale candidate task edges, the lifecycle strict receipt is current, and the selected batch reduces tracked docs by exactly four files and 276 lines. No archive/stub copy, semantic change, or broad cleanup claim is made."
 no_safe_slice = "Do not delete if any candidate/predecessor path, reference, line count, lifecycle receipt, pointer, or allowlist drifts; if a new inbound edge appears, leave the batch selected_fast and return to closeout without opening another cleanup row."
 non_claims = "No phase bulk purge, investigation purge, archive migration, guard-family retirement, compiler/MIR/backend change, test deletion, Call R6/R7, or whole-repository green claim."
-implementation_commit = "pending"
-implementation_evidence = "pending"
-closeout = "pending; after landing, return CURRENT_STATE to MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0 and keep the four deleted bodies only in Git history."
+implementation_commit = "recorded in Git history"
+implementation_evidence = "Retired the four candidate phase-296x card bodies with no archive copy, replaced the eight stale predecessor task edges with ordinal/Git-history-only evidence, and regenerated the existing lifecycle receipt."
+closeout = "Landed with exactly four tracked docs files and 276 lines removed; return CURRENT_STATE to MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0 and keep the deleted bodies only in Git history."
 
 [mirbuilder_cleanup_t1_s1_rcf_ifcontrol_error_reexport_retire_r0_2026_09_03]
 status = "landed"

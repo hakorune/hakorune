@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "DOCS-HISTORY-RETIRE-R1"
 current_design_stop = "none"
-current_blocker_token = "Retire only the four reference-closed phase-296x card bodies in the selected R1 batch; edit five archived predecessor navigation edges, create no archive copy or new guard, and abort on any path, receipt, or inbound-reference drift."
+current_blocker_token = "Close out the four-card phase-history retirement with strict lifecycle, docs-slim, pointer, and active-surface evidence; preserve Git-history-only detail and make no compiler or whole-repository green claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -55,7 +55,7 @@ hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
 canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed.
 """
 next_design_card = "none"
-next_execution_card = "DOCS-HISTORY-RETIRE-R1"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

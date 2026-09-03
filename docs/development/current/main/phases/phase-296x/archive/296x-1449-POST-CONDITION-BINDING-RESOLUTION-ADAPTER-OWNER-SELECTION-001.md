@@ -13,7 +13,7 @@ This row must not wire the adapter or emit trim route lowering.
 ## Selected By
 
 ```text
-296x-1448-CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001
+historical_successor_ordinal=1448 (retired from tracked tree; Git history only)
 ```
 
 ## Candidate Owners
@@ -43,7 +43,8 @@ the lookup consumption boundary, not executable trim route lowering.
 ## Decision
 
 ```text
-selected_next_task=SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001
+selected_next_task=retired_in_git_history
+retired_successor_ordinal=1450
 selected_scope=design only; no lookup behavior change
 selected_reason=ScopeManager currently has no condition_bindings input. Wiring
 the adapter requires an explicit lookup-boundary contract before changing
