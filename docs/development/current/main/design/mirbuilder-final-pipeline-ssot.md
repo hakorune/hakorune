@@ -477,11 +477,13 @@ lowering arm and reader-only name helpers are zero, and the focused WASM Extern 
 `[freeze:contract][wasm/legacy-extern-call-stopped]`.
 No Call R6 schema, selected-C/Hako/VM, or runtime-import retirement is claimed.
 
-##### Selected cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0`
+##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0`
 
 ```text
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
+implementation commit = 4b090c5060
+focused evidence = 1 direct rejection + 85 backend::wasm tests passed
 reader = LegacyCallV0(Callee::Method)
 successor = ExplicitUnsupportedBeforeArtifact
 ```
@@ -492,9 +494,11 @@ the only semantic issuer; no canonical WASM Method consumer is added.
 
 Fail-fast tag: `[freeze:contract][wasm/legacy-method-call-stopped]`.
 Delete only the old WASM Method codegen arm, its sole BoxCall builtin owner,
-and the obsolete direct BoxCall test. P10 shape-table analysis observers and
-compatibility fixtures remain outside this row. No Call R6 schema, Hako,
-selected-C, VM, Extern, fallback, retry, or general WASM retirement claim.
+and the obsolete direct BoxCall test. The focused rejection and the full
+`backend::wasm` feature test group passed; pointer and active-surface guards
+also passed. P10 shape-table analysis observers and compatibility fixtures
+remain outside this row. No Call R6 schema, Hako, selected-C, VM, Extern,
+fallback, retry, or general WASM retirement claim.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 

@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0"
 current_design_stop = "none"
-current_blocker_token = "Stop only Rust WASM LegacyCallV0(Callee::Method) before shape/WAT/binary/fallback; remove its old codegen and sole BoxCall builtin owner without adding a canonical WASM Method consumer."
+current_blocker_token = "Close out the landed Rust WASM LegacyCallV0(Callee::Method) stop; preserve the explicit unsupported-before-artifact boundary and record focused/full WASM evidence."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,7 +31,7 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The publication spine, Print producer coverage, WASM Global/Extern stops, VM
+The publication spine, Print producer coverage, WASM Global/Extern/Method stops, VM
 Global/Extern stops, WSM-G4-min8 probe retarget, T1-S0 raw-root shell
 migrations, and T1-S1 resolved_region_flow coverage re-export cleanup are
 landed. T1-S1 removed four caller-zero root re-exports while preserving
@@ -46,7 +46,7 @@ observation remains 7578 total / 7311 passed / 238 failed / 29 ignored against
 the immutable accepted 7411/138/29 receipt.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
