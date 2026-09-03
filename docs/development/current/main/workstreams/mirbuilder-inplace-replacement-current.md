@@ -62,7 +62,9 @@ exact tuple `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0` has now landed at
 FreeFunction/StaticBoxMethod, Legacy Global is rejected at the shared ingress,
 and only that finite VM legacy arm was removed. The stale WSM-G4-min8 success
 probe was retargeted to explicit pre-WAT rejection and its old lock retired.
-The next exact reader stop is `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0`.
+The exact reader stop `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0` landed at
+`18f08124f8`: Legacy Extern now rejects before provider dispatch and its VM
+legacy arm is gone. No next family is selected here.
 Reopen another family only when source authority, typed issuer, lossless
 selected consumer, real production caller, fail-fast terminal, exclusive
 old-edge delete-set, outside-reader inventory, and source budget form one exact

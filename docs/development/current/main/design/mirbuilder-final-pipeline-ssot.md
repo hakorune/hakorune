@@ -33,8 +33,8 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Latest bounded work:** VM Global canonical cutover and the stale WSM-G4-min8
-  probe retarget are landed; the next exact reader stop is VM Legacy Extern.
+- **Latest bounded work:** VM Global canonical cutover, the stale WSM-G4-min8
+  probe retarget, and VM Legacy Extern stop are landed; no next family is open.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -494,8 +494,8 @@ Extern/Method retirement, general fallback removal, R7 caller-zero, or
 ##### Selected next cohort — `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0`
 
 ```text
-status = selected_fast
-implementation permission = true
+status = landed
+implementation permission = false  # implementation 18f08124f8
 ```
 
 Stop the VM `LegacyCallV0(Callee::Extern)` reader at the same shared ingress
@@ -505,7 +505,8 @@ receipt. Reuse existing Extern fixtures and active-surface/pointer guards.
 
 Acceptance: legacy Extern rejects before provider dispatch/fallback, its VM
 legacy Extern arm is zero, and existing Extern provider tests remain green.
-The terminal is `[vm-reference/legacy-call/extern-stopped]`.
+The focused VM Extern rejection passed; terminal is
+`[vm-reference/legacy-call/extern-stopped]`.
 No Call R6 schema, selected-C/Hako/WASM, or provider retirement is claimed.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
