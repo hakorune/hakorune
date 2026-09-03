@@ -399,23 +399,39 @@ The following are one dependency program, not simultaneously active cards.
 This is a finite verification incident, not a baseline acceptance. Current
 fixed-command observations are `7579 total`, `7314/236/29` and `7313/237/29`;
 the immutable accepted failure set remains `7411/138/29`. The
-current-minus-accepted comparison has 98 added failure names and no removed
-names; one qmark row varies between runs. Seven of the 98 are reproducibly
-owned by the canonical-call result-hint omission, while the remaining 91 are
-not yet classified and must not be collapsed into that cause. This is
-unclassified evidence, not permission to rebaseline.
+current-minus-accepted comparison has 98 added failure names on the
+236-failure run and 99 on the 237-failure run; one variable qmark row accounts
+for the difference and there are no removed names. Seven additions are
+reproducibly owned by the canonical-call result-hint omission, while the
+remaining 91-92 are not yet classified and must not be collapsed into that
+cause. This is unclassified evidence, not permission to rebaseline.
 
 The exact App-Main/FreeFunction canonical-call tests also reproduce a common
 failure at `return_type_strategy.rs`: after the R6 shape split,
 `type_hint_providers.rs` scans only `LegacyCallV0`, so canonical `Call(MirCall)`
 results are not registered before return inference. Reconcile the complete
 failure-name delta and prove this root-owner boundary before opening a repair.
+The current path groups are observation only: `corebox-router-unified` 33,
+`string-corridor` 19, `builder-shape-tests` 15, `return/hint/pipeline` 8,
+`common-v2-length` 7, `unified-emitter-tests` 7, `optimizer-pass-shape` 4,
+`other` 4, `joinir-runner` 1, and `string-relations` 1. They name existing
+owners; they do not authorize a bulk fixture rewrite.
 The existing row may be amended with only the exact source/test owners after
 the design-stop proof; do not create a health D0, receipt, guard, or baseline.
 
 Acceptance is the accepted 138-name failure SHA, metadata guard, quick lib
 no-run, and `vm-reference` check restored. Until then no semantic, BoxShape,
 performance, test retirement, or compatibility Stop is permitted.
+
+Worker-audited cleanup queue (2026-09-04): the verification incident keeps all
+BoxShape implementation parked. After `StableKnownRed`, the existing cleanup
+card may select one behavior-neutral line-budget split: `indexing.rs` test-tail
+split (790 -> 355 production lines, seven tests/module paths unchanged), the
+`normal_script_direct_statement_owner.rs` test-surface fragments, or the
+`normal_script_semantic_source_tests.rs` fragments. `raw_invocation_source_transport`
+is already split at `0bd6732792` and is a no-op. No new row, guard, receipt,
+test deletion, or semantic Call change is authorized by this observation; the
+three candidates remain parked until the pointer explicitly selects one.
 
 #### M4 — `MIR-CALL-MANDATORY-CALLEE-R6`
 

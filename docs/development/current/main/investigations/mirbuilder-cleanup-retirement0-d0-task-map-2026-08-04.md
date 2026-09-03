@@ -727,6 +727,61 @@ T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
   trigger/800-line hard stop, and validate links/guards before deletion.
 ```
 
+### Worker-audited near-limit queue (2026-09-04; parked behind verification recovery)
+
+The current `UnclassifiedRed` verification incident is a hard prerequisite.
+No implementation below may start until `DEV-GATE-LIB-BASELINE-REFRESH-R0`
+returns to `StableKnownRed`; this section records task boundaries only and
+does not retarget `CURRENT_STATE` or create a new scheduler row.
+
+```text
+Decision:
+  Keep one existing BoxShape maintenance lane with three finite options.
+  Select at most one after verification recovery; do not run them as a batch.
+
+Source authority + canonical issuer:
+  Existing production module owners and existing test modules remain the
+  authorities. These splits issue no semantic product and do not touch Call,
+  Recipe, route, ABI, or backend policy.
+
+Non-authority:
+  LOC alone, warning counts, #[allow] presence, test count, worker absence,
+  and local green. raw_invocation_source_transport is already landed and is
+  not an option for reopening.
+
+Fail-fast boundary:
+  Before selecting a split, require a clean tree, stable verification health,
+  exact owner/module-path preservation, no new public/re-export edge, and all
+  touched files below the 760-line trigger (800 is a hard stop). Any caller,
+  visibility, semantic, or test-path drift parks that option.
+
+Smallest next slice:
+  (A) split only the cfg(test) tail from indexing.rs (790 -> 355 production
+      lines; seven test names/module paths unchanged), or
+  (B) split only test fragments from normal_script_direct_statement_owner.rs,
+      or
+  (C) split only the existing tests module fragments from
+      normal_script_semantic_source_tests.rs. Use ordinary child modules or
+      existing include! topology; do not add #[path], a new facade, or a new
+      guard.
+
+Acceptance:
+  behavior-neutral diff; production owner/callers unchanged; focused existing
+  tests and cargo check pass; pointer/current-state guards pass; no test is
+  deleted/ignored; source delta is non-growing; one bounded closeout records
+  line counts and module-path parity.
+
+Non-claims:
+  no dead_code purge, builder barrel rewrite, test retirement, Call R6/R7,
+  baseline refresh, performance change, backend change, or new receipt/guard.
+```
+
+Worker results also close the adjacent candidates for now: no additional
+caller-zero test-retirement row, no new JSON/Hako/LLVM legacy-reader Stop row,
+and no typed-error row is selected while this cleanup lane is parked. The
+typed-error candidate remains a future behavior-preserving fast row only after
+an explicit pointer selection; it is not a net-negative cleanup claim.
+
 These rows are parked behind an explicit `CURRENT_STATE.toml` retarget. Their
 acceptance requires an explicit pointer retarget, a source/owner census, and
 one bounded commit per responsibility. Local focused green does not close a

@@ -42,10 +42,11 @@ reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
 The accepted 138-name failure receipt remains immutable. The current HEAD has
 one additional test and fixed-command observations of `7579/7314/236/29` and
-`7579/7313/237/29`; the current-minus-accepted comparison has 98 added failure
-names and no removals, with one qmark row varying. Seven of those additions are
-reproducibly tied to a canonical Call result-hint omission; the remaining 91
-are still unclassified. After Group A, `type_hint_providers.rs` scans only
+`7579/7313/237/29`; the current-minus-accepted comparison has 98 or 99 added
+failure names depending on one variable qmark row, no removals, and seven
+additions reproducibly tied to a canonical Call result-hint omission. The
+remaining 91-92 names are still unclassified. After Group A,
+`type_hint_providers.rs` scans only
 `LegacyCallV0`, so return inference rejects the missing hint. Reuse
 `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode;
 do not rebaseline or open another semantic/cleanup family first.
@@ -187,6 +188,15 @@ Stop nor T0 cleanup opens. Afterwards select Delete/Stop before Promote/T0 and
 measure production old-edge reduction, not row count. `Stop` may end an
 unsupported experimental reader without backend parity; `Delete` still
 requires caller-zero. This is scheduling, not a second semantic task ledger.
+
+The worker audit also found no safe test-retirement or new R6 reader-stop
+candidate inside the existing inventory. After verification recovery, the
+cleanup card has three parked, behavior-neutral line-budget options only:
+`indexing.rs` test-tail split, `normal_script_direct_statement_owner.rs`
+test fragments, or `normal_script_semantic_source_tests.rs` fragments.
+`raw_invocation_source_transport` is already split and must not be reopened.
+These options require no new semantic receipt/guard and remain outside the
+Call completion metric until one is explicitly selected.
 
 ### S-class gate coverage (navigation only)
 
