@@ -124,6 +124,40 @@ The executable order is the compact M0--M9 Call completion program in
 remain in Git history and the owning machine-readable manifest; this
 workstream does not duplicate them.
 
+### R6/R7 migration program (worker-audited 2026-09-03)
+
+The current `NoSafeSlice` is schema-wide, not repository-wide. `MirCall` is
+ready, but `LegacyCallV0` still has shared builder, JoinIR, JSON v0/v1,
+serializer, structural-reader, and backend owners. Do not repeat the census,
+add `CallV2`, or delete `func`/`Option<Callee>` in isolation. The executable
+queue is staged, but remains unopened until its exact boundary is selected:
+
+```text
+R6-S0  behavior-neutral preparation:
+       split instruction schema/visitor and published-view/transport owners
+       before semantic growth; no new authority, receipt, or guard.
+R6-S1  one canonical producer cohort:
+       existing source authority -> mandatory MirCall -> one typed consumer;
+       delete that cohort's old writer/reissuer in the same series.
+R6-S2  one backend boundary:
+       typed consume or UnsupportedBeforeArtifact before codegen; no JSON,
+       name, registry, args[0], fallback, or retry.
+R6-S3  outer compatibility quarantine:
+       JSON/JoinIR/unified-off remain explicit ingress only and cannot re-enter
+       canonical production; shared owners are not split by guesswork.
+R7    caller-zero physical retirement:
+       delete LegacyCallV0, func, optional callee/receiver, repair, and
+       family-only assets only after production writer/reissuer/reader zero.
+```
+
+Migration red is test-only and named: each changed test records path, owner,
+reason, successor, first-red commit, and expiry at family closeout. Production
+build/check failures, unknown red, test deletion/ignore, baseline rewrite, or
+fallback/retry aborts the series and returns to design_stop. Existing known-red
+failure names remain a separate immutable baseline. A family is eligible only
+when one issuer, lossless consumer or typed terminal, caller, and exclusive
+old-edge delete-set are all proven; otherwise it stays `ParkedSealed`.
+
 ### S-class gate coverage (navigation only)
 
 The five post-M9 S-class gates are already defined by the final-pipeline SSOT;
