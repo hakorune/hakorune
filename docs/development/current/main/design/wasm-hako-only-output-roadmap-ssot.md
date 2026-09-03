@@ -106,6 +106,80 @@ WASM 実行経路は以下の 3 つに固定する。これ以外の新規 route
 2. Rust 側は最小の実行ブリッジと配布保守（Windows/macOS/CI）に限定する。
 3. contract/gate は維持し、backend 実装主体だけを Rust -> `.hako` に置換する。
 
+## Canonical Published-MIR Integration (2026-09)
+
+The Hako WASM lane consumes published MIR; it is not a second semantic
+issuer. The current `hako_native` label must not be read as evidence that a
+Hako WASM emitter already exists. Today the production codegen owner is still
+Rust, and the Hako module-side emitter/reader is absent.
+
+```text
+canonical source authority
+  -> mandatory typed Callee / definition relation
+  -> Atomic PublishedMirModule
+  -> borrow-only PublishedMirBackendView
+  -> versioned lossless Hako ingress
+  -> Hako WasmModulePlan
+  -> Hako WAT/binary projection
+  -> Rust/JS host loader and imports
+```
+
+Rust owns the thin bridge, validation/launch, host imports, filesystem,
+process, packaging, and browser integration. Hako owns published-MIR reading,
+WASM instruction/type/function/import/export/code/data planning, WAT output,
+LEB128, and binary writing. Neither side may recover a target or receiver from
+JSON, names, registries, headers, symbols, `args[0]`, or a missing-value
+sentinel. Hako failure never retries through Rust codegen.
+
+For the new published-MIR lane, `legacy_bridge` is monitor-only compatibility
+classification, not a semantic fallback or a reason to retain `LegacyCallV0`.
+Existing route policy names remain stable; no new route is introduced.
+
+### Conditional task queue (not current execution permission)
+
+These rows remain parked behind MirBuilder R6/R7 and are opened one at a time:
+
+```text
+WASM-HAKO-W0-PUBLISHED-MIR-INGRESS-I0:
+  Add one versioned, lossless, borrow-only PublishedMir ingress.  Verify
+  ABI/version, IDs, ranges, definitions, mandatory Callee, receiver presence,
+  and lifetimes before Hako codegen.  Use one existing scalar FreeFunction
+  fixture; do not change the default CLI or delete Rust codegen.
+
+WASM-HAKO-W1-SCALAR-FREEFUNCTION-I0:
+  Implement one Hako WASM vertical for Const/BinOp/Call(Global FreeFunction)/
+  Return with exact i64/i32/void ABI.  Produce deterministic WAT and WASM;
+  reject LegacyCallV0, wrong arity, missing definitions, and unsupported types
+  before artifact creation.  No Rust fallback.
+
+WASM-HAKO-W2-DEFAULT-CUTOVER-R0:
+  Publish an explicit Hako WASM capability matrix, switch the selected
+  --compile-wasm/--emit-wat route to Hako, and make unsupported shapes fail
+  before artifact generation.  Retain Rust only as an explicit parity lane;
+  remove the selected Rust fallback in the same cutover series.
+
+WASM-RUST-CODEGEN-RETIRE-R0:
+  After Hako caller-zero, parity, demo, portability, and no-fallback evidence,
+  remove Rust WASM codegen/shape-table/binary-writer production callers.
+  Keep only the thin Published-MIR bridge, host/runtime, launcher, validation,
+  and distribution code.
+```
+
+The reopen boundary for W0 is finite:
+
+```text
+R6 canonical Call checkpoint fixed
+LegacyCallV0 WASM reader quarantined or stopped
+Published-MIR ABI rows and lifetime contract fixed
+one exact FreeFunction caller selected
+Hako positive/negative tests named
+JSON/name/registry/args[0] recovery = 0
+```
+
+If any item is missing, record
+`ParkedSealed__WasmCanonicalReaderAndHakoIngressMissing`; do not create a
+second bridge, route, receipt, or fallback to make the row appear executable.
+
 ## Migration Phases (fixed order)
 1. **P0 Contract Lock (ongoing)**
    - 1 blocker = 1 shape で extern/boxcall 語彙を固定。
