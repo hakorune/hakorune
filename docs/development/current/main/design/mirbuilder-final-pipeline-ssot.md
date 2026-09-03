@@ -540,7 +540,7 @@ VM-Hako promotion, or R7-wide retirement is claimed. All touched owners remain
 below the 760-line split trigger.
 
 ##### Selected fast cohort — `MIR-CALL-LEGACY-READER-STOP-VM-VALUE-R0`
-status = fast_open; implementation permission = true; reader = LegacyCallV0(Callee::Value); successor = ExplicitUnsupported.
+status = landed; implementation permission = false; implementation commit = c43e9cd09c; reader = LegacyCallV0(Callee::Value); successor = ExplicitUnsupported; focused evidence = 1 direct reject + 8 VM call-handler tests + vm-reference check.
 Fail-fast = before execute_callee_call/register load/dispatch with `[vm-reference/legacy-call/value-stopped]`.
 Delete-set = VM Value reader arm and its pre-dispatch reg_load; no Call R6 schema.
 Family-local only: no canonical Value consumer, Method/Constructor/Closure migration, JSON/backend fallback, or scheduler stop.
