@@ -217,6 +217,23 @@ feature parity. In particular, stopping/quarantining the Rust WASM
 Likewise, backend `UnsupportedBeforeArtifact` does not invalidate canonical
 MIR and must not reopen source semantics.
 
+`NoSafeSlice` is evaluated per `(family, profile, reader boundary)`. The
+current aggregate token means that there is no eligible R6 `Promote` family;
+it does not prohibit an already-inventoried M7-S `Stop` cohort. The following
+words are scheduling projections of the existing dispositions, not new
+semantic states or a second task ledger:
+
+```text
+Promote -> Canonical through M4 when the exact reopen tuple exists
+Stop    -> M7-S ExplicitUnsupportedBeforeArtifact or unreachable outer ingress
+Delete  -> M7/M8/M9 only after caller-zero
+Park    -> ParkedSealed until its observable reopen trigger fires
+```
+
+Parking one family never promotes another family and never grants a broad
+schema cutover. It only returns selection to another already-inventoried
+family/profile boundary.
+
 ## S-class completion gates (post-M9, non-executable navigation)
 
 The M0--M9 order is the MirBuilder/product completion program. A stronger
@@ -418,6 +435,63 @@ valid result. A compatibility route may remain only as an explicit outer
 entrypoint and must never be selected after canonical failure. If that outer
 entrypoint still has a live production caller, R7 remains closed until the
 caller is removed or migrated.
+
+##### Queued cohort — `MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0`
+
+```text
+status = ready_to_open_after_current_pointer_cutover
+implementation permission = false
+```
+
+This is the first bounded M7-S `Stop` candidate. It changes no source meaning
+and adds no canonical WASM consumer. Its boundary is:
+
+```text
+start:
+  Rust WASM observes MirInstruction::LegacyCallV0 with
+  callee = Some(Callee::Global(_))
+
+end:
+  the shared WASM preflight rejects with
+  [freeze:contract][wasm/legacy-global-call-stopped]
+  before shape matching, WAT planning, binary emission, output creation,
+  or selection of a Rust fallback route
+```
+
+Source authority and the canonical issuer remain the existing Resolver,
+source/package products, mandatory typed `MirCall`, and Atomic Publish. The
+WASM backend is only a consumer or typed reject owner. Function-name maps,
+physical symbols, arity tables, zero padding, shape matches, route labels,
+JSON, successful validation, and fallback success are non-authority.
+
+The finite delete set is:
+
+1. the `LegacyCallV0(Global)` lowering arm in
+   `src/backend/wasm/codegen/instructions.rs`;
+2. its name-based reachable-function traversal in
+   `src/backend/wasm/codegen/mod.rs`;
+3. the Global-only name/parameter-count/return-shape helpers and missing-arg
+   `i32.const 0` repair left caller-zero by items 1 and 2;
+4. the old success expectation of the existing Global probe, retargeted to
+   the typed pre-artifact rejection rather than deleted.
+
+The acceptance boundary includes every existing caller of the Rust WASM
+compiler: default `--compile-wasm`, explicit Rust route, `--emit-wat`, AOT,
+and benchmark entrypoints. They need not be rewritten if they all pass through
+the same preflight, but none may bypass the rejection or retry another route.
+If any caller bypasses that preflight, the row remains closed until it is
+included in this cohort or explicitly quarantined outside product selection.
+
+Focused evidence reuses the existing call-free Const/Copy/BinOp positives and
+the existing Global probe. The negative proof requires the exact error tag,
+no WAT/bytes/output file, and no bridge/fallback trace. Existing Extern,
+Method, and shape tests remain separate. No test is deleted or ignored, and
+no new fixture, semantic receipt, adapter, registry, route, or guard is added.
+
+All currently identified implementation owners are below the 760-line source
+split trigger. This cohort does not claim a canonical WASM Call reader, Hako
+WASM W0, retirement of Extern/Method readers, general WASM fallback removal,
+R7 caller-zero, or deletion of `LegacyCallV0` itself.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
