@@ -33,9 +33,9 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Latest bounded cutover:** `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0` landed
-  at `111216b539`. The VM now consumes canonical same-module Global targets and
-  rejects the finite legacy Global reader; no next family is selected here.
+- **Latest bounded work:** VM Global canonical cutover landed at `111216b539`;
+  the selected next cleanup retargets the stale WSM-G4-min8 success probe to
+  explicit pre-WAT rejection.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -474,37 +474,39 @@ The finite delete set is:
    `i32.const 0` repair left caller-zero by items 1 and 2;
 4. the direct legacy-Global negative proof in
    `src/backend/wasm/tests.rs`, which exercises the typed pre-artifact
-   rejection without deleting or rewriting an existing fixture. The older
-   `phase29cc_wsm_g4_min8_global_call_probe_min.hako` now emits canonical
-   `Call(Method)` at this HEAD, so it is outside this legacy-Global cohort.
+   rejection without deleting or rewriting an existing fixture. That old
+   success probe is handled by the selected cleanup row below.
 
-The acceptance boundary includes every existing caller of the Rust WASM
-compiler: default `--compile-wasm`, explicit Rust route, `--emit-wat`, AOT,
-and benchmark entrypoints. They need not be rewritten if they all pass through
-the same preflight, but none may bypass the rejection or retry another route.
-If any caller bypasses that preflight, the row remains closed until it is
-included in this cohort or explicitly quarantined outside product selection.
+The acceptance boundary includes every Rust WASM caller through the shared
+preflight; bypass or retry keeps the row closed.
 
-Focused evidence reuses the existing call-free Const/Copy/BinOp positives and
-the direct `legacy_global_call_rejects_before_wasm_codegen` test. The negative
-proof requires the exact error tag and exercises the default-lane entry before
-WAT/bytes/output or bridge/fallback selection. Existing Extern, Method, shape,
-and the canonical instance-method probe remain separate. No test is deleted
-or ignored, and no new fixture, semantic receipt, adapter, registry, route, or
-guard is added.
+Focused evidence reuses the call-free positives and direct
+`legacy_global_call_rejects_before_wasm_codegen` test; no test, fixture,
+receipt, adapter, route, or guard was added.
 
-Implementation evidence: the shared preflight is reached by the native-shape,
-full Rust WASM, and WAT paths before lowering; the old Global lowering arm,
-name-based reachability traversal, signature maps, and zero-argument repair are
-gone. `cargo check --profile quick --features wasm-backend --bin hakorune`
-passed, the focused unit test passed, and the 18-test `backend::wasm::tests`
-slice passed. The repository's existing warnings and known whole-library red
-baseline are not relabeled by this row.
+Implementation evidence: shared preflight and the old Global lowering,
+reachability, signature-map, and zero-padding readers are gone; the recorded
+check and 18-test WASM slice passed. Known red is not relabeled.
 
-All currently identified implementation owners are below the 760-line source
-split trigger. No canonical WASM Call reader, Hako WASM W0, Extern/Method
-reader retirement, general WASM fallback removal, R7 caller-zero, or deletion
-of `LegacyCallV0` itself is claimed by this cohort.
+Owners remain below the 760-line trigger. No canonical WASM reader, Hako W0,
+Extern/Method retirement, general fallback removal, R7 caller-zero, or
+`LegacyCallV0` deletion is claimed.
+
+##### Selected cleanup — `MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0`
+
+```text
+status = selected_fast
+implementation permission = true
+```
+
+Retarget the stale WSM-G4-min8 success probe to the existing canonical
+user-method fixture's explicit pre-WAT rejection. Update only its test marker,
+smoke expectation, and historical lock; keep the direct Legacy Global negative
+proof as the semantic reader-stop evidence. No new fixture, receipt, adapter,
+or guard is allowed.
+
+Acceptance: stale success expectation is zero; the existing smoke passes on
+pre-WAT rejection; non-Global WASM families remain unchanged.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 

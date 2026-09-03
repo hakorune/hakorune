@@ -58,11 +58,16 @@ fn wasm_demo_g4_min4_canvas_advanced_fixture_compile_to_wat_contract() {
 }
 
 #[test]
-fn wasm_demo_g4_min8_global_call_probe_compile_to_wat_contract() {
-    let wat = compile_fixture_to_wat_direct(
+fn wasm_demo_g4_min8_global_call_probe_rejects_before_wat() {
+    let mir = compile_fixture_to_mir_module(
         "apps/tests/phase29cc_wsm_g4_min8_global_call_probe_min.hako",
     );
-    assert!(wat.contains("(export \"main\" (func $main))"));
-    assert!(wat.contains("(func $WsmProbeBox.ping/1"));
-    assert!(wat.contains("call $WsmProbeBox.ping/1"));
+    let mut wasm_backend = nyash_rust::backend::wasm::WasmBackend::new();
+    let error = wasm_backend
+        .compile_to_wat(mir)
+        .expect_err("the retired user-method probe must stop before WAT");
+    assert!(
+        error.to_string().contains("Unsupported"),
+        "unexpected WASM rejection: {error}"
+    );
 }

@@ -387,6 +387,7 @@ def _check_wasm_legacy_global_reader_stop_r0(
 
 
 VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
+WASM_GLOBAL_PROBE_RETIRE_R0_ROW = "MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0"
 
 
 def _check_vm_global_canonical_cutover_r0(
@@ -458,6 +459,59 @@ def _check_vm_global_canonical_cutover_r0(
     print(f"[{api.TAG}] row={row} delegated=vm-global-canonical-cutover")
 
 
+def _check_wasm_global_probe_retire_r0(state: dict, root: Path, api) -> None:
+    """Check the bounded retarget of the stale WSM-G4-min8 success probe."""
+    row = WASM_GLOBAL_PROBE_RETIRE_R0_ROW
+    if state.get("work_mode") != "fast":
+        api.fail(f"{row} must be fast")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not open a second design card")
+    if state.get("next_execution_card") != row:
+        api.fail(f"{row} next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
+
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    for token in (
+        row,
+        "status = selected_fast",
+        "implementation permission = true",
+        "stale WSM-G4-min8 success probe",
+        "explicit pre-WAT rejection",
+        "No new fixture, receipt, adapter,\nor guard is allowed.",
+    ):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    for rel, tokens in (
+        (
+            "tests/wasm_demo_min_fixture/parity.rs",
+            ("wasm_demo_g4_min8_global_call_probe_rejects_before_wat",),
+        ),
+        (
+            "tools/smokes/v2/profiles/integration/phase29cc_wsm/g4/phase29cc_wsm_g4_min8_global_call_probe_vm.sh",
+            ("global_call_probe_rejects_before_wat", "pre-WAT rejection"),
+        ),
+        (
+            "docs/development/current/main/phases/phase-29cc/29cc-205-wsm-g4-min8-global-call-native-box-lock-ssot.md",
+            ("Status: Retired", "explicit pre-WAT rejection"),
+        ),
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} owner is missing: {rel}")
+        text = path.read_text(encoding="utf-8")
+        for token in tokens:
+            if token not in text:
+                api.fail(f"{row} {rel} is missing: {token}")
+    print(f"[{api.TAG}] row={row} delegated=wasm-global-probe-retire")
+
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
         api.check_delegated_performance_row(state, root)
@@ -475,6 +529,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_wasm_legacy_global_reader_stop_r0(state, root, api)
     elif row == VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW:
         _check_vm_global_canonical_cutover_r0(state, root, api)
+    elif row == WASM_GLOBAL_PROBE_RETIRE_R0_ROW:
+        _check_wasm_global_probe_retire_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

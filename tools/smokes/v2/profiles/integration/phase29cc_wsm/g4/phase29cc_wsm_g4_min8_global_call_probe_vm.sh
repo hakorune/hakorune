@@ -1,7 +1,7 @@
 #!/bin/bash
 # phase29cc_wsm_g4_min8_global_call_probe_vm.sh
 # Contract pin:
-# - WSM-G4-min8: global call native box lock
+# - WSM-G4-min8: retired user-method probe stops before WAT
 
 set -euo pipefail
 
@@ -32,7 +32,7 @@ if [ ! -f "$fixture" ]; then
 fi
 
 set +e
-output=$(cd "$NYASH_ROOT" && cargo test --features wasm-backend wasm_demo_g4_min8_global_call_probe_compile_to_wat_contract -- --nocapture 2>&1)
+output=$(cd "$NYASH_ROOT" && cargo test --features wasm-backend wasm_demo_g4_min8_global_call_probe_rejects_before_wat -- --nocapture 2>&1)
 rc=$?
 set -e
 if [ "$rc" -ne 0 ]; then
@@ -40,10 +40,10 @@ if [ "$rc" -ne 0 ]; then
   printf '%s\n' "$output" | sed -n '1,220p'
   exit 1
 fi
-if ! printf '%s\n' "$output" | grep -q "wasm_demo_g4_min8_global_call_probe_compile_to_wat_contract"; then
+if ! printf '%s\n' "$output" | grep -q "wasm_demo_g4_min8_global_call_probe_rejects_before_wat"; then
   test_fail "phase29cc_wsm_g4_min8_global_call_probe_vm: expected test marker missing"
   printf '%s\n' "$output" | sed -n '1,220p'
   exit 1
 fi
 
-test_pass "phase29cc_wsm_g4_min8_global_call_probe_vm: PASS (WSM-G4-min8 global call native box lock)"
+test_pass "phase29cc_wsm_g4_min8_global_call_probe_vm: PASS (WSM-G4-min8 pre-WAT rejection)"

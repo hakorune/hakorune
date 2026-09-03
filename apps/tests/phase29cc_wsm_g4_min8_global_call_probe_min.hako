@@ -1,7 +1,7 @@
-// Phase 29cc WSM-G4-min8 global call probe
+// Phase 29cc WSM-G4-min8 retired user-method probe
 // Contract:
-// - user-defined Box method call is lowered via Callee::Global in Main
-// - wasm backend must emit call $WsmProbeBox.ping/1 with param declaration
+// - user-defined Box method call remains a canonical Method in Main
+// - selected WASM profile rejects this unsupported family before WAT
 
 box WsmProbeBox {
   ping(x) {

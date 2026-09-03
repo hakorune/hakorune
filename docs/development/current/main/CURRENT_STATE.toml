@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0"
 current_design_stop = "none"
-current_blocker_token = "VM Global canonical cutover landed at 111216b539; closeout evidence is recorded, and no next execution card is opened until a new exact family tuple is selected."
+current_blocker_token = "Retarget the stale WSM-G4-min8 success probe to explicit pre-WAT rejection; do not reopen the landed WASM Global reader stop or add a new fixture, receipt, adapter, or guard."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,14 +32,13 @@ latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
 The publication spine, Print producer coverage, WASM LegacyCallV0(Global) stop,
-and VM Global canonical cutover are landed (111216b539). Focused evidence is
-5 canonical dispatch + 1 legacy reject + 8 parameter + 9 return tests; the
-classified whole-library 7578/7411/138/29 known-red baseline is unchanged.
-No schema-wide R6/R7 deletion, Method/Extern/Value/Constructor migration,
-JSON/Hako/LLVM work, VM-Hako promotion, or broad backend retirement is claimed.
+and VM Global canonical cutover are landed (111216b539). The next bounded
+cleanup retargets the stale WSM-G4-min8 success probe to pre-WAT rejection;
+whole-library 7578/7411/138/29 known-red remains unchanged. No new semantic
+receipt, adapter, fixture, guard, schema-wide R6/R7 deletion, or backend work.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-WASM-GLOBAL-PROBE-RETIRE-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
