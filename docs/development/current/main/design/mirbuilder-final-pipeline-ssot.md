@@ -499,14 +499,19 @@ Fail-fast = before execute_callee_call/register load/dispatch with `[vm-referenc
 Delete-set = VM Value reader arm and its pre-dispatch reg_load; no Call R6 schema.
 Family-local only: no canonical Value consumer, Method/Constructor/Closure migration, JSON/backend fallback, or scheduler stop.
 
-##### Selected fast cohort — `MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0`
-status = fast_open; implementation permission = true. Stop only the VM
-`LegacyCallV0(Callee::Method)` reader before trace, hostbridge, direct-array,
-register load, or generic dispatch with `[vm-reference/legacy-call/method-stopped]`
-(before trace/hostbridge/direct-array/reg_load/dispatch).
-Preserve canonical `MirCall` handling and
-the direct `method.rs`/`array_write.rs` helper owners; no canonical VM Method consumer
-or Call R6 schema change is included.
+##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0`
+status = landed; implementation permission = false; implementation commit = `9333c530da`.
+The VM `LegacyCallV0(Callee::Method)` reader now stops before trace, hostbridge,
+direct-array, register load, or generic dispatch with
+`[vm-reference/legacy-call/method-stopped]`. The legacy Method trace/bridge/
+direct-array/execute arms and register-loading repair are gone; one direct
+negative test plus VM calls 9/9, existing method helpers 18/18, quick
+vm-reference check, active-surface, pointer, and diff evidence passed.
+Boundary token: `before trace/hostbridge/direct-array/reg_load/dispatch`;
+no canonical VM Method consumer; `No Call R6 schema`.
+Canonical `MirCall` handling and direct `method.rs`/`array_write.rs` helper
+owners remain unchanged. No canonical VM Method consumer, Call R6 schema,
+VM retirement, or whole-lib green claim is made.
 
 ##### Selected guard-only maintenance — `MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0`
 status = landed; implementation permission = false; commit = `5690939d04`.

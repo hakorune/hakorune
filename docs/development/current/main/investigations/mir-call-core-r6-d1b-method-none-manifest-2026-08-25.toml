@@ -72,10 +72,10 @@ closeout = "The VM LegacyCallV0(Callee::Value) reader is stopped before register
 next_execution = "none__family_local_stop_landed"
 
 [mir_call_legacy_reader_stop_vm_method_r0_2026_09_03]
-status = "selected_fast"
+status = "landed"
 task_id = "MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0"
 parent_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-implementation_permission = true
+implementation_permission = false
 box_kind = "Family-local VM compatibility reader stop"
 decision = "Stop only the VM LegacyCallV0(Callee::Method) reader before trace, hostbridge, direct-array, register load, or generic dispatch. Do not add canonical VM Method support; preserve the canonical MirCall reader and method helper owners."
 source_authority = "Existing Resolver/source products and mandatory canonical MirCall issue typed meaning; this row observes only the already-emitted LegacyCallV0 compatibility carrier."
@@ -91,10 +91,10 @@ focused_tests = ["legacy_method_call_rejects_before_method_dispatch", "cargo tes
 acceptance = "The VM rejects LegacyCallV0(Callee::Method) before all old side effects; the legacy Method trace/hostbridge/direct-array/execute arms and their register-loading repair are zero; one direct negative test proves the fixed tag; canonical MirCall handling and method helper owners remain unchanged; existing active-surface and pointer guards pass; no canonical Method support or whole-lib green claim is made."
 no_safe_slice = "Abort and return to family-local ParkedSealed if canonical VM Method support is required, a second legacy caller/consumer appears outside the inventory, method.rs or array_write semantics need changes, an unclassified red appears, or a new guard/receipt/adapter is needed."
 non_claims = "No canonical VM Method call, explicit receiver migration, Constructor/Closure/Value support, JSON/backend/Hako/WASM change, Call R6/R7, VM retirement, or repository-wide scheduler change."
-implementation_commit = "pending"
-implementation_evidence = "Selection only; implementation and focused VM evidence are pending."
-closeout = "Open only for the family-local VM legacy Method stop; after evidence, return to M7-S scheduling and do not reopen unless a canonical VM Method consumer or new legacy caller appears."
-next_execution = "MIR-CALL-LEGACY-READER-STOP-VM-METHOD-R0"
+implementation_commit = "9333c530da"
+implementation_evidence = "Added the Method-specific pre-dispatch unsupported terminal, removed the legacy Method trace/hostbridge/direct-array/execute arms and their register-loading repair, and added legacy_method_call_rejects_before_method_dispatch. VM call handlers passed 9/9, existing method helper tests passed 18/18, cargo check --profile quick --lib --features vm-reference, exact helper absence, active-surface, pointer, and diff checks passed. Existing whole-lib red/warnings remain outside this row."
+closeout = "The VM LegacyCallV0(Callee::Method) reader is stopped before trace/hostbridge/direct-array/register load/generic dispatch with no canonical VM Method support added. Canonical MirCall handling and direct method helper owners remain unchanged. Return to M7-S family scheduling; reopen only if a canonical VM Method consumer or new legacy caller appears."
+next_execution = "none__family_local_stop_landed"
 
 [mirbuilder_cleanup_dynamic_v2_admission_guard_retarget_r0_2026_09_03]
 status = "landed"
