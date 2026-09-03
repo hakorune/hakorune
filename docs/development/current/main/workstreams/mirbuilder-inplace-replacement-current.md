@@ -707,14 +707,14 @@ The 16-territory read-only audit produced the following named follow-ups. They
 are taskized here without changing the selected reference-child I0; no row below
 authorizes code until `CURRENT_STATE.toml` selects it.
 
-1. `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` — high correctness candidate.
-   `cse.rs` currently walks `HashMap` blocks and can reuse a non-dominating value
-   across sibling blocks; its elimination counter also counts non-rewrites.
-   Owner: `src/mir/passes/cse.rs` plus the semantic-simplification consumer and
-   SSA-focused tests. Safe policy is conservative same-block CSE only: no exact
-   same-block/dominance proof means no rewrite and zero count. Positive/negative
-   determinism and actual-`Copy` statistics are required. This is outside the
-   reference-child transport I0.
+1. `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` — landed at `25ab8fb58`.
+   `src/mir/passes/cse.rs` now keeps expression maps per basic block, so a
+   sibling block cannot reuse a non-dominating value, and its elimination
+   counter increments only for an actual `Copy` rewrite. The same-block
+   positive case, sibling-block negative case, and non-numeric no-rewrite
+   statistics case are retained by the existing tests. This is outside the
+   reference-child transport I0; do not reopen it without a new owner or
+   counterexample.
 
 2. `CONC-ENV-TASK-SPAWN-OWNER-D0` — compatibility design stop.
    `env.task.spawn` is publicly reachable but currently echoes a clone or returns
