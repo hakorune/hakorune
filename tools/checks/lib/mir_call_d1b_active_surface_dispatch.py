@@ -97,6 +97,11 @@ CROSSWALK_I0_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-LOCATOR-VALUE-CROSSWALK-I0"
 EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
     "MIR-CALL-ME-DECLARED-INSTANCE-EXACT-BINDING-VALUE-ACCESSOR-S0"
 )
+RAW_ROOT_BODY_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
+RAW_ROOT_BODY_CLEANUP_KEY = "mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03"
+RAW_ROOT_BODY_CLEANUP_GUARD = Path(
+    "tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py"
+)
 
 
 def _dispatch_coreplan_varmap_reseal_row(
@@ -562,6 +567,12 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         check_proof_row(state, card, proof, root)
     elif row == api.RAW_ROOT_ROW:
         check_raw_root_resume(state, card, proof, root)
+    elif row == RAW_ROOT_BODY_CLEANUP_ROW:
+        item = card.get(RAW_ROOT_BODY_CLEANUP_KEY)
+        if not isinstance(item, dict) or item.get("status") != "selected_fast":
+            api.fail(f"{RAW_ROOT_BODY_CLEANUP_ROW} manifest entry is not selected_fast")
+        if api.subprocess.run(["python3", str(root / RAW_ROOT_BODY_CLEANUP_GUARD)], cwd=root).returncode:
+            api.fail(f"{RAW_ROOT_BODY_CLEANUP_ROW} delegated guard failed")
     elif row == api.SCRIPT_ROOT_ROW:
         check_script_root_ret0(state, card, root)
     elif row == api.METHOD_CORRIDOR_D0_ROW:

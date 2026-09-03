@@ -71,8 +71,6 @@ mod raw_public_cutover_parity_success_p0;
 #[cfg(test)]
 mod raw_public_ingress_p0;
 #[cfg(test)]
-mod raw_root_body_p0;
-#[cfg(test)]
 mod raw_root_callable_main_p0;
 #[cfg(test)]
 mod raw_root_decl_access_p0;

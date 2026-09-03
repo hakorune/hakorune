@@ -2299,6 +2299,7 @@ mir::builder::raw_root_body_exit::tests::raw_script_exit_adapter_preserves_exact
 mir::builder::raw_root_body_lowering_p0::linear_recipe_lowers_local_assignment_and_print
 mir::builder::raw_root_body_lowering_p0::linear_recipe_lowers_without_ast_reconstruction
 mir::builder::raw_root_body_lowering_p0::raw_root_main_skeleton_uses_the_legacy_pure_effect_contract
+mir::builder::raw_root_body_lowering_p0::recipe_rejects_duplicate_source_paths
 mir::builder::raw_root_completion::tests::late_collector_admission_failure_happens_before_root_commit
 mir::builder::raw_root_completion::tests::raw_root_success_retains_body_and_exact_root_receipts
 mir::builder::raw_root_completion_preflight::tests::duplicate_collector_admission_returns_the_unmodified_indexes
@@ -3422,8 +3423,6 @@ mir::compiler::raw_public_ingress_p0::raw_public_ingress_failure_preserves_live_
 mir::compiler::raw_public_ingress_p0::raw_public_ingress_rejects_nonempty_helper_before_physical_open
 mir::compiler::raw_public_ingress_p0::raw_public_ingress_rejects_repl_before_source_binding
 mir::compiler::raw_public_ingress_p0::raw_public_ingress_reuses_one_compiler_for_two_successes
-mir::compiler::raw_root_body_p0::empty_script_post_install_facts_produce_linear_recipe
-mir::compiler::raw_root_body_p0::recipe_rejects_duplicate_source_paths
 mir::compiler::raw_root_callable_main_p0::app_not_selected_does_not_reserve_or_emit_callable_receipt
 mir::compiler::raw_root_callable_main_p0::app_selected_uses_callable_main_role_and_same_brand
 mir::compiler::raw_root_callable_main_p0::selected_failure_retains_prefix_and_blocks_body_entry
@@ -3504,6 +3503,7 @@ mir::compiler::raw_root_publication_p0::raw_app_not_selected_publishes_as_app_pr
 mir::compiler::raw_root_publication_p0::raw_app_selected_publishes_as_app_product
 mir::compiler::raw_root_publication_p0::raw_publication_replaces_live_builder_once
 mir::compiler::raw_root_publication_p0::raw_reportable_verifier_error_is_published_as_evidence
+mir::compiler::raw_root_source_facts::script_result_p0::empty_script_post_install_facts_produce_linear_recipe
 mir::compiler::raw_root_source_facts::script_result_p0::script_terminal_recipe_keeps_value_expression_source_owned
 mir::compiler::raw_root_source_facts::script_result_p0::script_unit_expression_retains_unit_origin
 mir::compiler::raw_root_source_facts::script_result_p0::shared_script_projection_has_no_raw_root_or_publication_input

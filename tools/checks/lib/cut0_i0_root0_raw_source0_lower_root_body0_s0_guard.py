@@ -26,6 +26,7 @@ SOURCE = tuple(
         "src/mir/builder/raw_root_physical/root_batch_terminal.rs",
         "src/mir/builder/raw_root_completion.rs",
         "src/mir/builder/raw_root_body_lowering.rs",
+        "src/mir/builder/raw_root_body_lowering_p0.rs",
         "src/mir/builder/root_body_completion.rs",
     )
 )
@@ -37,6 +38,10 @@ def require(text: str, fragment: str, label: str) -> None:
 
 
 def main() -> int:
+    legacy = ROOT / "src/mir/compiler/raw_root_body_p0.rs"
+    compiler_mod = (ROOT / "src/mir/compiler/mod.rs").read_text()
+    if legacy.exists() or "mod raw_root_body_p0;" in compiler_mod:
+        raise AssertionError("retired raw_root_body_p0 shell remains")
     task = TASK.read_text()
     joined = "\n".join(path.read_text() for path in SOURCE)
     for fragment in (
@@ -67,6 +72,8 @@ def main() -> int:
         "RawRootBatchPhysicalErrorV1::ExitWitness",
         "RawScriptTerminalRecipeV1",
         "RawScriptUnitOriginV1",
+        "empty_script_post_install_facts_produce_linear_recipe",
+        "recipe_rejects_duplicate_source_paths",
     ):
         require(joined, fragment, f"implementation {fragment}")
 

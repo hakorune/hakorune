@@ -368,3 +368,27 @@ non_claims = "No production refactor, fact semantic change, broad legacy-test pu
 implementation_commit = "recorded in Git history"
 implementation_evidence = "The duplicate function and one inventory row were removed. The exact retained successor passed 1/1; the full quick lib run remained the accepted 138-name red baseline at 7404 passed / 138 failed / 29 ignored, with failure SHA 29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1 and inventory SHA d3d77699a41ae356053789bbbfd0ed992a63ec9de6ee1cce340541eda54e0084."
 closeout = "Landed; tracked test surface is one case smaller with no production or semantic change. Return the pointer to MIR-CALL-HAKO-SAME-MODULE-INSTANCE-PHYSICAL-INGRESS-D0__design_stop and do not reopen this duplicate."
+
+[mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+base_head = "93cbf5bba082c9f136d0383a436bd58ac9bf96db"
+box_kind = "BoxShape test-only owner migration"
+decision = "Move exactly two existing BODY0 recipe-boundary proofs into their already-loaded owner-local test modules, remove only the redundant compiler test shell and registration, and preserve test names, assertions, production code, and route semantics."
+source_authority = "Existing RawRootSourceFactsV1/RawRootSourceRouteV1, RawRootBodyRecipeV1, and raw_root_body_lowering owners; no new semantic issuer."
+canonical_issuer = "The existing owner-local test modules remain evidence issuers; the cleanup row issues no production or semantic product."
+non_authority = ["_p0 module name", "test count alone", "AST/MIR inference", "route or PHI/SSA behavior", "historical card prose", "worker report", "local green without exact path"]
+fail_fast_boundary = "Before deleting the shell, both named test bodies must be present at their owner-local paths, the old registration/file must be absent, the existing BODY0 guard must remain green, and no production/route/Recipe/PHI source may change."
+census_boundary = "src/mir/compiler/raw_root_body_p0.rs two tests -> existing script_result_p0 and raw_root_body_lowering_p0 owners -> cargo lib inventory; includes only these two test paths, one registration, one file, and the existing guard/manifest/pointer, excludes raw_root_drain_p0, production lowering, route, backend, Call, and semantic changes."
+candidate = "src/mir/compiler/raw_root_body_p0.rs::{empty_script_post_install_facts_produce_linear_recipe,recipe_rejects_duplicate_source_paths}"
+successors = ["mir::compiler::raw_root_source_facts::script_result_p0::empty_script_post_install_facts_produce_linear_recipe", "mir::builder::raw_root_body_lowering_p0::recipe_rejects_duplicate_source_paths"]
+delete_set = ["src/mir/compiler/raw_root_body_p0.rs", "src/mir/compiler/mod.rs::mod raw_root_body_p0", "cargo inventory paths under mir::compiler::raw_root_body_p0"]
+allowed_files = ["src/mir/compiler/raw_root_body_p0.rs", "src/mir/compiler/mod.rs", "src/mir/compiler/raw_root_source_facts/script_result_p0.rs", "src/mir/builder/raw_root_body_lowering_p0.rs", "tools/checks/manifests/cargo_lib_red_baseline.toml", "tools/checks/manifests/cargo_lib_red_baseline.tests.txt", "tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/compiler/raw_root_drain_p0.rs", "src/mir/raw_root_body_recipe.rs", "src/mir/builder/raw_root_body_lowering.rs", "src/mir/builder.rs", "src/mir/compiler/** except the named registration/file", "lang/**", "src/backend/**", "src/runner/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_tests = ["mir::compiler::raw_root_source_facts::script_result_p0::empty_script_post_install_facts_produce_linear_recipe", "mir::builder::raw_root_body_lowering_p0::recipe_rejects_duplicate_source_paths"]
+ordered_tasks = ["A: select this exact cleanup row and run the existing active-surface/BODY0 guards", "B: move the two existing test bodies, delete only the old module registration/file, and update the two inventory paths", "C: run exact successors, reconcile only the inventory hash, then close out without changing the known-red failure set"]
+acceptance = "Both successor tests run by exact path; the old module/file/registration are zero; the cargo inventory count and pass/fail/ignored counts are unchanged; the existing BODY0, active-surface, pointer, and diff guards pass; all touched source remains below 800 lines; no production or semantic file changes."
+no_safe_slice = "If either successor owner needs a new semantic import/API, the old shell has another reference, the inventory shows an unexpected test/count drift, a guard must be weakened, or any route/Recipe/PHI/SSA behavior changes, return to design_stop and do not delete."
+non_claims = "No raw_root_drain_p0 retirement, no production compiler change, no Call/backend/VM change, no test deletion, no baseline failure reclassification, no broad _p0 batch, and no new guard/receipt."

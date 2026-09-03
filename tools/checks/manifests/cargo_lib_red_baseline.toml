@@ -12,6 +12,6 @@ expected_ignored = 29
 expected_measured = 0
 expected_filtered = 0
 inventory_file = "tools/checks/manifests/cargo_lib_red_baseline.tests.txt"
-inventory_sha256 = "0632d98fe396207747dd7b597563f08e81b1dfaf4054340b4cb411edc2ac12dd"
+inventory_sha256 = "a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d"
 failures_file = "tools/checks/manifests/cargo_lib_red_baseline.failures.txt"
 failures_sha256 = "29569949bacd86b39af4f122dad137ae4d476185363d667722a0b87cf56d4ba1"

@@ -6,8 +6,8 @@ use crate::mir::builder::root_batch_slot::RawRootBatchSlotV1;
 use crate::mir::builder::root_body_completion::RootBodyResultV1;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::raw_root_body_recipe::{
-    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryContractV1, RawRootBodyRecipeV1,
-    RawRootBodySourceSiteV1,
+    RawLinearScalarExprV1, RawLinearScalarStmtV1, RawRootBodyEntryContractV1,
+    RawRootBodyRecipeErrorV1, RawRootBodyRecipeV1, RawRootBodySourceSiteV1,
 };
 
 fn site(path: &[usize]) -> RawRootBodySourceSiteV1 {
@@ -118,4 +118,32 @@ fn linear_recipe_lowers_local_assignment_and_print() {
         .any(|(name, _)| name == "x"));
     drop(_scope);
     builder.exit_function_for_test();
+}
+
+#[test]
+fn recipe_rejects_duplicate_source_paths() {
+    let site = || RawRootBodySourceSiteV1::new(&[0], crate::ast::Span::unknown());
+    let statements = vec![
+        RawLinearScalarStmtV1::Expr {
+            expression: RawLinearScalarExprV1::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                site: site(),
+            },
+            site: site(),
+        },
+        RawLinearScalarStmtV1::Expr {
+            expression: RawLinearScalarExprV1::Literal {
+                value: crate::ast::LiteralValue::Integer(2),
+                site: site(),
+            },
+            site: site(),
+        },
+    ]
+    .into_boxed_slice();
+    let error = RawRootBodyRecipeV1::from_parts(RawRootBodyEntryContractV1::script(), statements)
+        .unwrap_err();
+    assert!(matches!(
+        error,
+        RawRootBodyRecipeErrorV1::DuplicateSourcePath { .. }
+    ));
 }

@@ -75,3 +75,12 @@ fn script_unit_expression_retains_unit_origin() {
         }
     ));
 }
+
+#[test]
+fn empty_script_post_install_facts_produce_linear_recipe() {
+    let facts = RawRootSourceFactsV1::empty_for_test(RawRootSourceRouteV1::Script);
+    let (post_install, _) = facts.into_post_install_parts().unwrap();
+    let recipe = post_install.into_linear_body_recipe();
+    assert_eq!(recipe.entry(), &RawRootBodyEntryContractV1::script());
+    assert!(recipe.statements().is_empty());
+}

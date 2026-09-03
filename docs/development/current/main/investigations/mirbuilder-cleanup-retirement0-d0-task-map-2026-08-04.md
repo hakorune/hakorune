@@ -223,7 +223,9 @@ or explicit parking. No deletion and no route/PHI changes.
 
 Work from leaf to root in small buildable commits. Start with independent,
 guard-free rows (`drain_policy_p0`, `raw_root_body_p0`, `raw_root_drain_p0`)
-only after their evidence is moved to stable owner-local contract tests.
+only after their evidence is moved to stable owner-local contract tests. The
+currently selected bounded row is
+`MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0`.
 Defer the four finalization dependents until the shared finalization evidence
 is migrated. Keep `raw_public_cutover_parity_success_p0` parked while its
 2/6 baseline is red. For each row, retarget every guard, run the focused test
