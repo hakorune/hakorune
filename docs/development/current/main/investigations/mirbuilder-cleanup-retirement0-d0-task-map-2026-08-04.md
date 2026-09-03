@@ -224,7 +224,7 @@ or explicit parking. No deletion and no route/PHI changes.
 Work from leaf to root in small buildable commits. Start with independent,
 guard-free rows (`drain_policy_p0`, `raw_root_body_p0`, `raw_root_drain_p0`)
 only after their evidence is moved to stable owner-local contract tests. The
-the selected bounded row was
+selected bounded row was
 `MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0`.
 
 T1-S0 is now landed at `f5b268e741`: the two existing proofs remain under
@@ -237,6 +237,10 @@ The next bounded shell row is
 `MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0`: move the three existing drain
 proofs into `raw_root_finalization_p0`, then delete only the old drain shell,
 registration, and inventory paths.
+
+The drain shell row landed at `ba9c8a1d4b`: all three owner-local drain
+successors pass exactly, the old shell/registration are absent, and the
+immutable accepted full-lib receipt is not rebaselined.
 
 Defer the four finalization dependents until the shared finalization evidence
 is migrated. Keep `raw_public_cutover_parity_success_p0` parked while its
