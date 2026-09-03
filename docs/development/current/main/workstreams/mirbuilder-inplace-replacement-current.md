@@ -173,10 +173,14 @@ owners remains `ParkedSealed` while other eligible families may proceed.
 The current JSON v0/v1 legacy-target forms remain parked because their parser,
 dispatch, selfhost, and direct-loader callers share an outer owner; no new
 receipt, guard, adapter, or census is opened to force a false single tuple.
-The next executable queue is therefore: finish the selected behavior-neutral
-published-view transport BoxShape row, return to the closed R6 census pointer,
-then select the next exact Promote/Stop/Delete family only when its tuple is
-present. `Stop` may end an unsupported experimental reader without waiting for
+The next semantic queue therefore selects the next exact
+Promote/Stop/Delete family only when its tuple is present.  While that queue is
+parked, an already-inventoried compiler-proven T0 cleanup may run without
+claiming R6 progress when it has an exact file/delete-set, adds no semantic
+authority, guard, receipt, fixture, or fallback, and keeps the `src/` delta
+non-positive.  The bounded cleanup series returns the pointer to this closed
+R6 census frontier; it does not add a permanent active-surface dispatcher
+row. `Stop` may end an unsupported experimental reader without waiting for
 backend parity; `Delete` still requires caller-zero. This is a scheduling rule,
 not a new semantic disposition or a second task ledger.
 

@@ -41,8 +41,6 @@ use flow_origin::{
     generic_array_flow_origin_box_name, generic_pure_string_value_origin_box_name,
     string_corridor_method_origin_box_name, GenericPureStringFlowAnalysis,
 };
-#[allow(unused_imports)]
-pub(crate) use map_set_scalar_proof::ScalarI64MapGetStoreFact;
 pub(crate) use map_set_scalar_proof::{
     instruction_may_escape_or_mutate_receiver, prove_scalar_i64_map_get_store_fact,
 };

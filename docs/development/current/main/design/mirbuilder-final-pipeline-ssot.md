@@ -228,11 +228,11 @@ Promote -> Canonical through M4 when the exact reopen tuple exists
 Stop    -> M7-S ExplicitUnsupportedBeforeArtifact or unreachable outer ingress
 Delete  -> M7/M8/M9 only after caller-zero
 Park    -> ParkedSealed until its observable reopen trigger fires
+T0      -> inventoried compiler-proven hygiene; no new authority/guard/receipt; src/ delta <= 0
 ```
-
 Parking one family never promotes another family and never grants a broad
 schema cutover. It only returns selection to another already-inventoried
-family/profile boundary.
+family/profile boundary. `T0` is not R6/R7 progress; its contract lives in the docs policy and selected cleanup manifest.
 
 ## S-class completion gates (post-M9, non-executable navigation)
 

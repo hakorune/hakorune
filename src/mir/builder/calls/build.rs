@@ -22,8 +22,6 @@ use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
-#[allow(unused_imports)]
-use super::debug_method_routing::*;
 use crate::ast::ASTNode;
 use crate::mir::builder::calls::function_call_preflight_route::PreparedRawOrdinaryFunctionCompletionV1;
 use crate::mir::builder::calls::{

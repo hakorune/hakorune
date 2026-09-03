@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Do not repeat the closed reader census. Reopen only one existing family when source authority, typed issuer or typed terminal, lossless consumer, real caller, exclusive old-edge delete-set, outside-reader inventory, and source budget form one exact tuple; otherwise keep the family ParkedSealed and allow unrelated eligible families to proceed."
+current_blocker_token = "Do not repeat the closed reader census. Reopen only one existing family when source authority, typed issuer or typed terminal, lossless consumer, real caller, exclusive old-edge delete-set, outside-reader inventory, and source budget form one exact tuple; otherwise keep the family ParkedSealed and allow unrelated eligible families or inventoried compiler-proven T0 cleanup to proceed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-03: VM LegacyCallV0(Callee::Method) reader stopped at 9333c530da before trace/hostbridge/direct-array/register-load/generic dispatch; focused VM calls 9/9, existing method helpers 18/18, quick vm-reference check, active-surface, pointer, and diff checks passed; canonical VM Method support and whole-lib health remain unclaimed.",
   "2026-09-03: Stale ASN0-L0 located-assignment guard contract retired at 7965b1f2f9; live ASN0 checks remain green, no Rust/fixture semantics changed, and the retired located surface is no longer read by the guard.",
   "2026-09-03: DynamicV2 caller-zero schedule test facade retired at f482f84957; only DynamicV2PhysicalScheduleRowV1::from_test_parts was removed, quick cargo check and existing authority/active-surface/pointer guards passed, and production schedule/consumer semantics were unchanged.",
+  "2026-09-03: WARN-A removed two compiler-proven unused namespace edges and their local allow attributes; quick lib check passed, parent/current lib-test share the same three unrelated private-row errors, src delta is -4, and no semantic Call/guard/receipt/test changed.",
 ]

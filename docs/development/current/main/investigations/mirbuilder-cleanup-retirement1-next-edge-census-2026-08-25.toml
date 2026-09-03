@@ -121,8 +121,10 @@ non_claims = ["no unwrap/expect census in this row", "no panic removal or blanke
 
 [[candidate]]
 id = "MIRBUILDER-WARN-A-IMPORT-PRUNE-S0"
-status = "accepted_but_not_selected"
+status = "landed"
 kind = "mechanical_warning_batch"
+implementation_permission = false
+implementation_commit = "same commit as this closeout"
 scope = "src/mir/builder/calls/build.rs:25-26 and src/mir/generic_method_route_plan.rs:44-45 only"
 source_authority = "Rust compiler unused-import/re-export diagnostics; module/type/proof owners remain unchanged"
 canonical_issuer = "none; remove only stale import/re-export syntax and its local allow attributes"
@@ -136,7 +138,17 @@ acceptance = [
   "no Call/resolver/effect/MIR shape change and no new warning suppression",
   "one batch-end cargo check --lib and existing guards are green",
 ]
-non_claims = ["no module retirement", "no semantic dead_code deletion", "no automatic cargo-fix sweep", "not executable while CURRENT_STATE.toml remains design_stop"]
+implementation_evidence = """
+Removed only the two inventoried unused namespace edges and their local allow
+attributes. The debug module, proof type, and proof functions remain. Quick
+lib check passed. Quick lib-test check still reports the same three private
+PublishedStaticMethodCFrameV1::row errors at parent e96f23970a, so that debt is
+classified outside this cleanup and no visibility change was mixed in.
+Existing pointer, active-surface, lifecycle, and diff checks close the series.
+"""
+closeout = "WARN-A landed as compiler-proven T0 hygiene; src delta -4, semantic Call delta 0, new guard/receipt/test 0."
+next_execution = "none__return_to_family_local_r6_census"
+non_claims = ["no module retirement", "no semantic dead_code deletion", "no automatic cargo-fix sweep", "no Call R6/R7 progress claim", "no new active-surface dispatcher row"]
 
 [[candidate]]
 id = "MIRBUILDER-GUARD-REGISTRATION-INDEX-D0"
