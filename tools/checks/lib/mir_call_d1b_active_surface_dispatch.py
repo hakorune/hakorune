@@ -386,6 +386,65 @@ def _check_wasm_legacy_global_reader_stop_r0(
     print(f"[{api.TAG}] row={row} delegated=wasm-legacy-global-stop")
 
 
+VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
+
+
+def _check_vm_global_canonical_cutover_r0(
+    state: dict, root: Path, api
+) -> None:
+    """Dispatch the one bounded VM Global canonical-reader cutover.
+
+    This extends an already landed canonical consumer and removes only its
+    legacy Global reader.  The stable guard deliberately checks the finite
+    owner surface without creating a second task ledger or semantic receipt.
+    """
+    row = VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW
+    if state.get("work_mode") != "fast":
+        api.fail(f"{row} must be fast")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not open a second design card")
+    if state.get("next_execution_card") != row:
+        api.fail(f"{row} next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} next_execution_card_path drifted")
+    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
+
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    required = (
+        row,
+        "status = selected_fast",
+        "base_head = 36c7c15d87",
+        "implementation permission = true",
+        "MirInstruction::Call(MirCall)",
+        "rejecting `LegacyCallV0(Global)`",
+        "execute_global_target",
+        "legacy Global arm is zero",
+        "No Call R6 schema deletion",
+        "existing active-surface and pointer guards are reused",
+    )
+    for token in required:
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    for rel in (
+        "src/backend/mir_interpreter/handlers/mod.rs",
+        "src/backend/mir_interpreter/handlers/calls/mod.rs",
+        "src/backend/mir_interpreter/handlers/calls/global.rs",
+        "src/backend/mir_interpreter/exec/parameter_contracts/tests.rs",
+        "src/backend/mir_interpreter/exec/return_contracts/tests.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=vm-global-canonical-cutover")
+
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
         api.check_delegated_performance_row(state, root)
@@ -401,6 +460,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_r6_post_group_b_reader_census_c0(state, root, api)
     elif row == api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW:
         _check_wasm_legacy_global_reader_stop_r0(state, root, api)
+    elif row == VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW:
+        _check_vm_global_canonical_cutover_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

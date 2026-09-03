@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
-current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "MIR-CALL-WASM-LEGACY-GLOBAL-READER-STOP-R0 landed at 833eb87a80; the shared WASM preflight now stops that compatibility reader before shape/WAT/binary/fallback work. No canonical WASM reader or other LegacyCallV0 family was opened."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
+current_design_stop = "none"
+current_blocker_token = "VM Global canonical cutover: extend the existing typed Global reader to same-module FreeFunction/StaticBoxMethod, reject LegacyCallV0(Global) at the shared ingress, and delete only the finite VM legacy Global edge."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,29 +31,16 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The publication spine and Print producer coverage are closed and the
-checkpoint is integrated into hakorune/main at 7049cbb729. Whole-library
-health remains the classified 7578/7411/138/29 known-red baseline; the
-inventory refresh added one passing focused test and did not change the
-138-name failure set. The finite M1 Call producer/consumer census and M2
-remaining-family disposition are closed and recorded in the final-pipeline
-SSOT. M3-A is closed at 474e8518b0: the UnifiedCallEmitter core has zero env
-reads and zero legacy emission calls while the outer compatibility owner is
-preserved. M3-B is parked because two unclaimed writers share the existing
-compatibility APIs. M3-C's four ingress censuses are complete and parked.
-M4 R6 Group A is closed at 45c6759962: canonical `Call(MirCall)` and explicit
-`LegacyCallV0` have separate instruction shapes, central readers support both,
-and focused/feature-build/guard evidence is green. Group B then closed at
-cce62db090 with the bounded VM canonical Print reader arm and three focused
-tests; this does not claim schema completion, VM product promotion, or R7
-deletion. The post-Group-B reader census closed at bb41e2e880 as
-NoSafeSlice__NoSingleRemainingCanonicalReaderFamily; remaining families are
-ParkedSealed until an exact authority/consumer/caller/delete-set tuple exists.
-WASM LegacyCallV0(Global) reader stop landed at 833eb87a80; landed families
-are not reopened and zero/multiple authority tuples remain ParkedSealed.
+The publication spine, Print producer coverage, and WASM LegacyCallV0(Global)
+stop are closed. Whole-library health remains the classified 7578/7411/138/29
+known-red baseline. The finite R6 census remains closed; one exact next tuple
+is selected: VM Global canonical cutover, extending the landed Print reader to
+same-module FreeFunction/StaticBoxMethod and stopping only LegacyCallV0(Global).
+No new receipt, adapter, guard, schema-wide R6/R7 deletion, Hako/WASM work, or
+backend promotion is authorized.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

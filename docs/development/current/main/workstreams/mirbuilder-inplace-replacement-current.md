@@ -56,10 +56,14 @@ closed at `bb41e2e880` with
 Do not repeat the census. The bounded WASM `LegacyCallV0(Global)` reader stop
 landed at `833eb87a80`: the shared preflight now rejects it before shape/WAT/
 binary/fallback work, and the name/arity/zero-padding reader is gone. No
-canonical WASM reader or general fallback retirement is claimed. No next
-implementation card is selected. Reopen one existing family only when source authority, typed issuer, lossless selected
-consumer, real production caller, fail-fast terminal, exclusive old-edge
-delete-set, outside-reader inventory, and source budget form one exact tuple.
+canonical WASM reader or general fallback retirement is claimed. The next
+exact tuple is `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`: extend the landed VM
+canonical Print reader to same-module FreeFunction/StaticBoxMethod, reject
+Legacy Global at the shared ingress, and remove only that finite VM legacy arm.
+Reopen another family only when source authority, typed issuer, lossless
+selected consumer, real production caller, fail-fast terminal, exclusive
+old-edge delete-set, outside-reader inventory, and source budget form one exact
+tuple.
 
 The finish path is:
 
@@ -136,7 +140,7 @@ S5 Release       owner: hakoruneup-release-distribution-ssot; clean checkout,
 
 S2's differential harness, rule traceability, S4 bootstrap proof, and S5
 release packaging are therefore planned but deliberately unopened while the
-R6 reader census is `NoSafeSlice`. The current `138`-name whole-library red
+broader R6 reader inventory remains incomplete. The current `138`-name whole-library red
 receipt is known debt, not a green claim; it must be classified and excluded
 from any future S2/S5 completion assertion rather than silently rebaselined.
 
