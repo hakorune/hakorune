@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
 current_design_stop = "none"
-current_blocker_token = "VM Global canonical cutover: extend the existing typed Global reader to same-module FreeFunction/StaticBoxMethod, reject LegacyCallV0(Global) at the shared ingress, and delete only the finite VM legacy Global edge."
+current_blocker_token = "VM Global canonical cutover landed at 111216b539; closeout evidence is recorded, and no next execution card is opened until a new exact family tuple is selected."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -31,16 +31,15 @@ current_execution_design = "docs/development/current/main/design/mirbuilder-fina
 latest_card = "mirbuilder-final-pipeline-ssot"
 latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The publication spine, Print producer coverage, and WASM LegacyCallV0(Global)
-stop are closed. Whole-library health remains the classified 7578/7411/138/29
-known-red baseline. The finite R6 census remains closed; one exact next tuple
-is selected: VM Global canonical cutover, extending the landed Print reader to
-same-module FreeFunction/StaticBoxMethod and stopping only LegacyCallV0(Global).
-No new receipt, adapter, guard, schema-wide R6/R7 deletion, Hako/WASM work, or
-backend promotion is authorized.
+The publication spine, Print producer coverage, WASM LegacyCallV0(Global) stop,
+and VM Global canonical cutover are landed (111216b539). Focused evidence is
+5 canonical dispatch + 1 legacy reject + 8 parameter + 9 return tests; the
+classified whole-library 7578/7411/138/29 known-red baseline is unchanged.
+No schema-wide R6/R7 deletion, Method/Extern/Value/Constructor migration,
+JSON/Hako/LLVM work, VM-Hako promotion, or broad backend retirement is claimed.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

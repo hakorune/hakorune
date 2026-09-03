@@ -57,9 +57,10 @@ Do not repeat the census. The bounded WASM `LegacyCallV0(Global)` reader stop
 landed at `833eb87a80`: the shared preflight now rejects it before shape/WAT/
 binary/fallback work, and the name/arity/zero-padding reader is gone. No
 canonical WASM reader or general fallback retirement is claimed. The next
-exact tuple is `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`: extend the landed VM
-canonical Print reader to same-module FreeFunction/StaticBoxMethod, reject
-Legacy Global at the shared ingress, and remove only that finite VM legacy arm.
+exact tuple `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0` has now landed at
+`111216b539`: the VM canonical Print reader covers same-module
+FreeFunction/StaticBoxMethod, Legacy Global is rejected at the shared ingress,
+and only that finite VM legacy arm was removed.
 Reopen another family only when source authority, typed issuer, lossless
 selected consumer, real production caller, fail-fast terminal, exclusive
 old-edge delete-set, outside-reader inventory, and source budget form one exact

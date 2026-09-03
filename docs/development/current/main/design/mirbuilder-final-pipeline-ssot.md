@@ -33,10 +33,9 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Next ordered task:** `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`. This is the
-  one existing R6 family with a canonical consumer, real VM callers, and a
-  finite legacy delete-set; no new census, receipt, adapter, fixture, or guard
-  is opened.
+- **Latest bounded cutover:** `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0` landed
+  at `111216b539`. The VM now consumes canonical same-module Global targets and
+  rejects the finite legacy Global reader; no next family is selected here.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -507,19 +506,21 @@ split trigger. No canonical WASM Call reader, Hako WASM W0, Extern/Method
 reader retirement, general WASM fallback removal, R7 caller-zero, or deletion
 of `LegacyCallV0` itself is claimed by this cohort.
 
-##### Selected next cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
+##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 
 ```text
-status = selected_fast
+status = landed
 base_head = 36c7c15d87
-implementation permission = true
+implementation permission = false
+implementation commit = 111216b539
+focused evidence = 5 canonical dispatch + 1 legacy reject + 8 parameter + 9 return tests
 ```
 
 Decision: extend the existing VM `MirInstruction::Call(MirCall)` Global
 consumer from Builtin Print to the already-issued same-module FreeFunction and
 StaticBoxMethod targets, while rejecting `LegacyCallV0(Global)` at the shared
 call ingress. The VM remains a consumer; no second issuer or semantic receipt
-is allowed.
+was added.
 
 Source authority + canonical issuer: existing Resolver/source products,
 `CanonicalGlobalTargetV1`, mandatory `MirCall`, and Atomic Publish. Non-authority
@@ -538,10 +539,11 @@ parameter/return contract fixtures to `MirInstruction::call`; retain
 
 Acceptance: canonical FreeFunction and StaticBoxMethod VM calls execute;
 legacy Global rejects before old dispatch; the four fixtures are green; the
-legacy Global arm is zero. No Call R6 schema deletion, Method/Extern/Value/
-Constructor migration, JSON/Hako/LLVM work, VM-Hako promotion, or R7-wide
-retirement is claimed. All touched owners remain below the 760-line split
-trigger; existing active-surface and pointer guards are reused.
+legacy Global arm is zero. The focused slice passed with no new red classification;
+existing active-surface and pointer guards are reused; both passed. No Call R6 schema deletion,
+Method/Extern/Value/Constructor migration, JSON/Hako/LLVM work,
+VM-Hako promotion, or R7-wide retirement is claimed. All touched owners remain
+below the 760-line split trigger.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
