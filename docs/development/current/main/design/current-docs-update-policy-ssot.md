@@ -424,6 +424,14 @@ For cleanup, a T0 cell must also have a non-positive `src/` line delta. If it
 adds source, changes behavior/errors/public or Cargo boundaries, or needs a
 new proof/guard, reclassify it as T1/T2; bug fixes are not automatically T0.
 
+`MIRBUILDER-BOXSHAPE-MAINTENANCE-T0` is the sole reusable lane for an already
+audited 760-line responsibility split. Its selected cleanup manifest names the
+base commit, exact files, preserved paths, focused tests, and line budget. The
+shared active-surface dispatch validates that manifest; a cell may not add a
+per-file row, guard, receipt, or semantic authority. Selection and closeout
+stay in the implementation series, then the pointer returns to its prior
+semantic frontier.
+
 A one-line accessor can therefore be T2 when its constructor or foreign-ID
 surface is unclassified, while an `I0`-named private move can be T0. Do not
 infer ceremony from `R0`/`S0`/`I0` spelling.

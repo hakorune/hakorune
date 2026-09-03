@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from mir_call_d1b_active_surface_dispatch_helpers import (
+    check_boxshape_maintenance,
     check_raw_root_cleanup,
     dispatch_coreplan_varmap_reseal_row,
 )
@@ -494,6 +495,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_print_producer_coverage_row(state, root, row)
     elif row == api.POST_GROUP_B_READER_CENSUS_C0_ROW:
         _check_r6_post_group_b_reader_census_c0(state, root, api)
+    elif row == "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0":
+        check_boxshape_maintenance(state, root, api)
     elif row == api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW:
         _check_wasm_legacy_global_reader_stop_r0(state, root, api)
     elif row == VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW:

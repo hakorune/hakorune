@@ -210,13 +210,64 @@ non_claims = [
 
 [candidate.line_budget_split_map]
 raw_invocation_source_transport = "landed_noop__0bd6732792__mod_rs_57__max_child_408"
-normal_script_direct_statement_owner = "pending_boxshape_i0__keep_tests_module__include_common_expression_roots_unsupported_and_fallthrough_control_completion"
-normal_script_semantic_source_tests = "pending_boxshape_i0__keep_tests_module__include_common_root_admission_lexical_matrix_scope_completion"
+normal_script_direct_statement_owner = "selected_boxshape_t0__keep_tests_module_path__ordinary_tests_child"
+normal_script_semantic_source_tests = "selected_boxshape_t0__keep_existing_path_ingress__include_root_admission_and_lexical_scope"
 public_path_impact = "zero"
 authority_impact = "zero"
 receipt_impact = "zero"
-guard_impact = "zero"
-implementation_permission = false
+guard_impact = "one reusable maintenance dispatch; zero per-cell guards"
+implementation_permission = true
+
+[boxshape_maintenance_t0]
+task_id = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
+status = "selected_fast"
+implementation_permission = true
+base_head = "8dc84e7588"
+ceremony_tier = "T0"
+decision = "Move existing cfg(test) bodies behind path-preserving module/include boundaries; production behavior and test names stay unchanged."
+source_authority = "The existing production modules and existing tests remain the sole owners; this row issues no semantic product."
+fail_fast_boundary = "Abort on public/test path drift, missing or 760-line owners, positive src line delta, new #[path], or focused compile/test regression."
+line_budget_paths = [
+  "src/mir/builder/normal_script_direct_statement_owner.rs",
+  "src/mir/builder/normal_script_direct_statement_owner/tests.rs",
+  "src/mir/builder/normal_script_semantic_source_tests.rs",
+  "src/mir/builder/normal_script_semantic_source_tests/root_admission.rs",
+  "src/mir/builder/normal_script_semantic_source_tests/lexical_and_scope.rs",
+]
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/design/current-docs-update-policy-ssot.md",
+  "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml",
+  "src/mir/builder/normal_script_direct_statement_owner.rs",
+  "src/mir/builder/normal_script_direct_statement_owner/tests.rs",
+  "src/mir/builder/normal_script_semantic_source_tests.rs",
+  "src/mir/builder/normal_script_semantic_source_tests/root_admission.rs",
+  "src/mir/builder/normal_script_semantic_source_tests/lexical_and_scope.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
+]
+required_text = [
+  "src/mir/builder/normal_script_direct_statement_owner.rs||mod tests;",
+  "src/mir/builder/normal_script_direct_statement_owner/tests.rs||include!(\"../normal_script_direct_statement_owner_fastmem_failure_test.rs\");",
+  "src/mir/builder/normal_script_semantic_source_tests.rs||include!(\"normal_script_semantic_source_tests/root_admission.rs\");",
+  "src/mir/builder/normal_script_semantic_source_tests.rs||include!(\"normal_script_semantic_source_tests/lexical_and_scope.rs\");",
+  "src/mir/builder/normal_script_semantic_source.rs||#[path = \"normal_script_semantic_source_tests.rs\"]",
+]
+forbidden_text = [
+  "src/mir/builder/normal_script_direct_statement_owner.rs||mod tests {",
+  "src/mir/builder/normal_script_direct_statement_owner.rs||#[path",
+]
+focused_tests = [
+  "normal_script_direct_statement_owner::tests",
+  "normal_script_semantic_source::tests",
+]
+observed_line_counts = "direct owner 148; direct tests 592; semantic test ingress 2; root admission 394; lexical/scope 365; shared dispatcher 757"
+observed_src_line_delta = -7
+quick_lib_check = "green"
+focused_test_compile = "current and base 8dc84e7588 both stop at the same three pre-existing E0624 private published-backend row errors before test execution"
+test_name_inventory = "unchanged across base/current for both selected test modules"
+acceptance = "Every listed owner is below 760 lines; src line delta is non-positive; module/test paths and behavior are unchanged; no semantic authority, receipt, per-cell guard, fallback, test deletion, ignore, or baseline refresh is added."
+non_claims = "No Call R6/R7 progress, source acceptance, production switch, backend change, broad test cleanup, or raw transport resplit."
 
 [[candidate]]
 id = "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0"
