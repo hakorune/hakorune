@@ -493,7 +493,7 @@ Owners remain below the 760-line trigger. No canonical WASM reader, Hako W0,
 Extern/Method retirement, general fallback removal, R7 caller-zero, or
 `LegacyCallV0` deletion is claimed.
 
-##### Selected next cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
+##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
 
 ```text
 status = landed
