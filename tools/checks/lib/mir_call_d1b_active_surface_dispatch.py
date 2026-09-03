@@ -678,6 +678,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_repo_lifecycle_baseline_refresh_r0(state, card, root)
     elif row == api.DOCS_HISTORY_RETIRE_R0_ROW:
         api.check_docs_history_retire_r0(state, card, root)
+    elif row == api.DOCS_HISTORY_RETIRE_R1_ROW:
+        api.check_docs_history_retire_r1(state, card, root)
     elif row == api.TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_ROW:
         api.check_test_local_contract_fact_duplicate_retire_r0(state, card, root)
     elif row == api.SELECTED_C_STACK_ROW:

@@ -176,6 +176,48 @@ DOCS_HISTORY_RETIRE_R0_CANDIDATE = Path(
     "docs/development/current/main/investigations/"
     "mir-call-d1b-program-root-toplevel-work-split-r0-2026-08-26.toml"
 )
+DOCS_HISTORY_RETIRE_R1_ROW = "DOCS-HISTORY-RETIRE-R1"
+DOCS_HISTORY_RETIRE_R1_KEY = "docs_history_retire_r1_2026_09_03"
+DOCS_HISTORY_RETIRE_R1_CANDIDATES = (
+    Path(
+        "docs/development/current/main/phases/phase-296x/"
+        "296x-1448-CONDITION-BINDING-RESOLUTION-ADAPTER-PROBE-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/"
+        "296x-1450-SCOPE-MANAGER-CONDITION-BINDING-ADAPTER-WIRING-DESIGN-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/"
+        "296x-1452-SCOPE-MANAGER-CONDITION-BINDING-INPUT-PROBE-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/"
+        "296x-1454-TRIM-ROUTE-LOWERING-PROOF-UPDATE-001.md"
+    ),
+)
+DOCS_HISTORY_RETIRE_R1_PREDECESSORS = (
+    Path(
+        "docs/development/current/main/phases/phase-296x/archive/"
+        "296x-1447-POST-CONDITION-BINDING-RESOLUTION-DESIGN-OWNER-SELECTION-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/archive/"
+        "296x-1449-POST-CONDITION-BINDING-RESOLUTION-ADAPTER-OWNER-SELECTION-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/archive/"
+        "296x-1451-POST-SCOPE-MANAGER-CONDITION-BINDING-WIRING-DESIGN-OWNER-SELECTION-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/archive/"
+        "296x-1453-POST-SCOPE-MANAGER-CONDITION-BINDING-INPUT-OWNER-SELECTION-001.md"
+    ),
+    Path(
+        "docs/development/current/main/phases/phase-296x/archive/"
+        "296x-1455-POST-TRIM-ROUTE-LOWERING-PROOF-UPDATE-OWNER-SELECTION-001.md"
+    ),
+)
 TEST_LOCAL_CONTRACT_FACT_DUPLICATE_RETIRE_R0_ROW = (
     "MIR-TEST-LOCAL-CONTRACT-FACT-DUPLICATE-RETIRE-R0"
 )
@@ -1316,6 +1358,120 @@ def check_docs_history_retire_r0(state: dict, card: dict, root: Path) -> None:
             fail(f"docs history retirement candidate still has inbound references: {pattern}")
         if result.returncode not in (0, 1):
             fail(f"docs history retirement reference scan failed: {result.stderr.strip()}")
+
+
+def check_docs_history_retire_r1(state: dict, card: dict, root: Path) -> None:
+    """Guard the one queued four-card phase-history retirement batch.
+
+    This reuses the existing active-surface dispatcher for a multi-file
+    ``RetireFromTree`` batch.  The predecessor documents may be edited only to
+    retire dangling task-token edges; no archive copy or semantic owner is
+    created.  The same checker validates the selected pre-delete and landed
+    closeout states so the pointer can return to the family-local census.
+    """
+    row = card.get(DOCS_HISTORY_RETIRE_R1_KEY)
+    if not isinstance(row, dict) or row.get("task_id") != DOCS_HISTORY_RETIRE_R1_ROW:
+        fail("docs history retirement R1 manifest row is missing or drifted")
+    mode = state.get("work_mode")
+    if state.get("current_execution_row") != DOCS_HISTORY_RETIRE_R1_ROW:
+        fail("docs history retirement R1 row is not selected")
+    if state.get("next_execution_card_path") != str(CARD_REL):
+        fail("docs history retirement R1 card path drifted")
+    if mode == "fast":
+        if state.get("current_design_stop") != "none":
+            fail("docs history retirement R1 must clear current_design_stop")
+        if state.get("next_execution_card") != DOCS_HISTORY_RETIRE_R1_ROW:
+            fail("docs history retirement R1 next_execution_card drifted")
+        if row.get("status") != "selected_fast" or row.get("implementation_permission") is not True:
+            fail("docs history retirement R1 is not selected_fast")
+    elif mode == "closeout":
+        if state.get("current_design_stop") != "none":
+            fail("docs history retirement R1 closeout must clear current_design_stop")
+        if state.get("next_execution_card") != "none":
+            fail("docs history retirement R1 closeout must clear next_execution_card")
+        if row.get("status") != "landed" or row.get("implementation_permission") is not False:
+            fail("docs history retirement R1 is not landed")
+    else:
+        fail("docs history retirement R1 must be fast or closeout")
+
+    base = require_text(row.get("base_head"), "docs history retirement R1 base_head")
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or not allowed or not all(
+        isinstance(item, str) and item.strip() for item in allowed
+    ):
+        fail("docs history retirement R1 allowed_files are missing")
+    changed = git_diff_paths(root, base)
+    if not changed <= set(allowed):
+        fail(f"docs history retirement R1 changed paths escaped: {sorted(changed - set(allowed))}")
+
+    candidates = row.get("candidates")
+    predecessors = row.get("predecessors")
+    line_counts = row.get("candidate_line_counts")
+    if not isinstance(candidates, list) or len(candidates) != len(DOCS_HISTORY_RETIRE_R1_CANDIDATES):
+        fail("docs history retirement R1 candidate list drifted")
+    if not isinstance(predecessors, list) or len(predecessors) != len(DOCS_HISTORY_RETIRE_R1_PREDECESSORS):
+        fail("docs history retirement R1 predecessor list drifted")
+    if not isinstance(line_counts, list) or line_counts != [74, 62, 68, 72]:
+        fail("docs history retirement R1 line-count receipt drifted")
+    expected_candidates = [str(path) for path in DOCS_HISTORY_RETIRE_R1_CANDIDATES]
+    expected_predecessors = [str(path) for path in DOCS_HISTORY_RETIRE_R1_PREDECESSORS]
+    if candidates != expected_candidates or predecessors != expected_predecessors:
+        fail("docs history retirement R1 paths drifted")
+
+    for predecessor in DOCS_HISTORY_RETIRE_R1_PREDECESSORS:
+        if not (root / predecessor).is_file():
+            fail(f"docs history retirement R1 predecessor is missing: {predecessor}")
+
+    if mode == "fast":
+        for candidate, expected_lines in zip(DOCS_HISTORY_RETIRE_R1_CANDIDATES, line_counts):
+            path = root / candidate
+            if not path.is_file():
+                fail(f"docs history retirement R1 candidate is missing: {candidate}")
+            tracked = subprocess.run(
+                ["git", "ls-files", "--error-unmatch", str(candidate)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if tracked.returncode != 0:
+                fail(f"docs history retirement R1 candidate is not tracked: {candidate}")
+            if sum(1 for _ in path.open(encoding="utf-8")) != expected_lines:
+                fail(f"docs history retirement R1 candidate line count drifted: {candidate}")
+    else:
+        for candidate in DOCS_HISTORY_RETIRE_R1_CANDIDATES:
+            if (root / candidate).exists():
+                fail(f"docs history retirement R1 candidate remains: {candidate}")
+            tracked = subprocess.run(
+                ["git", "ls-files", "--error-unmatch", str(candidate)],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if tracked.returncode == 0:
+                fail(f"docs history retirement R1 candidate remains tracked: {candidate}")
+
+    # Exact candidate basenames may occur in the manifest/guard and in the
+    # candidate itself before deletion, but never in an unrelated document.
+    allowed_paths = set(allowed)
+    for candidate in DOCS_HISTORY_RETIRE_R1_CANDIDATES:
+        for pattern in (str(candidate), candidate.name):
+            result = subprocess.run(
+                ["git", "grep", "-n", "-F", "--", pattern],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode not in (0, 1):
+                fail(f"docs history retirement R1 reference scan failed: {result.stderr.strip()}")
+            inbound = [
+                line for line in result.stdout.splitlines()
+                if line and line.split(":", 1)[0] not in allowed_paths
+            ]
+            if inbound:
+                fail(f"docs history retirement R1 candidate has an external reference: {pattern}")
 
 
 def check_test_local_contract_fact_duplicate_retire_r0(
