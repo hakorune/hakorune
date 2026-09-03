@@ -580,7 +580,7 @@ not do that as part of route or layout work.
 The exhaustive, machine-readable field census is
 [`mir_function_metadata_consumer_manifest_v1.json`](../../../tools/checks/manifests/mir_function_metadata_consumer_manifest_v1.json).
 It covers the 127 stored fields in `FunctionMetadata` at observed revision
-`beb82a6756c6c0855dc76096be23b9eafe3c5ae5`. Each row records the metadata
+`ce55431e6da0bbd7c220c01eb1afd29f9d9e6c6d`. Each row records the metadata
 class, producer owner/count, production consumer owner/count, selected-backend
 role and owner/count, Rust reference and non-selected owner/count, JSON egress,
 verification kind, caller state, and `retire_when`.
