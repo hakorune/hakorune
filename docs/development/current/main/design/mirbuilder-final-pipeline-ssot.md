@@ -400,23 +400,34 @@ This is a finite verification incident, not a baseline acceptance. The latest
 fixed-command observation is `7579 total`, `7357/193/29`; the immutable
 accepted failure set remains `7411/138/29`. The current-minus-accepted
 comparison has 55 added failure names and no removed names. A bounded repair of
-four canonical-call reader owners reduced the prior delta, but the residual
-set spans prior compatibility-stop, VM/WASM, parser, route, and
-semantic-contract changes. This remains unclassified evidence, not permission
-to rebaseline or widen the repair.
+four canonical-call reader owners reduced the prior delta. Six read-only
+audits then proved that all 55 descend from the `45c6759962` carrier split;
+parser, VM/WASM, compatibility-stop, and runtime failures observed in the same
+run are already members of the immutable 138-name receipt and are not part of
+this delta. This remains repair-to-pass evidence, not permission to rebaseline.
 
-The exact App-Main/FreeFunction canonical-call tests also reproduce a common
-failure at `return_type_strategy.rs`: after the R6 shape split,
-`type_hint_providers.rs` scans only `LegacyCallV0`, so canonical `Call(MirCall)`
-results are not registered before return inference. Reconcile the complete
-failure-name delta and prove this root-owner boundary before opening a repair.
-The current path groups are observation only: `corebox-router-unified` 33,
-`string-corridor` 19, `builder-shape-tests` 15, `return/hint/pipeline` 8,
-`common-v2-length` 7, `unified-emitter-tests` 7, `optimizer-pass-shape` 4,
-`other` 4, `joinir-runner` 1, and `string-relations` 1. They name existing
-owners; they do not authorize a bulk fixture rewrite.
-The existing row may be amended with only the exact source/test owners after
-the design-stop proof; do not create a health D0, receipt, guard, or baseline.
+The exact, non-overlapping repair order is: `V0-R1` builder
+publication/readers (30), `V0-R2` JoinIR canonical Print assertion (1),
+`V0-R3` optimizer/canonicalizers (4), `V0-R4` string-corridor sink readers
+(17), and `V0-R5` string relation/dead-region readers (3). `V0-R1` contains
+the sole production regression: `builder_emit.rs` stopped rejecting canonical
+`Method { receiver: None }` before publication when its guard moved to
+`LegacyCallV0`. Its other 29 failures are reader/assertion repairs, including
+the preserved four-owner patch. `V0-R2` remains canonical because
+`ssot::extern_call` emits `Call(MirCall)`; `V0-R3` keeps legacy inputs but
+expects canonical rewrite output. `V0-R4/R5` repair existing readers before
+retargeting assertions; legacy fixtures remain only for compatibility ingress.
+
+Run these cohorts in order through the existing
+`DEV-GATE-LIB-BASELINE-REFRESH-R0`; do not create another health row, receipt,
+or per-cohort guard. Each cohort must repair its exact names to pass, preserve
+the accepted 138-name failure SHA, and introduce no new failure. The 777-line
+canonical-corridor guard must be behavior-neutrally split before any growth;
+the 750-line dead-region owner must not receive substantive code. After all
+five cohorts, run the fixed command repeatedly and update only passing-test
+inventory metadata if the total remains 7579. Before fast reopen, close the
+stale 2026-09-01 baseline row as `stopped_later_quick_red` with implementation
+permission false; the 2026-09-04 reconcile row remains the sole continuation.
 
 Acceptance is the accepted 138-name failure SHA, metadata guard, quick lib
 no-run, and `vm-reference` check restored. Until then no semantic, BoxShape,

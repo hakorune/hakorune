@@ -44,11 +44,13 @@ The accepted 138-name failure receipt remains immutable. A bounded repair of
 the canonical-call reader owners reduced the fixed observation to
 `7579/7357/193/29`; the current-minus-accepted comparison now has 55 added
 failure names and no removals. The repaired four-owner scope is preserved but
-not landed because the residual set spans prior compatibility-stop, VM/WASM,
-parser, route, and semantic-contract changes rather than one remaining owner.
-This is still unclassified evidence, not permission to rebaseline or open
-another semantic/cleanup family. Reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in
-reconcile mode only after the residual causes have finite owners.
+not landed. A six-worker read-only audit now partitions the residual exactly:
+30 builder, 1 JoinIR, 4 optimizer/canonicalizer, 17 string-sink, and 3
+string-relation/dead-region failures. All 55 descend from the `45c6759962`
+Call/LegacyCallV0 shape split; one is a production fail-fast regression and 54
+are stale carrier readers/assertions. This is repair-to-pass evidence, not
+permission to rebaseline or open another semantic/cleanup family. Reuse
+`DEV-GATE-LIB-BASELINE-REFRESH-R0` for the bounded owner series below.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete

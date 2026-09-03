@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Verification health remains UnclassifiedRed after the bounded canonical-reader repair attempt: fixed run observed 7579/7357/193/29, leaving 55 failure names outside the accepted 138-name receipt. The repaired four-owner scope reduced the prior 98-name delta but did not produce StableKnownRed; the residual set includes prior compatibility-stop, VM/WASM, parser, route, and semantic-contract changes and needs one named owner per cause before any baseline or legacy cleanup. No rebaseline, test deletion/ignore, JSON stop, BoxShape, performance, or new census is permitted. Preserve the partial repair for a future bounded row."
+current_blocker_token = "Verification health remains UnclassifiedRed after the bounded canonical-reader repair attempt: fixed run observed 7579/7357/193/29, leaving 55 failure names outside the accepted 138-name receipt. Worker audit proved an exact partition of 30 builder, 1 JoinIR, 4 optimizer/canonicalizer, 17 string-sink, and 3 string-relation/dead-region failures. All 55 descend from the 45c6759962 Call/LegacyCallV0 shape split: one canonical receiverless-Method publication guard regressed and 54 existing readers/assertions were mechanically left on the wrong carrier. Repair-to-pass through the existing baseline reconcile row is required; failure receipt widening, test deletion/ignore, JSON stop, BoxShape, performance, or a new census is forbidden. Preserve the four-owner partial repair for the first bounded repair series."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,11 +35,12 @@ cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
 complete because compatibility writers/readers and R7 retirement remain.
 Verification health is still UnclassifiedRed: the bounded canonical-reader
 repair reduced the fixed observation to 7579/7357/193/29, but 55 failure names
-remain outside the accepted 138-name receipt. Those residuals span prior
-compatibility-stop, VM/WASM, parser, route, and semantic-contract changes and
-are not a license to rebaseline. The family-local R6 census stays closed until
-the residual causes have finite owners; no JSON-v1 stop or cleanup may start
-before StableKnownRed.
+remain outside the accepted 138-name receipt. Worker audit partitions them as
+30 builder, 1 JoinIR, 4 optimizer/canonicalizer, 17 string-sink, and 3
+string-relation/dead-region failures; all descend from the 45c6759962 carrier
+split. One production fail-fast guard and 54 reader/assertion sites require
+repair-to-pass. No baseline widening, JSON-v1 stop, or cleanup may start before
+the immutable 138-name failure set is restored.
 """
 next_design_card = "none"
 next_execution_card = "none"
