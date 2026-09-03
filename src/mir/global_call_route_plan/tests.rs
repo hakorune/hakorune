@@ -38,6 +38,42 @@ fn make_function_with_global_call(name: &str, dst: Option<ValueId>) -> MirFuncti
     make_function_with_global_call_args(name, dst, vec![ValueId::new(1), ValueId::new(2)])
 }
 
+fn make_function_with_canonical_global_call(name: &str) -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "main".to_string(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = function
+        .blocks
+        .entry(BasicBlockId::new(0))
+        .or_insert_with(|| BasicBlock::new(BasicBlockId::new(0)));
+    block.instructions.push(MirInstruction::Call(
+        crate::mir::definitions::MirCall::global(
+            Some(ValueId::new(3)),
+            crate::mir::test_global_target(name),
+            vec![],
+        ),
+    ));
+    function
+}
+
+#[test]
+fn refresh_function_global_call_routes_observes_canonical_call() {
+    let mut function = make_function_with_canonical_global_call("helper/0");
+
+    refresh_function_global_call_routes(&mut function);
+
+    assert_eq!(function.metadata.global_call_routes.len(), 1);
+    let route = &function.metadata.global_call_routes[0];
+    assert_eq!(route.callee_name(), "helper/0");
+    assert_eq!(route.arity(), 0);
+}
+
 mod blockers;
 mod box_type_inspector_describe;
 mod builder_registry_dispatch;

@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Do not repeat the closed reader census. Reopen only one existing family when source authority, typed issuer or typed terminal, lossless consumer, real caller, exclusive old-edge delete-set, outside-reader inventory, and source budget form one exact tuple; otherwise keep the family ParkedSealed and allow unrelated eligible families or inventoried compiler-proven T0 cleanup to proceed."
+current_blocker_token = "Do not repeat the closed reader census. The canonical route metadata repair is landed; keep its six related route-test failures classified with the parent failure names, do not refresh the accepted whole-lib baseline, and reopen only one existing family when source authority, typed issuer or terminal, lossless consumer, real caller, exclusive old-edge delete-set, and outside-reader inventory form one exact tuple. Unrelated eligible families or inventoried compiler-proven T0 cleanup may proceed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -51,7 +51,7 @@ landed at c43e9cd09c: Value calls now reject before register load/dynamic
 dispatch; canonical Value support and whole-lib health remain unclaimed.
 The VM LegacyCallV0(Callee::Method) reader then stopped before trace,
 hostbridge, direct-array, register load, and generic dispatch at 9333c530da;
-canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed. Current revalidation also finds undefined @Main.helper/0 with empty route/definition metadata and three E0624 private-row lib-test errors; prior source-to-exe receipts are historical and the accepted baseline is not refreshed.
+canonical MirCall/helper owners remain unchanged; whole-lib health remains unclaimed. The bounded canonical route metadata repair then landed: the focused route test passed, the related route suite remained at the parent six failure names (139 passed / 6 failed on the current branch versus 138 passed / 6 failed at parent), lib-test no-run passed after using the existing slice API, and me_method_call.hako now emits and runs with Result: 7. The accepted whole-lib baseline remains immutable; prior source-to-exe receipts are historical except this revalidated Result: 7.
 """
 next_design_card = "none"
 next_execution_card = "none"

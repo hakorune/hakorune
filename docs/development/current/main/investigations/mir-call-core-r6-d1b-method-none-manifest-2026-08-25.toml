@@ -497,11 +497,12 @@ implementation_evidence = "The redundant 44-line shell, its compiler registratio
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
 [mir_call_canonical_route_metadata_restore_r0_2026_09_03]
-status = "pending_verification_repair"
+status = "landed"
 task_id = "MIR-CALL-CANONICAL-ROUTE-METADATA-RESTORE-R0"
 parent_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 implementation_permission = false
-base_head = "348931066a"
+branch_scope = "branch_or_worktree_only"
+base_head = "5dd143bffc"
 box_kind = "Bounded canonical-call route/definition-plan regression repair"
 decision = "The current source-to-exe proof is not reproducible: canonical MirInstruction::Call(MirCall) Global calls reach MIR, but the existing route/definition-plan metadata remains empty. First audit whether the LegacyCallV0-only scan introduced by 45c6759962 dropped canonical plan/needs generation; if confirmed, restore the existing route and definition-plan owners to accept both canonical and compatibility carriers without adding a second issuer, fallback, or schema."
 source_authority = "The existing canonical MirCall/Callee::Global emitted by MirBuilder and the existing GlobalCallRoutePlan/same-module definition-plan owners. This task does not re-resolve names, synthesize targets, or issue new semantic products."
@@ -516,8 +517,9 @@ ordered_tasks = ["A: keep the current closeout pointer and perform a read-only d
 acceptance = "The current me_method_call proof either reproduces its expected executable result or has a bounded, evidence-backed non-reproduction reason. When repaired, canonical Global calls populate the existing route and definition-plan metadata, the helper definition is published exactly once, the three E0624 test callers compile through the existing slice API, and no name repair/fallback/retry/new receipt/guard is introduced."
 no_safe_slice = "Remain pending and do not open implementation if route/plan ownership is ambiguous, canonical and compatibility scans require separate authorities, a JSON/name/registry repair is needed, the old-edge delete set is not finite, the source-to-exe failure is not isolated, or an unclassified red appears."
 non_claims = "No Call R6/R7 schema cutover, no new canonical target carrier, no backend/Hako/WASM/VM migration, no fixture rewrite, no test deletion, no baseline refresh, no whole-lib green claim, no fallback, and no retry."
-implementation_evidence = "Read-only revalidation at HEAD 348931066a confirmed the undefined @Main.helper/0 failure and the three E0624 private-row compile errors; implementation remains unstarted because CURRENT_STATE is closeout and the repair row has implementation_permission=false."
-closeout = "Close only after current source-to-exe evidence and lib-test compile status are truthful. Return to family-local scheduling; do not convert this regression into a global scheduler block."
+implementation_commit = "pending_worktree_commit"
+implementation_evidence = "The existing GlobalCallRoutePlan and same-module body-shape owners now observe canonical MirInstruction::Call(MirCall) Global carriers without adding a second issuer. The focused canonical route test passes; the related route suite is 139 passed / 6 failed, and the parent at 5dd143bffc (with only the pre-existing private-row test accessor corrected) is 138 passed / 6 failed, so no new failure name was introduced. cargo test --profile quick --lib --no-run passes after the three test-only callers use the existing as_slice projection. Rebuilt target/quick/hakorune emits apps/tests/me_method_call.hako successfully and the executable returns Result: 7. The accepted whole-lib baseline is unchanged and no full-lib green claim is made."
+closeout = "Landed as a bounded route/definition-plan regression repair. Return to family-local scheduling; the six related route-test failures remain known baseline debt and this row does not convert them into a global scheduler block."
 
 [mirbuilder_cleanup_asn0_l0_stale_guard_contract_retire_r0_2026_09_03]
 status = "landed"

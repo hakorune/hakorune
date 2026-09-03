@@ -82,6 +82,12 @@ FREE_FUNCTION_PUBLICATION_D0_ROW = "MIR-CALL-FREE-FUNCTION-PUBLICATION-D0"
 FREE_FUNCTION_PUBLICATION_D0_KEY = "mir_call_free_function_publication_d0_2026_09_02"
 FREE_FUNCTION_PUBLICATION_I0_ROW = "MIR-CALL-FREE-FUNCTION-PUBLICATION-I0"
 FREE_FUNCTION_PUBLICATION_I0_KEY = "mir_call_free_function_publication_i0_2026_09_02"
+CANONICAL_ROUTE_METADATA_RESTORE_R0_ROW = (
+    "MIR-CALL-CANONICAL-ROUTE-METADATA-RESTORE-R0"
+)
+CANONICAL_ROUTE_METADATA_RESTORE_R0_KEY = (
+    "mir_call_canonical_route_metadata_restore_r0_2026_09_03"
+)
 
 BACKEND_OWNER_ROW = "BACKEND-OWNER-DECLARED-INSTANCE-METHOD-CUTOVER-D0"
 RECEIVER_VALUE_OWNER_ROW = "MIR-CALL-ME-DECLARED-INSTANCE-RECEIVER-VALUE-OWNER-D0"
@@ -310,6 +316,67 @@ def _check_r6_post_group_b_reader_census_c0(
         api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
     print(f"[{api.TAG}] row={row} delegated=post-group-b-no-safe-slice")
 
+
+def _check_canonical_route_metadata_restore_r0(
+    state: dict, card: dict, root: Path, api
+) -> None:
+    """Authorize one existing-owner route metadata repair only."""
+    row = CANONICAL_ROUTE_METADATA_RESTORE_R0_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
+        api.fail(f"{row} next_execution_card drifted")
+    if state.get("next_execution_card_path") != str(api.CARD_REL):
+        api.fail(f"{row} card path drifted")
+    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
+        api.fail(f"{row} requires final-pipeline latest card")
+
+    task = card.get(CANONICAL_ROUTE_METADATA_RESTORE_R0_KEY)
+    if not isinstance(task, dict):
+        api.fail(f"{row} manifest section is missing")
+    if task.get("task_id") != row:
+        api.fail(f"{row} task id drifted")
+    expected_status = "selected_fast" if mode == "fast" else "landed"
+    if task.get("status") != expected_status:
+        api.fail(f"{row} status drifted")
+    if task.get("implementation_permission") is not (mode == "fast"):
+        api.fail(f"{row} implementation permission drifted")
+    if mode == "fast" and task.get("branch_scope") != "branch_or_worktree_only":
+        api.fail(f"{row} must remain branch/worktree scoped")
+    for field in (
+        "decision",
+        "source_authority",
+        "canonical_issuer",
+        "non_authority",
+        "fail_fast_boundary",
+        "census_boundary",
+        "affected_files",
+        "ordered_tasks",
+        "acceptance",
+        "no_safe_slice",
+        "non_claims",
+    ):
+        value = task.get(field)
+        if not value:
+            api.fail(f"{row} manifest field is missing: {field}")
+    for rel in task.get("affected_files", ()):
+        if not isinstance(rel, str) or not rel.startswith("src/"):
+            continue
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    print(f"[{api.TAG}] row={row} delegated=canonical-route-metadata-restore")
+
 WASM_METHOD_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0"
 
 
@@ -495,6 +562,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         api.check_delegated_print_producer_coverage_row(state, root, row)
     elif row == api.POST_GROUP_B_READER_CENSUS_C0_ROW:
         _check_r6_post_group_b_reader_census_c0(state, root, api)
+    elif row == CANONICAL_ROUTE_METADATA_RESTORE_R0_ROW:
+        _check_canonical_route_metadata_restore_r0(state, card, root, api)
     elif row == "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0":
         check_boxshape_maintenance(state, root, api)
     elif row == api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW:

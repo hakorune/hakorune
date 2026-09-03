@@ -507,13 +507,14 @@ fn refresh_function_global_call_routes_with_targets(
             continue;
         };
         for (instruction_index, instruction) in block.instructions.iter().enumerate() {
-            let MirInstruction::LegacyCallV0 {
-                dst,
-                callee: Some(Callee::Global(name)),
-                args,
-                ..
-            } = instruction
-            else {
+            let (dst, callee, args) = match instruction {
+                MirInstruction::Call(call) => (&call.dst, Some(&call.callee), &call.args),
+                MirInstruction::LegacyCallV0 {
+                    dst, callee, args, ..
+                } => (dst, callee.as_ref(), args),
+                _ => continue,
+            };
+            let Some(Callee::Global(name)) = callee else {
                 continue;
             };
             let name = name.display_name();

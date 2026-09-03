@@ -133,7 +133,7 @@ fn c_frame_keeps_exact_site_and_one_way_symbol_projection() {
     let view = PublishedMirBackendView::try_new(&module).expect("typed view");
     let frame = PublishedStaticMethodCFrameV1::from_view(&view).expect("C frame");
     assert_eq!(frame.len(), 1);
-    let row = frame.row(0);
+    let row = frame.as_slice()[0];
     assert_eq!(row.block_id, 0);
     assert_eq!(row.instruction_index, 0);
     assert_eq!(row.arity, 2);
@@ -159,7 +159,7 @@ fn published_free_function_is_typed_and_definition_backed() {
     assert!(view.definition(&key).is_some());
 
     let frame = PublishedStaticMethodCFrameV1::from_view(&view).expect("free-function C frame");
-    let row = frame.row(0);
+    let row = frame.as_slice()[0];
     assert_eq!(row.kind, PublishedCallKindV1::FreeFunction as u32);
     assert_eq!(row.arity, 1);
     assert!(!row.target_symbol.is_null());
@@ -240,7 +240,7 @@ fn published_builtin_print_is_typed_and_has_no_definition_lookup() {
     assert_eq!(view.builtin_print_calls()[0].args(), &[ValueId::new(1)]);
 
     let frame = PublishedStaticMethodCFrameV1::from_view(&view).expect("builtin C frame");
-    let row = frame.row(0);
+    let row = frame.as_slice()[0];
     assert_eq!(row.kind, PublishedCallKindV1::BuiltinPrint as u32);
     assert_eq!(row.arity, 1);
     assert!(!row.function_name.is_null());

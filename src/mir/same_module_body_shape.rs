@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::mir::{BasicBlockId, BinaryOp, Callee, ConstValue, MirFunction, MirInstruction};
+use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
 pub(crate) fn supported_backend_global(name: &str) -> bool {
     matches!(name, "print")
@@ -87,20 +88,26 @@ fn same_module_instruction_supported(
         | MirInstruction::VariantProject { .. } => true,
         MirInstruction::KeepAlive { .. } | MirInstruction::ReleaseStrong { .. } => true,
         instruction if same_module_terminator_supported(instruction) => true,
+        MirInstruction::Call(call) => match &call.callee {
+            Callee::Global(name) => same_module_global_call_supported(
+                function,
+                block_id,
+                instruction_index,
+                name,
+                global_target_supported,
+            ),
+            _ => false,
+        },
         MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Global(name)),
             ..
-        } => {
-            let name = name.display_name();
-            name == function.signature.name
-                || supported_backend_global(&name)
-                || global_target_supported(&name, block_id, instruction_index)
-                || function.metadata.global_call_routes.iter().any(|route| {
-                    route.block() == block_id
-                        && route.instruction_index() == instruction_index
-                        && route.reason().is_none()
-                })
-        }
+        } => same_module_global_call_supported(
+            function,
+            block_id,
+            instruction_index,
+            name,
+            global_target_supported,
+        ),
         MirInstruction::LegacyCallV0 {
             callee: Some(Callee::Extern(_)),
             ..
@@ -132,6 +139,24 @@ fn same_module_instruction_supported(
         }
         _ => false,
     }
+}
+
+fn same_module_global_call_supported(
+    function: &MirFunction,
+    block_id: BasicBlockId,
+    instruction_index: usize,
+    name: &CanonicalGlobalTargetV1,
+    global_target_supported: &dyn Fn(&str, BasicBlockId, usize) -> bool,
+) -> bool {
+    let name = name.display_name();
+    name == function.signature.name
+        || supported_backend_global(&name)
+        || global_target_supported(&name, block_id, instruction_index)
+        || function.metadata.global_call_routes.iter().any(|route| {
+            route.block() == block_id
+                && route.instruction_index() == instruction_index
+                && route.reason().is_none()
+        })
 }
 
 #[cfg(test)]
