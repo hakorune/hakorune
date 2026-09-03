@@ -138,11 +138,6 @@ impl super::super::MirBuilder {
     }
 
     #[cfg(test)]
-    pub(in crate::mir::builder) fn push_lexical_scope_for_test(&mut self) {
-        self.push_lexical_scope();
-    }
-
-    #[cfg(test)]
     pub(in crate::mir::builder) fn pop_lexical_scope_for_test(&mut self) {
         let _ = self.close_lexical_scope();
     }
