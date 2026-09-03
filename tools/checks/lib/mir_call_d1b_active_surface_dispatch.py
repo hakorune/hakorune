@@ -345,59 +345,66 @@ def _check_r6_post_group_b_reader_census_c0(
         api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
     print(f"[{api.TAG}] row={row} delegated=post-group-b-no-safe-slice")
 
-def _check_wasm_legacy_global_reader_stop_r0(
-    state: dict, root: Path, api
+WASM_METHOD_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0"
+
+
+def _check_wasm_legacy_reader_stop_r0(
+    state: dict,
+    root: Path,
+    api,
+    *,
+    row: str,
+    reader: str,
+    stop_tag: str,
+    required: tuple[str, ...],
+    owners: tuple[str, ...],
 ) -> None:
-    """Route the bounded M7-S WASM Global stop through the existing guard."""
-    row = api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW
-    final_rel = str(api.FINAL_PIPELINE_REL)
-    if state.get("work_mode") != "fast":
-        api.fail(f"{row} must be fast")
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
     if state.get("current_execution_row") != row:
         api.fail(f"{row} pointer row drifted")
     if state.get("current_design_stop") != "none":
         api.fail(f"{row} must clear current_design_stop")
     if state.get("next_design_card") != "none":
         api.fail(f"{row} must not open a second design card")
-    if state.get("next_execution_card") != row:
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
         api.fail(f"{row} next_execution_card drifted")
-    if state.get("next_execution_card_path") != final_rel:
-        api.fail(f"{row} next_execution_card_path drifted")
-    if state.get("latest_card_path") != final_rel:
-        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-
-    card_path = root / api.FINAL_PIPELINE_REL
-    card_text = card_path.read_text(encoding="utf-8")
-    required = (
-        f"{row}",
-        "status = fast_open",
-        "implementation permission = true",
-        "LegacyCallV0(Global)",
-        "[freeze:contract][wasm/legacy-global-call-stopped]",
-        "before shape matching, WAT planning, binary emission",
-        "or selection of a Rust fallback route",
-        "default `--compile-wasm`, explicit Rust route, `--emit-wat`, AOT,",
-        "No canonical WASM Call reader",
-        "no new fixture, semantic receipt, adapter, registry, route, or guard",
-    )
-    for token in required:
+    final_rel = str(api.FINAL_PIPELINE_REL)
+    for key in ("next_execution_card_path", "latest_card_path"):
+        if state.get(key) != final_rel:
+            api.fail(f"{row} {key} drifted")
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    for token in (row, reader, stop_tag, *required):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    status = "status = fast_open" if mode == "fast" else "status = landed"
+    permission = "implementation permission = true" if mode == "fast" else "implementation permission = false"
+    for token in (status, permission):
         if token not in card_text:
             api.fail(f"{row} contract is missing: {token}")
     if len(card_text.splitlines()) > 1000:
         api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-
-    for rel in (
-        "src/backend/wasm/mod.rs",
-        "src/backend/wasm/codegen/instructions.rs",
-        "src/backend/wasm/codegen/mod.rs",
-        "src/backend/wasm/tests.rs",
-    ):
+    for rel in owners:
         path = root / rel
         if not path.is_file():
             api.fail(f"{row} implementation owner is missing: {rel}")
         if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
             api.fail(f"{row} implementation owner reached 800 lines: {rel}")
-    print(f"[{api.TAG}] row={row} delegated=wasm-legacy-global-stop")
+
+
+def _check_wasm_legacy_global_reader_stop_r0(state: dict, root: Path, api) -> None:
+    _check_wasm_legacy_reader_stop_r0(
+        state, root, api,
+        row=api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW,
+        reader="LegacyCallV0(Global)",
+        stop_tag="[freeze:contract][wasm/legacy-global-call-stopped]",
+        required=("before shape matching, WAT planning, binary emission", "or selection of a Rust fallback route"),
+        owners=("src/backend/wasm/mod.rs", "src/backend/wasm/codegen/instructions.rs", "src/backend/wasm/codegen/mod.rs", "src/backend/wasm/tests.rs"),
+    )
+    print(f"[{api.TAG}] row={api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW} delegated=wasm-legacy-global-stop")
+
 
 VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
 WASM_EXTERN_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0"
@@ -472,74 +479,39 @@ def _check_vm_global_canonical_cutover_r0(
     print(f"[{api.TAG}] row={row} delegated=vm-global-canonical-cutover")
 
 
-def _check_wasm_extern_legacy_reader_stop_r0(
-    state: dict, root: Path, api
-) -> None:
-    """Check the Rust WASM Legacy Extern reader-stop cohort."""
-    row = WASM_EXTERN_LEGACY_READER_STOP_R0_ROW
-    mode = state.get("work_mode")
-    if mode not in {"fast", "closeout"}:
-        api.fail(f"{row} must be fast or closeout")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if state.get("current_design_stop") != "none":
-        api.fail(f"{row} must clear current_design_stop")
-    if state.get("next_design_card") != "none":
-        api.fail(f"{row} must not open a second design card")
-    expected_next = row if mode == "fast" else "none"
-    if state.get("next_execution_card") != expected_next:
-        api.fail(f"{row} next_execution_card drifted")
-    if state.get("next_execution_card_path") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} next_execution_card_path drifted")
-    if state.get("latest_card_path") != str(api.FINAL_PIPELINE_REL):
-        api.fail(f"{row} requires the final-pipeline SSOT as its owner")
-
-    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
-    for token in (
-        row,
-        "LegacyCallV0(Callee::Extern)",
-        "preflight before shape/WAT/binary/fallback",
-        "EXTERN_CALL_MAP",
-        "do not add a canonical WASM Extern consumer",
-        "[freeze:contract][wasm/legacy-extern-call-stopped]",
-        "No Call R6 schema",
-    ):
-        if token not in card_text:
-            api.fail(f"{row} contract is missing: {token}")
-    if mode == "fast":
-        for token in ("status = selected_fast", "implementation permission = true"):
-            if token not in card_text:
-                api.fail(f"{row} fast contract is missing: {token}")
-    else:
-        for token in (
-            "status = landed",
-            "implementation permission = false",
-            "focused WASM Extern rejection passed",
-        ):
-            if token not in card_text:
-                api.fail(f"{row} closeout contract is missing: {token}")
-    for rel in (
-        "src/backend/wasm/mod.rs",
-        "src/backend/wasm/codegen/instructions.rs",
-        "src/backend/wasm/codegen/tests.rs",
-        "src/backend/wasm/tests.rs",
-        "src/backend/wasm/extern_contract.rs",
-    ):
-        path = root / rel
-        if not path.is_file():
-            api.fail(f"{row} implementation owner is missing: {rel}")
-        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
-            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
-    instructions = (root / "src/backend/wasm/codegen/instructions.rs").read_text(
-        encoding="utf-8"
+def _check_wasm_extern_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
+    _check_wasm_legacy_reader_stop_r0(
+        state, root, api,
+        row=WASM_EXTERN_LEGACY_READER_STOP_R0_ROW,
+        reader="LegacyCallV0(Callee::Extern)",
+        stop_tag="[freeze:contract][wasm/legacy-extern-call-stopped]",
+        required=("preflight before shape/WAT/binary/fallback", "EXTERN_CALL_MAP", "do not add a canonical WASM Extern consumer", "No Call R6 schema"),
+        owners=("src/backend/wasm/mod.rs", "src/backend/wasm/codegen/instructions.rs", "src/backend/wasm/codegen/tests.rs", "src/backend/wasm/tests.rs", "src/backend/wasm/extern_contract.rs"),
     )
-    contract = (root / "src/backend/wasm/extern_contract.rs").read_text(
-        encoding="utf-8"
-    )
+    instructions = (root / "src/backend/wasm/codegen/instructions.rs").read_text(encoding="utf-8")
+    contract = (root / "src/backend/wasm/extern_contract.rs").read_text(encoding="utf-8")
     for stale in ("extern_import_name", "supported_extern_calls_csv"):
         if stale in instructions or stale in contract:
-            api.fail(f"{row} stale WASM Extern helper remains: {stale}")
-    print(f"[{api.TAG}] row={row} delegated=wasm-extern-reader-stop")
+            api.fail(f"{WASM_EXTERN_LEGACY_READER_STOP_R0_ROW} stale WASM Extern helper remains: {stale}")
+    print(f"[{api.TAG}] row={WASM_EXTERN_LEGACY_READER_STOP_R0_ROW} delegated=wasm-extern-reader-stop")
+
+
+def _check_wasm_method_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
+    _check_wasm_legacy_reader_stop_r0(
+        state, root, api,
+        row=WASM_METHOD_LEGACY_READER_STOP_R0_ROW,
+        reader="LegacyCallV0(Callee::Method)",
+        stop_tag="[freeze:contract][wasm/legacy-method-call-stopped]",
+        required=("preflight before shape/WAT/binary/fallback", "no canonical WASM Method consumer", "No Call R6 schema"),
+        owners=("src/backend/wasm/mod.rs", "src/backend/wasm/codegen/instructions.rs", "src/backend/wasm/codegen/tests.rs", "src/backend/wasm/tests.rs"),
+    )
+    if state.get("work_mode") == "closeout":
+        instructions = (root / "src/backend/wasm/codegen/instructions.rs").read_text(encoding="utf-8")
+        if "MirInstruction::LegacyCallV0" in instructions and "Callee::Method" in instructions:
+            api.fail(f"{WASM_METHOD_LEGACY_READER_STOP_R0_ROW} stale Method codegen reader remains")
+        if (root / "src/backend/wasm/codegen/builtins.rs").exists():
+            api.fail(f"{WASM_METHOD_LEGACY_READER_STOP_R0_ROW} obsolete BoxCall builtin owner remains")
+    print(f"[{api.TAG}] row={WASM_METHOD_LEGACY_READER_STOP_R0_ROW} delegated=wasm-method-reader-stop")
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
@@ -560,6 +532,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_vm_global_canonical_cutover_r0(state, root, api)
     elif row == WASM_EXTERN_LEGACY_READER_STOP_R0_ROW:
         _check_wasm_extern_legacy_reader_stop_r0(state, root, api)
+    elif row == WASM_METHOD_LEGACY_READER_STOP_R0_ROW:
+        _check_wasm_method_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

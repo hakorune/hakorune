@@ -444,54 +444,21 @@ implementation permission = false
 implementation commit = 833eb87a80
 ```
 
-This is the first bounded M7-S `Stop` candidate. It changes no source meaning
-and adds no canonical WASM consumer. Its boundary is:
+This landed M7-S `Stop` changes no source meaning and adds no canonical WASM
+consumer. The shared preflight rejects `LegacyCallV0(Global)` with
+`[freeze:contract][wasm/legacy-global-call-stopped]` before shape matching,
+WAT planning, binary emission, output creation, or selection of a Rust
+fallback route. Resolver/source products, mandatory typed `MirCall`, and
+Atomic Publish remain the only authority; names, symbols, arity maps, zero
+padding, JSON, validation, and fallback success are not authority.
 
-```text
-start:
-  Rust WASM observes MirInstruction::LegacyCallV0 with
-  callee = Some(Callee::Global(_))
-
-end:
-  the shared WASM preflight rejects with
-  [freeze:contract][wasm/legacy-global-call-stopped]
-  before shape matching, WAT planning, binary emission, output creation,
-  or selection of a Rust fallback route
-```
-
-Source authority and the canonical issuer remain the existing Resolver,
-source/package products, mandatory typed `MirCall`, and Atomic Publish. The
-WASM backend is only a consumer or typed reject owner. Function-name maps,
-physical symbols, arity tables, zero padding, shape matches, route labels,
-JSON, successful validation, and fallback success are non-authority.
-
-The finite delete set is:
-
-1. the `LegacyCallV0(Global)` lowering arm in
-   `src/backend/wasm/codegen/instructions.rs`;
-2. its name-based reachable-function traversal in
-   `src/backend/wasm/codegen/mod.rs`;
-3. the Global-only name/parameter-count/return-shape helpers and missing-arg
-   `i32.const 0` repair left caller-zero by items 1 and 2;
-4. the direct legacy-Global negative proof in
-   `src/backend/wasm/tests.rs`, which exercises the typed pre-artifact
-   rejection without deleting or rewriting an existing fixture. That old
-   success probe is handled by the selected cleanup row below.
-
-The acceptance boundary includes every Rust WASM caller through the shared
-preflight; bypass or retry keeps the row closed.
-
-Focused evidence reuses the call-free positives and direct
-`legacy_global_call_rejects_before_wasm_codegen` test; no test, fixture,
-receipt, adapter, route, or guard was added.
-
-Implementation evidence: shared preflight and the old Global lowering,
-reachability, signature-map, and zero-padding readers are gone; the recorded
-check and 18-test WASM slice passed. Known red is not relabeled.
-
-Owners remain below the 760-line trigger. No canonical WASM reader, Hako W0,
-Extern/Method retirement, general fallback removal, R7 caller-zero, or
-`LegacyCallV0` deletion is claimed.
+Finite delete-set: the old Global lowering arm, name-based reachability
+traversal, Global-only signature/zero-padding helpers, and the direct negative
+proof were handled by the landed series. The focused call-free positives and
+`legacy_global_call_rejects_before_wasm_codegen` evidence passed; known red
+was not relabeled. Bypass or retry keeps the boundary closed. No canonical
+WASM reader, Hako W0, Extern/Method retirement, general fallback removal,
+R7 caller-zero, or `LegacyCallV0` deletion is claimed.
 
 ##### Landed cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0`
 
@@ -509,6 +476,25 @@ Acceptance: legacy Extern rejects before shape/WAT/binary/fallback, its WASM
 lowering arm and reader-only name helpers are zero, and the focused WASM Extern rejection passed. Terminal is
 `[freeze:contract][wasm/legacy-extern-call-stopped]`.
 No Call R6 schema, selected-C/Hako/VM, or runtime-import retirement is claimed.
+
+##### Selected cohort — `MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0`
+
+```text
+status = fast_open
+implementation permission = true
+reader = LegacyCallV0(Callee::Method)
+successor = ExplicitUnsupportedBeforeArtifact
+```
+
+Stop the Rust WASM legacy Method reader at the existing preflight before
+shape/WAT/binary/fallback work. The canonical Resolver/package/MirCall remains
+the only semantic issuer; no canonical WASM Method consumer is added.
+
+Fail-fast tag: `[freeze:contract][wasm/legacy-method-call-stopped]`.
+Delete only the old WASM Method codegen arm, its sole BoxCall builtin owner,
+and the obsolete direct BoxCall test. P10 shape-table analysis observers and
+compatibility fixtures remain outside this row. No Call R6 schema, Hako,
+selected-C, VM, Extern, fallback, retry, or general WASM retirement claim.
 
 ##### Landed cohort — `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0`
 
