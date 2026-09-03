@@ -102,12 +102,14 @@ RAW_ROOT_DRAIN_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
 RRF_COVERAGE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"
 RCF_IFCONTROL_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-LOCATED-REEXPORT-RETIRE-R0"
 RCF_IFCONTROL_COVERAGE_USE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0"
+T3_S0_CANONICAL_SESSION_LIFECYCLE_OBSERVER_RETIRE_ROW = "MIRBUILDER-CLEANUP-T3-S0-CANONICAL-SESSION-LIFECYCLE-OBSERVER-RETIRE-R0"
 RAW_ROOT_CLEANUP = {
     RAW_ROOT_BODY_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py")),
     RAW_ROOT_DRAIN_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_final0_guard.py")),
     RRF_COVERAGE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_region_flow_r0_seam_guard.sh")),
     RCF_IFCONTROL_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_located_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
     RCF_IFCONTROL_COVERAGE_USE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rcf_ifcontrol_coverage_use_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_if_control_structure_r0_guard.sh")),
+    T3_S0_CANONICAL_SESSION_LIFECYCLE_OBSERVER_RETIRE_ROW: ("mirbuilder_cleanup_t3_s0_canonical_session_lifecycle_observer_retire_r0_2026_09_03", Path("tools/checks/common_v2_s6c_structure_guard.sh")),
 }
 def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)
@@ -343,7 +345,6 @@ def _check_r6_post_group_b_reader_census_c0(
         api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
     print(f"[{api.TAG}] row={row} delegated=post-group-b-no-safe-slice")
 
-
 def _check_wasm_legacy_global_reader_stop_r0(
     state: dict, root: Path, api
 ) -> None:
@@ -397,7 +398,6 @@ def _check_wasm_legacy_global_reader_stop_r0(
         if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
             api.fail(f"{row} implementation owner reached 800 lines: {rel}")
     print(f"[{api.TAG}] row={row} delegated=wasm-legacy-global-stop")
-
 
 VM_GLOBAL_CANONICAL_CUTOVER_R0_ROW = "MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0"
 WASM_EXTERN_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0"

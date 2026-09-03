@@ -418,6 +418,45 @@ behavior remained unchanged. The older design-stop wording is historical;
 do not reopen this already-landed BoxShape row. Its detailed evidence remains
 in `mirbuilder-cleanup-t2-s1-analyzer-mode-i0.md` and Git history.
 
+#### Selected bounded row — `MIRBUILDER-CLEANUP-T3-S0-CANONICAL-SESSION-LIFECYCLE-OBSERVER-RETIRE-R0`
+
+```text
+Decision:
+  Remove only CanonicalSsaFunctionSessionV2::lifecycle_state_for_test from
+  the canonical session residence_lifecycle child; it is a caller-zero test
+  observer and does not issue or consume semantic meaning.
+
+Source authority + canonical issuer:
+  residence_lifecycle.rs production Enter/Finish methods and the existing
+  PinnedTextResidenceLifecycleStateV1 owner remain authoritative. The helper
+  is not an issuer; no lifecycle product or state transition changes.
+
+Non-authority:
+  helper name, warning/test counts, broad dead-code scans, lifecycle state
+  fields, MIR/backend behavior, Call routes, and historical guard wording.
+
+Fail-fast boundary:
+  The exact helper has one definition and zero repository callers. Keep the
+  state type and Enter/Finish implementation unchanged; any caller or owner
+  drift aborts before deletion.
+
+Smallest next slice:
+  Delete only the helper body from residence_lifecycle.rs, then reuse
+  common_v2_s6c_structure_guard.sh plus pointer, active-surface, quick-check,
+  exact-absence, and diff checks.
+
+Non-claims:
+  No lifecycle semantic change, test addition/move, receipt/guard creation,
+  Call/backend/VM change, fallback/retry, or broad T3 facade census.
+```
+
+The row is selected by `CURRENT_STATE` in `fast`; its permission is bounded to
+this one `#[cfg(test)]` observer deletion and existing checks. Acceptance is
+definition/caller zero, unchanged residence ownership, all touched sources
+below the 760-line trigger, and green existing structure/pointer guards.
+An external caller, required guard expansion, or semantic diff is
+`NoSafeSlice`.
+
 ### T3-D0..S3 — test facade and naming cleanup
 
 First manifest every `_for_test` facade with cfg scope, owner, mutation class,

@@ -249,7 +249,7 @@ fi
 invocation_binding="$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
 invocation_session="$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
 normal_root_lifecycle="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
-signature_install="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+signature_install="$ROOT_DIR/src/mir/normal_callable_semantic_package/install/signature_loan.rs"
 guard_expect_fixed_in_file "$TAG" 'PinnedTextCompileInvocationBindingRefV1' "$invocation_binding" \
   "pinned-Text ingress must use one private session-scoped binding"
 guard_expect_fixed_in_file "$TAG" 'PreparedPinnedTextPhysicalEntryIngressV1' "$invocation_binding" \

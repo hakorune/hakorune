@@ -110,8 +110,4 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         Ok(())
     }
 
-    #[cfg(test)]
-    pub(super) fn lifecycle_state_for_test(&self) -> Option<PinnedTextResidenceLifecycleStateV1> {
-        self.pinned_text_residence.clone()
-    }
 }

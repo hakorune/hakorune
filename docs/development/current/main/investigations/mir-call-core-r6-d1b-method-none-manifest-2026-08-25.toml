@@ -468,6 +468,30 @@ implementation_commit = "77394b1c8b"
 implementation_evidence = "The caller-zero IfControlCoverageUseV1 facade re-export was removed from if_control/mod.rs; use_ledger.rs remains the sole definition/issuer owner and product.rs retains its direct import. The existing If-control structure guard, cargo check --profile quick --lib, pointer guard, active-surface guard, exact absence check, and diff check passed."
 closeout = "Landed with no semantic or production change. Return to cleanup scheduling; do not reopen this row unless an external caller appears."
 
+[mirbuilder_cleanup_t3_s0_canonical_session_lifecycle_observer_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-T3-S0-CANONICAL-SESSION-LIFECYCLE-OBSERVER-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+box_kind = "BoxShape caller-zero canonical-session test observer retirement"
+decision = "Remove only CanonicalSsaFunctionSessionV2::lifecycle_state_for_test from the residence_lifecycle child; preserve the production Enter/Finish lifecycle and state owner unchanged."
+source_authority = "residence_lifecycle.rs production Enter/Finish methods and PinnedTextResidenceLifecycleStateV1 own lifecycle meaning; lifecycle_state_for_test is only a test observer."
+canonical_issuer = "Existing residence_lifecycle production owner; this row issues no semantic or production product."
+non_authority = ["test helper name", "warning/test counts", "broad dead-code scans", "lifecycle state fields", "MIR/backend behavior", "Call routes", "historical guard wording"]
+fail_fast_boundary = "Before editing, confirm the exact helper has one definition and zero repository callers; preserve the state type and Enter/Finish implementation, and abort on any caller or owner drift."
+census_boundary = "CanonicalSsaFunctionSessionV2::lifecycle_state_for_test definition -> repository Rust/docs caller inventory; includes the one helper and existing common_v2_s6c structure guard, excludes lifecycle production methods, tests, Call/backend/VM, and broad T3 facades."
+candidate = "src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs::CanonicalSsaFunctionSessionV2::lifecycle_state_for_test"
+delete_set = ["src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs::lifecycle_state_for_test"]
+allowed_files = ["src/mir/builder/resolved_lowering/canonical_ssa/session/residence_lifecycle.rs", "tools/checks/common_v2_s6c_structure_guard.sh", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/builder/resolved_lowering/canonical_ssa/session.rs", "src/mir/builder/resolved_lowering/canonical_ssa/session/pinned_text_plan.rs", "src/mir/builder/resolved_lowering/canonical_cfg/**", "src/mir/pinned_text_residence_lifecycle.rs", "src/mir/builder/resolved_lowering/draft_seal/**", "tests/**", "lang/**", "crates/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_checks = ["bash tools/checks/common_v2_s6c_structure_guard.sh", "exact absence check for lifecycle_state_for_test", "cargo check --profile quick --lib", "bash tools/checks/current_state_pointer_guard.sh", "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "git diff --check"]
+acceptance = "The helper has zero definitions and zero repository callers; the lifecycle state, Enter, and Finish owners remain unchanged; the existing common_v2 structure, active-surface, pointer, quick-check, exact-absence, and diff guards pass; no touched source file reaches 800 lines."
+no_safe_slice = "Abort and return to closeout if a caller appears, the owner changes, a guard must be weakened or added, inventory/tests drift, or any lifecycle/Recipe/semantic diff appears."
+non_claims = "No lifecycle semantic change, test addition/move, receipt/guard creation, Call/backend/VM change, fallback/retry, or broad T3 facade census."
+implementation_commit = "pending"
+implementation_evidence = "pending"
+closeout = "Pending; after the bounded deletion, return the pointer to cleanup scheduling and do not reopen this row."
+
 [mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
