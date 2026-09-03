@@ -106,6 +106,7 @@ RCF_IFCONTROL_ERROR_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTR
 T3_S0_CANONICAL_SESSION_LIFECYCLE_OBSERVER_RETIRE_ROW = "MIRBUILDER-CLEANUP-T3-S0-CANONICAL-SESSION-LIFECYCLE-OBSERVER-RETIRE-R0"
 T3_S0_LEXICAL_PUSH_TEST_FACADE_RETIRE_ROW = "MIRBUILDER-CLEANUP-T3-S0-LEXICAL-PUSH-TEST-FACADE-RETIRE-R0"
 T3_S0_DYNAMIC_V2_ADMISSION_GUARD_RETARGET_ROW = "MIRBUILDER-CLEANUP-DYNAMIC-V2-ADMISSION-GUARD-RETARGET-R0"
+T3_S0_DYNAMIC_V2_SCHEDULE_TEST_FACADE_RETIRE_ROW = "MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0"
 RAW_ROOT_CLEANUP = {
     RAW_ROOT_BODY_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py")),
     RAW_ROOT_DRAIN_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_final0_guard.py")),
@@ -116,6 +117,7 @@ RAW_ROOT_CLEANUP = {
     T3_S0_CANONICAL_SESSION_LIFECYCLE_OBSERVER_RETIRE_ROW: ("mirbuilder_cleanup_t3_s0_canonical_session_lifecycle_observer_retire_r0_2026_09_03", Path("tools/checks/common_v2_s6c_structure_guard.sh")),
     T3_S0_LEXICAL_PUSH_TEST_FACADE_RETIRE_ROW: ("mirbuilder_cleanup_t3_s0_lexical_push_test_facade_retire_r0_2026_09_03", Path("tools/checks/resolved_region_flow_r0_seam_guard.sh")),
     T3_S0_DYNAMIC_V2_ADMISSION_GUARD_RETARGET_ROW: ("mirbuilder_cleanup_dynamic_v2_admission_guard_retarget_r0_2026_09_03", Path("tools/checks/dynamic_v2_physical_input_authority_guard.sh")),
+    T3_S0_DYNAMIC_V2_SCHEDULE_TEST_FACADE_RETIRE_ROW: ("mirbuilder_cleanup_dynamic_v2_schedule_test_facade_retire_r0_2026_09_03", Path("tools/checks/dynamic_v2_physical_input_authority_guard.sh")),
 }
 def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)

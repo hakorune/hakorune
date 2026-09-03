@@ -550,6 +550,10 @@ status = landed; implementation permission = false; commit = `5690939d04`.
 The existing DynamicV2 admission-loan expectation now targets its current
 `install/lowering_port.rs` owner; no compiler or production route changed.
 
+##### Selected BoxShape cleanup — `MIRBUILDER-CLEANUP-DYNAMIC-V2-SCHEDULE-TEST-FACADE-RETIRE-R0`
+Delete only the caller-zero `#[cfg(test)]` schedule-construction helper;
+production schedule issuance and consumers remain unchanged.
+
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
 Open only when every production legacy writer, reissuer, and reader is
