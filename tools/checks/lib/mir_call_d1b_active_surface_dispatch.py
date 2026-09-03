@@ -99,18 +99,19 @@ EXACT_BINDING_VALUE_ACCESSOR_S0_ROW = (
 )
 RAW_ROOT_BODY_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-BODY-P0"
 RAW_ROOT_DRAIN_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"
+RRF_COVERAGE_REEXPORT_CLEANUP_ROW = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"
 RAW_ROOT_CLEANUP = {
     RAW_ROOT_BODY_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_body_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_body0_s0_guard.py")),
     RAW_ROOT_DRAIN_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03", Path("tools/checks/lib/cut0_i0_root0_raw_source0_lower_final0_guard.py")),
+    RRF_COVERAGE_REEXPORT_CLEANUP_ROW: ("mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03", Path("tools/checks/resolved_region_flow_r0_seam_guard.sh")),
 }
-
 def _check_raw_root_cleanup(row: str, key: str, guard: Path, card: dict, root: Path, api) -> None:
     item = card.get(key)
     if not isinstance(item, dict) or item.get("status") not in {"selected_fast", "landed"}:
         api.fail(f"{row} manifest entry is not selected_fast or landed")
-    if api.subprocess.run(["python3", str(root / guard)], cwd=root).returncode:
+    runner = "bash" if guard.suffix == ".sh" else "python3"
+    if api.subprocess.run([runner, str(root / guard)], cwd=root).returncode:
         api.fail(f"{row} delegated guard failed")
-
 def _dispatch_coreplan_varmap_reseal_row(
     row: str, state: dict, card: dict, root: Path, api
 ) -> None:
@@ -539,7 +540,6 @@ def _check_wasm_extern_legacy_reader_stop_r0(
         if stale in instructions or stale in contract:
             api.fail(f"{row} stale WASM Extern helper remains: {stale}")
     print(f"[{api.TAG}] row={row} delegated=wasm-extern-reader-stop")
-
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:

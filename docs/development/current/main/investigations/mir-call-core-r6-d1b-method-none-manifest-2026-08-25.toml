@@ -396,6 +396,30 @@ implementation_commit = "f5b268e741"
 implementation_evidence = "The redundant 44-line shell, its compiler registration, and both old inventory paths were removed. The exact successors passed 1/1 each; cargo --list reports 7578 tests with inventory SHA a71a1408805048ab52d14d437ba0a96d4e42dc7e320ad0ddd8b1536282f62f8d; cargo check --profile quick --lib passed; parent and current full-lib runs both observed 7311/238/29, so the fixed accepted 7411/138/29 receipt remains a pre-existing baseline drift and was not rewritten."
 closeout = "Landed with no production or semantic change. Return to cleanup map scheduling; do not reopen this shell row."
 
+[mirbuilder_cleanup_t1_s1_rrf_coverage_reexport_retire_r0_2026_09_03]
+status = "selected_fast"
+task_id = "MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0"
+parent_row = "MIRBUILDER-CLEANUP-RETIREMENT0-D0"
+implementation_permission = true
+box_kind = "BoxShape stale module re-export cleanup"
+decision = "Remove only the four unused coverage re-exports from resolved_region_flow/mod.rs; keep coverage.rs ownership and all internal users unchanged."
+source_authority = "Internal coverage.rs, analyzer.rs, if_flow.rs, and verifier.rs products; the mod.rs re-export is not an authority."
+canonical_issuer = "Existing resolved_region_flow coverage producers and verifier; this row issues no semantic or production product."
+non_authority = ["module-level allow attributes", "warning/test counts", "broad dead-code scans", "resolved_control_flow", "resolved_semantics", "Recipe/route/PHI/SSA/backend results"]
+fail_fast_boundary = "Before editing, confirm the four root re-exports have no external caller and preserve super::coverage internal users; any caller or semantic diff aborts."
+census_boundary = "One resolved_region_flow/mod.rs coverage re-export block -> internal coverage owner; includes only the four root symbols, existing authority guard, pointer, and active dispatch, excludes coverage definitions, tests, resolved_control_flow, resolved_semantics, and all production semantics."
+candidate = "src/mir/resolved_region_flow/mod.rs::pub(crate) use coverage::{FunctionFlowCoverageDraftV1, IfFlowCoverageDraftV1, VerifiedFunctionFlowCoverageV1, VerifiedIfFlowCoverageV1}"
+delete_set = ["src/mir/resolved_region_flow/mod.rs::FunctionFlowCoverageDraftV1", "src/mir/resolved_region_flow/mod.rs::IfFlowCoverageDraftV1", "src/mir/resolved_region_flow/mod.rs::VerifiedFunctionFlowCoverageV1", "src/mir/resolved_region_flow/mod.rs::VerifiedIfFlowCoverageV1"]
+allowed_files = ["src/mir/resolved_region_flow/mod.rs", "tools/checks/resolved_region_flow_authority_guard.sh", "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py", "docs/development/current/main/CURRENT_STATE.toml", "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml", "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"]
+forbidden_files = ["src/mir/resolved_region_flow/coverage.rs", "src/mir/resolved_region_flow/analyzer.rs", "src/mir/resolved_region_flow/if_flow.rs", "src/mir/resolved_region_flow/verifier.rs", "src/mir/resolved_control_flow/**", "src/mir/resolved_semantics/**", "tests/**", "lang/**", "crates/**", "Call schema", "new guard", "new receipt", "fallback", "retry"]
+focused_checks = ["bash tools/checks/resolved_region_flow_r0_seam_guard.sh", "exact absence check for the four root re-exports", "cargo check --profile quick --lib", "bash tools/checks/current_state_pointer_guard.sh", "bash tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh", "git diff --check"]
+acceptance = "The four root re-exports are absent with no external caller; internal super::coverage users and coverage definitions are unchanged; the existing authority and active-surface guards, quick lib check, pointer guard, and diff check pass; no touched source file reaches 800 lines."
+no_safe_slice = "Abort and return to closeout if any external caller appears, an existing guard needs semantic weakening or a new guard, internal coverage ownership changes, inventory/tests drift, or any non-BoxShape diff appears."
+non_claims = "No coverage semantic change, test move/deletion, production switch, resolved_control_flow cleanup, resolved_semantics staging, Call/backend/VM change, baseline refresh, or broad dead-code retirement."
+implementation_commit = "pending"
+implementation_evidence = "pending"
+closeout = "Pending; after the bounded deletion, return the pointer to cleanup scheduling and do not reopen this row."
+
 [mirbuilder_cleanup_t1_s0_raw_root_drain_p0_2026_09_03]
 status = "landed"
 task_id = "MIRBUILDER-CLEANUP-T1-S0-RAW-ROOT-DRAIN-P0"

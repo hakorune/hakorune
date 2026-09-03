@@ -259,8 +259,8 @@ series; never use a global `force-warn` result as permission to delete schema.
 
 #### Selected bounded row — `MIRBUILDER-CLEANUP-T1-S1-RRF-COVERAGE-REEXPORT-RETIRE-R0`
 
-This is a planned cleanup row, not the current execution pointer. It may open
-only after the closeout pointer is retargeted to `fast`; no semantic or
+This row is now selected by `CURRENT_STATE.toml` in `fast`; the implementation
+permission is limited to the bounded source edit below. No semantic or
 production Call work is implied by this selection.
 
 ```text
@@ -286,7 +286,7 @@ Fail-fast boundary:
 
 Smallest next slice:
   One source edit in mod.rs, followed by the existing
-  resolved_region_flow_authority_guard.sh, an exact absence check for the
+  resolved_region_flow_r0_seam_guard.sh, an exact absence check for the
   four root re-exports, cargo check --lib, pointer guard, and diff check.
 
 Non-claims:
@@ -296,8 +296,8 @@ Non-claims:
 ```
 
 Acceptance is caller-zero for the four root re-exports, unchanged internal
-coverage ownership, the existing authority guard remaining green, and all
-touched source files below the 760-line trigger. A new external caller,
+coverage ownership, the existing resolved-region seam guard remaining green,
+and all touched source files below the 760-line trigger. A new external caller,
 required guard expansion, or any semantic/Recipe diff is `NoSafeSlice`; do not
 open another D0 to force this row.
 
