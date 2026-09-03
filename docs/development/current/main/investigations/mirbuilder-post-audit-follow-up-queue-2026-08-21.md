@@ -17,6 +17,7 @@ selected only from source appearance.
 | `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` | High | `assignment_lowering.rs` | independent correctness cell; [detail](./mirbuilder-assignment-release-failure-atomicity-i0-2026-08-21.md) |
 | `MIR-RESULT-DISCARD-GUARD-I0` | Medium-High | `tools/checks` | narrow multiline-aware physical-writer guard; [detail](./mirbuilder-result-discard-guard-i0-2026-08-22.md) |
 | `MIR-COMPILE-COST-BASELINE-P0` | Parked prerequisite | existing compile timing/scaling tools | select before claiming any compiler-speed keeper |
+| `DEV-GATE-QUICK-HEALTH-REPAIR-P0` | Verification prerequisite | existing quick gate, metadata manifest, and lib-baseline owners | repair current gate drift and classify red; no semantic Call-family work |
 | `MIR-EMIT-DEBUG-POLICY-SNAPSHOT-D0` | High confidence | config ingress + Builder session | choose a request/session owner; a process-global `OnceLock` is not accepted by source inspection alone |
 | `MIR-EMIT-MOVE-COMMIT-R0` | High confidence | `builder_emit.rs` | after debug-policy ownership is fixed; do not overlap a semantic writer row |
 | `MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0` | Required before growth | `method_call_handlers.rs` | behavior-neutral split at the publication-ingress policy / legacy prepare-execute boundary; the file is 766 lines |
@@ -40,6 +41,75 @@ selected only from source appearance.
 | `MIRBUILDER-BARREL-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder.rs` | after relevant production callers are caller-zero |
 | `MIRBUILDER-INIT-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder_init.rs` | after the barrel/owner census is accepted |
 | `MIRBUILDER-MAIN-INTEGRATION-CLOSEOUT` | Operational | branch/pointer SSOT | after the active branch has an explicit integration step |
+
+## `DEV-GATE-QUICK-HEALTH-REPAIR-P0`
+
+This is a verification-only prerequisite and does not reopen a semantic Call
+family.  It is independent of the family-local
+`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`: the current quick gate
+must be repaired before any new production row is selected.
+
+```text
+Decision:
+  Repair the existing quick verification path in place.  Keep the accepted
+  138-name baseline immutable until every observed delta is classified; do not
+  hide drift by ignore/delete or a silent rebaseline.
+Source authority + canonical issuer:
+  the existing dev_gate step order, mir_metadata_consumer_manifest guard,
+  cargo_lib_red_baseline runner, and the already-landed route-metadata proof.
+  This row issues no semantic product.
+Non-authority:
+  historical E0624 receipts, the approximate word "100", one noisy run,
+  local focused green, test count alone, or a worker's classification.
+Fail-fast boundary:
+  an anchor drift, unclassified failure name, nondeterministic failure set, or
+  changed accepted baseline stops the gate before any semantic family opens.
+Smallest next slice:
+  refresh the finite metadata-manifest anchors/revision, reproduce the exact
+  lib command under the pinned environment until the ±1 variation is explained,
+  classify all names outside the accepted 138, and re-run quick from step 3.
+Non-claims:
+  no Call/Callee/schema change, no route repair, no backend/VM change, no test
+  deletion/ignore, no baseline rewrite before classification, and no new guard.
+```
+
+### Finite verification boundary and acceptance
+
+The boundary is `dev_gate quick` step 3's metadata-manifest guard plus the
+existing lib-baseline runner: current checked-in manifest anchors and revision
+-> the guard's existing success/failure terminals, and the accepted failure
+name file -> the current exact lib-test name set.  It includes only those
+verification artifacts and the already-recorded route-metadata focused test;
+it excludes semantic Call readers/producers, backend implementation, and new
+test families.
+
+Acceptance requires all of the following:
+
+```text
+metadata manifest guard = 0
+dev_gate quick reaches and passes its existing step 3
+compile-only and vm-reference checks remain green
+the direct lib run is repeatable (any prior ±1 is explained or removed)
+every name outside the immutable 138-name set is classified and either fixed
+  or explicitly accepted by the existing red policy
+45c675/32f2 route metadata proof remains reproducible (Result: 7 or its exact
+  current successor is recorded)
+no new semantic receipt, guard, fixture, ignore, or fallback is added
+```
+
+The current observation is not a green claim: `dev_gate quick` stops on
+`pinned_text_access_plans` anchor drift; the current direct lib run was
+`7313 passed / 237 failed / 29 ignored` with 99 names outside the accepted
+138-name set, while the baseline runner observed `7314/236/29` in an adjacent
+run.  The one-run difference is itself part of this P0 and must not be called
+an artifact-dependent exception without a deterministic reproduction.
+
+The earlier `96de2e4955` E0624 report is historical at the current HEAD:
+`cargo test --profile quick --lib --no-run` and
+`cargo check --profile quick --features vm-reference --lib` both compile
+successfully now.  The route metadata cut is also already repaired by
+`32f2fc60de` and recorded as landed; this row rechecks its reproducibility but
+does not reopen that semantic repair.
 
 ## Compile-cost observation SSOT
 
