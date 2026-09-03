@@ -3,7 +3,7 @@ use crate::backend::mir_interpreter::MirInterpreter;
 use crate::mir::type_contracts::return_exit::refresh_function_return_exit_contract;
 use crate::mir::{BasicBlock, CompareOp};
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
-use crate::mir::{BinaryOp, Callee, ConstValue, MirInstruction, MirModule, ValueId};
+use crate::mir::{BinaryOp, Callee, ConstValue, MirInstruction, MirModule};
 use std::collections::HashMap;
 
 fn function_with_contract(declared: Option<&str>) -> MirFunction {
@@ -155,15 +155,12 @@ fn nested_ignored_result_still_uses_final_callee_return_owner() {
     caller
         .get_block_mut(entry)
         .unwrap()
-        .add_instruction(MirInstruction::LegacyCallV0 {
-            dst: None,
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(crate::mir::test_global_target(
-                "Main.value/0".to_string(),
-            ))),
-            args: vec![],
-            effects: EffectMask::PURE,
-        });
+        .add_instruction(MirInstruction::call(
+            None,
+            Callee::Global(crate::mir::test_global_target("Main.value/0".to_string())),
+            vec![],
+            EffectMask::PURE,
+        ));
     caller
         .get_block_mut(entry)
         .unwrap()
@@ -250,15 +247,12 @@ fn recursive_call_checks_the_innermost_final_return() {
         lhs: n,
         rhs: one,
     });
-    recurse_block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(nested),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
-            "Main.recur/1".to_string(),
-        ))),
-        args: vec![next],
-        effects: EffectMask::PURE,
-    });
+    recurse_block.add_instruction(MirInstruction::call(
+        Some(nested),
+        Callee::Global(crate::mir::test_global_target("Main.recur/1".to_string())),
+        vec![next],
+        EffectMask::PURE,
+    ));
     recurse_block.add_instruction(MirInstruction::Return {
         value: Some(nested),
     });

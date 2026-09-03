@@ -4,7 +4,7 @@ use crate::mir::function::MirParamDecl;
 use crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts;
 use crate::mir::{
     BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
-    MirModule, MirType, ValueId,
+    MirModule, MirType,
 };
 use std::collections::HashMap;
 
@@ -59,13 +59,12 @@ fn caller_of(callee: &str, argument: ConstValue) -> MirFunction {
         dst: argument_id,
         value: argument,
     });
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(result_id),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(callee))),
-        args: vec![argument_id],
-        effects: EffectMask::PURE,
-    });
+    block.add_instruction(MirInstruction::call(
+        Some(result_id),
+        Callee::Global(crate::mir::test_global_target(callee)),
+        vec![argument_id],
+        EffectMask::PURE,
+    ));
     block.add_instruction(MirInstruction::Return {
         value: Some(result_id),
     });
@@ -225,15 +224,14 @@ fn recursive_mir_call_rechecks_the_final_callee_contract() {
         dst: bad_argument,
         value: ConstValue::String("bad".to_string()),
     });
-    block.add_instruction(MirInstruction::LegacyCallV0 {
-        dst: Some(result),
-        func: ValueId::INVALID,
-        callee: Some(Callee::Global(crate::mir::test_global_target(
+    block.add_instruction(MirInstruction::call(
+        Some(result),
+        Callee::Global(crate::mir::test_global_target(
             "Main.identity/1".to_string(),
-        ))),
-        args: vec![bad_argument],
-        effects: EffectMask::PURE,
-    });
+        )),
+        vec![bad_argument],
+        EffectMask::PURE,
+    ));
     block.add_instruction(MirInstruction::Return {
         value: Some(result),
     });

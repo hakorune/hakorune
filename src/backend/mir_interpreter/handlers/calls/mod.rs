@@ -19,6 +19,11 @@ impl MirInterpreter {
         block: Option<BasicBlockId>,
         instruction_index: Option<usize>,
     ) -> Result<(), VMError> {
+        if matches!(callee, Some(Callee::Global(_))) {
+            return Err(self.err_unsupported(
+                "[vm-reference/legacy-call/global-stopped] canonical Global target required",
+            ));
+        }
         if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
             match callee {
                 Some(Callee::Global(n)) => {
@@ -223,7 +228,9 @@ impl MirInterpreter {
         args: &[ValueId],
     ) -> Result<VMValue, VMError> {
         match callee {
-            Callee::Global(target) => self.execute_global_target(target, args),
+            Callee::Global(_) => Err(self.err_unsupported(
+                "[vm-reference/legacy-call/global-stopped] canonical Global target required",
+            )),
             Callee::Method {
                 box_name,
                 method,
@@ -251,7 +258,26 @@ mod tests {
     use super::*;
     use crate::backend::vm_types::VMError;
     use crate::mir::definitions::MirCall;
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
     use hakorune_mir_defs::CanonicalGlobalTargetV1;
+
+    fn void_function(name: &str) -> MirFunction {
+        let entry = BasicBlockId::new(0);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: name.to_owned(),
+                params: Vec::new(),
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+        function
+            .get_block_mut(entry)
+            .expect("function entry exists")
+            .add_instruction(MirInstruction::Return { value: None });
+        function
+    }
 
     #[test]
     fn canonical_print_call_executes_through_instruction_dispatch() {
@@ -285,7 +311,7 @@ mod tests {
     }
 
     #[test]
-    fn canonical_non_print_call_rejects_without_legacy_dispatch() {
+    fn canonical_missing_same_module_global_rejects_before_legacy_dispatch() {
         let mut interp = MirInterpreter::new();
         let target = CanonicalGlobalTargetV1::new_free_function("print".into(), 0)
             .expect("test free-function target must be valid");
@@ -294,9 +320,69 @@ mod tests {
 
         let error = interp
             .execute_instruction(&instruction)
-            .expect_err("non-builtin Print-shaped target must fail closed");
+            .expect_err("missing same-module target must fail closed");
         assert!(
-            error.to_string().contains("only builtin Print is admitted"),
+            error
+                .to_string()
+                .contains("vm-reference/global-target/unsupported"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn canonical_free_function_call_executes_through_instruction_dispatch() {
+        let mut interp = MirInterpreter::new();
+        interp
+            .functions
+            .insert("free/0".to_owned(), void_function("free/0"));
+        let target = CanonicalGlobalTargetV1::new_free_function("free".into(), 0)
+            .expect("valid free-function target");
+        let instruction =
+            MirInstruction::call(None, Callee::Global(target), Vec::new(), EffectMask::PURE);
+
+        interp
+            .execute_instruction(&instruction)
+            .expect("canonical FreeFunction must use the exact table key");
+    }
+
+    #[test]
+    fn canonical_static_method_call_executes_through_instruction_dispatch() {
+        let mut interp = MirInterpreter::new();
+        interp
+            .functions
+            .insert("Helper.run/0".to_owned(), void_function("Helper.run/0"));
+        let target =
+            CanonicalGlobalTargetV1::new_static_box_method("Helper".into(), "run".into(), 0)
+                .expect("valid static-method target");
+        let instruction =
+            MirInstruction::call(None, Callee::Global(target), Vec::new(), EffectMask::PURE);
+
+        interp
+            .execute_instruction(&instruction)
+            .expect("canonical StaticBoxMethod must use the exact table key");
+    }
+
+    #[test]
+    fn legacy_global_call_rejects_before_legacy_dispatch() {
+        let mut interp = MirInterpreter::new();
+        let instruction = MirInstruction::LegacyCallV0 {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global(
+                CanonicalGlobalTargetV1::new_free_function("free".into(), 0)
+                    .expect("valid free-function target"),
+            )),
+            args: Vec::new(),
+            effects: EffectMask::PURE,
+        };
+
+        let error = interp
+            .execute_instruction(&instruction)
+            .expect_err("legacy Global must stop before the old dispatch");
+        assert!(
+            error
+                .to_string()
+                .contains("[vm-reference/legacy-call/global-stopped]"),
             "{error}"
         );
     }
