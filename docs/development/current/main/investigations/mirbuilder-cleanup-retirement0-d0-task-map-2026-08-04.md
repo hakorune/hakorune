@@ -371,11 +371,12 @@ Non-claims:
   retirement.
 ```
 
-The row is selected by `CURRENT_STATE` in `fast`; its permission is bounded to
-this one source edit and existing checks. Acceptance is caller-zero for the
-facade symbol, unchanged use_ledger/product ownership, all touched sources
-below the 760-line trigger, and green existing guards. An external caller,
-required guard expansion, or semantic diff is `NoSafeSlice`.
+The row landed at `77394b1c8b`. Acceptance was met: the facade symbol is
+caller-zero, use_ledger/product ownership is unchanged, all touched sources
+remain below the 760-line trigger, and the existing structure, active-surface,
+pointer, quick-check, exact-absence, and diff guards are green. An external
+caller, required guard expansion, or semantic diff is `NoSafeSlice`; do not
+reopen this row to force broader cleanup.
 
 ### T2-D0/S0 — route-neutral Recipe carrier dedup
 

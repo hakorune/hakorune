@@ -1,9 +1,9 @@
 date = "2026-09-03"
 development_branch_ssot = "codex/mir-static-method-publication-spine"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0"
 current_design_stop = "none"
-current_blocker_token = "T1-S1 RCF coverage-use cleanup: remove only the caller-zero IfControlCoverageUseV1 facade re-export; preserve use_ledger/product ownership and direct internal imports, with no semantic or production change."
+current_blocker_token = "T1-S1 RCF coverage-use cleanup landed at 77394b1c8b: the caller-zero IfControlCoverageUseV1 facade re-export was removed, use_ledger/product ownership and direct internal imports stayed unchanged, and all bounded guards/checks passed with no semantic or production change."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,14 +37,14 @@ migrations, and T1-S1 resolved_region_flow coverage re-export cleanup are
 landed. T1-S1 removed four caller-zero root re-exports while preserving
 coverage ownership, internal users, and semantics. T1-S1 RCF removed one
 caller-zero If-control facade re-export while preserving its product owner and
-direct internal imports. The next bounded RCF row removes one caller-zero
+direct internal imports. T1-S1 RCF coverage-use then removed one caller-zero
 IfControlCoverageUseV1 facade re-export while preserving the use_ledger/product
 owners and direct internal imports. Parent/current full-lib
 observation remains 7578 total / 7311 passed / 238 failed / 29 ignored against
 the immutable accepted 7411/138/29 receipt.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-CLEANUP-T1-S1-RCF-IFCONTROL-COVERAGE-USE-REEXPORT-RETIRE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
