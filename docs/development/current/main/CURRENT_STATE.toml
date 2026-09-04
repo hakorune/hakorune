@@ -2,9 +2,9 @@ date = "2026-09-04"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "skip_ws_probe_reader_delete"
+current_execution_cohort = "canonical_value_fallthrough_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort skip_ws_probe_reader_delete is fast-open: delete skip_ws/dispatch.rs and its route-local probe, preserve generic-first selection, builder output, missing Main.skip/1 -> None, and trim's shared dispatcher; no new guard/receipt/adapter."
+current_blocker_token = "M7-S cohort canonical_value_fallthrough_stop is fast-open: reject canonical Call(Value) at the existing typed unsupported terminal before selected-C JSON re-entry or object emission; preserve explicit LegacyCallV0(Value) compatibility; no new consumer/guard/receipt/adapter."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,9 +38,11 @@ outer leaves: duplicate direct-MIR reader Delete, skip_ws probe reader Delete,
 canonical Value fallthrough Stop, and METHODIZE reissuer Stop. The first leaf
 landed at ef3ee28bc5; it deletes the unreachable dispatch-local --mir-json-file
 cascade while preserving runner/mod -> core_executor -> json_artifact as sole
-owner. The second leaf is active: skip_ws/dispatch.rs is being removed because
-both concrete arms ended at the existing builder; generic-first selection and
-trim's shared dispatcher remain. The fixed comparator target is 7555/7393/133/29.
+owner. The second leaf landed at d4ce50b87c: skip_ws/dispatch.rs and its
+route-local probe were removed because both concrete arms ended at the existing
+builder; generic-first selection and trim's shared dispatcher remain. The fixed
+comparator target is 7555/7393/133/29. The next selected leaf is canonical
+Value fallthrough Stop.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

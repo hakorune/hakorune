@@ -455,7 +455,7 @@ reader are closed tombstones; they are not reopened.
 
 status = fast_open
 implementation permission = true
-current cohort = `skip_ws_probe_reader_delete`
+current cohort = `canonical_value_fallthrough_stop`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -485,29 +485,29 @@ card, receipt, adapter, fixture file, or guard.
 
 ```text
 Change:
-  Delete skip_ws/dispatch.rs and its route-local MIR-vs-handwritten probe;
-  skip_ws.rs keeps generic-first selection, then calls the existing builder.
+  Stop canonical Call(Value) before any selected-C JSON re-entry or object
+  emission; keep explicit LegacyCallV0(Value) compatibility unchanged.
 Contract:
-  Preserve generic-first behavior, builder output, and missing Main.skip/1
-  -> None. Do not change trim's shared MIR dispatcher or its environment flag.
+  Canonical published Value calls fail at the existing typed unsupported
+  terminal. Do not add a canonical consumer, JSON adapter, or fallback.
 Done:
-  skip_ws/dispatch.rs reader 1->0, direct builder owner 1, focused JoinIR
-  tests green, fixed failure-name set unchanged; new guard=0 and new receipt=0.
+  canonical Value fallthrough 1->0, no temporary JSON/C/object path, focused
+  negative test and fixed failure-name set unchanged; new guard=0 and new receipt=0.
 Stop:
-  Park only this cohort if a non-test caller needs the probe or deletion changes
-  output/terminal behavior and requires a replacement adapter.
+  Park only this cohort if no canonical Value path reaches the fallthrough or
+  the existing typed terminal cannot reject before object emission.
 ```
 
 Closeout: direct MIR v1/v0, Program(JSON) rejection, and fixed comparator
-`7555/7393/133/29` stayed green with the same failure SHA at the prior leaf.
+`7555/7393/133/29` stayed green with the same failure SHA at the prior leaves.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
 | order | cohort / action | exact boundary and delete-set | acceptance / reopen |
 | --- | --- | --- | --- |
 | 1 landed | `direct_mir_json_duplicate_reader_delete` / Delete | `runner/dispatch.rs` duplicate `mir_json_file` branch; earlier `runner/mod.rs` branch terminates every state | landed at `ef3ee28bc5`; one direct owner; v1/v0 positives and malformed/Program negatives unchanged |
-| 2 active | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs` and route-local MIR-vs-handwritten probe; both concrete arms ended at `build_skip_ws_joinir` | direct builder preserves generic-first and missing-target `None`; otherwise Park |
-| 3 | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
+| 2 landed | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs` and route-local MIR-vs-handwritten probe; both concrete arms ended at `build_skip_ws_joinir` | landed at `d4ce50b87c`; direct builder preserves generic-first and missing-target `None`; trim shared dispatcher unchanged |
+| 3 active | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
 | 4 | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | reject before parse/publication/backend; delete methodize aliases and reissuer |
 
 On success, tombstone the active line with its commit and select the next line
