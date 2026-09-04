@@ -451,10 +451,9 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = landed
-implementation permission = false
-current cohort = `singleton_name_args0_reissuer_stop`
-implementation commit = `01a1a6bc83`; status is landed
+status = fast_open
+implementation permission = true
+current cohort = `stage1_return_call_legacy_writer_stop`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -483,23 +482,24 @@ card, receipt, adapter, fixture file, or guard.
 ##### Active execution brief
 ```text
 Change:
-  Stop the retired JSON-bridge singleton reissuer before JSON mutation,
-  publication, or backend entry; preserve early-phi materialization.
+  Stop Stage1/Hako Program(JSON-v0) Return(Call) before legacy writer,
+  partial defs publication, or backend entry; preserve non-call defs.
 Contract:
-  HAKO_BRIDGE_INJECT_SINGLETON/NYASH_BRIDGE_INJECT_SINGLETON use one typed
-  retirement terminal. Do not add a consumer, adapter, fallback, guard, or receipt.
+  Return(Call) has no canonical issuer in this lane; use one typed terminal.
+  Preserve NewBox/NewClosure and non-call defs. No new consumer, adapter,
+  fallback, guard, or receipt.
 Done:
-  singleton reissuer 1->0, json_artifact cannot swallow the retirement error,
-  focused bridge/smoke checks and fixed failure-name set unchanged; new guard=0 and new receipt=0.
+  Return(Call) legacy writer/name/arity repair 1->0, null is not swallowed,
+  no partial artifact escapes, focused tests and fixed failure-name set unchanged; new guard=0 and new receipt=0.
 Stop:
-  Park only this cohort if a product caller requires singleton injection or the terminal cannot reject before JSON mutation.
+  Park only if the exact Return(Call) branch cannot reject before defs publication.
 ```
 
 Closeout: canonical Value Stop landed at `a33987e8e4`; METHODIZE Stop landed at
 `24ece062bb`; singleton Stop landed at `01a1a6bc83`. Direct MIR v1/v0,
 Program(JSON) rejection, fixed comparator `7555/7393/133/29`, and the same
-failure SHA stayed green; early-phi remains unchanged. No next exact
-caller/delete-set tuple is selected.
+failure SHA stayed green; early-phi remains unchanged. Stage1 Return(Call) is
+the next exact Stop leaf.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
@@ -509,7 +509,7 @@ caller/delete-set tuple is selected.
 | 2 landed | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs` and route-local MIR-vs-handwritten probe; both concrete arms ended at `build_skip_ws_joinir` | landed at `d4ce50b87c`; direct builder preserves generic-first and missing-target `None`; trim shared dispatcher unchanged |
 | 3 landed | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | landed at `a33987e8e4`; `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
 | 4 landed | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | landed at `24ece062bb`; reject before parse/publication/backend; methodize reissuer 0, singleton/phi unchanged |
-| 5 landed | `singleton_name_args0_reissuer_stop` / Stop | `core_bridge` singleton flag, name matcher, static table, and Array/Map `args[0]` rewrite | landed at `01a1a6bc83`; reject before parse/mutation/publication; singleton reissuer and caller-zero env aliases deleted |
+| 5 active | `stage1_return_call_legacy_writer_stop` / Stop | `FuncLoweringBox -> ReturnCallLowerBox` Program(JSON-v0) writer; Const(String) target, op=call/func, name/arity repair, partial null publication | reject before defs publication; preserve non-call/NewBox/NewClosure; delete writer and caller-zero func_map_text path |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with

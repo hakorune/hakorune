@@ -188,12 +188,13 @@ card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
 unchanged. `singleton_name_args0_reissuer_stop` landed at `01a1a6bc83`:
 its retired JSON singleton name/args[0] reissuer is stopped before mutation,
 the singleton rewrite code is gone, and early-phi/JSON classification remain
-unchanged. The final-pipeline SSOT owns each owner/terminal/delete-set and
-acceptance; this workstream does not duplicate them. No next exact
-caller/delete-set tuple is selected; shared JSON v0, remaining MIR-to-JoinIR,
-and selected-C/Hako internals stay family-local `ParkedSealed`. R7 opens only
-after production writers, reissuers, readers, compatibility re-entry, and
-fallback are zero.
+unchanged. The next exact leaf is `stage1_return_call_legacy_writer_stop`:
+Stage1/Hako Return(Call) stops before partial defs publication, preserving
+non-call/NewBox/NewClosure. The final-pipeline SSOT owns each
+owner/terminal/delete-set and acceptance; this workstream does not duplicate
+them. Shared JSON v0, remaining MIR-to-JoinIR, and selected-C/Hako internals
+stay family-local `ParkedSealed`. R7 opens only after production writers,
+reissuers, readers, compatibility re-entry, and fallback are zero.
 
 ### S-class gate coverage (navigation only)
 

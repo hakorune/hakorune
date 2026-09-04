@@ -1,8 +1,9 @@
-// FuncLoweringBox — Function definition lowering and Call resolution for MirBuilder
-// Policy: Lower function defs to MIR + resolve Call targets to qualified names
-// Toggle: HAKO_MIR_BUILDER_FUNCS=1, HAKO_MIR_BUILDER_CALL_RESOLVE=1
-// Scope: Minimal support for Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var)), Return(Call)
-// Output: Additional MIR functions + resolved Call targets
+// FuncLoweringBox — Function definition lowering for MirBuilder
+// Policy: Lower the supported non-call function shapes to MIR.
+// Return(Call) is a retired Stage1 compatibility writer and stops before emit.
+// Toggle: HAKO_MIR_BUILDER_FUNCS=1
+// Scope: Minimal support for Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var))
+// Output: Additional MIR functions for supported shapes
 
 using selfhost.shared.json.utils.json_frag as JsonFragBox
 using lang.mir.builder.func_body.basic_lower_box as FuncBodyBasicLowerBox
@@ -12,7 +13,6 @@ using lang.mir.builder.func_body.cli_run_lower_box as CliRunLowerBox
 using lang.mir.builder.func_lowering.defs_scanner_box as DefsScannerBox
 using lang.mir.builder.func_lowering.call_methodize_box as CallMethodizeBox
 using lang.mir.builder.func_lowering.param_list_box as ParamListBox
-using lang.mir.builder.func_lowering.return_call_lower_box as ReturnCallLowerBox
 
 static box FuncLoweringBox {
   // Lower function definitions to MIR
@@ -38,9 +38,6 @@ static box FuncLoweringBox {
 
     // Parse each def object in defs array
     local defs_str = s.substring(defs_start, defs_end)
-    // For Call resolution: owner-local text table, "|name=Box.method;".
-    local func_map_text = ""
-
     // Scan for {"name": pattern
     local pos = 0
     loop(pos < defs_str.length()) {
@@ -64,9 +61,6 @@ static box FuncLoweringBox {
         continue
       }
 
-      // Register function in the text table for Call resolution.
-      func_map_text = ReturnCallLowerBox.add_target(func_map_text, func_name, box_name + "." + func_name)
-
       // Keep params as a JSON string view on the active Stage0 path.
       local params_arr = DefsScannerBox.extract_params_json(defs_str, name_end)
 
@@ -74,8 +68,11 @@ static box FuncLoweringBox {
       local body_json = me._extract_body_text(defs_str, name_end)
       local mir_func = ""
       if body_json != "" {
+        // Return(Call) used to emit a legacy op=call + func carrier.  Stop the
+        // whole defs lane before any prior function fragment can be published.
+        if me._has_return_call(body_json) == 1 { return null }
         // Try to lower body to MIR
-        mir_func = me._lower_func_body_text(func_name, box_name, params_arr, body_json, func_map_text)
+        mir_func = me._lower_func_body_text(func_name, box_name, params_arr, body_json)
       }
       func_defs_mir = me._append_func_defs_text(func_defs_mir, mir_func)
       pos = name_end
@@ -95,8 +92,21 @@ static box FuncLoweringBox {
     return "" + body
   }
 
-  method _lower_func_body_text(func_name, box_name, params_arr, body_json, func_map_text) {
-    local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json, func_map_text)
+  method _has_return_call(body_json) {
+    local body_str = "" + body_json
+    local ret_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Return\"", 0)
+    if ret_idx < 0 { return 0 }
+    local call_after = JsonFragBox.index_of_from(body_str, "\"type\":\"Call\"", ret_idx)
+    if call_after >= 0 { return 1 }
+    // Program(JSON v0) places the Return expression before the Return type,
+    // so the legacy Call marker normally occurs immediately before ret_idx.
+    local call_before = JsonFragBox.index_of_from(body_str, "\"type\":\"Call\"", 0)
+    if call_before >= 0 && call_before < ret_idx { return 1 }
+    return 0
+  }
+
+  method _lower_func_body_text(func_name, box_name, params_arr, body_json) {
+    local mir_func = me._lower_func_body(func_name, box_name, params_arr, body_json)
     if mir_func == null { return "" }
     return "" + mir_func
   }
@@ -116,15 +126,16 @@ static box FuncLoweringBox {
   }
 
   // Lower function body to MIR (minimal support)
-  // Supports: Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var)), Return(Call)
-  method _lower_func_body(func_name, box_name, params_arr, body_json, func_map_text) {
+  // Supports: Return(Int), Return(Binary(+|-|*|/, Int|Var, Int|Var)).
+  // Return(Call) is rejected by the defs gate before this lowerer is entered.
+  method _lower_func_body(func_name, box_name, params_arr, body_json) {
     local body_str = "" + body_json
 
     // Specialized path (stub) for Stage1 CLI run entry.
     // 現時点では観測のみで、MIR は生成せず null を返す。
     if box_name != null && func_name != null {
       if box_name == "HakoCli" && func_name == "run" {
-        local cli_mir = CliRunLowerBox.lower_run(func_name, box_name, params_arr, body_str, func_map_text)
+        local cli_mir = CliRunLowerBox.lower_run(func_name, box_name, params_arr, body_str)
         if cli_mir != null { return cli_mir }
       }
     }
@@ -156,10 +167,7 @@ static box FuncLoweringBox {
       }
       call_idx = last_call_idx
     }
-    if call_idx >= 0 {
-      // Return(Call(name, args))
-      return ReturnCallLowerBox.lower(func_name, box_name, params_arr, body_str, call_idx, func_map_text)
-    }
+    if call_idx >= 0 { return null }
 
     // Check for Binary in Return
     local bin_idx = JsonFragBox.index_of_from(body_str, "\"type\":\"Binary\"", ret_idx)

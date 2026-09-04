@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "singleton_name_args0_reissuer_stop"
+current_execution_cohort = "stage1_return_call_legacy_writer_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort singleton_name_args0_reissuer_stop landed at 01a1a6bc83: retired HAKO_BRIDGE_INJECT_SINGLETON/NYASH_BRIDGE_INJECT_SINGLETON now stop before JSON mutation, publication, or backend entry; singleton name/args[0] reissuer and caller-zero env accessor are gone; early-phi and JSON classification remain unchanged; no new consumer/guard/receipt/adapter."
+current_blocker_token = "M7-S cohort stage1_return_call_legacy_writer_stop is fast-open: Stage1/Hako Program(JSON-v0) Return(Call) must stop before legacy op=call/name/arity repair, partial defs publication, or backend entry; preserve non-call defs and NewBox/NewClosure; no new consumer/guard/receipt/adapter. Structural implementation and compile/parser checks are green, but the runtime smoke cannot reach this gate because the pre-existing ParserStringUtilsBox.starts_with static-call retirement fires first; do not claim closeout or widen this row."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,13 +38,15 @@ ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, canonical Value
 fallthrough Stop at a33987e8e4, and METHODIZE reissuer Stop at 24ece062bb.
 The singleton_name_args0_reissuer_stop leaf landed at 01a1a6bc83: retired
 singleton aliases fail before JSON mutation while early-phi and JSON
-classification remain unchanged. Fixed comparator target is 7555/7393/133/29;
-no next exact caller/delete-set tuple is currently selected, so the remaining
-tail stays family-local ParkedSealed without a new D0, receipt, guard, or
-adapter.
+classification remain unchanged. The Stage1 Return(Call) legacy writer is now
+removed in the worktree with null propagation and typed stop documentation;
+fixed comparator target is 7555/7393/133/29 and no new
+consumer/guard/receipt/adapter is permitted. Runtime smoke closeout is still
+blocked before the selected gate by the pre-existing ParserStringUtilsBox
+starts_with static-call retirement; this is not a Stage1 Return(Call) result.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

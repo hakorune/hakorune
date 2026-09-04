@@ -160,17 +160,17 @@ Guard rails (CI / fast gate):
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh`
   - Contract: `Return(NewBox)` accepts `new <BoxType>()` only (`args=[]`).
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase13_return_call_id0_min_vm.sh`
-  - Contract: `Return(Call)` accepts `id()` only (`name=id`, `args=[]`).
+  - Contract: retired Stage1 `Return(Call)` (`id()`) stops before defs publication with the typed freeze tag.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase14_return_boxcall_stringbox_length_abc_min_vm.sh`
   - Contract: `Return(BoxCall)` accepts `new StringBox("abc").length()` only.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase15_return_call_id1_int9_min_vm.sh`
-  - Contract: `Return(Call)` one-arg widening accepts `id(9)` only (`name=id`, `args=[Int(9)]`).
+  - Contract: retired Stage1 `Return(Call)` (`id(9)`) stops before defs publication with the typed freeze tag.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase16_return_newbox_stringbox_abc_min_vm.sh`
   - Contract: `Return(NewBox)` one-arg widening accepts `new StringBox("abc")` only.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min_vm.sh`
   - Contract: `Return(BoxCall)` one-arg widening accepts `new StringBox("abc").indexOf("b")` only.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase18_return_call_id1_int7_min_vm.sh`
-  - Contract: `Return(Call)` one-arg widening accepts `id(7)` only (`name=id`, `args=[Int(7)]`).
+  - Contract: retired Stage1 `Return(Call)` (`id(7)`) stops before defs publication with the typed freeze tag.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase19_load_local_var_min_vm.sh`
   - Contract: Load minimal accepts `Local(Int)>Local(Var)>Return(Var)` and emits `load/store` in MIR JSON v0.
   - Next lane SSOT (Load/Store docs-first):

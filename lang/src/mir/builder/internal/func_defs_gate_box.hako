@@ -9,7 +9,11 @@ static box BuilderFuncDefsGateBox {
   method lower_if_enabled(program_json) {
     if BuilderConfigBox.funcs_on() != 1 { return "" }
     local defs_json = me._coerce_program_json_text(program_json)
-    return FuncLoweringBox.lower_func_defs(program_json, defs_json)
+    local lowered = FuncLoweringBox.lower_func_defs(program_json, defs_json)
+    if lowered == null {
+      print("[freeze:contract][stage1/return-call-legacy-stopped]")
+    }
+    return lowered
   }
 
   method _coerce_program_json_text(program_json) {
