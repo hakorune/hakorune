@@ -110,19 +110,22 @@ implementation_evidence = "Landed at 49ef80b3c7. The manifest owner now retains 
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0"
-status = "accepted_but_not_selected"
+status = "landed"
+implementation_permission = false
+landed_commit = "b675849d4c"
 kind = "bounded_typed_error_candidate"
 boundary = "InstanceConstructorDemandConsumptionV1::consume and ::complete plus the existing package adapter"
 source_authority = "installed manifest, exact typed ticket (source_id, role), and consumption ledger"
 canonical_issuer = "existing demand loan; no new package receipt"
 fail_fast = "consume validates manifest/ticket before constructor body descent and sets consumption only on success; complete rejects incomplete state after root lowering. ManifestMissing on consume and successful completion with no manifest remain distinct existing states."
-line_budget = "loan owner 122 lines; package adapter 710 lines; any change must keep the adapter <760 and <800 hard stop, with a split returning to D0 if fanout expands"
+line_budget = "loan owner 197 lines; package adapter 712 lines; any change must keep every touched source <760 and <800 hard stop, with a split returning to D0 if fanout expands"
 acceptance = [
   "typed consume/complete variants survive the adapter to the existing outer diagnostic edge",
   "no ticket rollback, constructor-body reorder, package error unification, or manifest/loan simultaneous cutover",
   "positive/negative coverage includes missing, foreign, duplicate, reused, and incomplete tickets",
 ]
 non_claims = ["RootCallableCapturePort-wide typing, package activation, constructor admission, rollback, or backend changes"]
+implementation_evidence = "Landed at b675849d4c. ManifestMissing, DuplicateExpected, ForeignTicket, TicketReuse, and Incomplete remain distinct through the existing package-adapter String boundary with the original diagnostic tags preserved. Existing constructor-demand focused tests pass 4/4, the exact loan test passes 1/1, vm-reference check passes, the fixed baseline comparator matches 7570/7408/133/29 with unchanged failure hash, and pointer/TOML/diff checks pass. No rollback, schema, publication-order, receipt, fallback, or production-route change occurred."
 
 [guard]
 required = [

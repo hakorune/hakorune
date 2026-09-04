@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
 work_mode = "closeout"
-current_execution_row = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C4-CONSTRUCTOR-DEMAND-MANIFEST-I0"
-current_execution_cohort = "constructor_demand_manifest"
+current_execution_row = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0"
+current_execution_cohort = "constructor_demand_loan"
 current_design_stop = "none"
-current_blocker_token = "C4 landed at 49ef80b3c7: constructor-demand manifest duplicate/count/coverage/foreign failures remain typed through the existing outer String boundary; focused constructor tests, vm-reference check, pointer guard, and fixed baseline 7570/7408/133/29 passed with unchanged failure hash."
+current_blocker_token = "C5 landed at b675849d4c: typed constructor-demand loan failures remain distinct through the existing package-adapter String boundary; focused loan and constructor tests pass, vm-reference check passes, and the fixed baseline remains 7570/7408/133/29 with unchanged failure hash."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -48,6 +48,10 @@ C4 typed constructor-demand manifest transport is now landed: duplicate/count/
 coverage/foreign failures remain distinct through the existing outer String
 boundary, constructor-focused tests are green, and the baseline failure-name
 set is unchanged.
+C5 typed constructor-demand loan transport is now landed: manifest-missing,
+duplicate-expected, foreign-ticket, ticket-reuse, and incomplete failures remain
+distinct through the existing package-adapter String boundary; constructor
+focused tests, vm-reference check, and fixed-baseline comparison pass.
 """
 next_design_card = "none"
 next_execution_card = "none"
@@ -68,7 +72,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-04: MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0 landed at 7e33ef8a0ea6eb027eefbaa67b711a9e6ab84fa9; three caller-zero PHI candidate files and eleven fixed test rows were removed, active replacement tests and the fixed baseline comparator passed, and the known failure-name set stayed unchanged.",
   "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0 landed at 067e1f0858e4467321197e19aa96f53b639cdefd; six consume-time proof failures remain typed through the bridge, direct-static focused tests are green, and the baseline failure-name set stayed unchanged.",
   "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C4-CONSTRUCTOR-DEMAND-MANIFEST-I0 landed at 49ef80b3c7; duplicate/count/coverage/foreign manifest failures remain typed through the existing diagnostic boundary, constructor-focused tests and vm-reference check passed, and the baseline failure-name set stayed unchanged.",
+  "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0 landed at b675849d4c; five consume/complete failures remain typed through the existing package-adapter String boundary, constructor-focused tests and vm-reference check passed, and the fixed baseline failure-name set stayed unchanged.",
 ]
