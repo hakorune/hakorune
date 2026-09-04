@@ -289,6 +289,47 @@ non_claims = "No Call R6/R7 progress, source acceptance, production switch, back
 closeout = "DirectAccum physicalizer follow-up landed as compiler-proven BoxShape hygiene at a176bada13; parent/session remain below 760 lines, src delta 0, semantic Call delta 0, new guard/receipt 0, no test deletion/ignore, and pointer returns to the family-local R6 closeout."
 
 [[candidate]]
+id = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
+status = "accepted_but_not_selected"
+kind = "caller_zero_legacy_test_retirement"
+scope = "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs, legacy_candidate_cfg.rs, legacy_candidate_tests.rs, their facade declarations, SSA inventory expectation, and fixed test inventory references"
+source_authority = "The fixed HEAD git grep caller graph, module declarations, active production PHI repair owners, SSA inventory guard, and baseline test inventory are the authorities; filename, dead_code status, or stale prose alone is not deletion proof."
+canonical_issuer = "none; this candidate issues no semantic PHI product. The active production owners remain function_repair.rs::materialize_all_phi_inputs and edge_rematerialization.rs::rematerialize_for_pred/for_pred."
+old_edge = "The legacy_candidate subtree is a clone-only PHI repair/preflight proof surface with no non-test caller; keeping its module declarations and eleven baseline test rows preserves a disconnected legacy surface."
+replacement_owner = "module_lifecycle.rs (two materialize_all_phi_inputs callers), joinir/merge/rewriter/stages/apply.rs (one caller), and the shared edge_rematerialization/function_repair implementation"
+delete_set = [
+  "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",
+  "src/mir/builder/ssa/phi_input_materializer/legacy_candidate_cfg.rs",
+  "src/mir/builder/ssa/phi_input_materializer/legacy_candidate_tests.rs",
+  "legacy_candidate and legacy_candidate_cfg/test module declarations in phi_input_materializer.rs",
+  "the three legacy files from resolved_binding_ssa_inventory.py expected split manifest",
+  "the eleven legacy_candidate_tests rows from the fixed cargo test inventory after a dedicated refresh",
+]
+preconditions = [
+  "replacement owner parity is recorded for artifact/fact closure and post-publication verification",
+  "cargo test --list confirms the eleven rows are the only test-surface loss",
+  "baseline refresh reconciles total/passed counts without changing the accepted failure-name set",
+  "SSA inventory guard is updated only for the intentional file retirement",
+  "no production caller, external module path, feature, or generated include re-enters the subtree",
+]
+smallest_slice = "On a branch, delete the three caller-zero legacy files and facade declarations, update the existing SSA inventory and fixed test-inventory baseline, then run the focused PHI repair tests and existing guards. Do not alter active function_repair/edge_rematerialization behavior or create a new guard."
+observed_evidence = "At HEAD efd4fa1140, git grep finds no non-test caller of prepare_legacy_phi_repair_candidate_v1 or LegacyPhiRepairCandidate; active production repair uses function_repair/edge_rematerialization. The subtree is 792 + 26 + 696 lines and contributes eleven named baseline test rows."
+acceptance = [
+  "the three files and facade declarations are absent with no unresolved import or module path",
+  "active production PHI materialization callers and focused replacement tests remain present and green",
+  "baseline inventory and passed count are refreshed once; the known failure-name set is byte-for-byte unchanged",
+  "resolved_binding_ssa_inventory.py passes with the intentional retired subtree absent",
+  "tracked source delta is negative, no new receipt/guard/fixture/ignore is added, and pointer/active-surface guards pass",
+]
+reopen_trigger = "a named non-test caller, generated/include edge, feature-gated consumer, or missing replacement parity evidence re-enters the subtree"
+non_claims = [
+  "no PHI algorithm rewrite",
+  "no canonical Call or LegacyCallV0 schema change",
+  "no broad test deletion or baseline failure reclassification",
+  "no deletion of edge_verifier, function_repair, edge_rematerialization, remat_fact, or active PHI callers",
+]
+
+[[candidate]]
 id = "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0"
 status = "candidate_design_no_safe_slice"
 kind = "docs_only_retirement_census"
@@ -328,6 +369,7 @@ order_after_d1n = [
   "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0 (finite panic/todo observation before any hygiene edits)",
 ]
 parked_cleanup = [
+  "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0 is an eligible caller-zero deletion candidate, but remains unselected until the dedicated baseline/inventory reconciliation is opened; do not delete the eleven fixed test rows ad hoc.",
   "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0 remains unselected until an explicit lane switch is recorded; it is the lightweight alternative to an unverified seven-item deletion claim.",
 ]
 not_selected = "ArgumentDescent and ClaimCompletion require distinct port rows; compiler/Builder relocation and broad warning/runtime cleanup remain design stops"
