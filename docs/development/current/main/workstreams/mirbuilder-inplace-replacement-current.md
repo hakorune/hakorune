@@ -185,14 +185,15 @@ card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
 `skip_ws_probe_reader_delete` at `d4ce50b87c`, and
 `canonical_value_fallthrough_stop` at `a33987e8e4`, and
 `methodize_fallthrough_stop` at `24ece062bb`; the fixed comparator stayed
-unchanged. `singleton_name_args0_reissuer_stop` is now the sole active leaf:
-its retired JSON singleton name/args[0] reissuer is stopped before mutation
-while early-phi and JSON classification remain unchanged. The final-pipeline
-SSOT owns each owner/terminal/delete-set and acceptance; this workstream does
-not duplicate them. Shared JSON v0,
-remaining MIR-to-JoinIR, and selected-C/Hako internals stay family-local
-`ParkedSealed` outside those leaves. R7 opens only after production writers,
-reissuers, readers, compatibility re-entry, and fallback are zero.
+unchanged. `singleton_name_args0_reissuer_stop` landed at `01a1a6bc83`:
+its retired JSON singleton name/args[0] reissuer is stopped before mutation,
+the singleton rewrite code is gone, and early-phi/JSON classification remain
+unchanged. The final-pipeline SSOT owns each owner/terminal/delete-set and
+acceptance; this workstream does not duplicate them. No next exact
+caller/delete-set tuple is selected; shared JSON v0, remaining MIR-to-JoinIR,
+and selected-C/Hako internals stay family-local `ParkedSealed`. R7 opens only
+after production writers, reissuers, readers, compatibility re-entry, and
+fallback are zero.
 
 ### S-class gate coverage (navigation only)
 
