@@ -476,7 +476,10 @@ Open one owner at a time; do not repeat the broad census. Stage1 terminal
 ownership/predicate naming is reopen-only: an unchanged route reaching
 `FuncLoweringBox` keeps the existing tag and may rename `_has_return_call` to
 its retired-writer-candidate meaning; otherwise delete the caller-zero owner.
-No test seam or fallback. Other closed reader-stop/delete details remain in Git.
+If that route ever reopens, first narrow the body-wide Call-marker probe to the
+exact Return-child shape (the current probe can overreject a separate
+Call-then-Return statement); no test seam or fallback. Other closed
+reader-stop/delete details remain in Git.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
