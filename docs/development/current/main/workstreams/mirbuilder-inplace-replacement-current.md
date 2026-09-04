@@ -196,13 +196,15 @@ terminal. The semantic cohort is
 restore its writer, add a test-only seam, or call it landed. The scripts are
 still default-directory-discovered, so their three exclusive fixtures and
 scripts (6 files/189 lines) are queued for RetireFromTree after the active
-`mir_json_v0_call_ingress_stop`. That active leaf stops both call spellings in
-the shared Rust MIR JSON-v0 dispatch, then deletes the caller-zero call/catalog
-parsers and call-only tests. Its closeout also compacts the 1,000-line active
-card toward 900 lines using hash-plus-one-line tombstones. Only a future
-unchanged route reaching `FuncLoweringBox` may reopen terminal ownership and
-predicate naming; caller-zero deletes that owner instead. Remaining families
-stay local `ParkedSealed`; R7 waits for all legacy callers to reach zero.
+`mir_json_v0_call_ingress_stop`. That active leaf landed at `9a40ece824`: both
+call spellings stop in the shared Rust MIR JSON-v0 dispatch before publication,
+the caller-zero call/catalog parsers and call-only tests are deleted, and 14
+focused tests pass. Its closeout compacts the 1,000-line active card toward
+900 lines using hash-plus-one-line tombstones. Only a future unchanged route
+reaching `FuncLoweringBox` may reopen terminal ownership and predicate naming;
+caller-zero deletes that owner instead. Remaining families stay local
+`ParkedSealed`; the next turn may repay the six invalid Stage1 assets before
+R7 waits for all legacy callers to reach zero.
 
 ### S-class gate coverage (navigation only)
 

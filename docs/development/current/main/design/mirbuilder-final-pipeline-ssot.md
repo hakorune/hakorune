@@ -25,11 +25,13 @@ Related:
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** canonical `Call(MirCall)` is separated
-  from explicit `LegacyCallV0`; the M7-S owner-local Stop/Delete queue is active.
-  Stage1 writer removal is landed but its acceptance is parked; shared Rust MIR
-  JSON-v0 call ingress is the selected Stop.
-- **Latest bounded work:** fixed baseline `7555/7393/133/29`; next closeout
-  deletes the JSON-v0 call/catalog owners, then repays six invalid Stage1 assets.
+  from explicit `LegacyCallV0`; the shared Rust MIR JSON-v0 call ingress Stop
+  is landed, and the M7-S owner-local Stop/Delete queue remains active.
+  Stage1 writer removal is landed but its acceptance is parked; six invalid
+  Stage1 smoke/fixture assets are the next physical repayment.
+- **Latest bounded work:** fixed baseline `7555/7393/133/29`; commit
+  `9a40ece824` stops both JSON-v0 call spellings before publication, removes
+  the call/catalog owners and call-only tests, and preserves non-call loaders.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -390,8 +392,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
 current cohort = `mir_json_v0_call_ingress_stop`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
@@ -419,7 +421,7 @@ downstream deletion. Feature parity is not a Stop prerequisite. The shared
 guard owns only the parent/cohort token; source tests own semantics. Add no
 per-cohort card, dispatcher, receipt, adapter, fixture file, or guard.
 
-##### Active execution brief
+##### Landed execution brief
 ```text
 Change:
   Stop shared Rust MIR JSON-v0 op=call/op=mir_call at module dispatch,
@@ -432,6 +434,11 @@ Done:
 Stop:
   Park if either spelling bypasses the shared terminal or a retained family owns the delete-set.
 ```
+
+Closeout:
+  `9a40ece824`; flat and nested stop tests passed (14 focused tests total),
+  `call.rs`/`catalog.rs` and call-only tests were deleted, no new guard or
+  receipt was added, and the fixed failure-name set stayed unchanged.
 
 Closeout: canonical Value Stop landed at `a33987e8e4`; METHODIZE Stop landed at
 `24ece062bb`; singleton Stop landed at `01a1a6bc83`. Direct MIR v1/v0,
@@ -449,7 +456,7 @@ cohort is parked and its upstream-blocked smokes are dependency evidence only.
 | 3 landed | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | landed at `a33987e8e4`; `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
 | 4 landed | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | landed at `24ece062bb`; reject before parse/publication/backend; methodize reissuer 0, singleton/phi unchanged |
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
-| 6 active | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> `call.rs`/`catalog.rs` LegacyCallV0 writer | exact pre-publication terminal; delete call/catalog owners and call-only tests; preserve boxcall/externcall/NewBox/non-call |
+| 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 queued | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery still reaches them | after row 6, RetireFromTree with stale quick/checklist paths; Git owns detail; new test/guard/receipt=0 |
 
 On success, tombstone the active line with its commit and select the next line
@@ -460,7 +467,7 @@ repository.
 ##### Dependency tail (not yet executable)
 
 ```text
-shared JSON-v0 Call ingress Stop
+shared JSON-v0 Call ingress Stop (landed at `9a40ece824`)
   -> Stage1 invalid smoke/fixture repayment
   -> ArrayElementWrite legacy projection cutover/Stop
   -> remaining MIR-to-JoinIR legacy readers retire

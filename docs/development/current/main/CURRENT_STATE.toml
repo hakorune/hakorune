@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "mir_json_v0_call_ingress_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort mir_json_v0_call_ingress_stop is fast-open: stop the shared Rust MIR JSON-v0 op=call/op=mir_call compatibility ingress at module dispatch before LegacyCallV0 construction or module publication. Delete the caller-zero call/catalog parser owners and call-only tests while preserving boxcall, externcall, NewBox, non-call loaders, and explicit outer Program fallback. No canonical target reconstruction, backend parity, fallback, new card/guard/receipt/adapter/fixture, or baseline rewrite."
+current_blocker_token = "M7-S cohort mir_json_v0_call_ingress_stop is in closeout after commit 9a40ece824: the shared Rust MIR JSON-v0 op=call/op=mir_call ingress now stops before LegacyCallV0 construction or module publication, call.rs/catalog.rs and call-only tests are gone, and boxcall, externcall, NewBox, non-call loaders, and outer Program fallback remain. Record focused evidence and leave the next Stage1 RetireFromTree row for a later turn; do not rebaseline or reopen semantics."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. After the active JSON-v0 Stop, compact the active card and RetireFromTree the six invalid Stage1 smoke/fixture assets before selecting another semantic family. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. JSON-v0 Stop is landed at 9a40ece824; the next turn may RetireFromTree the six invalid Stage1 smoke/fixture assets before selecting another semantic family. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -33,24 +33,20 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. The finite M7-S queue landed duplicate direct-MIR reader Delete at
-ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, canonical Value
-fallthrough Stop at a33987e8e4, and METHODIZE reissuer Stop at 24ece062bb.
-The singleton_name_args0_reissuer_stop leaf landed at 01a1a6bc83: retired
-singleton aliases fail before JSON mutation while early-phi and JSON
-classification remain unchanged. Stage1's retired ReturnCall writer and its
-name/arity repair were removed at 99b4446cab, but its three former runtime
-smokes never contain the selected defs writer and stop at an earlier static
-terminal, so they are not acceptance. They remain visible to default directory
-discovery and are queued for six-file/189-line RetireFromTree immediately after
-the active JSON-v0 Stop. The semantic cohort stays
-ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The next
-finite Stop is the shared Rust MIR JSON-v0 call ingress: one dispatch owner,
-one typed pre-publication terminal, and a caller-zero call/catalog delete-set.
-The fixed comparator target remains 7555/7393/133/29.
+zero. The shared Rust MIR JSON-v0 call ingress Stop landed at 9a40ece824:
+call/mir_call stop before publication, call.rs/catalog.rs deletion, and
+call-only test retirement are verified by 14 focused passing tests; boxcall,
+externcall, NewBox, non-call loaders, and the fixed comparator remain intact.
+Stage1's retired ReturnCall writer and its name/arity repair were removed at
+99b4446cab, but its three former runtime smokes never contain the selected defs
+writer and stop at an earlier static terminal, so they are not acceptance. They
+remain visible to default directory discovery and are queued for six-file/189-
+line RetireFromTree in the next turn. The semantic cohort stays
+ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The fixed
+comparator target remains 7555/7393/133/29.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -68,7 +64,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-05: M7-S mir_json_v0_call_ingress_stop landed at 9a40ece824; module dispatch stops call/mir_call before LegacyCallV0 construction or publication, call.rs/catalog.rs and call-only tests were deleted, 14 focused tests passed, preserved non-call loaders remain, and the fixed baseline is unchanged.",
   "2026-09-05: Stage1 ReturnCall writer removal remains landed at 99b4446cab, while the cohort is ParkedSealed because no executable acceptance reaches FuncLoweringBox; three invalid smokes left the quick bundle but remain default-directory-discovered, so their six files/189 lines are queued for RetireFromTree after the active JSON-v0 Stop.",
   "2026-09-04: M7-S singleton name/args[0] reissuer Stop landed at 01a1a6bc83; retired singleton aliases fail before JSON mutation, singleton rewrite code and caller-zero env accessor were deleted, early-phi remains unchanged, and fixed baseline/guards remain green.",
-  "2026-09-04: M7-S raw-indirect unified-off Stop landed at e31567bf06; OFF rejects before child descent/MIR mutation, ON emits typed Callee::Value, the old LegacyCallV0 writer is gone, and JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako compatibility remain ParkedSealed.",
 ]
