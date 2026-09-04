@@ -392,8 +392,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
 current cohort = `stage1_return_call_parked_assets_repay`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
@@ -421,7 +421,7 @@ downstream deletion. Feature parity is not a Stop prerequisite. The shared
 guard owns only the parent/cohort token; source tests own semantics. Add no
 per-cohort card, dispatcher, receipt, adapter, fixture file, or guard.
 
-##### Active execution brief — Stage1 parked-asset repayment
+##### Landed execution brief — Stage1 parked-asset repayment
 ```text
 Change:
   Retire exactly three invalid Stage1 Return(Call) integration smokes and
@@ -439,6 +439,11 @@ Stop:
   If any path has a live non-exclusive caller, restore only that deletion and
   leave the Stage1 semantic cohort ParkedSealed.
 ```
+
+Closeout: `f15098cf0b`; six exclusive probe assets (189 lines) were deleted,
+the quick/checklist stale paths were removed, integration discovery returned no
+matching files, and no guard, receipt, test, ignore, or baseline change was
+introduced.
 
 ##### Landed execution brief — JSON-v0 call ingress
 ```text
@@ -476,7 +481,7 @@ cohort is parked and its upstream-blocked smokes are dependency evidence only.
 | 4 landed | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | landed at `24ece062bb`; reject before parse/publication/backend; methodize reissuer 0, singleton/phi unchanged |
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
-| 7 active | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery still reaches them | RetireFromTree with stale quick/checklist paths; Git owns detail; new test/guard/receipt=0 |
+| 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
@@ -487,7 +492,7 @@ repository.
 
 ```text
 shared JSON-v0 Call ingress Stop (landed at `9a40ece824`)
-  -> Stage1 invalid smoke/fixture repayment
+  -> Stage1 invalid smoke/fixture repayment (landed at `f15098cf0b`)
   -> ArrayElementWrite legacy projection cutover/Stop
   -> remaining MIR-to-JoinIR legacy readers retire
   -> M7 caller-zero schema deletion

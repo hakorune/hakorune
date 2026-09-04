@@ -193,18 +193,18 @@ unchanged. Stage1's ReturnCall writer/name/arity path was removed at
 three old smokes neither contain that defs writer nor pass the earlier static
 terminal. The semantic cohort is
 `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; do not
-restore its writer, add a test-only seam, or call it landed. The scripts are
-still default-directory-discovered, so their three exclusive fixtures and
-scripts (6 files/189 lines) are queued for RetireFromTree after the active
-`mir_json_v0_call_ingress_stop`. That active leaf landed at `9a40ece824`: both
+restore its writer, add a test-only seam, or call it landed. The three invalid
+probe scripts and their exclusive fixtures (6 files/189 lines) were
+RetireFromTree'd at `f15098cf0b`; stale quick/checklist paths and default
+integration discovery are now zero. The active
+`mir_json_v0_call_ingress_stop` leaf landed at `9a40ece824`: both
 call spellings stop in the shared Rust MIR JSON-v0 dispatch before publication,
 the caller-zero call/catalog parsers and call-only tests are deleted, and 14
 focused tests pass. Its closeout compacts the 1,000-line active card toward
 900 lines using hash-plus-one-line tombstones. Only a future unchanged route
 reaching `FuncLoweringBox` may reopen terminal ownership and predicate naming;
 caller-zero deletes that owner instead. Remaining families stay local
-`ParkedSealed`; the next turn may repay the six invalid Stage1 assets before
-R7 waits for all legacy callers to reach zero.
+`ParkedSealed`; R7 still waits for all legacy callers to reach zero.
 
 ### S-class gate coverage (navigation only)
 
