@@ -22,59 +22,8 @@ pub(crate) fn execute_file_with_backend(runner: &NyashRunner, filename: &str) {
         }
     }
 
-    // Direct v0 bridge when requested via CLI/env
+    // Direct MIR(JSON) is handled by runner/mod.rs before this dispatcher.
     let groups = runner.config.as_groups();
-    // Diagnostic/Exec: accept MIR JSON file direct (experimental; default OFF)
-    if let Some(path) = groups.parser.mir_json_file.as_ref() {
-        // Phase 90-A: fs 系移行
-        let ring0 = crate::runtime::ring0::get_global_ring0();
-        match ring0.fs.read_to_string(std::path::Path::new(path)) {
-            Ok(text) => {
-                // Try schema v1 first (preferred by emitter)
-                match crate::runner::json_v1_bridge::try_parse_v1_to_module(&text) {
-                    Ok(Some(module)) => {
-                        crate::cli_v!(
-                            "[mir-json] schema=v1 executing {} (len={})",
-                            path,
-                            text.len()
-                        );
-                        let rc = runner.execute_mir_module_quiet_exit(&module);
-                        std::process::exit(rc);
-                    }
-                    Ok(None) => {
-                        // Not v1 schema; attempt minimal v0 loader
-                        if text.contains("\"functions\"") && text.contains("\"blocks\"") {
-                            match crate::runner::mir_json_v0::parse_mir_v0_to_module(&text) {
-                                Ok(module) => {
-                                    crate::cli_v!(
-                                        "[mir-json] schema=v0 executing {} (len={})",
-                                        path,
-                                        text.len()
-                                    );
-                                    let rc = runner.execute_mir_module_quiet_exit(&module);
-                                    std::process::exit(rc);
-                                }
-                                Err(e) => {
-                                    eprintln!("❌ MIR JSON v0 parse error: {}", e);
-                                    std::process::exit(1);
-                                }
-                            }
-                        }
-                        eprintln!("❌ MIR JSON invalid or unsupported shape: {}", path);
-                        std::process::exit(1);
-                    }
-                    Err(e) => {
-                        eprintln!("❌ MIR JSON parse error (v1): {}", e);
-                        std::process::exit(1);
-                    }
-                }
-            }
-            Err(e) => {
-                eprintln!("❌ Error reading MIR JSON {}: {}", path, e);
-                std::process::exit(1);
-            }
-        }
-    }
     // AST dump mode
     if groups.debug.dump_ast {
         println!("🧠 Hakorune AST Dump - Processing file: {}", filename);
