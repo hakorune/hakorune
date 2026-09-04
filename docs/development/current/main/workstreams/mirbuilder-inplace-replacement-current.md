@@ -40,12 +40,12 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The prior 138-name failure receipt is preserved in Git history. The bounded
-canonical-call reader repair is stable under the fixed runner at
-`7580/7418/133/29`; the current-minus-prior failure-name comparison has zero
-additions. The inventory has two post-receipt tests and five prior known-red
-names now pass, so the explicit successor receipt is checked in rather than
-silently widening the baseline. All repaired sites descend from the
+The prior 138-name failure receipt is preserved in Git history. After the
+bounded canonical-call reader repair, the later caller-zero test retirement,
+and the typed proof test addition, the fixed runner is stable at
+`7570/7408/133/29`; the current-minus-prior failure-name comparison has zero
+additions. The earlier `7580/7418/133/29` observation is historical and is not
+the current inventory authority. All repaired sites descend from the
 `45c6759962` Call/LegacyCallV0 shape split. This remains verification repair
 evidence, not automatic permission to open BoxShape, performance, or another
 semantic/cleanup family. The JSON-v1 Stop cohort is now landed and its five

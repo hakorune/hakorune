@@ -396,13 +396,13 @@ The following are one dependency program, not simultaneously active cards.
 
 #### V0 — reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode
 
-This is a finite verification incident, not a baseline acceptance. The latest
-fixed-command observation after the bounded canonical-call reader repair is
-`7580 total`, `7418/133/29`; the prior accepted receipt was `7411/138/29`.
-The current-minus-prior failure-name comparison has **zero added names** and
-five prior known-red names now pass. The current inventory has two post-receipt
-test entries. The explicit successor receipt is now checked in with the current
-inventory/failure hashes; the prior receipt remains preserved in Git history.
+This is a finite verification incident, not a baseline acceptance. The current
+fixed-command observation after the bounded reader repair, caller-zero test
+retirement, and typed proof test addition is `7570 total`, `7408/133/29`;
+the earlier `7580/7418/133/29` observation and prior `7411/138/29` receipt are
+historical. The current-minus-prior failure-name comparison has **zero added
+names**. The checked-in baseline manifest and `CURRENT_STATE.toml` are the
+current inventory authority; historical receipts remain in Git history.
 
 The exact, non-overlapping repair order is: `V0-R1` builder
 publication/readers (30), `V0-R2` JoinIR canonical Print assertion (1),
@@ -418,12 +418,12 @@ retargeting assertions; legacy fixtures remain only for compatibility ingress.
 
 The five named repair cohorts have now completed in the existing
 `DEV-GATE-LIB-BASELINE-REFRESH-R0`; no health row, receipt, or per-cohort guard
-was created. The fixed command is stable at `7580/7418/133/29` with zero new
-failure names. The 2026-09-01 row is closed as `stopped_later_quick_red` with
-implementation permission false, and the repair is recorded at
-`917a078c6c`. The explicit successor receipt records the two inventory
-additions and five resolved prior reds; the JSON-v1 Stop cohort is now landed
-with its five call-like writers caller-zero.
+was created. The fixed command remains stable at the current manifest value
+`7570/7408/133/29` with zero new failure names. The 2026-09-01 row is closed
+as `stopped_later_quick_red` with implementation permission false, and the
+repair is recorded at `917a078c6c`. The JSON-v1 Stop cohort is now landed with
+its five call-like writers caller-zero; the earlier 7580-test observation is
+retained only as historical receipt lineage.
 
 Acceptance for this bounded repair is zero added failure names under the fixed
 runner, with the prior 138-name receipt preserved in Git history and the
@@ -522,8 +522,8 @@ imports when caller-zero. Preserve `Constructor -> NewBox` and new-style
 `Closure -> NewClosure`. Use the existing parser test owner for five exact
 negative cases plus the two construction positives. No canonical target
 reconstruction, test file, receipt, fallback, or per-cohort guard is added.
-Landed with the consolidated parser stop test and the fixed successor baseline
-at `7580/7418/133/29`; no new failure names were observed.
+Landed with the consolidated parser stop test; the current fixed successor
+baseline is `7570/7408/133/29` and no new failure names were observed.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
