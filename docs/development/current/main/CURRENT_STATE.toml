@@ -53,6 +53,7 @@ changes.
 The emitter fanout cleanup candidate is now explicitly ParkedSealed: its
 forwarding hops carry distinct profile/lookup/replay/receipt/physical-writer
 contracts, and frame-count reduction alone removes no production old edge.
+The FastMem source-fate census is also ParkedSealed: Product `.hako` callers=0, 26 Proof/Test regions and 82 executable `mem.assume*` calls still cross parser/AST/Program-JSON transport; retain MIR `MemOp` and await bounded retirement.
 """
 next_design_card = "none"
 next_execution_card = "none"
