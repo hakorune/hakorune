@@ -126,23 +126,14 @@ run_step "pin: multi_local_reject" \
 run_step "pin: phase12_return_newbox_min" \
   bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh"
 
-run_step "pin: phase13_return_call_id0_min" \
-  bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase13_return_call_id0_min_vm.sh"
-
 run_step "pin: phase14_return_boxcall_stringbox_length_abc_min" \
   bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase14_return_boxcall_stringbox_length_abc_min_vm.sh"
-
-run_step "pin: phase15_return_call_id1_int9_min" \
-  bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase15_return_call_id1_int9_min_vm.sh"
 
 run_step "pin: phase16_return_newbox_stringbox_abc_min" \
   bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase16_return_newbox_stringbox_abc_min_vm.sh"
 
 run_step "pin: phase17_return_boxcall_stringbox_indexof_b_abc_min" \
   bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min_vm.sh"
-
-run_step "pin: phase18_return_call_id1_int7_min" \
-  bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase18_return_call_id1_int7_min_vm.sh"
 
 run_step "pin: phase19_load_local_var_min" \
   bash "$ROOT_DIR/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase19_load_local_var_min_vm.sh"

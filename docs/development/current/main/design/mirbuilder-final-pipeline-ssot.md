@@ -453,7 +453,7 @@ reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 status = fast_open
 implementation permission = true
-current cohort = `stage1_return_call_legacy_writer_stop`
+current cohort = `mir_json_v0_call_ingress_stop`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -473,33 +473,33 @@ The initial stop inventory is:
 5. MIR/Program JSON ingress that still produces a product-reachable legacy
    carrier.
 
-Each cohort names one owner, terminal, real caller, finite delete-set, and
-focused acceptance. Feature parity is not a Stop prerequisite. The shared
-guard validates only this parent row and active cohort token; source tests and
-the implementation diff own cohort semantics. Add no per-cohort dispatcher,
-card, receipt, adapter, fixture file, or guard.
+Each cohort names one owner, terminal, caller, finite delete-set, and focused
+acceptance. Acceptance executes the selected owner-to-terminal boundary; an
+earlier terminal is dependency evidence, not acceptance, and never reopens a
+downstream deletion. Feature parity is not a Stop prerequisite. The shared
+guard owns only the parent/cohort token; source tests own semantics. Add no
+per-cohort card, dispatcher, receipt, adapter, fixture file, or guard.
 
 ##### Active execution brief
 ```text
 Change:
-  Stop Stage1/Hako Program(JSON-v0) Return(Call) before legacy writer,
-  partial defs publication, or backend entry; preserve non-call defs.
+  Stop shared Rust MIR JSON-v0 op=call/op=mir_call at module dispatch,
+  before LegacyCallV0 construction or module publication.
 Contract:
-  Return(Call) has no canonical issuer in this lane; use one typed terminal.
-  Preserve NewBox/NewClosure and non-call defs. No new consumer, adapter,
-  fallback, guard, or receipt.
+  JSON-v0 is compatibility wire, not target authority. module.rs emits
+  [freeze:contract][mir-json-v0/legacy-call-stopped]; delete call.rs/catalog.rs while preserving boxcall, externcall, NewBox, non-call loaders, and outer Program fallback.
 Done:
-  Return(Call) legacy writer/name/arity repair 1->0, null is not swallowed,
-  no partial artifact escapes, focused tests and fixed failure-name set unchanged; new guard=0 and new receipt=0.
+  call/mir_call writers 2->0; call.rs/catalog.rs deleted; flat/nested rejects and preserved positives pass; fixed failure-name set unchanged; new guard=0 and new receipt=0.
 Stop:
-  Park only if the exact Return(Call) branch cannot reject before defs publication.
+  Park if either spelling bypasses the shared terminal or a retained family owns the delete-set.
 ```
 
 Closeout: canonical Value Stop landed at `a33987e8e4`; METHODIZE Stop landed at
 `24ece062bb`; singleton Stop landed at `01a1a6bc83`. Direct MIR v1/v0,
 Program(JSON) rejection, fixed comparator `7555/7393/133/29`, and the same
-failure SHA stayed green; early-phi remains unchanged. Stage1 Return(Call) is
-the next exact Stop leaf.
+failure SHA stayed green; early-phi remains unchanged. Stage1 writer removal
+landed at `99b4446cab`, but acceptance cannot reach `FuncLoweringBox`; the
+cohort is parked and its upstream-blocked smokes are dependency evidence only.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
@@ -509,7 +509,8 @@ the next exact Stop leaf.
 | 2 landed | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs` and route-local MIR-vs-handwritten probe; both concrete arms ended at `build_skip_ws_joinir` | landed at `d4ce50b87c`; direct builder preserves generic-first and missing-target `None`; trim shared dispatcher unchanged |
 | 3 landed | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | landed at `a33987e8e4`; `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
 | 4 landed | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | landed at `24ece062bb`; reject before parse/publication/backend; methodize reissuer 0, singleton/phi unchanged |
-| 5 active | `stage1_return_call_legacy_writer_stop` / Stop | `FuncLoweringBox -> ReturnCallLowerBox` Program(JSON-v0) writer; Const(String) target, op=call/func, name/arity repair, partial null publication | reject before defs publication; preserve non-call/NewBox/NewClosure; delete writer and caller-zero func_map_text path |
+| 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
+| 6 active | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> `call.rs`/`catalog.rs` LegacyCallV0 writer | exact pre-publication terminal; delete call/catalog owners and call-only tests; preserve boxcall/externcall/NewBox/non-call |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
@@ -519,8 +520,7 @@ repository.
 ##### Dependency tail (not yet executable)
 
 ```text
-Stage1 forced-unified-off writer cutover or typed Stop
-  -> shared JSON-v0 Call ingress Stop
+shared JSON-v0 Call ingress Stop
   -> ArrayElementWrite legacy projection cutover/Stop
   -> remaining MIR-to-JoinIR legacy readers retire
   -> M7 caller-zero schema deletion

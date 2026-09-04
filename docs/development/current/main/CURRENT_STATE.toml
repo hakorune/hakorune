@@ -1,10 +1,10 @@
-date = "2026-09-04"
+date = "2026-09-05"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "stage1_return_call_legacy_writer_stop"
+current_execution_cohort = "mir_json_v0_call_ingress_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort stage1_return_call_legacy_writer_stop is fast-open: Stage1/Hako Program(JSON-v0) Return(Call) must stop before legacy op=call/name/arity repair, partial defs publication, or backend entry; preserve non-call defs and NewBox/NewClosure; no new consumer/guard/receipt/adapter. Structural implementation and compile/parser checks are green, but the runtime smoke cannot reach this gate because the pre-existing ParserStringUtilsBox.starts_with static-call retirement fires first. Worker audit classifies that Program(JSON-v0) compatibility bundle as ParkedSealed__CompatibilityBundleHasNoSourceBackedStaticIssuer; Main raw/qualified issuer rows are already landed. Do not claim closeout or widen this row."
+current_blocker_token = "M7-S cohort mir_json_v0_call_ingress_stop is fast-open: stop the shared Rust MIR JSON-v0 op=call/op=mir_call compatibility ingress at module dispatch before LegacyCallV0 construction or module publication. Delete the caller-zero call/catalog parser owners and call-only tests while preserving boxcall, externcall, NewBox, non-call loaders, and explicit outer Program fallback. No canonical target reconstruction, backend parity, fallback, new card/guard/receipt/adapter/fixture, or baseline rewrite."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,15 +38,14 @@ ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, canonical Value
 fallthrough Stop at a33987e8e4, and METHODIZE reissuer Stop at 24ece062bb.
 The singleton_name_args0_reissuer_stop leaf landed at 01a1a6bc83: retired
 singleton aliases fail before JSON mutation while early-phi and JSON
-classification remain unchanged. The Stage1 Return(Call) legacy writer is now
-removed in the worktree with null propagation and typed stop documentation;
-fixed comparator target is 7555/7393/133/29 and no new
-consumer/guard/receipt/adapter is permitted. Runtime smoke closeout is still
-blocked before the selected gate by the pre-existing ParserStringUtilsBox
-starts_with static-call retirement; worker audit classifies that compatibility
-bundle as ParkedSealed__CompatibilityBundleHasNoSourceBackedStaticIssuer, and
-Main raw/qualified issuer rows are already landed. This is not a Stage1
-Return(Call) result.
+classification remain unchanged. Stage1's retired ReturnCall writer and its
+name/arity repair were removed at 99b4446cab, but its three former runtime
+smokes never contain the selected defs writer and stop at an earlier static
+terminal; they are parked dependency evidence, not acceptance. That cohort is
+ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The next
+finite Stop is the shared Rust MIR JSON-v0 call ingress: one dispatch owner,
+one typed pre-publication terminal, and a caller-zero call/catalog delete-set.
+The fixed comparator target remains 7555/7393/133/29.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
@@ -67,7 +66,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-05: Stage1 ReturnCall writer removal remains landed at 99b4446cab, while the cohort is ParkedSealed because no executable acceptance reaches FuncLoweringBox; three upstream-blocked smokes were removed from the active quick bundle but retained as dependency evidence, and no authority/guard/receipt was added.",
   "2026-09-04: M7-S singleton name/args[0] reissuer Stop landed at 01a1a6bc83; retired singleton aliases fail before JSON mutation, singleton rewrite code and caller-zero env accessor were deleted, early-phi remains unchanged, and fixed baseline/guards remain green.",
   "2026-09-04: M7-S raw-indirect unified-off Stop landed at e31567bf06; OFF rejects before child descent/MIR mutation, ON emits typed Callee::Value, the old LegacyCallV0 writer is gone, and JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako compatibility remain ParkedSealed.",
-  "2026-09-04: WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0 landed at 9ebdad720c; the unreachable shape island and its private tests, guards, smokes, and fixtures were removed, shared binary helpers remain, and the fixed baseline failure-name set is unchanged.",
 ]

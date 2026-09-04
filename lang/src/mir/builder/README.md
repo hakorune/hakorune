@@ -65,7 +65,7 @@ Tags (Fail‑Fast, stable)
 - `[mirbuilder/input/source-only]` — source-entry path received non-null opts
 - `[mirbuilder/input/invalid]` — header missing (version/kind)
 - `[mirbuilder/internal/unsupported] ...` — Program(JSON) shape not yet supported by internal lowers
-- `[freeze:contract][stage1/return-call-legacy-stopped]` — Stage1/Hako Program(JSON v0) `Return(Call)` no longer emits the legacy `op=call`/`func` carrier; defs publication stops before any partial function list escapes
+- `[freeze:contract][stage1/return-call-legacy-stopped]` — historical Stage1 tag for defs that could enter the retired ReturnCall writer; the writer is gone, while executable selected-boundary acceptance remains ParkedSealed behind the current static import closure
 - `[builder/selfhost-first:unsupported:defs_only]` — only defs を lowering できる状態（main なし）のため中止
 - `[builder/selfhost-first:unsupported:no_match]` — internal lowers / defs のどちらにもマッチせず中止
 - `[builder/selfhost-first:unsupported:inject_funcs_null]` — internal lower 後の defs inject が null を返したため中止

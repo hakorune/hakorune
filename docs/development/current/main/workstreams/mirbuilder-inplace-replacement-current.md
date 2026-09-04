@@ -188,17 +188,19 @@ card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
 unchanged. `singleton_name_args0_reissuer_stop` landed at `01a1a6bc83`:
 its retired JSON singleton name/args[0] reissuer is stopped before mutation,
 the singleton rewrite code is gone, and early-phi/JSON classification remain
-unchanged. The next exact leaf is `stage1_return_call_legacy_writer_stop`:
-Stage1/Hako Return(Call) stops before partial defs publication, preserving
-non-call/NewBox/NewClosure. Its structural writer removal is landed, but the
-selected runtime smoke is pre-gated by the independent Program(JSON-v0)
-`ParserStringUtilsBox.starts_with` static retirement; worker audit classifies
-that compatibility bundle as `ParkedSealed__CompatibilityBundleHasNoSourceBackedStaticIssuer`,
-while Main raw/qualified issuer rows remain landed. The final-pipeline SSOT owns each
-owner/terminal/delete-set and acceptance; this workstream does not duplicate
-them. Shared JSON v0, remaining MIR-to-JoinIR, and selected-C/Hako internals
-stay family-local `ParkedSealed`. R7 opens only after production writers,
-reissuers, readers, compatibility re-entry, and fallback are zero.
+unchanged. Stage1's ReturnCall writer/name/arity path was removed at
+`99b4446cab`, but the selected defs boundary has no executable acceptance: the
+three old smokes neither contain that defs writer nor pass the earlier static
+terminal. They are parked dependency evidence and the cohort is
+`ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; do not
+restore its writer, add a test-only seam, or call it landed. The next exact leaf
+is `mir_json_v0_call_ingress_stop`: stop both call spellings in the one shared
+Rust MIR JSON-v0 dispatch before LegacyCallV0 publication, then delete the
+caller-zero call/catalog parsers and call-only tests. The final-pipeline SSOT
+owns its terminal, delete-set, acceptance, and exclusions. Remaining
+MIR-to-JoinIR and selected-C/Hako internals stay family-local `ParkedSealed`.
+R7 opens only after production writers, reissuers, readers, compatibility
+re-entry, and fallback are zero.
 
 ### S-class gate coverage (navigation only)
 
