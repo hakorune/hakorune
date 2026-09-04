@@ -220,9 +220,9 @@ implementation_permission = false
 
 [boxshape_maintenance_t0]
 task_id = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
-status = "landed"
-implementation_permission = false
-base_head = "4c398dd8b9"
+status = "selected_fast"
+implementation_permission = true
+base_head = "8342fbf93a"
 landed_commit = "0f287a988b"
 ceremony_tier = "T0"
 decision = "Move existing cfg(test) bodies behind path-preserving module/include boundaries; production behavior and test names stay unchanged."
@@ -236,9 +236,11 @@ line_budget_paths = [
   "src/mir/builder/normal_script_semantic_source_tests/lexical_and_scope.rs",
   "src/mir/builder/indexing.rs",
   "src/mir/builder/indexing/tests.rs",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs",
 ]
 pre_split_over_limit_paths = [
-  "src/mir/builder/indexing.rs",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs",
 ]
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
@@ -251,6 +253,8 @@ allowed_files = [
   "src/mir/builder/normal_script_semantic_source_tests/lexical_and_scope.rs",
   "src/mir/builder/indexing.rs",
   "src/mir/builder/indexing/tests.rs",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer/session.rs",
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
 ]
@@ -261,19 +265,21 @@ required_text = [
   "src/mir/builder/normal_script_semantic_source_tests.rs||include!(\"normal_script_semantic_source_tests/lexical_and_scope.rs\");",
   "src/mir/builder/normal_script_semantic_source.rs||#[path = \"normal_script_semantic_source_tests.rs\"]",
   "src/mir/builder/indexing.rs||mod tests;",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs||mod session;",
 ]
 forbidden_text = [
   "src/mir/builder/normal_script_direct_statement_owner.rs||mod tests {",
   "src/mir/builder/normal_script_direct_statement_owner.rs||#[path",
   "src/mir/builder/indexing.rs||mod tests {",
+  "src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs||struct DirectAccumPhysicalizerV1",
 ]
 focused_tests = [
   "normal_script_direct_statement_owner::tests",
   "normal_script_semantic_source::tests",
   "indexing::tests",
 ]
-observed_line_counts = "direct owner 148; direct tests 592; semantic test ingress 2; root admission 394; lexical/scope 365; indexing owner 355; indexing tests 431; shared dispatcher 757"
-observed_src_line_delta = -4
+observed_line_counts = "direct owner 148; direct tests 592; semantic test ingress 2; root admission 394; lexical/scope 365; indexing owner 355; indexing tests 431; loop physicalizer 198; private session 594; shared dispatcher 757"
+observed_src_line_delta = 0
 implementation_evidence = "The existing BoxShape lane split indexing.rs cfg(test) body into indexing/tests.rs at 0f287a988b; production owner, seven test names, and logical module path are unchanged. Quick lib check passed; focused lib-test compilation retains the same three parent/current E0624 private-row errors, with no visibility or baseline change."
 quick_lib_check = "green"
 focused_test_compile = "current and base 8dc84e7588 both stop at the same three pre-existing E0624 private published-backend row errors before test execution"

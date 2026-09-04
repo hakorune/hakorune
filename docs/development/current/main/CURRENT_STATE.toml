@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "json_v1_legacy_call_ingress"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
+current_execution_cohort = "loop_accum_physicalizer"
 current_design_stop = "none"
-current_blocker_token = "The fixed baseline successor is stable at 7580/7418/133/29 with zero added failure names. The selected M7-S JSON-v1 cohort is landed: its five LegacyCallV0 writers stop before block mutation, Constructor->NewBox and new-style Closure->NewClosure are preserved, and the named JSON compatibility repair edges are deleted; no canonical schema or fallback was added."
+current_blocker_token = "BoxShape-only maintenance: split the existing DirectAccumPhysicalizerV1 session behind a private path-preserving child. Production behavior, public paths, test names, semantic Call shape, fallback, and baseline remain unchanged; no new receipt or guard is allowed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -28,22 +28,20 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-latest_card = "mirbuilder-final-pipeline-ssot"
-latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+latest_card = "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 latest_card_summary = """
 The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
 cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
 complete because compatibility writers/readers and R7 retirement remain.
-The bounded canonical-reader repair is explicitly reconciled under the fixed
-runner at 7580/7418/133/29 with zero failure names added. The prior
-7578/7411/138/29 receipt is preserved in Git history; the current comparator
-uses the successor inventory/failure hashes after recording two added tests and
-five resolved known-red names. The active row is the existing generic M7-S
-JSON-v1 stop cohort is landed; no new semantic authority or cohort row was added.
+The fixed runner is stable at 7580/7418/133/29 with zero added failure names.
+The active BoxShape row moves the existing DirectAccum physicalizer session
+behind a private path-preserving child without changing production behavior,
+tests, semantic Call shape, or the baseline.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+next_execution_card = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"
