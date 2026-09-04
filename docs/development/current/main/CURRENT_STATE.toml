@@ -45,14 +45,13 @@ paths and default integration discovery at zero. The semantic cohort remains
 ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
 fixed comparator target remains 7555/7393/133/29. ArrayElementWrite selected-C
 cutover landed at 9cb7a6c71a and its shared capability admission repair is now
-landed: the existing canonical owner feeds one
-PublishedMirBackendView physical row family, all four writes are consumed
+landed: the existing canonical owner feeds one PublishedMirBackendView
+physical row family, all four writes are consumed
 without name repair or a result assignment, and the three selected native
 projection callers are gone; the explicit llvmlite compatibility projection is
 the only remaining caller and stays outside this cohort. The focused view
 positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
-returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one
-compiler-proven caller-zero private helper and its
+returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
 changes.
 """
@@ -77,4 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; the follow-up repair now gates native published OBJ/EXE transport through existing capability policy and adds typed-array rejection for both entries. Source contents/order/Void acceptance remains open; llvmlite stays explicit compatibility.",
   "2026-09-05: T0 dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e; the caller-zero private helper, dead_code allowance, and unused import were removed, the focused four-test brand fixture passed, and the fixed baseline/guards remained unchanged.",
-  "2026-09-05: M7-S stage1_return_call_parked_assets_repay landed at f15098cf0b; three invalid Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale paths and default integration discovery are zero, and no new guard/receipt/test/ignore or baseline change was introduced.",]
+  "2026-09-05: M7-S stage1_return_call_parked_assets_repay landed at f15098cf0b; three invalid Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale paths and default integration discovery are zero, and no new guard/receipt/test/ignore or baseline change was introduced.",
+]
