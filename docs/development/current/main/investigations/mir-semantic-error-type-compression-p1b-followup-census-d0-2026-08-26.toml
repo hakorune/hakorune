@@ -34,7 +34,8 @@ selection_rule = "This file is a design ledger, not a pointer. A child becomes e
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
-status = "accepted_but_not_selected"
+status = "selected_fast"
+implementation_permission = true
 kind = "bounded_typed_error_row"
 boundary = "ScriptDirectStaticClaimedRowV1::consume_required_argument_proof -> calls/script_direct_static_physical_bridge.rs:24-86"
 source_authority = "consume-owned claim-ledger issue variants; do not reuse ScriptDirectStaticRequiredArgumentProofIssueV1, which belongs to proof issuance"

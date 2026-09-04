@@ -7,6 +7,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 use super::super::normal_script_direct_static_join_handoff::{
@@ -39,6 +40,56 @@ pub(in crate::mir::builder) enum ScriptDirectStaticClaimLedgerIssueV1 {
     RequiredArgumentProofUnconsumed(SourceExprSiteV1),
     PendingRows(usize),
     InFlightRows(usize),
+}
+
+/// Typed failures owned by the consume side of the required-argument proof.
+///
+/// Proof issuance has a separate issue enum in the Join handoff module.  This
+/// enum is deliberately local to the claim ledger: it describes validation of
+/// an already-issued proof at the one-shot consumption boundary and never
+/// becomes a new semantic receipt.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ScriptDirectStaticRequiredArgumentProofConsumeIssueV1 {
+    DuplicateConsumption,
+    EmptyForRequiredOrdinals,
+    CardinalityMismatch,
+    OrdinalOutOfBounds {
+        ordinal: u32,
+    },
+    SiteMismatch {
+        expected: SourceExprSiteV1,
+        actual: SourceExprSiteV1,
+    },
+    NonExactResult(VerifiedCallableResultRepresentationV1),
+}
+
+impl std::fmt::Display for ScriptDirectStaticRequiredArgumentProofConsumeIssueV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DuplicateConsumption => {
+                write!(formatter, "duplicate required-argument proof consumption")
+            }
+            Self::EmptyForRequiredOrdinals => write!(
+                formatter,
+                "required-argument proof is empty for required ordinals"
+            ),
+            Self::CardinalityMismatch => {
+                write!(formatter, "required-argument proof cardinality mismatch")
+            }
+            Self::OrdinalOutOfBounds { ordinal } => write!(
+                formatter,
+                "required-argument proof ordinal out of bounds: {ordinal}"
+            ),
+            Self::SiteMismatch { expected, actual } => write!(
+                formatter,
+                "required-argument proof site mismatch: expected={expected:?} actual={actual:?}"
+            ),
+            Self::NonExactResult(representation) => write!(
+                formatter,
+                "non-exact result cannot consume required-argument proof: {representation:?}"
+            ),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -75,19 +126,26 @@ impl ScriptDirectStaticClaimedRowV1 {
 
     pub(in crate::mir::builder) fn consume_required_argument_proof(
         &mut self,
-    ) -> Result<(), &'static str> {
+    ) -> Result<(), ScriptDirectStaticRequiredArgumentProofConsumeIssueV1> {
         if self.required_argument_proof_consumed {
-            return Err("duplicate required-argument proof consumption");
+            return Err(
+                ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::DuplicateConsumption,
+            );
         }
         match &self.required_argument_proof {
             ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Empty => {
                 if !self.row.required_callee_i64_arguments().is_empty() {
-                    return Err("required-argument proof is empty for required ordinals");
+                    return Err(
+                        ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::
+                            EmptyForRequiredOrdinals,
+                    );
                 }
             }
             ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Required(arguments) => {
                 if arguments.len() != self.row.required_callee_i64_arguments().len() {
-                    return Err("required-argument proof cardinality mismatch");
+                    return Err(
+                        ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::CardinalityMismatch,
+                    );
                 }
                 for (expected, argument) in self
                     .row
@@ -97,18 +155,30 @@ impl ScriptDirectStaticClaimedRowV1 {
                 {
                     let Some(expected_site) = self.row.argument_sites().get(*expected as usize)
                     else {
-                        return Err("required-argument proof ordinal out of bounds");
+                        return Err(
+                            ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::
+                                OrdinalOutOfBounds { ordinal: *expected },
+                        );
                     };
                     if argument.ordinal() != *expected
                         || argument.site() != expected_site
                         || argument.tree().site() != argument.site()
                     {
-                        return Err("required-argument proof site mismatch");
+                        return Err(
+                            ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::SiteMismatch {
+                                expected: expected_site.clone(),
+                                actual: argument.site().clone(),
+                            },
+                        );
                     }
                 }
             }
-            ScriptDirectStaticRequiredArgumentProofDispositionV1::NonExact(_) => {
-                return Err("non-exact result cannot consume required-argument proof");
+            ScriptDirectStaticRequiredArgumentProofDispositionV1::NonExact(representation) => {
+                return Err(
+                    ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::NonExactResult(
+                        representation.clone(),
+                    ),
+                );
             }
         }
         self.required_argument_proof_consumed = true;

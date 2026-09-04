@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
-current_execution_cohort = "legacy_phi_candidate"
+work_mode = "fast"
+current_execution_row = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
+current_execution_cohort = "required_argument_proof"
 current_design_stop = "none"
-current_blocker_token = "The caller-zero legacy PHI candidate subtree is deleted; closeout evidence records the eleven test rows removed, the reconciled SSA inventory, focused replacement tests, and the unchanged known failure-name set."
+current_blocker_token = "Preserve consume-time required-argument proof issue variants from the claim ledger through the existing bridge String boundary; do not alter argument descent, publication, or other error families."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -27,9 +27,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
-latest_card = "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+current_execution_design = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
+latest_card = "mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26"
+latest_card_path = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
 latest_card_summary = """
 The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
 cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
@@ -43,8 +43,8 @@ files and facade declarations were removed, eleven fixed test rows were
 retired, and the baseline failure-name set stayed unchanged.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+next_execution_card = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

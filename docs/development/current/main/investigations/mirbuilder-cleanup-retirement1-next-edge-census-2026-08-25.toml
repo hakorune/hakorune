@@ -81,8 +81,9 @@ non_claims = ["no field deletion/substructing", "no slot-state or clone-scrubbin
 
 [[candidate]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
-status = "accepted_but_not_selected"
+status = "selected_fast"
 kind = "typed_error_bounded_row"
+implementation_permission = true
 scope = "normal_script_direct_static_claim_ledger.rs:76-116 -> calls/script_direct_static_physical_bridge.rs:24-86"
 source_authority = "ScriptDirectStaticClaimedRowV1::consume_required_argument_proof; a consume-owned issue enum, distinct from proof-issuance ScriptDirectStaticRequiredArgumentProofIssueV1"
 canonical_issuer = "claim-ledger-owned consume issue enum; bridge carries the typed issue until the existing outer String boundary"

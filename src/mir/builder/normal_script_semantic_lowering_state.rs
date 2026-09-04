@@ -253,4 +253,5 @@ mod direct_static_claim_ledger;
 
 pub(in crate::mir::builder) use direct_static_claim_ledger::{
     ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+    ScriptDirectStaticRequiredArgumentProofConsumeIssueV1,
 };

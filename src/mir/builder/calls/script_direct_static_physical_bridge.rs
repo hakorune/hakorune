@@ -9,7 +9,9 @@
 use super::super::normal_script_direct_static_physical_publication::{
     PreparedScriptDirectStaticResultPublicationV1, ScriptDirectStaticPublicationErrorV1,
 };
-use super::super::normal_script_semantic_lowering_state::ScriptDirectStaticClaimedRowV1;
+use super::super::normal_script_semantic_lowering_state::{
+    ScriptDirectStaticClaimedRowV1, ScriptDirectStaticRequiredArgumentProofConsumeIssueV1,
+};
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::super::{
     CanonicalSameModuleCallableKeyV1, MirBuilder, SameModuleCallableNamespaceV1, ValueId,
@@ -24,7 +26,7 @@ use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
 pub(super) enum ScriptDirectStaticPhysicalBridgeErrorV1 {
     TargetMismatch,
     TargetProjection(String),
-    RequiredArgumentProof(String),
+    RequiredArgumentProof(ScriptDirectStaticRequiredArgumentProofConsumeIssueV1),
     ArgumentDescent(String),
     PhysicalArity { expected: u32, actual: usize },
     CallReceipt(UnifiedValueCallReceiptErrorV1),
@@ -84,9 +86,9 @@ where
     let target = target_key
         .canonical_global_target_v1()
         .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::TargetProjection)?;
-    claimed.consume_required_argument_proof().map_err(|error| {
-        ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(error.to_owned())
-    })?;
+    claimed
+        .consume_required_argument_proof()
+        .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof)?;
 
     let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
     let argument_values = descent
@@ -154,6 +156,19 @@ mod tests {
             error,
             ScriptDirectStaticPhysicalBridgeErrorV1::CallReceipt(
                 UnifiedValueCallReceiptErrorV1::UnifiedDisabled
+            )
+        ));
+
+        let proof_error = ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(
+            ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::DuplicateConsumption,
+        );
+        assert!(proof_error
+            .to_string()
+            .contains("duplicate required-argument proof consumption"));
+        assert!(matches!(
+            proof_error,
+            ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(
+                ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::DuplicateConsumption
             )
         ));
     }

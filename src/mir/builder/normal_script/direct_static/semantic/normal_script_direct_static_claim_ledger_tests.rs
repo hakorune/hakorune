@@ -2,6 +2,11 @@ use super::*;
 
 use std::collections::BTreeMap;
 
+use crate::mir::builder::normal_script_direct_static_join_handoff::ScalarOperandRecipeNodeV1;
+use crate::mir::builder::normal_script_direct_static_join_handoff::{
+    RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
+    VerifiedScriptDirectStaticJoinRowV1,
+};
 use crate::mir::builder::normal_script_direct_static_recipe::{
     ScriptDirectStaticRecipeDestinationV1, ScriptDirectStaticRecipeKeyV1,
     VerifiedScriptDirectStaticRecipeDemandV1, VerifiedScriptDirectStaticRecipeV1,
@@ -25,6 +30,47 @@ fn site() -> SourceExprSiteV1 {
     SourcePathV1::program_body()
         .child(SourcePathSegmentV1::ProgramBody(0))
         .expr()
+}
+
+fn required_argument_site() -> SourceExprSiteV1 {
+    SourcePathV1::program_body()
+        .child(SourcePathSegmentV1::ProgramBody(9))
+        .child(SourcePathSegmentV1::Argument(0))
+        .expr()
+}
+
+fn claimed_for_consumption(
+    required: Box<[u32]>,
+    proof: ScriptDirectStaticRequiredArgumentProofDispositionV1,
+) -> ScriptDirectStaticClaimedRowV1 {
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
+    let owner = issuer.issue().expect("source owner");
+    let statement = SourcePathV1::program_body()
+        .child(SourcePathSegmentV1::ProgramBody(9))
+        .stmt();
+    let call_site = SourcePathV1::from_node(statement.node()).expr();
+    let receiver_site = SourcePathV1::from_node(call_site.node())
+        .child(SourcePathSegmentV1::Receiver)
+        .expr();
+    let argument_site = required_argument_site();
+    let row = VerifiedScriptDirectStaticJoinRowV1::from_parts_for_test(
+        ScriptDirectStaticRecipeKeyV1::from_ordinal_for_test(7),
+        owner,
+        call_site.clone(),
+        receiver_site,
+        vec![argument_site].into_boxed_slice(),
+        call_site,
+        Box::new([]),
+        ScriptDirectStaticRecipeDestinationV1::FinalSequence { statement },
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("Helpers", "run", 1),
+        VerifiedCallableResultRepresentationV1::ExactI64,
+        required,
+    );
+    ScriptDirectStaticClaimedRowV1 {
+        row,
+        required_argument_proof: proof,
+        required_argument_proof_consumed: false,
+    }
 }
 
 fn no_direct_ledger() -> ScriptDirectStaticClaimLedgerV1 {
@@ -188,6 +234,100 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
         ))
     );
     ledger.finish().expect("all claims exhausted");
+}
+
+#[test]
+fn consume_required_argument_proof_reports_distinct_typed_failures() {
+    let mut duplicate = claimed_for_consumption(
+        Box::new([]),
+        ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Empty,
+    );
+    duplicate.required_argument_proof_consumed = true;
+    assert!(matches!(
+        duplicate.consume_required_argument_proof(),
+        Err(ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::DuplicateConsumption)
+    ));
+
+    let mut empty = claimed_for_consumption(
+        vec![0].into_boxed_slice(),
+        ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Empty,
+    );
+    assert!(matches!(
+        empty.consume_required_argument_proof(),
+        Err(ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::EmptyForRequiredOrdinals)
+    ));
+
+    let mut cardinality = claimed_for_consumption(
+        vec![0].into_boxed_slice(),
+        ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Required(Box::new([])),
+    );
+    assert!(matches!(
+        cardinality.consume_required_argument_proof(),
+        Err(ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::CardinalityMismatch)
+    ));
+
+    let argument_site = required_argument_site();
+    let mut out_of_bounds = claimed_for_consumption(
+        vec![1].into_boxed_slice(),
+        ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Required(
+            vec![RequiredArgumentProofArgumentV1::from_canonical_source(
+                1,
+                argument_site.clone(),
+                ScalarOperandRecipeNodeV1::Literal {
+                    site: argument_site.clone(),
+                    value: 1,
+                },
+            )]
+            .into_boxed_slice(),
+        ),
+    );
+    assert!(matches!(
+        out_of_bounds.consume_required_argument_proof(),
+        Err(
+            ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::OrdinalOutOfBounds {
+                ordinal: 1
+            }
+        )
+    ));
+
+    let wrong_site = SourcePathV1::program_body()
+        .child(SourcePathSegmentV1::ProgramBody(10))
+        .expr();
+    let mut site_mismatch = claimed_for_consumption(
+        vec![0].into_boxed_slice(),
+        ScriptDirectStaticRequiredArgumentProofDispositionV1::ExactI64Required(
+            vec![RequiredArgumentProofArgumentV1::from_canonical_source(
+                0,
+                wrong_site.clone(),
+                ScalarOperandRecipeNodeV1::Literal {
+                    site: wrong_site.clone(),
+                    value: 1,
+                },
+            )]
+            .into_boxed_slice(),
+        ),
+    );
+    assert!(matches!(
+        site_mismatch.consume_required_argument_proof(),
+        Err(ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::SiteMismatch { .. })
+    ));
+
+    let mut non_exact = claimed_for_consumption(
+        vec![0].into_boxed_slice(),
+        ScriptDirectStaticRequiredArgumentProofDispositionV1::NonExact(
+            VerifiedCallableResultRepresentationV1::ExactNominalBox {
+                box_name: "Token".into(),
+            },
+        ),
+    );
+    assert!(matches!(
+        non_exact.consume_required_argument_proof(),
+        Err(
+            ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::NonExactResult(
+                VerifiedCallableResultRepresentationV1::ExactNominalBox { .. }
+            )
+        )
+    ));
 }
 
 #[test]
