@@ -136,6 +136,15 @@ impl InstanceConstructorDemandManifestBuilderV1 {
 }
 
 impl VerifiedInstanceConstructorPhysicalDemandManifestV1 {
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_expectations_for_test(
+        expectations: Vec<InstanceConstructorDemandExpectationV1>,
+    ) -> Self {
+        Self {
+            expectations: expectations.into_boxed_slice(),
+        }
+    }
+
     pub(in crate::mir::builder) fn expectations(
         &self,
     ) -> &[InstanceConstructorDemandExpectationV1] {

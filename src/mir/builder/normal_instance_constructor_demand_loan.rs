@@ -4,6 +4,39 @@ use super::normal_instance_constructor_admission::{
     InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
 };
 
+/// Typed failures owned by the linear constructor-demand loan.
+///
+/// The installed manifest and the move-only ticket remain the authorities.
+/// This enum only preserves their consume/complete failures until the
+/// existing package-adapter `String` diagnostic boundary.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum InstanceConstructorDemandLoanIssueV1 {
+    ManifestMissing,
+    DuplicateExpected,
+    ForeignTicket,
+    TicketReuse,
+    Incomplete,
+}
+
+impl std::fmt::Display for InstanceConstructorDemandLoanIssueV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let diagnostic = match self {
+            Self::ManifestMissing => {
+                "[freeze:contract][mir/instance-constructor-demand/manifest-missing]"
+            }
+            Self::DuplicateExpected => {
+                "[freeze:contract][mir/instance-constructor-demand/duplicate-expected]"
+            }
+            Self::ForeignTicket => {
+                "[freeze:contract][mir/instance-constructor-demand/foreign-ticket]"
+            }
+            Self::TicketReuse => "[freeze:contract][mir/instance-constructor-demand/ticket-reuse]",
+            Self::Incomplete => "[freeze:contract][mir/instance-constructor-demand/incomplete]",
+        };
+        formatter.write_str(diagnostic)
+    }
+}
+
 #[derive(Debug)]
 pub(super) struct InstanceConstructorDemandConsumptionV1 {
     manifest: Option<VerifiedInstanceConstructorPhysicalDemandManifestV1>,
@@ -24,39 +57,30 @@ impl InstanceConstructorDemandConsumptionV1 {
     pub(super) fn consume(
         &mut self,
         ticket: InstanceConstructorDemandTicketV1,
-    ) -> Result<(), String> {
+    ) -> Result<(), InstanceConstructorDemandLoanIssueV1> {
         let Some(manifest) = self.manifest.as_ref() else {
-            return Err(
-                "[freeze:contract][mir/instance-constructor-demand/manifest-missing]".to_owned(),
-            );
+            return Err(InstanceConstructorDemandLoanIssueV1::ManifestMissing);
         };
         let mut found = None;
         for (index, expected) in manifest.expectations().iter().enumerate() {
             if expected.source_id().same_as(ticket.source_id()) && expected.role() == ticket.role()
             {
                 if found.replace(index).is_some() {
-                    return Err(
-                        "[freeze:contract][mir/instance-constructor-demand/duplicate-expected]"
-                            .to_owned(),
-                    );
+                    return Err(InstanceConstructorDemandLoanIssueV1::DuplicateExpected);
                 }
             }
         }
         let Some(index) = found else {
-            return Err(
-                "[freeze:contract][mir/instance-constructor-demand/foreign-ticket]".to_owned(),
-            );
+            return Err(InstanceConstructorDemandLoanIssueV1::ForeignTicket);
         };
         if self.consumed[index] {
-            return Err(
-                "[freeze:contract][mir/instance-constructor-demand/ticket-reuse]".to_owned(),
-            );
+            return Err(InstanceConstructorDemandLoanIssueV1::TicketReuse);
         }
         self.consumed[index] = true;
         Ok(())
     }
 
-    pub(super) fn complete(self) -> Result<(), String> {
+    pub(super) fn complete(self) -> Result<(), InstanceConstructorDemandLoanIssueV1> {
         let Some(manifest) = self.manifest else {
             return Ok(());
         };
@@ -65,7 +89,7 @@ impl InstanceConstructorDemandConsumptionV1 {
         {
             Ok(())
         } else {
-            Err("[freeze:contract][mir/instance-constructor-demand/incomplete]".to_owned())
+            Err(InstanceConstructorDemandLoanIssueV1::Incomplete)
         }
     }
 }
@@ -74,8 +98,9 @@ impl InstanceConstructorDemandConsumptionV1 {
 mod tests {
     use super::*;
     use crate::mir::builder::normal_instance_constructor_admission::{
-        InstanceConstructorDemandManifestBuilderV1, InstanceConstructorDemandRoleV1,
-        NormalInstanceConstructorSourceBatchV1,
+        InstanceConstructorDemandExpectationV1, InstanceConstructorDemandManifestBuilderV1,
+        InstanceConstructorDemandRoleV1, NormalInstanceConstructorSourceBatchV1,
+        VerifiedInstanceConstructorPhysicalDemandManifestV1,
     };
 
     #[test]
@@ -97,19 +122,95 @@ mod tests {
                 InstanceConstructorDemandRoleV1::ImmediateDeclaration,
             ))
             .expect("first ticket");
-        assert!(ledger
-            .consume(InstanceConstructorDemandTicketV1::issue(
-                &source_id,
-                InstanceConstructorDemandRoleV1::ImmediateDeclaration,
-            ))
-            .is_err());
-        assert!(ledger
-            .consume(InstanceConstructorDemandTicketV1::issue(
-                &source_id,
-                InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
-            ))
-            .is_err());
+        assert_eq!(
+            ledger
+                .consume(InstanceConstructorDemandTicketV1::issue(
+                    &source_id,
+                    InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                ))
+                .expect_err("ticket reuse"),
+            InstanceConstructorDemandLoanIssueV1::TicketReuse
+        );
+        assert_eq!(
+            ledger
+                .consume(InstanceConstructorDemandTicketV1::issue(
+                    &source_id,
+                    InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
+                ))
+                .expect_err("foreign role"),
+            InstanceConstructorDemandLoanIssueV1::ForeignTicket
+        );
         ledger.complete().expect("complete after one ticket");
+
+        let mut missing = InstanceConstructorDemandConsumptionV1::new(None);
+        assert_eq!(
+            missing
+                .consume(InstanceConstructorDemandTicketV1::issue(
+                    &source_id,
+                    InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                ))
+                .expect_err("missing manifest"),
+            InstanceConstructorDemandLoanIssueV1::ManifestMissing
+        );
+
+        let duplicate_manifest =
+            VerifiedInstanceConstructorPhysicalDemandManifestV1::from_expectations_for_test(vec![
+                InstanceConstructorDemandExpectationV1::new(
+                    &source_id,
+                    InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                ),
+                InstanceConstructorDemandExpectationV1::new(
+                    &source_id,
+                    InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                ),
+            ]);
+        let mut duplicate = InstanceConstructorDemandConsumptionV1::new(Some(duplicate_manifest));
+        assert_eq!(
+            duplicate
+                .consume(InstanceConstructorDemandTicketV1::issue(
+                    &source_id,
+                    InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                ))
+                .expect_err("duplicate expected rows"),
+            InstanceConstructorDemandLoanIssueV1::DuplicateExpected
+        );
+
+        let mut incomplete_builder = InstanceConstructorDemandManifestBuilderV1::default();
+        incomplete_builder
+            .issue_batch(&batch)
+            .expect("incomplete manifest issue");
+        assert_eq!(
+            InstanceConstructorDemandConsumptionV1::new(Some(incomplete_builder.finish()))
+                .complete()
+                .expect_err("unconsumed ticket"),
+            InstanceConstructorDemandLoanIssueV1::Incomplete
+        );
+
+        let diagnostics = [
+            (
+                InstanceConstructorDemandLoanIssueV1::ManifestMissing,
+                "[freeze:contract][mir/instance-constructor-demand/manifest-missing]",
+            ),
+            (
+                InstanceConstructorDemandLoanIssueV1::DuplicateExpected,
+                "[freeze:contract][mir/instance-constructor-demand/duplicate-expected]",
+            ),
+            (
+                InstanceConstructorDemandLoanIssueV1::ForeignTicket,
+                "[freeze:contract][mir/instance-constructor-demand/foreign-ticket]",
+            ),
+            (
+                InstanceConstructorDemandLoanIssueV1::TicketReuse,
+                "[freeze:contract][mir/instance-constructor-demand/ticket-reuse]",
+            ),
+            (
+                InstanceConstructorDemandLoanIssueV1::Incomplete,
+                "[freeze:contract][mir/instance-constructor-demand/incomplete]",
+            ),
+        ];
+        for (issue, expected) in diagnostics {
+            assert_eq!(issue.to_string(), expected);
+        }
     }
 
     #[test]

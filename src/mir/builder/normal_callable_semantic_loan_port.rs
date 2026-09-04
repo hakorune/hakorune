@@ -75,7 +75,9 @@ impl<'package, 'loan, 'port, 'collector, 'target>
     }
 
     pub(super) fn complete(self) -> Result<(), String> {
-        self.constructor_demand.complete()?;
+        self.constructor_demand
+            .complete()
+            .map_err(|error| error.to_string())?;
         self.package.complete().map_err(package_issue)
     }
 
@@ -517,7 +519,9 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             );
         }
         let source_id = ticket.source_id().clone();
-        self.constructor_demand.consume(ticket)?;
+        self.constructor_demand
+            .consume(ticket)
+            .map_err(|error| error.to_string())?;
         let inner = &mut *self.inner;
         self.package
             .with_instance_constructor_lowering_input(&source_id, |input| {
