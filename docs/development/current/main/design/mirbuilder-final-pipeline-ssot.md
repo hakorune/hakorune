@@ -578,7 +578,7 @@ post-R6 migration:
 #### M8/M9 — physical thinning and backend retirement
 
 After R7, remove builder barrel registrations, raw ports, `variable_map`
-bypasses, stale wrappers, disconnected proof modules, and retired backend
+bypasses, stale wrappers (including the parked public `emit_global_call` candidate), disconnected proof modules, and retired backend
 consumers leaf-first. A file move or tracked archive copy receives zero
 reduction credit. Each family deletes its private tests/guards/docs with the
 old edge; durable history remains in Git.

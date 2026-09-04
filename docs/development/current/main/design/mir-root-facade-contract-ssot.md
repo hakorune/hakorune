@@ -275,6 +275,42 @@ Stop:
   retire condition, unknown downstream compatibility without an accepted
   breaking disposition, or an acceptance delta requires a new bounded decision.
 
+### `MIRBUILDER-CALL-EMIT-GLOBAL-FACADE-RETIRE-R0` (M8 candidate)
+
+Decision:
+  After Call R7 reaches its production caller-zero boundary, retire the public
+  `MirBuilder::emit_global_call` convenience wrapper. The durable replacement
+  is the existing `emit_unified_call(dst, CallTarget::Global(target), args)`;
+  the wrapper is not a target or semantic authority. This is an accepted
+  breaking public-API disposition, not a deprecation adapter or privatization
+  exercise.
+
+Boundary:
+  The sole Rust definition at
+  `src/mir/builder/calls/emit.rs::MirBuilder::emit_global_call`, its module
+  header mention, and its now-unused `CanonicalGlobalTargetV1` import. The
+  exact census at `96ea549bad` is one definition and zero Rust callers; same
+  names in Hako/C helpers and historical JSON/docs are excluded.
+
+Source authority + canonical issuer:
+  `CanonicalGlobalTargetV1` and the existing `UnifiedCallEmitterBox`/typed
+  `emit_unified_call` path remain the authorities. This candidate issues no
+  semantic product and must not change Call, backend, JSON, or fallback policy.
+
+Reopen and acceptance:
+  Reopen only after R7 proves production `LegacyCallV0` writers, reissuers,
+  readers, re-entry, and fallback are zero, then rerun the exact Rust,
+  generated, macro, and FFI caller census. If it remains one definition/zero
+  callers, delete only the bounded set in one net-negative commit and run
+  quick lib/lib-tests, the root-facade and existing pointer/active-surface
+  guards, exact absence checks, and `git diff --check`. Record
+  `reference_delta = 0` only if no public reference owner needs updating.
+
+  Unknown downstream consumers are a non-claim; any discovered caller,
+  visibility break, or need for a new guard/receipt/test parks this candidate
+  without weakening the facade contract. No other emit convenience method is
+  included.
+
 ### `MIR-TEMPORARY-SURFACE-NEXT0-P0`
 
 Change:
