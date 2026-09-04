@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "dead_annotation_retire_module_invocation_brand"
+current_execution_cohort = "array_element_write_published_c_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S T0 cohort dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper, its dead_code allowance, and its now-unused import were removed. Quick test/check and existing guards are green; no semantic rewrite, visibility widening, new test/guard/receipt/fixture/port, fallback, or rebaseline was made. The next ArrayElementWrite projection candidate remains family-local ParkedSealed."
+current_blocker_token = "M7-S ArrayElementWrite cutover is fast-open. Reuse the canonical ArrayElementWrite owner and PublishedMirBackendView; add one typed selected-C physical consumer for LiteralAppend/Push/Set/Insert, then remove the three selected native project_module_to_legacy_calls edges in the same series. Split the 780/797-line physical owners before adding behavior. VM and llvmlite remain outside this cohort; no name/registry/LegacyCall fallback, new semantic receipt, or per-cohort guard."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,20 +43,18 @@ writer and stopped at an earlier static terminal, so they were not acceptance.
 The six invalid probe assets were RetireFromTree'd at f15098cf0b, with stale
 paths and default integration discovery at zero. The semantic cohort remains
 ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
-fixed comparator target remains 7555/7393/133/29. The next ArrayElementWrite
-projection candidate is ParkedSealed until a sole native V1 consumer or
-pre-artifact terminal, four-operation parity, and finite caller delete-set
-exist. The bounded T0 cleanup dead_annotation_retire_module_invocation_brand
-landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
+fixed comparator target remains 7555/7393/133/29. ArrayElementWrite now has an
+accepted bounded selected-C cutover: the existing canonical owner feeds one
+PublishedMirBackendView physical row family, all four writes are consumed
+without name repair, and the three selected native projection calls retire in
+the same series; VM and llvmlite are excluded. The preceding bounded T0 cleanup
+dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one
+compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
 changes.
-The emitter fanout cleanup candidate is now explicitly ParkedSealed: its
-forwarding hops carry distinct profile/lookup/replay/receipt/physical-writer
-contracts, and frame-count reduction alone removes no production old edge.
-The FastMem source-fate census is also ParkedSealed: Product `.hako` callers=0, 26 Proof/Test regions and 82 executable `mem.assume*` calls still cross parser/AST/Program-JSON transport; retain MIR `MemOp` and await bounded retirement.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

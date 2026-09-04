@@ -392,21 +392,15 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = landed
-implementation permission = false
-current cohort = `dead_annotation_retire_module_invocation_brand`
+status = fast_open
+implementation permission = true
+current cohort = `array_element_write_published_c_cutover_i0`
 
-The selected cohort is a bounded nonsemantic T0 cleanup: the private
-`_family_is_route_typed` helper in `src/mir/builder/module_invocation_brand_p0.rs`
-has no caller, so its `dead_code` allowance and now-unused import may be removed
-without widening visibility or changing the invocation-brand owner. The prior
-`stage1_return_call_parked_assets_repay` cohort remains landed below; this T0
-does not reopen it or the parked ArrayElementWrite family.
-
-T0 contract: source delta is negative; semantic Call delta is zero; new guard=0;
-new receipt=0; new test=0; fixed failure-name set unchanged; no fixture, port,
-fallback, retry, or rebaseline. Landed at `33b69f3e9e` with the focused brand
-fixture's four tests green.
+The selected cohort replaces the selected-C legacy projection for the existing
+canonical `ArrayElementWrite`; it does not create a new semantic issuer.
+`ArraySurface` plus `ArrayElementWriteOwner` remain authority, while one
+borrowed `PublishedMirBackendView` row family carries exact site, kind,
+receiver, optional index, value, destination shape, and WRITE effect to C.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -459,7 +453,7 @@ because the current import closure cannot reach `FuncLoweringBox`.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
-| 8 parked | `array_element_write_legacy_projection` / Park | `array_element_write::project_module_to_legacy_calls` still feeds three selected native artifact callers; `Insert` has no complete generic consumer | `ParkedSealed__SelectedNativeConsumerRequiresLegacyProjection`; reopen only with one native V1 consumer or pre-artifact terminal, four-operation parity, and finite caller delete-set |
+| 8 active | `array_element_write_published_c_cutover_i0` / Promote+Delete | add one typed selected-C consumer for LiteralAppend/Push/Set/Insert, then remove projection calls at `exec.rs:492,553,573`; keep VM, llvmlite `:512`, canonicalizer | all four source/MIR-to-EXE/OBJ positives; malformed shape/capability/residual/typed-array negatives before artifact; projection 3→0, fallback/retry 0 |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
@@ -469,9 +463,8 @@ repository.
 ##### Dependency tail (not yet executable)
 
 `9a40ece824` (JSON-v0 Stop) -> `f15098cf0b` (Stage1 asset repayment) ->
-ArrayElementWrite legacy projection (family-local `ParkedSealed` until one
-native V1 consumer or pre-artifact terminal, four-operation parity, and finite
-delete-set) -> remaining MIR-to-JoinIR readers -> M7 caller-zero schema deletion.
+ArrayElementWrite typed selected-C cutover -> remaining MIR-to-JoinIR readers
+-> M7 caller-zero schema deletion.
 Open one owner at a time; do not repeat the broad census. Stage1 terminal
 ownership/predicate naming is reopen-only: an unchanged route reaching
 `FuncLoweringBox` keeps the existing tag and may rename `_has_return_call` to
@@ -480,6 +473,21 @@ If that route ever reopens, first narrow the body-wide Call-marker probe to the
 exact Return-child shape (the current probe can overreject a separate
 Call-then-Return statement); no test seam or fallback. Other closed
 reader-stop/delete details remain in Git.
+
+##### ArrayElementWrite selected-C cutover contract
+
+Execute as one 2–5 commit series: (1) behavior-neutral owner split before
+touching `exec.rs` (780 lines) or `same_module_body_emit.inc` (797 lines);
+(2) extend the existing published view/temporary C frame with a distinct array
+write row and one C owner; (3) consume all four kinds with receiver/index/value
+in canonical order, write result `Void`, and no JSON name/arity/`args[0]`
+repair; (4) switch the three selected native callers and delete their legacy
+projection calls; (5) close out tests/docs. `Insert` needs a direct physical
+operation in this owner; do not route it through the incomplete generic-method
+registry. Missing index, unexpected index, unknown kind, missing capability,
+residual legacy write, or typed-array projection attempt rejects before
+artifact and never retries. New semantic receipt/guard/fixture = 0.
+`new guard=0`; `new receipt=0`; fixed failure-name set unchanged.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
