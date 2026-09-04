@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIRBUILDER-T3-CLEANUP-R0"
-current_execution_cohort = "plan_canon_facade"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
+current_execution_cohort = "direct_mir_json_duplicate_reader_delete"
 current_design_stop = "none"
-current_blocker_token = "T3 plan/canon cleanup landed: the caller-zero forwarding shelf and module registration were deleted, generic_loop_canon remains the sole owner, and focused tests/guards are green."
+current_blocker_token = "Delete only the unreachable duplicate --mir-json-file reader in runner/dispatch.rs. The earlier runner/mod.rs branch is the sole direct owner and must preserve MIR-v1/v0 success plus malformed/Program-JSON rejection."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Do not repeat the broad Call census. JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako shared compatibility remain ParkedSealed. The reusable MIRBUILDER-T3-CLEANUP-R0 lane runs cohort route_selection_test_facade, then plan_canon_facade only after closeout. Add no per-item guard/receipt. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. On success advance the finite Delete/Delete/Stop/Stop queue; R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -27,24 +27,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
-latest_card = "mirbuilder-cleanup-retirement1-next-edge-census"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+latest_card = "mirbuilder-final-pipeline-ssot"
+latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. M7-S orders 1--3 are closed and the remaining Call families are
-ParkedSealed. The route-selection test facade cleanup landed with src delta -9
-and focused registry tests 175/175 green. The plan/canon forwarding shelf
-cleanup is also landed: eight forwarding files and the plan module registration
-were removed, generic_loop_canon remains the sole owner, focused generic-loop
-tests passed 5/5, and no semantic Call/test/baseline delta was introduced. No
-additional pre-R7 cleanup candidate is selected; return to the family-local R6
-frontier when a finite Promote/Stop/Delete tuple appears.
+zero. Worker audits decomposed the formerly shared boundaries into four finite
+outer leaves: duplicate direct-MIR reader Delete, skip_ws probe reader Delete,
+canonical Value fallthrough Stop, and METHODIZE reissuer Stop. The first leaf
+is active; it deletes the unreachable dispatch-local --mir-json-file cascade
+while preserving runner/mod -> core_executor -> json_artifact as sole owner.
 """
 next_design_card = "none"
-next_execution_card = "none__return_to_family_local_r6_census"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

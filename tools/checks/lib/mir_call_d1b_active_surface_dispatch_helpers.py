@@ -160,16 +160,18 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
         api.fail(f"{T3_CLEANUP_ROW} must not open a second design card")
 
     manifest_rel = str(T3_CLEANUP_MANIFEST)
-    for key in ("latest_card_path", "current_execution_design", "next_execution_card_path"):
+    for key in ("latest_card_path", "current_execution_design"):
         if state.get(key) != manifest_rel:
             api.fail(f"{T3_CLEANUP_ROW} {key} drifted")
     next_card = state.get("next_execution_card")
     if mode == "fast" and next_card != T3_CLEANUP_ROW:
         api.fail(f"{T3_CLEANUP_ROW} fast next_execution_card drifted")
     if mode == "closeout" and next_card != "none":
-        next_path = root / manifest_rel
+        next_path = root / str(state.get("next_execution_card_path", ""))
+        if not next_path.is_file():
+            api.fail(f"{T3_CLEANUP_ROW} selected next task path is missing")
         if str(next_card) not in next_path.read_text(encoding="utf-8"):
-            api.fail(f"{T3_CLEANUP_ROW} selected next task is not in its manifest")
+            api.fail(f"{T3_CLEANUP_ROW} selected next task is not owned by its path")
 
     with (root / T3_CLEANUP_MANIFEST).open("rb") as handle:
         manifest = tomllib.load(handle)
@@ -232,6 +234,93 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
     if delta > 0:
         api.fail(f"{T3_CLEANUP_ROW} src line delta is positive: {delta}")
     print(f"[{api.TAG}] row={T3_CLEANUP_ROW} cohort={cohort} delta={delta}")
+
+
+def check_wasm_legacy_reader_stop_r0(
+    state: dict,
+    root: Path,
+    api,
+    *,
+    row: str,
+    reader: str,
+    stop_tag: str,
+    required: tuple[str, ...],
+    owners: tuple[str, ...],
+) -> None:
+    """Validate one historical WASM reader-stop contract."""
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none" or state.get("next_design_card") != "none":
+        api.fail(f"{row} must not have an open design stop")
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
+        api.fail(f"{row} next_execution_card drifted")
+    final_rel = str(api.FINAL_PIPELINE_REL)
+    for key in ("next_execution_card_path", "latest_card_path"):
+        if state.get(key) != final_rel:
+            api.fail(f"{row} {key} drifted")
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    for token in (row, reader, stop_tag, *required):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    expected = (
+        ("status = fast_open", "implementation permission = true")
+        if mode == "fast"
+        else ("status = landed", "implementation permission = false")
+    )
+    for token in expected:
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    if len(card_text.splitlines()) > 1000:
+        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
+    for rel in owners:
+        path = root / rel
+        if not path.is_file() or sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner missing or reached 800 lines: {rel}")
+
+
+def check_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
+    """Validate M7-S scheduling; source tests own cohort semantics."""
+    row = "MIR-CALL-LEGACY-READER-STOP-R0"
+    mode = state.get("work_mode")
+    cohort = state.get("current_execution_cohort")
+    if not isinstance(cohort, str) or not cohort or not all(
+        char.islower() or char.isdigit() or char == "_" for char in cohort
+    ):
+        api.fail(f"{row} requires one finite snake_case cohort token")
+    if mode not in {"fast", "closeout"} or state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer mode/row drifted")
+    if state.get("current_design_stop") != "none" or state.get("next_design_card") != "none":
+        api.fail(f"{row} must not have an open design stop")
+    next_card = state.get("next_execution_card")
+    if mode == "fast" and next_card != row:
+        api.fail(f"{row} fast next_execution_card drifted")
+    if mode == "closeout" and next_card != "none":
+        next_path = root / str(state.get("next_execution_card_path", ""))
+        if not next_path.is_file() or str(next_card) not in next_path.read_text(encoding="utf-8"):
+            api.fail(f"{row} selected next task is not owned by its path")
+    final_rel = str(api.FINAL_PIPELINE_REL)
+    for key in ("next_execution_card_path", "latest_card_path", "current_execution_design"):
+        if state.get(key) != final_rel:
+            api.fail(f"{row} {key} drifted")
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    for token in (row, cohort, "new guard=0", "new receipt=0", "fixed failure-name set unchanged"):
+        if token not in card_text:
+            api.fail(f"{row}/{cohort} contract is missing: {token}")
+    expected = (
+        ("status = fast_open", "implementation permission = true")
+        if mode == "fast"
+        else ("status = landed", "implementation permission = false")
+    )
+    for token in expected:
+        if token not in card_text:
+            api.fail(f"{row}/{cohort} contract is missing: {token}")
+    if len(card_text.splitlines()) > 1000:
+        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
+    print(f"[{api.TAG}] row={row} cohort={cohort}")
 
 
 def check_legacy_phi_candidate_retire_r0(state: dict, root: Path, api) -> None:

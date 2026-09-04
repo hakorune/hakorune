@@ -178,40 +178,17 @@ or one compatibility reader and typed terminal (for Stop), one real caller,
 an exclusive delete-set, and no unclassified red. A family with zero/multiple
 owners remains `ParkedSealed` while other eligible families may proceed.
 
-JSON v0 remains parked with shared external callers. JSON v1 now has one
-bounded Stop cohort whose verification prerequisite is closed: its sole parser
-owner emits five `LegacyCallV0` forms (`Global`, `Method`, `Extern`, `Value`,
-value-style `Closure`) while typed `NewBox`/`NewClosure` construction is
-separable. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0` with the one generic
-scheduler dispatch; add no cohort row, receipt, adapter, or cohort-specific
-guard. The pointer must select this cohort before implementation. Select
-Delete/Stop before Promote/T0 and measure production old-edge reduction, not
-row count. `Stop` may end an unsupported experimental reader without backend
-parity; `Delete` still requires caller-zero. This is scheduling, not a second
-semantic task ledger.
-
-The 2026-09-04 current-HEAD worker audit found a finite reduction queue without
-opening another semantic design: (1) delete caller-zero
-`src/mir/join_ir_to_mir/**`, (2) delete the unreachable WASM P10 legacy-shape
-island after its Global/Extern/Method preflight stops, then (3) stop the one raw
-indirect unified-off `LegacyCallV0(Callee::Value)` writer before child descent.
-The final-pipeline SSOT owns exact files, counts, acceptance, and Park triggers.
-JSON v0, active MIR -> JoinIR loop readers, and selected-C/Hako automatic
-compatibility remain ParkedSealed because they have shared callers or no
-exclusive delete-set. R7 enum deletion remains closed until production legacy
-writers, reissuers, readers, compatibility re-entry, and fallback are all zero.
-No BoxShape task is selected and no per-cohort card, receipt, or guard is added.
-Orders 1--3 are closed: the caller-zero JoinIR bridge, unreachable WASM P10
-shape island, and raw-indirect unified-off legacy writer are retired/stopped.
-The remaining Call families have no exact action tuple and stay family-local
-ParkedSealed. The caller-zero
-`RecipeFirstRouteSelectionV1::selection_for_test` T3 cleanup is landed with
-focused registry tests 175/175 green and src delta -9. The private
-`plan/canon/**` forwarding-shelf retirement is also landed: eight forwarding
-files and the module registration were removed, `generic_loop_canon/**`
-remains the sole owner, and focused generic-loop tests are 5/5 green. Neither
-cleanup is R6/R7 progress; no additional pre-R7 cleanup candidate is selected
-until a finite Promote/Stop/Delete tuple appears.
+The 2026-09-04 worker audit decomposed the former shared boundaries at their
+outer leaves. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; do not add a new
+card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
+The executable order is `direct_mir_json_duplicate_reader_delete`, then
+`skip_ws_probe_reader_delete`, `canonical_value_fallthrough_stop`, and
+`methodize_fallthrough_stop`. Only the first is active. The final-pipeline SSOT
+owns each owner/terminal/delete-set and acceptance; this workstream does not
+duplicate them. Shared JSON v0, remaining MIR-to-JoinIR, and selected-C/Hako
+internals stay family-local `ParkedSealed` outside those leaves. R7 opens only
+after production writers, reissuers, readers, compatibility re-entry, and
+fallback are zero.
 
 ### S-class gate coverage (navigation only)
 
@@ -237,10 +214,9 @@ S5 Release       owner: hakoruneup-release-distribution-ssot; clean checkout,
 ```
 
 S2's differential harness, rule traceability, S4 bootstrap proof, and S5
-release packaging are therefore planned but deliberately unopened while the
-broader R6 reader inventory remains incomplete. The current `138`-name whole-library red
-receipt is known debt, not a green claim; it must be classified and excluded
-from any future S2/S5 completion assertion rather than silently rebaselined.
+release packaging are planned but unopened. The accepted whole-library receipt
+is `7555/7393/133/29`; it is stable known debt, not a green claim or permission
+to rebaseline.
 
 ### Compact closed tail
 
@@ -249,8 +225,8 @@ from any future S2/S5 completion assertion rather than silently rebaselined.
 - Repository/tooling tombstones: legacy-tests `bcc9a6ba65`; entrypoint policy
   `06454bd084`/`c78889dc0b`/`b22a87392d`; baseline/matrix
   `878480e395`/`80dc7102fb`; current accepted receipt is
-  `7578/7411/138/29` after the explicit M3-A focused-test inventory refresh.
-- focused green is not a whole-repo green claim; the 138-name receipt remains known debt.
+  `7555/7393/133/29`; the earlier 138-name receipt is historical.
+- focused green is not a whole-repo green claim; the 133-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive
 tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive

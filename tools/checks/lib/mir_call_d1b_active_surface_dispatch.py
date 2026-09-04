@@ -6,11 +6,13 @@ from pathlib import Path
 
 from mir_call_d1b_active_surface_dispatch_helpers import (
     check_boxshape_maintenance,
+    check_legacy_reader_stop_r0,
     check_t3_cleanup,
     T3_CLEANUP_ROW,
     check_legacy_phi_candidate_retire_r0,
     check_method_call_handlers_policy_split_s0,
     check_raw_root_cleanup,
+    check_wasm_legacy_reader_stop_r0,
     dispatch_coreplan_varmap_reseal_row,
 )
 from mir_call_d1b_active_surface_rows import (
@@ -385,54 +387,8 @@ WASM_METHOD_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-METHOD
 LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-R0"
 
 
-def _check_wasm_legacy_reader_stop_r0(
-    state: dict,
-    root: Path,
-    api,
-    *,
-    row: str,
-    reader: str,
-    stop_tag: str,
-    required: tuple[str, ...],
-    owners: tuple[str, ...],
-) -> None:
-    mode = state.get("work_mode")
-    if mode not in {"fast", "closeout"}:
-        api.fail(f"{row} must be fast or closeout")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if state.get("current_design_stop") != "none":
-        api.fail(f"{row} must clear current_design_stop")
-    if state.get("next_design_card") != "none":
-        api.fail(f"{row} must not open a second design card")
-    expected_next = row if mode == "fast" else "none"
-    if state.get("next_execution_card") != expected_next:
-        api.fail(f"{row} next_execution_card drifted")
-    final_rel = str(api.FINAL_PIPELINE_REL)
-    for key in ("next_execution_card_path", "latest_card_path"):
-        if state.get(key) != final_rel:
-            api.fail(f"{row} {key} drifted")
-    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
-    for token in (row, reader, stop_tag, *required):
-        if token not in card_text:
-            api.fail(f"{row} contract is missing: {token}")
-    status = "status = fast_open" if mode == "fast" else "status = landed"
-    permission = "implementation permission = true" if mode == "fast" else "implementation permission = false"
-    for token in (status, permission):
-        if token not in card_text:
-            api.fail(f"{row} contract is missing: {token}")
-    if len(card_text.splitlines()) > 1000:
-        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-    for rel in owners:
-        path = root / rel
-        if not path.is_file():
-            api.fail(f"{row} implementation owner is missing: {rel}")
-        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
-            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
-
-
 def _check_wasm_legacy_global_reader_stop_r0(state: dict, root: Path, api) -> None:
-    _check_wasm_legacy_reader_stop_r0(
+    check_wasm_legacy_reader_stop_r0(
         state, root, api,
         row=api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW,
         reader="LegacyCallV0(Global)",
@@ -519,7 +475,7 @@ def _check_vm_global_canonical_cutover_r0(
 
 
 def _check_wasm_extern_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
-    _check_wasm_legacy_reader_stop_r0(
+    check_wasm_legacy_reader_stop_r0(
         state, root, api,
         row=WASM_EXTERN_LEGACY_READER_STOP_R0_ROW,
         reader="LegacyCallV0(Callee::Extern)",
@@ -536,7 +492,7 @@ def _check_wasm_extern_legacy_reader_stop_r0(state: dict, root: Path, api) -> No
 
 
 def _check_wasm_method_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
-    _check_wasm_legacy_reader_stop_r0(
+    check_wasm_legacy_reader_stop_r0(
         state, root, api,
         row=WASM_METHOD_LEGACY_READER_STOP_R0_ROW,
         reader="LegacyCallV0(Callee::Method)",
@@ -552,135 +508,6 @@ def _check_wasm_method_legacy_reader_stop_r0(state: dict, root: Path, api) -> No
             api.fail(f"{WASM_METHOD_LEGACY_READER_STOP_R0_ROW} obsolete BoxCall builtin owner remains")
     print(f"[{api.TAG}] row={WASM_METHOD_LEGACY_READER_STOP_R0_ROW} delegated=wasm-method-reader-stop")
 
-
-def _check_json_v1_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
-    """Dispatch the generic M7-S parent for the selected JSON-v1 cohort."""
-    row = LEGACY_READER_STOP_R0_ROW
-    mode = state.get("work_mode")
-    if mode not in {"fast", "closeout"}:
-        api.fail(f"{row} must be fast or closeout")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if state.get("current_execution_cohort") != "json_v1_legacy_call_ingress":
-        api.fail(f"{row} requires the selected json_v1_legacy_call_ingress cohort")
-    if state.get("current_design_stop") != "none":
-        api.fail(f"{row} must clear current_design_stop")
-    if state.get("next_design_card") != "none":
-        api.fail(f"{row} must not open a second design card")
-    expected_next = row if mode == "fast" else "none"
-    if state.get("next_execution_card") != expected_next:
-        api.fail(f"{row} next_execution_card drifted")
-    final_rel = str(api.FINAL_PIPELINE_REL)
-    if state.get("latest_card_path") != final_rel or state.get("next_execution_card_path") != final_rel:
-        api.fail(f"{row} requires final-pipeline latest/next card paths")
-    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
-    required = (
-        row,
-        "json_v1_legacy_call_ingress",
-        "src/runner/json_v1_bridge/parse/mir_call.rs",
-        "[freeze:contract][mir-json-v1/legacy-call-stopped]",
-        "Global",
-        "Method",
-        "Extern",
-        "Value",
-        "value-style `Closure`",
-        "Constructor -> NewBox",
-        "Closure -> NewClosure",
-        "target reconstruction",
-        "cohort-specific guard",
-    )
-    for token in required:
-        if token not in card_text:
-            api.fail(f"{row} contract is missing: {token}")
-    status = "status = fast_open" if mode == "fast" else "status = landed"
-    permission = "implementation permission = true" if mode == "fast" else "implementation permission = false"
-    for token in (status, permission):
-        if token not in card_text:
-            api.fail(f"{row} contract is missing: {token}")
-    for rel in (
-        "src/runner/json_v1_bridge/parse/mir_call.rs",
-        "src/runner/json_v1_bridge/parse/tests.rs",
-    ):
-        path = root / rel
-        if not path.is_file():
-            api.fail(f"{row} implementation owner is missing: {rel}")
-        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
-            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
-    if mode == "closeout":
-        source = (root / "src/runner/json_v1_bridge/parse/mir_call.rs").read_text(encoding="utf-8")
-        if "MirInstruction::LegacyCallV0" in source:
-            api.fail(f"{row} JSON-v1 LegacyCallV0 writer remains")
-    print(f"[{api.TAG}] row={row} cohort=json_v1_legacy_call_ingress")
-
-
-def _check_legacy_reduction_cohort(state: dict, root: Path, api) -> None:
-    """Validate a finite M7-S reduction cohort through the shared parent guard."""
-    row = LEGACY_READER_STOP_R0_ROW
-    mode = state.get("work_mode")
-    cohort = state.get("current_execution_cohort")
-    contracts = {
-        "raw_indirect_unified_off_stop": (
-            "MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0",
-            "build_indirect_call_expression_with_port_v1",
-            "child descent/MIR mutation",
-        ),
-    }
-    if cohort not in contracts:
-        api.fail(f"{row} unsupported reduction cohort: {cohort}")
-    if mode not in {"fast", "closeout"}:
-        api.fail(f"{row} must be fast or closeout")
-    if state.get("current_execution_row") != row:
-        api.fail(f"{row} pointer row drifted")
-    if state.get("current_design_stop") != "none":
-        api.fail(f"{row} must clear current_design_stop")
-    if state.get("next_design_card") != "none":
-        api.fail(f"{row} must not open a second design card")
-    next_card = state.get("next_execution_card")
-    if mode == "fast" and next_card != row:
-        api.fail(f"{row} fast next_execution_card drifted")
-    if mode == "closeout" and next_card != "none":
-        next_card_path = root / str(state.get("next_execution_card_path", ""))
-        if not next_card_path.is_file():
-            api.fail(f"{row} selected next_execution_card_path is missing")
-        if str(next_card) not in next_card_path.read_text(encoding="utf-8"):
-            api.fail(f"{row} selected next_execution_card is not owned by its path")
-    final_rel = str(api.FINAL_PIPELINE_REL)
-    for key in ("next_execution_card_path", "latest_card_path"):
-        if state.get(key) != final_rel:
-            api.fail(f"{row} {key} drifted")
-    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
-    task_id, owner_token, boundary_token = contracts[cohort]
-    for token in (
-        row,
-        cohort,
-        task_id,
-        owner_token,
-        boundary_token,
-        "new guard=0",
-        "new receipt=0",
-        "fixed failure-name set unchanged",
-    ):
-        if token not in card_text:
-            api.fail(f"{row}/{cohort} contract is missing: {token}")
-    status = "status = fast_open" if mode == "fast" else "status = landed"
-    permission = "implementation permission = true" if mode == "fast" else "implementation permission = false"
-    for token in (status, permission):
-        if token not in card_text:
-            api.fail(f"{row}/{cohort} contract is missing: {token}")
-    if len(card_text.splitlines()) > 1000:
-        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-    expected = root / "src/mir/builder/exprs_call.rs"
-    if not expected.is_file() or sum(1 for _ in expected.open(encoding="utf-8")) >= 800:
-        api.fail(f"{row}/{cohort} implementation owner missing or reached 800 lines")
-    print(f"[{api.TAG}] row={row} cohort={cohort}")
-
-
-def _check_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
-    """Dispatch the existing M7-S guard by finite cohort, without new rows."""
-    if state.get("current_execution_cohort") == "json_v1_legacy_call_ingress":
-        _check_json_v1_legacy_reader_stop_r0(state, root, api)
-    else:
-        _check_legacy_reduction_cohort(state, root, api)
 
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
@@ -727,7 +554,7 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
     elif row == WASM_METHOD_LEGACY_READER_STOP_R0_ROW:
         _check_wasm_method_legacy_reader_stop_r0(state, root, api)
     elif row == LEGACY_READER_STOP_R0_ROW:
-        _check_legacy_reader_stop_r0(state, root, api)
+        check_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

@@ -453,11 +453,11 @@ reader are closed tombstones; they are not reopened.
 
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 
-status = landed
-implementation permission = false
-current cohort = `raw_indirect_unified_off_stop`
+status = fast_open
+implementation permission = true
+current cohort = `direct_mir_json_duplicate_reader_delete`
 
-After the R6 canonical core checkpoint, stop each legacy product reader by one
+After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
 
 ```text
@@ -475,63 +475,63 @@ The initial stop inventory is:
 5. MIR/Program JSON ingress that still produces a product-reachable legacy
    carrier.
 
-Each stop is caller-by-caller and must name its delete-set. It does not require
-feature parity or a replacement backend. A stopped unsupported profile is a
-valid result. A compatibility route may remain only as an explicit outer
-entrypoint and must never be selected after canonical failure. If that outer
-entrypoint still has a live production caller, R7 remains closed until the
-caller is removed or migrated.
+Each cohort names one owner, terminal, real caller, finite delete-set, and
+focused acceptance. Feature parity is not a Stop prerequisite. The shared
+guard validates only this parent row and active cohort token; source tests and
+the implementation diff own cohort semantics. Add no per-cohort dispatcher,
+card, receipt, adapter, fixture file, or guard.
 
-Landed M7-S tombstones (full evidence remains in Git and the owning manifest):
+##### Active execution brief
 
-| boundary | commit | closed result |
-| --- | --- | --- |
-| WASM legacy Global | `833eb87a80` | pre-artifact stop; name/arity/zero repair deleted |
-| WASM legacy Extern | `3c7f5ea5bc` | pre-artifact stop; lowering/name reader deleted |
-| WASM legacy Method | `4b090c5060` | pre-artifact stop; BoxCall/Method reader deleted |
-| VM canonical Global + legacy stop | `111216b539` | typed FreeFunction/StaticBoxMethod; legacy Global zero |
-| VM legacy Value | `c43e9cd09c` | pre-dispatch stop; register repair deleted |
-| VM legacy Method | `9333c530da` | pre-dispatch stop; trace/bridge/repair deleted |
+```text
+Change:
+  Delete the unreachable duplicate --mir-json-file reader in runner/dispatch;
+  runner/mod -> core_executor -> json_artifact remains the sole direct owner.
+Contract:
+  Preserve direct MIR-v1/v0 success and malformed/Program-JSON rejection.
+  Do not change the shared JSON decoder or LegacyCallV0 semantics.
+Done:
+  dispatch reader 1->0, direct parser cascade 2->1, source delta negative;
+  focused positive/negative and fixed failure-name set unchanged;
+  new guard=0 and new receipt=0.
+Stop:
+  Park only this cohort if any path can reach dispatch with mir_json_file set,
+  or deletion changes terminal behavior or requires a replacement adapter.
+```
 
-Unrelated landed guard/BoxShape cleanup is historical only (`5690939d04`,
-`f482f84957`, `7965b1f2f9`, `8def150e1d`) and is not M7-S progress.
+##### Finite reduction queue (worker-audited 2026-09-04)
 
-The JSON-v1 cohort is landed: its five call-like writers are caller-zero while
-`Constructor -> NewBox` and `Closure -> NewClosure` remain canonical.
+| order | cohort / action | exact boundary and delete-set | acceptance / reopen |
+| --- | --- | --- | --- |
+| 1 active | `direct_mir_json_duplicate_reader_delete` / Delete | `runner/dispatch.rs` duplicate `mir_json_file` branch; earlier `runner/mod.rs` branch terminates every state | one direct owner; v1/v0 positives and malformed/Program negatives unchanged |
+| 2 | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs`; MIR probe and handwritten arms both end at `build_skip_ws_joinir` | direct builder preserves generic-first and missing-target `None`; otherwise Park |
+| 3 | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
+| 4 | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | reject before parse/publication/backend; delete methodize aliases and reissuer |
 
-##### Remaining boundary disposition (worker-audited 2026-09-04)
+On success, tombstone the active line with its commit and select the next line
+in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
+an observable reopen trigger and continue. `UnclassifiedRed` alone stops the
+repository.
 
-| order | boundary | action | exact owner / evidence | result or reopen trigger |
-| --- | --- | --- | --- | --- |
-| 1 | Structured JoinIR -> MIR reference bridge | Delete | `src/mir/join_ir_to_mir/**`; non-test caller 0, 13 files / 1,885 lines / 4 legacy writers / 15 private tests | landed at `6ffd30eb65`; module and bridge-only tests/inventory retired; no replacement |
-| 2 | WASM P10 legacy shape island | Delete | `src/backend/wasm/shape_table/p10.rs`; preflight already stopped its Extern/Method input before matcher | landed at `9ebdad720c`; private matcher/writer tests, guards, smokes, and fixtures retired; shared binary helpers kept |
-| 3 | raw indirect unified-off writer | Stop | `builder/exprs_call.rs::build_indirect_call_expression_with_port_v1`; one production dispatch | landed at `e31567bf06`; OFF rejects before child descent/MIR mutation; ON calls existing typed `Callee::Value`; LegacyCallV0 writer deleted |
-| parked | JSON v0 Call ingress | Park | one writer but at least three live external caller groups and live Hako producers | reopen after callers use typed wire or explicit terminal and `name`/`func` repair has a finite delete-set |
-| parked | active MIR -> JoinIR loop readers | Park | `cfg_shape::has_string_method`, `loop_form_intake::intake_loop_form` | reopen with one typed producer/delete-set or retire the whole specialized route with corpus parity |
-| parked | selected-C/Hako automatic compatibility | Park | shared transition/name routes, no exclusive delete-set | reopen only at one typed consumer or one pre-artifact terminal |
+##### Dependency tail (not yet executable)
 
-Orders 1--3 reuse this parent row; they do not create per-cohort cards,
-receipts, or guards. Before activating order 1, make the existing M7-S guard
-cohort-driven instead of adding a dispatcher branch. Each cohort must be net
-negative, remove at least one legacy production/reader edge, and keep the
-fixed failure-name set unchanged before the next cohort opens.
+```text
+singleton name/args[0] reissuer Stop
+  -> Stage1 forced-unified-off writer cutover or typed Stop
+  -> shared JSON-v0 Call ingress Stop
+  -> ArrayElementWrite legacy projection cutover/Stop
+  -> remaining MIR-to-JoinIR legacy readers retire
+  -> M7 caller-zero schema deletion
+```
 
-The shared M7-S guard remains one owner with no per-cohort dispatcher branch;
-orders 1--3 are tombstoned above and are no longer active dispatch choices.
-Every cohort records `new guard=0`, `new receipt=0`, and an unchanged fixed
-failure-name set before closeout.
+The tail opens one owner at a time only after its predecessor exposes one real
+caller and finite delete-set. JSON v0, the remaining active MIR-to-JoinIR
+reader, and selected-C/Hako shared compatibility otherwise stay family-local
+`ParkedSealed`; do not repeat the broad census.
 
-Order 1 `JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0` is now closed by caller-zero
-physical retirement; its deleted bridge-only tests are removed from the current
-inventory and the fixed failure-name set is unchanged. If a non-test/external
-API commitment appears, Park it without adapting the bridge. Order 2
-`WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0` is now closed; it did not implement Hako
-WASM or a canonical WASM consumer, and its historical lock docs remain only as
-evidence. For the shared M7-S closeout contract, the P10 cohort has
-`status = landed` at `9ebdad720c`, `implementation permission = false`, `new guard=0`,
-`new receipt=0`, and a fixed failure-name set unchanged. Order 3 is
-`MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0` is landed at `e31567bf06`; OFF proves no
-callee/argument descent, ValueId allocation, or MIR mutation; ON observes typed `Callee::Value`.
+Landed reader-stop/delete detail remains in Git. The closed families include
+WASM Global/Extern/Method, VM Global/Value/Method, JSON-v1 call-like writers,
+Structured JoinIR->MIR, WASM P10, and raw-indirect unified-off.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
@@ -636,13 +636,11 @@ R6 schema readiness (worker-audited 2026-09-03):
   Promote only with one source issuer, lossless consumer, caller, terminal,
   and exclusive delete-set; Stop a compatibility reader only with the same
   finite proof; Delete only at caller-zero; otherwise ParkedSealed.
-  Current Call action queue is exhausted; JSON v0, active MIR-to-JoinIR, and
-  selected-C/Hako stay family-local ParkedSealed. Do not repeat C0. Next is
-  MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0, then the private plan/canon shelf
-  retirement owned by the cleanup task map. They only reduce repository
-  surface. Open R7 only after all production legacy callers reach zero.
-  Current JSON v0 name/func stop remains parked: shared external callers
-  prevent an exclusive delete-set. No implementation claim.
+  The former aggregate families were decomposed at their outer boundaries.
+  M7-S now owns a finite Delete/Delete/Stop/Stop queue beginning with the
+  caller-zero duplicate direct-MIR JSON reader. Shared JSON v0, remaining
+  MIR-to-JoinIR, and selected-C/Hako internals remain ParkedSealed beyond those
+  named leaves. Open R7 only after every production legacy caller reaches zero.
 ```
 
 The exact landed commits and command receipts remain in Git and
