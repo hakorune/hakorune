@@ -33,10 +33,10 @@ Related:
   published-view ingress for SameModuleInstance. R6 Group B's VM canonical
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
-- **Latest bounded work:** VM Global/Extern reader stops, the stale WSM-G4-min8
-  probe retarget, and the Rust WASM Legacy Extern reader stop are landed. No
-  next exact reader tuple is selected; reopen only when the finite authority,
-  consumer, caller, terminal, and delete-set tuple is present.
+- **Latest bounded work:** the fixed baseline is stable at
+  `7570/7408/133/29`. A current-HEAD worker audit selected three finite
+  reduction cohorts: caller-zero Structured JoinIR -> MIR reference bridge,
+  unreachable WASM P10 legacy shapes, then raw-indirect unified-off Stop.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -431,16 +431,6 @@ successor receipt accepted after explicit reconciliation. No semantic,
 BoxShape, performance, or test-retirement work is implied; the separately
 selected JSON-v1 compatibility Stop is recorded below.
 
-Worker-audited cleanup queue (2026-09-04): the verification incident keeps all
-BoxShape implementation parked. After `StableKnownRed`, the existing cleanup
-card may select one behavior-neutral line-budget split: `indexing.rs` test-tail
-split (790 -> 355 production lines, seven tests/module paths unchanged), the
-`normal_script_direct_statement_owner.rs` test-surface fragments, or the
-`normal_script_semantic_source_tests.rs` fragments. `raw_invocation_source_transport`
-is already split at `0bd6732792` and is a no-op. No new row, guard, receipt,
-test deletion, or semantic Call change is authorized by this observation; the
-three candidates remain parked until the pointer explicitly selects one.
-
 #### M4 — `MIR-CALL-MANDATORY-CALLEE-R6`
 
 Open only for one family satisfying the exact trigger. The bounded series is:
@@ -463,9 +453,9 @@ reader are closed tombstones; they are not reopened.
 
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 
-status = landed
-implementation permission = false
-current cohort = `json_v1_legacy_call_ingress`
+status = queued
+implementation permission = false until the pointer activates the selected cohort
+next cohort = `joinir_reference_bridge_delete`
 
 After the R6 canonical core checkpoint, stop each legacy product reader by one
 of exactly three outcomes:
@@ -506,24 +496,33 @@ Landed M7-S tombstones (full evidence remains in Git and the owning manifest):
 Unrelated landed guard/BoxShape cleanup is historical only (`5690939d04`,
 `f482f84957`, `7965b1f2f9`, `8def150e1d`) and is not M7-S progress.
 
-##### Selected cohort — `json_v1_legacy_call_ingress`
+The JSON-v1 cohort is landed: its five call-like writers are caller-zero while
+`Constructor -> NewBox` and `Closure -> NewClosure` remain canonical.
 
-V0 has restored `StableKnownRed`; reuse the generic parent row
-`MIR-CALL-LEGACY-READER-STOP-R0` and its one generic scheduler dispatch. Do not
-add a cohort row or cohort-specific guard dispatcher.
-The sole compatibility owner is `src/runner/json_v1_bridge/parse/mir_call.rs`.
-Stop its five `LegacyCallV0` writers (`Global`, `Method`, `Extern`, `Value`, and
-value-style `Closure`) before block mutation with
-`[freeze:contract][mir-json-v1/legacy-call-stopped]`.
+##### Remaining boundary disposition (worker-audited 2026-09-04)
 
-Delete `bump_max_value_id_from_call`, Global name/alias/arity parse-back,
-empty-`box_name` Method repair, value-Closure capture argv repair, and unused
-imports when caller-zero. Preserve `Constructor -> NewBox` and new-style
-`Closure -> NewClosure`. Use the existing parser test owner for five exact
-negative cases plus the two construction positives. No canonical target
-reconstruction, test file, receipt, fallback, or per-cohort guard is added.
-Landed with the consolidated parser stop test; the current fixed successor
-baseline is `7570/7408/133/29` and no new failure names were observed.
+| order | boundary | action | exact owner / evidence | result or reopen trigger |
+| --- | --- | --- | --- | --- |
+| 1 | Structured JoinIR -> MIR reference bridge | Delete | `src/mir/join_ir_to_mir/**`; non-test caller 0, 13 files / 1,885 lines / 4 legacy writers / 15 private tests | delete module, two test-only callers, private docs/inventory edges; no replacement |
+| 2 | WASM P10 legacy shape island | Delete | `src/backend/wasm/shape_table/p10.rs`; preflight already stops its Extern/Method input before matcher | delete 8 matchers, 7 hooks/readers, private tests/guards/smokes/fixtures; keep shared binary helpers |
+| 3 | raw indirect unified-off writer | Stop | `builder/exprs_call.rs::build_indirect_call_expression_with_port_v1`; one production dispatch | OFF rejects before child descent/MIR mutation; ON calls existing typed `Callee::Value`; delete one legacy writer |
+| parked | JSON v0 Call ingress | Park | one writer but at least three live external caller groups and live Hako producers | reopen after callers use typed wire or explicit terminal and `name`/`func` repair has a finite delete-set |
+| parked | active MIR -> JoinIR loop readers | Park | `cfg_shape::has_string_method`, `loop_form_intake::intake_loop_form` | reopen with one typed producer/delete-set or retire the whole specialized route with corpus parity |
+| parked | selected-C/Hako automatic compatibility | Park | shared transition/name routes, no exclusive delete-set | reopen only at one typed consumer or one pre-artifact terminal |
+
+Orders 1--3 reuse this parent row; they do not create per-cohort cards,
+receipts, or guards. Before activating order 1, make the existing M7-S guard
+cohort-driven instead of adding a dispatcher branch. Each cohort must be net
+negative, remove at least one legacy production/reader edge, keep the fixed
+failure-name set unchanged, and close before the next cohort opens.
+
+Order 1 is `JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0`: its authority is
+caller-zero physical retirement. If a non-test/external API commitment appears,
+Park it without adapting the bridge. Order 2 is
+`WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0`; it does not implement Hako WASM or a
+canonical WASM consumer. Order 3 is
+`MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0`; its negative proof observes no
+callee/argument descent, ValueId allocation, or MIR mutation.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

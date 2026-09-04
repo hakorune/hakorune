@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "The finite M1/M2 and post-Group-B censuses are closed. Do not repeat them. Reopen one existing R6 family only when source authority, typed issuer, lossless selected consumer, real caller, fail-fast terminal, exclusive old-edge delete-set, outside readers, and the source budget form one exact tuple. After R6, stop or quarantine every product-reachable legacy reader without requiring feature parity; R7 opens only at caller-zero. Reuse existing guards/tests and retire family-private assets with the old edge."
+guard_followup = "Do not repeat the broad census. The selected net-negative queue is JoinIR reference bridge Delete -> WASM P10 island Delete -> raw-indirect unified-off Stop. Reuse generic M7-S, make its existing checker cohort-driven without a new dispatcher/guard, close each cohort before the next, and keep JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako shared compatibility ParkedSealed. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -55,8 +55,8 @@ focused tests, vm-reference check, and fixed-baseline comparison pass.
 C2 typed claim-completion transport landed at 3bd69bf79a: ledger issues remain typed through the forwarding chain, Unavailable stays distinct, and 45 focused tests plus vm-reference/pointer/baseline checks pass.
 """
 next_design_card = "none"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

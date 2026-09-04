@@ -190,13 +190,17 @@ row count. `Stop` may end an unsupported experimental reader without backend
 parity; `Delete` still requires caller-zero. This is scheduling, not a second
 semantic task ledger.
 
-The worker audit found no safe new R6 reader-stop candidate inside the
-existing inventory. The three previously parked, behavior-neutral
-line-budget options (`indexing.rs` test-tail, `normal_script_direct_statement_owner.rs`
-test fragments, and `normal_script_semantic_source_tests.rs` fragments) are
-already landed under the reusable BoxShape maintenance row; the raw transport
-split is also closed and must not be reopened. They remain outside the Call
-completion metric. No further BoxShape split is selected by this card.
+The 2026-09-04 current-HEAD worker audit found a finite reduction queue without
+opening another semantic design: (1) delete caller-zero
+`src/mir/join_ir_to_mir/**`, (2) delete the unreachable WASM P10 legacy-shape
+island after its Global/Extern/Method preflight stops, then (3) stop the one raw
+indirect unified-off `LegacyCallV0(Callee::Value)` writer before child descent.
+The final-pipeline SSOT owns exact files, counts, acceptance, and Park triggers.
+JSON v0, active MIR -> JoinIR loop readers, and selected-C/Hako automatic
+compatibility remain ParkedSealed because they have shared callers or no
+exclusive delete-set. R7 enum deletion remains closed until production legacy
+writers, reissuers, readers, compatibility re-entry, and fallback are all zero.
+No BoxShape task is selected and no per-cohort card, receipt, or guard is added.
 
 ### S-class gate coverage (navigation only)
 
