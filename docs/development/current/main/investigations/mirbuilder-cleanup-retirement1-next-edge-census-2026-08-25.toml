@@ -182,7 +182,7 @@ reopen_trigger = "Only a finite retirement row with successor-equivalence and ca
 
 [[candidate]]
 id = "MIRBUILDER-NORMAL-SCRIPT-FACADE-D0"
-status = "accepted_but_not_selected"
+status = "parked_sealed_no_exclusive_delete_set"
 kind = "design_only_topology"
 scope = "normal_script #[path] ingress at builder.rs and normal_script runtime/source child modules"
 source_authority = "existing logical normal_script owners and their current module paths; no new semantic receipt"
@@ -195,6 +195,18 @@ acceptance = [
   "no source move, re-export, semantic change, or new #[path] is made in D0",
 ]
 non_claims = ["no module move", "no direct-static recipe change", "no builder/compiler seam resolution"]
+rechecked_at = "2026-09-05"
+rechecked_head = "83ab3180b0"
+recheck_decision = "Topology census is complete, but implementation remains ParkedSealed: all six edges have live owners and the move/delete set is empty."
+recheck_edges = [
+  "builder.rs -> normal_script_direct_static_recipe -> normal_script_a/consumer.rs",
+  "normal_script_runtime_block_port.rs -> enum_declaration_completion",
+  "normal_script_runtime_work.rs -> demand_manifest",
+  "normal_script_semantic_lowering_input.rs -> direct_static_claim_input",
+  "normal_script_semantic_lowering_state.rs -> binding_materialization",
+  "normal_script_semantic_lowering_state.rs -> direct_static_claim_ledger",
+]
+reopen_trigger = "Reopen only when one edge has a path-preserving byte-identical successor and an exclusive delete-set; do not add a facade, re-export, #[path], receipt, guard, or source move to manufacture one."
 
 [[candidate]]
 id = "MIRBUILDER-LINE-BUDGET-SPLIT-D0"
