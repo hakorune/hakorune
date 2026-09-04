@@ -832,7 +832,7 @@ require_fixed '<HAKO_BIN|NYASH_BIN> --backend mir --emit-mir-json' "$EMIT_MIR_RO
 if rg -n "nyash/hakorune binary not found" "$EMIT_MIR_ROUTE"; then
   guard_fail "$TAG" "emit MIR route helper must use Hakorune-first binary wording"
 fi
-for bridge_script in "$BRIDGE_CANON_DIR/canonicalize_noop_method_on_vm.sh" "$BRIDGE_CANON_DIR/canonicalize_fail_vm.sh"; do
+for bridge_script in "$BRIDGE_CANON_DIR/canonicalize_on_vm.sh" "$BRIDGE_CANON_DIR/canonicalize_fail_vm.sh"; do
   require_fixed '"$NYASH_BIN" --json-file "$json_path"' "$bridge_script"
   if rg -n 'target/release/nyash" --json-file' "$bridge_script"; then
     guard_fail "$TAG" "bridge canonicalize smoke must use shared Hakorune-first NYASH_BIN resolver"

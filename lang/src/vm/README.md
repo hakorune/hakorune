@@ -50,8 +50,8 @@ Policy
 Static Box Methods（Singleton / self）
 - 規約: 静的Boxのメソッドは「self（Singleton）を先頭引数」に持つ。
   - 例: `LLVMPhiInstructionBox.lower_phi(self, dst, incoming_list)`
-- 互換: `HAKO_BRIDGE_INJECT_SINGLETON=1`（alias: `NYASH_BRIDGE_INJECT_SINGLETON`）で旧スタイル
-  `PhiInst.lower_phi(dst, incoming)` に Singleton を注入して実行。
+- 旧JSON bridgeのSingleton注入（`HAKO_BRIDGE_INJECT_SINGLETON` と
+  `NYASH_BRIDGE_INJECT_SINGLETON`）は退役済みで、入口でtyped rejectする。
 - Fail‑Fast: 期待 arity と不一致は静かなフォールバックをせず、安定メッセージで失敗する。
   詳細: `docs/development/architecture/llvm/static_box_singleton.md`
 

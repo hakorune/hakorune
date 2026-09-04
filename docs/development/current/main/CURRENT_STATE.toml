@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "methodize_fallthrough_stop"
+current_execution_cohort = "singleton_name_args0_reissuer_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort methodize_fallthrough_stop landed at 24ece062bb: retired HAKO_BRIDGE_METHODIZE/NYASH_BRIDGE_METHODIZE now stop before JSON mutation, publication, or backend entry; singleton and phi transforms are preserved; no new consumer/guard/receipt/adapter."
+current_blocker_token = "M7-S cohort singleton_name_args0_reissuer_stop is fast-open: retired HAKO_BRIDGE_INJECT_SINGLETON/NYASH_BRIDGE_INJECT_SINGLETON must stop before JSON mutation, publication, or backend entry; delete singleton name/args[0] reissuer; preserve early-phi and JSON classification; no new consumer/guard/receipt/adapter."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,13 +36,13 @@ closed until production legacy writers/reissuers/readers/re-entry/fallback are
 zero. The finite M7-S queue landed duplicate direct-MIR reader Delete at
 ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, canonical Value
 fallthrough Stop at a33987e8e4, and METHODIZE reissuer Stop at 24ece062bb.
-Retired JSON bridge methodize aliases fail before mutation; singleton/phi
-transforms remain unchanged. The fixed comparator target is 7555/7393/133/29.
-No next leaf has an exact caller/delete-set tuple, so the dependency tail stays
-family-local ParkedSealed without a new D0, receipt, guard, or scheduler arm.
+The sole active leaf is singleton_name_args0_reissuer_stop: retired singleton
+aliases must fail before JSON mutation while early-phi and JSON classification
+remain unchanged. Fixed comparator target is 7555/7393/133/29; no new
+consumer/guard/receipt/adapter is permitted.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

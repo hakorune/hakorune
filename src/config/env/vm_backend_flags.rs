@@ -213,12 +213,6 @@ pub fn nyvm_core_wrapper() -> bool {
         .unwrap_or(false)
 }
 
-pub fn nyvm_bridge_inject_singleton() -> bool {
-    env_flag("HAKO_BRIDGE_INJECT_SINGLETON")
-        .or_else(|| env_flag("NYASH_BRIDGE_INJECT_SINGLETON"))
-        .unwrap_or(false)
-}
-
 pub fn nyvm_bridge_early_phi_materialize() -> bool {
     env_flag("HAKO_BRIDGE_EARLY_PHI_MATERIALIZE")
         .or_else(|| env_flag("NYASH_BRIDGE_EARLY_PHI_MATERIALIZE"))

@@ -1,5 +1,5 @@
 #!/bin/bash
-# canonicalize_on_vm.sh — Bridge canonicalize ON (opt-in)
+# canonicalize_on_vm.sh — Retired singleton canonicalize route (opt-in)
 
 set -euo pipefail
 
@@ -17,31 +17,26 @@ if [ "${SMOKES_ENABLE_BRIDGE_CANON:-0}" != "1" ]; then
   exit 0
 fi
 
-# Default-on: bridge canonicalize on
+# Singleton injection is retired; this smoke fixes the pre-mutation stop.
 
 # Minimal v1 JSON with only const/copy/ret (no mir_call), should run regardless
-json_path="/tmp/ny_v1_const_$$.json"
-log_path="/tmp/bridge_canonicalize_on_$$.log"
-trap 'rm -f "$json_path" "$log_path"' EXIT
-BIN="$ROOT/target/release/hakorune"
-LEGACY_NYASH_BIN="$ROOT/target/release/nyash"
-if [ ! -x "$BIN" ] && [ -x "$LEGACY_NYASH_BIN" ]; then
-  BIN="$LEGACY_NYASH_BIN"
-fi
+json_path="/tmp/ny_v1_singleton_retired_$$.json"
+trap 'rm -f "$json_path"' EXIT
 cat >"$json_path" <<'JSON'
-{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"const","dst":1,"value":{"type":"i64","value":7}},{"op":"ret","value":1}]}]}]}
+{"schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[{"op":"mir_call","mir_call":{"callee":{"type":"ModuleFunction","name":"LLVMPhiInstructionBox.lower_phi"},"args":[1,2]}},{"op":"ret"}]}]}]}
 JSON
 
 set +e
-HAKO_NYVM_V1_DOWNCONVERT=1 HAKO_BRIDGE_INJECT_SINGLETON=1 \
-  "$BIN" --json-file "$json_path" >"$log_path" 2>&1
+output=$(HAKO_NYVM_V1_DOWNCONVERT=1 HAKO_BRIDGE_INJECT_SINGLETON=1 \
+  "$NYASH_BIN" --json-file "$json_path" 2>&1)
 rc=$?
 set -e
-if [ $rc -eq 0 ]; then
-  echo "[PASS] bridge_canonicalize_on"
+if [ $rc -ne 0 ] && echo "$output" | grep -q \
+  "\[freeze:contract\]\[mir-json-bridge/singleton-injection-retired\]"; then
+  echo "[PASS] bridge_singleton_retired"
   exit 0
 else
-  cat "$log_path" >&2
-  echo "[FAIL] bridge_canonicalize_on: expected rc=0, got $rc" >&2
+  printf '%s\n' "$output" >&2
+  echo "[FAIL] bridge_singleton_retired: expected typed rejection, got rc=$rc" >&2
   exit 1
 fi
