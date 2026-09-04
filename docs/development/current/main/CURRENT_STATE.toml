@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "stage1_return_call_legacy_writer_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort stage1_return_call_legacy_writer_stop is fast-open: Stage1/Hako Program(JSON-v0) Return(Call) must stop before legacy op=call/name/arity repair, partial defs publication, or backend entry; preserve non-call defs and NewBox/NewClosure; no new consumer/guard/receipt/adapter. Structural implementation and compile/parser checks are green, but the runtime smoke cannot reach this gate because the pre-existing ParserStringUtilsBox.starts_with static-call retirement fires first; do not claim closeout or widen this row."
+current_blocker_token = "M7-S cohort stage1_return_call_legacy_writer_stop is fast-open: Stage1/Hako Program(JSON-v0) Return(Call) must stop before legacy op=call/name/arity repair, partial defs publication, or backend entry; preserve non-call defs and NewBox/NewClosure; no new consumer/guard/receipt/adapter. Structural implementation and compile/parser checks are green, but the runtime smoke cannot reach this gate because the pre-existing ParserStringUtilsBox.starts_with static-call retirement fires first. Worker audit classifies that Program(JSON-v0) compatibility bundle as ParkedSealed__CompatibilityBundleHasNoSourceBackedStaticIssuer; Main raw/qualified issuer rows are already landed. Do not claim closeout or widen this row."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,7 +43,10 @@ removed in the worktree with null propagation and typed stop documentation;
 fixed comparator target is 7555/7393/133/29 and no new
 consumer/guard/receipt/adapter is permitted. Runtime smoke closeout is still
 blocked before the selected gate by the pre-existing ParserStringUtilsBox
-starts_with static-call retirement; this is not a Stage1 Return(Call) result.
+starts_with static-call retirement; worker audit classifies that compatibility
+bundle as ParkedSealed__CompatibilityBundleHasNoSourceBackedStaticIssuer, and
+Main raw/qualified issuer rows are already landed. This is not a Stage1
+Return(Call) result.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

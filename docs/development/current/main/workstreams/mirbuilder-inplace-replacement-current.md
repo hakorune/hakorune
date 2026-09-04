@@ -190,7 +190,11 @@ its retired JSON singleton name/args[0] reissuer is stopped before mutation,
 the singleton rewrite code is gone, and early-phi/JSON classification remain
 unchanged. The next exact leaf is `stage1_return_call_legacy_writer_stop`:
 Stage1/Hako Return(Call) stops before partial defs publication, preserving
-non-call/NewBox/NewClosure. The final-pipeline SSOT owns each
+non-call/NewBox/NewClosure. Its structural writer removal is landed, but the
+selected runtime smoke is pre-gated by the independent Program(JSON-v0)
+`ParserStringUtilsBox.starts_with` static retirement; worker audit classifies
+that compatibility bundle as `ParkedSealed__CompatibilityBundleHasNoSourceBackedStaticIssuer`,
+while Main raw/qualified issuer rows remain landed. The final-pipeline SSOT owns each
 owner/terminal/delete-set and acceptance; this workstream does not duplicate
 them. Shared JSON v0, remaining MIR-to-JoinIR, and selected-C/Hako internals
 stay family-local `ParkedSealed`. R7 opens only after production writers,
