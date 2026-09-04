@@ -19,4 +19,4 @@ This subfamily holds the active WSM-G4 browser/playground progression.
 
 - `g2_browser/` remains the browser bridge dependency for the baseline smoke.
 - Keep new WSM-G4 cases under this directory.
-- The next subfamily to inspect is `p10/`.
+- The P10 shape island is retired; no follow-up subfamily is selected here.

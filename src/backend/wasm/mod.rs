@@ -16,7 +16,6 @@ pub use codegen::{WasmCodegen, WasmModule};
 pub use memory::{BoxLayout, MemoryManager};
 pub use runtime::RuntimeImports;
 
-use self::binary_writer::LoopExternImport;
 use crate::mir::{Callee, MirInstruction, MirModule};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -48,46 +47,6 @@ pub fn compile_hako_native_shape_emit(
     enforce_wasm_mir_backend_supported(mir_module)?;
 
     let Some(found) = shape_table::match_native_shape(mir_module) else {
-        if let Some(shape_id) =
-            shape_table::detect_p10_min6_warn_native_promotable_shape(mir_module)
-        {
-            let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
-                4,
-                LoopExternImport::ConsoleWarn,
-            )?;
-            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
-        }
-        if let Some(shape_id) =
-            shape_table::detect_p10_min7_info_native_promotable_shape(mir_module)
-        {
-            let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
-                4,
-                LoopExternImport::ConsoleInfo,
-            )?;
-            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
-        }
-        if let Some(shape_id) =
-            shape_table::detect_p10_min8_error_native_promotable_shape(mir_module)
-        {
-            let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
-                4,
-                LoopExternImport::ConsoleError,
-            )?;
-            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
-        }
-        if let Some(shape_id) =
-            shape_table::detect_p10_min9_debug_native_promotable_shape(mir_module)
-        {
-            let bytes = binary_writer::build_loop_extern_call_skeleton_module_with_import(
-                4,
-                LoopExternImport::ConsoleDebug,
-            )?;
-            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
-        }
-        if let Some(shape_id) = shape_table::detect_p10_min4_native_promotable_shape(mir_module) {
-            let bytes = binary_writer::build_loop_extern_call_skeleton_module(3)?;
-            return Ok(Some(WasmNativeShapeEmit { bytes, shape_id }));
-        }
         return Ok(None);
     };
     let bytes = binary_writer::build_minimal_main_i32_const_module(found.value)?;
@@ -203,13 +162,6 @@ impl WasmBackend {
                 shape_id: Some(found.shape.id()),
             }
         } else {
-            // WSM-P10-min2 analysis-only inventory hook.
-            // Keep default route bridge-only while making matcher observable in codepath.
-            let _p10_candidate_id = shape_table::detect_p10_loop_extern_call_candidate(mir_module);
-            // WSM-P10-min5 expansion inventory hook (analysis-only).
-            // Keep route unchanged while fixing next native-promotion candidates.
-            let _p10_min5_inventory_id =
-                shape_table::detect_p10_min5_expansion_inventory_shape(mir_module);
             WasmHakoDefaultLaneTrace {
                 plan: WasmHakoDefaultLanePlan::BridgeRustBackend,
                 shape_id: None,
@@ -258,63 +210,6 @@ impl WasmBackend {
     /// Emits the minimum valid wasm binary without WAT conversion.
     pub fn build_minimal_i32_const_wasm(&self, value: i32) -> Result<Vec<u8>, WasmError> {
         binary_writer::build_minimal_main_i32_const_module(value)
-    }
-
-    /// Contract helper for WSM-P10-min3.
-    /// Emits loop/branch/call writer skeleton without changing default route.
-    pub fn build_loop_extern_call_skeleton_wasm(
-        &self,
-        iterations: i32,
-    ) -> Result<Vec<u8>, WasmError> {
-        binary_writer::build_loop_extern_call_skeleton_module(iterations)
-    }
-
-    /// Contract helper for WSM-P10-min6.
-    /// Emits loop/branch/call skeleton importing `env.console_warn`.
-    pub fn build_loop_extern_warn_skeleton_wasm(
-        &self,
-        iterations: i32,
-    ) -> Result<Vec<u8>, WasmError> {
-        binary_writer::build_loop_extern_call_skeleton_module_with_import(
-            iterations,
-            LoopExternImport::ConsoleWarn,
-        )
-    }
-
-    /// Contract helper for WSM-P10-min7.
-    /// Emits loop/branch/call skeleton importing `env.console_info`.
-    pub fn build_loop_extern_info_skeleton_wasm(
-        &self,
-        iterations: i32,
-    ) -> Result<Vec<u8>, WasmError> {
-        binary_writer::build_loop_extern_call_skeleton_module_with_import(
-            iterations,
-            LoopExternImport::ConsoleInfo,
-        )
-    }
-
-    /// Contract helper for WSM-P10-min8.
-    /// Emits loop/branch/call skeleton importing `env.console_error`.
-    pub fn build_loop_extern_error_skeleton_wasm(
-        &self,
-        iterations: i32,
-    ) -> Result<Vec<u8>, WasmError> {
-        binary_writer::build_loop_extern_call_skeleton_module_with_import(
-            iterations,
-            LoopExternImport::ConsoleError,
-        )
-    }
-
-    /// Contract helper for WSM-P10-min9.
-    /// Emits loop/branch/call skeleton importing `env.console_debug`.
-    pub fn build_loop_extern_debug_skeleton_wasm(
-        &self,
-        iterations: i32,
-    ) -> Result<Vec<u8>, WasmError> {
-        binary_writer::build_loop_extern_call_skeleton_module_with_import(
-            iterations,
-            LoopExternImport::ConsoleDebug,
-        )
     }
 
     /// Convert WAT text to WASM binary with proper UTF-8 handling

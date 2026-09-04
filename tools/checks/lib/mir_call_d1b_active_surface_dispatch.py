@@ -625,7 +625,7 @@ def _check_legacy_reduction_cohort(state: dict, root: Path, api) -> None:
         "wasm_p10_shape_retire": (
             "WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0",
             "src/backend/wasm/shape_table/p10.rs",
-            "preflight already stops",
+            "preflight already stopped",
         ),
         "raw_indirect_unified_off_stop": (
             "MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0",

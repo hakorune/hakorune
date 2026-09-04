@@ -202,8 +202,10 @@ exclusive delete-set. R7 enum deletion remains closed until production legacy
 writers, reissuers, readers, compatibility re-entry, and fallback are all zero.
 No BoxShape task is selected and no per-cohort card, receipt, or guard is added.
 Order 1 is now closed: the caller-zero `src/mir/join_ir_to_mir/` bridge and
-its 15 bridge-only tests are retired. The next selected cohort is the existing
-WASM P10 shape-island deletion; JSON v0, active MIR-to-JoinIR readers, and
+its 15 bridge-only tests are retired. Order 2 is now closed: the unreachable
+WASM P10 shape island and its private tests/guards/smokes/fixtures are retired;
+shared binary helpers remain. The next selected cohort is the existing raw
+indirect unified-off Stop; JSON v0, active MIR-to-JoinIR readers, and
 selected-C/Hako compatibility remain ParkedSealed.
 
 ### S-class gate coverage (navigation only)

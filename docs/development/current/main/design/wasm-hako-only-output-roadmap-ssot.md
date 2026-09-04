@@ -248,18 +248,10 @@ second bridge, route, receipt, or fallback to make the row appear executable.
    - min2 loop/canvas primer bridge lock（accepted-but-blocked done）: `29cc-191`（`phase29cc_wsm_p9_min2_loop_canvas_primer_bridge_lock_vm.sh`）。
    - min3 canvas_advanced bridge lock（accepted-but-blocked done）: `29cc-192`（`phase29cc_wsm_p9_min3_canvas_advanced_bridge_lock_vm.sh`）。
    - min4 bridge retire refresh lock（accepted-but-blocked done）: `29cc-193`（`phase29cc_wsm_p9_bridge_retire_refresh_guard.sh`）。
-12. **P10 Loop/Extern Native Emit (design-first)**
-   - min1 design lock（accepted-but-blocked done）: `29cc-194`（`phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh`）。
-   - min2 matcher inventory lock（accepted done）: `29cc-195`（`phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh`）。
-   - min3 writer section lock（accepted done）: `29cc-196`（`phase29cc_wsm_p10_loop_extern_writer_section_guard.sh`）。
-   - min4 single fixture native promotion lock（accepted done）: `29cc-197`（`phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh`）。
-   - min5 expansion inventory lock（accepted done）: `29cc-198`（`phase29cc_wsm_p10_expansion_inventory_guard.sh`）。
-   - min6 warn native promotion lock（accepted done）: `29cc-199`（`phase29cc_wsm_p10_warn_native_promotion_guard.sh`）。
-   - min7 info native promotion lock（accepted done）: `29cc-200`（`phase29cc_wsm_p10_info_native_promotion_guard.sh`）。
-   - min8 error native promotion lock（accepted done）: `29cc-201`（`phase29cc_wsm_p10_error_native_promotion_guard.sh`）。
-   - min9 debug native promotion lock（accepted done）: `29cc-202`（`phase29cc_wsm_p10_debug_native_promotion_guard.sh`）。
-   - min10 native promotion closeout lock（accepted done）: `29cc-203`（`phase29cc_wsm_p10_native_promotion_closeout_guard.sh`）。
-   - next: `none`（P10 closeout complete; monitor-only）。
+12. **P10 Loop/Extern Native Emit (historical retirement)**
+   - The experimental P10 matcher/writer island was retired as a caller-zero legacy shape cleanup in M7-S order 2.
+   - Lock documents `29cc-194` through `29cc-203` remain as historical evidence; no P10 guard, smoke, fixture, or native promotion work is active.
+   - next: `none`（P10 shape island retired; monitor-only）。
 
 ## Non-Goals
 1. 一括置換（big bang）で Rust 実装を即削除しない。

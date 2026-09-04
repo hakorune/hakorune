@@ -129,6 +129,7 @@ fn legacy_method_call_rejects_before_wasm_codegen() {
 
 #[test]
 fn test_compile_to_wasm_skips_unreachable_branch_helper_contract() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let mut module = MirModule::new("test".to_string());
 
     let main_entry = BasicBlockId::new(0);
@@ -248,16 +249,6 @@ fn wasm_binary_writer_minimal_module_contract() {
         .build_minimal_i32_const_wasm(7)
         .expect("binary writer helper must succeed");
     assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
-}
-
-#[test]
-fn wasm_binary_writer_loop_extern_skeleton_contract() {
-    let backend = WasmBackend::new();
-    let wasm = backend
-        .build_loop_extern_call_skeleton_wasm(3)
-        .expect("loop extern skeleton helper must succeed");
-    assert!(wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]));
-    assert!(wasm.windows(4).any(|w| w == b"main"));
 }
 
 #[test]

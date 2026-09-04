@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "wasm_p10_shape_retire"
 current_design_stop = "none"
-current_blocker_token = "M7-S order 2: delete the unreachable WASM P10 legacy-shape island; preflight already stops its Global/Extern/Method inputs. Keep shared binary helpers, add no replacement or new semantic authority, and close before selecting raw-indirect unified-off Stop."
+current_blocker_token = "M7-S order 2 closeout: the unreachable WASM P10 legacy-shape island and its private assets are retired; keep shared binary helpers and verify the fixed baseline before selecting raw-indirect unified-off Stop."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,13 +33,14 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. M7-S order 1 caller-zero JoinIR reference bridge deletion is closed;
-the selected fast cohort is order 2: WASM P10 deletion, followed by
-raw-indirect unified-off Stop. Fixed baseline is 7555/7393/133/29 after
-retiring 15 bridge-only tests; the failure-name set is unchanged.
+zero. M7-S order 1 caller-zero JoinIR reference bridge deletion and order 2
+WASM P10 legacy-shape retirement are closed; the fixed baseline remains
+7555/7393/133/29 after retiring 15 bridge-only tests, with the failure-name set
+unchanged. Closeout is verifying this deletion before selecting raw-indirect
+unified-off Stop.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

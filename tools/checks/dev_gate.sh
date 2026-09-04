@@ -192,16 +192,6 @@ LIST
     - tools/checks/phase29cc_wsm_p8_bridge_retire_readiness_guard.sh
     - tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh
     - tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh
-    - tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh
-    - tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh
-    - tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh
-    - tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh
-    - tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh
-    - tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh
-    - tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh
-    - tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh
-    - tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh
-    - tools/checks/phase29cc_wsm_p10_native_promotion_closeout_guard.sh
   milestone-runtime:
     - hotpath
     - phase29cc_wsm02d_milestone_gate_vm.sh
@@ -461,26 +451,6 @@ run_portability() {
     bash tools/checks/phase29cc_wsm_p9_non_native_inventory_guard.sh
   run_step "WSM-P9 bridge retire refresh guard" \
     bash tools/checks/phase29cc_wsm_p9_bridge_retire_refresh_guard.sh
-  run_step "WSM-P10 loop/extern native emit design guard" \
-    bash tools/checks/phase29cc_wsm_p10_loop_extern_native_emit_design_guard.sh
-  run_step "WSM-P10 loop/extern matcher inventory guard" \
-    bash tools/checks/phase29cc_wsm_p10_loop_extern_matcher_inventory_guard.sh
-  run_step "WSM-P10 loop/extern writer section guard" \
-    bash tools/checks/phase29cc_wsm_p10_loop_extern_writer_section_guard.sh
-  run_step "WSM-P10 single fixture native promotion guard" \
-    bash tools/checks/phase29cc_wsm_p10_single_fixture_native_promotion_guard.sh
-  run_step "WSM-P10 expansion inventory guard" \
-    bash tools/checks/phase29cc_wsm_p10_expansion_inventory_guard.sh
-  run_step "WSM-P10 warn native promotion guard" \
-    bash tools/checks/phase29cc_wsm_p10_warn_native_promotion_guard.sh
-  run_step "WSM-P10 info native promotion guard" \
-    bash tools/checks/phase29cc_wsm_p10_info_native_promotion_guard.sh
-  run_step "WSM-P10 error native promotion guard" \
-    bash tools/checks/phase29cc_wsm_p10_error_native_promotion_guard.sh
-  run_step "WSM-P10 debug native promotion guard" \
-    bash tools/checks/phase29cc_wsm_p10_debug_native_promotion_guard.sh
-  run_step "WSM-P10 native promotion closeout guard" \
-    bash tools/checks/phase29cc_wsm_p10_native_promotion_closeout_guard.sh
 }
 
 run_milestone_runtime() {

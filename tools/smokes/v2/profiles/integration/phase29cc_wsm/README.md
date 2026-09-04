@@ -6,7 +6,7 @@ This family is the live `wasm` experimental smoke home.
 - Keep wasm progression and parity evidence here without implying that `wasm`
   became a default runtime lane.
 
-This family is the next live semantic split after `vm_hako_caps`, and it currently hosts the `g3_canvas`, `g2_browser`, `g4`, `p10`, `p5`, `p6`, `p7`, and `p8` subfamilies.
+This family is the next live semantic split after `vm_hako_caps`, and it currently hosts the `g3_canvas`, `g2_browser`, `g4`, `p5`, `p6`, `p7`, and `p8` subfamilies. The historical `p10` shape island is retired; its lock docs remain as evidence.
 
 ## Experimental Split
 
@@ -19,9 +19,6 @@ This family is the next live semantic split after `vm_hako_caps`, and it current
 - `g4/`
   - Playground/browser progression for WSM-G4
   - browser / wasm fixture parity cases only
-- `p10/`
-  - loop/extern native promotion progression
-  - shared helper: `p10/phase29cc_wsm_p10_common.sh`
 - `p5/`
   - route-trace / default-lane progression for WSM-P5
   - shared helper: `p5/phase29cc_wsm_p5_route_trace_common.sh`
