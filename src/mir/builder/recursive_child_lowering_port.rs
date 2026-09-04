@@ -13,7 +13,8 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
 use super::control_flow::cleanup::CleanupExitPolicyV1;
 use super::normal_script_semantic_lowering_state::{
-    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+    ScriptDirectStaticClaimLedgerIssueV1, ScriptDirectStaticClaimTakeV1,
+    ScriptDirectStaticClaimedRowV1,
 };
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 
@@ -21,6 +22,32 @@ use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 pub(in crate::mir::builder) enum ScriptDirectStaticClaimIngressV1 {
     Unavailable,
     Available,
+}
+
+/// Completion-only transport for the existing claim-ledger issue.
+///
+/// `Unavailable` belongs to the compatibility port, while `Ledger` preserves
+/// the detecting ledger variant until the physical bridge's existing String
+/// diagnostic boundary. This is not a new semantic receipt.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ScriptDirectStaticClaimCompletionErrorV1 {
+    Unavailable,
+    Ledger(ScriptDirectStaticClaimLedgerIssueV1),
+}
+
+impl std::fmt::Display for ScriptDirectStaticClaimCompletionErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Unavailable => write!(
+                formatter,
+                "[freeze:contract][script-direct-static/claim-consumer-unavailable]"
+            ),
+            Self::Ledger(issue) => write!(
+                formatter,
+                "[freeze:contract][script-direct-static/claim-complete] {issue:?}"
+            ),
+        }
+    }
 }
 
 /// Result of asking the active raw invocation for the exact DeclaredInstance
@@ -90,8 +117,8 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     fn complete_script_direct_static_claim_v1(
         &mut self,
         _claimed: ScriptDirectStaticClaimedRowV1,
-    ) -> Result<(), String> {
-        Err("[freeze:contract][script-direct-static/claim-consumer-unavailable]".to_owned())
+    ) -> Result<(), ScriptDirectStaticClaimCompletionErrorV1> {
+        Err(ScriptDirectStaticClaimCompletionErrorV1::Unavailable)
     }
 
     /// Borrow the exact receiver value for a source-backed DeclaredInstance

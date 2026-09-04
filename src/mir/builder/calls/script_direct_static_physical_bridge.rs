@@ -13,6 +13,7 @@ use super::super::normal_script_semantic_lowering_state::{
     ScriptDirectStaticClaimedRowV1, ScriptDirectStaticRequiredArgumentProofConsumeIssueV1,
 };
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::recursive_child_lowering_port::ScriptDirectStaticClaimCompletionErrorV1;
 use super::super::{
     CanonicalSameModuleCallableKeyV1, MirBuilder, SameModuleCallableNamespaceV1, ValueId,
 };
@@ -31,7 +32,7 @@ pub(super) enum ScriptDirectStaticPhysicalBridgeErrorV1 {
     PhysicalArity { expected: u32, actual: usize },
     CallReceipt(UnifiedValueCallReceiptErrorV1),
     Publication(ScriptDirectStaticPublicationErrorV1),
-    ClaimCompletion(String),
+    ClaimCompletion(ScriptDirectStaticClaimCompletionErrorV1),
 }
 
 impl std::fmt::Display for ScriptDirectStaticPhysicalBridgeErrorV1 {
@@ -130,6 +131,7 @@ fn validate_claimed_target_v1(
 
 #[cfg(test)]
 mod tests {
+    use super::super::super::normal_script_semantic_lowering_state::ScriptDirectStaticClaimLedgerIssueV1;
     use super::*;
 
     #[test]
@@ -171,5 +173,27 @@ mod tests {
                 ScriptDirectStaticRequiredArgumentProofConsumeIssueV1::DuplicateConsumption
             )
         ));
+
+        let completion_error = ScriptDirectStaticPhysicalBridgeErrorV1::ClaimCompletion(
+            ScriptDirectStaticClaimCompletionErrorV1::Ledger(
+                ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState,
+            ),
+        );
+        assert!(completion_error.to_string().contains("UnknownClaimState"));
+        assert!(matches!(
+            completion_error,
+            ScriptDirectStaticPhysicalBridgeErrorV1::ClaimCompletion(
+                ScriptDirectStaticClaimCompletionErrorV1::Ledger(
+                    ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState
+                )
+            )
+        ));
+
+        let unavailable = ScriptDirectStaticPhysicalBridgeErrorV1::ClaimCompletion(
+            ScriptDirectStaticClaimCompletionErrorV1::Unavailable,
+        );
+        assert!(unavailable
+            .to_string()
+            .contains("claim-consumer-unavailable"));
     }
 }

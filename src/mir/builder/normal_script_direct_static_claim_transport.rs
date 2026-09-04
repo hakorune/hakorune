@@ -15,7 +15,9 @@ use super::super::normal_script_semantic_lowering_state::{
 use super::super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawSourceTransportPortV1,
 };
-use super::super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
+use super::super::recursive_child_lowering_port::{
+    ScriptDirectStaticClaimCompletionErrorV1, ScriptDirectStaticClaimIngressV1,
+};
 use super::RawInvocationChildPortV1;
 
 fn classify_script_direct_static_claim_ingress_v1(
@@ -137,13 +139,14 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(in crate::mir::builder) fn complete_script_direct_static_claim_inner_v1(
         &mut self,
         claimed: ScriptDirectStaticClaimedRowV1,
-    ) -> Result<(), String> {
+    ) -> Result<(), ScriptDirectStaticClaimCompletionErrorV1> {
         let Some(ledger) = self.semantic_ledger.clone() else {
-            return Err(
-                "[freeze:contract][script-direct-static/claim-consumer-unavailable]".to_owned(),
-            );
+            return Err(ScriptDirectStaticClaimCompletionErrorV1::Unavailable);
         };
-        let result = ledger.borrow_mut().complete_direct_static_claim(claimed);
+        let result = ledger
+            .borrow_mut()
+            .complete_direct_static_claim(claimed)
+            .map_err(ScriptDirectStaticClaimCompletionErrorV1::Ledger);
         result
     }
 }

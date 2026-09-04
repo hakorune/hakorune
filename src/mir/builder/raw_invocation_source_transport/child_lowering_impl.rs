@@ -1,5 +1,7 @@
 use super::*;
-use crate::mir::builder::recursive_child_lowering_port::DeclaredInstanceReceiverIngressV1;
+use crate::mir::builder::recursive_child_lowering_port::{
+    DeclaredInstanceReceiverIngressV1, ScriptDirectStaticClaimCompletionErrorV1,
+};
 
 impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type BodyInput = Vec<ASTNode>;
@@ -28,7 +30,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn complete_script_direct_static_claim_v1(
         &mut self,
         claimed: ScriptDirectStaticClaimedRowV1,
-    ) -> Result<(), String> {
+    ) -> Result<(), ScriptDirectStaticClaimCompletionErrorV1> {
         self.complete_script_direct_static_claim_inner_v1(claimed)
     }
 

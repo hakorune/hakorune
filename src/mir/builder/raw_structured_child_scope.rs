@@ -22,7 +22,9 @@ use super::recursive_child_lowering::{
     AppMainDirectCallDispositionPortV1, RawFunctionHeaderLookupPortV1, RawOrdinaryNewClaimPortV1,
     RecursiveChildLoweringPortV1,
 };
-use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
+use super::recursive_child_lowering_port::{
+    ScriptDirectStaticClaimCompletionErrorV1, ScriptDirectStaticClaimIngressV1,
+};
 use super::static_result_publication_ingress::{
     StaticResultPublicationIngressErrorV1, StaticResultPublicationIngressPortV1,
     StaticResultPublicationIngressV1,
@@ -185,7 +187,7 @@ where
     fn complete_script_direct_static_claim_v1(
         &mut self,
         claimed: ScriptDirectStaticClaimedRowV1,
-    ) -> Result<(), String> {
+    ) -> Result<(), ScriptDirectStaticClaimCompletionErrorV1> {
         self.child.complete_script_direct_static_claim_v1(claimed)
     }
 

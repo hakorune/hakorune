@@ -1129,6 +1129,14 @@ publication sibling stay below the 760-line split trigger; the reusable
 `script_direct_static_target_guard.sh` checks the single receipt/publication
 path and the no-fallback boundary.
 
+Claim completion is a separate typed transport boundary: the existing
+`ScriptDirectStaticClaimLedgerIssueV1` is carried through the state, raw-child,
+and structured-scope completion hooks, while compatibility ports expose a
+distinct `Unavailable` outcome. The physical bridge stringifies this transport
+only at its existing diagnostic edge. Completion remains last, after Call and
+result publication; failures are terminal and make no rollback, reinsertion,
+or retry claim.
+
 ## Script direct-static canonical physical input I0
 
 `VerifiedScriptDirectStaticPhysicalInputV1` is the narrow AST-free input for a

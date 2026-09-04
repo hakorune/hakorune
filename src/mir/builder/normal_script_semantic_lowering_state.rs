@@ -180,12 +180,8 @@ impl ScriptSemanticLoweringState {
     pub(super) fn complete_direct_static_claim(
         &mut self,
         claimed: direct_static_claim_ledger::ScriptDirectStaticClaimedRowV1,
-    ) -> Result<(), String> {
-        self.direct_static_claim_ledger
-            .complete(claimed)
-            .map_err(|error| {
-                format!("[freeze:contract][script-direct-static/claim-complete] {error:?}")
-            })
+    ) -> Result<(), direct_static_claim_ledger::ScriptDirectStaticClaimLedgerIssueV1> {
+        self.direct_static_claim_ledger.complete(claimed)
     }
 
     pub(super) fn finish_direct_static_claims(&mut self) -> Result<(), String> {
@@ -252,6 +248,6 @@ mod binding_materialization;
 mod direct_static_claim_ledger;
 
 pub(in crate::mir::builder) use direct_static_claim_ledger::{
-    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
-    ScriptDirectStaticRequiredArgumentProofConsumeIssueV1,
+    ScriptDirectStaticClaimLedgerIssueV1, ScriptDirectStaticClaimTakeV1,
+    ScriptDirectStaticClaimedRowV1, ScriptDirectStaticRequiredArgumentProofConsumeIssueV1,
 };
