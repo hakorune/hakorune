@@ -633,9 +633,15 @@ def _check_legacy_reduction_cohort(state: dict, root: Path, api) -> None:
         api.fail(f"{row} must clear current_design_stop")
     if state.get("next_design_card") != "none":
         api.fail(f"{row} must not open a second design card")
-    expected_next = row if mode == "fast" else "none"
-    if state.get("next_execution_card") != expected_next:
-        api.fail(f"{row} next_execution_card drifted")
+    next_card = state.get("next_execution_card")
+    if mode == "fast" and next_card != row:
+        api.fail(f"{row} fast next_execution_card drifted")
+    if mode == "closeout" and next_card != "none":
+        next_card_path = root / str(state.get("next_execution_card_path", ""))
+        if not next_card_path.is_file():
+            api.fail(f"{row} selected next_execution_card_path is missing")
+        if str(next_card) not in next_card_path.read_text(encoding="utf-8"):
+            api.fail(f"{row} selected next_execution_card is not owned by its path")
     final_rel = str(api.FINAL_PIPELINE_REL)
     for key in ("next_execution_card_path", "latest_card_path"):
         if state.get(key) != final_rel:

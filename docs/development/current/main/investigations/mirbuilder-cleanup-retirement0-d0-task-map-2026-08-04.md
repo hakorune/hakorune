@@ -6,7 +6,7 @@ must not alter Recipe, route, or PHI/SSA authority. T5 records the parked
 post-cutover debt/governance cleanup. The 2026-08-20 architecture review is
 taskized below as P0-P5 convergence order and does not preempt the active
 MirBuilder design row.
-Date: 2026-08-25
+Date: 2026-09-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
 is deliberately parked outside the row selected by `CURRENT_STATE.toml`. The
@@ -727,65 +727,52 @@ T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
   trigger/800-line hard stop, and validate links/guards before deletion.
 ```
 
-### Worker-audited near-limit queue (2026-09-04; parked behind verification recovery)
+### Worker-audited executable cleanup queue (2026-09-04)
 
-The current `UnclassifiedRed` verification incident is a hard prerequisite.
-No implementation below may start until `DEV-GATE-LIB-BASELINE-REFRESH-R0`
-returns to `StableKnownRed`; this section records task boundaries only and
-does not retarget `CURRENT_STATE` or create a new scheduler row.
+The Call frontier has no eligible `Promote`, `Stop`, or `Delete`: JSON v0,
+active MIR-to-JoinIR readers, and selected-C/Hako compatibility retain shared
+callers or lack an exclusive delete-set. They stay family-local `ParkedSealed`.
+The scheduler therefore selects the following existing T3/T5 net-negative
+queue without claiming R6/R7 progress.
+
+#### 1. `MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0` — selected next
 
 ```text
-Decision:
-  Keep one existing BoxShape maintenance lane with three finite options.
-  Select at most one after verification recovery; do not run them as a batch.
-
-Source authority + canonical issuer:
-  Existing production module owners and existing test modules remain the
-  authorities. These splits issue no semantic product and do not touch Call,
-  Recipe, route, ABI, or backend policy.
-
-Non-authority:
-  LOC alone, warning counts, #[allow] presence, test count, worker absence,
-  and local green. raw_invocation_source_transport is already landed and is
-  not an option for reopening.
-
-Fail-fast boundary:
-  Before selecting a split, require a clean tree, stable verification health,
-  exact owner/module-path preservation, no new public/re-export edge, and all
-  touched files below the 760-line trigger (800 is a hard stop). Any caller,
-  visibility, semantic, or test-path drift parks that option.
-
-Smallest next slice:
-  (A) split only the cfg(test) tail from indexing.rs (790 -> 355 production
-      lines; seven test names/module paths unchanged), or
-  (B) split only test fragments from normal_script_direct_statement_owner.rs,
-      or
-  (C) split only the existing tests module fragments from
-      normal_script_semantic_source_tests.rs. Use ordinary child modules or
-      existing include! topology; do not add #[path], a new facade, or a new
-      guard.
-
-Acceptance:
-  behavior-neutral diff; production owner/callers unchanged; focused existing
-  tests and cargo check pass; pointer/current-state guards pass; no test is
-  deleted/ignored; source delta is non-growing; one bounded closeout records
-  line counts and module-path parity.
-
-Non-claims:
-  no dead_code purge, builder barrel rewrite, test retirement, Call R6/R7,
-  baseline refresh, performance change, backend change, or new receipt/guard.
+Change:
+  Delete only RecipeFirstRouteSelectionV1::selection_for_test from
+  control_flow/joinir/route_entry/registry/selection.rs.
+Contract:
+  The cfg(test), pub(crate) helper has one definition and zero tracked callers.
+  Production selection, tests, route semantics, and visibility do not change.
+Done:
+  Exact absence; focused registry tests and quick lib-tests check green;
+  existing in-place, pointer, and active-surface guards green; src delta < 0.
+Stop:
+  Any caller, semantic/test-path change, visibility repair, new test, guard,
+  receipt, adapter, or non-negative source delta parks this candidate.
 ```
 
-Worker results also close the adjacent candidates for now: no additional
-caller-zero test-retirement row, no new JSON/Hako/LLVM legacy-reader Stop row,
-and no typed-error row is selected while this cleanup lane is parked. The
-typed-error candidate remains a future behavior-preserving fast row only after
-an explicit pointer selection; it is not a net-negative cleanup claim.
+#### 2. `MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0` — next after 1
 
-These rows are parked behind an explicit `CURRENT_STATE.toml` retarget. Their
-acceptance requires an explicit pointer retarget, a source/owner census, and
-one bounded commit per responsibility. Local focused green does not close a
-future production cutover or whole-builder convergence.
+Delete the private caller-zero `control_flow/plan/canon/**` forwarding shelf
+(eight files, 70 lines) and its `plan/mod.rs` registration, then retarget only
+the live owner references to `control_flow/generic_loop_canon/**`: the facts
+comment, plan REGISTRY/README, control-flow FOLDERIZATION_MAP, canonical-owner
+README, and condition-observation SSOT. Recheck the exact caller census
+immediately before deletion. Any unseen Rust/tool caller, semantic change,
+compatibility adapter, or visibility widening parks it. Use quick lib/lib-tests,
+focused generic-loop tests, existing guards, exact old-path absence, and
+`git diff --check`; add no row-specific guard or receipt.
+
+#### 3. `MIRBUILDER-CALL-EMIT-GLOBAL-FACADE-RETIRE-R0` — M8 only
+
+The public caller-zero `MirBuilder::emit_global_call` remains post-R7 M8 work.
+Its API disposition and delete-set are owned by
+`mir-root-facade-contract-ssot.md`; do not pull it into this pre-R7 T0 queue.
+
+No obsolete guard/doc candidate currently has an equal-or-stronger proven
+successor. Do not manufacture a third pre-R7 item. Each selected cleanup is one
+implementation-coupled commit and must finish before the next is activated.
 
 ## Architecture-convergence queue (2026-08-20)
 

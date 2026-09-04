@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-09-03
+Date: 2026-09-04
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -636,11 +636,11 @@ R6 schema readiness (worker-audited 2026-09-03):
   Promote only with one source issuer, lossless consumer, caller, terminal,
   and exclusive delete-set; Stop a compatibility reader only with the same
   finite proof; Delete only at caller-zero; otherwise ParkedSealed.
-  Next bounded queue (not active until an exact tuple exists):
-    1. keep C0 and audit no new reader/ingress;
-    2. prefer an existing M7-S stop cohort over schema cutover;
-    3. open R6 only for one separated Global/JSON subfamily;
-    4. open R7 only after all production legacy callers reach zero.
+  Current Call action queue is exhausted; JSON v0, active MIR-to-JoinIR, and
+  selected-C/Hako stay family-local ParkedSealed. Do not repeat C0. Next is
+  MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0, then the private plan/canon shelf
+  retirement owned by the cleanup task map. They only reduce repository
+  surface. Open R7 only after all production legacy callers reach zero.
   Current JSON v0 name/func stop remains parked: shared external callers
   prevent an exclusive delete-set. No implementation claim.
 ```

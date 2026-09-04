@@ -201,12 +201,13 @@ compatibility remain ParkedSealed because they have shared callers or no
 exclusive delete-set. R7 enum deletion remains closed until production legacy
 writers, reissuers, readers, compatibility re-entry, and fallback are all zero.
 No BoxShape task is selected and no per-cohort card, receipt, or guard is added.
-Order 1 is now closed: the caller-zero `src/mir/join_ir_to_mir/` bridge and
-its 15 bridge-only tests are retired. Order 2 is now closed: the unreachable
-WASM P10 shape island and its private tests/guards/smokes/fixtures are retired;
-shared binary helpers remain. The next selected cohort is the existing raw
-indirect unified-off Stop; JSON v0, active MIR-to-JoinIR readers, and
-selected-C/Hako compatibility remain ParkedSealed.
+Orders 1--3 are closed: the caller-zero JoinIR bridge, unreachable WASM P10
+shape island, and raw-indirect unified-off legacy writer are retired/stopped.
+The remaining Call families have no exact action tuple and stay family-local
+ParkedSealed. The next selected work is the caller-zero
+`RecipeFirstRouteSelectionV1::selection_for_test` T3 cleanup, followed only
+after closeout by the private `plan/canon/**` forwarding-shelf retirement.
+Neither is R6/R7 progress; the cleanup task map owns their exact boundaries.
 
 ### S-class gate coverage (navigation only)
 
