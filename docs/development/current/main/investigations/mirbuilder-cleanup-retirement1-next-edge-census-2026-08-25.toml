@@ -109,7 +109,7 @@ implementation_evidence = "The claim ledger now owns six typed consume-time proo
 
 [[candidate]]
 id = "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0"
-status = "accepted_design"
+status = "parked_sealed_unclassified_production_boundary"
 kind = "observation_only"
 scope = "selected MirBuilder production modules only; test/fixture/non-selected backend code excluded and counted separately"
 source_authority = "source tokens and module ownership; no cleanup issuer"
@@ -125,6 +125,8 @@ acceptance = [
   "selected panic is split into invariant-terminal versus typed-error-required",
 ]
 non_claims = ["no unwrap/expect census in this row", "no panic removal or blanket Result conversion", "no dead_code deletion", "no runtime policy change", "no production gate activation", "lexical counts are not a complete Rust AST census"]
+parked_reason = "The 358 panic! sites mix production invariants, debug/test paths, and fixtures; todo! has no sites. Production-aware ownership, successor parity, and an exclusive delete-set are not established, so this observation cannot authorize removal or blanket conversion."
+reopen_trigger = "Reopen only for one named panic owner after production caller-zero, an existing equal-or-stronger successor, a finite delete-set, and behavior-preserving evidence are all recorded; do not repeat the broad lexical census."
 
 [[candidate]]
 id = "MIRBUILDER-WARN-A-IMPORT-PRUNE-S0"
