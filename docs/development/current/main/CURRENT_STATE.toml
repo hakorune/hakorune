@@ -4,7 +4,7 @@ work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "stage1_return_call_parked_assets_repay"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort stage1_return_call_parked_assets_repay is in closeout after f15098cf0b: the exact three invalid Stage1 Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale quick/checklist paths were removed, and integration discovery found no matches. No semantic rewrite, new test, guard, receipt, fallback, or rebaseline was made."
+current_blocker_token = "M7-S cohort stage1_return_call_parked_assets_repay is in closeout after f15098cf0b: the exact three invalid Stage1 Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale quick/checklist paths were removed, and integration discovery found no matches. The next ArrayElementWrite projection candidate is family-local ParkedSealed because three selected native artifact callers still consume the legacy projection and Insert parity is incomplete. No semantic rewrite, new test, guard, receipt, fallback, or rebaseline was made."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,7 +43,10 @@ writer and stopped at an earlier static terminal, so they were not acceptance.
 The six invalid probe assets were RetireFromTree'd at f15098cf0b, with stale
 paths and default integration discovery at zero. The semantic cohort remains
 ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
-fixed comparator target remains 7555/7393/133/29.
+fixed comparator target remains 7555/7393/133/29. The next ArrayElementWrite
+projection candidate is ParkedSealed until a sole native V1 consumer or
+pre-artifact terminal, four-operation parity, and finite caller delete-set
+exist.
 """
 next_design_card = "none"
 next_execution_card = "none"

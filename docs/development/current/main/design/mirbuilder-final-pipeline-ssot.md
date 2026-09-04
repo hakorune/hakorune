@@ -482,6 +482,7 @@ cohort is parked and its upstream-blocked smokes are dependency evidence only.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
+| 8 parked | `array_element_write_legacy_projection` / Park | `array_element_write::project_module_to_legacy_calls` still feeds three selected native artifact callers; `Insert` has no complete generic consumer | `ParkedSealed__SelectedNativeConsumerRequiresLegacyProjection`; reopen only with one native V1 consumer or pre-artifact terminal, four-operation parity, and finite caller delete-set |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
@@ -493,7 +494,8 @@ repository.
 ```text
 shared JSON-v0 Call ingress Stop (landed at `9a40ece824`)
   -> Stage1 invalid smoke/fixture repayment (landed at `f15098cf0b`)
-  -> ArrayElementWrite legacy projection cutover/Stop
+  -> ArrayElementWrite legacy projection cutover/Stop (ParkedSealed: selected
+     native consumers still require the projection; Insert parity is missing)
   -> remaining MIR-to-JoinIR legacy readers retire
   -> M7 caller-zero schema deletion
 ```
