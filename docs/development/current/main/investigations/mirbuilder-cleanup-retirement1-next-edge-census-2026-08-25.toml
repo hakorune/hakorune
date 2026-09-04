@@ -210,7 +210,7 @@ reopen_trigger = "Reopen only when one edge has a path-preserving byte-identical
 
 [[candidate]]
 id = "MIRBUILDER-LINE-BUDGET-SPLIT-D0"
-status = "accepted_but_not_selected"
+status = "parked_sealed_covered_by_boxshape_t0"
 kind = "design_only_line_budget"
 scope = "raw_invocation_source_transport.rs, normal_script_direct_statement_owner.rs, and normal_script_semantic_source_tests.rs"
 source_authority = "existing module ownership and current source line budget"
@@ -232,6 +232,10 @@ non_claims = [
   "no production caller or owner change",
   "no test deletion, rename, ignore, or baseline refresh",
 ]
+rechecked_at = "2026-09-05"
+rechecked_head = "125f580e53"
+recheck_decision = "The planned path-preserving test-body splits are already covered by MIRBUILDER-BOXSHAPE-MAINTENANCE-T0 at a176bada13; no second line-budget row is executable."
+reopen_trigger = "Reopen only when a current owner reaches the 760-line design trigger and one behavior-neutral split has an exact path-preserving boundary; do not split solely from historical counts or add #[path]/re-export scaffolding."
 
 [[candidate]]
 id = "MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0"
