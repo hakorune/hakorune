@@ -2,7 +2,7 @@
 
 Status: SSOT
 Decision: accepted
-Date: 2026-07-10
+Date: 2026-09-05
 Decision token: `LANGV1-GRAMMAR-CONTRACT-BASIS-001`
 
 Related:
@@ -195,6 +195,69 @@ parser/profile_mismatch
 
 Missing registry rows, witnesses, reject tags, profile agreement, or normalized
 shape agreement fail fast. Warn-only drift and Canonical-to-Compat retry are
+forbidden.
+
+## Separator, list, and precedence convergence queue
+
+Decision: accepted target; implementation is queued behind the active
+MirBuilder lane. This section owns the order but does not grant execution
+permission while `CURRENT_STATE.toml` selects another workstream.
+
+```text
+Decision:
+  completed statements end at newline, `;`, `}`, or EOF; `;` always separates.
+Source authority + canonical issuer:
+  grammar registry/this contract issue syntax; each independent parser emits AST.
+Non-authority:
+  current Rust acceptance, skipped trivia, formatter output, or legacy fixtures.
+Fail-fast boundary:
+  reject before AST publication when a required separator/comma or RHS is absent.
+Smallest next slice:
+  LANGV1-PARSER-STATEMENT-SEPARATOR-R0, then comma, precedence, and docs sync.
+Non-claims:
+  no MirBuilder/backend change, broad parser rewrite, or weak/share semantic change.
+```
+
+Canonical separator rule:
+
+- Newline and `;` terminate a syntactically complete statement. Thus
+  `return\n42` is `return` followed by a separate expression statement, and
+  `return 1; -2` cannot become `return (1 - 2)`.
+- Newline is continuation only where the preceding syntax requires more input,
+  including immediately after a binary operator or separator comma, or inside
+  an unclosed delimited construct. A semicolon is never continuation trivia.
+- Separator handling has one parser-owned boundary; generic token advancement
+  must not erase a separator before the statement/list parser observes it.
+
+Execute these bounded rows serially:
+
+1. `LANGV1-PARSER-STATEMENT-SEPARATOR-R0`: remove separator skipping from the
+   generic `advance` path, give statement parsing the sole separator policy,
+   and lock AST negatives/positives for return, expression statements,
+   binary continuation, delimiters, `else`, and EOF. Rust and Hako parsers must
+   produce the same span-free witness; no compatibility retry.
+2. `LANGV1-PARSER-COMMA-LISTS-R0`: require commas between array/map elements
+   and call/new/method arguments; allow one trailing comma; reject `[1 2]`,
+   `f(1 2)`, and `%{"a" => 1 "b" => 2}` before AST publication. Cover every
+   expression-list owner in one finite inventory rather than fixing three
+   examples independently.
+3. `LANGV1-PARSER-PRECEDENCE-R0`: publish one high-to-low table and align both
+   parsers and ParseWitness. Target order is unary, multiplicative, additive,
+   shifts/range, relational, equality, bitwise AND/XOR/OR, `&&`, then `||`; all binary operators
+   are left-associative except where a topic contract says otherwise, and
+   comparison chaining is rejected. Remove the asymmetric `&&` RHS descent.
+4. `LANGV1-PARSER-DOC-SYNC-R0`: in the same closeout as rows 1–3, reconcile
+   `EBNF.md`, `statements.md`, and `quick-reference.md`; keep untyped `[]` as
+   ordinary `AnyDefault` Array and describe compound assignment as one-time
+   LHS evaluation, never textual `P = P + E` substitution.
+5. `LANGV1-PARSER-PREFIX-PAREN-DIAGNOSTICS-R0`: after the grammar rows, keep
+   intentional `weak x` versus `weak(x)` and future `share x` versus
+   `share(x)` distinctions, but add stable targeted diagnostics, formatter
+   rules, and paired examples. This row changes no ownership semantics.
+
+Acceptance is measured by AST/ParseWitness shape, not runtime success. Each
+implementation row updates its affected reference text in the same slice;
+new per-example guards, compatibility aliases, or parser-global fallback are
 forbidden.
 
 ## Authority Boundary

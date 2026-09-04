@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
   - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/language/EBNF.md
+  - docs/reference/language/grammar-contract.md#separator-list-and-precedence-convergence-queue
   - docs/reference/language/types.md
   - docs/reference/language/lifecycle.md
   - docs/development/current/main/design/object-handle-box-identity-contract-ssot.md
