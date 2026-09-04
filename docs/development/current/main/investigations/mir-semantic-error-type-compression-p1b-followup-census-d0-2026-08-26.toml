@@ -1,8 +1,8 @@
 title = "MIR semantic error transport P1B follow-up child census"
-status = "accepted_design"
+status = "accepted_design_no_safe_slice"
 observed_commit = "183c1418d7"
 observed_at = "2026-08-26"
-implementation_permission = true
+implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-2026-08-21.md"
 
 [brief]
@@ -90,8 +90,9 @@ non_claims = ["proof, claim completion, constructor demand, route, receipt, MIR,
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C4-CONSTRUCTOR-DEMAND-MANIFEST-I0"
-status = "fast_open"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
+landed_commit = "49ef80b3c7"
 kind = "bounded_typed_error_candidate"
 boundary = "normal_instance_constructor_demand_manifest.rs::issue_batch and ::validate_exact"
 source_authority = "source batch expectations keyed by (source_id, role); manifest builder and verified manifest own issue/validation"
@@ -105,6 +106,7 @@ acceptance = [
   "focused positive/negative tests and a scoped guard are named before implementation",
 ]
 non_claims = ["loan consume/complete, RootCallableCapturePort typing, constructor admission, rollback, or simultaneous manifest/loan cutover"]
+implementation_evidence = "Landed at 49ef80b3c7. The manifest owner now retains distinct DuplicateTicket, CountMismatch, CoverageMismatch, and ForeignExpectation variants through the existing outer String boundary; validation classifies unknown source IDs as foreign and same-source role/coverage drift as coverage. Existing constructor-admission and demand-loan focused tests pass 4/4, vm-reference check passes, and the fixed baseline remains 7570/7408/133/29 with unchanged failure hash. No schema, ticket, work-plan order, loan, rollback, receipt, fallback, or production route changed."
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0"
