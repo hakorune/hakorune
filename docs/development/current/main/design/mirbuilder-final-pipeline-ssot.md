@@ -453,7 +453,12 @@ because the current import closure cannot reach `FuncLoweringBox`.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
-| 8 active | `array_element_write_published_c_cutover_i0` / Promote+Delete | add one typed selected-C consumer for LiteralAppend/Push/Set/Insert, then remove projection calls at `exec.rs:492,553,573`; keep VM, llvmlite `:512`, canonicalizer | all four source/MIR-to-EXE/OBJ positives; malformed shape/capability/residual/typed-array negatives before artifact; projection 3→0, fallback/retry 0 |
+| 8 landed (`9cb7a6c71a`) | `array_element_write_published_c_cutover_i0` / Promote+Delete | one typed selected-C consumer now admits LiteralAppend/Push/Set/Insert through `PublishedMirBackendView`; the three selected native callers no longer invoke legacy projection, while VM and llvmlite `exec.rs:515` remain outside this cohort | four typed rows are admitted and consumed; malformed shape and Void-result shape reject before artifact; focused 3/3 suite, MIR-to-object/executable status 0, C FFI/quick checks/guards green; selected native projection 3→0, fallback/retry 0 |
+
+```text
+status = landed
+implementation permission = false
+```
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
@@ -482,11 +487,13 @@ touching `exec.rs` (780 lines) or `same_module_body_emit.inc` (797 lines);
 write row and one C owner; (3) consume all four kinds with receiver/index/value
 in canonical order, write result `Void`, and no JSON name/arity/`args[0]`
 repair; (4) switch the three selected native callers and delete their legacy
-projection calls; (5) close out tests/docs. `Insert` needs a direct physical
-operation in this owner; do not route it through the incomplete generic-method
+projection calls; (5) close out tests/docs. `Insert` uses a direct physical
+operation in this owner and does not route through the incomplete generic-method
 registry. Missing index, unexpected index, unknown kind, missing capability,
 residual legacy write, or typed-array projection attempt rejects before
-artifact and never retries. New semantic receipt/guard/fixture = 0.
+artifact and never retries. Landed at `9cb7a6c71a`: selected native projection
+callers are 3→0; the explicit llvmlite compatibility projection remains
+outside this cohort. New semantic receipt/guard/fixture = 0.
 `new guard=0`; `new receipt=0`; fixed failure-name set unchanged.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`

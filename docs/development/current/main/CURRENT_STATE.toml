@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "array_element_write_published_c_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S ArrayElementWrite cutover is fast-open. Reuse the canonical ArrayElementWrite owner and PublishedMirBackendView; add one typed selected-C physical consumer for LiteralAppend/Push/Set/Insert, then remove the three selected native project_module_to_legacy_calls edges in the same series. Split the 780/797-line physical owners before adding behavior. VM and llvmlite remain outside this cohort; no name/registry/LegacyCall fallback, new semantic receipt, or per-cohort guard."
+current_blocker_token = "M7-S ArrayElementWrite selected-C cutover landed at 9cb7a6c71a. The canonical owner and PublishedMirBackendView now feed one typed C row family for LiteralAppend/Push/Set/Insert; selected native projection callers are zero, while the explicit llvmlite compatibility lane remains outside this cohort. Focused positives/negative, object+executable smoke, C FFI build, checks, and quick test compilation are complete. Stop at this closeout boundary; do not open another family in this turn."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,12 +43,14 @@ writer and stopped at an earlier static terminal, so they were not acceptance.
 The six invalid probe assets were RetireFromTree'd at f15098cf0b, with stale
 paths and default integration discovery at zero. The semantic cohort remains
 ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
-fixed comparator target remains 7555/7393/133/29. ArrayElementWrite now has an
-accepted bounded selected-C cutover: the existing canonical owner feeds one
+fixed comparator target remains 7555/7393/133/29. ArrayElementWrite selected-C
+cutover landed at 9cb7a6c71a: the existing canonical owner feeds one
 PublishedMirBackendView physical row family, all four writes are consumed
-without name repair, and the three selected native projection calls retire in
-the same series; VM and llvmlite are excluded. The preceding bounded T0 cleanup
-dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one
+without name repair or a result assignment, and the three selected native
+projection callers are gone; the explicit llvmlite compatibility projection is
+the only remaining caller and stays outside this cohort. The focused view
+positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
+returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one
 compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
 changes.
@@ -72,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; LiteralAppend/Push/Set/Insert now use typed PublishedMirBackendView rows and selected-C physical consumers, native projection callers are 3 -> 0 (llvmlite remains explicit compatibility), focused 3/3 tests plus MIR-to-object/executable status 0 passed, and C FFI/quick checks/guards stayed green.",
   "2026-09-05: T0 dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e; the caller-zero private helper, dead_code allowance, and unused import were removed, the focused four-test brand fixture passed, and the fixed baseline/guards remained unchanged.",
   "2026-09-05: M7-S stage1_return_call_parked_assets_repay landed at f15098cf0b; three invalid Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale paths and default integration discovery are zero, and no new guard/receipt/test/ignore or baseline change was introduced.",
-  "2026-09-05: M7-S mir_json_v0_call_ingress_stop landed at 9a40ece824; module dispatch stops call/mir_call before LegacyCallV0 construction or publication, call.rs/catalog.rs and call-only tests were deleted, 14 focused tests passed, preserved non-call loaders remain, and the fixed baseline is unchanged.",
 ]

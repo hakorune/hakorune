@@ -204,12 +204,13 @@ focused tests pass. Its closeout compacts the 1,000-line active card toward
 900 lines using hash-plus-one-line tombstones. Only a future unchanged route
 reaching `FuncLoweringBox` may reopen terminal ownership and predicate naming;
 caller-zero deletes that owner instead. Remaining families stay local
-`ParkedSealed`; R7 still waits for all legacy callers to reach zero. The next
-ArrayElementWrite projection candidate is also family-local `ParkedSealed`:
-three selected native artifact callers still consume its legacy Call projection
-and the generic `Insert` route lacks complete parity; reopen only after a sole
-V1 consumer or pre-artifact terminal, four-operation parity, and a finite caller
-delete-set are proven.
+`ParkedSealed`; R7 still waits for all legacy callers to reach zero. The
+ArrayElementWrite projection candidate is now closed by the typed selected-C
+consumer landed at `9cb7a6c71a`: all four operations have one published row
+owner, the three selected native artifact callers no longer invoke legacy
+projection, and the generic `Insert` gap is covered by a direct runtime alias.
+The remaining llvmlite projection is an explicit compatibility lane outside
+this closeout.
 
 ### S-class gate coverage (navigation only)
 

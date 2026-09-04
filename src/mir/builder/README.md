@@ -143,14 +143,16 @@ schedule entries remain timing seams, not target authorities. The focused
 14/14 suite and shared corridor guard show zero late target issuer, zero
 schedule opt-in, and no retry or backend lookup.
 
-`array_element_write.rs` still has one legacy projection issuer with four
-backend callers (three selected native, one ParkedSealed), so it remains
-`NoSafeSlice` and is not claimed retired here. Final Call shape, Method(None),
-ingress, backend, and cleanup remain separately gated.
+`array_element_write.rs` now has one canonical typed selected-C consumer for
+LiteralAppend/Push/Set/Insert, landed at `9cb7a6c71a`. The three selected native
+artifact callers no longer invoke its legacy projection; only the explicit
+ParkedSealed llvmlite compatibility lane still does. Final Call shape,
+Method(None), other ingress/backend families, and cleanup remain separately
+gated.
 
-The next row is `MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0` and is
-design-only until a selected native consumer authority, capability/ABI
-handoff, fail-fast matrix, and finite caller-zero delete set are named.
+The selected-C array projection row is closed by the typed consumer and native
+caller switch above. The remaining llvmlite projection is an explicit
+compatibility lane and is not part of this closeout.
 
 ### MIR Call R6 D1B exact target prepare/consume child (landed at 6149d2692a)
 
