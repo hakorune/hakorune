@@ -183,10 +183,12 @@ outer leaves. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; do not add a new
 card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
 `direct_mir_json_duplicate_reader_delete` landed at `ef3ee28bc5`,
 `skip_ws_probe_reader_delete` at `d4ce50b87c`, and
-`canonical_value_fallthrough_stop` at `a33987e8e4`; the fixed comparator stayed
-unchanged. `methodize_fallthrough_stop` is now the sole active leaf: its
-retired JSON reissuer is being stopped before mutation while singleton/phi
-transforms remain. The final-pipeline SSOT owns each owner/terminal/delete-set
+`canonical_value_fallthrough_stop` at `a33987e8e4`, and
+`methodize_fallthrough_stop` at `24ece062bb`; the fixed comparator stayed
+unchanged. The retired JSON methodize reissuer now stops before mutation while
+singleton/phi transforms remain. No next leaf has an exact caller/delete-set
+tuple, so the dependency tail remains family-local `ParkedSealed` without a
+new scheduler arm. The final-pipeline SSOT owns each owner/terminal/delete-set
 and acceptance; this workstream does not duplicate them. Shared JSON v0,
 remaining MIR-to-JoinIR, and selected-C/Hako internals stay family-local
 `ParkedSealed` outside those leaves. R7 opens only after production writers,

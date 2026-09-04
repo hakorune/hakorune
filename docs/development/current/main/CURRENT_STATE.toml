@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "methodize_fallthrough_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort methodize_fallthrough_stop is fast-open: reject retired HAKO_BRIDGE_METHODIZE/NYASH_BRIDGE_METHODIZE before JSON mutation, publication, or backend entry; delete the const-string methodize reissuer; preserve singleton and phi transforms; no new consumer/guard/receipt/adapter."
+current_blocker_token = "M7-S cohort methodize_fallthrough_stop landed at 24ece062bb: retired HAKO_BRIDGE_METHODIZE/NYASH_BRIDGE_METHODIZE now stop before JSON mutation, publication, or backend entry; singleton and phi transforms are preserved; no new consumer/guard/receipt/adapter."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,14 +33,16 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. The finite M7-S queue has landed the duplicate direct-MIR reader Delete
-at ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, and canonical Value
-fallthrough Stop at a33987e8e4. The sole active leaf is METHODIZE reissuer Stop:
-retired JSON bridge methodize aliases fail before mutation while singleton/phi
+zero. The finite M7-S queue landed duplicate direct-MIR reader Delete at
+ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, canonical Value
+fallthrough Stop at a33987e8e4, and METHODIZE reissuer Stop at 24ece062bb.
+Retired JSON bridge methodize aliases fail before mutation; singleton/phi
 transforms remain unchanged. The fixed comparator target is 7555/7393/133/29.
+No next leaf has an exact caller/delete-set tuple, so the dependency tail stays
+family-local ParkedSealed without a new D0, receipt, guard, or scheduler arm.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -58,7 +60,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-04: M7-S METHODIZE reissuer Stop landed at 24ece062bb; retired JSON bridge aliases fail before mutation, methodize_calls was deleted, singleton/phi transforms are unchanged, and fixed baseline/guards remain green.",
   "2026-09-04: M7-S raw-indirect unified-off Stop landed at e31567bf06; OFF rejects before child descent/MIR mutation, ON emits typed Callee::Value, the old LegacyCallV0 writer is gone, and JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako compatibility remain ParkedSealed.",
   "2026-09-04: WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0 landed at 9ebdad720c; the unreachable shape island and its private tests, guards, smokes, and fixtures were removed, shared binary helpers remain, and the fixed baseline failure-name set is unchanged.",
-  "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0 landed at b675849d4c; five consume/complete failures remain typed through the existing package-adapter String boundary, constructor-focused tests and vm-reference check passed, and the fixed baseline failure-name set stayed unchanged.",
 ]
