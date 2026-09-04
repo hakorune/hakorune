@@ -30,9 +30,9 @@ pub(crate) enum PublishedStaticMethodRouteV1 {
     /// No selected typed call exists; an explicit compatibility caller may
     /// consume the module without pretending it is canonical.
     ExplicitCompatibility,
-    /// A published instance-method call has no lossless selected-C consumer.
-    /// The whole module must stop before JSON/C/object work; it must not be
-    /// silently reclassified as explicit compatibility.
+    /// A canonical call family has no lossless selected-C consumer. The whole
+    /// module must stop before JSON/C/object work; it must not be silently
+    /// reclassified as explicit compatibility.
     UnsupportedBeforeObject,
 }
 
@@ -236,7 +236,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut static_method_calls = Vec::new();
         let mut free_function_calls = Vec::new();
         let mut builtin_print_calls = Vec::new();
-        let mut has_unsupported_instance_call = false;
+        let mut has_unsupported_call = false;
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
             block_ids.sort();
@@ -246,12 +246,13 @@ impl<'module> PublishedMirBackendView<'module> {
                     .get(&block_id)
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
-                    let (dst, func, callee, args) = match instruction {
+                    let (dst, func, callee, args, canonical_call) = match instruction {
                         MirInstruction::Call(call) => (
                             call.dst,
                             ValueId::INVALID,
                             Some(&call.callee),
                             call.args.as_slice(),
+                            true,
                         ),
                         MirInstruction::LegacyCallV0 {
                             dst,
@@ -259,7 +260,7 @@ impl<'module> PublishedMirBackendView<'module> {
                             callee,
                             args,
                             ..
-                        } => (*dst, *func, callee.as_ref(), args.as_slice()),
+                        } => (*dst, *func, callee.as_ref(), args.as_slice(), false),
                         _ => continue,
                     };
 
@@ -301,7 +302,10 @@ impl<'module> PublishedMirBackendView<'module> {
                             }
                         }
                         Some(Callee::SameModuleInstance { .. }) => {
-                            has_unsupported_instance_call = true;
+                            has_unsupported_call = true;
+                        }
+                        Some(Callee::Value(_)) if canonical_call => {
+                            has_unsupported_call = true;
                         }
                         Some(_) | None => {}
                     }
@@ -309,7 +313,7 @@ impl<'module> PublishedMirBackendView<'module> {
             }
         }
 
-        if has_unsupported_instance_call {
+        if has_unsupported_call {
             return Ok(Self {
                 module,
                 route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,

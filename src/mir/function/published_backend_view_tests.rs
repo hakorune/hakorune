@@ -68,6 +68,29 @@ fn instance_function(
     function
 }
 
+fn canonical_value_function() -> MirFunction {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "value-call/0".to_owned(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block")
+        .add_instruction(MirInstruction::call(
+            Some(ValueId::new(2)),
+            Callee::Value(ValueId::new(1)),
+            vec![ValueId::new(1)],
+            EffectMask::PURE,
+        ));
+    function
+}
+
 fn free_key() -> CanonicalSameModuleCallableKeyV1 {
     CanonicalSameModuleCallableKeyV1::free_function("helper", 1)
 }
@@ -522,6 +545,7 @@ fn published_same_module_instance_is_unsupported_before_object() {
             instance_function(&key, ValueId::INVALID, ValueId::new(7)),
         )
         .expect("publish instance relation");
+    module.add_function(canonical_value_function());
 
     let view = PublishedMirBackendView::try_new(&module).expect("physical admission result");
     assert_eq!(
@@ -531,6 +555,57 @@ fn published_same_module_instance_is_unsupported_before_object() {
     assert!(view.static_method_calls().is_empty());
     assert!(view.free_function_calls().is_empty());
     assert!(view.builtin_print_calls().is_empty());
+    let exe_path = std::env::temp_dir().join(format!(
+        "hakorune-canonical-value-stop-{}",
+        std::process::id()
+    ));
+    let error = crate::host_providers::llvm_codegen::emit_published_static_method_exe(
+        &module,
+        exe_path.to_str().expect("temporary path is valid UTF-8"),
+        None,
+        None,
+    )
+    .expect_err("unsupported canonical call must stop before object emission");
+    assert!(error.contains("UnsupportedBeforeObject"));
+    assert!(!exe_path.exists());
+    assert!(!std::path::PathBuf::from(format!(
+        "{}.published-static-method.o",
+        exe_path.display()
+    ))
+    .exists());
+    let _ = std::fs::remove_file(exe_path);
+}
+
+#[test]
+fn module_without_selected_static_method_is_explicit_compatibility() {
+    let mut module = MirModule::new("compat".to_owned());
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "legacy/0".to_owned(),
+            params: Vec::new(),
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    let block = function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block");
+    block.add_instruction(MirInstruction::LegacyCallV0 {
+        dst: None,
+        func: ValueId::new(1),
+        callee: Some(Callee::Value(ValueId::new(1))),
+        args: Vec::new(),
+        effects: EffectMask::PURE,
+    });
+    module.add_function(function);
+
+    let view = PublishedMirBackendView::try_new(&module).expect("compatibility view");
+    assert_eq!(
+        view.route(),
+        PublishedStaticMethodRouteV1::ExplicitCompatibility
+    );
 }
 
 #[test]
@@ -557,25 +632,4 @@ fn mixed_same_module_instance_takes_unsupported_precedence() {
         PublishedStaticMethodRouteV1::UnsupportedBeforeObject
     );
     assert_eq!(view.static_method_calls().len(), 1);
-}
-
-#[test]
-fn module_without_selected_static_method_is_explicit_compatibility() {
-    let mut module = MirModule::new("compat".to_owned());
-    module.add_function(MirFunction::new(
-        FunctionSignature {
-            name: "legacy/0".to_owned(),
-            params: Vec::new(),
-            return_type: MirType::Integer,
-            effects: EffectMask::PURE,
-        },
-        BasicBlockId::new(0),
-    ));
-
-    let view = PublishedMirBackendView::try_new(&module).expect("compatibility view");
-    assert_eq!(
-        view.route(),
-        PublishedStaticMethodRouteV1::ExplicitCompatibility
-    );
-    assert!(view.static_method_calls().is_empty());
 }

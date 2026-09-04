@@ -26,7 +26,7 @@ pub(crate) fn compile_published_static_method_object(
         }
         PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
             return Err(
-                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: SameModuleInstance has no selected-C consumer"
+                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
                     .to_owned(),
             )
         }
@@ -66,7 +66,7 @@ pub(crate) fn emit_published_static_method_exe(
         PublishedStaticMethodRouteV1::ExplicitCompatibility => return Ok(false),
         PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
             return Err(
-                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: SameModuleInstance has no selected-C consumer"
+                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
                     .to_owned(),
             )
         }
