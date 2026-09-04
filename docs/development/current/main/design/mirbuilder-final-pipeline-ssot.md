@@ -433,55 +433,20 @@ downstream deletion. Feature parity is not a Stop prerequisite. The shared
 guard owns only the parent/cohort token; source tests own semantics. Add no
 per-cohort card, dispatcher, receipt, adapter, fixture file, or guard.
 
-##### Landed execution brief — Stage1 parked-asset repayment
+##### Closed M7-S tombstones
+
 ```text
-Change:
-  Retire exactly three invalid Stage1 Return(Call) integration smokes and
-  their three exclusive .hako fixtures (6 files / 189 lines) still visible
-  to default directory discovery.
-Contract:
-  These assets are not acceptance for the parked Stage1 terminal; delete
-  them without restoring the retired writer, adding a test seam, or changing
-  semantics. Git history remains the evidence store.
-Done:
-  exact six paths untracked; stale quick/checklist paths gone; integration
-  dry-run discovers zero; fixed failure-name set unchanged; new guard=0,
-  new receipt=0, new test=0, ignored/deleted test delta=0.
-Stop:
-  If any path has a live non-exclusive caller, restore only that deletion and
-  leave the Stage1 semantic cohort ParkedSealed.
+f15098cf0b — Stage1 Return(Call) writer-repayment assets: six exclusive
+probe files / 189 lines and stale discovery paths retired; no guard, receipt,
+test, ignore, or baseline change.
+9a40ece824 — shared MIR JSON-v0 op=call/op=mir_call stopped before
+LegacyCallV0 publication; call.rs/catalog.rs and call-only tests retired;
+14 focused tests passed and non-call loaders remained.
+a33987e8e4 / 24ece062bb / 01a1a6bc83 — canonical Value, METHODIZE, and
+singleton compatibility stops landed; fixed comparator and failure SHA stayed
+unchanged. `99b4446cab` retired the Stage1 writer; its boundary remains parked
+because the current import closure cannot reach `FuncLoweringBox`.
 ```
-
-Closeout: `f15098cf0b`; six exclusive probe assets (189 lines) were deleted,
-the quick/checklist stale paths were removed, integration discovery returned no
-matching files, and no guard, receipt, test, ignore, or baseline change was
-introduced.
-
-##### Landed execution brief — JSON-v0 call ingress
-```text
-Change:
-  Stop shared Rust MIR JSON-v0 op=call/op=mir_call at module dispatch,
-  before LegacyCallV0 construction or module publication.
-Contract:
-  JSON-v0 is compatibility wire, not target authority. module.rs emits
-  [freeze:contract][mir-json-v0/legacy-call-stopped]; delete call.rs/catalog.rs while preserving boxcall, externcall, NewBox, non-call loaders, and outer Program fallback.
-Done:
-  call/mir_call writers 2->0; call.rs/catalog.rs deleted; flat/nested rejects and preserved positives pass; fixed failure-name set unchanged; new guard=0 and new receipt=0.
-Stop:
-  Park if either spelling bypasses the shared terminal or a retained family owns the delete-set.
-```
-
-Closeout:
-  `9a40ece824`; flat and nested stop tests passed (14 focused tests total),
-  `call.rs`/`catalog.rs` and call-only tests were deleted, no new guard or
-  receipt was added, and the fixed failure-name set stayed unchanged.
-
-Closeout: canonical Value Stop landed at `a33987e8e4`; METHODIZE Stop landed at
-`24ece062bb`; singleton Stop landed at `01a1a6bc83`. Direct MIR v1/v0,
-Program(JSON) rejection, fixed comparator `7555/7393/133/29`, and the same
-failure SHA stayed green; early-phi remains unchanged. Stage1 writer removal
-landed at `99b4446cab`, but acceptance cannot reach `FuncLoweringBox`; the
-cohort is parked and its upstream-blocked smokes are dependency evidence only.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
@@ -503,29 +468,15 @@ repository.
 
 ##### Dependency tail (not yet executable)
 
-```text
-shared JSON-v0 Call ingress Stop (landed at `9a40ece824`)
-  -> Stage1 invalid smoke/fixture repayment (landed at `f15098cf0b`)
-  -> ArrayElementWrite legacy projection cutover/Stop (ParkedSealed: selected
-     native consumers still require the projection; Insert parity is missing)
-  -> remaining MIR-to-JoinIR legacy readers retire
-  -> M7 caller-zero schema deletion
-```
-
-The tail opens one owner at a time only after its predecessor exposes one real
-caller and finite delete-set. JSON v0, the remaining active MIR-to-JoinIR
-reader, and selected-C/Hako shared compatibility otherwise stay family-local
-`ParkedSealed`; do not repeat the broad census.
-
-Stage1 terminal ownership and predicate naming are reopen-only repayment. If an
-unchanged route reaches `FuncLoweringBox`, its selected branch emits the existing
-tag, the outer gate only propagates, and `_has_return_call` is renamed to its
-retired-writer-candidate meaning without narrowing behavior; otherwise a
-caller-zero Stage1 owner is deleted instead. No test seam or fallback is added.
-
-Landed reader-stop/delete detail remains in Git. The closed families include
-WASM Global/Extern/Method, VM Global/Value/Method, JSON-v1 call-like writers,
-Structured JoinIR->MIR, WASM P10, and raw-indirect unified-off.
+`9a40ece824` (JSON-v0 Stop) -> `f15098cf0b` (Stage1 asset repayment) ->
+ArrayElementWrite legacy projection (family-local `ParkedSealed` until one
+native V1 consumer or pre-artifact terminal, four-operation parity, and finite
+delete-set) -> remaining MIR-to-JoinIR readers -> M7 caller-zero schema deletion.
+Open one owner at a time; do not repeat the broad census. Stage1 terminal
+ownership/predicate naming is reopen-only: an unchanged route reaching
+`FuncLoweringBox` keeps the existing tag and may rename `_has_return_call` to
+its retired-writer-candidate meaning; otherwise delete the caller-zero owner.
+No test seam or fallback. Other closed reader-stop/delete details remain in Git.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 
