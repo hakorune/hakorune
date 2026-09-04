@@ -81,9 +81,10 @@ non_claims = ["no field deletion/substructing", "no slot-state or clone-scrubbin
 
 [[candidate]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
-status = "selected_fast"
+status = "landed"
 kind = "typed_error_bounded_row"
-implementation_permission = true
+implementation_permission = false
+landed_commit = "067e1f0858e4467321197e19aa96f53b639cdefd"
 scope = "normal_script_direct_static_claim_ledger.rs:76-116 -> calls/script_direct_static_physical_bridge.rs:24-86"
 source_authority = "ScriptDirectStaticClaimedRowV1::consume_required_argument_proof; a consume-owned issue enum, distinct from proof-issuance ScriptDirectStaticRequiredArgumentProofIssueV1"
 canonical_issuer = "claim-ledger-owned consume issue enum; bridge carries the typed issue until the existing outer String boundary"
@@ -100,6 +101,7 @@ acceptance = [
   "ArgumentDescent(String), ClaimCompletion(String), constructor manifest/loan String boundaries are untouched",
 ]
 non_claims = ["no common recursive port typing", "no claim-completion port redesign", "no constructor demand/loan change", "no route/receipt/MIR/backend change"]
+implementation_evidence = "The claim ledger now owns six typed consume-time proof failures and the bridge retains that enum until the existing outer String boundary; one aggregate focused test asserts all six variants, direct-static focused tests pass 60/60, and the fixed baseline is 7570/7408/133/29 with failure hash 299aeee63248e20bf885556baacece21beda0fdf540c6b0d8fdcd74e7d3a8f18. No semantic Call, publication, fallback, retry, receipt, or guard surface changed."
 
 [[candidate]]
 id = "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0"

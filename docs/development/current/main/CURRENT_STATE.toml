@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
 current_execution_cohort = "required_argument_proof"
 current_design_stop = "none"
-current_blocker_token = "Preserve consume-time required-argument proof issue variants from the claim ledger through the existing bridge String boundary; do not alter argument descent, publication, or other error families."
+current_blocker_token = "C1 landed at 067e1f0858e4467321197e19aa96f53b639cdefd: consume-time required-argument proof failures remain typed through the existing bridge boundary; closeout evidence records focused green tests, the 7408/133/29 baseline, and unchanged failure hash."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,16 +34,19 @@ latest_card_summary = """
 The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
 cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
 complete because compatibility writers/readers and R7 retirement remain.
-The fixed runner is stable at 7580/7418/133/29 with zero added failure names.
+The fixed runner is stable at 7570/7408/133/29 with zero added failure names.
 The BoxShape row landed at a176bada13: the existing DirectAccum physicalizer
 session is behind a private path-preserving child without changing production
 behavior, tests, semantic Call shape, or the baseline.
 The selected caller-zero legacy PHI candidate retirement is now landed: three
 files and facade declarations were removed, eleven fixed test rows were
 retired, and the baseline failure-name set stayed unchanged.
+C1 typed proof-consumption transport is now landed: six consume-time failure
+variants remain distinct through the existing bridge boundary, direct-static
+focused tests are green, and the baseline failure-name set is unchanged.
 """
 next_design_card = "none"
-next_execution_card = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -61,7 +64,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-04: MIRBUILDER-BOXSHAPE-MAINTENANCE-T0 landed at a176bada13; DirectAccumPhysicalizerV1 stateful emission moved to a private 594-line child, parent 198 lines, combined source delta 0, six focused physicalizer tests and two semantic parity tests green, vm-reference/lib checks green, no semantic Call/guard/receipt/test inventory change.",
   "2026-09-04: bounded canonical/legacy reader reconciliation was explicitly accepted as the successor receipt at 7580/7418/133/29 with zero added failure names; two post-receipt tests and five resolved known-red names are recorded, and the prior receipts remain in Git history.",
   "2026-09-04: MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0 landed at 7e33ef8a0ea6eb027eefbaa67b711a9e6ab84fa9; three caller-zero PHI candidate files and eleven fixed test rows were removed, active replacement tests and the fixed baseline comparator passed, and the known failure-name set stayed unchanged.",
+  "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0 landed at 067e1f0858e4467321197e19aa96f53b639cdefd; six consume-time proof failures remain typed through the bridge, direct-static focused tests are green, and the baseline failure-name set stayed unchanged.",
 ]

@@ -34,8 +34,9 @@ selection_rule = "This file is a design ledger, not a pointer. A child becomes e
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
-status = "selected_fast"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
+landed_commit = "067e1f0858e4467321197e19aa96f53b639cdefd"
 kind = "bounded_typed_error_row"
 boundary = "ScriptDirectStaticClaimedRowV1::consume_required_argument_proof -> calls/script_direct_static_physical_bridge.rs:24-86"
 source_authority = "consume-owned claim-ledger issue variants; do not reuse ScriptDirectStaticRequiredArgumentProofIssueV1, which belongs to proof issuance"
@@ -52,6 +53,7 @@ acceptance = [
 non_claims = [
   "argument descent typing, claim-completion redesign, constructor demand, route, receipt, MIR, or backend changes",
 ]
+implementation_evidence = "Landed at 067e1f0858e4467321197e19aa96f53b639cdefd. Consume-time duplicate, empty-required, cardinality, ordinal, site, and non-exact failures remain distinct from proof issuance; the existing target-validation -> proof-consume -> argument-descent order is unchanged. Direct-static focused tests pass 60/60 and the fixed baseline is 7570/7408/133/29 with unchanged failure hash."
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C2-CLAIM-COMPLETION-D0"
