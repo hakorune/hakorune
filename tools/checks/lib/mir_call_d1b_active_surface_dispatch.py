@@ -379,6 +379,7 @@ def _check_canonical_route_metadata_restore_r0(
     print(f"[{api.TAG}] row={row} delegated=canonical-route-metadata-restore")
 
 WASM_METHOD_LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-WASM-METHOD-R0"
+LEGACY_READER_STOP_R0_ROW = "MIR-CALL-LEGACY-READER-STOP-R0"
 
 
 def _check_wasm_legacy_reader_stop_r0(
@@ -548,6 +549,66 @@ def _check_wasm_method_legacy_reader_stop_r0(state: dict, root: Path, api) -> No
             api.fail(f"{WASM_METHOD_LEGACY_READER_STOP_R0_ROW} obsolete BoxCall builtin owner remains")
     print(f"[{api.TAG}] row={WASM_METHOD_LEGACY_READER_STOP_R0_ROW} delegated=wasm-method-reader-stop")
 
+
+def _check_json_v1_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
+    """Dispatch the generic M7-S parent for the selected JSON-v1 cohort."""
+    row = LEGACY_READER_STOP_R0_ROW
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_execution_cohort") != "json_v1_legacy_call_ingress":
+        api.fail(f"{row} requires the selected json_v1_legacy_call_ingress cohort")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
+        api.fail(f"{row} next_execution_card drifted")
+    final_rel = str(api.FINAL_PIPELINE_REL)
+    if state.get("latest_card_path") != final_rel or state.get("next_execution_card_path") != final_rel:
+        api.fail(f"{row} requires final-pipeline latest/next card paths")
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    required = (
+        row,
+        "json_v1_legacy_call_ingress",
+        "src/runner/json_v1_bridge/parse/mir_call.rs",
+        "[freeze:contract][mir-json-v1/legacy-call-stopped]",
+        "Global",
+        "Method",
+        "Extern",
+        "Value",
+        "value-style `Closure`",
+        "Constructor -> NewBox",
+        "Closure -> NewClosure",
+        "target reconstruction",
+        "cohort-specific guard",
+    )
+    for token in required:
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    status = "status = fast_open" if mode == "fast" else "status = landed"
+    permission = "implementation permission = true" if mode == "fast" else "implementation permission = false"
+    for token in (status, permission):
+        if token not in card_text:
+            api.fail(f"{row} contract is missing: {token}")
+    for rel in (
+        "src/runner/json_v1_bridge/parse/mir_call.rs",
+        "src/runner/json_v1_bridge/parse/tests.rs",
+    ):
+        path = root / rel
+        if not path.is_file():
+            api.fail(f"{row} implementation owner is missing: {rel}")
+        if sum(1 for _ in path.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row} implementation owner reached 800 lines: {rel}")
+    if mode == "closeout":
+        source = (root / "src/runner/json_v1_bridge/parse/mir_call.rs").read_text(encoding="utf-8")
+        if "MirInstruction::LegacyCallV0" in source:
+            api.fail(f"{row} JSON-v1 LegacyCallV0 writer remains")
+    print(f"[{api.TAG}] row={row} cohort=json_v1_legacy_call_ingress")
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
         api.check_delegated_performance_row(state, root)
@@ -588,6 +649,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_wasm_legacy_reader_stop_r0(state, root, api, row=row, reader="LegacyCallV0(Callee::Method)", stop_tag="[vm-reference/legacy-call/method-stopped]", required=("before trace/hostbridge/direct-array/reg_load/dispatch", "no canonical VM Method consumer", "No Call R6 schema"), owners=("src/backend/mir_interpreter/handlers/calls/mod.rs", "src/backend/mir_interpreter/handlers/mod.rs", "src/backend/mir_interpreter/exec/block.rs"))
     elif row == WASM_METHOD_LEGACY_READER_STOP_R0_ROW:
         _check_wasm_method_legacy_reader_stop_r0(state, root, api)
+    elif row == LEGACY_READER_STOP_R0_ROW:
+        _check_json_v1_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

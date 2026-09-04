@@ -398,10 +398,10 @@ The following are one dependency program, not simultaneously active cards.
 
 This is a finite verification incident, not a baseline acceptance. The latest
 fixed-command observation after the bounded canonical-call reader repair is
-`7579 total`, `7417/133/29`; the prior accepted receipt was `7411/138/29`.
+`7580 total`, `7418/133/29`; the prior accepted receipt was `7411/138/29`.
 The current-minus-prior failure-name comparison has **zero added names** and
-five prior known-red names now pass. The current inventory has one post-receipt
-test entry. The explicit successor receipt is now checked in with the current
+five prior known-red names now pass. The current inventory has two post-receipt
+test entries. The explicit successor receipt is now checked in with the current
 inventory/failure hashes; the prior receipt remains preserved in Git history.
 
 The exact, non-overlapping repair order is: `V0-R1` builder
@@ -418,18 +418,18 @@ retargeting assertions; legacy fixtures remain only for compatibility ingress.
 
 The five named repair cohorts have now completed in the existing
 `DEV-GATE-LIB-BASELINE-REFRESH-R0`; no health row, receipt, or per-cohort guard
-was created. The fixed command is stable at `7579/7417/133/29` with zero new
+was created. The fixed command is stable at `7580/7418/133/29` with zero new
 failure names. The 2026-09-01 row is closed as `stopped_later_quick_red` with
 implementation permission false, and the repair is recorded at
-`917a078c6c`. The explicit successor receipt records the one inventory
-addition and five resolved prior reds; the queued JSON-v1 Stop cohort is now
-eligible only when the pointer explicitly selects it.
+`917a078c6c`. The explicit successor receipt records the two inventory
+additions and five resolved prior reds; the JSON-v1 Stop cohort is now landed
+with its five call-like writers caller-zero.
 
 Acceptance for this bounded repair is zero added failure names under the fixed
 runner, with the prior 138-name receipt preserved in Git history and the
 successor receipt accepted after explicit reconciliation. No semantic,
-BoxShape, performance, test retirement, or compatibility Stop is implied until
-the pointer selects an eligible existing row.
+BoxShape, performance, or test-retirement work is implied; the separately
+selected JSON-v1 compatibility Stop is recorded below.
 
 Worker-audited cleanup queue (2026-09-04): the verification incident keeps all
 BoxShape implementation parked. After `StableKnownRed`, the existing cleanup
@@ -462,6 +462,10 @@ allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
+
+status = landed
+implementation permission = false
+current cohort = `json_v1_legacy_call_ingress`
 
 After the R6 canonical core checkpoint, stop each legacy product reader by one
 of exactly three outcomes:
@@ -502,10 +506,11 @@ Landed M7-S tombstones (full evidence remains in Git and the owning manifest):
 Unrelated landed guard/BoxShape cleanup is historical only (`5690939d04`,
 `f482f84957`, `7965b1f2f9`, `8def150e1d`) and is not M7-S progress.
 
-##### Queued cohort — `json_v1_legacy_call_ingress`
+##### Selected cohort — `json_v1_legacy_call_ingress`
 
-Open only after V0 restores `StableKnownRed`. Reuse the generic parent row
-`MIR-CALL-LEGACY-READER-STOP-R0`; do not add a cohort row or guard dispatcher.
+V0 has restored `StableKnownRed`; reuse the generic parent row
+`MIR-CALL-LEGACY-READER-STOP-R0` and its one generic scheduler dispatch. Do not
+add a cohort row or cohort-specific guard dispatcher.
 The sole compatibility owner is `src/runner/json_v1_bridge/parse/mir_call.rs`.
 Stop its five `LegacyCallV0` writers (`Global`, `Method`, `Extern`, `Value`, and
 value-style `Closure`) before block mutation with
@@ -517,6 +522,8 @@ imports when caller-zero. Preserve `Constructor -> NewBox` and new-style
 `Closure -> NewClosure`. Use the existing parser test owner for five exact
 negative cases plus the two construction positives. No canonical target
 reconstruction, test file, receipt, fallback, or per-cohort guard is added.
+Landed with the consolidated parser stop test and the fixed successor baseline
+at `7580/7418/133/29`; no new failure names were observed.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

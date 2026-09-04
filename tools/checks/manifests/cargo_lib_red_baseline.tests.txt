@@ -6250,6 +6250,7 @@ runner::json_v1_bridge::parse::tests::parse_v1_constructor_rejects_conflicting_n
 runner::json_v1_bridge::parse::tests::parse_v1_constructor_rejects_dual_args_placement_before_publication
 runner::json_v1_bridge::parse::tests::parse_v1_constructor_rejects_missing_args_before_publication
 runner::json_v1_bridge::parse::tests::parse_v1_constructor_rejects_non_array_args_before_publication
+runner::json_v1_bridge::parse::tests::parse_v1_legacy_call_writers_stop_before_block_mutation
 runner::json_v1_bridge::parse::tests::parse_v1_ownership_transport_requires_exact_boxref_witness
 runner::json_v1_bridge::parse::tests::parse_v1_params_array_sets_function_arity
 runner::json_v1_bridge::parse::tests::parse_v1_typed_constructor_preserves_valid_newbox_shape

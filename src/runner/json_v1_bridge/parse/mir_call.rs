@@ -1,16 +1,11 @@
-use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
-use crate::mir::definitions::Callee;
-use crate::mir::{EffectMask, MirInstruction, ValueId};
-use hakorune_mir_defs::CanonicalGlobalTargetV1;
+use crate::mir::{MirInstruction, ValueId};
 use serde_json::Value;
 
-fn bump_max_value_id_from_call(block: &crate::mir::BasicBlock, max_value_id: &mut u32) {
-    if let Some(arg_max) = block.instructions.last().and_then(|i| match i {
-        MirInstruction::LegacyCallV0 { args, .. } => args.iter().map(|v| v.as_u32()).max(),
-        _ => None,
-    }) {
-        *max_value_id = (*max_value_id).max(arg_max + 1);
-    }
+fn legacy_call_stop_error(func_name: &str, callee_type: &str) -> String {
+    format!(
+        "[freeze:contract][mir-json-v1/legacy-call-stopped] function '{}' uses legacy callee type '{}'; call-like JSON v1 ingress is disabled",
+        func_name, callee_type
+    )
 }
 
 pub(super) fn parse_v1_mir_call(
@@ -19,7 +14,8 @@ pub(super) fn parse_v1_mir_call(
     block_ref: &mut crate::mir::BasicBlock,
     max_value_id: &mut u32,
 ) -> Result<(), String> {
-    // Minimal v1 mir_call support (Global/Method/Constructor/Extern/Value + Closure creation)
+    // v1 compatibility ingress retains only construction shapes; call-like
+    // carriers stop before block mutation.
     // Accept both shapes:
     //  - flat:   { op:"mir_call", callee:{...}, args:[...], effects:[] }
     //  - nested: { op:"mir_call", mir_call:{ callee:{...}, args:[...], effects:[] } }
@@ -28,12 +24,6 @@ pub(super) fn parse_v1_mir_call(
         .get("dst")
         .and_then(|d| d.as_u64())
         .map(|v| ValueId::new(v as u32));
-    let effects = if let Some(sub) = inst.get("mir_call") {
-        super::super::helpers::parse_effects_from(sub)
-    } else {
-        super::super::helpers::parse_effects_from(inst)
-    };
-
     // args: support both flat/nested placement
     let mut argv: Vec<ValueId> = Vec::new();
     if let Some(arr) = inst.get("args").and_then(|a| a.as_array()).or_else(|| {
@@ -62,45 +52,7 @@ pub(super) fn parse_v1_mir_call(
         .ok_or_else(|| format!("mir_call callee.type missing in function '{}'", func_name))?;
 
     match ctype {
-        "Global" => {
-            let raw_name = callee_obj
-                .get("name")
-                .and_then(Value::as_str)
-                .ok_or_else(|| {
-                    format!(
-                        "mir_call callee Global missing name in function '{}'",
-                        func_name
-                    )
-                })?;
-            // Map known console aliases to interpreter-accepted names
-            let mapped = match raw_name {
-                "print" => "print".to_string(),
-                "nyash.builtin.print" => "nyash.builtin.print".to_string(),
-                "nyash.console.log" => "nyash.console.log".to_string(),
-                // Accept env.console.* as nyash.console.log (numeric only)
-                "env.console.log" | "env.console.warn" | "env.console.error" => {
-                    "nyash.console.log".to_string()
-                }
-                other => {
-                    return Err(format!(
-                        "unsupported Global callee '{}' in mir_call (Gate-C v1 bridge)",
-                        other
-                    ));
-                }
-            };
-            let target = project_global_target(&mapped, argv.len())?;
-            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
-                dst: dst_opt,
-                func: ValueId::new(0),
-                callee: Some(Callee::Global(target)),
-                args: argv,
-                effects,
-            });
-            bump_max_value_id_from_call(block_ref, max_value_id);
-            if let Some(d) = dst_opt {
-                *max_value_id = (*max_value_id).max(d.as_u32() + 1);
-            }
-        }
+        "Global" => return Err(legacy_call_stop_error(func_name, ctype)),
         "Constructor" => {
             let flat_args = inst.get("args");
             let nested_args = inst.get("mir_call").and_then(|nested| nested.get("args"));
@@ -182,53 +134,7 @@ pub(super) fn parse_v1_mir_call(
             }
             *max_value_id = (*max_value_id).max(dst.as_u32() + 1);
         }
-        "Method" => {
-            // receiver: required u64, canonical method key is `name`
-            // (legacy fallback: `method` for transition tolerance)
-            let method = callee_obj
-                .get("name")
-                .or_else(|| callee_obj.get("method"))
-                .and_then(Value::as_str)
-                .ok_or_else(|| {
-                    format!(
-                        "mir_call callee Method missing name/method in function '{}'",
-                        func_name
-                    )
-                })?
-                .to_string();
-            let recv_id = callee_obj
-                .get("receiver")
-                .and_then(Value::as_u64)
-                .ok_or_else(|| {
-                    format!(
-                        "mir_call callee Method missing receiver in function '{}'",
-                        func_name
-                    )
-                })? as u32;
-            let box_name = callee_obj
-                .get("box_name")
-                .and_then(Value::as_str)
-                .unwrap_or("")
-                .to_string();
-            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
-                dst: dst_opt,
-                func: ValueId::new(0),
-                callee: Some(Callee::Method {
-                    box_name: box_name.clone(),
-                    method,
-                    receiver: Some(ValueId::new(recv_id)),
-                    certainty: TypeCertainty::Known,
-                    // JSON v1 bridge: assume all methods are runtime data boxes
-                    box_kind: CalleeBoxKind::RuntimeData,
-                }),
-                args: argv,
-                effects,
-            });
-            bump_max_value_id_from_call(block_ref, max_value_id);
-            if let Some(d) = dst_opt {
-                *max_value_id = (*max_value_id).max(d.as_u32() + 1);
-            }
-        }
+        "Method" => return Err(legacy_call_stop_error(func_name, ctype)),
         "Closure" => {
             // Two shapes are seen in the wild:
             // 1) NewClosure-style descriptor (params/captures/me_capture present) → NewClosure
@@ -294,91 +200,11 @@ pub(super) fn parse_v1_mir_call(
                 });
                 *max_value_id = (*max_value_id).max(dst.as_u32() + 1);
             } else {
-                // Value-style closure: treat like Value(func id)
-                let fid = callee_obj
-                    .get("func")
-                    .and_then(Value::as_u64)
-                    .ok_or_else(|| {
-                        format!(
-                            "mir_call callee Closure missing func in function '{}'",
-                            func_name
-                        )
-                    })? as u32;
-                // Captures array (if present) are appended to argv for minimal parity
-                if let Some(caps) = callee_obj.get("captures").and_then(Value::as_array) {
-                    for c in caps {
-                        let id = c.as_u64().ok_or_else(|| {
-                            format!(
-                                "mir_call Closure capture must be integer in function '{}'",
-                                func_name
-                            )
-                        })? as u32;
-                        argv.push(ValueId::new(id));
-                    }
-                }
-                block_ref.add_instruction(MirInstruction::LegacyCallV0 {
-                    dst: dst_opt,
-                    func: ValueId::new(0),
-                    callee: Some(Callee::Value(ValueId::new(fid))),
-                    args: argv,
-                    effects,
-                });
-                *max_value_id = (*max_value_id).max(fid + 1);
-                bump_max_value_id_from_call(block_ref, max_value_id);
-                if let Some(d) = dst_opt {
-                    *max_value_id = (*max_value_id).max(d.as_u32() + 1);
-                }
+                return Err(legacy_call_stop_error(func_name, ctype));
             }
         }
-        "Extern" => {
-            let name = callee_obj
-                .get("name")
-                .and_then(Value::as_str)
-                .ok_or_else(|| {
-                    format!(
-                        "mir_call callee Extern missing name in function '{}'",
-                        func_name
-                    )
-                })?
-                .to_string();
-            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
-                dst: dst_opt,
-                func: ValueId::new(0),
-                callee: Some(Callee::Extern(name)),
-                args: argv,
-                effects: EffectMask::IO,
-            });
-            bump_max_value_id_from_call(block_ref, max_value_id);
-            if let Some(d) = dst_opt {
-                *max_value_id = (*max_value_id).max(d.as_u32() + 1);
-            }
-        }
-        "Value" => {
-            // dynamic function value id: canonical `value` (legacy: function_value/func)
-            let fid = callee_obj
-                .get("value")
-                .or_else(|| callee_obj.get("function_value"))
-                .or_else(|| callee_obj.get("func"))
-                .and_then(Value::as_u64)
-                .ok_or_else(|| {
-                    format!(
-                        "mir_call callee Value missing value/function_value/func in function '{}'",
-                        func_name
-                    )
-                })? as u32;
-            block_ref.add_instruction(MirInstruction::LegacyCallV0 {
-                dst: dst_opt,
-                func: ValueId::new(0),
-                callee: Some(Callee::Value(ValueId::new(fid))),
-                args: argv,
-                effects,
-            });
-            *max_value_id = (*max_value_id).max(fid + 1);
-            bump_max_value_id_from_call(block_ref, max_value_id);
-            if let Some(d) = dst_opt {
-                *max_value_id = (*max_value_id).max(d.as_u32() + 1);
-            }
-        }
+        "Extern" => return Err(legacy_call_stop_error(func_name, ctype)),
+        "Value" => return Err(legacy_call_stop_error(func_name, ctype)),
         other => {
             return Err(format!(
                 "unsupported callee type '{}' in mir_call (Gate-C v1 bridge)",
@@ -388,31 +214,4 @@ pub(super) fn parse_v1_mir_call(
     }
 
     Ok(())
-}
-
-/// v1 is a compatibility ingress.  Its accepted wire spelling is projected
-/// into the structural carrier here, once, after the wire family is known.
-/// This helper does not perform catalog lookup or fallback.
-fn project_global_target(name: &str, args_len: usize) -> Result<CanonicalGlobalTargetV1, String> {
-    if name.is_empty() {
-        return Err("mir_call Global name must not be empty".to_string());
-    }
-    if name == "print" {
-        return Ok(CanonicalGlobalTargetV1::builtin_print());
-    }
-    let (base, arity) = match name.rsplit_once('/') {
-        Some((base, encoded)) => (
-            base,
-            encoded
-                .parse::<u32>()
-                .map_err(|_| format!("mir_call Global name has malformed arity: {name}"))?,
-        ),
-        None => (name, args_len as u32),
-    };
-    if let Some((owner, method)) = base.rsplit_once('.') {
-        return CanonicalGlobalTargetV1::new_static_box_method(owner.into(), method.into(), arity)
-            .map_err(|error| format!("mir_call Global target is invalid: {error:?}"));
-    }
-    CanonicalGlobalTargetV1::new_free_function(base.into(), arity)
-        .map_err(|error| format!("mir_call Global target is invalid: {error:?}"))
 }

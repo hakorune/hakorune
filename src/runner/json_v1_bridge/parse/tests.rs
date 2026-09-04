@@ -1,5 +1,5 @@
-use super::try_parse_v1_to_module;
-use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+use super::{mir_call::parse_v1_mir_call, try_parse_v1_to_module};
+use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
 
 fn single_v1_instruction_payload(instruction: &str) -> String {
     format!(
@@ -194,6 +194,24 @@ fn parse_v1_typed_constructor_preserves_valid_newbox_shape() {
         MirInstruction::NewBox { dst, box_type, args }
             if *dst == ValueId::new(1) && box_type == "ArrayBox" && args.is_empty()
     ));
+
+    let closure_payload = single_v1_instruction_payload(
+        r#"{"op":"mir_call","dst":2,"callee":{"type":"Closure","params":[],"captures":[]},"args":[]}"#,
+    );
+    let closure_module = try_parse_v1_to_module(&closure_payload)
+        .expect("valid Closure creation must parse")
+        .expect("schema_version=1.0 must be handled");
+    let closure_instructions = &closure_module
+        .get_function("main")
+        .expect("closure main exists")
+        .get_block(BasicBlockId::new(0))
+        .expect("closure bb0 exists")
+        .instructions;
+    assert!(matches!(
+        &closure_instructions[0],
+        MirInstruction::NewClosure { dst, params, captures, .. }
+            if *dst == ValueId::new(2) && params.is_empty() && captures.is_empty()
+    ));
 }
 
 #[test]
@@ -233,4 +251,34 @@ fn parse_v1_constructor_rejects_dual_args_placement_before_publication() {
     }"#;
     let error = try_parse_v1_to_module(payload).expect_err("dual args placement must reject");
     assert!(error.contains("[freeze:contract][mir-json-v1/constructor-args-ambiguous]"));
+}
+
+#[test]
+fn parse_v1_legacy_call_writers_stop_before_block_mutation() {
+    let cases = [
+        ("Global", r#","name":"helper""#),
+        ("Method", r#","name":"step","receiver":1"#),
+        ("Extern", r#","name":"env.console.log""#),
+        ("Value", r#","value":2"#),
+        ("Closure", r#","func":2"#),
+    ];
+
+    for (callee_type, fields) in cases {
+        let instruction = format!(
+            r#"{{"op":"mir_call","callee":{{"type":"{}"{}}},"args":[]}}"#,
+            callee_type, fields
+        );
+        let value: serde_json::Value =
+            serde_json::from_str(&instruction).expect("test instruction JSON");
+        let mut block = BasicBlock::new(BasicBlockId::new(0));
+        let mut max_value_id = 0;
+        let error = parse_v1_mir_call(&value, "main", &mut block, &mut max_value_id)
+            .expect_err("legacy call-like JSON v1 ingress must stop");
+        assert!(
+            error.contains("[freeze:contract][mir-json-v1/legacy-call-stopped]"),
+            "unexpected error for {callee_type}: {error}"
+        );
+        assert!(block.instructions.is_empty(), "{callee_type} mutated the block");
+        assert_eq!(max_value_id, 0, "{callee_type} changed the value-id cursor");
+    }
 }

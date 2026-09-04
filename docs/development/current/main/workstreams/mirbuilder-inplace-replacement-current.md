@@ -42,14 +42,14 @@ reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
 The prior 138-name failure receipt is preserved in Git history. The bounded
 canonical-call reader repair is stable under the fixed runner at
-`7579/7417/133/29`; the current-minus-prior failure-name comparison has zero
-additions. The inventory has one post-receipt test and five prior known-red
+`7580/7418/133/29`; the current-minus-prior failure-name comparison has zero
+additions. The inventory has two post-receipt tests and five prior known-red
 names now pass, so the explicit successor receipt is checked in rather than
 silently widening the baseline. All repaired sites descend from the
 `45c6759962` Call/LegacyCallV0 shape split. This remains verification repair
-evidence, not automatic permission to open JSON-v1, BoxShape, performance, or
-another semantic/cleanup family. The queued JSON-v1 Stop cohort may be selected
-only by an explicit pointer update.
+evidence, not automatic permission to open BoxShape, performance, or another
+semantic/cleanup family. The JSON-v1 Stop cohort is now landed and its five
+call-like writers are caller-zero.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
@@ -179,15 +179,16 @@ an exclusive delete-set, and no unclassified red. A family with zero/multiple
 owners remains `ParkedSealed` while other eligible families may proceed.
 
 JSON v0 remains parked with shared external callers. JSON v1 now has one
-bounded Stop cohort, but it is queued behind verification recovery: its sole
-parser owner emits five `LegacyCallV0` forms (`Global`, `Method`, `Extern`,
-`Value`, value-style `Closure`) while typed `NewBox`/`NewClosure` construction
-is separable. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; add no cohort row,
-receipt, guard, adapter, or dispatcher. Until `StableKnownRed`, neither this
-Stop nor T0 cleanup opens. Afterwards select Delete/Stop before Promote/T0 and
-measure production old-edge reduction, not row count. `Stop` may end an
-unsupported experimental reader without backend parity; `Delete` still
-requires caller-zero. This is scheduling, not a second semantic task ledger.
+bounded Stop cohort whose verification prerequisite is closed: its sole parser
+owner emits five `LegacyCallV0` forms (`Global`, `Method`, `Extern`, `Value`,
+value-style `Closure`) while typed `NewBox`/`NewClosure` construction is
+separable. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0` with the one generic
+scheduler dispatch; add no cohort row, receipt, adapter, or cohort-specific
+guard. The pointer must select this cohort before implementation. Select
+Delete/Stop before Promote/T0 and measure production old-edge reduction, not
+row count. `Stop` may end an unsupported experimental reader without backend
+parity; `Delete` still requires caller-zero. This is scheduling, not a second
+semantic task ledger.
 
 The worker audit also found no safe test-retirement or new R6 reader-stop
 candidate inside the existing inventory. After verification recovery, the
