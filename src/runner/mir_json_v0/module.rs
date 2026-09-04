@@ -6,8 +6,6 @@ use crate::runner::mir_json::common as mirjson_common;
 use serde_json::Value;
 
 use super::array_write::parse_array_element_write;
-use super::call::*;
-use super::catalog::JsonV0FunctionCatalog;
 use super::checked_callout;
 use super::helpers::*;
 use super::lifecycle::parse_value_transport_or_lifecycle;
@@ -39,7 +37,6 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
 
         let param_value_ids = parse_function_param_ids(func, &func_name)?;
         let param_count = param_value_ids.len();
-        let catalog = JsonV0FunctionCatalog::from_function(func, &func_name, &param_value_ids)?;
 
         let mut signature = FunctionSignature {
             name: func_name.clone(),
@@ -469,25 +466,13 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                             max_value_id = max_value_id.max(dv.as_u32() + 1);
                         }
                     }
-                    "call" => {
-                        let (call_inst, dst_opt) =
-                            build_call_instruction(inst, inst, "call", &catalog)?;
-                        block_ref.add_instruction(call_inst);
-                        if let Some(dv) = dst_opt {
-                            max_value_id = max_value_id.max(dv.as_u32() + 1);
-                        }
-                    }
-                    "mir_call" => {
-                        // Unified call JSON (flat or nested):
-                        //  - { op:"mir_call", callee:{...}, args:[...], effects:[...], dst?:<vid|null> }
-                        //  - { op:"mir_call", mir_call:{callee:{...}, args:[...], effects:[...]}, dst?:<vid|null> }
-                        let call_node = inst.get("mir_call").unwrap_or(inst);
-                        let (call_inst, dst_opt) =
-                            build_call_instruction(inst, call_node, "mir_call", &catalog)?;
-                        block_ref.add_instruction(call_inst);
-                        if let Some(dv) = dst_opt {
-                            max_value_id = max_value_id.max(dv.as_u32() + 1);
-                        }
+                    "call" | "mir_call" => {
+                        // JSON-v0 call spellings are compatibility input only. Their
+                        // name/arity/func data cannot be promoted to source identity,
+                        // so stop before any carrier, catalog, or module mutation.
+                        return Err(
+                            "[freeze:contract][mir-json-v0/legacy-call-stopped]".to_string()
+                        );
                     }
                     "externcall" => {
                         // { op:"externcall", func:"iface.method", args:[vid...], dst?:<vid|null> }
