@@ -5,6 +5,7 @@
  */
 
 pub mod core_bridge;
+pub(crate) mod array_write_backend;
 pub mod diag;
 pub mod emit_direct;
 pub mod entry_selection;
