@@ -404,15 +404,17 @@ Reuse M7-S `array_element_write_published_c_cutover_i0`; no new card or
 semantic carrier. The three native projection callers were removed at
 `9cb7a6c71a`, but the entire source-to-execution acceptance is still open.
 
-1. **Capability repair (implementation-ready).** The shared owner
-   `src/host_providers/llvm_codegen/published_mir_object.rs` must invoke the
+1. **Capability repair (landed in this series).** The shared owner
+   `src/host_providers/llvm_codegen/published_mir_object.rs` now invokes the
    existing `src/mir/backend_capability.rs` policy before physical transport
    or artifact creation, with the selected EXE/OBJ identity. Cover direct
    published entrypoints, the three `exec.rs` wrappers and
    `published_mir_emit.rs`; patching only wrappers leaves a bypass.
    Ordinary array writes stay supported; typed-array contracts retain their
    existing unsupported terminal. Do not broaden capability or restore projection.
-2. **Complete execution acceptance.** Extend existing test owners
+   The typed-array negative now covers both native OBJ/EXE entries and creates
+   no artifact.
+2. **Complete execution acceptance (next).** Extend existing test owners
    `published_backend_view_tests.rs`,
    `src/tests/mir_array_element_write_lowering.rs` and runner tests as needed.
    Parse ordinary source and exercise LiteralAppend/Push/Set/Insert through

@@ -406,6 +406,72 @@ fn published_array_element_writes_reject_invalid_kind_index_shape() {
 }
 
 #[test]
+fn published_array_write_typed_contract_rejects_before_object() {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "typed-array-write/1".to_owned(),
+            params: vec![MirType::Unknown],
+            return_type: MirType::Void,
+            effects: EffectMask::WRITE,
+        },
+        BasicBlockId::new(0),
+    );
+    function.metadata.declared_param_decls = vec![crate::mir::function::MirParamDecl {
+        name: "bytes".to_owned(),
+        declared_type_name: Some("Array<u8>".to_owned()),
+        implicit_receiver: false,
+    }];
+    function
+        .blocks
+        .get_mut(&BasicBlockId::new(0))
+        .expect("entry block")
+        .add_instruction(
+            crate::mir::array_element_write::instruction(
+                crate::mir::ArrayWriteSiteId::new(1),
+                None,
+                crate::mir::ArrayElementWriteKind::Push,
+                crate::mir::ArrayWriteProducerKind::MethodCall,
+                ValueId::new(1),
+                None,
+                ValueId::new(2),
+            )
+            .expect("valid array write"),
+        );
+    let mut module = MirModule::new("typed-array-write".to_owned());
+    module.add_function(function);
+
+    let output = std::env::temp_dir().join("hakorune-typed-array-write-reject.o");
+    let _ = std::fs::remove_file(&output);
+    let error =
+        crate::host_providers::llvm_codegen::try_compile_published_static_method_object(
+            &module,
+            output.to_str().expect("temporary path is UTF-8"),
+        )
+        .expect_err("typed array must reject before object transport");
+    assert!(error.contains(
+        crate::mir::typed_array_backend_capability::BACKEND_UNSUPPORTED_TAG
+    ));
+    assert!(!output.exists(), "rejected module must not create an object");
+
+    let exe_output = std::env::temp_dir().join("hakorune-typed-array-write-reject");
+    let _ = std::fs::remove_file(&exe_output);
+    let error = crate::host_providers::llvm_codegen::emit_published_static_method_exe(
+        &module,
+        exe_output.to_str().expect("temporary path is UTF-8"),
+        None,
+        None,
+    )
+    .expect_err("typed array must reject before executable transport");
+    assert!(error.contains(
+        crate::mir::typed_array_backend_capability::BACKEND_UNSUPPORTED_TAG
+    ));
+    assert!(
+        !exe_output.exists(),
+        "rejected module must not create an executable"
+    );
+}
+
+#[test]
 fn published_array_element_writes_compile_object_without_void_result_leak() {
     std::thread::Builder::new()
         .name("published-array-write-object".to_owned())

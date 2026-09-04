@@ -21,6 +21,10 @@ pub(crate) fn compile_published_static_method_object(
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
+            crate::mir::backend_capability::enforce_mir_backend_supported(
+                module,
+                "ny-llvmc-obj",
+            )?;
             compile_published_view_object(module, &view, obj_out)
         }
         PublishedStaticMethodRouteV1::ExplicitCompatibility => {
@@ -46,6 +50,10 @@ pub(crate) fn try_compile_published_static_method_object(
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
+            crate::mir::backend_capability::enforce_mir_backend_supported(
+                module,
+                "ny-llvmc-obj",
+            )?;
             compile_published_view_object(module, &view, obj_out)?;
             Ok(true)
         }
@@ -92,7 +100,12 @@ pub(crate) fn emit_published_static_method_exe(
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
     match view.route() {
-        PublishedStaticMethodRouteV1::CanonicalTyped => {}
+        PublishedStaticMethodRouteV1::CanonicalTyped => {
+            crate::mir::backend_capability::enforce_mir_backend_supported(
+                module,
+                "ny-llvmc-exe",
+            )?;
+        }
         PublishedStaticMethodRouteV1::ExplicitCompatibility => return Ok(false),
         PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
             return Err(

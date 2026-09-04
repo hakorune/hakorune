@@ -454,7 +454,7 @@ because the current import closure cannot reach `FuncLoweringBox`.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
-| 8 cutover landed (`9cb7a6c71a`); acceptance open | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer and native projection callers 3→0; explicit llvmlite outside scope | synthetic proof retained; capability-preflight repair and source contents/order/Void execution are next, as specified below; full acceptance not claimed |
+| 8 cutover + admission repair landed | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer, native projection callers 3→0, and shared OBJ/EXE capability preflight; explicit llvmlite outside scope | repair/test landed in the follow-up commit; source contents/order/Void execution remains open; full acceptance not claimed |
 
 ```text
 status = landed
@@ -481,19 +481,13 @@ reader-stop/delete details remain in Git.
 ##### ArrayElementWrite acceptance correction and next execution
 
 `9cb7a6c71a` retains the typed row/C consumer and native projection 3→0
-cutover; llvmlite remains explicit compatibility. Full source execution
-acceptance is OPEN. Read-only review on 2026-09-05 found selected published
-entrypoints bypass the existing backend capability check. The three focused
-tests prove synthetic rows, malformed Set and synthetic MIR→OBJ/optional EXE,
-not source contents/order or source-level Void behavior. The prior
-“Void-result shape reject” claim is withdrawn, not carried as evidence.
-
-Next implementation reuses this M7-S cohort: enforce the existing
-`backend_capability.rs` policy in shared `published_mir_object.rs` admission
-before frame/JSON/artifact creation with exact EXE/OBJ profile. Cover direct
-published ingress and all native wrappers; ordinary writes remain accepted,
-typed Array contracts keep their existing unsupported terminal. No parallel
-checker, capability widening or projection fallback.
+cutover; llvmlite remains explicit compatibility. The follow-up admission
+repair now applies the existing backend capability policy before physical
+OBJ/EXE transport and proves typed-array rejection for both native entries.
+Full source execution acceptance is still OPEN. The focused tests prove
+synthetic rows, malformed Set and synthetic MIR→OBJ/optional EXE, not source
+contents/order or source-level Void behavior. The prior “Void-result shape
+reject” claim is withdrawn, not carried as evidence.
 
 Then prove all four writes from source through OBJ/link/run and EXE with
 observable contents/order, Void semantics and malformed/unsupported rejection
