@@ -397,14 +397,13 @@ The following are one dependency program, not simultaneously active cards.
 #### V0 — reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode
 
 This is a finite verification incident, not a baseline acceptance. The latest
-fixed-command observation is `7579 total`, `7357/193/29`; the immutable
-accepted failure set remains `7411/138/29`. The current-minus-accepted
-comparison has 55 added failure names and no removed names. A bounded repair of
-four canonical-call reader owners reduced the prior delta. Six read-only
-audits then proved that all 55 descend from the `45c6759962` carrier split;
-parser, VM/WASM, compatibility-stop, and runtime failures observed in the same
-run are already members of the immutable 138-name receipt and are not part of
-this delta. This remains repair-to-pass evidence, not permission to rebaseline.
+fixed-command observation after the bounded canonical-call reader repair is
+`7579 total`, `7417/133/29`; the immutable accepted failure set remains
+`7411/138/29`. The current-minus-accepted failure-name comparison has **zero
+added names** and five accepted known-red names now pass. The current inventory
+has one post-receipt test entry, so the inventory and summary no longer match
+the immutable receipt exactly. This is repair-to-pass evidence, not permission
+to rebaseline; an explicit receipt-policy reconciliation is still required.
 
 The exact, non-overlapping repair order is: `V0-R1` builder
 publication/readers (30), `V0-R2` JoinIR canonical Print assertion (1),
@@ -418,20 +417,21 @@ the preserved four-owner patch. `V0-R2` remains canonical because
 expects canonical rewrite output. `V0-R4/R5` repair existing readers before
 retargeting assertions; legacy fixtures remain only for compatibility ingress.
 
-Run these cohorts in order through the existing
-`DEV-GATE-LIB-BASELINE-REFRESH-R0`; do not create another health row, receipt,
-or per-cohort guard. Each cohort must repair its exact names to pass, preserve
-the accepted 138-name failure SHA, and introduce no new failure. The 777-line
-canonical-corridor guard must be behavior-neutrally split before any growth;
-the 750-line dead-region owner must not receive substantive code. After all
-five cohorts, run the fixed command repeatedly and update only passing-test
-inventory metadata if the total remains 7579. Before fast reopen, close the
-stale 2026-09-01 baseline row as `stopped_later_quick_red` with implementation
-permission false; the 2026-09-04 reconcile row remains the sole continuation.
+The five named repair cohorts have now completed in the existing
+`DEV-GATE-LIB-BASELINE-REFRESH-R0`; no health row, receipt, or per-cohort guard
+was created. The fixed command is stable at `7579/7417/133/29` with zero new
+failure names. The 2026-09-01 row is closed as `stopped_later_quick_red` with
+implementation permission false, and the repair is recorded at
+`917a078c6c`. Because one inventory entry was added and five accepted reds
+resolved, the immutable receipt still needs an explicit policy decision; do
+not automatically rewrite it or open JSON-v1, BoxShape, performance, test
+retirement, or another semantic family.
 
-Acceptance is the accepted 138-name failure SHA, metadata guard, quick lib
-no-run, and `vm-reference` check restored. Until then no semantic, BoxShape,
-performance, test retirement, or compatibility Stop is permitted.
+Acceptance for this bounded repair is zero added failure names under the fixed
+runner, with the accepted 138-name receipt kept immutable and the discrepancy
+recorded for explicit reconciliation. Until that policy decision is made no
+semantic, BoxShape, performance, test retirement, or compatibility Stop is
+permitted.
 
 Worker-audited cleanup queue (2026-09-04): the verification incident keeps all
 BoxShape implementation parked. After `StableKnownRed`, the existing cleanup
