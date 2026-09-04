@@ -537,8 +537,8 @@ M7/R7 frontier is healthy; do not add a per-candidate guard, receipt, or card.
 | candidate | kind | owner / measurable finish | non-claims |
 | --- | --- | --- | --- |
 | `MIRBUILDER-CONFIG-SNAPSHOT-S0` | landed / no reopen | `CompilationContext.emit_debug_policy` owns the invocation snapshot; selected emit path env reads are 0 at `4ba9293900`, with no child/dispatch port axis added | transitive `emit_guard`/SSA/router reads remain a separate design question; no process-global cache or semantic flag change |
-| `MIRBUILDER-EMITTER-FANOUT-S0` | BoxShape | existing unified emitter; four forwarding hops reduced with behavior-neutral before/after frame count | no authority move, no source growth to hide 800-line stop |
-| `MIRBUILDER-DEAD-ANNOTATION-RETIRE-S0` | Delete | one caller-zero `allow(dead_code)` family; annotation and private asset count decrease without visibility widening | no broad purge, no semantic rewrite |
+| `MIRBUILDER-EMITTER-FANOUT-S0` | ParkedSealed | `unified_emitter.rs` hops cross profile gating, lookup/map replay, recursion restoration, receipt/error conversion, and the physical Call writer; frame-count reduction alone has old-edge delta 0. Reopen only with one contract-preserving owner and a finite delete-set | no flattening, authority move, receipt/port/guard/test addition, or bypass of typed failure/legacy profile |
+| `MIRBUILDER-DEAD-ANNOTATION-RETIRE-S0` | landed / bounded repeats only | caller-zero `_family_is_route_typed` helper, `dead_code` allowance, and unused import removed at `33b69f3e9e`; repeat only with a new compiler-proven caller-zero private asset | no broad purge, visibility widening, or semantic rewrite |
 | `LANG-FASTMEM-SOURCE-FATE-D0` | Design Stop | one finite source caller census decides public syntax/`mem.assume*` fate while MIR `MemOp` remains owned | no source deletion or MemOp removal before the census |
 
 ### Evidence reuse and repayment

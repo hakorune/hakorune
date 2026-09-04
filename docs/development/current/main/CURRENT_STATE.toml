@@ -50,6 +50,9 @@ exist. The bounded T0 cleanup dead_annotation_retire_module_invocation_brand
 landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
 changes.
+The emitter fanout cleanup candidate is now explicitly ParkedSealed: its
+forwarding hops carry distinct profile/lookup/replay/receipt/physical-writer
+contracts, and frame-count reduction alone removes no production old edge.
 """
 next_design_card = "none"
 next_execution_card = "none"
