@@ -11,6 +11,12 @@ BOXSHAPE_MAINTENANCE_MANIFEST = Path(
     "docs/development/current/main/investigations/"
     "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 )
+T3_CLEANUP_ROW = "MIRBUILDER-T3-CLEANUP-R0"
+T3_CLEANUP_COHORT = "route_selection_test_facade"
+T3_CLEANUP_MANIFEST = Path(
+    "docs/development/current/main/investigations/"
+    "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+)
 LEGACY_PHI_CANDIDATE_ROW = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
 LEGACY_PHI_CANDIDATE_FILES = (
     "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",
@@ -124,6 +130,85 @@ def check_boxshape_maintenance(state: dict, root: Path, api) -> None:
     if delta > 0:
         api.fail(f"{BOXSHAPE_MAINTENANCE_ROW} src line delta is positive: {delta}")
     print(f"[{api.TAG}] row={BOXSHAPE_MAINTENANCE_ROW} delegated=boxshape-maintenance delta={delta}")
+
+
+def check_t3_cleanup(state: dict, root: Path, api) -> None:
+    """Validate one reusable caller-zero T3 cleanup cohort."""
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{T3_CLEANUP_ROW} must be fast or closeout")
+    if state.get("current_execution_row") != T3_CLEANUP_ROW:
+        api.fail(f"{T3_CLEANUP_ROW} pointer row drifted")
+    if state.get("current_execution_cohort") != T3_CLEANUP_COHORT:
+        api.fail(f"{T3_CLEANUP_ROW} cohort drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{T3_CLEANUP_ROW} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{T3_CLEANUP_ROW} must not open a second design card")
+
+    manifest_rel = str(T3_CLEANUP_MANIFEST)
+    for key in ("latest_card_path", "current_execution_design", "next_execution_card_path"):
+        if state.get(key) != manifest_rel:
+            api.fail(f"{T3_CLEANUP_ROW} {key} drifted")
+    next_card = state.get("next_execution_card")
+    task_id = "MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0"
+    if mode == "fast" and next_card != T3_CLEANUP_ROW:
+        api.fail(f"{T3_CLEANUP_ROW} fast next_execution_card drifted")
+    if mode == "closeout" and next_card != "none":
+        next_path = root / manifest_rel
+        if str(next_card) not in next_path.read_text(encoding="utf-8"):
+            api.fail(f"{T3_CLEANUP_ROW} selected next task is not in its manifest")
+
+    with (root / T3_CLEANUP_MANIFEST).open("rb") as handle:
+        manifest = tomllib.load(handle)
+    rows = [row for row in manifest.get("candidate", []) if row.get("id") == task_id]
+    if len(rows) != 1:
+        api.fail(f"{T3_CLEANUP_ROW} manifest candidate is missing or duplicated")
+    row = rows[0]
+    expected_status = "selected_fast" if mode == "fast" else "landed"
+    if row.get("status") != expected_status:
+        api.fail(f"{T3_CLEANUP_ROW} candidate status drifted")
+    if row.get("implementation_permission") is not (mode == "fast"):
+        api.fail(f"{T3_CLEANUP_ROW} implementation permission drifted")
+
+    source_rel = "src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs"
+    source = root / source_rel
+    if not source.is_file() or sum(1 for _ in source.open(encoding="utf-8")) >= 800:
+        api.fail(f"{T3_CLEANUP_ROW} source owner missing or reached 800 lines")
+    present = "selection_for_test" in source.read_text(encoding="utf-8")
+    if present is not (mode == "fast"):
+        api.fail(f"{T3_CLEANUP_ROW} selected helper presence does not match mode")
+
+    base = row.get("base_head")
+    if not isinstance(base, str) or not base:
+        api.fail(f"{T3_CLEANUP_ROW} base_head is missing")
+    changed = api.subprocess.run(
+        ["git", "diff", "--name-only", base, "--"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    allowed = set(row.get("allowed_files", []))
+    unexpected = set(changed) - allowed
+    if unexpected:
+        api.fail(f"{T3_CLEANUP_ROW} changed files exceed manifest: {sorted(unexpected)}")
+    diff = api.subprocess.run(
+        ["git", "diff", "--numstat", base, "--", "src"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    delta = 0
+    for line in diff.splitlines():
+        added, deleted, _ = line.split("\t", 2)
+        if "-" in {added, deleted}:
+            api.fail(f"{T3_CLEANUP_ROW} binary src delta is forbidden")
+        delta += int(added) - int(deleted)
+    if delta > 0:
+        api.fail(f"{T3_CLEANUP_ROW} src line delta is positive: {delta}")
+    print(f"[{api.TAG}] row={T3_CLEANUP_ROW} cohort={T3_CLEANUP_COHORT} delta={delta}")
 
 
 def check_legacy_phi_candidate_retire_r0(state: dict, root: Path, api) -> None:

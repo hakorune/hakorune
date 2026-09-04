@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
 work_mode = "closeout"
-current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "raw_indirect_unified_off_stop"
+current_execution_row = "MIRBUILDER-T3-CLEANUP-R0"
+current_execution_cohort = "route_selection_test_facade"
 current_design_stop = "none"
-current_blocker_token = "M7-S orders 1--3 are closed. No remaining Call family has one finite action tuple, so those families stay ParkedSealed. The selected next action is the caller-zero selection_for_test T3 cleanup; it changes no Call authority and must be activated as one bounded T0 commit."
+current_blocker_token = "T3 cleanup landed: caller-zero selection_for_test was deleted with no semantic Call change; focused registry tests and existing guards are green."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Do not repeat the broad Call census. JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako shared compatibility remain ParkedSealed. Run MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0 as one caller-zero T0 cleanup, then recheck and run the private plan/canon forwarding-shelf retirement. Add no per-item guard/receipt. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "Do not repeat the broad Call census. JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako shared compatibility remain ParkedSealed. The reusable MIRBUILDER-T3-CLEANUP-R0 lane runs cohort route_selection_test_facade, then plan_canon_facade only after closeout. Add no per-item guard/receipt. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -27,20 +27,22 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-latest_card = "mirbuilder-final-pipeline-ssot"
-latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
+latest_card = "mirbuilder-cleanup-retirement1-next-edge-census"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
 zero. M7-S orders 1--3 are closed and the remaining Call families are
-ParkedSealed. The fixed baseline remains 7555/7393/133/29 with its failure-name
-set unchanged. The next selected task is one caller-zero test-facade deletion;
-the private plan/canon forwarding shelf follows only after its closeout.
+ParkedSealed. MIRBUILDER-T3-CLEANUP-R0 cohort route_selection_test_facade
+landed: the caller-zero selection_for_test helper was deleted, src delta was
+-9, focused registry tests passed 175/175, and no semantic Call/test/baseline
+delta was introduced. The next bounded cleanup is the private plan/canon
+forwarding-shelf retirement.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0"
-next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+next_execution_card = "MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_focused_test_binary_task = "MIR-BUILDER-FOCUSED-TEST-BINARY-BOUNDARY-S0 (recorded in the active Call card; nonblocking)"

@@ -39,15 +39,6 @@ impl RecipeFirstRouteSelectionV1 {
             .collect()
     }
 
-    #[cfg(test)]
-    pub(crate) fn selection_for_test(raw_execution: &[LoopRouteId]) -> Self {
-        Self {
-            facts_present: true,
-            matched: raw_execution.into(),
-            raw_execution: raw_execution.into(),
-            diagnostic_effective: raw_execution.into(),
-        }
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]

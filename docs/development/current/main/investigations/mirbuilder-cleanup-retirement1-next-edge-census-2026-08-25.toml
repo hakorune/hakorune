@@ -3,6 +3,8 @@ status = "accepted_design"
 observed_at = "2026-08-26"
 observed_commit = "f659d3f941"
 implementation_permission = false
+scheduler_row = "MIRBUILDER-T3-CLEANUP-R0"
+next_execution = "MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0"
 decision = "MIRBUILDER-CLEANUP-RETIREMENT1-NEXT-EDGE-CENSUS-D0"
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
 followup_census = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
@@ -217,6 +219,35 @@ non_claims = [
   "no common_v2 relocation",
   "no production caller or owner change",
   "no test deletion, rename, ignore, or baseline refresh",
+]
+
+[[candidate]]
+id = "MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0"
+status = "landed"
+kind = "caller_zero_test_facade_retirement"
+implementation_permission = false
+base_head = "cee0e9d01a"
+scope = "src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs::RecipeFirstRouteSelectionV1::selection_for_test"
+source_authority = "The Rust compiler and exact tracked-tree caller graph; production route selection remains owned by selection.rs and its existing registry tests."
+canonical_issuer = "none; this row deletes an unused cfg(test) helper and issues no semantic product."
+old_edge = "One cfg(test), pub(crate) helper definition has no repository caller and only obscures the live selection owner."
+delete_set = ["RecipeFirstRouteSelectionV1::selection_for_test"]
+acceptance = [
+  "one definition and zero tracked callers before deletion",
+  "helper absent after closeout; production selection and all existing test names remain",
+  "quick lib/lib-tests and existing in-place, pointer, and active-surface guards are green",
+  "src line delta is negative; no new row-specific guard, receipt, adapter, test, ignore, or baseline refresh",
+]
+implementation_evidence = "Landed in the closeout commit: exact helper definition removed; focused registry test filter passed 175/175; pointer, active-surface, lifecycle, and diff checks stayed green; src delta -9; no semantic Call/test/baseline delta."
+landed_commit = "same commit as this closeout"
+non_claims = ["no Call R6/R7 progress", "no semantic route change", "no broad test-facade census", "no public API change"]
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
 ]
 
 [candidate.line_budget_split_map]

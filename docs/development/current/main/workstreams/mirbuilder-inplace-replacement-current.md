@@ -204,10 +204,11 @@ No BoxShape task is selected and no per-cohort card, receipt, or guard is added.
 Orders 1--3 are closed: the caller-zero JoinIR bridge, unreachable WASM P10
 shape island, and raw-indirect unified-off legacy writer are retired/stopped.
 The remaining Call families have no exact action tuple and stay family-local
-ParkedSealed. The next selected work is the caller-zero
-`RecipeFirstRouteSelectionV1::selection_for_test` T3 cleanup, followed only
-after closeout by the private `plan/canon/**` forwarding-shelf retirement.
-Neither is R6/R7 progress; the cleanup task map owns their exact boundaries.
+ParkedSealed. The caller-zero
+`RecipeFirstRouteSelectionV1::selection_for_test` T3 cleanup is landed with
+focused registry tests 175/175 green and src delta -9. The next selected work
+is the private `plan/canon/**` forwarding-shelf retirement. Neither is R6/R7
+progress; the cleanup task map owns their exact boundaries.
 
 ### S-class gate coverage (navigation only)
 
