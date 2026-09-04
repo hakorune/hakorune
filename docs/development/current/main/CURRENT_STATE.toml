@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "mir_json_v0_call_ingress_stop"
+current_execution_cohort = "stage1_return_call_parked_assets_repay"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort mir_json_v0_call_ingress_stop is in closeout after commit 9a40ece824: the shared Rust MIR JSON-v0 op=call/op=mir_call ingress now stops before LegacyCallV0 construction or module publication, call.rs/catalog.rs and call-only tests are gone, and boxcall, externcall, NewBox, non-call loaders, and outer Program fallback remain. Record focused evidence and leave the next Stage1 RetireFromTree row for a later turn; do not rebaseline or reopen semantics."
+current_blocker_token = "M7-S cohort stage1_return_call_parked_assets_repay is the queued RetireFromTree repayment: delete exactly three invalid Stage1 Return(Call) integration smokes and their three exclusive fixtures (6 files/189 lines), with no semantic rewrite, new test, guard, receipt, fallback, or rebaseline."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. JSON-v0 Stop is landed at 9a40ece824; the next turn may RetireFromTree the six invalid Stage1 smoke/fixture assets before selecting another semantic family. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. Delete only the six exact Stage1 assets; verify default integration discovery, stale paths, new guard/receipt=0, and fixed failure-name set unchanged. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -46,7 +46,7 @@ ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The fixed
 comparator target remains 7555/7393/133/29.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

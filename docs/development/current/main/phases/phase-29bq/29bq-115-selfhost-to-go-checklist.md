@@ -94,28 +94,22 @@ Related:
     - fixture: `apps/tests/phase29bq_selfhost_funcscanner_lambda_literal_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh`
 - [x] MIR instruction widening baseline（MIW1-7 + LS0-2 完了）
-  - 2026-09-05 correction: MIW2/4/7 are historical shape records only; their invalid Stage1 scripts are not quick-suite acceptance and await the queued RetireFromTree repayment.
+  - 2026-09-05 correction: MIW2/4/7 are historical shape records only; their invalid Stage1 probe assets were not quick-suite acceptance and were retired from the tree at the M7-S cleanup commit.
   - [x] MIW1: `Return(NewBox)` 最小受理（`args=[]` のみ）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase12_return_newbox_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh`
-  - [x] MIW2: `Return(Call)` 最小受理（`Call name=id args=[]` のみ）
-    - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase13_return_call_id0_min.hako`
-    - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase13_return_call_id0_min_vm.sh`
+  - [x] MIW2: `Return(Call)` 最小形は歴史記録のみ（旧Stage1 probeはM7-S cleanupで退役）
   - [x] MIW3: `Return(BoxCall)` の最小受理を 1形追加（`Method recv=New(StringBox("abc")) method=length args=[]`）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase14_return_boxcall_stringbox_length_abc_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase14_return_boxcall_stringbox_length_abc_min_vm.sh`
-  - [x] MIW4: `Return(Call)` 1引数形（`Call name=id args=[Int(9)]`）の最小受理を 1形追加（failure-driven）
-    - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase15_return_call_id1_int9_min.hako`
-    - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase15_return_call_id1_int9_min_vm.sh`
+  - [x] MIW4: `Return(Call)` 1引数形は歴史記録のみ（旧Stage1 probeはM7-S cleanupで退役）
   - [x] MIW5: `Return(NewBox)` 1引数形（`new StringBox("abc")`）の最小受理を 1形追加（failure-driven）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase16_return_newbox_stringbox_abc_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase16_return_newbox_stringbox_abc_min_vm.sh`
   - [x] MIW6: `Return(BoxCall)` 1引数形（`Method recv=New(StringBox("abc")) method=indexOf args=[Str("b")]`）の最小受理を 1形追加（failure-driven）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min_vm.sh`
-  - [x] MIW7: `Return(Call)` 1引数形（`Call name=id args=[Int(7)]`）の最小受理を 1形追加（failure-driven）
-    - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase18_return_call_id1_int7_min.hako`
-    - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase18_return_call_id1_int7_min_vm.sh`
+  - [x] MIW7: `Return(Call)` 1引数形は歴史記録のみ（旧Stage1 probeはM7-S cleanupで退役）
   - [x] 直近順序（固定）: `MIW7` → quick suite 緑確認 → 次判断
   - [ ] 条件付き: `MIW8-10`（値バリエーション）は実ブロッカー発生時のみ着手
   - [x] 設計先行: Load/Store は実装前に設計SSOT（受理最小形とpin）を先に確定

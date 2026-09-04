@@ -102,15 +102,15 @@ Related:
 - [x] quick + `phase29bq_fast_gate_vm.sh --only bq` が green のときだけ、移植進捗のチェックを更新する。
 - [x] mirbuilder hostbridge deny check: `bash tools/checks/hako_mirbuilder_no_hostbridge.sh`
 - [x] Program JSON contract pin: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`（Print / Expr(Call) / If / Loop）
-- 2026-09-05 correction: phase13/15/18 Return(Call) scripts are invalid Stage1 acceptance, absent from the quick suite, and queued for RetireFromTree.
+- 2026-09-05 correction: phase13/15/18 Return(Call) probes were invalid Stage1 acceptance, absent from the quick suite, and retired from the tree at the M7-S cleanup commit.
 - [x] Loop pin: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase11_min_vm.sh`
 - [x] MIR instruction pin (`Return(NewBox)` minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh`
-- [x] MIR instruction pin (`Return(Call id())` minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase13_return_call_id0_min_vm.sh`
+- [x] MIR instruction pin (`Return(Call id())` minimal): historical shape record; probe retired by M7-S cleanup
 - [x] MIR instruction pin (`Return(BoxCall StringBox("abc").length())` minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase14_return_boxcall_stringbox_length_abc_min_vm.sh`
-- [x] MIR instruction pin (`Return(Call id(9))` one-arg minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase15_return_call_id1_int9_min_vm.sh`
+- [x] MIR instruction pin (`Return(Call id(9))` one-arg minimal): historical shape record; probe retired by M7-S cleanup
 - [x] MIR instruction pin (`Return(New StringBox("abc"))` one-arg minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase16_return_newbox_stringbox_abc_min_vm.sh`
 - [x] MIR instruction pin (`Return(BoxCall StringBox("abc").indexOf("b"))` one-arg minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min_vm.sh`
-- [x] MIR instruction pin (`Return(Call id(7))` one-arg minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase18_return_call_id1_int7_min_vm.sh`
+- [x] MIR instruction pin (`Return(Call id(7))` one-arg minimal): historical shape record; probe retired by M7-S cleanup
 - [x] Load/Store lane (docs-first) SSOT fixed: `docs/development/current/main/design/hako-mirbuilder-load-store-minimal-contract-ssot.md`
 - [x] LS0 pin (`mir_json_v0` loader readiness for `load/store`): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_ls0_mir_json_v0_load_store_min_vm.sh`
 - [x] MIR instruction pin (`Load` minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase19_load_local_var_min_vm.sh`
