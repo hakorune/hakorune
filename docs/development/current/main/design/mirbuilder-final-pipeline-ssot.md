@@ -503,7 +503,7 @@ The JSON-v1 cohort is landed: its five call-like writers are caller-zero while
 
 | order | boundary | action | exact owner / evidence | result or reopen trigger |
 | --- | --- | --- | --- | --- |
-| 1 | Structured JoinIR -> MIR reference bridge | Delete | `src/mir/join_ir_to_mir/**`; non-test caller 0, 13 files / 1,885 lines / 4 legacy writers / 15 private tests | delete module, two test-only callers, private docs/inventory edges; no replacement |
+| 1 | Structured JoinIR -> MIR reference bridge | Delete | `src/mir/join_ir_to_mir/**`; non-test caller 0, 13 files / 1,885 lines / 4 legacy writers / 15 private tests | landed at `6ffd30eb65`; module and bridge-only tests/inventory retired; no replacement |
 | 2 | WASM P10 legacy shape island | Delete | `src/backend/wasm/shape_table/p10.rs`; preflight already stops its Extern/Method input before matcher | delete 8 matchers, 7 hooks/readers, private tests/guards/smokes/fixtures; keep shared binary helpers |
 | 3 | raw indirect unified-off writer | Stop | `builder/exprs_call.rs::build_indirect_call_expression_with_port_v1`; one production dispatch | OFF rejects before child descent/MIR mutation; ON calls existing typed `Callee::Value`; delete one legacy writer |
 | parked | JSON v0 Call ingress | Park | one writer but at least three live external caller groups and live Hako producers | reopen after callers use typed wire or explicit terminal and `name`/`func` repair has a finite delete-set |
