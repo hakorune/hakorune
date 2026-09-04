@@ -39,9 +39,11 @@ reverse_imports = "HEAD census: builder -> compiler direct use 343 lines/148 fil
 bridge_string_debt = "RequiredArgumentProof(String) and ClaimCompletion(String) lose typed issues; ArgumentDescent(String) is a common recursive port boundary with no bounded typed issue owner"
 runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 358, unwrap 2798, expect 2976, todo 0, allow(dead_code) 95, allow(unused_imports) 45; test/fixture/debug-only paths remain mixed and selected production count is unclassified until a module-registration-aware census"
 
+stale_candidate_disposition = "At HEAD e18ee88140 the two docs-only candidates below are not executable cleanup rows: the seam counts are from an older observation and have no delete-set, while the guard registration candidate is already covered by existing parent ownership or intentionally parked policy. Do not select either candidate without a newly named production edge or a caller-zero delete-set."
+
 [[candidate]]
 id = "MIRBUILDER-COMPILER-SEAM-CENSUS-D0"
-status = "accepted_design"
+status = "parked_sealed_stale_observation"
 kind = "docs_only"
 scope = "src/mir/compiler/** <-> src/mir/builder/** <-> src/mir/loop_recipe_contract/**"
 source_authority = "compiler resolver/cohort issuers; Builder is the physical/session consumer; loop_structural_facts is the candidate neutral owner for the true-break/continue shape"
@@ -55,6 +57,8 @@ acceptance = [
   "no source move, production switch, new Verified*/Prepared* receipt, or Cargo claim",
 ]
 non_claims = ["no import migration", "no loop contract relocation", "no builder/compiler module split", "no test-only edge deletion"]
+parked_reason = "The observed counts are from f659d3f941, while the current HEAD has since changed both trees. This docs-only census has no production switch, no finite delete-set, and no semantic-new-edge claim; existing compiler-issued/Builder-consumed ownership remains intact."
+reopen_trigger = "A fresh current-HEAD census names one concrete reverse edge with an owner, a replacement, and an exclusive delete-set; otherwise keep this candidate parked and do not repeat the census."
 
 [[candidate]]
 id = "FUNCTION-METADATA-OWNER-SPLIT-R0"
@@ -155,7 +159,7 @@ non_claims = ["no module retirement", "no semantic dead_code deletion", "no auto
 
 [[candidate]]
 id = "MIRBUILDER-GUARD-REGISTRATION-INDEX-D0"
-status = "accepted_but_not_selected"
+status = "parked_sealed_policy_covered"
 kind = "docs_only_guard_inventory"
 scope = "current active MIR Call guards plus their guard_rows.toml routing"
 source_authority = "active card evidence and executable guard files; registration profile is routing metadata, not semantic authority"
@@ -169,6 +173,8 @@ acceptance = [
   "no guard command or semantic code is changed in this row",
 ]
 non_claims = ["no all-repository guard closure", "no CI policy rewrite", "no Call implementation"]
+parked_reason = "The exact-target child guard is registered; normal_source_plan0_transaction_guard.py is explicitly owned by its registered parent; selected-normal duplicate projection is a focused guard outside the flattened profile; the 777-line canonical corridor guard is intentionally parked and must not be registered or repaired piecemeal. The absent externals guard is not a passing command."
+reopen_trigger = "Only a finite retirement row with successor-equivalence and caller-zero for the parked canonical-corridor guard may reopen this candidate; do not add registry rows merely to increase coverage counts."
 
 [[candidate]]
 id = "MIRBUILDER-NORMAL-SCRIPT-FACADE-D0"
