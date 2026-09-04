@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-09-01
+Date: 2026-09-04
 Scope: `AGENTS.md` の current-first 読み順と historical section の扱い。
 Related:
   - AGENTS.md
@@ -19,7 +19,8 @@ Related:
 - **Current decision:** `AGENTS.md` is a compact local router; tracked SSOTs
   own durable procedure and design truth. `CURRENT_STATE.toml.work_mode` is
   the sole Fast/Design-stop/Closeout routing authority; blocker text is not a
-  mode classifier.
+  mode classifier. Verification health and family action are independent;
+  only unclassified red is a repository-wide stop.
 - **Current implementation status:** the router and this tracked contract are
   synchronized; this policy does not change the active compiler lane.
 - **Next ordered task:** resume only the blocker selected by
@@ -143,6 +144,44 @@ acceptance. Only an outside finding satisfying none may be `ParkedSealed`;
 record owner, evidence, observable reopen trigger, and non-authority. Census
 closes only when the inventory is `Exhausted`, open/reopened blockers are zero,
 and every outside finding is `ParkedSealed`. Parked means classified, not fixed.
+
+### Family-local action scheduler
+
+Verification health and family disposition are independent axes. Evaluate
+them in this order:
+
+```text
+verification_health:
+  Green | StableKnownRed | UnclassifiedRed
+
+family_action:
+  Delete  -> caller-zero; remove the physical owner and family-private assets
+  Stop    -> explicit compatibility owner can terminate before effect/artifact
+  Promote -> one exact authority/issuer/consumer/caller/delete-set tuple exists
+  Park    -> none of the above is safe; seal only that family
+  T0      -> compiler-proven non-semantic hygiene with source delta <= 0
+```
+
+Only `UnclassifiedRed` is a repository-wide stop. `NoSafeSlice` and
+`ParkedSealed` are family-local and return selection to another inventoried
+family; they never authorize widening that family or repeating its census.
+`Stop` does not require backend feature parity or a canonical successor when
+an existing outer compatibility owner can fail before effect/publication.
+
+Selection priority is `verification recovery > Delete > Stop > Promote >
+required 760-line split > T0`. A ready entry names one authority or explicit
+compatibility owner, one consumer or typed terminal, one real caller, one
+exclusive old-edge delete-set, and focused acceptance. Missing or multiple
+fields mean `Park`, not another D0, receipt, adapter, fixture, or guard.
+
+A closed census is evidence, never the active waiting row. At closeout the
+pointer must select a concrete executable action, select an unclassified-red
+incident, or record an explicit frontier pause with every known family sealed
+and no executable candidate. `next_execution_card = "none"` in that pause is
+a goal stop, not permission to search historical mirrors or rerun the census.
+Every `Promote`, `Stop`, or `Delete` row must reduce at least one production
+old edge in the same bounded series; row, docs, guard, receipt, and test counts
+are not progress metrics.
 
 ### Classification-completeness check
 
