@@ -190,14 +190,13 @@ row count. `Stop` may end an unsupported experimental reader without backend
 parity; `Delete` still requires caller-zero. This is scheduling, not a second
 semantic task ledger.
 
-The worker audit also found no safe test-retirement or new R6 reader-stop
-candidate inside the existing inventory. After verification recovery, the
-cleanup card has three parked, behavior-neutral line-budget options only:
-`indexing.rs` test-tail split, `normal_script_direct_statement_owner.rs`
-test fragments, or `normal_script_semantic_source_tests.rs` fragments.
-`raw_invocation_source_transport` is already split and must not be reopened.
-These options require no new semantic receipt/guard and remain outside the
-Call completion metric until one is explicitly selected.
+The worker audit found no safe new R6 reader-stop candidate inside the
+existing inventory. The three previously parked, behavior-neutral
+line-budget options (`indexing.rs` test-tail, `normal_script_direct_statement_owner.rs`
+test fragments, and `normal_script_semantic_source_tests.rs` fragments) are
+already landed under the reusable BoxShape maintenance row; the raw transport
+split is also closed and must not be reopened. They remain outside the Call
+completion metric. No further BoxShape split is selected by this card.
 
 ### S-class gate coverage (navigation only)
 

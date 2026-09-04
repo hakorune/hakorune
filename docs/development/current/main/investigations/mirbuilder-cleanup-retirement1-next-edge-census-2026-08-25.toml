@@ -306,7 +306,7 @@ non_claims = [
 ]
 
 [selection]
-active_lane = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 remains the next design stop under the direct-target handoff"
+active_lane = "No cleanup row selected; follow CURRENT_STATE.toml and the generic M7-S JSON-v1 closeout pointer"
 order_after_d1n = [
   "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 (direct-call coverage prerequisite)",
   "MIRBUILDER-COMPILER-SEAM-CENSUS-D0 (docs-only boundary ledger)",
