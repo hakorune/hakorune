@@ -16,30 +16,17 @@ impl super::MirBuilder {
     where
         Port: RawAstChildLoweringPortV1,
     {
+        if !super::calls::call_unified::is_unified_call_enabled() {
+            return Err(
+                "[freeze:contract][raw-indirect/unified-disabled-before-descent]".to_owned(),
+            );
+        }
+
         let callee_id = drive_legacy_expression_v1(self, port, callee)?;
         let arg_ids = drive_call_arguments_v1(self, port, arguments.as_slice())?;
 
-        // Phase 3.1: Use unified call with CallTarget::Value for indirect calls
-        let use_unified = super::calls::call_unified::is_unified_call_enabled();
-
-        if use_unified {
-            // New unified path - use emit_unified_call with Value target
-            let dst = self.next_value_id();
-            self.emit_unified_call(Some(dst), super::CallTarget::Value(callee_id), arg_ids)?;
-            Ok(dst)
-        } else {
-            // Unified-off path: still encode callee as Value to avoid by-name resolution
-            let dst = self.next_value_id();
-            self.emit_instruction(super::MirInstruction::LegacyCallV0 {
-                dst: Some(dst),
-                func: callee_id,
-                callee: Some(crate::mir::definitions::call_unified::Callee::Value(
-                    callee_id,
-                )),
-                args: arg_ids,
-                effects: super::EffectMask::PURE,
-            })?;
-            Ok(dst)
-        }
+        let dst = self.next_value_id();
+        self.emit_unified_call(Some(dst), super::CallTarget::Value(callee_id), arg_ids)?;
+        Ok(dst)
     }
 }

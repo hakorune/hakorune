@@ -194,6 +194,68 @@ fn parsed_box(source: &str) -> ASTNode {
     statements.remove(0)
 }
 
+fn assert_raw_indirect_unified_contract() {
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "off", || {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("raw_indirect_unified_off/0".to_string());
+        let before = instructions(&builder);
+        let before_next_value_id = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("current function")
+            .next_value_id;
+        with_port!(builder, port, {
+            let error = builder
+                .build_indirect_call_expression_with_port_v1(
+                    &mut port,
+                    add(int(1), int(2)),
+                    vec![add(int(3), int(4))],
+                )
+                .expect_err("unified-off indirect calls must stop before descent");
+            assert_eq!(
+                error,
+                "[freeze:contract][raw-indirect/unified-disabled-before-descent]"
+            );
+        });
+        assert_eq!(instructions(&builder), before);
+        assert_eq!(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("current function")
+                .next_value_id,
+            before_next_value_id
+        );
+    });
+
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("raw_indirect_unified_on/0".to_string());
+        with_port!(builder, port, {
+            let indirect = ASTNode::Call {
+                callee: Box::new(add(int(1), int(2))),
+                arguments: vec![add(int(3), int(4))],
+                span: Span::unknown(),
+            };
+            port.with_source_transport_v1(
+                RawInvocationSourceTransportV1::root(
+                    indirect,
+                    RawInvocationRootLineageV1::ScriptRoot,
+                ),
+                |port, indirect| drive_legacy_expression_v1(builder, port, indirect),
+            )
+            .expect("unified-on indirect call should use the typed path");
+            assert!(instructions(builder).iter().any(|row| matches!(
+                row,
+                MirInstruction::Call(call)
+                    if matches!(call.callee, crate::mir::Callee::Value(_))
+            )));
+        });
+    });
+}
+
 #[test]
 fn raw_invocation_port_collects_static_and_instance_box_methods() {
     let mut builder = MirBuilder::new();
@@ -380,6 +442,7 @@ fn raw_invocation_port_preserves_assignment_and_compound_children() {
 }
 #[test]
 fn raw_invocation_port_preserves_call_and_from_children() {
+    assert_raw_indirect_unified_contract();
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_calls/0".to_string());
     with_port!(builder, port, {
