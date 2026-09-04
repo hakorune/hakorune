@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
-current_execution_row = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C2-CLAIM-COMPLETION-D0"
-current_execution_cohort = "claim_completion"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
+current_execution_cohort = "joinir_reference_bridge_delete"
 current_design_stop = "none"
-current_blocker_token = "C2 landed at 3bd69bf79a: ScriptDirectStaticClaimLedgerIssueV1 survives the state/raw-child/recursive/structured completion hooks in typed ScriptDirectStaticClaimCompletionErrorV1 and is stringified only at the existing physical-bridge diagnostic boundary; focused direct-static tests, vm-reference check, pointer guard, and fixed-baseline comparison pass."
+current_blocker_token = "M7-S order 1: delete the caller-zero Structured JoinIR -> MIR reference bridge; no replacement or new semantic authority. Reconcile its module/test/docs/inventory edges in one bounded series, keep the fixed failure-name set unchanged, and close before selecting the WASM P10 cohort."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -27,32 +27,15 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
-latest_card = "mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26"
-latest_card_path = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
+current_execution_design = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
+latest_card = "mirbuilder-final-pipeline-ssot"
+latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 latest_card_summary = """
-The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
-cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
-complete because compatibility writers/readers and R7 retirement remain.
-The fixed runner is stable at 7570/7408/133/29 with zero added failure names.
-The BoxShape row landed at a176bada13: the existing DirectAccum physicalizer
-session is behind a private path-preserving child without changing production
-behavior, tests, semantic Call shape, or the baseline.
-The selected caller-zero legacy PHI candidate retirement is now landed: three
-files and facade declarations were removed, eleven fixed test rows were
-retired, and the baseline failure-name set stayed unchanged.
-C1 typed proof-consumption transport is now landed: six consume-time failure
-variants remain distinct through the existing bridge boundary, direct-static
-focused tests are green, and the baseline failure-name set is unchanged.
-C4 typed constructor-demand manifest transport is now landed: duplicate/count/
-coverage/foreign failures remain distinct through the existing outer String
-boundary, constructor-focused tests are green, and the baseline failure-name
-set is unchanged.
-C5 typed constructor-demand loan transport is now landed: manifest-missing,
-duplicate-expected, foreign-ticket, ticket-reuse, and incomplete failures remain
-distinct through the existing package-adapter String boundary; constructor
-focused tests, vm-reference check, and fixed-baseline comparison pass.
-C2 typed claim-completion transport landed at 3bd69bf79a: ledger issues remain typed through the forwarding chain, Unavailable stays distinct, and 45 focused tests plus vm-reference/pointer/baseline checks pass.
+Canonical Call publication and bounded reader stops are landed; R7 remains
+closed until production legacy writers/reissuers/readers/re-entry/fallback are
+zero. The selected fast cohort is M7-S order 1: caller-zero JoinIR reference
+bridge deletion, followed by WASM P10 deletion and raw-indirect unified-off
+Stop. Fixed baseline remains 7570/7408/133/29 with no added failure names.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

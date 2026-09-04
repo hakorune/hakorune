@@ -610,6 +610,93 @@ def _check_json_v1_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
             api.fail(f"{row} JSON-v1 LegacyCallV0 writer remains")
     print(f"[{api.TAG}] row={row} cohort=json_v1_legacy_call_ingress")
 
+
+def _check_legacy_reduction_cohort(state: dict, root: Path, api) -> None:
+    """Validate a finite M7-S reduction cohort through the shared parent guard."""
+    row = LEGACY_READER_STOP_R0_ROW
+    mode = state.get("work_mode")
+    cohort = state.get("current_execution_cohort")
+    contracts = {
+        "joinir_reference_bridge_delete": (
+            "JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0",
+            "src/mir/join_ir_to_mir/",
+            "caller-zero physical retirement",
+        ),
+        "wasm_p10_shape_retire": (
+            "WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0",
+            "src/backend/wasm/shape_table/p10.rs",
+            "preflight already stops",
+        ),
+        "raw_indirect_unified_off_stop": (
+            "MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0",
+            "build_indirect_call_expression_with_port_v1",
+            "child descent/MIR mutation",
+        ),
+    }
+    if cohort not in contracts:
+        api.fail(f"{row} unsupported reduction cohort: {cohort}")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{row} must be fast or closeout")
+    if state.get("current_execution_row") != row:
+        api.fail(f"{row} pointer row drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{row} must clear current_design_stop")
+    if state.get("next_design_card") != "none":
+        api.fail(f"{row} must not open a second design card")
+    expected_next = row if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
+        api.fail(f"{row} next_execution_card drifted")
+    final_rel = str(api.FINAL_PIPELINE_REL)
+    for key in ("next_execution_card_path", "latest_card_path"):
+        if state.get(key) != final_rel:
+            api.fail(f"{row} {key} drifted")
+    card_text = (root / api.FINAL_PIPELINE_REL).read_text(encoding="utf-8")
+    task_id, owner_token, boundary_token = contracts[cohort]
+    for token in (
+        row,
+        cohort,
+        task_id,
+        owner_token,
+        boundary_token,
+        "new guard=0",
+        "new receipt=0",
+        "fixed failure-name set unchanged",
+    ):
+        if token not in card_text:
+            api.fail(f"{row}/{cohort} contract is missing: {token}")
+    status = "status = fast_open" if mode == "fast" else "status = landed"
+    permission = "implementation permission = true" if mode == "fast" else "implementation permission = false"
+    for token in (status, permission):
+        if token not in card_text:
+            api.fail(f"{row}/{cohort} contract is missing: {token}")
+    if len(card_text.splitlines()) > 1000:
+        api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
+    if cohort == "joinir_reference_bridge_delete":
+        expected = root / "src/mir/join_ir_to_mir"
+        if mode == "fast" and not expected.is_dir():
+            api.fail(f"{row}/{cohort} implementation owner is missing")
+        if mode == "closeout" and expected.exists():
+            api.fail(f"{row}/{cohort} caller-zero bridge remains")
+    elif cohort == "wasm_p10_shape_retire":
+        expected = root / "src/backend/wasm/shape_table/p10.rs"
+        if mode == "fast" and not expected.is_file():
+            api.fail(f"{row}/{cohort} implementation owner is missing")
+        if mode == "closeout" and expected.exists():
+            api.fail(f"{row}/{cohort} P10 owner remains")
+    else:
+        expected = root / "src/mir/builder/exprs_call.rs"
+        if not expected.is_file() or sum(1 for _ in expected.open(encoding="utf-8")) >= 800:
+            api.fail(f"{row}/{cohort} implementation owner missing or reached 800 lines")
+    print(f"[{api.TAG}] row={row} cohort={cohort}")
+
+
+def _check_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
+    """Dispatch the existing M7-S guard by finite cohort, without new rows."""
+    if state.get("current_execution_cohort") == "json_v1_legacy_call_ingress":
+        _check_json_v1_legacy_reader_stop_r0(state, root, api)
+    else:
+        _check_legacy_reduction_cohort(state, root, api)
+
 def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api) -> None:
     if row == api.PERFORMANCE_SNAPSHOT_ROW:
         api.check_delegated_performance_row(state, root)
@@ -653,7 +740,7 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
     elif row == WASM_METHOD_LEGACY_READER_STOP_R0_ROW:
         _check_wasm_method_legacy_reader_stop_r0(state, root, api)
     elif row == LEGACY_READER_STOP_R0_ROW:
-        _check_json_v1_legacy_reader_stop_r0(state, root, api)
+        _check_legacy_reader_stop_r0(state, root, api)
     elif row == api.STATIC_PUBLICATION_SPINE_ROW:
         api.check_static_publication_spine_landed(state, card)
     elif row == api.FREE_STATIC_PUBLICATION_SPINE_ROW:

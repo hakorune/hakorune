@@ -453,9 +453,9 @@ reader are closed tombstones; they are not reopened.
 
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 
-status = queued
-implementation permission = false until the pointer activates the selected cohort
-next cohort = `joinir_reference_bridge_delete`
+status = fast_open
+implementation permission = true
+current cohort = `joinir_reference_bridge_delete`
 
 After the R6 canonical core checkpoint, stop each legacy product reader by one
 of exactly three outcomes:
@@ -513,8 +513,13 @@ The JSON-v1 cohort is landed: its five call-like writers are caller-zero while
 Orders 1--3 reuse this parent row; they do not create per-cohort cards,
 receipts, or guards. Before activating order 1, make the existing M7-S guard
 cohort-driven instead of adding a dispatcher branch. Each cohort must be net
-negative, remove at least one legacy production/reader edge, keep the fixed
-failure-name set unchanged, and close before the next cohort opens.
+negative, remove at least one legacy production/reader edge, and keep the
+fixed failure-name set unchanged before the next cohort opens.
+
+The shared M7-S guard accepts only the three finite cohort names listed above;
+it remains one guard owner and has no per-cohort dispatcher branch. For every
+cohort, `new guard=0`, `new receipt=0`, and the fixed failure-name set is
+unchanged.
 
 Order 1 is `JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0`: its authority is
 caller-zero physical retirement. If a non-test/external API commitment appears,
