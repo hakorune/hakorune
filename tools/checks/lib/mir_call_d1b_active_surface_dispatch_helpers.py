@@ -11,6 +11,12 @@ BOXSHAPE_MAINTENANCE_MANIFEST = Path(
     "docs/development/current/main/investigations/"
     "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 )
+LEGACY_PHI_CANDIDATE_ROW = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
+LEGACY_PHI_CANDIDATE_FILES = (
+    "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",
+    "src/mir/builder/ssa/phi_input_materializer/legacy_candidate_cfg.rs",
+    "src/mir/builder/ssa/phi_input_materializer/legacy_candidate_tests.rs",
+)
 
 
 def check_boxshape_maintenance(state: dict, root: Path, api) -> None:
@@ -118,6 +124,80 @@ def check_boxshape_maintenance(state: dict, root: Path, api) -> None:
     if delta > 0:
         api.fail(f"{BOXSHAPE_MAINTENANCE_ROW} src line delta is positive: {delta}")
     print(f"[{api.TAG}] row={BOXSHAPE_MAINTENANCE_ROW} delegated=boxshape-maintenance delta={delta}")
+
+
+def check_legacy_phi_candidate_retire_r0(state: dict, root: Path, api) -> None:
+    """Validate the finite caller-zero legacy PHI subtree retirement."""
+    mode = state.get("work_mode")
+    if mode not in {"fast", "closeout"}:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} must be fast or closeout")
+    if state.get("current_execution_row") != LEGACY_PHI_CANDIDATE_ROW:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} pointer row drifted")
+    if state.get("current_execution_cohort") != "legacy_phi_candidate":
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} cohort drifted")
+    if state.get("current_design_stop") != "none":
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} must clear current_design_stop")
+    expected_next = LEGACY_PHI_CANDIDATE_ROW if mode == "fast" else "none"
+    if state.get("next_execution_card") != expected_next:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} next_execution_card drifted")
+    manifest_rel = str(BOXSHAPE_MAINTENANCE_MANIFEST)
+    if state.get("latest_card_path") != manifest_rel:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} latest card drifted")
+    if state.get("current_execution_design") != manifest_rel:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} execution design drifted")
+    if state.get("next_execution_card_path") != manifest_rel:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} next card path drifted")
+
+    with (root / BOXSHAPE_MAINTENANCE_MANIFEST).open("rb") as handle:
+        manifest = tomllib.load(handle)
+    rows = [row for row in manifest.get("candidate", []) if row.get("id") == LEGACY_PHI_CANDIDATE_ROW]
+    if len(rows) != 1:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} manifest row is missing or duplicated")
+    row = rows[0]
+    expected_status = "selected_fast" if mode == "fast" else "landed"
+    if row.get("status") != expected_status:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} manifest status drifted")
+    if row.get("implementation_permission") is not (mode == "fast"):
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} implementation permission drifted")
+    allowed = row.get("allowed_files")
+    if not isinstance(allowed, list) or not all(isinstance(path, str) and path for path in allowed):
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} allowed_files are missing")
+    base = row.get("base_head")
+    if not isinstance(base, str) or not base:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} base_head is missing")
+    changed = api.subprocess.run(
+        ["git", "diff", "--name-only", base, "--"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    unexpected = set(changed) - set(allowed)
+    if unexpected:
+        api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} changed files exceed manifest: {sorted(unexpected)}")
+    for rel in LEGACY_PHI_CANDIDATE_FILES:
+        exists = (root / rel).is_file()
+        if mode == "fast" and not exists:
+            api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} selected owner is missing: {rel}")
+        if mode == "closeout" and exists:
+            api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} retired owner remains: {rel}")
+    inventory = (root / "tools/checks/manifests/cargo_lib_red_baseline.tests.txt").read_text(encoding="utf-8")
+    ssa_inventory = (root / "tools/checks/lib/resolved_binding_ssa_inventory.py").read_text(encoding="utf-8")
+    if mode == "closeout":
+        if "legacy_candidate_tests::" in inventory:
+            api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} retired tests remain in baseline inventory")
+        if any(name in ssa_inventory for name in ("legacy_candidate.rs", "legacy_candidate_cfg.rs", "legacy_candidate_tests.rs")):
+            api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} SSA split inventory still names retired files")
+        source = (root / "src/mir/builder/ssa/phi_input_materializer.rs").read_text(encoding="utf-8")
+        if "legacy_candidate" in source:
+            api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} facade still names retired modules")
+        for rel, token in (
+            ("src/mir/builder/ssa/phi_input_materializer/function_repair.rs", "materialize_all_phi_inputs"),
+            ("src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs", "rematerialize_for_pred"),
+        ):
+            if token not in (root / rel).read_text(encoding="utf-8"):
+                api.fail(f"{LEGACY_PHI_CANDIDATE_ROW} replacement owner missing: {rel}")
+    print(f"[{api.TAG}] row={LEGACY_PHI_CANDIDATE_ROW} mode={mode} retired={mode == 'closeout'}")
 
 
 def check_method_call_handlers_policy_split_s0(

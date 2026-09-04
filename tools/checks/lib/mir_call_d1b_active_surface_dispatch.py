@@ -6,6 +6,7 @@ from pathlib import Path
 
 from mir_call_d1b_active_surface_dispatch_helpers import (
     check_boxshape_maintenance,
+    check_legacy_phi_candidate_retire_r0,
     check_method_call_handlers_policy_split_s0,
     check_raw_root_cleanup,
     dispatch_coreplan_varmap_reseal_row,
@@ -628,6 +629,8 @@ def dispatch(row: object, state: dict, card: dict, proof: dict, root: Path, api)
         _check_canonical_route_metadata_restore_r0(state, card, root, api)
     elif row == "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0":
         check_boxshape_maintenance(state, root, api)
+    elif row == "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0":
+        check_legacy_phi_candidate_retire_r0(state, root, api)
     elif row == api.METHOD_CALL_HANDLERS_POLICY_SPLIT_S0_ROW:
         check_method_call_handlers_policy_split_s0(state, root, api)
     elif row == api.WASM_LEGACY_GLOBAL_READER_STOP_R0_ROW:

@@ -290,8 +290,10 @@ closeout = "DirectAccum physicalizer follow-up landed as compiler-proven BoxShap
 
 [[candidate]]
 id = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
-status = "accepted_but_not_selected"
+status = "selected_fast"
 kind = "caller_zero_legacy_test_retirement"
+implementation_permission = true
+base_head = "b9f4e05fc2"
 scope = "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs, legacy_candidate_cfg.rs, legacy_candidate_tests.rs, their facade declarations, SSA inventory expectation, and fixed test inventory references"
 source_authority = "The fixed HEAD git grep caller graph, module declarations, active production PHI repair owners, SSA inventory guard, and baseline test inventory are the authorities; filename, dead_code status, or stale prose alone is not deletion proof."
 canonical_issuer = "none; this candidate issues no semantic PHI product. The active production owners remain function_repair.rs::materialize_all_phi_inputs and edge_rematerialization.rs::rematerialize_for_pred/for_pred."
@@ -314,6 +316,19 @@ preconditions = [
 ]
 smallest_slice = "On a branch, delete the three caller-zero legacy files and facade declarations, update the existing SSA inventory and fixed test-inventory baseline, then run the focused PHI repair tests and existing guards. Do not alter active function_repair/edge_rematerialization behavior or create a new guard."
 observed_evidence = "At HEAD efd4fa1140, git grep finds no non-test caller of prepare_legacy_phi_repair_candidate_v1 or LegacyPhiRepairCandidate; active production repair uses function_repair/edge_rematerialization. The subtree is 792 + 26 + 696 lines and contributes eleven named baseline test rows."
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml",
+  "src/mir/builder/ssa/phi_input_materializer.rs",
+  "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",
+  "src/mir/builder/ssa/phi_input_materializer/legacy_candidate_cfg.rs",
+  "src/mir/builder/ssa/phi_input_materializer/legacy_candidate_tests.rs",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
+  "tools/checks/lib/resolved_binding_ssa_inventory.py",
+  "tools/checks/manifests/cargo_lib_red_baseline.toml",
+  "tools/checks/manifests/cargo_lib_red_baseline.tests.txt",
+]
 acceptance = [
   "the three files and facade declarations are absent with no unresolved import or module path",
   "active production PHI materialization callers and focused replacement tests remain present and green",
@@ -369,7 +384,7 @@ order_after_d1n = [
   "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0 (finite panic/todo observation before any hygiene edits)",
 ]
 parked_cleanup = [
-  "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0 is an eligible caller-zero deletion candidate, but remains unselected until the dedicated baseline/inventory reconciliation is opened; do not delete the eleven fixed test rows ad hoc.",
+  "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0 is selected fast; delete only its finite subtree and reconcile the eleven fixed test rows once before closeout.",
   "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0 remains unselected until an explicit lane switch is recorded; it is the lightweight alternative to an unverified seven-item deletion claim.",
 ]
 not_selected = "ArgumentDescent and ClaimCompletion require distinct port rows; compiler/Builder relocation and broad warning/runtime cleanup remain design stops"
