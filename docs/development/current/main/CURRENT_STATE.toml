@@ -63,5 +63,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-09-04: MIRBUILDER-BOXSHAPE-MAINTENANCE-T0 landed at a176bada13; DirectAccumPhysicalizerV1 stateful emission moved to a private 594-line child, parent 198 lines, combined source delta 0, six focused physicalizer tests and two semantic parity tests green, vm-reference/lib checks green, no semantic Call/guard/receipt/test inventory change.",
   "2026-09-04: bounded canonical/legacy reader reconciliation was explicitly accepted as the successor receipt at 7580/7418/133/29 with zero added failure names; two post-receipt tests and five resolved known-red names are recorded, and the prior receipts remain in Git history.",
-  "2026-09-04: MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0 landed at a173e5456c; the existing StaticCurrentOwner publication-ingress policy moved to one private child, parent/child are 687/100 lines, cargo check and stable guards passed, and the two pre-existing focused-suite reds were recorded without reclassification.",
+  "2026-09-04: MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0 landed at 7e33ef8a0ea6eb027eefbaa67b711a9e6ab84fa9; three caller-zero PHI candidate files and eleven fixed test rows were removed, active replacement tests and the fixed baseline comparator passed, and the known failure-name set stayed unchanged.",
 ]

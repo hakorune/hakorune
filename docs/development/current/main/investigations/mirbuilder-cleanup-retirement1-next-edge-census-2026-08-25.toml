@@ -293,6 +293,7 @@ id = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
 status = "landed"
 kind = "caller_zero_legacy_test_retirement"
 implementation_permission = false
+landed_commit = "7e33ef8a0ea6eb027eefbaa67b711a9e6ab84fa9"
 base_head = "b9f4e05fc2"
 scope = "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs, legacy_candidate_cfg.rs, legacy_candidate_tests.rs, their facade declarations, SSA inventory expectation, and fixed test inventory references"
 source_authority = "The fixed HEAD git grep caller graph, module declarations, active production PHI repair owners, SSA inventory guard, and baseline test inventory are the authorities; filename, dead_code status, or stale prose alone is not deletion proof."
