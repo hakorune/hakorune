@@ -47,6 +47,8 @@ impl RawInvocationSourceContextV1 {
                 if !matches!(&statement, ASTNode::BoxDeclaration { .. })
                     && !is_located_control_or_diagnostic_terminal(&statement)
                     && !is_located_scalar_statement(&statement)
+                    && !(root.allows_bare_function_call_location()
+                        && matches!(&statement, ASTNode::MethodCall { .. }))
                     && !is_located_zero_child_runtime_completion(&statement)
                     && !is_located_lambda_statement(&statement)
                     && !(root.allows_bare_function_call_location()
@@ -243,6 +245,8 @@ impl RawInvocationSourceContextV1 {
         if kind != SourceBodyKindV1::Program
             && !is_located_control_or_diagnostic_terminal(statement)
             && !is_located_scalar_statement(statement)
+            && !(root.allows_bare_function_call_location()
+                && matches!(statement, ASTNode::MethodCall { .. }))
             && !is_located_zero_child_runtime_completion(statement)
             && !is_located_lambda_statement(statement)
             && !(root.allows_bare_function_call_location()

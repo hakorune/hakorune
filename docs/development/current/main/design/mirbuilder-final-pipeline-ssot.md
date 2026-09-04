@@ -484,17 +484,26 @@ reader-stop/delete details remain in Git.
 cutover; llvmlite remains explicit compatibility. The follow-up admission
 repair now applies the existing backend capability policy before physical
 OBJ/EXE transport and proves typed-array rejection for both native entries.
+The source-site repair is landed: standalone `MethodCall` keeps its exact site
+only under the existing callable-root allowlist; raw/script roots stay
+unlocated. The focused source compiler test observes all six write kinds.
 Full source execution acceptance is still OPEN. The focused tests prove
 synthetic rows, malformed Set and synthetic MIR→OBJ/optional EXE, not source
 contents/order or source-level Void behavior. The prior “Void-result shape
 reject” claim is withdrawn, not carried as evidence.
+
+The real crate `ny-llvmc` probe reaches MIR but stops before artifact creation
+at `published_array_write_row_mismatch` for ordinary `ArrayBox` metadata. This
+is a named admission dependency: no second source authority or rejection-only
+fixture; keep OBJ/EXE acceptance open until the existing row owner decides it.
 
 Then prove all four writes from source through OBJ/link/run and EXE with
 observable contents/order, Void semantics and malformed/unsupported rejection
 before artifact. A present Void destination is not itself invalid.
 Use existing test owners; synthetic evidence stays separate. Reconcile the
 fixed lib comparator and named test inventory delta, never blanket rebaseline.
-Repair is selected for the next fast turn; this closeout changes no source.
+The source-site repair is landed in this bounded series; only the named
+published-row admission and artifact acceptance remain open.
 `new guard=0`; `new receipt=0`; fixed failure-name set unchanged is the target,
 not a claim that the new acceptance has already run.
 Ordered follow-through is the workstream's **Ordered frontier**, with Call/R7,

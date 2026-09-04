@@ -413,7 +413,11 @@ semantic carrier. The three native projection callers were removed at
    Ordinary array writes stay supported; typed-array contracts retain their
    existing unsupported terminal. Do not broaden capability or restore projection.
    The typed-array negative now covers both native OBJ/EXE entries and creates
-   no artifact.
+   no artifact. The source-site transport repair is also landed: standalone
+   method-call statements retain exact body sites only for the existing
+   callable-root allowlist; raw/script roots remain unlocated. The focused
+   source compiler test now observes all six write kinds, so the remaining gap
+   is artifact execution evidence rather than another source-location design.
 2. **Complete execution acceptance (next).** Extend existing test owners
    `published_backend_view_tests.rs`,
    `src/tests/mir_array_element_write_lowering.rs` and runner tests as needed.
@@ -424,6 +428,11 @@ semantic carrier. The three native projection callers were removed at
    Missing/extra index and unsupported typed Array contracts must reject before
    output creation; retry stays zero. Required native prerequisites missing means
    unavailable evidence, not a passing skipped EXE test.
+   The current real crate `ny-llvmc` probe reaches MIR but stops before object
+   creation at `published_array_write_row_mismatch` for the ordinary `ArrayBox`
+   source metadata. Treat this as the named published-row admission dependency;
+   do not add a source workaround, alternate authority, or rejection-only
+   fixture.
 3. **Reconcile and close.** Run focused positives/negatives, native build and
    the existing fixed lib comparator. Keep accepted failure identities; classify
    any delta and explicit test additions without blanket rebaseline. Preserve

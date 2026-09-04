@@ -243,10 +243,49 @@ mod tests {
     }
 
     #[test]
+    fn installed_callable_method_statement_keeps_exact_body_site() {
+        let method = ASTNode::MethodCall {
+            object: Box::new(ASTNode::Variable {
+                name: "values".to_owned(),
+                span: Span::unknown(),
+            }),
+            method: "push".to_owned(),
+            arguments: vec![integer(2)],
+            span: Span::unknown(),
+        };
+        let root = RawInvocationRootLineageV1::Cataloged(
+            CanonicalSameModuleCallableKeyV1::test_static_box_method("Main", "main", 0),
+        );
+        let (_, context) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root),
+        );
+        let (_, child) = RawInvocationSourceContextV1::from_transport(
+            context.body_statement(method, 4),
+        );
+        assert!(matches!(
+            child,
+            RawInvocationSourceContextV1::Located { .. }
+        ));
+        assert_eq!(
+            child.site().expect("method site").segments(),
+            &[crate::mir::resolved_semantics::SourcePathSegmentV1::Body(4)]
+        );
+    }
+
+    #[test]
     fn raw_and_script_roots_keep_bare_calls_unlocated() {
         let function = ASTNode::FunctionCall {
             name: "BlockId".to_owned(),
             arguments: vec![integer(1)],
+            span: Span::unknown(),
+        };
+        let method = ASTNode::MethodCall {
+            object: Box::new(ASTNode::Variable {
+                name: "values".to_owned(),
+                span: Span::unknown(),
+            }),
+            method: "push".to_owned(),
+            arguments: vec![integer(2)],
             span: Span::unknown(),
         };
         let roots = [
@@ -274,6 +313,18 @@ mod tests {
                 panic!("bare call source loss must retain its root lineage");
             };
             assert_eq!(actual_root, root);
+
+            let (_, method_child) = RawInvocationSourceContextV1::from_transport(
+                context.body_statement(method.clone(), 5),
+            );
+            let RawInvocationSourceContextV1::UnlocatedCompatibility {
+                reason: RawUnlocatedPortalV1::CallObject,
+                expected_lineage: Some(method_root),
+            } = method_child
+            else {
+                panic!("raw/script method source loss must retain its root lineage");
+            };
+            assert_eq!(method_root, root);
         }
     }
 }
