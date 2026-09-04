@@ -181,7 +181,8 @@ owners remains `ParkedSealed` while other eligible families may proceed.
 The 2026-09-04 worker audit decomposed the former shared boundaries at their
 outer leaves. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; do not add a new
 card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
-The executable order is `direct_mir_json_duplicate_reader_delete`, then
+`direct_mir_json_duplicate_reader_delete` landed at `ef3ee28bc5` with the
+fixed comparator unchanged. The next executable order is
 `skip_ws_probe_reader_delete`, `canonical_value_fallthrough_stop`, and
 `methodize_fallthrough_stop`. Only the first is active. The final-pipeline SSOT
 owns each owner/terminal/delete-set and acceptance; this workstream does not

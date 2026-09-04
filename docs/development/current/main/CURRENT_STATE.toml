@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "direct_mir_json_duplicate_reader_delete"
 current_design_stop = "none"
-current_blocker_token = "Delete only the unreachable duplicate --mir-json-file reader in runner/dispatch.rs. The earlier runner/mod.rs branch is the sole direct owner and must preserve MIR-v1/v0 success plus malformed/Program-JSON rejection."
+current_blocker_token = "M7-S cohort direct_mir_json_duplicate_reader_delete landed at ef3ee28bc5; direct MIR v1/v0 positives, Program(JSON) rejection, and fixed baseline comparator are green. The next selected cohort is skip_ws_probe_reader_delete."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,8 +36,10 @@ closed until production legacy writers/reissuers/readers/re-entry/fallback are
 zero. Worker audits decomposed the formerly shared boundaries into four finite
 outer leaves: duplicate direct-MIR reader Delete, skip_ws probe reader Delete,
 canonical Value fallthrough Stop, and METHODIZE reissuer Stop. The first leaf
-is active; it deletes the unreachable dispatch-local --mir-json-file cascade
-while preserving runner/mod -> core_executor -> json_artifact as sole owner.
+landed at ef3ee28bc5; it deletes the unreachable dispatch-local --mir-json-file
+cascade while preserving runner/mod -> core_executor -> json_artifact as sole
+owner. The fixed comparator remained 7555/7393/133/29. The next selected leaf
+is skip_ws_probe_reader_delete.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

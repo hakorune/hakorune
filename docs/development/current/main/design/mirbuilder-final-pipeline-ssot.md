@@ -453,8 +453,8 @@ reader are closed tombstones; they are not reopened.
 
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
 current cohort = `direct_mir_json_duplicate_reader_delete`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
@@ -493,11 +493,13 @@ Contract:
 Done:
   dispatch reader 1->0, direct parser cascade 2->1, source delta negative;
   focused positive/negative and fixed failure-name set unchanged;
-  new guard=0 and new receipt=0.
+  new guard=0 and new receipt=0; implementation commit `ef3ee28bc5`.
 Stop:
   Park only this cohort if any path can reach dispatch with mir_json_file set,
   or deletion changes terminal behavior or requires a replacement adapter.
 ```
+
+Closeout: direct MIR v1/v0, Program(JSON) rejection, and fixed comparator `7555/7393/133/29` stayed green with the same failure SHA.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
