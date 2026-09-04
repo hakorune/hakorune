@@ -2,9 +2,9 @@ date = "2026-09-04"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "joinir_reference_bridge_delete"
+current_execution_cohort = "wasm_p10_shape_retire"
 current_design_stop = "none"
-current_blocker_token = "M7-S order 1: delete the caller-zero Structured JoinIR -> MIR reference bridge; no replacement or new semantic authority. Reconcile its module/test/docs/inventory edges in one bounded series, keep the fixed failure-name set unchanged, and close before selecting the WASM P10 cohort."
+current_blocker_token = "M7-S order 2: delete the unreachable WASM P10 legacy-shape island; preflight already stops its Global/Extern/Method inputs. Keep shared binary helpers, add no replacement or new semantic authority, and close before selecting raw-indirect unified-off Stop."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,9 +33,10 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. The selected fast cohort is M7-S order 1: caller-zero JoinIR reference
-bridge deletion, followed by WASM P10 deletion and raw-indirect unified-off
-Stop. Fixed baseline remains 7570/7408/133/29 with no added failure names.
+zero. M7-S order 1 caller-zero JoinIR reference bridge deletion is closed;
+the selected fast cohort is order 2: WASM P10 deletion, followed by
+raw-indirect unified-off Stop. Fixed baseline is 7555/7393/133/29 after
+retiring 15 bridge-only tests; the failure-name set is unchanged.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

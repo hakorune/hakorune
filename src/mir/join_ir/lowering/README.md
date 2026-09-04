@@ -14,7 +14,8 @@ Known blockers:
 - AST/ProgramJSON coupling in the frontend path
 - runtime/env coupling in lowering and verification
 - MIR surface coupling through `crate::mir::*`
-- `join_ir_to_mir/` conversion boundary still requires review
+- the former `join_ir_to_mir/` reference bridge is retired; this lowering
+  surface still requires review before any package split
 
 Safe next step:
 

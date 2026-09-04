@@ -42,8 +42,8 @@ reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
 The prior 138-name failure receipt is preserved in Git history. After the
 bounded canonical-call reader repair, the later caller-zero test retirement,
-and the typed proof test addition, the fixed runner is stable at
-`7570/7408/133/29`; the current-minus-prior failure-name comparison has zero
+and the typed proof test addition plus JoinIR bridge retirement, the fixed runner is stable at
+`7555/7393/133/29`; the current-minus-prior failure-name comparison has zero
 additions. The earlier `7580/7418/133/29` observation is historical and is not
 the current inventory authority. All repaired sites descend from the
 `45c6759962` Call/LegacyCallV0 shape split. This remains verification repair
@@ -201,6 +201,10 @@ compatibility remain ParkedSealed because they have shared callers or no
 exclusive delete-set. R7 enum deletion remains closed until production legacy
 writers, reissuers, readers, compatibility re-entry, and fallback are all zero.
 No BoxShape task is selected and no per-cohort card, receipt, or guard is added.
+Order 1 is now closed: the caller-zero `src/mir/join_ir_to_mir/` bridge and
+its 15 bridge-only tests are retired. The next selected cohort is the existing
+WASM P10 shape-island deletion; JSON v0, active MIR-to-JoinIR readers, and
+selected-C/Hako compatibility remain ParkedSealed.
 
 ### S-class gate coverage (navigation only)
 

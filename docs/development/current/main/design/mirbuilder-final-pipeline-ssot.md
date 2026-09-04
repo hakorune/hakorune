@@ -34,7 +34,7 @@ Related:
   Print reader is landed; the post-Group-B census found no single next reader
   family with a complete cutover tuple.
 - **Latest bounded work:** the fixed baseline is stable at
-  `7570/7408/133/29`. A current-HEAD worker audit selected three finite
+  `7555/7393/133/29` after retiring 15 bridge-only tests. A current-HEAD worker audit selected three finite
   reduction cohorts: caller-zero Structured JoinIR -> MIR reference bridge,
   unreachable WASM P10 legacy shapes, then raw-indirect unified-off Stop.
 - **Production stop line:** no String formatter, opaque registry, second AST
@@ -398,7 +398,7 @@ The following are one dependency program, not simultaneously active cards.
 
 This is a finite verification incident, not a baseline acceptance. The current
 fixed-command observation after the bounded reader repair, caller-zero test
-retirement, and typed proof test addition is `7570 total`, `7408/133/29`;
+retirement, typed proof test addition, and JoinIR bridge retirement is `7555 total`, `7393/133/29`;
 the earlier `7580/7418/133/29` observation and prior `7411/138/29` receipt are
 historical. The current-minus-prior failure-name comparison has **zero added
 names**. The checked-in baseline manifest and `CURRENT_STATE.toml` are the
@@ -419,7 +419,7 @@ retargeting assertions; legacy fixtures remain only for compatibility ingress.
 The five named repair cohorts have now completed in the existing
 `DEV-GATE-LIB-BASELINE-REFRESH-R0`; no health row, receipt, or per-cohort guard
 was created. The fixed command remains stable at the current manifest value
-`7570/7408/133/29` with zero new failure names. The 2026-09-01 row is closed
+`7555/7393/133/29` with zero new failure names. The 2026-09-01 row is closed
 as `stopped_later_quick_red` with implementation permission false, and the
 repair is recorded at `917a078c6c`. The JSON-v1 Stop cohort is now landed with
 its five call-like writers caller-zero; the earlier 7580-test observation is
@@ -455,7 +455,7 @@ reader are closed tombstones; they are not reopened.
 
 status = fast_open
 implementation permission = true
-current cohort = `joinir_reference_bridge_delete`
+current cohort = `wasm_p10_shape_retire`
 
 After the R6 canonical core checkpoint, stop each legacy product reader by one
 of exactly three outcomes:
@@ -521,9 +521,10 @@ it remains one guard owner and has no per-cohort dispatcher branch. For every
 cohort, `new guard=0`, `new receipt=0`, and the fixed failure-name set is
 unchanged.
 
-Order 1 is `JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0`: its authority is
-caller-zero physical retirement. If a non-test/external API commitment appears,
-Park it without adapting the bridge. Order 2 is
+Order 1 `JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0` is now closed by caller-zero
+physical retirement; its deleted bridge-only tests are removed from the current
+inventory and the fixed failure-name set is unchanged. If a non-test/external
+API commitment appears, Park it without adapting the bridge. Order 2 is
 `WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0`; it does not implement Hako WASM or a
 canonical WASM consumer. Order 3 is
 `MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0`; its negative proof observes no

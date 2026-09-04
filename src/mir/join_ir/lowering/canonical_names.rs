@@ -23,9 +23,9 @@
 //! ## Design Note
 //!
 //! These names represent the canonical function names used in JoinModule.
-//! The bridge uses `JoinFunction.name` as the MirModule function key,
-//! not `join_func_name(id)`. This SSOT ensures all components agree on
-//! the exact spelling of these critical function names.
+//! The canonical builder uses `JoinFunction.name` as the MirModule function
+//! key, not a synthesized `join_func_name(id)`. This SSOT ensures all
+//! components agree on the exact spelling of these critical function names.
 
 /// Canonical name for loop exit/continuation function
 ///

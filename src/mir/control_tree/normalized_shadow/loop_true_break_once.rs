@@ -60,10 +60,6 @@ use crate::mir::join_ir::{JoinFuncId, JoinFunction, JoinInst, JoinModule};
 use crate::mir::ValueId;
 
 #[cfg(test)]
-use crate::mir::join_ir::{ConstValue, MirLikeInst};
-#[cfg(test)]
-use crate::mir::join_ir_to_mir::join_func_name;
-#[cfg(test)]
 use std::collections::BTreeMap;
 
 #[cfg(test)]

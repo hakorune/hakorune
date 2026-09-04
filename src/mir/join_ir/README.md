@@ -12,7 +12,8 @@ Current blockers:
 
 - lowering still couples runtime/env and MIR surfaces
 - `json.rs` / JoinIR serialization is part of the same review lane
-- `join_ir_to_mir/` remains a separate conversion boundary for a crate split
+- The former `join_ir_to_mir/` reference bridge was retired at caller-zero;
+  active lowering remains in this subtree.
 
 The detached ownership-analysis reference asset was retired: it had no
 normal/default, VM-bridge, or LLVM consumer. The remaining `src/mir/join_ir/`
@@ -27,13 +28,13 @@ surface stays in the docs-first review lane.
 
 - Do not add new lowering heuristics here when `builder/` already owns the shape decision.
 - Prefer explicit contracts over by-name dispatch or hidden fallback.
-- Keep the `join_ir_to_mir/` conversion boundary explicit until the lowering
-  surface is stable.
+- Do not recreate the retired JoinIR-to-MIR reference bridge; production
+  lowering belongs to the canonical builder pipeline.
 
 ## Main Responsibilities
 
 - normalized JoinIR module structure
-- lowering helpers that feed the explicit JoinIR-to-MIR conversion boundary
+- lowering helpers consumed by the canonical MIR builder pipeline
 
 ## Internal Box Map
 
@@ -61,9 +62,8 @@ Prefer cleaning this subtree by sub-box, not by moving the whole directory at on
   - `funcscanner_trim.rs`
 - `lowering/generic_case_a/*`
   - active Case-A loop lowerers, including the append-defs effect-step shape
-- conversion boundary
-  - `join_ir_to_mir/`
-  - keep it explicit until the lowering surface stabilizes
+- the former conversion boundary is retired; keep this lowering surface
+  explicit until its runtime/env coupling is reduced
 
 ## P5 Crate Split Prep
 
@@ -78,8 +78,7 @@ SSOT:
 
 Prep rule:
 
-- do not split `join_ir/` away from `join_ir_to_mir/` until the lowering
-  surface is stable
+- do not recreate or repackage the retired `join_ir_to_mir` bridge
 - this subtree is docs-first only until the runtime/env + MIR coupling is reduced
 - prefer extracting pure sub-boxes first, then clean intra-tree boundaries, and
   only then revisit whole-subtree packaging
@@ -111,7 +110,7 @@ Active lowering / bridge surfaces:
 - `lowering/loop_to_join/*`
 - `lowering/loop_scope_shape/*`
 - target-specific lowerers such as `skip_ws.rs` and `funcscanner_trim.rs`
-- conversion boundary: `join_ir_to_mir/`
+- retired conversion bridge: `join_ir_to_mir/` (caller-zero; do not recreate)
 
 Retired:
 

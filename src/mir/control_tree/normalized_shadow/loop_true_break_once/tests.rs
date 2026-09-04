@@ -1,6 +1,7 @@
 use super::*;
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::control_tree::step_tree::StepTreeBuilderBox;
+use crate::mir::join_ir::{ConstValue, MirLikeInst};
 
 #[test]
 fn test_loop_true_break_once_passes_updated_env_to_k_exit() {
@@ -111,24 +112,6 @@ fn test_loop_true_break_once_passes_updated_env_to_k_exit() {
         "k_exit must return Some(value)"
     );
 
-    let mir_module = crate::mir::join_ir_to_mir::lower_structured_joinir_to_mir(&module)
-        .expect("lower_structured_joinir_to_mir failed");
-    let mir_loop_body_name = join_func_name(loop_body_id);
-    let mir_loop_body = mir_module
-        .functions
-        .values()
-        .find(|f| f.signature.name == mir_loop_body_name)
-        .expect("missing loop_body in bridged MirModule");
-    let entry = mir_loop_body.entry_block;
-    let entry_block = mir_loop_body
-        .blocks
-        .get(&entry)
-        .expect("missing loop_body entry block");
-    assert!(
-        entry_block.return_env().is_some(),
-        "loop_body entry block must have return_env metadata in bridged MIR"
-    );
-
     let loop_only_ast = ASTNode::Loop {
         condition: Box::new(ASTNode::Literal {
             value: LiteralValue::Bool(true),
@@ -183,28 +166,4 @@ fn test_loop_true_break_once_passes_updated_env_to_k_exit() {
         "loop_only module must have exactly 1 tail-call to k_exit"
     );
 
-    let loop_only_mir =
-        crate::mir::join_ir_to_mir::lower_structured_joinir_to_mir(&loop_only_module)
-            .expect("lower_structured_joinir_to_mir failed (loop-only)");
-    const FUNC_NAME_ID_BASE: u32 = 90000;
-    let k_exit_func_id = crate::mir::ValueId(FUNC_NAME_ID_BASE + k_exit_id.0);
-    let mut args0 = std::collections::BTreeSet::new();
-    for f in loop_only_mir.functions.values() {
-        for bb in f.blocks.values() {
-            for inst in &bb.instructions {
-                if let crate::mir::MirInstruction::LegacyCallV0 { func, args, .. } = inst {
-                    if *func == k_exit_func_id {
-                        if let Some(a0) = args.first().copied() {
-                            args0.insert(a0);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    assert_eq!(
-        args0.len(),
-        1,
-        "loop-only bridged MIR must have a single consistent k_exit arg[0]"
-    );
 }

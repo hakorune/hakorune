@@ -9,7 +9,6 @@ navigation order must stay narrow and explicit.
 2. [`contracts/README.md`](./contracts/README.md)
 3. [`policies/README.md`](./policies/README.md)
 4. [`join_ir/README.md`](./join_ir/README.md)
-5. [`join_ir_to_mir/README.md`](./join_ir_to_mir/README.md)
 
 ## Top-Level Map
 
@@ -21,7 +20,8 @@ navigation order must stay narrow and explicit.
 - `definitions/`: MIR definition data and shared type/shape declarations.
 - `instruction/`, `instruction_kinds/`: instruction model and kind definitions.
 - `join_ir/`: normalized JoinIR lowering and ownership helpers. Docs-first only for now.
-- `join_ir_to_mir/`: Structured JoinIR -> MIR conversion.
+- Structured JoinIR -> MIR reference conversion was retired after its
+  caller-zero audit; active lowering remains under `join_ir/`.
 - `loop_canonicalizer/`: loop normalization and route detection.
 - `lowerers/`: lowering helpers that are not part of the builder core.
 - `numeric_substrate.rs`: fixed-width and pointer-sized numeric type-name
