@@ -236,7 +236,7 @@ mod tests {
                     .iter()
                     .filter(|instruction| matches!(
                         instruction,
-                        MirInstruction::LegacyCallV0 { .. }
+                        MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
                     ))
                     .count(),
                 1

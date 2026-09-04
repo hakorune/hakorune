@@ -123,7 +123,12 @@ fn install_integer_call_target(builder: &mut MirBuilder) {
 
 fn call_count(builder: &MirBuilder) -> usize {
     all_instructions(builder)
-        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
+        .filter(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+            )
+        })
         .count()
 }
 

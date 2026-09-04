@@ -277,6 +277,16 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
     refresh_module_ordered_map_get_result_origins(module);
     refresh_module_contracts_and_exact_numeric(module);
     refresh_module_value_representation_facts(module);
+    // Contract refresh may canonicalize legacy array writes into the
+    // ArrayElementWrite carrier after the pre-fixpoint route pass. Rebuild the
+    // dependent array/text routes once at the final metadata boundary so
+    // observers and combined regions inspect the same canonical instructions
+    // that backend consumers will receive.
+    crate::mir::array_text_edit_plan::refresh_module_array_text_edit_routes(module);
+    crate::mir::array_text_observer_plan::refresh_module_array_text_observer_routes(module);
+    crate::mir::array_text_combined_region_plan::refresh_module_array_text_combined_region_routes(
+        module,
+    );
     super::compile_timing::trace_stage("semantic.contracts", stage_start.elapsed());
 }
 

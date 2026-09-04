@@ -80,10 +80,11 @@ fn prepared_me_standard_unified_is_effect_free_until_execute() {
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .any(|instruction| matches!(
-            instruction,
-            crate::mir::MirInstruction::LegacyCallV0 { dst, .. } if *dst == Some(result)
-        )));
+        .any(|instruction| match instruction {
+            crate::mir::MirInstruction::Call(call) => call.dst == Some(result),
+            crate::mir::MirInstruction::LegacyCallV0 { dst, .. } => *dst == Some(result),
+            _ => false,
+        }));
 }
 
 fn lowered_global(

@@ -14,13 +14,53 @@
 
 use super::value_origin::{resolve_value_origin, ValueDefMap};
 use super::ValueId;
-use super::{BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction, MirInstruction};
+use super::{
+    ArrayElementWriteKind, BasicBlockId, BinaryOp, Callee, ConstValue, EffectMask, MirFunction,
+    MirInstruction,
+};
 use crate::mir::ssot::method_call::method_call_operand_view;
 use crate::mir::string_corridor_names::{
     is_len_method_name, is_lowered_len_global, is_runtime_concat3_export,
     is_runtime_len_handle_export, is_runtime_substring_concat3_export, is_runtime_substring_export,
     is_runtime_substring_len_export, is_slice_method_name,
 };
+
+/// Read-only call projection shared by canonical and compatibility carriers.
+///
+/// The corridor recognizers do not own call semantics; they only inspect the
+/// already-issued callee/operands.  Keeping this projection here prevents a
+/// canonical `MirCall` from silently disappearing when an optimization pass
+/// still has a legacy-only pattern match.
+pub(crate) struct CallShape<'a> {
+    pub(crate) dst: Option<ValueId>,
+    pub(crate) callee: &'a Callee,
+    pub(crate) args: &'a [ValueId],
+    pub(crate) effects: EffectMask,
+}
+
+pub(crate) fn call_shape(inst: &MirInstruction) -> Option<CallShape<'_>> {
+    match inst {
+        MirInstruction::Call(call) => Some(CallShape {
+            dst: call.dst,
+            callee: &call.callee,
+            args: &call.args,
+            effects: call.effects,
+        }),
+        MirInstruction::LegacyCallV0 {
+            dst,
+            callee: Some(callee),
+            args,
+            effects,
+            ..
+        } => Some(CallShape {
+            dst: *dst,
+            callee,
+            args,
+            effects: *effects,
+        }),
+        _ => None,
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct AddShape {
@@ -97,39 +137,26 @@ pub(crate) fn match_add_in_block(
 }
 
 pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, EffectMask)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            effects,
+    let call = call_shape(inst)?;
+    let dst = call.dst?;
+    match call.callee {
+        Callee::Method {
+            method,
+            receiver: Some(receiver),
             ..
         } if is_len_method_name(method) => {
-            let view = method_call_operand_view(*receiver, args, 0)?;
-            Some((*dst, view.operand_receiver, *effects))
+            let view = method_call_operand_view(*receiver, call.args, 0)?;
+            Some((dst, view.operand_receiver, call.effects))
         }
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 1 && is_runtime_len_handle_export(name) => {
-            Some((*dst, args[0], *effects))
+        Callee::Extern(name)
+            if call.args.len() == 1 && is_runtime_len_handle_export(name) =>
+        {
+            Some((dst, call.args[0], call.effects))
         }
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Global(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 1 && is_lowered_len_global(&name.display_name()) => {
-            Some((*dst, args[0], *effects))
+        Callee::Global(name)
+            if call.args.len() == 1 && is_lowered_len_global(&name.display_name()) =>
+        {
+            Some((dst, call.args[0], call.effects))
         }
         _ => None,
     }
@@ -138,14 +165,13 @@ pub(crate) fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId,
 pub(crate) fn match_substring_len_call(
     inst: &MirInstruction,
 ) -> Option<(ValueId, ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && is_runtime_substring_len_export(name) => {
-            Some((*dst, args[0], args[1], args[2]))
+    let call = call_shape(inst)?;
+    let dst = call.dst?;
+    match call.callee {
+        Callee::Extern(name)
+            if call.args.len() == 3 && is_runtime_substring_len_export(name) =>
+        {
+            Some((dst, call.args[0], call.args[1], call.args[2]))
         }
         _ => None,
     }
@@ -154,33 +180,24 @@ pub(crate) fn match_substring_len_call(
 pub(crate) fn match_substring_call(
     inst: &MirInstruction,
 ) -> Option<(ValueId, ValueId, ValueId, ValueId, EffectMask)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            effects,
+    let call = call_shape(inst)?;
+    let dst = call.dst?;
+    match call.callee {
+        Callee::Method {
+            method,
+            receiver: Some(receiver),
             ..
         } if is_slice_method_name(method) => {
-            let view = method_call_operand_view(*receiver, args, 2)?;
+            let view = method_call_operand_view(*receiver, call.args, 2)?;
             let [start, end] = view.explicit_args else {
                 return None;
             };
-            Some((*dst, view.operand_receiver, *start, *end, *effects))
+            Some((dst, view.operand_receiver, *start, *end, call.effects))
         }
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 3 && is_runtime_substring_export(name) => {
-            Some((*dst, args[0], args[1], args[2], *effects))
+        Callee::Extern(name)
+            if call.args.len() == 3 && is_runtime_substring_export(name) =>
+        {
+            Some((dst, call.args[0], call.args[1], call.args[2], call.effects))
         }
         _ => None,
     }
@@ -189,22 +206,20 @@ pub(crate) fn match_substring_call(
 pub(crate) fn match_substring_concat3_helper_call(
     inst: &MirInstruction,
 ) -> Option<SubstringConcat3HelperShape> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if args.len() == 5 && is_runtime_substring_concat3_export(name) => {
+    let call = call_shape(inst)?;
+    let dst = call.dst?;
+    match call.callee {
+        Callee::Extern(name)
+            if call.args.len() == 5 && is_runtime_substring_concat3_export(name) =>
+        {
             Some(SubstringConcat3HelperShape {
-                dst: *dst,
-                left: args[0],
-                middle: args[1],
-                right: args[2],
-                start: args[3],
-                end: args[4],
-                effects: *effects,
+                dst,
+                left: call.args[0],
+                middle: call.args[1],
+                right: call.args[2],
+                start: call.args[3],
+                end: call.args[4],
+                effects: call.effects,
             })
         }
         _ => None,
@@ -212,51 +227,60 @@ pub(crate) fn match_substring_concat3_helper_call(
 }
 
 pub(crate) fn match_method_set_call(inst: &MirInstruction) -> Option<MethodSetCallShape> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
+    if let MirInstruction::ArrayElementWrite {
+        kind: ArrayElementWriteKind::Set,
+        receiver,
+        index: Some(key),
+        value,
+        ..
+    } = inst
+    {
+        return Some(MethodSetCallShape {
+            // ArrayElementWrite is the canonical ArrayBox set carrier.  The
+            // method-shaped projection keeps existing corridor consumers on
+            // the shared matcher without reintroducing a call authority.
+            box_name: "ArrayBox".to_string(),
+            receiver: *receiver,
+            key: *key,
+            value: *value,
+        });
+    }
+
+    let call = call_shape(inst)?;
+    match call.callee {
+        Callee::Method {
+            box_name,
+            method,
+            receiver: Some(receiver),
             ..
-        } if args.len() == 2 && method == "set" => Some(MethodSetCallShape {
+        } if call.args.len() == 2 && method == "set" => Some(MethodSetCallShape {
             box_name: box_name.clone(),
             receiver: *receiver,
-            key: args[0],
-            value: args[1],
+            key: call.args[0],
+            value: call.args[1],
         }),
         _ => None,
     }
 }
 
 pub(crate) fn extract_substring_args(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(source),
-                    ..
-                }),
-            args,
+    let call = call_shape(inst)?;
+    match call.callee {
+        Callee::Method {
+            method,
+            receiver: Some(source),
             ..
         } if is_slice_method_name(method) => {
-            let view = method_call_operand_view(*source, args, 2)?;
+            let view = method_call_operand_view(*source, call.args, 2)?;
             let [start, end] = view.explicit_args else {
                 return None;
             };
             Some((view.operand_receiver, *start, *end))
         }
-        MirInstruction::LegacyCallV0 {
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && is_runtime_substring_export(name) => {
-            Some((args[0], args[1], args[2]))
+        Callee::Extern(name)
+            if call.args.len() == 3 && is_runtime_substring_export(name) =>
+        {
+            Some((call.args[0], call.args[1], call.args[2]))
         }
         _ => None,
     }
@@ -286,16 +310,17 @@ pub(crate) fn match_concat_triplet_from_extern(
     let root = resolve_value_origin(function, def_map, value);
     let (bbid, idx) = def_map.get(&root).copied()?;
     let block = function.blocks.get(&bbid)?;
-    match block.instructions.get(idx)? {
-        MirInstruction::LegacyCallV0 {
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if args.len() == 3 && is_runtime_concat3_export(name) => Some(ConcatTripletShape {
-            left: resolve_value_origin(function, def_map, args[0]),
-            middle: resolve_value_origin(function, def_map, args[1]),
-            right: resolve_value_origin(function, def_map, args[2]),
-        }),
+    let call = call_shape(block.instructions.get(idx)?)?;
+    match call.callee {
+        Callee::Extern(name)
+            if call.args.len() == 3 && is_runtime_concat3_export(name) =>
+        {
+            Some(ConcatTripletShape {
+                left: resolve_value_origin(function, def_map, call.args[0]),
+                middle: resolve_value_origin(function, def_map, call.args[1]),
+                right: resolve_value_origin(function, def_map, call.args[2]),
+            })
+        }
         _ => None,
     }
 }

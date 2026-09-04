@@ -47,6 +47,64 @@ fn extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
     }
 }
 
+/// Test-only read projection for the canonical and compatibility call carriers.
+/// Assertions should observe the published callee/operands, not force a
+/// particular transport variant.
+fn call_parts(inst: &MirInstruction) -> Option<(Option<ValueId>, &Callee, &[ValueId], EffectMask)> {
+    match inst {
+        MirInstruction::Call(call) => Some((call.dst, &call.callee, &call.args, call.effects)),
+        MirInstruction::LegacyCallV0 {
+            dst,
+            callee: Some(callee),
+            args,
+            effects,
+            ..
+        } => Some((*dst, callee, args, *effects)),
+        _ => None,
+    }
+}
+
+fn is_extern_call(
+    inst: &MirInstruction,
+    dst: ValueId,
+    name: &str,
+    args: &[ValueId],
+    effects: Option<EffectMask>,
+) -> bool {
+    let Some((actual_dst, callee, actual_args, actual_effects)) = call_parts(inst) else {
+        return false;
+    };
+    matches!(callee, Callee::Extern(actual_name) if actual_name == name)
+        && actual_dst == Some(dst)
+        && actual_args == args
+        && effects.is_none_or(|expected| actual_effects == expected)
+}
+
+fn is_method_call(
+    inst: &MirInstruction,
+    dst: ValueId,
+    box_name: &str,
+    method: &str,
+    receiver: ValueId,
+    args: &[ValueId],
+) -> bool {
+    let Some((actual_dst, callee, actual_args, _)) = call_parts(inst) else {
+        return false;
+    };
+    matches!(
+        callee,
+        Callee::Method {
+            box_name: actual_box,
+            method: actual_method,
+            receiver: Some(actual_receiver),
+            ..
+        } if actual_box == box_name
+            && actual_method == method
+            && *actual_receiver == receiver
+    ) && actual_dst == Some(dst)
+        && actual_args == args
+}
+
 fn ensure_ring0_initialized() {
     use crate::runtime::ring0::{default_ring0, init_global_ring0};
     let _ = std::panic::catch_unwind(|| {

@@ -239,6 +239,15 @@ impl MirOptimizer {
             MirInstruction::Compare { op, lhs, rhs, .. } => {
                 format!("cmp_{:?}_{}_{}", op, lhs.as_u32(), rhs.as_u32())
             }
+            MirInstruction::Call(call) => {
+                let args_str = call
+                    .args
+                    .iter()
+                    .map(|v| v.as_u32().to_string())
+                    .collect::<Vec<_>>()
+                    .join(",");
+                format!("call_canonical_{:?}_{}", call.callee, args_str)
+            }
             // MirInstruction::BoxFieldLoad { box_val, field, .. } => format!("boxload_{}_{}", box_val.as_u32(), field),
             MirInstruction::LegacyCallV0 {
                 callee, func, args, ..

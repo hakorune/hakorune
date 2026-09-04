@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::{Callee, MirCompiler, MirInstruction, MirModule, MirType};
+use crate::mir::{ArrayElementWriteKind, Callee, MirCompiler, MirInstruction, MirModule, MirType};
 use crate::parser::NyashParser;
 
 struct EnvGuard {
@@ -36,20 +36,35 @@ fn method_call_arg_lens(module: &MirModule, box_name: &str, method: &str) -> Vec
     for function in module.functions.values() {
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::LegacyCallV0 {
-                    callee:
-                        Some(Callee::Method {
-                            box_name: call_box,
-                            method: call_method,
-                            ..
-                        }),
-                    args,
-                    ..
-                } = inst
-                else {
+                if let MirInstruction::ArrayElementWrite { kind, index, .. } = inst {
+                    let matches = match (method, kind) {
+                        ("push", ArrayElementWriteKind::Push)
+                        | ("set", ArrayElementWriteKind::Set)
+                        | ("insert", ArrayElementWriteKind::Insert) => true,
+                        _ => false,
+                    };
+                    if matches {
+                        arg_lens.push(2 + if index.is_some() { 1 } else { 0 });
+                    }
                     continue;
+                }
+                let (callee, args) = match inst {
+                    MirInstruction::Call(call) => (Some(&call.callee), &call.args),
+                    MirInstruction::LegacyCallV0 { callee, args, .. } => (callee.as_ref(), args),
+                    _ => continue,
                 };
-                if call_box == box_name && call_method == method {
+                let matches = match callee {
+                    Some(Callee::Method {
+                        box_name: call_box,
+                        method: call_method,
+                        ..
+                    }) => call_box == box_name && call_method == method,
+                    Some(Callee::SameModuleInstance { key, .. }) => {
+                        key.owner() == box_name && key.name() == method
+                    }
+                    _ => false,
+                };
+                if matches {
                     arg_lens.push(args.len());
                 }
             }
@@ -67,20 +82,29 @@ fn method_call_result_types(
     for function in module.functions.values() {
         for block in function.blocks.values() {
             for inst in &block.instructions {
-                let MirInstruction::LegacyCallV0 {
-                    dst,
-                    callee:
-                        Some(Callee::Method {
-                            box_name: call_box,
-                            method: call_method,
-                            ..
-                        }),
-                    ..
-                } = inst
-                else {
+                if let MirInstruction::ArrayElementWrite { kind, .. } = inst {
+                    if method == "insert" && *kind == ArrayElementWriteKind::Insert {
+                        result_types.push(Some(MirType::Void));
+                    }
                     continue;
+                }
+                let (dst, callee) = match inst {
+                    MirInstruction::Call(call) => (call.dst, Some(&call.callee)),
+                    MirInstruction::LegacyCallV0 { dst, callee, .. } => (*dst, callee.as_ref()),
+                    _ => continue,
                 };
-                if call_box == box_name && call_method == method {
+                let matches = match callee {
+                    Some(Callee::Method {
+                        box_name: call_box,
+                        method: call_method,
+                        ..
+                    }) => call_box == box_name && call_method == method,
+                    Some(Callee::SameModuleInstance { key, .. }) => {
+                        key.owner() == box_name && key.name() == method
+                    }
+                    _ => false,
+                };
+                if matches {
                     result_types
                         .push(dst.and_then(|dst| function.metadata.value_types.get(&dst).cloned()));
                 }

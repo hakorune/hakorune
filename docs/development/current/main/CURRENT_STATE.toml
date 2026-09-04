@@ -3,7 +3,7 @@ development_branch_ssot = "main"
 work_mode = "closeout"
 current_execution_row = "MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0"
 current_design_stop = "NoSafeSlice__NoSingleRemainingCanonicalReaderFamily"
-current_blocker_token = "Verification health remains UnclassifiedRed after the bounded canonical-reader repair attempt: fixed run observed 7579/7357/193/29, leaving 55 failure names outside the accepted 138-name receipt. Worker audit proved an exact partition of 30 builder, 1 JoinIR, 4 optimizer/canonicalizer, 17 string-sink, and 3 string-relation/dead-region failures. All 55 descend from the 45c6759962 Call/LegacyCallV0 shape split: one canonical receiverless-Method publication guard regressed and 54 existing readers/assertions were mechanically left on the wrong carrier. Repair-to-pass through the existing baseline reconcile row is required; failure receipt widening, test deletion/ignore, JSON stop, BoxShape, performance, or a new census is forbidden. Preserve the four-owner partial repair for the first bounded repair series."
+current_blocker_token = "The bounded canonical-call reader repair is stable at 7579/7417/133/29 with zero added failure names, but the immutable receipt is still 7578/7411/138/29 because one inventory entry was added and five accepted known-red names resolved. Record this verification discrepancy without rebaseline; do not open JSON stop, BoxShape, performance, or another semantic family until the existing receipt policy is explicitly reconciled."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,14 +33,12 @@ latest_card_summary = """
 The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
 cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
 complete because compatibility writers/readers and R7 retirement remain.
-Verification health is still UnclassifiedRed: the bounded canonical-reader
-repair reduced the fixed observation to 7579/7357/193/29, but 55 failure names
-remain outside the accepted 138-name receipt. Worker audit partitions them as
-30 builder, 1 JoinIR, 4 optimizer/canonicalizer, 17 string-sink, and 3
-string-relation/dead-region failures; all descend from the 45c6759962 carrier
-split. One production fail-fast guard and 54 reader/assertion sites require
-repair-to-pass. No baseline widening, JSON-v1 stop, or cleanup may start before
-the immutable 138-name failure set is restored.
+The bounded canonical-reader repair is now stable under the fixed runner at
+7579/7417/133/29 with zero failure names added beyond the immutable accepted
+receipt. One test inventory entry is newer than the receipt and five accepted
+known-red names now pass; the comparator therefore remains intentionally
+unclosed until that receipt discrepancy receives an explicit reconciliation.
+No baseline widening, JSON-v1 stop, or cleanup is implied by this checkpoint.
 """
 next_design_card = "none"
 next_execution_card = "none"
@@ -62,7 +60,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-04: bounded canonical/legacy reader reconciliation reached a fixed 7579/7417/133/29 observation with zero added failure names; the current inventory has one post-receipt test and five accepted known-red names resolved, so the immutable baseline comparator remains open for explicit reconciliation.",
   "2026-09-04: MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0 landed at a173e5456c; the existing StaticCurrentOwner publication-ingress policy moved to one private child, parent/child are 687/100 lines, cargo check and stable guards passed, and the two pre-existing focused-suite reds were recorded without reclassification.",
   "2026-09-03: WARN-A removed two compiler-proven unused namespace edges and their local allow attributes; quick lib check passed, parent/current lib-test share the same three unrelated private-row errors, src delta is -4, and no semantic Call/guard/receipt/test changed. The worker-audited line-budget map was tightened at 6afccd704d: raw transport is already split (0bd6732792), and two normal_script test surfaces have path-preserving include! candidates only; no implementation permission, authority, receipt, guard, test deletion, or baseline refresh was added.",
-  "2026-09-03: reusable MIRBUILDER-BOXSHAPE-MAINTENANCE-T0 indexing follow-up landed at 0f287a988b after d121a5d500: indexing.rs is 355 lines with 431-line tests, seven test names/module paths are unchanged, src delta is -4, quick lib check and shared guards pass, and focused lib-test compilation has the same three pre-existing E0624 errors at base/current.",
 ]

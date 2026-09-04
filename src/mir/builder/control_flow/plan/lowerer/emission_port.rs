@@ -234,17 +234,25 @@ mod tests {
         let block = function
             .get_block(builder.function_state.current_block.expect("current block"))
             .expect("block");
-        assert!(block.instructions.iter().any(|instruction| {
-            matches!(instruction,
-                MirInstruction::LegacyCallV0 { callee: Some(Callee::Global(symbol)), .. }
-                    if symbol.display_name() == target.mir_symbol_projection()
-            )
+        assert!(block.instructions.iter().any(|instruction| match instruction {
+            MirInstruction::Call(call) => {
+                matches!(&call.callee, Callee::Global(symbol)
+                    if symbol.display_name() == target.mir_symbol_projection())
+            }
+            MirInstruction::LegacyCallV0 {
+                callee: Some(Callee::Global(symbol)), ..
+            } => symbol.display_name() == target.mir_symbol_projection(),
+            _ => false,
         }));
-        assert!(block.instructions.iter().all(|instruction| {
-            !matches!(instruction,
-                MirInstruction::LegacyCallV0 { callee: Some(Callee::Global(symbol)), .. }
-                    if symbol.display_name() == "forbidden.raw.target/999"
-            )
+        assert!(block.instructions.iter().all(|instruction| match instruction {
+            MirInstruction::Call(call) => {
+                !matches!(&call.callee, Callee::Global(symbol)
+                    if symbol.display_name() == "forbidden.raw.target/999")
+            }
+            MirInstruction::LegacyCallV0 {
+                callee: Some(Callee::Global(symbol)), ..
+            } => symbol.display_name() != "forbidden.raw.target/999",
+            _ => true,
         }));
         assert_eq!(
             builder.function_state.type_ctx.value_types.get(&dst),

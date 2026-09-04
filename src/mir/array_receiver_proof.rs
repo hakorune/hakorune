@@ -43,6 +43,25 @@ pub(crate) fn same_value_root(
 
 pub(crate) fn match_array_get_call(inst: &MirInstruction) -> Option<ArrayGetCall<'_>> {
     match inst {
+        MirInstruction::Call(call) => match &call.callee {
+            Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            } if call.args.len() == 1
+                && method == "get"
+                && matches!(box_name.as_str(), "ArrayBox" | "RuntimeDataBox") =>
+            {
+                Some(ArrayGetCall {
+                    array_value: *receiver,
+                    index_value: call.args[0],
+                    output_value: call.dst?,
+                    receiver_box_name: box_name.as_str(),
+                })
+            }
+            _ => None,
+        },
         MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:

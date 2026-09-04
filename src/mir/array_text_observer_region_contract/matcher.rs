@@ -1,4 +1,6 @@
 use super::model::ArrayTextObserverStoreRegionMapping;
+use crate::mir::array_receiver_proof::match_array_set_call;
+use crate::mir::string_corridor_recognizer::call_shape;
 use crate::mir::value_origin::{resolve_value_origin, ValueDefMap};
 use crate::mir::{
     array_text_observer_plan::ArrayTextObserverRoute, definitions::Callee, BasicBlock,
@@ -643,27 +645,27 @@ fn is_same_slot_set_consumer(
     array_root: ValueId,
     index_root: ValueId,
 ) -> bool {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if method == "set"
-            && args.len() == 2
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            root(function, def_map, *receiver) == array_root
-                && root(function, def_map, args[0]) == index_root
-                && root(function, def_map, args[1]) == value_root
-        }
-        _ => false,
+    if let Some(set) = match_array_set_call(inst) {
+        return root(function, def_map, set.array_value) == array_root
+            && root(function, def_map, set.index_value) == index_root
+            && root(function, def_map, set.input_value) == value_root;
     }
+    let Some(call) = call_shape(inst) else { return false };
+    let Callee::Method {
+        box_name,
+        method,
+        receiver: Some(receiver),
+        ..
+    } = call.callee
+    else {
+        return false;
+    };
+    method == "set"
+        && call.args.len() == 2
+        && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
+        && root(function, def_map, *receiver) == array_root
+        && root(function, def_map, call.args[0]) == index_root
+        && root(function, def_map, call.args[1]) == value_root
 }
 
 fn is_same_row_set_consumer(
@@ -675,29 +677,37 @@ fn is_same_row_set_consumer(
     loop_index_phi_value: ValueId,
     row_modulus_const: i64,
 ) -> Option<ValueId> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if method == "set"
-            && args.len() == 2
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
-            && root(function, def_map, *receiver) == array_root
-            && root(function, def_map, args[1]) == value_root =>
+    if let Some(set) = match_array_set_call(inst) {
+        if root(function, def_map, set.array_value) != array_root
+            || root(function, def_map, set.input_value) != value_root
         {
-            let (index_value, _, actual_modulus_const) =
-                match_row_modulus(function, def_map, args[0], loop_index_phi_value)?;
-            (actual_modulus_const == row_modulus_const).then_some(index_value)
+            return None;
         }
-        _ => None,
+        let (index_value, _, actual_modulus_const) =
+            match_row_modulus(function, def_map, set.index_value, loop_index_phi_value)?;
+        return (actual_modulus_const == row_modulus_const).then_some(index_value);
     }
+    let call = call_shape(inst)?;
+    let Callee::Method {
+        box_name,
+        method,
+        receiver: Some(receiver),
+        ..
+    } = call.callee
+    else {
+        return None;
+    };
+    if method != "set"
+        || call.args.len() != 2
+        || !matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
+        || root(function, def_map, *receiver) != array_root
+        || root(function, def_map, call.args[1]) != value_root
+    {
+        return None;
+    }
+    let (index_value, _, actual_modulus_const) =
+        match_row_modulus(function, def_map, call.args[0], loop_index_phi_value)?;
+    (actual_modulus_const == row_modulus_const).then_some(index_value)
 }
 
 fn match_length_result_of(
@@ -707,24 +717,20 @@ fn match_length_result_of(
     concat_value: ValueId,
 ) -> Option<ValueId> {
     let concat_root = root(function, def_map, concat_value);
-    block.instructions.iter().find_map(|inst| match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
+    block.instructions.iter().find_map(|inst| {
+        let call = call_shape(inst)?;
+        let Callee::Method {
+            method,
+            receiver: Some(receiver),
             ..
-        } if method == "length"
-            && args.is_empty()
-            && root(function, def_map, *receiver) == concat_root =>
-        {
-            Some(*dst)
-        }
-        _ => None,
+        } = call.callee
+        else {
+            return None;
+        };
+        (method == "length"
+            && call.args.is_empty()
+            && root(function, def_map, *receiver) == concat_root)
+            .then_some(call.dst?)
     })
 }
 

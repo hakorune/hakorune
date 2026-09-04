@@ -59,19 +59,17 @@ fn rematerializes_runtime_data_substring_for_phi_pred() {
     assert_ne!(materialized, substring);
 
     let pred = func.get_block(BasicBlockId::new(2)).unwrap();
-    assert!(matches!(
-        pred.instructions.last(),
+    assert!(match pred.instructions.last() {
+        Some(MirInstruction::Call(call)) => {
+            call.dst == Some(materialized)
+                && matches!(&call.callee, Callee::Method { method, receiver: Some(receiver), .. }
+                    if method == "substring" && call.args.first() == Some(receiver))
+        }
         Some(MirInstruction::LegacyCallV0 {
             dst: Some(dst),
-            callee: Some(Callee::Method {
-                method,
-                receiver: Some(receiver),
-                ..
-            }),
-            args,
-            ..
-        }) if *dst == materialized
-            && method == "substring"
-            && args.first() == Some(receiver)
-    ));
+            callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
+            args, ..
+        }) => *dst == materialized && method == "substring" && args.first() == Some(receiver),
+        _ => false,
+    });
 }

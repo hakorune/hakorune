@@ -337,6 +337,25 @@ mod tests {
         );
 
         match instruction {
+            MirInstruction::Call(call) => match call.callee {
+                Callee::Method {
+                    box_name,
+                    method,
+                    receiver: Some(actual_receiver),
+                    certainty,
+                    box_kind,
+                } => {
+                    assert_eq!(call.dst, dst);
+                    assert_eq!(actual_receiver, receiver);
+                    assert_eq!(box_name, "StringBox");
+                    assert_eq!(method, "substring");
+                    assert_eq!(certainty, TypeCertainty::Known);
+                    assert_eq!(box_kind, CalleeBoxKind::RuntimeData);
+                    assert_eq!(call.args, args);
+                    assert_eq!(call.effects, effects);
+                }
+                other => panic!("unexpected canonical BoxCall callee: {other:?}"),
+            },
             MirInstruction::LegacyCallV0 {
                 dst: actual_dst,
                 callee:

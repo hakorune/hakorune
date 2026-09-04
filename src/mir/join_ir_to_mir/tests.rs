@@ -1,5 +1,5 @@
 use super::convert::convert_mir_like_inst;
-use crate::mir::{BinaryOp, CompareOp as MirCompareOp, Effect, MirInstruction, ValueId};
+use crate::mir::{BinaryOp, Callee, CompareOp as MirCompareOp, Effect, MirInstruction, ValueId};
 
 #[test]
 fn test_convert_const_inst() {
@@ -71,12 +71,17 @@ fn test_convert_print_inst_to_externcall() {
 
     // Should now emit canonical Call with Callee::Extern
     match mir_inst {
+        MirInstruction::Call(call) => {
+            let Callee::Extern(name) = call.callee else {
+                panic!("Expected extern callee")
+            };
+            assert_eq!(call.dst, None);
+            assert_eq!(name, "env.console.log");
+            assert_eq!(call.args, vec![ValueId(7)]);
+            assert!(call.effects.contains(Effect::Io));
+        }
         MirInstruction::LegacyCallV0 {
-            dst,
-            callee: Some(crate::mir::Callee::Extern(name)),
-            args,
-            effects,
-            ..
+            dst, callee: Some(crate::mir::Callee::Extern(name)), args, effects, ..
         } => {
             assert_eq!(dst, None);
             assert_eq!(name, "env.console.log");

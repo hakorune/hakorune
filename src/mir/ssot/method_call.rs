@@ -92,6 +92,8 @@ pub fn runtime_method_call(
     effects: EffectMask,
     certainty: TypeCertainty,
 ) -> MirInstruction {
+    let box_name = box_name.into();
+    let method = method.into();
     method_call(
         dst,
         receiver,

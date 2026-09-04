@@ -50,13 +50,18 @@ impl MirBuilder {
             .current_block
             .ok_or("No current basic block")?;
 
-        if matches!(
-            &instruction,
+        let receiverless_method = match &instruction {
+            MirInstruction::Call(call) => matches!(
+                &call.callee,
+                crate::mir::Callee::Method { receiver: None, .. }
+            ),
             MirInstruction::LegacyCallV0 {
                 callee: Some(crate::mir::Callee::Method { receiver: None, .. }),
                 ..
-            }
-        ) {
+            } => true,
+            _ => false,
+        };
+        if receiverless_method {
             return Err(
                 "[mir/call/method-none-retired] receiverless Method is not a Builder publication shape"
                     .to_owned(),

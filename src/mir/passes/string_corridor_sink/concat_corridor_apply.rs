@@ -488,6 +488,38 @@ fn rewrite_substring_receiver(
     new_receiver: ValueId,
 ) -> Option<MirInstruction> {
     match inst {
+        MirInstruction::Call(call) => match &call.callee {
+            callee @ Callee::Method {
+                receiver: Some(_),
+                method,
+                ..
+            } if matches!(call.args.len(), 2 | 3)
+                && matches!(method.as_str(), "substring" | "slice") => {
+                let mut rewritten_callee = callee.clone();
+                if let Callee::Method { receiver, .. } = &mut rewritten_callee {
+                    *receiver = Some(new_receiver);
+                }
+                Some(MirInstruction::call(
+                    call.dst,
+                    rewritten_callee,
+                    call.args.clone(),
+                    call.effects,
+                ))
+            }
+            Callee::Extern(name)
+                if call.args.len() == 3 && name == "nyash.string.substring_hii" =>
+            {
+                let mut new_args = call.args.clone();
+                new_args[0] = new_receiver;
+                Some(MirInstruction::call(
+                    call.dst,
+                    call.callee.clone(),
+                    new_args,
+                    call.effects,
+                ))
+            }
+            _ => None,
+        },
         MirInstruction::LegacyCallV0 {
             dst,
             callee:
@@ -501,7 +533,8 @@ fn rewrite_substring_receiver(
             args,
             effects,
             ..
-        } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
+        } if matches!(args.len(), 2 | 3)
+            && matches!(method.as_str(), "substring" | "slice") => {
             let mut rewritten_callee = callee.clone();
             if let Callee::Method { receiver, .. } = &mut rewritten_callee {
                 *receiver = Some(new_receiver);

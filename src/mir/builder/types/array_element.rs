@@ -137,7 +137,11 @@ fn user_args<'a>(builder: &MirBuilder, receiver: ValueId, args: &'a [ValueId]) -
     }
 }
 
-fn receiver_is_array_like(builder: &MirBuilder, box_name: &str, receiver: ValueId) -> bool {
+pub(in crate::mir::builder) fn receiver_is_array_like(
+    builder: &MirBuilder,
+    box_name: &str,
+    receiver: ValueId,
+) -> bool {
     if box_name == "ArrayBox" {
         return true;
     }

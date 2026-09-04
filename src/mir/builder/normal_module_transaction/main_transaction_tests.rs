@@ -118,22 +118,14 @@ fn transaction_commits_exact_source_main_and_physical_thunk() {
 
             let block = physical.entry_block();
             assert_eq!(block.instructions.len(), 1);
-            let MirInstruction::LegacyCallV0 {
-                dst,
-                func,
-                callee,
-                args,
-                ..
-            } = &block.instructions[0]
-            else {
-                panic!("physical entry must contain one exact call")
+            let (dst, callee, args) = match &block.instructions[0] {
+                MirInstruction::Call(call) => (call.dst, Some(call.callee.clone()), &call.args),
+                MirInstruction::LegacyCallV0 { dst, callee, args, .. } => (*dst, callee.clone(), args),
+                _ => panic!("physical entry must contain one exact call"),
             };
-            assert_eq!(func, &crate::mir::ValueId::INVALID);
             assert_eq!(
                 callee,
-                &Some(Callee::Global(crate::mir::test_global_target(
-                    "main/0".to_owned()
-                )))
+                Some(Callee::Global(crate::mir::test_global_target("main/0".to_owned())))
             );
             assert!(args.is_empty());
             let MirInstruction::Return { value } =
@@ -141,7 +133,7 @@ fn transaction_commits_exact_source_main_and_physical_thunk() {
             else {
                 panic!("physical entry must end in Return")
             };
-            assert_eq!(dst, value);
+            assert_eq!(dst, *value);
             assert_eq!(
                 dst.is_none(),
                 matches!(result, VerifiedNormalMainThunkResultV1::Unit { .. })

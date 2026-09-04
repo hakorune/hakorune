@@ -406,7 +406,7 @@ fn argument_failure_enters_no_terminal_and_builder_reuses() {
         .blocks
         .values()
         .flat_map(|block| &block.instructions)
-        .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
+        .any(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })));
 
     port.fail_argument = None;
     port.events.clear();
@@ -604,11 +604,14 @@ fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
         .values()
         .flat_map(|block| &block.instructions)
         .find_map(|instruction| match instruction {
+            MirInstruction::Call(call)
+                if matches!(&call.callee, Callee::Global(name) if name.display_name() == "RouteOwner.routeMethod/2") =>
+            {
+                Some(call.args.as_slice())
+            }
             MirInstruction::LegacyCallV0 {
-                callee: Some(Callee::Global(name)),
-                args,
-                ..
-            } if name.display_name() == "RouteOwner.routeMethod/2" => Some(args),
+                callee: Some(Callee::Global(name)), args, ..
+            } if name.display_name() == "RouteOwner.routeMethod/2" => Some(args.as_slice()),
             _ => None,
         })
         .expect("lowered me terminal must emit the module global");
@@ -648,7 +651,7 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
         .collect::<Vec<_>>();
     assert!(!failed_instructions
         .iter()
-        .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
+        .any(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })));
     assert!(builder
         .function_state
         .type_ctx
@@ -673,7 +676,7 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
             .blocks
             .values()
             .flat_map(|block| &block.instructions)
-            .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
+            .filter(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }))
             .count(),
         1
     );
@@ -719,16 +722,14 @@ fn property_completion_uses_selected_catalog_child_but_raw_terminal() {
     let calls = instructions
         .iter()
         .filter_map(|instruction| match instruction {
+            MirInstruction::Call(call)
+                if call.dst == Some(result)
+                    && matches!(&call.callee, Callee::Method { method, receiver: Some(_), .. }
+                        if method == "propertyGetter") => Some((result, call.args.len())),
             MirInstruction::LegacyCallV0 {
                 dst: Some(dst),
-                callee:
-                    Some(Callee::Method {
-                        method,
-                        receiver: Some(_),
-                        ..
-                    }),
-                args,
-                ..
+                callee: Some(Callee::Method { method, receiver: Some(_), .. }),
+                args, ..
             } if method == "propertyGetter" => Some((*dst, args.len())),
             _ => None,
         })

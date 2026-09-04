@@ -55,21 +55,17 @@ fn rewrites_single_use_substring_length_chain_to_direct_extern() {
     let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
     assert_eq!(block.instructions.len(), block.instruction_spans.len());
     assert_eq!(block.instructions.len(), 1);
-    match &block.instructions[0] {
-        MirInstruction::LegacyCallV0 {
-            dst,
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } => {
-            assert_eq!(*dst, Some(ValueId(4)));
-            assert_eq!(name, SUBSTRING_LEN_EXTERN);
-            assert_eq!(args, &vec![ValueId(0), ValueId(1), ValueId(2)]);
-            assert_eq!(*effects, EffectMask::PURE);
-        }
-        other => panic!("expected direct extern rewrite, got {other:?}"),
-    }
+    assert!(
+        is_extern_call(
+            &block.instructions[0],
+            ValueId(4),
+            SUBSTRING_LEN_EXTERN,
+            &[ValueId(0), ValueId(1), ValueId(2)],
+            Some(EffectMask::PURE),
+        ),
+        "expected direct extern rewrite, got {:?}",
+        block.instructions[0]
+    );
 }
 
 #[test]
@@ -144,21 +140,17 @@ fn rewrites_runtime_data_substring_length_chain_through_copy_chain() {
     let function = module.get_function("main").expect("main");
     let block = function.blocks.get(&BasicBlockId(0)).expect("entry");
     assert_eq!(block.instructions.len(), 1);
-    match &block.instructions[0] {
-        MirInstruction::LegacyCallV0 {
-            dst,
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } => {
-            assert_eq!(*dst, Some(ValueId(6)));
-            assert_eq!(name, SUBSTRING_LEN_EXTERN);
-            assert_eq!(args, &vec![ValueId(0), ValueId(1), ValueId(2)]);
-            assert_eq!(*effects, EffectMask::PURE);
-        }
-        other => panic!("expected direct extern rewrite, got {other:?}"),
-    }
+    assert!(
+        is_extern_call(
+            &block.instructions[0],
+            ValueId(6),
+            SUBSTRING_LEN_EXTERN,
+            &[ValueId(0), ValueId(1), ValueId(2)],
+            Some(EffectMask::PURE),
+        ),
+        "expected direct extern rewrite, got {:?}",
+        block.instructions[0]
+    );
 }
 
 #[test]

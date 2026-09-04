@@ -176,19 +176,12 @@ fn sinks_publication_helper_to_same_block_store_boundary() {
         .instructions
         .iter()
         .position(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    effects,
-                    ..
-                } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
-                    && args.as_slice()
-                        == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
-                    && *effects == EffectMask::READ
+                ValueId(11),
+                SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN,
+                &[ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+                Some(EffectMask::READ),
             )
         })
         .expect("sunk helper call");
@@ -389,19 +382,12 @@ fn sinks_publication_helper_to_same_block_fieldset_boundary() {
         .instructions
         .iter()
         .position(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    effects,
-                    ..
-                } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
-                    && args.as_slice()
-                        == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
-                    && *effects == EffectMask::READ
+                ValueId(11),
+                SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN,
+                &[ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+                Some(EffectMask::READ),
             )
         })
         .expect("sunk helper call");
@@ -593,17 +579,12 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         .instructions
         .iter()
         .position(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    ..
-                } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
-                    && args.as_slice()
-                        == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
+                ValueId(11),
+                SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN,
+                &[ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+                None,
             )
         })
         .expect("sunk helper call");
@@ -613,22 +594,20 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Method { box_name, method, receiver: Some(receiver), .. }),
-                    args,
-                    ..
-                } if *dst == ValueId(16)
-                    && box_name == "RuntimeDataBox"
-                    && method == "set"
-                    && *receiver == ValueId(0)
-                    && args.as_slice() == [ValueId(5), ValueId(11)]
+                _ if is_method_call(
+                    inst,
+                    ValueId(16),
+                    "RuntimeDataBox",
+                    "set",
+                    ValueId(0),
+                    &[ValueId(5), ValueId(11)],
+                )
             )
         })
         .expect("rewritten runtime-data set");
     assert!(matches!(
-        &block.instructions[helper_idx],
-        MirInstruction::LegacyCallV0 { effects, .. } if *effects == EffectMask::READ
+        call_parts(&block.instructions[helper_idx]),
+        Some((_, _, _, EffectMask::READ))
     ));
     assert!(
         helper_idx < set_idx,

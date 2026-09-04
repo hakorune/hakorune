@@ -153,19 +153,12 @@ fn sinks_materialization_helper_to_array_store_boundary() {
         .instructions
         .iter()
         .position(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    effects,
-                    ..
-                } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_EXTERN
-                    && args.as_slice()
-                        == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
-                    && *effects == EffectMask::READ
+                ValueId(11),
+                SUBSTRING_CONCAT3_EXTERN,
+                &[ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+                Some(EffectMask::READ),
             )
         })
         .expect("materialization helper call");
@@ -175,15 +168,14 @@ fn sinks_materialization_helper_to_array_store_boundary() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
-                    args,
-                    ..
-                } if *dst == ValueId(14)
-                    && method == "set"
-                    && *receiver == ValueId(0)
-                    && args.as_slice() == [ValueId(5), ValueId(11)]
+                _ if is_method_call(
+                    inst,
+                    ValueId(14),
+                    "ArrayBox",
+                    "set",
+                    ValueId(0),
+                    &[ValueId(5), ValueId(11)],
+                )
             )
         })
         .expect("array store");
@@ -320,22 +312,13 @@ fn reuses_store_side_const_suffix_for_trailing_substring() {
     );
     assert!(
         block.instructions.iter().any(|inst| {
-            matches!(
+            is_method_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee:
-                        Some(Callee::Method {
-                            method,
-                            receiver: Some(receiver),
-                            ..
-                        }),
-                    args,
-                    ..
-                } if *dst == ValueId(11)
-                    && method == "substring"
-                    && *receiver == ValueId(4)
-                    && args.as_slice() == [ValueId(9), ValueId(10)]
+                ValueId(11),
+                "RuntimeDataBox",
+                "substring",
+                ValueId(4),
+                &[ValueId(9), ValueId(10)],
             )
         }),
         "substring should reuse the store-side producer: {:?}",
@@ -525,19 +508,12 @@ fn sinks_materialization_helper_with_trailing_length_observer() {
         .instructions
         .iter()
         .position(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    effects,
-                    ..
-                } if *dst == ValueId(11)
-                    && name == SUBSTRING_CONCAT3_EXTERN
-                    && args.as_slice()
-                        == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
-                    && *effects == EffectMask::READ
+                ValueId(11),
+                SUBSTRING_CONCAT3_EXTERN,
+                &[ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+                Some(EffectMask::READ),
             )
         })
         .expect("materialization helper call");
@@ -547,15 +523,14 @@ fn sinks_materialization_helper_with_trailing_length_observer() {
         .position(|inst| {
             matches!(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Method { method, receiver: Some(receiver), .. }),
-                    args,
-                    ..
-                } if *dst == ValueId(13)
-                    && method == "set"
-                    && *receiver == ValueId(0)
-                    && args.as_slice() == [ValueId(5), ValueId(11)]
+                _ if is_method_call(
+                    inst,
+                    ValueId(13),
+                    "ArrayBox",
+                    "set",
+                    ValueId(0),
+                    &[ValueId(5), ValueId(11)],
+                )
             )
         })
         .expect("array store");

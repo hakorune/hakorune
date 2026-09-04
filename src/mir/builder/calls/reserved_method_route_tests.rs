@@ -168,14 +168,14 @@ fn selected_repl_route_preserves_extern_call() {
     drive_raw_legacy_expression_v1(&mut builder, method("__repl", "get", vec![string("name")]))
         .unwrap();
 
-    assert!(instructions(&builder).any(|instruction| {
-        matches!(
-            instruction,
-            MirInstruction::LegacyCallV0 {
-                callee: Some(Callee::Extern(name)),
-                ..
-            } if name == "__repl.get"
-        )
+    assert!(instructions(&builder).any(|instruction| match instruction {
+        MirInstruction::Call(call) => {
+            matches!(&call.callee, Callee::Extern(name) if name == "__repl.get")
+        }
+        MirInstruction::LegacyCallV0 {
+            callee: Some(Callee::Extern(name)), ..
+        } => name == "__repl.get",
+        _ => false,
     }));
 }
 

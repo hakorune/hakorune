@@ -223,16 +223,18 @@ fn static_current_owner_lowers_source_arguments_once_without_receiver_prefix() {
         let call = instructions(&builder)
             .into_iter()
             .find_map(|instruction| match instruction {
+                MirInstruction::Call(call)
+                    if matches!(&call.callee, Callee::Global(target) if target.display_name() == "Helpers.target/2") =>
+                {
+                    Some((call.dst, call.args))
+                }
                 MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Global(target)),
-                    args,
-                    ..
-                } if target.display_name() == "Helpers.target/2" => Some((dst, args)),
+                    dst: Some(dst), callee: Some(Callee::Global(target)), args, ..
+                } if target.display_name() == "Helpers.target/2" => Some((Some(dst), args)),
                 _ => None,
             })
             .expect("static current-owner bridge must emit a typed global call");
-        assert_eq!(call.0, result);
+        assert_eq!(call.0, Some(result));
         assert_eq!(call.1.len(), 2, "static me.method has no receiver prefix");
     });
 }

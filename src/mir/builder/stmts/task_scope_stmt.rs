@@ -255,7 +255,7 @@ mod tests {
             .values()
             .flat_map(|block| block.instructions.iter())
             .filter_map(|instruction| match instruction {
-                MirInstruction::LegacyCallV0 { .. } => {
+                MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => {
                     let rendered = format!("{instruction:?}");
                     rendered.contains("env.task_scope").then_some(rendered)
                 }

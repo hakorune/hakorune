@@ -158,19 +158,12 @@ fn sinks_publication_helper_to_same_block_instruction_return_boundary() {
         .instructions
         .iter()
         .position(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    effects,
-                    ..
-                } if *dst == ValueId(10)
-                    && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
-                    && args.as_slice()
-                        == [ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)]
-                    && *effects == EffectMask::READ
+                ValueId(10),
+                SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN,
+                &[ValueId(5), ValueId(7), ValueId(6), ValueId(8), ValueId(9)],
+                Some(EffectMask::READ),
             )
         })
         .expect("sunk helper call");

@@ -8,6 +8,7 @@
  */
 
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use super::string_corridor_recognizer::call_shape;
 use super::{
     array_text_edit_plan::ArrayTextEditRoute,
     array_text_observer_plan::ArrayTextObserverRoute,
@@ -588,6 +589,25 @@ fn body_pushes_single_ascii_literal(
 ) -> bool {
     let mut push_count = 0;
     for inst in &body.instructions {
+        if let MirInstruction::ArrayElementWrite {
+            kind: super::ArrayElementWriteKind::Push,
+            receiver,
+            value,
+            ..
+        } = inst
+        {
+            if root(function, def_map, *receiver) != root(function, def_map, array_value) {
+                continue;
+            }
+            let Some(text) = const_string(function, def_map, *value) else {
+                return false;
+            };
+            if !text.is_ascii() {
+                return false;
+            }
+            push_count += 1;
+            continue;
+        }
         let Some(method) = same_array_method_call(function, def_map, inst, array_value) else {
             continue;
         };
@@ -617,7 +637,22 @@ fn block_has_same_array_method_call(
     block
         .instructions
         .iter()
-        .any(|inst| same_array_method_call(function, def_map, inst, array_value).is_some())
+        .any(|inst| {
+            same_array_method_call(function, def_map, inst, array_value).is_some()
+                || same_array_write_receiver(function, def_map, inst, array_value)
+        })
+}
+
+fn same_array_write_receiver(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    inst: &MirInstruction,
+    array_value: ValueId,
+) -> bool {
+    let MirInstruction::ArrayElementWrite { receiver, .. } = inst else {
+        return false;
+    };
+    root(function, def_map, *receiver) == root(function, def_map, array_value)
 }
 
 fn same_array_method_call<'a>(
@@ -626,24 +661,19 @@ fn same_array_method_call<'a>(
     inst: &'a MirInstruction,
     array_value: ValueId,
 ) -> Option<(&'a str, &'a [ValueId])> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(super::definitions::Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
-            && root(function, def_map, *receiver) == root(function, def_map, array_value) =>
-        {
-            Some((method.as_str(), args.as_slice()))
-        }
-        _ => None,
-    }
+    let call = call_shape(inst)?;
+    let super::definitions::Callee::Method {
+        box_name,
+        method,
+        receiver: Some(receiver),
+        ..
+    } = call.callee
+    else {
+        return None;
+    };
+    (matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
+        && root(function, def_map, *receiver) == root(function, def_map, array_value))
+        .then_some((method.as_str(), call.args))
 }
 
 fn match_outer_accumulator(

@@ -67,12 +67,11 @@ fn source_backed_print_producer_publishes_typed_builtin_row() {
         .flat_map(|(_, function)| function.blocks.values())
         .flat_map(|block| block.all_instructions())
         .filter_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call(call) => {
+                Some((call.dst, crate::mir::ValueId::INVALID, Some(call.callee.clone()), call.args.len()))
+            }
             crate::mir::MirInstruction::LegacyCallV0 {
-                dst,
-                func,
-                callee,
-                args,
-                ..
+                dst, func, callee, args, ..
             } => Some((*dst, *func, callee.clone(), args.len())),
             _ => None,
         })
@@ -175,7 +174,7 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
         .values()
         .flat_map(|block| block.all_instructions())
         .filter(|instruction| {
-            matches!(instruction, crate::mir::MirInstruction::LegacyCallV0 { .. })
+            matches!(instruction, crate::mir::MirInstruction::Call(_) | crate::mir::MirInstruction::LegacyCallV0 { .. })
         })
         .count();
     assert_eq!(calls, 1);
@@ -184,6 +183,7 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
         .values()
         .flat_map(|block| block.all_instructions())
         .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call(call) => Some(call.callee.clone()),
             crate::mir::MirInstruction::LegacyCallV0 { callee, .. } => callee.clone(),
             _ => None,
         })
@@ -234,6 +234,9 @@ fn source_backed_declared_instance_me_method_emits_mandatory_receiver_call() {
         .values()
         .flat_map(|block| block.all_instructions())
         .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Call(call) => {
+                Some((Some(call.callee.clone()), call.args.clone()))
+            }
             crate::mir::MirInstruction::LegacyCallV0 { callee, args, .. } => {
                 Some((callee.clone(), args.clone()))
             }

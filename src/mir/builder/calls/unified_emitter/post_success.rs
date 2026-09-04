@@ -153,7 +153,7 @@ mod tests {
         let arguments = [ValueId::new(1), ValueId::new(2)];
         let prepared = PreparedUnifiedCallPostSuccessV1::prepare(
             Some(destination),
-            &Callee::Global(crate::mir::test_global_target("answer".to_string())),
+            &Callee::Global(crate::mir::test_global_target("answer/2".to_string())),
             &arguments,
             None,
             None,

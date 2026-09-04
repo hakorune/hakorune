@@ -131,6 +131,35 @@ impl super::PlanLowerer {
                 let box_val = builder.local_recv(*object);
                 let args: Vec<ValueId> =
                     args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                if matches!(method.as_str(), "push" | "set" | "insert")
+                    && crate::mir::builder::types::array_element::receiver_is_array_like(
+                        builder,
+                        "RuntimeDataBox",
+                        box_val,
+                    )
+                    && builder.try_emit_known_array_method_write(
+                        *dst, box_val, method, &args,
+                    )?
+                {
+                    let box_kind = crate::mir::policies::callee_box_kind::classify_callee_box_kind_v1(
+                        crate::mir::policies::callee_box_kind::CalleeBoxKindPolicyContextV1::GeneralEmission,
+                        "RuntimeDataBox",
+                    );
+                    let observed_callee = crate::mir::Callee::Method {
+                        box_name: "RuntimeDataBox".to_string(),
+                        method: method.clone(),
+                        receiver: Some(box_val),
+                        certainty:
+                            crate::mir::definitions::call_unified::TypeCertainty::Union,
+                        box_kind,
+                    };
+                    crate::mir::builder::types::array_element::observe_array_write_call(
+                        builder,
+                        &observed_callee,
+                        &args,
+                    );
+                    return Ok(());
+                }
                 builder.emit_instruction(crate::mir::ssot::method_call::runtime_method_call(
                     *dst,
                     box_val,

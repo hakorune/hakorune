@@ -12,7 +12,7 @@
 
 use std::collections::HashMap;
 
-use super::array_receiver_proof::match_array_set_call;
+use super::array_receiver_proof::{match_array_get_call, match_array_set_call};
 use super::string_corridor_recognizer::{match_len_call, match_substring_call};
 use super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::{
@@ -86,26 +86,8 @@ fn same_root(function: &MirFunction, def_map: &ValueDefMap, lhs: ValueId, rhs: V
 }
 
 fn match_array_text_get(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if args.len() == 1
-            && method == "get"
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            Some((*receiver, args[0], *dst))
-        }
-        _ => None,
-    }
+    let get = match_array_get_call(inst)?;
+    Some((get.array_value, get.index_value, get.output_value))
 }
 
 fn match_const_i64(inst: &MirInstruction, expected: i64) -> Option<ValueId> {

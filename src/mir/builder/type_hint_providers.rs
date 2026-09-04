@@ -14,7 +14,7 @@
 
 use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::type_context::TypeContext;
-use crate::mir::{MirFunction, MirModule, MirType};
+use crate::mir::{Callee, MirFunction, MirModule, MirType};
 
 /// Annotate missing result types from Call/Await instructions
 ///
@@ -45,7 +45,6 @@ pub(in crate::mir::builder) fn annotate_missing_result_types_from_calls_and_awai
     function: &MirFunction,
     lookup: &dyn FunctionSignatureLookupV1,
 ) {
-    use crate::mir::definitions::Callee;
     use crate::mir::MirInstruction;
 
     for (_bid, bb) in function.blocks.iter() {
@@ -61,6 +60,15 @@ pub(in crate::mir::builder) fn annotate_missing_result_types_from_calls_and_awai
                     };
                     type_ctx.value_types.insert(*dst, inferred);
                 }
+                MirInstruction::Call(call) => {
+                    let Some(dst) = call.dst else { continue };
+                    if type_ctx.value_types.contains_key(&dst) {
+                        continue;
+                    }
+                    let inferred =
+                        infer_call_result_type(type_ctx, dst, Some(&call.callee), lookup);
+                    type_ctx.value_types.insert(dst, inferred);
+                }
                 MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee,
@@ -69,30 +77,34 @@ pub(in crate::mir::builder) fn annotate_missing_result_types_from_calls_and_awai
                     if type_ctx.value_types.contains_key(dst) {
                         continue;
                     }
-                    let inferred = match callee {
-                        Some(callee) => match callee {
-                            Callee::Global(name) => lookup
-                                .signature(&name.display_name())
-                                .map(|signature| signature.return_type.clone())
-                                .or_else(|| {
-                                    crate::mir::builder::types::annotation::infer_return_type(
-                                        &name.display_name(),
-                                    )
-                                })
-                                .unwrap_or(MirType::Unknown),
-                            Callee::Constructor { box_type } => {
-                                let ret = MirType::Box(box_type.clone());
-                                type_ctx.value_origin_newbox.insert(*dst, box_type.clone());
-                                ret
-                            }
-                            _ => MirType::Unknown,
-                        },
-                        None => MirType::Unknown,
-                    };
+                    let inferred = infer_call_result_type(type_ctx, *dst, callee.as_ref(), lookup);
                     type_ctx.value_types.insert(*dst, inferred);
                 }
                 _ => {}
             }
         }
+    }
+}
+
+fn infer_call_result_type(
+    type_ctx: &mut TypeContext,
+    dst: crate::mir::ValueId,
+    callee: Option<&Callee>,
+    lookup: &dyn FunctionSignatureLookupV1,
+) -> MirType {
+    match callee {
+        Some(Callee::Global(name)) => lookup
+            .signature(&name.display_name())
+            .map(|signature| signature.return_type.clone())
+            .or_else(|| {
+                crate::mir::builder::types::annotation::infer_return_type(&name.display_name())
+            })
+            .unwrap_or(MirType::Unknown),
+        Some(Callee::Constructor { box_type }) => {
+            let ret = MirType::Box(box_type.clone());
+            type_ctx.value_origin_newbox.insert(dst, box_type.clone());
+            ret
+        }
+        _ => MirType::Unknown,
     }
 }

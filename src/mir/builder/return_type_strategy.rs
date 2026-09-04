@@ -146,6 +146,23 @@ fn resolve_known_return_definition_type(
     for (_block_id, block) in function.blocks.iter() {
         for instruction in block.instructions.iter() {
             match instruction {
+                MirInstruction::Call(call) if call.dst == Some(return_value) => {
+                    // Canonical method calls do not carry enough receiver-flow
+                    // information here to infer a concrete built-in result.
+                    // Keep that path Unknown, matching the legacy mixed-value
+                    // contract; only target-bearing canonical calls may infer.
+                    let ty = match &call.callee {
+                        crate::mir::Callee::Global(_)
+                        | crate::mir::Callee::Constructor { .. }
+                        | crate::mir::Callee::SameModuleInstance { .. } => {
+                            resolve_known_callee_return_type(&call.callee)
+                        }
+                        _ => None,
+                    };
+                    if let Some(ty) = ty {
+                        return Some(ty);
+                    }
+                }
                 MirInstruction::LegacyCallV0 {
                     dst: Some(dst),
                     callee:
@@ -203,6 +220,9 @@ fn resolve_known_callee_return_type(callee: &crate::mir::Callee) -> Option<MirTy
         ),
         crate::mir::Callee::Global(name) => {
             crate::mir::builder::infer_known_return_type(&name.display_name())
+        }
+        crate::mir::Callee::SameModuleInstance { key, .. } => {
+            crate::mir::builder::infer_known_method_return_type(Some(key.owner()), key.name(), None)
         }
         _ => None,
     }

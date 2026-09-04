@@ -9,8 +9,9 @@
 
 use std::collections::HashMap;
 
+use super::array_receiver_proof::match_array_get_call;
 use super::string_corridor_recognizer::{
-    match_substring_call, match_substring_concat3_helper_call,
+    call_shape, match_method_set_call, match_substring_call, match_substring_concat3_helper_call,
 };
 use super::value_origin::{resolve_value_origin, ValueDefMap};
 use super::{
@@ -117,26 +118,8 @@ fn same_root(function: &MirFunction, def_map: &ValueDefMap, lhs: ValueId, rhs: V
 }
 
 fn match_array_text_get(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if args.len() == 1
-            && method == "get"
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            Some((*receiver, args[0], *dst))
-        }
-        _ => None,
-    }
+    let get = match_array_get_call(inst)?;
+    Some((get.array_value, get.index_value, get.output_value))
 }
 
 fn match_const_i64(inst: &MirInstruction, expected: i64) -> Option<ValueId> {
@@ -193,37 +176,16 @@ fn match_extern_call<'a>(
     inst: &'a MirInstruction,
     expected_name: &str,
 ) -> Option<(ValueId, &'a [ValueId])> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            ..
-        } if name == expected_name => Some((*dst, args.as_slice())),
-        _ => None,
-    }
+    let call = call_shape(inst)?;
+    let Callee::Extern(name) = call.callee else {
+        return None;
+    };
+    (name == expected_name).then_some((call.dst?, call.args))
 }
 
 fn match_set_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if args.len() == 2
-            && method == "set"
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            Some((*receiver, args[0], args[1]))
-        }
-        _ => None,
-    }
+    let method = match_method_set_call(inst)?;
+    Some((method.receiver, method.key, method.value))
 }
 
 fn match_len_call(inst: &MirInstruction) -> Option<(ValueId, ValueId)> {

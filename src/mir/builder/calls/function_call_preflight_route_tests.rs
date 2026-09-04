@@ -689,18 +689,22 @@ fn cataloged_local_value_target_is_consumed_once_before_canonical_call_publicati
         .blocks
         .values()
         .flat_map(|block| block.all_instructions())
-        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
+        .filter(|instruction| {
+            matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })
+        })
         .collect::<Vec<_>>();
     assert_eq!(calls.len(), 1);
-    assert!(matches!(
-        calls[0],
+    assert!(match calls[0] {
+        MirInstruction::Call(call) => {
+            call.dst == Some(result)
+                && matches!(&call.callee, crate::mir::Callee::Value(value) if *value == ValueId::new(88))
+                && call.args.len() == 1
+        }
         MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(crate::mir::Callee::Value(value)),
-            args,
-            ..
-        } if *dst == result && *value == ValueId::new(88) && args.len() == 1
-    ));
+            dst: Some(dst), callee: Some(crate::mir::Callee::Value(value)), args, ..
+        } => *dst == result && *value == ValueId::new(88) && args.len() == 1,
+        _ => false,
+    });
 }
 
 #[test]

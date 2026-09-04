@@ -25,18 +25,11 @@ fn rewrite_method_set_value_preserves_typed_call_fields_and_replaces_only_value(
 
     let rewritten = rewrite_method_set_value(&inst, ValueId(4)).expect("set call rewrite");
     match rewritten {
-        MirInstruction::LegacyCallV0 {
-            dst,
-            func,
-            callee: Some(actual_callee),
-            args,
-            effects,
-        } => {
-            assert_eq!(dst, Some(ValueId(9)));
-            assert_eq!(func, ValueId::INVALID, "legacy decoration is retired");
-            assert_eq!(actual_callee, callee);
-            assert_eq!(args, vec![ValueId(2), ValueId(4)]);
-            assert_eq!(effects, EffectMask::READ);
+        MirInstruction::Call(call) => {
+            assert_eq!(call.dst, Some(ValueId(9)));
+            assert_eq!(call.callee, callee);
+            assert_eq!(call.args, vec![ValueId(2), ValueId(4)]);
+            assert_eq!(call.effects, EffectMask::READ);
         }
         other => panic!("expected canonical method-set Call, got {other:?}"),
     }

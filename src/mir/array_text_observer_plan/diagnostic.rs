@@ -1,4 +1,5 @@
 use super::{ArrayTextObserverProducerShapeDiagnostic, ArrayTextObserverRoute};
+use crate::mir::array_receiver_proof::match_array_set_call;
 use crate::mir::value_origin::{resolve_value_origin, ValueDefMap};
 use crate::mir::{definitions::Callee, BinaryOp, ConstValue, MirFunction, MirInstruction, ValueId};
 
@@ -169,7 +170,43 @@ fn is_same_slot_set(
     array_root: ValueId,
     index_root: ValueId,
 ) -> bool {
+    if let Some(set) = match_array_set_call(inst) {
+        let actual_index = root(function, def_map, set.index_value);
+        let same_index = actual_index == index_root
+            || row_mod_signature(function, def_map, actual_index)
+                .zip(row_mod_signature(function, def_map, index_root))
+                .is_some_and(|(actual, expected)| actual == expected);
+        let matched = root(function, def_map, set.array_value) == array_root
+            && same_index
+            && root(function, def_map, set.input_value) == value_root;
+        return matched;
+    }
     match inst {
+        MirInstruction::Call(call) => {
+            let Callee::Method {
+                box_name,
+                method,
+                receiver: Some(receiver),
+                ..
+            } = &call.callee
+            else {
+                return false;
+            };
+            if method != "set"
+                || call.args.len() != 2
+                || !matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
+            {
+                return false;
+            }
+            let actual_index = root(function, def_map, call.args[0]);
+            let same_index = actual_index == index_root
+                || row_mod_signature(function, def_map, actual_index)
+                    .zip(row_mod_signature(function, def_map, index_root))
+                    .is_some_and(|(actual, expected)| actual == expected);
+            root(function, def_map, *receiver) == array_root
+                && same_index
+                && root(function, def_map, call.args[1]) == value_root
+        }
         MirInstruction::LegacyCallV0 {
             callee:
                 Some(Callee::Method {

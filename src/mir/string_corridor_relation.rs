@@ -242,8 +242,21 @@ fn stable_length_relation_for_phi(
 }
 
 fn is_raw_substring_view_call(inst: &MirInstruction) -> bool {
-    matches!(
-        inst,
+    match inst {
+        MirInstruction::Call(call) => match &call.callee {
+            super::Callee::Method {
+                method,
+                receiver: Some(receiver),
+                ..
+            } => matches!(method.as_str(), "substring" | "slice")
+                && matches!(call.args.len(), 2 | 3)
+                && (call.args.len() == 2
+                    || call.args.first().is_some_and(|arg| arg == receiver)),
+            super::Callee::Extern(name) => {
+                call.args.len() == 3 && name == "nyash.string.substring_hii"
+            }
+            _ => false,
+        },
         MirInstruction::LegacyCallV0 {
             callee:
                 Some(super::Callee::Method {
@@ -253,17 +266,18 @@ fn is_raw_substring_view_call(inst: &MirInstruction) -> bool {
                 }),
             args,
             ..
-        } if args.len() == 3
-            && matches!(method.as_str(), "substring" | "slice")
-            && args.first().is_some_and(|arg| arg == receiver)
-    ) || matches!(
-        inst,
+        } => {
+            args.len() == 3
+                && matches!(method.as_str(), "substring" | "slice")
+                && args.first().is_some_and(|arg| arg == receiver)
+        }
         MirInstruction::LegacyCallV0 {
             callee: Some(super::Callee::Extern(name)),
             args,
             ..
-        } if args.len() == 3 && name == "nyash.string.substring_hii"
-    )
+        } => args.len() == 3 && name == "nyash.string.substring_hii",
+        _ => false,
+    }
 }
 
 fn stable_length_relation_for_direct_length_call(

@@ -474,14 +474,14 @@ mod tests {
             .expect("prepared Print TypeOp");
         let print = instructions
             .iter()
-            .position(|inst| {
-                matches!(
-                    inst,
-                    MirInstruction::LegacyCallV0 {
-                        callee: Some(Callee::Extern(name)),
-                        ..
-                    } if name == "env.console.log"
-                )
+            .position(|inst| match inst {
+                MirInstruction::Call(call) => {
+                    matches!(&call.callee, Callee::Extern(name) if name == "env.console.log")
+                }
+                MirInstruction::LegacyCallV0 {
+                    callee: Some(Callee::Extern(name)), ..
+                } => name == "env.console.log",
+                _ => false,
             })
             .expect("prepared Print extern terminal");
         assert!(

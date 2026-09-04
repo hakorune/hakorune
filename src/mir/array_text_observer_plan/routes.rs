@@ -2,13 +2,14 @@ use std::collections::BTreeSet;
 
 use super::super::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
 use super::super::{
+    array_receiver_proof::{match_array_get_call, match_array_set_call},
     array_text_observer_region_contract::{
         derive_observer_store_len_sum_region_contract, derive_observer_store_region_contract,
         ArrayTextObserverExecutorContract,
     },
-    definitions::Callee,
     BasicBlockId, BinaryOp, CompareOp, ConstValue, MirFunction, MirInstruction, MirModule, ValueId,
 };
+use crate::mir::string_corridor_recognizer::call_shape;
 
 use super::{
     diagnostic::diagnose_append_update_producer_shape, ArrayTextObserverArgRepr,
@@ -175,20 +176,19 @@ fn match_array_text_indexof_route(
 }
 
 fn match_indexof_call(inst: &MirInstruction) -> Option<(ValueId, ValueId, ValueId)> {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee:
-                Some(Callee::Method {
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if method == "indexOf" && args.len() == 1 => Some((*dst, *receiver, args[0])),
-        _ => None,
+    let call = call_shape(inst)?;
+    let crate::mir::definitions::Callee::Method {
+        method,
+        receiver: Some(receiver),
+        ..
+    } = call.callee
+    else {
+        return None;
+    };
+    if method != "indexOf" || call.args.len() != 1 {
+        return None;
     }
+    Some((call.dst?, *receiver, call.args[0]))
 }
 
 fn match_array_get_source(
@@ -198,30 +198,13 @@ fn match_array_get_source(
 ) -> Option<(BasicBlockId, usize, ValueId, ValueId)> {
     let (block, index) = def_map.get(&source_value).copied()?;
     let inst = function.blocks.get(&block)?.instructions.get(index)?;
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(array_value),
-                    ..
-                }),
-            args,
-            ..
-        } if method == "get"
-            && args.len() == 1
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            Some((
-                block,
-                index,
-                root(function, def_map, *array_value),
-                root(function, def_map, args[0]),
-            ))
-        }
-        _ => None,
-    }
+    let get = match_array_get_call(inst)?;
+    Some((
+        block,
+        index,
+        root(function, def_map, get.array_value),
+        root(function, def_map, get.index_value),
+    ))
 }
 
 fn has_found_predicate_consumer(
@@ -481,27 +464,27 @@ fn is_same_slot_set_consumer(
     array_root: ValueId,
     index_root: ValueId,
 ) -> bool {
-    match inst {
-        MirInstruction::LegacyCallV0 {
-            callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(receiver),
-                    ..
-                }),
-            args,
-            ..
-        } if method == "set"
-            && args.len() == 2
-            && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox") =>
-        {
-            root(function, def_map, *receiver) == array_root
-                && root(function, def_map, args[0]) == index_root
-                && root(function, def_map, args[1]) == value_root
-        }
-        _ => false,
+    if let Some(set) = match_array_set_call(inst) {
+        return root(function, def_map, set.array_value) == array_root
+            && root(function, def_map, set.index_value) == index_root
+            && root(function, def_map, set.input_value) == value_root;
     }
+    let Some(call) = call_shape(inst) else { return false };
+    let crate::mir::definitions::Callee::Method {
+        box_name,
+        method,
+        receiver: Some(receiver),
+        ..
+    } = call.callee
+    else {
+        return false;
+    };
+    method == "set"
+        && call.args.len() == 2
+        && matches!(box_name.as_str(), "RuntimeDataBox" | "ArrayBox")
+        && root(function, def_map, *receiver) == array_root
+        && root(function, def_map, call.args[0]) == index_root
+        && root(function, def_map, call.args[1]) == value_root
 }
 
 fn is_covered_slot_consumer_source_use(

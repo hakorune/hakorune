@@ -548,18 +548,12 @@ fn rewrites_retained_slice_length_consumer_across_blocks() {
     let block = function.blocks.get(&BasicBlockId(1)).expect("loop");
     assert!(
         block.instructions.iter().any(|inst| {
-            matches!(
+            is_extern_call(
                 inst,
-                MirInstruction::LegacyCallV0 {
-                    dst: Some(dst),
-                    callee: Some(Callee::Extern(name)),
-                    args,
-                    effects,
-                    ..
-                } if *dst == ValueId(8)
-                    && name == SUBSTRING_LEN_EXTERN
-                    && args.as_slice() == [ValueId(0), ValueId(4), ValueId(3)]
-                    && *effects == EffectMask::PURE
+                ValueId(8),
+                SUBSTRING_LEN_EXTERN,
+                &[ValueId(0), ValueId(4), ValueId(3)],
+                Some(EffectMask::PURE),
             )
         }),
         "retained slice length should rewrite to substring_len_hii: {:?}",

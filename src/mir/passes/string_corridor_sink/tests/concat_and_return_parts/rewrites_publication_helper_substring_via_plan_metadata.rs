@@ -150,20 +150,18 @@ fn rewrites_publication_helper_substring_via_plan_metadata() {
         }
     }
 
-    let helper_call = block.instructions.iter().find_map(|inst| match inst {
-        MirInstruction::LegacyCallV0 {
-            dst: Some(dst),
-            callee: Some(Callee::Extern(name)),
-            args,
-            effects,
-            ..
-        } if *dst == ValueId(14)
-            && (name == SUBSTRING_CONCAT3_EXTERN
-                || name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN) =>
-        {
-            Some((args.clone(), *effects))
-        }
-        _ => None,
+    let helper_call = block.instructions.iter().find_map(|inst| {
+        let Some((_, callee, args, effects)) = call_parts(inst) else {
+            return None;
+        };
+        let is_helper = matches!(
+            callee,
+            Callee::Extern(name)
+                if name == SUBSTRING_CONCAT3_EXTERN
+                    || name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
+        );
+        (is_helper && call_parts(inst).is_some_and(|(dst, _, _, _)| dst == Some(ValueId(14))))
+            .then(|| (args.to_vec(), effects))
     });
     let (helper_args, helper_effects) = helper_call.expect("publication helper substring call");
     assert_eq!(helper_effects, EffectMask::PURE);

@@ -74,18 +74,24 @@ fn cfg_successors_are_synced(function: &MirFunction) -> bool {
 }
 
 fn method_receiver(inst: &MirInstruction) -> Option<ValueId> {
-    let MirInstruction::LegacyCallV0 {
-        callee:
-            Some(Callee::Method {
+    match inst {
+        MirInstruction::Call(call) => match &call.callee {
+            Callee::Method {
                 receiver: Some(receiver),
                 ..
-            }),
-        ..
-    } = inst
-    else {
-        return None;
-    };
-    Some(*receiver)
+            } => Some(*receiver),
+            _ => None,
+        },
+        MirInstruction::LegacyCallV0 {
+            callee:
+                Some(Callee::Method {
+                    receiver: Some(receiver),
+                    ..
+                }),
+            ..
+        } => Some(*receiver),
+        _ => None,
+    }
 }
 
 fn copy_chain_root(
@@ -118,16 +124,23 @@ fn rewrite_method_receiver(
     old_receiver: ValueId,
     new_receiver: ValueId,
 ) -> bool {
-    let MirInstruction::LegacyCallV0 {
-        callee:
-            Some(Callee::Method {
+    let receiver = match inst {
+        MirInstruction::Call(call) => match &mut call.callee {
+            Callee::Method {
                 receiver: Some(receiver),
                 ..
-            }),
-        ..
-    } = inst
-    else {
-        return false;
+            } => receiver,
+            _ => return false,
+        },
+        MirInstruction::LegacyCallV0 {
+            callee:
+                Some(Callee::Method {
+                    receiver: Some(receiver),
+                    ..
+                }),
+            ..
+        } => receiver,
+        _ => return false,
     };
     if *receiver != old_receiver {
         return false;

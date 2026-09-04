@@ -43,7 +43,12 @@ fn call_count(builder: &MirBuilder) -> usize {
         .into_iter()
         .flat_map(|function| function.blocks.values())
         .flat_map(|block| block.instructions.iter())
-        .filter(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. }))
+        .filter(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. }
+            )
+        })
         .count()
 }
 

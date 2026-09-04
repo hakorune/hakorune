@@ -78,6 +78,12 @@ fn emits_one_direct_length_call_and_i64_receipt_in_unpublished_session() {
                 let calls: Vec<_> = instructions
                     .iter()
                     .filter_map(|instruction| match instruction {
+                        MirInstruction::Call(call) => Some((
+                            call.dst,
+                            &call.callee,
+                            &call.args,
+                            call.effects,
+                        )),
                         MirInstruction::LegacyCallV0 {
                             dst,
                             callee: Some(callee),
@@ -156,7 +162,7 @@ fn direct_length_call_late_failure_discards_call_and_receipt() {
                 assert!(draft
                     .current_function_instructions()
                     .iter()
-                    .any(|instruction| matches!(instruction, MirInstruction::LegacyCallV0 { .. })));
+                    .any(|instruction| matches!(instruction, MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. })));
                 Err::<(), _>("late direct-call rejection".to_owned())
             },
         );

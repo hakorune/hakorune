@@ -213,6 +213,22 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
                         .iter()
                         .rev()
                         .find_map(|instruction| match instruction {
+                            MirInstruction::Call(call) => match &call.callee {
+                                Callee::Method {
+                                    box_name,
+                                    method,
+                                    receiver: Some(call_receiver),
+                                    ..
+                                } => Some((
+                                    call.dst?,
+                                    box_name.as_str(),
+                                    method.as_str(),
+                                    *call_receiver,
+                                    call.args.first().copied(),
+                                    call.effects,
+                                )),
+                                _ => None,
+                            },
                             MirInstruction::LegacyCallV0 {
                                 dst: Some(call_destination),
                                 callee:

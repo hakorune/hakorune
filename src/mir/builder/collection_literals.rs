@@ -277,21 +277,17 @@ mod tests {
             .blocks
             .values()
             .flat_map(|block| block.instructions.iter())
-            .filter(|instruction| {
-                matches!(
-                    instruction,
-                    MirInstruction::LegacyCallV0 {
-                        callee: Some(Callee::Method {
-                            box_name,
-                            method,
-                            ..
-                        }),
-                        effects,
-                        ..
-                    } if box_name == "MapBox"
-                        && method == "set"
-                        && *effects == EffectMask::MUT
-                )
+            .filter(|instruction| match instruction {
+                MirInstruction::Call(call) => {
+                    matches!(&call.callee, Callee::Method { box_name, method, .. }
+                        if box_name == "MapBox" && method == "set")
+                        && call.effects == EffectMask::MUT
+                }
+                MirInstruction::LegacyCallV0 {
+                    callee: Some(Callee::Method { box_name, method, .. }),
+                    effects, ..
+                } => box_name == "MapBox" && method == "set" && *effects == EffectMask::MUT,
+                _ => false,
             })
             .count()
     }

@@ -143,6 +143,12 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
         for (bbid, block) in &function.blocks {
             for inst in &block.instructions {
                 match inst {
+                    MirInstruction::Call(call)
+                        if matches!(&call.callee, Callee::Extern(callee) if callee == "nyash.string.substring_hii")
+                            && call.args.len() == 3 =>
+                    {
+                        substring_call_count += 1;
+                    }
                     MirInstruction::LegacyCallV0 {
                         callee: Some(Callee::Extern(callee)),
                         args,
@@ -156,6 +162,17 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                     } if callee == SUBSTRING_CONCAT3_EXTERN
                         || callee == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                         || callee == SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN => {}
+                    MirInstruction::Call(call)
+                        if matches!(&call.callee, Callee::Method { box_name, method, receiver: Some(receiver), .. }
+                            if box_name == "RuntimeDataBox"
+                                && method == "substring"
+                                && match_concat_triplet(function, *bbid, &def_map, *receiver).is_some()) =>
+                    {
+                        leftover_concat_consumers.push(format!(
+                            "fn={name} bb={} concat substring inst={inst:?}",
+                            bbid.0
+                        ));
+                    }
                     MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
@@ -183,6 +200,24 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                     {
                         substring_call_count += 1;
                     }
+                    MirInstruction::Call(call)
+                        if matches!(&call.callee, Callee::Method { method, .. }
+                            if matches!(method.as_str(), "substring" | "slice"))
+                            && matches!(call.args.len(), 2 | 3) =>
+                    {
+                        substring_call_count += 1;
+                    }
+                    MirInstruction::Call(call)
+                        if matches!(&call.callee, Callee::Method { box_name, method, receiver: Some(receiver), .. }
+                            if box_name == "RuntimeDataBox"
+                                && method == "length"
+                                && match_concat_triplet(function, *bbid, &def_map, *receiver).is_some()) =>
+                    {
+                        leftover_concat_lengths.push(format!(
+                            "fn={name} bb={} concat length inst={inst:?}",
+                            bbid.0
+                        ));
+                    }
                     MirInstruction::LegacyCallV0 {
                         callee:
                             Some(Callee::Method {
@@ -205,6 +240,14 @@ fn benchmark_substring_concat_compiles_without_concat_string_consumers() {
                         callee: Some(Callee::Extern(callee)),
                         ..
                     } if callee == SUBSTRING_LEN_EXTERN => {
+                        leftover_substring_len.push(format!(
+                            "fn={name} bb={} substring_len inst={inst:?}",
+                            bbid.0
+                        ));
+                    }
+                    MirInstruction::Call(call)
+                        if matches!(&call.callee, Callee::Extern(callee) if callee == SUBSTRING_LEN_EXTERN) =>
+                    {
                         leftover_substring_len.push(format!(
                             "fn={name} bb={} substring_len inst={inst:?}",
                             bbid.0

@@ -52,9 +52,6 @@ fn typed_global_still_publishes_after_method_none_retirement() {
 
     assert!(matches!(
         builder.current_function_instructions().as_slice(),
-        [MirInstruction::LegacyCallV0 {
-            callee: Some(Callee::Global(_)),
-            ..
-        }]
+        [MirInstruction::Call(call)] if matches!(call.callee, Callee::Global(_))
     ));
 }

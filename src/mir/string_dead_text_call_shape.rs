@@ -8,6 +8,26 @@ use crate::mir::{Callee, MirInstruction, ValueId};
 
 pub(crate) fn match_dead_text_len_call(inst: &MirInstruction) -> Option<(ValueId, Vec<ValueId>)> {
     match inst {
+        MirInstruction::Call(call) => match &call.callee {
+            Callee::Method {
+                method,
+                receiver: Some(receiver),
+                ..
+            } if is_len_method_name(method) => {
+                let mut values = vec![*receiver];
+                values.extend(call.args.iter().copied());
+                Some((call.dst?, values))
+            }
+            Callee::Extern(name) if call.args.len() == 1 && is_runtime_len_handle_export(name) => {
+                Some((call.dst?, call.args.clone()))
+            }
+            Callee::Global(name)
+                if call.args.len() == 1 && is_lowered_len_global(&name.display_name()) =>
+            {
+                Some((call.dst?, call.args.clone()))
+            }
+            _ => None,
+        },
         MirInstruction::LegacyCallV0 {
             dst: Some(dst),
             callee:

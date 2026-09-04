@@ -62,24 +62,22 @@ fn ucm1_rewrites_runtime_data_union_method_call_to_known_user_box_method() {
         .instructions[0];
     assert!(matches!(
         inst,
-        MirInstruction::LegacyCallV0 {
-            dst: Some(ValueId(3)),
-            func,
-            callee: Some(Callee::Method {
-                box_name,
-                method,
-                receiver: Some(receiver),
-                certainty: TypeCertainty::Known,
-                box_kind: CalleeBoxKind::UserDefined,
-            }),
-            args,
-            effects,
-        } if *func == ValueId::INVALID
-            && box_name == "Counter"
-            && method == "step"
-            && *receiver == ValueId(1)
-            && args.is_empty()
-            && *effects == EffectMask::PURE
+        MirInstruction::Call(call)
+            if call.dst == Some(ValueId(3))
+                && matches!(
+                    &call.callee,
+                    Callee::Method {
+                        box_name,
+                        method,
+                        receiver: Some(receiver),
+                        certainty: TypeCertainty::Known,
+                        box_kind: CalleeBoxKind::UserDefined,
+                    } if box_name == "Counter"
+                        && method == "step"
+                        && *receiver == ValueId(1)
+                )
+                && call.args.is_empty()
+                && call.effects == EffectMask::PURE
     ));
 }
 

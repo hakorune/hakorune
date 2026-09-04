@@ -40,17 +40,16 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The accepted 138-name failure receipt remains immutable. A bounded repair of
-the canonical-call reader owners reduced the fixed observation to
-`7579/7357/193/29`; the current-minus-accepted comparison now has 55 added
-failure names and no removals. The repaired four-owner scope is preserved but
-not landed. A six-worker read-only audit now partitions the residual exactly:
-30 builder, 1 JoinIR, 4 optimizer/canonicalizer, 17 string-sink, and 3
-string-relation/dead-region failures. All 55 descend from the `45c6759962`
-Call/LegacyCallV0 shape split; one is a production fail-fast regression and 54
-are stale carrier readers/assertions. This is repair-to-pass evidence, not
-permission to rebaseline or open another semantic/cleanup family. Reuse
-`DEV-GATE-LIB-BASELINE-REFRESH-R0` for the bounded owner series below.
+The accepted 138-name failure receipt remains immutable. The bounded
+canonical-call reader repair is now stable under the fixed runner at
+`7579/7417/133/29`; the current-minus-accepted failure-name comparison has
+zero additions. The inventory has one post-receipt test, and five accepted
+known-red names now pass, so the baseline comparator remains open for explicit
+receipt reconciliation rather than an automatic rebaseline. All repaired
+sites descend from the `45c6759962` Call/LegacyCallV0 shape split. This is
+repair-to-pass evidence, not permission to open JSON-v1, BoxShape, performance,
+or another semantic/cleanup family. Reuse
+`DEV-GATE-LIB-BASELINE-REFRESH-R0` for the bounded evidence closeout below.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete

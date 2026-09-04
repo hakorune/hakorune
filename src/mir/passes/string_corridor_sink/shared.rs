@@ -479,15 +479,19 @@ pub(super) fn array_store_candidate(
         return None;
     }
     let receiver_root = resolve_value_origin(function, def_map, store.receiver);
-    match function.metadata.value_types.get(&receiver_root) {
-        Some(MirType::Box(name)) if name == "ArrayBox" => Some(MethodSetCallShape {
-            box_name: store.box_name,
-            receiver: receiver_root,
-            key: resolve_value_origin(function, def_map, store.key),
-            value: store.value,
-        }),
-        _ => None,
-    }
+    (store.box_name == "ArrayBox"
+        && crate::mir::array_receiver_proof::receiver_is_proven_array(
+            function,
+            def_map,
+            receiver_root,
+            "ArrayBox",
+        ))
+    .then_some(MethodSetCallShape {
+        box_name: store.box_name,
+        receiver: receiver_root,
+        key: resolve_value_origin(function, def_map, store.key),
+        value: store.value,
+    })
 }
 
 pub(super) fn publication_host_boundary_candidate(
@@ -515,25 +519,26 @@ pub(super) fn rewrite_method_set_value(
     inst: &MirInstruction,
     new_value: ValueId,
 ) -> Option<MirInstruction> {
-    let MirInstruction::LegacyCallV0 {
-        dst,
-        callee: Some(callee),
-        args,
-        effects,
-        ..
-    } = inst
-    else {
-        return None;
-    };
     let _ = match_method_set_call(inst)?;
-    let mut new_args = args.clone();
+    let (dst, callee, args, effects) = match inst {
+        MirInstruction::Call(call) => (
+            call.dst,
+            call.callee.clone(),
+            call.args.clone(),
+            call.effects,
+        ),
+        MirInstruction::LegacyCallV0 {
+            dst,
+            callee: Some(callee),
+            args,
+            effects,
+            ..
+        } => (*dst, callee.clone(), args.clone(), *effects),
+        _ => return None,
+    };
+    let mut new_args = args;
     new_args[1] = new_value;
-    Some(MirInstruction::call(
-        *dst,
-        callee.clone(),
-        new_args,
-        *effects,
-    ))
+    Some(MirInstruction::call(dst, callee, new_args, effects))
 }
 
 pub(super) fn value_is_const_i64(
