@@ -12,6 +12,7 @@ mod array_slot_append;
 mod array_slot_backend;
 mod array_slot_capacity;
 mod array_slot_load;
+mod array_slot_insert;
 mod array_slot_store;
 mod array_string_slot;
 mod array_text_write_txn;

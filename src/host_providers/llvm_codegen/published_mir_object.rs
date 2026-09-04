@@ -20,20 +20,50 @@ pub(crate) fn compile_published_static_method_object(
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
     match view.route() {
-        PublishedStaticMethodRouteV1::CanonicalTyped => {}
+        PublishedStaticMethodRouteV1::CanonicalTyped => {
+            compile_published_view_object(module, &view, obj_out)
+        }
         PublishedStaticMethodRouteV1::ExplicitCompatibility => {
-            return Err("published MIR module has no canonical typed call".to_owned())
+            Err("published MIR module has no canonical typed call".to_owned())
         }
         PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
-            return Err(
+            Err(
                 "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
                     .to_owned(),
             )
         }
     }
-    let frame = PublishedStaticMethodCFrameV1::from_view(&view)
-        .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
+}
 
+/// Compile the published view when it contains a selected typed row.  A
+/// compatibility-only module returns `Ok(false)` so its explicit caller can
+/// remain in control; no semantic fallback is performed here.
+pub(crate) fn try_compile_published_static_method_object(
+    module: &MirModule,
+    obj_out: &str,
+) -> Result<bool, String> {
+    let view = PublishedMirBackendView::try_new(module)
+        .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
+    match view.route() {
+        PublishedStaticMethodRouteV1::CanonicalTyped => {
+            compile_published_view_object(module, &view, obj_out)?;
+            Ok(true)
+        }
+        PublishedStaticMethodRouteV1::ExplicitCompatibility => Ok(false),
+        PublishedStaticMethodRouteV1::UnsupportedBeforeObject => Err(
+            "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
+                .to_owned(),
+        ),
+    }
+}
+
+fn compile_published_view_object(
+    module: &MirModule,
+    view: &PublishedMirBackendView<'_>,
+    obj_out: &str,
+) -> Result<(), String> {
+    let frame = PublishedStaticMethodCFrameV1::from_view(view)
+        .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
     let mir_json_path = transport_io::prepare_backend_input_json_file(
         &crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module)?,
     )?;

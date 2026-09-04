@@ -7,7 +7,10 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 
-use super::{PublishedMirBackendView, PublishedMirBackendViewErrorV1};
+use super::{
+    PublishedMirBackendView, PublishedMirBackendViewErrorV1,
+};
+use crate::mir::ArrayElementWriteKind;
 
 /// Physical row kinds carried across the typed C frame.
 #[repr(u32)]
@@ -16,7 +19,14 @@ pub(crate) enum PublishedCallKindV1 {
     StaticMethod = 1,
     BuiltinPrint = 2,
     FreeFunction = 3,
+    ArrayLiteralAppend = 4,
+    ArrayPush = 5,
+    ArraySet = 6,
+    ArrayInsert = 7,
 }
+
+pub(crate) const PUBLISHED_ROW_DST_PRESENT_V1: u32 = 1;
+pub(crate) const PUBLISHED_ROW_INDEX_PRESENT_V1: u32 = 2;
 
 /// Borrow-independent C transport row.  The C consumer receives only this
 /// temporary frame; it cannot recover owner/method/arity from a symbol.
@@ -29,6 +39,12 @@ pub(crate) struct PublishedStaticMethodCallCRowV1 {
     pub(crate) target_symbol: *const c_char,
     pub(crate) arity: u32,
     pub(crate) kind: u32,
+    pub(crate) site_id: u32,
+    pub(crate) receiver: u32,
+    pub(crate) index: u32,
+    pub(crate) value: u32,
+    pub(crate) dst: u32,
+    pub(crate) flags: u32,
 }
 
 /// Owned strings keep C row pointers valid for exactly one synchronous
@@ -46,7 +62,8 @@ impl PublishedStaticMethodCFrameV1 {
     ) -> Result<Self, PublishedMirBackendViewErrorV1> {
         let total = view.static_method_calls.len()
             + view.free_function_calls.len()
-            + view.builtin_print_calls.len();
+            + view.builtin_print_calls.len()
+            + view.array_element_writes.len();
         let mut function_names = Vec::with_capacity(total);
         let mut target_symbols =
             Vec::with_capacity(view.static_method_calls.len() + view.free_function_calls.len());
@@ -103,6 +120,12 @@ impl PublishedStaticMethodCFrameV1 {
                 target_symbol: target_symbol_ptr,
                 arity: key.arity(),
                 kind: kind as u32,
+                site_id: 0,
+                receiver: 0,
+                index: 0,
+                value: 0,
+                dst: 0,
+                flags: 0,
             });
         }
         for call in &view.builtin_print_calls {
@@ -125,6 +148,48 @@ impl PublishedStaticMethodCFrameV1 {
                 target_symbol: std::ptr::null(),
                 arity: 1,
                 kind: PublishedCallKindV1::BuiltinPrint as u32,
+                site_id: 0,
+                receiver: 0,
+                index: 0,
+                value: 0,
+                dst: 0,
+                flags: 0,
+            });
+        }
+        for write in &view.array_element_writes {
+            let function_name = CString::new(write.function_name()).map_err(|_| {
+                PublishedMirBackendViewErrorV1::ArrayElementWriteShapeMismatch {
+                    function: write.function_name().to_owned(),
+                    kind: write.kind(),
+                }
+            })?;
+            let mut flags = 0;
+            let index = write.index().map_or(0, |value| {
+                flags |= PUBLISHED_ROW_INDEX_PRESENT_V1;
+                value.as_u32()
+            });
+            let dst = write.dst().map_or(0, |value| {
+                flags |= PUBLISHED_ROW_DST_PRESENT_V1;
+                value.as_u32()
+            });
+            function_names.push(function_name);
+            let function_name_ptr = function_names
+                .last()
+                .expect("just-pushed array-write function name")
+                .as_ptr();
+            rows.push(PublishedStaticMethodCallCRowV1 {
+                function_name: function_name_ptr,
+                block_id: write.block_id(),
+                instruction_index: write.instruction_index(),
+                target_symbol: std::ptr::null(),
+                arity: 0,
+                kind: array_write_kind(write.kind()) as u32,
+                site_id: write.site_id(),
+                receiver: write.receiver().as_u32(),
+                index,
+                value: write.value().as_u32(),
+                dst,
+                flags,
             });
         }
         Ok(Self {
@@ -149,5 +214,14 @@ impl PublishedStaticMethodCFrameV1 {
     #[cfg(test)]
     fn row(&self, index: usize) -> PublishedStaticMethodCallCRowV1 {
         self.rows[index]
+    }
+}
+
+fn array_write_kind(kind: ArrayElementWriteKind) -> PublishedCallKindV1 {
+    match kind {
+        ArrayElementWriteKind::LiteralAppend => PublishedCallKindV1::ArrayLiteralAppend,
+        ArrayElementWriteKind::Push => PublishedCallKindV1::ArrayPush,
+        ArrayElementWriteKind::Set => PublishedCallKindV1::ArraySet,
+        ArrayElementWriteKind::Insert => PublishedCallKindV1::ArrayInsert,
     }
 }

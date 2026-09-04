@@ -34,8 +34,10 @@ pub(crate) enum ArrayElementWriteBackendMode {
 pub(crate) fn backend_mode(backend: &str) -> ArrayElementWriteBackendMode {
     match backend {
         "vm" | "mir-interpreter" => ArrayElementWriteBackendMode::NativeV1,
-        "ny-llvmc-exe" | "ny-llvmc-obj" | "llvmlite-obj" | "pyvm-harness" | "llvm-legacy-obj"
-        | "llvm-mock-fallback" => ArrayElementWriteBackendMode::ValidatedLegacyCallProjectionV1,
+        "ny-llvmc-exe" | "ny-llvmc-obj" => ArrayElementWriteBackendMode::NativeV1,
+        "llvmlite-obj" | "pyvm-harness" | "llvm-legacy-obj" | "llvm-mock-fallback" => {
+            ArrayElementWriteBackendMode::ValidatedLegacyCallProjectionV1
+        }
         _ => ArrayElementWriteBackendMode::Unsupported,
     }
 }

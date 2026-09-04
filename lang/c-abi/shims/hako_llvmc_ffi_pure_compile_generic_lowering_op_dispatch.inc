@@ -704,6 +704,25 @@
             }
             continue;
           }
+          if (strcmp(op, "array_element_write") == 0) {
+            const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
+            const hako_llvmc_published_static_method_call_v1* typed_row = NULL;
+            int typed_shape_rc =
+                hako_llvmc_published_static_method_take_array_write_row_v1(
+                    active_function_name, bid, ii, ins, &typed_row);
+            if (typed_shape_rc != HAKO_LLVMC_PUBLISHED_ROW_READY) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "published_array_write_row_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_WRITE_ROW(
+                f,
+                typed_row,
+                typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_SET &&
+                    is_plain_i64_value((long long)typed_row->value));
+            continue;
+          }
           if (strcmp(op, "binop")==0) {
             const char* k = read_str(ins, "op_kind"); if (!k) k = read_str(ins, "operation");
             const char* irop = NULL;

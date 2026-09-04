@@ -434,6 +434,21 @@
         if (!strcmp(op, "newbox")) {
           return same_module_function_emit_newbox(ins);
         }
+        if (!strcmp(op, "array_element_write")) {
+          const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
+          const hako_llvmc_published_static_method_call_v1* typed_row = NULL;
+          int typed_shape_rc =
+              hako_llvmc_published_static_method_take_array_write_row_v1(
+                  active_function_name, bid, ii, ins, &typed_row);
+          if (typed_shape_rc < 0) return -1;
+          if (typed_shape_rc == 0) return 0;
+          HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_WRITE_ROW(
+              f,
+              typed_row,
+              typed_row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_SET &&
+                  is_plain_i64_value((long long)typed_row->value));
+          return 1;
+        }
         if (!strcmp(op, "field_set")) {
           return same_module_function_emit_typed_object_field_set(ins, bid, ii);
         }

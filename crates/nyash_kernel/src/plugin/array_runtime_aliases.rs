@@ -2,6 +2,7 @@ use super::array_compat::append_integer_raw;
 use super::array_slot_append::array_slot_append_any;
 use super::array_slot_capacity::{array_slot_cap_i64, array_slot_grow_i64, array_slot_reserve_i64};
 use super::array_slot_load::{array_slot_has_index, array_slot_load_encoded_i64};
+use super::array_slot_insert::array_slot_insert_any;
 use super::array_slot_store::{
     array_slot_rmw_add1_i64, array_slot_store_any, array_slot_store_i64,
     array_slot_store_kernel_text_slot, array_slot_store_string_handle,
@@ -58,6 +59,10 @@ crate::nyash_export_i64_alias!(nyash_array_set_hih_alias, "nyash.array.set_hih",
 
 crate::nyash_export_i64_alias!(nyash_array_set_hii_alias, "nyash.array.set_hii", (handle: i64, idx: i64, value_i64: i64), {
     array_slot_store_i64(handle, idx, value_i64)
+});
+
+crate::nyash_export_i64_alias!(nyash_array_slot_insert_hih_alias, "nyash.array.slot_insert_hih", (handle: i64, idx: i64, val_any: i64), {
+    array_slot_insert_any(handle, idx, val_any)
 });
 
 crate::nyash_export_i64_alias!(nyash_array_set_his_alias, "nyash.array.set_his", (handle: i64, idx: i64, value_h: i64), {

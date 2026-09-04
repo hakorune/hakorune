@@ -5,6 +5,7 @@
  */
 
 pub mod core_bridge;
+#[cfg(feature = "llvmlite-compat")]
 pub(crate) mod array_write_backend;
 pub mod diag;
 pub mod emit_direct;

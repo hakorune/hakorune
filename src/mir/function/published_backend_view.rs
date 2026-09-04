@@ -9,7 +9,9 @@ use hakorune_mir_defs::{
     CanonicalSameModuleGlobalTargetV1, SameModuleCallableNamespaceV1,
 };
 
-use crate::mir::{Callee, MirFunction, MirInstruction, MirModule, ValueId};
+use crate::mir::{
+    ArrayElementWriteKind, Callee, MirFunction, MirInstruction, MirModule, ValueId,
+};
 
 #[path = "published_backend_view_c_transport.rs"]
 mod c_transport;
@@ -102,6 +104,10 @@ pub(crate) enum PublishedMirBackendViewErrorV1 {
         function: String,
         expected: usize,
         actual: usize,
+    },
+    ArrayElementWriteShapeMismatch {
+        function: String,
+        kind: ArrayElementWriteKind,
     },
 }
 
@@ -212,6 +218,60 @@ impl<'module> PublishedBuiltinPrintCallRef<'module> {
     }
 }
 
+/// A canonical ArrayElementWrite borrowed from the atomically-published MIR.
+/// The operation kind, receiver, index, and value are already decided by the
+/// ArrayElementWrite owner; the backend only projects these operands.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct PublishedArrayElementWriteRef<'module> {
+    function_name: &'module str,
+    block_id: u32,
+    instruction_index: u32,
+    site_id: u32,
+    kind: ArrayElementWriteKind,
+    dst: Option<ValueId>,
+    receiver: ValueId,
+    index: Option<ValueId>,
+    value: ValueId,
+}
+
+impl<'module> PublishedArrayElementWriteRef<'module> {
+    pub(crate) fn function_name(self) -> &'module str {
+        self.function_name
+    }
+
+    pub(crate) const fn block_id(self) -> u32 {
+        self.block_id
+    }
+
+    pub(crate) const fn instruction_index(self) -> u32 {
+        self.instruction_index
+    }
+
+    pub(crate) const fn site_id(self) -> u32 {
+        self.site_id
+    }
+
+    pub(crate) const fn kind(self) -> ArrayElementWriteKind {
+        self.kind
+    }
+
+    pub(crate) const fn dst(self) -> Option<ValueId> {
+        self.dst
+    }
+
+    pub(crate) const fn receiver(self) -> ValueId {
+        self.receiver
+    }
+
+    pub(crate) const fn index(self) -> Option<ValueId> {
+        self.index
+    }
+
+    pub(crate) const fn value(self) -> ValueId {
+        self.value
+    }
+}
+
 /// Read-only projection of an already atomically-published module.
 ///
 /// No AST, resolver, registry, JSON, fallback state, or independently-owned
@@ -225,6 +285,7 @@ pub(crate) struct PublishedMirBackendView<'module> {
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
     builtin_print_calls: Vec<PublishedBuiltinPrintCallRef<'module>>,
+    array_element_writes: Vec<PublishedArrayElementWriteRef<'module>>,
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -236,6 +297,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut static_method_calls = Vec::new();
         let mut free_function_calls = Vec::new();
         let mut builtin_print_calls = Vec::new();
+        let mut array_element_writes = Vec::new();
         let mut has_unsupported_call = false;
         for (function_name, function) in &module.functions {
             let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
@@ -246,6 +308,36 @@ impl<'module> PublishedMirBackendView<'module> {
                     .get(&block_id)
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
+                    if let MirInstruction::ArrayElementWrite {
+                        site_id,
+                        dst,
+                        kind,
+                        receiver,
+                        index,
+                        value,
+                        ..
+                    } = instruction
+                    {
+                        crate::mir::array_element_write::validate_shape(*kind, *index).map_err(
+                            |_| PublishedMirBackendViewErrorV1::ArrayElementWriteShapeMismatch {
+                                function: function_name.clone(),
+                                kind: *kind,
+                            },
+                        )?;
+                        array_element_writes.push(PublishedArrayElementWriteRef {
+                            function_name: function_name.as_str(),
+                            block_id: block_id.as_u32(),
+                            instruction_index: instruction_index as u32,
+                            site_id: site_id.0,
+                            kind: *kind,
+                            dst: *dst,
+                            receiver: *receiver,
+                            index: *index,
+                            value: *value,
+                        });
+                        continue;
+                    }
+
                     let (dst, func, callee, args, canonical_call) = match instruction {
                         MirInstruction::Call(call) => (
                             call.dst,
@@ -320,11 +412,13 @@ impl<'module> PublishedMirBackendView<'module> {
                 static_method_calls,
                 free_function_calls,
                 builtin_print_calls,
+                array_element_writes,
             });
         }
         if static_method_calls.is_empty()
             && free_function_calls.is_empty()
             && builtin_print_calls.is_empty()
+            && array_element_writes.is_empty()
         {
             return Ok(Self {
                 module,
@@ -332,6 +426,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 static_method_calls,
                 free_function_calls,
                 builtin_print_calls,
+                array_element_writes,
             });
         }
         Ok(Self {
@@ -340,6 +435,7 @@ impl<'module> PublishedMirBackendView<'module> {
             static_method_calls,
             free_function_calls,
             builtin_print_calls,
+            array_element_writes,
         })
     }
 
@@ -357,6 +453,10 @@ impl<'module> PublishedMirBackendView<'module> {
 
     pub(crate) fn builtin_print_calls(&self) -> &[PublishedBuiltinPrintCallRef<'module>] {
         &self.builtin_print_calls
+    }
+
+    pub(crate) fn array_element_writes(&self) -> &[PublishedArrayElementWriteRef<'module>] {
+        &self.array_element_writes
     }
 
     /// Borrow the one published physical definition for an already-selected

@@ -126,6 +126,17 @@
                     &field_slot)) {
               needs.typed_object = 1;
             }
+          } else if (strcmp(op, "array_element_write") == 0) {
+            const char* write_kind = read_str(ins, "kind");
+            if (write_kind &&
+                (!strcmp(write_kind, "literal_append") ||
+                 !strcmp(write_kind, "push"))) {
+              needs.arr_push = 1;
+            } else if (write_kind &&
+                       (!strcmp(write_kind, "set") ||
+                        !strcmp(write_kind, "insert"))) {
+              needs.arr_set = 1;
+            }
           } else if (strcmp(op, "field_get")==0) {
             long long dst = read_int(ins, "dst");
             long long box_reg = read_int(ins, "box");
@@ -633,6 +644,8 @@
         fprintf(f, "declare i64 @\"nyash.array.set_his\"(i64, i64, i64)\n");
       if (needs.arr_set || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.array.slot_store_hii\"(i64, i64, i64)\n");
+      if (needs.arr_set || module_has_planned_same_module_function_definition())
+        fprintf(f, "declare i64 @\"nyash.array.slot_insert_hih\"(i64, i64, i64)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
         fprintf(f, "declare i64 @\"nyash.array.kernel_slot_store_hi\"(i64, i64, ptr)\n");
       if (needs.arr_set && (needs.string_concat || needs.string_substring || needs.arr_get || needs.arr_string_indexof || needs.arr_kernel_slot_concat_by_index))
