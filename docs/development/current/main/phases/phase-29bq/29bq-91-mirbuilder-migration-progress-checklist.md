@@ -102,7 +102,7 @@ Related:
 - [x] quick + `phase29bq_fast_gate_vm.sh --only bq` が green のときだけ、移植進捗のチェックを更新する。
 - [x] mirbuilder hostbridge deny check: `bash tools/checks/hako_mirbuilder_no_hostbridge.sh`
 - [x] Program JSON contract pin: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh`（Print / Expr(Call) / If / Loop）
-- 2026-09-05 correction: phase13/15/18 Return(Call) scripts are parked dependency evidence, not current Stage1 acceptance or active quick-suite entries.
+- 2026-09-05 correction: phase13/15/18 Return(Call) scripts are invalid Stage1 acceptance, absent from the quick suite, and queued for RetireFromTree.
 - [x] Loop pin: `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase11_min_vm.sh`
 - [x] MIR instruction pin (`Return(NewBox)` minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh`
 - [x] MIR instruction pin (`Return(Call id())` minimal): `bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase13_return_call_id0_min_vm.sh`

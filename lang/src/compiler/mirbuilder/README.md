@@ -165,7 +165,7 @@ Guard rails (CI / fast gate):
   - Contract: `Return(NewBox)` one-arg widening accepts `new StringBox("abc")` only.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase17_return_boxcall_stringbox_indexof_b_abc_min_vm.sh`
   - Contract: `Return(BoxCall)` one-arg widening accepts `new StringBox("abc").indexOf("b")` only.
-  - The phase13/15/18 `Return(Call)` scripts and fixtures are parked dependency evidence, not active quick-suite acceptance: their selected call is in `Main.body`, not `defs`, and the route stops at an earlier static-call terminal.
+  - The phase13/15/18 `Return(Call)` scripts are invalid Stage1 acceptance: their selected call is in `Main.body`, not `defs`, and the route stops at an earlier static-call terminal. They are absent from this quick suite but remain default-directory-discovered until the queued six-file RetireFromTree repayment.
   - `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase19_load_local_var_min_vm.sh`
   - Contract: Load minimal accepts `Local(Int)>Local(Var)>Return(Var)` and emits `load/store` in MIR JSON v0.
   - Next lane SSOT (Load/Store docs-first):

@@ -389,9 +389,13 @@ Workers are a bounded review resource, not a second implementation stream.
   policy. It is not authorized by independent T0 work and must not be
   improvised in a shared worktree.
 
-- Use a worker for difficult design/authority or independent premise review;
-  mechanical T0 work does not need one. Ask read-only about authority,
-  non-authority, boundary, fail-fast, non-claims, and acceptance; no shared edits.
+- For difficult design/authority work, start with one read-only premise worker
+  that verifies the claimed owner, caller, selected boundary, and acceptance
+  evidence actually exist; mechanical T0 work needs no worker.
+- Do not fan out before that result. Only a concrete contradiction or named
+  independent uncertainty may open a second non-overlapping specialist audit
+  within the two-worker limit. Ask about authority, non-authority, boundary,
+  fail-fast, non-claims, and acceptance; no shared edits.
 - For a new semantic receipt, the worker must also audit issuer availability
   and distinguish semantic facts from physical MIR projections. A worker may
   report that an issuer is missing, but that report never authorizes a guessed
@@ -496,6 +500,21 @@ receipt names the positive path, the negative or rejection boundary, the
 reusable guard, the README/reference update when a contract changed, the
 commit, and the next blocker. Missing evidence keeps the row active; it does
 not justify a deeper task suffix.
+
+### Selected-boundary evidence and parked smoke
+
+Acceptance evidence must execute the selected owner-to-terminal boundary. A
+smoke stopped at an earlier named terminal is dependency evidence only: it
+cannot pass, fail, or reopen the downstream row, and its fixture must not be
+modified merely to bypass the earlier terminal.
+
+A parked smoke must not remain in default or required test discovery. Before
+parking it, enumerate direct callers, manifests, aggregate suites, and
+directory-discovery callers. If it owns no unique live invariant, retire the
+smoke and its exclusive fixture from the tree; otherwise place it behind one
+explicit non-default owner and record an observable reopen trigger. Removing
+it from one aggregate suite alone is not isolation. Git owns reproducible
+retired detail; do not copy the body into a tracked archive.
 
 ### Baseline-red classification
 

@@ -191,16 +191,18 @@ the singleton rewrite code is gone, and early-phi/JSON classification remain
 unchanged. Stage1's ReturnCall writer/name/arity path was removed at
 `99b4446cab`, but the selected defs boundary has no executable acceptance: the
 three old smokes neither contain that defs writer nor pass the earlier static
-terminal. They are parked dependency evidence and the cohort is
+terminal. The semantic cohort is
 `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; do not
-restore its writer, add a test-only seam, or call it landed. The next exact leaf
-is `mir_json_v0_call_ingress_stop`: stop both call spellings in the one shared
-Rust MIR JSON-v0 dispatch before LegacyCallV0 publication, then delete the
-caller-zero call/catalog parsers and call-only tests. The final-pipeline SSOT
-owns its terminal, delete-set, acceptance, and exclusions. Remaining
-MIR-to-JoinIR and selected-C/Hako internals stay family-local `ParkedSealed`.
-R7 opens only after production writers, reissuers, readers, compatibility
-re-entry, and fallback are zero.
+restore its writer, add a test-only seam, or call it landed. The scripts are
+still default-directory-discovered, so their three exclusive fixtures and
+scripts (6 files/189 lines) are queued for RetireFromTree after the active
+`mir_json_v0_call_ingress_stop`. That active leaf stops both call spellings in
+the shared Rust MIR JSON-v0 dispatch, then deletes the caller-zero call/catalog
+parsers and call-only tests. Its closeout also compacts the 1,000-line active
+card toward 900 lines using hash-plus-one-line tombstones. Only a future
+unchanged route reaching `FuncLoweringBox` may reopen terminal ownership and
+predicate naming; caller-zero deletes that owner instead. Remaining families
+stay local `ParkedSealed`; R7 waits for all legacy callers to reach zero.
 
 ### S-class gate coverage (navigation only)
 

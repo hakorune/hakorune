@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-09-04
+Date: 2026-09-05
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -24,19 +24,12 @@ Related:
 
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
-- **Current implementation status:** the typed publication spine is landed for
-  StaticBoxMethod, FreeStatic, FreeFunction, Builtin Print, and one root-lexical
-  DeclaredInstance source family. The exact key survives Atomic Publish and the
-  selected static/free/Print backend rows are typed. Group A now separates the
-  canonical `Call(MirCall)` shape from the explicit `LegacyCallV0` outer shape;
-  broad compatibility consumers remain reachable, and Hako has no borrow-only
-  published-view ingress for SameModuleInstance. R6 Group B's VM canonical
-  Print reader is landed; the post-Group-B census found no single next reader
-  family with a complete cutover tuple.
-- **Latest bounded work:** the fixed baseline is stable at
-  `7555/7393/133/29` after retiring 15 bridge-only tests. A current-HEAD worker audit selected three finite
-  reduction cohorts: caller-zero Structured JoinIR -> MIR reference bridge,
-  unreachable WASM P10 legacy shapes, then raw-indirect unified-off Stop.
+- **Current implementation status:** canonical `Call(MirCall)` is separated
+  from explicit `LegacyCallV0`; the M7-S owner-local Stop/Delete queue is active.
+  Stage1 writer removal is landed but its acceptance is parked; shared Rust MIR
+  JSON-v0 call ingress is the selected Stop.
+- **Latest bounded work:** fixed baseline `7555/7393/133/29`; next closeout
+  deletes the JSON-v0 call/catalog owners, then repays six invalid Stage1 assets.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -131,44 +124,18 @@ MirBuilderを移す方法である。replacement cellやstructural measurements�
 
 ## Current convergence spine
 
-現在のCall seamは全体pipelineから独立した第二roadmapではない。`Resolve`
-から`Lower`へauthorityを一方向にするための、次の直列 prerequisite である。
+The sole semantic order is `Resolve -> Observe -> Facts -> Recipe -> Verify ->
+Lower -> Seal -> Collect -> Atomic Publish`. Call completion is its current
+projection, not a second roadmap:
 
 ```text
-typed Global target family / issuer Decision
-  -> reusable ingress lifecycle guard
-  -> shared-runner Wpre profile/root/decoder contract
-  -> finite explicit-CLI arbitration and outside-fate closure
-  -> reference child isolation and CoreDirect typed terminal policy
-  -> force-hv1 finite census and selected retirement
-  -> strict recursive root owner and by-value decoder seams
-  -> strict one-shot schema selection with invalid-v1 retry = 0
-  -> MirCall/CallFlags transport retirement
-  -> source-owned effect authority for every promoted target family
-  -> preserve exact free/static/import/compatibility target relations
-  -> JoinIR declaration co-seal and false GC Global retirement
-  -> observer-only FunctionCall completion contract and package install gate
-  -> builtin/Extern disposition and finite preflight lineage classification
-  -> package-owned pre-effect site/target disposition
-  -> one affine raw handoff and direct-payload deletion
-  -> exact Method(Some) receiver/argument ABI preservation
-  -> named compatibility late-recovery retirement and overlapping Method(None) retirement
-  -> remaining static/CorePlan/operator producer dispositions
-  -> exact touched-owner shelf and finite current-HEAD B1 census
-  -> typed Global common-core and all compiled-consumer cutover
-  -> remaining wire / construction / selected-terminal closure
-  -> current-HEAD consumer census
-  -> mandatory-Callee Call schema + impossible-state guard retirement
-  -> post-Call integration-hub and source-shelf cleanup
-  -> remaining selected pipeline cutovers
-  -> final repository convergence audit
+M4 mandatory Callee -> M7-S owner-local Stop/Delete -> M7 caller-zero schema
+retirement -> M8 physical thinning -> M9 backend retirement
 ```
 
-Backend retirement is a sibling program, not another semantic pipeline. Only
-CoreDirect and force-hv1 bypass closure precede Wpre. Broad/default Rust route
-retirement, current vm-hako retirement, independent AOT HMI construction, and
-Rust `MirInterpreter` physical deletion follow Call R7 and post-Call integration
-in the order owned by `vm-active-lane-retirement-ssot.md`.
+Backend migration is a post-R6 sibling. It cannot reissue source meaning or
+delay stopping an unsupported legacy reader; its detailed order remains in
+`vm-active-lane-retirement-ssot.md`.
 
 ## Call completion and retirement program (2026-09-03)
 
@@ -396,40 +363,12 @@ The following are one dependency program, not simultaneously active cards.
 
 #### V0 — reuse `DEV-GATE-LIB-BASELINE-REFRESH-R0` in reconcile mode
 
-This is a finite verification incident, not a baseline acceptance. The current
-fixed-command observation after the bounded reader repair, caller-zero test
-retirement, typed proof test addition, and JoinIR bridge retirement is `7555 total`, `7393/133/29`;
-the earlier `7580/7418/133/29` observation and prior `7411/138/29` receipt are
-historical. The current-minus-prior failure-name comparison has **zero added
-names**. The checked-in baseline manifest and `CURRENT_STATE.toml` are the
-current inventory authority; historical receipts remain in Git history.
-
-The exact, non-overlapping repair order is: `V0-R1` builder
-publication/readers (30), `V0-R2` JoinIR canonical Print assertion (1),
-`V0-R3` optimizer/canonicalizers (4), `V0-R4` string-corridor sink readers
-(17), and `V0-R5` string relation/dead-region readers (3). `V0-R1` contains
-the sole production regression: `builder_emit.rs` stopped rejecting canonical
-`Method { receiver: None }` before publication when its guard moved to
-`LegacyCallV0`. Its other 29 failures are reader/assertion repairs, including
-the preserved four-owner patch. `V0-R2` remains canonical because
-`ssot::extern_call` emits `Call(MirCall)`; `V0-R3` keeps legacy inputs but
-expects canonical rewrite output. `V0-R4/R5` repair existing readers before
-retargeting assertions; legacy fixtures remain only for compatibility ingress.
-
-The five named repair cohorts have now completed in the existing
-`DEV-GATE-LIB-BASELINE-REFRESH-R0`; no health row, receipt, or per-cohort guard
-was created. The fixed command remains stable at the current manifest value
-`7555/7393/133/29` with zero new failure names. The 2026-09-01 row is closed
-as `stopped_later_quick_red` with implementation permission false, and the
-repair is recorded at `917a078c6c`. The JSON-v1 Stop cohort is now landed with
-its five call-like writers caller-zero; the earlier 7580-test observation is
-retained only as historical receipt lineage.
-
-Acceptance for this bounded repair is zero added failure names under the fixed
-runner, with the prior 138-name receipt preserved in Git history and the
-successor receipt accepted after explicit reconciliation. No semantic,
-BoxShape, performance, or test-retirement work is implied; the separately
-selected JSON-v1 compatibility Stop is recorded below.
+Closed tombstone: `917a078c6c` reconciled the five existing repair cohorts
+without a new health row/guard/receipt; `c2681307dd` fixed the successor
+baseline authority. The checked-in manifest and `CURRENT_STATE.toml` now own
+`7555/7393/133/29` and the fixed failure-name set. Earlier observations and
+per-cohort detail remain in Git. This closed incident authorizes no semantic,
+BoxShape, performance, or test-retirement work.
 
 #### M4 — `MIR-CALL-MANDATORY-CALLEE-R6`
 
@@ -511,6 +450,7 @@ cohort is parked and its upstream-blocked smokes are dependency evidence only.
 | 4 landed | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | landed at `24ece062bb`; reject before parse/publication/backend; methodize reissuer 0, singleton/phi unchanged |
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 active | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> `call.rs`/`catalog.rs` LegacyCallV0 writer | exact pre-publication terminal; delete call/catalog owners and call-only tests; preserve boxcall/externcall/NewBox/non-call |
+| 7 queued | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery still reaches them | after row 6, RetireFromTree with stale quick/checklist paths; Git owns detail; new test/guard/receipt=0 |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
@@ -521,6 +461,7 @@ repository.
 
 ```text
 shared JSON-v0 Call ingress Stop
+  -> Stage1 invalid smoke/fixture repayment
   -> ArrayElementWrite legacy projection cutover/Stop
   -> remaining MIR-to-JoinIR legacy readers retire
   -> M7 caller-zero schema deletion
@@ -530,6 +471,12 @@ The tail opens one owner at a time only after its predecessor exposes one real
 caller and finite delete-set. JSON v0, the remaining active MIR-to-JoinIR
 reader, and selected-C/Hako shared compatibility otherwise stay family-local
 `ParkedSealed`; do not repeat the broad census.
+
+Stage1 terminal ownership and predicate naming are reopen-only repayment. If an
+unchanged route reaches `FuncLoweringBox`, its selected branch emits the existing
+tag, the outer gate only propagates, and `_has_return_call` is renamed to its
+retired-writer-candidate meaning without narrowing behavior; otherwise a
+caller-zero Stage1 owner is deleted instead. No test seam or fallback is added.
 
 Landed reader-stop/delete detail remains in Git. The closed families include
 WASM Global/Extern/Method, VM Global/Value/Method, JSON-v1 call-like writers,
@@ -598,8 +545,8 @@ For each family cutover:
 2. quarantine compatibility tests while a public compatibility caller lives;
 3. delete caller-zero private tests, fixtures, adapters, and guards;
 4. retire an old guard only when an equal-or-stronger lane guard owns the rule;
-5. compact closed docs to hash plus one-line outcome; do not copy an archive
-   into the tracked tree;
+5. at row-6 closeout, compact closed docs to hash plus one-line outcome and
+   restore task-local headroom toward 900 lines; do not copy a tracked archive;
 6. record tracked files/lines and old-edge delta before choosing the next
    family.
 
@@ -609,40 +556,13 @@ named; unclassified new red blocks the cutover.
 ### Closed history tombstones
 
 ```text
-M1/M2:
-  finite producer/consumer census and family disposition closed on 2026-09-03;
-  no unclassified production owner was found inside the stated boundary.
-
-M3-A:
-  canonical UnifiedCallEmitter core has no env read or legacy emission call;
-  outer compatibility remains explicit.
-
-M3-B/M3-C:
-  ordinary-new and JoinIR/JSON multi-owner families are ParkedSealed; no new
-  adapter or receipt was admitted.
-
-R6 Group A:
-  canonical Call(MirCall) and LegacyCallV0 are separate instruction shapes.
-
-R6 Group B:
-  VM consumes canonical Builtin(Print); wrong arity/non-Print fail closed.
-MIR-CALL-R6-POST-GROUP-B-READER-CENSUS-C0:
-  NoSafeSlice__NoSingleRemainingCanonicalReaderFamily.
-
-R6 schema readiness (worker-audited 2026-09-03):
-  NoSafeSlice__CallSchemaHasMultipleProductionIngressesAndLegacyReaders;
-  canonical MirCall is ready, but LegacyCallV0 has multiple shared ingress,
-  reader, serializer, and reissuer owners. Do not repeat the census, add
-  CallV2/receipt/guard, or remove one legacy field in isolation.
-  Scheduler rule: NoSafeSlice is family-local, not repository-global.
-  Promote only with one source issuer, lossless consumer, caller, terminal,
-  and exclusive delete-set; Stop a compatibility reader only with the same
-  finite proof; Delete only at caller-zero; otherwise ParkedSealed.
-  The former aggregate families were decomposed at their outer boundaries.
-  M7-S now owns a finite Delete/Delete/Stop/Stop queue beginning with the
-  caller-zero duplicate direct-MIR JSON reader. Shared JSON v0, remaining
-  MIR-to-JoinIR, and selected-C/Hako internals remain ParkedSealed beyond those
-  named leaves. Open R7 only after every production legacy caller reaches zero.
+09149c0e88 — M1/M2 finite census and disposition closed.
+474e8518b0/d7905cc70e — M3-A fallback fence landed; outer compatibility only.
+754a06e7a2 — M3-B/C multi-owner families remain ParkedSealed.
+45c6759962/dd8f33e013 — R6 Group A split canonical and legacy instruction shapes.
+cce62db090/bb41e2e880 — R6 Group B installed the VM typed Print consumer.
+92ed65334f — post-Group-B census found no single complete canonical reader tuple.
+c214608280/b49087e91f — NoSafeSlice became family-local and M7-S owns finite Stop/Delete.
 ```
 
 The exact landed commits and command receipts remain in Git and

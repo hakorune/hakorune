@@ -18,7 +18,7 @@ DeclaredInstance me.method now has root-lexical source/catalog/receiver vertical
 landed; selected-C arbitrary UserBox remains a separate design stop.
 Do not mix Method(None), Resolved, Call-schema, VM/backend, fallback, retry, or semantic-family widening into verification-only rows.
 """
-guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. On success advance the finite Delete/Delete/Stop/Stop queue; R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
+guard_followup = "Use the generic M7-S parent guard; cohort semantics belong to source tests and the implementation diff. Add no per-cohort card/dispatcher/guard/receipt. After the active JSON-v0 Stop, compact the active card and RetireFromTree the six invalid Stage1 smoke/fixture assets before selecting another semantic family. R7 opens only when production writers/reissuers/readers/re-entry/fallback are zero."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder Call completion and legacy retirement"
@@ -41,7 +41,9 @@ singleton aliases fail before JSON mutation while early-phi and JSON
 classification remain unchanged. Stage1's retired ReturnCall writer and its
 name/arity repair were removed at 99b4446cab, but its three former runtime
 smokes never contain the selected defs writer and stop at an earlier static
-terminal; they are parked dependency evidence, not acceptance. That cohort is
+terminal, so they are not acceptance. They remain visible to default directory
+discovery and are queued for six-file/189-line RetireFromTree immediately after
+the active JSON-v0 Stop. The semantic cohort stays
 ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The next
 finite Stop is the shared Rust MIR JSON-v0 call ingress: one dispatch owner,
 one typed pre-publication terminal, and a caller-zero call/catalog delete-set.
@@ -66,7 +68,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-05: Stage1 ReturnCall writer removal remains landed at 99b4446cab, while the cohort is ParkedSealed because no executable acceptance reaches FuncLoweringBox; three upstream-blocked smokes were removed from the active quick bundle but retained as dependency evidence, and no authority/guard/receipt was added.",
+  "2026-09-05: Stage1 ReturnCall writer removal remains landed at 99b4446cab, while the cohort is ParkedSealed because no executable acceptance reaches FuncLoweringBox; three invalid smokes left the quick bundle but remain default-directory-discovered, so their six files/189 lines are queued for RetireFromTree after the active JSON-v0 Stop.",
   "2026-09-04: M7-S singleton name/args[0] reissuer Stop landed at 01a1a6bc83; retired singleton aliases fail before JSON mutation, singleton rewrite code and caller-zero env accessor were deleted, early-phi remains unchanged, and fixed baseline/guards remain green.",
   "2026-09-04: M7-S raw-indirect unified-off Stop landed at e31567bf06; OFF rejects before child descent/MIR mutation, ON emits typed Callee::Value, the old LegacyCallV0 writer is gone, and JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako compatibility remain ParkedSealed.",
 ]

@@ -94,7 +94,7 @@ Related:
     - fixture: `apps/tests/phase29bq_selfhost_funcscanner_lambda_literal_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/selfhost/phase29bq_selfhost_stageb_lambda_literal_pair_min_vm.sh`
 - [x] MIR instruction widening baseline（MIW1-7 + LS0-2 完了）
-  - 2026-09-05 correction: MIW2/4/7 are historical shape records only; their scripts are parked dependency evidence and are not current Stage1 acceptance or quick-suite entries.
+  - 2026-09-05 correction: MIW2/4/7 are historical shape records only; their invalid Stage1 scripts are not quick-suite acceptance and await the queued RetireFromTree repayment.
   - [x] MIW1: `Return(NewBox)` 最小受理（`args=[]` のみ）
     - fixture: `apps/tests/phase29bq_hako_mirbuilder_phase12_return_newbox_min.hako`
     - pin: `tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_mirbuilder_phase12_return_newbox_min_vm.sh`
