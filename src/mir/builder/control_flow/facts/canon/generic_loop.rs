@@ -1,7 +1,7 @@
 //! Facts-side owner for generic-loop canon helpers.
 //!
 //! Condition/update canon types and related analysis-only helpers are owned
-//! here. Plan-owned placement decisions stay under `plan::canon::generic_loop`.
+//! here. Placement decisions are owned by `generic_loop_canon` as well.
 
 pub(in crate::mir::builder) mod condition;
 pub(in crate::mir::builder) mod step;

@@ -16,7 +16,7 @@ This is **analysis-only** (no rewrite, no semantic change).
 ## 1) Entry Observations (SSOT)
 
 ### A. ConditionCanon (loop_var candidates)
-- Location: `src/mir/builder/control_flow/plan/canon/generic_loop/condition.rs`
+- Location: `src/mir/builder/control_flow/generic_loop_canon/condition/`
 - Role: extract loop_var candidates and step compatibility for generic_loop (v0/v1).
 - Rule: loop_var candidates **must** come from this layer only.
 

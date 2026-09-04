@@ -141,7 +141,7 @@ Rejected bypasses:
 
 ## Notes (avoid box explosion)
 
-- Canon (analysis-only) lives in `src/mir/builder/control_flow/plan/canon/` (phase-29bq migration; legacy layouts remain in box folders).
+- Canon (analysis-only) lives in `src/mir/builder/control_flow/generic_loop_canon/`; the former plan-side forwarding shelf is retired.
 - Skeletons (blocks/frags) live in `src/mir/builder/control_flow/plan/skeletons/`.
 - Features (delta apply) live in `src/mir/builder/control_flow/plan/features/`.
 - `generic_loop_v0/v1`: skeleton=`plan/skeletons/generic_loop.rs`, pipeline=`plan/features/generic_loop_pipeline.rs` (body=`features/generic_loop_body.rs` → cond=`features/generic_loop_step.rs::apply_generic_loop_condition` (pre-body map) → step=`features/generic_loop_step.rs::apply_generic_loop_step` (post-body map) → carriers finalize[v1]).

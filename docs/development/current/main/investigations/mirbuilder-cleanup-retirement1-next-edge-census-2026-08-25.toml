@@ -4,7 +4,7 @@ observed_at = "2026-08-26"
 observed_commit = "f659d3f941"
 implementation_permission = false
 scheduler_row = "MIRBUILDER-T3-CLEANUP-R0"
-next_execution = "MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0"
+next_execution = "none__return_to_family_local_r6_census"
 decision = "MIRBUILDER-CLEANUP-RETIREMENT1-NEXT-EDGE-CENSUS-D0"
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
 followup_census = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
@@ -250,6 +250,62 @@ allowed_files = [
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
 ]
 
+[[candidate]]
+id = "MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0"
+status = "landed"
+kind = "caller_zero_forwarding_shelf_retirement"
+implementation_permission = false
+base_head = "9fcb69e2b9"
+scope = "src/mir/builder/control_flow/plan/canon/** plus plan/mod.rs registration and current owner pointers"
+source_authority = "The Rust module graph and exact current-HEAD caller census; generic_loop_canon/** is the direct canon owner and the old shelf only re-exports or forwards."
+canonical_issuer = "generic_loop_canon/** remains the sole canon owner; this row issues no semantic product and only removes a disconnected path."
+old_edge = "The private plan/canon forwarding shelf and plan/mod.rs registration preserve a caller-zero duplicate namespace after imports moved to generic_loop_canon/**."
+delete_set = [
+  "src/mir/builder/control_flow/plan/canon/** (8 forwarding files)",
+  "plan/mod.rs Layer 2 canon module registration",
+  "current owner prose that names plan/canon as live",
+]
+retarget_set = [
+  "facts/extractors/mod.rs compatibility comment",
+  "facts/canon/generic_loop.rs placement-owner comment",
+  "plan/REGISTRY.md canon owner note",
+  "plan/generic_loop/README.md canon SSOT paths",
+  "control_flow/FOLDERIZATION_MAP.md facade and move notes",
+  "generic_loop_canon/README.md compatibility list",
+  "design/condition-observation-ssot.md ConditionCanon location",
+]
+acceptance = [
+  "all eight old files and the plan/mod.rs registration are absent",
+  "generic_loop_canon/** remains the direct owner and all Rust/tool callers of plan::canon are zero",
+  "current owner documentation names generic_loop_canon/**; historical investigation records remain untouched",
+  "focused generic-loop tests and existing pointer, active-surface, lifecycle, and diff checks are green",
+  "source line delta is negative; no test deletion, new guard, receipt, adapter, visibility widening, or baseline refresh",
+]
+implementation_evidence = "Landed in the closeout commit: read-only worker rechecked caller-zero at the base HEAD; all eight forwarding files and plan/mod.rs registration were removed; generic_loop_canon focused tests passed 5/5; pointer, active-surface, lifecycle, and diff checks stayed green; no semantic Call/test/baseline delta."
+landed_commit = "same commit as this closeout"
+non_claims = ["no generic_loop_canon owner change", "no facts/canon facade retirement", "no production loop semantic change", "no Call R6/R7 progress"]
+allowed_files = [
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/development/current/main/design/condition-observation-ssot.md",
+  "src/mir/builder/control_flow/plan/canon/README.md",
+  "src/mir/builder/control_flow/plan/canon/generic_loop.rs",
+  "src/mir/builder/control_flow/plan/canon/generic_loop/condition.rs",
+  "src/mir/builder/control_flow/plan/canon/generic_loop/step.rs",
+  "src/mir/builder/control_flow/plan/canon/generic_loop/step/placement.rs",
+  "src/mir/builder/control_flow/plan/canon/generic_loop/step/placement/decision.rs",
+  "src/mir/builder/control_flow/plan/canon/generic_loop/types.rs",
+  "src/mir/builder/control_flow/plan/canon/mod.rs",
+  "src/mir/builder/control_flow/plan/mod.rs",
+  "src/mir/builder/control_flow/facts/extractors/mod.rs",
+  "src/mir/builder/control_flow/facts/canon/generic_loop.rs",
+  "src/mir/builder/control_flow/plan/REGISTRY.md",
+  "src/mir/builder/control_flow/plan/generic_loop/README.md",
+  "src/mir/builder/control_flow/FOLDERIZATION_MAP.md",
+  "src/mir/builder/control_flow/generic_loop_canon/README.md",
+  "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
+]
 [candidate.line_budget_split_map]
 raw_invocation_source_transport = "landed_noop__0bd6732792__mod_rs_57__max_child_408"
 normal_script_direct_statement_owner = "selected_boxshape_t0__keep_tests_module_path__ordinary_tests_child"

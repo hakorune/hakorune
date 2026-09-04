@@ -17,6 +17,18 @@ T3_CLEANUP_MANIFEST = Path(
     "docs/development/current/main/investigations/"
     "mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 )
+T3_PLAN_CANON_COHORT = "plan_canon_facade"
+T3_PLAN_CANON_TASK = "MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0"
+T3_PLAN_CANON_FILES = (
+    "src/mir/builder/control_flow/plan/canon/README.md",
+    "src/mir/builder/control_flow/plan/canon/generic_loop.rs",
+    "src/mir/builder/control_flow/plan/canon/generic_loop/condition.rs",
+    "src/mir/builder/control_flow/plan/canon/generic_loop/step.rs",
+    "src/mir/builder/control_flow/plan/canon/generic_loop/step/placement.rs",
+    "src/mir/builder/control_flow/plan/canon/generic_loop/step/placement/decision.rs",
+    "src/mir/builder/control_flow/plan/canon/generic_loop/types.rs",
+    "src/mir/builder/control_flow/plan/canon/mod.rs",
+)
 LEGACY_PHI_CANDIDATE_ROW = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
 LEGACY_PHI_CANDIDATE_FILES = (
     "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs",
@@ -139,7 +151,8 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
         api.fail(f"{T3_CLEANUP_ROW} must be fast or closeout")
     if state.get("current_execution_row") != T3_CLEANUP_ROW:
         api.fail(f"{T3_CLEANUP_ROW} pointer row drifted")
-    if state.get("current_execution_cohort") != T3_CLEANUP_COHORT:
+    cohort = state.get("current_execution_cohort")
+    if cohort not in {T3_CLEANUP_COHORT, T3_PLAN_CANON_COHORT}:
         api.fail(f"{T3_CLEANUP_ROW} cohort drifted")
     if state.get("current_design_stop") != "none":
         api.fail(f"{T3_CLEANUP_ROW} must clear current_design_stop")
@@ -151,7 +164,6 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
         if state.get(key) != manifest_rel:
             api.fail(f"{T3_CLEANUP_ROW} {key} drifted")
     next_card = state.get("next_execution_card")
-    task_id = "MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0"
     if mode == "fast" and next_card != T3_CLEANUP_ROW:
         api.fail(f"{T3_CLEANUP_ROW} fast next_execution_card drifted")
     if mode == "closeout" and next_card != "none":
@@ -161,6 +173,11 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
 
     with (root / T3_CLEANUP_MANIFEST).open("rb") as handle:
         manifest = tomllib.load(handle)
+    task_id = (
+        "MIRBUILDER-ROUTE-SELECTION-TEST-FACADE-R0"
+        if cohort == T3_CLEANUP_COHORT
+        else T3_PLAN_CANON_TASK
+    )
     rows = [row for row in manifest.get("candidate", []) if row.get("id") == task_id]
     if len(rows) != 1:
         api.fail(f"{T3_CLEANUP_ROW} manifest candidate is missing or duplicated")
@@ -171,13 +188,19 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
     if row.get("implementation_permission") is not (mode == "fast"):
         api.fail(f"{T3_CLEANUP_ROW} implementation permission drifted")
 
-    source_rel = "src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs"
-    source = root / source_rel
-    if not source.is_file() or sum(1 for _ in source.open(encoding="utf-8")) >= 800:
-        api.fail(f"{T3_CLEANUP_ROW} source owner missing or reached 800 lines")
-    present = "selection_for_test" in source.read_text(encoding="utf-8")
-    if present is not (mode == "fast"):
-        api.fail(f"{T3_CLEANUP_ROW} selected helper presence does not match mode")
+    if cohort == T3_CLEANUP_COHORT:
+        source_rel = "src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs"
+        source = root / source_rel
+        if not source.is_file() or sum(1 for _ in source.open(encoding="utf-8")) >= 800:
+            api.fail(f"{T3_CLEANUP_ROW} source owner missing or reached 800 lines")
+        present = "selection_for_test" in source.read_text(encoding="utf-8")
+        if present is not (mode == "fast"):
+            api.fail(f"{T3_CLEANUP_ROW} selected helper presence does not match mode")
+    else:
+        for source_rel in T3_PLAN_CANON_FILES:
+            present = (root / source_rel).is_file()
+            if present is not (mode == "fast"):
+                api.fail(f"{T3_CLEANUP_ROW} plan/canon file presence drifted: {source_rel}")
 
     base = row.get("base_head")
     if not isinstance(base, str) or not base:
@@ -208,7 +231,7 @@ def check_t3_cleanup(state: dict, root: Path, api) -> None:
         delta += int(added) - int(deleted)
     if delta > 0:
         api.fail(f"{T3_CLEANUP_ROW} src line delta is positive: {delta}")
-    print(f"[{api.TAG}] row={T3_CLEANUP_ROW} cohort={T3_CLEANUP_COHORT} delta={delta}")
+    print(f"[{api.TAG}] row={T3_CLEANUP_ROW} cohort={cohort} delta={delta}")
 
 
 def check_legacy_phi_candidate_retire_r0(state: dict, root: Path, api) -> None:

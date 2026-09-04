@@ -206,9 +206,12 @@ shape island, and raw-indirect unified-off legacy writer are retired/stopped.
 The remaining Call families have no exact action tuple and stay family-local
 ParkedSealed. The caller-zero
 `RecipeFirstRouteSelectionV1::selection_for_test` T3 cleanup is landed with
-focused registry tests 175/175 green and src delta -9. The next selected work
-is the private `plan/canon/**` forwarding-shelf retirement. Neither is R6/R7
-progress; the cleanup task map owns their exact boundaries.
+focused registry tests 175/175 green and src delta -9. The private
+`plan/canon/**` forwarding-shelf retirement is also landed: eight forwarding
+files and the module registration were removed, `generic_loop_canon/**`
+remains the sole owner, and focused generic-loop tests are 5/5 green. Neither
+cleanup is R6/R7 progress; no additional pre-R7 cleanup candidate is selected
+until a finite Promote/Stop/Delete tuple appears.
 
 ### S-class gate coverage (navigation only)
 

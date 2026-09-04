@@ -67,7 +67,7 @@ landed 2026-06-13
 initial owner: src/mir/builder/control_flow/step_placement/
 current owner: src/mir/builder/control_flow/generic_loop_canon/step_placement/
 old facts path: facts/canon/generic_loop/step/placement remains facade
-old plan path: plan/canon/generic_loop/step/placement remains facade
+old plan path: plan/canon/generic_loop/step/placement was a facade and is retired
 ```
 
 Follow-up pilot:
@@ -109,7 +109,7 @@ Facade import migration:
 ```text
 landed 2026-06-13
 generic_loop_canon is the direct owner for canon functions and canon types
-facts/canon/generic_loop** and plan/canon/generic_loop** remain compatibility facades
+facts/canon/generic_loop** remains the only compatibility facade; plan/canon/generic_loop** is retired
 new generic-loop consumers should import generic_loop_canon directly
 ```
 
@@ -117,9 +117,9 @@ Facade quarantine rule:
 
 ```text
 landed 2026-06-13
-old generic-loop facts/plan canon paths may re-export generic_loop_canon only
+old generic-loop facts canon paths may re-export generic_loop_canon only
 do not add new consumers of the old paths
-do not delete the old paths without a separate retire card and targeted gate
+the plan/canon paths were deleted by MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0
 ```
 
 Thin mod.rs pilot:
@@ -146,7 +146,6 @@ run targeted planner/facts tests
 
 - move first:
   - `plan/facts`
-  - `plan/canon`
   - `plan/extractors`
   - `plan/route_shape_recognizers`
 - rationale:

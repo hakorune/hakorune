@@ -35,17 +35,18 @@ step_placement/:
 
 ## Compatibility
 
-Older deep paths remain facades while imports migrate:
+The remaining older deep facts paths are facades while imports stay on the owner:
 
 ```text
 facts/canon/generic_loop/update.rs
 facts/canon/generic_loop/condition.rs
 facts/canon/generic_loop/step/extract.rs
 facts/canon/generic_loop/step/placement/matcher.rs
-plan/canon/generic_loop/step/placement/decision.rs
 facts/canon/generic_loop/types.rs
-plan/canon/generic_loop/types.rs
 ```
+
+The former `plan/canon/**` forwarding shelf was retired by
+`MIRBUILDER-PLAN-CANON-FACADE-RETIRE-R0`.
 
 Do not add more top-level `control_flow/` siblings for generic-loop canon
 helpers. Add related helpers under this grouped owner instead.

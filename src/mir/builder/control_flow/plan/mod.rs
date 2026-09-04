@@ -51,11 +51,6 @@ mod normalizer;
 pub(in crate::mir::builder) mod step_mode;
 mod trace;
 
-// Layer 2: Analysis Layer (観測)
-// AST分析のみ、変更なし
-// Phase 29bq P0: Canon (analysis-only view)
-pub(in crate::mir::builder) mod canon;
-
 // Layer 3: Skeleton/Feature Layer (分解スロット)
 // route 形状認識の分解スロット
 // Phase 29bt P0: Skeletons + Features (decomposition slots)
