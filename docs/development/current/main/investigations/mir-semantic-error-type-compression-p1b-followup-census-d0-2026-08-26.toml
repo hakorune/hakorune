@@ -1,8 +1,8 @@
 title = "MIR semantic error transport P1B follow-up child census"
-status = "accepted_design_no_safe_slice"
+status = "accepted_design"
 observed_commit = "183c1418d7"
 observed_at = "2026-08-26"
-implementation_permission = false
+implementation_permission = true
 parent_row = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-2026-08-21.md"
 
 [brief]
@@ -90,7 +90,8 @@ non_claims = ["proof, claim completion, constructor demand, route, receipt, MIR,
 
 [[child]]
 id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C4-CONSTRUCTOR-DEMAND-MANIFEST-I0"
-status = "accepted_but_not_selected"
+status = "fast_open"
+implementation_permission = true
 kind = "bounded_typed_error_candidate"
 boundary = "normal_instance_constructor_demand_manifest.rs::issue_batch and ::validate_exact"
 source_authority = "source batch expectations keyed by (source_id, role); manifest builder and verified manifest own issue/validation"

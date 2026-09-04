@@ -24,8 +24,8 @@ use crate::parser::{
 mod demand_manifest;
 pub(super) use demand_manifest::{
     InstanceConstructorDemandExpectationV1, InstanceConstructorDemandManifestBuilderV1,
-    InstanceConstructorDemandRoleV1, InstanceConstructorDemandTicketV1,
-    VerifiedInstanceConstructorPhysicalDemandManifestV1,
+    InstanceConstructorDemandManifestIssueV1, InstanceConstructorDemandRoleV1,
+    InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
 };
 
 #[derive(Debug)]
@@ -526,23 +526,56 @@ mod tests {
         );
         let mut builder = InstanceConstructorDemandManifestBuilderV1::default();
         builder.issue_batch(&batch).expect("first role ticket");
-        assert_eq!(
+        assert!(matches!(
             builder
                 .issue_batch(&batch)
                 .expect_err("duplicate role ticket"),
+            InstanceConstructorDemandManifestIssueV1::DuplicateTicket
+        ));
+        assert_eq!(
+            InstanceConstructorDemandManifestIssueV1::DuplicateTicket.to_string(),
             "[freeze:contract][mir/instance-constructor-demand/duplicate-ticket]"
         );
 
         let manifest = builder.finish();
+        assert!(manifest
+            .validate_exact(&batch.demand_expectations())
+            .is_ok());
+        assert!(matches!(
+            manifest.validate_exact(&[]).expect_err("count mismatch"),
+            InstanceConstructorDemandManifestIssueV1::CountMismatch
+        ));
+        assert_eq!(
+            InstanceConstructorDemandManifestIssueV1::CountMismatch.to_string(),
+            "[freeze:contract][mir/instance-constructor-demand/count]"
+        );
         let swapped = vec![InstanceConstructorDemandExpectationV1::new(
-            &ConstructorSourceIdV1::test_new(0),
+            batch.sources()[0].source_id(),
             InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
         )];
-        assert_eq!(
+        assert!(matches!(
             manifest
                 .validate_exact(&swapped)
                 .expect_err("swapped role must not satisfy manifest"),
+            InstanceConstructorDemandManifestIssueV1::CoverageMismatch
+        ));
+        assert_eq!(
+            InstanceConstructorDemandManifestIssueV1::CoverageMismatch.to_string(),
             "[freeze:contract][mir/instance-constructor-demand/coverage]"
+        );
+        let foreign = vec![InstanceConstructorDemandExpectationV1::new(
+            &ConstructorSourceIdV1::test_new(1),
+            InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+        )];
+        assert!(matches!(
+            manifest
+                .validate_exact(&foreign)
+                .expect_err("foreign source must not satisfy manifest"),
+            InstanceConstructorDemandManifestIssueV1::ForeignExpectation
+        ));
+        assert_eq!(
+            InstanceConstructorDemandManifestIssueV1::ForeignExpectation.to_string(),
+            "[freeze:contract][mir/instance-constructor-demand/foreign]"
         );
     }
 }

@@ -334,7 +334,9 @@ impl PreparedProgramRootWorkPlanV1 {
         };
         let actual_tickets = collect_constructor_demand_expectations(&immediate, &runtime);
         if let Some(manifest) = constructor_demand_manifest.as_ref() {
-            manifest.validate_exact(&actual_tickets)?;
+            manifest
+                .validate_exact(&actual_tickets)
+                .map_err(|error| error.to_string())?;
         }
         Ok(Self {
             immediate: immediate.into_boxed_slice(),
@@ -391,7 +393,9 @@ fn issue_manifest_for_disposition(
     let mut issue_work = |work: &PreparedProgramRootImmediateWorkV1| {
         if let PreparedProgramRootImmediateWorkV1::InstanceBox(work) = work {
             if let Some(sources) = work.normal_constructor_sources.as_ref() {
-                manifest.issue_batch(sources)?;
+                manifest
+                    .issue_batch(sources)
+                    .map_err(|error| error.to_string())?;
             }
         }
         Ok::<_, String>(())
@@ -400,14 +404,18 @@ fn issue_manifest_for_disposition(
         ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
             issue_work(work)?;
             if let Some(sources) = runtime.constructor_sources.as_ref() {
-                manifest.issue_batch(sources)?;
+                manifest
+                    .issue_batch(sources)
+                    .map_err(|error| error.to_string())?;
             }
         }
         ProgramRootStatementDispositionV1::ImmediateOnly(work) => issue_work(work)?,
         ProgramRootStatementDispositionV1::DeferredAndRuntime { runtime, .. }
         | ProgramRootStatementDispositionV1::RuntimeOnly(runtime) => {
             if let Some(sources) = runtime.constructor_sources.as_ref() {
-                manifest.issue_batch(sources)?;
+                manifest
+                    .issue_batch(sources)
+                    .map_err(|error| error.to_string())?;
             }
         }
     }

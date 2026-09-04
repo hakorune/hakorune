@@ -117,7 +117,9 @@ impl PreparedProgramRootWorkPlanV1 {
         };
         let actual_tickets = collect_constructor_demand_expectations(&immediate, &runtime);
         if let Some(manifest) = constructor_demand_manifest.as_ref() {
-            manifest.validate_exact(&actual_tickets)?;
+            manifest
+                .validate_exact(&actual_tickets)
+                .map_err(|error| error.to_string())?;
         }
         Ok(PreparedProgramRootWorkPlanV1 {
             immediate: immediate.into_boxed_slice(),
