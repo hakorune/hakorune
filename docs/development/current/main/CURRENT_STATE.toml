@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
 current_execution_cohort = "loop_accum_physicalizer"
 current_design_stop = "none"
-current_blocker_token = "BoxShape-only maintenance: split the existing DirectAccumPhysicalizerV1 session behind a private path-preserving child. Production behavior, public paths, test names, semantic Call shape, fallback, and baseline remain unchanged; no new receipt or guard is allowed."
+current_blocker_token = "The existing BoxShape maintenance row is landed at a176bada13: DirectAccumPhysicalizerV1 stateful emission is behind a private path-preserving child, with parent 198 lines and child 594 lines. Production behavior, test names, semantic Call shape, fallback, and baseline remain unchanged; no new receipt or guard was added."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -35,12 +35,12 @@ The canonical Call/LegacyCallV0 split, publication spine, typed selected-C
 cohorts, and bounded WASM/VM reader stops are landed; MirBuilder is not yet
 complete because compatibility writers/readers and R7 retirement remain.
 The fixed runner is stable at 7580/7418/133/29 with zero added failure names.
-The active BoxShape row moves the existing DirectAccum physicalizer session
-behind a private path-preserving child without changing production behavior,
-tests, semantic Call shape, or the baseline.
+The BoxShape row landed at a176bada13: the existing DirectAccum physicalizer
+session is behind a private path-preserving child without changing production
+behavior, tests, semantic Call shape, or the baseline.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -58,7 +58,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-04: MIRBUILDER-BOXSHAPE-MAINTENANCE-T0 landed at a176bada13; DirectAccumPhysicalizerV1 stateful emission moved to a private 594-line child, parent 198 lines, combined source delta 0, six focused physicalizer tests and two semantic parity tests green, vm-reference/lib checks green, no semantic Call/guard/receipt/test inventory change.",
   "2026-09-04: bounded canonical/legacy reader reconciliation was explicitly accepted as the successor receipt at 7580/7418/133/29 with zero added failure names; two post-receipt tests and five resolved known-red names are recorded, and the prior receipts remain in Git history.",
   "2026-09-04: MIR-METHOD-CALL-HANDLERS-POLICY-SPLIT-S0 landed at a173e5456c; the existing StaticCurrentOwner publication-ingress policy moved to one private child, parent/child are 687/100 lines, cargo check and stable guards passed, and the two pre-existing focused-suite reds were recorded without reclassification.",
-  "2026-09-03: WARN-A removed two compiler-proven unused namespace edges and their local allow attributes; quick lib check passed, parent/current lib-test share the same three unrelated private-row errors, src delta is -4, and no semantic Call/guard/receipt/test changed. The worker-audited line-budget map was tightened at 6afccd704d: raw transport is already split (0bd6732792), and two normal_script test surfaces have path-preserving include! candidates only; no implementation permission, authority, receipt, guard, test deletion, or baseline refresh was added.",
 ]

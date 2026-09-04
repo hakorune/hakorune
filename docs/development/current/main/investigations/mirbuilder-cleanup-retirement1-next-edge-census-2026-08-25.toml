@@ -220,10 +220,10 @@ implementation_permission = false
 
 [boxshape_maintenance_t0]
 task_id = "MIRBUILDER-BOXSHAPE-MAINTENANCE-T0"
-status = "selected_fast"
-implementation_permission = true
+status = "landed"
+implementation_permission = false
 base_head = "8342fbf93a"
-landed_commit = "0f287a988b"
+landed_commit = "a176bada13"
 ceremony_tier = "T0"
 decision = "Move existing cfg(test) bodies behind path-preserving module/include boundaries; production behavior and test names stay unchanged."
 source_authority = "The existing production modules and existing tests remain the sole owners; this row issues no semantic product."
@@ -280,13 +280,13 @@ focused_tests = [
 ]
 observed_line_counts = "direct owner 148; direct tests 592; semantic test ingress 2; root admission 394; lexical/scope 365; indexing owner 355; indexing tests 431; loop physicalizer 198; private session 594; shared dispatcher 757"
 observed_src_line_delta = 0
-implementation_evidence = "The existing BoxShape lane split indexing.rs cfg(test) body into indexing/tests.rs at 0f287a988b; production owner, seven test names, and logical module path are unchanged. Quick lib check passed; focused lib-test compilation retains the same three parent/current E0624 private-row errors, with no visibility or baseline change."
+implementation_evidence = "The existing BoxShape lane split now also moves DirectAccumPhysicalizerV1 stateful emission into loop_accum_physicalizer/session.rs at a176bada13; parent is 198 lines and private session is 594 lines, with the combined source line delta at zero. Production entrypoints, test names, and logical behavior are unchanged. Quick lib and vm-reference checks passed; six focused physicalizer tests and two targeted semantic parity tests passed; unrelated broad direct_ tests retain seven known failures."
 quick_lib_check = "green"
 focused_test_compile = "current and base 8dc84e7588 both stop at the same three pre-existing E0624 private published-backend row errors before test execution"
 test_name_inventory = "unchanged across base/current for both selected test modules"
 acceptance = "Every listed owner is below 760 lines; src line delta is non-positive; module/test paths and behavior are unchanged; no semantic authority, receipt, per-cell guard, fallback, test deletion, ignore, or baseline refresh is added."
 non_claims = "No Call R6/R7 progress, source acceptance, production switch, backend change, broad test cleanup, or raw transport resplit."
-closeout = "Indexing follow-up landed as compiler-proven BoxShape hygiene; src delta -4, semantic Call delta 0, new guard/receipt/test 0, no test deletion/ignore, and pointer returned to the family-local R6 closeout."
+closeout = "DirectAccum physicalizer follow-up landed as compiler-proven BoxShape hygiene at a176bada13; parent/session remain below 760 lines, src delta 0, semantic Call delta 0, new guard/receipt 0, no test deletion/ignore, and pointer returns to the family-local R6 closeout."
 
 [[candidate]]
 id = "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0"
