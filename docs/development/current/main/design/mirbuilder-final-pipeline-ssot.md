@@ -455,7 +455,7 @@ reader are closed tombstones; they are not reopened.
 
 status = fast_open
 implementation permission = true
-current cohort = `wasm_p10_shape_retire`
+current cohort = `raw_indirect_unified_off_stop`
 
 After the R6 canonical core checkpoint, stop each legacy product reader by one
 of exactly three outcomes:
@@ -504,7 +504,7 @@ The JSON-v1 cohort is landed: its five call-like writers are caller-zero while
 | order | boundary | action | exact owner / evidence | result or reopen trigger |
 | --- | --- | --- | --- | --- |
 | 1 | Structured JoinIR -> MIR reference bridge | Delete | `src/mir/join_ir_to_mir/**`; non-test caller 0, 13 files / 1,885 lines / 4 legacy writers / 15 private tests | landed at `6ffd30eb65`; module and bridge-only tests/inventory retired; no replacement |
-| 2 | WASM P10 legacy shape island | Delete | `src/backend/wasm/shape_table/p10.rs`; preflight already stopped its Extern/Method input before matcher | landed in the current M7-S series; private matcher/writer tests, guards, smokes, and fixtures retired; shared binary helpers kept |
+| 2 | WASM P10 legacy shape island | Delete | `src/backend/wasm/shape_table/p10.rs`; preflight already stopped its Extern/Method input before matcher | landed at `9ebdad720c`; private matcher/writer tests, guards, smokes, and fixtures retired; shared binary helpers kept |
 | 3 | raw indirect unified-off writer | Stop | `builder/exprs_call.rs::build_indirect_call_expression_with_port_v1`; one production dispatch | OFF rejects before child descent/MIR mutation; ON calls existing typed `Callee::Value`; delete one legacy writer |
 | parked | JSON v0 Call ingress | Park | one writer but at least three live external caller groups and live Hako producers | reopen after callers use typed wire or explicit terminal and `name`/`func` repair has a finite delete-set |
 | parked | active MIR -> JoinIR loop readers | Park | `cfg_shape::has_string_method`, `loop_form_intake::intake_loop_form` | reopen with one typed producer/delete-set or retire the whole specialized route with corpus parity |
@@ -516,7 +516,7 @@ cohort-driven instead of adding a dispatcher branch. Each cohort must be net
 negative, remove at least one legacy production/reader edge, and keep the
 fixed failure-name set unchanged before the next cohort opens.
 
-The shared M7-S guard accepts only the remaining finite cohort names listed above;
+The shared M7-S guard accepts only the current raw-indirect cohort; landed cohorts are tombstoned above and are not active dispatch choices.
 it remains one guard owner and has no per-cohort dispatcher branch. For every
 cohort, `new guard=0`, `new receipt=0`, and the fixed failure-name set is
 unchanged.
@@ -528,7 +528,7 @@ API commitment appears, Park it without adapting the bridge. Order 2
 `WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0` is now closed; it did not implement Hako
 WASM or a canonical WASM consumer, and its historical lock docs remain only as
 evidence. For the shared M7-S closeout contract, the P10 cohort has
-`status = landed`, `implementation permission = false`, `new guard=0`,
+`status = landed` at `9ebdad720c`, `implementation permission = false`, `new guard=0`,
 `new receipt=0`, and a fixed failure-name set unchanged. Order 3 is
 `MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0`; its negative proof observes no
 callee/argument descent, ValueId allocation, or MIR mutation.

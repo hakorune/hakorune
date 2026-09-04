@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "wasm_p10_shape_retire"
+current_execution_cohort = "raw_indirect_unified_off_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S order 2 closeout: the unreachable WASM P10 legacy-shape island and its private assets are retired; keep shared binary helpers and verify the fixed baseline before selecting raw-indirect unified-off Stop."
+current_blocker_token = "M7-S order 3: stop raw indirect unified-off before child descent or MIR mutation; OFF must fail fast, ON keeps the existing typed Callee::Value path, and close the writer edge before selecting another cohort."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,11 +36,11 @@ closed until production legacy writers/reissuers/readers/re-entry/fallback are
 zero. M7-S order 1 caller-zero JoinIR reference bridge deletion and order 2
 WASM P10 legacy-shape retirement are closed; the fixed baseline remains
 7555/7393/133/29 after retiring 15 bridge-only tests, with the failure-name set
-unchanged. Closeout is verifying this deletion before selecting raw-indirect
-unified-off Stop.
+unchanged. P10 closeout landed at 9ebdad720c; the next bounded cohort is raw
+indirect unified-off Stop.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -58,7 +58,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-04: M7-S advanced to raw-indirect unified-off Stop after P10 closeout; the shared active-surface guard now accepts only the current raw cohort, with JSON v0, active MIR-to-JoinIR readers, and selected-C/Hako compatibility still ParkedSealed.",
+  "2026-09-04: WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0 landed at 9ebdad720c; the unreachable shape island and its private tests, guards, smokes, and fixtures were removed, shared binary helpers remain, and the fixed baseline failure-name set is unchanged.",
   "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0 landed at b675849d4c; five consume/complete failures remain typed through the existing package-adapter String boundary, constructor-focused tests and vm-reference check passed, and the fixed baseline failure-name set stayed unchanged.",
-  "2026-09-04: MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C2-CLAIM-COMPLETION-D0 landed at 3bd69bf79a; ledger completion failures remain typed through the existing forwarding chain with Unavailable distinct, bridge-only String conversion, 45 direct-static tests green, and the fixed baseline failure-name set unchanged.",
-  "2026-09-04: JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0 landed at 6ffd30eb65; the caller-zero 13-file bridge and 15 bridge-only tests were removed, the fixed runner is 7555/7393/133/29 with failure SHA unchanged, and M7-S advanced to the WASM P10 cohort.",
 ]

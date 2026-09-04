@@ -617,16 +617,6 @@ def _check_legacy_reduction_cohort(state: dict, root: Path, api) -> None:
     mode = state.get("work_mode")
     cohort = state.get("current_execution_cohort")
     contracts = {
-        "joinir_reference_bridge_delete": (
-            "JOINIR-TO-MIR-REFERENCE-BRIDGE-RETIRE-R0",
-            "src/mir/join_ir_to_mir/",
-            "caller-zero physical retirement",
-        ),
-        "wasm_p10_shape_retire": (
-            "WASM-RUST-P10-LEGACY-SHAPE-RETIRE-R0",
-            "src/backend/wasm/shape_table/p10.rs",
-            "preflight already stopped",
-        ),
         "raw_indirect_unified_off_stop": (
             "MIR-CALL-RAW-INDIRECT-UNIFIED-OFF-STOP-R0",
             "build_indirect_call_expression_with_port_v1",
@@ -671,22 +661,9 @@ def _check_legacy_reduction_cohort(state: dict, root: Path, api) -> None:
             api.fail(f"{row}/{cohort} contract is missing: {token}")
     if len(card_text.splitlines()) > 1000:
         api.fail(f"{row} final-pipeline SSOT exceeds the 1000-line hard limit")
-    if cohort == "joinir_reference_bridge_delete":
-        expected = root / "src/mir/join_ir_to_mir"
-        if mode == "fast" and not expected.is_dir():
-            api.fail(f"{row}/{cohort} implementation owner is missing")
-        if mode == "closeout" and expected.exists():
-            api.fail(f"{row}/{cohort} caller-zero bridge remains")
-    elif cohort == "wasm_p10_shape_retire":
-        expected = root / "src/backend/wasm/shape_table/p10.rs"
-        if mode == "fast" and not expected.is_file():
-            api.fail(f"{row}/{cohort} implementation owner is missing")
-        if mode == "closeout" and expected.exists():
-            api.fail(f"{row}/{cohort} P10 owner remains")
-    else:
-        expected = root / "src/mir/builder/exprs_call.rs"
-        if not expected.is_file() or sum(1 for _ in expected.open(encoding="utf-8")) >= 800:
-            api.fail(f"{row}/{cohort} implementation owner missing or reached 800 lines")
+    expected = root / "src/mir/builder/exprs_call.rs"
+    if not expected.is_file() or sum(1 for _ in expected.open(encoding="utf-8")) >= 800:
+        api.fail(f"{row}/{cohort} implementation owner missing or reached 800 lines")
     print(f"[{api.TAG}] row={row} cohort={cohort}")
 
 
