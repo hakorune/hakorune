@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "dead_annotation_retire_module_invocation_brand"
 current_design_stop = "none"
-current_blocker_token = "M7-S selects the bounded nonsemantic T0 cohort dead_annotation_retire_module_invocation_brand: remove one compiler-proven caller-zero private helper and its dead_code allowance/import only. No semantic rewrite, visibility widening, new test/guard/receipt/fixture/port, fallback, or rebaseline is allowed; closeout returns the parent row to landed after the quick checks."
+current_blocker_token = "M7-S T0 cohort dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper, its dead_code allowance, and its now-unused import were removed. Quick test/check and existing guards are green; no semantic rewrite, visibility widening, new test/guard/receipt/fixture/port, fallback, or rebaseline was made. The next ArrayElementWrite projection candidate remains family-local ParkedSealed."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -46,12 +46,13 @@ ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
 fixed comparator target remains 7555/7393/133/29. The next ArrayElementWrite
 projection candidate is ParkedSealed until a sole native V1 consumer or
 pre-artifact terminal, four-operation parity, and finite caller delete-set
-exist. The active bounded T0 cleanup is dead_annotation_retire_module_invocation_brand:
-one compiler-proven caller-zero private helper and its dead_code allowance/import
-are being removed without semantic or guard/receipt/test changes.
+exist. The bounded T0 cleanup dead_annotation_retire_module_invocation_brand
+landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
+dead_code allowance/import were removed without semantic or guard/receipt/test
+changes.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -69,7 +70,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-05: T0 dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e; the caller-zero private helper, dead_code allowance, and unused import were removed, the focused four-test brand fixture passed, and the fixed baseline/guards remained unchanged.",
   "2026-09-05: M7-S stage1_return_call_parked_assets_repay landed at f15098cf0b; three invalid Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale paths and default integration discovery are zero, and no new guard/receipt/test/ignore or baseline change was introduced.",
   "2026-09-05: M7-S mir_json_v0_call_ingress_stop landed at 9a40ece824; module dispatch stops call/mir_call before LegacyCallV0 construction or publication, call.rs/catalog.rs and call-only tests were deleted, 14 focused tests passed, preserved non-call loaders remain, and the fixed baseline is unchanged.",
-  "2026-09-04: M7-S singleton name/args[0] reissuer Stop landed at 01a1a6bc83; retired singleton aliases fail before JSON mutation, singleton rewrite code and caller-zero env accessor were deleted, early-phi remains unchanged, and fixed baseline/guards remain green.",
 ]
