@@ -97,6 +97,11 @@ Bootstrap closure note (2026-03-17):
 
 Stage1 owner-reduction rule:
 
+- Final proof is the queued **Final self-compile acceptance** in
+  `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md`: pinned
+  compiler closure -> non-delegating Stage1 compilation -> runnable Stage2.
+  G1 output equality and reduced CLI liveness alone do not discharge it.
+
 - stage1 bootstrap success alone is not sufficient
 - stage1 should actively shrink Rust-side compiler residue toward:
   - OS / process / file / env boundaries

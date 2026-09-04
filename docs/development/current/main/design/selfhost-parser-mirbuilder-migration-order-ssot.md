@@ -38,6 +38,27 @@ new language semantics during replacement = forbidden
 Do not merge the `.hako` converter backlog into the Rust replacement ledger,
 and do not resume this task order from historical row text.
 
+## Unified resume order
+
+Decision: accepted (2026-09-05). This section is the sole cross-workstream
+resume order; individual documents own their tests and implementation details.
+All rows below are queued prerequisites, not current implementation permission.
+
+| Order | Existing owner / task | Exit and handoff |
+| --- | --- | --- |
+| 1 | `mirbuilder-final-pipeline-ssot.md` Call/R7 -> named Loop chain -> final convergence | Frozen corpus/profile expectations pass; production switches and selected legacy deletions are observed. Call completion alone does not satisfy this gate. |
+| 2 | `language-v1-convergence-current.md` | Close the compiler-source language profile's conformance/reject matrix, including pending grammar decisions; record exact cases and exclusions. Do not silently waive an open language prerequisite. |
+| 3 | `MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0` | Run the pinned application through the completed canonical ingress; correctness, lifecycle and regression evidence below close in the existing benchmark ledger. |
+| 4 | `MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001` in `mirbuilder-authority-based-hako-migration-ssot.md` | Select one unfinished Facts or REGISTRY authority with input/output, live production caller, replacement owner, deletion set and acceptance. Reuse landed parity evidence; a fresh disconnected pilot is not the exit. |
+| 5 | authority migration stages 2–5, then parser migration | Facts -> Recipe rule -> symbolic commands -> allocation/executor; each actual authority switch retires its Rust predecessor. Parser remains independently implemented. |
+| 6 | `stage2plus-entry-and-first-optimization-wave-task-pack-ssot.md` final self-compile gate | Pinned compiler closure compiled by Stage1 without Rust frontend delegation; resulting Stage2 compiles and runs the fixed acceptance programs. |
+
+The first selfhost resume task is order 4 after gates 1–3, selected explicitly
+in CURRENT_STATE. Historical MapStore 3456 and vocabulary rerun 111 are not
+automatic resume targets; they reopen only if the selected authority names
+them as a necessary dependency. Pure output equality remains bootstrap
+evidence until the final non-delegation gate is demonstrated.
+
 ## Resume admission: `.hako` mimalloc promotion gate
 
 Decision: accepted — parked required gate, not the current blocker.
@@ -48,9 +69,9 @@ first pass one application-sized promotion gate using the existing `.hako`
 mimalloc / `hako_alloc` implementation.
 
 ```text
-MIRBUILDER-FIRST-PRODUCTION-CUTOVER
+MirBuilder completion plus language conformance (unified resume order)
   -> MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0
-  -> .hako selfhost MirBuilder migration resume
+  -> existing Facts/REGISTRY authority selection
 ```
 
 `MIRBUILDER-HAKO-MIMALLOC-PROMOTION-GATE0` owns this bounded task:

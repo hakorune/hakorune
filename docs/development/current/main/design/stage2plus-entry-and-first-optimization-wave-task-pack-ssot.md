@@ -160,6 +160,51 @@ Do not include:
 
 ## Acceptance Bundle
 
+### Final self-compile acceptance — queued, not yet proven
+
+Decision (2026-09-05): implement this gate in the existing selfhost build and
+identity harness after the unified resume order in
+`selfhost-parser-mirbuilder-migration-order-ssot.md`. Existing G1 equality and
+reduced CLI liveness are bootstrap evidence, not completion of this task.
+
+Change: bind the final acceptance run to a pinned compiler source revision,
+entrypoint, complete transitive source/import closure, build configuration,
+Stage1 artifact hash, toolchain and expected program results. Store these in
+the existing selfhost evidence owner, not a new task ledger.
+
+Contract: Stage1 itself compiles that compiler closure through its parser and
+MirBuilder into canonical MIR. Disable Rust source parsing, Program-to-MIR
+lowering and compiler-policy delegation for this profile, including the
+`nyash.stage1.emit_program_json_v0_h`, `emit_mir_from_source_v0_h` and
+`emit_mir_from_program_json_v0_h` routes in
+`crates/nyash_kernel/src/exports/stage1.rs` and the import substitutions in
+`src/runner/json_v0_bridge/lowering/expr/call_ops.rs`. These are current
+bootstrap dependencies, not evidence of a completed Hako compiler.
+Generic published-MIR backend emission, linking, OS/runtime and ABI helpers
+may remain native; they may not recover source/compiler meaning.
+
+Done: build Stage2 from the MIR actually emitted by that Stage1 invocation,
+record artifact provenance, then execute the generated Stage2 to compile the
+pinned ordinary-source acceptance programs and run their artifacts with exact
+expected output/exit. The positive run must pass with forbidden frontend
+providers unavailable. A negative run deliberately reaching a forbidden
+provider must reject before Stage2 publication. Route labels or log absence
+alone do not prove non-delegation. Keep G1 comparison as a separate check;
+Stage2 recompiling the compiler closure into Stage3 is a later fixed-point
+check, not a substitute for the Stage1-to-Stage2 evidence.
+
+Stop: unresolved compiler closure, use of a reduced stub in its place,
+forbidden delegation, missing negative evidence, or inability to run generated
+Stage2 leaves this final task open. Existing bootstrap tests remain valid in
+their bounded role. No current selfhost implementation is activated here.
+
+Evidence limits: `tools/selfhost/lib/identity_compare.sh` compares canonical
+MIR/raw Program output; `tools/selfhost/lib/stage1_contract.sh` separately
+checks bootstrap emission and reduced artifact liveness. The existing
+`phase29bq_selfhost_identity_compat_route_guard_vm.sh` expectations must be
+reconciled with the current identity script's route rejection before that
+smoke is reused as negative acceptance.
+
 ### Stage1 Exit Gate
 
 - `tools/selfhost/compat/run_stage1_cli.sh emit mir-json apps/tests/hello_simple_llvm.hako`

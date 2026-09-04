@@ -20,8 +20,8 @@ inventories, transcripts, or historical next chains.
 
 ```text
 status = parked_by_mirbuilder_inplace_replacement
-resume = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
-resume_after = explicit CURRENT_STATE.toml lane selection
+resume = MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001
+resume_after = unified resume gates plus explicit CURRENT_STATE.toml selection
 ```
 
 This `.hako` converter order is independent from the active Rust MirBuilder
@@ -40,7 +40,7 @@ docs/development/current/main/CURRENT_STATE.toml
 MapLoad caller-orientation authority pilot = complete
 String caller-orientation authority pilot = complete
 Collection caller-orientation authority pilot = complete
-MapStoreI64 caller-orientation pilot = selected, implementation pending
+MapStoreI64 caller-orientation pilot = historical pending, not selected
 
 caller input = PolicyRowIdOnly
 caller return = Unit
@@ -61,15 +61,16 @@ MapStoreI64: key_domain = I64, stored_value_domain = Any
 MapStoreAny: key_domain = Any, stored_value_domain = Any
 ```
 
-When resumed, 3456 is one BoxShape-only task: introduce a typed
+Only if named as a dependency by the resumed authority task, 3456 is one BoxShape-only task: introduce a typed
 `RoutePolicyRow` SSOT,
 generate the decision payload and caller projection from one Hako-owned row,
 retain independent Rust route matching/oracle behavior, centralize caller and
 shadow validation, and test key/value axes independently.
 
-After 3456 is green, resume 3454. After a green 3454 fixture-backed rerun, enter
-3455, park caller orientation, and return to focused Fact/Plan/Boundary
-inventory for the smallest Fact-owner or REGISTRY-rule hard-authority slice.
+The former automatic 3456 -> 3454 -> 3455 chain is retired as a scheduler.
+Resume gates and the first authority selection are owned by
+`selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`.
+Existing caller-orientation evidence is retained without replaying that chain.
 
 ## Authority Owners
 
@@ -134,4 +135,4 @@ When a change needs detailed evidence, add it to the active card, a fixture,
 the family history JSONL, an investigation, or git history. Do not create a
 numbered card for inventory-only bookkeeping.
 
-parked_resume_task = MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001
+parked_resume_task = MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001

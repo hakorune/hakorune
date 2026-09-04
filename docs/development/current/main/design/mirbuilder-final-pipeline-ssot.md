@@ -210,7 +210,8 @@ Delete. Progress is the production old-edge delta, not row/guard/test count.
 
 ## S-class completion gates (post-M9, non-executable navigation)
 
-The M0--M9 order is the MirBuilder/product completion program. A stronger
+The Call/M0--M9 order completes the Call program; the Loop handoff below is
+also required for whole-MirBuilder completion. A stronger
 release claim is allowed only after these five independent gates are observed;
 they add no alternate pipeline and do not authorize work in the current R6
 slice.
@@ -392,8 +393,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
 current cohort = `array_element_write_published_c_cutover_i0`
 
 The selected cohort replaces the selected-C legacy projection for the existing
@@ -880,7 +881,7 @@ backendは`MirType`、metadata、ABI manifest、storage planを独立に再結�
 ## Completion authority
 
 `MIRBUILDER-FINAL-PIPELINE-v1`全体は、次がproduction graphで成立した
-ときに着地する。MirBuilder core単体のMS1-P境界は上のCall completion
+ときに着地する。Call producer/publication単体のMS1-P境界は上のCall completion
 programが所有し、backend coverageと物理retirementをcoreの再設計条件へ
 逆流させない。
 
@@ -900,7 +901,7 @@ partial module publication                                        = 0
 fallback / retry / profile reselection                            = 0
 canonical rejection -> Legacy retry/fallback                      = 0
 selected old production owner / facade / edge                     = 0
-full accepted corpus / backend parity                             = green
+frozen accepted corpus / selected backend expectations            = green
 ```
 
 pack counters、replacement ledger、five-cell LOC、source/test measurements
@@ -908,6 +909,44 @@ pack counters、replacement ledger、five-cell LOC、source/test measurements
 implementation permissionやcompletionを決めない。
 
 ## Final repository convergence finish line
+
+### Cross-program handoff and finite acceptance (accepted 2026-09-05)
+
+Use `Call/M8`, `Call/M9` for physical thinning/backend retirement and
+`Loop/M8`, `Loop/M9` for portable Recipe coverage/parity. Bare milestone
+numbers do not select work. Call MS1-P/C/D completion is not whole-MirBuilder
+completion. After Call/R7, return to the first unfinished named row in the
+Loop chain below; already-landed prerequisites are evidence, not rerun tasks.
+The return task is existing `LOOP-PRODUCTION-SELECTION-D0` in
+`joinir-loop-selfhost-recipe-pipeline-ssot.md`: consume its M10 prerequisite
+list and the closed-status evidence in `generic-loop-source-to-portable-recipe-ssot.md`
+and `loop-common-physical-demand-and-session-ssot.md`, select the first unmet
+dependency by full task ID, then return to production selection. This is a
+handoff task, not permission to activate M10b or repeat closed G0 proofs.
+Call/M8 cleanup waits for the owning Call/Loop callers to reach zero;
+Call/M9 backend replacement is a sibling, not a reason to delay Loop selection.
+
+Before the next production cutover, close `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE`
+inside this existing card: pin an existing corpus manifest at a commit, list
+exact program paths/hashes, language profile, selected backend and toolchain,
+command, expected stdout/exit/effects or exact rejection tag and boundary.
+Give each required case an owner and existing evidence path; missing evidence
+is an open task. Specify exclusions (including deferred WASM and unselected
+backend parity) explicitly. Expand directory/glob discovery into the fixed
+case list at selection. This task is queued, not evidence that scope is frozen.
+
+Accepted source programs may not be changed to rejection cases merely to close
+a migration; that requires an explicit language/profile decision. Known-red
+names stay separately owned. Post-freeze additions require a recorded scope
+decision and cost impact; raw test counts and synthetic MIR tests cannot prove
+source-to-artifact coverage. Reuse the corpus owner's manifest and tests;
+create no parallel acceptance ledger or per-case guard.
+
+Handoff after Loop retirement and repository convergence is owned by
+`selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`:
+language conformance -> canonical mimalloc promotion -> authority migration
+selection -> MirBuilder then parser migration -> non-delegating self-compile.
+This records dependencies only; CURRENT_STATE still selects execution.
 
 `MIRBUILDER-FINAL-PIPELINE-v1` の完了は Loop の production cutover だけで
 終わらない。次の直列順を最終 finish line として固定する。
@@ -919,9 +958,11 @@ CANONICAL-FUNCTION-FINISH-TERMINAL-R0
   -> Generic G0 prepare parity
   -> common physicalizer / caller-zero canary
   -> production selection
-  -> M8/M9 coverage and parity
-  -> M10b activation
-  -> M11/M12 legacy retirement
+  -> Loop/M8 JOINIR-LOOP-ALL19-PORTABLE-RECIPE0-S6
+  -> Loop/M9 SELFHOST-LOOP-PORTABLE-RECIPE-PARITY0-S7
+  -> Loop/M10b JOINIR-LOOP-PORTABLE-RECIPE-CUTOVER0-I0-R0
+  -> Loop/M11 RAW-LOCATED-LOOP-PORTABLE-HANDOFF0-R1
+  -> Loop/M12 JOINIR-LOOP-LEGACY-FAMILY-ADAPTER-RETIRE0-R2
   -> REPO-FINAL-CONVERGENCE-AUDIT0-G0
   -> repo-physical-structure-cleanup-ssot.md final convergence acceptance
 ```

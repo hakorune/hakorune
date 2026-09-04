@@ -77,7 +77,12 @@ read-only Fact owner or one REGISTRY rule, not a crate-wide physical split.
 
 ## Current Entry
 
-The current safe entry is still the narrow Rust-oracle parity-pilot lane:
+Decision (2026-09-05): resume only through
+`selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`.
+The existing Facts-owner selection task below is the first resume target.
+Vocabulary pilots remain historical evidence and do not select production work.
+
+The historical Rust-oracle parity-pilot lane was:
 
 ```text
 vocabulary leaf / boolean classifier
@@ -192,7 +197,7 @@ Completed authority-facade candidate:
 try_extract_string_is_integer_facts
 ```
 
-Current next authority-facade candidate:
+Historical authority-facade candidate, subject to the resume selection:
 
 ```text
 try_extract_bool_predicate_scan_facts
@@ -216,8 +221,8 @@ try_build_outcome
 
 Normal work stays in migration mode, not inventory mode.
 
-For each `MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-N`, the
-unit of progress is exactly one owner:
+For each selected authority task, the unit of progress is one production
+responsibility:
 
 ```text
 select exactly one owner
@@ -225,8 +230,8 @@ select exactly one owner
   -> hand-authored .hako implementation
   -> .hako EXE parity gate
   -> HakoAdopted decision
-  -> advance pointer to RERUN-(N+1)
-  -> stop
+  -> named production caller switch
+  -> old authority deletion and evidence closeout
 ```
 
 The inventory may be read only to select the next owner or to reflect a
@@ -234,22 +239,17 @@ completed adoption. Do not spend a normal migration turn improving the
 inventory, broadening candidate taxonomy, or reclassifying unrelated surfaces
 unless the user explicitly switches the turn to inventory work.
 
-Candidate priority for the narrow parity-pilot lane is:
+The former narrow-pilot priority is retired from scheduling:
 
 ```text
-near an already adopted owner
-1-2 row pure formatter / classifier
-scalar token input
-stable string or boolean-text output
-no route matching
-no backend lowering
-no MIR mutation
-no ID allocation
+Facts owner -> one REGISTRY rule -> symbolic command producer -> allocation
+Each stage needs a named production consumer and a predecessor deletion set.
+Reuse existing oracle/parity evidence; pilot count is not authority adoption.
 ```
 
-If the next useful step would be Fact owner migration, plan construction,
-symbolic command production, allocator movement, or a Source Selfhost claim,
-stop in design-consultation mode instead of implementing.
+At a new authority boundary, settle its contract before implementation inside
+the selected task. An accepted contract proceeds to its caller switch and
+retirement; it does not automatically return to another vocabulary rerun.
 
 ## Working Rules
 
@@ -258,7 +258,7 @@ choosing the next owner.
 
 - Inventory first: use the Fact track, Plan track, and Boundary track to pick
   the next owner. Do not decide from file shape or leaf count alone.
-- One rerun adopts exactly one owner, then stops.
+- One selected task switches one responsibility and closes its deletion set.
 - Prefer the smallest candidate that can move real authority. Read-only Fact
   owners come first; one REGISTRY rule comes next. Do not jump to plan
   construction, symbolic commands, or allocation unless the prior stage is
@@ -278,9 +278,8 @@ choosing the next owner.
 - After a landing, sync the restart pointers in the same turn:
   `CURRENT_STATE.toml`, `latest_card_path`, `landed_tail`, and the inventory
   fixture.
-- If the next step is Fact owner migration, plan construction, symbolic command
-  production, allocator movement, or a Source Selfhost claim, stop and switch
-  to design-consultation mode instead of widening the slice.
+- Resolve new authority boundaries inside the selected task before code; a
+  completed contract permits its bounded implementation and retirement.
 
 ## Selection Procedure
 
@@ -571,17 +570,15 @@ MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-110
   Non-claim: no Fact owner migration yet.
 
 MIRBUILDER-HAKO-NATIVE-OWNER-PARITY-PILOT-SELECTION-RERUN-111
-  Status: current next selection.
-  Scope: choose one more vocabulary_leaf, boolean_classifier, or formatter
-         owner from the inventory, then proceed with the existing Rust-oracle
-         parity sequence.
+  Status: retired as automatic next selection (2026-09-05).
+  Scope: historical vocabulary-pilot proposal; no execution permission.
   Non-claim: no Fact owner migration yet.
 
 MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001
-  Status: pending after the current vocabulary-leaf cadence is intentionally
-          paused or closed.
+  Status: first resume selection after the unified readiness gates.
   Scope: select one small read-only fact owner and define the canonical
-         Rust-oracle fixture -> .hako implementation -> output diff gate.
+         Rust-oracle fixture -> .hako implementation -> output diff gate,
+         plus a named production consumer switch and old authority deletion.
   Non-claim: no plan construction migration.
 
 MIRBUILDER-REGISTRY-RULE-PLAN-PARITY-PILOT-SELECTION-001

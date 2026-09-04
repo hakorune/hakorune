@@ -1,5 +1,5 @@
 ---
-Status: Draft (Phase-0 SSOT; implementation staged)
+Status: Historical compatibility contract (not an implementation entry)
 Scope: `.hako` mirbuilder migration — entrypoints, contracts, fail-fast tags, and verification routes
 Related:
   - docs/development/current/main/design/selfhost-bootstrap-route-ssot.md
@@ -14,6 +14,15 @@ Related:
 ---
 
 # .hako MirBuilder Migration — Phase-0 (Entry / Contract / Verification) (SSOT)
+
+Decision (2026-09-05): the Phase-0 expansion cadence and commands below are
+historical compatibility evidence, not restart instructions. Resume is owned
+by `selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`.
+New native authority belongs in `lang/src/mir/builder/`; the old
+`lang/src/compiler/mirbuilder/` directory is compatibility-only, as its README
+already states. JSON-v0 string scanning and Rust replay cannot establish final
+source selfhosting. Existing live compatibility callers retain their current
+contract until separately retired; this document opens no new implementation.
 
 ## Goal (Phase-0)
 
@@ -191,8 +200,8 @@ Examples (each node):
 
 配置は “責務が迷わない” ことを最優先にする:
 
-- New root: `lang/src/compiler/mirbuilder/`
-- README: `lang/src/compiler/mirbuilder/README.md`
+- Historical compatibility root: `lang/src/compiler/mirbuilder/`
+- Native authority home: `lang/src/mir/builder/` (see its README)
   - ここは “Program(JSON v0) → MIR JSON” の変換だけ
   - SSA / rewrite / optimizer / macro 展開はここでやらない（別層の責務）
   - 失敗タグ SSOT: `[freeze:contract][hako_mirbuilder]`

@@ -38,8 +38,10 @@ mirbuilder_3456_parked = 1
 one_active_language_card = 0
 ```
 
-Resume the parked MirBuilder route at 3456 only after this workstream closes or
-an explicit user decision changes the priority.
+Selfhost resume follows only
+`../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order`.
+This workstream supplies the pinned language conformance/rejection evidence;
+closure does not automatically resume historical MapStore 3456.
 
 ## Target State
 
