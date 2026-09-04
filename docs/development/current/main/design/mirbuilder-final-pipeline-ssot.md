@@ -453,9 +453,9 @@ reader are closed tombstones; they are not reopened.
 
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 
-status = landed
-implementation permission = false
-current cohort = `direct_mir_json_duplicate_reader_delete`
+status = fast_open
+implementation permission = true
+current cohort = `skip_ws_probe_reader_delete`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -485,28 +485,28 @@ card, receipt, adapter, fixture file, or guard.
 
 ```text
 Change:
-  Delete the unreachable duplicate --mir-json-file reader in runner/dispatch;
-  runner/mod -> core_executor -> json_artifact remains the sole direct owner.
+  Delete skip_ws/dispatch.rs and its route-local MIR-vs-handwritten probe;
+  skip_ws.rs keeps generic-first selection, then calls the existing builder.
 Contract:
-  Preserve direct MIR-v1/v0 success and malformed/Program-JSON rejection.
-  Do not change the shared JSON decoder or LegacyCallV0 semantics.
+  Preserve generic-first behavior, builder output, and missing Main.skip/1
+  -> None. Do not change trim's shared MIR dispatcher or its environment flag.
 Done:
-  dispatch reader 1->0, direct parser cascade 2->1, source delta negative;
-  focused positive/negative and fixed failure-name set unchanged;
-  new guard=0 and new receipt=0; implementation commit `ef3ee28bc5`.
+  skip_ws/dispatch.rs reader 1->0, direct builder owner 1, focused JoinIR
+  tests green, fixed failure-name set unchanged; new guard=0 and new receipt=0.
 Stop:
-  Park only this cohort if any path can reach dispatch with mir_json_file set,
-  or deletion changes terminal behavior or requires a replacement adapter.
+  Park only this cohort if a non-test caller needs the probe or deletion changes
+  output/terminal behavior and requires a replacement adapter.
 ```
 
-Closeout: direct MIR v1/v0, Program(JSON) rejection, and fixed comparator `7555/7393/133/29` stayed green with the same failure SHA.
+Closeout: direct MIR v1/v0, Program(JSON) rejection, and fixed comparator
+`7555/7393/133/29` stayed green with the same failure SHA at the prior leaf.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
 | order | cohort / action | exact boundary and delete-set | acceptance / reopen |
 | --- | --- | --- | --- |
-| 1 active | `direct_mir_json_duplicate_reader_delete` / Delete | `runner/dispatch.rs` duplicate `mir_json_file` branch; earlier `runner/mod.rs` branch terminates every state | one direct owner; v1/v0 positives and malformed/Program negatives unchanged |
-| 2 | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs`; MIR probe and handwritten arms both end at `build_skip_ws_joinir` | direct builder preserves generic-first and missing-target `None`; otherwise Park |
+| 1 landed | `direct_mir_json_duplicate_reader_delete` / Delete | `runner/dispatch.rs` duplicate `mir_json_file` branch; earlier `runner/mod.rs` branch terminates every state | landed at `ef3ee28bc5`; one direct owner; v1/v0 positives and malformed/Program negatives unchanged |
+| 2 active | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs` and route-local MIR-vs-handwritten probe; both concrete arms ended at `build_skip_ws_joinir` | direct builder preserves generic-first and missing-target `None`; otherwise Park |
 | 3 | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
 | 4 | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | reject before parse/publication/backend; delete methodize aliases and reissuer |
 

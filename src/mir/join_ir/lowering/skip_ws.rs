@@ -43,28 +43,14 @@ use crate::mir::join_ir::JoinModule;
 use crate::runtime::get_global_ring0;
 
 mod builder;
-mod dispatch;
 mod generic_probe;
 
-/// Phase 27.8: Main.skip/1 の JoinIR lowering（トグル対応ディスパッチャー）
+/// Main.skip/1 の JoinIR lowering。
 ///
-/// 環境変数 `NYASH_JOINIR_LOWER_FROM_MIR=1` に応じて、
-/// hand-written 版または MIR 自動解析版を選択する。
+/// Generic Case A が選択され、形が受理される場合だけその結果を使う。
+/// それ以外は既存の `build_skip_ws_joinir` が唯一のlowering ownerである。
 ///
-/// ## トグル制御:
-/// - **OFF (デフォルト)**: `lower_skip_ws_handwritten()` を使用
-/// - **ON**: `lower_skip_ws_from_mir()` を使用
-///
-/// ## 使用例:
-/// ```bash
-/// # 手書き版（既定）
-/// ./target/release/hakorune program.hako
-///
-/// # MIR 自動解析版
-/// NYASH_JOINIR_LOWER_FROM_MIR=1 ./target/release/hakorune program.hako
-/// ```
 pub fn lower_skip_ws_to_joinir(module: &crate::mir::MirModule) -> Option<JoinModule> {
-    // Phase 28: Generic Case A トグル（minimal_ssa_skip_ws 限定）
     if crate::config::env::joinir_dev::lower_generic_enabled() {
         if let Some(jm) = generic_probe::try_lower_skip_ws_generic_case_a(module) {
             return Some(jm);
@@ -76,15 +62,5 @@ pub fn lower_skip_ws_to_joinir(module: &crate::mir::MirModule) -> Option<JoinMod
         }
     }
 
-    lower_skip_ws_handwritten_or_mir(module)
-}
-
-/// 既存の hand-written / MIR-based dispatcher をラップしただけの関数
-fn lower_skip_ws_handwritten_or_mir(module: &crate::mir::MirModule) -> Option<JoinModule> {
-    super::common::dispatch_lowering(
-        "skip_ws",
-        module,
-        dispatch::lower_skip_ws_from_mir,
-        dispatch::lower_skip_ws_handwritten,
-    )
+    builder::build_skip_ws_joinir(module)
 }

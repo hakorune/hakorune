@@ -182,14 +182,16 @@ The 2026-09-04 worker audit decomposed the former shared boundaries at their
 outer leaves. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; do not add a new
 card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
 `direct_mir_json_duplicate_reader_delete` landed at `ef3ee28bc5` with the
-fixed comparator unchanged. The next executable order is
-`skip_ws_probe_reader_delete`, `canonical_value_fallthrough_stop`, and
-`methodize_fallthrough_stop`. Only the first is active. The final-pipeline SSOT
-owns each owner/terminal/delete-set and acceptance; this workstream does not
-duplicate them. Shared JSON v0, remaining MIR-to-JoinIR, and selected-C/Hako
-internals stay family-local `ParkedSealed` outside those leaves. R7 opens only
-after production writers, reissuers, readers, compatibility re-entry, and
-fallback are zero.
+fixed comparator unchanged. `skip_ws_probe_reader_delete` is now the sole
+active leaf: its MIR-vs-handwritten dispatcher was removed because both arms
+ended at the same existing builder, while generic-first selection and trim's
+shared dispatcher remain. The next executable order is
+`canonical_value_fallthrough_stop`, then `methodize_fallthrough_stop`. The
+final-pipeline SSOT owns each owner/terminal/delete-set and acceptance; this
+workstream does not duplicate them. Shared JSON v0, remaining MIR-to-JoinIR,
+and selected-C/Hako internals stay family-local `ParkedSealed` outside those
+leaves. R7 opens only after production writers, reissuers, readers,
+compatibility re-entry, and fallback are zero.
 
 ### S-class gate coverage (navigation only)
 

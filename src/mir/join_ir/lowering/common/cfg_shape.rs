@@ -53,19 +53,6 @@ pub fn ensure_entry_has_succs(query: &MirQueryBox, entry: BasicBlockId) -> bool 
     !query.succs(entry).is_empty()
 }
 
-/// Check if a basic block contains `Const { value: Integer(value) }`.
-pub fn has_const_int(query: &MirQueryBox, bb: BasicBlockId, value: i64) -> bool {
-    query.insts_in_block(bb).iter().any(|inst| {
-        matches!(
-            inst,
-            MirInstruction::Const {
-                value: ConstValue::Integer(v),
-                ..
-            } if *v == value
-        )
-    })
-}
-
 /// Check if a basic block contains `Const { value: String(value) }`.
 pub fn has_const_string(query: &MirQueryBox, bb: BasicBlockId, value: &str) -> bool {
     query.insts_in_block(bb).iter().any(|inst| {

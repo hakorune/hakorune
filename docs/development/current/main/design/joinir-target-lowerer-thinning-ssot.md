@@ -384,8 +384,9 @@ skip_ws.rs:
 skip_ws/builder.rs:
   route-local handwritten/shared JoinIR construction
 
-skip_ws/dispatch.rs:
-  MIR-vs-handwritten dispatch
+skip_ws.rs:
+  route facade and generic-first selection; concrete output is owned by
+  skip_ws/builder.rs
 
 skip_ws/generic_probe.rs:
   route-local minimal LoopForm canary

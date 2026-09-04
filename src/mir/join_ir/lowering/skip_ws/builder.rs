@@ -9,9 +9,7 @@ use crate::runtime::get_global_ring0;
 
 /// Phase 27.11.1: Common JoinIR builder for Main.skip/1
 ///
-/// This function generates the JoinIR for skip/1, shared by both:
-/// - lower_skip_ws_handwritten (always uses this)
-/// - lower_skip_ws_from_mir (uses this after CFG sanity checks pass)
+/// This function is the single concrete JoinIR owner for skip/1.
 pub(super) fn build_skip_ws_joinir(module: &crate::mir::MirModule) -> Option<JoinModule> {
     // Step 1: "Main.skip/1" を探す
     let target_func = module.functions.get("Main.skip/1")?;
