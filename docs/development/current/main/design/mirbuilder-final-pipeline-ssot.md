@@ -392,9 +392,20 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = landed
-implementation permission = false
-current cohort = `stage1_return_call_parked_assets_repay`
+status = fast_open
+implementation permission = true
+current cohort = `dead_annotation_retire_module_invocation_brand`
+
+The selected cohort is a bounded nonsemantic T0 cleanup: the private
+`_family_is_route_typed` helper in `src/mir/builder/module_invocation_brand_p0.rs`
+has no caller, so its `dead_code` allowance and now-unused import may be removed
+without widening visibility or changing the invocation-brand owner. The prior
+`stage1_return_call_parked_assets_repay` cohort remains landed below; this T0
+does not reopen it or the parked ArrayElementWrite family.
+
+T0 contract: source delta is negative; semantic Call delta is zero; new guard=0;
+new receipt=0; new test=0; fixed failure-name set unchanged; no fixture, port,
+fallback, retry, or rebaseline.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

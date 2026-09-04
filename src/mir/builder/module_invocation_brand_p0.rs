@@ -1,9 +1,7 @@
 //! CUT0-I0-ROOT0-BRAND0 fixtures for the real physical owner chain.
 
 use super::module_invocation_brand0::ActiveModuleInvocationV1;
-use super::module_invocation_identity::{
-    ModuleInvocationFamilyV1, TestInvocationPreflightFactoryV1,
-};
+use super::module_invocation_identity::TestInvocationPreflightFactoryV1;
 use super::module_invocation_route_matrix::InvocationRootFamilyV1;
 use super::module_invocation_session::{
     BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
@@ -92,9 +90,4 @@ fn dropping_an_active_owner_does_not_mutate_the_live_builder() {
             .unwrap();
     drop(active);
     assert_eq!(current.core_ctx.peek_next_value().as_u32(), before);
-}
-
-#[allow(dead_code)]
-fn _family_is_route_typed(family: ModuleInvocationFamilyV1) -> ModuleInvocationFamilyV1 {
-    family
 }

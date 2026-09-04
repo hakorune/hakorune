@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "stage1_return_call_parked_assets_repay"
+current_execution_cohort = "dead_annotation_retire_module_invocation_brand"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort stage1_return_call_parked_assets_repay is in closeout after f15098cf0b: the exact three invalid Stage1 Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale quick/checklist paths were removed, and integration discovery found no matches. The next ArrayElementWrite projection candidate is family-local ParkedSealed because three selected native artifact callers still consume the legacy projection and Insert parity is incomplete. No semantic rewrite, new test, guard, receipt, fallback, or rebaseline was made."
+current_blocker_token = "M7-S selects the bounded nonsemantic T0 cohort dead_annotation_retire_module_invocation_brand: remove one compiler-proven caller-zero private helper and its dead_code allowance/import only. No semantic rewrite, visibility widening, new test/guard/receipt/fixture/port, fallback, or rebaseline is allowed; closeout returns the parent row to landed after the quick checks."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -46,10 +46,12 @@ ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
 fixed comparator target remains 7555/7393/133/29. The next ArrayElementWrite
 projection candidate is ParkedSealed until a sole native V1 consumer or
 pre-artifact terminal, four-operation parity, and finite caller delete-set
-exist.
+exist. The active bounded T0 cleanup is dead_annotation_retire_module_invocation_brand:
+one compiler-proven caller-zero private helper and its dead_code allowance/import
+are being removed without semantic or guard/receipt/test changes.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
