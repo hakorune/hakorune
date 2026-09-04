@@ -1,10 +1,10 @@
 date = "2026-09-04"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
 current_execution_cohort = "legacy_phi_candidate"
 current_design_stop = "none"
-current_blocker_token = "Delete only the caller-zero legacy PHI candidate subtree, its facade declarations, SSA inventory entries, and eleven fixed test-inventory rows; preserve function_repair/edge_rematerialization and keep the known failure-name set unchanged."
+current_blocker_token = "The caller-zero legacy PHI candidate subtree is deleted; closeout evidence records the eleven test rows removed, the reconciled SSA inventory, focused replacement tests, and the unchanged known failure-name set."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,11 +38,12 @@ The fixed runner is stable at 7580/7418/133/29 with zero added failure names.
 The BoxShape row landed at a176bada13: the existing DirectAccum physicalizer
 session is behind a private path-preserving child without changing production
 behavior, tests, semantic Call shape, or the baseline.
-The next bounded cleanup is the selected caller-zero legacy PHI candidate
-retirement; its baseline/inventory reconciliation is part of this row.
+The selected caller-zero legacy PHI candidate retirement is now landed: three
+files and facade declarations were removed, eleven fixed test rows were
+retired, and the baseline failure-name set stayed unchanged.
 """
 next_design_card = "none"
-next_execution_card = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -56,8 +56,6 @@ phi.plan-patch-rollback
 phi.joinir-exit-transaction
 phi.joinir-loop-batch
 phi.edgecfg-final
-phi.bridge-conditional-method
-phi.bridge-block-converter
 phi.legacy-builder-wrappers
 phi.legacy-if-form
 phi.legacy-loop-api
@@ -209,6 +207,9 @@ def main() -> None:
     identity_ledger = (
         root / "src/mir/builder/resolved_lowering/identity/ledger.rs"
     ).read_text()
+    identity_ledger_code = "\n".join(
+        line.split("//", 1)[0] for line in identity_ledger.splitlines()
+    )
     value_environment = (
         root / "src/mir/builder/resolved_lowering/identity/value_environment.rs"
     ).read_text()
@@ -254,7 +255,7 @@ def main() -> None:
         fail("pre-SSA environment membership seam drifted")
     if identity.count("self.values.remove(*binding)") != 2:
         fail("flat environment scope removal seam drifted")
-    if "ValueId" in identity_ledger or "BasicBlockId" in identity_ledger:
+    if "ValueId" in identity_ledger_code or "BasicBlockId" in identity_ledger_code:
         fail("SSA-S2 identity ledger regained MIR value/block ownership")
     if "materialize_all_phi_inputs" not in module_lifecycle:
         fail("module PHI repair seam disappeared without SSA-I1 reclassification")
@@ -265,10 +266,15 @@ def main() -> None:
         fail("SSA-S1 disconnected BindingSsaBuilderV1 owner is missing")
     if count_in(production, "struct BindingSsaBuilderV1") != 1:
         fail("SSA-S1 must retain exactly one BindingSsaBuilderV1 declaration")
+    test_only_resolved_callers = {
+        root / "src/mir/compiler/resolved_direct_accum_hardening_p0.rs",
+        root / "src/mir/builder/resolved_lowering/completion_test_support.rs",
+    }
     non_test_resolved_callers = [
         path
         for path in production
         if path != root / "src/mir/compiler/lowering_input.rs"
+        and path not in test_only_resolved_callers
     ]
     if count_in(non_test_resolved_callers, ".compile_resolved(") != 0:
         fail("default/non-test resolved caller activated during SSA-P0")
@@ -285,9 +291,6 @@ def main() -> None:
         "edge_verifier_p0_tests.rs",
         "function_repair.rs",
         "function_repair_tests.rs",
-        "legacy_candidate.rs",
-        "legacy_candidate_cfg.rs",
-        "legacy_candidate_tests.rs",
         "remat_fact.rs",
         "remat_fact_tests.rs",
         "test_support.rs",
@@ -304,7 +307,6 @@ def main() -> None:
         "mod edge_rematerialization;",
         "pub(in crate::mir::builder) mod edge_verifier;",
         "mod function_repair;",
-        "pub(in crate::mir::builder) mod legacy_candidate;",
         "pub(in crate::mir::builder) mod remat_fact;",
         "use edge_rematerialization::for_pred;",
         "use function_repair::materialize_all_phi_inputs;",

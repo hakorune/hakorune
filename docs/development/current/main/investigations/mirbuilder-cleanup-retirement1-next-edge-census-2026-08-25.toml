@@ -290,9 +290,9 @@ closeout = "DirectAccum physicalizer follow-up landed as compiler-proven BoxShap
 
 [[candidate]]
 id = "MIRBUILDER-LEGACY-PHI-CANDIDATE-RETIRE-R0"
-status = "selected_fast"
+status = "landed"
 kind = "caller_zero_legacy_test_retirement"
-implementation_permission = true
+implementation_permission = false
 base_head = "b9f4e05fc2"
 scope = "src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs, legacy_candidate_cfg.rs, legacy_candidate_tests.rs, their facade declarations, SSA inventory expectation, and fixed test inventory references"
 source_authority = "The fixed HEAD git grep caller graph, module declarations, active production PHI repair owners, SSA inventory guard, and baseline test inventory are the authorities; filename, dead_code status, or stale prose alone is not deletion proof."
@@ -315,7 +315,7 @@ preconditions = [
   "no production caller, external module path, feature, or generated include re-enters the subtree",
 ]
 smallest_slice = "On a branch, delete the three caller-zero legacy files and facade declarations, update the existing SSA inventory and fixed test-inventory baseline, then run the focused PHI repair tests and existing guards. Do not alter active function_repair/edge_rematerialization behavior or create a new guard."
-observed_evidence = "At HEAD efd4fa1140, git grep finds no non-test caller of prepare_legacy_phi_repair_candidate_v1 or LegacyPhiRepairCandidate; active production repair uses function_repair/edge_rematerialization. The subtree is 792 + 26 + 696 lines and contributes eleven named baseline test rows."
+observed_evidence = "At HEAD b9f4e05fc2, git grep found no non-test caller of prepare_legacy_phi_repair_candidate_v1 or LegacyPhiRepairCandidate; active production repair uses function_repair/edge_rematerialization. The retired subtree was 792 + 26 + 696 lines and contributed eleven named baseline test rows."
 allowed_files = [
   "docs/development/current/main/CURRENT_STATE.toml",
   "docs/development/current/main/investigations/mirbuilder-cleanup-retirement1-next-edge-census-2026-08-25.toml",
@@ -326,6 +326,7 @@ allowed_files = [
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch.py",
   "tools/checks/lib/mir_call_d1b_active_surface_dispatch_helpers.py",
   "tools/checks/lib/resolved_binding_ssa_inventory.py",
+  "tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json",
   "tools/checks/manifests/cargo_lib_red_baseline.toml",
   "tools/checks/manifests/cargo_lib_red_baseline.tests.txt",
 ]
@@ -343,6 +344,7 @@ non_claims = [
   "no broad test deletion or baseline failure reclassification",
   "no deletion of edge_verifier, function_repair, edge_rematerialization, remat_fact, or active PHI callers",
 ]
+closeout = "Retired in this closeout: the three caller-zero PHI candidate files and facade declarations are absent; eleven baseline test rows were removed; the SSA inventory was reconciled for already-retired bridge rows; focused replacement tests and the fixed baseline comparator pass at 7407/133/29 with failure hash 299aeee63248e20bf885556baacece21beda0fdf540c6b0d8fdcd74e7d3a8f18; source delta is negative and no new guard, receipt, fixture, or ignore was added."
 
 [[candidate]]
 id = "JOINIR-RETIREMENT-CANDIDATE-CENSUS-D0"
