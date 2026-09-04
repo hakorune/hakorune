@@ -39,7 +39,7 @@ reverse_imports = "HEAD census: builder -> compiler direct use 343 lines/148 fil
 bridge_string_debt = "RequiredArgumentProof(String) and ClaimCompletion(String) lose typed issues; ArgumentDescent(String) is a common recursive port boundary with no bounded typed issue owner"
 runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 358, unwrap 2798, expect 2976, todo 0, allow(dead_code) 95, allow(unused_imports) 45; test/fixture/debug-only paths remain mixed and selected production count is unclassified until a module-registration-aware census"
 
-stale_candidate_disposition = "At HEAD e18ee88140 the two docs-only candidates below are not executable cleanup rows: the seam counts are from an older observation and have no delete-set, while the guard registration candidate is already covered by existing parent ownership or intentionally parked policy. Do not select either candidate without a newly named production edge or a caller-zero delete-set."
+stale_candidate_disposition = "At the prior observed HEAD e18ee88140 (superseded by this disposition commit), the two docs-only candidates below are not executable cleanup rows: the seam counts are from an older observation and have no delete-set, while the guard registration candidate is already covered by existing parent ownership or intentionally parked policy. Do not select either candidate without a newly named production edge or a caller-zero delete-set."
 
 [[candidate]]
 id = "MIRBUILDER-COMPILER-SEAM-CENSUS-D0"
