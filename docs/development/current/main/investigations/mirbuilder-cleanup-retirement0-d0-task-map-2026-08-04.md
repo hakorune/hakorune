@@ -95,6 +95,17 @@ Loop candidate abort and resolved DirectAccum hardening remain a separate
 final lane after Loop production cutover. No `_p0` batch deletion is
 authorized here.
 
+### 2026-09-05 proof-DAG recheck
+
+The remaining compiler-scoped `_p0` shells were rechecked at HEAD
+`1a081dc17f`: no Promote/Delete candidate exists. Each remaining shell has a
+live dependent, guard/manifest edge, missing equal-or-stronger owner-local
+successor, near-limit owner, or the parked `raw_public_cutover_parity` red
+baseline. Keep all 23 remaining shells `ParkedSealed`; do not create a third
+pre-R7 proof-retirement row, batch-delete tests, rebaseline, or add a guard.
+The next proof-DAG row requires one exact successor, inbound-zero proof, and
+guard/manifest retarget before any source deletion.
+
 ## T1-D0 baseline closeout (2026-08-04)
 
 The baseline is frozen before any deletion:
