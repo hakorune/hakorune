@@ -573,7 +573,7 @@ M7/R7 frontier is healthy; do not add a per-candidate guard, receipt, or card.
 
 | candidate | kind | owner / measurable finish | non-claims |
 | --- | --- | --- | --- |
-| `MIRBUILDER-CONFIG-SNAPSHOT-S0` | T0/BoxShape | existing `CompilationContext`; selected emit path env reads cached once, child/dispatch port fields unchanged | no semantic flag changes, no new port axis |
+| `MIRBUILDER-CONFIG-SNAPSHOT-S0` | landed / no reopen | `CompilationContext.emit_debug_policy` owns the invocation snapshot; selected emit path env reads are 0 at `4ba9293900`, with no child/dispatch port axis added | transitive `emit_guard`/SSA/router reads remain a separate design question; no process-global cache or semantic flag change |
 | `MIRBUILDER-EMITTER-FANOUT-S0` | BoxShape | existing unified emitter; four forwarding hops reduced with behavior-neutral before/after frame count | no authority move, no source growth to hide 800-line stop |
 | `MIRBUILDER-DEAD-ANNOTATION-RETIRE-S0` | Delete | one caller-zero `allow(dead_code)` family; annotation and private asset count decrease without visibility widening | no broad purge, no semantic rewrite |
 | `LANG-FASTMEM-SOURCE-FATE-D0` | Design Stop | one finite source caller census decides public syntax/`mem.assume*` fate while MIR `MemOp` remains owned | no source deletion or MemOp removal before the census |
