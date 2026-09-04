@@ -16,6 +16,7 @@ pub(crate) fn load_json_artifact_to_module(
     runner: &NyashRunner,
     json: &str,
 ) -> Result<crate::mir::MirModule, String> {
+    crate::runner::modes::common_util::core_bridge::ensure_methodize_disabled()?;
     // Artifact-family classifier: MIR(JSON) mainline first, Program(JSON v0) compat second.
     // Callers that already hold direct MIR(JSON) should stay on the core-executor seam instead.
     let mut payload = json.to_string();

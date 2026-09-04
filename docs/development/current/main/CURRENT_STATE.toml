@@ -2,9 +2,9 @@ date = "2026-09-04"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "canonical_value_fallthrough_stop"
+current_execution_cohort = "methodize_fallthrough_stop"
 current_design_stop = "none"
-current_blocker_token = "M7-S cohort canonical_value_fallthrough_stop is fast-open: reject canonical Call(Value) at the existing typed unsupported terminal before selected-C JSON re-entry or object emission; preserve explicit LegacyCallV0(Value) compatibility; no new consumer/guard/receipt/adapter."
+current_blocker_token = "M7-S cohort methodize_fallthrough_stop is fast-open: reject retired HAKO_BRIDGE_METHODIZE/NYASH_BRIDGE_METHODIZE before JSON mutation, publication, or backend entry; delete the const-string methodize reissuer; preserve singleton and phi transforms; no new consumer/guard/receipt/adapter."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -33,16 +33,11 @@ latest_card_path = "docs/development/current/main/design/mirbuilder-final-pipeli
 latest_card_summary = """
 Canonical Call publication and bounded reader stops are landed; R7 remains
 closed until production legacy writers/reissuers/readers/re-entry/fallback are
-zero. Worker audits decomposed the formerly shared boundaries into four finite
-outer leaves: duplicate direct-MIR reader Delete, skip_ws probe reader Delete,
-canonical Value fallthrough Stop, and METHODIZE reissuer Stop. The first leaf
-landed at ef3ee28bc5; it deletes the unreachable dispatch-local --mir-json-file
-cascade while preserving runner/mod -> core_executor -> json_artifact as sole
-owner. The second leaf landed at d4ce50b87c: skip_ws/dispatch.rs and its
-route-local probe were removed because both concrete arms ended at the existing
-builder; generic-first selection and trim's shared dispatcher remain. The fixed
-comparator target is 7555/7393/133/29. The next selected leaf is canonical
-Value fallthrough Stop.
+zero. The finite M7-S queue has landed the duplicate direct-MIR reader Delete
+at ef3ee28bc5, skip_ws probe reader Delete at d4ce50b87c, and canonical Value
+fallthrough Stop at a33987e8e4. The sole active leaf is METHODIZE reissuer Stop:
+retired JSON bridge methodize aliases fail before mutation while singleton/phi
+transforms remain unchanged. The fixed comparator target is 7555/7393/133/29.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

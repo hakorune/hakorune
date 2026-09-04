@@ -7,6 +7,8 @@
  *       Rewrite ModuleFunction Array/Map len calls into Method form.
  *   - HAKO_BRIDGE_EARLY_PHI_MATERIALIZE / NYASH_BRIDGE_EARLY_PHI_MATERIALIZE:
  *       Move phi instructions to block head (order-preserving).
+ *   - HAKO_BRIDGE_METHODIZE / NYASH_BRIDGE_METHODIZE:
+ *       Retired; requests fail before JSON canonicalization.
  * Dumps payload when `HAKO_DEBUG_NYVM_BRIDGE_DUMP` is set to a file path.
  */
 
@@ -14,6 +16,7 @@ use serde_json::Value;
 use std::{env, fs};
 
 pub fn canonicalize_module_json(input: &str) -> Result<String, String> {
+    ensure_methodize_disabled()?;
     let mut output = input.to_string();
 
     if let Ok(path) = env::var("HAKO_DEBUG_NYVM_BRIDGE_DUMP") {
@@ -29,9 +32,7 @@ pub fn canonicalize_module_json(input: &str) -> Result<String, String> {
         env_flag("HAKO_BRIDGE_INJECT_SINGLETON") || env_flag("NYASH_BRIDGE_INJECT_SINGLETON");
     let materialize_phi = env_flag("HAKO_BRIDGE_EARLY_PHI_MATERIALIZE")
         || env_flag("NYASH_BRIDGE_EARLY_PHI_MATERIALIZE");
-    let methodize = env_flag("HAKO_BRIDGE_METHODIZE") || env_flag("NYASH_BRIDGE_METHODIZE");
-
-    if inject_singleton || materialize_phi || methodize {
+    if inject_singleton || materialize_phi {
         let mut json: Value = serde_json::from_str(input)
             .map_err(|e| format!("bridge canonicalize: invalid JSON ({})", e))?;
         let mut mutated = false;
@@ -40,9 +41,6 @@ pub fn canonicalize_module_json(input: &str) -> Result<String, String> {
         }
         if materialize_phi {
             mutated |= materialize_phi_blocks(&mut json)?;
-        }
-        if methodize {
-            mutated |= methodize_calls(&mut json)?;
         }
         if mutated {
             output = serde_json::to_string(&json)
@@ -60,6 +58,16 @@ pub fn canonicalize_module_json(input: &str) -> Result<String, String> {
     }
 
     Ok(output)
+}
+
+pub(crate) fn ensure_methodize_disabled() -> Result<(), String> {
+    if env_flag("HAKO_BRIDGE_METHODIZE") || env_flag("NYASH_BRIDGE_METHODIZE") {
+        return Err(
+            "[freeze:contract][mir-json-bridge/methodize-retired] methodize compatibility reissuer is retired"
+                .to_owned(),
+        );
+    }
+    Ok(())
 }
 
 fn env_flag(name: &str) -> bool {
@@ -95,106 +103,6 @@ fn inject_singleton_methods(root: &mut Value) -> Result<bool, String> {
         }
     }
 
-    Ok(changed)
-}
-
-/// Rewrite legacy call(func=reg) with Const string target "Box.method/N" into unified
-/// mir_call(Method { box_name, method }, args)
-fn methodize_calls(root: &mut Value) -> Result<bool, String> {
-    let mut changed = false;
-    let functions = match root.as_object_mut() {
-        Some(obj) => obj.get_mut("functions"),
-        None => return Err("bridge canonicalize: expected JSON object at root".into()),
-    };
-    let functions = match functions {
-        Some(Value::Array(arr)) => arr,
-        Some(_) => return Err("bridge canonicalize: functions must be array".into()),
-        None => return Ok(false),
-    };
-
-    for func in functions.iter_mut() {
-        let blocks = func.get_mut("blocks").and_then(Value::as_array_mut);
-        let Some(blocks) = blocks else { continue };
-        for block in blocks.iter_mut() {
-            let insts_opt = block.get_mut("instructions").and_then(Value::as_array_mut);
-            let Some(insts) = insts_opt else { continue };
-            // First pass: collect const string targets reg -> name
-            use std::collections::HashMap;
-            let mut reg_name: HashMap<i64, String> = HashMap::new();
-            for inst in insts.iter() {
-                if let Some(obj) = inst.as_object() {
-                    if obj.get("op").and_then(Value::as_str) == Some("const") {
-                        if let (Some(dst), Some(val)) =
-                            (obj.get("dst").and_then(Value::as_i64), obj.get("value"))
-                        {
-                            let mut s: Option<String> = None;
-                            if let Some(st) = val.as_str() {
-                                s = Some(st.to_string());
-                            } else if let Some(vobj) = val.as_object() {
-                                if let Some(Value::String(st)) = vobj.get("value") {
-                                    s = Some(st.clone());
-                                }
-                            }
-                            if let Some(name) = s {
-                                // Accept only names with dot separator
-                                if name.contains('.') {
-                                    reg_name.insert(dst, name);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // Second pass: rewrite calls
-            for inst in insts.iter_mut() {
-                let Some(obj) = inst.as_object_mut() else {
-                    continue;
-                };
-                if obj.get("op").and_then(Value::as_str) != Some("call") {
-                    continue;
-                }
-                let Some(func_reg) = obj.get("func").and_then(Value::as_i64) else {
-                    continue;
-                };
-                let Some(name) = reg_name.get(&func_reg).cloned() else {
-                    continue;
-                };
-                // Split Box.method[/N]
-                let mut parts = name.split('.');
-                let box_name = match parts.next() {
-                    Some(x) => x,
-                    None => continue,
-                };
-                let rest = match parts.next() {
-                    Some(x) => x,
-                    None => continue,
-                };
-                let method = rest.split('/').next().unwrap_or(rest);
-
-                // Build mir_call object
-                let args = obj.get("args").cloned().unwrap_or(Value::Array(vec![]));
-                let dst = obj.get("dst").cloned();
-
-                let mut callee = serde_json::Map::new();
-                callee.insert("type".to_string(), Value::String("Method".into()));
-                callee.insert("box_name".to_string(), Value::String(box_name.to_string()));
-                callee.insert("method".to_string(), Value::String(method.to_string()));
-
-                let mut mir_call = serde_json::Map::new();
-                mir_call.insert("callee".to_string(), Value::Object(callee));
-                mir_call.insert("args".to_string(), args);
-                mir_call.insert("effects".to_string(), Value::Array(vec![]));
-
-                obj.insert("op".to_string(), Value::String("mir_call".into()));
-                if let Some(d) = dst {
-                    obj.insert("dst".to_string(), d);
-                }
-                obj.remove("func");
-                obj.insert("mir_call".to_string(), Value::Object(mir_call));
-                changed = true;
-            }
-        }
-    }
     Ok(changed)
 }
 
@@ -358,6 +266,11 @@ mod tests {
         let input = r#"{"functions":[{"blocks":[{"instructions":[{"op":"mir_call","mir_call":{"callee":{"type":"ModuleFunction","name":"LLVMPhiInstructionBox.lower_phi"},"args":[1,2]}}]}]}]}"#;
         let output = canonicalize_module_json(input).expect("canonicalize");
         assert_eq!(output, input);
+
+        let error = with_env("HAKO_BRIDGE_METHODIZE", "1", || {
+            canonicalize_module_json(input).expect_err("retired methodize must stop")
+        });
+        assert!(error.contains("[freeze:contract][mir-json-bridge/methodize-retired]"));
     }
 
     #[test]

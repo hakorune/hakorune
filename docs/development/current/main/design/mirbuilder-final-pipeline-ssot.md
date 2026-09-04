@@ -450,12 +450,11 @@ No `CallV2`, second Builder, new resolver, Global disguise for instance
 methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
-
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 
 status = fast_open
 implementation permission = true
-current cohort = `canonical_value_fallthrough_stop`
+current cohort = `methodize_fallthrough_stop`
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -485,21 +484,22 @@ card, receipt, adapter, fixture file, or guard.
 
 ```text
 Change:
-  Stop canonical Call(Value) before any selected-C JSON re-entry or object
-  emission; keep explicit LegacyCallV0(Value) compatibility unchanged.
+  Stop the retired JSON-bridge METHODIZE reissuer before JSON mutation,
+  publication, or backend entry; preserve singleton and phi transforms.
 Contract:
-  Canonical published Value calls fail at the existing typed unsupported
-  terminal. Do not add a canonical consumer, JSON adapter, or fallback.
+  HAKO_BRIDGE_METHODIZE/NYASH_BRIDGE_METHODIZE use one typed retirement
+  terminal. Do not add a consumer, adapter, fallback, guard, or receipt.
 Done:
-  canonical Value fallthrough 1->0, no temporary JSON/C/object path, focused
-  negative test and fixed failure-name set unchanged; new guard=0 and new receipt=0.
+  methodize reissuer 1->0, json_artifact cannot swallow the retirement error,
+  focused bridge tests and fixed failure-name set unchanged; new guard=0 and new receipt=0.
 Stop:
-  Park only this cohort if no canonical Value path reaches the fallthrough or
-  the existing typed terminal cannot reject before object emission.
+  Park only this cohort if a product caller requires methodize or the terminal
+  cannot reject before JSON mutation.
 ```
 
-Closeout: direct MIR v1/v0, Program(JSON) rejection, and fixed comparator
-`7555/7393/133/29` stayed green with the same failure SHA at the prior leaves.
+Closeout: canonical Value Stop landed at `a33987e8e4`; direct MIR v1/v0,
+Program(JSON) rejection, and fixed comparator `7555/7393/133/29` stayed green
+with the same failure SHA. METHODIZE is the sole active leaf.
 
 ##### Finite reduction queue (worker-audited 2026-09-04)
 
@@ -507,8 +507,8 @@ Closeout: direct MIR v1/v0, Program(JSON) rejection, and fixed comparator
 | --- | --- | --- | --- |
 | 1 landed | `direct_mir_json_duplicate_reader_delete` / Delete | `runner/dispatch.rs` duplicate `mir_json_file` branch; earlier `runner/mod.rs` branch terminates every state | landed at `ef3ee28bc5`; one direct owner; v1/v0 positives and malformed/Program negatives unchanged |
 | 2 landed | `skip_ws_probe_reader_delete` / Delete | `skip_ws/dispatch.rs` and route-local MIR-vs-handwritten probe; both concrete arms ended at `build_skip_ws_joinir` | landed at `d4ce50b87c`; direct builder preserves generic-first and missing-target `None`; trim shared dispatcher unchanged |
-| 3 active | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
-| 4 | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | reject before parse/publication/backend; delete methodize aliases and reissuer |
+| 3 landed | `canonical_value_fallthrough_stop` / Stop | `PublishedMirBackendView` canonical `Call(Value)` no-selection -> selected-C JSON re-entry | landed at `a33987e8e4`; `UnsupportedBeforeObject` before temp JSON/C/object; legacy Value compatibility unchanged |
+| 4 active | `methodize_fallthrough_stop` / Stop | `json_artifact` swallowed METHODIZE canonicalizer errors and `core_bridge::methodize_calls` | reject before parse/publication/backend; delete methodize aliases and reissuer |
 
 On success, tombstone the active line with its commit and select the next line
 in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
