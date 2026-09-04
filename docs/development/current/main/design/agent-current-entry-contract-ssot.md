@@ -183,6 +183,18 @@ Every `Promote`, `Stop`, or `Delete` row must reduce at least one production
 old edge in the same bounded series; row, docs, guard, receipt, and test counts
 are not progress metrics.
 
+### Improvement backlog admission
+
+The backlog is navigation, not implementation permission. Open at most one
+improvement row, and only after verification health is `Green` or
+`StableKnownRed`. The row must name one existing owner, one measurable
+before/after, and one production edge or caller-zero deletion; measurement-only
+work is recorded in the existing closeout. A `T0` improvement is allowed only
+when it is compiler-proven non-semantic, net-negative or source-delta-zero,
+adds no guard/receipt/fixture/port axis, and cannot leave a parked smoke in
+default discovery. Otherwise return to Design Stop instead of growing a new
+suffix or parallel cleanup lane.
+
 ### Classification-completeness check
 
 Every routing, claim, publication, admission, or lifecycle design card must

@@ -563,6 +563,19 @@ consumers leaf-first. A file move or tracked archive copy receives zero
 reduction credit. Each family deletes its private tests/guards/docs with the
 old edge; durable history remains in Git.
 
+### Post-M7 improvement backlog (navigation only)
+
+These are bounded candidates, not current execution rows. Select one only
+through the admission rule in `agent-current-entry-contract-ssot.md` after the
+M7/R7 frontier is healthy; do not add a per-candidate guard, receipt, or card.
+
+| candidate | kind | owner / measurable finish | non-claims |
+| --- | --- | --- | --- |
+| `MIRBUILDER-CONFIG-SNAPSHOT-S0` | T0/BoxShape | existing `CompilationContext`; selected emit path env reads cached once, child/dispatch port fields unchanged | no semantic flag changes, no new port axis |
+| `MIRBUILDER-EMITTER-FANOUT-S0` | BoxShape | existing unified emitter; four forwarding hops reduced with behavior-neutral before/after frame count | no authority move, no source growth to hide 800-line stop |
+| `MIRBUILDER-DEAD-ANNOTATION-RETIRE-S0` | Delete | one caller-zero `allow(dead_code)` family; annotation and private asset count decrease without visibility widening | no broad purge, no semantic rewrite |
+| `LANG-FASTMEM-SOURCE-FATE-D0` | Design Stop | one finite source caller census decides public syntax/`mem.assume*` fate while MIR `MemOp` remains owned | no source deletion or MemOp removal before the census |
+
 ### Evidence reuse and repayment
 
 Do not add an R6/R7-specific guard. Reuse the existing lifecycle, canonical
