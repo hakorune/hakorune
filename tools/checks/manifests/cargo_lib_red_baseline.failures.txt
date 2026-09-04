@@ -1,5 +1,4 @@
 mir::builder::calls::function_call_preflight_route::tests::rejecting_routes_precede_children_and_typeop_uses_one_child
-mir::builder::calls::unified_emitter::post_success::tests::global_payload_keeps_the_final_signature_and_collection_shape
 mir::builder::control_flow::edgecfg::api::emit::tests::test_emit_frag_block_params_inserts_phi
 mir::builder::control_flow::plan::features::generic_loop_whole_parity_tests::actual_canonical_prefix_rejects_untyped_numeric_loop_carrier_before_claims
 mir::builder::control_flow::plan::features::generic_loop_whole_parity_tests::actual_method_prefix_uses_canonical_parameters_and_keeps_one_live_scope_for_loop_handoff
@@ -86,7 +85,6 @@ mir::global_call_route_plan::tests::static_string_array::refresh_module_global_c
 mir::global_call_route_plan::tests::void_side_effect::refresh_module_semantic_metadata_accepts_void_side_effect_array_push_body
 mir::loop_recipe_contract::source_bound_core_tests::source_bound_core_rejects_derived_carrier_and_duplicate_effect_mismatch
 mir::loop_route_policy::policy_evidence::tests::evidence_vocabulary_is_closed_and_round_trips_each_disposition
-mir::passes::string_corridor_sink::tests::benchmarks::benchmark_kilo_kernel_small_has_combined_edit_observer_region
 mir::resolved_semantics::owner_forest_tests::resolver_seals_receiver_read_as_structural_upvar
 mir::resolved_semantics::shadow::tests::accepted_vocabulary_is_closed_and_reviewable
 mir::type_contracts::local_slot::tests::contract_initializer_evaluates_call_once
@@ -108,9 +106,6 @@ tests::joinir::mainline_phase49::phase49_joinir_array_filter_smoke
 tests::mir::mir_brand_constructor::tests::mir_builder_keeps_unresolved_function_failure_for_non_brand_calls
 tests::mir::mir_breakfinder_ssa::mir_breakfinder_direct_min_compiles
 tests::mir::mir_breakfinder_ssa::mir_loopssa_breakfinder_min_verifies
-tests::mir::mir_corebox_router_unified::array::array_value_insert_uses_unified_receiver_arg_shape
-tests::mir::mir_corebox_router_unified::array::array_value_push_uses_unified_receiver_arg_shape
-tests::mir::mir_corebox_router_unified::array::array_value_set_uses_unified_receiver_arg_shape
 tests::mir::mir_corebox_router_unified::map::map_value_get_missing_key_stays_unknown_after_typed_write
 tests::mir::mir_corebox_router_unified::map::map_value_get_mixed_value_results_stay_unknown
 tests::mir::mir_guard_let_enummatch::direct_mir_guard_let_result_ok_lowers_enum_match_shape

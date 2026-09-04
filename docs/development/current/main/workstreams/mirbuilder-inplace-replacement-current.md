@@ -40,16 +40,16 @@ disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
 closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
 reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
-The accepted 138-name failure receipt remains immutable. The bounded
-canonical-call reader repair is now stable under the fixed runner at
-`7579/7417/133/29`; the current-minus-accepted failure-name comparison has
-zero additions. The inventory has one post-receipt test, and five accepted
-known-red names now pass, so the baseline comparator remains open for explicit
-receipt reconciliation rather than an automatic rebaseline. All repaired
-sites descend from the `45c6759962` Call/LegacyCallV0 shape split. This is
-repair-to-pass evidence, not permission to open JSON-v1, BoxShape, performance,
-or another semantic/cleanup family. Reuse
-`DEV-GATE-LIB-BASELINE-REFRESH-R0` for the bounded evidence closeout below.
+The prior 138-name failure receipt is preserved in Git history. The bounded
+canonical-call reader repair is stable under the fixed runner at
+`7579/7417/133/29`; the current-minus-prior failure-name comparison has zero
+additions. The inventory has one post-receipt test and five prior known-red
+names now pass, so the explicit successor receipt is checked in rather than
+silently widening the baseline. All repaired sites descend from the
+`45c6759962` Call/LegacyCallV0 shape split. This remains verification repair
+evidence, not automatic permission to open JSON-v1, BoxShape, performance, or
+another semantic/cleanup family. The queued JSON-v1 Stop cohort may be selected
+only by an explicit pointer update.
 M3-B is parked after its finite census: the Birth issuer is unique, but two
 unclaimed compatibility writers share the existing outer APIs and have no
 exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete

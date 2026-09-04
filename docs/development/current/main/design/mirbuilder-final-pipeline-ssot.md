@@ -398,12 +398,11 @@ The following are one dependency program, not simultaneously active cards.
 
 This is a finite verification incident, not a baseline acceptance. The latest
 fixed-command observation after the bounded canonical-call reader repair is
-`7579 total`, `7417/133/29`; the immutable accepted failure set remains
-`7411/138/29`. The current-minus-accepted failure-name comparison has **zero
-added names** and five accepted known-red names now pass. The current inventory
-has one post-receipt test entry, so the inventory and summary no longer match
-the immutable receipt exactly. This is repair-to-pass evidence, not permission
-to rebaseline; an explicit receipt-policy reconciliation is still required.
+`7579 total`, `7417/133/29`; the prior accepted receipt was `7411/138/29`.
+The current-minus-prior failure-name comparison has **zero added names** and
+five prior known-red names now pass. The current inventory has one post-receipt
+test entry. The explicit successor receipt is now checked in with the current
+inventory/failure hashes; the prior receipt remains preserved in Git history.
 
 The exact, non-overlapping repair order is: `V0-R1` builder
 publication/readers (30), `V0-R2` JoinIR canonical Print assertion (1),
@@ -422,16 +421,15 @@ The five named repair cohorts have now completed in the existing
 was created. The fixed command is stable at `7579/7417/133/29` with zero new
 failure names. The 2026-09-01 row is closed as `stopped_later_quick_red` with
 implementation permission false, and the repair is recorded at
-`917a078c6c`. Because one inventory entry was added and five accepted reds
-resolved, the immutable receipt still needs an explicit policy decision; do
-not automatically rewrite it or open JSON-v1, BoxShape, performance, test
-retirement, or another semantic family.
+`917a078c6c`. The explicit successor receipt records the one inventory
+addition and five resolved prior reds; the queued JSON-v1 Stop cohort is now
+eligible only when the pointer explicitly selects it.
 
 Acceptance for this bounded repair is zero added failure names under the fixed
-runner, with the accepted 138-name receipt kept immutable and the discrepancy
-recorded for explicit reconciliation. Until that policy decision is made no
-semantic, BoxShape, performance, test retirement, or compatibility Stop is
-permitted.
+runner, with the prior 138-name receipt preserved in Git history and the
+successor receipt accepted after explicit reconciliation. No semantic,
+BoxShape, performance, test retirement, or compatibility Stop is implied until
+the pointer selects an eligible existing row.
 
 Worker-audited cleanup queue (2026-09-04): the verification incident keeps all
 BoxShape implementation parked. After `StableKnownRed`, the existing cleanup
