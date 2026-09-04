@@ -392,214 +392,83 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
 
 ## Ordered frontier
 
-```text
-0. MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION        (architecture accepted)
-   three structural shapes, bounded exact v2, future one-way symbol projection,
-   observer contract, and the finite readiness queue below are accepted
+Execution projection updated 2026-09-05. Global order remains in the
+[final-pipeline SSOT](../design/mirbuilder-final-pipeline-ssot.md).
+The former B0/Wpre/individual-row navigation list is superseded here;
+its exact historical body remains at `bafa076579`. This removes stale
+scheduling instructions, not unfinished acceptance obligations.
 
-1. MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0               (landed)
-   reusable fail-closed guard; phases wpre_readiness/wpre_i0/typed_global_b1/r7
+### Ready now — finish the existing ArrayElementWrite boundary
 
-1a. MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0                     (landed, docs-only)
-    inventory every section removed by 9bff1a1ff2 that carried review_source,
-    A/B/C disposition, QualifiedStaticPayloadAbsent, TargetPayloadMissing, or
-    terminal_role_split; map each to the current B0 owner with superseded_by /
-    retained historical token, and record the user-supplied Pro review plus the
-    six read-only audit roles integrated by 45bff917e3. No transcript is invented
+Reuse M7-S `array_element_write_published_c_cutover_i0`; no new card or
+semantic carrier. The three native projection callers were removed at
+`9cb7a6c71a`, but the entire source-to-execution acceptance is still open.
 
-1b. MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0             (landed, fast guard-only)
-    turn the finite family matrix, compiled-consumer owner inventory, Wpre/wire
-    impact table, and exact print/1 attribution into one machine-readable manifest
-    plus reusable fail-closed guard. Unknown owner/family/path and stale manifest
-    fail; this guard is evidence only and grants no Wpre/B1 implementation permission
+1. **Capability repair (implementation-ready).** The shared owner
+   `src/host_providers/llvm_codegen/published_mir_object.rs` must invoke the
+   existing `src/mir/backend_capability.rs` policy before physical transport
+   or artifact creation, with the selected EXE/OBJ identity. Cover direct
+   published entrypoints, the three `exec.rs` wrappers and
+   `published_mir_emit.rs`; patching only wrappers leaves a bypass.
+   Ordinary array writes stay supported; typed-array contracts retain their
+   existing unsupported terminal. Do not broaden capability or restore projection.
+2. **Complete execution acceptance.** Extend existing test owners
+   `published_backend_view_tests.rs`,
+   `src/tests/mir_array_element_write_lowering.rs` and runner tests as needed.
+   Parse ordinary source and exercise LiteralAppend/Push/Set/Insert through
+   selected OBJ plus linked execution and EXE. Assert resulting contents/order,
+   not only a constant exit status. Verify semantic Void does not expose runtime
+   i64 status; a present Void destination is not itself malformed.
+   Missing/extra index and unsupported typed Array contracts must reject before
+   output creation; retry stays zero. Required native prerequisites missing means
+   unavailable evidence, not a passing skipped EXE test.
+3. **Reconcile and close.** Run focused positives/negatives, native build and
+   the existing fixed lib comparator. Keep accepted failure identities; classify
+   any delta and explicit test additions without blanket rebaseline. Preserve
+   native projection callers 3→0 and explicit llvmlite exclusion. Update existing
+   README/reference and evidence only. Synthetic MIR proof remains useful but
+   is not a substitute for source execution.
 
-1c. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT (design stop)
-   bound Wpre-I0 to shared runner family-unknown entrances and freeze profile x root
-   matrix, one parsed Value ownership, decoder signatures, strict duplicate-key owner,
-   and exact delete set. No parser or fallback code changes.
+These are repair/verification tasks, not a request for a new source authority.
+An upstream terminal is dependency evidence: name its owner and fix an in-scope
+regression or make a bounded disposition decision; do not silently claim the
+downstream acceptance passed.
 
-1d. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE (completed, docs-only)
-   split Stage1 arbitration from captured payload, make core-direct an in-scope blocker,
-   add reference child re-entry and actual C-ABI/LLVM/runtime callers, and give every
-   outside row owner/status/reason/reopen/non-authority. No implementation.
+### Dependency-ordered remaining development
 
-1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (completed, design-only)
-   explicit Stage1 CLI + any JSON CLI conflicts; multiple JSON CLIs conflict; one explicit
-   JSON CLI beats ambient Stage1; no explicit JSON CLI keeps existing Stage1 selection.
-   Captured MIR-v0/Program-v0 stays family-selected compatibility.
+| order | existing task / owner | finite output and handoff |
+| --- | --- | --- |
+| A | `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` in final-pipeline | Pin exact source programs, profiles/backends, commands/toolchain and success or intentional rejection expectations. Expand discovery once; exclusions explicit. Use the existing baseline inventory separately for lib health. Unknown evidence remains open; do not invent an all-green claim. |
+| B | M7-S remaining owner-unit Stop/Promote/Delete | Use the existing finite reader inventory, including MIR-to-JoinIR and remaining external compatibility owners. For each shared owner close outside readers and one finite delete-set together; do not split by callee merely to create more rows. Preserve accepted product scope from A. No backend parity prerequisite for an authorized compatibility Stop. |
+| C | Call/R7 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | Production writers/readers/reissuers/re-entry/fallback zero; delete LegacyCallV0 and obsolete Call/Method shapes in one isolated series. Compiler diagnostics cover mechanical uses, supplemented by existing dynamic ingress inventory. No CallV2 or second resolver. |
+| D | Loop prerequisite closure in `joinir-loop-selfhost-recipe-pipeline-ssot.md` M10 | Reuse recorded closed proofs; close the first unfinished semantic-program co-seal, JoinSig transfer, common bound segment or S6C package dependency. Each output must name its actual consumer/cutover/delete-set, not another disconnected receipt. |
+| E | Loop/M8 S6 and Loop/M9 S7 | Complete the fixed all19 coverage and selfhost Loop parity sets. These are NOT Call/M8 cleanup or Call/M9 backend retirement. Missing source shape is a named bounded design/implementation dependency, not a repository-wide Park. |
+| F | `LOOP-PRODUCTION-SELECTION-D0` → Loop/M10b → M11 → M12 | After prerequisite/coverage evidence, decide production selection, switch the portable handoff, then remove raw/family adapters. Use exact existing IDs in the Loop owner SSOT; no repetition of landed G0 proofs. |
+| G | `REPO-FINAL-CONVERGENCE-AUDIT0-G0` and physical cleanup | Run scope A and verify actual switches/deletions. Remove caller-zero tests/guards/facades/docs leaf-to-root after equivalent evidence is retained. Call/M8 cleanup can repay already-zero owners earlier, but cannot substitute for Loop completion. |
+| H | unified selfhost resume owner | Whole MirBuilder gate → language conformance/rejection matrix → canonical mimalloc gate → `MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001`. Select actual Facts authority/caller/deletion, not the retired MapStore/classifier queue. |
+| I | authority migration and final self-compile task pack | Facts/REGISTRY/commands/executor then parser; pinned compiler closure compiled by Stage1 without Rust frontend delegation, runnable Stage2 compiles and runs acceptance programs. Equality alone is bootstrap evidence. |
 
-1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (completed, design-only)
-   freeze vm-hako child route-environment isolation and canonical-v1 emission family; no
-   public Wpre/hv1 re-entry or retry is accepted.
+H/I dependencies and exact proof are owned by
+[selfhost resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order)
+and the existing Stage2+ task pack. WASM Hako codegen, broad performance,
+VM retirement and unselected backend parity remain sibling programs, not
+new completion conditions for A–G.
 
-1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 (landed)
-   move the reduced MiniVm payload to the two private one-of transport keys, scrub public
-   Wpre/hv1/Stage1/fallback/Program-JSON/trace selectors, pin TOML/VM policy, and migrate
-   the three live reference monitors plus the active alias probe atomically. Guard and
-   cleanup evidence are closed; no later row opens automatically.
+### Selection without another design-stop loop
 
-1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (landed)
-   after transport I0, emit one explicit CanonicalV1 serde_json::Value, normalize the same
-   owned Value once, subset-check once, and project once. Ambient profile selection,
-   temporary v1 file/readback, and production raw String parses are removed.
+Ready task 1 is selected now; remaining rows are dependency-queued, not
+implementation permission for every family. A missing contract within this
+user-authorized planning scope gets one bounded design decision in its existing
+owner: exact unresolved field, alternatives, chosen boundary, consumer and
+next code change. Do not wait for a new caller to appear spontaneously.
+Genuinely new language/product capability decisions still require an explicit
+decision; never manufacture identity or silently reject accepted scope.
 
-1i. CORE-DIRECT-RETIRE-D0 (landed design-only) -> CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0
-   (landed) -> CORE-DIRECT-RETIRE-R0 (landed)
-   D0 classifies the six active smokes into ProductAot / SemanticReference /
-   HistoricalDelete. S0 moves the one product-observable substring case to an
-   exact EXE/AOT owner. Pre-Wpre R0 uses one post-decode stderr terminal
-   ([core-direct/retired], rc=1); unavailable is ParkedSealed until Wpre owns a
-   family issuer. R0 deletes raw probe/child/in-proc reparse/VM fallback.
-
-1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
-   retire production force-hv1; the legacy arithmetic snapshot is 116 lexical leaves (33 direct,
-   74 textual helper, 9 wrapper-only), 78 force reachers / 80 invocations, and 38 non-force residual consumers with migration blockers=9. Body/environment observation is 120 lexical sites:
-   33/33 direct-force sealed, 44/45 conditional-force candidate, 35/35 explicit-core residual,
-   and 4/7 unresolved dynamic; conditional/unresolved rows are CutoverBlockerOpen and cannot be
-   ParkedSealed. Standard-v1 reroute is forbidden.
-   Design order: body-derived census schema -> direct HistoricalDelete R0a owner review/exception validation -> Stage1 Proof/AOT
-   -> Map exact AOT -> Array push capability -> Array exact AOT -> four dynamic fates
-   -> narrow helper cut with explicit-core residuals preserved -> startup tombstone and closeout.
-   `FORCE-HV1-GUARD-CURRENT-LIFECYCLE-I0` is landed; `SMOKE-OWNER-PACK-ZERO-MATCH-D0`
-   and `FORCE-HV1-STAGE1-AOT-BOUNDARY-D0` remain historical owner markers.
-
-1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
-   strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and
-   non-Clone; decode consumes it and borrows one Value without raw-string reparse or retry.
-
-2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
-   shared runner parses JSON root once; selects exact v2/v1/MIR-v0/Program-v0 once; deletes raw
-   substring selection, canonicalize/reload, dispatch-local cascade, swallowed
-   core-direct error/re-entry, and explicit-v1-error -> v0 retry
-
-3. MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-R0
-   replace the live one-stage transport and retire reader-zero flags
-
-4. MIR-CALL-EFFECT-AUTHORITY-E0
-   freeze source/provider/wire-owned effects before any target reroute: Print=IO,
-   panic/exit=IO|CONTROL, Extern=declared exact mask or reject, same-module=
-   semantic package/body mask, compatibility=explicit owner mapping with no default
-
-5. MIR-CALL-SAME-MODULE-SOURCE-IDENTITY-PRESERVE-R0
-   preserve exact free/static source identity through
-   `VerifiedTrivialDirectCallTargetV1` and `VerifiedResolvedOwnerHeaderV1`;
-   delete parse-back, but retain exactly one guarded old one-way String
-   projector/publication until B1 consumes and types it
-
-6. MIR-CALL-IMPORTED-STATIC-EXACT-RELATION-R0
-   alias plus exact final-module declaration -> retained structural source row;
-   alias-only/foreign/ambiguous input rejects before arguments
-
-7. MIR-CALL-COMPAT-GLOBAL-RESOLUTION-W1-R0
-   v1/v0/Program-v0 text resolves once to a finite target disposition or reject;
-   keep only a guarded old physical publication until B1, never a new String issuer
-
-8. MIR-CALL-JOINIR-GENERATED-FREE-TARGET-J0
-   co-seal JoinFuncId, exact JoinFunction name/arity and declaration; delete
-   generated-name fallback, alias fanout and target Const, but retain exactly one
-   guarded old Global(String) physical publication until B1 types it
-
-9. MIR-CALL-BOUNDED-GC-FALSE-GLOBAL-RETIRE-R0
-   delete `gc_collect/gc_stats` Global publication and reject before arguments;
-   future GC semantics stay parked behind their own source owner
-
-10. MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0
-   delete the selected Deferred edge, complete owner/package issuance, abort
-   incomplete disposition before install, and issue no target from observation
-
-11. MIR-CALL-GLOBAL-BUILTIN-EXTERN-DISPOSITION-R0
-    exact print/1 retains one guarded Global publication for B1; panic/1 leaves
-    the Call lane for the parked terminal-Fault series; exit/1 stays unissued;
-    bare error/now/println reject; explicit declared providers remain Extern
-
-12. MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0
-   the finite preflight classification is closed: four named compatibility
-   origins remain explicit and generic UnclassifiedSource rejects before
-   arguments. Their downstream Resolved/recovery descendants are outside this
-   boundary and remain live; global caller-zero/deletion is not yet claimed
-
-13. MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0
-    (unlocked only after the B1 structural Callee/CallTarget cutover below)
-    exact site/owner/catalog co-seal -> non-empty stack-owned loan -> take_once
-    -> arguments once -> Call once -> residual zero; direct CatalogedTargeted
-    payload deleted in the same cell after late recovery is already zero
-
-14. MIR-CALL-METHOD-CORRIDOR-R0
-   complete/Exhausted. The Rust selector/reissuer, static-none producer, Builder
-   terminal, named compatibility origins, and caller-zero Resolved corridor are
-   retired through 598530d23b. Stage1/Hako/JSON and VM/backend remain separate
-   named owners; this row claims no terminal/schema retirement outside Rust Builder.
-
-15. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0
-    blocker-open parent with nine production families: exact static receipt,
-    ordinary static terminal, generic and selected-exact CorePlan, env operators,
-    physical thunk, rewrite/known, ordinary-new birth, and cataloged provider.
-    Exact final-module declarations retain one guarded publication; authority-free
-    publishers reject before effects. The active bounded child is
-    MIR-CALL-SAME-MODULE-STATIC-RECEIPT-TARGET-BEFORE-ARGS-I0: exactly three
-    canonical-key callers project a typed target before descent, and the receipt
-    terminal stops reconstructing it from owner/name/arity. No formatted text,
-    plan `func: String`, env, symbol, candidate/header lookup, or retry is authority.
-
-16. MIR-CALL-GLOBAL-TARGET-DEAD-TEXT-CALLSHAPE-S0
-    move only the call-shape matcher out of the 790-line owner; no behavior change
-
-17. MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0
-    enumerate the finite surviving exact String publications and every compiled
-    consumer by owner/action; arbitrary publisher/recovery/methodize count is zero.
-    Any new hole inserts an owner-specific S0/R0, then C0 reruns; only exhausted C0
-    with all remediation rows closed may open the structural cutover required before
-    D1B target issuance
-
-18. MIR-CALL-GLOBAL-TARGET-B1-CUTOVER
-    add the serde-free defs type; atomically change both `Callee::Global` and
-    `CallTarget::Global`; type the retained exact publications; add bounded v2
-    codec, sole projection and one MirModule lookup; adapt/delete/isolate every
-    compiled consumer without formatter, reparse, registry, fallback, or retry.
-    B1 corrective R0 must first keep the explicit `vm-reference` feature
-    compiling, enforce the finite Global-family disposition, and name the nine
-    transitional selected-symbol owners. This row is a prerequisite for item
-    13; a new D1 String issuer is forbidden.
-
-19. MIR-CALL-WIRE-CONSTRUCTION-TERMINAL-R0
-    close isolated noncanonical compatibility and construction terminals:
-    Constructor -> NewBox and Closure -> NewClosure/Value. Canonical ignored/default
-    effects are already zero at E0/W1/B1 and cannot be deferred to this row
-
-20. MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0
-    writers, func readers, optional Callee/receiver, construction variants,
-    sentinels, wire/backend retry, and guards recounted at current HEAD
-
-21. MIR-CALL-CORE-SCHEMA-CUTOVER-R6
-    atomically delete func, Option<Callee>, optional receiver, INVALID/0 target
-
-22. MIR-CALL-LEGACY-GUARD-CLOSEOUT-R7
-    legacy fixtures move to compatibility ingress; impossible-state guards,
-    stale comments, README/reference/current history close
-
-23. MIRBUILDER-POST-CALL-INTEGRATION-R0
-    recovery context deletion -> root/recursion state localization -> finite
-    CompilationContext/metadata/raw-port/adapter/barrel owner cleanup
-
-24. remaining selected pipeline rows -> final repository convergence audit
-```
-
-The VM retirement sibling may perform read-only census work earlier, but its
-broad implementation begins only after row 23:
-
-```text
-route selection de-ambient
-  -> legacy vm-compat / PyVM product hook / current vm-hako retirement
-  -> broad/default Rust execution caller migration
-  -> independent AOT HMI artifact and reference cutover
-  -> Rust MirInterpreter caller zero and physical deletion
-```
-
-`vm-active-lane-retirement-ssot.md` owns that backend sequence. This workstream
-owns only the pre-Wpre CoreDirect/force-hv1 bypass closure and the Call spine.
-
-No later row can be pulled before an earlier authority boundary. Local green,
-worker review, textual caller-zero, or schema compile errors are not permission.
+Park only the affected family and select another ready existing dependency.
+Unclassified verification failures take priority over semantic/cleanup changes.
+Count completed runtime behavior and retired edges separately from explicit
+unsupported dispositions and test/LOC reductions. No new per-row guard,
+receipt, ledger or repeated broad census is required.
 
 ## Source and ownership budget
 

@@ -454,17 +454,15 @@ because the current import closure cannot reach `FuncLoweringBox`.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
-| 8 landed (`9cb7a6c71a`) | `array_element_write_published_c_cutover_i0` / Promote+Delete | one typed selected-C consumer now admits LiteralAppend/Push/Set/Insert through `PublishedMirBackendView`; the three selected native callers no longer invoke legacy projection, while VM and llvmlite `exec.rs:515` remain outside this cohort | four typed rows are admitted and consumed; malformed shape and Void-result shape reject before artifact; focused 3/3 suite, MIR-to-object/executable status 0, C FFI/quick checks/guards green; selected native projection 3→0, fallback/retry 0 |
+| 8 cutover landed (`9cb7a6c71a`); acceptance open | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer and native projection callers 3→0; explicit llvmlite outside scope | synthetic proof retained; capability-preflight repair and source contents/order/Void execution are next, as specified below; full acceptance not claimed |
 
 ```text
 status = landed
 implementation permission = false
 ```
 
-On success, tombstone the active line with its commit and select the next line
-in a later turn. If its tuple drifts, mark only that line `ParkedSealed` with
-an observable reopen trigger and continue. `UnclassifiedRed` alone stops the
-repository.
+Tombstone completed evidence with its commit. In-boundary missing acceptance
+stays open for repair; only outside dependencies may be ParkedSealed.
 
 ##### Dependency tail (not yet executable)
 
@@ -480,22 +478,33 @@ exact Return-child shape (the current probe can overreject a separate
 Call-then-Return statement); no test seam or fallback. Other closed
 reader-stop/delete details remain in Git.
 
-##### ArrayElementWrite selected-C cutover contract
+##### ArrayElementWrite acceptance correction and next execution
 
-Execute as one 2–5 commit series: (1) behavior-neutral owner split before
-touching `exec.rs` (780 lines) or `same_module_body_emit.inc` (797 lines);
-(2) extend the existing published view/temporary C frame with a distinct array
-write row and one C owner; (3) consume all four kinds with receiver/index/value
-in canonical order, write result `Void`, and no JSON name/arity/`args[0]`
-repair; (4) switch the three selected native callers and delete their legacy
-projection calls; (5) close out tests/docs. `Insert` uses a direct physical
-operation in this owner and does not route through the incomplete generic-method
-registry. Missing index, unexpected index, unknown kind, missing capability,
-residual legacy write, or typed-array projection attempt rejects before
-artifact and never retries. Landed at `9cb7a6c71a`: selected native projection
-callers are 3→0; the explicit llvmlite compatibility projection remains
-outside this cohort. New semantic receipt/guard/fixture = 0.
-`new guard=0`; `new receipt=0`; fixed failure-name set unchanged.
+`9cb7a6c71a` retains the typed row/C consumer and native projection 3→0
+cutover; llvmlite remains explicit compatibility. Full source execution
+acceptance is OPEN. Read-only review on 2026-09-05 found selected published
+entrypoints bypass the existing backend capability check. The three focused
+tests prove synthetic rows, malformed Set and synthetic MIR→OBJ/optional EXE,
+not source contents/order or source-level Void behavior. The prior
+“Void-result shape reject” claim is withdrawn, not carried as evidence.
+
+Next implementation reuses this M7-S cohort: enforce the existing
+`backend_capability.rs` policy in shared `published_mir_object.rs` admission
+before frame/JSON/artifact creation with exact EXE/OBJ profile. Cover direct
+published ingress and all native wrappers; ordinary writes remain accepted,
+typed Array contracts keep their existing unsupported terminal. No parallel
+checker, capability widening or projection fallback.
+
+Then prove all four writes from source through OBJ/link/run and EXE with
+observable contents/order, Void semantics and malformed/unsupported rejection
+before artifact. A present Void destination is not itself invalid.
+Use existing test owners; synthetic evidence stays separate. Reconcile the
+fixed lib comparator and named test inventory delta, never blanket rebaseline.
+Repair is selected for the next fast turn; this closeout changes no source.
+`new guard=0`; `new receipt=0`; fixed failure-name set unchanged is the target,
+not a claim that the new acceptance has already run.
+Ordered follow-through is the workstream's **Ordered frontier**, with Call/R7,
+Loop closure and selfhost proof kept distinct.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

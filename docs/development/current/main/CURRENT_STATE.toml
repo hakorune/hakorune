@@ -4,7 +4,7 @@ work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "array_element_write_published_c_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "ArrayElementWrite remains at its closed checkpoint 9cb7a6c71a. User-requested planning reconciliation records Call-to-Loop handoff, finite acceptance scope, unified selfhost resume and non-delegating self-compile evidence in existing SSOTs. No next implementation cohort is selected; pause at this consultation boundary. Corpus freeze and final self-compile evidence remain queued, not completed."
+current_blocker_token = "Planning closeout: next M7-S implementation repairs shared published_mir_object capability admission, then completes ArrayElementWrite source-to-OBJ/EXE contents/order/Void and typed-array rejection evidence. Native projection 3->0 at 9cb7a6c71a remains landed; synthetic proof is not full source acceptance. Existing workstream Ordered frontier fixes scope -> remaining owner stops -> Call/R7 -> Loop cutover/deletion -> selfhost handoff. No broad design restart."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,7 +56,7 @@ dead_code allowance/import were removed without semantic or guard/receipt/test
 changes.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
