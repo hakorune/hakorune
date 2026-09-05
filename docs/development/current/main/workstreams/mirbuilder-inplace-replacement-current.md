@@ -432,7 +432,24 @@ semantic carrier. The three native projection callers were removed at
    status; a present Void destination is not itself malformed. Missing/extra
    index and unsupported typed Array contracts must reject before output
    creation; retry stays zero. Required native prerequisites missing means
-   unavailable evidence, not a passing skipped EXE test.
+   unavailable evidence, not a passing skipped EXE test. Execute this as the
+   following finite checklist; these are subtasks of this existing M7-S row,
+   not new cards:
+
+   - `AW-I0-A-SOURCE`: one tracked ordinary-source fixture reaches the
+     existing typed caller and observes LiteralAppend/Push/Set/Insert in the
+     published row order; no JSON-only probe is counted.
+   - `AW-I0-B-OBJ`: the same fixture emits OBJ through the production caller;
+     relocation/symbol evidence proves four write kinds, operand contents and
+     order, with no result assignment for semantic Void.
+   - `AW-I0-C-EXE`: link and run the fixture through the selected EXE route;
+     returned array contents/order are observable, not only exit status.
+   - `AW-I0-D-REJECT`: malformed index/arity and unsupported typed-array
+     inputs reject before OBJ/EXE creation; retry/fallback remains zero.
+   - `AW-I0-E-CLOSE`: run focused positives/negatives, native rebuild and the
+     fixed comparator; retain accepted failure identities, classify deltas,
+     and prove selected native projection callers remain 3→0 with llvmlite
+     explicitly outside this row.
 3. **Reconcile and close.** Run focused positives/negatives, native build and
    the existing fixed lib comparator. Keep accepted failure identities; classify
    any delta and explicit test additions without blanket rebaseline. Preserve
