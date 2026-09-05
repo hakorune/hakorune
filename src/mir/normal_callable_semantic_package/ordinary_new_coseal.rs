@@ -249,6 +249,13 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     class: class.clone(),
                 })?
             else {
+                // Builtin/plugin constructors retain their existing
+                // compatibility owner.  They are deliberately outside the
+                // source-backed ordinary-Box claim ledger; only an unknown
+                // user Box is a coverage error here.
+                if crate::box_trait::is_builtin_box(class.as_ref()) {
+                    continue;
+                }
                 return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
             };
             let final_box_ordinal =

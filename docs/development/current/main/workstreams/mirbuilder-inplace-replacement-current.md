@@ -534,9 +534,11 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    `typed-object-newbox-min` boundary passes with `NYASH_MACRO_DERIVE=''`;
    the unchanged untyped-field case still reaches the named ArrayBox boundary.
 3. Keep builtin/compatibility `new` outside ordinary user-Box coverage. The
-   `ArrayBox` failure must reach its existing compatibility terminal rather
-   than become `OrdinaryBoxCoverageMissing`; missing source-backed user-Box
-   coverage must still reject before effects. No name whitelist or fallback.
+   existing `box_trait::is_builtin_box` owner now excludes builtin claims from
+   source-backed ordinary coverage, so `ArrayBox` reaches its existing
+   compatibility route and the unchanged `typed-object-untyped-field-min`
+   boundary passes under derive-off. Missing source-backed user-Box coverage
+   still rejects before effects; no new name whitelist or fallback.
 4. Re-run the six default-derive cases with the existing negative test. Treat
    default-generated `equals`/`toString` as a finite profile decision: either
    an explicit derive-off acceptance profile is recorded and exercised, or a
