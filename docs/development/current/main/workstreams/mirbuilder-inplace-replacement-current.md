@@ -451,7 +451,7 @@ downstream acceptance passed.
 
 | order | existing task / owner | finite output and handoff |
 | --- | --- | --- |
-| A | `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` in final-pipeline | Pin exact source programs, profiles/backends, commands/toolchain and success or intentional rejection expectations. Expand discovery once; exclusions explicit. Use the existing baseline inventory separately for lib health. Unknown evidence remains open; do not invent an all-green claim. |
+| A | `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` in final-pipeline | Pin the existing real-app EXE owner at `72f2496568fcd555499fdcb26fef2d8f1df03089` / manifest `fb27826bbf81694bb86056a5fbf389b6216b5eea`; run its 11 fixed entries, record hashes/expected result and exclusions, then hand the finite scope to convergence. |
 | B | M7-S remaining owner-unit Stop/Promote/Delete | Use the existing finite reader inventory, including MIR-to-JoinIR and remaining external compatibility owners. For each shared owner close outside readers and one finite delete-set together; do not split by callee merely to create more rows. Preserve accepted product scope from A. No backend parity prerequisite for an authorized compatibility Stop. |
 | C | Call/R7 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | Production writers/readers/reissuers/re-entry/fallback zero; delete LegacyCallV0 and obsolete Call/Method shapes in one isolated series. Compiler diagnostics cover mechanical uses, supplemented by existing dynamic ingress inventory. No CallV2 or second resolver. |
 | D | Loop prerequisite closure in `joinir-loop-selfhost-recipe-pipeline-ssot.md` M10 | Reuse recorded closed proofs; close the first unfinished semantic-program co-seal, JoinSig transfer, common bound segment or S6C package dependency. Each output must name its actual consumer/cutover/delete-set, not another disconnected receipt. |
@@ -460,6 +460,43 @@ downstream acceptance passed.
 | G | `REPO-FINAL-CONVERGENCE-AUDIT0-G0` and physical cleanup | Run scope A and verify actual switches/deletions. Remove caller-zero tests/guards/facades/docs leaf-to-root after equivalent evidence is retained. Call/M8 cleanup can repay already-zero owners earlier, but cannot substitute for Loop completion. |
 | H | unified selfhost resume owner | Whole MirBuilder gate → language conformance/rejection matrix → canonical mimalloc gate → `MIRBUILDER-FACT-OWNER-PARITY-TEMPLATE-PILOT-SELECTION-001`. Select actual Facts authority/caller/deletion, not the retired MapStore/classifier queue. |
 | I | authority migration and final self-compile task pack | Facts/REGISTRY/commands/executor then parser; pinned compiler closure compiled by Stage1 without Rust frontend delegation, runnable Stage2 compiles and runs acceptance programs. Equality alone is bootstrap evidence. |
+
+### Acceptance-scope closeout (queued existing owner)
+
+This is a closeout task, not a new semantic family. The owner manifest is
+`tools/smokes/v2/suites/integration/real-apps-exe-boundary.txt` at manifest
+revision `fb27826bbf81694bb86056a5fbf389b6216b5eea`, evaluated at repository
+HEAD `72f2496568fcd555499fdcb26fef2d8f1df03089` with:
+
+```text
+tools/smokes/v2/run.sh --profile integration --owner-profile integration \
+  --suite real-apps-exe-boundary
+```
+
+The fixed selection is ten source programs plus one unsupported-boundary probe:
+
+```text
+apps/typed-object-newbox-min/main.hako          exit 30
+apps/typed-object-untyped-field-min/main.hako  exit 7
+apps/typed-object-birth-min/main.hako           exit 30
+apps/typed-object-method-min/main.hako           exit 30
+apps/typed-object-birth-param-min/main.hako     exit 30
+apps/boxtorrent-mini/main.hako                  stdout + Result: 0
+apps/binary-trees/main.hako                     stdout + Result: 0
+apps/mimalloc-lite/main.hako                    stdout + Result: 0
+apps/allocator-stress/main.hako                 stdout + Result: 0
+apps/json-stream-aggregator/main.hako           stdout + Result: 0
+real_apps_exe_boundary_probe.sh                 exact unsupported boundary
+```
+
+The runner, manifest, and each existing smoke own the command, backend,
+toolchain, expected output, and evidence. At task execution, record the
+source/script SHA-256 values and the observed result without changing fixtures.
+Required exclusions are language-v1 corpus, Loop/M8-M9 parity, non-delegating
+selfhost proof, WASM, unselected backend parity, and the whole-library known-red
+baseline. This scope must not grow into a second ledger or a whole-repository
+green claim. Missing evidence is an open acceptance item; after the fixed list
+is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 
 H/I dependencies and exact proof are owned by
 [selfhost resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order)

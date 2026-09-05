@@ -934,14 +934,20 @@ Call/M8 cleanup waits for the owning Call/Loop callers to reach zero;
 Call/M9 backend replacement is a sibling, not a reason to delay Loop selection.
 
 Before the next production cutover, close `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE`
-inside this existing card: pin an existing corpus manifest at a commit, list
-exact program paths/hashes, language profile, selected backend and toolchain,
-command, expected stdout/exit/effects or exact rejection tag and boundary.
-Give each required case an owner and existing evidence path; missing evidence
-is an open task. Specify exclusions (including deferred WASM and unselected
-backend parity) explicitly. Expand directory/glob discovery into the fixed
-case list at selection. This task is queued, not evidence that scope is frozen.
-
+inside this existing card. Its first finite product scope is the existing
+`tools/smokes/v2/suites/integration/real-apps-exe-boundary.txt` owner at
+repository `72f2496568fcd555499fdcb26fef2d8f1df03089` and manifest revision
+`fb27826bbf81694bb86056a5fbf389b6216b5eea`. Run exactly
+`tools/smokes/v2/run.sh --profile integration --owner-profile integration
+--suite real-apps-exe-boundary`; record the ten source paths and the one
+unsupported-boundary probe selected by that manifest, expected stdout/exit,
+toolchain/backend, and source/script hashes. The required owner
+and evidence are the suite manifest, runner, and each existing smoke; missing
+evidence remains open. Exclude language-v1 corpus,
+Loop/M8-M9 parity, non-delegating selfhost proof, WASM, unselected backends,
+and the whole-library known-red baseline. Expand discovery once into this
+fixed list; do not create a parallel ledger, fixture, guard, or synthetic
+acceptance. This queued scope is not a whole-MirBuilder completion claim.
 Accepted source programs may not be changed to rejection cases merely to close
 a migration; that requires an explicit language/profile decision. Known-red
 names stay separately owned. Post-freeze additions require a recorded scope

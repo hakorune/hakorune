@@ -4,7 +4,7 @@ work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "vm_legacy_call_terminal_collapse_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S VM legacy-call terminal collapse landed at a74648f0b3: both product paths reject through one typed helper, old VM dispatch/name/trace edges are gone, vm-reference check and nine focused tests pass. No eligible next owner exists in the finite queue: MIR/JSON boxcall and JSON egress have multiple live compatibility callers and no exclusive delete-set, so they remain family-local ParkedSealed. next_execution_card=none; do not reopen the VM row or invent a new D0/receipt/guard."
+current_blocker_token = "M7-S VM legacy-call terminal collapse landed at a74648f0b3: both product paths reject through one typed helper, old VM dispatch/name/trace edges are gone, vm-reference check and nine focused tests pass. MIR/JSON boxcall and JSON egress remain family-local ParkedSealed because they have multiple live compatibility callers and no exclusive delete-set. The next existing closeout task is MIRBUILDER-FINAL-ACCEPTANCE-SCOPE: pin the 11-entry real-app EXE scope before the next production cutover; do not reopen the VM row or invent a new D0/receipt/guard."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,7 +56,7 @@ dead_code allowance/import were removed without semantic or guard/receipt/test
 changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remaining shared JSON/JoinIR compatibility families are family-local ParkedSealed until an existing owner-specific decision or caller-zero asset appears.
 """
 next_design_card = "none"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
