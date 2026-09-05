@@ -393,8 +393,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed

@@ -532,17 +532,44 @@ the implemented control/projection vocabulary to exact emissions and consume the
 ledger at the two pre-finalization hooks; no second Call target carrier.
 Non-claims: no runtime cleanup, storage reclaim, completed task 1 or EXE proof.
 
-Read-only next-task confirmation (2026-09-06): before that binding, fix the
-physical mapping for store success/Fault, Home release and outer reclaim in this
-same task. `instruction/invoke.rs::InvokeOperation` currently has only Call and
-NewBox; successorless `DestroyOwned` cannot represent this cleanup protocol.
-Do not merely wrap New/Birth and call the resulting Fault CFG complete.
+Physical mapping decision (2026-09-06, read-only worker review consumed): extend
+the finite Invoke operations with exact FieldSet, HomeRelease and
+ReclaimUnpublished roles; never wrap arbitrary MirInstruction. Each is Unit
+with explicit Normal/Fault successors and no source status/result projection.
+Exact scalar setters currently return failure and selected C checks then traps;
+`i64` admission does not prove runtime infallibility. FieldSet Normal commits,
+Fault must leave the prior initialized set intact. Bind the existing exact
+source field relation, receiver and value; names are not an alternate issuer.
+HomeRelease consumes one source-issued Home under its admitted release contract
+once, continuing on either outcome. ReclaimUnpublished consumes admitted outer
+storage only: no parent fini and no recursive field/Home release. Neither is an
+alias for successorless DestroyOwned. Status-to-Fault conversion records once;
+ReturnFault forwards without recording again.
+
+Construction progress remains local, not in the diagnostic FaultFrame. Birth
+drains its initialized field/native subset before Fault return; the New caller
+then reclaims outer storage and handles its own surviving Homes. Birth Normal
+transfers the complete structural obligation to the caller through overrides
+until publication. Override Fault drains that current set before outer reclaim.
+Complete children use normal terminal Home release, not the parent's no-fini
+rule. Straight-line scalar stores use static CFG prefixes, not a runtime bitmap
+or cross-function ValueIds. Conditional owning fields require local state only
+when their source control actually demands it.
+
+Before implementing those roles, close the named physical contracts in tasks
+1–3: exact source-store-to-slot linkage, terminal Home release for prior caller
+objects, stable default-storage no-hook reclaim, and no mutation on rejected
+stores. Existing Arc drop, empty Trivial fields and successful local tests do
+not supply these contracts. `builder/fields.rs` is 787 lines; if that owner must
+change, extract the touched responsibility before adding semantic code.
 `OrdinaryNewClaimLedgerV1::is_empty` currently proves initializer/local completion,
 not consumption of the retained construction plan. The two existing exit hooks
 must reject residual physical bindings before finalization, independently of
 expression completion. Acceptance must exercise exact store commit cutpoints,
 continued cleanup after either outcome, and missing/duplicate/residual bindings;
 keep backend rejection until the runtime and typed-C consumers are connected.
+The selected old exact-setter status-to-trap edges must be removed with the
+typed-C cutover, not revived as fallback after Fault propagation.
 
 The retention-first premise was disproved by the existing DCE and simplify-CFG
 owners: `passes/dce/elimination.rs` obtains liveness from instruction operands,
