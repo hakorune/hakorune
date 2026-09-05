@@ -1,6 +1,6 @@
 ---
 Status: Active implementation ledger
-Date: 2026-09-05
+Date: 2026-09-06
 Scope: Mutable Language v1 type-contract activation, carrier, backend, and representation-consumer status.
 Normative-Law: docs/reference/language/types.md
 Code-Matrix: src/mir/type_contracts/guarantee_matrix.rs
@@ -172,7 +172,7 @@ These are checklist steps in the existing series, not new scheduler rows:
 | Step | Change and existing owner | Required completion evidence |
 | --- | --- | --- |
 | 0 — accepted | input ABI above; `instance_constructor_abi`, published C transport | source N / MIR N+1 / machine inputs 3 remain distinct; user approval no longer pending |
-| 1 — next | implement the accepted common-exit / construction integration below | per-cutpoint ownership, Fault propagation through caller cleanup, stable storage reclaim, no incomplete outer hook or failed object result |
+| 1 — next | connect the accepted common-exit control/operand contract below | per-cutpoint ownership and explicit Normal/Fault control survive finalization/SSA; runtime cleanup proof is the series terminal, not a prerequisite for steps 2–4 |
 | 2 | retain producer-issued kind/payload through existing Lower/ordinary-new and formal binding owners | each pair has one actual/ordinal; Copy copies both, rebind replaces both, Phi uses identical predecessor mapping; unsupported producers reject |
 | 3 | published view/C transport + `capi_transport.rs` | versioned descriptor/row agreement, borrow lifetime, exact target/formal/ordinal; missing/foreign/duplicate/old ABI rejects before emission |
 | 4 | selected same-module Birth body owner + exact-numeric FieldSet consumer | internal wire-array entry, runtime pair loads, check at each store, existing physical store only after success; Fault from step 1 never joins normal object publication |
@@ -186,16 +186,22 @@ construction owns committed fields/native payload and the unpublished receiver.
 Only verified Home demand transfers ownership; ordinary copies and borrowed
 wire inputs do not. This replaces the earlier scalar-reclaim-only premise.
 
-Implementation gaps remain explicit: `VerifiedFunctionCompletionV1` supports
-Return/ImplicitVoid and E0 empty cleanup, not the New Fault cutpoint;
-`ordinary_new_coseal` carries no corresponding cleanup/continuation yet.
+Implementation gaps remain explicit: `VerifiedFunctionCompletionV1` alone
+does not prove the New Fault cutpoint. The existing `ordinary_new_coseal`
+ledger now carries source Home prefixes, NewFaultContinuation and exact local
+completion, but has not materialized their physical cleanup/control operands.
 `typed_object_store_backend` has no unpublished discard API. Its index handles
 must not move during reclaim; `host_handles::drop_handle` is a different registry.
 TextScan CheckedCallOut, setter 0/1 status, raw alloc/free and bare llvm.trap are
 not the missing semantic exit owner. A prior live caller object is a required
 negative witness, not grounds for a Pair-only or assumed-empty admission.
-Task 1 selects the exact existing source/exit producer and consumer before fast;
-tasks 2–5 below remain ordered after it. No broad Home/GC/syntax activation.
+Constructor tasks 1–4 and these steps are one connected series, not two nested
+completion gates. After the control/operand mapping checkpoint, proceed through
+kind/payload and published transport to the typed consumer while connecting
+construction reclaim. Full runtime cleanup/propagation is proved at step 5;
+do not require that proof before implementing its steps 2–4 dependencies.
+No broad Home/GC/syntax activation, early executable admission or ABI-only
+series closeout is permitted.
 
 Producer contract: ImmediateI64 comes from an existing source/canonical Integer
 producer, HostHandle only from a real live host-handle carrier. Never re-tag

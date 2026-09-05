@@ -301,11 +301,14 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    Result `?`, Shared or all-backend implementation to express this dependency.
    Source-plan issuance and local-install validation are connected. Next fix
    the common Normal/Fault ABI and canonical control/operand representation;
-   then consume the ledger into real exit operands before function finalization.
+   bind each source site to the control emitted by that same New owner, then
+   consume the ledger into real exit operands before function finalization.
    Do not insert a source-only metadata retention checkpoint or store raw
    ValueIds in metadata. Existing backend rejection stays intact until that
    consumption is implemented. Tasks 2–3 consume this same ABI; executed
-   propagation is not a prerequisite for choosing it.
+   propagation is not a prerequisite for choosing it. Task 1's control checkpoint
+   permits tasks 2–3 to connect runtime/reclaim and transport; their full runtime
+   proof belongs to task 4, not a circular prerequisite of the consumer.
 2. **Construction cleanup connection:** `ordinary_new_admission` and
    `new_expression` consume the same plan through allocation, Birth and
    overrides. The selected typed-object store gains stable-identity reclaim;
@@ -400,7 +403,8 @@ ordinary_new_coseal -> package claim/local source relation
   -> CallableSemanticLoweringState::record_completed_local
 ```
 
-The last owner already matches the source declaration to physical values.
+The last owner already matches the source declaration to physical values,
+but does not identify allocation/Birth control cutpoints.
 The first connected implementation retains destination/declaration identity in
 the existing claim ledger after target take, records the result after overrides,
 and verifies initializer/local/ordinal at that handoff. Pending or mismatched
@@ -416,6 +420,15 @@ owner immediately after `port.lower_body`, and App Main immediately after
 `inner.lower_body` inside its scoped source callback. Callable state `finish()`
 is too late: the cataloged draft has already entered the collector by then.
 Use these existing hooks, not a second publication owner or a post-publish map.
+
+Read-only readiness review (2026-09-06): `NewLocalCommitV1` holds initializer/local
+ValueIds, not emission locations. `lower_ordinary_raw_new_with_port_v1` consumes
+the claim into `constructor()`, emits NewBox/Birth and returns only the value.
+Whole-expression completion after overrides cannot recover those cutpoints.
+Bind exact source site to freshly emitted allocation/Birth control through the
+existing claim port while emitting; then consume that relation before finalization.
+Do not scan names, receivers or instruction order to rediscover it. This is
+session-local physical correspondence, not a new semantic issuer or side table.
 
 ### Physical connection decision (task 1, not a new task family)
 
@@ -489,18 +502,30 @@ target, foreign-owner and non-New rejection join existing prefix negatives;
 pointer/M7-S guards green, changed source maximum 688 lines.
 No whole-lib/no-new-red claim or baseline edits.
 
-**Change:** implement this source issuer plus its package/local-completion
-consumer as one bounded task-1 series; replace target-take-only completion for
-selected New. Do not add another preparatory inventory or input-ABI task.
-**Contract:** no new semantic authority in Lower, no re-lowering arguments,
-no extra Home on alias/Copy, no early publication after Birth Normal Unit.
-**Done:** existing package/local test owners cover two and three separate New
-declarations, prior-Home reverse order, no failed destination Home, alias/no
-extra owner, wrong owner/site/ordinal/initializer and duplicate/residual rejects;
-unknown prefixes and unresolved unwind cannot open the backend. Preserve fixed
-Pair publication, run the focused package suite and existing M7-S guard.
-**Stop:** if the existing source/local completion cannot retain the relation,
-fix that same handoff; do not issue a detached proof or widen the source grammar.
+**Change:** replace the selected New path's physical-control drop with exact
+emission binding through its existing claim port and consumption at the two
+pre-finalization hooks. Reuse MirCall/Callee; introduce no target reissuer.
+**Contract:** source arguments lower once; cleanup references are real operands.
+Invoke separates normal/fault control; Unit Birth has no source result. Allocation
+still needs its normal-only handle, and selected non-Unit calls need normal-only
+SSA result definition/projection. Unit-first is not permission to omit either.
+**Done:** existing package/local tests reject missing/foreign/duplicate emission
+binding and residual consumption; ordinary verifier/CFG/rewriter/optimization
+tests preserve cleanup operands and reject Fault-edge normal-result use. Keep
+the package evidence and fixed Pair publication, plus the existing M7-S guard.
+This is the task-1 control checkpoint only; tasks 2–4 remain the series terminal.
+**Stop:** missing allocation/result mapping or release capability keeps the
+selected executable admission closed. Fix the same owner; no empty cleanup,
+name/order recovery, detached source proof or wider grammar.
+
+At tasks 2–3, extend the existing published transport and
+`hako_llvmc_ffi_mir_call_dispatch.inc`, not its legacy method-birth branch.
+`PublishedCallKindV1` currently lacks Birth/control rows and the published view
+rejects Birth. The selected typed-object store's default SafeMutex/index handles
+must gain stable reclaim: deleting/swapping vector entries would invalidate
+unrelated handles. Verify single release, failed allocation and an unrelated live
+handle through existing runtime tests before activation. Storage capability must
+match the selected runtime profile; retain default-profile acceptance.
 
 Current natural-source grammar permits one initialized local per declaration.
 Multiple initializer AST carriers are not a new prerequisite; if later
