@@ -118,8 +118,11 @@ exact local installation. Source-owned straight-line prefix facts now retain
 prior local Homes in reverse declaration order; aliases add no Home. The
 claim consumer checks those prior installations before consuming the next New.
 Unknown prefixes, entry demands, Handle arguments and explicit overrides do
-not become empty cleanup plans. These checks do not yet implement Fault
-propagation, runtime cleanup or enable Birth backend execution.
+not become empty cleanup plans. Each admitted New prefix retains its exact
+control-owned outward function target and body scope. This is a conditional
+Fault continuation, not a Normal Return or proof of empty cleanup. Physical
+propagation and runtime cleanup remain unimplemented; Birth execution stays
+disabled at the existing backend boundary.
 
 Object reuse is an ordinary domain operation. Methods named `reset`, `reactivate`, `configure`, `clear`, or `attach` may prepare an already-alive object according to its Box contract; they never re-run `birth` or bypass the terminal Home DropPlan.
 

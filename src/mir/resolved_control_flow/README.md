@@ -45,6 +45,14 @@ activation remain disconnected.
 
 ## SSA-E0 function completion
 
+The same function control owner issues `NewFaultContinuationV1` for the exact
+direct-local New source profile. It verifies the same source loan, initializer
+relation, located New, exact body scope and its function-region parent. The
+Home prefix co-seals that control product; it cannot invent a target from names
+or physical MIR. This conditional outward Fault is not Normal completion and
+does not claim an empty cleanup set. Evaluation/construction unwind and caller
+Home discharge must precede it; physical projection/execution remain pending.
+
 `function_control.rs` seals the accepted function completion forms before
 Builder effects:
 

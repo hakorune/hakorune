@@ -402,9 +402,16 @@ the existing claim ledger after target take, records the result after overrides,
 and verifies initializer/local/ordinal at that handoff. Pending or mismatched
 completion cannot pass package finish. The source prefix issuer is now attached
 to that same claim: target take checks prior Homes' completed installations,
-and pending rows retain the source relation. Exit projection remains open.
+and pending rows retain the source relation. The exact New site now carries a
+control-owned outward Fault target and exact body scope, not a Normal Return
+or E0 empty-cleanup receipt. Physical exit projection remains open.
 Preserve the resulting Home projection for the common exit consumer; a semantic
 plan stored and then dropped at scope finish is not connected completion.
+Retention must occur before function finalization: the port-aware method draft
+owner immediately after `port.lower_body`, and App Main immediately after
+`inner.lower_body` inside its scoped source callback. Callable state `finish()`
+is too late: the cataloged draft has already entered the collector by then.
+Use these existing hooks, not a second publication owner or a post-publish map.
 
 The source prefix walks every preceding statement. Plain aliases add no Home;
 rebind, unknown acquisition, entry demand gaps, Handle arguments and nonempty
@@ -412,10 +419,11 @@ overrides are unavailable, never empty cleanup. Read-only review identified
 the override/capture omissions in the draft; both were corrected before the
 package gate. Three New declarations verify reverse order and prior-install
 rejection; the real two-New compiler path preserves package completion and
-backend rejection. Outward Fault and retained exit projection remain the next
+backend rejection. Retained physical exit projection remains the next
 code in this same series; this is not a completed task-1/runtime claim.
-Focused package gate: 82 passed / 0 failed (including entry-demand and Handle
-argument unavailability); pointer/M7-S guards green, source maximum 635 lines.
+Focused package gate: 83 passed / 0 failed, control suite 33/33. Exact outward
+target, foreign-owner and non-New rejection join existing prefix negatives;
+pointer/M7-S guards green, changed source maximum 688 lines.
 No whole-lib/no-new-red claim or baseline edits.
 
 **Change:** implement this source issuer plus its package/local-completion

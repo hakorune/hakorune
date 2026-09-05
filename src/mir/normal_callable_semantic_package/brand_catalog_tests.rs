@@ -134,6 +134,37 @@ fn ordinary_new_unknown_home_prefix_is_not_an_empty_cleanup_plan() {
 }
 
 #[test]
+fn ordinary_new_fault_continuation_is_source_owned_and_not_normal_completion() {
+    use crate::mir::resolved_control_flow::issue_new_fault_continuation_v1;
+    use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, OwnedExprSiteV1};
+    let package = issue_with_brand_catalog(
+        "box Page { birth() { } } static box Main { main() { local scalar = 0 local first = new Page() local second = new Page() return 0 } }"
+    ).unwrap();
+    let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+    let foreign = owners.issue().unwrap();
+    let declaration = package.batch().declarations().find(|row|
+        row.owner() == package.ordinary_new_claims[0].site().owner()).unwrap();
+    package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+        for claim in &package.ordinary_new_claims {
+            let fault = claim.home_prefix().unwrap().outward_fault();
+            assert_eq!(fault.site(), claim.site());
+            assert_eq!(fault.target_function(), input.function().function_region());
+            assert_eq!(fault.source_scope(), input.function().lowering_roots().body_pair().scope());
+            assert_eq!(issue_new_fault_continuation_v1(input,
+                &OwnedExprSiteV1::new(foreign, claim.site().site().clone())), Err("foreign-source-owner"));
+        }
+        assert_ne!(package.ordinary_new_claims[0].home_prefix().unwrap().outward_fault().site(),
+            package.ordinary_new_claims[1].home_prefix().unwrap().outward_fault().site());
+        let scalar = input.function().expression_source().initializers()
+            .find(|row| row.initializer_site().is_some_and(|site|
+                input.function().expression_source().literal(site).is_some())).unwrap();
+        assert_eq!(issue_new_fault_continuation_v1(input,
+            &OwnedExprSiteV1::new(input.owner(), scalar.initializer_site().unwrap().clone())),
+            Err("source-not-new"));
+    }).unwrap();
+}
+
+#[test]
 fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {

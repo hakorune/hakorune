@@ -10,6 +10,68 @@ use crate::mir::resolved_semantics::{
 
 use super::cleanup::ResolvedCleanupObligationsV1;
 
+/// Conditional outward propagation from an exact direct-local New. This is
+/// neither a Normal Return nor an empty cleanup contract: evaluation-frame
+/// unwind and caller Home discharge must precede this continuation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct NewFaultContinuationV1 {
+    site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    source_scope: crate::mir::resolved_semantics::ScopeId,
+    target_function: RegionId,
+}
+
+impl NewFaultContinuationV1 {
+    pub(crate) fn site(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 {
+        &self.site
+    }
+    pub(crate) fn source_scope(&self) -> crate::mir::resolved_semantics::ScopeId {
+        self.source_scope
+    }
+    pub(crate) fn target_function(&self) -> RegionId {
+        self.target_function
+    }
+}
+
+pub(crate) fn issue_new_fault_continuation_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+) -> Result<NewFaultContinuationV1, &'static str> {
+    use crate::mir::resolved_semantics::{SourceBindingSiteV1, SourcePathSegmentV1};
+    let function = input.function();
+    if input.owner() != function.owner() || site.owner() != input.owner()
+        || !input.forest().owner(input.owner()).is_some_and(|owner| std::ptr::eq(owner, function))
+    {
+        return Err("foreign-source-owner");
+    }
+    if !matches!(site.site().node().segments(),
+        [SourcePathSegmentV1::Body(_), SourcePathSegmentV1::Initializer(_)])
+    {
+        return Err("not-direct-local-new");
+    }
+    let located = input.source().expr_at(site).map_err(|_| "source-site-missing")?;
+    if !matches!(located.node(), ASTNode::New { .. }) {
+        return Err("source-not-new");
+    }
+    let mut relations = function.expression_source().initializers()
+        .filter(|row| row.initializer_site() == Some(site.site()));
+    let relation = relations.next().ok_or("initializer-missing")?;
+    if relations.next().is_some()
+        || !matches!(relation.declaration_site(), SourceBindingSiteV1::Local { .. })
+        || function.declaration_binding(relation.declaration_site()) != Some(relation.binding())
+    {
+        return Err("initializer-relation-mismatch");
+    }
+    let scope = function.exact_scope_containing(site.site().node()).ok_or("source-scope-missing")?;
+    let roots = function.lowering_roots();
+    let target = roots.function_pair().region();
+    if scope != roots.body_pair().scope() || target != function.function_region()
+        || function.region(roots.body_pair().region()).and_then(|row| row.parent()) != Some(target)
+    {
+        return Err("outward-function-target-mismatch");
+    }
+    Ok(NewFaultContinuationV1 { site: site.clone(), source_scope: scope, target_function: target })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DeclaredFunctionResultContractV1 {
     Unannotated,

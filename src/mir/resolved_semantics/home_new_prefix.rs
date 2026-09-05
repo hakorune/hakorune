@@ -10,6 +10,7 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_control_flow::{issue_new_fault_continuation_v1, NewFaultContinuationV1};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -27,7 +28,7 @@ pub(crate) enum HomePrefixUnavailableV1 {
 pub(crate) struct CallerNewHomePrefixV1 {
     destination: BindingRefV1,
     prior_homes: Box<[BindingRefV1]>,
-    required_unwind: OwnedExprSiteV1,
+    outward_fault: NewFaultContinuationV1,
     covered_statements: Box<[SourceStmtSiteV1]>,
 }
 
@@ -39,7 +40,10 @@ impl CallerNewHomePrefixV1 {
         &self.prior_homes
     }
     pub(crate) fn required_unwind(&self) -> &OwnedExprSiteV1 {
-        &self.required_unwind
+        self.outward_fault.site()
+    }
+    pub(crate) fn outward_fault(&self) -> &NewFaultContinuationV1 {
+        &self.outward_fault
     }
     pub(crate) fn covered_statements(&self) -> &[SourceStmtSiteV1] {
         &self.covered_statements
@@ -208,10 +212,12 @@ pub(crate) fn issue_new_home_prefixes_v1(
                 }
                 let result = match &unavailable {
                     Some(issue) => Err(issue.clone()),
-                    None => Ok(CallerNewHomePrefixV1 {
+                    None => issue_new_fault_continuation_v1(input, &owned)
+                        .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
+                        .map(|outward_fault| CallerNewHomePrefixV1 {
                         destination: binding,
                         prior_homes: homes.iter().rev().copied().collect(),
-                        required_unwind: owned.clone(),
+                        outward_fault,
                         covered_statements: covered_statements.clone().into_boxed_slice(),
                     }),
                 };
