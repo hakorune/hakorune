@@ -262,6 +262,11 @@ release contracts must not be admitted as compiler-managed construction.
 | normal publication | transfer the first Home once to the result destination; disarm incomplete-construction cleanup |
 | Fault propagation | common caller exit handles its surviving obligations; outermost entry reports after cleanup; no Normal join |
 
+The source/exit verifier also owns constructing-receiver non-escape: reject
+storage, return, capture or opaque forwarding of `me` before publication unless
+an exact existing non-escape contract proves the use. A physical reclaim API
+cannot establish this property. Include alias-mediated escapes in the same check.
+
 Use static cleanup edges and, where control flow requires them, initialization
 flags keyed to resolved places. No runtime AST/name scan, heap cleanup list,
 new Call carrier, fake empty-obligation proof, or per-instruction receipt chain.
@@ -280,16 +285,24 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    not this proof. Complete local/native ownership and field destination
    obligations through existing HOME/EXIT tasks; do not require new syntax,
    Result `?`, Shared or all-backend implementation to express this dependency.
+   First close source-plan issuance/consumption with focused tests while the
+   existing backend rejection stays intact; this is not runtime completion.
+   Then fix the common Normal/Fault physical return contract before tasks 2–3
+   consume it. Do not demand executed propagation before choosing that ABI.
 2. **Construction cleanup connection:** `ordinary_new_admission` and
    `new_expression` consume the same plan through allocation, Birth and
    overrides. The selected typed-object store gains stable-identity reclaim;
    no double release or early publication. Raw/native wrappers retain ownership
    until handoff; existing raw alloc/free exports alone do not satisfy this.
+   Name the admitted storage profiles and their reclaim consumers explicitly;
+   do not silently drop the default profile to make a proof pass. Unsupported
+   profiles reject before artifact. Bind runtime store selection to the admitted
+   capability before allocation; a later env choice cannot bypass the guarantee.
 3. **Birth consumer cutover:** return to input-wire/published-C steps 2–4 in
    `workstreams/type-contract-status.md`. Normal Unit and pending Fault have
    distinct internal control transport; never expose a status as a source value
-   or use Dynamic's TextScan CallOut. Fix the physical return layout with the
-   common exit consumer before activation, not in a second Birth failure owner.
+   or use Dynamic's TextScan CallOut. Consume task 1's fixed physical return
+   layout with the common exit consumer, not a second Birth failure owner.
 4. **Execution and retirement:** existing test owners prove acquisition-to-
    commit failures, second-store mismatch, child failure, override failure,
    replacement cleanup Fault, and a prior live caller object. Assert parent
