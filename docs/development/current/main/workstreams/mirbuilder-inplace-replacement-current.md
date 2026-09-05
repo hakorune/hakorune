@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-09-04
+Date: 2026-09-05
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -25,8 +25,8 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Current restart pointer
 
-`CURRENT_STATE.toml` is the sole mode and row authority. The current branch is
-the closed publication-spine checkpoint; StaticBoxMethod, FreeStatic,
+`CURRENT_STATE.toml` is the sole mode and row authority. Current birth work is
+branch-only WIP, not the closed main checkpoint; StaticBoxMethod, FreeStatic,
 FreeFunction, Builtin Print, and one root-lexical SameModuleInstance semantic
 vertical are landed and must not be redesigned. The canonical product remains:
 
@@ -491,7 +491,8 @@ real_apps_exe_boundary_probe.sh                 exact unsupported boundary
 
 The runner, manifest, and each existing smoke own the command, backend,
 toolchain, expected output, and evidence. At task execution, record the
-source/script SHA-256 values and the observed result without changing fixtures.
+source/script SHA-256 values and the observed result without changing fixtures,
+except the explicit annotation migration below; retain its pre-migration evidence.
 Required exclusions are language-v1 corpus, Loop/M8-M9 parity, non-delegating
 selfhost proof, WASM, unselected backend parity, and the whole-library known-red
 baseline. This scope must not grow into a second ledger or a whole-repository
@@ -503,36 +504,34 @@ is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 Initial unchanged suite with fresh `llvm_static`: `11 total / 1 passed / 10 failed`.
 Unsupported probe passed; six stopped at `ExactSourceChanged(RootPreservation(CompatibilityLoss))`,
 four at generated-birth `birth/0`. This is acceptance red, not baseline debt.
-Do not edit programs, add `#[ignore]`, or widen the baseline to make it green.
+Do not bypass failures by editing programs, adding `#[ignore]`, or widening baseline.
 
-The six RootPreservation paths: `typed-object-newbox-min`, `typed-object-method-min`,
-`typed-object-untyped-field-min`, `binary-trees`,
-`json-stream-aggregator`, and `typed-object-birth-param-min`. The four exact
-generated-birth paths are `typed-object-birth-min`, `boxtorrent-mini`,
-`mimalloc-lite`, and `allocator-stress`; the unsupported-boundary probe is the
-single pass. Names are recorded from unchanged runner output.
+Accepted source-contract migration (2026-09-05, user-requested IntegerBox review):
+use existing `i64`, not IntegerBox-only scalar unboxing. First migrate only the
+two fields in `apps/typed-object-birth-min/main.hako`; values 10/20, body, birth
+parameter annotations and exit 30 stay fixed. Original snapshot: `888c2d513c`,
+SHA-256 `044105bd970885b13883d3daad9a676b6b8cac2f3f9e8a98c2bb57f5cbfff4fb`.
+Record replacement hash/commit when implemented; it is not an unchanged-source
+replay. Follow-on candidates are the same two field annotations in
+`typed-object-method-min` and `typed-object-newbox-min`; preserve each old/new
+hash and output. This six-annotation inventory covers the ten suite root files
+only, not imports or the repository. No other fixture/expectation change is selected.
+
+Original RootPreservation paths: `typed-object-newbox-min`, `typed-object-method-min`,
+`typed-object-untyped-field-min`, `binary-trees`, `json-stream-aggregator`,
+`typed-object-birth-param-min`. Generated-birth paths: `typed-object-birth-min`,
+`boxtorrent-mini`, `mimalloc-lite`, `allocator-stress`. Probe alone passed.
 
 Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
 bounded substeps in order; they are not new D0 cards or new semantic receipts:
 
-1. `constructor_source` initializer-arity repair and the existing
-   `instance_constructor_semantic` exact constructor-root check are landed;
-   parser-source and semantic-package tests remain green. The root check now
-   validates the constructor function root sealed by its projection, not the
-   enclosing Program. Preserve the root-identity negative boundary; do not
-   infer a constructor from names, MIR, or a synthetic `birth/0`.
-2. The same existing source-backed package owner now co-seals the App Main
-   ordinary-`new` claim from the already-issued App Main identity's exact
-   declaration batch slot. Do not add Main to the generic selected-role map,
-   create a second ledger, or bypass the exact site/owner relation. The direct
-   `typed-object-newbox-min` boundary passes with `NYASH_MACRO_DERIVE=''`;
-   the unchanged untyped-field case still reaches the named ArrayBox boundary.
-3. Keep builtin/compatibility `new` outside ordinary user-Box coverage. The
-   existing `box_trait::is_builtin_box` owner now excludes builtin claims from
-   source-backed ordinary coverage, so `ArrayBox` reaches its existing
-   compatibility route and the unchanged `typed-object-untyped-field-min`
-   boundary passes under derive-off. Missing source-backed user-Box coverage
-   still rejects before effects; no new name whitelist or fallback.
+1. Constructor initializer-arity and exact function-root checks landed
+   (`dc684be1f1` series). Preserve negatives; no name/MIR/synthetic birth issuer.
+2. App Main ordinary-new co-seal landed at `dc684be1f1`: exact declaration
+   batch slot, no generic Main role or second ledger; derive-off newbox passes.
+3. Builtin ArrayBox coverage separation landed in that series' follow-up;
+   derive-off untyped-field passes. User-Box missing coverage still rejects.
+   Existing builtin owner remains sole classifier; no new whitelist/fallback.
 4. The callable-semantic lowering owner now consumes lexical `me` reads at
    their exact source sites through the existing recursive child port. This
    removes the shared `incomplete-consumption` terminal without changing
@@ -563,40 +562,41 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    remain authority. Birth has no call destination; preserve language Void and
    the physical return convention without leaking an integer result. Missing
    source contracts stop their implementation substep, not the whole scheduler.
-   Done: fixed Pair source exits 30 through typed CLI; missing/foreign/duplicate
+   Done: explicitly migrated Pair source exits 30 through typed CLI; missing/foreign/duplicate
    keys, N/N+1 drift, missing receiver, non-Void result and missing body plan
    reject before artifact. Delete the selected Global birth writer and source
    key drop; retire cohort-only old projections only after outside-caller checks.
    Split `93dde7b882`: body 797->708, include 90; expanded C identical, FFI green.
-   Required field-read decision (worker audit): IntegerBox declarations remain
-   Box; current FieldGet preserves that type, Add cannot publish a result type.
-   Decide whether exact nonweak inline-field reads issue Integer values through
-   the existing FieldGet owner; generic/unknown/weak/foreign Box stays unchanged.
-   Physical storage plans/backend success cannot authorize this language rule.
-   Prior release log already warned Unknown(ValueId14); do not suppress quick panic.
+   Integer field decision: use existing i64 declaration/read/write contracts;
+   no field-only IntegerBox alias or storage-derived scalar proof. Existing
+   IntegerBox object/runtime identity remains. Write/backend handoffs and three
+   adjacent follow-ups: `type-contract-status.md#integer-field-migration-bounded-handoff`.
+   Prior release already warned Unknown(ValueId14); do not suppress quick panic.
 
    Execution checklist (record before further implementation; same owner):
+   - [ ] First the authorized two-field source migration; existing FieldGet,
+     Copy/Add/main-result assertions and both exact-numeric FieldSet obligations.
+     No backend claim or unchecked-store bypass; record old/new source hashes.
    - [ ] Source key -> admission -> collector -> Atomic Publish: WIP `d1fce06be3`.
      Admission 3/3 and drain 9/9 pass; package 72/73. Fixed Pair quick test
      panics at `return_type_strategy.rs:117` (main ValueId(14)); release uses
-     Unknown there. Repair the named type-owner boundary, preserve the test;
+     Unknown there. Migrate the source contract explicitly, preserve the assertion;
      README/reference updated; vm-reference check green; publication proof open.
    - [ ] Recipe/Call: mandatory BirthConstructor receiver + N source args,
      no destination; remove selected Global birth writer in the same series.
-   - [ ] Published view/C consumer: N+1 projection once, capability/body-plan
-     checks before artifact, Void preserved; exercise listed negative cases.
-   - [ ] Fixed Pair -> typed CLI -> EXE exit 30; prove selected key-drop/old
+   - [ ] Published view/C consumer: real field/parameter checks and lossless
+     operand-kind relation before admission; no default-T_I64/count/symbol proof.
+     EXE/OBJ capability agrees with actual consumption; N+1 once, Void preserved.
+   - [ ] Migrated Pair -> typed CLI -> EXE exit 30; prove selected key-drop/old
      projection deletion and retry zero. A focused definition test is not EXE proof.
-5. Re-run the six default-derive cases with the existing negative test. Treat
-   default-generated `equals`/`toString` as a finite profile decision: either
-   an explicit derive-off acceptance profile is recorded and exercised, or a
-   separate source-anchor/issuer design is opened later. Do not weaken the
-   source-preservation rejection or edit fixtures; the derive-off probe is not
-   acceptance until the remaining owner failures are resolved.
+5. Re-run six default-derive cases and existing negatives. Explicitly record
+   derive-off acceptance or a separate generated source-anchor/issuer task;
+   do not weaken source preservation. Derive-off is not full acceptance while
+   remaining owner failures are unresolved.
 6. Keep the three `usize` parameter cases outside this MirBuilder slice until
    the existing `usize` semantic-foundation owner is satisfied. Do not coerce
    `usize` to `i64`, opaque, or a compatibility value merely to pass EXE.
-7. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
+7. Rerun the fixed 11-entry `real-apps-exe-boundary` suite with the same
    backend/toolchain and record source/script hashes, expected result, and
    first terminal. Close A only at `11/11` (including the exact unsupported
    probe), with no new baseline names, no fallback/retry, and no partial

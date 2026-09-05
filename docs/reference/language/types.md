@@ -47,6 +47,26 @@ verifier-backed proof. `MirType`, storage/layout metadata, route facts, and
 Plan/Rune hints are not semantic proof. Unsupported backends reject before
 execution rather than falling back to another backend.
 
+### Integer values and implementation boxes
+
+Decision: accepted. Source integer values and object identity are distinct.
+`Integer` denotes the existing integer value kind; use `i64` when the active
+exact-numeric annotation contract is required. These spellings do not have
+identical annotation activation (see the type-contract status ledger).
+
+`IntegerBox` is not a primitive alias, including in a non-weak stored field.
+Do not unbox a field merely because its declaration says `IntegerBox`, or infer
+its value contract from an i64 storage plan. Explicit object/compatibility uses
+retain their identity and existing rules; the truthiness bridge below is not
+permission to coerce arbitrary BoxRef operands in arithmetic.
+
+Numeric application fields using historical `IntegerBox` annotations migrate
+explicitly to `i64` through the existing declaration, field-write check, and
+FieldGet result owners. This is a source-contract migration, not a mechanical
+representation rename: invalid writes must fail before mutation. Initialization,
+copy/rebind and backend preservation obligations remain required. Runtime/ABI
+IntegerBox implementation removal is separate and requires caller-zero evidence.
+
 ### Record vs Box
 
 Hakorune keeps `record` and `box` as separate source surfaces.

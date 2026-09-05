@@ -27,11 +27,11 @@ Related:
 - **Current implementation status:** canonical `Call(MirCall)` is separated
   from explicit `LegacyCallV0`; the shared Rust MIR JSON-v0 call ingress Stop
   is landed, and the M7-S owner-local Stop/Delete queue remains active.
-  Stage1 writer removal is landed but its acceptance is parked; six invalid
-  Stage1 smoke/fixture assets are the next physical repayment.
-- **Latest bounded work:** fixed baseline `7555/7393/133/29`; commit
-  `9a40ece824` stops both JSON-v0 call spellings before publication, removes
-  the call/catalog owners and call-only tests, and preserves non-call loaders.
+  Stage1 acceptance is parked; its six invalid probe assets are retired
+  (`f15098cf0b`). Current work is the finite source acceptance reconciliation.
+- **Latest bounded work:** branch WIP `d1fce06be3` retains birth definition keys;
+  package 72/73 exposes IntegerBox field/Add mismatch, not EXE completion.
+  Selected repair is explicit i64 field migration, then typed birth cutover.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Next close the declared-field read result contract; direct birth EXE remains required.
+Next: authorized two-field i64 migration; write/ABI checks then birth EXE/delete-set.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
