@@ -463,6 +463,11 @@ impl UnifiedCallEmitterBox {
                         args
                     ));
                 }
+                Callee::BirthConstructor { key, receiver } => {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[call-resolve] BirthConstructor key={key:?} recv={receiver:?} args={args:?}"
+                    ));
+                }
                 Callee::Global(name) => {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(

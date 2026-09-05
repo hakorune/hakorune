@@ -265,6 +265,11 @@ impl JoinIrIdRemapper {
                         receiver: remap(*receiver),
                     }
                 }
+                crate::mir::Callee::BirthConstructor { key, receiver } => {
+                    crate::mir::Callee::BirthConstructor {
+                        key: key.clone(), receiver: remap(*receiver),
+                    }
+                }
                 crate::mir::Callee::Constructor { box_type } => crate::mir::Callee::Constructor {
                     box_type: box_type.clone(),
                 },

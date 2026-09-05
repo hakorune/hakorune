@@ -561,9 +561,9 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    Split `93dde7b882`: body 797->708, include 90; expanded C identical, FFI green.
    Integer field decision: use existing i64 declaration/read/write contracts;
    no field-only IntegerBox alias or storage-derived scalar proof. Existing
-   IntegerBox object/runtime identity remains. Write/backend handoffs and three
-   adjacent follow-ups: `type-contract-status.md#integer-field-migration-bounded-handoff`.
-   Quick/release missing-type rejection task is in that ledger; no Unknown waiver.
+   IntegerBox object/runtime identity remains. Required write/backend handoffs:
+   [type contract tasks](type-contract-status.md#integer-field-migration-bounded-handoff).
+   [Ordered adjacent queue](type-contract-status.md#adjacent-follow-ups-read-only-review-2026-09-05): refresh, rebind, initialization, conditional quick/release rejection; no Unknown waiver or automatic preemption.
 
    Execution checklist (record before further implementation; same owner):
    - [x] Two-field migration checkpoint: package 73/73, including valid module
@@ -573,14 +573,14 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
      plus migrated-source publication test. Previous 72/73 type panic is resolved
      for this source; admission 3/3, drain 9/9 and vm-reference are prior evidence.
      Production closeout remains open; no baseline or unchecked-store waiver.
-   - [ ] Recipe/Call: mandatory BirthConstructor receiver + N source args,
-     no destination; remove selected Global birth writer in the same series.
+   - [x] Recipe/Call: mandatory BirthConstructor receiver + N source args,
+     no destination; selected Global reconstruction/manual prefix/fixed IO removed.
    - [ ] Before backend activation, bind source-issued result/effect/Completion
      through `ordinary_new_coseal` -> Call/definition -> published view. Normal(Unit)
      or Return(Unit) gives no value; Return(Value) rejects for this scalar cohort;
      Fault propagates only with a real consumer, otherwise reject before artifact.
      Missing/drifted contract rejects before publication; dst=None is not proof.
-     Completion/event retention is connected; events are NOT semantic effects. See type-contract-status.
+     Source Unit/OpaqueObservable and explicit physical barrier policy now reach Call; view rejects Birth. Events are NOT semantic effects; see type-contract-status.
      Test integer-result leak, unsupported Fault and contract drift. MIR-module
      Atomic Publish is not runtime object readiness: no failed construction may
      return a usable object. General Home rollback stays with OWN-HOME-BIRTH-D0.

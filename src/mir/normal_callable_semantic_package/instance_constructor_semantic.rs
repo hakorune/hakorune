@@ -16,6 +16,7 @@ use crate::mir::resolved_semantics::{
     SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverInputV1,
     SemanticOwnerRootProfileV1, SourceBoundSelectedCallableResolverRejectV1,
     FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1, VerifiedSemanticOwnerForestV1,
+    DeclaredInstanceCallSemanticEffectV1,
 };
 use crate::parser::{
     ConstructorSourceIdV1, ConstructorSourceKindV1, VerifiedFinalCallableProgramSourceV1,
@@ -49,6 +50,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     projection: VerifiedSourceProjectionV1,
     body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
     birth_completion: Option<VerifiedFunctionCompletionV1>,
+    birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
 }
 
 #[derive(Debug)]
@@ -129,6 +131,10 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
 
     pub(crate) fn birth_completion(&self) -> Option<&VerifiedFunctionCompletionV1> {
         self.birth_completion.as_ref()
+    }
+
+    pub(crate) const fn birth_effect(&self) -> Option<DeclaredInstanceCallSemanticEffectV1> {
+        self.birth_effect
     }
 
     pub(crate) fn lowering_input<'a>(
@@ -318,6 +324,18 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     None
                 };
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
+                    // Only the exact unannotated source contract is selected.
+                    // Explicit constructor contracts need their own admission;
+                    // never turn them into the implicit opaque default.
+                    birth_effect: match declaration {
+                        ASTNode::FunctionDeclaration { attrs, contracts, .. }
+                            if kind == ConstructorSourceKindV1::Birth
+                                && attrs.is_empty() && contracts.is_empty() =>
+                        {
+                            Some(DeclaredInstanceCallSemanticEffectV1::OpaqueObservable)
+                        }
+                        _ => None,
+                    },
                     published_birth_key: (kind == ConstructorSourceKindV1::Birth).then(|| {
                         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
                             &box_name,

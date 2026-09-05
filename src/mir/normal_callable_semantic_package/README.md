@@ -337,8 +337,7 @@ Atomic Publish definition table; physical symbol text never reissues it.
 Source arity N requires physical N+1. Duplicate key, symbol/arity drift, and
 ordinary-method admission of a birth key reject before publication. Non-birth
 constructor kinds keep their existing compatibility disposition. Definition
-retention alone does not establish the pending receiver-bearing Call/backend
-vertical or source-to-EXE acceptance.
+retention alone does not establish backend execution or source-to-EXE acceptance.
 
 The selected Pair source explicitly uses `i64` fields, not an IntegerBox
 unboxing exception. Its normal-publication test checks Integer FieldGet/Add/main
@@ -354,7 +353,20 @@ it. Birth rows additionally retain the existing source Completion verification;
 implicit Unit and value-returning completion remain distinct. This does not
 enable a value-returning Birth backend family. Body effect events identify
 source sites/kinds only: they are not a complete semantic effect/failure contract
-and cannot authorize an IO mask or replace the pending Birth effect issuer.
+and cannot independently authorize an effect mask.
+
+The selected unannotated Birth source row issues the existing OpaqueObservable
+vocabulary, not a synthetic method identity or a call to the method effect issuer.
+Explicit constructor attributes/signature contracts have no selected
+effect admission yet and are not silently treated as the default. Ordinary-new
+co-seal checks the exact Birth key and source-owned Unit Completion before any
+argument lowering. The existing recipe explicitly projects all current observable
+barrier bits (not Pure); this conservative policy is not a body-event inference
+or a no-Fault guarantee. FieldSet type checks and construction failure remain
+separate obligations. The physical owner emits `Callee::BirthConstructor` with
+mandatory receiver, N source args and no dst; selected Global reconstruction,
+manual receiver-prefix and fixed IO are removed. Published selected-C admission
+is still UnsupportedBeforeObject until a lossless consumer is implemented.
 
 ## Script instance-Box transferred boundary I0 (2026-08-20)
 

@@ -74,6 +74,9 @@ pub(crate) fn format_call_target(
             args_str,
             receiver
         ),
+        Some(Callee::BirthConstructor { key, receiver }) => format!(
+            "call_birth {key:?}({args_str}) [recv: {receiver}]"
+        ),
         Some(Callee::Constructor { box_type }) => {
             format!("call_constructor {}({})", box_type, args_str)
         }

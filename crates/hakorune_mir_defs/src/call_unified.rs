@@ -64,6 +64,14 @@ pub enum Callee {
         receiver: ValueId,
     },
 
+    /// Constructor hook on a freshly allocated receiver, not allocation itself.
+    /// The source-issued BirthConstructor key and mandatory receiver stay
+    /// separate from source arguments. This is never a Global method target.
+    BirthConstructor {
+        key: CanonicalSameModuleCallableKeyV1,
+        receiver: ValueId,
+    },
+
     /// Constructor call (NewBox equivalent)
     /// Creates new Box instances with birth() method
     Constructor { box_type: String },
@@ -95,7 +103,7 @@ impl Callee {
     pub fn has_receiver(&self) -> bool {
         match self {
             Callee::Method { receiver, .. } => receiver.is_some(),
-            Callee::SameModuleInstance { .. } => true,
+            Callee::SameModuleInstance { .. } | Callee::BirthConstructor { .. } => true,
             _ => false,
         }
     }
@@ -104,7 +112,8 @@ impl Callee {
     pub fn receiver(&self) -> Option<ValueId> {
         match self {
             Callee::Method { receiver, .. } => *receiver,
-            Callee::SameModuleInstance { receiver, .. } => Some(*receiver),
+            Callee::SameModuleInstance { receiver, .. }
+            | Callee::BirthConstructor { receiver, .. } => Some(*receiver),
             _ => None,
         }
     }
@@ -124,7 +133,8 @@ impl Callee {
                     visit(*receiver);
                 }
             }
-            Callee::SameModuleInstance { receiver, .. } => visit(*receiver),
+            Callee::SameModuleInstance { receiver, .. }
+            | Callee::BirthConstructor { receiver, .. } => visit(*receiver),
             Callee::Closure {
                 captures,
                 me_capture,
@@ -156,7 +166,8 @@ impl Callee {
                     rewrite(receiver);
                 }
             }
-            Callee::SameModuleInstance { receiver, .. } => rewrite(receiver),
+            Callee::SameModuleInstance { receiver, .. }
+            | Callee::BirthConstructor { receiver, .. } => rewrite(receiver),
             Callee::Closure {
                 captures,
                 me_capture,
@@ -359,6 +370,17 @@ mod tests {
                 receiver: ValueId::new(14),
             }
         );
+        let mut birth = Callee::BirthConstructor {
+            key: crate::callable_key::CanonicalSameModuleCallableKeyV1::birth_constructor("Probe", 1),
+            receiver: ValueId::new(0),
+        };
+        assert!(birth.has_receiver());
+        assert!(!birth.is_constructor(), "Birth is a hook, not NewBox allocation");
+        let mut operands = Vec::new();
+        birth.for_each_value_operand(|value| operands.push(value));
+        assert_eq!(operands, [ValueId::new(0)]);
+        birth.rewrite_value_operands(|value| value.0 += 10);
+        assert_eq!(birth.receiver(), Some(ValueId::new(10)));
     }
 }
 

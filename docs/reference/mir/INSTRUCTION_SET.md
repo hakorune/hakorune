@@ -169,8 +169,14 @@ Its source arity is N; its definition has receiver plus N physical parameters.
 Birth is not a Global/static method target, and ordinary method publication
 must reject this namespace. Missing/duplicate definitions and symbol/arity drift
 are publication errors, not opportunities for name or receiver repair.
-This definition contract does not change `NewBox` allocation semantics or claim
-that the receiver-bearing birth Call/backend cutover is already supported.
+`Callee::BirthConstructor { key, receiver }` invokes the hook with a mandatory
+receiver separate from N source args. It is not the allocation-only `Constructor`
+shape. The selected source recipe requires verified Unit Completion, emits no
+destination, and explicitly projects a conservative observable barrier mask
+(all currently named effect bits except Pure). OpaqueObservable is a source
+disposition, not proof that failure is impossible; FieldSet checks remain separate.
+This does not change `NewBox` semantics. A backend without the receiver-bearing
+consumer rejects before object emission, without Global/JSON/receiver repair.
 
 ### CheckedCallOut transport lane
 

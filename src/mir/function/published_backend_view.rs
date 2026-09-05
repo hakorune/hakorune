@@ -391,7 +391,7 @@ impl<'module> PublishedMirBackendView<'module> {
                                 });
                             }
                         }
-                        Some(Callee::SameModuleInstance { .. }) => {
+                        Some(Callee::SameModuleInstance { .. } | Callee::BirthConstructor { .. }) => {
                             has_unsupported_call = true;
                         }
                         Some(Callee::Value(_)) if canonical_call => {

@@ -35,6 +35,30 @@ pub(super) fn issue_with_brand_catalog(
 }
 
 #[test]
+fn ordinary_new_rejects_value_birth_and_unselected_effect_contract() {
+    use super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1;
+    for (declaration, value_return) in [
+        ("birth(value) { return value }", true),
+        ("@rune Contract(no_alloc) birth(value) { local saved = value }", false),
+    ] {
+        let source = format!(
+            "box Page {{ {declaration} }}
+             static box Main {{ main() {{ local page = new Page(1) return 0 }} }}"
+        );
+        let error = issue_with_brand_catalog(&source).expect_err("unselected birth contract");
+        match error {
+            super::NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+                _error: OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit { .. },
+            } => assert!(value_return),
+            super::NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+                _error: OrdinaryNewCoSealIssueV1::BirthEffectUnsupported { .. },
+            } => assert!(!value_return),
+            other => panic!("wrong boundary: {other:?}"),
+        }
+    }
+}
+
+#[test]
 fn instance_constructor_semantics_keep_parser_identity_and_nested_brand_relations() {
     let package = issue_with_brand_catalog(
         r#"
@@ -161,7 +185,23 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
         assert_eq!(main.signature.return_type, crate::mir::MirType::Integer);
         let mut read_count = 0;
         let mut add_count = 0;
+        let mut birth_count = 0;
         for instruction in main.blocks.values().flat_map(|block| &block.instructions) {
+            if let crate::mir::MirInstruction::Call(call) = instruction {
+                if let crate::mir::Callee::BirthConstructor { key: target, receiver } = &call.callee {
+                    assert_eq!(target, &key);
+                    assert_eq!(call.dst, None);
+                    assert_eq!(call.args.len(), 2, "receiver is not a source argument");
+                    assert!(main.metadata.value_types.contains_key(receiver));
+                    for effect in [crate::mir::Effect::WriteHeap, crate::mir::Effect::ReadHeap,
+                        crate::mir::Effect::Panic, crate::mir::Effect::Barrier] {
+                        assert!(call.effects.contains(effect));
+                    }
+                    assert!(!call.effects.contains(crate::mir::Effect::Pure));
+                    assert!(!call.effects.is_moveable());
+                    birth_count += 1;
+                }
+            }
             let dst = match instruction {
                 crate::mir::MirInstruction::FieldGet {
                     dst, declared_type, ..
@@ -186,6 +226,17 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             );
         }
         assert_eq!((read_count, add_count), (2, 1));
+        assert_eq!(birth_count, 1, "selected birth uses the exact canonical carrier");
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module)
+            .expect("birth definition relation remains valid");
+        assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+        let output_dir = tempfile::tempdir().expect("temporary artifact directory");
+        let exe = output_dir.path().join("birth");
+        let error = crate::host_providers::llvm_codegen::emit_published_static_method_exe(
+            &result.module, exe.to_str().unwrap(), None, None,
+        ).expect_err("unimplemented Birth consumer must not retry compatibility");
+        assert!(error.contains("UnsupportedBeforeObject"));
+        assert_eq!(std::fs::read_dir(output_dir.path()).unwrap().count(), 0);
         let static_key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
             "Pair", "birth", 2,
         );

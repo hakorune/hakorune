@@ -154,7 +154,8 @@ fn resolve_known_return_definition_type(
                     let ty = match &call.callee {
                         crate::mir::Callee::Global(_)
                         | crate::mir::Callee::Constructor { .. }
-                        | crate::mir::Callee::SameModuleInstance { .. } => {
+                        | crate::mir::Callee::SameModuleInstance { .. }
+                        | crate::mir::Callee::BirthConstructor { .. } => {
                             resolve_known_callee_return_type(&call.callee)
                         }
                         _ => None,

@@ -115,6 +115,11 @@ general FieldGet identity system or recreate source semantics in C. Public
 IntegerBox source-surface fate is a separate post-vertical decision; runtime/ABI
 retirement is not authorized by this field migration.
 
+Consumer premise audit: not yet Fast for C activation because the exact
+actual -> formal -> FieldSet kind/proof relation is unclosed. One read-only
+worker checks existing issuers and EXE/OBJ admission only; its report selects
+the next bounded decision, not permission to infer Integer from storage.
+
 ### Birth result/effect handoff (next consumer prerequisite)
 
 - [x] Constructor source retention: reuse `verify_function_completion_v1` / `VerifiedFunctionCompletionV1`
@@ -126,18 +131,20 @@ retirement is not authorized by this field migration.
   `effects()` contains source-site event kinds, NOT a complete semantic effect/
   failure contract. Never infer that contract from these events, `EffectMask::IO`,
   signature or physical lanes. This corrects the initial handoff-only premise.
-- [ ] Before Birth Call activation, close the source-issued semantic effect/failure
-  contract for the selected write-only body. Existing method-effect issuers are
+- [x] Birth Call effect disposition: source-issued OpaqueObservable for the
+  unannotated constructor contract. Existing method-effect issuers are
   different cohorts; do not transplant them by name or classify all events as IO.
-  Candidate: existing OpaqueObservable vocabulary for a conservative callable
-  contract, with source write coverage and FieldSet failure contracts separate.
-  First close its existing physical projection and exact assignment-site coverage;
-  OpaqueObservable is not NoFailure and events alone cannot issue the contract.
+  Decision (worker-reviewed): existing OpaqueObservable vocabulary is co-sealed
+  by the Birth recipe with exact source/key and Unit Completion. The recipe's
+  explicit physical policy projects all currently defined observable barrier
+  bits, excluding Pure; this is not body-effect inference or NoFailure proof.
+  Inject once into canonical Birth Call; no analyzer/READ/IO overwrite. Exact
+  write-site coverage and FieldSet failure/operand transport remain separate.
   Reject Pair-name or exactly-two-writes production admission; two is the proof's
   expected count, not semantic authority. No synthetic method identity or new receipt.
-- [ ] Carry those existing products through `ordinary_new_coseal` to the selected
-  Birth Call/definition/view; remove selected Global target, manual receiver
-  prefix and fixed IO projection with the production switch, not in a detached rewrite.
+- [x] `ordinary_new_coseal` now checks source/key, Unit Completion and effect;
+  selected Birth Call keeps the mandatory receiver separate from source args.
+  Selected Global reconstruction, manual prefix and fixed IO are removed.
   First cohort accepts verified implicit Unit or explicit Void separately;
   value-returning birth, absent/foreign/duplicate effect, source/key/root drift
   and missing Completion reject before publication. `dst=None` is not Unit proof.
@@ -145,11 +152,30 @@ retirement is not authorized by this field migration.
   semantic receipt, second resolver or widening to other constructor families.
   FieldSet chronology/operand-kind and EXE/OBJ obligations above remain independent.
 
-Source-retention checkpoint: package 74/74, including missing/foreign shape and
-Completion loan rejection plus value/Unit distinction; nested-owner source
-products retained. Backend activation, physical effect projection and EXE30 remain open.
+Source-retention checkpoint: package 74/74 at d582dc223c. Current Birth Call
+consumer is still UnsupportedBeforeObject; typed C activation, exact write-site
+proof/kind consumption, failure chronology and EXE30 remain open. A valid MIR
+Call and conservative physical mask do not prove executable construction.
 
 ### Adjacent follow-ups (read-only review, 2026-09-05)
+
+Execution order (task registration, not implementation permission): finish the
+existing Birth result/effect, operand-kind and EXE/OBJ obligations first, then
+Pair EXE30 plus selected old-edge deletion. The following queue reuses existing
+owners; it adds no new lane, receipt, guard or broad audit prerequisite.
+
+| Priority | Existing task | When to select | Observable finish line |
+| --- | --- | --- | --- |
+| Current vertical | Birth contract/physical consumer handoff above | before enabling Birth execution | exact source products preserved, write checks consumed in order, unsupported input produces no artifact, Pair exits 30, selected old edges removed |
+| Follow-up 1 | D1 storage-refresh overwrite removal | after the vertical; earlier only on its demonstrated failing path | canonical declared result survives refresh; selected storage-to-semantic overwrite removed |
+| Follow-up 2 | successful-rebind field-origin invalidation | before mixed-value/cross-instance field coverage | stale origin cannot reappear; failed store retains prior state |
+| Follow-up 3 | uninitialized exact-field lifecycle contract | before conditional/early-return/uninitialized-read coverage | one explicit initialization/publication decision and positive/rejection evidence; no fabricated default |
+| Conditional | canonical missing-type diagnostic below | selected boundary failure or next owner change | quick/release agree on rejection; supported Dynamic is preserved |
+
+Do not count these queued items as fixed. Each implementation closes its own
+selected tests and old edge, then returns to the MirBuilder acceptance card.
+IntegerBox public-surface/runtime retirement and general Home rollback remain
+separate scope decisions, not hidden prerequisites for this scalar vertical.
 
 Boundary: selected field declaration/write/read -> refresh -> construction
 publication. Includes the existing field-origin and typed-object refresh owners;

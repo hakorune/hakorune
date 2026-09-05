@@ -42,6 +42,7 @@ fn callee_label(callee: &Callee) -> String {
             key.name(),
             key.arity()
         ),
+        Callee::BirthConstructor { key, .. } => format!("BirthConstructor({key:?})"),
         Callee::Constructor { box_type } => format!("Constructor({})", box_type),
         Callee::Closure { .. } => "Closure".to_string(),
         Callee::Value(v) => format!("Value(%{})", v.0),

@@ -28,3 +28,9 @@ physical operand only through this typed field; no consumer may recover it from
 `args[0]`, a name, or a numeric sentinel. The final `Call` schema cutover is a
 later row; legacy `Method { ..., receiver: Option<_> }` remains a compatibility
 surface until its caller-zero proof is complete.
+
+`Callee::BirthConstructor` uses the same operand visitors but a distinct Birth
+key namespace. It invokes the constructor hook on a fresh receiver; it does not
+allocate (`Constructor`/`NewBox`) or masquerade as Global. Source args exclude
+the receiver, including when an argument has the same ValueId. Effect/result
+admission belongs to the source recipe, not this structural crate.

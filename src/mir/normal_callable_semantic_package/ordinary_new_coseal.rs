@@ -19,12 +19,15 @@ use crate::mir::instance_constructor_abi::{
 use crate::mir::resolved_semantics::{
     BodyEffectKindV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
-use hakorune_mir_defs::{CanonicalGlobalTargetConstructionErrorV1, CanonicalGlobalTargetV1};
+use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
+use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
+use crate::mir::{Effect, EffectMask};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
     source_id: crate::parser::ConstructorSourceIdV1,
-    target: CanonicalGlobalTargetV1,
+    target: CanonicalSameModuleCallableKeyV1,
+    effect: DeclaredInstanceCallSemanticEffectV1,
     abi: InstanceConstructorAbiV1,
 }
 
@@ -33,16 +36,22 @@ impl VerifiedOrdinaryNewBirthRecipeV1 {
         &self.source_id
     }
 
-    pub(crate) fn target(self) -> CanonicalGlobalTargetV1 {
+    pub(crate) fn target(self) -> CanonicalSameModuleCallableKeyV1 {
         self.target
-    }
-
-    pub(crate) fn target_ref(&self) -> &CanonicalGlobalTargetV1 {
-        &self.target
     }
 
     pub(crate) const fn abi(&self) -> InstanceConstructorAbiV1 {
         self.abi
+    }
+
+    /// Explicit conservative physical policy, not an effect inferred from MIR
+    /// or source event counts. Completion and FieldSet Fault remain separate.
+    pub(crate) fn physical_effect_mask(&self) -> EffectMask {
+        EffectMask::MUT.union(EffectMask::IO).union(EffectMask::WRITE)
+            .add(Effect::Control).add(Effect::P2P).add(Effect::FFI)
+            .add(Effect::Panic).add(Effect::Alloc).add(Effect::Global)
+            .add(Effect::Async).add(Effect::Unsafe).add(Effect::Debug)
+            .add(Effect::Barrier)
     }
 }
 
@@ -177,8 +186,9 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         site: OwnedExprSiteV1,
         class: Box<str>,
         arity: usize,
-        error: CanonicalGlobalTargetConstructionErrorV1,
     },
+    BirthCompletionNotUnit { site: OwnedExprSiteV1, class: Box<str> },
+    BirthEffectUnsupported { site: OwnedExprSiteV1, class: Box<str> },
     ConstructorRelationMismatch {
         site: OwnedExprSiteV1,
         class: Box<str>,
@@ -289,22 +299,30 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                             error,
                         }
                     })?;
-                    let target = CanonicalGlobalTargetV1::new_static_box_method(
-                        row.box_name().into(),
-                        "birth".into(),
-                        row.source_arity(),
-                    )
-                    .map_err(|error| {
-                        OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
+                    let target = row.published_birth_key().filter(|key| {
+                        key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor
+                            && key.owner() == row.box_name()
+                            && key.arity() == row.source_arity()
+                    }).ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthTargetInvalid {
                             site: site.clone(),
                             class: class.clone(),
                             arity,
-                            error,
-                        }
+                    })?.clone();
+                    row.birth_completion().filter(|completion| {
+                        row.forest().roots() == [completion.owner()]
+                            && !completion.returns_value()
+                    }).ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthCompletionNotUnit {
+                        site: site.clone(), class: class.clone(),
+                    })?;
+                    let effect = row.birth_effect().filter(|effect| {
+                        *effect == DeclaredInstanceCallSemanticEffectV1::OpaqueObservable
+                    }).ok_or_else(|| OrdinaryNewCoSealIssueV1::BirthEffectUnsupported {
+                        site: site.clone(), class: class.clone(),
                     })?;
                     OrdinaryNewConstructorDispositionV1::Birth(VerifiedOrdinaryNewBirthRecipeV1 {
                         source_id: row.source_id().clone(),
                         target,
+                        effect,
                         abi,
                     })
                 }
@@ -436,12 +454,11 @@ mod tests {
     fn ordinary_new_recipe_preserves_exact_birth_source() {
         let source_id = crate::parser::ConstructorSourceIdV1::test_new(7);
         let abi = InstanceConstructorAbiV1::issue(2).expect("constructor ABI");
-        let target =
-            CanonicalGlobalTargetV1::new_static_box_method("Page".into(), "birth".into(), 2)
-                .expect("birth target");
+        let target = CanonicalSameModuleCallableKeyV1::birth_constructor("Page", 2);
         let recipe = VerifiedOrdinaryNewBirthRecipeV1 {
             source_id: source_id.clone(),
             target: target.clone(),
+            effect: DeclaredInstanceCallSemanticEffectV1::OpaqueObservable,
             abi,
         };
         let OrdinaryNewConstructorDispositionV1::Birth(recipe) =
@@ -451,6 +468,14 @@ mod tests {
         };
         assert!(recipe.source_id().same_as(&source_id));
         assert_eq!(recipe.abi(), abi);
+        assert_eq!(recipe.effect, DeclaredInstanceCallSemanticEffectV1::OpaqueObservable);
+        assert_eq!(
+            recipe.physical_effect_mask(),
+            crate::mir::canonical_direct_call::materialize_direct_call_effect_v1(
+                crate::mir::canonical_direct_call_contract::VerifiedDirectCallEffectV1::ConservativeBarrier,
+            ),
+            "physical barrier bit policy must not drift; target issuers remain separate"
+        );
         assert_eq!(recipe.target(), target);
     }
 
@@ -458,16 +483,15 @@ mod tests {
     fn ordinary_new_recipe_target_is_selected_before_consumption() {
         let source_id = crate::parser::ConstructorSourceIdV1::test_new(8);
         let abi = InstanceConstructorAbiV1::issue(1).expect("constructor ABI");
-        let target =
-            CanonicalGlobalTargetV1::new_static_box_method("Pair".into(), "birth".into(), 1)
-                .expect("birth target");
+        let target = CanonicalSameModuleCallableKeyV1::birth_constructor("Pair", 1);
         let recipe = VerifiedOrdinaryNewBirthRecipeV1 {
             source_id,
             target: target.clone(),
+            effect: DeclaredInstanceCallSemanticEffectV1::OpaqueObservable,
             abi,
         };
 
-        assert_eq!(recipe.target_ref(), &target);
+        assert_eq!(&recipe.target, &target);
         assert_eq!(recipe.target(), target);
     }
 

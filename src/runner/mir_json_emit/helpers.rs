@@ -74,6 +74,13 @@ pub(crate) fn emit_unified_mir_call(
                 "receiver": receiver.as_u32()
             });
         }
+        Callee::BirthConstructor { key, receiver } => {
+            call_obj["mir_call"]["callee"] = json!({
+                "type": "BirthConstructor", "namespace": "BirthConstructor",
+                "owner": key.owner(), "name": key.name(), "arity": key.arity(),
+                "receiver": receiver.as_u32()
+            });
+        }
         Callee::Constructor { box_type } => {
             call_obj["mir_call"]["callee"] = json!({
                 "type": "Constructor",

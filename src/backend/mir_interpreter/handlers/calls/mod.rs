@@ -19,6 +19,9 @@ impl MirInterpreter {
             Some(Callee::SameModuleInstance { .. }) => self.err_unsupported(
                 "SameModuleInstance calls are unsupported in the VM reference lane",
             ),
+            Some(Callee::BirthConstructor { .. }) => self.err_unsupported(
+                "BirthConstructor calls are unsupported in the VM reference lane",
+            ),
             Some(Callee::Constructor { box_type }) => {
                 self.err_unsupported(&format!("Constructor calls for {}", box_type))
             }

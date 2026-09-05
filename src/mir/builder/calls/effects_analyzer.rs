@@ -94,6 +94,9 @@ impl EffectsAnalyzerBox {
             // is owned by the source package; this physical helper keeps the
             // conservative read projection used by the legacy MIR builder.
             Callee::SameModuleInstance { .. } => EffectMask::READ,
+            // Canonical Birth publication supplies its recipe mask directly.
+            // This legacy helper cannot refine it from a callee or a name.
+            Callee::BirthConstructor { .. } => EffectMask::ALL.remove(Effect::Pure),
 
             Callee::Constructor { .. } => EffectMask::PURE.add(Effect::Alloc),
 
