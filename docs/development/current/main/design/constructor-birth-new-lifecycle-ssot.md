@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-09-05
+Date: 2026-09-06
 Scope: source-level object construction lifecycle: `new`, `birth`, field initializers, explicit reuse methods, factories, and `fini`.
 Related:
   - docs/reference/language/lifecycle.md
@@ -18,7 +18,8 @@ Decision: accepted.
 ## Current Capsule
 
 - **Current decision:** common Home Flow owns caller obligations; construction
-  owns unpublished-object cleanup. Neither substitutes for the other.
+  owns unpublished-object cleanup. Neither substitutes for the other. Primary
+  Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
 - **Next ordered task:** decide common Normal/Fault ABI and canonical exit
@@ -438,10 +439,42 @@ not arbitrary FunctionMetadata. A metadata ValueId list could become stale or
 reference deleted locals. A source-only list would instead lose the exact
 physical correspondence when the scoped ledger drops. Neither is the intended
 exit connection. Read-only worker review independently confirmed this ordering.
-The bounded ABI decision must cover Normal/Fault tags and payload ownership,
-caller propagation versus entry reporting, cleanup operands and their SSA uses,
-later-cleanup Fault suppression, and the selected runtime release capability.
-Do not use a fresh metadata table or KeepAlive repair to defer these choices.
+The user accepted bounded suppressed diagnostics on 2026-09-06; the normative
+policy is `docs/reference/language/semantic-kernel.md#cleanup`. This resolves
+the diagnostic-capacity consultation, not runtime cleanup implementation.
+
+Task 1 implementation contract after review:
+
+- Keep the primary slot separate from a preallocated suppressed buffer. A Fault
+  origin records once; propagation never records the same Fault again. Buffer
+  overflow retains the ordered prefix and sets an omission flag, without growth,
+  primary replacement or shortened cleanup. Report only at the final entry.
+- Fault capture must not allocate or format text. Allocation failure uses a
+  static reason/site and inline details. An already-evaluated panic message
+  transfers its owned residence, not a borrow into a departing source frame.
+  Consuming/discarding an omitted diagnostic must release its payload through
+  an allocation-free, non-user-hook path; no leaked omitted message is allowed.
+- Use per-call Normal/Fault status independently of the shared primary slot:
+  successful cleanup can return Normal while an earlier primary remains pending.
+  A caller-owned frame is synchronously borrowed; no TLS or global state.
+- Reuse the existing MirCall/Callee for target and arguments. The reviewed
+  direction is an Invoke control terminator with normal/fault successors,
+  not a second Call target carrier or the external TextScan lease protocol.
+  Unit has no result slot; non-Unit storage is readable only on the normal edge.
+  Normal-only SSA definition/projection and hidden ABI lanes must be fixed in
+  that implementation before admitting non-Unit calls, never guessed by readers.
+- Consume the source/local ledger at the two named pre-finalization hooks into
+  real control/cleanup operands. Update ordinary use/rewrite, CFG and verifier
+  handling together; do not add a metadata table or KeepAlive repair.
+
+The existing task-4 acceptance must exercise primary preservation under injected
+allocation failure, cleanup success with an already-pending primary, later-Fault
+ordering, full-buffer omission, propagation without duplicate recording, message
+lifetime after source-frame release and no leaked omitted payload. Capacity
+exhaustion must still reach the last required cleanup and final entry report.
+The same connected series must reach the selected typed-C Birth consumer and
+fixed production proof; ABI-only unit tests do not close it. Runtime release,
+construction reclaim and tasks 2–4 remain required, not silently scoped away.
 
 The source prefix walks every preceding statement. Plain aliases add no Home;
 rebind, unknown acquisition, entry demand gaps, Handle arguments and nonempty

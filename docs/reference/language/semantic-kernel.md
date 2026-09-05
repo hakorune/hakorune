@@ -121,6 +121,17 @@ An explicit `panic` follows this same path. “No exception unwind” means no
 catchable runtime exception mechanism; it never means bypassing the verified
 exit transaction or skipping cleanup.
 
+Decision (2026-09-06): diagnostic storage is bounded; cleanup is not bounded by
+diagnostic capacity. Preserve the primary Fault independently of the suppressed
+diagnostic buffer. Retain later diagnostics in occurrence order in preallocated
+storage; when full, preserve the retained records and set an explicit
+`additional diagnostics omitted` indicator. Silent truncation is forbidden.
+Only the final entry reports the primary, retained diagnostics and omission
+indicator after cleanup. Buffer exhaustion must not replace the primary Fault,
+stop required cleanup, or trigger allocation/retry to grow diagnostic storage.
+The capacity is an internal resource choice, not a source cleanup limit; no
+exact omitted count or unbounded diagnostic history is promised.
+
 ## Control Boundaries
 
 `Break` and `Continue` target the nearest loop in Canonical v1. Labels and

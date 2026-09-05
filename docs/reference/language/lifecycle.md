@@ -205,6 +205,9 @@ never defines source ownership by itself.
 If the hook Faults, finalization is not rolled back. Preserve the first Fault
 in time, continue remaining field/native release best effort, record later
 Faults as suppressed diagnostics, and publish the primary terminal Fault.
+Suppressed details use the bounded diagnostic policy in
+[semantic-kernel.md](semantic-kernel.md#cleanup): overflow is explicitly reported
+after cleanup and never skips release or overwrites the primary Fault.
 
 ## Local, transfer, and Shared behavior
 

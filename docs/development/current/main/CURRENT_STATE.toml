@@ -1,10 +1,10 @@
-date = "2026-09-05"
+date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "RepresentationDecisionMissing__CommonFaultAbiAndExitOperands"
-current_blocker_token = "Constructor task 1 ordering correction: metadata retention alone is unsafe. DCE uses instruction operands and simplify_cfg rewrites blocks, not arbitrary metadata ValueIds; source-only retention loses the exact physical correspondence at ledger drop. Next decide the common Normal/Fault ABI and canonical exit operand/control representation in the existing constructor SSOT, then materialize the ledger before draft finalization through the existing method/Main hooks. No metadata sidecar, KeepAlive repair, TextScan CallOut reuse, new Call carrier, input census or source issuer. Define Fault payload ownership, primary/suppressed cleanup chronology, caller propagation versus entry reporting and ordinary SSA use/rewrite coverage. Source checkpoint remains 83/83 and control 33/33; no code or baseline change in this design correction. Runtime cleanup/Birth/EXE remain open."
+current_blocker_token = "User accepted bounded suppressed diagnostics on 2026-09-06: preserve primary independently, retain ordered preallocated details, mark overflow explicitly and continue cleanup; only final entry reports. Do not reopen that policy question. Existing constructor task 1 owns the remaining physical mapping: per-call Normal/Fault status, caller-owned frame/payload lifetime, normal-only result SSA and actual exit operands at the pre-finalization method/Main hooks. Reuse MirCall/Callee; reviewed Invoke is control vocabulary, not a second target issuer. No metadata sidecar, KeepAlive repair, TextScan lease reuse or new source census. Connect the same series through cleanup/reclaim and typed-C Birth consumption; do not close with ABI-only tests. Source checkpoint remains 83/83 and control 33/33, not re-executed for this docs decision; runtime cleanup/Birth/EXE remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

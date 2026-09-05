@@ -132,6 +132,10 @@ ordinary pending Return or Result::Err + teardown Fault = terminal Fault
 This precedence supersedes any earlier target where a later cleanup Fault
 blindly replaced an already-pending body Fault. Teardown still continues on a
 best-effort basis after the primary Fault is sealed.
+Suppressed diagnostics follow the accepted bounded-storage Decision in
+`docs/reference/language/semantic-kernel.md#cleanup`: preserve primary separately,
+retain the ordered prefix, mark overflow explicitly, and finish required cleanup
+before entry reporting. This does not promise unbounded diagnostic retention.
 
 ## Cleanup surface
 
