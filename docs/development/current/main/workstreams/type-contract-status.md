@@ -188,6 +188,30 @@ selected-C implementation owner. Bind the scalar failed-construction case to
 general child-Home/fini handling stays under OWN-HOME-BIRTH-D0. A reachable
 child-Home case cannot be silently waived as out of scope.
 
+Step 1 audit narrows the missing work, rather than reopening the input ABI:
+the typed-object store owns negative/index handles in its arena but has no
+unpublished-object discard operation. `host_handles::drop_handle` owns a
+different positive-handle registry and is not its cleanup API. Existing
+CheckedCallOut is the TextScan outcome/lease contract, not a Birth Unit/Fault
+carrier. Task: bind one failed-construction landing to this storage owner,
+reclaim the unpublished scalar outer storage exactly once without outer `fini`,
+and propagate the primary Fault. Do not call the current setter status or trap
+that mapping. Result/Fault transport remains open until this landing is fixed.
+
+Success-side owner is `ordinary_new_admission` (NewBox -> Birth -> object ValueId)
+then `new_expression` (explicit overrides -> result). Acceptance must prove
+that only Normal reaches overrides and caller use; Fault reaches neither.
+For a second-write kind mismatch, retain prior effect order, leave the failing
+destination unchanged, end the borrowed argv on both exits, and reclaim once
+without publishing an object. Child Homes, escaping self, or a required outer
+hook are outside this scalar contract and must not be silently admitted.
+Physical owner: `exports/typed_object_store_backend.rs::new_typed_object` and
+the selected store backend. Index handles must remain stable: do not reclaim
+with Vec remove/swap_remove that renumbers another object. DirectSlot's Drop
+deallocation is not yet reachable from Birth cleanup; unimplemented store
+profiles reject before artifact. Use `failure-outcome-relations.md` for primary
+Fault/cleanup ordering, not the allocator model's `exact_slot_record_release_success`.
+
 Producer contract: ImmediateI64 comes from an existing source/canonical Integer
 producer, HostHandle only from a real live host-handle carrier. Never re-tag
 Bool/Float/Void/raw object bits as handles or infer kind from storage/name/bit
