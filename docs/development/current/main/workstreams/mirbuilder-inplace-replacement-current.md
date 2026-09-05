@@ -498,6 +498,46 @@ baseline. This scope must not grow into a second ledger or a whole-repository
 green claim. Missing evidence is an open acceptance item; after the fixed list
 is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 
+#### Acceptance incident and bounded repair order (2026-09-05)
+
+The unchanged command was executed once with a fresh `llvm_static` build. The
+result was `11 total / 1 passed / 10 failed`: the unsupported-boundary probe
+passed; six source programs stopped at the existing
+`ExactSourceChanged(RootPreservation(CompatibilityLoss))` normal-callable
+transform terminal; four stopped at the existing generated-birth `birth/0`
+source contract. This is unclassified acceptance red, not accepted baseline
+debt. Do not alter the selected programs, add `#[ignore]`, or widen the
+whole-library baseline to make this scope green.
+
+Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
+bounded substeps in order; they are not new D0 cards or new semantic receipts:
+
+1. `normal_callable_transform` reconciliation: reproduce the six named
+   programs under the exact command, classify whether default callable
+   generation is an intentional source-preservation terminal or a regression
+   for this accepted EXE profile, and either repair the existing source-backed
+   root transport without AST rewrite or record an explicit finite profile
+   decision. The existing default-derive negative test remains mandatory.
+2. `constructor_source` reconciliation: reproduce the four named programs,
+   trace stored-field/legacy-init/birth provenance, and repair the existing
+   source-backed `birth/0` owner if the accepted profile requires it. Do not
+   synthesize a missing constructor, add a fixture workaround, or infer a
+   constructor from MIR. If the profile intentionally rejects a shape, record
+   that decision before changing the finite acceptance scope.
+3. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
+   backend/toolchain and record source/script hashes, expected result, and
+   first terminal. Close A only at `11/11` (including the exact unsupported
+   probe), with no new baseline names, no fallback/retry, and no partial
+   artifact publication.
+
+Only after A closes does the existing handoff continue to Call/R7, then the
+first unfinished Loop prerequisite and its fixed Loop/M8/M9 coverage. The
+unified selfhost order remains: finite MirBuilder/Loop acceptance -> language
+conformance/rejection matrix -> canonical `.hako` mimalloc promotion -> one
+Facts authority selection -> staged authority migration -> non-delegating
+Stage1/Stage2 self-compile proof. Equality-only bootstrap evidence and the
+historical MapStore/classifier queue do not reopen the scheduler.
+
 H/I dependencies and exact proof are owned by
 [selfhost resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order)
 and the existing Stage2+ task pack. WASM Hako codegen, broad performance,

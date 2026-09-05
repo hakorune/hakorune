@@ -4,7 +4,7 @@ work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "vm_legacy_call_terminal_collapse_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S VM legacy-call terminal collapse landed at a74648f0b3: both product paths reject through one typed helper, old VM dispatch/name/trace edges are gone, vm-reference check and nine focused tests pass. MIR/JSON boxcall and JSON egress remain family-local ParkedSealed because they have multiple live compatibility callers and no exclusive delete-set. The next existing closeout task is MIRBUILDER-FINAL-ACCEPTANCE-SCOPE: pin the 11-entry real-app EXE scope before the next production cutover; do not reopen the VM row or invent a new D0/receipt/guard."
+current_blocker_token = "The fixed MIRBUILDER-FINAL-ACCEPTANCE-SCOPE was executed with a fresh llvm_static build on 2026-09-05: 1/11 passed (the unsupported-boundary probe) and 10/11 stopped before artifact generation, six at ExactSourceChanged(RootPreservation(CompatibilityLoss)) and four at generated birth initializer missing birth/0. This is an acceptance verification incident, not accepted red and not a reason to edit fixtures or rebaseline. Reconcile the two existing source owners (normal callable transform and constructor source) inside the same acceptance card, then rerun the unchanged 11-entry suite. Do not reopen the landed VM row or invent a new D0/receipt/guard."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -51,9 +51,9 @@ without name repair or a result assignment, and the three selected native
 projection callers are gone; the explicit llvmlite compatibility projection is
 the only remaining caller and stays outside this cohort. The focused view
 positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
-returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows. The JSON-only ny-llvmc probe is outside the typed published caller and is not source acceptance evidence. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
-dead_code allowance/import were removed without semantic or guard/receipt/test
+returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows. The JSON-only ny-llvmc probe is outside the typed published caller and is not source acceptance evidence. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its dead_code allowance/import were removed without semantic or guard/receipt/test
 changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remaining shared JSON/JoinIR compatibility families are family-local ParkedSealed until an existing owner-specific decision or caller-zero asset appears.
+The fixed acceptance owner was then executed with a fresh llvm_static build on 2026-09-05: 1/11 passed (unsupported-boundary probe) and 10/11 failed before artifact generation; six hit the existing default-callable ExactSourceChanged(RootPreservation(CompatibilityLoss)) terminal and four hit the existing generated-birth birth/0 source contract. These are unclassified acceptance incidents, not baseline debt. The next bounded work is to reconcile those two existing source owners without fixture edits, fallback, or rebaseline, then rerun the same 11 entries before any production cutover or Loop handoff.
 """
 next_design_card = "none"
 next_execution_card = "MIRBUILDER-FINAL-ACCEPTANCE-SCOPE"
