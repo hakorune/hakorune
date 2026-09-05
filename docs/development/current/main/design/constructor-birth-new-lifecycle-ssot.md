@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** decide common Normal/Fault ABI and canonical exit
-  operands, then consume the existing prefix/local ledger before finalization.
+- **Next ordered task:** implement the accepted Invoke/allocation control and
+  normal-only result projection; bind emissions through the existing ledger.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -299,8 +299,8 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    not this proof. Complete local/native ownership and field destination
    obligations through existing HOME/EXIT tasks; do not require new syntax,
    Result `?`, Shared or all-backend implementation to express this dependency.
-   Source-plan issuance and local-install validation are connected. Next fix
-   the common Normal/Fault ABI and canonical control/operand representation;
+   Source-plan issuance and local-install validation are connected. Implement
+   the accepted common Normal/Fault ABI and control/operand representation;
    bind each source site to the control emitted by that same New owner, then
    consume the ledger into real exit operands before function finalization.
    Do not insert a source-only metadata retention checkpoint or store raw
@@ -432,7 +432,8 @@ session-local physical correspondence, not a new semantic issuer or side table.
 
 ### Physical connection decision (task 1, not a new task family)
 
-Decision: choose the common Fault ABI/control operands before physical retention.
+Decision: accepted common Invoke/allocation control with normal-only projection
+(2026-09-06, independent worker review); implement before physical retention.
 Source authority + canonical issuer: existing constructor key/receiver/source
 args, source Home prefix/NewFaultContinuation and completed local BindingRef to
 ValueId relation; the existing pre-finalization owner consumes them once.
@@ -440,9 +441,9 @@ Non-authority: metadata-only ValueIds, KeepAlive, source-only copied plans,
 Normal Unit, or TextScan's external/lease-shaped CheckedCallOut plan.
 Fail-fast boundary: no executable Birth route until unwind/exit operands are
 represented in canonical CFG and included in ordinary use/rewrite verification.
-Smallest next slice: define Normal Unit versus pending Fault transport, outward
-propagation and first-Fault preservation; consume the existing ledger at the
-two pre-finalization hooks, with no new source issuer or Call carrier.
+Smallest next slice: implement the control/projection vocabulary below and exact
+emission binding; consume the ledger at the two pre-finalization hooks, without
+a new source issuer or second Call target carrier.
 Non-claims: no runtime cleanup, storage reclaim, completed task 1 or EXE proof.
 
 The retention-first premise was disproved by the existing DCE and simplify-CFG
@@ -470,15 +471,48 @@ Task 1 implementation contract after review:
 - Use per-call Normal/Fault status independently of the shared primary slot:
   successful cleanup can return Normal while an earlier primary remains pending.
   A caller-owned frame is synchronously borrowed; no TLS or global state.
-- Reuse the existing MirCall/Callee for target and arguments. The reviewed
-  direction is an Invoke control terminator with normal/fault successors,
+- Reuse the existing MirCall/Callee for target and arguments. The selected
+  representation is an Invoke control terminator with normal/fault successors,
   not a second Call target carrier or the external TextScan lease protocol.
   Unit has no result slot; non-Unit storage is readable only on the normal edge.
-  Normal-only SSA definition/projection and hidden ABI lanes must be fixed in
-  that implementation before admitting non-Unit calls, never guessed by readers.
+  The following normal-only projection is required before admitting value
+  results; no reader guesses its definition or hidden ABI lanes.
 - Consume the source/local ledger at the two named pre-finalization hooks into
   real control/cleanup operands. Update ordinary use/rewrite, CFG and verifier
   handling together; do not add a metadata table or KeepAlive repair.
+
+Canonical control vocabulary (one owner, not an extensible effect wrapper):
+
+```text
+InvokeOperation = Call(existing MirCall with dst=None)
+                | NewBox(existing box_type and allocation arguments)
+Invoke(operation, fault_frame operand, normal_landing, fault_landing)
+InvokeNormalResult(originating Invoke block, dst)
+ReturnFault(fault_frame operand)
+```
+
+Invoke defines no SSA value. NewBox's handle is defined by the projection in
+its dedicated Normal landing, not on the allocation terminator; Birth Unit
+has no projection. A value-returning Call uses its canonical result ABI and
+the same projection. This preserves the current block-local SSA definition
+model (`verification/ssa.rs` and `verification/utils.rs`), which otherwise makes
+a terminator's dst visible on both successors. Require distinct Normal/Fault
+landings, exactly one value projection (zero for Unit), first after any PHIs,
+and the origin Invoke as the Normal block's sole predecessor. Verify projected
+uses and PHI predecessor edges under Normal dominance at publication, even if
+ambient `verify_allow_no_phi` disables ordinary compatibility checks. CFG rewrites
+must preserve/rewrite the explicit origin link; they must not merge it away.
+
+Physical ABI: per-call Normal/Fault status return, borrowed caller-owned Fault
+frame and a normal-result out slot only for value results. These are hidden
+physical lanes, not receiver/source arguments or source result values. Existing
+Return publishes Normal; ReturnFault propagates without recording a new Fault.
+The frame's entry definition and every forwarding use must be explicit and
+type-checked; missing frame cannot be synthesized from numeric zero or a global.
+Allocation Fault cleans prior caller Homes without reclaiming a nonexistent
+object. Birth Fault also reclaims the incomplete allocated object. Both outcomes
+of each cleanup continue to the next required cleanup. Admission stays closed
+until these consumers exist; the control checkpoint alone is not runtime proof.
 
 The existing task-4 acceptance must exercise primary preservation under injected
 allocation failure, cleanup success with an already-pending primary, later-Fault

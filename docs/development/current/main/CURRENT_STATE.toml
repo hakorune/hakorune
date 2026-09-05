@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "RepresentationDecisionMissing__CommonFaultAbiAndExitOperands"
-current_blocker_token = "Diagnostic policy accepted; no repeated consultation. Readiness review found that the local ledger retains values but no allocation/Birth control locations. Constructor task 1 must bind exact source site to emitted control through the existing New claim port, then consume it at the pre-finalization method/Main hooks; no name/order/receiver scan or metadata sidecar. Fix allocation normal-only handle and call-result SSA alongside Invoke control reusing MirCall/Callee. The task-1 control checkpoint permits runtime/reclaim and published typed-C transport work in tasks 2–3; full execution is task 4, not a circular prerequisite. Keep default storage coverage and stable handles during reclaim. Source checkpoint 83/83 and control 33/33 are historical, not rerun by this readonly review. Runtime cleanup/Birth/EXE remain open; no code or baseline changes."
+current_design_stop = "none"
+current_blocker_token = "Constructor task 1 physical representation accepted after worker review: Invoke wraps existing MirCall(dst=None) or NewBox allocation; only InvokeNormalResult in a dedicated Normal landing defines a result. Explicit frame operand and ReturnFault propagate independently of primary occupancy. Implement vocabulary, normal-only SSA/publication checks and exact source-to-emission binding through the existing claim port, then consume at method/Main pre-finalization hooks. No target issuer, name/order repair, metadata sidecar or TextScan lease reuse. This opens the connected implementation series, not executable Birth admission. Tasks 2–3 connect runtime/reclaim and typed-C transport; task 4 owns EXE/OBJ/negative proof and selected old-edge deletion. Default storage coverage stays required. Source 83/83 and control 33/33 remain historical evidence; this decision changes no code or baseline."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,8 +56,8 @@ changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remainin
 The fixed acceptance owner was then executed with a fresh llvm_static build on 2026-09-05: 1/11 passed in the default profile and 10/11 stopped before artifact generation; six hit the existing default-callable ExactSourceChanged(RootPreservation(CompatibilityLoss)) terminal and four hit the existing generated-birth birth/0 source contract. These are unclassified acceptance incidents, not baseline debt. Constructor root identity and App Main ordinary-new slot co-seal landed at dc684be1f1; the existing builtin owner now keeps ArrayBox outside source-backed ordinary coverage at the follow-up commit, semantic package tests remain 71/71, and the derive-off probe is now 3/11 with both typed-object-newbox-min and typed-object-untyped-field-min passing.
 The lexical `me` repair landed at bad86deaef (71/71 tests). The bdb28364c3 typed CLI probe proves StaticCallDefinitionMissing for birth and no artifact. C call-dispatch extraction landed at 93dde7b882 (797->708 lines, expanded source identical). Branch-only WIP d1fce06be3 preserves the BirthConstructor definition key; admission 3/3, collector 9/9 and vm-reference check pass. The new fixed Pair publication test fails at the existing IntegerBox field-read/Add type boundary: package 72/73, not merge-ready. User-requested IntegerBox review selects an explicit two-field i64 source-contract migration, not a field-only unbox rule; original evidence is retained. Real field-write/operand-kind consumption and EXE/OBJ admission are still required before birth execution. Call carrier, typed consumer, Pair exit 30 and selected old-edge deletion remain open. This design checkpoint changes no code, fixture, ignore or baseline; main stays at the closed checkpoint.
 """
-next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

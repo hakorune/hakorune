@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task 1 remains active; source checkpoint is package 83/83 and control 33/33 (not rerun for the 2026-09-06 docs decision). User accepted separate primary retention and bounded suppressed diagnostics with explicit overflow and continued cleanup; do not reopen that consultation. The existing constructor-birth-new-lifecycle-ssot owns the reviewed ABI/control direction and remaining physical mapping, including normal-only result SSA and payload lifetime. Materialize real exit operands at the pre-finalization method/Main hooks; metadata/KeepAlive and source-only copies are not substitutes. Connect the same series through the typed-C Birth consumer, cleanup/reclaim and production proof, not ABI-only tests. Runtime cleanup/reclaim/Birth/EXE remain open; backend rejection and baseline remain unchanged.
+Task 1 implementation is open under the accepted Invoke/allocation/normal-only-projection contract in constructor-birth-new-lifecycle-ssot. Bind exact emission sites through the existing claim port; consume at method/Main pre-finalization hooks. Explicit frame propagation, ordinary use/rewrite and unconditional normal-result dominance are required; no metadata/KeepAlive or name/order recovery. The control checkpoint permits tasks 2–3 runtime/reclaim and typed-C transport work; task 4 closes execution and old-edge deletion, not a circular prerequisite. Diagnostic policy is accepted. Source package 83/83 and control 33/33 are historical, not rerun for this decision. Runtime cleanup/Birth/EXE remain open and backend rejection stays until the actual consumers are verified; baseline unchanged.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
