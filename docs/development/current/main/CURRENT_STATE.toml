@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "ConstructionObligationSourceMappingMissing"
-current_blocker_token = "Exact enclosing Box identity now survives ordinary coverage, constructor rows, New claims and pending completion; ordinal-only constructor lookup is removed. Parser 40/40, package 85/85 and vm-reference check pass; no baseline change. Next task-1 action is a bounded read-only worker mapping of field/native acquisition/commit source relations to existing Home construction obligations and the claim consumer, followed by its code slice. Identity transport is not cleanup proof. NoBirthZero, scalar storage or caller HomePrefix cannot issue empty construction unwind. No new card/receipt, frame-only checkpoint or opaque unwind stub. Complete obligations before New Fault CFG; runtime/default-store reclaim, typed-C, fixed EXE/OBJ/failure proof and old-edge deletion remain required. Backend stays UnsupportedBeforeObject. This is a source-mapping review, not a global goal block or a repeat of the closed Box-identity audit."
+current_design_stop = "none"
+current_blocker_token = "Construction source mapping review is closed. Implement the accepted task-1 scalar construction plan in existing constructor/New products: exact branded Box + field declaration ordinal + resolved Plain store sites, source-issued Trivial demand, exhaustive syntax coverage and successful-store initialization cutpoints. NoBirthZero is eligible only with no fields; incomplete initialization remains Unavailable, not source invalidity or zero-fill. Outer unpublished storage reclaim remains mandatory even for Trivial fields. Next is code, not another audit/card/receipt. Then bind actual New/entry Fault CFG, runtime/reclaim and typed-C; fixed EXE/OBJ/failure proof and old-edge deletion remain required. Native/child/override obligations remain required later in the same series. Backend stays UnsupportedBeforeObject; this source prerequisite is not execution completion."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,8 +56,8 @@ changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remainin
 The fixed acceptance owner was then executed with a fresh llvm_static build on 2026-09-05: 1/11 passed in the default profile and 10/11 stopped before artifact generation; six hit the existing default-callable ExactSourceChanged(RootPreservation(CompatibilityLoss)) terminal and four hit the existing generated-birth birth/0 source contract. These are unclassified acceptance incidents, not baseline debt. Constructor root identity and App Main ordinary-new slot co-seal landed at dc684be1f1; the existing builtin owner now keeps ArrayBox outside source-backed ordinary coverage at the follow-up commit, semantic package tests remain 71/71, and the derive-off probe is now 3/11 with both typed-object-newbox-min and typed-object-untyped-field-min passing.
 The lexical `me` repair landed at bad86deaef (71/71 tests). The bdb28364c3 typed CLI probe proves StaticCallDefinitionMissing for birth and no artifact. C call-dispatch extraction landed at 93dde7b882 (797->708 lines, expanded source identical). Branch-only WIP d1fce06be3 preserves the BirthConstructor definition key; admission 3/3, collector 9/9 and vm-reference check pass. The new fixed Pair publication test fails at the existing IntegerBox field-read/Add type boundary: package 72/73, not merge-ready. User-requested IntegerBox review selects an explicit two-field i64 source-contract migration, not a field-only unbox rule; original evidence is retained. Real field-write/operand-kind consumption and EXE/OBJ admission are still required before birth execution. Call carrier, typed consumer, Pair exit 30 and selected old-edge deletion remain open. This design checkpoint changes no code, fixture, ignore or baseline; main stays at the closed checkpoint.
 """
-next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

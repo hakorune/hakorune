@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task 1 Invoke/FaultFrameEnter schema is implemented (historical gates 4/4, 18/18, 1/1). Exact parser Box identity now survives ordinary coverage, constructor rows, New claims and pending completion; final-source fields are preserved and ordinal-only constructor lookup is removed (parser 40/40, package 85/85, vm-reference check). Next map and issue field/native/commit obligations through the existing source/Home owner before entry/emission binding and complete Fault CFG. Birth and NoBirthZero share real Box identity; no fake constructor ID or empty cleanup. The existing constructor-birth-new-lifecycle-ssot owns this task-1 review and implementation order. Runtime/default-store reclaim and typed-C follow, then fixed EXE/OBJ/failure proof and old-edge deletion. Backend remains UnsupportedBeforeObject; no whole-task completion or baseline change.
+Task 1 Invoke/FaultFrameEnter schema and exact enclosing Box identity are implemented (parser 40/40, package 85/85, vm-reference check at the identity checkpoint). The worker-reviewed next code slice is the scalar construction source plan in existing constructor/New products: declaration-ordered demands, exact Plain-store sites and initialization cutpoints, with outer unpublished storage reclaim retained. Empty NoBirthZero or fully initialized Birth alone is initially eligible; other initialization stays Unavailable, not zero-filled. The constructor-birth-new-lifecycle-ssot owns acceptance and remaining native/child/override coverage. Next bind actual New/entry Fault CFG, then runtime/reclaim + typed-C and fixed EXE/OBJ/failure proof plus old-edge deletion. Backend remains UnsupportedBeforeObject; source-plan eligibility is not execution completion. No new audit/card/receipt or baseline change.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

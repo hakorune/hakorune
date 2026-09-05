@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** map retained Box/field and constructor source to the
-  existing Home owner's construction obligations before emitting New Fault CFG.
+- **Next ordered task:** implement the accepted scalar construction source plan
+  in existing constructor/New products, then bind it to actual New Fault CFG.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -454,19 +454,44 @@ Checkpoint: parser tests 40/40 and package tests 85/85, including field drift,
 foreign parser, parent mismatch, exact New-site association and no-Birth cases.
 No new receipt/guard/test file, no baseline change, no cleanup or EXE claim.
 
-**Next change:** use the retained source through existing constructor/Home
-issuance, removing the unresolved construction-unwind dependency, not adding a
-frame-only production checkpoint. Before code, one bounded read-only review must
-name the exact field/native acquisition and commit source relations and their
-consumer in the existing claim. This is task 1, not another card or broad census.
-**Contract:** field/native obligations and cutpoints come from source semantics;
-NoBirthZero, scalar storage, and caller-prefix cleanup never prove empty unwind.
-**Done:** the source plan represents selected construction Fault cutpoints and
-initialized obligations, with exact parent/site and missing/foreign/unsupported
-tests; then connect the already-defined control to real New emissions.
-**Stop:** an unissued obligation remains unavailable; no guessed empty plan,
-name/handle scan or opaque unwind stub. Backend rejection remains until runtime
-and typed-C consumption, fixed EXE/OBJ proof and old-edge retirement are complete.
+**Change (accepted 2026-09-06, read-only worker review consumed):** implement
+one AST-free construction plan in the existing constructor/New products. The
+constructor source/Home issuer joins exact lexical `me`, resolved Plain field
+assignments and the retained enclosing declaration; ordinary-new only co-seals
+the result. This is task 1's code slice, not a new card or another source audit.
+Old execution authority removed in this prerequisite: none; the fixed Birth
+EXE/OBJ gate still requires the subsequent connected cutover and deletion.
+**Contract:** field identity is the retained branded Box plus declaration ordinal,
+not a layout offset. Keep declaration-ordered Home demands and source-ordered
+`ResolvedAssignmentSourceV1`/field-ordinal pairs. The issuer classifies explicit
+source `i64` as Trivial once; existing parameter Home ABI does not classify fields.
+The first profile covers only direct own-field Plain stores from exact formal
+borrows or integer literals, with every statement/expression accounted for.
+No weak/default/delegation, alias/rebind, structured control, nested/native/child
+acquisition or override is silently omitted; unsupported dependencies stay explicit.
+
+| Source/outcome | Required state |
+| --- | --- |
+| Allocation Fault | No outer storage obligation acquired |
+| Allocation Normal | Unpublished outer storage reclaim obligation acquired |
+| Store Fault | This store has not committed; preserve prior initialized set |
+| Store Normal | Mark the exact declared field initialized |
+| NoBirthZero, no fields | Eligible source plan; outer reclaim obligation remains |
+| Birth, every required field initialized | Eligible for later publication, not yet executable |
+| Required field initialization unproven | `Unavailable(InitializationContractMissing)`; no zero-fill |
+
+Initialization and Home demand are separate: Trivial fields do not imply empty
+construction unwind. Unavailable is profile eligibility, not source invalidity.
+**Done:** existing package tests cover renamed/reordered fields, multiple store
+cutpoints, empty NoBirthZero, foreign parent/site/receiver, incomplete initialization
+and hidden acquisition/residual syntax. Preserve the fixed Pair publication test,
+module README/reference contract and existing M7-S/pointer gates; add no guard or
+test file. Then bind this plan to actual New/entry Fault CFG in the same series.
+**Stop:** never infer obligations from MIR storage, absent Call/Allocation events,
+caller HomePrefix or non-escape alone. No guessed empty plan or opaque unwind stub.
+Native/child/override coverage remains required by task 4, not waived by scalar
+acceptance. Backend stays rejected until runtime/reclaim, typed-C, fixed EXE/OBJ
+and failure proof plus old-edge deletion are complete.
 
 The next semantic consumer is the existing construction/Home source owner:
 classify initialized owning places, native acquisition/commit and each Fault
