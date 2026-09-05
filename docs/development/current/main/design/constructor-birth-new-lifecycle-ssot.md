@@ -320,6 +320,27 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    do not silently drop the default profile to make a proof pass. Unsupported
    profiles reject before artifact. Bind runtime store selection to the admitted
    capability before allocation; a later env choice cannot bypass the guarantee.
+   Accepted independent runtime prerequisite (2026-09-06): replace the indexed
+   SafeMutex/SingleThreadExact store with tombstoned optional slots. Checked
+   insertion preserves existing negative handles; reclaim validates handle/type,
+   takes the payload once and drops it outside the lock. Never shift or reuse
+   indices. Only reclaim may recover a poisoned guard; ordinary accesses remain
+   failed and poison is not cleared. Payload drop releases inert storage only,
+   never child Homes or hooks. SingleThreadExact remains thread-confined;
+   pinned/direct reclaim stays unsupported. Retained tombstone metadata is not
+   allocator completion. Local-owner tests cover duplicate/mismatch/invalid
+   reclaim, stable unrelated handles, poison and failed-store nonmutation.
+   This closes the storage primitive, not HomeRelease, source-slot linkage,
+   common Fault transport or executable Birth; return directly to task 1.
+   Verification: six indexed-storage tests pass under each explicit safe_mutex
+   and single_thread_exact profile; selected-accessor tests additionally prove
+   pinned/direct rejection. Kernel quick check passes. The broader `cargo test --profile quick
+   -p nyash_kernel typed_object -- --test-threads=1` with safe_mutex reports
+   31/1; parent-source 98db26896b, same command/environment, reports 25/1.
+   Both fail only `exports::typed_object_pinned_arena::tests::
+   direct_slot_object_v0_header_and_field_offsets_are_stable` at the unchanged
+   negative-handle assertion. This is separately observed baseline debt, not
+   a waiver for indexed-storage failures or whole-library green evidence.
 3. **Birth consumer cutover:** return to input-wire/published-C steps 2–4 in
    `workstreams/type-contract-status.md`. Normal Unit and pending Fault have
    distinct internal control transport; never expose a status as a source value
@@ -562,6 +583,17 @@ objects, stable default-storage no-hook reclaim, and no mutation on rejected
 stores. Existing Arc drop, empty Trivial fields and successful local tests do
 not supply these contracts. `builder/fields.rs` is 787 lines; if that owner must
 change, extract the touched responsibility before adding semantic code.
+The bounded review located the source-store handoff at
+`raw_expression_dispatch/statement_surface.rs` before child descent. Preserve
+the existing assignment/constructor/Box identity there; do not use
+`field_facts::declared_field_contract_identity` (origin/name lookup) as issuer.
+The published object definition must retain that Box relation and project its
+declaration ordinal through the existing layout algorithm. For prior caller
+Homes, join prefix BindingRef to its retained New row and exact declaration;
+construction eligibility is not complete-object destruction eligibility.
+The first no-hook/plain-scalar destruction disposition must be positively
+issued through the existing declaration loan, not inferred from Arc drop or
+absence of events. Hook/child/native expansion remains required by tasks 2–4.
 `OrdinaryNewClaimLedgerV1::is_empty` currently proves initializer/local completion,
 not consumption of the retained construction plan. The two existing exit hooks
 must reject residual physical bindings before finalization, independently of

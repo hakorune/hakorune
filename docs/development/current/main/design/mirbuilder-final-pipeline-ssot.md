@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task 1 source construction plan checkpoint: parser 41/41, package 90/90, exact branch-trigger test 1/1 and vm-reference quick check pass. Exact constructor/store identity survives New completion; this is not runtime cleanup or retirement evidence. Read-only review selects physical store/Home-release/outer-reclaim status mapping next, before actual entry/New CFG binding: current Invoke supports only Call/NewBox, and local completion does not prove physical exit consumption. The constructor-birth-new-lifecycle-ssot owns the bounded task and acceptance. Consume real operands at both pre-finalization hooks, then connect runtime/default reclaim + typed-C and fixed EXE30/OBJ/failure proof plus old-edge deletion. Native/child/override coverage remains required. Backend remains UnsupportedBeforeObject; no new card/receipt/guard or baseline change.
+Task 1 source construction plan checkpoint: parser 41/41, package 90/90, trigger test 1/1 and vm-reference quick check pass. Task 2's independent indexed-storage primitive now uses stable tombstones with guarded no-hook reclaim: six tests pass per indexed profile and kernel quick check passes; the unchanged DirectSlot header red is parent-reproduced in the constructor lifecycle SSOT. Return to task 1: extract the 787-line field-assignment owner without behavior change, preserve exact assignment/Box-to-published-layout relation and issue prior-Home destruction eligibility through the existing source owner. Then bind real entry/New/exit operands, common Fault/runtime + typed-C and fixed EXE30/OBJ/failure proof plus old-edge deletion. Native/child/override coverage remains required. Backend remains UnsupportedBeforeObject; storage/source checkpoints are not execution completion. No new card/receipt/guard or baseline change.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

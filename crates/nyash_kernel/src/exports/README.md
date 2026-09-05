@@ -24,6 +24,15 @@ Treat them as public symbol-family exports, not as ownership boundaries.
 - Internal string support modules such as `string_route_policy`,
   `string_search`, `string_plan`, `string_view`, and `string_span_cache`
   stay module imports only; they do not define crate-root ABI ownership.
+- `typed_object_store_backend` owns indexed SafeMutex/SingleThreadExact slots.
+  Freed payloads become tombstones; indices are never shifted or reused.
+  `reclaim_typed_object_storage` is an internal storage-only prerequisite, not
+  a source-visible free, Home release or Birth consumer. It checks handle/type,
+  detaches once and drops inert field storage after releasing the owner guard.
+  Reclaim alone may recover mutex poison without clearing it; normal accesses
+  still fail. SingleThreadExact requires thread confinement. Pinned/direct
+  reclaim remains unsupported. Tombstone metadata and field-vector allocation
+  are not evidence of allocator completeness or general OOM recovery.
 - `dynamic_v2_text_scan` is also kept as an internal module import. Its two
   `export_name` symbols are a strict AOT checkpoint, not a selected production
   caller or a second provider registry.
