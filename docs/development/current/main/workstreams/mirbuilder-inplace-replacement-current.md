@@ -509,6 +509,15 @@ source contract. This is unclassified acceptance red, not accepted baseline
 debt. Do not alter the selected programs, add `#[ignore]`, or widen the
 whole-library baseline to make this scope green.
 
+The six exact RootPreservation paths are
+`typed-object-newbox-min`, `typed-object-method-min`,
+`typed-object-untyped-field-min`, `binary-trees`,
+`json-stream-aggregator`, and `typed-object-birth-param-min`. The four exact
+generated-birth paths are `typed-object-birth-min`, `boxtorrent-mini`,
+`mimalloc-lite`, and `allocator-stress`; the unsupported-boundary probe is the
+single pass. These names are recorded from the unchanged runner output, not
+inferred from fixture contents.
+
 Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
 bounded substeps in order; they are not new D0 cards or new semantic receipts:
 
@@ -520,10 +529,13 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    decision. The existing default-derive negative test remains mandatory.
 2. `constructor_source` reconciliation: reproduce the four named programs,
    trace stored-field/legacy-init/birth provenance, and repair the existing
-   source-backed `birth/0` owner if the accepted profile requires it. Do not
-   synthesize a missing constructor, add a fixture workaround, or infer a
-   constructor from MIR. If the profile intentionally rejects a shape, record
-   that decision before changing the finite acceptance scope.
+   source-backed owner. The concrete mismatch is bounded: property emission
+   prefixes initializers onto every existing `birth/N`, while constructor
+   sealing currently searches only for `birth/0`; existing Birth relations must
+   receive the trigger at their own arity, and only an entirely missing Birth
+   may synthesize `birth/0`. Do not synthesize a missing constructor merely to
+   bypass a present `birth/N`, add a fixture workaround, or infer a constructor
+   from MIR. Keep duplicate/malformed coverage rejection tests green.
 3. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
    backend/toolchain and record source/script hashes, expected result, and
    first terminal. Close A only at `11/11` (including the exact unsupported
