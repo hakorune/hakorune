@@ -1,15 +1,16 @@
 # hakorune_mir_defs
 
-Shared MIR call-shape substrate extracted during the crate split preparation
+Shared MIR call/object-reference substrate extracted during the crate split preparation
 lane.
 
 ## Scope
 
 - `call_unified.rs`
+- `object_ref.rs`: module-local object and declaration-order field coordinates.
 
 ## Boundaries
 
-- This crate only holds unified call definitions and related call-shape helpers.
+- This crate holds structural call definitions and module-local object references.
 - It depends on `hakorune_mir_core` for the pure substrate types.
 - It does not own MIR lowering, builder policy, or bridge routing.
 
@@ -34,3 +35,9 @@ key namespace. It invokes the constructor hook on a fresh receiver; it does not
 allocate (`Constructor`/`NewBox`) or masquerade as Global. Source args exclude
 the receiver, including when an argument has the same ValueId. Effect/result
 admission belongs to the source recipe, not this structural crate.
+
+`CanonicalObjectIdV1` and `CanonicalFieldRefV1` do not prove source membership.
+The existing semantic batch assigns IDs once and retains the exact source
+correspondence; publication must validate the module brand, definition and field
+range. Equal numeric IDs across modules are unrelated. Runtime type IDs are a
+separate physical layout projection, never a source identity substitute.

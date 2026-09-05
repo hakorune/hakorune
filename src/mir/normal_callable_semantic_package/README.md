@@ -88,6 +88,13 @@ The pending local-commit row keeps that relation after target take and rejects
 completion for another Box. Construction field/native obligations remain a
 separate required source consumer; retaining identity does not make cleanup empty.
 
+The same constructor batch assigns one `CanonicalObjectIdV1` per exact ordinary
+Box (including NoBirth). Construction plans retain it and store sites carry
+`CanonicalFieldRefV1`, not an unqualified ordinal. The private exact-source
+correspondence rejects foreign parser sessions even when numeric indices match.
+These references still require the atomic object-definition publication and
+physical consumer; they do not by themselves enable Birth execution.
+
 The final source transport now carries ordinary-box coverage into this same
 package. The issuer selects exact direct-local initializer relations, validates
 their declaration BindingRef and Local kind, and joins the located `New` with the

@@ -603,14 +603,28 @@ exact ordinary-Box coverage, including empty NoBirth declarations. Its existing
 invocation brand and private source correspondence prevent foreign-module reuse;
 equal integers alone never prove identity. Names and constructor keys are not
 object identity. Runtime type IDs remain a separate checked layout projection.
+Source-ID checkpoint: the semantic batch now assigns these IDs to exact
+ordinary-Box coverage and construction stores retain typed field references.
+Quick lib check, package tests 91/91 (including distinct-Box/NoBirth/foreign-same-index)
+and existing pointer/M7-S guards pass. Atomic definition payload/table and
+physical consumers are not implemented yet; do not call this publication done.
 
 Within existing task 1, execute these three connected steps after split validation:
-1. Move one definition payload through `ModuleDraftCollectorV1` with callable
-   drafts into atomic publication. Publish one private object-definition table;
-   existing `PublishedMirBackendView` borrows it. Reuse declaration-order layout
-   vocabulary, not name-based storage inference. Selected objects must not also
-   acquire independently inferred legacy layouts. Any compatibility projection
-   is one-way from this sole table. No parser loan reaches the backend.
+1. Move one exact, initially unlaid-out definition payload with callable drafts
+   through `ModuleDraftCollectorV1` into the private candidate. Drain precedes
+   external publication: `program_root_lowering` drains before `finalize_module`
+   installs declaration metadata and calls `refresh_module_typed_object_plans`.
+   Reuse that existing allocator; never allocate runtime IDs in collector drain.
+   Reserve canonical positions in object-ID order (including unsupported shapes),
+   then allocate compatibility layouts after that prefix with checked arithmetic.
+   Store canonical layouts only in the canonical definition table. Repeated
+   semantic/backend refresh preserves and validates these allocations; it rebuilds
+   only compatibility layouts. No canonical MIR-observed storage inference.
+   Declaration-metadata projection must carry explicit source-issued membership
+   so the legacy planner excludes canonical objects without diagnostic-name lookup.
+   External publication/admission requires resolved layouts for selected operations;
+   the existing backend view borrows them. Any old-format export is one-way.
+   No parser loan or second allocation registry reaches the backend.
 2. At the existing pre-descent assignment handoff, consume the exact plan store
    once and emit FieldSet Invoke with field reference plus real base/value
    operands. Delete the selected Birth origin-map/field-name reconstruction in
@@ -623,6 +637,8 @@ Use existing package/collector/view tests for distinct same-shaped Boxes,
 renames/reordered stores, empty NoBirth, foreign source, duplicate installation,
 missing ID, invalid ordinal and layout drift. Fail atomically before publishing
 either functions or definitions; reject residual source/emission bindings.
+Also cover mixed canonical/compatibility allocations, repeated refresh and changed
+compatibility shapes, empty NoBirth, unsupported reserved positions and overflow.
 The installed definition payload has one owner; the semantic batch retains only
 immutable correspondence needed for exact claims, not another mutable table.
 No new task card, semantic receipt, registry or per-cohort guard is required.

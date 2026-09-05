@@ -1,6 +1,7 @@
 //! Resolver-owned semantic rows for parser-issued instance constructors.
 
 use std::collections::BTreeMap;
+use hakorune_mir_defs::CanonicalObjectIdV1;
 use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
@@ -62,6 +63,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
 pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
     box_sources: ParserOrdinaryBoxSourceCoverageV1,
+    object_sources: Box<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
     no_birth_construction: Vec<(ParserOrdinaryBoxSourceRowV1, ConstructionEligibilityV1)>,
 }
 
@@ -74,6 +76,16 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    pub(crate) fn object_for(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+    ) -> Result<CanonicalObjectIdV1, InstanceConstructorBirthLookupErrorV1> {
+        self.object_sources.iter()
+            .find(|(own, _)| own.same_source_as(source))
+            .map(|(_, id)| *id)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
+    }
+
     pub(crate) fn rows(&self) -> &[VerifiedInstanceConstructorSemanticRowV1] {
         &self.rows
     }
@@ -238,20 +250,28 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     source: &VerifiedFinalCallableProgramSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1> {
-    for parent in source.ordinary_box_coverage().rows() {
+    let mut object_sources = Vec::new();
+    for (index, parent) in source.ordinary_box_coverage().rows().iter().enumerate() {
         source.with_ordinary_box_syntax(parent, |_| ())
             .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+        if object_sources.iter().any(|(own, _): &(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)|
+            own.same_source_as(parent)) {
+            return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
+        }
+        let id = CanonicalObjectIdV1::from_declaration_index(index)
+            .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+        object_sources.push((parent.clone(), id));
     }
     source
         .with_constructor_semantic_syntax(|loan| {
             let mut no_birth_construction = Vec::new();
-            for parent in source.ordinary_box_coverage().rows() {
+            for (parent, object_id) in &object_sources {
                 if loan.rows().iter().any(|row| row.kind() == ConstructorSourceKindV1::Birth
                     && row.box_source().same_source_as(parent)) {
                     continue;
                 }
                 let plan = source.with_ordinary_box_syntax(parent, |declaration| {
-                    issue_construction_plan(parent, declaration, None)
+                    issue_construction_plan(*object_id, parent, declaration, None)
                 }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                 no_birth_construction.push((parent.clone(), plan));
             }
@@ -389,8 +409,12 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 })?.with_body_shape(constructor_shapes.get(root)
                     .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?);
                 let construction = if kind == ConstructorSourceKindV1::Birth {
+                    let object_id = object_sources.iter()
+                        .find(|(own, _)| own.same_source_as(&box_source))
+                        .map(|(_, id)| *id)
+                        .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
                     source.with_ordinary_box_syntax(&box_source, |parent| {
-                        issue_construction_plan(&box_source, parent, Some((&source_id, input)))
+                        issue_construction_plan(object_id, &box_source, parent, Some((&source_id, input)))
                     }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
                 } else {
                     Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
@@ -434,6 +458,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
                 rows: rows.into_boxed_slice(),
                 box_sources: source.ordinary_box_coverage().clone(),
+                object_sources: object_sources.into_boxed_slice(),
                 no_birth_construction,
             })
         })
@@ -443,6 +468,31 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn object_identity_covers_distinct_boxes_and_rejects_foreign_same_index() {
+        let text = "box First { value: i64\nbirth(x) { me.value = x } }\nbox Second { value: i64\nbirth(x) { me.value = x } }\nbox Empty {}";
+        let own = super::super::brand_catalog_tests::issue_with_brand_catalog(text).unwrap();
+        let foreign = super::super::brand_catalog_tests::issue_with_brand_catalog(text).unwrap();
+        let batch = &own.instance_constructors;
+        let mut ids = std::collections::BTreeSet::new();
+        for (index, name) in ["First", "Second", "Empty"].into_iter().enumerate() {
+            let source = batch.box_sources.row_for(name).unwrap().unwrap();
+            let id = batch.object_for(source).unwrap();
+            assert_eq!(id.declaration_index() as usize, index);
+            assert!(ids.insert(id));
+            let arity = if name == "Empty" { 0 } else { 1 };
+            let plan = batch.construction_for(source, arity).unwrap().as_ref().unwrap();
+            assert_eq!(plan.object(), id);
+            assert!(plan.stores().iter().all(|(_, field)| field.object() == id));
+            let foreign_source = foreign.instance_constructors.box_sources.row_for(name).unwrap().unwrap();
+            assert_eq!(foreign.instance_constructors.object_for(foreign_source).unwrap(), id,
+                "the raw number is module-local, not a membership proof");
+            assert_eq!(batch.object_for(foreign_source),
+                Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
+        }
+        assert_eq!(ids.len(), 3);
+    }
 
     #[test]
     fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
@@ -456,7 +506,9 @@ mod tests {
             let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
             let plan = batch.construction_for(parent, 1).unwrap().as_ref().unwrap();
             assert_eq!(plan.field_demands(), &[crate::mir::resolved_semantics::HomeDemandV1::Trivial; 2]);
-            assert_eq!(plan.stores().iter().map(|(_, ordinal)| *ordinal).collect::<Vec<_>>(), expected);
+            assert_eq!(plan.stores().iter().map(|(_, field)| field.declaration_ordinal()).collect::<Vec<_>>(), expected);
+            assert_eq!(plan.object(), batch.object_for(parent).unwrap());
+            assert!(plan.stores().iter().all(|(_, field)| field.object() == plan.object()));
             assert_ne!(plan.stores()[0].0.statement_site(), plan.stores()[1].0.statement_site());
             assert!(plan.reclaims_unpublished_outer_storage());
             let row = batch.birth_for(parent, 1).unwrap().unwrap();

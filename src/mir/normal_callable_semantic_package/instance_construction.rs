@@ -6,6 +6,7 @@
 //! Normal edge. No MIR type, event absence or non-escape result issues this plan.
 
 use std::collections::BTreeSet;
+use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -26,9 +27,10 @@ pub(crate) enum ConstructionUnavailableV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructionPlanV1 {
-    // Identity comes from the enclosing constructor/New product's branded Box.
+    // Issued once by the enclosing branded semantic batch, including NoBirth.
+    object: CanonicalObjectIdV1,
     field_demands: Box<[HomeDemandV1]>,
-    stores: Box<[(ResolvedAssignmentSourceV1, usize)]>,
+    stores: Box<[(ResolvedAssignmentSourceV1, CanonicalFieldRefV1)]>,
     // Store sites are local to this existing constructor owner. Keep it after
     // the affine New target is consumed; Box identity alone cannot qualify them.
     constructor: Option<(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)>,
@@ -37,6 +39,10 @@ pub(crate) struct ConstructionPlanV1 {
 pub(crate) type ConstructionEligibilityV1 = Result<ConstructionPlanV1, ConstructionUnavailableV1>;
 
 impl ConstructionPlanV1 {
+    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
+    }
+
     pub(crate) fn constructor(
         &self,
     ) -> Option<&(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)> {
@@ -47,7 +53,7 @@ impl ConstructionPlanV1 {
         &self.field_demands
     }
 
-    pub(crate) fn stores(&self) -> &[(ResolvedAssignmentSourceV1, usize)] {
+    pub(crate) fn stores(&self) -> &[(ResolvedAssignmentSourceV1, CanonicalFieldRefV1)] {
         &self.stores
     }
 
@@ -60,6 +66,7 @@ impl ConstructionPlanV1 {
 
 /// Called only within the exact parser declaration loan at semantic issuance.
 pub(super) fn issue_construction_plan(
+    object_id: CanonicalObjectIdV1,
     source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
     declaration: &ASTNode,
     birth: Option<(
@@ -119,6 +126,7 @@ pub(super) fn issue_construction_plan(
         return Err(U::SourceRelationMissing);
     }
     let mut plan = ConstructionPlanV1 {
+        object: object_id,
         field_demands: vec![HomeDemandV1::Trivial; fields.len()].into_boxed_slice(),
         stores: Box::new([]),
         constructor: None,
@@ -246,7 +254,9 @@ pub(super) fn issue_construction_plan(
             object.clone(),
             row.value_site().clone(),
         ]);
-        stores.push((row.clone(), ordinal));
+        let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
+            .ok_or(U::SourceRelationMissing)?;
+        stores.push((row.clone(), field));
     }
     // Reject residual syntax/child owners; SequenceItem or absent Call events
     // alone do not classify ArrayLiteral, FromCall, Lambda or nested acquisition.
