@@ -81,8 +81,13 @@ terminal; the AST-only compatibility catalog is not a retry route.
 ## Raw ordinary-`New` claim co-seal (D2c)
 
 The final source transport now carries ordinary-box coverage into this same
-package. The issuer joins selected direct-body `Allocation` sites with the
+package. The issuer selects exact direct-local initializer relations, validates
+their declaration BindingRef and Local kind, and joins the located `New` with the
 exact parser-owned `ConstructorSourceIdV1` and its typed `Birth(N)` signature.
+Uninitialized and non-New locals are skipped; Outbox and nested allocations
+remain outside this cohort. Allocation effects are not the selection entry or
+an execution timeline. Initializer/binding identity alone is not a Home demand,
+local installation commit or complete Fault obligation.
 It emits either a non-`Clone` `VerifiedOrdinaryNewBirthRecipeV1` or the
 explicit `NoBirthZero` disposition; no `Class.birth/N` text is reconstructed
 from Builder headers. The selected Raw adapter consumes a matching

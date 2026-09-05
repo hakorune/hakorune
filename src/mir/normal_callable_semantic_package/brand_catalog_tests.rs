@@ -35,6 +35,39 @@ pub(super) fn issue_with_brand_catalog(
 }
 
 #[test]
+fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery() {
+    use crate::mir::resolved_semantics::{BindingKindV1, SourceBindingSiteV1};
+    for body in [
+        "local first = new Page() local second = new Page() return 0",
+        "local unused local scalar = 7 local first = new Page() local second = new Page() return scalar",
+    ] {
+        let source = format!(
+            "box Page {{ birth() {{ }} }} static box Main {{ main() {{ {body} }} }}"
+        );
+        let package = issue_with_brand_catalog(&source).expect("exact local New source");
+        assert_eq!(package.ordinary_new_claims.len(), 2);
+        let mut bindings = std::collections::BTreeSet::new();
+        for claim in &package.ordinary_new_claims {
+            let declaration = package.batch().declarations()
+                .find(|row| row.owner() == claim.site().owner()).expect("exact owner");
+            let binding = package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+                let function = input.function();
+                let initializer = function.expression_source().initializers()
+                    .find(|row| row.initializer_site() == Some(claim.site().site()))
+                    .expect("claim retains its source initializer relation");
+                assert!(matches!(initializer.declaration_site(), SourceBindingSiteV1::Local { .. }));
+                assert_eq!(function.declaration_binding(initializer.declaration_site()),
+                    Some(initializer.binding()));
+                assert!(matches!(function.binding(initializer.binding()).unwrap().kind(),
+                    BindingKindV1::Local { .. }));
+                initializer.binding()
+            }).expect("same-source initializer loan");
+            assert!(bindings.insert(binding), "distinct destinations");
+        }
+    }
+}
+
+#[test]
 fn birth_receiver_non_escape_preserves_field_access_and_local_aliases() {
     for body in [
         "me.value = value",

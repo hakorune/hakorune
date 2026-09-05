@@ -17,7 +17,7 @@ use crate::mir::instance_constructor_abi::{
     InstanceConstructorAbiErrorV1, InstanceConstructorAbiV1,
 };
 use crate::mir::resolved_semantics::{
-    BodyEffectKindV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
+    BindingKindV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
 };
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
@@ -157,7 +157,7 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     AllocationSiteNotDirectLocal {
         site: SourceExprSiteV1,
     },
-    AllocationSiteNotNew {
+    InitializerBindingMismatch {
         site: OwnedExprSiteV1,
     },
     OrdinaryBoxCoverageMissing {
@@ -225,32 +225,40 @@ pub(crate) fn issue_ordinary_new_claims_v1(
         if excluded_dynamic_batch_slot == Some(batch_slot) {
             continue;
         }
-        for effect in declaration
-            .body_shape()
-            .effects()
-            .iter()
-            .filter(|effect| effect.kind == BodyEffectKindV1::Allocation)
-        {
-            if !is_direct_local_initializer(effect.site.node().segments()) {
-                continue;
-            }
-            let site = OwnedExprSiteV1::new(owner, effect.site.clone());
-            let (class, arity) = batch
-                .with_lowering_input(batch_slot, |input| {
+        // One source loan covers both initializer membership and binding
+        // validation. Its order is not a Home availability/execution timeline.
+        let candidates = batch
+            .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
+                let function = input.function();
+                let mut candidates = Vec::new();
+                for initializer in function.expression_source().initializers() {
+                    let Some(initializer_site) = initializer.initializer_site() else {
+                        continue;
+                    };
+                    if !is_direct_local_initializer(initializer_site.node().segments()) {
+                        continue;
+                    }
+                    let site = OwnedExprSiteV1::new(owner, initializer_site.clone());
                     let located = input.source().expr_at(&site).map_err(|_| {
                         OrdinaryNewCoSealIssueV1::SourceNavigation { site: site.clone() }
                     })?;
-                    match located.node() {
-                        ASTNode::New {
-                            class, arguments, ..
-                        } => Ok((class.clone().into_boxed_str(), arguments.len())),
-                        _ => Err(OrdinaryNewCoSealIssueV1::AllocationSiteNotNew {
-                            site: site.clone(),
-                        }),
+                    let ASTNode::New { class, arguments, .. } = located.node() else {
+                        continue;
+                    };
+                    if initializer.binding().owner() != owner
+                        || function.declaration_binding(initializer.declaration_site())
+                            != Some(initializer.binding())
+                        || !matches!(function.binding(initializer.binding()).map(|row| row.kind()),
+                            Some(BindingKindV1::Local { .. }))
+                    {
+                        return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site });
                     }
-                })
-                .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-
+                    candidates.push((site, class.clone().into_boxed_str(), arguments.len()));
+                }
+                Ok(candidates)
+            })
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
+        for (site, class, arity) in candidates {
             let Some(box_source) = batch
                 .ordinary_box_coverage()
                 .row_for(class.as_ref())

@@ -327,6 +327,14 @@ alias capture reaches the new verifier. New receipt/guard/fixture = 0; the
 unchecked Birth-row admission is closed, not a legacy-file deletion claim.
 Actual Fault cutpoints require new issuance in the existing common exit/Home
 owner: Allocation event order is source traversal, not runtime evaluation order.
+Ordinary-new admission uses exact local initializer/binding relations instead
+of Allocation-event discovery (package 78/78; selected old discovery edge 1->0,
+no Home-commit or cleanup claim). The next Home issuer consumes source statement
+order and distinguishes an unpublished construction from its successful local
+Home installation; a later New Fault must preserve prior caller Homes. Current
+natural-source grammar permits one initialized local per declaration. Multiple
+initializer AST carriers are not a reason to widen this source cohort; if later
+admitted, protect pending HomeValues before any local installation.
 Normal Completion/E0 remain insufficient; do not reuse TextScan's successorless
 Fault terminal as caller propagation. No input-ABI reconsultation is needed.
 Missing Home field/native products are explicit dependencies, not assumed empty. The
