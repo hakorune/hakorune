@@ -212,6 +212,21 @@ deallocation is not yet reachable from Birth cleanup; unimplemented store
 profiles reject before artifact. Use `failure-outcome-relations.md` for primary
 Fault/cleanup ordering, not the allocator model's `exact_slot_record_release_success`.
 
+The source-exit dependency is also open: `VerifiedFunctionCompletionV1` in
+`resolved_control_flow/function_control.rs` covers Return/ImplicitVoid only;
+`cleanup.rs` explicitly limits its issued obligations to E0 empty lists.
+Neither proves empty caller cleanup at the selected New cutpoint, and
+`ordinary_new_coseal` does not carry that cutpoint's Fault cleanup/continuation.
+Counterexample: the caller owns another object before a second construction
+Faults. Reclaiming only the failed object then terminating skips the first
+object's obligations. Therefore step 1 must connect the selected New's source
+exit/lifecycle obligations to Fault propagation and final cleanup before a
+noreturn terminal. A Birth-only status ABI cannot substitute for that connection.
+Do not resolve this by a Pair-name exception, an assumed empty cleanup list,
+or narrowing completion to callers with no other live obligations. Reuse the
+existing EXIT/lifecycle design owners; activation remains closed until their
+cutpoint mapping is accepted. This is not another input-ABI approval request.
+
 Producer contract: ImmediateI64 comes from an existing source/canonical Integer
 producer, HostHandle only from a real live host-handle carrier. Never re-tag
 Bool/Float/Void/raw object bits as handles or infer kind from storage/name/bit
