@@ -50,7 +50,7 @@ fn refresh_module_semantic_metadata_accepts_string_indexof_in_generic_pure_strin
         .functions
         .insert("Helper.has_token/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -110,7 +110,7 @@ fn refresh_module_semantic_metadata_accepts_string_lastindexof_in_generic_pure_s
         .functions
         .insert("Helper.has_last_token/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -188,7 +188,7 @@ fn refresh_module_semantic_metadata_accepts_string_contains_in_generic_pure_stri
         .functions
         .insert("Helper.keep_dotted/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
@@ -252,7 +252,7 @@ fn refresh_module_semantic_metadata_accepts_generic_string_select_flow() {
         .functions
         .insert("Helper.choose_text/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
@@ -325,7 +325,7 @@ fn refresh_module_semantic_metadata_accepts_ordered_string_compare_in_generic_pu
         .functions
         .insert("Helper.guard_digit/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));

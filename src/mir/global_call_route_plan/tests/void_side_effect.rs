@@ -48,7 +48,7 @@ fn refresh_module_semantic_metadata_accepts_void_side_effect_array_push_body() {
     module.functions.insert("main".to_string(), caller);
     module.functions.insert("Seeder.seed/1".to_string(), seeder);
 
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module);
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let seeder_routes = &module.functions["Seeder.seed/1"]
         .metadata

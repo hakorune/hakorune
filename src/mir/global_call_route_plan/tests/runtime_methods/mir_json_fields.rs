@@ -101,7 +101,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_emit_box_value_field_reads
         emit_box_value,
     );
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let helper = &module.functions["MirJsonEmitBox._emit_box_value/1"];
     assert_eq!(helper.metadata.generic_method_routes.len(), 2);
@@ -164,7 +164,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_function_field_reads() {
         .functions
         .insert("MirJsonEmitBox._emit_function/1".to_string(), emit_function);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let helper = &module.functions["MirJsonEmitBox._emit_function/1"];
     assert!(helper.metadata.generic_method_routes.iter().any(|route| {
@@ -321,7 +321,7 @@ fn refresh_module_global_call_routes_accepts_collection_or_void_phi_for_mir_json
         .functions
         .insert("MirJsonEmitBox._emit_function/1".to_string(), emit_function);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -372,7 +372,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_flags_keys_route() {
         .functions
         .insert("MirJsonEmitBox._emit_flags/1".to_string(), emit_flags);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let helper = &module.functions["MirJsonEmitBox._emit_flags/1"];
     assert!(helper.metadata.generic_method_routes.iter().any(|route| {
@@ -477,7 +477,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_flags_keys_null_guard() {
         .functions
         .insert("MirJsonEmitBox._emit_flags/1".to_string(), emit_flags);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));

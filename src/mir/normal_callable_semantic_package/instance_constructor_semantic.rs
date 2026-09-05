@@ -2,7 +2,8 @@
 
 use std::collections::BTreeMap;
 use hakorune_mir_defs::CanonicalObjectIdV1;
-use crate::mir::function::{CanonicalObjectDefinitionV1, UserBoxFieldDecl};
+use crate::mir::function::CanonicalObjectDefinitionV1;
+mod object_definition;
 use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
@@ -263,20 +264,8 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     let mut object_sources = Vec::new();
     let mut object_definitions = Vec::new();
     for (index, parent) in source.ordinary_box_coverage().rows().iter().enumerate() {
-        let definition = source.with_ordinary_box_syntax(parent, |declaration| {
-            let ASTNode::BoxDeclaration { name, field_decls, .. } = declaration else {
-                return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
-            };
-            u32::try_from(field_decls.len())
-                .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
-            Ok(CanonicalObjectDefinitionV1::from_source_declaration(
-                name.as_str().into(), field_decls.iter().map(|field| UserBoxFieldDecl {
-                    name: field.name.clone(),
-                    declared_type_name: field.declared_type_name.clone(),
-                    is_weak: field.is_weak,
-                }).collect::<Vec<_>>().into_boxed_slice(),
-            ))
-        }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)??;
+        let definition = source.with_ordinary_box_syntax(parent, object_definition::issue)
+            .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)??;
         if object_sources.iter().any(|(own, _): &(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)|
             own.same_source_as(parent)) {
             return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);

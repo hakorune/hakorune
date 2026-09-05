@@ -32,7 +32,7 @@ fn build_typed_object_plans_accepts_numeric_substrate_type_names_as_exact_storag
     );
     let module = module_with_metadata(metadata);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Counters");
@@ -96,7 +96,7 @@ fn build_typed_object_plans_keeps_exact_declared_storage_with_integer_lane_obser
     });
     module.add_function(function);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].fields[0].storage, TypedObjectFieldStorage::USize);

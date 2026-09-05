@@ -479,7 +479,7 @@ fn refresh_module_user_box_method_routes_recovers_receiver_box_from_global_objec
     module.add_function(create_object);
     module.add_function(main);
 
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module);
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let main = module.get_function("main").expect("main");
     let route = main

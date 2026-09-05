@@ -19,7 +19,7 @@ pub(in crate::mir) trait PostprocessStageTarget {
     fn refresh_contracts(&mut self) -> Result<(), String>;
     fn verify(&mut self, verifier: &mut MirVerifier) -> Result<(), Box<[VerificationError]>>;
     fn insert_rc(&mut self);
-    fn refresh_semantic_metadata(&mut self);
+    fn refresh_semantic_metadata(&mut self) -> Result<(), String>;
     fn canonicalize_callsites(&mut self) -> usize;
 }
 
@@ -61,10 +61,20 @@ pub(in crate::mir) fn run_postprocess_stages<T: PostprocessStageTarget>(
     if schedule.rc() == RcInsertionScheduleV1::Run {
         target.insert_rc();
     }
-    target.refresh_semantic_metadata();
+    target
+        .refresh_semantic_metadata()
+        .map_err(|error| PostprocessStageFailureV1 {
+            stage: PostprocessFailureStageV1::ContractRefresh,
+            error: ModulePostprocessErrorV1::ContractRefresh(error),
+        })?;
     let changed = target.canonicalize_callsites();
     if changed > 0 {
-        target.refresh_semantic_metadata();
+        target
+            .refresh_semantic_metadata()
+            .map_err(|error| PostprocessStageFailureV1 {
+                stage: PostprocessFailureStageV1::ContractRefresh,
+                error: ModulePostprocessErrorV1::ContractRefresh(error),
+            })?;
     }
     match schedule.verifier() {
         VerificationBarrierV1::ReportPreTransformOnly => {

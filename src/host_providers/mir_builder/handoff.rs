@@ -33,16 +33,16 @@ impl Stage1ProgramJsonModuleHandoff {
     }
 
     pub(super) fn emit_guarded_mir_json(self) -> Result<String, String> {
-        self.into_finalized_module().emit_guarded_mir_json()
+        self.into_finalized_module()?.emit_guarded_mir_json()
     }
 
-    pub(super) fn into_finalized_module(self) -> Stage1FinalizedMirModule {
+    pub(super) fn into_finalized_module(self) -> Result<Stage1FinalizedMirModule, String> {
         let mut module = self.module;
         let (user_box_decls, user_box_field_decls) = self.user_box_decls.into_metadata_maps();
         module.metadata.user_box_decls = user_box_decls;
         module.metadata.user_box_field_decls = user_box_field_decls;
-        refresh_bridge_semantic_metadata(&mut module);
-        Stage1FinalizedMirModule { module }
+        refresh_bridge_semantic_metadata(&mut module)?;
+        Ok(Stage1FinalizedMirModule { module })
     }
 }
 

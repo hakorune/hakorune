@@ -677,7 +677,7 @@ impl MirCompiler {
             }
         }
         let stage_start = Instant::now();
-        refresh_module_semantic_metadata(&mut module);
+        refresh_module_semantic_metadata(&mut module)?;
         super::compile_timing::trace_stage("semantic_refresh", stage_start.elapsed());
         let stage_start = Instant::now();
         let canonicalized = super::passes::callsite_canonicalize::canonicalize_for_site(
@@ -687,7 +687,7 @@ impl MirCompiler {
         super::compile_timing::trace_stage("canonicalize", stage_start.elapsed());
         if canonicalized > 0 {
             let stage_start = Instant::now();
-            refresh_module_semantic_metadata(&mut module);
+            refresh_module_semantic_metadata(&mut module)?;
             super::compile_timing::trace_stage(
                 "semantic_refresh_after_canonicalize",
                 stage_start.elapsed(),

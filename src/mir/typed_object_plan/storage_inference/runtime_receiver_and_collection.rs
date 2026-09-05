@@ -279,7 +279,7 @@ fn build_typed_object_plans_uses_param_box_origins_for_runtime_method_receiver_s
     module.add_function(ingest);
     module.add_function(main);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
     let chunk = plans
         .iter()
         .find(|plan| plan.box_name == "Chunk")
@@ -448,7 +448,7 @@ fn build_typed_object_plans_infers_birth_param_storage_from_collection_get_eleme
     module.add_function(seed);
     module.add_function(allocate);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
     let handle = plans
         .iter()
         .find(|plan| plan.box_name == "Handle")

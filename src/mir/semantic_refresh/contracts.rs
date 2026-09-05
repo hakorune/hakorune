@@ -89,6 +89,8 @@ pub fn refresh_and_validate_for_boundary(
     module: &mut MirModule,
     boundary: ContractRefreshBoundary,
 ) -> Result<RefreshedContractBundle<'_>, String> {
+    module.validate_object_definition_membership()?;
+    crate::mir::typed_object_plan::validate_canonical_object_layouts(module)?;
     refresh_active_contract_carriers(module, boundary)?;
     validate_refreshed_contracts(module)?;
     let carriers = collect_carrier_summary(module);

@@ -35,7 +35,7 @@ fn build_typed_object_plans_accepts_nonweak_i64_fields() {
     );
     let module = module_with_metadata(metadata);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Pair");
@@ -71,7 +71,7 @@ fn build_typed_object_plans_rejects_weak_or_unknown_storage() {
     );
     let module = module_with_metadata(metadata);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert!(plans.is_empty());
 }
@@ -132,7 +132,7 @@ fn build_typed_object_plans_infers_untyped_i64_and_handle_fields() {
     function.add_block(block);
     module.add_function(function);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Holder");
@@ -197,7 +197,7 @@ fn build_typed_object_plans_uses_phi_value_type_before_input_walk() {
     function.add_block(block);
     module.add_function(function);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Holder");
@@ -343,7 +343,7 @@ fn build_typed_object_plans_infers_birth_param_field_storage_from_newbox_args() 
     module.add_function(birth);
     module.add_function(main);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Page");
@@ -446,7 +446,7 @@ fn build_typed_object_plans_infers_birth_param_storage_through_same_module_metho
     module.add_function(make);
     module.add_function(main);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     let item = plans
         .iter()
@@ -563,7 +563,7 @@ fn build_typed_object_plans_infers_handle_from_same_module_string_like_global_re
     module.add_function(birth);
     module.add_function(seal);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Manifest");
@@ -599,7 +599,7 @@ fn build_typed_object_plans_accepts_observed_empty_user_box() {
     function.add_block(block);
     module.add_function(function);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert_eq!(plans.len(), 1);
     assert_eq!(plans[0].box_name, "Worker");
@@ -656,7 +656,7 @@ fn build_typed_object_plans_rejects_conflicting_untyped_storage() {
     function.add_block(block);
     module.add_function(function);
 
-    let plans = build_typed_object_plans(&module);
+    let plans = build_typed_object_plans(&module).expect("layout planning");
 
     assert!(plans.is_empty());
 }

@@ -491,7 +491,7 @@ pub fn ny_llvmc_emit_exe_lib(
         return Ok(());
     }
     let mut backend_ready = module.clone();
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready);
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready)?;
     crate::mir::backend_capability::enforce_mir_backend_supported(&backend_ready, "ny-llvmc-exe")?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {
@@ -579,7 +579,7 @@ pub fn ny_llvmc_emit_exe_bin(
         return Ok(());
     }
     let mut backend_ready = module.clone();
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready);
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut backend_ready)?;
     crate::mir::backend_capability::enforce_mir_backend_supported(&backend_ready, "ny-llvmc-exe")?;
     emit_json_and_run_ny_llvmc_emit_exe(
         |json_path| {

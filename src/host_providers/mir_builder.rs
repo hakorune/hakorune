@@ -115,8 +115,8 @@ pub(crate) fn module_to_mir_json(module: &crate::mir::MirModule) -> Result<Strin
         .map_err(failfast_error)
 }
 
-pub(crate) fn refresh_bridge_semantic_metadata(module: &mut crate::mir::MirModule) {
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(module);
+pub(crate) fn refresh_bridge_semantic_metadata(module: &mut crate::mir::MirModule) -> Result<(), String> {
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(module)
 }
 
 fn with_phase0_mir_json_env<T>(

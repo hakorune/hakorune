@@ -207,8 +207,8 @@ impl RawFinalizedModuleV1 {
         crate::mir::passes::rc_insertion::insert_rc_instructions(&mut self.module);
     }
 
-    pub(in crate::mir) fn refresh_semantic_metadata(&mut self) {
-        crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut self.module);
+    pub(in crate::mir) fn refresh_semantic_metadata(&mut self) -> Result<(), String> {
+        crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut self.module)
     }
 
     pub(in crate::mir) fn canonicalize_callsites(&mut self) -> usize {

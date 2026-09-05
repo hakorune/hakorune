@@ -65,7 +65,7 @@ fn refresh_module_semantic_metadata_accepts_read_char_unknown_receiver_from_stri
         .functions
         .insert("StringScanBox.read_char/2".to_string(), read_char);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -290,7 +290,7 @@ fn refresh_module_semantic_metadata_accepts_read_char_null_guard_string_body() {
         read_char,
     );
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
@@ -467,7 +467,7 @@ fn refresh_module_semantic_metadata_accepts_collection_builder_surface_in_generi
         .functions
         .insert("Helper.with_collection_builder/0".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -581,7 +581,7 @@ fn refresh_module_semantic_metadata_accepts_array_size_in_generic_pure_string_bo
         .functions
         .insert("Helper.array_size/0".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -689,7 +689,7 @@ fn refresh_module_semantic_metadata_accepts_array_string_push_in_generic_pure_st
         .functions
         .insert("Helper.collect/0".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));

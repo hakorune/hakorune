@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** scalar construction source plans retain
   exact constructor/store identity through New completion; Fault execution is not open.
-- **Next ordered task:** publish the exact object/field definition relation below,
-  then bind stores and release/reclaim to entry/New control and finalization.
+- **Next ordered task:** finish layout allocation/refresh verification, then consume
+  exact stores at `raw_expression_dispatch/statement_surface.rs` before child descent.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -351,12 +351,12 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    replacement cleanup Fault, and a prior live caller object. Assert parent
    hook zero, correct child terminal release, stable unrelated handles,
    primary Fault, no leak/double cleanup, no failed-construction result. Include
-   `apps/typed-object-birth-min/main.hako` through the production typed CLI and
-   published typed-C entry: EXE exit 30, plus OBJ from the same source linked
-   and executed with exit 30. The old JSON `typed_object_birth_min_exe.sh` smoke
-   and local publication test are not substitutes. Close the finite selected
-   old-edge removal at type-contract step 5: selected origin/name reconstruction,
-   tagless entry/projection and status-to-trap callers zero, exclusive code deleted.
+   `apps/typed-object-birth-min/main.hako`: `execute_mir_mode` ->
+   `try_emit_published_static_method_exe` -> `published_mir_object` -> C transport;
+   EXE exits 30; the same owner's same-source OBJ links and executes with exit 30.
+   JSON smoke/publication tests are not substitutes. Before type-contract step 5,
+   name selected origin/name, tagless projection and status-to-trap file/functions
+   and caller counts here; delete their exclusive code at zero in the same series.
 
 Task 1 first connects Birth-body non-escape verification directly to
 `issue_instance_constructor_semantic_batch_v1`, before semantic row publication.
@@ -618,8 +618,8 @@ fails AlreadyIssued at line 115. Parent f42be8be61, identical Cargo.lock and
 `CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --profile quick --lib`
 with filter `mir::builder::resolved_lowering::physical_entry_lane_adoption_tests::`
 and `-- --test-threads=1`, also gives 12/1 at the same assertion: baseline debt.
-Layout allocation/refresh, borrowed executable view and physical
-consumers remain open; this is not external-publication or execution completion.
+Layout verified: package 95/95, layout 20/20, metadata 2/2, collector 10/10, refresh 6/6, receiver 4/4, JSON 121/0/1. Global routes 139/6; the six baseline-listed failures reproduce at identical assertions in f42be8be61's built binary with the same filter.
+Postprocess 3/3 covers both late-refresh failures; layout tests cover backend-preflight rejection. No Birth activation; next is exact store/control consumption.
 
 Within existing task 1, execute these three connected steps after split validation:
 1. Move one exact, initially unlaid-out definition payload with callable drafts
@@ -637,11 +637,11 @@ Within existing task 1, execute these three connected steps after split validati
    Store canonical layouts only in the canonical definition table. Repeated
    semantic/backend refresh preserves and validates these allocations; it rebuilds
    only compatibility layouts. No canonical MIR-observed storage inference.
-   Declaration-metadata projection must carry explicit source-issued membership
-   so the legacy planner excludes canonical objects without diagnostic-name lookup.
-   External publication/admission requires resolved layouts for selected operations;
-   the existing backend view borrows them. Any old-format export is one-way.
-   No parser loan or second allocation registry reaches the backend.
+   Finalize projects definition ID -> metadata membership once; no new context/port
+   axis or diagnostic-name -> definition search. Projection drift rejects.
+   Refresh and semantic refresh propagate Result through existing ContractRefresh
+   callers, including postprocess; no repair between initial/final verification.
+   External admission borrows resolved selected layouts; old-format export is one-way.
 2. At the existing pre-descent assignment handoff, consume the exact plan store
    once and emit FieldSet Invoke with field reference plus real base/value
    operands. Delete the selected Birth origin-map/field-name reconstruction in

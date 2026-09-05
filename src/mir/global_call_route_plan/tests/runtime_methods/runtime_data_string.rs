@@ -159,7 +159,7 @@ fn refresh_module_semantic_metadata_accepts_stringbox_length_self_arg_in_generic
         .functions
         .insert("Helper.debug_len/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));
@@ -278,7 +278,7 @@ fn refresh_module_global_call_routes_accepts_runtime_data_string_substring_suffi
         .functions
         .insert("Helper.debug_suffix/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(route.target_shape(), Some("generic_pure_string_body"));

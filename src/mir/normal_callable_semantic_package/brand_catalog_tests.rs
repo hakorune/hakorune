@@ -391,6 +391,7 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
         ).expect("source object definition survives the production collector");
         assert_eq!(object.diagnostic_name(), "Pair");
         assert_eq!(object.fields().len(), 2);
+        assert_eq!(object.local_fields_for_layout().unwrap(), object.fields());
         assert!(object.fields().iter().all(|field|
             field.declared_type_name.as_deref() == Some("i64") && !field.is_weak));
         assert!(

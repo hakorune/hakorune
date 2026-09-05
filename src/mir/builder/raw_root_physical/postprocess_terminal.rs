@@ -250,9 +250,10 @@ impl RawPostprocessPhysicalOwnerV1 {
         self.loan.progress = RawPostprocessProgressV1::RcInserted;
     }
 
-    pub(in crate::mir) fn refresh_semantic_metadata(&mut self) {
-        self.loan.module.refresh_semantic_metadata();
+    pub(in crate::mir) fn refresh_semantic_metadata(&mut self) -> Result<(), String> {
+        self.loan.module.refresh_semantic_metadata()?;
         self.loan.progress = RawPostprocessProgressV1::SemanticMetadataRefreshed;
+        Ok(())
     }
 
     pub(in crate::mir) fn canonicalize_callsites(&mut self) -> usize {

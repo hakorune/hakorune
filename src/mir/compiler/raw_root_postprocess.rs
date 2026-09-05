@@ -310,8 +310,8 @@ impl PostprocessStageTarget for RawPostprocessPhysicalOwnerV1 {
         self.insert_rc();
     }
 
-    fn refresh_semantic_metadata(&mut self) {
-        self.refresh_semantic_metadata();
+    fn refresh_semantic_metadata(&mut self) -> Result<(), String> {
+        self.refresh_semantic_metadata()
     }
 
     fn canonicalize_callsites(&mut self) -> usize {

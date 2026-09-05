@@ -18,7 +18,7 @@ pub(crate) fn storage_for_declared_type(
     }
 }
 
-fn exact_numeric_storage_for_declared_type(type_name: &str) -> Option<TypedObjectFieldStorage> {
+pub(crate) fn exact_numeric_storage_for_declared_type(type_name: &str) -> Option<TypedObjectFieldStorage> {
     classify_numeric_type_name(type_name)?;
     Some(match type_name {
         "i8" => TypedObjectFieldStorage::I8,

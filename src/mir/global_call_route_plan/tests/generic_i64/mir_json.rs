@@ -189,7 +189,7 @@ fn refresh_module_global_call_routes_accepts_mir_json_numeric_value_field_proof(
         .functions
         .insert("MirJsonEmitBox._expect_i64/2".to_string(), expect_i64);
 
-    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module);
+    crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let expect_i64 = &module.functions["MirJsonEmitBox._expect_i64/2"];
     let field_route = expect_i64

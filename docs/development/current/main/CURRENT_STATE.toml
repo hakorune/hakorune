@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "Definition-transfer checkpoint verified: package 92/92, collector 10/10, changed lowering owners 40/1, quick check and pointer/M7-S guards pass. The sole lowering failure reproduces at parent f42be8be61 with identical Cargo.lock and command: physical_entry_lane_adoption_tests 12/1, same AlreadyIssued assertion at line 115; known baseline debt, no baseline change. Commit/push this transfer checkpoint, then resume accepted layout disposition/refresh -> exact store/control -> Home/reclaim/Fault -> typed-C -> production EXE30/OBJ and selected old-edge removal. Transfer closes only source-to-private-candidate definition retention, not executable publication or Birth cleanup."
+current_blocker_token = "Canonical definition-owned layout checkpoint verified: package95/layout20/metadata2/collector10/refresh6/receiver4/postprocess3 green; JSON121 passed/1 existing ignored; vm-reference check and pointer/M7-S guards green. Global139/6 matches accepted failure names and f42be8be61 ancestor's exact failure transcript; no baseline rewrite. Next consume exact construction store references at raw_expression_dispatch/statement_surface before child descent, bind real FieldSet/control operands and remove selected origin/name reconstruction in the same series. Then Home/reclaim/Fault -> typed-C -> fixed EXE30/OBJ and selected old-edge deletion. Layout green does not activate Birth; lifecycle SSOT tasks 1-4 remain the finish line."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

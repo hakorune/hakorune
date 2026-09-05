@@ -213,3 +213,84 @@ fn orphan_static_plan_natural_failure_retains_discard_only_owner() {
     rejected.discard();
     assert!(compiler.builder.current_module.is_none());
 }
+
+// Exercise both late refresh boundaries through the shared stage scheduler,
+// including Raw's report-only verifier mode. These are scheduler tests, not
+// evidence of source issuance or executable Birth.
+#[test]
+fn late_semantic_refresh_failure_stops_raw_and_canonical_schedules() {
+    use super::module_postprocess::ModulePostprocessScheduleV1;
+    use super::module_postprocess_stages::{run_postprocess_stages, PostprocessStageTarget};
+    use crate::mir::optimizer_stats::OptimizationStats;
+    use crate::mir::verification::MirVerifier;
+    use crate::mir::verification_types::VerificationError;
+
+    struct Target {
+        fail_at: usize,
+        refreshes: usize,
+        events: Vec<&'static str>,
+    }
+    impl PostprocessStageTarget for Target {
+        fn refresh_rune_plans(&mut self) {
+            self.events.push("rune");
+        }
+        fn optimize(&mut self) -> OptimizationStats {
+            panic!("optimization disabled")
+        }
+        fn refresh_contracts(&mut self) -> Result<(), String> {
+            self.events.push("contracts");
+            Ok(())
+        }
+        fn verify(&mut self, _: &mut MirVerifier) -> Result<(), Box<[VerificationError]>> {
+            self.events.push("verify");
+            Ok(())
+        }
+        fn insert_rc(&mut self) {
+            self.events.push("rc");
+        }
+        fn refresh_semantic_metadata(&mut self) -> Result<(), String> {
+            self.events.push("refresh");
+            self.refreshes += 1;
+            if self.refreshes == self.fail_at {
+                Err("[test/late-layout-drift]".into())
+            } else {
+                Ok(())
+            }
+        }
+        fn canonicalize_callsites(&mut self) -> usize {
+            self.events.push("canonicalize");
+            1
+        }
+    }
+    for family in [
+        crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::Raw,
+        crate::mir::module_invocation_identity::ModuleInvocationFamilyV1::CanonicalAPlus,
+    ] {
+        for fail_at in [1, 2] {
+            let mut target = Target {
+                fail_at,
+                refreshes: 0,
+                events: Vec::new(),
+            };
+            let failure = match run_postprocess_stages(
+                &mut target,
+                ModulePostprocessScheduleV1::for_family(family),
+                &mut MirVerifier::new(),
+                false,
+            ) {
+                Err(failure) => failure,
+                Ok(_) => panic!("late refresh must reject before publication"),
+            };
+            assert_eq!(failure.stage, PostprocessFailureStageV1::ContractRefresh);
+            assert!(
+                matches!(failure.error, ModulePostprocessErrorV1::ContractRefresh(error)
+                if error == "[test/late-layout-drift]")
+            );
+            let mut expected = vec!["rune", "contracts", "verify", "rc", "refresh"];
+            if fail_at == 2 {
+                expected.extend(["canonicalize", "refresh"]);
+            }
+            assert_eq!(target.events, expected);
+        }
+    }
+}

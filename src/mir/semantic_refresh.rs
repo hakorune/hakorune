@@ -249,9 +249,10 @@ pub fn refresh_function_fastmem_region_emitted_counts(function: &mut MirFunction
 }
 
 /// Refresh MIR semantic metadata for the whole module.
-pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
+pub fn refresh_module_semantic_metadata(module: &mut MirModule) -> Result<(), String> {
+    module.validate_object_definition_membership()?;
     let stage_start = std::time::Instant::now();
-    refresh_module_layout_and_decl_plans(module);
+    refresh_module_layout_and_decl_plans(module)?;
     super::compile_timing::trace_stage("semantic.layout_and_decl", stage_start.elapsed());
     let module_metadata = module.metadata.clone();
     let stage_start = std::time::Instant::now();
@@ -288,6 +289,7 @@ pub fn refresh_module_semantic_metadata(module: &mut MirModule) {
         module,
     );
     super::compile_timing::trace_stage("semantic.contracts", stage_start.elapsed());
+    Ok(())
 }
 
 /// Refresh declaration-derived record/packed layout rows.
@@ -324,13 +326,14 @@ pub fn refresh_module_json_v0_post_canonicalize_metadata(module: &mut MirModule)
     refresh_module_string_kernel_plans(module);
 }
 
-fn refresh_module_layout_and_decl_plans(module: &mut MirModule) {
+fn refresh_module_layout_and_decl_plans(module: &mut MirModule) -> Result<(), String> {
+    refresh_module_typed_object_plans(module)?;
     refresh_module_boxed_sum_abi_plans(module);
     refresh_module_record_and_packed_layout_plans(module);
-    refresh_module_typed_object_plans(module);
     refresh_module_direct_state_plans(module);
     refresh_module_record_state_residence_plans(module);
     refresh_module_typed_object_field_value_types(module);
+    Ok(())
 }
 
 fn refresh_all_functions_semantic_metadata(
@@ -429,7 +432,7 @@ mod tests {
 
         module.add_function(function);
 
-        refresh_module_semantic_metadata(&mut module);
+        refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
         let function = module.get_function("main").expect("refreshed function");
         assert!(function
@@ -523,7 +526,7 @@ mod tests {
         module.add_function(coerce);
         module.add_function(debug_len);
 
-        refresh_module_semantic_metadata(&mut module);
+        refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
         let debug_len = module
             .get_function("Helper.debug_len/1")
@@ -629,7 +632,7 @@ mod tests {
         module.add_function(parse);
         module.add_function(caller);
 
-        refresh_module_semantic_metadata(&mut module);
+        refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
         let caller = module.get_function("main").expect("main");
         let string_box = MirType::Box("StringBox".to_string());

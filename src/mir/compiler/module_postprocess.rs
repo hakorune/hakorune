@@ -140,8 +140,8 @@ impl PostprocessStageTarget for MirModule {
         crate::mir::passes::rc_insertion::insert_rc_instructions(self);
     }
 
-    fn refresh_semantic_metadata(&mut self) {
-        crate::mir::semantic_refresh::refresh_module_semantic_metadata(self);
+    fn refresh_semantic_metadata(&mut self) -> Result<(), String> {
+        crate::mir::semantic_refresh::refresh_module_semantic_metadata(self)
     }
 
     fn canonicalize_callsites(&mut self) -> usize {

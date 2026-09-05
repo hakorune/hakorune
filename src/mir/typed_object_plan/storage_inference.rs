@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+mod canonical_layout;
 mod collection_storage;
 mod field_origin_inference;
 mod merge;
@@ -28,17 +29,54 @@ mod numeric_substrate_tests;
 #[cfg(test)]
 mod tests;
 
-pub(super) fn build_typed_object_plans(module: &MirModule) -> Vec<TypedObjectPlan> {
+pub(super) fn build_typed_object_plans(module: &MirModule) -> Result<Vec<TypedObjectPlan>, String> {
+    prepare_layouts(module).map(|(_, plans)| plans)
+}
+
+pub(super) fn refresh(module: &mut MirModule) -> Result<(), String> {
+    let (canonical, projection) = prepare_layouts(module)?;
+    module.install_object_layouts_preflighted(canonical);
+    module.metadata.typed_object_plans = projection;
+    Ok(())
+}
+
+pub(super) fn validate(module: &MirModule) -> Result<(), String> {
+    canonical_layout::validate(module)
+}
+
+fn prepare_layouts(
+    module: &MirModule,
+) -> Result<
+    (
+        Vec<crate::mir::function::CanonicalObjectLayoutV1>,
+        Vec<TypedObjectPlan>,
+    ),
+    String,
+> {
+    let canonical = canonical_layout::prepare(module)?;
     let inferred = infer_untyped_field_storages(module);
     let observed_newboxes = observed_user_newbox_names(module);
-    build_typed_object_plans_from_metadata(&module.metadata, &inferred, &observed_newboxes)
+    let compatibility = build_typed_object_plans_from_metadata(
+        &module.metadata,
+        &inferred,
+        &observed_newboxes,
+        canonical.len(),
+    )?;
+    // One-way legacy transport projection; canonical consumers use definitions.
+    let mut projection: Vec<_> = canonical
+        .iter()
+        .filter_map(|layout| layout.as_ref().ok().cloned())
+        .collect();
+    projection.extend(compatibility);
+    Ok((canonical, projection))
 }
 
 fn build_typed_object_plans_from_metadata(
     metadata: &ModuleMetadata,
     inferred: &BTreeMap<FieldKey, FieldStorageInference>,
     observed_newboxes: &BTreeSet<String>,
-) -> Vec<TypedObjectPlan> {
+    canonical_prefix: usize,
+) -> Result<Vec<TypedObjectPlan>, String> {
     let mut names = BTreeSet::new();
     names.extend(metadata.user_box_decls.keys().cloned());
     names.extend(metadata.user_box_field_decls.keys().cloned());
@@ -46,6 +84,13 @@ fn build_typed_object_plans_from_metadata(
 
     let mut plans = Vec::new();
     for name in names {
+        if metadata
+            .canonical_object_membership
+            .as_ref()
+            .is_some_and(|members| members.contains_key(&name))
+        {
+            continue;
+        }
         if !metadata.user_box_decls.contains_key(&name)
             && !metadata.user_box_field_decls.contains_key(&name)
         {
@@ -58,7 +103,11 @@ fn build_typed_object_plans_from_metadata(
             .unwrap_or(&empty_field_decls);
         if field_decls.is_empty() {
             if observed_newboxes.contains(&name) {
-                let type_id = plans.len() as u32 + 1;
+                let type_id = canonical_layout::type_id_at(
+                    canonical_prefix
+                        .checked_add(plans.len())
+                        .ok_or("[freeze:contract][mir/object-layout/type-id-overflow]")?,
+                )?;
                 plans.push(TypedObjectPlan {
                     box_name: name,
                     type_id,
@@ -72,7 +121,11 @@ fn build_typed_object_plans_from_metadata(
         let Some(fields) = build_field_plans(metadata, &name, field_decls, inferred) else {
             continue;
         };
-        let type_id = plans.len() as u32 + 1;
+        let type_id = canonical_layout::type_id_at(
+            canonical_prefix
+                .checked_add(plans.len())
+                .ok_or("[freeze:contract][mir/object-layout/type-id-overflow]")?,
+        )?;
         plans.push(TypedObjectPlan {
             box_name: name,
             type_id,
@@ -81,7 +134,7 @@ fn build_typed_object_plans_from_metadata(
             fields,
         });
     }
-    plans
+    Ok(plans)
 }
 
 fn observed_user_newbox_names(module: &MirModule) -> BTreeSet<String> {
@@ -217,6 +270,12 @@ fn declared_field_sets(metadata: &ModuleMetadata) -> BTreeMap<String, BTreeSet<S
     metadata
         .user_box_field_decls
         .iter()
+        .filter(|(name, _)| {
+            !metadata
+                .canonical_object_membership
+                .as_ref()
+                .is_some_and(|members| members.contains_key(*name))
+        })
         .map(|(box_name, fields)| {
             (
                 box_name.clone(),

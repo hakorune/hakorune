@@ -16,7 +16,11 @@ mod metadata;
 mod module_impl;
 mod object_metadata;
 mod object_definition;
-pub(crate) use object_definition::CanonicalObjectDefinitionV1;
+mod object_definition_membership;
+pub(crate) use object_definition::{
+    CanonicalObjectDefinitionV1, CanonicalObjectLayoutV1,
+    CanonicalObjectLayoutUnavailableV1, ObjectLayoutUnavailableV1,
+};
 mod published_backend_view;
 mod typed_array_contract;
 mod types;

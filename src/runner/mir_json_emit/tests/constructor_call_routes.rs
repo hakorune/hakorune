@@ -21,7 +21,7 @@ fn build_mir_json_root_emits_constructor_call_lowering_plan() {
             effects: EffectMask::PURE,
         });
     module.add_function(function);
-    crate::mir::refresh_module_semantic_metadata(&mut module);
+    crate::mir::refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let metadata = &root["functions"][0]["metadata"];

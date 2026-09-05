@@ -366,6 +366,10 @@ pub struct ModuleMetadata {
     /// This stays parallel to `user_box_decls` so names-only compatibility remains intact.
     pub user_box_field_decls: HashMap<String, Vec<UserBoxFieldDecl>>,
 
+    /// One-way projection from exact object definitions; never a name resolver.
+    pub(crate) canonical_object_membership:
+        Option<BTreeMap<String, hakorune_mir_defs::CanonicalObjectIdV1>>,
+
     /// Source-owned Weak field contracts rebuilt from typed box declarations.
     pub weak_field_contract_specs: Vec<WeakFieldContractSpec>,
 

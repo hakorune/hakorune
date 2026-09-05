@@ -40,7 +40,7 @@ fn build_mir_json_root_emits_direct_plan_for_numeric_i64_leaf_global_call() {
     });
     module.add_function(caller);
     module.add_function(callee);
-    crate::mir::refresh_module_semantic_metadata(&mut module);
+    crate::mir::refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let root = build_mir_json_root(&module).expect("mir json root");
     let main = root["functions"]

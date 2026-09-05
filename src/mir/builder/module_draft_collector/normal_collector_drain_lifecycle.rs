@@ -384,7 +384,7 @@ mod tests {
         let payload = || vec![CanonicalObjectDefinitionV1::from_source_declaration(
             "Page".into(), vec![UserBoxFieldDecl {
                 name: "value".into(), declared_type_name: Some("i64".into()), is_weak: false,
-            }].into_boxed_slice(),
+            }].into_boxed_slice(), Ok(()),
         )].into_boxed_slice();
         let id = CanonicalObjectIdV1::from_declaration_index(0).unwrap();
         let mut required = ModuleDraftCollectorV1::with_required_object_definitions(brand());

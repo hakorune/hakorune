@@ -586,9 +586,9 @@ impl super::MirBuilder {
 
         super::module_finalization_declaration_metadata::
             PreparedModuleFinalizationDeclarationMetadataV1::prepare(&self.comp_ctx)
-            .commit_into(&mut module);
+            .commit_into(&mut module)?;
         crate::mir::semantic_refresh::refresh_module_record_and_packed_layout_plans(&mut module);
-        crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module);
+        crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;
         crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
         for function in module.functions.values_mut() {
             crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(

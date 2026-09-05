@@ -45,11 +45,19 @@ impl PreparedModuleFinalizationDeclarationMetadataV1 {
         }
     }
 
-    pub(super) fn commit_into(self, module: &mut MirModule) {
+    pub(super) fn commit_into(self, module: &mut MirModule) -> Result<(), String> {
+        if module.metadata.canonical_object_membership.is_some() {
+            return Err("[freeze:contract][mir/object-definition/membership-already-installed]".into());
+        }
+        let membership = module.prepare_object_definition_membership(
+            &self.user_box_decls, &self.user_box_field_decls,
+        )?;
         module.metadata.user_box_decls = self.user_box_decls;
         module.metadata.user_box_field_decls = self.user_box_field_decls;
         module.metadata.record_decls = self.record_decls;
         module.metadata.enum_decls = self.enum_decls;
+        module.metadata.canonical_object_membership = membership;
+        Ok(())
     }
 }
 
@@ -59,6 +67,50 @@ mod tests {
     use crate::ast::FieldDecl;
     use crate::mir::builder::compilation_context::CompilationContext;
     use crate::mir::function::RecordDecl;
+
+    #[test]
+    fn canonical_membership_is_id_projected_and_drift_never_repairs() {
+        use crate::mir::function::CanonicalObjectDefinitionV1;
+        let mut context = CompilationContext::default();
+        context.user_defined_boxes.insert("Plain".into(), vec!["value".into()]);
+        context.user_box_field_decls.insert("Plain".into(), vec![field("value", Some("i64"), false)]);
+        let mut module = MirModule::new("membership".into());
+        module.install_object_definitions_preflighted(vec![
+            CanonicalObjectDefinitionV1::from_source_declaration(
+                "Plain".into(), vec![UserBoxFieldDecl {
+                    name: "value".into(), declared_type_name: Some("i64".into()), is_weak: false,
+                }].into_boxed_slice(), Ok(()),
+            ),
+        ].into_boxed_slice());
+        assert!(module.validate_object_definition_membership().is_err());
+        let mut wrong_context = CompilationContext::default();
+        wrong_context.user_defined_boxes.insert("Unrelated".into(), Vec::new());
+        assert!(PreparedModuleFinalizationDeclarationMetadataV1::prepare(&wrong_context)
+            .commit_into(&mut module).is_err());
+        assert!(module.metadata.user_box_decls.is_empty(), "failed commit is atomic");
+        PreparedModuleFinalizationDeclarationMetadataV1::prepare(&context)
+            .commit_into(&mut module).unwrap();
+        module.validate_object_definition_membership().unwrap();
+        let expected = module.metadata.canonical_object_membership.clone();
+        assert_eq!(expected.as_ref().unwrap()["Plain"].declaration_index(), 0);
+        assert!(PreparedModuleFinalizationDeclarationMetadataV1::prepare(&context)
+            .commit_into(&mut module).is_err());
+
+        module.metadata.user_box_field_decls.get_mut("Plain").unwrap()[0]
+            .declared_type_name = Some("StringBox".into());
+        assert!(crate::mir::semantic_refresh::refresh_module_semantic_metadata(&mut module).is_err());
+        assert_eq!(module.metadata.canonical_object_membership, expected);
+        assert_eq!(module.metadata.user_box_field_decls["Plain"][0]
+            .declared_type_name.as_deref(), Some("StringBox"), "no repair on error");
+        module.metadata.user_box_field_decls.get_mut("Plain").unwrap()[0]
+            .declared_type_name = Some("i64".into());
+        module.metadata.canonical_object_membership.as_mut().unwrap().insert(
+            "Plain".into(), hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(9).unwrap(),
+        );
+        assert!(module.validate_object_definition_membership().is_err());
+        module.metadata.canonical_object_membership = expected;
+        module.validate_object_definition_membership().unwrap();
+    }
 
     fn field(name: &str, declared_type_name: Option<&str>, is_weak: bool) -> FieldDecl {
         FieldDecl {
@@ -105,7 +157,7 @@ mod tests {
         assert!(module.metadata.record_decls.is_empty());
         assert!(module.metadata.enum_decls.is_empty());
 
-        prepared.commit_into(&mut module);
+        prepared.commit_into(&mut module).unwrap();
 
         assert_eq!(
             module.metadata.user_box_decls.get("Page"),

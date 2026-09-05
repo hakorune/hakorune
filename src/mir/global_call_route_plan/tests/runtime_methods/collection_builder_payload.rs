@@ -96,7 +96,7 @@ fn refresh_module_semantic_metadata_accepts_array_push_write_any_payload_in_stri
         .functions
         .insert("Helper.delegate/1".to_string(), callee);
 
-    refresh_module_semantic_metadata(&mut module);
+    refresh_module_semantic_metadata(&mut module).expect("semantic refresh");
 
     let route = &module.functions["main"].metadata.global_call_routes[0];
     assert_eq!(
