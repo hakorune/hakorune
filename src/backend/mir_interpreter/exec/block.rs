@@ -165,20 +165,9 @@ impl MirInterpreter {
                     MirInstruction::RefNew { dst, box_val } => {
                         self.handle_ref_new(*dst, *box_val)?
                     }
-                    MirInstruction::LegacyCallV0 {
-                        dst,
-                        func,
-                        callee,
-                        args,
-                        ..
-                    } => self.handle_call(
-                        *dst,
-                        *func,
-                        callee.as_ref(),
-                        args,
-                        Some(block.id),
-                        Some(instruction_index),
-                    )?,
+                    MirInstruction::LegacyCallV0 { callee, .. } => {
+                        self.reject_legacy_call(callee.as_ref())?
+                    }
                     _ => self.execute_instruction(inst)?,
                 }
             }

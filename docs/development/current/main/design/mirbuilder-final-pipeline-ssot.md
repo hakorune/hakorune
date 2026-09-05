@@ -395,13 +395,12 @@ reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
 status = fast_open
 implementation permission = true
-current cohort = `array_element_write_published_c_cutover_i0`
+current cohort = `vm_legacy_call_terminal_collapse_i0`
 
-The selected cohort replaces the selected-C legacy projection for the existing
-canonical `ArrayElementWrite`; it does not create a new semantic issuer.
-`ArraySurface` plus `ArrayElementWriteOwner` remain authority, while one
-borrowed `PublishedMirBackendView` row family carries exact site, kind,
-receiver, optional index, value, destination shape, and WRITE effect to C.
+The selected cohort stops the VM's product reader for the existing
+`LegacyCallV0` compatibility carrier; it does not create a new semantic
+issuer. Existing canonical `MirCall` publication remains authority, while one
+typed rejection helper is the fail-fast terminal for both VM instruction paths.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
@@ -454,7 +453,7 @@ because the current import closure cannot reach `FuncLoweringBox`.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
-| 8 cutover + admission repair landed | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer, native projection callers 3→0, and shared OBJ/EXE capability preflight; explicit llvmlite outside scope | source contents/order/Void acceptance remains open; use the production typed caller, not JSON-only `ny-llvmc` |
+| 8 cutover + admission repair landed | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer, native projection callers 3→0, shared OBJ/EXE capability preflight, and write-only source/MIR/OBJ/EXE/reject evidence; explicit llvmlite and readback reader remain outside scope | landed; `ArrayBox.get/length` remains the separate `mir_call_no_route` terminal; next cohort is `vm_legacy_call_terminal_collapse_i0` |
 
 ```text
 status = landed
@@ -480,35 +479,28 @@ reader-stop/delete details remain in Git.
 
 ##### ArrayElementWrite acceptance correction and next execution
 
-`9cb7a6c71a` retains the typed row/C consumer and native projection 3→0
-cutover; llvmlite remains explicit compatibility. The follow-up admission
-repair now applies the existing backend capability policy before physical
-OBJ/EXE transport and proves typed-array rejection for both native entries.
-The source-site repair is landed: standalone `MethodCall` keeps its exact site
-only under the existing callable-root allowlist; raw/script roots stay
-unlocated. The focused source compiler test observes all six write kinds.
-Full source execution acceptance is still OPEN. The focused tests prove
-synthetic rows, malformed Set and synthetic MIR→OBJ/optional EXE, not source
-contents/order or source-level Void behavior. The prior “Void-result shape
-reject” claim is withdrawn, not carried as evidence.
+`9cb7a6c71a` and its follow-up admission repair are closed for the bounded
+write-only scope: source/MIR row order, native OBJ relocations, MIR EXE
+execution, semantic Void transport, and typed-array reject-before-artifact are
+evidenced through the production caller. `ArrayBox.get/length` remains the
+separate `mir_call_no_route` reader terminal and is not part of this row;
+llvmlite remains explicit compatibility. No new guard/receipt/fixture or
+baseline change was introduced.
 
-The standalone `tools/build_llvm.sh -> ny-llvmc` probe is JSON-only and carries
-no typed row frame; its `published_array_write_row_mismatch` is therefore
-transport absence, not a new admission owner. Source acceptance must use the
-existing `hakorune` production caller that supplies `PublishedMirBackendView`.
-No source workaround, alternate authority, or rejection-only fixture is allowed.
+##### VM legacy call terminal collapse (current execution)
 
-Then prove all four writes from source through OBJ/link/run and EXE with
-observable contents/order, Void semantics and malformed/unsupported rejection
-before artifact. A present Void destination is not itself invalid.
-Use existing test owners; synthetic evidence stays separate. Reconcile the
-fixed lib comparator and named test inventory delta, never blanket rebaseline.
-The source-site repair is landed in this bounded series; only the named
-published-row admission and artifact acceptance remain open.
-`new guard=0`; `new receipt=0`; fixed failure-name set unchanged is the target,
-not a claim that the new acceptance has already run.
-Ordered follow-through is the workstream's **Ordered frontier**, with Call/R7,
-Loop closure and selfhost proof kept distinct.
+Both VM `LegacyCallV0` instruction paths now use one existing typed rejection
+helper. The bounded delete-set is the old `handle_call`/`execute_callee_call`
+dispatch and VM-only legacy trace display; canonical `MirCall` and the
+`LegacyCallV0` schema remain unchanged. Acceptance is the existing nine call
+handler tests, `cargo check --features vm-reference`, structural zero callers
+for the deleted symbols, and unchanged fixed baseline/pointer guards; new guard=0,
+new receipt=0, and the fixed failure-name set unchanged.
+No VM feature parity, Hako/WASM/JSON ingress, R7 schema deletion, or whole
+repository-green claim belongs to this cohort.
+
+Ordered follow-through remains the workstream's **Ordered frontier**, with
+Call/R7, Loop closure and selfhost proof kept distinct.
 
 #### M7 — `MIR-CALL-COMPATIBILITY-RETIRE-R7`
 

@@ -402,84 +402,34 @@ The former B0/Wpre/individual-row navigation list is superseded here;
 its exact historical body remains at `bafa076579`. This removes stale
 scheduling instructions, not unfinished acceptance obligations.
 
-### Ready now — finish the existing ArrayElementWrite boundary
+### Ready now — VM legacy call terminal collapse
 
-Reuse M7-S `array_element_write_published_c_cutover_i0`; no new card or
-semantic carrier. The three native projection callers were removed at
-`9cb7a6c71a`, but the entire source-to-execution acceptance is still open.
+Reuse M7-S `vm_legacy_call_terminal_collapse_i0`; no new card, semantic
+carrier, receipt, adapter, fixture, or guard. ArrayElementWrite write-only
+source/MIR/OBJ/EXE/reject evidence is closed; runtime readback remains at its
+separate `mir_call_no_route` terminal and is not widened into that row.
 
-1. **Capability repair (landed in this series).** The shared owner
-   `src/host_providers/llvm_codegen/published_mir_object.rs` now invokes the
-   existing `src/mir/backend_capability.rs` policy before physical transport
-   or artifact creation, with the selected EXE/OBJ identity. Cover direct
-   published entrypoints, the three `exec.rs` wrappers and
-   `published_mir_emit.rs`; patching only wrappers leaves a bypass.
-   Ordinary array writes stay supported; typed-array contracts retain their
-   existing unsupported terminal. Do not broaden capability or restore projection.
-   The typed-array negative now covers both native OBJ/EXE entries and creates
-   no artifact. The source-site transport repair is also landed: standalone
-   method-call statements retain exact body sites only for the existing
-   callable-root allowlist; raw/script roots remain unlocated. The focused
-   source compiler test now observes all six write kinds, so the remaining gap
-   is artifact execution evidence rather than another source-location design.
-2. **Complete execution acceptance (next).** Use the existing production caller
-   (`hakorune --backend mir --emit-exe` / `NYASH_LLVM_OBJ_OUT`) so the
-   `PublishedMirBackendView -> C frame` is actually supplied. Do not use the
-   standalone `tools/build_llvm.sh -> ny-llvmc` JSON-only probe as acceptance:
-   it has no typed row frame and its `published_array_write_row_mismatch` is
-   expected transport absence, not a backend admission failure. Extend existing
-   test owners `published_backend_view_tests.rs`,
-   `src/tests/mir_array_element_write_lowering.rs` and runner tests as needed.
-   Parse ordinary source and exercise LiteralAppend/Push/Set/Insert through
-   selected OBJ plus linked EXE. Assert resulting contents/order, not only a
-   constant exit status. Verify semantic Void does not expose runtime i64
-   status; a present Void destination is not itself malformed. Missing/extra
-   index and unsupported typed Array contracts must reject before output
-   creation; retry stays zero. Required native prerequisites missing means
-   unavailable evidence, not a passing skipped EXE test. Execute this as the
-   following finite checklist; these are subtasks of this existing M7-S row,
-   not new cards:
+1. **One terminal.** Both existing VM instruction paths in
+   `src/backend/mir_interpreter/handlers/mod.rs` and `exec/block.rs` call the
+   same `reject_legacy_call` helper. Global, Method, Value, Extern,
+   missing-callee, and other unsupported legacy shapes keep their existing
+   typed rejection contract; canonical `MirCall` paths are untouched.
+2. **Old edge delete-set.** Remove `handle_call`, `execute_callee_call`, the
+   VM legacy dispatch connections, and the VM-only `HAKO_CABI_TRACE` legacy
+   route display. Do not remove the `LegacyCallV0` schema or reopen canonical
+   Call/R7 work.
+3. **Acceptance.** Existing call-handler tests and
+   `cargo check --features vm-reference` must pass. Structural search proves
+   the deleted VM symbols have no callers; canonical print/free/static tests
+   remain green and legacy Global/Method/Value/missing-callee inputs reject
+   before old dispatch. The fixed baseline comparator and existing pointer
+   guards remain unchanged.
 
-   - `AW-I0-A-SOURCE`: one tracked ordinary-source fixture reaches the
-     existing typed caller and observes LiteralAppend/Push/Set/Insert in the
-     published row order; no JSON-only probe is counted.
-   - `AW-I0-B-OBJ`: the same fixture emits OBJ through the production caller;
-     relocation/symbol evidence proves four write kinds, operand contents and
-     order, with no result assignment for semantic Void.
-   - `AW-I0-C-EXE`: link and run the fixture through the selected EXE route;
-     the selected write path must complete without treating a constant exit
-     status as content evidence. Runtime readback is only claimed when the
-     read consumer is supported; `ArrayBox.get/length` currently stops at the
-     separate `mir_call_no_route` reader terminal and must not be added to
-     this write row.
-   - `AW-I0-D-REJECT`: malformed index/arity and unsupported typed-array
-     inputs reject before OBJ/EXE creation; retry/fallback remains zero.
-   - `AW-I0-E-CLOSE`: run focused positives/negatives, native rebuild and the
-     fixed comparator; retain accepted failure identities, classify deltas,
-     and prove selected native projection callers remain 3→0 with llvmlite
-     explicitly outside this row.
-
-Current execution evidence (2026-09-05): `AW-I0-A-SOURCE` is green through
-the existing source compiler test; the tracked source fixture emits an OBJ
-through the production caller with six relocations in the expected
-`append, append, store, insert, store, store` order and runs as a MIR EXE with
-status 0. The existing typed-array reject-before-object/exe test is green.
-This is partial acceptance only: adding `ArrayBox.get` or `length` to observe
-post-write values reaches the named upstream reader terminal before artifact
-creation, so it remains dependency evidence rather than a Write-row failure.
-Baseline reconciliation for `AW-I0-E-CLOSE` is green through the existing fixed
-comparator: inventory `7543`, passed `7381`, failed `133`, ignored `29`, with
-the accepted failure-name hash unchanged. The receipt changed only for the
-exact landed test inventory delta; no failure was rebaselined, ignored, or
-deleted. The stale cataloged-root lineage assertion was corrected to the raw
-root contract before this comparison, so the remaining source/OBJ/EXE evidence
-is not masked by an unclassified red.
-3. **Reconcile and close.** Run focused positives/negatives, native build and
-   the existing fixed lib comparator. Keep accepted failure identities; classify
-   any delta and explicit test additions without blanket rebaseline. Preserve
-   native projection callers 3→0 and explicit llvmlite exclusion. Update existing
-   README/reference and evidence only. Synthetic MIR proof remains useful but
-   is not a substitute for source execution.
+Non-claims: no VM feature parity, no `SameModuleInstance` execution, no
+LegacyCallV0 schema deletion, no Hako/WASM/JSON ingress work, no new backend
+consumer, and no whole-repository green claim. After closeout, the next
+eligible M7-S owner is selected from the existing finite queue; parked families
+remain family-local.
 
 These are repair/verification tasks, not a request for a new source authority.
 An upstream terminal is dependency evidence: name its owner and fix an in-scope

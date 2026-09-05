@@ -2,9 +2,9 @@ date = "2026-09-05"
 development_branch_ssot = "main"
 work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
-current_execution_cohort = "array_element_write_published_c_cutover_i0"
+current_execution_cohort = "vm_legacy_call_terminal_collapse_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S capability/source-site repairs landed; source MIR emits six write rows. JSON-only ny-llvmc has no typed row frame and is not acceptance. Execute AW-I0-A-SOURCE..AW-I0-E-CLOSE with the tracked fixture and hakorune caller, then closeout. Write-only OBJ/EXE is proven; ArrayBox.get/length reaches separate mir_call_no_route and must not widen this row. No broad design restart."
+current_blocker_token = "M7-S ArrayElementWrite write-only source/MIR/OBJ/EXE/reject evidence is closed; runtime readback remains outside that row at the named mir_call_no_route terminal. Execute the next VM stop: both LegacyCallV0 product paths use the existing typed rejection helper, old VM dispatch/name/trace edges are deleted, and canonical calls remain unchanged. No R7 schema deletion or broad design restart."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -53,7 +53,7 @@ the only remaining caller and stays outside this cohort. The focused view
 positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
 returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows. The JSON-only ny-llvmc probe is outside the typed published caller and is not source acceptance evidence. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
-changes.
+changes. The next M7-S cohort is `vm_legacy_call_terminal_collapse_i0`.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

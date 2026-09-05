@@ -1,6 +1,5 @@
 //! Call handling (split from handlers/calls.rs)
-//! - Route by Callee kind
-//! - Missing Callee is a terminal compatibility reject; no by-name lookup
+//! - LegacyCallV0 is a terminal compatibility reject; no by-name lookup
 
 use super::*;
 
@@ -9,122 +8,30 @@ mod global;
 mod method;
 
 impl MirInterpreter {
-    pub(crate) fn handle_call(
-        &mut self,
-        dst: Option<ValueId>,
-        _func: ValueId,
-        callee: Option<&Callee>,
-        args: &[ValueId],
-        _block: Option<BasicBlockId>,
-        _instruction_index: Option<usize>,
-    ) -> Result<(), VMError> {
-        if matches!(callee, Some(Callee::Value(_))) {
-            return Err(self.err_unsupported(
-                "[vm-reference/legacy-call/value-stopped] canonical Value target required",
-            ));
-        }
-        if matches!(callee, Some(Callee::Global(_))) {
-            return Err(self.err_unsupported(
+    pub(crate) fn reject_legacy_call(&self, callee: Option<&Callee>) -> Result<(), VMError> {
+        let error = match callee {
+            Some(Callee::Global(_)) => self.err_unsupported(
                 "[vm-reference/legacy-call/global-stopped] canonical Global target required",
-            ));
-        }
-        if matches!(callee, Some(Callee::Extern(_))) {
-            return Err(self.err_unsupported(
-                "[vm-reference/legacy-call/extern-stopped] canonical Extern target required",
-            ));
-        }
-        if matches!(callee, Some(Callee::Method { .. })) {
-            return Err(self.err_unsupported(
+            ),
+            Some(Callee::Method { .. }) => self.err_unsupported(
                 "[vm-reference/legacy-call/method-stopped] canonical Method target required",
-            ));
-        }
-        if std::env::var("HAKO_CABI_TRACE").ok().as_deref() == Some("1") {
-            match callee {
-                Some(Callee::Global(n)) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[hb:path] call Callee::Global {} argc={}",
-                        n.display_name(),
-                        args.len()
-                    ));
-                }
-                Some(Callee::SameModuleInstance { key, receiver }) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[hb:path] call Callee::SameModuleInstance {}.{} / {} recv=%{} argc={}",
-                        key.owner(),
-                        key.name(),
-                        key.arity(),
-                        receiver.as_u32(),
-                        args.len()
-                    ));
-                }
-                Some(Callee::Constructor { box_type }) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[hb:path] call Callee::Constructor {} argc={}",
-                        box_type,
-                        args.len()
-                    ))
-                }
-                Some(Callee::Closure { .. }) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[hb:path] call Callee::Closure argc={}",
-                        args.len()
-                    ));
-                }
-                Some(Callee::Value(_)) => {
-                    crate::runtime::get_global_ring0()
-                        .log
-                        .debug(&format!("[hb:path] call Callee::Value argc={}", args.len()));
-                }
-                Some(Callee::Extern(n)) => {
-                    crate::runtime::get_global_ring0().log.debug(&format!(
-                        "[hb:path] call Callee::Extern {} argc={}",
-                        n,
-                        args.len()
-                    ));
-                }
-                Some(Callee::Method { .. }) => {
-                    unreachable!("legacy Method calls are rejected before trace dispatch")
-                }
-                None => crate::runtime::get_global_ring0().log.debug(&format!(
-                    "[hb:path] call missing-callee argc={}",
-                    args.len()
-                )),
-            }
-        }
-        let Some(callee_type) = callee else {
-            return Err(self.err_with_context("call", "call-missing-callee: typed Callee required"));
-        };
-        let call_result = self.execute_callee_call(callee_type, args)?;
-        self.write_result(dst, call_result);
-        Ok(())
-    }
-
-    pub(super) fn execute_callee_call(
-        &mut self,
-        callee: &Callee,
-        args: &[ValueId],
-    ) -> Result<VMValue, VMError> {
-        match callee {
-            Callee::Global(_) => Err(self.err_unsupported(
-                "[vm-reference/legacy-call/global-stopped] canonical Global target required",
-            )),
-            Callee::Method { .. } => Err(self.err_unsupported(
-                "[vm-reference/legacy-call/method-stopped] canonical Method target required",
-            )),
-            Callee::SameModuleInstance { .. } => Err(self.err_unsupported(
+            ),
+            Some(Callee::SameModuleInstance { .. }) => self.err_unsupported(
                 "SameModuleInstance calls are unsupported in the VM reference lane",
-            )),
-            Callee::Constructor { box_type } => {
-                Err(self.err_unsupported(&format!("Constructor calls for {}", box_type)))
+            ),
+            Some(Callee::Constructor { box_type }) => {
+                self.err_unsupported(&format!("Constructor calls for {}", box_type))
             }
-            Callee::Closure { .. } => Err(self.err_unsupported("Closure creation in VM")),
-            Callee::Value(_) => Err(self.err_unsupported(
+            Some(Callee::Closure { .. }) => self.err_unsupported("Closure creation in VM"),
+            Some(Callee::Value(_)) => self.err_unsupported(
                 "[vm-reference/legacy-call/value-stopped] canonical Value target required",
-            )),
-            Callee::Extern(_) => Err(self.err_unsupported(
+            ),
+            Some(Callee::Extern(_)) => self.err_unsupported(
                 "[vm-reference/legacy-call/extern-stopped] canonical Extern target required",
-            )),
-        }
+            ),
+            None => self.err_with_context("call", "call-missing-callee: typed Callee required"),
+        };
+        Err(error)
     }
 }
 
@@ -321,7 +228,7 @@ mod tests {
             .insert(func, VMValue::String("Main.hidden/0".to_string()));
 
         let err = interp
-            .handle_call(None, func, None, &[], None, None)
+            .reject_legacy_call(None)
             .expect_err("missing Callee must reject before by-name lookup");
 
         match err {

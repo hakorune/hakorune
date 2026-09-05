@@ -177,13 +177,9 @@ impl MirInterpreter {
                 let call_result = self.execute_global_target(target, &call.args)?;
                 self.write_result(call.dst, call_result);
             }
-            MirInstruction::LegacyCallV0 {
-                dst,
-                func,
-                callee,
-                args,
-                ..
-            } => self.handle_call(*dst, *func, callee.as_ref(), args, None, None)?,
+            MirInstruction::LegacyCallV0 { callee, .. } => {
+                self.reject_legacy_call(callee.as_ref())?
+            }
             MirInstruction::Debug { message, value } => {
                 self.handle_debug(message, *value)?;
             }
