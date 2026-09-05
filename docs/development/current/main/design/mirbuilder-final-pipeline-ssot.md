@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Next: authorized two-field i64 migration; write/ABI checks then birth EXE/delete-set.
+Next: Birth Call landed at 495d5fc9df; close exact actual/formal/FieldSet Integer proof in type-contract-status before C activation, EXE30 and remaining projection retirement.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
