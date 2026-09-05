@@ -543,12 +543,42 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    their exact source sites through the existing recursive child port. This
    removes the shared `incomplete-consumption` terminal without changing
    target selection or receiver reconstruction. The first derive-off birth
-   probe now reaches a separate existing boundary: `Pair.birth/2` is emitted
-   as canonical `global_call_routes`, while the smoke still expects the older
-   `user_box_method_routes` proof. Treat this as a named route-metadata
-   reconciliation task under the existing `user_box_method_route_plan`
-   owner; do not edit fixtures, infer a receiver from `args[0]`, or add a
-   second route planner.
+   probe reaches the older `user_box_method_routes` proof assertion, but the
+   direct production CLI exposes an earlier publication relation failure.
+   At `bdb28364c3`, derive-off/plugins-off, pure-first/compat-none,
+   `hakorune --emit-exe <tmp>/birth.exe --emit-exe-nyrt target/release
+   apps/typed-object-birth-min/main.hako` exits 1 with
+   `published-mir-backend-view: StaticCallDefinitionMissing` for
+   `StaticBoxMethod(Pair, birth, 2)`; no executable exists. The unchanged
+   fixture still requires exit 30. This is a reproduced acceptance blocker,
+   not merely a stale smoke assertion. Audit the source-issued constructor
+   target and published definition relation before changing route metadata;
+   the receiver-bearing N+1 ABI cannot be repaired through `args[0]` inference.
+   The read-only worker confirmed that `NormalInstanceConstructorDraftAdmissionV1`
+   drops its source key in `into_legacy_collector_parts`, publishing only
+   `LegacySymbol`. This is `CutoverBlockerOpen` inside acceptance, not a
+   parkable outside family. `InstanceConstructorAbiV1` owns N+1; the static
+   definition view expects N. Restoring the old method metadata scan cannot
+   establish this relation. Preserve fixtures and the publication rejection.
+
+   Change: retain the existing constructor source identity and N+1 ABI through
+   collector/Atomic Publish, then connect the selected birth consumer and
+   retire its old projection in the same series. The next design decision is
+   the constructor-specific relation in the existing published module, not a
+   second planner or a new source issuer.
+   Contract: `VerifiedOrdinaryNewBirthRecipeV1` and constructor admission must
+   share the same source-issued definition identity; physical symbols remain
+   projections. Preserve allocation/initializer/birth order, source args once,
+   receiver exactly once, and constructor result semantics. Do not relabel
+   birth as an ordinary static method or infer the receiver from MIR args.
+   Done: unchanged Pair birth source reaches the typed CLI and exits 30;
+   missing/foreign/duplicate definition and ABI mismatch reject before
+   artifact; exact selected old caller/delete-set is recorded and removed.
+   The legacy JSON smoke is retained as dependency evidence pending this
+   production proof, not silently rewritten or counted as acceptance.
+   Stop: representation and consumer contracts must be settled together before
+   code edits. The existing receipt/collector/view owners are the design scope;
+   no broader instance, VM, Hako, or default-derive implementation is opened.
 5. Re-run the six default-derive cases with the existing negative test. Treat
    default-generated `equals`/`toString` as a finite profile decision: either
    an explicit derive-off acceptance profile is recorded and exercised, or a

@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
-The selected cohort stops the VM's product reader for the existing
-`LegacyCallV0` compatibility carrier; it does not create a new semantic
-issuer. Existing canonical `MirCall` publication remains authority, while one
-typed rejection helper is the fail-fast terminal for both VM instruction paths.
+The VM stop is landed. Acceptance reconciliation requires the constructor
+source-key/definition relation in the workstream's repair order. Direct birth
+EXE reproduces `StaticCallDefinitionMissing`; settle the N+1 publication and
+consumer contract before implementation. The existing guard enforces this state.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

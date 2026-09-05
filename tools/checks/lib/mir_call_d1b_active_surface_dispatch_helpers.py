@@ -291,10 +291,15 @@ def check_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
         char.islower() or char.isdigit() or char == "_" for char in cohort
     ):
         api.fail(f"{row} requires one finite snake_case cohort token")
-    if mode not in {"fast", "closeout"} or state.get("current_execution_row") != row:
+    if mode not in {"fast", "closeout", "design_stop"} or state.get("current_execution_row") != row:
         api.fail(f"{row} pointer mode/row drifted")
-    if state.get("current_design_stop") != "none" or state.get("next_design_card") != "none":
-        api.fail(f"{row} must not have an open design stop")
+    if mode == "design_stop":
+        if state.get("current_design_stop") in {None, "", "none"} or state.get("next_design_card") != row:
+            api.fail(f"{row} design stop requires a named boundary and existing parent")
+        if state.get("next_execution_card") != "none":
+            api.fail(f"{row} unresolved design must not authorize execution")
+    elif state.get("current_design_stop") != "none" or state.get("next_design_card") != "none":
+        api.fail(f"{row} executable mode must not have an open design stop")
     next_card = state.get("next_execution_card")
     if mode == "fast" and next_card != row:
         api.fail(f"{row} fast next_execution_card drifted")
@@ -310,11 +315,11 @@ def check_legacy_reader_stop_r0(state: dict, root: Path, api) -> None:
     for token in (row, cohort, "new guard=0", "new receipt=0", "fixed failure-name set unchanged"):
         if token not in card_text:
             api.fail(f"{row}/{cohort} contract is missing: {token}")
-    expected = (
-        ("status = fast_open", "implementation permission = true")
-        if mode == "fast"
-        else ("status = landed", "implementation permission = false")
-    )
+    expected = {
+        "fast": ("status = fast_open", "implementation permission = true"),
+        "closeout": ("status = landed", "implementation permission = false"),
+        "design_stop": ("status = design_open", "implementation permission = false"),
+    }[mode]
     for token in expected:
         if token not in card_text:
             api.fail(f"{row}/{cohort} contract is missing: {token}")
