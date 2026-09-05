@@ -699,7 +699,12 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     let ordinary_new_claims = issue_ordinary_new_claims_v1(
         &batch,
         &selected,
-        batch.main_callable_index().map(|(slot, _)| slot),
+        app_main_identity.as_ref().and_then(|identity| {
+            batch
+                .declarations()
+                .find(|declaration| declaration.identity().same_as(identity))
+                .map(|declaration| declaration.batch_slot())
+        }),
         dynamic_batch_slot,
         &instance_constructors,
     )

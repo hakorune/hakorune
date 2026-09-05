@@ -521,16 +521,18 @@ inferred from fixture contents.
 Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
 bounded substeps in order; they are not new D0 cards or new semantic receipts:
 
-1. `constructor_source` initializer-arity repair is landed locally and its
-   parser-source tests are green. Next repair the existing
-   `instance_constructor_semantic` root check: validate the exact constructor
-   function root already sealed by its projection, not the enclosing Program.
-   Preserve the root-identity negative boundary; do not infer a constructor
-   from names, MIR, or a synthetic `birth/0`.
-2. Extend the same existing source-backed package owner to co-seal the App
-   Main ordinary-`new` claim using the already-issued App Main batch identity.
-   Do not add Main to the generic selected-role map, create a second ledger, or
-   bypass the exact site/owner relation.
+1. `constructor_source` initializer-arity repair and the existing
+   `instance_constructor_semantic` exact constructor-root check are landed;
+   parser-source and semantic-package tests remain green. The root check now
+   validates the constructor function root sealed by its projection, not the
+   enclosing Program. Preserve the root-identity negative boundary; do not
+   infer a constructor from names, MIR, or a synthetic `birth/0`.
+2. The same existing source-backed package owner now co-seals the App Main
+   ordinary-`new` claim from the already-issued App Main identity's exact
+   declaration batch slot. Do not add Main to the generic selected-role map,
+   create a second ledger, or bypass the exact site/owner relation. The direct
+   `typed-object-newbox-min` boundary passes with `NYASH_MACRO_DERIVE=''`;
+   the unchanged untyped-field case still reaches the named ArrayBox boundary.
 3. Keep builtin/compatibility `new` outside ordinary user-Box coverage. The
    `ArrayBox` failure must reach its existing compatibility terminal rather
    than become `OrdinaryBoxCoverageMissing`; missing source-backed user-Box
