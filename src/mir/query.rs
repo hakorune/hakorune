@@ -56,7 +56,10 @@ impl<'m> MirQuery for MirQueryBox<'m> {
     fn reads_of(&self, inst: &MirInstruction) -> Vec<ValueId> {
         use MirInstruction::*;
         match inst {
-            Invoke { .. } | InvokeNormalResult { .. } | ReturnFault { .. } => inst.used_values(),
+            Invoke { .. }
+            | InvokeNormalResult { .. }
+            | ReturnFault { .. }
+            | FaultFrameEnter { .. } => inst.used_values(),
             Const { .. } => Vec::new(),
             Copy { src, .. } | CopyOwned { src, .. } | LocalContractWrite { src, .. } => vec![*src],
             RecordFieldContractCheck { value, .. } => vec![*value],
@@ -155,7 +158,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
 
         use MirInstruction::*;
         match inst {
-            InvokeNormalResult { dst, .. } => vec![*dst],
+            InvokeNormalResult { dst, .. } | FaultFrameEnter { dst, .. } => vec![*dst],
             Const { dst, .. }
             | UnaryOp { dst, .. }
             | BinOp { dst, .. }

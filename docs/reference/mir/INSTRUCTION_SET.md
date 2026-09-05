@@ -31,10 +31,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=54
+DOC_SYNC_MIR_KEPT_COUNT=55
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=70
+DOC_SYNC_MIR_VOCABULARY_COUNT=71
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -48,6 +48,16 @@ after PHIs in the exclusive Normal landing. Allocation has one handle result;
 Unit Birth has none. Other Call result contracts remain rejected by the current
 verifier until their canonical definition/ABI relation is connected.
 `ReturnFault { fault_frame }` propagates rather than recording or reporting.
+
+`FaultFrameEnter { dst, mode: RootOwned | Borrowed }` defines the intrinsic
+internal frame operand once in the entry prologue. RootOwned denotes bounded
+activation-owned residence; Borrowed projects the hidden incoming ABI frame.
+Neither changes source/formal parameter counts or assigns a source `MirType`.
+Invoke/ReturnFault must use that exact definition. A frame cannot be copied,
+stored, returned, passed as an ordinary argument, or supplied as scalar zero.
+Duplicate/misplaced definitions and control re-entry into the prologue reject.
+The exact selected entry role must be provided by the emission owner, not a
+function name; runtime frame storage and call-to-definition ABI remain pending.
 
 The verifier checks Normal dominance (including PHI incoming edges) regardless
 of compatibility verification switches. DCE retains the structural projection;

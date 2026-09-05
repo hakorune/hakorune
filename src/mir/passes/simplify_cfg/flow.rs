@@ -427,7 +427,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
             rewrite_value_use(fault_frame, from, to);
         }
         MirInstruction::ReturnFault { fault_frame } => rewrite_value_use(fault_frame, from, to),
-        MirInstruction::InvokeNormalResult { .. } => {}
+        MirInstruction::InvokeNormalResult { .. } | MirInstruction::FaultFrameEnter { .. } => {}
         MirInstruction::Const { .. }
         | MirInstruction::Catch { .. }
         | MirInstruction::Safepoint

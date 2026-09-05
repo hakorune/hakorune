@@ -4,6 +4,13 @@
 use crate::mir::definitions::MirCall;
 use crate::mir::{Effect, EffectMask, ValueId};
 
+/// Hidden physical entry role, never a source parameter or runtime box type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FaultFrameMode {
+    RootOwned,
+    Borrowed,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum InvokeOperation {
     /// The embedded destination must be absent; the Normal projection owns it.

@@ -158,7 +158,7 @@ impl JoinIrIdRemapper {
                 .unwrap_or_default(),
             Return { value } => value.iter().copied().collect(),
             Invoke { .. } | ReturnFault { .. } => inst.used_values(),
-            InvokeNormalResult { dst, .. } => vec![*dst],
+            InvokeNormalResult { dst, .. } | FaultFrameEnter { dst, .. } => vec![*dst],
             CheckedCallOut {
                 receiver,
                 arguments,
@@ -674,6 +674,10 @@ impl JoinIrIdRemapper {
             },
             ReturnFault { fault_frame } => ReturnFault {
                 fault_frame: remap(*fault_frame),
+            },
+            FaultFrameEnter { dst, mode } => FaultFrameEnter {
+                dst: remap(*dst),
+                mode: *mode,
             },
             CheckedCallOut {
                 site_id,

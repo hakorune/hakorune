@@ -311,6 +311,7 @@ impl<'module> PublishedMirBackendView<'module> {
                         MirInstruction::Invoke { .. }
                             | MirInstruction::InvokeNormalResult { .. }
                             | MirInstruction::ReturnFault { .. }
+                            | MirInstruction::FaultFrameEnter { .. }
                     ) {
                         has_unsupported_call = true;
                         continue;

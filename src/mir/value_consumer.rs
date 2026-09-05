@@ -63,6 +63,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
     match inst {
         MirInstruction::Invoke { .. }
         | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => inst.used_values(),
         MirInstruction::Const { .. } | MirInstruction::Safepoint => Vec::new(),
         MirInstruction::ArrayElementWrite {

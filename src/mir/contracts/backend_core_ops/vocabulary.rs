@@ -6,6 +6,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Invoke { .. } => "Invoke",
         MirInstruction::InvokeNormalResult { .. } => "InvokeNormalResult",
         MirInstruction::ReturnFault { .. } => "ReturnFault",
+        MirInstruction::FaultFrameEnter { .. } => "FaultFrameEnter",
         MirInstruction::Const { .. } => "Const",
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",
@@ -71,6 +72,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Invoke",
     "InvokeNormalResult",
     "ReturnFault",
+    "FaultFrameEnter",
     "Await",
     "ArrayElementWrite",
     "ArrayStateContractClaim",
@@ -153,6 +155,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
     match inst {
         MirInstruction::Invoke { .. }
         | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => InstructionDietCohort::Kept,
         MirInstruction::Await { .. }
         | MirInstruction::ArrayElementWrite { .. }

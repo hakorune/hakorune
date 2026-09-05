@@ -14,7 +14,10 @@ navigation order must stay narrow and explicit.
 
 Common Fault control is defined in `instruction/invoke.rs` and
 `verification/invoke.rs`: Invoke reuses Call/allocation operands and defines its
-result only through the dedicated Normal projection. Ordinary CFG, value-use,
+result only through the dedicated Normal projection. FaultFrameEnter defines
+the internal frame independently of source parameters; verification forbids
+scalar substitution, ordinary value escape and entry reinitialization.
+Ordinary CFG, value-use,
 DCE and SimplifyCFG handling preserve that relation. Published selected-C and
 JSON/VM admission remain closed while source emission binding and runtime
 cleanup are connected; this substrate is not a Birth execution claim.

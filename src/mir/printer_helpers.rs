@@ -110,6 +110,7 @@ pub fn format_instruction(
     match instruction {
         MirInstruction::Invoke { .. }
         | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => instruction.to_string(),
         MirInstruction::Const { dst, value } => {
             format!("{} const {}", format_dst(dst, types), value)

@@ -497,6 +497,7 @@ InvokeOperation = Call(existing MirCall with dst=None)
 Invoke(operation, fault_frame operand, normal_landing, fault_landing)
 InvokeNormalResult(originating Invoke block, dst)
 ReturnFault(fault_frame operand)
+FaultFrameEnter(dst, RootOwned | Borrowed)
 ```
 
 Invoke defines no SSA value. NewBox's handle is defined by the projection in
@@ -517,6 +518,14 @@ physical lanes, not receiver/source arguments or source result values. Existing
 Return publishes Normal; ReturnFault propagates without recording a new Fault.
 The frame's entry definition and every forwarding use must be explicit and
 type-checked; missing frame cannot be synthesized from numeric zero or a global.
+Read-only entry review selects FaultFrameEnter as the intrinsic internal
+operand definition, not a source MirType or an extra `MirFunction.params`
+element (which would corrupt receiver-offset and exact entry-count checks).
+Require one entry-prologue definition, no incoming CFG re-entry, and exact
+Invoke/ReturnFault frame uses; forbid ordinary arguments/Copy/Phi/store/Return
+escape and source-type metadata. RootOwned comes only from the selected outer
+entry role; internal methods borrow. ValueIds are function-local, so scoped
+source-owner checks, not matching raw numbers across functions, prove origin.
 Allocation Fault cleans prior caller Homes without reclaiming a nonexistent
 object. Birth Fault also reclaims the incomplete allocated object. Both outcomes
 of each cleanup continue to the next required cleanup. Admission stays closed
@@ -561,13 +570,16 @@ This is the task-1 control checkpoint only; tasks 2–4 remain the series termin
 selected executable admission closed. Fix the same owner; no empty cleanup,
 name/order recovery, detached source proof or wider grammar.
 
-Control-schema checkpoint (2026-09-06): Invoke/InvokeNormalResult/ReturnFault,
-ordinary operand/CFG handling, mandatory Normal dominance and optimizer origin
-preservation are implemented. Existing instruction tests pass 21/21, vocabulary
-doc-sync 1/1 and quick lib/vm-reference checks pass. Backend admission remains
-UnsupportedBeforeObject. Entry frame materialization, exact emission binding
-and pre-finalization consumption remain next; task 1 and runtime execution are
-not complete, and this checkpoint claims no production old-edge deletion.
+Control-schema checkpoint (2026-09-06): Invoke/normal-only result/ReturnFault
+and intrinsic FaultFrameEnter verification are implemented; no scalar frame or
+ordinary-value escape is admissible. Invoke tests now live with the existing
+verifier owner: 4/4; instruction tests 18/18, vocabulary doc-sync 1/1;
+quick lib and vm-reference checks pass.
+The incremental test compile was cancelled at the memory safety boundary;
+the fresh `CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1` run passed. No tests were
+ignored/deleted or baseline changed. Backend admission stays UnsupportedBeforeObject.
+Entry emission, exact New/Birth binding and pre-finalization consumption remain
+next; task 1/runtime are not complete and no production old-edge deletion is claimed.
 
 At tasks 2–3, extend the existing published transport and
 `hako_llvmc_ffi_mir_call_dispatch.inc`, not its legacy method-birth branch.
@@ -588,6 +600,9 @@ full Home program and general unsafe raw ownership stay parked; selected
 construction obligations cannot be waived or reduced to a Pair-only success.
 No new guard/fixture/card is planned. Split source owners before 800 lines;
 do not create a general framework merely to save a few cleanup edges.
+The remapper is now at the 760-line split trigger: before further growth,
+separate its value-discovery responsibility from instruction remapping within
+the same module; retain its public owner and existing tests, no new facade.
 
 ## Reuse is explicit
 

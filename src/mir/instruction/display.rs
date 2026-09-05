@@ -25,6 +25,9 @@ impl fmt::Display for MirInstruction {
             MirInstruction::InvokeNormalResult { invoke_block, dst } => {
                 write!(f, "{} = invoke.normal {:?}", dst, invoke_block)
             }
+            MirInstruction::FaultFrameEnter { dst, mode } => {
+                write!(f, "{} = fault.frame.enter {:?}", dst, mode)
+            }
             MirInstruction::ReturnFault { fault_frame } => {
                 write!(f, "return.fault {}", fault_frame)
             }

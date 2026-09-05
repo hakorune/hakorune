@@ -8,6 +8,7 @@ fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::Invoke { .. } => "Invoke",
         MirInstruction::InvokeNormalResult { .. } => "InvokeNormalResult",
         MirInstruction::ReturnFault { .. } => "ReturnFault",
+        MirInstruction::FaultFrameEnter { .. } => "FaultFrameEnter",
         MirInstruction::Const { .. } => "Const",
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",

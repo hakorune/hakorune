@@ -16,7 +16,7 @@ use crate::mir::types::{
 };
 
 mod invoke;
-pub use invoke::InvokeOperation;
+pub use invoke::{FaultFrameMode, InvokeOperation};
 
 // (unused imports removed)
 
@@ -500,6 +500,10 @@ pub enum MirInstruction {
 
     /// Propagate the pending Fault without recording it again or reporting it.
     ReturnFault { fault_frame: ValueId },
+
+    /// Defines an internal Fault-frame operand in the entry prologue.
+    /// Borrowed projects a hidden ABI input; RootOwned owns bounded storage.
+    FaultFrameEnter { dst: ValueId, mode: FaultFrameMode },
 
     /// Checked external call whose semantic outcome owns two canonical CFG
     /// successors.  The function-local site plan carries entry/ABI/slot

@@ -149,6 +149,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
     match inst {
         MirInstruction::Invoke { .. }
         | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::FaultFrameEnter { .. }
         | MirInstruction::ReturnFault { .. } => &[],
         MirInstruction::Const { .. } => &["const"],
         MirInstruction::BinOp { .. } => &["binop"],
