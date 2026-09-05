@@ -3,9 +3,8 @@
 
 static box Main {
   main() {
-    local values = new ArrayBox()
+    local values = [1]
     values.push(1)
-    values.push(2)
     values.set(0, 3)
     values.insert(1, 4)
     values[0] = 5
