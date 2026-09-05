@@ -98,8 +98,11 @@ claim ledger retains exact destination BindingRef/declaration identity after
 target take. `new_expression` records its result only after overrides; the
 callable state's existing completed-local handoff then validates ordinal,
 initializer ValueId and destination before discharging the pending row.
-`ordinary_new_local_commit.rs` owns this physical correspondence, not Home
-availability, Fault cutpoints or cleanup. Completed correspondence does not
+`resolved_semantics::home_new_prefix` now issues the source prefix relation;
+the claim ledger checks that every prior Home has completed its exact local
+installation before the next target take. `ordinary_new_local_commit.rs`
+retains this relation with the physical correspondence, but does not issue
+Home meaning, Fault cutpoints or cleanup. Completed correspondence does not
 remove the Birth backend rejection. Non-cohort and compatibility rows remain
 outside this claim surface and retain their explicitly parked compatibility
 behavior; they cannot issue or retry a source-backed claim.

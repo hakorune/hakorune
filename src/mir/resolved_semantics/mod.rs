@@ -40,6 +40,7 @@ mod function_view;
 pub(crate) mod generic_g0;
 mod home_abi;
 mod home_relation;
+pub(crate) mod home_new_prefix;
 mod ids;
 mod if_region;
 mod instance_method_body_owner;

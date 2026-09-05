@@ -68,6 +68,72 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
 }
 
 #[test]
+fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
+    use super::ordinary_new_coseal::{OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1};
+    use crate::mir::resolved_semantics::SourceBindingSiteV1;
+    use crate::mir::ValueId;
+    let package = issue_with_brand_catalog(
+        "box Page { birth() { } } static box Main { main() { local first = new Page() local alias = first local second = new Page() local third = new Page() return 0 } }"
+    ).unwrap();
+    let claims = &package.ordinary_new_claims;
+    assert_eq!(claims.len(), 3);
+    let prefixes: Vec<_> = claims.iter().map(|claim| claim.home_prefix().unwrap()).collect();
+    assert!(prefixes[0].prior_homes().is_empty());
+    assert_eq!(prefixes[1].prior_homes(), &[prefixes[0].destination()]);
+    assert_eq!(prefixes[2].prior_homes(), &[prefixes[1].destination(), prefixes[0].destination()]);
+    assert_eq!(prefixes[2].covered_statements().len(), 4);
+    let sites: Vec<_> = claims.iter().map(|claim| claim.site().clone()).collect();
+    let destinations: Vec<_> = prefixes.iter().map(|prefix| prefix.destination()).collect();
+    let declarations: Vec<_> = sites.iter().map(|site| {
+        let owner = package.batch().declarations().find(|row| row.owner() == site.owner()).unwrap();
+        package.batch().with_lowering_input(owner.batch_slot(), |input|
+            input.function().expression_source().initializers().find(|row|
+                row.initializer_site() == Some(site.site())).unwrap().declaration_site().clone()).unwrap()
+    }).collect();
+    let ledger = OrdinaryNewClaimLedgerV1::issue(package.ordinary_new_claims, vec!["Page".into()].into());
+    assert_eq!(ledger.try_take(&sites[1], "Page", 0), Err(OrdinaryNewClaimTakeErrorV1::Mismatch));
+    for (index, site) in sites.iter().enumerate() {
+        ledger.try_take(site, "Page", 0).unwrap().unwrap();
+        let initializer = ValueId(index as u32 * 2);
+        let local = ValueId(index as u32 * 2 + 1);
+        ledger.complete_new_expression(site, "Page", initializer).unwrap();
+        let SourceBindingSiteV1::Local { statement, ordinal } = &declarations[index] else { panic!("local") };
+        ledger.complete_local_installation(site.owner(), statement.node(), &[
+            (destinations[index], *ordinal, initializer, local),
+        ]).unwrap();
+    }
+    assert!(ledger.is_empty());
+}
+
+#[test]
+fn ordinary_new_unknown_home_prefix_is_not_an_empty_cleanup_plan() {
+    for body in [
+        "local n = 0 n = 1 local item = new Page() return 0",
+        "local n = new ArrayBox() local item = new Page() return 0",
+        "local item = new Page() { value: 1 } local next = new Page() return 0",
+    ] {
+        let source = format!("box Page {{ value: i64 birth() {{ }} }} static box Main {{ main() {{ {body} }} }}");
+        let package = issue_with_brand_catalog(&source).expect("prefix unavailability is not source rejection");
+        assert!(!package.ordinary_new_claims.is_empty());
+        assert!(package.ordinary_new_claims.iter().all(|claim| claim.home_prefix().is_err()), "{body}");
+    }
+    let package = issue_with_brand_catalog(
+        "box Page { birth() { } } static box Main { helper(value) { local item = new Page() return 0 } main() { return 0 } }"
+    ).unwrap();
+    assert_eq!(package.ordinary_new_claims.len(), 1);
+    assert!(matches!(package.ordinary_new_claims[0].home_prefix(),
+        Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::EntryDemandMissing)));
+
+    let package = issue_with_brand_catalog(
+        "box Page { birth(value) { } } static box Main { main() { local first = new Page(0) local second = new Page(first) return 0 } }"
+    ).unwrap();
+    assert_eq!(package.ordinary_new_claims.len(), 2);
+    assert!(package.ordinary_new_claims[0].home_prefix().is_ok());
+    assert!(matches!(package.ordinary_new_claims[1].home_prefix(),
+        Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::ArgumentNotCovered(_))));
+}
+
+#[test]
 fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {

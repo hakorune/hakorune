@@ -5,6 +5,7 @@
 //! claim that Fault cleanup is implemented.
 
 use super::OrdinaryNewClaimLedgerV1;
+use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
@@ -16,20 +17,28 @@ pub(super) struct NewLocalCommitV1 {
     declaration: SourceBindingSiteV1,
     initializer: Option<ValueId>,
     local: Option<ValueId>,
+    home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
 }
 
 impl NewLocalCommitV1 {
-    pub(super) fn pending(binding: BindingRefV1, declaration: SourceBindingSiteV1) -> Self {
+    pub(super) fn pending(binding: BindingRefV1, declaration: SourceBindingSiteV1,
+        home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>) -> Self {
         Self {
             binding,
             declaration,
             initializer: None,
             local: None,
+            home_prefix,
         }
     }
 
     pub(super) fn is_complete(&self) -> bool {
         self.initializer.is_some() && self.local.is_some()
+    }
+
+    pub(super) fn installs(&self, binding: BindingRefV1) -> bool {
+        self.binding == binding && self.is_complete()
+            && matches!(&self.home_prefix, Ok(prefix) if prefix.destination() == binding)
     }
 
     fn at_statement(&self, owner: FunctionOwnerIdV1, site: &SourceNodeSiteV1) -> bool {

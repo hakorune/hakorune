@@ -114,8 +114,12 @@ implement construction cleanup.
 
 Implementation boundary: selected source-backed local `new` now distinguishes
 constructor-target consumption, expression completion after overrides, and
-exact local installation. This compiler correspondence check does not yet
-implement the first-Home/Fault plan or enable Birth backend execution.
+exact local installation. Source-owned straight-line prefix facts now retain
+prior local Homes in reverse declaration order; aliases add no Home. The
+claim consumer checks those prior installations before consuming the next New.
+Unknown prefixes, entry demands, Handle arguments and explicit overrides do
+not become empty cleanup plans. These checks do not yet implement Fault
+propagation, runtime cleanup or enable Birth backend execution.
 
 Object reuse is an ordinary domain operation. Methods named `reset`, `reactivate`, `configure`, `clear`, or `attach` may prepare an already-alive object according to its Box contract; they never re-run `birth` or bypass the terminal Home DropPlan.
 

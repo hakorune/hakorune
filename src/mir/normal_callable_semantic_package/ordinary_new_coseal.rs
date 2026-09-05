@@ -23,6 +23,9 @@ use crate::mir::resolved_semantics::{
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::{Effect, EffectMask};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
+};
 
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
@@ -73,6 +76,7 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     constructor: OrdinaryNewConstructorDispositionV1,
     destination: BindingRefV1,
     declaration: SourceBindingSiteV1,
+    home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -126,9 +130,18 @@ impl OrdinaryNewClaimLedgerV1 {
         if claim.class() != class || claim.arity() != arity {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
-        self.local_commits.borrow_mut().insert(
+        let mut commits = self.local_commits.borrow_mut();
+        if let Ok(prefix) = &claim.home_prefix {
+            if prefix.destination() != claim.destination || prefix.required_unwind() != site
+                || prefix.prior_homes().iter().any(|binding|
+                    !commits.values().any(|row| row.installs(*binding)))
+            {
+                return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+            }
+        }
+        commits.insert(
             site.clone(),
-            local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone()),
+            local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone(), claim.home_prefix.clone()),
         );
         Ok(Some(
             claims
@@ -158,6 +171,10 @@ impl OrdinaryNewAdmissionClaimV1 {
 
     pub(crate) fn constructor(self) -> OrdinaryNewConstructorDispositionV1 {
         self.constructor
+    }
+
+    pub(crate) fn home_prefix(&self) -> Result<&CallerNewHomePrefixV1, &HomePrefixUnavailableV1> {
+        self.home_prefix.as_ref()
     }
 }
 
@@ -240,7 +257,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
         }
         // One source loan covers both initializer membership and binding
         // validation. Its order is not a Home availability/execution timeline.
-        let candidates = batch
+        let (candidates, mut home_prefixes) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
                 let function = input.function();
                 let mut candidates = Vec::new();
@@ -269,7 +286,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     candidates.push((site, class.clone().into_boxed_str(), arguments.len(),
                         initializer.binding(), initializer.declaration_site().clone()));
                 }
-                Ok(candidates)
+                let selected = candidates.iter().filter(|(_, class, _, _, _)|
+                    matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
+                    .map(|(site, _, _, binding, _)| (site.clone(), *binding)).collect();
+                let home_prefixes = issue_new_home_prefixes_v1(input, &selected);
+                Ok((candidates, home_prefixes))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
         for (site, class, arity, destination, declaration) in candidates {
@@ -356,6 +377,8 @@ pub(crate) fn issue_ordinary_new_claims_v1(
             {
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
             }
+            let home_prefix = home_prefixes.remove(&site).ok_or_else(||
+                OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
             claims.push(OrdinaryNewAdmissionClaimV1 {
                 site,
                 class,
@@ -363,6 +386,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 constructor,
                 destination,
                 declaration,
+                home_prefix,
             });
         }
     }
@@ -427,6 +451,7 @@ mod tests {
             constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
             destination,
             declaration,
+            home_prefix: Err(HomePrefixUnavailableV1::SourceMismatch),
         }
     }
 

@@ -11,6 +11,18 @@ canonical function AST
   -> VerifiedResolvedFunctionV1
 ```
 
+## Ordinary-New caller-prefix facts
+
+`home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one
+resolved source loan and exact selected initializer bindings. It walks source
+statement order, keeps aliases separate from new Homes, and records prior
+Homes in reverse declaration order plus covered statements and the required
+New unwind site. Missing input demands, unknown prefixes, Handle arguments
+and nonempty overrides yield unavailable facts, never empty cleanup. The
+package claim ledger consumes the facts to check prior local installations;
+outward Fault projection and runtime cleanup are still required before backend
+activation. No MIR type, physical ID or symbol reconstructs these facts.
+
 ## DeclaredInstance source relation (I0)
 
 The final callable batch issues one resolver-owned, AST-free relation for a

@@ -400,19 +400,23 @@ The last owner already matches the source declaration to physical values.
 The first connected implementation retains destination/declaration identity in
 the existing claim ledger after target take, records the result after overrides,
 and verifies initializer/local/ordinal at that handoff. Pending or mismatched
-completion cannot pass package finish. This physical correspondence is not yet
-a Home transition: the source Home issuer and exit projection are still open.
-Attach those semantics to the same chain, not a new port axis or name registry.
+completion cannot pass package finish. The source prefix issuer is now attached
+to that same claim: target take checks prior Homes' completed installations,
+and pending rows retain the source relation. Exit projection remains open.
 Preserve the resulting Home projection for the common exit consumer; a semantic
 plan stored and then dropped at scope finish is not connected completion.
 
-Connected physical checkpoint: package 80/80, including two separate New local
-installations, drift/duplicate/residual checks, ValueId(0) and fixed Pair
-publication/backend rejection. Statement suite: 97 passed, one accepted
-baseline failure `mir::builder::stmts::variable_assignment_completion::tests::receipt_retains_the_existing_assignment_result`
-(`No current basic block`, listed in the unchanged accepted failure manifest).
-No whole-lib/no-new-red claim; Home source issuance and exit projection remain
-the next code in this same series, not a completed task-1 claim.
+The source prefix walks every preceding statement. Plain aliases add no Home;
+rebind, unknown acquisition, entry demand gaps, Handle arguments and nonempty
+overrides are unavailable, never empty cleanup. Read-only review identified
+the override/capture omissions in the draft; both were corrected before the
+package gate. Three New declarations verify reverse order and prior-install
+rejection; the real two-New compiler path preserves package completion and
+backend rejection. Outward Fault and retained exit projection remain the next
+code in this same series; this is not a completed task-1/runtime claim.
+Focused package gate: 82 passed / 0 failed (including entry-demand and Handle
+argument unavailability); pointer/M7-S guards green, source maximum 635 lines.
+No whole-lib/no-new-red claim or baseline edits.
 
 **Change:** implement this source issuer plus its package/local-completion
 consumer as one bounded task-1 series; replace target-take-only completion for
