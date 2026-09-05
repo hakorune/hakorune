@@ -84,13 +84,19 @@ Ordered tasks inside the existing birth series:
    preserve declaration identity, receiver evaluation and initialization order. Keep generic Box and
    `add_does_not_promote_unknown_plus_integer_to_integer` behavior unchanged.
 2. Preserve both FieldSet obligations through semantic refresh and publication.
-   Reuse `exact_numeric_field_contracts`; changing field spelling must not
-   discard dynamic checks or presume unannotated birth parameters are integers.
+   Reuse `exact_numeric_field_contracts`: unannotated parameters acquire no
+   implicit Integer entry contract. Check each write at its source boundary;
+   moving all checks before birth requires a separate ordering/elision proof.
+   A later failed write must not erase earlier observable effects.
 3. Close selected-C operand-kind/contract consumption before enabling birth:
-   use the existing published call/definition relation and capability preflight,
-   not default `T_I64`, N+1 counts or symbol-derived birth parameter flow.
-   Existing storage setters check storage/range, not Integer versus handle bits.
-   No consumer may claim a dynamic type check without lossless value-kind data.
+   preserve exact source call -> formal binding -> FieldSet value relation in
+   existing source/package owners. Only an active contract/fresh verifier proof
+   permits Direct; loss of that relation across Copy/Phi/rebind or a foreign
+   formal invalidates the proof, not a correctly preserved Copy by itself.
+   Otherwise retain producer-issued kind for a Checked write, or reject before
+   artifact. Generic tagged birth ABI is not already available or selected.
+   `OrdinaryScalar`, default `T_I64`, N+1, observed constant callers and storage
+   setters are not Integer proof; reuse the published relation/capability gate.
 4. Align actual EXE and OBJ capability with that consumer. Currently dynamic
    FieldSet admits `ny-llvmc-exe` but the typed EXE path rechecks `ny-llvmc-obj`;
    annotated parameter entry accepts only `mir-interpreter`. Do not whitelist
@@ -98,6 +104,8 @@ Ordered tasks inside the existing birth series:
 5. Verify missing/duplicate/drifted contract, wrong receiver/argument kind,
    String/Bool/BoxRef/Void (including handle bits that fit i64), unsupported
    EXE/OBJ with no artifact, and failed write preserving its destination.
+   Include first-write/effect -> later-write failure chronology and stale
+   Copy/Phi/rebind/foreign-formal proof rejection; do not hoist checks by default.
    Extend existing tests; no per-row guard, fixture, or semantic receipt.
    Return directly to Birth Call/view -> EXE30 -> selected old-edge deletion.
 
@@ -145,6 +153,20 @@ No initializer-order repair is selected: `property_emit::prepend_stored_field_in
 precedes constructor source seal, and `new_expression` applies explicit overrides
 after birth, matching `lifecycle.md`. Current Pair acceptance claims only its
 store-before-read sequence and exit 30, not all-Box initialization safety.
+
+### Canonical missing-type diagnostic follow-up
+
+- [ ] Owner: `builder/return_type_strategy.rs`, selected canonical finalization.
+  Quick currently panics where release warns and returns Unknown. Distinguish
+  legitimate Dynamic/unannotated contracts from missing required result facts;
+  the latter must reach one explicit rejection before canonical publication in
+  both profiles, never a fabricated Integer or an Unknown success allowance.
+  Trigger: next change to this boundary, or a remaining selected gate failure
+  after i64 migration. Do not preempt the migration with a global type-system rewrite.
+  Done: same malformed selected input rejects in quick/release without artifact;
+  legitimate supported Dynamic remains unchanged, scalar result succeeds, and
+  the selected warn-and-continue edge is removed. Reuse existing tests/diagnostics;
+  no baseline rewrite, per-profile fallback, or new guard. Runtime evidence pending.
 
 ## Carrier Completeness
 

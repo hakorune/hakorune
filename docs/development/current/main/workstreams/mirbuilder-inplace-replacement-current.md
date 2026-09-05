@@ -529,21 +529,14 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    (`dc684be1f1` series). Preserve negatives; no name/MIR/synthetic birth issuer.
 2. App Main ordinary-new co-seal landed at `dc684be1f1`: exact declaration
    batch slot, no generic Main role or second ledger; derive-off newbox passes.
-3. Builtin ArrayBox coverage separation landed in that series' follow-up;
-   derive-off untyped-field passes. User-Box missing coverage still rejects.
-   Existing builtin owner remains sole classifier; no new whitelist/fallback.
-4. The callable-semantic lowering owner now consumes lexical `me` reads at
-   their exact source sites through the existing recursive child port. This
-   removes the shared `incomplete-consumption` terminal without changing
-   target selection or receiver reconstruction (landed `bad86deaef`).
-   At `bdb28364c3`, the unchanged `apps/typed-object-birth-min/main.hako`
-   through typed `--emit-exe` (derive-off/plugins-off, pure-first/compat-none)
-   exits 1: `StaticCallDefinitionMissing(StaticBoxMethod(Pair,birth,2))`,
-   no artifact. Expected exit remains 30. Worker audit found constructor
-   admission drops the source key into `LegacySymbol`; constructor N+1
-   conflicts with static N admission. This is an in-scope `CutoverBlockerOpen`,
-   not stale smoke metadata or a parkable outside family. Preserve rejection;
-   neither old metadata scans nor `args[0]` inference repair this relation.
+3. Builtin ArrayBox separation landed in that follow-up; derive-off untyped-field
+   passes. User-Box missing coverage rejects; same classifier, no whitelist/fallback.
+4. `bad86deaef`: lexical me consumes exact source sites through the existing
+   child port; incomplete-consumption removed without target/receiver repair.
+   `bdb28364c3`: unchanged Pair typed --emit-exe, derive-off/plugins-off,
+   pure-first/compat-none -> exit 1, `StaticCallDefinitionMissing(StaticBoxMethod(Pair,birth,2))`,
+   no artifact; expected 30. Source-key drop and N versus N+1 admission are
+   in-scope CutoverBlockerOpen; no metadata scan or args[0] repair is permitted.
 
    Decision (worker-reviewed): add `BirthConstructor` to the existing callable
    key namespace and use the existing definition table. The semantic constructor
@@ -552,16 +545,15 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    `Callee::BirthConstructor { key, receiver }` keeps mandatory receiver separate
    from N source args. The old `Constructor { box_type }` means allocation and
    is not repurposed. Static N and birth N+1 remain distinct admission kinds.
-   Change order: first extract the 797-line C body's existing call dispatcher
-   verbatim; then preserve key/definition, replace the selected Global birth
-   writer, extend the published view/C row, execute Pair, and delete old edges.
+   After the landed dispatcher split: preserve key/definition -> replace Global
+   birth writer -> published view/C row -> Pair EXE -> selected old-edge deletion.
    Reuse the C frame with kind 8 and receiver-presence flags; physical emission
    prepends receiver once. Equal receiver/argument ValueIds are not duplicates:
    verify lane structure, never remove or reject args by value equality.
-   Contract: source result/effect products and existing TypedObject field plans
-   remain authority. Birth has no call destination; preserve language Void and
-   the physical return convention without leaking an integer result. Missing
-   source contracts stop their implementation substep, not the whole scheduler.
+   Contract: source result/effect/Completion and TypedObject plans remain authority.
+   `dst=None`, omitted return annotation, fixed `EffectMask::IO`, and physical
+   return bits do not prove Unit/Void or success. New's object result is separate.
+   Missing source contracts stop the consumer substep, not the i64 migration.
    Done: explicitly migrated Pair source exits 30 through typed CLI; missing/foreign/duplicate
    keys, N/N+1 drift, missing receiver, non-Void result and missing body plan
    reject before artifact. Delete the selected Global birth writer and source
@@ -571,7 +563,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    no field-only IntegerBox alias or storage-derived scalar proof. Existing
    IntegerBox object/runtime identity remains. Write/backend handoffs and three
    adjacent follow-ups: `type-contract-status.md#integer-field-migration-bounded-handoff`.
-   Prior release already warned Unknown(ValueId14); do not suppress quick panic.
+   Quick/release missing-type rejection task is in that ledger; no Unknown waiver.
 
    Execution checklist (record before further implementation; same owner):
    - [ ] First the authorized two-field source migration; existing FieldGet,
@@ -584,6 +576,14 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
      README/reference updated; vm-reference check green; publication proof open.
    - [ ] Recipe/Call: mandatory BirthConstructor receiver + N source args,
      no destination; remove selected Global birth writer in the same series.
+   - [ ] Before backend activation, bind source-issued result/effect/Completion
+     through `ordinary_new_coseal` -> Call/definition -> published view. Normal(Unit)
+     or Return(Unit) gives no value; Return(Value) rejects for this scalar cohort;
+     Fault propagates only with a real consumer, otherwise reject before artifact.
+     Missing/drifted contract rejects before publication; dst=None is not proof.
+     Test integer-result leak, unsupported Fault and contract drift. MIR-module
+     Atomic Publish is not runtime object readiness: no failed construction may
+     return a usable object. General Home rollback stays with OWN-HOME-BIRTH-D0.
    - [ ] Published view/C consumer: real field/parameter checks and lossless
      operand-kind relation before admission; no default-T_I64/count/symbol proof.
      EXE/OBJ capability agrees with actual consumption; N+1 once, Void preserved.
