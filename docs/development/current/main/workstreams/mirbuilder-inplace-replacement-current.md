@@ -500,23 +500,17 @@ is recorded, the next handoff is `REPO-FINAL-CONVERGENCE-AUDIT0-G0`.
 
 #### Acceptance incident and bounded repair order (2026-09-05)
 
-The unchanged command was executed once with a fresh `llvm_static` build. The
-result was `11 total / 1 passed / 10 failed`: the unsupported-boundary probe
-passed; six source programs stopped at the existing
-`ExactSourceChanged(RootPreservation(CompatibilityLoss))` normal-callable
-transform terminal; four stopped at the existing generated-birth `birth/0`
-source contract. This is unclassified acceptance red, not accepted baseline
-debt. Do not alter the selected programs, add `#[ignore]`, or widen the
-whole-library baseline to make this scope green.
+Initial unchanged suite with fresh `llvm_static`: `11 total / 1 passed / 10 failed`.
+Unsupported probe passed; six stopped at `ExactSourceChanged(RootPreservation(CompatibilityLoss))`,
+four at generated-birth `birth/0`. This is acceptance red, not baseline debt.
+Do not edit programs, add `#[ignore]`, or widen the baseline to make it green.
 
-The six exact RootPreservation paths are
-`typed-object-newbox-min`, `typed-object-method-min`,
+The six RootPreservation paths: `typed-object-newbox-min`, `typed-object-method-min`,
 `typed-object-untyped-field-min`, `binary-trees`,
 `json-stream-aggregator`, and `typed-object-birth-param-min`. The four exact
 generated-birth paths are `typed-object-birth-min`, `boxtorrent-mini`,
 `mimalloc-lite`, and `allocator-stress`; the unsupported-boundary probe is the
-single pass. These names are recorded from the unchanged runner output, not
-inferred from fixture contents.
+single pass. Names are recorded from unchanged runner output.
 
 Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
 bounded substeps in order; they are not new D0 cards or new semantic receipts:
@@ -542,24 +536,15 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
 4. The callable-semantic lowering owner now consumes lexical `me` reads at
    their exact source sites through the existing recursive child port. This
    removes the shared `incomplete-consumption` terminal without changing
-   target selection or receiver reconstruction. The first derive-off birth
-   probe reaches the older `user_box_method_routes` proof assertion, but the
-   direct production CLI exposes an earlier publication relation failure.
-   At `bdb28364c3`, derive-off/plugins-off, pure-first/compat-none,
-   `hakorune --emit-exe <tmp>/birth.exe --emit-exe-nyrt target/release
-   apps/typed-object-birth-min/main.hako` exits 1 with
-   `published-mir-backend-view: StaticCallDefinitionMissing` for
-   `StaticBoxMethod(Pair, birth, 2)`; no executable exists. The unchanged
-   fixture still requires exit 30. This is a reproduced acceptance blocker,
-   not merely a stale smoke assertion. Audit the source-issued constructor
-   target and published definition relation before changing route metadata;
-   the receiver-bearing N+1 ABI cannot be repaired through `args[0]` inference.
-   The read-only worker confirmed that `NormalInstanceConstructorDraftAdmissionV1`
-   drops its source key in `into_legacy_collector_parts`, publishing only
-   `LegacySymbol`. This is `CutoverBlockerOpen` inside acceptance, not a
-   parkable outside family. `InstanceConstructorAbiV1` owns N+1; the static
-   definition view expects N. Restoring the old method metadata scan cannot
-   establish this relation. Preserve fixtures and the publication rejection.
+   target selection or receiver reconstruction (landed `bad86deaef`).
+   At `bdb28364c3`, the unchanged `apps/typed-object-birth-min/main.hako`
+   through typed `--emit-exe` (derive-off/plugins-off, pure-first/compat-none)
+   exits 1: `StaticCallDefinitionMissing(StaticBoxMethod(Pair,birth,2))`,
+   no artifact. Expected exit remains 30. Worker audit found constructor
+   admission drops the source key into `LegacySymbol`; constructor N+1
+   conflicts with static N admission. This is an in-scope `CutoverBlockerOpen`,
+   not stale smoke metadata or a parkable outside family. Preserve rejection;
+   neither old metadata scans nor `args[0]` inference repair this relation.
 
    Decision (worker-reviewed): add `BirthConstructor` to the existing callable
    key namespace and use the existing definition table. The semantic constructor
@@ -582,10 +567,26 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    keys, N/N+1 drift, missing receiver, non-Void result and missing body plan
    reject before artifact. Delete the selected Global birth writer and source
    key drop; retire cohort-only old projections only after outside-caller checks.
-   Split verified: body 797->708 lines, call include 90; expanded C identical
-   to parent, C FFI build green. Next: constructor key/definition retention.
-   This prerequisite alone claims no EXE repair. Keep the legacy JSON smoke as
-   dependency evidence until production proof; no fixture or baseline changes.
+   Split `93dde7b882`: body 797->708, include 90; expanded C identical, FFI green.
+   Required field-read decision (worker audit): IntegerBox declarations remain
+   Box; current FieldGet preserves that type, Add cannot publish a result type.
+   Decide whether exact nonweak inline-field reads issue Integer values through
+   the existing FieldGet owner; generic/unknown/weak/foreign Box stays unchanged.
+   Physical storage plans/backend success cannot authorize this language rule.
+   Prior release log already warned Unknown(ValueId14); do not suppress quick panic.
+
+   Execution checklist (record before further implementation; same owner):
+   - [ ] Source key -> admission -> collector -> Atomic Publish: WIP `d1fce06be3`.
+     Admission 3/3 and drain 9/9 pass; package 72/73. Fixed Pair quick test
+     panics at `return_type_strategy.rs:117` (main ValueId(14)); release uses
+     Unknown there. Repair the named type-owner boundary, preserve the test;
+     README/reference updated; vm-reference check green; publication proof open.
+   - [ ] Recipe/Call: mandatory BirthConstructor receiver + N source args,
+     no destination; remove selected Global birth writer in the same series.
+   - [ ] Published view/C consumer: N+1 projection once, capability/body-plan
+     checks before artifact, Void preserved; exercise listed negative cases.
+   - [ ] Fixed Pair -> typed CLI -> EXE exit 30; prove selected key-drop/old
+     projection deletion and retry zero. A focused definition test is not EXE proof.
 5. Re-run the six default-derive cases with the existing negative test. Treat
    default-generated `equals`/`toString` as a finite profile decision: either
    an explicit derive-off acceptance profile is recorded and exercised, or a
