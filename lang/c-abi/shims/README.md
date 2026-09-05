@@ -211,6 +211,9 @@ Current partitions:
 - `hako_llvmc_ffi_same_module_body_emit.inc`
   - same-module body instruction emitter partition; lowers accepted prepass
     shapes to LLVM text and must not add new legality rules
+- `hako_llvmc_ffi_same_module_call_emit.inc`
+  - same-module call dispatch at the original lexical include site; preserves
+    typed-row admission before compatibility dispatch and adds no route policy
 - `hako_llvmc_ffi_same_module_method_views.inc`
   - same-module generic-method route view predicates backed by route-rule
     rows; MIR JSON key acceptance is owned by MIR route facts, not C-side key

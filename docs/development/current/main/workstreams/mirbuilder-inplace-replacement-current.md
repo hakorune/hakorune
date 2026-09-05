@@ -561,24 +561,31 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    definition view expects N. Restoring the old method metadata scan cannot
    establish this relation. Preserve fixtures and the publication rejection.
 
-   Change: retain the existing constructor source identity and N+1 ABI through
-   collector/Atomic Publish, then connect the selected birth consumer and
-   retire its old projection in the same series. The next design decision is
-   the constructor-specific relation in the existing published module, not a
-   second planner or a new source issuer.
-   Contract: `VerifiedOrdinaryNewBirthRecipeV1` and constructor admission must
-   share the same source-issued definition identity; physical symbols remain
-   projections. Preserve allocation/initializer/birth order, source args once,
-   receiver exactly once, and constructor result semantics. Do not relabel
-   birth as an ordinary static method or infer the receiver from MIR args.
-   Done: unchanged Pair birth source reaches the typed CLI and exits 30;
-   missing/foreign/duplicate definition and ABI mismatch reject before
-   artifact; exact selected old caller/delete-set is recorded and removed.
-   The legacy JSON smoke is retained as dependency evidence pending this
-   production proof, not silently rewritten or counted as acceptance.
-   Stop: representation and consumer contracts must be settled together before
-   code edits. The existing receipt/collector/view owners are the design scope;
-   no broader instance, VM, Hako, or default-derive implementation is opened.
+   Decision (worker-reviewed): add `BirthConstructor` to the existing callable
+   key namespace and use the existing definition table. The semantic constructor
+   row issues that key once from its exact source identity; recipe/admission
+   carry it through `CatalogedConstructor` collection and Atomic Publish.
+   `Callee::BirthConstructor { key, receiver }` keeps mandatory receiver separate
+   from N source args. The old `Constructor { box_type }` means allocation and
+   is not repurposed. Static N and birth N+1 remain distinct admission kinds.
+   Change order: first extract the 797-line C body's existing call dispatcher
+   verbatim; then preserve key/definition, replace the selected Global birth
+   writer, extend the published view/C row, execute Pair, and delete old edges.
+   Reuse the C frame with kind 8 and receiver-presence flags; physical emission
+   prepends receiver once. Equal receiver/argument ValueIds are not duplicates:
+   verify lane structure, never remove or reject args by value equality.
+   Contract: source result/effect products and existing TypedObject field plans
+   remain authority. Birth has no call destination; preserve language Void and
+   the physical return convention without leaking an integer result. Missing
+   source contracts stop their implementation substep, not the whole scheduler.
+   Done: fixed Pair source exits 30 through typed CLI; missing/foreign/duplicate
+   keys, N/N+1 drift, missing receiver, non-Void result and missing body plan
+   reject before artifact. Delete the selected Global birth writer and source
+   key drop; retire cohort-only old projections only after outside-caller checks.
+   Split verified: body 797->708 lines, call include 90; expanded C identical
+   to parent, C FFI build green. Next: constructor key/definition retention.
+   This prerequisite alone claims no EXE repair. Keep the legacy JSON smoke as
+   dependency evidence until production proof; no fixture or baseline changes.
 5. Re-run the six default-derive cases with the existing negative test. Treat
    default-generated `equals`/`toString` as a finite profile decision: either
    an explicit derive-off acceptance profile is recorded and exercised, or a
