@@ -6,6 +6,209 @@ use super::super::{EffectMask, ValueId};
 use super::MirInstruction;
 use crate::mir::types::{BinaryOp, ConstValue};
 
+fn allocation_invoke_function() -> crate::mir::MirFunction {
+    use crate::mir::{BasicBlock, BasicBlockId, FunctionSignature, MirFunction, MirType};
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "invoke_control_test".into(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::CONTROL,
+        },
+        BasicBlockId::new(0),
+    );
+    function.params = vec![ValueId::new(0)];
+    let mut entry = BasicBlock::new(BasicBlockId::new(0));
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId::new(1),
+        value: ConstValue::Integer(7),
+    });
+    entry.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId::new(1),
+        edge_args: None,
+    });
+    let mut origin = BasicBlock::new(BasicBlockId::new(1));
+    origin.set_terminator(MirInstruction::Invoke {
+        operation: super::InvokeOperation::NewBox {
+            box_type: "Object".into(),
+            args: vec![ValueId::new(1)],
+        },
+        fault_frame: ValueId::new(0),
+        normal_landing: BasicBlockId::new(2),
+        fault_landing: BasicBlockId::new(3),
+    });
+    let mut normal = BasicBlock::new(BasicBlockId::new(2));
+    normal.add_instruction(MirInstruction::InvokeNormalResult {
+        invoke_block: BasicBlockId::new(1),
+        dst: ValueId::new(2),
+    });
+    normal.set_terminator(MirInstruction::Return { value: None });
+    let mut fault = BasicBlock::new(BasicBlockId::new(3));
+    fault.set_terminator(MirInstruction::ReturnFault {
+        fault_frame: ValueId::new(0),
+    });
+    for block in [entry, origin, normal, fault] {
+        function.add_block(block);
+    }
+    function.update_cfg();
+    function
+}
+
+#[test]
+fn invoke_normal_definition_and_backend_fence_survive_optimization() {
+    use crate::mir::{BasicBlockId, MirModule, MirVerifier};
+    let mut function = allocation_invoke_function();
+    MirVerifier::new().verify_function(&function).unwrap();
+    let origin = &function.blocks[&BasicBlockId::new(1)];
+    assert_eq!(origin.out_edges().len(), 2);
+    let invoke = origin.terminator.as_ref().unwrap();
+    assert_eq!(invoke.dst_value(), None);
+    assert_eq!(invoke.used_values(), vec![ValueId::new(1), ValueId::new(0)]);
+    assert!(!invoke.effects().is_pure());
+    crate::mir::passes::dce::eliminate_dead_code_in_function(&mut function);
+    assert!(function.blocks[&BasicBlockId::new(2)]
+        .instructions
+        .iter()
+        .any(|inst| matches!(inst, MirInstruction::InvokeNormalResult { .. })));
+    let mut module = MirModule::new("invoke_control_test".into());
+    module.add_function(function);
+    crate::mir::passes::simplify_cfg::simplify(&mut module);
+    let function = &module.functions["invoke_control_test"];
+    assert!(!function.blocks.contains_key(&BasicBlockId::new(1)));
+    assert!(
+        matches!(&function.blocks[&BasicBlockId::new(2)].instructions[0],
+        MirInstruction::InvokeNormalResult { invoke_block, .. } if *invoke_block == BasicBlockId::new(0))
+    );
+    MirVerifier::new().verify_module(&module).unwrap();
+    let view = crate::mir::function::PublishedMirBackendView::try_new(&module).unwrap();
+    assert_eq!(
+        view.route(),
+        crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject
+    );
+}
+
+#[test]
+fn invoke_rejects_fault_result_use_and_invalid_origin_shapes() {
+    use crate::mir::{BasicBlockId, MirVerifier};
+    for mutation in 0..7 {
+        let mut function = allocation_invoke_function();
+        match mutation {
+            0 => function
+                .blocks
+                .get_mut(&BasicBlockId::new(3))
+                .unwrap()
+                .set_terminator(MirInstruction::Return {
+                    value: Some(ValueId::new(2)),
+                }),
+            1 => {
+                let normal = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+                normal.instructions[0] = MirInstruction::InvokeNormalResult {
+                    invoke_block: BasicBlockId::new(99),
+                    dst: ValueId::new(2),
+                };
+            }
+            2 => {
+                let normal = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+                normal.instructions.clear();
+                normal.instruction_spans.clear();
+            }
+            3 => {
+                let normal = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+                normal.add_instruction(MirInstruction::InvokeNormalResult {
+                    invoke_block: BasicBlockId::new(1),
+                    dst: ValueId::new(3),
+                });
+            }
+            4 => function
+                .blocks
+                .get_mut(&BasicBlockId::new(3))
+                .unwrap()
+                .set_terminator(MirInstruction::Jump {
+                    target: BasicBlockId::new(2),
+                    edge_args: None,
+                }),
+            5 => function
+                .blocks
+                .get_mut(&BasicBlockId::new(3))
+                .unwrap()
+                .add_instruction(MirInstruction::Phi {
+                    dst: ValueId::new(4),
+                    inputs: vec![(BasicBlockId::new(1), ValueId::new(2))],
+                    type_hint: None,
+                }),
+            6 => {
+                function.entry_block = BasicBlockId::new(2);
+                function
+                    .blocks
+                    .get_mut(&BasicBlockId::new(2))
+                    .unwrap()
+                    .set_terminator(MirInstruction::Jump {
+                        target: BasicBlockId::new(1),
+                        edge_args: None,
+                    });
+            }
+            _ => unreachable!(),
+        }
+        function.update_cfg();
+        assert!(
+            MirVerifier::new().verify_function(&function).is_err(),
+            "mutation={mutation}"
+        );
+    }
+}
+
+#[test]
+fn invoke_birth_is_unit_and_rewrites_receiver_arguments_and_frame_uses() {
+    use crate::mir::{BasicBlockId, Callee, MirVerifier};
+    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Object", 1);
+    let mut operation = super::InvokeOperation::Call(crate::mir::definitions::MirCall::new(
+        None,
+        Callee::BirthConstructor {
+            key: key.clone(),
+            receiver: ValueId::new(1),
+        },
+        vec![ValueId::new(1)],
+    ));
+    assert_eq!(
+        operation.used_values(),
+        vec![ValueId::new(1), ValueId::new(1)]
+    );
+    operation.rewrite_values(|value| value.0 += 4);
+    assert_eq!(
+        operation.used_values(),
+        vec![ValueId::new(5), ValueId::new(5)]
+    );
+    let super::InvokeOperation::Call(call) = &operation else {
+        unreachable!()
+    };
+    assert!(matches!(&call.callee, Callee::BirthConstructor { key: after, .. } if after == &key));
+    let mut function = allocation_invoke_function();
+    let origin = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
+    let MirInstruction::Invoke {
+        operation: target, ..
+    } = origin.terminator.as_mut().unwrap()
+    else {
+        unreachable!()
+    };
+    operation.rewrite_values(|value| value.0 -= 4);
+    *target = operation;
+    let normal = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+    normal.instructions.clear();
+    normal.instruction_spans.clear();
+    MirVerifier::new().verify_function(&function).unwrap();
+    let origin = function.blocks.get_mut(&BasicBlockId::new(1)).unwrap();
+    let MirInstruction::Invoke {
+        operation: super::InvokeOperation::Call(call),
+        ..
+    } = origin.terminator.as_mut().unwrap()
+    else {
+        unreachable!()
+    };
+    call.dst = Some(ValueId::new(2));
+    let errors = MirVerifier::new().verify_function(&function).unwrap_err();
+    assert!(format!("{errors:?}").contains("embedded-call-destination"));
+}
+
 #[test]
 fn test_const_instruction() {
     let dst = ValueId::new(0);

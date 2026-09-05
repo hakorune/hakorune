@@ -147,6 +147,9 @@ pub fn is_supported_vm_terminator(inst: &MirInstruction) -> bool {
 /// MIR instruction -> LLVM JSON opcode candidates.
 pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'static str] {
     match inst {
+        MirInstruction::Invoke { .. }
+        | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::ReturnFault { .. } => &[],
         MirInstruction::Const { .. } => &["const"],
         MirInstruction::BinOp { .. } => &["binop"],
         MirInstruction::UnaryOp { .. } => &["unop"],

@@ -12,6 +12,14 @@ navigation order must stay narrow and explicit.
 
 ## Top-Level Map
 
+Common Fault control is defined in `instruction/invoke.rs` and
+`verification/invoke.rs`: Invoke reuses Call/allocation operands and defines its
+result only through the dedicated Normal projection. Ordinary CFG, value-use,
+DCE and SimplifyCFG handling preserve that relation. Published selected-C and
+JSON/VM admission remain closed while source emission binding and runtime
+cleanup are connected; this substrate is not a Birth execution claim.
+See `docs/reference/mir/INSTRUCTION_SET.md` for the current vocabulary boundary.
+
 - `analysis/`: analysis helpers and shared inspection utilities.
 - `builder/`: AST -> MIR construction. FlowPlanner / JoinIR glue are
   physically under builder today but conceptually separate from builder core.

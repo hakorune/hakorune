@@ -1,7 +1,7 @@
 # Hakorune MIR Instruction Set (Canonical SSOT)
 
 Status: Canonical (Source of Truth) — transitioning
-Last Updated: 2026-04-10
+Last Updated: 2026-09-06
 
 この文書はHakoruneのMIR命令セットの唯一の参照だよ。
 `src/mir/contracts/backend_core_ops.rs` の ledger と、この文書の機械可読カウントが一致することを SSOT 契約とする。
@@ -31,12 +31,31 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=48
+DOC_SYNC_MIR_KEPT_COUNT=54
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=64
+DOC_SYNC_MIR_VOCABULARY_COUNT=70
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
+
+### Normal/Fault control (implementation in progress)
+
+Decision: `Invoke` is a terminator wrapping either existing `MirCall` operands
+(embedded `dst=None`) or NewBox allocation operands, with an explicit internal
+Fault-frame operand and distinct Normal/Fault successors. It defines no value.
+`InvokeNormalResult { invoke_block, dst }` is the only result definition, first
+after PHIs in the exclusive Normal landing. Allocation has one handle result;
+Unit Birth has none. Other Call result contracts remain rejected by the current
+verifier until their canonical definition/ABI relation is connected.
+`ReturnFault { fault_frame }` propagates rather than recording or reporting.
+
+The verifier checks Normal dominance (including PHI incoming edges) regardless
+of compatibility verification switches. DCE retains the structural projection;
+SimplifyCFG rewrites its origin when merging the Invoke block. Source emission
+binding and runtime cleanup are still pending: JSON/VM allowlists and the
+published selected-C view reject these instructions before artifact generation.
+This is control vocabulary, not an additional target resolver or TextScan lease
+protocol. Diagnostic semantics remain in `../language/semantic-kernel.md#cleanup`.
 
 Transition Note
 

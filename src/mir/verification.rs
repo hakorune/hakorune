@@ -27,6 +27,7 @@ mod fastmem;
 mod hako_alloc_metadata;
 mod hako_alloc_page_lifecycle;
 mod inline_required;
+mod invoke;
 mod legacy;
 mod module_metadata;
 mod numeric_substrate;
@@ -65,6 +66,14 @@ impl MirVerifier {
     /// Verify an entire MIR module
     pub fn verify_module(&mut self, module: &MirModule) -> Result<(), Vec<VerificationError>> {
         self.errors.clear();
+
+        // Canonical Fault control is not a compatibility/dev verification lane.
+        for function in module.functions.values() {
+            collect_errors!(self.errors, invoke::check_function(function));
+        }
+        if !self.errors.is_empty() {
+            return Err(self.errors.clone());
+        }
 
         // Stage‑B/selfhost 専用: dev verify を一時緩和するためのトグル
         if !self.strict_policy && !crate::config::env::stageb_dev_verify_enabled() {
@@ -205,6 +214,7 @@ impl MirVerifier {
         function: &MirFunction,
     ) -> Result<(), Vec<VerificationError>> {
         let mut local_errors = Vec::new();
+        collect_errors!(local_errors, invoke::check_function(function));
 
         // Dominator computation is expensive; compute once per function and reuse.
         let skip_phi_checks = !self.strict_policy && crate::config::env::verify_allow_no_phi();

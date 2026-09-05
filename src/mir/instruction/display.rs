@@ -10,6 +10,24 @@ use std::fmt;
 impl fmt::Display for MirInstruction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            MirInstruction::Invoke {
+                operation,
+                fault_frame,
+                normal_landing,
+                fault_landing,
+            } => {
+                write!(
+                    f,
+                    "invoke {:?} frame={} normal={:?} fault={:?}",
+                    operation, fault_frame, normal_landing, fault_landing
+                )
+            }
+            MirInstruction::InvokeNormalResult { invoke_block, dst } => {
+                write!(f, "{} = invoke.normal {:?}", dst, invoke_block)
+            }
+            MirInstruction::ReturnFault { fault_frame } => {
+                write!(f, "return.fault {}", fault_frame)
+            }
             MirInstruction::Const { dst, value } => {
                 write!(f, "{} = const {}", dst, value)
             }

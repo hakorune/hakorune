@@ -157,6 +157,8 @@ impl JoinIrIdRemapper {
                 .map(|args| args.values.clone())
                 .unwrap_or_default(),
             Return { value } => value.iter().copied().collect(),
+            Invoke { .. } | ReturnFault { .. } => inst.used_values(),
+            InvokeNormalResult { dst, .. } => vec![*dst],
             CheckedCallOut {
                 receiver,
                 arguments,
@@ -267,7 +269,8 @@ impl JoinIrIdRemapper {
                 }
                 crate::mir::Callee::BirthConstructor { key, receiver } => {
                     crate::mir::Callee::BirthConstructor {
-                        key: key.clone(), receiver: remap(*receiver),
+                        key: key.clone(),
+                        receiver: remap(*receiver),
                     }
                 }
                 crate::mir::Callee::Constructor { box_type } => crate::mir::Callee::Constructor {
@@ -649,6 +652,28 @@ impl JoinIrIdRemapper {
             },
             Return { value } => Return {
                 value: value.map(remap),
+            },
+            Invoke {
+                operation,
+                fault_frame,
+                normal_landing,
+                fault_landing,
+            } => {
+                let mut operation = operation.clone();
+                operation.rewrite_values(|value| *value = remap(*value));
+                Invoke {
+                    operation,
+                    fault_frame: remap(*fault_frame),
+                    normal_landing: *normal_landing,
+                    fault_landing: *fault_landing,
+                }
+            }
+            InvokeNormalResult { invoke_block, dst } => InvokeNormalResult {
+                invoke_block: *invoke_block,
+                dst: remap(*dst),
+            },
+            ReturnFault { fault_frame } => ReturnFault {
+                fault_frame: remap(*fault_frame),
             },
             CheckedCallOut {
                 site_id,

@@ -325,6 +325,17 @@ pub(super) fn merge_single_predecessor_jump_block(
     }
 
     rewrite_phi_predecessor(function, middle_id, pred_id);
+    // The Invoke moves with this block's terminator; its result projection
+    // must keep the exact origin rather than the removed block identity.
+    for block in function.blocks.values_mut() {
+        for inst in &mut block.instructions {
+            if let MirInstruction::InvokeNormalResult { invoke_block, .. } = inst {
+                if *invoke_block == middle_id {
+                    *invoke_block = pred_id;
+                }
+            }
+        }
+    }
 
     let pred_block = function
         .blocks
@@ -407,6 +418,16 @@ fn rewrite_value_uses_in_block(block: &mut BasicBlock, from: ValueId, to: ValueI
 
 fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: ValueId, to: ValueId) {
     match instruction {
+        MirInstruction::Invoke {
+            operation,
+            fault_frame,
+            ..
+        } => {
+            operation.rewrite_values(|value| rewrite_value_use(value, from, to));
+            rewrite_value_use(fault_frame, from, to);
+        }
+        MirInstruction::ReturnFault { fault_frame } => rewrite_value_use(fault_frame, from, to),
+        MirInstruction::InvokeNormalResult { .. } => {}
         MirInstruction::Const { .. }
         | MirInstruction::Catch { .. }
         | MirInstruction::Safepoint

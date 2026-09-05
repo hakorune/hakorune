@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** implement the accepted Invoke/allocation control and
-  normal-only result projection; bind emissions through the existing ledger.
+- **Next ordered task:** establish the explicit frame at existing callable entry,
+  then bind New/Birth emissions and consume exits through the existing ledger.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -421,6 +421,14 @@ owner immediately after `port.lower_body`, and App Main immediately after
 is too late: the cataloged draft has already entered the collector by then.
 Use these existing hooks, not a second publication owner or a post-publish map.
 
+Before body descent, those same method draft owners and
+`lower_app_main_root_body_v1` must materialize the selected hidden frame ABI:
+internal callees borrow the caller frame, while the outer entry owns its frame.
+Only then may New/Birth emission receive its explicit frame operand. The later
+pre-finalization hooks consume exit relations; they cannot retroactively define
+an entry operand. Keep source parameter counts unchanged and reject missing,
+foreign or wrong-type frames before publication. Do not add a port/trait axis.
+
 Read-only readiness review (2026-09-06): `NewLocalCommitV1` holds initializer/local
 ValueIds, not emission locations. `lower_ordinary_raw_new_with_port_v1` consumes
 the claim into `constructor()`, emits NewBox/Birth and returns only the value.
@@ -497,7 +505,7 @@ has no projection. A value-returning Call uses its canonical result ABI and
 the same projection. This preserves the current block-local SSA definition
 model (`verification/ssa.rs` and `verification/utils.rs`), which otherwise makes
 a terminator's dst visible on both successors. Require distinct Normal/Fault
-landings, exactly one value projection (zero for Unit), first after any PHIs,
+landings (Normal is neither function entry nor Invoke origin), exactly one value projection (zero for Unit), first after any PHIs,
 and the origin Invoke as the Normal block's sole predecessor. Verify projected
 uses and PHI predecessor edges under Normal dominance at publication, even if
 ambient `verify_allow_no_phi` disables ordinary compatibility checks. CFG rewrites
@@ -544,13 +552,22 @@ Invoke separates normal/fault control; Unit Birth has no source result. Allocati
 still needs its normal-only handle, and selected non-Unit calls need normal-only
 SSA result definition/projection. Unit-first is not permission to omit either.
 **Done:** existing package/local tests reject missing/foreign/duplicate emission
-binding and residual consumption; ordinary verifier/CFG/rewriter/optimization
+binding and residual consumption; entry tests reject missing/foreign/wrong-type
+frames and preserve source parameter counts; ordinary verifier/CFG/rewriter/optimization
 tests preserve cleanup operands and reject Fault-edge normal-result use. Keep
 the package evidence and fixed Pair publication, plus the existing M7-S guard.
 This is the task-1 control checkpoint only; tasks 2–4 remain the series terminal.
 **Stop:** missing allocation/result mapping or release capability keeps the
 selected executable admission closed. Fix the same owner; no empty cleanup,
 name/order recovery, detached source proof or wider grammar.
+
+Control-schema checkpoint (2026-09-06): Invoke/InvokeNormalResult/ReturnFault,
+ordinary operand/CFG handling, mandatory Normal dominance and optimizer origin
+preservation are implemented. Existing instruction tests pass 21/21, vocabulary
+doc-sync 1/1 and quick lib/vm-reference checks pass. Backend admission remains
+UnsupportedBeforeObject. Entry frame materialization, exact emission binding
+and pre-finalization consumption remain next; task 1 and runtime execution are
+not complete, and this checkpoint claims no production old-edge deletion.
 
 At tasks 2–3, extend the existing published transport and
 `hako_llvmc_ffi_mir_call_dispatch.inc`, not its legacy method-birth branch.

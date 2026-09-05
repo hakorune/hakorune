@@ -306,6 +306,15 @@ impl<'module> PublishedMirBackendView<'module> {
                     .get(&block_id)
                     .expect("sorted MIR block id must remain present");
                 for (instruction_index, instruction) in block.all_instructions().enumerate() {
+                    if matches!(
+                        instruction,
+                        MirInstruction::Invoke { .. }
+                            | MirInstruction::InvokeNormalResult { .. }
+                            | MirInstruction::ReturnFault { .. }
+                    ) {
+                        has_unsupported_call = true;
+                        continue;
+                    }
                     if let MirInstruction::ArrayElementWrite {
                         site_id,
                         dst,
@@ -391,7 +400,9 @@ impl<'module> PublishedMirBackendView<'module> {
                                 });
                             }
                         }
-                        Some(Callee::SameModuleInstance { .. } | Callee::BirthConstructor { .. }) => {
+                        Some(
+                            Callee::SameModuleInstance { .. } | Callee::BirthConstructor { .. },
+                        ) => {
                             has_unsupported_call = true;
                         }
                         Some(Callee::Value(_)) if canonical_call => {

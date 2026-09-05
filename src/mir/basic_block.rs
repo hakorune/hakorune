@@ -135,6 +135,8 @@ impl BasicBlock {
         matches!(
             instruction,
             MirInstruction::Branch { .. }
+                | MirInstruction::Invoke { .. }
+                | MirInstruction::ReturnFault { .. }
                 | MirInstruction::Jump { .. }
                 | MirInstruction::Return { .. }
                 | MirInstruction::CheckedCallOut { .. }
@@ -167,6 +169,15 @@ impl BasicBlock {
                 }
                 MirInstruction::Return { .. } => {
                     // No successors for return
+                }
+                MirInstruction::ReturnFault { .. } => {}
+                MirInstruction::Invoke {
+                    normal_landing,
+                    fault_landing,
+                    ..
+                } => {
+                    successors.insert(*normal_landing);
+                    successors.insert(*fault_landing);
                 }
                 MirInstruction::Throw { .. } => {
                     // No normal successors for throw - control goes to exception handlers
@@ -233,6 +244,11 @@ impl BasicBlock {
                 args: edge_args.clone(), // Phase 260 P2: No fallback, terminator SSOT
             }],
             Some(MirInstruction::CheckedCallOut {
+                normal_landing,
+                fault_landing,
+                ..
+            })
+            | Some(MirInstruction::Invoke {
                 normal_landing,
                 fault_landing,
                 ..

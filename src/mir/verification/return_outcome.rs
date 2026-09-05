@@ -25,6 +25,8 @@ pub(crate) fn check_return_outcomes(function: &MirFunction) -> Result<(), String
         };
         match block.terminator.as_ref() {
             Some(MirInstruction::Return { value: Some(_) })
+            | Some(MirInstruction::Invoke { .. })
+            | Some(MirInstruction::ReturnFault { .. })
             | Some(MirInstruction::Jump { .. })
             | Some(MirInstruction::Branch { .. })
             | Some(MirInstruction::CheckedCallOut { .. })

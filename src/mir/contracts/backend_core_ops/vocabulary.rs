@@ -3,6 +3,9 @@ use crate::mir::MirInstruction;
 /// Canonical instruction tag used by contract/fail-fast diagnostics.
 pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
     match inst {
+        MirInstruction::Invoke { .. } => "Invoke",
+        MirInstruction::InvokeNormalResult { .. } => "InvokeNormalResult",
+        MirInstruction::ReturnFault { .. } => "ReturnFault",
         MirInstruction::Const { .. } => "Const",
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",
@@ -65,6 +68,9 @@ pub enum InstructionDietCohort {
 }
 
 pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
+    "Invoke",
+    "InvokeNormalResult",
+    "ReturnFault",
     "Await",
     "ArrayElementWrite",
     "ArrayStateContractClaim",
@@ -145,6 +151,9 @@ pub const MIR_INSTRUCTION_VOCABULARY_COUNT: usize = MIR_INSTRUCTION_KEPT_TAGS.le
 
 pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
     match inst {
+        MirInstruction::Invoke { .. }
+        | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::ReturnFault { .. } => InstructionDietCohort::Kept,
         MirInstruction::Await { .. }
         | MirInstruction::ArrayElementWrite { .. }
         | MirInstruction::ArrayStateContractClaim { .. }

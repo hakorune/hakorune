@@ -147,10 +147,12 @@ or consumer exists for it yet. Dynamic invocation, Home, leases, suspension and
 Decision: synchronous borrow-only wire-array, not expanded per-value machine
 arguments or by-value aggregates. Canonical Call remains receiver + N source
 ValueIds; `InstanceConstructorAbiV1` continues to validate N/N+1 canonical
-parameters. Selected generated internal Birth has three input machine arguments:
+parameters. Selected generated internal Birth has three source-input ABI lanes:
 `receiver: i64, argv: *const DynamicV2WireValueV1, argc: u32`.
-Each of N rows is 16 bytes, aligned to 8. Result/Fault ABI is NOT fixed by this
-input decision; neither `void`, integer status nor trap is an implicit choice.
+Each of N rows is 16 bytes, aligned to 8. The accepted common Invoke ABI adds
+a hidden borrowed Fault-frame input and returns per-call Normal/Fault status;
+Unit Birth has no normal-result out slot. These hidden lanes do not change
+source arity or canonical N/N+1; the constructor lifecycle SSOT owns their layout.
 
 The existing published C transport owner issues one physical descriptor from
 the published key/definition: source arity, formal ordinal/ValueId relation,
@@ -171,7 +173,7 @@ These are checklist steps in the existing series, not new scheduler rows:
 
 | Step | Change and existing owner | Required completion evidence |
 | --- | --- | --- |
-| 0 — accepted | input ABI above; `instance_constructor_abi`, published C transport | source N / MIR N+1 / machine inputs 3 remain distinct; user approval no longer pending |
+| 0 — accepted | input ABI above; `instance_constructor_abi`, published C transport | source N / MIR N+1 / three source-input ABI lanes plus hidden Fault frame remain distinct; Unit has no result-out slot |
 | 1 — next | connect the accepted common-exit control/operand contract below | per-cutpoint ownership and explicit Normal/Fault control survive finalization/SSA; runtime cleanup proof is the series terminal, not a prerequisite for steps 2–4 |
 | 2 | retain producer-issued kind/payload through existing Lower/ordinary-new and formal binding owners | each pair has one actual/ordinal; Copy copies both, rebind replaces both, Phi uses identical predecessor mapping; unsupported producers reject |
 | 3 | published view/C transport + `capi_transport.rs` | versioned descriptor/row agreement, borrow lifetime, exact target/formal/ordinal; missing/foreign/duplicate/old ABI rejects before emission |

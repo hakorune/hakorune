@@ -49,6 +49,9 @@ pub(crate) fn format_value_ids(values: &[ValueId]) -> String {
 #[inline]
 pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
     match inst {
+        MirInstruction::Invoke { .. } => "Invoke",
+        MirInstruction::InvokeNormalResult { .. } => "InvokeNormalResult",
+        MirInstruction::ReturnFault { .. } => "ReturnFault",
         MirInstruction::Const { .. } => "Const",
         MirInstruction::BinOp { .. } => "BinOp",
         MirInstruction::UnaryOp { .. } => "UnaryOp",

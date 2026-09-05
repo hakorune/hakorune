@@ -108,6 +108,9 @@ pub fn format_instruction(
     types: &BTreeMap<ValueId, MirType>,
 ) -> String {
     match instruction {
+        MirInstruction::Invoke { .. }
+        | MirInstruction::InvokeNormalResult { .. }
+        | MirInstruction::ReturnFault { .. } => instruction.to_string(),
         MirInstruction::Const { dst, value } => {
             format!("{} const {}", format_dst(dst, types), value)
         }

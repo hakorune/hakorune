@@ -46,6 +46,9 @@ impl MirInstruction {
         }
         match self {
             // Pure operations
+            MirInstruction::Invoke { operation, .. } => operation.effects(),
+            MirInstruction::ReturnFault { .. } => EffectMask::CONTROL,
+            MirInstruction::InvokeNormalResult { .. } => EffectMask::PURE,
             MirInstruction::Const { .. }
             | MirInstruction::BinOp { .. }
             | MirInstruction::UnaryOp { .. }
@@ -147,6 +150,8 @@ impl MirInstruction {
             return Some(dst);
         }
         match self {
+            MirInstruction::Invoke { .. } | MirInstruction::ReturnFault { .. } => None,
+            MirInstruction::InvokeNormalResult { dst, .. } => Some(*dst),
             MirInstruction::Const { dst, .. }
             | MirInstruction::BinOp { dst, .. }
             | MirInstruction::UnaryOp { dst, .. }
@@ -272,6 +277,18 @@ impl MirInstruction {
             | MirInstruction::PinnedTextResidenceEnter { .. }
             | MirInstruction::PinnedTextResidenceTrap { .. }
             | MirInstruction::PinnedTextResidenceFinish { .. } => Vec::new(),
+
+            MirInstruction::Invoke {
+                operation,
+                fault_frame,
+                ..
+            } => {
+                let mut values = operation.used_values();
+                values.push(*fault_frame);
+                values
+            }
+            MirInstruction::InvokeNormalResult { .. } => Vec::new(),
+            MirInstruction::ReturnFault { fault_frame } => vec![*fault_frame],
 
             MirInstruction::CheckedCallOut {
                 receiver,

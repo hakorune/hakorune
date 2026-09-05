@@ -11,6 +11,13 @@ pub(super) fn seed_control_anchor_values(
         if !reachable_blocks.contains(bid) {
             continue;
         }
+        // The Normal projection is the structural definition of an Invoke's
+        // result, even when its value has no remaining ordinary consumers.
+        for inst in &block.instructions {
+            if let crate::mir::MirInstruction::InvokeNormalResult { dst, .. } = inst {
+                base_used_values.insert(*dst);
+            }
+        }
         // Branch/Jump/Return are routed into `block.terminator` by BasicBlock and
         // should not rely on legacy instruction-list seeding here.
         if let Some(term) = &block.terminator {

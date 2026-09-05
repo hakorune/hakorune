@@ -15,6 +15,9 @@ use crate::mir::types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };
 
+mod invoke;
+pub use invoke::InvokeOperation;
+
 // (unused imports removed)
 
 /// Function-local FastMemory region metadata id.
@@ -480,6 +483,23 @@ pub enum MirInstruction {
     /// Return from function
     /// `ret %value` or `ret void`
     Return { value: Option<ValueId> },
+
+    /// Fallible operation. Results exist only in the dedicated Normal landing.
+    Invoke {
+        operation: InvokeOperation,
+        fault_frame: ValueId,
+        normal_landing: super::BasicBlockId,
+        fault_landing: super::BasicBlockId,
+    },
+
+    /// Defines a value on the Normal edge only, never at the Invoke origin.
+    InvokeNormalResult {
+        invoke_block: super::BasicBlockId,
+        dst: ValueId,
+    },
+
+    /// Propagate the pending Fault without recording it again or reporting it.
+    ReturnFault { fault_frame: ValueId },
 
     /// Checked external call whose semantic outcome owns two canonical CFG
     /// successors.  The function-local site plan carries entry/ABI/slot
