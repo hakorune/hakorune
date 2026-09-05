@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** establish the explicit frame at existing callable entry,
-  then bind New/Birth emissions and consume exits through the existing ledger.
+- **Next ordered task:** retain exact enclosing-Box source identity/fields in
+  existing transport and claims; issue construction obligations before New CFG.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -299,7 +299,9 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    not this proof. Complete local/native ownership and field destination
    obligations through existing HOME/EXIT tasks; do not require new syntax,
    Result `?`, Shared or all-backend implementation to express this dependency.
-   Source-plan issuance and local-install validation are connected. Implement
+   Caller-prefix issuance and local-install validation are connected; the
+   construction-internal source plan is not. Complete the source prerequisite
+   below before New Fault CFG; it does not wait for runtime implementation. Implement
    the accepted common Normal/Fault ABI and control/operand representation;
    bind each source site to the control emitted by that same New owner, then
    consume the ledger into real exit operands before function finalization.
@@ -438,6 +440,52 @@ existing claim port while emitting; then consume that relation before finalizati
 Do not scan names, receivers or instruction order to rediscover it. This is
 session-local physical correspondence, not a new semantic issuer or side table.
 
+### Connected next slice: enclosing construction source, before physical exits
+
+Decision: preserve the existing parser-issued Box site through ordinary coverage
+and exact New claims, then complete construction obligations. Do not emit an
+entry frame alone as progress toward an executable New or add further detached
+control vocabulary. Source authority is `ParserBoxSourceSealV1::box_site()`;
+`ParserBoxPostpassCoverageV1::into_source_backed_ordinary_coverage` currently drops
+it into ordinal/name. Keep that branded site in the existing ordinary source row;
+the final-source owner lends its matching enclosing declaration and fields.
+Birth joins its existing ConstructorSourceId; NoBirthZero has only Box identity,
+never a fabricated constructor occurrence. Caller initializer/override sites
+remain caller-owned, not constructor-member sites. Constructor transform checks
+must preserve relevant enclosing fields, not only constructor bodies.
+
+**Change:** remove this identity-drop edge in the existing parser transport;
+consume the retained relation in `issue_ordinary_new_claims_v1`, including
+constructor-to-Box agreement and exact New-site association. No new receipt/card.
+**Contract:** parser source issuance remains the sole identity owner; the
+existing final-source loan and New claim consume it, without physical IDs or
+name-based reissuance. This boundary ends at claim issuance, not cleanup/EXE.
+**Done:** existing parser/package tests cover Birth and NoBirthZero, foreign
+parser at the same ordinal, changed fields, mismatched constructor parent and
+claim association. No acceptance widening, frame emission or empty cleanup claim.
+Run the selected existing parser/package tests and the current pointer/M7-S
+guards; update the owning module README in the implementation slice.
+**Stop:** missing/foreign/changed enclosing source rejects before package
+publication; no name/ordinal reconstruction. Absence of construction obligations
+still keeps the executable backend closed.
+
+The next semantic consumer is the existing construction/Home source owner:
+classify initialized owning places, native acquisition/commit and each Fault
+cutpoint, or retain an explicit unavailable dependency. Transport is not a
+cleanup proof. The worker verified that caller HomePrefix/NewFaultContinuation
+leave construction unwind unresolved, `resolved_control_flow/cleanup` is E0-only,
+and current DestroyOwned carries neither common Fault status nor incomplete
+construction semantics. Consequently, direct Birth Fault -> DestroyOwned(prior
+locals) -> ReturnFault would drop obligations even if backend execution is fenced.
+Canonical cleanup needs two distinct actions: discharge a source-issued Home
+once (continue on either cleanup outcome), and reclaim unpublished outer storage
+without its hook after field/native cleanup. Do not hide missing obligations in
+an opaque UnwindConstruction(receiver), raw handle scan or assumed empty list.
+Order within tasks 1–4: exact Box/field source -> construction obligation issuance
+-> entry/emission binding + complete Fault CFG -> runtime/reclaim + typed-C
+-> fixed EXE/OBJ/negative proof and old-edge deletion. Runtime implementation is
+not a prerequisite of source issuance; source issuance is a prerequisite of CFG.
+
 ### Physical connection decision (task 1, not a new task family)
 
 Decision: accepted common Invoke/allocation control with normal-only projection
@@ -449,9 +497,9 @@ Non-authority: metadata-only ValueIds, KeepAlive, source-only copied plans,
 Normal Unit, or TextScan's external/lease-shaped CheckedCallOut plan.
 Fail-fast boundary: no executable Birth route until unwind/exit operands are
 represented in canonical CFG and included in ordinary use/rewrite verification.
-Smallest next slice: implement the control/projection vocabulary below and exact
-emission binding; consume the ledger at the two pre-finalization hooks, without
-a new source issuer or second Call target carrier.
+Next physical slice (after the construction-source prerequisite above): bind
+the implemented control/projection vocabulary to exact emissions and consume the
+ledger at the two pre-finalization hooks; no second Call target carrier.
 Non-claims: no runtime cleanup, storage reclaim, completed task 1 or EXE proof.
 
 The retention-first premise was disproved by the existing DCE and simplify-CFG
