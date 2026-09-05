@@ -642,10 +642,10 @@ Within existing task 1, execute these three connected steps after split validati
    Refresh and semantic refresh propagate Result through existing ContractRefresh
    callers, including postprocess; no repair between initial/final verification.
    External admission borrows resolved selected layouts; old-format export is one-way.
-2. At the existing pre-descent assignment handoff, consume the exact plan store
-   once and emit FieldSet Invoke with field reference plus real base/value
-   operands. Delete the selected Birth origin-map/field-name reconstruction in
-   the same series; retain unsupported execution until consumers are ready.
+2. Same constructor loan -> existing CallableSemanticLoweringState: non-Birth is NotConstruction; Birth Err is RetainedUnavailable with publication/backend fence preserved; Birth Ok is Selected. Caller-local OverrideUnsupported never demotes the shared definition.
+   At assignment pre-descent, Selected takes its exact store once; missing/foreign/duplicate is an error, never fallback. Emit FieldSet Invoke with real base/value operands.
+   Validate emitted bindings before `prepare_port_aware_draft_body_completion_v1` and again at scope.finish; take alone is insufficient. No new ChildPort field/supertrait.
+   Cut selected origin/name reconstruction in this series; retained-unavailable definitions are not retries, and execution stays fenced until consumers exist.
 3. Connect the existing tasks 2–3 runtime and typed-C consumers, replacing the
    selected status-to-trap path. Table/view tests alone never close task 1 or
    authorize Birth execution; fixed Pair EXE30/OBJ and task-4 failures still gate it.
