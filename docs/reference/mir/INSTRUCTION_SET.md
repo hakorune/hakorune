@@ -67,6 +67,9 @@ stored, returned, passed as an ordinary argument, or supplied as scalar zero.
 Duplicate/misplaced definitions and control re-entry into the prologue reject.
 The exact selected entry role must be provided by the emission owner, not a
 function name; runtime frame storage and call-to-definition ABI remain pending.
+The Builder's callable state is the shared frame issuer. App Main's exact source
+entry selects RootOwned even without direct calls; construction stores borrow
+the same operand and validate its definition/role at their completion boundaries.
 
 The verifier checks Normal dominance (including PHI incoming edges) regardless
 of compatibility verification switches. DCE retains the structural projection;

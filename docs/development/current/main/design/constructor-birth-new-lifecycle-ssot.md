@@ -665,10 +665,10 @@ The existing exact whole-Box declaration issuer must positively classify the
 current plain-i64/no-hook profile; never infer it from Arc drop, Trivial fields,
 or the AST lacking a hook slot. Unsupported structure preserves definition/layout
 with destruction unavailable. Hook/child/native coverage remains in tasks 2–4.
-Use one frame in `CallableSemanticLoweringState`: the exact App Main source
+One frame is owned by `CallableSemanticLoweringState`: the exact App Main source
 entry installs RootOwned, ordinary callable entries Borrowed. Direct-call-loan
 presence is not a root witness (New-only Main has none). Construction stores
-borrow this frame; remove their independent frame issuance, add no port axis.
+borrow this frame; independent issuance removed, no port axis. Checkpoint: fresh package 95/95, frame 1/1, binding 1/1, Invoke 6/6; vm-reference/pointer/M7-S green. Runtime/New connection remains open.
 Completion covers static/instance draft preparation, finalized child capture,
 the direct cataloged-instance capture, and App Main root scope/finalization.
 `OrdinaryNewClaimLedgerV1::is_empty` must not accept retained unconsumed plans

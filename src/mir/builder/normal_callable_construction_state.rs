@@ -2,7 +2,7 @@
 //! This state issues no field identity and never owns a published layout.
 
 use super::CallableSemanticLoweringState;
-use crate::mir::instruction::{FaultFrameMode, InvokeOperation};
+use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     ConstructionEligibilityV1, ConstructionUnavailableV1,
 };
@@ -153,6 +153,7 @@ impl CallableSemanticLoweringState {
         if base != taken.receiver {
             return Err(fault("receiver-drift"));
         }
+        let shared_frame = self.borrow_fault_frame(builder)?;
         let ConstructionState::Selected {
             stores,
             frame,
@@ -170,21 +171,13 @@ impl CallableSemanticLoweringState {
         let (fault_frame, fault_landing) = match *frame {
             Some(frame) => frame,
             None => {
-                let id = builder.next_value_id();
+                let id = shared_frame;
                 let landing = builder.next_block_id();
                 let function = builder
                     .function_state
                     .current_function
                     .as_mut()
                     .ok_or_else(|| fault("no-function"))?;
-                function
-                    .blocks
-                    .get_mut(&function.entry_block)
-                    .ok_or_else(|| fault("no-entry"))?
-                    .insert_instruction_after_phis(MirInstruction::FaultFrameEnter {
-                        dst: id,
-                        mode: FaultFrameMode::Borrowed,
-                    });
                 let mut block = BasicBlock::new(landing);
                 // The selected source plan proves every initialized field Trivial.
                 // No parent fini or field release is owed inside this Birth.
@@ -223,6 +216,7 @@ impl CallableSemanticLoweringState {
         &mut self,
         function: &MirFunction,
     ) -> Result<(), String> {
+        self.validate_fault_frame(function)?;
         self.construction.validate_bindings(function)?;
         if let ConstructionState::Selected { completed, .. } = &mut self.construction {
             if *completed {
@@ -237,6 +231,7 @@ impl CallableSemanticLoweringState {
         &self,
         function: &MirFunction,
     ) -> Result<(), String> {
+        self.validate_fault_frame(function)?;
         self.construction.finish()?;
         self.construction.validate_bindings(function)
     }

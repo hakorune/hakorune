@@ -24,6 +24,8 @@ mod normal_callable_semantic_receiver_crosswalk;
 mod observation;
 #[path = "normal_callable_construction_state.rs"]
 pub(super) mod construction;
+#[path = "normal_callable_fault_state.rs"]
+mod fault;
 
 /// Physical values materialized while lowering one callable body.
 ///
@@ -31,6 +33,7 @@ pub(super) mod construction;
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
+    fault_frame: fault::CallableFaultFrame,
     construction: construction::ConstructionState,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     receiver: Option<BindingRefV1>,
@@ -224,6 +227,7 @@ impl CallableSemanticLoweringState {
             values: BTreeMap::new(),
             dynamic_origins,
             construction: construction::ConstructionState::NotConstruction,
+            fault_frame: fault::CallableFaultFrame::borrowed(),
             entry_installed: false,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),

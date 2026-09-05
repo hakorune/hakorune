@@ -18,6 +18,10 @@ IDs and exact field-store operands, and defines its
 result only through the dedicated Normal projection. FaultFrameEnter defines
 the internal frame independently of source parameters; verification forbids
 scalar substitution, ordinary value escape and entry reinitialization.
+Builder callable state issues one shared frame; construction stores borrow it.
+The source-identity-checked App Main root selects RootOwned independently of
+whether it has direct calls. Construction completion checks retained frame role
+before and after finalization; caller New cleanup binding remains in progress.
 Allocation takes no Birth arguments; module verification rejects missing object
 definitions without treating unsupported layouts as missing identities.
 Ordinary CFG, value-use,

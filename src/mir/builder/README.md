@@ -333,12 +333,12 @@ forest, but each physical ticket is consumed exactly once and completion checks
 manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
 legacy `is_brand_declared` route remain outside this consumer row.
 
-The same loan now carries construction eligibility into the existing callable
-state. Selected Birth consumes exact field stores before child descent and
+The same loan carries construction eligibility into callable state, whose shared
+Fault frame is borrowed by Birth. Birth consumes exact stores before child descent and
 emits Unit `Invoke::FieldSet` with explicit receiver/value and Normal/Fault
 edges. Unavailable construction retains its existing publication/backend fence;
 it is not a retry after selected emission. The state validates actual emitted
-bindings before draft preparation and again after finalization, before capture.
+bindings/frame role before preparation and after finalization. Exact App Main source entry selects RootOwned, not direct-call presence.
 Numeric checks use the existing refresh owner and published field definition,
 not receiver-origin/name recovery. Runtime cleanup and typed-C execution remain
 fenced until the lifecycle card's end-to-end requirements are met.
