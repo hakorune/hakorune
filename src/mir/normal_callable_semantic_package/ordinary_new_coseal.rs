@@ -71,6 +71,7 @@ pub(crate) enum OrdinaryNewConstructorDispositionV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     site: OwnedExprSiteV1,
+    box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     class: Box<str>,
     arity: usize,
     constructor: OrdinaryNewConstructorDispositionV1,
@@ -141,7 +142,8 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         commits.insert(
             site.clone(),
-            local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone(), claim.home_prefix.clone()),
+            local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone(),
+                claim.home_prefix.clone(), claim.box_source().clone()),
         );
         Ok(Some(
             claims
@@ -157,6 +159,10 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewAdmissionClaimV1 {
+    pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
+        &self.box_source
+    }
+
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
         &self.site
     }
@@ -195,10 +201,6 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
         class: Box<str>,
     },
     OrdinaryBoxCoverageDuplicate {
-        site: OwnedExprSiteV1,
-        class: Box<str>,
-    },
-    ConstructorSourceOrdinalOverflow {
         site: OwnedExprSiteV1,
         class: Box<str>,
     },
@@ -311,15 +313,8 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 }
                 return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
             };
-            let final_box_ordinal =
-                u32::try_from(box_source.final_box_ordinal()).map_err(|_| {
-                    OrdinaryNewCoSealIssueV1::ConstructorSourceOrdinalOverflow {
-                        site: site.clone(),
-                        class: class.clone(),
-                    }
-                })?;
             let constructor = match instance_constructors
-                .birth_for(final_box_ordinal, arity)
+                .birth_for(box_source, arity)
                 .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
                     site: site.clone(),
                     class: class.clone(),
@@ -381,6 +376,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
             claims.push(OrdinaryNewAdmissionClaimV1 {
                 site,
+                box_source: box_source.clone(),
                 class,
                 arity,
                 constructor,
@@ -438,6 +434,8 @@ mod tests {
     }
 
     fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
+        let box_source = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap().clone();
         let destination = BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(0));
         let declaration = SourceBindingSiteV1::Local {
             statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
@@ -446,6 +444,7 @@ mod tests {
         };
         OrdinaryNewAdmissionClaimV1 {
             site,
+            box_source,
             class: "Page".into(),
             arity,
             constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
@@ -597,13 +596,15 @@ mod tests {
             panic!("local claim");
         };
         let ledger = OrdinaryNewClaimLedgerV1::issue(
-            vec![claim].into_boxed_slice(), vec!["Page".into()].into_boxed_slice());
+            vec![claim].into_boxed_slice(), vec!["Page".into(), "Other".into()].into_boxed_slice());
         let good = (destination, ordinal, ValueId(8), ValueId(9));
         assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
             .unwrap_err().contains("local-before-target-take"));
         assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
             .unwrap_err().contains("expression-without-target-take"));
         ledger.try_take(&site, "Page", 0).unwrap().unwrap();
+        assert!(ledger.complete_new_expression(&site, "Other", ValueId(8))
+            .unwrap_err().contains("expression-parent-mismatch"));
         assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
             .unwrap_err().contains("local-initializer-mismatch"));
         ledger.complete_new_expression(&site, "Page", ValueId(8)).unwrap();

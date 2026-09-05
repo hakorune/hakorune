@@ -68,6 +68,22 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
 }
 
 #[test]
+fn ordinary_new_claims_retain_exact_parent_with_and_without_birth() {
+    for birth in ["birth() {}", ""] {
+        let source = format!("box Page {{ {birth} }} static box Main {{ main() {{
+            local first = new Page() local second = new Page() return 0
+        }} }}");
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let parent = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+        assert_eq!(package.ordinary_new_claims.len(), 2);
+        assert_ne!(package.ordinary_new_claims[0].site(), package.ordinary_new_claims[1].site());
+        for claim in &package.ordinary_new_claims {
+            assert!(claim.box_source().same_source_as(parent));
+        }
+    }
+}
+
+#[test]
 fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     use super::ordinary_new_coseal::{OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1};
     use crate::mir::resolved_semantics::SourceBindingSiteV1;

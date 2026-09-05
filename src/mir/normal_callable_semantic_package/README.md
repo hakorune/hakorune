@@ -80,6 +80,14 @@ terminal; the AST-only compatibility catalog is not a retry route.
 
 ## Raw ordinary-`New` claim co-seal (D2c)
 
+The claim retains the exact parser-issued enclosing Box row for both Birth and
+NoBirthZero. Constructor lookup validates that row against the same-source
+catalog, rather than joining constructor definitions by final ordinal alone.
+Foreign source and mismatched parent are errors, never no-Birth evidence.
+The pending local-commit row keeps that relation after target take and rejects
+completion for another Box. Construction field/native obligations remain a
+separate required source consumer; retaining identity does not make cleanup empty.
+
 The final source transport now carries ordinary-box coverage into this same
 package. The issuer selects exact direct-local initializer relations, validates
 their declaration BindingRef and Local kind, and joins the located `New` with the

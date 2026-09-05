@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** retain exact enclosing-Box source identity/fields in
-  existing transport and claims; issue construction obligations before New CFG.
+- **Next ordered task:** map retained Box/field and constructor source to the
+  existing Home owner's construction obligations before emitting New Fault CFG.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -440,34 +440,33 @@ existing claim port while emitting; then consume that relation before finalizati
 Do not scan names, receivers or instruction order to rediscover it. This is
 session-local physical correspondence, not a new semantic issuer or side table.
 
-### Connected next slice: enclosing construction source, before physical exits
+### Enclosing construction source checkpoint and next consumer
 
-Decision: preserve the existing parser-issued Box site through ordinary coverage
-and exact New claims, then complete construction obligations. Do not emit an
-entry frame alone as progress toward an executable New or add further detached
-control vocabulary. Source authority is `ParserBoxSourceSealV1::box_site()`;
-`ParserBoxPostpassCoverageV1::into_source_backed_ordinary_coverage` currently drops
-it into ordinal/name. Keep that branded site in the existing ordinary source row;
-the final-source owner lends its matching enclosing declaration and fields.
-Birth joins its existing ConstructorSourceId; NoBirthZero has only Box identity,
-never a fabricated constructor occurrence. Caller initializer/override sites
-remain caller-owned, not constructor-member sites. Constructor transform checks
-must preserve relevant enclosing fields, not only constructor bodies.
+The existing `ParserBoxSourceSealV1::box_site()` now survives ordinary coverage,
+constructor syntax/semantic rows, exact New claims and pending local completion.
+Final-source validation preserves the enclosing declaration and fields; its
+borrow rejects foreign parser/same-ordinal rows. Constructor lookup consumes the
+retained parent relation instead of ordinal-only identity. Birth keeps its real
+ConstructorSourceId; NoBirthZero has no fabricated constructor occurrence.
+Caller initializer/override sites remain caller-owned. New completion for a
+different Box rejects without consuming the pending installation.
+Checkpoint: parser tests 40/40 and package tests 85/85, including field drift,
+foreign parser, parent mismatch, exact New-site association and no-Birth cases.
+No new receipt/guard/test file, no baseline change, no cleanup or EXE claim.
 
-**Change:** remove this identity-drop edge in the existing parser transport;
-consume the retained relation in `issue_ordinary_new_claims_v1`, including
-constructor-to-Box agreement and exact New-site association. No new receipt/card.
-**Contract:** parser source issuance remains the sole identity owner; the
-existing final-source loan and New claim consume it, without physical IDs or
-name-based reissuance. This boundary ends at claim issuance, not cleanup/EXE.
-**Done:** existing parser/package tests cover Birth and NoBirthZero, foreign
-parser at the same ordinal, changed fields, mismatched constructor parent and
-claim association. No acceptance widening, frame emission or empty cleanup claim.
-Run the selected existing parser/package tests and the current pointer/M7-S
-guards; update the owning module README in the implementation slice.
-**Stop:** missing/foreign/changed enclosing source rejects before package
-publication; no name/ordinal reconstruction. Absence of construction obligations
-still keeps the executable backend closed.
+**Next change:** use the retained source through existing constructor/Home
+issuance, removing the unresolved construction-unwind dependency, not adding a
+frame-only production checkpoint. Before code, one bounded read-only review must
+name the exact field/native acquisition and commit source relations and their
+consumer in the existing claim. This is task 1, not another card or broad census.
+**Contract:** field/native obligations and cutpoints come from source semantics;
+NoBirthZero, scalar storage, and caller-prefix cleanup never prove empty unwind.
+**Done:** the source plan represents selected construction Fault cutpoints and
+initialized obligations, with exact parent/site and missing/foreign/unsupported
+tests; then connect the already-defined control to real New emissions.
+**Stop:** an unissued obligation remains unavailable; no guessed empty plan,
+name/handle scan or opaque unwind stub. Backend rejection remains until runtime
+and typed-C consumption, fixed EXE/OBJ proof and old-edge retirement are complete.
 
 The next semantic consumer is the existing construction/Home source owner:
 classify initialized owning places, native acquisition/commit and each Fault
@@ -594,8 +593,8 @@ overrides are unavailable, never empty cleanup. Read-only review identified
 the override/capture omissions in the draft; both were corrected before the
 package gate. Three New declarations verify reverse order and prior-install
 rejection; the real two-New compiler path preserves package completion and
-backend rejection. Retained physical exit projection remains the next
-code in this same series; this is not a completed task-1/runtime claim.
+backend rejection. Construction obligation issuance precedes retained physical
+exit projection in this series; this is not a completed task-1/runtime claim.
 Focused package gate: 83 passed / 0 failed, control suite 33/33. Exact outward
 target, foreign-owner and non-New rejection join existing prefix negatives;
 pointer/M7-S guards green, changed source maximum 688 lines.

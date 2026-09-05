@@ -443,8 +443,20 @@ impl VerifiedFinalCallableProgramSourceV1 {
         R,
         super::super::constructor_source_catalog::FinalConstructorSemanticSyntaxLoanErrorV1,
     > {
-        let loan = self.constructor_source.syntax_loan(&self.ast)?;
+        let loan = self.constructor_source.syntax_loan(&self.ast, &self.ordinary_box_coverage)?;
         Ok(callback(loan))
+    }
+
+    /// The caller supplies an opaque row, never a name/ordinal reconstruction.
+    /// The AST borrow cannot escape this source owner, including no-Birth boxes.
+    pub(crate) fn with_ordinary_box_syntax<R>(
+        &self,
+        row: &super::ParserOrdinaryBoxSourceRowV1,
+        callback: impl for<'source> FnOnce(&'source ASTNode) -> R,
+    ) -> Result<R, super::FinalCallableProgramSourceRejectV1> {
+        let declaration = self.ordinary_box_coverage.declaration(row, &self.ast)
+            .ok_or(super::FinalCallableProgramSourceRejectV1::OrdinaryBoxSourceChanged)?;
+        Ok(callback(declaration))
     }
 }
 

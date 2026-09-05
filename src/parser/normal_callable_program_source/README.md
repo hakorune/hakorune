@@ -135,6 +135,17 @@ does not enter either the exact or compatibility lane. The parser never reads
 the test-harness environment or infers generated-tail provenance from AST
 shape.
 
+## Ordinary Box declaration transport
+
+Ordinary coverage retains the parser-issued, invocation-branded Box site, not
+just its name and final ordinal. Exact final-source validation preserves the
+enclosing declaration, including field contracts and initialization metadata.
+`with_ordinary_box_syntax` lends that declaration only for a row belonging to
+this source; another parser's same-name/same-ordinal row rejects before callback.
+Constructor syntax loans validate their retained parent site against this same
+coverage. Boxes without Birth use their real Box identity, not a synthetic
+constructor ID. This transports source identity; it does not prove cleanup.
+
 ## Composite preservation transport
 
 The parser's bounded composite disposition is a required field of

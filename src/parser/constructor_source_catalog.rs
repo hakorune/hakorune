@@ -13,6 +13,8 @@ use super::source_authority::{
     ParserInvocationBrandV1,
 };
 use super::source_seal::ParserBoxSourceSealV1;
+use super::{ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1};
+use super::source_authority::SourceBoxDeclarationSiteV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructorSourceIdV1 {
@@ -37,6 +39,7 @@ impl ConstructorSourceIdV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ParserConstructorSourceRowV1 {
     source_id: ConstructorSourceIdV1,
+    box_site: SourceBoxDeclarationSiteV1,
     final_box_ordinal: u32,
     relation: ConstructorSourceRelationV1,
 }
@@ -63,11 +66,13 @@ pub(crate) enum FinalConstructorSemanticSyntaxLoanErrorV1 {
     ConstructorMissing,
     ConstructorChanged,
     DuplicateSourceId,
+    ParentSourceMismatch,
 }
 
 #[derive(Debug)]
 pub(crate) struct FinalConstructorSemanticSyntaxRowRefV1<'source> {
     source_id: &'source ConstructorSourceIdV1,
+    box_source: &'source ParserOrdinaryBoxSourceRowV1,
     final_box_ordinal: u32,
     box_name: &'source str,
     key: &'source str,
@@ -87,6 +92,10 @@ impl FinalConstructorSemanticSyntaxLoanV1<'_> {
 }
 
 impl FinalConstructorSemanticSyntaxRowRefV1<'_> {
+    pub(crate) fn box_source(&self) -> &ParserOrdinaryBoxSourceRowV1 {
+        self.box_source
+    }
+
     pub(crate) fn source_id(&self) -> &ConstructorSourceIdV1 {
         self.source_id
     }
@@ -154,6 +163,7 @@ impl ParserConstructorSourceCatalogV1 {
                     return Err(ConstructorSourceCatalogIssueErrorV1::DuplicateConstructor);
                 }
                 rows.push(ParserConstructorSourceRowV1 {
+                    box_site: seal.box_site().clone(),
                     source_id: ConstructorSourceIdV1 {
                         parser_brand: seal.box_site().path().brand().clone(),
                         catalog_ordinal,
@@ -185,6 +195,7 @@ impl ParserConstructorSourceCatalogV1 {
     pub(super) fn syntax_loan<'source>(
         &'source self,
         ast: &'source ASTNode,
+        coverage: &'source ParserOrdinaryBoxSourceCoverageV1,
     ) -> Result<
         FinalConstructorSemanticSyntaxLoanV1<'source>,
         FinalConstructorSemanticSyntaxLoanErrorV1,
@@ -210,7 +221,12 @@ impl ParserConstructorSourceCatalogV1 {
             let declaration = constructors
                 .get(row.relation.key())
                 .ok_or(FinalConstructorSemanticSyntaxLoanErrorV1::ConstructorMissing)?;
+            let box_source = coverage.row_for(name).ok().flatten().filter(|parent| {
+                parent.has_site(&row.box_site)
+                    && parent.final_box_ordinal() == row.final_box_ordinal as usize
+            }).ok_or(FinalConstructorSemanticSyntaxLoanErrorV1::ParentSourceMismatch)?;
             rows.push(FinalConstructorSemanticSyntaxRowRefV1 {
+                box_source,
                 source_id: &row.source_id,
                 final_box_ordinal: row.final_box_ordinal,
                 box_name: name,

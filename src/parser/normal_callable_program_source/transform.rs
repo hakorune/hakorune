@@ -22,6 +22,7 @@ pub(crate) enum FinalCallableProgramSourceRejectV1 {
     CallableCoverage,
     CallableDeclarationChanged { row: usize },
     ConstructorSourceChanged,
+    OrdinaryBoxSourceChanged,
     Composite(ParserCompositeTransformRejectV1),
     ProgramSource(ParserNormalProgramSourceTransformRejectV1),
     RootPreservation(ParserNormalRootExecutionPreservationRejectV1),
@@ -163,6 +164,11 @@ fn issue_callable_program_source_v1(
         drop(transformed_slots);
         input.discard_at_named_transform_reject_terminal(transformed);
         return Err(FinalCallableProgramSourceRejectV1::ConstructorSourceChanged);
+    }
+    if !input.ordinary_box_coverage.preserves_declarations(&input.initial_ast, transformed_ast) {
+        drop(transformed_slots);
+        input.discard_at_named_transform_reject_terminal(transformed);
+        return Err(FinalCallableProgramSourceRejectV1::OrdinaryBoxSourceChanged);
     }
     drop(transformed_slots);
     let PreparedNormalCallableTransformInputV1 {

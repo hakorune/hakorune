@@ -20,6 +20,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::parser::{
     ConstructorSourceIdV1, ConstructorSourceKindV1, VerifiedFinalCallableProgramSourceV1,
+    ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1,
 };
 
 #[derive(Debug)]
@@ -41,6 +42,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     source_id: ConstructorSourceIdV1,
+    box_source: ParserOrdinaryBoxSourceRowV1,
     published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
     final_box_ordinal: u32,
     box_name: Box<str>,
@@ -57,12 +59,14 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
+    box_sources: ParserOrdinaryBoxSourceCoverageV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
     SourceArityOverflow,
     DuplicateBirth,
+    ParentSourceMismatch,
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
@@ -72,7 +76,7 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 
     pub(crate) fn birth_for(
         &self,
-        final_box_ordinal: u32,
+        box_source: &ParserOrdinaryBoxSourceRowV1,
         source_arity: usize,
     ) -> Result<
         Option<&VerifiedInstanceConstructorSemanticRowV1>,
@@ -80,8 +84,18 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
     > {
         let source_arity = u32::try_from(source_arity)
             .map_err(|_| InstanceConstructorBirthLookupErrorV1::SourceArityOverflow)?;
+        if !matches!(self.box_sources.row_for(box_source.name()),
+            Ok(Some(own)) if own.same_source_as(box_source)) {
+            return Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch);
+        }
+        if self.rows.iter().any(|row| {
+            row.final_box_ordinal as usize == box_source.final_box_ordinal()
+                && !row.box_source.same_source_as(box_source)
+        }) {
+            return Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch);
+        }
         let mut matches = self.rows.iter().filter(|row| {
-            row.final_box_ordinal == final_box_ordinal
+            row.box_source.same_source_as(box_source)
                 && row.kind == ConstructorSourceKindV1::Birth
                 && row.source_arity == source_arity
         });
@@ -204,6 +218,10 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     source: &VerifiedFinalCallableProgramSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1> {
+    for parent in source.ordinary_box_coverage().rows() {
+        source.with_ordinary_box_syntax(parent, |_| ())
+            .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+    }
     source
         .with_constructor_semantic_syntax(|loan| {
             let mut candidates = Vec::with_capacity(loan.rows().len());
@@ -219,6 +237,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 );
                 candidates.push((
                     syntax.source_id().clone(),
+                    syntax.box_source().clone(),
                     syntax.final_box_ordinal(),
                     Box::<str>::from(syntax.box_name()),
                     Box::<str>::from(syntax.key()),
@@ -260,6 +279,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
             for (
                 (
                     source_id,
+                    box_source,
                     final_box_ordinal,
                     box_name,
                     key,
@@ -351,6 +371,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         )
                     }),
                     source_id,
+                    box_source,
                     final_box_ordinal,
                     box_name,
                     key,
@@ -367,6 +388,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
             }
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
                 rows: rows.into_boxed_slice(),
+                box_sources: source.ordinary_box_coverage().clone(),
             })
         })
         .map_err(|_| InstanceConstructorSemanticBatchIssueV1::ParserSyntax)?
@@ -377,16 +399,40 @@ mod tests {
     use super::*;
 
     #[test]
+    fn constructor_lookup_rejects_foreign_or_mismatched_parent_not_as_no_birth() {
+        for source in ["box Page { birth() {} }", "box Page {}"] {
+            let own = super::super::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+            let foreign = super::super::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+            let row = foreign.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+            assert!(matches!(own.instance_constructors.birth_for(row, 0),
+                Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)));
+        }
+        let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+            "box Page { birth() {} } box Other { birth() {} }",
+        ).unwrap();
+        let batch = &mut package.instance_constructors;
+        let page = batch.box_sources.row_for("Page").unwrap().unwrap().clone();
+        let other = batch.box_sources.row_for("Other").unwrap().unwrap().clone();
+        batch.rows[0].box_source = other;
+        assert!(matches!(batch.birth_for(&page, 0),
+            Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)));
+    }
+
+    #[test]
     fn ordinary_new_constructor_lookup_reports_missing_nonzero_birth() {
-        let batch = VerifiedInstanceConstructorSemanticBatchV1 { rows: Box::new([]) };
-        assert!(matches!(batch.birth_for(3, 1), Ok(None)));
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+        assert!(matches!(batch.birth_for(parent, 1), Ok(None)));
     }
 
     #[test]
     fn ordinary_new_constructor_lookup_rejects_source_arity_overflow() {
-        let batch = VerifiedInstanceConstructorSemanticBatchV1 { rows: Box::new([]) };
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
         assert!(matches!(
-            batch.birth_for(3, usize::MAX),
+            batch.birth_for(parent, usize::MAX),
             Err(InstanceConstructorBirthLookupErrorV1::SourceArityOverflow)
         ));
     }

@@ -17,7 +17,7 @@ pub(crate) use normal_root_execution_preservation::{
     ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationRejectV1,
     ParserNormalRootExecutionPreservationV1,
 };
-pub(crate) use ordinary_new_source::ParserOrdinaryBoxSourceCoverageV1;
+pub(crate) use ordinary_new_source::{ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1};
 pub(crate) use semantic_syntax_loan::{
     CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
     FinalCallableSemanticSyntaxLoanErrorV1, FinalCallableSemanticSyntaxRowRefV1,

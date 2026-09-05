@@ -114,7 +114,10 @@ implement construction cleanup.
 
 Implementation boundary: selected source-backed local `new` now distinguishes
 constructor-target consumption, expression completion after overrides, and
-exact local installation. Source-owned straight-line prefix facts now retain
+exact local installation. Its claim retains the parser-issued enclosing Box
+identity (also when there is no Birth); final-source validation preserves the
+enclosing fields. This identity transport does not prove field/native cleanup.
+Source-owned straight-line prefix facts now retain
 prior local Homes in reverse declaration order; aliases add no Home. The
 claim consumer checks those prior installations before consuming the next New.
 Unknown prefixes, entry demands, Handle arguments and explicit overrides do

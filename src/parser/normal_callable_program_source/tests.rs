@@ -481,6 +481,59 @@ fn ordinary_constructor_source_catalog_survives_normal_source_transform() {
 }
 
 #[test]
+fn ordinary_box_loan_preserves_parent_and_rejects_foreign_parser() {
+    for source in ["box Page { value: i64 birth() {} }", "box Page { value: i64 }"] {
+        let own = transform(parse(source), |_| {}).unwrap();
+        let foreign = transform(parse(source), |_| {}).unwrap();
+        let row = own.ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+        let other = foreign.ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+        assert_eq!(row.final_box_ordinal(), other.final_box_ordinal());
+        assert!(!row.same_source_as(other));
+        own.with_ordinary_box_syntax(row, |declaration| {
+            let ASTNode::BoxDeclaration { field_decls, .. } = declaration else {
+                panic!("exact enclosing Box");
+            };
+            assert_eq!(field_decls.len(), 1);
+        }).unwrap();
+        let mut visited = false;
+        assert_eq!(own.with_ordinary_box_syntax(other, |_| visited = true),
+            Err(FinalCallableProgramSourceRejectV1::OrdinaryBoxSourceChanged));
+        assert!(!visited, "foreign source cannot reach the borrower");
+        own.with_constructor_semantic_syntax(|loan| {
+            assert_eq!(loan.rows().len(), usize::from(source.contains("birth()")));
+            for constructor in loan.rows() {
+                assert!(constructor.box_source().same_source_as(row));
+            }
+        }).unwrap();
+        own.discard_at_named_root_execution_terminal();
+        foreign.discard_at_named_root_execution_terminal();
+    }
+}
+
+#[test]
+fn ordinary_box_transform_rejects_field_drift_even_without_birth() {
+    for source in ["box Page { value: i64 birth() {} }", "box Page { value: i64 }"] {
+        for change in ["field-list", "field-contract", "weak-field", "initializer"] {
+            let result = transform(parse(source), |ast| {
+                let ASTNode::Program { statements, .. } = ast else { panic!("program") };
+                let ASTNode::BoxDeclaration {
+                    fields, field_decls, weak_fields, init_fields, ..
+                } = &mut statements[0] else { panic!("Box") };
+                match change {
+                    "field-list" => fields.push("foreign".into()),
+                    "field-contract" => field_decls.clear(),
+                    "weak-field" => weak_fields.push("value".into()),
+                    "initializer" => init_fields.push("value".into()),
+                    _ => unreachable!(),
+                }
+            });
+            assert!(matches!(result, Err(FinalCallableProgramSourceRejectV1::OrdinaryBoxSourceChanged)),
+                "{change}: {result:?}");
+        }
+    }
+}
+
+#[test]
 fn unsupported_compatibility_cohorts_do_not_enter_initial_source_lane() {
     for source in ["interface box Api { run() }", "record Data { value: i64 }"] {
         assert!(matches!(

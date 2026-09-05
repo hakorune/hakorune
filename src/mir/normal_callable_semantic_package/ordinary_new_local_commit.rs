@@ -13,6 +13,7 @@ use crate::mir::ValueId;
 
 #[derive(Debug)]
 pub(super) struct NewLocalCommitV1 {
+    box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     binding: BindingRefV1,
     declaration: SourceBindingSiteV1,
     initializer: Option<ValueId>,
@@ -22,8 +23,10 @@ pub(super) struct NewLocalCommitV1 {
 
 impl NewLocalCommitV1 {
     pub(super) fn pending(binding: BindingRefV1, declaration: SourceBindingSiteV1,
-        home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>) -> Self {
+        home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
+        box_source: crate::parser::ParserOrdinaryBoxSourceRowV1) -> Self {
         Self {
+            box_source,
             binding,
             declaration,
             initializer: None,
@@ -67,6 +70,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let row = rows
             .get_mut(site)
             .ok_or_else(|| freeze("expression-without-target-take"))?;
+        if row.box_source.name() != class {
+            return Err(freeze("expression-parent-mismatch"));
+        }
         if row.initializer.is_some() || row.local.is_some() {
             return Err(freeze("duplicate-expression-completion"));
         }

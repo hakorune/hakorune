@@ -113,6 +113,7 @@ impl ParserBoxPostpassCoverageV1 {
                 } => Some((
                     final_box_ordinal,
                     seal.declaration_syntax().name().to_owned().into_boxed_str(),
+                    seal.box_site().clone(),
                 )),
                 ParserBoxPostpassRowV1::AstOnlyCompatibility { .. } => None,
             })
