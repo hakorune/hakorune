@@ -115,6 +115,26 @@ general FieldGet identity system or recreate source semantics in C. Public
 IntegerBox source-surface fate is a separate post-vertical decision; runtime/ABI
 retirement is not authorized by this field migration.
 
+### Birth result/effect handoff (next consumer prerequisite)
+
+- [ ] Reuse `verify_function_completion_v1` / `VerifiedFunctionCompletionV1`
+  at the existing constructor semantic row, bound to its exact source ID/key;
+  lend it through `with_instance_constructor_lowering_input`. The normal-callable
+  result cohort is keyed differently and is not a constructor lookup authority.
+- [ ] Preserve resolver-issued `VerifiedResolvedBodyShapeInventoryV1.effects`
+  through `instance_constructor_semantic` and its lowering input: the current
+  constructor path drops body-shape products. This is a missing handoff, not
+  permission to infer effects from `EffectMask::IO`, signature or physical lanes.
+- [ ] Carry those existing products through `ordinary_new_coseal` to the selected
+  Birth Call/definition/view; remove selected Global target, manual receiver
+  prefix and fixed IO projection with the production switch, not in a detached rewrite.
+  First cohort accepts verified implicit Unit or explicit Void separately;
+  value-returning birth, absent/foreign/duplicate effect, source/key/root drift
+  and missing Completion reject before publication. `dst=None` is not Unit proof.
+  Verify existing product field/access mapping before implementation; no new
+  semantic receipt, second resolver or widening to other constructor families.
+  FieldSet chronology/operand-kind and EXE/OBJ obligations above remain independent.
+
 ### Adjacent follow-ups (read-only review, 2026-09-05)
 
 Boundary: selected field declaration/write/read -> refresh -> construction

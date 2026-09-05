@@ -6,8 +6,8 @@
 // - field_set / field_get inside birth consume the receiver's TypedObjectPlan
 
 box Pair {
-  left: IntegerBox
-  right: IntegerBox
+  left: i64
+  right: i64
 
   birth(left, right) {
     me.left = left

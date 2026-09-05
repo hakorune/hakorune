@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "Next bounded implementation remains the explicit Pair birth two-field IntegerBox-to-i64 migration; retain original snapshot/hash, values/body/parameter annotations/exit 30 and the publication assertion. No global alias, storage-derived proof or baseline change. Subsequent birth backend activation requires source-ordered FieldSet checks or valid exact call/formal/write proof, result/effect/Completion publication, real EXE/OBJ capability, then EXE30/old-edge deletion. No entry-check hoisting or dst=None-as-Void proof. Quick/release missing-type diagnostic convergence is a named follow-up, preempting only if the selected gate still hits it. Existing workstream and type-contract-status own acceptance; no second scheduler. WIP d1fce06be3 remains not merge-ready (package 72/73); this task checkpoint changes no source or fixture."
+current_blocker_token = "Working-tree Pair two-field i64 migration now passes the semantic package 73/73 including module verification and two exact FieldSet check obligations; original/new hashes are in the workstream. Commit and production closeout remain open; no EXE30 or merge-readiness claim. Next consumer prerequisite: bind existing constructor source ID/key to Completion and resolver-issued body effects through the existing lowering input/ordinary_new_coseal; exact handoff tasks are in type-contract-status. Then mandatory Birth Call/view, source-ordered FieldSet checks or valid exact call/formal/write proof, real EXE/OBJ capability, EXE30 and selected old-edge deletion. No global alias, storage proof, entry-check hoisting, dst=None-as-Void proof or baseline change. Adjacent refresh/origin/initialization/diagnostic tasks are conditional follow-ups, not a new global stop or second scheduler."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-09-05: Pair two-field i64 migration checkpoint supersedes the historical 72/73 observation above: semantic package 73/73 with module verification and both exact FieldSet checks; five focused type/Copy/Unknown/write tests pass. Bodies/parameters/10/20/expected30 unchanged; hashes retained. Birth consumer and EXE30 remain open; no whole-lib or merge-ready claim.",
   "2026-09-05: acceptance_source_reconciliation_i0 repaired constructor root identity, App Main ordinary-new exact batch-slot co-seal, and builtin ArrayBox compatibility separation; semantic package tests 71/71, derive-off newbox/untyped-field boundaries green, remaining failures are named callable-consumption/usize/default-derive owners.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
-  "2026-09-05: T0 dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e; the caller-zero private helper, dead_code allowance, and unused import were removed, the focused four-test brand fixture passed, and the fixed baseline/guards remained unchanged.",
 ]

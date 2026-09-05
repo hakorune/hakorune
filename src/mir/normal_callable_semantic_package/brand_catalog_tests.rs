@@ -97,7 +97,7 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
             include_str!("../../../apps/typed-object-birth-min/main.hako"),
             ParserBuildConfig::default(),
         )
-        .expect("unchanged birth source");
+        .expect("birth source with explicitly migrated i64 field contracts");
         let transformed =
             crate::r#macro::transform_normal_callable_program_v1(parsed).expect("birth transform");
         let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
@@ -113,6 +113,11 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
                 ),
             )
             .expect("normal constructor publication");
+        assert!(
+            result.verification_result.is_ok(),
+            "published source must retain valid field contracts: {:?}",
+            result.verification_result
+        );
         let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Pair", 2);
         assert_eq!(
             result.module.canonical_callable_definition_symbol(&key),
@@ -120,6 +125,58 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
         );
         let function = result.module.get_function("Pair.birth/2").unwrap();
         assert_eq!(function.signature.params.len(), 3);
+        let contracts = &function.metadata.exact_numeric_runtime_check_contracts;
+        assert_eq!(contracts.len(), 2, "unannotated birth values require checks");
+        for contract in contracts {
+            assert_eq!(contract.declared_type_name, "i64");
+            assert_eq!(
+                contract.kind,
+                crate::mir::function::ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
+            );
+            let instruction =
+                &function.blocks[&contract.block].instructions[contract.instruction_index];
+            let crate::mir::MirInstruction::FieldSet { field, value, .. } = instruction else {
+                panic!("each check must remain bound to its actual FieldSet")
+            };
+            assert_eq!(field, &contract.field);
+            assert_eq!(value, &contract.value);
+        }
+        let mut fields: Vec<_> = contracts.iter().map(|row| row.field.as_str()).collect();
+        fields.sort_unstable();
+        assert_eq!(fields, ["left", "right"]);
+
+        let main = result
+            .module
+            .get_function("main")
+            .expect("published Main entry");
+        assert_eq!(main.signature.return_type, crate::mir::MirType::Integer);
+        let mut read_count = 0;
+        let mut add_count = 0;
+        for instruction in main.blocks.values().flat_map(|block| &block.instructions) {
+            let dst = match instruction {
+                crate::mir::MirInstruction::FieldGet {
+                    dst, declared_type, ..
+                } => {
+                    assert_eq!(declared_type, &Some(crate::mir::MirType::Integer));
+                    read_count += 1;
+                    dst
+                }
+                crate::mir::MirInstruction::BinOp {
+                    dst,
+                    op: crate::mir::BinaryOp::Add,
+                    ..
+                } => {
+                    add_count += 1;
+                    dst
+                }
+                _ => continue,
+            };
+            assert_eq!(
+                main.metadata.value_types.get(dst),
+                Some(&crate::mir::MirType::Integer)
+            );
+        }
+        assert_eq!((read_count, add_count), (2, 1));
         let static_key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method(
             "Pair", "birth", 2,
         );

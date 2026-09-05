@@ -340,6 +340,13 @@ constructor kinds keep their existing compatibility disposition. Definition
 retention alone does not establish the pending receiver-bearing Call/backend
 vertical or source-to-EXE acceptance.
 
+The selected Pair source explicitly uses `i64` fields, not an IntegerBox
+unboxing exception. Its normal-publication test checks Integer FieldGet/Add/main
+results after final refresh and retains both dynamic FieldSet check contracts
+at their exact instruction/value sites. Birth parameters remain unannotated;
+an integer-width ABI is not permission to elide those checks. The original
+source snapshot and migrated hash belong to the acceptance workstream.
+
 ## Script instance-Box transferred boundary I0 (2026-08-20)
 
 For non-app selected Script, an instance Box is transparent to the Script

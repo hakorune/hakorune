@@ -511,8 +511,8 @@ use existing `i64`, not IntegerBox-only scalar unboxing. First migrate only the
 two fields in `apps/typed-object-birth-min/main.hako`; values 10/20, body, birth
 parameter annotations and exit 30 stay fixed. Original snapshot: `888c2d513c`,
 SHA-256 `044105bd970885b13883d3daad9a676b6b8cac2f3f9e8a98c2bb57f5cbfff4fb`.
-Record replacement hash/commit when implemented; it is not an unchanged-source
-replay. Follow-on candidates are the same two field annotations in
+Migration checkpoint SHA-256: `bbd957398d16ae9e77c1b2bd3c510e8b6ba03c694d97ed14807f8ffe320aa0a4`;
+not an unchanged-source replay. Follow-on candidates are the same two field annotations in
 `typed-object-method-min` and `typed-object-newbox-min`; preserve each old/new
 hash and output. This six-annotation inventory covers the ten suite root files
 only, not imports or the repository. No other fixture/expectation change is selected.
@@ -566,14 +566,13 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    Quick/release missing-type rejection task is in that ledger; no Unknown waiver.
 
    Execution checklist (record before further implementation; same owner):
-   - [ ] First the authorized two-field source migration; existing FieldGet,
-     Copy/Add/main-result assertions and both exact-numeric FieldSet obligations.
-     No backend claim or unchecked-store bypass; record old/new source hashes.
-   - [ ] Source key -> admission -> collector -> Atomic Publish: WIP `d1fce06be3`.
-     Admission 3/3 and drain 9/9 pass; package 72/73. Fixed Pair quick test
-     panics at `return_type_strategy.rs:117` (main ValueId(14)); release uses
-     Unknown there. Migrate the source contract explicitly, preserve the assertion;
-     README/reference updated; vm-reference check green; publication proof open.
+   - [x] Two-field migration checkpoint: package 73/73, including valid module
+     verification, Integer FieldGet/Add/main result and both exact FieldSet checks.
+     Existing Copy/Unknown/IntegerBox negative gates pass; hashes above. No EXE claim.
+   - [x] Source key -> admission -> collector -> Atomic Publish: WIP `d1fce06be3`
+     plus migrated-source publication test. Previous 72/73 type panic is resolved
+     for this source; admission 3/3, drain 9/9 and vm-reference are prior evidence.
+     Production closeout remains open; no baseline or unchecked-store waiver.
    - [ ] Recipe/Call: mandatory BirthConstructor receiver + N source args,
      no destination; remove selected Global birth writer in the same series.
    - [ ] Before backend activation, bind source-issued result/effect/Completion
@@ -581,6 +580,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
      or Return(Unit) gives no value; Return(Value) rejects for this scalar cohort;
      Fault propagates only with a real consumer, otherwise reject before artifact.
      Missing/drifted contract rejects before publication; dst=None is not proof.
+     Exact existing-product handoff and rejection matrix: type-contract-status below.
      Test integer-result leak, unsupported Fault and contract drift. MIR-module
      Atomic Publish is not runtime object readiness: no failed construction may
      return a usable object. General Home rollback stays with OWN-HOME-BIRTH-D0.
