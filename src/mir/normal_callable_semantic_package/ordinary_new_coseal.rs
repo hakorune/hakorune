@@ -197,6 +197,7 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
 pub(crate) fn issue_ordinary_new_claims_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    app_main_batch_slot: Option<u32>,
     excluded_dynamic_batch_slot: Option<u32>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
 ) -> Result<Box<[OrdinaryNewAdmissionClaimV1]>, OrdinaryNewCoSealIssueV1> {
@@ -204,7 +205,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
-        if selected.role_for_batch_slot(batch_slot).is_none() {
+        // App Main is intentionally omitted from the generic selected-role
+        // map; its exact parser identity is still admitted through the
+        // source-backed batch slot supplied by the package issuer.
+        let is_app_main = app_main_batch_slot == Some(batch_slot);
+        if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
             continue;
         }
         if excluded_dynamic_batch_slot == Some(batch_slot) {

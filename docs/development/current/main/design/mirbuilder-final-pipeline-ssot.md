@@ -393,9 +393,9 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = landed
-implementation permission = false
-current cohort = `vm_legacy_call_terminal_collapse_i0`
+status = fast_open
+implementation permission = true
+current cohort = `acceptance_source_reconciliation_i0`
 
 The selected cohort stops the VM's product reader for the existing
 `LegacyCallV0` compatibility carrier; it does not create a new semantic

@@ -140,7 +140,7 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
         };
         if !std::ptr::eq(
             self.projection
-                .owner_root(source, *root)
+                .owner_root(function, *root)
                 .map_err(|error| error.to_string())?,
             function,
         ) {

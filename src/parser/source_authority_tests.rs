@@ -310,6 +310,83 @@ fn generated_birth_records_exact_initializer_trigger() {
 }
 
 #[test]
+fn generated_initializer_attaches_to_existing_birth_arity() {
+    let brand = ParserInvocationBrandV1::issue();
+    let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 16);
+    transaction.record_generated_birth_trigger_at_current(
+        GeneratedBirthTriggerKindV1::StoredFieldInitializer,
+    );
+    transaction.finish_member().unwrap();
+
+    let birth = constructor("birth", 1);
+    transaction
+        .commit_constructor_at_current("birth/1", &birth)
+        .unwrap();
+    transaction.finish_member().unwrap();
+    let mut constructors = std::collections::HashMap::new();
+    constructors.insert("birth/1".to_owned(), birth);
+
+    let prepared = transaction.finish(&constructors).unwrap();
+    let [row] = prepared.constructor_relations() else {
+        panic!("the existing birth relation must be retained")
+    };
+    assert_eq!(row.key(), "birth/1");
+    assert_eq!(row.initializer_triggers().len(), 1);
+    assert!(matches!(row.origin(), ConstructorSourceOriginV1::Direct(_)));
+}
+
+#[test]
+fn generated_initializer_attaches_to_all_birth_arities() {
+    let brand = ParserInvocationBrandV1::issue();
+    let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 17);
+    transaction.record_generated_birth_trigger_at_current(
+        GeneratedBirthTriggerKindV1::StoredFieldInitializer,
+    );
+    transaction.finish_member().unwrap();
+
+    let birth_zero = constructor("birth", 0);
+    transaction
+        .commit_constructor_at_current("birth/0", &birth_zero)
+        .unwrap();
+    transaction.finish_member().unwrap();
+    let birth_two = constructor("birth", 2);
+    transaction
+        .commit_constructor_at_current("birth/2", &birth_two)
+        .unwrap();
+    transaction.finish_member().unwrap();
+    let constructors = [
+        ("birth/0".to_owned(), birth_zero),
+        ("birth/2".to_owned(), birth_two),
+    ]
+    .into_iter()
+    .collect();
+
+    let prepared = transaction.finish(&constructors).unwrap();
+    assert_eq!(prepared.constructor_relations().len(), 2);
+    for row in prepared.constructor_relations() {
+        assert_eq!(row.initializer_triggers().len(), 1);
+    }
+}
+
+#[test]
+fn explicit_birth_without_initializer_does_not_gain_trigger() {
+    let brand = ParserInvocationBrandV1::issue();
+    let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 18);
+    let birth = constructor("birth", 2);
+    transaction
+        .commit_constructor_at_current("birth/2", &birth)
+        .unwrap();
+    transaction.finish_member().unwrap();
+    let constructors = [("birth/2".to_owned(), birth)].into_iter().collect();
+
+    let prepared = transaction.finish(&constructors).unwrap();
+    let [row] = prepared.constructor_relations() else {
+        panic!("the explicit birth relation must be retained")
+    };
+    assert!(row.initializer_triggers().is_empty());
+}
+
+#[test]
 fn constructor_seal_rejects_missing_and_malformed_ast_coverage() {
     let brand = ParserInvocationBrandV1::issue();
     let mut missing = OpenBoxMethodSourceTransactionV1::open(brand, 13);

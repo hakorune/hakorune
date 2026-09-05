@@ -521,22 +521,30 @@ inferred from fixture contents.
 Keep the same `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` owner and execute these
 bounded substeps in order; they are not new D0 cards or new semantic receipts:
 
-1. `normal_callable_transform` reconciliation: reproduce the six named
-   programs under the exact command, classify whether default callable
-   generation is an intentional source-preservation terminal or a regression
-   for this accepted EXE profile, and either repair the existing source-backed
-   root transport without AST rewrite or record an explicit finite profile
-   decision. The existing default-derive negative test remains mandatory.
-2. `constructor_source` reconciliation: reproduce the four named programs,
-   trace stored-field/legacy-init/birth provenance, and repair the existing
-   source-backed owner. The concrete mismatch is bounded: property emission
-   prefixes initializers onto every existing `birth/N`, while constructor
-   sealing currently searches only for `birth/0`; existing Birth relations must
-   receive the trigger at their own arity, and only an entirely missing Birth
-   may synthesize `birth/0`. Do not synthesize a missing constructor merely to
-   bypass a present `birth/N`, add a fixture workaround, or infer a constructor
-   from MIR. Keep duplicate/malformed coverage rejection tests green.
-3. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
+1. `constructor_source` initializer-arity repair is landed locally and its
+   parser-source tests are green. Next repair the existing
+   `instance_constructor_semantic` root check: validate the exact constructor
+   function root already sealed by its projection, not the enclosing Program.
+   Preserve the root-identity negative boundary; do not infer a constructor
+   from names, MIR, or a synthetic `birth/0`.
+2. Extend the same existing source-backed package owner to co-seal the App
+   Main ordinary-`new` claim using the already-issued App Main batch identity.
+   Do not add Main to the generic selected-role map, create a second ledger, or
+   bypass the exact site/owner relation.
+3. Keep builtin/compatibility `new` outside ordinary user-Box coverage. The
+   `ArrayBox` failure must reach its existing compatibility terminal rather
+   than become `OrdinaryBoxCoverageMissing`; missing source-backed user-Box
+   coverage must still reject before effects. No name whitelist or fallback.
+4. Re-run the six default-derive cases with the existing negative test. Treat
+   default-generated `equals`/`toString` as a finite profile decision: either
+   an explicit derive-off acceptance profile is recorded and exercised, or a
+   separate source-anchor/issuer design is opened later. Do not weaken the
+   source-preservation rejection or edit fixtures; the derive-off probe is not
+   acceptance until the remaining owner failures are resolved.
+5. Keep the three `usize` parameter cases outside this MirBuilder slice until
+   the existing `usize` semantic-foundation owner is satisfied. Do not coerce
+   `usize` to `i64`, opaque, or a compatibility value merely to pass EXE.
+6. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
    backend/toolchain and record source/script hashes, expected result, and
    first terminal. Close A only at `11/11` (including the exact unsupported
    probe), with no new baseline names, no fallback/retry, and no partial

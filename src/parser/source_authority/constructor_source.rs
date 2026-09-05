@@ -242,35 +242,40 @@ impl OpenBoxMethodSourceTransactionV1 {
         &mut self,
         constructors: &HashMap<String, ASTNode>,
     ) -> Result<(), ParseError> {
-        if !self.generated_birth_triggers.is_empty()
-            && !self
+        if !self.generated_birth_triggers.is_empty() {
+            let has_birth_relation = self
                 .constructor_relations
                 .iter()
-                .any(|row| row.key() == "birth/0")
-        {
-            if !constructors.contains_key("birth/0") {
-                return Err(ParseError::BuildCfg {
-                    message: "generated birth initializer has no birth/0 constructor".to_owned(),
-                    line: 0,
-                });
-            }
-            self.constructor_relations
-                .push(ConstructorSourceRelationV1 {
-                    key: "birth/0".into(),
-                    signature: ConstructorSourceSignatureV1 {
-                        kind: ConstructorSourceKindV1::Birth,
-                        source_arity: 0,
-                    },
-                    origin: ConstructorSourceOriginV1::GeneratedBirthInitializer,
-                    initializer_triggers: self.generated_birth_triggers.clone().into_boxed_slice(),
-                });
-        } else if !self.generated_birth_triggers.is_empty() {
-            for row in self
-                .constructor_relations
-                .iter_mut()
-                .filter(|row| row.key() == "birth/0")
-            {
-                row.initializer_triggers = self.generated_birth_triggers.clone().into_boxed_slice();
+                .any(|row| row.signature.kind() == ConstructorSourceKindV1::Birth);
+            if has_birth_relation {
+                let triggers = self.generated_birth_triggers.clone().into_boxed_slice();
+                for row in self
+                    .constructor_relations
+                    .iter_mut()
+                    .filter(|row| row.signature.kind() == ConstructorSourceKindV1::Birth)
+                {
+                    row.initializer_triggers = triggers.clone();
+                }
+            } else {
+                if !constructors.contains_key("birth/0") {
+                    return Err(ParseError::BuildCfg {
+                        message: "generated birth initializer has no birth constructor".to_owned(),
+                        line: 0,
+                    });
+                }
+                self.constructor_relations
+                    .push(ConstructorSourceRelationV1 {
+                        key: "birth/0".into(),
+                        signature: ConstructorSourceSignatureV1 {
+                            kind: ConstructorSourceKindV1::Birth,
+                            source_arity: 0,
+                        },
+                        origin: ConstructorSourceOriginV1::GeneratedBirthInitializer,
+                        initializer_triggers: self
+                            .generated_birth_triggers
+                            .clone()
+                            .into_boxed_slice(),
+                    });
             }
         }
         validate_constructor_rows(&self.constructor_relations, constructors)
