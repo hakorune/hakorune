@@ -125,30 +125,49 @@ Review found no reusable selected-C runtime-kind carrier: MirValueKind is SSA
 origin, PhysicalCallableLane is lane role, and TextScan's tags are family-private.
 Neither a check obligation nor these classifications proves Integer.
 
-Next bounded decision inside the existing Birth series: prefer a source-owned
-actual/formal/write proof extension over a new general tagged ABI for this
-first scalar cohort. Owner: constructor semantic row + ordinary_new_coseal;
-consumer: existing exact-numeric FieldSet proof owner, then published C view.
-Before code, name the exact source Integer fact issuer and retain actual source
-site/ordinal -> same-session constructor formal BindingRef -> exact write site.
-Keep ValueId/physical IDs downstream of Recipe/Lower. If that issuer or relation
-is absent, close that precise design gap; do not fabricate an empty proof.
+Premise correction (two independent read-only reviews, 2026-09-05): prefer
+bounded kind/payload transport, NOT whole-caller source-proof specialization.
+`CallableSemanticSourceLedgerView::literal_source` already issues Integer
+literal meaning, but ordinary_new_coseal covers selected direct initializers
+only. The C function emitter has external linkage, and exact-numeric refresh
+clears/rebuilds proof arrays with only ConstantInRange proof vocabulary.
+Source-proof admission would therefore require all incoming callers AND an
+external-entry boundary plus durable proof reconstruction; private linkage
+alone is insufficient. FieldAccess proof expansion is not a Pair prerequisite.
 
-Definition-wide admission must cover every incoming call to the selected
-definition, or use an already-supported exact call-context proof. One observed
-constant caller is insufficient. Foreign/external/uncovered callers and stale
-Copy/Phi/rebind relations cannot inherit proof from Pair's positive call.
-Do not specialize by fixture/Box name or introduce a clone/thunk to evade this.
-Unknown/dynamic input stays backend-unsupported, not a new language prohibition.
+Representation proposal (approval required before ABI code): reuse only the
+16-byte `DynamicV2WireValueV1` vocabulary from `src/abi/dynamic_call_slot_wire.rs`
+and `include/nyrt_dynamic_call_slot_v2.h`: tag/reserved/payload. No Birth producer
+or consumer exists for it yet. Dynamic invocation, Home, leases, suspension and
+48-byte CallOut are NOT imported. No second tag enum or semantic receipt.
 
-Done for the series: proof survives source -> published definition/call ->
-FieldSet admission, existing N+1 physical lanes consume it once, EXE/OBJ gates
-agree, fixed Pair exits 30, and missing/foreign/drifted/wrong-kind cases leave
-no artifact. Until then the existing unsupported terminal remains. The Global,
-manual-prefix and fixed-IO edges removed at 495d5fc9df are prior progress, not
-a new delete-set. Name any remaining projection's exclusive callers before
-retiring it. General dynamic tagged ABI is deferred, not declared unnecessary
-for the language; it needs its own representation/lifetime decision if selected.
+Ordered implementation contract after approval, inside this same Birth series:
+1. Existing producer/Lower owner projects known Integer to ImmediateI64 and a
+   real host-handle carrier to HostHandle; never tag Bool/Float/Void/raw object
+   bits as handles. Unsupported producers reject before artifact. Preserve the
+   tag and payload together through actual/formal, Copy/rebind/Phi; incomplete
+   supported coverage rejects rather than silently dropping the tag.
+2. Existing constructor ABI/view owners distinguish N source args, N+1 MIR
+   parameters and the backend's explicit aggregate/expanded machine layout.
+   Fix aggregate-vs-expanded choice, synchronous borrow lifetime, and exact
+   call/definition mapping before activation; no hidden extra lanes or ABI
+   arity inferred from the old N+1 count. Typed Birth entry is internal, and
+   every caller uses its published signature; legacy entry mixing rejects.
+3. Project existing ExactNumericRuntimeCheckContract to each FieldSet and check
+   ImmediateI64 immediately before that store. A well-formed noninteger faults
+   there, retaining prior writes/effects. Name and verify the existing Fault
+   landing/no-object-result owner before activation; do not invent abort or
+   reuse a Dynamic CallOut merely because it has a status field.
+4. Align EXE/OBJ capability with this consumer, then fixed Pair EXE30 and
+   remaining exclusive projection retirement. Test equal Integer/handle bits,
+   second-write mismatch chronology, tag/payload drift, signature mismatch and
+   legacy entry rejection. Unknown/missing tags and nonzero reserved reject;
+   wire validate accepting Invalid+zero does NOT authorize a Birth input.
+
+Until this contract is closed, UnsupportedBeforeObject remains. This is a
+physical transport decision, not permission to change unannotated parameters
+into i64 source contracts or widen to all backends/types. The Global/manual
+prefix/fixed-IO edges removed at 495d5fc9df are prior progress, not a new delete-set.
 
 ### Birth result/effect handoff (next consumer prerequisite)
 

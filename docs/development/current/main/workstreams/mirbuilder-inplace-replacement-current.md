@@ -547,8 +547,8 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    is not repurposed. Static N and birth N+1 remain distinct admission kinds.
    After the landed dispatcher split: preserve key/definition -> replace Global
    birth writer -> published view/C row -> Pair EXE -> selected old-edge deletion.
-   Reuse the C frame with kind 8 and receiver-presence flags; physical emission
-   prepends receiver once. Equal receiver/argument ValueIds are not duplicates:
+   Proposed kind 8 frame needs the type-contract-status kind/payload ABI decision;
+   receiver is projected once. Equal receiver/argument ValueIds are not duplicates:
    verify lane structure, never remove or reject args by value equality.
    Contract: source result/effect/Completion and TypedObject plans remain authority.
    `dst=None`, omitted return annotation, fixed `EffectMask::IO`, and physical
@@ -586,7 +586,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
      return a usable object. General Home rollback stays with OWN-HOME-BIRTH-D0.
    - [ ] Published view/C consumer: real field/parameter checks and lossless
      operand-kind relation before admission; no default-T_I64/count/symbol proof.
-     EXE/OBJ capability agrees with actual consumption; N+1 once, Void preserved.
+     EXE/OBJ agrees with consumption; N+1 MIR parameters != expanded ABI lanes; Void preserved.
    - [ ] Migrated Pair -> typed CLI -> EXE exit 30; prove selected key-drop/old
      projection deletion and retry zero. A focused definition test is not EXE proof.
 5. Re-run six default-derive cases and existing negatives. Explicitly record
