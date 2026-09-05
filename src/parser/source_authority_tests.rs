@@ -336,6 +336,30 @@ fn generated_initializer_attaches_to_existing_birth_arity() {
 }
 
 #[test]
+fn constructor_source_retains_only_committed_branch_initializer_triggers() {
+    // Source-transaction boundary only. Surface signature validation remains
+    // the parser caller's prerequisite, not an assertion of this unit test.
+    for selected in [false, true] {
+        let mut root = OpenBoxMethodSourceTransactionV1::open(ParserInvocationBrandV1::issue(), 16);
+        let birth = constructor("birth", 0);
+        root.commit_constructor_at_current("birth/0", &birth).unwrap();
+        root.finish_member().unwrap();
+        let mut branch = root.branch();
+        branch.record_generated_birth_trigger_at_current(GeneratedBirthTriggerKindV1::StoredFieldInitializer);
+        branch.finish_member().unwrap();
+        if selected {
+            root.try_merge_selected_gate(branch, crate::ast::BoxMemberGateSiteV1::from_box_member_ordinal(1)).unwrap();
+        } else {
+            drop(branch);
+        }
+        let constructors = std::collections::HashMap::from([("birth/0".to_owned(), birth)]);
+        let sealed = root.finish(&constructors).unwrap();
+        let [row] = sealed.constructor_relations() else { panic!("one Birth"); };
+        assert_eq!(row.initializer_triggers().len(), usize::from(selected));
+    }
+}
+
+#[test]
 fn generated_initializer_attaches_to_all_birth_arities() {
     let brand = ParserInvocationBrandV1::issue();
     let mut transaction = OpenBoxMethodSourceTransactionV1::open(brand, 17);

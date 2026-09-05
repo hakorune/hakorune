@@ -13,6 +13,7 @@ mod install;
 mod instance_constructor_loan;
 mod instance_constructor_non_escape;
 mod instance_constructor_semantic;
+mod instance_construction;
 mod issuer;
 mod model;
 mod ordinary_new_coseal;

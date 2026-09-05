@@ -6,6 +6,7 @@
 //! owner.
 
 use std::{cell::RefCell, collections::BTreeMap};
+use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
@@ -78,6 +79,7 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     destination: BindingRefV1,
     declaration: SourceBindingSiteV1,
     home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
+    construction: ConstructionEligibilityV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -143,7 +145,7 @@ impl OrdinaryNewClaimLedgerV1 {
         commits.insert(
             site.clone(),
             local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone(),
-                claim.home_prefix.clone(), claim.box_source().clone()),
+                claim.home_prefix.clone(), claim.box_source().clone(), claim.construction.clone()),
         );
         Ok(Some(
             claims
@@ -159,6 +161,10 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewAdmissionClaimV1 {
+    pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
+        &self.construction
+    }
+
     pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
         &self.box_source
     }
@@ -274,7 +280,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     let located = input.source().expr_at(&site).map_err(|_| {
                         OrdinaryNewCoSealIssueV1::SourceNavigation { site: site.clone() }
                     })?;
-                    let ASTNode::New { class, arguments, .. } = located.node() else {
+                    let ASTNode::New { class, arguments, field_initializers, .. } = located.node() else {
                         continue;
                     };
                     if initializer.binding().owner() != owner
@@ -286,16 +292,17 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                         return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site });
                     }
                     candidates.push((site, class.clone().into_boxed_str(), arguments.len(),
-                        initializer.binding(), initializer.declaration_site().clone()));
+                        initializer.binding(), initializer.declaration_site().clone(),
+                        !field_initializers.is_empty()));
                 }
-                let selected = candidates.iter().filter(|(_, class, _, _, _)|
+                let selected = candidates.iter().filter(|(_, class, _, _, _, _)|
                     matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
-                    .map(|(site, _, _, binding, _)| (site.clone(), *binding)).collect();
+                    .map(|(site, _, _, binding, _, _)| (site.clone(), *binding)).collect();
                 let home_prefixes = issue_new_home_prefixes_v1(input, &selected);
                 Ok((candidates, home_prefixes))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-        for (site, class, arity, destination, declaration) in candidates {
+        for (site, class, arity, destination, declaration, has_overrides) in candidates {
             let Some(box_source) = batch
                 .ordinary_box_coverage()
                 .row_for(class.as_ref())
@@ -312,6 +319,14 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     continue;
                 }
                 return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
+            };
+            let construction = if has_overrides {
+                Err(ConstructionUnavailableV1::OverrideUnsupported)
+            } else {
+                instance_constructors.construction_for(box_source, arity)
+                    .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                        site: site.clone(), class: class.clone(), error,
+                    })?.clone()
             };
             let constructor = match instance_constructors
                 .birth_for(box_source, arity)
@@ -383,6 +398,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 destination,
                 declaration,
                 home_prefix,
+                construction,
             });
         }
     }
@@ -436,6 +452,7 @@ mod tests {
     fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
         let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
         let box_source = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap().clone();
+        let construction = package.instance_constructors.construction_for(&box_source, 0).unwrap().clone();
         let destination = BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(0));
         let declaration = SourceBindingSiteV1::Local {
             statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
@@ -451,6 +468,7 @@ mod tests {
             destination,
             declaration,
             home_prefix: Err(HomePrefixUnavailableV1::SourceMismatch),
+            construction,
         }
     }
 
@@ -468,6 +486,8 @@ mod tests {
             .expect("ordinary class should return a claim");
         assert_eq!(taken.class(), "Page");
         assert_eq!(taken.arity(), 0);
+        assert_eq!(ledger.local_commits.borrow().get(&site).unwrap().construction(), taken.construction());
+        assert!(taken.construction().as_ref().unwrap().reclaims_unpublished_outer_storage());
         assert!(!ledger.is_empty(), "target take is not local completion");
         let SourceBindingSiteV1::Local { statement, ordinal } = &taken.declaration else {
             panic!("local claim");
@@ -482,6 +502,23 @@ mod tests {
             ledger.try_take(&site, "Page", 0),
             Err(OrdinaryNewClaimTakeErrorV1::Unavailable)
         );
+    }
+
+    #[test]
+    fn pending_construction_retains_constructor_identity_after_target_take() {
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+            "box Page { value: i64\nbirth(value) { me.value = value } }
+             static box Main { main() { local page = new Page(7)\nreturn 0 } }",
+        ).unwrap();
+        let [claim] = package.ordinary_new_claims.as_ref() else { panic!("one New"); };
+        let site = claim.site().clone();
+        let expected = claim.construction().as_ref().unwrap().constructor().unwrap().clone();
+        let ledger = OrdinaryNewClaimLedgerV1::issue(package.ordinary_new_claims, vec!["Page".into()].into());
+        drop(ledger.try_take(&site, "Page", 1).unwrap().unwrap().constructor());
+        let rows = ledger.local_commits.borrow();
+        let plan = rows.get(&site).unwrap().construction().as_ref().unwrap();
+        assert_eq!(plan.constructor(), Some(&expected));
+        assert_eq!(plan.stores().len(), 1);
     }
 
     #[test]

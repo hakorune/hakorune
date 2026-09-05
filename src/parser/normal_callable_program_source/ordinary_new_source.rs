@@ -12,6 +12,7 @@ pub(crate) struct ParserOrdinaryBoxSourceRowV1 {
     site: SourceBoxDeclarationSiteV1,
     final_box_ordinal: usize,
     name: Box<str>,
+    has_stored_field_initializer: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,15 +22,16 @@ pub(crate) struct ParserOrdinaryBoxSourceCoverageV1 {
 
 impl ParserOrdinaryBoxSourceCoverageV1 {
     pub(in crate::parser) fn issue(
-        rows: Vec<(usize, Box<str>, SourceBoxDeclarationSiteV1)>,
+        rows: Vec<(usize, Box<str>, SourceBoxDeclarationSiteV1, bool)>,
     ) -> Self {
         Self {
             rows: rows
                 .into_iter()
-                .map(|(final_box_ordinal, name, site)| ParserOrdinaryBoxSourceRowV1 {
+                .map(|(final_box_ordinal, name, site, has_stored_field_initializer)| ParserOrdinaryBoxSourceRowV1 {
                     site,
                     final_box_ordinal,
                     name,
+                    has_stored_field_initializer,
                 })
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
@@ -89,6 +91,10 @@ pub(crate) enum ParserOrdinaryBoxSourceLookupErrorV1 {
 }
 
 impl ParserOrdinaryBoxSourceRowV1 {
+    pub(crate) const fn has_stored_field_initializer(&self) -> bool {
+        self.has_stored_field_initializer
+    }
+
     pub(in crate::parser) fn has_site(&self, site: &SourceBoxDeclarationSiteV1) -> bool {
         &self.site == site
     }
@@ -130,6 +136,44 @@ mod tests {
             .expect("unique ordinary Box name")
             .expect("Page row");
         assert_eq!(row.final_box_ordinal(), 0);
+    }
+
+    #[test]
+    fn ordinary_source_retains_initializer_provenance_not_generated_store_shape() {
+        for (source, expected) in [
+            ("box Page { value: i64 = 1 }", true),
+            ("box Page { value: i64 = 1\nbirth() {} }", true),
+            ("box Page { value: i64\nbirth() { me.value = 1 } }", false),
+        ] {
+            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                source, crate::parser::ParserBuildConfig {
+                    mode: crate::parser::BuildMode::Test,
+                    ..crate::parser::ParserBuildConfig::default()
+                },
+            ).unwrap();
+            let super::super::ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
+                panic!("source-backed Box");
+            };
+            let final_source = initial.begin_transform().finish_exact().unwrap();
+            let row = final_source.ordinary_box_coverage().row_for("Page").unwrap().unwrap();
+            assert_eq!(row.has_stored_field_initializer(), expected, "{source}");
+            final_source.discard_at_named_root_execution_terminal();
+        }
+        // Initializers themselves belong to the existing gate signature. These
+        // sources stop upstream; they cannot prove downstream branch transport.
+        for source in [
+            "box Page { gate Build.test { value: i64 = 1\nbirth() {} } else { value: i64\nbirth() {} } }",
+            "box Page { gate Build.test { value: i64\nbirth() {} } else { value: i64 = 1\nbirth() {} } }",
+        ] {
+            let error = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                source, crate::parser::ParserBuildConfig {
+                    mode: crate::parser::BuildMode::Test,
+                    ..crate::parser::ParserBuildConfig::default()
+                },
+            ).unwrap_err();
+            assert!(matches!(error, crate::parser::ParseError::BuildCfg { message, .. }
+                if message == "member-level gate branches must preserve the same public signature"));
+        }
     }
 
     #[test]

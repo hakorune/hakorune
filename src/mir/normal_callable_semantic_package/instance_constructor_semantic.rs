@@ -1,6 +1,7 @@
 //! Resolver-owned semantic rows for parser-issued instance constructors.
 
 use std::collections::BTreeMap;
+use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
@@ -54,12 +55,14 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
     birth_completion: Option<VerifiedFunctionCompletionV1>,
     birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
+    construction: ConstructionEligibilityV1,
 }
 
 #[derive(Debug)]
 pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
     box_sources: ParserOrdinaryBoxSourceCoverageV1,
+    no_birth_construction: Vec<(ParserOrdinaryBoxSourceRowV1, ConstructionEligibilityV1)>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -67,6 +70,7 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
     SourceArityOverflow,
     DuplicateBirth,
     ParentSourceMismatch,
+    BirthArityMismatch,
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
@@ -100,12 +104,28 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
                 && row.source_arity == source_arity
         });
         let Some(row) = matches.next() else {
+            if self.rows.iter().any(|row| row.box_source.same_source_as(box_source)
+                && row.kind == ConstructorSourceKindV1::Birth) {
+                return Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch);
+            }
             return Ok(None);
         };
         if matches.next().is_some() {
             return Err(InstanceConstructorBirthLookupErrorV1::DuplicateBirth);
         }
         Ok(Some(row))
+    }
+
+    pub(crate) fn construction_for(
+        &self, parent: &ParserOrdinaryBoxSourceRowV1, arity: usize,
+    ) -> Result<&ConstructionEligibilityV1, InstanceConstructorBirthLookupErrorV1> {
+        if let Some(row) = self.birth_for(parent, arity)? {
+            return Ok(&row.construction);
+        }
+        self.no_birth_construction.iter()
+            .find(|(own, _)| own.same_source_as(parent))
+            .map(|(_, plan)| plan)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
     }
 }
 
@@ -224,6 +244,17 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     }
     source
         .with_constructor_semantic_syntax(|loan| {
+            let mut no_birth_construction = Vec::new();
+            for parent in source.ordinary_box_coverage().rows() {
+                if loan.rows().iter().any(|row| row.kind() == ConstructorSourceKindV1::Birth
+                    && row.box_source().same_source_as(parent)) {
+                    continue;
+                }
+                let plan = source.with_ordinary_box_syntax(parent, |declaration| {
+                    issue_construction_plan(parent, declaration, None)
+                }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+                no_birth_construction.push((parent.clone(), plan));
+            }
             let mut candidates = Vec::with_capacity(loan.rows().len());
             let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
             for syntax in loan.rows() {
@@ -351,7 +382,21 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 } else {
                     None
                 };
+                let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+                    declaration, &forest, &projection,
+                ).map_err(|error| InstanceConstructorSemanticBatchIssueV1::SourceProjection {
+                    _error: format!("{error:?}"),
+                })?.with_body_shape(constructor_shapes.get(root)
+                    .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?);
+                let construction = if kind == ConstructorSourceKindV1::Birth {
+                    source.with_ordinary_box_syntax(&box_source, |parent| {
+                        issue_construction_plan(&box_source, parent, Some((&source_id, input)))
+                    }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
+                } else {
+                    Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
+                };
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
+                    construction,
                     // Only the exact unannotated source contract is selected.
                     // Explicit constructor contracts need their own admission;
                     // never turn them into the implicit opaque default.
@@ -389,6 +434,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
                 rows: rows.into_boxed_slice(),
                 box_sources: source.ordinary_box_coverage().clone(),
+                no_birth_construction,
             })
         })
         .map_err(|_| InstanceConstructorSemanticBatchIssueV1::ParserSyntax)?
@@ -397,6 +443,84 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
+        for (fields, body, expected) in [
+            ("left: i64\nright: i64", "me.left = value\nme.right = 2", vec![0, 1]),
+            ("east: i64\nwest: i64", "me.west = 2\nme.east = value", vec![1, 0]),
+        ] {
+            let source = format!("box Page {{ {fields}\nbirth(value) {{ {body} }} }}");
+            let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+            let batch = &package.instance_constructors;
+            let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+            let plan = batch.construction_for(parent, 1).unwrap().as_ref().unwrap();
+            assert_eq!(plan.field_demands(), &[crate::mir::resolved_semantics::HomeDemandV1::Trivial; 2]);
+            assert_eq!(plan.stores().iter().map(|(_, ordinal)| *ordinal).collect::<Vec<_>>(), expected);
+            assert_ne!(plan.stores()[0].0.statement_site(), plan.stores()[1].0.statement_site());
+            assert!(plan.reclaims_unpublished_outer_storage());
+            let row = batch.birth_for(parent, 1).unwrap().unwrap();
+            assert_eq!(plan.constructor(), Some(&(row.source_id().clone(), row.forest.roots()[0])));
+        }
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Empty {}").unwrap();
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Empty").unwrap().unwrap();
+        let plan = batch.construction_for(parent, 0).unwrap().as_ref().unwrap();
+        assert!(plan.field_demands().is_empty() && plan.stores().is_empty());
+        assert!(plan.constructor().is_none());
+        assert!(plan.reclaims_unpublished_outer_storage(), "no fields is not no construction cleanup");
+    }
+
+    #[test]
+    fn construction_plan_keeps_unavailable_dependencies_out_of_empty_cleanup() {
+        use super::super::instance_construction::ConstructionUnavailableV1 as U;
+        let mut failures = Vec::new();
+        for (source, expected) in [
+            ("box Page { value: i64 }", U::InitializationContractMissing),
+            ("box Page { value: i64\nbirth() {} }", U::InitializationContractMissing),
+            ("box Page { value: i64\nbirth() { return } }", U::InitializationContractMissing),
+            ("box Page { value\nbirth() { me.value = 1 } }", U::FieldContractUnsupported),
+            ("box Page { value: i64 = 1\nbirth() {} }", U::FieldContractUnsupported),
+            ("box Page { value: i64 = 1 }", U::FieldContractUnsupported),
+            ("box Page { value: i64\nbirth() { me.value = [1] } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth(other) { other.value = 1 } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { me.value = new Page() } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { me.value = fn() { return 1 } } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { me.value = 1 + 2 } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { me.value += 1 } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { me.value = 1\nme.value = 2 } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { local x = 1\nme.value = x } }", U::BodyCoverageUnsupported),
+            ("box Page { value: i64\nbirth() { me.other = 1 } }", U::SourceRelationMissing),
+        ] {
+            let package = match super::super::brand_catalog_tests::issue_with_brand_catalog(source) {
+                Ok(package) => package,
+                Err(error) => { failures.push(format!("source {source}: {error:?}")); continue; }
+            };
+            let batch = &package.instance_constructors;
+            let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+            let arity = batch.rows.iter().find(|row| row.kind() == ConstructorSourceKindV1::Birth)
+                .map_or(0, |row| row.source_arity() as usize);
+            let actual = batch.construction_for(parent, arity).unwrap();
+            if actual != &Err(expected) {
+                failures.push(format!("{source}: expected {expected:?}, got {actual:?}"));
+            }
+        }
+        assert!(failures.is_empty(), "{}", failures.join("\n"));
+    }
+
+    #[test]
+    fn construction_plan_rejects_foreign_parent_and_birth_arity_not_as_no_birth() {
+        let source = "box Page { value: i64\nbirth(value) { me.value = value } }";
+        let own = super::super::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        let foreign = super::super::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        let batch = &own.instance_constructors;
+        let foreign_parent = foreign.instance_constructors.box_sources.row_for("Page").unwrap().unwrap();
+        assert_eq!(batch.construction_for(foreign_parent, 1),
+            Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+        assert_eq!(batch.construction_for(parent, 0),
+            Err(InstanceConstructorBirthLookupErrorV1::BirthArityMismatch));
+    }
 
     #[test]
     fn constructor_lookup_rejects_foreign_or_mismatched_parent_not_as_no_birth() {

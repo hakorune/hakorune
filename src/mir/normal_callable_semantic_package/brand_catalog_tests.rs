@@ -68,6 +68,22 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
 }
 
 #[test]
+fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
+    use super::instance_construction::ConstructionUnavailableV1;
+    let source = "box Page { value: i64\nbirth(value) { me.value = value } }
+        static box Main { main() { local page = new Page(7)\nreturn 0 } }";
+    let package = issue_with_brand_catalog(source).unwrap();
+    let [claim] = package.ordinary_new_claims.as_ref() else { panic!("one exact New"); };
+    let plan = claim.construction().as_ref().unwrap();
+    assert_eq!(plan.stores().len(), 1);
+    assert!(plan.reclaims_unpublished_outer_storage());
+    let source = source.replace("new Page(7)", "new Page(7) { value: 8 }");
+    let package = issue_with_brand_catalog(&source).unwrap();
+    assert_eq!(package.ordinary_new_claims[0].construction(),
+        &Err(ConstructionUnavailableV1::OverrideUnsupported));
+}
+
+#[test]
 fn ordinary_new_claims_retain_exact_parent_with_and_without_birth() {
     for birth in ["birth() {}", ""] {
         let source = format!("box Page {{ {birth} }} static box Main {{ main() {{

@@ -114,6 +114,10 @@ impl ParserBoxPostpassCoverageV1 {
                     final_box_ordinal,
                     seal.declaration_syntax().name().to_owned().into_boxed_str(),
                     seal.box_site().clone(),
+                    seal.constructor_relations().iter().any(|row| {
+                        row.initializer_triggers().iter().any(|trigger| trigger.kind()
+                            == super::source_authority::GeneratedBirthTriggerKindV1::StoredFieldInitializer)
+                    }),
                 )),
                 ParserBoxPostpassRowV1::AstOnlyCompatibility { .. } => None,
             })

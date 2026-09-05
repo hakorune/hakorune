@@ -117,6 +117,15 @@ constructor-target consumption, expression completion after overrides, and
 exact local installation. Its claim retains the parser-issued enclosing Box
 identity (also when there is no Birth); final-source validation preserves the
 enclosing fields. This identity transport does not prove field/native cleanup.
+The first construction-plan profile separately admits empty no-Birth objects
+and straight-line Birth bodies that initialize every explicit i64 field through
+verified own-field stores. Successful allocation creates an outer-storage reclaim
+obligation even when no field owns a Home; only successful stores mark fields
+initialized. Incomplete initialization is an unavailable execution profile, not
+a decision that source fields default to zero or that the program is invalid.
+Other field demands, acquisition/control shapes and explicit overrides remain
+unavailable until their obligations are covered. This source plan does not itself
+enable backend execution or change the failed-construction rules below.
 Source-owned straight-line prefix facts now retain
 prior local Homes in reverse declaration order; aliases add no Home. The
 claim consumer checks those prior installations before consuming the next New.

@@ -14,6 +14,7 @@ use crate::mir::ValueId;
 #[derive(Debug)]
 pub(super) struct NewLocalCommitV1 {
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
+    construction: super::ConstructionEligibilityV1,
     binding: BindingRefV1,
     declaration: SourceBindingSiteV1,
     initializer: Option<ValueId>,
@@ -22,11 +23,17 @@ pub(super) struct NewLocalCommitV1 {
 }
 
 impl NewLocalCommitV1 {
+    pub(super) fn construction(&self) -> &super::ConstructionEligibilityV1 {
+        &self.construction
+    }
+
     pub(super) fn pending(binding: BindingRefV1, declaration: SourceBindingSiteV1,
         home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
-        box_source: crate::parser::ParserOrdinaryBoxSourceRowV1) -> Self {
+        box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
+        construction: super::ConstructionEligibilityV1) -> Self {
         Self {
             box_source,
+            construction,
             binding,
             declaration,
             initializer: None,

@@ -145,6 +145,12 @@ this source; another parser's same-name/same-ordinal row rejects before callback
 Constructor syntax loans validate their retained parent site against this same
 coverage. Boxes without Birth use their real Box identity, not a synthetic
 constructor ID. This transports source identity; it does not prove cleanup.
+Ordinary coverage also retains stored-initializer presence from the sealed
+constructor relations' `StoredFieldInitializer` triggers. Both explicit and
+generated Birth carry it; only selected build-gate triggers participate. This
+survives normalization of declaration initializers into Birth stores, without
+changing `FieldDecl.default_value` or reconstructing provenance from those stores.
+Construction profile eligibility is issued later by the semantic owner.
 
 ## Composite preservation transport
 

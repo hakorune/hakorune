@@ -115,6 +115,27 @@ remove the Birth backend rejection. Non-cohort and compatibility rows remain
 outside this claim surface and retain their explicitly parked compatibility
 behavior; they cannot issue or retry a source-backed claim.
 
+`instance_construction` issues the AST-free construction plan inside the exact
+constructor/Box source loan. It joins direct Plain stores and lexical receiver
+relations to declaration-ordered explicit i64 fields. Each source store has a
+Normal commit cutpoint; allocation Normal always creates an unpublished outer
+storage reclaim obligation. Trivial field demand is not an empty cleanup proof.
+Only empty NoBirthZero and exhaustively covered, fully initialized scalar Birth
+bodies are initially eligible. Missing initialization, other field demands,
+acquisition/structured bodies and overrides remain explicit unavailable results,
+not invalid-source claims or zero-filled success. A declared Birth with a different
+arity is not NoBirthZero. New co-seal copies this existing result without issuing
+field meaning; pending local completion retains it after target consumption.
+The plan keeps the existing ConstructorSourceId and resolver owner together
+with its owner-local store sites; NoBirth retains explicit absence. A Box alone
+never reconstructs the consumed constructor identity.
+Declared initializer presence comes from the parser's sealed
+`StoredFieldInitializer` trigger, retained in ordinary Box coverage. Parser
+normalization into Birth stores does not turn an excluded default into an
+eligible handwritten store; nonselected build-gate triggers do not participate.
+This is source eligibility only: actual Fault CFG, runtime reclaim and typed-C
+execution still require their selected consumers before backend rejection lifts.
+
 The package now carries the bounded `VerifiedDynamicExitTransactionCoSealV1`
 in the selected Dynamic row. This is the final semantic co-seal for the
 current bounded lane: it transitively owns the semantic program, carrier flow,

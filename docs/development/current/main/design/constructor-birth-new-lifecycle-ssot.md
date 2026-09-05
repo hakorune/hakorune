@@ -20,10 +20,10 @@ Decision: accepted.
 - **Current decision:** common Home Flow owns caller obligations; construction
   owns unpublished-object cleanup. Neither substitutes for the other. Primary
   Fault retention is independent of bounded suppressed-diagnostic storage.
-- **Current implementation status:** exact Birth carrier, receiver non-escape
-  and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** implement the accepted scalar construction source plan
-  in existing constructor/New products, then bind it to actual New Fault CFG.
+- **Current implementation status:** scalar construction source plans retain
+  exact constructor/store identity through New completion; Fault execution is not open.
+- **Next ordered task:** fix store/release/reclaim physical status mapping, then
+  bind the source plan to actual entry/New control and consume it before finalization.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -300,9 +300,9 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    obligations through existing HOME/EXIT tasks; do not require new syntax,
    Result `?`, Shared or all-backend implementation to express this dependency.
    Caller-prefix issuance and local-install validation are connected; the
-   construction-internal source plan is not. Complete the source prerequisite
-   below before New Fault CFG; it does not wait for runtime implementation. Implement
-   the accepted common Normal/Fault ABI and control/operand representation;
+   construction-internal scalar source plan is now verified. First specify the
+   missing store/release/reclaim operations and Normal/Fault status mapping;
+   Call/NewBox Invoke alone is insufficient. Reuse the accepted common ABI;
    bind each source site to the control emitted by that same New owner, then
    consume the ledger into real exit operands before function finalization.
    Do not insert a source-only metadata retention checkpoint or store raw
@@ -450,11 +450,12 @@ retained parent relation instead of ordinal-only identity. Birth keeps its real
 ConstructorSourceId; NoBirthZero has no fabricated constructor occurrence.
 Caller initializer/override sites remain caller-owned. New completion for a
 different Box rejects without consuming the pending installation.
-Checkpoint: parser tests 40/40 and package tests 85/85, including field drift,
-foreign parser, parent mismatch, exact New-site association and no-Birth cases.
-No new receipt/guard/test file, no baseline change, no cleanup or EXE claim.
+Verified source checkpoint: parser 41/41, package 90/90 and the exact
+constructor branch-trigger test 1/1; vm-reference quick lib check passes.
+The earlier source-authority filter matched zero tests and is not evidence.
+No baseline change, no runtime cleanup, production retirement or EXE claim.
 
-**Change (accepted 2026-09-06, read-only worker review consumed):** implement
+**Change (implemented source prerequisite, 2026-09-06):** retain
 one AST-free construction plan in the existing constructor/New products. The
 constructor source/Home issuer joins exact lexical `me`, resolved Plain field
 assignments and the retained enclosing declaration; ordinary-new only co-seals
@@ -463,8 +464,13 @@ Old execution authority removed in this prerequisite: none; the fixed Birth
 EXE/OBJ gate still requires the subsequent connected cutover and deletion.
 **Contract:** field identity is the retained branded Box plus declaration ordinal,
 not a layout offset. Keep declaration-ordered Home demands and source-ordered
-`ResolvedAssignmentSourceV1`/field-ordinal pairs. The issuer classifies explicit
-source `i64` as Trivial once; existing parameter Home ABI does not classify fields.
+`ResolvedAssignmentSourceV1`/field-ordinal pairs.
+The plan also retains the existing ConstructorSourceId/resolver owner pair after
+target take: Box identity alone cannot qualify constructor-local store sites.
+NoBirth keeps explicit constructor absence; no identity is reconstructed.
+Stored initializer presence is projected from the existing parser-sealed trigger
+into ordinary Box coverage; normalized Birth stores cannot reconstruct this fact.
+Source `i64` is classified as Trivial once; existing parameter Home ABI does not classify fields.
 The first profile covers only direct own-field Plain stores from exact formal
 borrows or integer literals, with every statement/expression accounted for.
 No weak/default/delegation, alias/rebind, structured control, nested/native/child
@@ -493,10 +499,10 @@ Native/child/override coverage remains required by task 4, not waived by scalar
 acceptance. Backend stays rejected until runtime/reclaim, typed-C, fixed EXE/OBJ
 and failure proof plus old-edge deletion are complete.
 
-The next semantic consumer is the existing construction/Home source owner:
-classify initialized owning places, native acquisition/commit and each Fault
-cutpoint, or retain an explicit unavailable dependency. Transport is not a
-cleanup proof. The worker verified that caller HomePrefix/NewFaultContinuation
+The next consumer is physical entry/New/exit lowering, not another source-plan
+issuer. Owning/native/child/override extension remains in tasks 2–4 with explicit
+unavailable dependencies until covered. Transport is not a cleanup proof.
+The worker verified that caller HomePrefix/NewFaultContinuation
 leave construction unwind unresolved, `resolved_control_flow/cleanup` is E0-only,
 and current DestroyOwned carries neither common Fault status nor incomplete
 construction semantics. Consequently, direct Birth Fault -> DestroyOwned(prior
@@ -525,6 +531,18 @@ Next physical slice (after the construction-source prerequisite above): bind
 the implemented control/projection vocabulary to exact emissions and consume the
 ledger at the two pre-finalization hooks; no second Call target carrier.
 Non-claims: no runtime cleanup, storage reclaim, completed task 1 or EXE proof.
+
+Read-only next-task confirmation (2026-09-06): before that binding, fix the
+physical mapping for store success/Fault, Home release and outer reclaim in this
+same task. `instruction/invoke.rs::InvokeOperation` currently has only Call and
+NewBox; successorless `DestroyOwned` cannot represent this cleanup protocol.
+Do not merely wrap New/Birth and call the resulting Fault CFG complete.
+`OrdinaryNewClaimLedgerV1::is_empty` currently proves initializer/local completion,
+not consumption of the retained construction plan. The two existing exit hooks
+must reject residual physical bindings before finalization, independently of
+expression completion. Acceptance must exercise exact store commit cutpoints,
+continued cleanup after either outcome, and missing/duplicate/residual bindings;
+keep backend rejection until the runtime and typed-C consumers are connected.
 
 The retention-first premise was disproved by the existing DCE and simplify-CFG
 owners: `passes/dce/elimination.rs` obtains liveness from instruction operands,
