@@ -117,14 +117,24 @@ retirement is not authorized by this field migration.
 
 ### Birth result/effect handoff (next consumer prerequisite)
 
-- [ ] Reuse `verify_function_completion_v1` / `VerifiedFunctionCompletionV1`
+- [x] Constructor source retention: reuse `verify_function_completion_v1` / `VerifiedFunctionCompletionV1`
   at the existing constructor semantic row, bound to its exact source ID/key;
-  lend it through `with_instance_constructor_lowering_input`. The normal-callable
+  check its owner at `with_instance_constructor_lowering_input`; recipe/view borrowing remains open. The normal-callable
   result cohort is keyed differently and is not a constructor lookup authority.
-- [ ] Preserve resolver-issued `VerifiedResolvedBodyShapeInventoryV1.effects`
-  through `instance_constructor_semantic` and its lowering input: the current
-  constructor path drops body-shape products. This is a missing handoff, not
-  permission to infer effects from `EffectMask::IO`, signature or physical lanes.
+- [x] Preserve resolver-issued body shapes through `instance_constructor_semantic`
+  and its lowering input, including nested function owners and residual checking.
+  `effects()` contains source-site event kinds, NOT a complete semantic effect/
+  failure contract. Never infer that contract from these events, `EffectMask::IO`,
+  signature or physical lanes. This corrects the initial handoff-only premise.
+- [ ] Before Birth Call activation, close the source-issued semantic effect/failure
+  contract for the selected write-only body. Existing method-effect issuers are
+  different cohorts; do not transplant them by name or classify all events as IO.
+  Candidate: existing OpaqueObservable vocabulary for a conservative callable
+  contract, with source write coverage and FieldSet failure contracts separate.
+  First close its existing physical projection and exact assignment-site coverage;
+  OpaqueObservable is not NoFailure and events alone cannot issue the contract.
+  Reject Pair-name or exactly-two-writes production admission; two is the proof's
+  expected count, not semantic authority. No synthetic method identity or new receipt.
 - [ ] Carry those existing products through `ordinary_new_coseal` to the selected
   Birth Call/definition/view; remove selected Global target, manual receiver
   prefix and fixed IO projection with the production switch, not in a detached rewrite.
@@ -134,6 +144,10 @@ retirement is not authorized by this field migration.
   Verify existing product field/access mapping before implementation; no new
   semantic receipt, second resolver or widening to other constructor families.
   FieldSet chronology/operand-kind and EXE/OBJ obligations above remain independent.
+
+Source-retention checkpoint: package 74/74, including missing/foreign shape and
+Completion loan rejection plus value/Unit distinction; nested-owner source
+products retained. Backend activation, physical effect projection and EXE30 remain open.
 
 ### Adjacent follow-ups (read-only review, 2026-09-05)
 

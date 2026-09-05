@@ -580,7 +580,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
      or Return(Unit) gives no value; Return(Value) rejects for this scalar cohort;
      Fault propagates only with a real consumer, otherwise reject before artifact.
      Missing/drifted contract rejects before publication; dst=None is not proof.
-     Exact existing-product handoff and rejection matrix: type-contract-status below.
+     Completion/event retention is connected; events are NOT semantic effects. See type-contract-status.
      Test integer-result leak, unsupported Fault and contract drift. MIR-module
      Atomic Publish is not runtime object readiness: no failed construction may
      return a usable object. General Home rollback stays with OWN-HOME-BIRTH-D0.

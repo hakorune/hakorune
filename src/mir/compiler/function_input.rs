@@ -152,7 +152,7 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         self.body_shape
     }
 
-    fn with_body_shape(
+    pub(in crate::mir) fn with_body_shape(
         mut self,
         body_shape: &'a VerifiedResolvedBodyShapeInventoryV1,
     ) -> Self {

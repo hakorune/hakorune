@@ -2,7 +2,7 @@ use crate::mir::builder::NormalRootExecutionConsumerV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
-fn issue_with_brand_catalog(
+pub(super) fn issue_with_brand_catalog(
     source: &str,
 ) -> Result<
     super::VerifiedNormalCallableSemanticPackageV1,
@@ -87,6 +87,15 @@ fn birth_semantic_row_issues_distinct_non_global_publication_key() {
     assert_eq!(key.arity(), rows[0].source_arity());
     assert_eq!(key.mir_symbol_projection(), "Page.birth/1");
     assert!(key.canonical_global_target_v1().is_err());
+    let completion = rows[0].birth_completion().expect("source-owned birth completion");
+    assert_eq!(completion.owner(), rows[0].forest().roots()[0]);
+    assert!(!completion.returns_value());
+    package.with_normal_program_source_loan(|loan| {
+        let input = rows[0].lowering_input(loan.program()).unwrap();
+        let shape = input.body_shape().expect("constructor events survive the loan");
+        assert_eq!(shape.owner(), input.owner());
+        assert_eq!(shape.body_root(), &input.function().root_profile().body_root());
+    }).unwrap();
 }
 
 #[test]

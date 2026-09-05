@@ -347,6 +347,15 @@ at their exact instruction/value sites. Birth parameters remain unannotated;
 an integer-width ABI is not permission to elide those checks. The original
 source snapshot and migrated hash belong to the acceptance workstream.
 
+Constructor rows retain the resolver's body-shape products for every function
+owner, including nested functions, and reject missing/foreign/residual products.
+The source-ID lowering loan borrows the checked root shape instead of dropping
+it. Birth rows additionally retain the existing source Completion verification;
+implicit Unit and value-returning completion remain distinct. This does not
+enable a value-returning Birth backend family. Body effect events identify
+source sites/kinds only: they are not a complete semantic effect/failure contract
+and cannot authorize an IO mask or replace the pending Birth effect issuer.
+
 ## Script instance-Box transferred boundary I0 (2026-08-20)
 
 For non-app selected Script, an instance Box is transparent to the Script

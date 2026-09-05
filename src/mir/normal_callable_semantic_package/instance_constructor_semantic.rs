@@ -1,15 +1,21 @@
 //! Resolver-owned semantic rows for parser-issued instance constructors.
 
+use std::collections::BTreeMap;
+
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
+use crate::mir::resolved_control_flow::{
+    verify_function_completion_v1, FunctionCompletionVerificationErrorV1,
+    VerifiedFunctionCompletionV1,
+};
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverInputV1,
     SemanticOwnerRootProfileV1, SourceBoundSelectedCallableResolverRejectV1,
-    VerifiedSemanticOwnerForestV1,
+    FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::parser::{
     ConstructorSourceIdV1, ConstructorSourceKindV1, VerifiedFinalCallableProgramSourceV1,
@@ -23,6 +29,10 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
     RootProfileMismatch,
+    BodyShapeMissing,
+    BodyShapeOwnerMismatch,
+    BodyShapeResidual,
+    Completion { _issue: FunctionCompletionVerificationErrorV1 },
     SourceProjection { _error: String },
 }
 
@@ -37,6 +47,8 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     source_arity: u32,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
+    body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    birth_completion: Option<VerifiedFunctionCompletionV1>,
 }
 
 #[derive(Debug)]
@@ -115,6 +127,10 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
         &self.forest
     }
 
+    pub(crate) fn birth_completion(&self) -> Option<&VerifiedFunctionCompletionV1> {
+        self.birth_completion.as_ref()
+    }
+
     pub(crate) fn lowering_input<'a>(
         &'a self,
         source: &'a ASTNode,
@@ -155,7 +171,24 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
                 "[freeze:contract][mir/instance-constructor-semantic/root-identity]".to_owned(),
             );
         }
-        Ok(input)
+        let shape = self.body_shapes.get(root).ok_or_else(|| {
+            "[freeze:contract][mir/instance-constructor-semantic/body-shape]".to_owned()
+        })?;
+        if shape.owner() != *root
+            || shape.body_root() != &input.function().root_profile().body_root()
+        {
+            return Err(
+                "[freeze:contract][mir/instance-constructor-semantic/body-shape-owner]".to_owned(),
+            );
+        }
+        if self.kind == ConstructorSourceKindV1::Birth
+            && self.birth_completion().map(|completion| completion.owner()) != Some(*root)
+        {
+            return Err(
+                "[freeze:contract][mir/instance-constructor-semantic/completion-owner]".to_owned(),
+            );
+        }
+        Ok(input.with_body_shape(shape))
     }
 }
 
@@ -194,7 +227,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     view,
                 ));
             }
-            let forests = match resolver
+            let (forests, mut body_shapes) = match resolver
                 .resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
                     &resolver_inputs,
                     brand_catalog,
@@ -203,8 +236,8 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
             {
                 ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
                     forests,
-                    ..
-                } => forests,
+                    body_shapes,
+                } => (forests, body_shapes),
                 ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
                     deferred,
                 ) => {
@@ -257,6 +290,33 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         _error: error.to_string(),
                     }
                 })?;
+                let mut constructor_shapes = BTreeMap::new();
+                for (owner, product) in forest.owners() {
+                    let shape = body_shapes
+                        .remove(&owner)
+                        .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?;
+                    if shape.owner() != owner
+                        || shape.body_root() != &product.root_profile().body_root()
+                    {
+                        return Err(InstanceConstructorSemanticBatchIssueV1::BodyShapeOwnerMismatch);
+                    }
+                    constructor_shapes.insert(owner, shape);
+                }
+                let birth_completion = if kind == ConstructorSourceKindV1::Birth {
+                    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+                        declaration,
+                        &forest,
+                        &projection,
+                    )
+                    .map_err(|error| InstanceConstructorSemanticBatchIssueV1::SourceProjection {
+                        _error: format!("{error:?}"),
+                    })?;
+                    Some(verify_function_completion_v1(input).map_err(|_issue| {
+                        InstanceConstructorSemanticBatchIssueV1::Completion { _issue }
+                    })?)
+                } else {
+                    None
+                };
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
                     published_birth_key: (kind == ConstructorSourceKindV1::Birth).then(|| {
                         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
@@ -272,7 +332,12 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     source_arity,
                     forest,
                     projection,
+                    body_shapes: constructor_shapes,
+                    birth_completion,
                 });
+            }
+            if !body_shapes.is_empty() {
+                return Err(InstanceConstructorSemanticBatchIssueV1::BodyShapeResidual);
             }
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {
                 rows: rows.into_boxed_slice(),
@@ -298,5 +363,48 @@ mod tests {
             batch.birth_for(3, usize::MAX),
             Err(InstanceConstructorBirthLookupErrorV1::SourceArityOverflow)
         ));
+    }
+
+    #[test]
+    fn constructor_loan_rejects_lost_shape_and_completion() {
+        for fault in ["missing-shape", "foreign-shape", "missing-completion", "foreign-completion"] {
+            let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+                "box Page { birth(value) { local saved = value } }
+                 box Other { birth(value) { return 1 } }",
+            )
+            .unwrap();
+            let (first, rest) = package.instance_constructors.rows.split_at_mut(1);
+            let row = &mut first[0];
+            let foreign = &mut rest[0];
+            assert!(!row.birth_completion().unwrap().returns_value());
+            assert!(foreign.birth_completion().unwrap().returns_value());
+            let expected = match fault {
+                "missing-shape" => {
+                    row.body_shapes.clear();
+                    "body-shape"
+                }
+                "foreign-shape" => {
+                    let shape = foreign.body_shapes.remove(&foreign.forest.roots()[0]).unwrap();
+                    row.body_shapes.insert(row.forest.roots()[0], shape);
+                    "body-shape-owner"
+                }
+                "missing-completion" => {
+                    row.birth_completion = None;
+                    "completion-owner"
+                }
+                "foreign-completion" => {
+                    row.birth_completion = foreign.birth_completion.take();
+                    "completion-owner"
+                }
+                _ => unreachable!(),
+            };
+            package.with_normal_program_source_loan(|loan| {
+                let error = package.instance_constructors().rows()[0]
+                    .lowering_input(loan.program()).unwrap_err();
+                assert_eq!(error, format!(
+                    "[freeze:contract][mir/instance-constructor-semantic/{expected}]"
+                ));
+            }).unwrap();
+        }
     }
 }
