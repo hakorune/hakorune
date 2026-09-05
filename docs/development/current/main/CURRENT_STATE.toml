@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "none"
-current_blocker_token = "Birth canonical Call checkpoint: source/key + verified Unit Completion + source OpaqueObservable feed mandatory receiver/N source args and explicit conservative barrier policy. Selected Global reconstruction/manual prefix/fixed IO are removed; C/view still rejects before artifact. Package 75/75, shared defs 11/11 and vm-reference check pass. Next: close exact actual-to-formal-to-FieldSet proof or lossless producer-issued kind consumption in the existing type-contract-status task, then enable receiver-bearing published C consumer with real EXE/OBJ capability, source-ordered checks and Pair EXE30. One read-only worker audits that unresolved consumer premise; no inferred Integer from storage/default T_I64/counts, entry-check hoisting, new semantic receipt or baseline change. Broader type follow-ups remain conditional. No EXE30, full-suite or merge-readiness claim."
+current_design_stop = "BirthActualFormalFieldSetProofMissing"
+current_blocker_token = "495d5fc9df closes Birth source-to-Call: exact key/Unit/OpaqueObservable, mandatory receiver/N args, explicit barrier; selected Global/manual-prefix/fixed-IO removed. Package 75/75, defs 11/11, vm-reference green; C/view rejects before artifact. Worker audit integrated: no reusable runtime-kind carrier; check obligations/storage/lane roles are not value proof. Next bounded design in type-contract-status: name existing source Integer issuer and retain actual-site/ordinal -> formal BindingRef -> FieldSet relation, including every incoming definition caller and stale Copy/Phi/rebind rejection. Prefer this source relation extension for first scalar cohort; no fixture-specialization, new receipt, guessed proof or ABI. Then published C/real EXE+OBJ consumer and Pair EXE30. This is one consumer prerequisite, not a global scheduler block or new census. Already deleted edges are not next-series progress; no baseline/full-suite/EXE30 claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

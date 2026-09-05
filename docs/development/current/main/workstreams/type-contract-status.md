@@ -115,10 +115,40 @@ general FieldGet identity system or recreate source semantics in C. Public
 IntegerBox source-surface fate is a separate post-vertical decision; runtime/ABI
 retirement is not authorized by this field migration.
 
-Consumer premise audit: not yet Fast for C activation because the exact
-actual -> formal -> FieldSet kind/proof relation is unclosed. One read-only
-worker checks existing issuers and EXE/OBJ admission only; its report selects
-the next bounded decision, not permission to infer Integer from storage.
+Consumer premise audit (after 495d5fc9df): existing constructor/body owners
+retain formal BindingRefs and FieldSet sites, but ordinary-new does not retain
+actual argument sites as an actual -> formal -> write proof. Unannotated
+formals therefore remain RuntimeCheckRequired. The C typed-object emitter
+consumes storage plans, not ExactNumericRuntimeCheckContract or runtime kind.
+That check contract describes the obligation, not the actual value's tag.
+Review found no reusable selected-C runtime-kind carrier: MirValueKind is SSA
+origin, PhysicalCallableLane is lane role, and TextScan's tags are family-private.
+Neither a check obligation nor these classifications proves Integer.
+
+Next bounded decision inside the existing Birth series: prefer a source-owned
+actual/formal/write proof extension over a new general tagged ABI for this
+first scalar cohort. Owner: constructor semantic row + ordinary_new_coseal;
+consumer: existing exact-numeric FieldSet proof owner, then published C view.
+Before code, name the exact source Integer fact issuer and retain actual source
+site/ordinal -> same-session constructor formal BindingRef -> exact write site.
+Keep ValueId/physical IDs downstream of Recipe/Lower. If that issuer or relation
+is absent, close that precise design gap; do not fabricate an empty proof.
+
+Definition-wide admission must cover every incoming call to the selected
+definition, or use an already-supported exact call-context proof. One observed
+constant caller is insufficient. Foreign/external/uncovered callers and stale
+Copy/Phi/rebind relations cannot inherit proof from Pair's positive call.
+Do not specialize by fixture/Box name or introduce a clone/thunk to evade this.
+Unknown/dynamic input stays backend-unsupported, not a new language prohibition.
+
+Done for the series: proof survives source -> published definition/call ->
+FieldSet admission, existing N+1 physical lanes consume it once, EXE/OBJ gates
+agree, fixed Pair exits 30, and missing/foreign/drifted/wrong-kind cases leave
+no artifact. Until then the existing unsupported terminal remains. The Global,
+manual-prefix and fixed-IO edges removed at 495d5fc9df are prior progress, not
+a new delete-set. Name any remaining projection's exclusive callers before
+retiring it. General dynamic tagged ABI is deferred, not declared unnecessary
+for the language; it needs its own representation/lifetime decision if selected.
 
 ### Birth result/effect handoff (next consumer prerequisite)
 
