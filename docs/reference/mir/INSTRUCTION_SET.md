@@ -41,7 +41,7 @@ DOC_SYNC_CORE26_COUNT=26
 ### Normal/Fault control (implementation in progress)
 
 Decision: `Invoke` is a terminator wrapping existing `MirCall` operands
-(embedded `dst=None`), NewBox allocation operands, or exact FieldSet operands, with an explicit internal
+(embedded `dst=None`), exact NewBox allocation identity, or exact FieldSet operands, with an explicit internal
 Fault-frame operand and distinct Normal/Fault successors. It defines no value.
 `InvokeNormalResult { invoke_block, dst }` is the only result definition, first
 after PHIs in the exclusive Normal landing. Allocation has one handle result;
@@ -49,6 +49,11 @@ Unit Birth and FieldSet have none. FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.
 Both value operands participate in SSA use/rewrite, not the field identity.
+NewBox carries only `CanonicalObjectIdV1`; module verification requires that
+definition, independently of its runtime-layout capability. It has no source
+argument operands and cannot initialize the object. Already-evaluated arguments
+belong to the subsequent Birth Call. ValueId rewrites leave the object ID intact;
+diagnostic names cannot recover or redirect it. Bare compatibility NewBox is unchanged.
 Other Call result contracts remain rejected by the current
 verifier until their canonical definition/ABI relation is connected.
 `ReturnFault { fault_frame }` propagates rather than recording or reporting.

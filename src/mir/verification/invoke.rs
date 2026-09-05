@@ -13,13 +13,19 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
     for function in module.functions.values() {
         for (id, block) in &function.blocks {
             for instruction in block.all_instructions() {
-                if let MirInstruction::Invoke {
-                    operation: InvokeOperation::FieldSet { field, .. },
-                    ..
-                } = instruction
-                {
-                    if module.canonical_field_definition(*field).is_none() {
-                        errors.push(error(*id, "field-definition-missing"));
+                if let MirInstruction::Invoke { operation, .. } = instruction {
+                    match operation {
+                        InvokeOperation::NewBox { object }
+                            if module.canonical_object_definition(*object).is_none() =>
+                        {
+                            errors.push(error(*id, "object-definition-missing"));
+                        }
+                        InvokeOperation::FieldSet { field, .. }
+                            if module.canonical_field_definition(*field).is_none() =>
+                        {
+                            errors.push(error(*id, "field-definition-missing"));
+                        }
+                        _ => {}
                     }
                 }
             }
@@ -262,8 +268,7 @@ mod tests {
         let mut origin = BasicBlock::new(BasicBlockId::new(1));
         origin.set_terminator(MirInstruction::Invoke {
             operation: InvokeOperation::NewBox {
-                box_type: "Object".into(),
-                args: vec![ValueId::new(1)],
+                object: hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
             },
             fault_frame: ValueId::new(0),
             normal_landing: BasicBlockId::new(2),
@@ -284,6 +289,62 @@ mod tests {
         }
         function.update_cfg();
         function
+    }
+
+    #[test]
+    fn allocation_identity_requires_definition_and_is_not_a_value_operand() {
+        use crate::mir::function::{CanonicalObjectDefinitionV1, ObjectLayoutUnavailableV1};
+        use crate::mir::{BasicBlockId, MirModule, MirVerifier};
+        use hakorune_mir_defs::CanonicalObjectIdV1;
+
+        let mut function = allocation_invoke_function();
+        let invoke = function
+            .blocks
+            .get_mut(&BasicBlockId::new(1))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap();
+        let MirInstruction::Invoke { operation, .. } = invoke else {
+            unreachable!()
+        };
+        let original = operation.clone();
+        assert!(operation.used_values().is_empty());
+        operation.rewrite_values(|_| panic!("object identity is not a ValueId"));
+        assert_eq!(*operation, original);
+
+        // Physical membership test only: source provenance belongs to the
+        // branded declaration/claim handoff, not a numerically equal local ID.
+        let mut module = MirModule::new("allocation_identity".into());
+        module.add_function(function);
+        let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+        assert!(format!("{errors:?}").contains("object-definition-missing"));
+        module.install_object_definitions_preflighted(
+            vec![CanonicalObjectDefinitionV1::from_source_declaration(
+                "RenamedForDiagnostics".into(),
+                Box::new([]),
+                Err(ObjectLayoutUnavailableV1::Inheritance),
+            )]
+            .into_boxed_slice(),
+        );
+        // A present but unsupported definition is not a missing identity.
+        MirVerifier::new().verify_module(&module).unwrap();
+        let function = module.functions.get_mut("invoke_control_test").unwrap();
+        let MirInstruction::Invoke { operation, .. } = function
+            .blocks
+            .get_mut(&BasicBlockId::new(1))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap()
+        else {
+            unreachable!()
+        };
+        *operation = InvokeOperation::NewBox {
+            object: CanonicalObjectIdV1::from_declaration_index(1).unwrap(),
+        };
+        let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+        assert!(format!("{errors:?}").contains("object-definition-missing"));
     }
 
     #[test]
@@ -348,7 +409,7 @@ mod tests {
         assert_eq!(origin.out_edges().len(), 2);
         let invoke = origin.terminator.as_ref().unwrap();
         assert_eq!(invoke.dst_value(), None);
-        assert_eq!(invoke.used_values(), vec![ValueId::new(1), ValueId::new(0)]);
+        assert_eq!(invoke.used_values(), vec![ValueId::new(0)]);
         assert!(!invoke.effects().is_pure());
         crate::mir::passes::dce::eliminate_dead_code_in_function(&mut function);
         assert!(function.blocks[&BasicBlockId::new(2)]
@@ -356,6 +417,16 @@ mod tests {
             .iter()
             .any(|inst| matches!(inst, MirInstruction::InvokeNormalResult { .. })));
         let mut module = MirModule::new("invoke_control_test".into());
+        module.install_object_definitions_preflighted(
+            vec![
+                crate::mir::function::CanonicalObjectDefinitionV1::from_source_declaration(
+                    "Object".into(),
+                    Box::new([]),
+                    Ok(()),
+                ),
+            ]
+            .into_boxed_slice(),
+        );
         module.add_function(function);
         crate::mir::passes::simplify_cfg::simplify(&mut module);
         let function = &module.functions["invoke_control_test"];
@@ -580,12 +651,22 @@ mod tests {
                     "frame-escaped-as-source-value"
                 }
                 8 => {
-                    if let Some(MirInstruction::Invoke {
-                        operation: InvokeOperation::NewBox { args, .. },
-                        ..
-                    }) = &mut function.blocks.get_mut(&origin_id).unwrap().terminator
+                    if let Some(MirInstruction::Invoke { operation, .. }) =
+                        &mut function.blocks.get_mut(&origin_id).unwrap().terminator
                     {
-                        args.push(ValueId::new(0));
+                        *operation = InvokeOperation::FieldSet {
+                            field:
+                                hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                                    hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(
+                                        0,
+                                    )
+                                    .unwrap(),
+                                    0,
+                                )
+                                .unwrap(),
+                            base: ValueId::new(1),
+                            value: ValueId::new(0),
+                        };
                     }
                     "frame-escaped-as-source-value"
                 }

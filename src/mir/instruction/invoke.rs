@@ -15,9 +15,9 @@ pub enum FaultFrameMode {
 pub enum InvokeOperation {
     /// The embedded destination must be absent; the Normal projection owns it.
     Call(MirCall),
+    /// Allocation only; constructor arguments belong to the subsequent Birth.
     NewBox {
-        box_type: String,
-        args: Vec<ValueId>,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
     },
     /// Exact declaration field; Unit on Normal, no mutation on Fault.
     FieldSet {
@@ -45,7 +45,7 @@ impl InvokeOperation {
                 values.extend(call.args.iter().copied());
                 values
             }
-            Self::NewBox { args, .. } => args.clone(),
+            Self::NewBox { .. } => Vec::new(),
             Self::FieldSet { base, value, .. } => vec![*base, *value],
         }
     }
@@ -58,11 +58,7 @@ impl InvokeOperation {
                     rewrite(value);
                 }
             }
-            Self::NewBox { args, .. } => {
-                for value in args {
-                    rewrite(value);
-                }
-            }
+            Self::NewBox { .. } => {}
             Self::FieldSet { base, value, .. } => {
                 rewrite(base);
                 rewrite(value);

@@ -20,10 +20,10 @@ Decision: accepted.
 - **Current decision:** common Home Flow owns caller obligations; construction
   owns unpublished-object cleanup. Neither substitutes for the other. Primary
   Fault retention is independent of bounded suppressed-diagnostic storage.
-- **Current implementation status:** scalar construction source plans retain
-  exact constructor/store identity through New completion; Fault execution is not open.
-- **Next ordered task:** finish layout allocation/refresh verification, then consume
-  exact stores at `raw_expression_dispatch/statement_surface.rs` before child descent.
+- **Current implementation status:** exact definitions/layouts and construction
+  store Invoke bindings are verified at 915d41a93a; Fault execution is not open.
+- **Next ordered task:** consume retained New/Fault/Home plans into real caller
+  operands, then connect the existing runtime and typed-C tasks below.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -32,7 +32,7 @@ Decision: accepted.
 This document owns construction ordering and the direct-`birth` ban. The Home
 document owns Home tokens and destinations. The bounded failed-construction
 decision below supplies `OWN-HOME-BIRTH-D0` without changing successful order;
-source/exit products and runtime adoption remain unimplemented.
+retained source/exit products do not yet prove runtime adoption.
 
 Hakorune keeps construction small and explicit:
 
@@ -608,16 +608,8 @@ exact ordinary-Box coverage, including empty NoBirth declarations. Its existing
 invocation brand and private source correspondence prevent foreign-module reuse;
 equal integers alone never prove identity. Names and constructor keys are not
 object identity. Runtime type IDs remain a separate checked layout projection.
-Source IDs landed at f42be8be61; construction stores retain exact field references.
-Transfer now uses the existing package port,
-validates context before take and requires consumption at completion/drain;
-empty transfer differs from absence. Hardened package 92/92, collector 10/10,
-quick lib check and pointer/M7-S guards pass. Changed lowering owners: 40/1;
-`physical_entry_lane_adoption_tests::emits_one_direct_length_call_and_i64_receipt_in_unpublished_session`
-fails AlreadyIssued at line 115. Parent f42be8be61, identical Cargo.lock and
-`CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --profile quick --lib`
-with filter `mir::builder::resolved_lowering::physical_entry_lane_adoption_tests::`
-and `-- --test-threads=1`, also gives 12/1 at the same assertion: baseline debt.
+Source/transfer checkpoints retain exact identities and reject residuals; Git owns detail.
+Baseline: `physical_entry_lane_adoption_tests::emits_one_direct_length_call_and_i64_receipt_in_unpublished_session` fails AlreadyIssued at line 115; identical-lock parent f42be8be61 reproduces it with `CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --profile quick --lib mir::builder::resolved_lowering::physical_entry_lane_adoption_tests:: -- --test-threads=1` (12/1).
 Layout verified: package 95/95, layout 20/20, metadata 2/2, collector 10/10, refresh 6/6, receiver 4/4, JSON 121/0/1. Global routes 139/6; the six baseline-listed failures reproduce at identical assertions in f42be8be61's built binary with the same filter.
 Postprocess 3/3 covers both late-refresh failures; layout tests cover backend-preflight rejection. Exact store/control checkpoint: package 95/95; binding drift 1/1, Invoke 5/5, numeric verifier 13/13, numeric contracts 7/7, receiver 5/5, scoped children 2/2, assignment 1/1, constructor 5/5, layout 21/21. Global call 180/6 matches f42be8be61's six failure transcripts (not immediate-parent/full-lib proof). vm-reference/pointer/M7-S pass, max source 757. Initial Pair SSA failure was current-change span omission, fixed through the existing block insertion API and rerun green. Birth runtime remains fenced; outward New/Home/Fault and typed-C tasks remain open.
 
@@ -660,20 +652,32 @@ The installed definition payload has one owner; the semantic batch retains only
 immutable correspondence needed for exact claims, not another mutable table.
 No new task card, semantic receipt, registry or per-cohort guard is required.
 
-For prior caller
-Homes, join prefix BindingRef to its retained New row and exact declaration;
-construction eligibility is not complete-object destruction eligibility.
-The first no-hook/plain-scalar destruction disposition must be positively
-issued through the existing declaration loan, not inferred from Arc drop or
-absence of events. Hook/child/native expansion remains required by tasks 2–4.
-`OrdinaryNewClaimLedgerV1::is_empty` currently proves initializer/local completion,
-not consumption of the retained construction plan. The two existing exit hooks
-must reject residual physical bindings before finalization, independently of
-expression completion. Acceptance must exercise exact store commit cutpoints,
-continued cleanup after either outcome, and missing/duplicate/residual bindings;
-keep backend rejection until the runtime and typed-C consumers are connected.
-The selected old exact-setter status-to-trap edges must be removed with the
-typed-C cutover, not revived as fallback after Fault propagation.
+Caller binding decision (2026-09-06; existing task 1, read-only review integrated):
+`ordinary_new_admission` must consume the retained claim, not reduce it to the
+constructor alone. Bind allocation, Birth, outer reclaim and prior Home cleanup
+to actual Invoke operands before local installation and physical finalization.
+For prior Homes, join prefix BindingRef to its retained completed New/local and
+exact declaration. `home_new_prefix` already issues reverse acquisition order;
+the consumer preserves that order. It issues no Normal-return cleanup plan:
+normal/later-body Home exit remains required before executable admission.
+Construction eligibility is not completed-object destruction eligibility.
+The existing exact whole-Box declaration issuer must positively classify the
+current plain-i64/no-hook profile; never infer it from Arc drop, Trivial fields,
+or the AST lacking a hook slot. Unsupported structure preserves definition/layout
+with destruction unavailable. Hook/child/native coverage remains in tasks 2–4.
+Use one frame in `CallableSemanticLoweringState`: the exact App Main source
+entry installs RootOwned, ordinary callable entries Borrowed. Direct-call-loan
+presence is not a root witness (New-only Main has none). Construction stores
+borrow this frame; remove their independent frame issuance, add no port axis.
+Completion covers static/instance draft preparation, finalized child capture,
+the direct cataloged-instance capture, and App Main root scope/finalization.
+`OrdinaryNewClaimLedgerV1::is_empty` must not accept retained unconsumed plans
+merely because initializer/local completion succeeded. Missing/duplicate/drifted
+bindings reject independently at completion and finalized validation.
+Selected deletion: claim-to-constructor erasure, bare NewBox/Birth Call emission,
+and completion without physical consumption. Preserve nonselected compatibility;
+selected failures never retry it. Runtime admission remains closed until tasks
+2–4, including continued cleanup on both outcomes and EXE30/OBJ, pass.
 
 The retention-first premise was disproved by the existing DCE and simplify-CFG
 owners: `passes/dce/elimination.rs` obtains liveness from instruction operands,
@@ -706,7 +710,7 @@ Task 1 implementation contract after review:
   Unit has no result slot; non-Unit storage is readable only on the normal edge.
   The following normal-only projection is required before admitting value
   results; no reader guesses its definition or hidden ABI lanes.
-- Consume the source/local ledger at the two named pre-finalization hooks into
+- Consume the source/local ledger at the caller completion boundaries above into
   real control/cleanup operands. Update ordinary use/rewrite, CFG and verifier
   handling together; do not add a metadata table or KeepAlive repair.
 
@@ -714,7 +718,8 @@ Canonical control vocabulary (one owner, not an extensible effect wrapper):
 
 ```text
 InvokeOperation = Call(existing MirCall with dst=None)
-                | NewBox(existing box_type and allocation arguments)
+                | NewBox(exact CanonicalObjectIdV1; allocation only)
+                | FieldSet(exact CanonicalFieldRefV1, base, value)
 Invoke(operation, fault_frame operand, normal_landing, fault_landing)
 InvokeNormalResult(originating Invoke block, dst)
 ReturnFault(fault_frame operand)
@@ -723,7 +728,13 @@ FaultFrameEnter(dst, RootOwned | Borrowed)
 
 Invoke defines no SSA value. NewBox's handle is defined by the projection in
 its dedicated Normal landing, not on the allocation terminator; Birth Unit
-has no projection. A value-returning Call uses its canonical result ABI and
+has no projection. Allocation consumes the existing construction object's ID,
+not class text or Birth arguments; arguments lower once before allocation and
+belong only to the Birth call. Module verification requires the exact definition;
+runtime-layout availability remains a separate backend capability check.
+ValueId rewriting preserves the object ID. The earlier string/args Invoke payload
+had only verifier-fixture writers and is replaced in place, not kept as a variant.
+A value-returning Call uses its canonical result ABI and
 the same projection. This preserves the current block-local SSA definition
 model (`verification/ssa.rs` and `verification/utils.rs`), which otherwise makes
 a terminator's dst visible on both successors. Require distinct Normal/Fault
@@ -761,22 +772,14 @@ The same connected series must reach the selected typed-C Birth consumer and
 fixed production proof; ABI-only unit tests do not close it. Runtime release,
 construction reclaim and tasks 2–4 remain required, not silently scoped away.
 
-The source prefix walks every preceding statement. Plain aliases add no Home;
-rebind, unknown acquisition, entry demand gaps, Handle arguments and nonempty
-overrides are unavailable, never empty cleanup. Read-only review identified
-the override/capture omissions in the draft; both were corrected before the
-package gate. Three New declarations verify reverse order and prior-install
-rejection; the real two-New compiler path preserves package completion and
-backend rejection. Construction obligation issuance precedes retained physical
-exit projection in this series; this is not a completed task-1/runtime claim.
-Focused package gate: 83 passed / 0 failed, control suite 33/33. Exact outward
-target, foreign-owner and non-New rejection join existing prefix negatives;
-pointer/M7-S guards green, changed source maximum 688 lines.
-No whole-lib/no-new-red claim or baseline edits.
+Source-prefix checkpoint: package 83/83 and control 33/33 covered exact outward
+target, foreign owner, reverse order and prior-install rejection. Plain aliases
+add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides
+remain unavailable, never empty cleanup. No whole-lib or runtime claim.
 
 **Change:** replace the selected New path's physical-control drop with exact
-emission binding through its existing claim port and consumption at the two
-pre-finalization hooks. Reuse MirCall/Callee; introduce no target reissuer.
+emission binding through its existing claim port and caller completion boundaries.
+Reuse MirCall/Callee; introduce no target reissuer.
 **Contract:** source arguments lower once; cleanup references are real operands.
 Invoke separates normal/fault control; Unit Birth has no source result. Allocation
 still needs its normal-only handle, and selected non-Unit calls need normal-only
@@ -791,16 +794,13 @@ This is the task-1 control checkpoint only; tasks 2–4 remain the series termin
 selected executable admission closed. Fix the same owner; no empty cleanup,
 name/order recovery, detached source proof or wider grammar.
 
-Control-schema checkpoint (2026-09-06): Invoke/normal-only result/ReturnFault
-and intrinsic FaultFrameEnter verification are implemented; no scalar frame or
-ordinary-value escape is admissible. Invoke tests now live with the existing
-verifier owner: 4/4; instruction tests 18/18, vocabulary doc-sync 1/1;
-quick lib and vm-reference checks pass.
-The incremental test compile was cancelled at the memory safety boundary;
-the fresh `CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1` run passed. No tests were
-ignored/deleted or baseline changed. Backend admission stays UnsupportedBeforeObject.
-Entry emission, exact New/Birth binding and pre-finalization consumption remain
-next; task 1/runtime are not complete and no production old-edge deletion is claimed.
+Control checkpoint (2026-09-06): Invoke/normal projection/ReturnFault/frame
+verification remains mandatory. Allocation now retains exact object ID rather
+than string/args; missing definition rejects while unsupported definition remains
+distinct. Fresh quick lib build: Invoke 6/6, same-binary package 95/95 and
+instruction 18/18; vm-reference/pointer/M7-S green, no baseline/ignore/test deletion. Initial test import
+failure was corrected before this successful rebuild. Backend stays UnsupportedBeforeObject.
+Next: exact-ID allocation payload, then caller binding above; task 1/runtime remain open until connected execution proof.
 
 At tasks 2–3, extend the existing published transport and
 `hako_llvmc_ffi_mir_call_dispatch.inc`, not its legacy method-birth branch.

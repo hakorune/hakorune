@@ -13,10 +13,13 @@ navigation order must stay narrow and explicit.
 ## Top-Level Map
 
 Common Fault control is defined in `instruction/invoke.rs` and
-`verification/invoke.rs`: Invoke reuses Call/allocation operands and defines its
+`verification/invoke.rs`: Invoke reuses Call operands, exact allocation definition
+IDs and exact field-store operands, and defines its
 result only through the dedicated Normal projection. FaultFrameEnter defines
 the internal frame independently of source parameters; verification forbids
 scalar substitution, ordinary value escape and entry reinitialization.
+Allocation takes no Birth arguments; module verification rejects missing object
+definitions without treating unsupported layouts as missing identities.
 Ordinary CFG, value-use,
 DCE and SimplifyCFG handling preserve that relation. Published selected-C and
 JSON/VM admission remain closed while source emission binding and runtime
