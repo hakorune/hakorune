@@ -246,7 +246,7 @@ impl super::MirBuilder {
 
             ASTNode::Variable { name, .. } => self.build_variable_access(name.clone()),
 
-            ASTNode::Me { .. } => super::stmts::variable_stmt::build_me_expression(self),
+            ASTNode::Me { .. } => port.lower_me_expression_v1(self),
 
             node @ ASTNode::MethodCall { .. } => {
                 let receiver_source =

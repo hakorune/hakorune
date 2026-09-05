@@ -243,6 +243,10 @@ where
             }
         }
     }
+
+    fn lower_me_expression_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        self.child.lower_me_expression_v1(builder)
+    }
 }
 
 impl<Port> AppMainDirectCallDispositionPortV1 for RawStructuredChildScopePortV1<'_, Port>

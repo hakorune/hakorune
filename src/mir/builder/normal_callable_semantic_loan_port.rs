@@ -308,6 +308,10 @@ impl RecursiveChildLoweringPortV1
         self.inner.lower_expression(builder, input)
     }
 
+    fn lower_me_expression_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        self.inner.lower_me_expression_v1(builder)
+    }
+
     fn prepare_expression_child_source_v1(
         &self,
         parent: &ASTNode,

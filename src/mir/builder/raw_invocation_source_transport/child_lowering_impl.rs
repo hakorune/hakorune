@@ -41,6 +41,13 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.take_declared_instance_receiver_value_inner_v1(builder)
     }
 
+    fn lower_me_expression_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        if self.callable_ledger.is_some() {
+            return self.read_callable_variable_v1();
+        }
+        crate::mir::builder::stmts::variable_stmt::build_me_expression(builder)
+    }
+
     fn cleanup_exit_policy_v1(
         &self,
     ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {

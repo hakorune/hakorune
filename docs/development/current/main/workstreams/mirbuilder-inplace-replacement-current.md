@@ -539,16 +539,26 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    compatibility route and the unchanged `typed-object-untyped-field-min`
    boundary passes under derive-off. Missing source-backed user-Box coverage
    still rejects before effects; no new name whitelist or fallback.
-4. Re-run the six default-derive cases with the existing negative test. Treat
+4. The callable-semantic lowering owner now consumes lexical `me` reads at
+   their exact source sites through the existing recursive child port. This
+   removes the shared `incomplete-consumption` terminal without changing
+   target selection or receiver reconstruction. The first derive-off birth
+   probe now reaches a separate existing boundary: `Pair.birth/2` is emitted
+   as canonical `global_call_routes`, while the smoke still expects the older
+   `user_box_method_routes` proof. Treat this as a named route-metadata
+   reconciliation task under the existing `user_box_method_route_plan`
+   owner; do not edit fixtures, infer a receiver from `args[0]`, or add a
+   second route planner.
+5. Re-run the six default-derive cases with the existing negative test. Treat
    default-generated `equals`/`toString` as a finite profile decision: either
    an explicit derive-off acceptance profile is recorded and exercised, or a
    separate source-anchor/issuer design is opened later. Do not weaken the
    source-preservation rejection or edit fixtures; the derive-off probe is not
    acceptance until the remaining owner failures are resolved.
-5. Keep the three `usize` parameter cases outside this MirBuilder slice until
+6. Keep the three `usize` parameter cases outside this MirBuilder slice until
    the existing `usize` semantic-foundation owner is satisfied. Do not coerce
    `usize` to `i64`, opaque, or a compatibility value merely to pass EXE.
-6. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
+7. Rerun the unchanged 11-entry `real-apps-exe-boundary` suite with the same
    backend/toolchain and record source/script hashes, expected result, and
    first terminal. Close A only at `11/11` (including the exact unsupported
    probe), with no new baseline names, no fallback/retry, and no partial

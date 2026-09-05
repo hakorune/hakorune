@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "The fixed MIRBUILDER-FINAL-ACCEPTANCE-SCOPE was re-run with a fresh llvm_static build on 2026-09-05: the default profile remains 1/11 because six source cases intentionally stop at default-derive root preservation. Constructor initializer-arity, exact constructor-root identity, App Main ordinary-new exact batch-slot co-seal, and builtin ArrayBox compatibility separation are repaired; semantic package tests are 71/71, and the derive-off probe now reaches 3/11 (newbox, untyped-field, and unsupported-boundary pass). The remaining derive-off cases are named callable-semantic-lowering incomplete-consumption and three usize parameter contracts. Continue inside this existing acceptance card: repair only the existing callable-consumption owner, and explicitly park/decide default-derive and usize profiles. Do not edit fixtures, rebaseline, add a D0/receipt/guard, or reopen the landed VM row."
+current_blocker_token = "Acceptance remains 1/11 default and 3/11 derive-off after constructor, App Main, builtin, and exact lexical-me consumption repairs. Next boundary: Pair.birth/2 is in canonical global_call_routes while the existing smoke expects user_box_method_routes. Repair only that existing owner relation; no args[0] receiver inference, fixture edit, fallback, rebaseline, new D0/receipt/guard, or VM reopen. Park default-derive and usize profiles."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

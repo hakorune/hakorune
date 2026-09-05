@@ -131,6 +131,16 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Ok(DeclaredInstanceReceiverIngressV1::Unarmed)
     }
 
+    /// Lower the lexical `me` expression at the current exact source site.
+    ///
+    /// Compatibility/test ports keep the historical builder lookup.  The
+    /// source-backed callable port overrides this to consume the callable
+    /// ledger's exact receiver-site row, so field reads/writes inside an
+    /// instance body cannot leave an unconsumed semantic product behind.
+    fn lower_me_expression_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        super::stmts::variable_stmt::build_me_expression(builder)
+    }
+
     /// Isolated test-only ports deny cleanup exits unless they explicitly
     /// provide an operation policy. Production ports must override this.
     fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
