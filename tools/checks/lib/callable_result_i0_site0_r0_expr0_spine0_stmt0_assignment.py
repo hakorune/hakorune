@@ -35,7 +35,7 @@ def check_asn0_s0(root: Path) -> str:
         "src/mir/builder/raw_expression_dispatch/statement_surface.rs"
     )
     indexing_path = "src/mir/builder/indexing.rs"
-    fields_path = "src/mir/builder/fields.rs"
+    fields_path = "src/mir/builder/fields/assignment.rs"
     grouped_path = "src/mir/builder/raw_expression_dispatch/mod.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     helper_path = (
@@ -51,7 +51,7 @@ def check_asn0_s0(root: Path) -> str:
     stmts_root = _read(root, stmts_root_path)
     selector = _read(root, selector_path)
     indexing = _read(root, indexing_path)
-    fields = _read(root, fields_path)
+    fields = _read(root, fields_path) + _read(root, "src/mir/builder/fields.rs").split("#[cfg(test)]", 1)[0]
     grouped = _read(root, grouped_path)
     readme = _read(root, readme_path)
 
@@ -544,6 +544,7 @@ def check_asn0_s0(root: Path) -> str:
         selector_path,
         indexing_path,
         fields_path,
+        "src/mir/builder/fields.rs",
         grouped_path,
         readme_path,
         helper_path,

@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** scalar construction source plans retain
   exact constructor/store identity through New completion; Fault execution is not open.
-- **Next ordered task:** fix store/release/reclaim physical status mapping, then
-  bind the source plan to actual entry/New control and consume it before finalization.
+- **Next ordered task:** publish the exact object/field definition relation below,
+  then bind stores and release/reclaim to entry/New control and finalization.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -581,14 +581,53 @@ Before implementing those roles, close the named physical contracts in tasks
 1–3: exact source-store-to-slot linkage, terminal Home release for prior caller
 objects, stable default-storage no-hook reclaim, and no mutation on rejected
 stores. Existing Arc drop, empty Trivial fields and successful local tests do
-not supply these contracts. `builder/fields.rs` is 787 lines; if that owner must
-change, extract the touched responsibility before adding semantic code.
+not supply these contracts. Assignment-owner extraction is verified:
+`builder/fields.rs` 787->536 lines, `fields/assignment.rs` 267. Existing callers
+use the same re-export/inherent methods; no forwarding runtime layer or behavior
+change. Quick lib check, fields tests 5/5, semantic-package tests 90/90 and
+existing fieldstore/weakfield/assignment/fieldget plus pointer/M7-S guards pass.
+The source total is 803 versus 787 (imports/module boundary); this is BoxShape,
+not net-negative retirement. No test/ignore/baseline or production behavior change.
 The bounded review located the source-store handoff at
 `raw_expression_dispatch/statement_surface.rs` before child descent. Preserve
 the existing assignment/constructor/Box identity there; do not use
 `field_facts::declared_field_contract_identity` (origin/name lookup) as issuer.
 The published object definition must retain that Box relation and project its
-declaration ordinal through the existing layout algorithm. For prior caller
+declaration ordinal through the existing layout algorithm.
+
+Exact publication decision (2026-09-06, read-only worker review integrated):
+use one opaque module-local `CanonicalObjectIdV1` and a field reference
+`{ object, declaration_ordinal }`, not paired source/published key types.
+`issue_instance_constructor_semantic_batch_v1` assigns checked IDs once from
+exact ordinary-Box coverage, including empty NoBirth declarations. Its existing
+invocation brand and private source correspondence prevent foreign-module reuse;
+equal integers alone never prove identity. Names and constructor keys are not
+object identity. Runtime type IDs remain a separate checked layout projection.
+
+Within existing task 1, execute these three connected steps after split validation:
+1. Move one definition payload through `ModuleDraftCollectorV1` with callable
+   drafts into atomic publication. Publish one private object-definition table;
+   existing `PublishedMirBackendView` borrows it. Reuse declaration-order layout
+   vocabulary, not name-based storage inference. Selected objects must not also
+   acquire independently inferred legacy layouts. Any compatibility projection
+   is one-way from this sole table. No parser loan reaches the backend.
+2. At the existing pre-descent assignment handoff, consume the exact plan store
+   once and emit FieldSet Invoke with field reference plus real base/value
+   operands. Delete the selected Birth origin-map/field-name reconstruction in
+   the same series; retain unsupported execution until consumers are ready.
+3. Connect the existing tasks 2–3 runtime and typed-C consumers, replacing the
+   selected status-to-trap path. Table/view tests alone never close task 1 or
+   authorize Birth execution; fixed Pair EXE30/OBJ and task-4 failures still gate it.
+
+Use existing package/collector/view tests for distinct same-shaped Boxes,
+renames/reordered stores, empty NoBirth, foreign source, duplicate installation,
+missing ID, invalid ordinal and layout drift. Fail atomically before publishing
+either functions or definitions; reject residual source/emission bindings.
+The installed definition payload has one owner; the semantic batch retains only
+immutable correspondence needed for exact claims, not another mutable table.
+No new task card, semantic receipt, registry or per-cohort guard is required.
+
+For prior caller
 Homes, join prefix BindingRef to its retained New row and exact declaration;
 construction eligibility is not complete-object destruction eligibility.
 The first no-hook/plain-scalar destruction disposition must be positively

@@ -7,6 +7,8 @@ import sys
 
 def main(root: Path) -> int:
     fields = (root / "src/mir/builder/fields.rs").read_text()
+    assignment = (root / "src/mir/builder/fields/assignment.rs").read_text()
+    consumers = fields.split("#[cfg(test)]", 1)[0] + assignment
     receipt = (root / "src/mir/builder/fields/store_post_success.rs").read_text()
 
     product = "PreparedOrdinaryFieldStoreAccessSiteV1"
@@ -14,8 +16,8 @@ def main(root: Path) -> int:
         "product": receipt.count(f"struct {product}"),
         "prepare": receipt.count(f"impl {product}") and receipt.count("pub(super) fn prepare("),
         "commit": receipt.count("pub(super) fn commit("),
-        "consumer": fields.count("PreparedOrdinaryFieldStoreAccessSiteV1::prepare("),
-        "ordinary_receipt": fields.count("ordinary_receipt"),
+        "consumer": consumers.count("PreparedOrdinaryFieldStoreAccessSiteV1::prepare("),
+        "ordinary_receipt": consumers.count("ordinary_receipt"),
         "old_failure_witness": fields.count(
             "ordinary_fieldset_failure_leaves_no_access_site_after_receipt_cutover"
         ),
@@ -29,6 +31,7 @@ def main(root: Path) -> int:
 
     for path in [
         root / "src/mir/builder/fields.rs",
+        root / "src/mir/builder/fields/assignment.rs",
         root / "src/mir/builder/fields/store_post_success.rs",
         Path(__file__),
     ]:

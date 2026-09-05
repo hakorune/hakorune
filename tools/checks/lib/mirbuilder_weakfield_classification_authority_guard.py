@@ -11,6 +11,7 @@ TAG = "mirbuilder-weakfield-classification-authority"
 ROUTE = "src/mir/builder/weak_field_write_route.rs"
 ISSUER = "src/mir/builder/weak_field_write.rs"
 FIELDS = "src/mir/builder/fields.rs"
+ASSIGNMENT = "src/mir/builder/fields/assignment.rs"
 SELF = "tools/checks/lib/mirbuilder_weakfield_classification_authority_guard.py"
 
 
@@ -44,7 +45,7 @@ def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     route = production(read(root, ROUTE))
     issuer = production(read(root, ISSUER))
-    fields = production(read(root, FIELDS))
+    fields = production(read(root, FIELDS)) + production(read(root, ASSIGNMENT))
 
     count(route, "pub(super) fn prepare_field_write_route_v1(", 1, "route classifier")
     count(fields, "prepare_field_write_route_v1(", 1, "production classifier consumer")
@@ -64,7 +65,7 @@ def main() -> None:
 
     oversized = [
         relative
-        for relative in (ROUTE, ISSUER, FIELDS, SELF)
+        for relative in (ROUTE, ISSUER, FIELDS, ASSIGNMENT, SELF)
         if len(read(root, relative).splitlines()) >= 800
     ]
     if oversized:

@@ -774,7 +774,10 @@ be narrowed or rewritten. The exact task order is in
     `resolved_lowering/`.
 - field/property receiver facts
   - `src/mir/builder/field_facts.rs` (observation only; no receiver AST re-lowering)
-  - `src/mir/builder/fields.rs`
+  - `src/mir/builder/fields.rs` owns reads and initializer sequencing;
+    `fields/assignment.rs` owns existing assignment preparation/emission.
+    The parent re-export preserves callers; no forwarding execution layer,
+    new route, source authority or construction Fault behavior is added.
   - `src/mir/builder/property_reads.rs` (property getter lowering)
   - `src/mir/builder/properties.rs` (MIR-side property getter naming/registry)
 - JoinIR merge（reference/test surface、production callerなし）

@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "Indexed storage prerequisite implemented: SafeMutex/SingleThreadExact use stable tombstones, checked type/handle detach and no-hook payload drop outside owner guards; reclaim alone recovers poison. Six focused tests pass per indexed profile, pinned/direct explicit rejection tests pass, kernel quick check and pointer/M7-S guards pass. Broader typed-object test has one unchanged DirectSlot header failure reproduced with parent-source 98db26896b (25/1 parent, 31/1 current); no baseline rewrite. Next: behavior-neutral extraction of the 787-line fields.rs assignment owner, then exact assignment/Box -> published layout relation and prior-Home destruction eligibility in existing task 1. No origin/name repair, empty DropPlan or second issuer. Actual CFG, Fault runtime/typed-C, fixed EXE30/OBJ, native/child/override failures and selected old-edge deletion remain required. Storage primitive is not Birth activation."
+current_blocker_token = "Field-assignment extraction verified: fields.rs 536, assignment.rs 267; quick lib check, fields tests 5/5 and semantic-package tests 90/90 pass. Existing guards retargeted without new guards or weakened counts. Closeout commit/push, then task 1 exact object-definition publication from the worker-reviewed lifecycle SSOT: one object ID, atomic definition table, borrowed view, then exact Birth store binding with selected name/origin reconstruction deletion. Home destruction, actual CFG/Fault runtime/typed-C, fixed EXE30/OBJ and full failure cleanup remain required. Indexed storage primitive is 0e14fe7092; known DirectSlot header debt remains separate. No whole-lib/no-new-red or Birth execution claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

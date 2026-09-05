@@ -299,12 +299,10 @@ def validate_compareemit0_authority_v1(root: Path) -> None:
 
 
 def validate_fieldget_receipt0_authority_v1(root: Path) -> None:
-    fields = code_only(read(root / "src/mir/builder/fields.rs"))
+    fields = code_only(strip_cfg_test_modules(read(root / "src/mir/builder/fields.rs")))
     receipt = code_only(read(root / "src/mir/builder/fields/post_success.rs"))
 
-    ordinary = fields.split("pub(super) fn build_field_access_from_value", 1)[1].split(
-        "pub(super) fn build_field_assignment_from_value", 1
-    )[0]
+    ordinary = fields.split("pub(super) fn build_field_access_from_value", 1)[1]
     ordinary_commit = ordinary.split("let field_result_origin", 1)[1]
     if ordinary.count("PreparedOrdinaryFieldGetPostSuccessV1::prepare") != 1:
         fail("FIELDGET-RECEIPT0 requires one ordinary payload preparation consumer")
