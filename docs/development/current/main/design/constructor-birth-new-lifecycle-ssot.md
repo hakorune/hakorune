@@ -310,10 +310,26 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    primary Fault, no leak/double cleanup, no failed-construction result. Include
    fixed Pair EXE30/OBJ and finite selected old-edge removal, not only unit tests.
 
-The next implementation selection is task 1's source-exit connection, not
-another input-ABI consultation or storage-only detached helper. A slice names
-its exact issuer/consumer and failure tests before switching to fast. Missing
-Home field/native products are explicit dependencies, not assumed empty. The
+Task 1 first connects Birth-body non-escape verification directly to
+`issue_instance_constructor_semantic_batch_v1`, before semantic row publication.
+The exact receiver BindingRef seeds a conservative alias fixed point over sealed
+local initializer/plain-rebind relations. Every receiver/alias occurrence must
+be an admitted local alias edge or exact field receiver; capture, forwarding,
+stored values and unclassified uses reject as non-escape unproven. Reassignment
+never clears the alias set without a reaching-definition proof. Body relations
+are not a complete child graph; missing relations cannot prove safety.
+Acceptance uses existing package tests for own-field/direct-alias positives and direct/alias
+store, capture, forwarding and branch-rebind negatives. No new receipt is issued.
+This prerequisite does not prove initializer/override non-escape or cleanup.
+Checkpoint evidence: package 77/77, including the fixed Pair publication and
+pre-artifact rejection. Direct nested `me` is rejected by the earlier resolver;
+alias capture reaches the new verifier. New receipt/guard/fixture = 0; the
+unchecked Birth-row admission is closed, not a legacy-file deletion claim.
+Actual Fault cutpoints require new issuance in the existing common exit/Home
+owner: Allocation event order is source traversal, not runtime evaluation order.
+Normal Completion/E0 remain insufficient; do not reuse TextScan's successorless
+Fault terminal as caller propagation. No input-ABI reconsultation is needed.
+Missing Home field/native products are explicit dependencies, not assumed empty. The
 full Home program and general unsafe raw ownership stay parked; selected
 construction obligations cannot be waived or reduced to a Pair-only success.
 No new guard/fixture/card is planned. Split source owners before 800 lines;

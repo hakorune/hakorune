@@ -348,6 +348,14 @@ source snapshot and migrated hash belong to the acceptance workstream.
 
 Constructor rows retain the resolver's body-shape products for every function
 owner, including nested functions, and reject missing/foreign/residual products.
+Before a Birth row is issued, `instance_constructor_non_escape` checks every
+resolved receiver/alias occurrence. Exact local initializer/plain rebind edges
+propagate a conservative may-alias set; only local copies and field receiver
+uses are admitted. Captures, opaque calls, return/store values and unclassified
+uses reject as non-escape unproven. Rebinding never clears taint without a
+reaching-definition proof. No name scan, new receipt or runtime check is added.
+This is Birth-body admission only, not initializer/override coverage, Home Flow
+or Fault cleanup. The published backend rejection remains in force.
 The source-ID lowering loan borrows the checked root shape instead of dropping
 it. Birth rows additionally retain the existing source Completion verification;
 implicit Unit and value-returning completion remain distinct. This does not

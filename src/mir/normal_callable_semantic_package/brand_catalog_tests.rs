@@ -35,6 +35,57 @@ pub(super) fn issue_with_brand_catalog(
 }
 
 #[test]
+fn birth_receiver_non_escape_preserves_field_access_and_local_aliases() {
+    for body in [
+        "me.value = value",
+        "local saved = me.value",
+        "local alias = me alias.value = value",
+        "local alias = value alias = me alias.value = value",
+        "local alias = me local copy = alias copy.value = value",
+    ] {
+        let source = format!("box Page {{ value: i64 birth(value) {{ {body} }} }}");
+        let package = issue_with_brand_catalog(&source).expect("non-escaping Birth body");
+        assert_eq!(package.instance_constructors().rows().len(), 1);
+    }
+}
+
+#[test]
+fn birth_receiver_non_escape_rejects_unproven_uses_before_row_publication() {
+    use super::instance_constructor_semantic::InstanceConstructorSemanticBatchIssueV1;
+    for body in [
+        "return me",
+        "other.value = me",
+        "local alias = me other.value = alias",
+        "other.accept(me)",
+        "local alias = me other.accept(alias)",
+        "me.accept(value)",
+        "local nested = fn() { return me }",
+        "local alias = me local nested = fn() { return alias }",
+        "local alias = value if value { alias = me } other.value = alias",
+        "local alias = me alias = value other.value = alias",
+        "local aggregate = [me]",
+    ] {
+        let source = format!("box Page {{ value: i64 birth(value, other) {{ {body} }} }}");
+        let error = issue_with_brand_catalog(&source).expect_err("unproven Birth receiver use");
+        // Direct nested `me` is already stopped by the upstream resolver.
+        // Keep it as dependency evidence, not as acceptance for the new check;
+        // the separate alias-capture case below must reach ReceiverNonEscape.
+        if body == "local nested = fn() { return me }" {
+            assert!(matches!(&error,
+                super::NormalCallableSemanticPackageIssueV1::InstanceConstructors {
+                    _error: InstanceConstructorSemanticBatchIssueV1::Resolver(_),
+                }) && format!("{error:?}").contains("body Me shape lacks exact receiver authority"),
+                "wrong upstream boundary: {error:?}");
+            continue;
+        }
+        assert!(matches!(error,
+            super::NormalCallableSemanticPackageIssueV1::InstanceConstructors {
+                _error: InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape { .. },
+            }), "wrong boundary for {body}: {error:?}");
+    }
+}
+
+#[test]
 fn ordinary_new_rejects_value_birth_and_unselected_effect_contract() {
     use super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1;
     for (declaration, value_return) in [

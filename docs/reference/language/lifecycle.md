@@ -104,6 +104,14 @@ new
 
 `birth` is the constructor hook invoked only by `new`; direct receiver `birth(...)` calls, including `obj.birth(...)`, are forbidden.
 
+Decision (2026-09-05): the constructing receiver must not escape before
+publication, including through aliases. The current source-backed Birth-body
+admission proves local alias copies and field receiver uses; it rejects captures,
+forwarding, return/store values and other unproven uses before semantic row
+publication. Reassignment alone does not prove an alias safe in this conservative
+profile. This check does not yet cover field-initializer/override bodies or
+implement construction cleanup.
+
 Object reuse is an ordinary domain operation. Methods named `reset`, `reactivate`, `configure`, `clear`, or `attach` may prepare an already-alive object according to its Box contract; they never re-run `birth` or bypass the terminal Home DropPlan.
 
 If construction fails before publication:

@@ -35,6 +35,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     BodyShapeResidual,
     Completion { _issue: FunctionCompletionVerificationErrorV1 },
     SourceProjection { _error: String },
+    ReceiverNonEscape { _issue: super::instance_constructor_non_escape::BirthReceiverNonEscapeIssueV1 },
 }
 
 #[derive(Debug)]
@@ -309,6 +310,13 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     constructor_shapes.insert(owner, shape);
                 }
                 let birth_completion = if kind == ConstructorSourceKindV1::Birth {
+                    let shape = constructor_shapes.get(root)
+                        .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?;
+                    super::instance_constructor_non_escape::verify_birth_receiver_non_escape_v1(
+                        function, shape, &forest,
+                    ).map_err(|_issue| InstanceConstructorSemanticBatchIssueV1::ReceiverNonEscape {
+                        _issue,
+                    })?;
                     let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
                         declaration,
                         &forest,

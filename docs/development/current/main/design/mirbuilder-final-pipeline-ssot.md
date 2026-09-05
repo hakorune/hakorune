@@ -400,7 +400,7 @@ current cohort = `acceptance_source_reconciliation_i0`
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Next: user-approved Birth cleanup design is owned by constructor-birth-new-lifecycle-ssot (common exit -> construction cleanup -> typed consumer -> execution/retirement); type-contract-status links it as step 1. Source-exit integration remains unimplemented, not awaiting repeated approval.
+Task-1 prerequisite landed: Birth-body receiver non-escape verification before semantic row publication, exact binding/local-alias/use/capture relations; package 77/77, fixed Pair publication and backend rejection preserved. Direct nested me is upstream dependency rejection. Constructor-birth-new-lifecycle-ssot owns next common Fault cutpoint/Home issuance -> construction cleanup -> typed consumer -> execution/retirement. No cleanup/Fault/EXE or physical legacy-file deletion claim for this admission check.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

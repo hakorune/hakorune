@@ -11,6 +11,7 @@ mod direct_call_loan;
 mod dynamic_admission;
 mod install;
 mod instance_constructor_loan;
+mod instance_constructor_non_escape;
 mod instance_constructor_semantic;
 mod issuer;
 mod model;
