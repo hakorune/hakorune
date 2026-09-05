@@ -60,7 +60,8 @@ pub(super) fn view_for_key<'source>(
         SelectedNormalCallableKeyV1::Cataloged(key) => match key.namespace() {
             SameModuleCallableNamespaceV1::FreeFunction => ReceiverPolicyV1::Absent,
             SameModuleCallableNamespaceV1::StaticBoxMethod => ReceiverPolicyV1::StaticCurrentOwner,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => ReceiverPolicyV1::DeclaredInstance,
+            SameModuleCallableNamespaceV1::InstanceBoxMethod
+            | SameModuleCallableNamespaceV1::BirthConstructor => ReceiverPolicyV1::DeclaredInstance,
         },
     };
     Ok(FunctionSyntaxViewV1::from_borrowed_function_parts(

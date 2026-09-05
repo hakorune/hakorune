@@ -149,7 +149,8 @@ fn validate_selected_signature_loan(
         let expected_receiver_lane_count = match key.namespace() {
             SameModuleCallableNamespaceV1::FreeFunction => 0,
             SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
+            SameModuleCallableNamespaceV1::InstanceBoxMethod
+            | SameModuleCallableNamespaceV1::BirthConstructor => 1,
         };
         if signature.owner() != selected.source().owner()
             || !signature

@@ -328,6 +328,18 @@ changed syntax, deferred resolution, root/profile drift, and cardinality drift
 reject before Builder effects. This row does not consume the batch physically,
 activate Brand unwrap, or remove the legacy `is_brand_declared` probe.
 
+## Birth definition publication
+
+Birth definition publication uses the existing constructor semantic row:
+its exact source ID and typed Birth kind issue one `BirthConstructor` callable
+key. Admission carries that key into `CatalogedConstructor` and the existing
+Atomic Publish definition table; physical symbol text never reissues it.
+Source arity N requires physical N+1. Duplicate key, symbol/arity drift, and
+ordinary-method admission of a birth key reject before publication. Non-birth
+constructor kinds keep their existing compatibility disposition. Definition
+retention alone does not establish the pending receiver-bearing Call/backend
+vertical or source-to-EXE acceptance.
+
 ## Script instance-Box transferred boundary I0 (2026-08-20)
 
 For non-app selected Script, an instance Box is transparent to the Script

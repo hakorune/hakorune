@@ -308,6 +308,9 @@ impl std::error::Error for FunctionPublicationErrorV1 {}
 /// not issue a new source meaning and it never permits symbol-based recovery.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CanonicalCallableDefinitionPublicationErrorV1 {
+    KeyNamespaceMismatch {
+        key: CanonicalSameModuleCallableKeyV1,
+    },
     DuplicateKey {
         key: CanonicalSameModuleCallableKeyV1,
     },

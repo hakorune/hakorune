@@ -58,6 +58,7 @@ pub(in crate::mir) enum FunctionDraftKeyV1 {
     /// Cataloged Box-method identity; unlike `CanonicalCallable`, this keeps
     /// the same-module namespace and owner/name/arity together.
     CatalogedBoxMethod(CanonicalSameModuleCallableKeyV1),
+    CatalogedConstructor(CanonicalSameModuleCallableKeyV1),
     SyntheticConditionFn,
 }
 

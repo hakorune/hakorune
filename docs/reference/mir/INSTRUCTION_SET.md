@@ -160,6 +160,18 @@ allowlists are being updated.
 - Await
 - Debug
 
+### Birth callable definition publication
+
+Decision: the source constructor semantic owner issues a `BirthConstructor`
+key in the existing same-module callable namespace. The key survives constructor
+admission, collection, and Atomic Publish in the sole callable-definition table.
+Its source arity is N; its definition has receiver plus N physical parameters.
+Birth is not a Global/static method target, and ordinary method publication
+must reject this namespace. Missing/duplicate definitions and symbol/arity drift
+are publication errors, not opportunities for name or receiver repair.
+This definition contract does not change `NewBox` allocation semantics or claim
+that the receiver-bearing birth Call/backend cutover is already supported.
+
 ### CheckedCallOut transport lane
 
 `CheckedCallOut` is a canonical MIR terminator with explicit Normal/Fault

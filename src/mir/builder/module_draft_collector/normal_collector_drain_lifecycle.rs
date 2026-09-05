@@ -98,6 +98,11 @@ impl PreparedNormalCollectorDrainLifecycleV1<'_> {
                 .remove(&key)
                 .expect("prepared normal collector key must own one draft");
             match key {
+                FunctionDraftKeyV1::CatalogedConstructor(canonical_key) => {
+                    target
+                        .add_cataloged_constructor(canonical_key, entry.draft)
+                        .expect("sealed constructor publication must remain valid");
+                }
                 FunctionDraftKeyV1::CatalogedBoxMethod(canonical_key) => {
                     target
                         .add_cataloged_box_method(canonical_key, entry.draft)
@@ -186,6 +191,7 @@ impl SealedNormalCollectorDrainReceiptV1 {
                                 | CollectedDraftReplacementDispositionV1::ReplacedWholePair { .. }
                         ) => {}
                 FunctionDraftKeyV1::CatalogedBoxMethod(canonical_key)
+                | FunctionDraftKeyV1::CatalogedConstructor(canonical_key)
                     if admission.policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate
                         && matches!(
                             &admission.replacement,
@@ -199,13 +205,20 @@ impl SealedNormalCollectorDrainReceiptV1 {
                             },
                         ));
                     }
-                    target
-                        .preflight_cataloged_box_method(
+                    let preflight = if matches!(key, FunctionDraftKeyV1::CatalogedConstructor(_)) {
+                        target.preflight_cataloged_constructor(
                             canonical_key,
                             admission.symbol.as_ref(),
                             admission.arity,
                         )
-                        .map_err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition)?;
+                    } else {
+                        target.preflight_cataloged_box_method(
+                            canonical_key,
+                            admission.symbol.as_ref(),
+                            admission.arity,
+                        )
+                    };
+                    preflight.map_err(NormalCollectorDrainLifecycleErrorV1::CanonicalDefinition)?;
                 }
                 _ => {
                     return Err(match key {
@@ -214,7 +227,8 @@ impl SealedNormalCollectorDrainReceiptV1 {
                                 key: key.clone(),
                             }
                         }
-                        FunctionDraftKeyV1::CatalogedBoxMethod(_) => {
+                        FunctionDraftKeyV1::CatalogedBoxMethod(_)
+                        | FunctionDraftKeyV1::CatalogedConstructor(_) => {
                             NormalCollectorDrainLifecycleErrorV1::FinalAdmissionDrift {
                                 key: key.clone(),
                             }
@@ -311,6 +325,53 @@ mod tests {
             .seal(draft_with_arity("ParserScanLoopBox.skip_while/4", 4))
             .unwrap()
             .collect();
+    }
+
+    #[test]
+    fn birth_definition_survives_atomic_drain_with_n_plus_one_abi() {
+        use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+        let key = CanonicalSameModuleCallableKeyV1::birth_constructor("Page", 2);
+        let symbol = key.mir_symbol_projection();
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CatalogedConstructor(key.clone()),
+                symbol.clone(),
+                3,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap()
+            .seal(draft_with_arity(&symbol, 3))
+            .unwrap()
+            .collect();
+        let mut module = MirModule::new("birth".into());
+        assert!(matches!(
+            module.preflight_cataloged_constructor(&key, &symbol, 2),
+            Err(CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch { .. })
+        ));
+        assert!(matches!(
+            module.preflight_cataloged_box_method(&key, &symbol, 3),
+            Err(CanonicalCallableDefinitionPublicationErrorV1::KeyNamespaceMismatch { .. })
+        ));
+        assert!(matches!(
+            module.preflight_cataloged_constructor(&key, "Wrong.birth/2", 3),
+            Err(CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch { .. })
+        ));
+        assert_eq!(module.canonical_callable_definition_count(), 0);
+        collector
+            .prepare_normal_collector_drain(&mut module, brand())
+            .unwrap()
+            .commit();
+        assert_eq!(
+            module.canonical_callable_definition_symbol(&key),
+            Some(symbol.as_str())
+        );
+        assert_eq!(module.canonical_callable_definition_count(), 1);
+        assert!(matches!(
+            module.add_cataloged_constructor(key, draft_with_arity(&symbol, 3)),
+            Err(CanonicalCallableDefinitionPublicationErrorV1::DuplicateKey { .. })
+        ));
+        assert_eq!(module.canonical_callable_definition_count(), 1);
     }
 
     #[test]

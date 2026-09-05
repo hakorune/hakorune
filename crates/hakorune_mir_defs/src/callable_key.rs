@@ -16,6 +16,8 @@ pub enum SameModuleCallableNamespaceV1 {
     FreeFunction,
     StaticBoxMethod,
     InstanceBoxMethod,
+    /// A constructor hook selected by `new`, with source N / physical N+1.
+    BirthConstructor,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -27,6 +29,15 @@ pub struct CanonicalSameModuleCallableKeyV1 {
 }
 
 impl CanonicalSameModuleCallableKeyV1 {
+    pub fn birth_constructor(owner: &str, arity: u32) -> Self {
+        Self {
+            namespace: SameModuleCallableNamespaceV1::BirthConstructor,
+            owner: owner.into(),
+            name: "birth".into(),
+            arity,
+        }
+    }
+
     pub fn free_function(name: &str, arity: u32) -> Self {
         Self {
             namespace: SameModuleCallableNamespaceV1::FreeFunction,
@@ -78,7 +89,8 @@ impl CanonicalSameModuleCallableKeyV1 {
                 format!("{}/{}", self.name, self.arity)
             }
             SameModuleCallableNamespaceV1::StaticBoxMethod
-            | SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+            | SameModuleCallableNamespaceV1::InstanceBoxMethod
+            | SameModuleCallableNamespaceV1::BirthConstructor => {
                 format!("{}.{}/{}", self.owner, self.name, self.arity)
             }
         }
@@ -102,6 +114,9 @@ impl CanonicalSameModuleCallableKeyV1 {
             }
             SameModuleCallableNamespaceV1::InstanceBoxMethod => {
                 Err("instance methods do not have a global target".to_owned())
+            }
+            SameModuleCallableNamespaceV1::BirthConstructor => {
+                Err("birth constructors do not have a global target".to_owned())
             }
         }
     }

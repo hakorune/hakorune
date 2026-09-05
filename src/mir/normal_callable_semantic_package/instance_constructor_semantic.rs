@@ -29,6 +29,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     source_id: ConstructorSourceIdV1,
+    published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
     final_box_ordinal: u32,
     box_name: Box<str>,
     key: Box<str>,
@@ -80,6 +81,12 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticRowV1 {
+    pub(crate) fn published_birth_key(
+        &self,
+    ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
+        self.published_birth_key.as_ref()
+    }
+
     pub(crate) fn source_id(&self) -> &ConstructorSourceIdV1 {
         &self.source_id
     }
@@ -251,6 +258,12 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     }
                 })?;
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
+                    published_birth_key: (kind == ConstructorSourceKindV1::Birth).then(|| {
+                        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
+                            &box_name,
+                            source_arity,
+                        )
+                    }),
                     source_id,
                     final_box_ordinal,
                     box_name,

@@ -57,7 +57,7 @@ impl ModuleLoweringPortV1<'_> {
         )
     }
 
-    fn commit_pending_with_policy(
+    pub(in crate::mir::builder) fn commit_pending_with_policy(
         &mut self,
         pending: LegacyFunctionPendingSessionV1<'_>,
         key: super::module_draft_collector::FunctionDraftKeyV1,

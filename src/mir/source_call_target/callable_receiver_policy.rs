@@ -20,7 +20,8 @@ impl SameModuleCallableSourceReceiverPolicyV1 {
         match namespace {
             SameModuleCallableNamespaceV1::FreeFunction => Self::Absent,
             SameModuleCallableNamespaceV1::StaticBoxMethod => Self::StaticCurrentOwner,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => Self::DeclaredInstance,
+            SameModuleCallableNamespaceV1::InstanceBoxMethod
+            | SameModuleCallableNamespaceV1::BirthConstructor => Self::DeclaredInstance,
         }
     }
 

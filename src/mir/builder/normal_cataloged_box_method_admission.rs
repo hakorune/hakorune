@@ -15,6 +15,7 @@ use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalCatalogedBoxMethodAdmissionErrorV1 {
     PhysicalArityOverflow,
+    ConstructorRequiresOwnAdmission,
 }
 
 impl std::fmt::Display for NormalCatalogedBoxMethodAdmissionErrorV1 {
@@ -104,6 +105,11 @@ impl NormalCatalogedBoxMethodDraftAdmissionV1 {
         let source_arity = usize::try_from(source_key.arity())
             .map_err(|_| NormalCatalogedBoxMethodAdmissionErrorV1::PhysicalArityOverflow)?;
         let physical_arity = match source_key.namespace() {
+            SameModuleCallableNamespaceV1::BirthConstructor => {
+                return Err(
+                    NormalCatalogedBoxMethodAdmissionErrorV1::ConstructorRequiresOwnAdmission,
+                );
+            }
             SameModuleCallableNamespaceV1::FreeFunction => source_arity,
             SameModuleCallableNamespaceV1::StaticBoxMethod => source_arity,
             SameModuleCallableNamespaceV1::InstanceBoxMethod => source_arity

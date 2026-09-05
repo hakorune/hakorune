@@ -26,6 +26,39 @@ impl MirModule {
         key: CanonicalSameModuleCallableKeyV1,
         function: MirFunction,
     ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        self.check_constructor_namespace(&key, false)?;
+        self.add_cataloged_callable(key, function)
+    }
+
+    pub(crate) fn add_cataloged_constructor(
+        &mut self,
+        key: CanonicalSameModuleCallableKeyV1,
+        function: MirFunction,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        self.check_constructor_namespace(&key, true)?;
+        self.add_cataloged_callable(key, function)
+    }
+
+    fn check_constructor_namespace(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        constructor: bool,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        if (key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor) != constructor {
+            return Err(
+                CanonicalCallableDefinitionPublicationErrorV1::KeyNamespaceMismatch {
+                    key: key.clone(),
+                },
+            );
+        }
+        Ok(())
+    }
+
+    fn add_cataloged_callable(
+        &mut self,
+        key: CanonicalSameModuleCallableKeyV1,
+        function: MirFunction,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
         let symbol = function.signature.name.clone();
         let expected_symbol = key.mir_symbol_projection();
         if symbol != expected_symbol {
@@ -36,7 +69,8 @@ impl MirModule {
         let expected_arity = match key.namespace() {
             SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
             SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+            SameModuleCallableNamespaceV1::InstanceBoxMethod
+            | SameModuleCallableNamespaceV1::BirthConstructor => {
                 (key.arity() as usize).checked_add(1).ok_or_else(|| {
                     CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch {
                         key: key.clone(),
@@ -73,6 +107,26 @@ impl MirModule {
         symbol: &str,
         physical_arity: usize,
     ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        self.check_constructor_namespace(key, false)?;
+        self.preflight_cataloged_callable(key, symbol, physical_arity)
+    }
+
+    pub(crate) fn preflight_cataloged_constructor(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        symbol: &str,
+        physical_arity: usize,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
+        self.check_constructor_namespace(key, true)?;
+        self.preflight_cataloged_callable(key, symbol, physical_arity)
+    }
+
+    fn preflight_cataloged_callable(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        symbol: &str,
+        physical_arity: usize,
+    ) -> Result<(), CanonicalCallableDefinitionPublicationErrorV1> {
         if symbol != key.mir_symbol_projection() {
             return Err(
                 CanonicalCallableDefinitionPublicationErrorV1::KeySymbolMismatch {
@@ -84,7 +138,8 @@ impl MirModule {
         let expected_arity = match key.namespace() {
             SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
             SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
-            SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+            SameModuleCallableNamespaceV1::InstanceBoxMethod
+            | SameModuleCallableNamespaceV1::BirthConstructor => {
                 (key.arity() as usize).checked_add(1).ok_or_else(|| {
                     CanonicalCallableDefinitionPublicationErrorV1::KeyArityMismatch {
                         key: key.clone(),

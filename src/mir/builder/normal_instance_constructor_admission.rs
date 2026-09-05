@@ -37,6 +37,7 @@ pub(super) struct VerifiedInstanceConstructorPhysicalSourceCohortV1 {
 #[derive(Debug)]
 struct VerifiedInstanceConstructorPhysicalSourceRowV1 {
     source_id: ConstructorSourceIdV1,
+    published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
     final_box_ordinal: u32,
     box_name: Box<str>,
     key: Box<str>,
@@ -133,6 +134,7 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             };
             rows.push(VerifiedInstanceConstructorPhysicalSourceRowV1 {
                 source_id: semantic.source_id().clone(),
+                published_birth_key: semantic.published_birth_key().cloned(),
                 final_box_ordinal: semantic.final_box_ordinal(),
                 box_name: semantic.box_name().into(),
                 key: semantic.key().into(),
@@ -208,6 +210,7 @@ fn test_body_kind(statement: &ASTNode) -> ParserNormalProgramBodySyntaxKindV1 {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) struct NormalInstanceConstructorSourceKeyV1 {
     source_id: ConstructorSourceIdV1,
+    published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
     statement_index: usize,
     box_name: Box<str>,
     parser_constructor_key: Box<str>,
@@ -216,12 +219,14 @@ pub(in crate::mir::builder) struct NormalInstanceConstructorSourceKeyV1 {
 impl NormalInstanceConstructorSourceKeyV1 {
     fn from_physical_source(
         source_id: ConstructorSourceIdV1,
+        published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
         statement_index: usize,
         box_name: &str,
         parser_constructor_key: &str,
     ) -> Self {
         Self {
             source_id,
+            published_birth_key,
             statement_index,
             box_name: box_name.into(),
             parser_constructor_key: parser_constructor_key.into(),
@@ -270,6 +275,7 @@ impl NormalInstanceConstructorSourceBatchV1 {
             let row = cohort.row_for(statement_index, box_name, &key)?;
             sources.push(NormalInstanceConstructorSourceKeyV1::from_physical_source(
                 row.source_id.clone(),
+                row.published_birth_key.clone(),
                 statement_index,
                 row.box_name.as_ref(),
                 row.key.as_ref(),
@@ -344,6 +350,7 @@ impl NormalInstanceConstructorSourceBatchV1 {
             .map(|(ordinal, key)| {
                 NormalInstanceConstructorSourceKeyV1::from_physical_source(
                     ConstructorSourceIdV1::test_new(ordinal as u32),
+                    None,
                     statement_index,
                     box_name,
                     &key,
@@ -362,8 +369,7 @@ impl NormalInstanceConstructorSourceBatchV1 {
     }
 }
 
-/// One physical constructor lowering demand.  Its source key deliberately
-/// stays distinct from the legacy collector identity.
+/// One physical constructor demand; a source-issued Birth key survives collection.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct NormalInstanceConstructorDraftAdmissionV1 {
     source_key: NormalInstanceConstructorSourceKeyV1,
@@ -376,16 +382,26 @@ impl NormalInstanceConstructorDraftAdmissionV1 {
         source_key: NormalInstanceConstructorSourceKeyV1,
         normalized_parameter_count: usize,
     ) -> Result<Self, InstanceConstructorAbiErrorV1> {
-        let physical_symbol = format!(
-            "{}.{}",
-            source_key.box_name(),
-            source_key.parser_constructor_key()
-        )
+        let source_arity = source_key
+            .published_birth_key
+            .as_ref()
+            .map_or(normalized_parameter_count, |key| key.arity() as usize);
+        let abi = InstanceConstructorAbiV1::issue(source_arity)?;
+        abi.validate(normalized_parameter_count, abi.physical_arity())?;
+        let physical_symbol = if let Some(key) = &source_key.published_birth_key {
+            key.mir_symbol_projection()
+        } else {
+            format!(
+                "{}.{}",
+                source_key.box_name(),
+                source_key.parser_constructor_key()
+            )
+        }
         .into_boxed_str();
         Ok(Self {
             source_key,
             physical_symbol,
-            abi: InstanceConstructorAbiV1::issue(normalized_parameter_count)?,
+            abi,
         })
     }
 
@@ -401,18 +417,18 @@ impl NormalInstanceConstructorDraftAdmissionV1 {
         self.abi.physical_arity()
     }
 
-    fn into_legacy_collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
+    fn into_collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
-            source_key: _,
+            source_key,
             physical_symbol,
             abi,
         } = self;
         let symbol = physical_symbol.into_string();
-        (
-            FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
-            symbol,
-            abi.physical_arity(),
-        )
+        let key = match source_key.published_birth_key {
+            Some(key) => FunctionDraftKeyV1::CatalogedConstructor(key),
+            None => FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
+        };
+        (key, symbol, abi.physical_arity())
     }
 }
 
@@ -422,7 +438,14 @@ impl ModuleLoweringPortV1<'_> {
         pending: LegacyFunctionPendingSessionV1<'_>,
         admission: NormalInstanceConstructorDraftAdmissionV1,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.commit_legacy_symbol_pending(pending, admission.into_legacy_collector_parts())
+        let (key, symbol, arity) = admission.into_collector_parts();
+        let policy = match &key {
+            FunctionDraftKeyV1::CatalogedConstructor(_) => {
+                super::module_draft_collector::DraftPublicationPolicyV1::CanonicalRejectDuplicate
+            }
+            _ => super::module_draft_collector::DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        };
+        self.commit_pending_with_policy(pending, key, symbol, arity, policy)
     }
 }
 
@@ -490,10 +513,35 @@ mod tests {
     use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 
     #[test]
+    fn birth_admission_retains_source_key_and_rejects_arity_drift() {
+        let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Page", 2);
+        let source = NormalInstanceConstructorSourceKeyV1::from_physical_source(
+            ConstructorSourceIdV1::test_new(0),
+            Some(key.clone()),
+            0,
+            "Page",
+            "birth/2",
+        );
+        assert!(matches!(
+            NormalInstanceConstructorDraftAdmissionV1::seal(source.clone(), 1),
+            Err(InstanceConstructorAbiErrorV1::SourceArityMismatch {
+                expected: 2,
+                actual: 1,
+            })
+        ));
+        let admission = NormalInstanceConstructorDraftAdmissionV1::seal(source, 2).unwrap();
+        let (actual, symbol, physical_arity) = admission.into_collector_parts();
+        assert_eq!(actual, FunctionDraftKeyV1::CatalogedConstructor(key));
+        assert_eq!(symbol, "Page.birth/2");
+        assert_eq!(physical_arity, 3);
+    }
+
+    #[test]
     fn one_source_occurrence_materializes_two_legacy_demands() {
         let source_id = ConstructorSourceIdV1::test_new(0);
         let source_key = NormalInstanceConstructorSourceKeyV1::from_physical_source(
             source_id.clone(),
+            None,
             7,
             "Page",
             "birth/0",
@@ -507,7 +555,7 @@ mod tests {
         assert_eq!(first.source_key().statement_index(), 7);
         assert_eq!(first.physical_symbol(), "Page.birth/0");
         assert_eq!(second.physical_arity(), 1);
-        let (key, symbol, arity) = second.into_legacy_collector_parts();
+        let (key, symbol, arity) = second.into_collector_parts();
         assert_eq!(
             key,
             FunctionDraftKeyV1::LegacySymbol("Page.birth/0".to_owned())

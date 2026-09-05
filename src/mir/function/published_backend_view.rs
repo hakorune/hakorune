@@ -9,9 +9,7 @@ use hakorune_mir_defs::{
     CanonicalSameModuleGlobalTargetV1, SameModuleCallableNamespaceV1,
 };
 
-use crate::mir::{
-    ArrayElementWriteKind, Callee, MirFunction, MirInstruction, MirModule, ValueId,
-};
+use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, MirModule, ValueId};
 
 #[path = "published_backend_view_c_transport.rs"]
 mod c_transport;
@@ -651,7 +649,8 @@ fn expected_physical_arity(key: &CanonicalSameModuleCallableKeyV1) -> usize {
     match key.namespace() {
         SameModuleCallableNamespaceV1::FreeFunction => key.arity() as usize,
         SameModuleCallableNamespaceV1::StaticBoxMethod => key.arity() as usize,
-        SameModuleCallableNamespaceV1::InstanceBoxMethod => key.arity() as usize + 1,
+        SameModuleCallableNamespaceV1::InstanceBoxMethod
+        | SameModuleCallableNamespaceV1::BirthConstructor => key.arity() as usize + 1,
     }
 }
 

@@ -196,8 +196,9 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                     }
                 })?;
                 let key = match namespace {
-                    SameModuleCallableNamespaceV1::FreeFunction => {
-                        unreachable!("box-method catalog cannot issue free-function keys")
+                    SameModuleCallableNamespaceV1::FreeFunction
+                    | SameModuleCallableNamespaceV1::BirthConstructor => {
+                        unreachable!("box-method catalog only issues method keys")
                     }
                     SameModuleCallableNamespaceV1::StaticBoxMethod => {
                         CanonicalSameModuleCallableKeyV1::static_box_method(name, map_name, arity)
@@ -346,7 +347,8 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
     ) -> Option<&VerifiedSameModuleCallableDeclarationV1> {
         let arity = u32::try_from(arity).ok()?;
         let key = match namespace {
-            SameModuleCallableNamespaceV1::FreeFunction => return None,
+            SameModuleCallableNamespaceV1::FreeFunction
+            | SameModuleCallableNamespaceV1::BirthConstructor => return None,
             SameModuleCallableNamespaceV1::StaticBoxMethod => {
                 CanonicalSameModuleCallableKeyV1::static_box_method(owner, method, arity)
             }
