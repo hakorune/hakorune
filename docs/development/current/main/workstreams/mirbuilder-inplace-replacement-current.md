@@ -547,7 +547,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    is not repurposed. Static N and birth N+1 remain distinct admission kinds.
    After the landed dispatcher split: preserve key/definition -> replace Global
    birth writer -> published view/C row -> Pair EXE -> selected old-edge deletion.
-   Proposed kind 8 frame needs the type-contract-status kind/payload ABI decision;
+   Kind 8 Birth uses the accepted borrowed wire-array task contract in type-contract-status;
    receiver is projected once. Equal receiver/argument ValueIds are not duplicates:
    verify lane structure, never remove or reject args by value equality.
    Contract: source result/effect/Completion and TypedObject plans remain authority.
@@ -563,7 +563,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    no field-only IntegerBox alias or storage-derived scalar proof. Existing
    IntegerBox object/runtime identity remains. Required write/backend handoffs:
    [type contract tasks](type-contract-status.md#integer-field-migration-bounded-handoff).
-   [Ordered adjacent queue](type-contract-status.md#adjacent-follow-ups-read-only-review-2026-09-05): refresh, rebind, initialization, conditional quick/release rejection; no Unknown waiver or automatic preemption.
+   [Birth execution steps](type-contract-status.md#accepted-birth-input-abi-and-remaining-execution-tasks) precede that ledger's adjacent queue; no Unknown waiver or automatic preemption.
 
    Execution checklist (record before further implementation; same owner):
    - [x] Two-field migration checkpoint: package 73/73, including valid module

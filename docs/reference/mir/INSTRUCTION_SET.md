@@ -178,6 +178,17 @@ disposition, not proof that failure is impossible; FieldSet checks remain separa
 This does not change `NewBox` semantics. A backend without the receiver-bearing
 consumer rejects before object emission, without Global/JSON/receiver repair.
 
+Birth backend input direction (accepted 2026-09-05; implementation pending):
+selected-C uses an internal synchronous entry with receiver, a borrowed array
+of the existing 16-byte `DynamicV2WireValueV1`, and source argument count.
+This is a physical projection; canonical receiver/N args and N+1 MIR parameters
+do not change. The runtime array and compile-time published descriptor have
+separate borrow lifetimes. No Dynamic invocation, lease or CallOut semantics
+are inherited from the shared wire vocabulary. Result/Fault and failed-object
+cleanup must be connected before activation; this input decision does not turn
+a trap/status code into Fault or suppress the check at each FieldSet.
+Execution order: [Birth input ABI tasks](../../development/current/main/workstreams/type-contract-status.md#accepted-birth-input-abi-and-remaining-execution-tasks).
+
 ### CheckedCallOut transport lane
 
 `CheckedCallOut` is a canonical MIR terminator with explicit Normal/Fault

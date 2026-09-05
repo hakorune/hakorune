@@ -94,7 +94,7 @@ Ordered tasks inside the existing birth series:
    permits Direct; loss of that relation across Copy/Phi/rebind or a foreign
    formal invalidates the proof, not a correctly preserved Copy by itself.
    Otherwise retain producer-issued kind for a Checked write, or reject before
-   artifact. Generic tagged birth ABI is not already available or selected.
+   artifact. The bounded Birth wire-array direction below is accepted, not implemented.
    `OrdinaryScalar`, default `T_I64`, N+1, observed constant callers and storage
    setters are not Integer proof; reuse the published relation/capability gate.
 4. Align actual EXE and OBJ capability with that consumer. Currently dynamic
@@ -135,34 +135,79 @@ Source-proof admission would therefore require all incoming callers AND an
 external-entry boundary plus durable proof reconstruction; private linkage
 alone is insufficient. FieldAccess proof expansion is not a Pair prerequisite.
 
-Representation proposal (approval required before ABI code): reuse only the
+Representation Decision: user accepted the bounded Birth transport direction
+on 2026-09-05. Reuse only the
 16-byte `DynamicV2WireValueV1` vocabulary from `src/abi/dynamic_call_slot_wire.rs`
 and `include/nyrt_dynamic_call_slot_v2.h`: tag/reserved/payload. No Birth producer
 or consumer exists for it yet. Dynamic invocation, Home, leases, suspension and
 48-byte CallOut are NOT imported. No second tag enum or semantic receipt.
 
-Ordered implementation contract after approval, inside this same Birth series:
-1. Existing producer/Lower owner projects known Integer to ImmediateI64 and a
-   real host-handle carrier to HostHandle; never tag Bool/Float/Void/raw object
-   bits as handles. Unsupported producers reject before artifact. Preserve the
-   tag and payload together through actual/formal, Copy/rebind/Phi; incomplete
-   supported coverage rejects rather than silently dropping the tag.
-2. Existing constructor ABI/view owners distinguish N source args, N+1 MIR
-   parameters and the backend's explicit aggregate/expanded machine layout.
-   Fix aggregate-vs-expanded choice, synchronous borrow lifetime, and exact
-   call/definition mapping before activation; no hidden extra lanes or ABI
-   arity inferred from the old N+1 count. Typed Birth entry is internal, and
-   every caller uses its published signature; legacy entry mixing rejects.
-3. Project existing ExactNumericRuntimeCheckContract to each FieldSet and check
-   ImmediateI64 immediately before that store. A well-formed noninteger faults
-   there, retaining prior writes/effects. Name and verify the existing Fault
-   landing/no-object-result owner before activation; do not invent abort or
-   reuse a Dynamic CallOut merely because it has a status field.
-4. Align EXE/OBJ capability with this consumer, then fixed Pair EXE30 and
-   remaining exclusive projection retirement. Test equal Integer/handle bits,
-   second-write mismatch chronology, tag/payload drift, signature mismatch and
-   legacy entry rejection. Unknown/missing tags and nonzero reserved reject;
-   wire validate accepting Invalid+zero does NOT authorize a Birth input.
+### Accepted Birth input ABI and remaining execution tasks
+
+Decision: synchronous borrow-only wire-array, not expanded per-value machine
+arguments or by-value aggregates. Canonical Call remains receiver + N source
+ValueIds; `InstanceConstructorAbiV1` continues to validate N/N+1 canonical
+parameters. Selected generated internal Birth has three input machine arguments:
+`receiver: i64, argv: *const DynamicV2WireValueV1, argc: u32`.
+Each of N rows is 16 bytes, aligned to 8. Result/Fault ABI is NOT fixed by this
+input decision; neither `void`, integer status nor trap is an implicit choice.
+
+The existing published C transport owner issues one physical descriptor from
+the published key/definition: source arity, formal ordinal/ValueId relation,
+wire revision 2 and `BorrowedWireArrayV1` input kind. This label denotes a
+physical projection, not a new semantic receipt. Calls and definitions consume
+the same descriptor. Any incompatible C frame layout uses a versioned ingress;
+never change a V1 struct under the same ABI symbol or retry its old entry.
+
+Compile-time Rust frames are borrowed only during the compiler callback;
+generated runtime argv is separate caller-owned stack storage, immutable and
+borrowed only during the synchronous Birth call. It cannot escape/store/return.
+HostHandle payload owners stay alive across that borrow; no new retain/lease
+authority. Normal and Fault both end the borrow. Bound stack allocation per
+function activation rather than accumulating an alloca on each loop iteration.
+For N=0, no row may be dereferenced; N, length and overflow are checked explicitly.
+
+These are checklist steps in the existing series, not new scheduler rows:
+
+| Step | Change and existing owner | Required completion evidence |
+| --- | --- | --- |
+| 0 — accepted | input ABI above; `instance_constructor_abi`, published C transport | source N / MIR N+1 / machine inputs 3 remain distinct; user approval no longer pending |
+| 1 — next | close FieldSet Fault/result/cleanup mapping with the construction lifecycle owner | exact landing, no caller object on failure, release of unpublished scalar object; no substitution of trap or storage status for semantic Fault |
+| 2 | retain producer-issued kind/payload through existing Lower/ordinary-new and formal binding owners | each pair has one actual/ordinal; Copy copies both, rebind replaces both, Phi uses identical predecessor mapping; unsupported producers reject |
+| 3 | published view/C transport + `capi_transport.rs` | versioned descriptor/row agreement, borrow lifetime, exact target/formal/ordinal; missing/foreign/duplicate/old ABI rejects before emission |
+| 4 | selected same-module Birth body owner + exact-numeric FieldSet consumer | internal wire-array entry, runtime pair loads, check at each store, existing physical store only after success; Fault from step 1 never joins normal object publication |
+| 5 | existing typed CLI/EXE/OBJ admission and fixed Pair acceptance | real EXE exit 30, OBJ validation/execution, negative chronology, no retry, selected tagless entry/projection callers zero and physical deletion |
+
+Step 1 is a bounded integration decision, not permission to reopen all Home/GC.
+Current concrete evidence: `same_module_function_emit_exact_status_trap` emits
+llvm.trap/unreachable, and `nyash_object_field_set_i64_hii` returns only storage
+success/failure. Neither owns Birth Fault or construction cleanup. The reference
+VM checks kind before mutation in `exec/numeric_contracts.rs`, but is not the
+selected-C implementation owner. Bind the scalar failed-construction case to
+`constructor-birth-new-lifecycle-ssot.md` / `lifecycle.md` before code activation;
+general child-Home/fini handling stays under OWN-HOME-BIRTH-D0. A reachable
+child-Home case cannot be silently waived as out of scope.
+
+Producer contract: ImmediateI64 comes from an existing source/canonical Integer
+producer, HostHandle only from a real live host-handle carrier. Never re-tag
+Bool/Float/Void/raw object bits as handles or infer kind from storage/name/bit
+patterns. The first supported producer inventory is finite and independent of
+Pair's name; unsupported producer/merge coverage rejects before artifact.
+
+| Failure boundary | Expected result |
+| --- | --- |
+| compile-time missing/foreign/drifted descriptor, unsupported kind producer or legacy ABI | reject, no artifact, no old ingress retry |
+| malformed runtime wire: Invalid (even zero payload), unknown tag, reserved or arity mismatch | selected contract failure before body/store, cleanup/no-object-result per step 1 |
+| valid HostHandle reaches an i64 FieldSet | runtime type Fault immediately before that write; earlier writes/effects stay ordered; no successful object result |
+| verified Unit completion after all writes | publish object once; never leak store status or synthetic integer Birth result |
+
+Acceptance extends existing ABI/package/view tests and the fixed Pair proof:
+N=0/N>0, equal Integer/handle bits, swapped ordinals, stale Copy/Phi/rebind,
+second-write-only mismatch, borrow end on both exits, failed-store destination
+unchanged, and EXE/OBJ capability agreement. Use existing test owners; an
+over-760-line owner must split by responsibility before growth, all source <=800.
+No baseline rewrite, ignored tests, new guard or new fixture file. Retarget or
+delete superseded cohort-only tests only after replacement coverage/caller checks.
 
 Until this contract is closed, UnsupportedBeforeObject remains. This is a
 physical transport decision, not permission to change unannotated parameters

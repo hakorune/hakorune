@@ -400,7 +400,7 @@ current cohort = `acceptance_source_reconciliation_i0`
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Next: Birth Call landed at 495d5fc9df; type-contract-status owns the bounded kind/payload ABI proposal and approval boundary before C activation, EXE30 and remaining projection retirement.
+Next: Birth input wire-array direction is user-approved; type-contract-status owns steps 1-5 (Fault/cleanup mapping -> paired values -> versioned C transport -> checked Birth body -> EXE30/retirement), not another approval wait.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
