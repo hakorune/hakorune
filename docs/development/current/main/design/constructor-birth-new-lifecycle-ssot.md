@@ -21,8 +21,8 @@ Decision: accepted.
   owns unpublished-object cleanup. Neither substitutes for the other.
 - **Current implementation status:** exact Birth carrier, receiver non-escape
   and ordinary-New initializer membership exist; Fault execution is not open.
-- **Next ordered task:** issue caller-prefix Home transitions and consume them
-  at the existing exact local completion, then close the common Fault ABI.
+- **Next ordered task:** decide common Normal/Fault ABI and canonical exit
+  operands, then consume the existing prefix/local ledger before finalization.
 - **Production stop line:** unresolved cleanup dependencies keep the published
   backend rejection; a source plan alone cannot enable Birth execution.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -298,10 +298,13 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    not this proof. Complete local/native ownership and field destination
    obligations through existing HOME/EXIT tasks; do not require new syntax,
    Result `?`, Shared or all-backend implementation to express this dependency.
-   First close source-plan issuance/consumption with focused tests while the
-   existing backend rejection stays intact; this is not runtime completion.
-   Then fix the common Normal/Fault physical return contract before tasks 2–3
-   consume it. Do not demand executed propagation before choosing that ABI.
+   Source-plan issuance and local-install validation are connected. Next fix
+   the common Normal/Fault ABI and canonical control/operand representation;
+   then consume the ledger into real exit operands before function finalization.
+   Do not insert a source-only metadata retention checkpoint or store raw
+   ValueIds in metadata. Existing backend rejection stays intact until that
+   consumption is implemented. Tasks 2–3 consume this same ABI; executed
+   propagation is not a prerequisite for choosing it.
 2. **Construction cleanup connection:** `ordinary_new_admission` and
    `new_expression` consume the same plan through allocation, Birth and
    overrides. The selected typed-object store gains stable-identity reclaim;
@@ -407,11 +410,38 @@ control-owned outward Fault target and exact body scope, not a Normal Return
 or E0 empty-cleanup receipt. Physical exit projection remains open.
 Preserve the resulting Home projection for the common exit consumer; a semantic
 plan stored and then dropped at scope finish is not connected completion.
-Retention must occur before function finalization: the port-aware method draft
+Exit operand materialization must occur before function finalization: the port-aware method draft
 owner immediately after `port.lower_body`, and App Main immediately after
 `inner.lower_body` inside its scoped source callback. Callable state `finish()`
 is too late: the cataloged draft has already entered the collector by then.
 Use these existing hooks, not a second publication owner or a post-publish map.
+
+### Physical connection decision (task 1, not a new task family)
+
+Decision: choose the common Fault ABI/control operands before physical retention.
+Source authority + canonical issuer: existing constructor key/receiver/source
+args, source Home prefix/NewFaultContinuation and completed local BindingRef to
+ValueId relation; the existing pre-finalization owner consumes them once.
+Non-authority: metadata-only ValueIds, KeepAlive, source-only copied plans,
+Normal Unit, or TextScan's external/lease-shaped CheckedCallOut plan.
+Fail-fast boundary: no executable Birth route until unwind/exit operands are
+represented in canonical CFG and included in ordinary use/rewrite verification.
+Smallest next slice: define Normal Unit versus pending Fault transport, outward
+propagation and first-Fault preservation; consume the existing ledger at the
+two pre-finalization hooks, with no new source issuer or Call carrier.
+Non-claims: no runtime cleanup, storage reclaim, completed task 1 or EXE proof.
+
+The retention-first premise was disproved by the existing DCE and simplify-CFG
+owners: `passes/dce/elimination.rs` obtains liveness from instruction operands,
+and `passes/simplify_cfg/flow.rs::rewrite_value_uses_in_function` rewrites blocks,
+not arbitrary FunctionMetadata. A metadata ValueId list could become stale or
+reference deleted locals. A source-only list would instead lose the exact
+physical correspondence when the scoped ledger drops. Neither is the intended
+exit connection. Read-only worker review independently confirmed this ordering.
+The bounded ABI decision must cover Normal/Fault tags and payload ownership,
+caller propagation versus entry reporting, cleanup operands and their SSA uses,
+later-cleanup Fault suppression, and the selected runtime release capability.
+Do not use a fresh metadata table or KeepAlive repair to defer these choices.
 
 The source prefix walks every preceding statement. Plain aliases add no Home;
 rebind, unknown acquisition, entry demand gaps, Handle arguments and nonempty

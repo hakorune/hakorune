@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task 1 remains active: the Home prefix now co-seals resolved_control_flow's exact New outward Fault relation, source body scope and function-region target; package 83/83 preserves prior-Home checks and backend rejection. Unknown prefixes never become empty cleanup. Next retain the physical exit projection before function finalization in the existing port-aware method draft and App Main scoped-body hooks; callable state finish is too late because cataloged drafts are already collected. See constructor-birth-new-lifecycle-ssot; no new input census, detached receipt or post-publish map. Runtime cleanup/reclaim/Birth execution/EXE remain open. Prior statement evidence remains 97/1 accepted baseline; no manifests changed.
+Task 1 remains active; source checkpoint is package 83/83 and control 33/33. Worker-reviewed correction: decide common Normal/Fault ABI and canonical exit operands before retention. DCE/use rewriting does not preserve arbitrary metadata ValueIds; a source-only copy loses exact local correspondence. Do not add either sidecar. Then materialize real exit operands at the existing pre-finalization method/Main hooks; callable state finish is too late. The existing constructor-birth-new-lifecycle-ssot owns this bounded ABI decision, not a new source census or task family. Runtime cleanup/reclaim/Birth/EXE remain open; backend rejection and baseline remain unchanged.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:
