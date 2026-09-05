@@ -112,6 +112,11 @@ publication. Reassignment alone does not prove an alias safe in this conservativ
 profile. This check does not yet cover field-initializer/override bodies or
 implement construction cleanup.
 
+Implementation boundary: selected source-backed local `new` now distinguishes
+constructor-target consumption, expression completion after overrides, and
+exact local installation. This compiler correspondence check does not yet
+implement the first-Home/Fault plan or enable Birth backend execution.
+
 Object reuse is an ordinary domain operation. Methods named `reset`, `reactivate`, `configure`, `clear`, or `attach` may prepare an already-alive object according to its Box contract; they never re-run `birth` or bypass the terminal Home DropPlan.
 
 If construction fails before publication:

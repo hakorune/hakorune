@@ -83,6 +83,9 @@ impl RawInvocationChildPortV1<'_, '_> {
         ledger
             .borrow_mut()
             .record_completed_local(&site, &completed)?;
+        if let Some(claims) = self.ordinary_new_claim_ledger.as_ref() {
+            ledger.borrow().record_completed_ordinary_new_local(&site, &completed, claims)?;
+        }
         Ok(completed.result())
     }
 

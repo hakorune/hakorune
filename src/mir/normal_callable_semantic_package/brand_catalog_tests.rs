@@ -68,6 +68,33 @@ fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery()
 }
 
 #[test]
+fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
+    let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "box Page { birth() { } } static box Main { main() { local first = new Page() local second = new Page() return 0 } }",
+            ParserBuildConfig::default(),
+        ).unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else {
+                panic!("source authority lost");
+            };
+        let result = crate::mir::MirCompiler::with_options(false).compile_normal(
+            crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(
+                source, None, Default::default()),
+        ).expect("both target takes must complete through their exact locals");
+        assert!(result.verification_result.is_ok());
+        let main = result.module.get_function("main").unwrap();
+        assert_eq!(main.blocks.values().flat_map(|block| &block.instructions).filter(|inst|
+            matches!(inst, crate::mir::MirInstruction::Call(call)
+                if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
+        ).count(), 2);
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module).unwrap();
+        assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+    });
+}
+
+#[test]
 fn birth_receiver_non_escape_preserves_field_access_and_local_aliases() {
     for body in [
         "me.value = value",

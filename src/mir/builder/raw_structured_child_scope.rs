@@ -308,6 +308,10 @@ impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RawOrdinaryNewClaimPortV1,
 {
+    fn complete_ordinary_new_expression(&mut self, class: &str, value: ValueId)
+        -> Result<(), String> {
+        self.child.complete_ordinary_new_expression(class, value)
+    }
     fn try_take_ordinary_new_claim(
         &mut self,
         class: &str,

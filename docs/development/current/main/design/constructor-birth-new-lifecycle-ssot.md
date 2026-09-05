@@ -397,13 +397,22 @@ ordinary_new_coseal -> package claim/local source relation
 ```
 
 The last owner already matches the source declaration to physical values.
-Extend that handoff, not a new port axis or name-based registry. In particular,
-`claim.constructor()` currently consumes the claim before arguments; taking a
-constructor target cannot consume the pending Home-install obligation. Preserve
-the source transition until the exact initializer/local/ordinal match, and
-retain the resulting projection for the common exit consumer. Package/local
-finish must reject unmatched begin/commit/residual obligations. A plan stored
-and then dropped at scope finish is not connected completion.
+The first connected implementation retains destination/declaration identity in
+the existing claim ledger after target take, records the result after overrides,
+and verifies initializer/local/ordinal at that handoff. Pending or mismatched
+completion cannot pass package finish. This physical correspondence is not yet
+a Home transition: the source Home issuer and exit projection are still open.
+Attach those semantics to the same chain, not a new port axis or name registry.
+Preserve the resulting Home projection for the common exit consumer; a semantic
+plan stored and then dropped at scope finish is not connected completion.
+
+Connected physical checkpoint: package 80/80, including two separate New local
+installations, drift/duplicate/residual checks, ValueId(0) and fixed Pair
+publication/backend rejection. Statement suite: 97 passed, one accepted
+baseline failure `mir::builder::stmts::variable_assignment_completion::tests::receipt_retains_the_existing_assignment_result`
+(`No current basic block`, listed in the unchanged accepted failure manifest).
+No whole-lib/no-new-red claim; Home source issuance and exit projection remain
+the next code in this same series, not a completed task-1 claim.
 
 **Change:** implement this source issuer plus its package/local-completion
 consumer as one bounded task-1 series; replace target-take-only completion for

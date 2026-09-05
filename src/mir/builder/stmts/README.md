@@ -44,6 +44,12 @@ the already-lowered initializer `ValueId`, and the newly published local
 SSA/PHI policy; the callable-scoped origin state matches this receipt against
 the resolver-issued formal-to-local relation.
 
+The same completed-local terminal also discharges selected ordinary-New
+installation obligations. The callable state supplies exact destination
+BindingRefs; the package claim ledger checks them against the result recorded
+after New overrides. Target take alone is no longer complete. This is a
+physical correspondence check, not Home Flow or runtime cleanup activation.
+
 The raw/default `statement_surface` directly selects the generic Local driver
 with one owned `RawLegacyLocalInputV1`; the old `variable_stmt` and raw-driver
 facades are retired. The shared driver keeps the existing preflight-success

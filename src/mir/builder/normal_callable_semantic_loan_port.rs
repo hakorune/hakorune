@@ -375,6 +375,17 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
 }
 
 impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
+    fn complete_ordinary_new_expression(&mut self, class: &str, value: ValueId)
+        -> Result<(), String> {
+        let owner = self.inner.callable_owner_v1().ok_or_else(||
+            "[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned())?;
+        let site = self.inner.current_source_site_v1().ok_or_else(||
+            "[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned())?;
+        if !matches!(site.segments(), [SourcePathSegmentV1::Body(_), SourcePathSegmentV1::Initializer(_)])
+            || !self.package.ordinary_box_is_covered(class) { return Ok(()); }
+        self.package.ordinary_new_claim_ledger().complete_new_expression(
+            &OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site)), class, value)
+    }
     fn try_take_ordinary_new_claim(
         &mut self,
         class: &str,

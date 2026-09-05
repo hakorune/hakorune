@@ -1,7 +1,7 @@
 //! Source-bound admission claims for the first Raw ordinary-`New` cohort.
 //!
 //! The claim is issued from the parser's final ordinary-box coverage and the
-//! resolver's exact direct-body allocation site.  Builder headers, symbol
+//! resolver's exact direct-local initializer relation. Builder headers, symbol
 //! scans, and post-lowering target inference are deliberately outside this
 //! owner.
 
@@ -17,11 +17,15 @@ use crate::mir::instance_constructor_abi::{
     InstanceConstructorAbiErrorV1, InstanceConstructorAbiV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingKindV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
+    BindingKindV1, BindingRefV1, OwnedExprSiteV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourcePathSegmentV1,
 };
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::{Effect, EffectMask};
+
+#[path = "ordinary_new_local_commit.rs"]
+mod local_commit;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -67,6 +71,8 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     class: Box<str>,
     arity: usize,
     constructor: OrdinaryNewConstructorDispositionV1,
+    destination: BindingRefV1,
+    declaration: SourceBindingSiteV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -79,6 +85,7 @@ pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
 pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
+    local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::NewLocalCommitV1>>,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -95,6 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .collect(),
             ),
             ordinary_box_names,
+            local_commits: RefCell::new(BTreeMap::new()),
         }
     }
 
@@ -118,6 +126,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if claim.class() != class || claim.arity() != arity {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
+        self.local_commits.borrow_mut().insert(
+            site.clone(),
+            local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone()),
+        );
         Ok(Some(
             claims
                 .remove(site)
@@ -127,6 +139,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(crate) fn is_empty(&self) -> bool {
         self.claims.borrow().is_empty()
+            && self.local_commits.borrow().values().all(|row| row.is_complete())
     }
 }
 
@@ -253,12 +266,13 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     {
                         return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site });
                     }
-                    candidates.push((site, class.clone().into_boxed_str(), arguments.len()));
+                    candidates.push((site, class.clone().into_boxed_str(), arguments.len(),
+                        initializer.binding(), initializer.declaration_site().clone()));
                 }
                 Ok(candidates)
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-        for (site, class, arity) in candidates {
+        for (site, class, arity, destination, declaration) in candidates {
             let Some(box_source) = batch
                 .ordinary_box_coverage()
                 .row_for(class.as_ref())
@@ -347,6 +361,8 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 class,
                 arity,
                 constructor,
+                destination,
+                declaration,
             });
         }
     }
@@ -398,11 +414,19 @@ mod tests {
     }
 
     fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
+        let destination = BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(0));
+        let declaration = SourceBindingSiteV1::Local {
+            statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
+                crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(0)])),
+            ordinal: 0,
+        };
         OrdinaryNewAdmissionClaimV1 {
             site,
             class: "Page".into(),
             arity,
             constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
+            destination,
+            declaration,
         }
     }
 
@@ -420,7 +444,16 @@ mod tests {
             .expect("ordinary class should return a claim");
         assert_eq!(taken.class(), "Page");
         assert_eq!(taken.arity(), 0);
-        assert!(ledger.is_empty());
+        assert!(!ledger.is_empty(), "target take is not local completion");
+        let SourceBindingSiteV1::Local { statement, ordinal } = &taken.declaration else {
+            panic!("local claim");
+        };
+        ledger.complete_new_expression(&site, "Page", crate::mir::ValueId(0)).unwrap();
+        assert!(!ledger.is_empty(), "whole New is not local installation");
+        ledger.complete_local_installation(site.owner(), statement.node(), &[
+            (taken.destination, *ordinal, crate::mir::ValueId(0), crate::mir::ValueId(1)),
+        ]).unwrap();
+        assert!(ledger.is_empty(), "ValueId zero is a valid completed initializer");
         assert_eq!(
             ledger.try_take(&site, "Page", 0),
             Err(OrdinaryNewClaimTakeErrorV1::Unavailable)
@@ -438,7 +471,7 @@ mod tests {
         assert_eq!(ledger.try_take(&site, "Plugin", 0), Ok(None));
         assert!(!ledger.is_empty());
         assert!(ledger.try_take(&site, "Page", 0).unwrap().is_some());
-        assert!(ledger.is_empty());
+        assert!(!ledger.is_empty(), "target take is not local completion");
     }
 
     #[test]
@@ -455,7 +488,7 @@ mod tests {
         );
         assert!(!ledger.is_empty());
         assert!(ledger.try_take(&site, "Page", 0).unwrap().is_some());
-        assert!(ledger.is_empty());
+        assert!(!ledger.is_empty(), "target take is not local completion");
     }
 
     #[test]
@@ -527,5 +560,51 @@ mod tests {
                 ..
             } if class.as_ref() == "Page"
         ));
+    }
+
+    #[test]
+    fn ordinary_new_local_commit_rejects_drift_without_consuming_pending_installation() {
+        use crate::mir::ValueId;
+        let site = test_site();
+        let claim = claim(site.clone(), 0);
+        let destination = claim.destination;
+        let SourceBindingSiteV1::Local { statement, ordinal } = claim.declaration.clone() else {
+            panic!("local claim");
+        };
+        let ledger = OrdinaryNewClaimLedgerV1::issue(
+            vec![claim].into_boxed_slice(), vec!["Page".into()].into_boxed_slice());
+        let good = (destination, ordinal, ValueId(8), ValueId(9));
+        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap_err().contains("local-before-target-take"));
+        assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap_err().contains("expression-without-target-take"));
+        ledger.try_take(&site, "Page", 0).unwrap().unwrap();
+        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap_err().contains("local-initializer-mismatch"));
+        ledger.complete_new_expression(&site, "Page", ValueId(8)).unwrap();
+        assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap_err().contains("duplicate-expression-completion"));
+        for bad in [
+            (destination, ordinal + 1, ValueId(8), ValueId(9)),
+            (BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(1)),
+                ordinal, ValueId(8), ValueId(9)),
+            (destination, ordinal, ValueId(7), ValueId(9)),
+            (destination, ordinal, ValueId(8), ValueId(8)),
+        ] {
+            assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[bad]).is_err());
+            assert!(!ledger.is_empty());
+        }
+        let foreign = test_site().owner();
+        assert!(ledger.complete_local_installation(foreign, statement.node(), &[good])
+            .unwrap_err().contains("foreign-or-duplicate-local"));
+        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good, good])
+            .unwrap_err().contains("foreign-or-duplicate-local"));
+        let wrong_statement = SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(1)]);
+        ledger.complete_local_installation(site.owner(), &wrong_statement, &[good]).unwrap();
+        assert!(!ledger.is_empty(), "unrelated local cannot discharge selected obligation");
+        ledger.complete_local_installation(site.owner(), statement.node(), &[good]).unwrap();
+        assert!(ledger.is_empty());
+        assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])
+            .unwrap_err().contains("duplicate-local-installation"));
     }
 }

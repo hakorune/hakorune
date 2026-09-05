@@ -400,7 +400,7 @@ current cohort = `acceptance_source_reconciliation_i0`
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task-1 input cutover is landed at d6d0198a1b (package 78/78); Birth non-escape at 5b5deb4e12. The accepted task-1 series now implements the caller-prefix Home source plan and exact local-completion consumer specified in constructor-birth-new-lifecycle-ssot: prior caller Homes are not empty, constructor target take is not Home install, unresolved construction unwind retains backend rejection. This design checkpoint issues no new receipt and claims no Home execution/Fault/EXE result; next is implementation, not another input census or ABI consultation.
+Task 1 remains active: exact New target take now retains a pending destination until post-override expression completion and existing local-terminal validation; package 80/80, statement tests 97/1 (sole failure is accepted baseline variable_assignment_completion::tests::receipt_retains_the_existing_assignment_result; manifests unchanged). Pending/duplicate/mismatched completion cannot publish. This is physical correspondence, not Home availability/Fault cleanup/EXE. Next implement the common caller-prefix Home source issuer and retained exit projection on this chain under constructor-birth-new-lifecycle-ssot; do not repeat input census or add detached receipts. Birth backend rejection remains intact.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

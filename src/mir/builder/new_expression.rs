@@ -84,6 +84,7 @@ impl MirBuilder {
             field_initializers,
             _seal: _,
         } = prepared;
+        let ordinary = matches!(&route, PreparedRawNewExpressionRouteV1::Ordinary { .. });
         // Phase 9.78a: Unified Box creation using NewBox instruction
         // Core-13 pure mode: emit ExternCall(env.box.new) with type name const only
         let dst = match route {
@@ -138,6 +139,9 @@ impl MirBuilder {
         };
 
         self.build_box_field_initializers_with_port_v1(port, dst, &class, field_initializers)?;
+        if ordinary {
+            port.complete_ordinary_new_expression(&class, dst)?;
+        }
         Ok(dst)
     }
 }
