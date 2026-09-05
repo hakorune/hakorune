@@ -126,6 +126,13 @@ a decision that source fields default to zero or that the program is invalid.
 Other field demands, acquisition/control shapes and explicit overrides remain
 unavailable until their obligations are covered. This source plan does not itself
 enable backend execution or change the failed-construction rules below.
+Decision (2026-09-06): completed-object destruction eligibility is a separate
+source-declaration fact, not a consequence of construction success or layout.
+The initial plain-i64/no-hook profile requires explicit non-weak i64 fields,
+no inherited/delegated/native storage and ordinary member roles. Legacy
+`fini()`-shaped methods and property/delegate/compatibility members do not
+establish an empty hook or empty cleanup. Unavailable destruction retains the
+object identity; it does not change language validity or enable execution.
 Source-owned straight-line prefix facts now retain
 prior local Homes in reverse declaration order; aliases add no Home. The
 claim consumer checks those prior installations before consuming the next New.

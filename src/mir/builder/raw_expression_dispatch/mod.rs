@@ -551,19 +551,39 @@ impl super::MirBuilder {
                 scoped.complete_after_result_v1(result)
             }
 
-            ASTNode::New {
+            node @ ASTNode::New { .. } => {
+                let ASTNode::New { arguments, field_initializers, .. } = &node else {
+                    unreachable!("New arm retains the intact source node")
+                };
+                let mut argument_sources = (0..arguments.len()).map(|index| {
+                    let index = u32::try_from(index)
+                        .map_err(|_| "[freeze:contract][ordinary-new/argument-index-overflow]")?;
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::CallArgument(index))
+                }).collect::<Result<Vec<_>, String>>()?;
+                let field_sources = (0..field_initializers.len()).map(|index| {
+                    let index = u32::try_from(index)
+                        .map_err(|_| "[freeze:contract][ordinary-new/initializer-index-overflow]")?;
+                    port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::NewFieldInitializer(index))
+                }).collect::<Result<Vec<_>, String>>()?;
+                let ASTNode::New {
                 class,
                 arguments,
                 field_initializers,
                 ..
-            } => {
+                } = node else { unreachable!("New arm retains its source shape") };
                 let prepared = PreparedRawNewExpressionV1::prepare(
                     self,
                     class,
                     arguments,
                     field_initializers,
                 )?;
-                self.lower_prepared_raw_new_expression_with_port_v1(port, prepared)
+                // Prepared child source contexts issue no semantic claims.
+                // A folded literal never enters the evaluation-demand queue.
+                argument_sources.truncate(prepared.evaluated_argument_count());
+                argument_sources.extend(field_sources);
+                let mut scoped = RawStructuredChildScopePortV1::new(port, argument_sources, Vec::new());
+                let result = self.lower_prepared_raw_new_expression_with_port_v1(&mut scoped, prepared);
+                scoped.complete_after_result_v1(result)
             }
 
             node @ ASTNode::ArrayLiteral { .. } => {

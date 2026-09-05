@@ -25,6 +25,16 @@ pub enum InvokeOperation {
         base: ValueId,
         value: ValueId,
     },
+    /// Consume a completed Home; both outcomes continue the cleanup chain.
+    HomeRelease {
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        value: ValueId,
+    },
+    /// Reclaim only incomplete outer storage; never invoke the parent's fini.
+    ReclaimUnpublished {
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        value: ValueId,
+    },
 }
 
 impl InvokeOperation {
@@ -33,6 +43,9 @@ impl InvokeOperation {
             Self::Call(call) => call.effects.add(Effect::Control),
             Self::NewBox { .. } => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldSet { .. } => EffectMask::WRITE.add(Effect::Control),
+            Self::HomeRelease { .. } | Self::ReclaimUnpublished { .. } =>
+                EffectMask::WRITE.union(EffectMask::MUT).union(EffectMask::IO)
+                    .add(Effect::Control),
         }
     }
 
@@ -47,6 +60,7 @@ impl InvokeOperation {
             }
             Self::NewBox { .. } => Vec::new(),
             Self::FieldSet { base, value, .. } => vec![*base, *value],
+            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => vec![*value],
         }
     }
 
@@ -59,6 +73,7 @@ impl InvokeOperation {
                 }
             }
             Self::NewBox { .. } => {}
+            Self::HomeRelease { value, .. } | Self::ReclaimUnpublished { value, .. } => rewrite(value),
             Self::FieldSet { base, value, .. } => {
                 rewrite(base);
                 rewrite(value);

@@ -41,7 +41,12 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             .current_function
             .as_ref()
             .ok_or("[freeze:contract][construction-store/no-function]")?;
-        ledger.borrow_mut().complete_construction_stores(function)
+        let mut state = ledger.borrow_mut();
+        state.complete_construction_stores(function)?;
+        if let Some(news) = &self.ordinary_new_claim_ledger {
+            news.complete_new_emissions(state.owner(), function)?;
+        }
+        Ok(())
     }
 
     fn script_direct_static_claim_ingress_v1(

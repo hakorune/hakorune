@@ -14,7 +14,8 @@ navigation order must stay narrow and explicit.
 
 Common Fault control is defined in `instruction/invoke.rs` and
 `verification/invoke.rs`: Invoke reuses Call operands, exact allocation definition
-IDs and exact field-store operands, and defines its
+IDs, exact field-store operands and object-keyed Home/outer-storage cleanup;
+Home release requires the definition's destruction disposition. It defines its
 result only through the dedicated Normal projection. FaultFrameEnter defines
 the internal frame independently of source parameters; verification forbids
 scalar substitution, ordinary value escape and entry reinitialization.

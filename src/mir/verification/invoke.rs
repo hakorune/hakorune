@@ -16,9 +16,18 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
                         InvokeOperation::NewBox { object }
+                        | InvokeOperation::HomeRelease { object, .. }
+                        | InvokeOperation::ReclaimUnpublished { object, .. }
                             if module.canonical_object_definition(*object).is_none() =>
                         {
                             errors.push(error(*id, "object-definition-missing"));
+                        }
+                        InvokeOperation::HomeRelease { object, .. }
+                            if !module.canonical_object_definition(*object).is_some_and(|definition|
+                                definition.destruction_disposition()
+                                    == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook) =>
+                        {
+                            errors.push(error(*id, "home-destruction-unavailable"));
                         }
                         InvokeOperation::FieldSet { field, .. }
                             if module.canonical_field_definition(*field).is_none() =>
@@ -96,7 +105,9 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
             }
             let value_result = match operation {
                 InvokeOperation::NewBox { .. } => true,
-                InvokeOperation::FieldSet { .. } => false,
+                InvokeOperation::FieldSet { .. }
+                | InvokeOperation::HomeRelease { .. }
+                | InvokeOperation::ReclaimUnpublished { .. } => false,
                 InvokeOperation::Call(call) => {
                     if call.dst.is_some() {
                         errors.push(error(*id, "embedded-call-destination"));
@@ -324,6 +335,9 @@ mod tests {
                 "RenamedForDiagnostics".into(),
                 Box::new([]),
                 Err(ObjectLayoutUnavailableV1::Inheritance),
+                crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+                    crate::mir::function::ObjectDestructionUnavailableV1::Declaration(
+                        ObjectLayoutUnavailableV1::Inheritance)),
             )]
             .into_boxed_slice(),
         );
@@ -423,6 +437,7 @@ mod tests {
                     "Object".into(),
                     Box::new([]),
                     Ok(()),
+                    crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
                 ),
             ]
             .into_boxed_slice(),
@@ -510,6 +525,50 @@ mod tests {
                 MirVerifier::new().verify_function(&function).is_err(),
                 "mutation={mutation}"
             );
+        }
+    }
+
+    #[test]
+    fn cleanup_is_unit_and_requires_definition_owned_home_disposition() {
+        use crate::mir::{BasicBlockId, MirModule, MirVerifier};
+        use crate::mir::function::{CanonicalObjectDefinitionV1, ObjectDestructionDispositionV1 as D,
+            ObjectDestructionUnavailableV1 as U};
+        let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+        for home in [false, true] {
+            let mut operation = if home {
+                InvokeOperation::HomeRelease { object, value: ValueId(1) }
+            } else {
+                InvokeOperation::ReclaimUnpublished { object, value: ValueId(1) }
+            };
+            let original = operation.clone();
+            assert_eq!(operation.used_values(), vec![ValueId(1)]);
+            operation.rewrite_values(|value| value.0 += 4);
+            assert_eq!(operation.used_values(), vec![ValueId(5)]);
+            operation.rewrite_values(|value| value.0 -= 4);
+            assert_eq!(operation, original, "object identity is not a ValueId operand");
+            for disposition in [D::PlainI64NoHook, D::Unavailable(U::MemberRole)] {
+                // Physical verifier witness, not source or runtime admission.
+                let mut function = allocation_invoke_function();
+                let origin = function.blocks.get_mut(&BasicBlockId(1)).unwrap();
+                let Some(MirInstruction::Invoke { operation: target, .. }) = &mut origin.terminator
+                    else { unreachable!() };
+                *target = operation.clone();
+                let normal = function.blocks.get_mut(&BasicBlockId(2)).unwrap();
+                normal.instructions.clear();
+                normal.instruction_spans.clear();
+                let mut module = MirModule::new("cleanup".into());
+                module.add_function(function);
+                module.install_object_definitions_preflighted(vec![
+                    CanonicalObjectDefinitionV1::from_source_declaration(
+                        "Object".into(), Box::new([]), Ok(()), disposition),
+                ].into_boxed_slice());
+                let result = MirVerifier::new().verify_module(&module);
+                if home && disposition != D::PlainI64NoHook {
+                    assert!(format!("{:?}", result.unwrap_err()).contains("home-destruction-unavailable"));
+                } else {
+                    result.unwrap();
+                }
+            }
         }
     }
 

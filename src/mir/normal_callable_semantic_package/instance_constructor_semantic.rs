@@ -76,9 +76,27 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
     DuplicateBirth,
     ParentSourceMismatch,
     BirthArityMismatch,
+    ObjectDefinitionsTransferred,
+    ObjectDefinitionMissing,
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    /// One-way projection while co-sealing New claims, before collector transfer.
+    /// `object_for` deliberately remains usable after the payload has moved.
+    pub(super) fn destruction_for(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+    ) -> Result<(CanonicalObjectIdV1, crate::mir::function::ObjectDestructionDispositionV1),
+        InstanceConstructorBirthLookupErrorV1> {
+        let object = self.object_for(source)?;
+        let definitions = self.object_definitions.borrow();
+        let definitions = definitions.as_ref().ok_or(
+            InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)?;
+        let definition = definitions.get(object.declaration_index() as usize).ok_or(
+            InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)?;
+        Ok((object, definition.destruction_disposition()))
+    }
+
     pub(super) fn has_pending_object_definitions(&self) -> bool {
         self.object_definitions.borrow().is_some()
     }

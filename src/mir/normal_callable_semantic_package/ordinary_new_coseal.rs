@@ -7,6 +7,8 @@
 
 use std::{cell::RefCell, collections::BTreeMap};
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
+use crate::mir::function::ObjectDestructionDispositionV1;
+use hakorune_mir_defs::CanonicalObjectIdV1;
 
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
@@ -80,6 +82,8 @@ pub(crate) struct OrdinaryNewAdmissionClaimV1 {
     declaration: SourceBindingSiteV1,
     home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
     construction: ConstructionEligibilityV1,
+    object: CanonicalObjectIdV1,
+    destruction: ObjectDestructionDispositionV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -93,6 +97,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::NewLocalCommitV1>>,
+    root_validation: RefCell<local_commit::RootNewValidation>,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -110,6 +115,7 @@ impl OrdinaryNewClaimLedgerV1 {
             ),
             ordinary_box_names,
             local_commits: RefCell::new(BTreeMap::new()),
+            root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
         }
     }
 
@@ -145,7 +151,8 @@ impl OrdinaryNewClaimLedgerV1 {
         commits.insert(
             site.clone(),
             local_commit::NewLocalCommitV1::pending(claim.destination, claim.declaration.clone(),
-                claim.home_prefix.clone(), claim.box_source().clone(), claim.construction.clone()),
+                claim.home_prefix.clone(), claim.box_source().clone(), claim.construction.clone(),
+                claim.object, claim.destruction),
         );
         Ok(Some(
             claims
@@ -161,6 +168,10 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewAdmissionClaimV1 {
+    pub(crate) fn object(&self) -> CanonicalObjectIdV1 { self.object }
+
+    pub(crate) fn destruction(&self) -> ObjectDestructionDispositionV1 { self.destruction }
+
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         &self.construction
     }
@@ -320,6 +331,10 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 }
                 return Err(OrdinaryNewCoSealIssueV1::OrdinaryBoxCoverageMissing { site, class });
             };
+            let (object, destruction) = instance_constructors.destruction_for(box_source)
+                .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                    site: site.clone(), class: class.clone(), error,
+                })?;
             let construction = if has_overrides {
                 Err(ConstructionUnavailableV1::OverrideUnsupported)
             } else {
@@ -328,6 +343,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                         site: site.clone(), class: class.clone(), error,
                     })?.clone()
             };
+            if matches!(&construction, Ok(plan) if plan.object() != object) {
+                return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+                    site, class, arity,
+                });
+            }
             let constructor = match instance_constructors
                 .birth_for(box_source, arity)
                 .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
@@ -399,6 +419,8 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                 declaration,
                 home_prefix,
                 construction,
+                object,
+                destruction,
             });
         }
     }
@@ -453,6 +475,7 @@ mod tests {
         let package = super::super::brand_catalog_tests::issue_with_brand_catalog("box Page {}").unwrap();
         let box_source = package.batch().ordinary_box_coverage().row_for("Page").unwrap().unwrap().clone();
         let construction = package.instance_constructors.construction_for(&box_source, 0).unwrap().clone();
+        let (object, destruction) = package.instance_constructors.destruction_for(&box_source).unwrap();
         let destination = BindingRefV1::new(site.owner(), hakorune_mir_core::BindingId::new(0));
         let declaration = SourceBindingSiteV1::Local {
             statement: crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
@@ -469,6 +492,8 @@ mod tests {
             declaration,
             home_prefix: Err(HomePrefixUnavailableV1::SourceMismatch),
             construction,
+            object,
+            destruction,
         }
     }
 
@@ -489,6 +514,7 @@ mod tests {
         assert_eq!(ledger.local_commits.borrow().get(&site).unwrap().construction(), taken.construction());
         assert!(taken.construction().as_ref().unwrap().reclaims_unpublished_outer_storage());
         assert!(!ledger.is_empty(), "target take is not local completion");
+        assert!(!ledger.prepare_new_emission(&taken).unwrap(), "unavailable prefix stays fenced");
         let SourceBindingSiteV1::Local { statement, ordinal } = &taken.declaration else {
             panic!("local claim");
         };
@@ -639,7 +665,10 @@ mod tests {
             .unwrap_err().contains("local-before-target-take"));
         assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
             .unwrap_err().contains("expression-without-target-take"));
-        ledger.try_take(&site, "Page", 0).unwrap().unwrap();
+        let taken = ledger.try_take(&site, "Page", 0).unwrap().unwrap();
+        assert!(ledger.complete_new_expression(&site, "Page", ValueId(8))
+            .unwrap_err().contains("expression-before-emission"));
+        assert!(!ledger.prepare_new_emission(&taken).unwrap());
         assert!(ledger.complete_new_expression(&site, "Other", ValueId(8))
             .unwrap_err().contains("expression-parent-mismatch"));
         assert!(ledger.complete_local_installation(site.owner(), statement.node(), &[good])

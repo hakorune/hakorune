@@ -57,6 +57,10 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         None => None,
     };
 
+    let root_new_ledger = match &callable_mode {
+        NormalCallableSemanticPackageMode::Installed(port) => Some(port.ordinary_new_claim_ledger()),
+        NormalCallableSemanticPackageMode::Compatibility(_) => None,
+    };
     let source_backed = matches!(
         &callable_mode,
         NormalCallableSemanticPackageMode::Installed(_)
@@ -103,6 +107,11 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))?;
     builder
-        .finalize_module(result_value)
+        .finalize_module_with_root_validation(result_value, |function| {
+            match root_new_ledger {
+                Some(ledger) => ledger.validate_finalized_new_root(function),
+                None => Ok(()),
+            }
+        })
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into()))
 }

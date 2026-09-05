@@ -45,7 +45,13 @@ Decision: `Invoke` is a terminator wrapping existing `MirCall` operands
 Fault-frame operand and distinct Normal/Fault successors. It defines no value.
 `InvokeNormalResult { invoke_block, dst }` is the only result definition, first
 after PHIs in the exclusive Normal landing. Allocation has one handle result;
-Unit Birth and FieldSet have none. FieldSet carries a canonical field reference,
+Unit Birth, FieldSet, HomeRelease and ReclaimUnpublished have none.
+HomeRelease carries an exact object ID and a completed Home value; its definition
+must admit destruction. ReclaimUnpublished carries the exact object ID and only
+reclaims incomplete outer storage, without parent fini or recursive field release.
+Both cleanup outcomes must continue to the next obligation. These operations
+do not activate a backend consumer; runtime capability remains separately fenced.
+FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.
 Both value operands participate in SSA use/rewrite, not the field identity.

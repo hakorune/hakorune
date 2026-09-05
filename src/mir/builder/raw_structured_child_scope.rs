@@ -334,6 +334,21 @@ impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RawOrdinaryNewClaimPortV1,
 {
+    fn prepare_ordinary_new_emission(
+        &mut self, builder: &MirBuilder,
+        claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
+    ) -> Result<bool, String> {
+        self.child.prepare_ordinary_new_emission(builder, claim)
+    }
+
+    fn emit_ordinary_new_claim(
+        &mut self, builder: &mut MirBuilder,
+        claim: crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.child.emit_ordinary_new_claim(builder, claim, arguments)
+    }
+
     fn complete_ordinary_new_expression(
         &mut self,
         class: &str,

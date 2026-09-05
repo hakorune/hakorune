@@ -369,13 +369,10 @@ are not a complete child graph; missing relations cannot prove safety.
 Acceptance uses existing package tests for own-field/direct-alias positives and direct/alias
 store, capture, forwarding and branch-rebind negatives. No new receipt is issued.
 This prerequisite does not prove initializer/override non-escape or cleanup.
-Checkpoint evidence: package 77/77, including the fixed Pair publication and
-pre-artifact rejection. Direct nested `me` is rejected by the earlier resolver;
-alias capture reaches the new verifier. New receipt/guard/fixture = 0; the
-unchecked Birth-row admission is closed, not a legacy-file deletion claim.
-Ordinary-new admission uses exact local initializer/binding relations instead
-of Allocation-event discovery (package 78/78; selected old discovery edge 1->0,
-no Home-commit or cleanup claim).
+Checkpoints: package 77/77 covers Pair publication/pre-artifact rejection;
+nested `me` stops at resolver, alias capture at the new verifier. No new assets
+or legacy-file deletion claim. Package 78/78 replaces Allocation-event discovery
+with exact initializer/binding relations (old discovery 1->0, not Home cleanup).
 
 ### Task 1 implementation decision: caller-prefix Home transitions
 
@@ -613,7 +610,7 @@ Baseline: `physical_entry_lane_adoption_tests::emits_one_direct_length_call_and_
 Layout verified: package 95/95, layout 20/20, metadata 2/2, collector 10/10, refresh 6/6, receiver 4/4, JSON 121/0/1. Global routes 139/6; the six baseline-listed failures reproduce at identical assertions in f42be8be61's built binary with the same filter.
 Postprocess 3/3 covers both late-refresh failures; layout tests cover backend-preflight rejection. Exact store/control checkpoint: package 95/95; binding drift 1/1, Invoke 5/5, numeric verifier 13/13, numeric contracts 7/7, receiver 5/5, scoped children 2/2, assignment 1/1, constructor 5/5, layout 21/21. Global call 180/6 matches f42be8be61's six failure transcripts (not immediate-parent/full-lib proof). vm-reference/pointer/M7-S pass, max source 757. Initial Pair SSA failure was current-change span omission, fixed through the existing block insertion API and rerun green. Birth runtime remains fenced; outward New/Home/Fault and typed-C tasks remain open.
 
-Within existing task 1, execute these three connected steps after split validation:
+Within task 1, execute these connected steps after split validation:
 1. Move one exact, initially unlaid-out definition payload with callable drafts
    through `ModuleDraftCollectorV1` into the private candidate. Drain precedes
    external publication: `program_root_lowering` drains before `finalize_module`
@@ -642,50 +639,53 @@ Within existing task 1, execute these three connected steps after split validati
    selected status-to-trap path. Table/view tests alone never close task 1 or
    authorize Birth execution; fixed Pair EXE30/OBJ and task-4 failures still gate it.
 
-Use existing package/collector/view tests for distinct same-shaped Boxes,
-renames/reordered stores, empty NoBirth, foreign source, duplicate installation,
-missing ID, invalid ordinal and layout drift. Fail atomically before publishing
-either functions or definitions; reject residual source/emission bindings.
-Also cover mixed canonical/compatibility allocations, repeated refresh and changed
-compatibility shapes, empty NoBirth, unsupported reserved positions and overflow.
-The installed definition payload has one owner; the semantic batch retains only
-immutable correspondence needed for exact claims, not another mutable table.
-No new task card, semantic receipt, registry or per-cohort guard is required.
+Existing tests cover same-shaped Boxes, rename/store order, empty NoBirth, foreign
+source, duplicate/missing ID, ordinal/layout drift, mixed/repeated allocation,
+changed compatibility shapes, unsupported reserved positions and overflow.
+Reject residuals before publishing functions or definitions. The payload has one
+owner; the semantic batch retains immutable correspondence, no second table.
+No new card, semantic receipt, registry or per-cohort guard.
 
 Caller binding decision (2026-09-06; existing task 1, read-only review integrated):
+Prepare/emit on the existing New port record progress in NewLocalCommit; release
+ledger borrows before argument descent. At intact New dispatch, queue existing
+CallArgument/NewFieldInitializer source roles for actually evaluated children;
+IntegerLiteral folding queues no argument. Scope restores the parent before emit.
+Adapter delegation verifies package/inner ledger Rc identity and exact callable
+owner/site. Missing/foreign scope or duplicate prepare/emit rejects, never retries.
 `ordinary_new_admission` must consume the retained claim, not reduce it to the
 constructor alone. Bind allocation, Birth, outer reclaim and prior Home cleanup
 to actual Invoke operands before local installation and physical finalization.
-For prior Homes, join prefix BindingRef to its retained completed New/local and
-exact declaration. `home_new_prefix` already issues reverse acquisition order;
-the consumer preserves that order. It issues no Normal-return cleanup plan:
-normal/later-body Home exit remains required before executable admission.
-Construction eligibility is not completed-object destruction eligibility.
-The existing exact whole-Box declaration issuer must positively classify the
-current plain-i64/no-hook profile; never infer it from Arc drop, Trivial fields,
-or the AST lacking a hook slot. Unsupported structure preserves definition/layout
-with destruction unavailable. Hook/child/native coverage remains in tasks 2–4.
+Prior Homes join issued BindingRefs to completed New/locals and exact declarations;
+preserve the prefix's reverse acquisition order. It stops at the last New and
+cannot prove Normal return. Next within task 1: extend source Home observation
+through exact Completion; co-seal ordered bindings into its existing cleanup owner.
+Construction eligibility is not destruction eligibility. The exact whole-Box issuer
+classifies the closed plain-i64/no-hook declaration profile: all fields explicit i64,
+no weak/inherited/delegated/native storage, and ordinary member roles only; legacy
+fini-shaped methods, property/delegate/compatibility members remain unavailable.
+No Arc/Trivial/layout inference or missing-hook-slot default. The existing New
+co-seal copies definition-owned disposition plus object ID before collector transfer;
+construction Err never erases either. Foreign/missing/transferred lookup rejects;
+retained claims work after transfer. No second table. Connect the actual New/Fault
+consumer in this series. Normal exit consumes at existing Return descent: clean suffix -> Return, any cleanup Fault -> fault-pending suffix -> ReturnFault; no new status opcode. Prove second/first order, one release per path, no Reclaim, unavailable suffix/foreign exit/duplicate consume rejection. Tasks 2–4 remain.
 One frame is owned by `CallableSemanticLoweringState`: the exact App Main source
 entry installs RootOwned, ordinary callable entries Borrowed. Direct-call-loan
 presence is not a root witness (New-only Main has none). Construction stores
 borrow this frame; independent issuance removed, no port axis. Checkpoint: fresh package 95/95, frame 1/1, binding 1/1, Invoke 6/6; vm-reference/pointer/M7-S green. Runtime/New connection remains open.
-Completion covers static/instance draft preparation, finalized child capture,
-the direct cataloged-instance capture, and App Main root scope/finalization.
+Completion covers draft preparation/capture; App Main registers its exact owner
+on the existing New ledger, retained across drain and checked after final PHIs.
 `OrdinaryNewClaimLedgerV1::is_empty` must not accept retained unconsumed plans
 merely because initializer/local completion succeeded. Missing/duplicate/drifted
-bindings reject independently at completion and finalized validation.
+bindings reject at both checks, including entry FaultFrameEnter and local Copy.
 Selected deletion: claim-to-constructor erasure, bare NewBox/Birth Call emission,
 and completion without physical consumption. Preserve nonselected compatibility;
 selected failures never retry it. Runtime admission remains closed until tasks
 2–4, including continued cleanup on both outcomes and EXE30/OBJ, pass.
 
-The retention-first premise was disproved by the existing DCE and simplify-CFG
-owners: `passes/dce/elimination.rs` obtains liveness from instruction operands,
-and `passes/simplify_cfg/flow.rs::rewrite_value_uses_in_function` rewrites blocks,
-not arbitrary FunctionMetadata. A metadata ValueId list could become stale or
-reference deleted locals. A source-only list would instead lose the exact
-physical correspondence when the scoped ledger drops. Neither is the intended
-exit connection. Read-only worker review independently confirmed this ordering.
+`passes/dce/elimination.rs` reads instruction operands; simplify-CFG rewrites
+blocks, not arbitrary FunctionMetadata. Metadata ValueIds could become stale;
+source-only lists lose physical correspondence when the scoped ledger drops.
 The user accepted bounded suppressed diagnostics on 2026-09-06; the normative
 policy is `docs/reference/language/semantic-kernel.md#cleanup`. This resolves
 the diagnostic-capacity consultation, not runtime cleanup implementation.
@@ -719,7 +719,7 @@ Canonical control vocabulary (one owner, not an extensible effect wrapper):
 ```text
 InvokeOperation = Call(existing MirCall with dst=None)
                 | NewBox(exact CanonicalObjectIdV1; allocation only)
-                | FieldSet(exact CanonicalFieldRefV1, base, value)
+                | FieldSet(exact CanonicalFieldRefV1, base, value) | HomeRelease(object, value) | ReclaimUnpublished(object, value)
 Invoke(operation, fault_frame operand, normal_landing, fault_landing)
 InvokeNormalResult(originating Invoke block, dst)
 ReturnFault(fault_frame operand)

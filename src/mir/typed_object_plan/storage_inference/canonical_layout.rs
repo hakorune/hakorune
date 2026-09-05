@@ -142,16 +142,21 @@ mod tests {
                 "Empty".into(),
                 Box::new([]),
                 Ok(()),
+                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
             ),
             CanonicalObjectDefinitionV1::from_source_declaration(
                 "Inherited".into(),
                 Box::new([]),
                 Err(ObjectLayoutUnavailableV1::Inheritance),
+                crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+                    crate::mir::function::ObjectDestructionUnavailableV1::Declaration(
+                        ObjectLayoutUnavailableV1::Inheritance)),
             ),
             CanonicalObjectDefinitionV1::from_source_declaration(
                 "Pair".into(),
                 vec![field("left"), field("right")].into_boxed_slice(),
                 Ok(()),
+                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
             ),
         ];
         for definition in &definitions {
@@ -283,6 +288,8 @@ mod tests {
             }]
             .into_boxed_slice(),
             Ok(()),
+            crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+                crate::mir::function::ObjectDestructionUnavailableV1::FieldType),
         );
         assert_eq!(
             layout(&definition, 1).unwrap(),
@@ -294,6 +301,8 @@ mod tests {
             "Weak".into(),
             vec![weak].into_boxed_slice(),
             Ok(()),
+            crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
+                crate::mir::function::ObjectDestructionUnavailableV1::WeakField),
         );
         assert_eq!(
             layout(&definition, 1).unwrap(),

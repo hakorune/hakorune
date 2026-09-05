@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "Close shared callable-frame checkpoint: construction now borrows one frame from existing callable state; exact App Main source entry selects RootOwned without a direct-call loan. Completion validates definition/role before and after finalization. Fresh package 95/95, frame 1/1, binding 1/1, Invoke 6/6; vm-reference and pointer/M7-S green. Changed source maximum 575; no new port axis. Commit/push then continue task 1 retained New/Birth/Fault/Home operand binding. Independent declaration destruction, normal-return cleanup and tasks 2-4 runtime/typed-C/EXE30/OBJ/old-edge deletion remain required. Birth execution stays fenced; no full-library or task-1 completion claim."
+current_blocker_token = "Task 1 control checkpoint verified: fresh package 96/96, Invoke 7/7, raw dispatch 11/11 and New route 2/2 pass including frame/Copy drift rejection; vm-reference check and pointer/M7-S guards pass. App Main retains the existing ledger across drain and checks the exact root after final PHIs. Selected claim erasure/bare NewBox/Birth are bypassed by the sole typed emitter with no retry. Next extend existing Home source observation through exact Completion for Normal-return cleanup (never infer it from the last New prefix); runtime/typed-C/EXE30/OBJ tasks 2-4 remain required and execution stays fenced. No whole-library green or completed lifecycle claim."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

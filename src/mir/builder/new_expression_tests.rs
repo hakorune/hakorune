@@ -83,6 +83,8 @@ fn raw_new_creation_route_preserves_mode_and_integer_priority() {
         .unwrap();
         assert_eq!(route_name(&integer_route), "integer-literal");
         assert_eq!(route_name(&ordinary), "ordinary");
+        assert_eq!(integer_route.evaluated_argument_count(), 0);
+        assert_eq!(ordinary.evaluated_argument_count(), 1);
     });
     crate::test_support::with_env_var("NYASH_MIR_CORE13_PURE", "1", || {
         let core13 = PreparedRawNewExpressionV1::prepare(
@@ -93,6 +95,7 @@ fn raw_new_creation_route_preserves_mode_and_integer_priority() {
         )
         .unwrap();
         assert_eq!(route_name(&core13), "core13-pure");
+        assert_eq!(core13.evaluated_argument_count(), 1);
     });
     assert!(builder.current_module.is_none());
     assert!(builder.function_state.current_function.is_none());

@@ -74,6 +74,7 @@ pub(super) fn lower_app_main_root_body_v1(
                         inner.callable_ledger.as_ref().ok_or_else(|| {
                             "[freeze:contract][mir/callable-main/ledger-missing]".to_owned()
                         })?.borrow_mut().select_root_fault_frame()?;
+                        ordinary_new_claim_ledger.register_new_root(identity.owner())?;
                         let parameter_count = builder
                             .function_state
                             .current_function
@@ -87,7 +88,9 @@ pub(super) fn lower_app_main_root_body_v1(
                             builder,
                             CallableEntryShapeV1::Static { parameter_count },
                         )?;
-                        inner.lower_body(builder, body)
+                        let value = inner.lower_body(builder, body)?;
+                        inner.complete_construction_stores_v1(builder)?;
+                        Ok(value)
                     })
                 },
             )

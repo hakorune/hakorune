@@ -27,11 +27,27 @@ pub(crate) enum CanonicalObjectLayoutUnavailableV1 {
 pub(crate) type CanonicalObjectLayoutV1 =
     Result<TypedObjectPlan, CanonicalObjectLayoutUnavailableV1>;
 
+/// Issued from the whole source declaration, independently of construction/layout.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ObjectDestructionUnavailableV1 {
+    Declaration(ObjectLayoutUnavailableV1),
+    WeakField,
+    FieldType,
+    MemberRole,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ObjectDestructionDispositionV1 {
+    PlainI64NoHook,
+    Unavailable(ObjectDestructionUnavailableV1),
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CanonicalObjectDefinitionV1 {
     diagnostic_name: Box<str>,
     fields: Box<[UserBoxFieldDecl]>,
     local_layout: Result<(), ObjectLayoutUnavailableV1>,
+    destruction: ObjectDestructionDispositionV1,
     runtime_layout: Option<CanonicalObjectLayoutV1>,
 }
 
@@ -40,11 +56,13 @@ impl CanonicalObjectDefinitionV1 {
         diagnostic_name: Box<str>,
         fields: Box<[UserBoxFieldDecl]>,
         local_layout: Result<(), ObjectLayoutUnavailableV1>,
+        destruction: ObjectDestructionDispositionV1,
     ) -> Self {
         Self {
             diagnostic_name,
             fields,
             local_layout,
+            destruction,
             runtime_layout: None,
         }
     }
@@ -54,6 +72,10 @@ impl CanonicalObjectDefinitionV1 {
     }
     pub(crate) fn fields(&self) -> &[UserBoxFieldDecl] {
         &self.fields
+    }
+
+    pub(crate) fn destruction_disposition(&self) -> ObjectDestructionDispositionV1 {
+        self.destruction
     }
 
     pub(crate) fn runtime_layout(&self) -> Option<&CanonicalObjectLayoutV1> {

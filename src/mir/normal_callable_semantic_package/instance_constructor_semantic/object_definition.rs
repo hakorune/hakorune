@@ -3,6 +3,8 @@
 
 use super::{ASTNode, CanonicalObjectDefinitionV1, InstanceConstructorSemanticBatchIssueV1};
 use crate::mir::function::{ObjectLayoutUnavailableV1 as Unavailable, UserBoxFieldDecl};
+use crate::mir::function::{ObjectDestructionDispositionV1 as Destruction,
+    ObjectDestructionUnavailableV1 as DestructionUnavailable};
 
 pub(super) fn issue(
     declaration: &ASTNode,
@@ -23,7 +25,13 @@ pub(super) fn issue(
         invariants,
         transitions,
         static_init,
-        ..
+        public_fields: _,
+        private_fields: _,
+        methods,
+        constructors,
+        init_fields: _,
+        weak_fields,
+        span: _,
     } = declaration
     else {
         return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
@@ -42,7 +50,7 @@ pub(super) fn issue(
     }
     // Unsupported declarations retain their identity and source fields. Never
     // interpret a zero-local-field inherited object as a plain empty object.
-    let local_layout = if !extends.is_empty() {
+    let declaration_shape = if !extends.is_empty() {
         Err(Unavailable::Inheritance)
     } else if !delegates.is_empty() {
         Err(Unavailable::Delegation)
@@ -61,6 +69,26 @@ pub(super) fn issue(
     } else {
         Ok(())
     };
+    // This is an explicit closed source profile, not a runtime-layout result.
+    // The exhaustive Box pattern above forces review when a hook/storage role
+    // is added to the AST. Method bodies do not issue destruction obligations.
+    let destruction = if let Err(reason) = declaration_shape {
+        Destruction::Unavailable(DestructionUnavailable::Declaration(reason))
+    } else if !weak_fields.is_empty() || field_decls.iter().any(|field| field.is_weak) {
+        Destruction::Unavailable(DestructionUnavailable::WeakField)
+    } else if field_decls.iter().any(|field| field.declared_type_name.as_deref() != Some("i64")) {
+        Destruction::Unavailable(DestructionUnavailable::FieldType)
+    } else if methods.iter_selected_declaration_order().any(|entry| {
+        use crate::ast::{BoxMethodProvenanceV1 as Provenance,
+            BoxMethodGeneratedProvenanceV1 as Generated};
+        !matches!(entry.provenance(), Provenance::ExplicitSource { .. }
+            | Provenance::Generated(Generated::MacroOrImport { .. }))
+            || !ordinary_member(entry.declaration(), Some(entry.name()))
+    }) || constructors.values().any(|node| !ordinary_member(node, None)) {
+        Destruction::Unavailable(DestructionUnavailable::MemberRole)
+    } else {
+        Destruction::PlainI64NoHook
+    };
     Ok(CanonicalObjectDefinitionV1::from_source_declaration(
         name.as_str().into(),
         field_decls
@@ -72,8 +100,15 @@ pub(super) fn issue(
             })
             .collect::<Vec<_>>()
             .into_boxed_slice(),
-        local_layout,
+        declaration_shape,
+        destruction,
     ))
+}
+
+fn ordinary_member(node: &ASTNode, expected_name: Option<&str>) -> bool {
+    matches!(node, ASTNode::FunctionDeclaration { name, attrs, .. }
+        if name != "fini" && attrs.is_empty()
+            && expected_name.is_none_or(|expected| expected == name))
 }
 
 #[cfg(test)]
@@ -87,6 +122,30 @@ mod tests {
             panic!("program")
         };
         statements.remove(0)
+    }
+
+    #[test]
+    fn destruction_is_explicit_source_profile_not_layout_or_birth_success() {
+        for text in [
+            "box Plain {}",
+            "box Plain { value: i64 }",
+            "box Plain { value: i64\nbirth(x) { me.value = x } }",
+            "box Plain { value: i64\nhelper() { return 1 } }",
+        ] {
+            assert_eq!(issue(&declaration(text)).unwrap().destruction_disposition(),
+                Destruction::PlainI64NoHook);
+        }
+        for text in ["box Plain { value }", "box Plain { value: StringBox }"] {
+            let definition = issue(&declaration(text)).unwrap();
+            assert!(definition.local_fields_for_layout().is_ok());
+            assert_eq!(definition.destruction_disposition(),
+                Destruction::Unavailable(DestructionUnavailable::FieldType));
+        }
+        let mut node = declaration("box Plain { value: i64 }");
+        let ASTNode::BoxDeclaration { field_decls, .. } = &mut node else { unreachable!() };
+        field_decls[0].is_weak = true;
+        assert_eq!(issue(&node).unwrap().destruction_disposition(),
+            Destruction::Unavailable(DestructionUnavailable::WeakField));
     }
 
     #[test]
@@ -151,6 +210,8 @@ mod tests {
             }
             let definition = issue(&node).unwrap();
             assert_eq!(definition.local_fields_for_layout(), Err(reason));
+            assert_eq!(definition.destruction_disposition(),
+                Destruction::Unavailable(DestructionUnavailable::Declaration(reason)));
             assert_eq!(definition.diagnostic_name(), "Plain");
             assert!(definition.fields().is_empty());
         }

@@ -413,6 +413,14 @@ impl super::MirBuilder {
     /// 3. Return type inference (delegation to return_type_strategy)
     /// 4. Module sealing (metadata, birth verification)
     pub(super) fn finalize_module(&mut self, result_value: ValueId) -> Result<MirModule, String> {
+        self.finalize_module_with_root_validation(result_value, |_| Ok(()))
+    }
+
+    pub(super) fn finalize_module_with_root_validation(
+        &mut self,
+        result_value: ValueId,
+        validate_root: impl FnOnce(&crate::mir::MirFunction) -> Result<(), String>,
+    ) -> Result<MirModule, String> {
         // Hint: scope leave at function end (id=0 for main)
         self.hint_scope_leave(0);
         if let Some(block_id) = self.function_state.current_block {
@@ -576,6 +584,7 @@ impl super::MirBuilder {
             }
         }
 
+        let root_function_key = function.signature.name.clone();
         module.add_function(function);
 
         // main 関数スコープの Region スタックをポップするよ。
@@ -597,6 +606,10 @@ impl super::MirBuilder {
             )?;
         }
 
+        let root = module.functions.get(&root_function_key).ok_or_else(|| {
+            "[freeze:contract][mir/finalize/root-definition-missing]".to_owned()
+        })?;
+        validate_root(root)?;
         self.function_state = Default::default();
         Ok(module)
     }

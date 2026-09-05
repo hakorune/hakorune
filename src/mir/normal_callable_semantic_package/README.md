@@ -3,6 +3,13 @@
 This module owns the one pre-Builder semantic package for a final parser
 callable source batch.
 
+The exact ordinary-Box definition issuer also owns the bounded destruction
+disposition, independently of construction and runtime layout. Ordinary-New
+co-seal copies its object ID/disposition before the definition payload moves
+to the collector; completed local claims retain that immutable projection.
+Post-transfer lookup cannot reissue it. This transport does not authorize
+Birth execution or prove normal/Fault cleanup has been emitted.
+
 ```text
 VerifiedFinalCallableProgramSourceV1
   ├─ source-backed installable callable catalog

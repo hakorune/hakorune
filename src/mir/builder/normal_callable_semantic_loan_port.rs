@@ -43,6 +43,8 @@ use crate::mir::normal_callable_semantic_package::{
 mod cataloged_instance_scope;
 #[path = "normal_callable_semantic_loan_port/main_root.rs"]
 mod main_root;
+#[path = "normal_callable_semantic_loan_port/ordinary_new.rs"]
+mod ordinary_new;
 
 pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     'package,
@@ -374,69 +376,6 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
     }
 }
 
-impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
-    fn complete_ordinary_new_expression(
-        &mut self,
-        class: &str,
-        value: ValueId,
-    ) -> Result<(), String> {
-        let owner = self
-            .inner
-            .callable_owner_v1()
-            .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned())?;
-        let site = self
-            .inner
-            .current_source_site_v1()
-            .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned())?;
-        if !matches!(
-            site.segments(),
-            [
-                SourcePathSegmentV1::Body(_),
-                SourcePathSegmentV1::Initializer(_)
-            ]
-        ) || !self.package.ordinary_box_is_covered(class)
-        {
-            return Ok(());
-        }
-        self.package
-            .ordinary_new_claim_ledger()
-            .complete_new_expression(
-                &OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site)),
-                class,
-                value,
-            )
-    }
-    fn try_take_ordinary_new_claim(
-        &mut self,
-        class: &str,
-        argument_count: usize,
-    ) -> Result<
-        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
-        String,
-    > {
-        let Some(owner) = self.inner.callable_owner_v1() else {
-            return Err("[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned());
-        };
-        let Some(site) = self.inner.current_source_site_v1() else {
-            return Err("[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned());
-        };
-        if !matches!(
-            site.segments(),
-            [
-                SourcePathSegmentV1::Body(_),
-                SourcePathSegmentV1::Initializer(_)
-            ]
-        ) || !self.package.ordinary_box_is_covered(class)
-        {
-            return Ok(None);
-        }
-        let site = OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site));
-        self.package
-            .take_ordinary_new_claim(&site, class, argument_count)
-            .map(Some)
-            .map_err(package_issue)
-    }
-}
 
 impl RawFunctionHeaderLookupPortV1
     for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>

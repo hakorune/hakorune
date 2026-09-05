@@ -223,9 +223,16 @@ impl RawInvocationChildPortV1<'_, '_> {
                             uses,
                             attrs,
                         )?;
-                        child_port.with_headers(|headers| {
+                        let function = child_port.with_headers(|headers| {
                             builder.finalize_function_draft_with_headers(prepared, headers)
-                        })
+                        })?;
+                        if let Some(state) = &child_port.callable_ledger {
+                            state.borrow().validate_finalized_construction_stores(&function)?;
+                            if let Some(news) = &child_port.ordinary_new_claim_ledger {
+                                news.validate_new_emissions(state.borrow().owner(), &function)?;
+                            }
+                        }
+                        Ok(function)
                     },
                 )
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?

@@ -81,6 +81,23 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let package = issue_with_brand_catalog(&source).unwrap();
     assert_eq!(package.ordinary_new_claims[0].construction(),
         &Err(ConstructionUnavailableV1::OverrideUnsupported));
+    let claim = &package.ordinary_new_claims[0];
+    let batch = &package.instance_constructors;
+    let projected = batch.destruction_for(claim.box_source()).unwrap();
+    assert_eq!(projected, (claim.object(), claim.destruction()));
+    assert_eq!(claim.destruction(),
+        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook);
+    let foreign = issue_with_brand_catalog(&source).unwrap();
+    assert!(matches!(batch.destruction_for(foreign.ordinary_new_claims[0].box_source()),
+        Err(super::instance_constructor_semantic::InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)));
+    let definitions = batch.take_object_definitions().unwrap();
+    assert_eq!(definitions[claim.object().declaration_index() as usize].destruction_disposition(),
+        claim.destruction());
+    assert!(matches!(batch.destruction_for(claim.box_source()),
+        Err(super::instance_constructor_semantic::InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)));
+    assert_eq!(batch.object_for(claim.box_source()).unwrap(), claim.object());
+    assert_eq!(projected, (claim.object(), claim.destruction()), "retained claim survives transfer");
+    assert!(batch.take_object_definitions().is_none());
 }
 
 #[test]
@@ -123,18 +140,66 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
                 row.initializer_site() == Some(site.site())).unwrap().declaration_site().clone()).unwrap()
     }).collect();
     let ledger = OrdinaryNewClaimLedgerV1::issue(package.ordinary_new_claims, vec!["Page".into()].into());
+    let mut physical = crate::mir::MirFunction::new(crate::mir::FunctionSignature {
+        name: "binding_witness".into(), params: vec![],
+        return_type: crate::mir::MirType::Void, effects: crate::mir::EffectMask::CONTROL,
+    }, crate::mir::BasicBlockId::new(0));
+    ledger.register_new_root(sites[0].owner()).unwrap();
+    assert!(ledger.register_new_root(sites[0].owner()).is_err());
     assert_eq!(ledger.try_take(&sites[1], "Page", 0), Err(OrdinaryNewClaimTakeErrorV1::Mismatch));
     for (index, site) in sites.iter().enumerate() {
-        ledger.try_take(site, "Page", 0).unwrap().unwrap();
+        let claim = ledger.try_take(site, "Page", 0).unwrap().unwrap();
+        assert!(ledger.prepare_new_emission(&claim).unwrap());
+        let prior = ledger.begin_new_emission(site).unwrap();
+        assert_eq!(prior.iter().map(|(_, value)| *value).collect::<Vec<_>>(),
+            (0..index).rev().map(|i| ValueId(i as u32 * 2 + 1)).collect::<Vec<_>>());
         let initializer = ValueId(index as u32 * 2);
         let local = ValueId(index as u32 * 2 + 1);
+        // This unit tests binding validation, not full Invoke CFG acceptance.
+        let block_id = crate::mir::BasicBlockId::new(index as u32);
+        let binding = crate::mir::MirInstruction::InvokeNormalResult {
+            invoke_block: block_id, dst: initializer,
+        };
+        let frame = crate::mir::MirInstruction::FaultFrameEnter {
+            dst: ValueId(100), mode: crate::mir::instruction::FaultFrameMode::RootOwned,
+        };
+        let mut block = crate::mir::BasicBlock::new(block_id);
+        if index == 0 { block.add_instruction(frame.clone()); }
+        block.add_instruction(binding.clone());
+        block.add_instruction(crate::mir::MirInstruction::Copy { dst: local, src: initializer });
+        physical.add_block(block);
+        ledger.record_new_emission(site, initializer,
+            vec![(crate::mir::BasicBlockId::new(0), frame), (block_id, binding)]).unwrap();
         ledger.complete_new_expression(site, "Page", initializer).unwrap();
         let SourceBindingSiteV1::Local { statement, ordinal } = &declarations[index] else { panic!("local") };
         ledger.complete_local_installation(site.owner(), statement.node(), &[
             (destinations[index], *ordinal, initializer, local),
         ]).unwrap();
     }
+    assert!(!ledger.is_empty(), "local installation alone is not physical completion");
+    ledger.complete_new_emissions(sites[0].owner(), &physical).unwrap();
     assert!(ledger.is_empty());
+    let mut changed_frame = physical.clone();
+    for instruction in &mut changed_frame.blocks.get_mut(&crate::mir::BasicBlockId::new(0)).unwrap().instructions {
+        if let crate::mir::MirInstruction::FaultFrameEnter { mode, .. } = instruction {
+            *mode = crate::mir::instruction::FaultFrameMode::Borrowed;
+        }
+    }
+    assert!(ledger.validate_finalized_new_root(&changed_frame).unwrap_err().contains("emission-binding-drift"));
+    let mut changed_copy = physical.clone();
+    for block in changed_copy.blocks.values_mut() {
+        for instruction in &mut block.instructions {
+            if let crate::mir::MirInstruction::Copy { src, .. } = instruction {
+                *src = ValueId(99);
+            }
+        }
+    }
+    assert!(ledger.validate_finalized_new_root(&changed_copy).unwrap_err().contains("emission-local-copy-drift"));
+    let mut drifted = physical.clone();
+    drifted.blocks.clear();
+    assert!(ledger.validate_finalized_new_root(&drifted).is_err());
+    ledger.validate_finalized_new_root(&physical).unwrap();
+    assert!(ledger.validate_finalized_new_root(&physical).unwrap_err().contains("duplicate-root-validation"));
 }
 
 #[test]
@@ -200,8 +265,12 @@ fn ordinary_new_fault_continuation_is_source_owned_and_not_normal_completion() {
 fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
     let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
-        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        for text in [
             "box Page { birth() { } } static box Main { main() { local first = new Page() local second = new Page() return 0 } }",
+            "box Page { left: i64\nright: i64\nbirth(a, b) { me.left = a\nme.right = b } } static box Main { main() { local a = 7\nlocal b = 9\nlocal first = new Page(a, b)\nlocal second = new Page(b, a)\nreturn 0 } }",
+        ] {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            text,
             ParserBuildConfig::default(),
         ).unwrap();
         let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
@@ -214,12 +283,17 @@ fn ordinary_new_local_completion_reaches_package_finish_for_two_destinations() {
         ).expect("both target takes must complete through their exact locals");
         assert!(result.verification_result.is_ok());
         let main = result.module.get_function("main").unwrap();
-        assert_eq!(main.blocks.values().flat_map(|block| &block.instructions).filter(|inst|
-            matches!(inst, crate::mir::MirInstruction::Call(call)
+        assert_eq!(main.blocks.values().flat_map(|block| block.all_instructions()).filter(|inst|
+            matches!(inst, crate::mir::MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::Call(call), .. }
                 if matches!(call.callee, crate::mir::Callee::BirthConstructor { .. }))
         ).count(), 2);
+        assert!(!main.blocks.values().flat_map(|block| block.all_instructions()).any(|inst|
+            matches!(inst, crate::mir::MirInstruction::NewBox { .. }
+                | crate::mir::MirInstruction::Call(_))));
         let view = crate::mir::function::PublishedMirBackendView::try_new(&result.module).unwrap();
         assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::UnsupportedBeforeObject);
+        }
     });
 }
 
@@ -457,8 +531,9 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
         let mut read_count = 0;
         let mut add_count = 0;
         let mut birth_count = 0;
-        for instruction in main.blocks.values().flat_map(|block| &block.instructions) {
-            if let crate::mir::MirInstruction::Call(call) = instruction {
+        for instruction in main.blocks.values().flat_map(|block| block.all_instructions()) {
+            if let crate::mir::MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::Call(call), .. } = instruction {
                 if let crate::mir::Callee::BirthConstructor { key: target, receiver } = &call.callee {
                     assert_eq!(target, &key);
                     assert_eq!(call.dst, None);

@@ -80,6 +80,7 @@ mod tests {
                 "Plain".into(), vec![UserBoxFieldDecl {
                     name: "value".into(), declared_type_name: Some("i64".into()), is_weak: false,
                 }].into_boxed_slice(), Ok(()),
+                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
             ),
         ].into_boxed_slice());
         assert!(module.validate_object_definition_membership().is_err());

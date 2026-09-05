@@ -26,6 +26,15 @@ enum PreparedRawNewExpressionRouteV1 {
 struct PreparedRawNewExpressionSealV1;
 
 impl PreparedRawNewExpressionV1 {
+    /// Only evaluated expressions occupy the structured child demand queue.
+    pub(in crate::mir::builder) fn evaluated_argument_count(&self) -> usize {
+        match &self.route {
+            PreparedRawNewExpressionRouteV1::Core13Pure { arguments }
+            | PreparedRawNewExpressionRouteV1::Ordinary { arguments } => arguments.len(),
+            PreparedRawNewExpressionRouteV1::IntegerLiteral { .. } => 0,
+        }
+    }
+
     pub(in crate::mir::builder) fn prepare(
         builder: &MirBuilder,
         class: String,
