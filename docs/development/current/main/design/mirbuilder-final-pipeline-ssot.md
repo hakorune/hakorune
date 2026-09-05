@@ -393,14 +393,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = design_open
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `acceptance_source_reconciliation_i0`
 
 The VM stop is landed. Acceptance reconciliation now selects the worker-reviewed
 BirthConstructor key/definition and typed consumer series in the workstream.
 The C dispatcher prerequisite is extracted verbatim (body 797->708 lines).
-Task-1 input cutover landed: ordinary_new_coseal uses exact resolver initializer/binding relations instead of Allocation-effect discovery; unchanged direct-local cohort/source/catalog/builtin/ABI behavior, package 78/78 and generic M7-S guard green. No new receipt/fixture/guard or Home commit/Fault/EXE claim. Birth non-escape remains landed at 5b5deb4e12; next common Fault/Home issuance must represent prior caller Homes, not empty cleanup, under constructor-birth-new-lifecycle-ssot.
+Task-1 input cutover is landed at d6d0198a1b (package 78/78); Birth non-escape at 5b5deb4e12. The accepted task-1 series now implements the caller-prefix Home source plan and exact local-completion consumer specified in constructor-birth-new-lifecycle-ssot: prior caller Homes are not empty, constructor target take is not Home install, unresolved construction unwind retains backend rejection. This design checkpoint issues no new receipt and claims no Home execution/Fault/EXE result; next is implementation, not another input census or ABI consultation.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

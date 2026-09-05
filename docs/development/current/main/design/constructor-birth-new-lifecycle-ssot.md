@@ -15,6 +15,19 @@ Related:
 
 Decision: accepted.
 
+## Current Capsule
+
+- **Current decision:** common Home Flow owns caller obligations; construction
+  owns unpublished-object cleanup. Neither substitutes for the other.
+- **Current implementation status:** exact Birth carrier, receiver non-escape
+  and ordinary-New initializer membership exist; Fault execution is not open.
+- **Next ordered task:** issue caller-prefix Home transitions and consume them
+  at the existing exact local completion, then close the common Fault ABI.
+- **Production stop line:** unresolved cleanup dependencies keep the published
+  backend rejection; a source plan alone cannot enable Birth execution.
+- **Retirement finish line:** selected New/Birth execution and cleanup use one
+  plan, with the selected old projection edges removed and fixed EXE30 proven.
+
 This document owns construction ordering and the direct-`birth` ban. The Home
 document owns Home tokens and destinations. The bounded failed-construction
 decision below supplies `OWN-HOME-BIRTH-D0` without changing successful order;
@@ -325,15 +338,88 @@ Checkpoint evidence: package 77/77, including the fixed Pair publication and
 pre-artifact rejection. Direct nested `me` is rejected by the earlier resolver;
 alias capture reaches the new verifier. New receipt/guard/fixture = 0; the
 unchecked Birth-row admission is closed, not a legacy-file deletion claim.
-Actual Fault cutpoints require new issuance in the existing common exit/Home
-owner: Allocation event order is source traversal, not runtime evaluation order.
 Ordinary-new admission uses exact local initializer/binding relations instead
 of Allocation-event discovery (package 78/78; selected old discovery edge 1->0,
-no Home-commit or cleanup claim). The next Home issuer consumes source statement
-order and distinguishes an unpublished construction from its successful local
-Home installation; a later New Fault must preserve prior caller Homes. Current
-natural-source grammar permits one initialized local per declaration. Multiple
-initializer AST carriers are not a reason to widen this source cohort; if later
+no Home-commit or cleanup claim).
+
+### Task 1 implementation decision: caller-prefix Home transitions
+
+Decision: use the accepted Home semantics, not another Birth-only ownership
+system. This is not Fast-path reuse: source-owned availability and its local
+commit consumer do not yet exist. The read-only review closes the ownership
+boundary; it does not supply an implemented cleanup receipt.
+
+Coverage boundary: one exact callable entry -> each selected direct-local New
+Fault/Normal successor and its exact local installation. Includes every
+statement/expression on that straight-line prefix; excludes the later body and
+construction-internal cleanup implementation. Exclusion does not waive the
+whole-function or runtime finish line in tasks 2–4.
+
+The common Home issuer belongs in `resolved_semantics`, beside the existing
+Home vocabulary. It consumes one `ResolvedFunctionLoweringInputV1` source loan,
+exact initializer/declaration BindingRefs, entry demand contracts, and the
+already-selected ordinary constructor relation. `resolved_control_flow` owns
+the outward Fault continuation, not availability, rebinding or ValueIds.
+`ordinary_new_coseal` binds the resulting transition to its constructor claim;
+it must not become a second Home classifier. Source statement order, not the
+Allocation inventory or map order, determines the Normal-state sequence.
+
+| Prefix outcome | Authority and behavior |
+| --- | --- |
+| exact entry demands, or source-proven no inputs/captures | initialize caller state; absence of a demand product is not an empty state |
+| direct-local ordinary New | New Normal yields a pending first Home; exact local completion alone installs it |
+| exact plain local alias | retain the supporting Home; issue no new owner and do not transfer |
+| literal/source-proven Trivial expression | no Home acquisition; no MIR-type or raw-bit inference |
+| uninitialized local declaration | no acquisition at declaration; later assignment still requires its own contract |
+| unknown call/native/field/index operation, rebind, ownership-changing operation or structured control | no complete prefix plan; retain the existing unsupported backend capability, never skip the subtree |
+| Return or other terminal before selected New | no reachable prefix; do not issue a transition for dead suffix syntax |
+| known required argument/construction unwind, implementation missing | retain an explicit exact-site dependency; backend admission remains closed |
+| foreign/duplicate/drifted source relation or duplicate physical consumption | fail before publication; no fallback or default state |
+
+Each transition contains exact source coverage, destination binding/scope,
+Normal pending-to-installed relation, caller Homes available on that Normal
+path, and Fault continuation. Fault first requires the active argument or
+construction frame's unwind, then releases prior caller Homes in reverse
+declaration order and propagates outward. The failed New destination is absent.
+The constructor dependency owns initialized fields/native payload; the caller
+plan never copies or invents that internal set. Unknown caller-prefix meaning
+prevents issuance; a known but unresolved unwind dependency prevents backend
+activation. Neither is a fabricated empty cleanup or a language rejection.
+
+Use the existing lifetime chain:
+
+```text
+ordinary_new_coseal -> package claim/local source relation
+  -> ordinary_new_admission -> new_expression (including overrides)
+  -> drive_local_statement_with_receipt_v1
+  -> CompletedLocalBinding(ordinal, initializer, local)
+  -> CallableSemanticLoweringState::record_completed_local
+```
+
+The last owner already matches the source declaration to physical values.
+Extend that handoff, not a new port axis or name-based registry. In particular,
+`claim.constructor()` currently consumes the claim before arguments; taking a
+constructor target cannot consume the pending Home-install obligation. Preserve
+the source transition until the exact initializer/local/ordinal match, and
+retain the resulting projection for the common exit consumer. Package/local
+finish must reject unmatched begin/commit/residual obligations. A plan stored
+and then dropped at scope finish is not connected completion.
+
+**Change:** implement this source issuer plus its package/local-completion
+consumer as one bounded task-1 series; replace target-take-only completion for
+selected New. Do not add another preparatory inventory or input-ABI task.
+**Contract:** no new semantic authority in Lower, no re-lowering arguments,
+no extra Home on alias/Copy, no early publication after Birth Normal Unit.
+**Done:** existing package/local test owners cover two and three separate New
+declarations, prior-Home reverse order, no failed destination Home, alias/no
+extra owner, wrong owner/site/ordinal/initializer and duplicate/residual rejects;
+unknown prefixes and unresolved unwind cannot open the backend. Preserve fixed
+Pair publication, run the focused package suite and existing M7-S guard.
+**Stop:** if the existing source/local completion cannot retain the relation,
+fix that same handoff; do not issue a detached proof or widen the source grammar.
+
+Current natural-source grammar permits one initialized local per declaration.
+Multiple initializer AST carriers are not a new prerequisite; if later
 admitted, protect pending HomeValues before any local installation.
 Normal Completion/E0 remain insufficient; do not reuse TextScan's successorless
 Fault terminal as caller propagation. No input-ABI reconsultation is needed.

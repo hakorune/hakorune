@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "BirthFaultPlanIssuanceMissing"
-current_blocker_token = "Birth-body non-escape is landed at 5b5deb4e12. Ordinary-new admission now uses one same-source initializer/binding loan instead of Allocation-effect discovery; exact direct-local cohort and ABI behavior preserved, package 78/78. Next under accepted task 1: common Home/source-exit issuance must connect successful New -> exact local Home installation and later New Fault -> surviving prior caller Homes/outward continuation. Source statement order, not effect or map order, owns sequencing. Natural parser permits only one initialized local; multi-initializer AST support is not a new prerequisite. Missing local/native/field obligations cannot be empty. No repeated input-ABI/scope consultation, detached receipt, or storage-only helper. Fault cleanup, reclaim, Birth execution and EXE30 remain open; no whole-lib baseline or Home-commit claim in this input cutover."
+current_design_stop = "none"
+current_blocker_token = "Implement constructor-birth-new-lifecycle-ssot Task 1 caller-prefix Home transitions and package/local-completion consumption. resolved_semantics owns availability from exact source; resolved_control_flow owns outward Fault only. New Normal stays pending until CompletedLocalBinding -> CallableSemanticLoweringState::record_completed_local validates installation; target take cannot discharge it. Required argument/construction unwind precedes prior caller Home release. Unknown prefix prevents a complete plan; unresolved unwind keeps backend rejection. Source order, no empty cleanup inference, new port axis or detached receipt. Next is code, not another census/input-ABI consultation. Preceding package 78/78 is not evidence for the unimplemented plan. Common Fault ABI, cleanup/reclaim, Birth execution and EXE30 remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -56,8 +56,8 @@ changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remainin
 The fixed acceptance owner was then executed with a fresh llvm_static build on 2026-09-05: 1/11 passed in the default profile and 10/11 stopped before artifact generation; six hit the existing default-callable ExactSourceChanged(RootPreservation(CompatibilityLoss)) terminal and four hit the existing generated-birth birth/0 source contract. These are unclassified acceptance incidents, not baseline debt. Constructor root identity and App Main ordinary-new slot co-seal landed at dc684be1f1; the existing builtin owner now keeps ArrayBox outside source-backed ordinary coverage at the follow-up commit, semantic package tests remain 71/71, and the derive-off probe is now 3/11 with both typed-object-newbox-min and typed-object-untyped-field-min passing.
 The lexical `me` repair landed at bad86deaef (71/71 tests). The bdb28364c3 typed CLI probe proves StaticCallDefinitionMissing for birth and no artifact. C call-dispatch extraction landed at 93dde7b882 (797->708 lines, expanded source identical). Branch-only WIP d1fce06be3 preserves the BirthConstructor definition key; admission 3/3, collector 9/9 and vm-reference check pass. The new fixed Pair publication test fails at the existing IntegerBox field-read/Add type boundary: package 72/73, not merge-ready. User-requested IntegerBox review selects an explicit two-field i64 source-contract migration, not a field-only unbox rule; original evidence is retained. Real field-write/operand-kind consumption and EXE/OBJ admission are still required before birth execution. Call carrier, typed consumer, Pair exit 30 and selected old-edge deletion remain open. This design checkpoint changes no code, fixture, ignore or baseline; main stays at the closed checkpoint.
 """
-next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
-next_execution_card = "none"
+next_design_card = "none"
+next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
