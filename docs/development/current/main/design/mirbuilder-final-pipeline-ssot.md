@@ -454,7 +454,7 @@ because the current import closure cannot reach `FuncLoweringBox`.
 | 5 parked | `stage1_return_call_legacy_writer_stop` / Stop | writer/name/arity path deleted at `99b4446cab`; current import closure stops before the selected boundary | `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; reopen only when an unchanged direct route reaches `FuncLoweringBox` without new authority/fallback |
 | 6 landed | `mir_json_v0_call_ingress_stop` / Stop | shared `module.rs` call/mir_call dispatch -> one pre-publication terminal | landed at `9a40ece824`; call/catalog owners and call-only tests deleted; boxcall/externcall/NewBox/non-call preserved; fixed failure-name set unchanged |
 | 7 landed | `stage1_return_call_parked_assets_repay` / Delete | three invalid smokes plus three exclusive fixtures, 6 files / 189 lines; default directory discovery had reached them | landed at `f15098cf0b`; paths/discovery 0, Git owns detail, new test/guard/receipt=0 |
-| 8 cutover + admission repair landed | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer, native projection callers 3→0, and shared OBJ/EXE capability preflight; explicit llvmlite outside scope | repair/test landed in the follow-up commit; source contents/order/Void execution remains open; full acceptance not claimed |
+| 8 cutover + admission repair landed | `array_element_write_published_c_cutover_i0` / Promote+Delete | typed four-kind C consumer, native projection callers 3→0, and shared OBJ/EXE capability preflight; explicit llvmlite outside scope | source contents/order/Void acceptance remains open; use the production typed caller, not JSON-only `ny-llvmc` |
 
 ```text
 status = landed
@@ -492,10 +492,11 @@ synthetic rows, malformed Set and synthetic MIR→OBJ/optional EXE, not source
 contents/order or source-level Void behavior. The prior “Void-result shape
 reject” claim is withdrawn, not carried as evidence.
 
-The real crate `ny-llvmc` probe reaches MIR but stops before artifact creation
-at `published_array_write_row_mismatch` for ordinary `ArrayBox` metadata. This
-is a named admission dependency: no second source authority or rejection-only
-fixture; keep OBJ/EXE acceptance open until the existing row owner decides it.
+The standalone `tools/build_llvm.sh -> ny-llvmc` probe is JSON-only and carries
+no typed row frame; its `published_array_write_row_mismatch` is therefore
+transport absence, not a new admission owner. Source acceptance must use the
+existing `hakorune` production caller that supplies `PublishedMirBackendView`.
+No source workaround, alternate authority, or rejection-only fixture is allowed.
 
 Then prove all four writes from source through OBJ/link/run and EXE with
 observable contents/order, Void semantics and malformed/unsupported rejection
@@ -995,6 +996,5 @@ new language semantics
 new runtime or backend policy
 independent second MirBuilder
 legacy JoinModule revival
-metric-derived architecture
-DraftSealでのsource re-analysis
+metric-derived architecture; DraftSealでのsource re-analysis
 ```

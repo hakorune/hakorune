@@ -4,7 +4,7 @@ work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "array_element_write_published_c_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S capability admission and source-site transport repairs are landed: shared OBJ/EXE published entrypoints run existing backend policy before transport, typed-array rejection is proved, and cataloged callable-root method statements retain exact sites while raw/script roots remain unlocated. Source MIR now emits all six write rows; the real crate ny-llvmc probe stops before artifact at published_array_write_row_mismatch for ordinary ArrayBox metadata. Next is the bounded published-row admission decision followed by source-to-OBJ/EXE contents/order/Void acceptance; synthetic proof is not full source acceptance. Existing workstream Ordered frontier fixes scope -> remaining owner stops -> Call/R7 -> Loop cutover/deletion -> selfhost handoff. No broad design restart."
+current_blocker_token = "M7-S capability admission and source-site transport repairs are landed: shared OBJ/EXE published entrypoints run existing backend policy before transport, typed-array rejection is proved, and cataloged callable-root method statements retain exact sites while raw/script roots remain unlocated. Source MIR now emits all six write rows. The standalone tools/build_llvm.sh -> ny-llvmc JSON-only probe has no typed row frame and therefore reports published_array_write_row_mismatch; this is not the production typed-caller path. Next is tracked source-to-OBJ/EXE contents/order/Void acceptance through hakorune's published caller, then closeout. Existing workstream Ordered frontier fixes scope -> remaining owner stops -> Call/R7 -> Loop cutover/deletion -> selfhost handoff. No broad design restart."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -51,7 +51,7 @@ without name repair or a result assignment, and the three selected native
 projection callers are gone; the explicit llvmlite compatibility projection is
 the only remaining caller and stays outside this cohort. The focused view
 positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
-returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows; the real crate ny-llvmc probe remains open at published_array_write_row_mismatch before artifact creation. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
+returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows. The JSON-only ny-llvmc probe is outside the typed published caller and is not source acceptance evidence. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
 changes.
 """

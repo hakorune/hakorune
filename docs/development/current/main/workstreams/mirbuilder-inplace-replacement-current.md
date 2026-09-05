@@ -418,21 +418,21 @@ semantic carrier. The three native projection callers were removed at
    callable-root allowlist; raw/script roots remain unlocated. The focused
    source compiler test now observes all six write kinds, so the remaining gap
    is artifact execution evidence rather than another source-location design.
-2. **Complete execution acceptance (next).** Extend existing test owners
-   `published_backend_view_tests.rs`,
+2. **Complete execution acceptance (next).** Use the existing production caller
+   (`hakorune --backend mir --emit-exe` / `NYASH_LLVM_OBJ_OUT`) so the
+   `PublishedMirBackendView -> C frame` is actually supplied. Do not use the
+   standalone `tools/build_llvm.sh -> ny-llvmc` JSON-only probe as acceptance:
+   it has no typed row frame and its `published_array_write_row_mismatch` is
+   expected transport absence, not a backend admission failure. Extend existing
+   test owners `published_backend_view_tests.rs`,
    `src/tests/mir_array_element_write_lowering.rs` and runner tests as needed.
    Parse ordinary source and exercise LiteralAppend/Push/Set/Insert through
-   selected OBJ plus linked execution and EXE. Assert resulting contents/order,
-   not only a constant exit status. Verify semantic Void does not expose runtime
-   i64 status; a present Void destination is not itself malformed.
-   Missing/extra index and unsupported typed Array contracts must reject before
-   output creation; retry stays zero. Required native prerequisites missing means
+   selected OBJ plus linked EXE. Assert resulting contents/order, not only a
+   constant exit status. Verify semantic Void does not expose runtime i64
+   status; a present Void destination is not itself malformed. Missing/extra
+   index and unsupported typed Array contracts must reject before output
+   creation; retry stays zero. Required native prerequisites missing means
    unavailable evidence, not a passing skipped EXE test.
-   The current real crate `ny-llvmc` probe reaches MIR but stops before object
-   creation at `published_array_write_row_mismatch` for the ordinary `ArrayBox`
-   source metadata. Treat this as the named published-row admission dependency;
-   do not add a source workaround, alternate authority, or rejection-only
-   fixture.
 3. **Reconcile and close.** Run focused positives/negatives, native build and
    the existing fixed lib comparator. Keep accepted failure identities; classify
    any delta and explicit test additions without blanket rebaseline. Preserve
