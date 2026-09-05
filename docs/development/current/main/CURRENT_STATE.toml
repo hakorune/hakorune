@@ -77,5 +77,4 @@ landed_tail = [
   "2026-09-05: acceptance_source_reconciliation_i0 repaired constructor root identity and App Main ordinary-new exact batch-slot co-seal at dc684be1f1; semantic package tests 71/71, derive-off direct newbox boundary green, remaining fixed-suite failures remain named ArrayBox/usize/default-derive owners.",
   "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-05: T0 dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e; the caller-zero private helper, dead_code allowance, and unused import were removed, the focused four-test brand fixture passed, and the fixed baseline/guards remained unchanged.",
-  "2026-09-05: M7-S stage1_return_call_parked_assets_repay landed at f15098cf0b; three invalid Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale paths and default integration discovery are zero, and no new guard/receipt/test/ignore or baseline change was introduced.",
 ]
