@@ -402,9 +402,9 @@ The former B0/Wpre/individual-row navigation list is superseded here;
 its exact historical body remains at `bafa076579`. This removes stale
 scheduling instructions, not unfinished acceptance obligations.
 
-### Ready now — VM legacy call terminal collapse
+### Closed now — VM legacy call terminal collapse
 
-Reuse M7-S `vm_legacy_call_terminal_collapse_i0`; no new card, semantic
+M7-S `vm_legacy_call_terminal_collapse_i0` landed at `a74648f0b3`; no new card, semantic
 carrier, receipt, adapter, fixture, or guard. ArrayElementWrite write-only
 source/MIR/OBJ/EXE/reject evidence is closed; runtime readback remains at its
 separate `mir_call_no_route` terminal and is not widened into that row.
@@ -418,7 +418,7 @@ separate `mir_call_no_route` terminal and is not widened into that row.
    VM legacy dispatch connections, and the VM-only `HAKO_CABI_TRACE` legacy
    route display. Do not remove the `LegacyCallV0` schema or reopen canonical
    Call/R7 work.
-3. **Acceptance.** Existing call-handler tests and
+3. **Acceptance (landed).** Existing call-handler tests and
    `cargo check --features vm-reference` must pass. Structural search proves
    the deleted VM symbols have no callers; canonical print/free/static tests
    remain green and legacy Global/Method/Value/missing-callee inputs reject
@@ -430,6 +430,17 @@ LegacyCallV0 schema deletion, no Hako/WASM/JSON ingress work, no new backend
 consumer, and no whole-repository green claim. After closeout, the next
 eligible M7-S owner is selected from the existing finite queue; parked families
 remain family-local.
+
+### Scheduler pause after the closed VM cohort
+
+The finite M7-S queue has no safe next owner at this checkpoint. MIR/JSON
+`boxcall` is shared by parser, artifact, selfhost, and VM-Hako compatibility
+callers; the JSON egress is likewise shared by harness, VM-Hako, selected
+dynamic, and CLI export paths. Both lack an exclusive delete-set, so they are
+`ParkedSealed__SharedCompatibilityCallersNoExclusiveDeleteSet`. Do not reopen
+the VM row, repeat the broad census, or add a new D0/receipt/adapter/fixture/
+guard. Resume only when an existing owner-specific decision or caller-zero
+asset supplies a finite Stop/Delete boundary.
 
 These are repair/verification tasks, not a request for a new source authority.
 An upstream terminal is dependency evidence: name its owner and fix an in-scope

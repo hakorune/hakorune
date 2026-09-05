@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "vm_legacy_call_terminal_collapse_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S ArrayElementWrite write-only source/MIR/OBJ/EXE/reject evidence is closed; runtime readback remains outside that row at the named mir_call_no_route terminal. Execute the next VM stop: both LegacyCallV0 product paths use the existing typed rejection helper, old VM dispatch/name/trace edges are deleted, and canonical calls remain unchanged. No R7 schema deletion or broad design restart."
+current_blocker_token = "M7-S VM legacy-call terminal collapse landed at a74648f0b3: both product paths reject through one typed helper, old VM dispatch/name/trace edges are gone, vm-reference check and nine focused tests pass. No eligible next owner exists in the finite queue: MIR/JSON boxcall and JSON egress have multiple live compatibility callers and no exclusive delete-set, so they remain family-local ParkedSealed. next_execution_card=none; do not reopen the VM row or invent a new D0/receipt/guard."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -53,10 +53,10 @@ the only remaining caller and stays outside this cohort. The focused view
 positive/negative suite is 3/3, the synthetic MIR-to-object/executable proof
 returns status 0, C FFI rebuild and quick checks are green, and no new receipt/guard/fixture or baseline change was introduced. The source-site repair retains standalone method-call sites only for callable roots, preserves raw/script unlocated behavior, and the source compiler probe emits all six array-write rows. The JSON-only ny-llvmc probe is outside the typed published caller and is not source acceptance evidence. The preceding bounded T0 cleanup dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e: one compiler-proven caller-zero private helper and its
 dead_code allowance/import were removed without semantic or guard/receipt/test
-changes. The next M7-S cohort is `vm_legacy_call_terminal_collapse_i0`.
+changes. VM `vm_legacy_call_terminal_collapse_i0` landed at a74648f0b3; remaining shared JSON/JoinIR compatibility families are family-local ParkedSealed until an existing owner-specific decision or caller-zero asset appears.
 """
 next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; the follow-up repair now gates native published OBJ/EXE transport through existing capability policy and adds typed-array rejection for both entries. Source contents/order/Void acceptance remains open; llvmlite stays explicit compatibility.",
+  "2026-09-05: M7-S array_element_write_published_c_cutover_i0 landed at 9cb7a6c71a; write-only source/MIR/OBJ/EXE/reject evidence is closed, readback remains the separate mir_call_no_route terminal, and llvmlite stays explicit compatibility.",
   "2026-09-05: T0 dead_annotation_retire_module_invocation_brand landed at 33b69f3e9e; the caller-zero private helper, dead_code allowance, and unused import were removed, the focused four-test brand fixture passed, and the fixed baseline/guards remained unchanged.",
   "2026-09-05: M7-S stage1_return_call_parked_assets_repay landed at f15098cf0b; three invalid Return(Call) smokes and three exclusive fixtures (6 files/189 lines) were deleted, stale paths and default integration discovery are zero, and no new guard/receipt/test/ignore or baseline change was introduced.",
 ]

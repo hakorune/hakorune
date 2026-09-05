@@ -393,8 +393,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = landed
+implementation permission = false
 current cohort = `vm_legacy_call_terminal_collapse_i0`
 
 The selected cohort stops the VM's product reader for the existing
@@ -489,7 +489,8 @@ baseline change was introduced.
 
 ##### VM legacy call terminal collapse (current execution)
 
-Both VM `LegacyCallV0` instruction paths now use one existing typed rejection
+Bounded VM `LegacyCallV0` terminal collapse landed at `a74648f0b3`: both VM
+instruction paths now use one existing typed rejection
 helper. The bounded delete-set is the old `handle_call`/`execute_callee_call`
 dispatch and VM-only legacy trace display; canonical `MirCall` and the
 `LegacyCallV0` schema remain unchanged. Acceptance is the existing nine call
@@ -497,7 +498,8 @@ handler tests, `cargo check --features vm-reference`, structural zero callers
 for the deleted symbols, and unchanged fixed baseline/pointer guards; new guard=0,
 new receipt=0, and the fixed failure-name set unchanged.
 No VM feature parity, Hako/WASM/JSON ingress, R7 schema deletion, or whole
-repository-green claim belongs to this cohort.
+repository-green claim belongs to this cohort. The remaining MIR/JSON boxcall
+and JSON egress readers are `ParkedSealed__SharedCompatibilityCallersNoExclusiveDeleteSet`; reopen only with an existing owner-specific decision or a caller-zero asset, not a new census or D0.
 
 Ordered follow-through remains the workstream's **Ordered frontier**, with
 Call/R7, Loop closure and selfhost proof kept distinct.
