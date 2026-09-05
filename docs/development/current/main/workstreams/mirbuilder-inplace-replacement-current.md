@@ -443,13 +443,26 @@ semantic carrier. The three native projection callers were removed at
      relocation/symbol evidence proves four write kinds, operand contents and
      order, with no result assignment for semantic Void.
    - `AW-I0-C-EXE`: link and run the fixture through the selected EXE route;
-     returned array contents/order are observable, not only exit status.
+     the selected write path must complete without treating a constant exit
+     status as content evidence. Runtime readback is only claimed when the
+     read consumer is supported; `ArrayBox.get/length` currently stops at the
+     separate `mir_call_no_route` reader terminal and must not be added to
+     this write row.
    - `AW-I0-D-REJECT`: malformed index/arity and unsupported typed-array
      inputs reject before OBJ/EXE creation; retry/fallback remains zero.
    - `AW-I0-E-CLOSE`: run focused positives/negatives, native rebuild and the
      fixed comparator; retain accepted failure identities, classify deltas,
      and prove selected native projection callers remain 3→0 with llvmlite
      explicitly outside this row.
+
+Current execution evidence (2026-09-05): `AW-I0-A-SOURCE` is green through
+the existing source compiler test; the tracked source fixture emits an OBJ
+through the production caller with six relocations in the expected
+`append, append, store, insert, store, store` order and runs as a MIR EXE with
+status 0. The existing typed-array reject-before-object/exe test is green.
+This is partial acceptance only: adding `ArrayBox.get` or `length` to observe
+post-write values reaches the named upstream reader terminal before artifact
+creation, so it remains dependency evidence rather than a Write-row failure.
 3. **Reconcile and close.** Run focused positives/negatives, native build and
    the existing fixed lib comparator. Keep accepted failure identities; classify
    any delta and explicit test additions without blanket rebaseline. Preserve

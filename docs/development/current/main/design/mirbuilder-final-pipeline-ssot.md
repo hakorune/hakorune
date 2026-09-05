@@ -393,8 +393,8 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = landed
-implementation permission = false
+status = fast_open
+implementation permission = true
 current cohort = `array_element_write_published_c_cutover_i0`
 
 The selected cohort replaces the selected-C legacy projection for the existing

@@ -1,0 +1,15 @@
+// M7-S AW-I0 source acceptance: all four canonical array write surfaces.
+// Expected MIR/OBJ order: LiteralAppend, Push, Set, Insert, Set, Set.
+
+static box Main {
+  main() {
+    local values = new ArrayBox()
+    values.push(1)
+    values.push(2)
+    values.set(0, 3)
+    values.insert(1, 4)
+    values[0] = 5
+    values[1] = 6
+    return 0
+  }
+}

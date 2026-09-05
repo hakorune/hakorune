@@ -1,10 +1,10 @@
 date = "2026-09-05"
 development_branch_ssot = "main"
-work_mode = "closeout"
+work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "array_element_write_published_c_cutover_i0"
 current_design_stop = "none"
-current_blocker_token = "M7-S capability admission and source-site transport repairs are landed: shared OBJ/EXE published entrypoints run existing backend policy before transport, typed-array rejection is proved, and cataloged callable-root method statements retain exact sites while raw/script roots remain unlocated. Source MIR now emits all six write rows. The standalone tools/build_llvm.sh -> ny-llvmc JSON-only probe has no typed row frame and therefore reports published_array_write_row_mismatch; this is not the production typed-caller path. Next is tracked source-to-OBJ/EXE contents/order/Void acceptance through hakorune's published caller, then closeout. Existing workstream Ordered frontier fixes scope -> remaining owner stops -> Call/R7 -> Loop cutover/deletion -> selfhost handoff. No broad design restart."
+current_blocker_token = "M7-S capability/source-site repairs landed; source MIR emits six write rows. JSON-only ny-llvmc has no typed row frame and is not acceptance. Execute AW-I0-A-SOURCE..AW-I0-E-CLOSE with the tracked fixture and hakorune caller, then closeout. Write-only OBJ/EXE is proven; ArrayBox.get/length reaches separate mir_call_no_route and must not widen this row. No broad design restart."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
