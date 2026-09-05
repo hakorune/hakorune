@@ -42,10 +42,13 @@ reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
 preserves explicit compatibility and required ingress stays fail-closed.
 The prior 138-name failure receipt is preserved in Git history. After the
 bounded canonical-call reader repair, the later caller-zero test retirement,
-and the typed proof test addition plus JoinIR bridge retirement, the fixed runner is stable at
-`7555/7393/133/29`; the current-minus-prior failure-name comparison has zero
-additions. The earlier `7580/7418/133/29` observation is historical and is not
-the current inventory authority. All repaired sites descend from the
+and the typed proof test addition plus JoinIR bridge retirement, the fixed runner
+was stable at `7555/7393/133/29`. The 2026-09-05 baseline reconciliation now
+records `7543/7381/133/29`: 19 retired JSON-v0 tests, one corrected raw-root
+lineage assertion, and seven landed focused tests account for the exact net
+inventory delta; the 133 failure-name set is unchanged. The earlier
+`7580/7418/133/29` observation is historical and is not the current inventory
+authority. All repaired sites descend from the
 `45c6759962` Call/LegacyCallV0 shape split. This remains verification repair
 evidence, not automatic permission to open BoxShape, performance, or another
 semantic/cleanup family. The JSON-v1 Stop cohort is now landed and its five
@@ -237,7 +240,7 @@ S5 Release       owner: hakoruneup-release-distribution-ssot; clean checkout,
 
 S2's differential harness, rule traceability, S4 bootstrap proof, and S5
 release packaging are planned but unopened. The accepted whole-library receipt
-is `7555/7393/133/29`; it is stable known debt, not a green claim or permission
+is `7543/7381/133/29`; it is stable known debt, not a green claim or permission
 to rebaseline.
 
 ### Compact closed tail
@@ -247,7 +250,8 @@ to rebaseline.
 - Repository/tooling tombstones: legacy-tests `bcc9a6ba65`; entrypoint policy
   `06454bd084`/`c78889dc0b`/`b22a87392d`; baseline/matrix
   `878480e395`/`80dc7102fb`; current accepted receipt is
-  `7555/7393/133/29`; the earlier 138-name receipt is historical.
+  `7543/7381/133/29`; the earlier 7555/7393 and 138-name receipts are
+  historical.
 - focused green is not a whole-repo green claim; the 133-name receipt remains known debt.
 
 Each production family closeout repays its own old implementation, exclusive
@@ -463,6 +467,13 @@ status 0. The existing typed-array reject-before-object/exe test is green.
 This is partial acceptance only: adding `ArrayBox.get` or `length` to observe
 post-write values reaches the named upstream reader terminal before artifact
 creation, so it remains dependency evidence rather than a Write-row failure.
+Baseline reconciliation for `AW-I0-E-CLOSE` is green through the existing fixed
+comparator: inventory `7543`, passed `7381`, failed `133`, ignored `29`, with
+the accepted failure-name hash unchanged. The receipt changed only for the
+exact landed test inventory delta; no failure was rebaselined, ignored, or
+deleted. The stale cataloged-root lineage assertion was corrected to the raw
+root contract before this comparison, so the remaining source/OBJ/EXE evidence
+is not masked by an unclassified red.
 3. **Reconcile and close.** Run focused positives/negatives, native build and
    the existing fixed lib comparator. Keep accepted failure identities; classify
    any delta and explicit test additions without blanket rebaseline. Preserve

@@ -43,7 +43,7 @@ writer and stopped at an earlier static terminal, so they were not acceptance.
 The six invalid probe assets were RetireFromTree'd at f15098cf0b, with stale
 paths and default integration discovery at zero. The semantic cohort remains
 ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure. The
-fixed comparator target remains 7555/7393/133/29. ArrayElementWrite selected-C
+fixed runner was stable at 7555/7393/133/29; the 2026-09-05 reconciliation now records 7543/7381/133/29 (19 JSON-v0 tests retired, raw-root assertion corrected, seven focused tests landed; failure names unchanged). ArrayElementWrite selected-C
 cutover landed at 9cb7a6c71a and its shared capability admission repair is now
 landed: the existing canonical owner feeds one PublishedMirBackendView
 physical row family, all four writes are consumed
