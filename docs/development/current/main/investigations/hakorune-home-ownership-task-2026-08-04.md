@@ -366,46 +366,13 @@ individual lowerers choose when consumption becomes visible.
 
 ### `OWN-HOME-BIRTH-D0`
 
-Dependency: `OWN-FIELD-CONTAINER-DEST-D0` plus
-`OWN-HOME-TRANSFER-FAILURE-D0`. The source-level construction lifecycle is
-owned by [`constructor-birth-new-lifecycle-ssot.md`](../design/constructor-birth-new-lifecycle-ssot.md);
-this row supplies the missing Home boundary and must not redefine constructor
-syntax or direct-`birth` policy.
-
-Close the Home behavior of the complete construction transaction:
-
-- `new` allocates a fresh object identity and is the source-level primary
-  producer of the first candidate `HomeValue`/Home token; `share` is a later
-  owner acquisition, not a second birth operation;
-- declaration-site field initializers, the `birth(args...)` hook, and the
-  optional `new Box { field: expr }` override block are classified through the
-  destination matrix, with no hidden `share` or implicit partial transfer;
-- `birth` parameters follow normal Handle/Trivial rules by default. A
-  consuming/Home-demand parameter is allowed only when the resolved
-  declaration/ABI explicitly seals that demand; the name `birth` alone never
-  consumes an argument;
-- the fresh `me` remains an unpublished/constructing object until the existing
-  lifecycle reaches its publish point. A partially constructed object must not
-  escape through a field, return, global, container, callback, or `share`;
-- construction failures are classified by phase: argument preparation, field
-  initializer, `birth` body, explicit override, and publication. For each
-  phase, decide which already-installed Home tokens are cleaned, how the
-  partially constructed `me` is retired, and how no-leak/no-double-cleanup is
-  proven;
-- direct receiver `birth(...)` remains forbidden; failed unpublished outer
-  construction never invokes the outer C′ `fini` hook. Already-complete child
-  Homes are released in reverse installation order and may invoke their own
-  hook only when that release is terminal.
-
-The existing constructor SSOT fixes the successful order as
-`new -> declaration initializers -> birth -> optional explicit overrides ->
-publish`. It does not currently define partial-construction rollback; that is
-the deliberate D0 gap, not an invitation to infer cleanup from runtime tags.
-
-Done only when the row has a phase-by-phase Home state/recovery matrix,
-bounded corpus fixtures for each admitted failure boundary, and a named
-single cleanup owner. No parser, Home Flow, or runtime implementation begins
-from this row alone.
+Dependencies: `OWN-FIELD-CONTAINER-DEST-D0` and `OWN-HOME-TRANSFER-FAILURE-D0`.
+The 2026-09-05 [failed-construction integration decision](../design/constructor-birth-new-lifecycle-ssot.md#failed-construction-minimal-integration-contract)
+owns the phase matrix, native handoff, Fault exit and tasks; constructor syntax is unchanged.
+Initialized fields release in reverse declaration order, not history order.
+Design is accepted; source/exit products and physical activation remain open.
+This dependency may be designed before MirBuilder completion; it does not
+activate the whole Home program or waive declaration/transfer prerequisites.
 
 ### `OWN-HOME-SURFACE-D0`
 

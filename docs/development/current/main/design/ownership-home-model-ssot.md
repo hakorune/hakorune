@@ -53,14 +53,13 @@ The Property retirement owned there must make `obj.x` one unambiguous stored
 place and `obj.x()` one ordinary call before Home Flow production adoption.
 
 The constructor document owns `new`/`birth`/field-initializer ordering and
-the direct-`birth` ban. `OWN-HOME-BIRTH-D0` on the parked board owns the
-remaining Home-specific construction transaction questions, especially
-partial-construction failure cleanup. Neither document silently replaces the
-other.
+the direct-`birth` ban. Its accepted failed-construction integration contract
+supplies `OWN-HOME-BIRTH-D0`; Home demand/transfer remains owned here.
 
-Current-lane rule: this document does not move the row named by
-`CURRENT_STATE.toml`. Ownership resumes only after the MirBuilder final-pipeline
-checkpoint named there.
+Current-lane rule: this document does not move CURRENT_STATE. The full Home
+program remains parked after the MirBuilder checkpoint. User-approved Birth
+dependency design may proceed now through the existing EXIT/Home owners;
+physical activation still requires the selected slice's source-issued products.
 
 ## Purpose
 
@@ -108,9 +107,9 @@ new
 receiver method. Its parameters use ordinary Handle/Trivial rules unless an
 explicit resolved Home-demand declaration says otherwise. A constructing
 `me` is unpublished; it cannot escape through storage, return, callback, or
-`share` before publication. The exact cleanup/no-double-finalization rule for
-field or birth failure is intentionally delegated to
-`OWN-HOME-BIRTH-D0`; an unpublished outer object does not run the C′ `fini`
+`share` before publication. The cleanup/no-double-finalization rule for
+field or birth failure is delegated to the constructor SSOT's accepted
+`OWN-HOME-BIRTH-D0` contract; an unpublished outer object does not run the C′ `fini`
 hook merely because construction rollback begins.
 
 `new` and `share` therefore have different authority: `new` creates the first

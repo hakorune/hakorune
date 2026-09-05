@@ -563,7 +563,7 @@ bounded substeps in order; they are not new D0 cards or new semantic receipts:
    no field-only IntegerBox alias or storage-derived scalar proof. Existing
    IntegerBox object/runtime identity remains. Required write/backend handoffs:
    [type contract tasks](type-contract-status.md#integer-field-migration-bounded-handoff).
-   [Birth execution steps](type-contract-status.md#accepted-birth-input-abi-and-remaining-execution-tasks) precede that ledger's adjacent queue; no Unknown waiver or automatic preemption.
+   [Birth execution steps](type-contract-status.md#accepted-birth-input-abi-and-remaining-execution-tasks) start with the accepted common-exit/construction cleanup connection; then typed execution/retirement, then the adjacent queue. No full-Home prerequisite or Unknown waiver.
 
    Execution checklist (record before further implementation; same owner):
    - [x] Two-field migration checkpoint: package 73/73, including valid module

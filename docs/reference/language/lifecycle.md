@@ -110,12 +110,36 @@ If construction fails before publication:
 
 1. do not run the incomplete outer Box `fini` hook;
 2. release only already-initialized field Homes;
-3. release them in reverse installation/declaration order;
+3. release the initialized subset in reverse field declaration order;
 4. a fully constructed child runs its own hook only if that release is the
    child's terminal Home release;
 5. reclaim the unpublished outer storage without publishing a usable handle.
 
-Exact partial-construction receipts remain gated by `OWN-HOME-BIRTH-D0`.
+Decision clarification (2026-09-05; implementation still pending): construction
+cleanup owns the incomplete outer storage and successfully installed field/native
+resources. The common scope-exit transaction owns local Homes, temporaries and
+registered lexical cleanup. They must not release the same obligation twice.
+
+A field receives a Home only through its verified destination demand. Ordinary
+handle/value copies do not transfer ownership; explicit `share` creates a
+separate Home. Acquisition or RHS failure before transfer leaves the prior
+owner responsible. Successful transfer changes the cleanup owner at one commit
+point; replacement releases the old Home only after the new one is installed.
+
+A native allocation must have a declared structural-release capability and
+remain protected from acquisition until ownership handoff. If wrapping or
+registration can fail, the acquiring operation releases it on that path. A raw
+pointer alone proves neither ownership nor a release method; compiler-managed
+construction does not promise recovery of untracked native allocations.
+
+On Fault, drain the active evaluation frames selected by the common exit plan,
+clean any incomplete construction, then follow the caller's Fault exit,
+including its earlier live obligations. Only
+the final entry boundary reports and terminates, after cleanup. Keep the first
+Fault, attempt remaining cleanup best effort, and do not undo earlier observable
+effects. No incomplete outer hook, catch/retry, or successful object publication
+is introduced. `OWN-HOME-BIRTH-D0` owns the implementation tasks; this Decision
+does not claim live Home Flow or runtime support.
 
 ## C′ lifecycle states
 

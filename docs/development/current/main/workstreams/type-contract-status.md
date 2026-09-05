@@ -172,60 +172,30 @@ These are checklist steps in the existing series, not new scheduler rows:
 | Step | Change and existing owner | Required completion evidence |
 | --- | --- | --- |
 | 0 — accepted | input ABI above; `instance_constructor_abi`, published C transport | source N / MIR N+1 / machine inputs 3 remain distinct; user approval no longer pending |
-| 1 — next | close FieldSet Fault/result/cleanup mapping with the construction lifecycle owner | exact landing, no caller object on failure, release of unpublished scalar object; no substitution of trap or storage status for semantic Fault |
+| 1 — next | implement the accepted common-exit / construction integration below | per-cutpoint ownership, Fault propagation through caller cleanup, stable storage reclaim, no incomplete outer hook or failed object result |
 | 2 | retain producer-issued kind/payload through existing Lower/ordinary-new and formal binding owners | each pair has one actual/ordinal; Copy copies both, rebind replaces both, Phi uses identical predecessor mapping; unsupported producers reject |
 | 3 | published view/C transport + `capi_transport.rs` | versioned descriptor/row agreement, borrow lifetime, exact target/formal/ordinal; missing/foreign/duplicate/old ABI rejects before emission |
 | 4 | selected same-module Birth body owner + exact-numeric FieldSet consumer | internal wire-array entry, runtime pair loads, check at each store, existing physical store only after success; Fault from step 1 never joins normal object publication |
 | 5 | existing typed CLI/EXE/OBJ admission and fixed Pair acceptance | real EXE exit 30, OBJ validation/execution, negative chronology, no retry, selected tagless entry/projection callers zero and physical deletion |
 
-Step 1 is a bounded integration decision, not permission to reopen all Home/GC.
-Current concrete evidence: `same_module_function_emit_exact_status_trap` emits
-llvm.trap/unreachable, and `nyash_object_field_set_i64_hii` returns only storage
-success/failure. Neither owns Birth Fault or construction cleanup. The reference
-VM checks kind before mutation in `exec/numeric_contracts.rs`, but is not the
-selected-C implementation owner. Bind the scalar failed-construction case to
-`constructor-birth-new-lifecycle-ssot.md` / `lifecycle.md` before code activation;
-general child-Home/fini handling stays under OWN-HOME-BIRTH-D0. A reachable
-child-Home case cannot be silently waived as out of scope.
+Step 1's accepted design, phase matrix and four ordered tasks now have one owner:
+[failed construction](../design/constructor-birth-new-lifecycle-ssot.md#failed-construction-minimal-integration-contract).
+User approved this design/task scope on 2026-09-05; no repeated scope or input-ABI
+approval is pending. Common exit owns locals/temporaries/outer propagation;
+construction owns committed fields/native payload and the unpublished receiver.
+Only verified Home demand transfers ownership; ordinary copies and borrowed
+wire inputs do not. This replaces the earlier scalar-reclaim-only premise.
 
-Step 1 audit narrows the missing work, rather than reopening the input ABI:
-the typed-object store owns negative/index handles in its arena but has no
-unpublished-object discard operation. `host_handles::drop_handle` owns a
-different positive-handle registry and is not its cleanup API. Existing
-CheckedCallOut is the TextScan outcome/lease contract, not a Birth Unit/Fault
-carrier. Task: bind one failed-construction landing to this storage owner,
-reclaim the unpublished scalar outer storage exactly once without outer `fini`,
-and propagate the primary Fault. Do not call the current setter status or trap
-that mapping. Result/Fault transport remains open until this landing is fixed.
-
-Success-side owner is `ordinary_new_admission` (NewBox -> Birth -> object ValueId)
-then `new_expression` (explicit overrides -> result). Acceptance must prove
-that only Normal reaches overrides and caller use; Fault reaches neither.
-For a second-write kind mismatch, retain prior effect order, leave the failing
-destination unchanged, end the borrowed argv on both exits, and reclaim once
-without publishing an object. Child Homes, escaping self, or a required outer
-hook are outside this scalar contract and must not be silently admitted.
-Physical owner: `exports/typed_object_store_backend.rs::new_typed_object` and
-the selected store backend. Index handles must remain stable: do not reclaim
-with Vec remove/swap_remove that renumbers another object. DirectSlot's Drop
-deallocation is not yet reachable from Birth cleanup; unimplemented store
-profiles reject before artifact. Use `failure-outcome-relations.md` for primary
-Fault/cleanup ordering, not the allocator model's `exact_slot_record_release_success`.
-
-The source-exit dependency is also open: `VerifiedFunctionCompletionV1` in
-`resolved_control_flow/function_control.rs` covers Return/ImplicitVoid only;
-`cleanup.rs` explicitly limits its issued obligations to E0 empty lists.
-Neither proves empty caller cleanup at the selected New cutpoint, and
-`ordinary_new_coseal` does not carry that cutpoint's Fault cleanup/continuation.
-Counterexample: the caller owns another object before a second construction
-Faults. Reclaiming only the failed object then terminating skips the first
-object's obligations. Therefore step 1 must connect the selected New's source
-exit/lifecycle obligations to Fault propagation and final cleanup before a
-noreturn terminal. A Birth-only status ABI cannot substitute for that connection.
-Do not resolve this by a Pair-name exception, an assumed empty cleanup list,
-or narrowing completion to callers with no other live obligations. Reuse the
-existing EXIT/lifecycle design owners; activation remains closed until their
-cutpoint mapping is accepted. This is not another input-ABI approval request.
+Implementation gaps remain explicit: `VerifiedFunctionCompletionV1` supports
+Return/ImplicitVoid and E0 empty cleanup, not the New Fault cutpoint;
+`ordinary_new_coseal` carries no corresponding cleanup/continuation yet.
+`typed_object_store_backend` has no unpublished discard API. Its index handles
+must not move during reclaim; `host_handles::drop_handle` is a different registry.
+TextScan CheckedCallOut, setter 0/1 status, raw alloc/free and bare llvm.trap are
+not the missing semantic exit owner. A prior live caller object is a required
+negative witness, not grounds for a Pair-only or assumed-empty admission.
+Task 1 selects the exact existing source/exit producer and consumer before fast;
+tasks 2–5 below remain ordered after it. No broad Home/GC/syntax activation.
 
 Producer contract: ImmediateI64 comes from an existing source/canonical Integer
 producer, HostHandle only from a real live host-handle carrier. Never re-tag
@@ -238,7 +208,7 @@ Pair's name; unsupported producer/merge coverage rejects before artifact.
 | compile-time missing/foreign/drifted descriptor, unsupported kind producer or legacy ABI | reject, no artifact, no old ingress retry |
 | malformed runtime wire: Invalid (even zero payload), unknown tag, reserved or arity mismatch | selected contract failure before body/store, cleanup/no-object-result per step 1 |
 | valid HostHandle reaches an i64 FieldSet | runtime type Fault immediately before that write; earlier writes/effects stay ordered; no successful object result |
-| verified Unit completion after all writes | publish object once; never leak store status or synthetic integer Birth result |
+| Birth Normal Unit | continue the new transaction; publish once only after overrides and the complete transaction succeed; never expose store status or synthetic Birth result |
 
 Acceptance extends existing ABI/package/view tests and the fixed Pair proof:
 N=0/N>0, equal Integer/handle bits, swapped ordinals, stale Copy/Phi/rebind,

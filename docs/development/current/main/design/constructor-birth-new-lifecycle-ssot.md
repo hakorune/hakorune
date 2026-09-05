@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-05-15
+Date: 2026-09-05
 Scope: source-level object construction lifecycle: `new`, `birth`, field initializers, explicit reuse methods, factories, and `fini`.
 Related:
   - docs/reference/language/lifecycle.md
@@ -16,9 +16,9 @@ Related:
 Decision: accepted.
 
 This document owns construction ordering and the direct-`birth` ban. The Home
-document owns Home tokens and destinations; `OWN-HOME-BIRTH-D0` closes the
-currently unspecified partial-construction failure/cleanup contract without
-changing the successful lifecycle order below.
+document owns Home tokens and destinations. The bounded failed-construction
+decision below supplies `OWN-HOME-BIRTH-D0` without changing successful order;
+source/exit products and runtime adoption remain unimplemented.
 
 Hakorune keeps construction small and explicit:
 
@@ -150,7 +150,7 @@ local result = new Report {
 return result
 ```
 
-This is sugar for:
+For successful execution, the assignment order resembles:
 
 ```hako
 local result = new Report()
@@ -158,6 +158,10 @@ result.accepted = fields.accepted
 result.reason = fields.reason
 return result
 ```
+
+This is not a failure-preserving rewrite: the `new` expression does not publish
+its result before overrides succeed. An override Fault still cleans an
+incomplete construction, without the outer `fini` hook.
 
 Rules:
 
@@ -220,6 +224,87 @@ return me.makeReport(fields)
 but the primary source-size win comes from centralizing repeated copy logic in
 one same-owner helper. The initializer block exists to make that helper body
 more contract-like, not to replace helper scalarization.
+
+## Failed construction: minimal integration contract
+
+Decision: accepted design direction on 2026-09-05 after user consultation;
+implementation permission remains with CURRENT_STATE and the selected slice.
+This is the existing `OWN-HOME-BIRTH-D0` contract, not a new task family.
+
+Source authority + canonical issuer: resolved source sites, binding/place
+identities and declaration-owned Home demands feed the existing Home/exit
+design owners (their construction issuer is not yet implemented). The ordinary-new owner co-seals that exit
+relation with its existing exact constructor key; it does not invent cleanup.
+Non-authority: Unit Completion, an E0 empty list, i64 storage, runtime handles,
+reference counts, `DestroyOwned` alone, Pair's name, or a successful EXE.
+
+Keep three responsibilities, with no Birth-specific general cleanup stack:
+
+| Owner | Responsibility |
+| --- | --- |
+| common source exit / Home Flow | per-cutpoint local/temporary/lexical obligations, pending Fault, caller continuation |
+| construction lifecycle | unpublished receiver, initialized owning fields and committed native payload, success publication |
+| physical backend/runtime | consume those decisions; release storage without moving other handles; final reporting only after cleanup |
+
+Each Home token/native owned resource has one cleanup responsibility. Borrowed
+handles have none; `share` creates another Home. Native acquisition owns its
+resource immediately, including allocation failure while wrapping/registering
+it; only a successful destination commit transfers responsibility. This is
+not a new source registration API or a second runtime registry. Unknown native
+release contracts must not be admitted as compiler-managed construction.
+
+| Cutpoint | Owned state and failure action |
+| --- | --- |
+| argument preparation / allocation not successful | preserve uncommitted caller Homes; clean acquired temporaries; no nonexistent outer release |
+| acquisition succeeded, destination commit pending | acquiring frame/operation retains responsibility, including wrapping failure |
+| initializer / Birth / override executing | track only successful field commits; clean frame obligations, initialized fields in reverse declaration order, native payload, then outer storage |
+| replacement committed, old release Faults | do not roll back the install; new field remains owned and is cleaned once; old release is not retried |
+| normal publication | transfer the first Home once to the result destination; disarm incomplete-construction cleanup |
+| Fault propagation | common caller exit handles its surviving obligations; outermost entry reports after cleanup; no Normal join |
+
+Use static cleanup edges and, where control flow requires them, initialization
+flags keyed to resolved places. No runtime AST/name scan, heap cleanup list,
+new Call carrier, fake empty-obligation proof, or per-instruction receipt chain.
+The first Fault remains primary; later cleanup Faults are suppressed and
+remaining cleanup is attempted best effort. This is resource cleanup, not
+rollback of I/O. The incomplete outer `fini` never runs; complete child release
+uses the existing last-Home rule. Missing plans reject before artifact, while
+admitted runtime contract failures follow the cleanup path, not bare trap.
+Host OOM abort/process kill is not a cleanup-complete language Fault witness.
+
+### Ordered tasks and finish line
+
+1. **Common exit connection:** extend existing `resolved_control_flow` / Home
+   plan ownership and `ordinary_new_coseal` with exact New Fault cutpoints and
+   outward continuation. Return/ImplicitVoid and declaration-only Home ABI are
+   not this proof. Complete local/native ownership and field destination
+   obligations through existing HOME/EXIT tasks; do not require new syntax,
+   Result `?`, Shared or all-backend implementation to express this dependency.
+2. **Construction cleanup connection:** `ordinary_new_admission` and
+   `new_expression` consume the same plan through allocation, Birth and
+   overrides. The selected typed-object store gains stable-identity reclaim;
+   no double release or early publication. Raw/native wrappers retain ownership
+   until handoff; existing raw alloc/free exports alone do not satisfy this.
+3. **Birth consumer cutover:** return to input-wire/published-C steps 2–4 in
+   `workstreams/type-contract-status.md`. Normal Unit and pending Fault have
+   distinct internal control transport; never expose a status as a source value
+   or use Dynamic's TextScan CallOut. Fix the physical return layout with the
+   common exit consumer before activation, not in a second Birth failure owner.
+4. **Execution and retirement:** existing test owners prove acquisition-to-
+   commit failures, second-store mismatch, child failure, override failure,
+   replacement cleanup Fault, and a prior live caller object. Assert parent
+   hook zero, correct child terminal release, stable unrelated handles,
+   primary Fault, no leak/double cleanup, no failed-construction result. Include
+   fixed Pair EXE30/OBJ and finite selected old-edge removal, not only unit tests.
+
+The next implementation selection is task 1's source-exit connection, not
+another input-ABI consultation or storage-only detached helper. A slice names
+its exact issuer/consumer and failure tests before switching to fast. Missing
+Home field/native products are explicit dependencies, not assumed empty. The
+full Home program and general unsafe raw ownership stay parked; selected
+construction obligations cannot be waived or reduced to a Pair-only success.
+No new guard/fixture/card is planned. Split source owners before 800 lines;
+do not create a general framework merely to save a few cleanup edges.
 
 ## Reuse is explicit
 
