@@ -8,6 +8,42 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn take_construction_store_v1(&mut self) -> Result<Option<crate::mir::builder::normal_callable_semantic_lowering_state::construction::TakenConstructionStore>, String>{
+        let Some(ledger) = self.callable_ledger.as_ref() else {
+            return Ok(None);
+        };
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[freeze:contract][construction-store/no-site]")?;
+        ledger.borrow_mut().take_construction_store(&site)
+    }
+
+    fn emit_construction_store_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        store: crate::mir::builder::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
+        base: ValueId,
+        value: ValueId,
+    ) -> Result<(), String> {
+        self.callable_ledger
+            .as_ref()
+            .ok_or("[freeze:contract][construction-store/no-ledger]")?
+            .borrow_mut()
+            .emit_construction_store(builder, store, base, value)
+    }
+
+    fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {
+        let Some(ledger) = self.callable_ledger.as_ref() else {
+            return Ok(());
+        };
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or("[freeze:contract][construction-store/no-function]")?;
+        ledger.borrow_mut().complete_construction_stores(function)
+    }
+
     fn script_direct_static_claim_ingress_v1(
         &mut self,
         _box_name: &str,

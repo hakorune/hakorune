@@ -114,13 +114,9 @@ pub(crate) fn collect_exact_numeric_field_contract_dispositions(
     module: &MirModule,
 ) -> Vec<ExactNumericFieldContractDisposition> {
     let fields = exact_numeric_field_decls(module);
-    if fields.is_empty() {
-        return Vec::new();
-    }
-
     let mut dispositions = Vec::new();
     for function in module.functions.values() {
-        collect_function_dispositions(function, &fields, &mut dispositions);
+        collect_function_dispositions(module, function, &fields, &mut dispositions);
     }
     dispositions
 }
@@ -241,6 +237,7 @@ fn exact_numeric_field_decls(
 }
 
 fn collect_function_dispositions(
+    module: &MirModule,
     function: &MirFunction,
     fields: &BTreeMap<(String, String), ExactNumericMirType>,
     dispositions: &mut Vec<ExactNumericFieldContractDisposition>,
@@ -251,19 +248,43 @@ fn collect_function_dispositions(
 
     for (block, basic_block) in &function.blocks {
         for (instruction_index, spanned) in basic_block.all_spanned_instructions_enumerated() {
-            let MirInstruction::FieldSet {
-                base, field, value, ..
-            } = spanned.inst
-            else {
-                continue;
+            let (box_name, field, value, ty) = match spanned.inst {
+                MirInstruction::Invoke {
+                    operation:
+                        crate::mir::instruction::InvokeOperation::FieldSet { field, value, .. },
+                    ..
+                } => {
+                    // Exact declaration is the authority; names below are only
+                    // diagnostic projections. Missing references reject in the
+                    // unconditional Invoke module verifier, never via recovery.
+                    let Some(decl) = module.canonical_field_definition(*field) else {
+                        continue;
+                    };
+                    let Some(object) = module.canonical_object_definition(field.object()) else {
+                        continue;
+                    };
+                    let Some(ty) = exact_numeric_mir_type_from_declared_name(
+                        decl.declared_type_name.as_deref(),
+                        NumericTarget::host(),
+                    ) else {
+                        continue;
+                    };
+                    (object.diagnostic_name().to_string(), &decl.name, value, ty)
+                }
+                MirInstruction::FieldSet {
+                    base, field, value, ..
+                } => {
+                    let Some(box_name) = resolve_object_box(*base, &object_defs) else {
+                        continue;
+                    };
+                    let Some(ty) = fields.get(&(box_name.clone(), field.clone())) else {
+                        continue;
+                    };
+                    (box_name, field, value, ty.clone())
+                }
+                _ => continue,
             };
-
-            let Some(box_name) = resolve_object_box(*base, &object_defs) else {
-                continue;
-            };
-            let Some(ty) = fields.get(&(box_name.clone(), field.clone())) else {
-                continue;
-            };
+            let ty = &ty;
 
             match resolve_integer_const(*value, &integer_defs) {
                 Some(integer_value) => {

@@ -6,6 +6,32 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
+/// Declaration references survive publication; a backend must never recover
+/// a missing field from a diagnostic name or the receiver's physical origin.
+pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<VerificationError>> {
+    let mut errors = Vec::new();
+    for function in module.functions.values() {
+        for (id, block) in &function.blocks {
+            for instruction in block.all_instructions() {
+                if let MirInstruction::Invoke {
+                    operation: InvokeOperation::FieldSet { field, .. },
+                    ..
+                } = instruction
+                {
+                    if module.canonical_field_definition(*field).is_none() {
+                        errors.push(error(*id, "field-definition-missing"));
+                    }
+                }
+            }
+        }
+    }
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
 pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<VerificationError>> {
     let has_control = function.blocks.values().any(|block| {
         block.all_instructions().any(|inst| {
@@ -64,6 +90,7 @@ pub(super) fn check_function(function: &MirFunction) -> Result<(), Vec<Verificat
             }
             let value_result = match operation {
                 InvokeOperation::NewBox { .. } => true,
+                InvokeOperation::FieldSet { .. } => false,
                 InvokeOperation::Call(call) => {
                     if call.dst.is_some() {
                         errors.push(error(*id, "embedded-call-destination"));
@@ -257,6 +284,59 @@ mod tests {
         }
         function.update_cfg();
         function
+    }
+
+    #[test]
+    fn exact_field_store_is_unit_and_requires_published_definition() {
+        use crate::mir::{BasicBlockId, MirModule, MirVerifier};
+        use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+        let field = CanonicalFieldRefV1::from_declaration_ordinal(
+            CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
+            0,
+        )
+        .unwrap();
+        let mut function = allocation_invoke_function();
+        let invoke = function
+            .blocks
+            .get_mut(&BasicBlockId::new(1))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap();
+        let MirInstruction::Invoke { operation, .. } = invoke else {
+            unreachable!()
+        };
+        *operation = InvokeOperation::FieldSet {
+            field,
+            base: ValueId::new(1),
+            value: ValueId::new(1),
+        };
+        assert_eq!(
+            operation.used_values(),
+            vec![ValueId::new(1), ValueId::new(1)]
+        );
+        let mut rewritten = operation.clone();
+        rewritten.rewrite_values(|value| *value = ValueId::new(9));
+        assert_eq!(
+            rewritten.used_values(),
+            vec![ValueId::new(9), ValueId::new(9)]
+        );
+        let errors = super::check_function(&function).unwrap_err();
+        assert!(
+            format!("{errors:?}").contains("normal-result-count"),
+            "Unit store cannot expose an internal status as a source value"
+        );
+        function
+            .blocks
+            .get_mut(&BasicBlockId::new(2))
+            .unwrap()
+            .instructions
+            .clear();
+        super::check_function(&function).unwrap();
+        let mut module = MirModule::new("missing_field_definition".into());
+        module.add_function(function);
+        let errors = MirVerifier::new().verify_module(&module).unwrap_err();
+        assert!(format!("{errors:?}").contains("field-definition-missing"));
     }
 
     #[test]

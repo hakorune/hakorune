@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "Layout checkpoint 945a9dd0e6 verified/pushed. Next: same constructor loan carries existing row kind/eligibility into CallableSemanticLoweringState; non-Birth NotConstruction, Birth Err RetainedUnavailable (preserve publication/backend fence), Birth Ok Selected (exact store take before children, no legacy fallback). Caller-local OverrideUnsupported cannot demote the shared definition. Validate actual emitted bindings before prepare_port_aware_draft_body_completion and again at scope.finish. Implement exact FieldSet/control operands and selected origin/name bypass removal in this same lifecycle series; Home/Fault/typed-C, EXE30/OBJ and selected retirement remain required. No new port axis or semantic issuer."
+current_blocker_token = "Close exact construction-store checkpoint: constructor loan -> existing ledger -> FieldSet Invoke; validate bindings before preparation and after finalization. Selected origin/name setter bypassed without retry; numeric checks use exact published field definitions. Pair span omission fixed; rebuilt package 95/95, focused evidence in lifecycle SSOT. Six Global failures match f42be8be61; no immediate-parent/full-lib claim. vm-reference and guards pass; max source 757. Commit/push, then continue existing task 1 outward New/Birth/Fault/Home operands and tasks 2-3 cleanup/typed-C consumers. EXE30/OBJ and selected runtime retirement remain required; Birth execution stays fenced."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,

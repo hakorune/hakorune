@@ -22,6 +22,8 @@ use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 mod normal_callable_semantic_receiver_crosswalk;
 #[path = "normal_callable_semantic_observation.rs"]
 mod observation;
+#[path = "normal_callable_construction_state.rs"]
+pub(super) mod construction;
 
 /// Physical values materialized while lowering one callable body.
 ///
@@ -29,6 +31,7 @@ mod observation;
 /// only projects that identity onto the `ValueId`s allocated by existing Lower.
 #[derive(Debug)]
 pub(super) struct CallableSemanticLoweringState {
+    construction: construction::ConstructionState,
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     receiver: Option<BindingRefV1>,
     parameters: Box<[BindingRefV1]>,
@@ -220,6 +223,7 @@ impl CallableSemanticLoweringState {
             direct_lambda_captures,
             values: BTreeMap::new(),
             dynamic_origins,
+            construction: construction::ConstructionState::NotConstruction,
             entry_installed: false,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),
@@ -481,6 +485,7 @@ impl CallableSemanticLoweringState {
     }
 
     pub(super) fn finish(self) -> Result<(), String> {
+        self.construction.finish()?;
         self.dynamic_origins
             .finish()
             .map_err(|error| error.to_string())?;

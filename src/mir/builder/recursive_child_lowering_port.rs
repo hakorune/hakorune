@@ -12,6 +12,7 @@ use crate::mir::{MirBuilder, ValueId};
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 
 use super::control_flow::cleanup::CleanupExitPolicyV1;
+use super::normal_callable_semantic_lowering_state::construction::TakenConstructionStore;
 use super::normal_script_semantic_lowering_state::{
     ScriptDirectStaticClaimLedgerIssueV1, ScriptDirectStaticClaimTakeV1,
     ScriptDirectStaticClaimedRowV1,
@@ -67,6 +68,24 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     type BodyInput;
     type StatementInput;
     type ExpressionInput;
+
+    fn take_construction_store_v1(&mut self) -> Result<Option<TakenConstructionStore>, String> {
+        Ok(None)
+    }
+
+    fn emit_construction_store_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _store: TakenConstructionStore,
+        _base: ValueId,
+        _value: ValueId,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][construction-store/consumer-unavailable]".into())
+    }
+
+    fn complete_construction_stores_v1(&mut self, _builder: &MirBuilder) -> Result<(), String> {
+        Ok(())
+    }
 
     fn lower_body(
         &mut self,

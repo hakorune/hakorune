@@ -9,7 +9,11 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     pub(crate) fn with_instance_constructor_lowering_input<R>(
         &mut self,
         source_id: &ConstructorSourceIdV1,
-        callback: impl for<'loan> FnOnce(ResolvedFunctionLoweringInputV1<'loan>) -> R,
+        callback: impl for<'loan> FnOnce(
+            ResolvedFunctionLoweringInputV1<'loan>,
+            crate::parser::ConstructorSourceKindV1,
+            &super::instance_construction::ConstructionEligibilityV1,
+        ) -> R,
     ) -> Result<R, String> {
         let row = self
             .installed
@@ -23,7 +27,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         self.installed
             .with_normal_program_source_loan(|loan| {
                 let input = row.lowering_input(loan.program())?;
-                Ok(callback(input))
+                Ok(callback(input, row.kind(), row.construction()))
             })
             .map_err(|error| {
                 format!("[freeze:contract][mir/instance-constructor-semantic/source] {error:?}")

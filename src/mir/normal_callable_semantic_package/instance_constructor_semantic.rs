@@ -153,6 +153,10 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticRowV1 {
+    pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
+        &self.construction
+    }
+
     pub(crate) fn published_birth_key(
         &self,
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {

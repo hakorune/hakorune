@@ -68,6 +68,7 @@ impl MirVerifier {
         self.errors.clear();
 
         // Canonical Fault control is not a compatibility/dev verification lane.
+        collect_errors!(self.errors, invoke::check_module(module));
         for function in module.functions.values() {
             collect_errors!(self.errors, invoke::check_function(function));
         }

@@ -247,6 +247,32 @@ where
     fn lower_me_expression_v1(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
         self.child.lower_me_expression_v1(builder)
     }
+
+    fn take_construction_store_v1(
+        &mut self,
+    ) -> Result<
+        Option<
+            super::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
+        >,
+        String,
+    > {
+        self.child.take_construction_store_v1()
+    }
+
+    fn emit_construction_store_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        store: super::normal_callable_semantic_lowering_state::construction::TakenConstructionStore,
+        base: ValueId,
+        value: ValueId,
+    ) -> Result<(), String> {
+        self.child
+            .emit_construction_store_v1(builder, store, base, value)
+    }
+
+    fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {
+        self.child.complete_construction_stores_v1(builder)
+    }
 }
 
 impl<Port> AppMainDirectCallDispositionPortV1 for RawStructuredChildScopePortV1<'_, Port>
@@ -308,8 +334,11 @@ impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RawOrdinaryNewClaimPortV1,
 {
-    fn complete_ordinary_new_expression(&mut self, class: &str, value: ValueId)
-        -> Result<(), String> {
+    fn complete_ordinary_new_expression(
+        &mut self,
+        class: &str,
+        value: ValueId,
+    ) -> Result<(), String> {
         self.child.complete_ordinary_new_expression(class, value)
     }
     fn try_take_ordinary_new_claim(

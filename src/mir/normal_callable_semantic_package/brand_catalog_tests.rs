@@ -414,17 +414,40 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
                 contract.kind,
                 crate::mir::function::ExactNumericRuntimeCheckContractKind::DynamicIntegerRange
             );
-            let instruction =
-                &function.blocks[&contract.block].instructions[contract.instruction_index];
-            let crate::mir::MirInstruction::FieldSet { field, value, .. } = instruction else {
-                panic!("each check must remain bound to its actual FieldSet")
+            let block = &function.blocks[&contract.block];
+            let (_, spanned) = block.all_spanned_instructions_enumerated()
+                .find(|(index, _)| *index == contract.instruction_index).unwrap();
+            let crate::mir::MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::FieldSet { field, base, value }, ..
+            } = spanned.inst else {
+                panic!("each check must remain bound to its actual fallible FieldSet")
             };
-            assert_eq!(field, &contract.field);
+            let declaration = result.module.canonical_field_definition(*field).unwrap();
+            assert_eq!(&declaration.name, &contract.field);
+            assert_eq!(declaration.declared_type_name.as_deref(), Some("i64"));
+            assert_eq!(*base, function.params[0]);
+            assert_eq!(*value, function.params[field.declaration_ordinal() as usize + 1]);
             assert_eq!(value, &contract.value);
         }
         let mut fields: Vec<_> = contracts.iter().map(|row| row.field.as_str()).collect();
         fields.sort_unstable();
         assert_eq!(fields, ["left", "right"]);
+
+        // The compatibility name map is not an authority for canonical stores.
+        let mut without_name_map = result.module.clone();
+        without_name_map.metadata.user_box_field_decls.clear();
+        crate::mir::exact_numeric_field_contracts::refresh_module_exact_numeric_runtime_check_contracts(
+            &mut without_name_map,
+        );
+        assert_eq!(without_name_map.get_function("Pair.birth/2").unwrap()
+            .metadata.exact_numeric_runtime_check_contracts.len(), 2);
+        let mut missing_check = result.module.clone();
+        missing_check.get_function_mut("Pair.birth/2").unwrap()
+            .metadata.exact_numeric_runtime_check_contracts.clear();
+        let findings = crate::mir::exact_numeric_field_contracts::collect_exact_numeric_field_assignment_findings(&missing_check);
+        assert_eq!(findings.iter().filter(|finding| matches!(finding,
+            crate::mir::exact_numeric_field_contracts::ExactNumericFieldAssignmentFinding::DynamicCheckRequired(_)
+        )).count(), 2, "missing checks must not silently become admitted writes");
 
         let main = result
             .module

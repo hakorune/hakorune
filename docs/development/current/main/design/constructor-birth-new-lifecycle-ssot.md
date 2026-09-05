@@ -619,7 +619,7 @@ fails AlreadyIssued at line 115. Parent f42be8be61, identical Cargo.lock and
 with filter `mir::builder::resolved_lowering::physical_entry_lane_adoption_tests::`
 and `-- --test-threads=1`, also gives 12/1 at the same assertion: baseline debt.
 Layout verified: package 95/95, layout 20/20, metadata 2/2, collector 10/10, refresh 6/6, receiver 4/4, JSON 121/0/1. Global routes 139/6; the six baseline-listed failures reproduce at identical assertions in f42be8be61's built binary with the same filter.
-Postprocess 3/3 covers both late-refresh failures; layout tests cover backend-preflight rejection. No Birth activation; next is exact store/control consumption.
+Postprocess 3/3 covers both late-refresh failures; layout tests cover backend-preflight rejection. Exact store/control checkpoint: package 95/95; binding drift 1/1, Invoke 5/5, numeric verifier 13/13, numeric contracts 7/7, receiver 5/5, scoped children 2/2, assignment 1/1, constructor 5/5, layout 21/21. Global call 180/6 matches f42be8be61's six failure transcripts (not immediate-parent/full-lib proof). vm-reference/pointer/M7-S pass, max source 757. Initial Pair SSA failure was current-change span omission, fixed through the existing block insertion API and rerun green. Birth runtime remains fenced; outward New/Home/Fault and typed-C tasks remain open.
 
 Within existing task 1, execute these three connected steps after split validation:
 1. Move one exact, initially unlaid-out definition payload with callable drafts
@@ -644,7 +644,7 @@ Within existing task 1, execute these three connected steps after split validati
    External admission borrows resolved selected layouts; old-format export is one-way.
 2. Same constructor loan -> existing CallableSemanticLoweringState: non-Birth is NotConstruction; Birth Err is RetainedUnavailable with publication/backend fence preserved; Birth Ok is Selected. Caller-local OverrideUnsupported never demotes the shared definition.
    At assignment pre-descent, Selected takes its exact store once; missing/foreign/duplicate is an error, never fallback. Emit FieldSet Invoke with real base/value operands.
-   Validate emitted bindings before `prepare_port_aware_draft_body_completion_v1` and again at scope.finish; take alone is insufficient. No new ChildPort field/supertrait.
+   Validate emitted bindings before `prepare_port_aware_draft_body_completion_v1` and on the finalized function before collector capture; scope.finish also requires completion. Take alone is insufficient. No new ChildPort field/supertrait. Existing `exact_numeric_field_contracts` consumes the published field ordinal, never receiver origin/name: Pair retains two checks bound to actual terminator/value/receiver; runtime checks remain required.
    Cut selected origin/name reconstruction in this series; retained-unavailable definitions are not retries, and execution stays fenced until consumers exist.
 3. Connect the existing tasks 2–3 runtime and typed-C consumers, replacing the
    selected status-to-trap path. Table/view tests alone never close task 1 or

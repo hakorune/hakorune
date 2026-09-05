@@ -11,11 +11,14 @@ use super::recursive_child_lowering::RawInvocationChildPortV1;
 pub(super) fn with_constructor_semantic_scope<R>(
     inner: &mut RawInvocationChildPortV1<'_, '_>,
     input: ResolvedFunctionLoweringInputV1<'_>,
+    source_id: &crate::parser::ConstructorSourceIdV1,
+    kind: crate::parser::ConstructorSourceKindV1,
+    construction: &crate::mir::normal_callable_semantic_package::ConstructionEligibilityV1,
     execute: impl FnOnce(&mut RawInvocationChildPortV1<'_, '_>) -> Result<R, String>,
 ) -> Result<R, String> {
-    let state = Rc::new(RefCell::new(
-        CallableSemanticLoweringState::from_exact_source(input)?,
-    ));
+    let mut state = CallableSemanticLoweringState::from_exact_source(input)?;
+    state.install_construction(source_id, kind, construction)?;
+    let state = Rc::new(RefCell::new(state));
     let parent = inner.callable_ledger.replace(state.clone());
     let result = execute(inner);
     inner.callable_ledger = parent;

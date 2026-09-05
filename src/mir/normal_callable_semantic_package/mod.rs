@@ -14,6 +14,7 @@ mod instance_constructor_loan;
 mod instance_constructor_non_escape;
 mod instance_constructor_semantic;
 mod instance_construction;
+pub(crate) use instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 mod issuer;
 mod model;
 mod ordinary_new_coseal;

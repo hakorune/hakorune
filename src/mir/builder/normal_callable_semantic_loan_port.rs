@@ -375,16 +375,36 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
 }
 
 impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
-    fn complete_ordinary_new_expression(&mut self, class: &str, value: ValueId)
-        -> Result<(), String> {
-        let owner = self.inner.callable_owner_v1().ok_or_else(||
-            "[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned())?;
-        let site = self.inner.current_source_site_v1().ok_or_else(||
-            "[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned())?;
-        if !matches!(site.segments(), [SourcePathSegmentV1::Body(_), SourcePathSegmentV1::Initializer(_)])
-            || !self.package.ordinary_box_is_covered(class) { return Ok(()); }
-        self.package.ordinary_new_claim_ledger().complete_new_expression(
-            &OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site)), class, value)
+    fn complete_ordinary_new_expression(
+        &mut self,
+        class: &str,
+        value: ValueId,
+    ) -> Result<(), String> {
+        let owner = self
+            .inner
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned())?;
+        let site = self
+            .inner
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned())?;
+        if !matches!(
+            site.segments(),
+            [
+                SourcePathSegmentV1::Body(_),
+                SourcePathSegmentV1::Initializer(_)
+            ]
+        ) || !self.package.ordinary_box_is_covered(class)
+        {
+            return Ok(());
+        }
+        self.package
+            .ordinary_new_claim_ledger()
+            .complete_new_expression(
+                &OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site)),
+                class,
+                value,
+            )
     }
     fn try_take_ordinary_new_claim(
         &mut self,
@@ -539,23 +559,32 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             .consume(ticket)
             .map_err(|error| error.to_string())?;
         let inner = &mut *self.inner;
-        self.package
-            .with_instance_constructor_lowering_input(&source_id, |input| {
-                with_constructor_semantic_scope(inner, input, |inner| {
-                    inner
-                        .lower_normal_instance_constructor_v1(
-                            builder,
-                            source_key,
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            uses,
-                            attrs,
-                        )
-                        .map_err(|error| error.to_string())
-                })
-            })?
+        self.package.with_instance_constructor_lowering_input(
+            &source_id,
+            |input, kind, construction| {
+                with_constructor_semantic_scope(
+                    inner,
+                    input,
+                    &source_id,
+                    kind,
+                    construction,
+                    |inner| {
+                        inner
+                            .lower_normal_instance_constructor_v1(
+                                builder,
+                                source_key,
+                                params,
+                                param_decls,
+                                return_type_name,
+                                body,
+                                uses,
+                                attrs,
+                            )
+                            .map_err(|error| error.to_string())
+                    },
+                )
+            },
+        )?
     }
 
     #[allow(clippy::too_many_arguments)]

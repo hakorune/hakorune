@@ -19,6 +19,12 @@ pub enum InvokeOperation {
         box_type: String,
         args: Vec<ValueId>,
     },
+    /// Exact declaration field; Unit on Normal, no mutation on Fault.
+    FieldSet {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
+        value: ValueId,
+    },
 }
 
 impl InvokeOperation {
@@ -26,6 +32,7 @@ impl InvokeOperation {
         match self {
             Self::Call(call) => call.effects.add(Effect::Control),
             Self::NewBox { .. } => EffectMask::CONTROL.add(Effect::Alloc),
+            Self::FieldSet { .. } => EffectMask::WRITE.add(Effect::Control),
         }
     }
 
@@ -39,6 +46,7 @@ impl InvokeOperation {
                 values
             }
             Self::NewBox { args, .. } => args.clone(),
+            Self::FieldSet { base, value, .. } => vec![*base, *value],
         }
     }
 
@@ -54,6 +62,10 @@ impl InvokeOperation {
                 for value in args {
                     rewrite(value);
                 }
+            }
+            Self::FieldSet { base, value, .. } => {
+                rewrite(base);
+                rewrite(value);
             }
         }
     }

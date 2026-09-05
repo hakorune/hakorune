@@ -633,9 +633,15 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                                 uses,
                                 attrs,
                             )?;
-                        child_port.with_headers(|headers| {
+                        let function = child_port.with_headers(|headers| {
                             builder.finalize_function_draft_with_headers(prepared, headers)
-                        })
+                        })?;
+                        if let Some(ledger) = &child_port.callable_ledger {
+                            ledger
+                                .borrow()
+                                .validate_finalized_construction_stores(&function)?;
+                        }
+                        Ok(function)
                     },
                 )
                 .map_err(ModuleLoweringPortChildErrorV1::Session)?

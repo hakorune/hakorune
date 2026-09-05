@@ -333,6 +333,16 @@ forest, but each physical ticket is consumed exactly once and completion checks
 manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
 legacy `is_brand_declared` route remain outside this consumer row.
 
+The same loan now carries construction eligibility into the existing callable
+state. Selected Birth consumes exact field stores before child descent and
+emits Unit `Invoke::FieldSet` with explicit receiver/value and Normal/Fault
+edges. Unavailable construction retains its existing publication/backend fence;
+it is not a retry after selected emission. The state validates actual emitted
+bindings before draft preparation and again after finalization, before capture.
+Numeric checks use the existing refresh owner and published field definition,
+not receiver-origin/name recovery. Runtime cleanup and typed-C execution remain
+fenced until the lifecycle card's end-to-end requirements are met.
+
 ### Raw ordinary-`New` source claim consumer (D2c)
 
 The selected Raw direct-body cohort now co-seals ordinary-box coverage,
