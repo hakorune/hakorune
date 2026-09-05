@@ -2,6 +2,7 @@
 
 use std::collections::BTreeMap;
 use hakorune_mir_defs::CanonicalObjectIdV1;
+use crate::mir::function::{CanonicalObjectDefinitionV1, UserBoxFieldDecl};
 use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
@@ -64,6 +65,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticBatchV1 {
     rows: Box<[VerifiedInstanceConstructorSemanticRowV1]>,
     box_sources: ParserOrdinaryBoxSourceCoverageV1,
     object_sources: Box<[(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)]>,
+    object_definitions: std::cell::RefCell<Option<Box<[CanonicalObjectDefinitionV1]>>>,
     no_birth_construction: Vec<(ParserOrdinaryBoxSourceRowV1, ConstructionEligibilityV1)>,
 }
 
@@ -76,6 +78,14 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    pub(super) fn has_pending_object_definitions(&self) -> bool {
+        self.object_definitions.borrow().is_some()
+    }
+
+    pub(super) fn take_object_definitions(&self) -> Option<Box<[CanonicalObjectDefinitionV1]>> {
+        self.object_definitions.borrow_mut().take()
+    }
+
     pub(crate) fn object_for(
         &self,
         source: &ParserOrdinaryBoxSourceRowV1,
@@ -251,9 +261,22 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedInstanceConstructorSemanticBatchV1, InstanceConstructorSemanticBatchIssueV1> {
     let mut object_sources = Vec::new();
+    let mut object_definitions = Vec::new();
     for (index, parent) in source.ordinary_box_coverage().rows().iter().enumerate() {
-        source.with_ordinary_box_syntax(parent, |_| ())
-            .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+        let definition = source.with_ordinary_box_syntax(parent, |declaration| {
+            let ASTNode::BoxDeclaration { name, field_decls, .. } = declaration else {
+                return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
+            };
+            u32::try_from(field_decls.len())
+                .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+            Ok(CanonicalObjectDefinitionV1::from_source_declaration(
+                name.as_str().into(), field_decls.iter().map(|field| UserBoxFieldDecl {
+                    name: field.name.clone(),
+                    declared_type_name: field.declared_type_name.clone(),
+                    is_weak: field.is_weak,
+                }).collect::<Vec<_>>().into_boxed_slice(),
+            ))
+        }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)??;
         if object_sources.iter().any(|(own, _): &(ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1)|
             own.same_source_as(parent)) {
             return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
@@ -261,6 +284,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
         let id = CanonicalObjectIdV1::from_declaration_index(index)
             .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
         object_sources.push((parent.clone(), id));
+        object_definitions.push(definition);
     }
     source
         .with_constructor_semantic_syntax(|loan| {
@@ -459,6 +483,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 rows: rows.into_boxed_slice(),
                 box_sources: source.ordinary_box_coverage().clone(),
                 object_sources: object_sources.into_boxed_slice(),
+                object_definitions: std::cell::RefCell::new(Some(object_definitions.into_boxed_slice())),
                 no_birth_construction,
             })
         })
@@ -468,6 +493,31 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn definition_transfer_rejects_foreign_context_and_missing_empty_payload() {
+        use crate::mir::builder::CompilationContext;
+        use super::super::NormalCallableSemanticPackageInstallIssueV1;
+        let issue = || super::super::brand_catalog_tests::issue_with_brand_catalog("box Empty {}").unwrap();
+        let mut own_context = CompilationContext::new();
+        let own = issue().prepare_install(&mut own_context).unwrap().commit();
+        let mut foreign_context = CompilationContext::new();
+        let _foreign = issue().prepare_install(&mut foreign_context).unwrap().commit();
+        let mut port = own.begin_lowering(&own_context).unwrap();
+        assert!(port.take_object_definitions(&foreign_context).unwrap_err()
+            .contains("object-definitions/foreign-package"));
+        assert!(own.instance_constructors().has_pending_object_definitions());
+        let payload = port.take_object_definitions(&own_context).unwrap();
+        assert_eq!(payload.len(), 1);
+        assert!(payload[0].fields().is_empty());
+        assert!(port.take_object_definitions(&own_context).is_err());
+        port.complete().unwrap();
+
+        let mut pending_context = CompilationContext::new();
+        let pending = issue().prepare_install(&mut pending_context).unwrap().commit();
+        assert_eq!(pending.begin_lowering(&pending_context).unwrap().complete(),
+            Err(NormalCallableSemanticPackageInstallIssueV1::ObjectDefinitionsNotConsumed));
+    }
 
     #[test]
     fn object_identity_covers_distinct_boxes_and_rejects_foreign_same_index() {
@@ -492,6 +542,13 @@ mod tests {
                 Err(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch));
         }
         assert_eq!(ids.len(), 3);
+        let definitions = batch.take_object_definitions().unwrap();
+        assert_eq!(definitions.len(), 3);
+        assert_eq!(definitions[0].diagnostic_name(), "First");
+        assert_eq!(definitions[1].fields()[0].declared_type_name.as_deref(), Some("i64"));
+        assert!(definitions[2].fields().is_empty());
+        assert!(batch.take_object_definitions().is_none());
+        assert_eq!(batch.object_sources.len(), 3, "taking payload preserves exact claim linkage");
     }
 
     #[test]

@@ -192,8 +192,9 @@ Implementation gaps remain explicit: `VerifiedFunctionCompletionV1` alone
 does not prove the New Fault cutpoint. The existing `ordinary_new_coseal`
 ledger now carries source Home prefixes, NewFaultContinuation and exact local
 completion, but has not materialized their physical cleanup/control operands.
-`typed_object_store_backend` has no unpublished discard API. Its index handles
-must not move during reclaim; `host_handles::drop_handle` is a different registry.
+`typed_object_store_backend` now has the stable indexed reclaim primitive;
+HomeRelease, source/CFG authorization and Fault transport remain unconnected.
+`host_handles::drop_handle` is a different registry, not its replacement.
 TextScan CheckedCallOut, setter 0/1 status, raw alloc/free and bare llvm.trap are
 not the missing semantic exit owner. A prior live caller object is a required
 negative witness, not grounds for a Pair-only or assumed-empty admission.

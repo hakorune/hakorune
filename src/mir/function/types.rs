@@ -279,6 +279,9 @@ pub struct MirModule {
     /// Source-cataloged callable definitions published with this module.
     /// Legacy/unkeyed functions intentionally do not enter this relation.
     pub(crate) canonical_callable_definitions: BTreeMap<CanonicalSameModuleCallableKeyV1, String>,
+    /// Exact source payload, installed once with function drafts. This is not
+    /// evidence of a completed executable layout or backend admission.
+    pub(super) canonical_object_definitions: Option<Box<[super::CanonicalObjectDefinitionV1]>>,
 }
 
 /// Typed rejection for publication that would replace an existing function.

@@ -102,6 +102,7 @@ box InstanceApi {
         ),
         Err(NormalCallableSemanticPackageInstallIssueV1::DuplicateSelectedKey)
     );
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("all selected rows consumed");
 }
 
@@ -173,6 +174,7 @@ fn declared_instance_selected_handoff_consumes_locator_and_finishes() {
     let mut port = installed.begin_lowering(&context).expect("same catalog");
 
     consume_declared_instance_selected_rows(&mut port, Some(&call_site));
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete()
         .expect("selected rows and exact locator are consumed once");
 }

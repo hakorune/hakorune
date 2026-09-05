@@ -15,6 +15,7 @@ impl MirModule {
             globals: HashMap::new(),
             metadata: ModuleMetadata::default(),
             canonical_callable_definitions: BTreeMap::new(),
+            canonical_object_definitions: None,
         }
     }
 

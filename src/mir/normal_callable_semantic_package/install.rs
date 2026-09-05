@@ -74,6 +74,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     MainRootRelationMismatch,
     MainRootAlreadyConsumed,
     DeclaredInstanceLocatorNotConsumed,
+    ObjectDefinitionsNotConsumed,
     S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
@@ -294,6 +295,17 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
 }
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    pub(in crate::mir) fn take_object_definitions(
+        &mut self,
+        context: &CompilationContext,
+    ) -> Result<Box<[crate::mir::function::CanonicalObjectDefinitionV1]>, String> {
+        if !self.installed.installed_in(context) {
+            return Err("[freeze:contract][mir/object-definitions/foreign-package]".into());
+        }
+        self.installed.instance_constructors.take_object_definitions()
+            .ok_or_else(|| "[freeze:contract][mir/object-definitions/already-taken]".into())
+    }
+
     /// Lend the already-issued locator without exposing package ownership or
     /// allowing the view to outlive this callback.  This is transport only;
     /// selected-C admission remains a separate downstream boundary.

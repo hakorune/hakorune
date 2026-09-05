@@ -351,7 +351,12 @@ Host OOM abort/process kill is not a cleanup-complete language Fault witness.
    replacement cleanup Fault, and a prior live caller object. Assert parent
    hook zero, correct child terminal release, stable unrelated handles,
    primary Fault, no leak/double cleanup, no failed-construction result. Include
-   fixed Pair EXE30/OBJ and finite selected old-edge removal, not only unit tests.
+   `apps/typed-object-birth-min/main.hako` through the production typed CLI and
+   published typed-C entry: EXE exit 30, plus OBJ from the same source linked
+   and executed with exit 30. The old JSON `typed_object_birth_min_exe.sh` smoke
+   and local publication test are not substitutes. Close the finite selected
+   old-edge removal at type-contract step 5: selected origin/name reconstruction,
+   tagless entry/projection and status-to-trap callers zero, exclusive code deleted.
 
 Task 1 first connects Birth-body non-escape verification directly to
 `issue_instance_constructor_semantic_batch_v1`, before semantic row publication.
@@ -603,11 +608,18 @@ exact ordinary-Box coverage, including empty NoBirth declarations. Its existing
 invocation brand and private source correspondence prevent foreign-module reuse;
 equal integers alone never prove identity. Names and constructor keys are not
 object identity. Runtime type IDs remain a separate checked layout projection.
-Source-ID checkpoint: the semantic batch now assigns these IDs to exact
-ordinary-Box coverage and construction stores retain typed field references.
-Quick lib check, package tests 91/91 (including distinct-Box/NoBirth/foreign-same-index)
-and existing pointer/M7-S guards pass. Atomic definition payload/table and
-physical consumers are not implemented yet; do not call this publication done.
+Source IDs landed at f42be8be61; construction stores retain exact field references.
+Transfer now uses the existing package port,
+validates context before take and requires consumption at completion/drain;
+empty transfer differs from absence. Hardened package 92/92, collector 10/10,
+quick lib check and pointer/M7-S guards pass. Changed lowering owners: 40/1;
+`physical_entry_lane_adoption_tests::emits_one_direct_length_call_and_i64_receipt_in_unpublished_session`
+fails AlreadyIssued at line 115. Parent f42be8be61, identical Cargo.lock and
+`CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=1 cargo test --profile quick --lib`
+with filter `mir::builder::resolved_lowering::physical_entry_lane_adoption_tests::`
+and `-- --test-threads=1`, also gives 12/1 at the same assertion: baseline debt.
+Layout allocation/refresh, borrowed executable view and physical
+consumers remain open; this is not external-publication or execution completion.
 
 Within existing task 1, execute these three connected steps after split validation:
 1. Move one exact, initially unlaid-out definition payload with callable drafts
@@ -615,6 +627,11 @@ Within existing task 1, execute these three connected steps after split validati
    external publication: `program_root_lowering` drains before `finalize_module`
    installs declaration metadata and calls `refresh_module_typed_object_plans`.
    Reuse that existing allocator; never allocate runtime IDs in collector drain.
+   Before layout, retain declaration-only eligibility in the existing definition:
+   the exact Box loan rejects inventory drift and marks inheritance/delegation,
+   sync/generic/implements/native attrs unsupported, without dropping the ID.
+   A layout-specific field accessor consumes this disposition; construction body,
+   initializer execution and cleanup eligibility are not layout authority.
    Reserve canonical positions in object-ID order (including unsupported shapes),
    then allocate compatibility layouts after that prefix with checked arithmetic.
    Store canonical layouts only in the canonical definition table. Repeated
@@ -788,10 +805,9 @@ next; task 1/runtime are not complete and no production old-edge deletion is cla
 At tasks 2–3, extend the existing published transport and
 `hako_llvmc_ffi_mir_call_dispatch.inc`, not its legacy method-birth branch.
 `PublishedCallKindV1` currently lacks Birth/control rows and the published view
-rejects Birth. The selected typed-object store's default SafeMutex/index handles
-must gain stable reclaim: deleting/swapping vector entries would invalidate
-unrelated handles. Verify single release, failed allocation and an unrelated live
-handle through existing runtime tests before activation. Storage capability must
+rejects Birth. Stable indexed reclaim is checkpointed; HomeRelease, source/CFG
+binding and common Fault transport remain open. Verify connected single release,
+failed allocation and unrelated live handles before activation. Storage capability must
 match the selected runtime profile; retain default-profile acceptance.
 
 Current natural-source grammar permits one initialized local per declaration.

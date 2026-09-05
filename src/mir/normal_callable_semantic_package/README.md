@@ -94,6 +94,14 @@ Box (including NoBirth). Construction plans retain it and store sites carry
 correspondence rejects foreign parser sessions even when numeric indices match.
 These references still require the atomic object-definition publication and
 physical consumer; they do not by themselves enable Birth execution.
+The source batch now also owns one take-once, AST-free definition payload using
+the existing field-declaration vocabulary. The installed package port moves it
+to the normal collector before body lowering, after validating the installed
+context; source correspondence remains for claims. Duplicate transfer rejects.
+Package completion and source-backed collector drain require transfer, including
+an empty payload. Drain moves definitions with drafts into the private candidate;
+failed preflight publishes neither, and an occupied destination is not overwritten.
+Runtime layouts and executable admission are still later, required stages.
 
 The final source transport now carries ordinary-box coverage into this same
 package. The issuer selects exact direct-local initializer relations, validates

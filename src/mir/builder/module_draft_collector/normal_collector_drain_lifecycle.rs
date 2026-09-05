@@ -27,6 +27,8 @@ pub(in crate::mir::builder) enum NormalCollectorDrainLifecycleErrorV1 {
     Publication(FunctionPublicationErrorV1),
     CanonicalDefinition(CanonicalCallableDefinitionPublicationErrorV1),
     StaticResultPublicationResidual(StaticCallResultPublicationOwnerFinishErrorV1),
+    ObjectDefinitionDestinationOccupied,
+    ObjectDefinitionsMissing,
 }
 
 impl std::fmt::Display for NormalCollectorDrainLifecycleErrorV1 {
@@ -111,10 +113,51 @@ impl PreparedNormalCollectorDrainLifecycleV1<'_> {
                 _ => target.add_function(entry.draft),
             }
         }
+        if let Some(definitions) = collector.object_definitions.take() {
+            target.install_object_definitions_preflighted(definitions);
+        }
     }
 }
 
 impl ModuleDraftCollectorV1 {
+    pub(in crate::mir::builder) fn with_required_object_definitions(
+        brand: ModuleInvocationBrandV1,
+    ) -> Self {
+        Self { object_definitions_required: true, ..Self::with_brand(brand) }
+    }
+
+    pub(in crate::mir::builder) fn install_object_definitions_from_package(
+        &mut self,
+        package: &mut crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackagePortV1<'_>,
+        context: &crate::mir::builder::CompilationContext,
+        brand: ModuleInvocationBrandV1,
+    ) -> Result<(), String> {
+        if self.receipt_brand() != Some(brand) {
+            return Err("[freeze:contract][mir/object-definitions/foreign-collector]".into());
+        }
+        if self.object_definitions.is_some() {
+            return Err("[freeze:contract][mir/object-definitions/duplicate-install]".into());
+        }
+        self.object_definitions = Some(package.take_object_definitions(context)?);
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn install_object_definitions(
+        &mut self,
+        definitions: Box<[crate::mir::function::CanonicalObjectDefinitionV1]>,
+        brand: ModuleInvocationBrandV1,
+    ) -> Result<(), String> {
+        if self.receipt_brand() != Some(brand) {
+            return Err("[freeze:contract][mir/object-definitions/foreign-collector]".into());
+        }
+        if self.object_definitions.is_some() {
+            return Err("[freeze:contract][mir/object-definitions/duplicate-install]".into());
+        }
+        self.object_definitions = Some(definitions);
+        Ok(())
+    }
+
     /// Consume exactly one normal candidate's final LegacySymbol/CatalogedBoxMethod
     /// rows after source-free correspondence, session-brand, and module-collision
     /// preflight.
@@ -168,6 +211,13 @@ impl SealedNormalCollectorDrainReceiptV1 {
             return Err(NormalCollectorDrainLifecycleErrorV1::SymbolIndexDrift { symbol });
         }
 
+        if collector.object_definitions_required && collector.object_definitions.is_none() {
+            return Err(NormalCollectorDrainLifecycleErrorV1::ObjectDefinitionsMissing);
+        }
+        if collector.object_definitions.is_some() {
+            target.preflight_object_definition_install()
+                .map_err(|_| NormalCollectorDrainLifecycleErrorV1::ObjectDefinitionDestinationOccupied)?;
+        }
         let mut symbols = BTreeSet::new();
         let mut canonical_keys = BTreeSet::new();
         let mut ordered_keys = Vec::with_capacity(collector.drafts.len());
@@ -325,6 +375,59 @@ mod tests {
             .seal(draft_with_arity("ParserScanLoopBox.skip_while/4", 4))
             .unwrap()
             .collect();
+    }
+
+    #[test]
+    fn object_definitions_move_once_with_drafts_and_reject_partial_publication() {
+        use crate::mir::function::{CanonicalObjectDefinitionV1, UserBoxFieldDecl};
+        use hakorune_mir_defs::{CanonicalObjectIdV1, CanonicalFieldRefV1};
+        let payload = || vec![CanonicalObjectDefinitionV1::from_source_declaration(
+            "Page".into(), vec![UserBoxFieldDecl {
+                name: "value".into(), declared_type_name: Some("i64".into()), is_weak: false,
+            }].into_boxed_slice(),
+        )].into_boxed_slice();
+        let id = CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+        let mut required = ModuleDraftCollectorV1::with_required_object_definitions(brand());
+        collect(&mut required, "must_not_publish");
+        let mut missing = MirModule::new("missing".into());
+        assert!(matches!(required.prepare_normal_collector_drain(&mut missing, brand())
+            .unwrap_err().error(), NormalCollectorDrainLifecycleErrorV1::ObjectDefinitionsMissing));
+        assert!(missing.functions.is_empty());
+        let mut empty = ModuleDraftCollectorV1::with_required_object_definitions(brand());
+        empty.install_object_definitions(Box::new([]), brand()).unwrap();
+        empty.prepare_normal_collector_drain(&mut missing, brand()).unwrap().commit();
+        assert!(missing.preflight_object_definition_install().is_err(), "empty transfer is installed");
+        let mut collector = ModuleDraftCollectorV1::with_brand(brand());
+        assert!(collector.install_object_definitions(payload(),
+            ModuleInvocationBrandV1::test_with_ordinal(702)).is_err());
+        collector.install_object_definitions(payload(), brand()).unwrap();
+        assert!(collector.install_object_definitions(payload(), brand()).is_err());
+        collect(&mut collector, "helper");
+        let mut module = MirModule::new("objects".into());
+        collector.prepare_normal_collector_drain(&mut module, brand()).unwrap().commit();
+        assert!(module.functions.contains_key("helper"));
+        assert_eq!(module.canonical_object_definition(id).unwrap().diagnostic_name(), "Page");
+        assert_eq!(module.canonical_field_definition(
+            CanonicalFieldRefV1::from_declaration_ordinal(id, 0).unwrap()).unwrap().name, "value");
+        assert!(module.canonical_field_definition(
+            CanonicalFieldRefV1::from_declaration_ordinal(id, 1).unwrap()).is_none());
+        assert!(module.canonical_object_definition(
+            CanonicalObjectIdV1::from_declaration_index(1).unwrap()).is_none());
+
+        let mut repeated = ModuleDraftCollectorV1::with_brand(brand());
+        repeated.install_object_definitions(payload(), brand()).unwrap();
+        collect(&mut repeated, "must_not_publish");
+        assert!(repeated.prepare_normal_collector_drain(&mut module, brand()).is_err());
+        assert!(!module.functions.contains_key("must_not_publish"));
+
+        let mut rejected = ModuleDraftCollectorV1::with_brand(brand());
+        rejected.install_object_definitions(payload(), brand()).unwrap();
+        collect(&mut rejected, "bad");
+        rejected.key_by_symbol.clear();
+        let mut empty = MirModule::new("rejected".into());
+        assert!(rejected.prepare_normal_collector_drain(&mut empty, brand()).is_err());
+        assert!(empty.functions.is_empty());
+        assert!(empty.canonical_object_definition(id).is_none());
     }
 
     #[test]

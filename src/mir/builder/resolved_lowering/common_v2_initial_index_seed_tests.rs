@@ -96,6 +96,7 @@ fn initial_index_seed_emits_one_entry_const_and_exact_declaration() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -121,6 +122,7 @@ fn initial_index_seed_rejects_missing_function_before_effect() {
         .expect("callback-scoped admission");
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -152,5 +154,6 @@ fn initial_index_seed_late_failure_discards_const_and_declaration() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }

@@ -105,6 +105,7 @@ fn condition_bool_consumes_length_receipt_and_emits_one_less() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -147,6 +148,7 @@ fn condition_bool_rejects_before_compare_when_seed_is_missing() {
         assert!(builder.function_state.current_function.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -190,6 +192,7 @@ fn condition_bool_late_failure_discards_compare_and_receipt() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -244,6 +247,7 @@ fn shared_segment_scope_threads_length_into_condition_bool() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -285,6 +289,7 @@ fn shared_segment_scope_rejects_second_allocation() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -337,6 +342,7 @@ fn shared_segment_scope_rejects_return_read_condition_mismatch() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -384,5 +390,6 @@ fn shared_segment_scope_late_callback_discards_everything() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }

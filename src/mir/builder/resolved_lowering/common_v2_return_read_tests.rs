@@ -116,6 +116,7 @@ fn return_read_physical_receipt_joins_read_segments_and_completion() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }
 
@@ -156,5 +157,6 @@ fn return_read_physical_receipt_late_failure_discards_read_and_target() {
         assert!(builder.function_state.current_block.is_none());
     })
     .expect("one installed S6C callback");
+    port.take_object_definitions(&context).expect("explicit definition transfer for semantic-only test");
     port.complete().expect("selected child coverage");
 }

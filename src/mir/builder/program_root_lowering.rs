@@ -183,7 +183,12 @@ impl MirBuilder {
         target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
-        let mut collector = ModuleDraftCollectorV1::with_brand(brand);
+        let mut collector = match &callable_mode {
+            NormalCallableSemanticPackageMode::Installed(_) =>
+                ModuleDraftCollectorV1::with_required_object_definitions(brand),
+            NormalCallableSemanticPackageMode::Compatibility(_) =>
+                ModuleDraftCollectorV1::with_brand(brand),
+        };
         callable_loop_root_scope.validate_collector(&collector)?;
         if let Some(owner) = static_result_publication_owner {
             collector.install_static_result_publication_owner(owner)?;
@@ -196,6 +201,9 @@ impl MirBuilder {
             )
         );
         let mut callable_mode = callable_mode;
+        if let NormalCallableSemanticPackageMode::Installed(package_port) = &mut callable_mode {
+            collector.install_object_definitions_from_package(package_port, &self.comp_ctx, brand)?;
+        }
         let mut direct_call_loan = match &mut callable_mode {
             NormalCallableSemanticPackageMode::Installed(package_port) => {
                 package_port.take_app_main_direct_call_loan()

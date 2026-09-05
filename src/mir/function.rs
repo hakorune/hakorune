@@ -15,6 +15,8 @@ mod function_impl;
 mod metadata;
 mod module_impl;
 mod object_metadata;
+mod object_definition;
+pub(crate) use object_definition::CanonicalObjectDefinitionV1;
 mod published_backend_view;
 mod typed_array_contract;
 mod types;

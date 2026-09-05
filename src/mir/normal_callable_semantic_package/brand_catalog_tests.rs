@@ -386,6 +386,13 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
                 ),
             )
             .expect("normal constructor publication");
+        let object = result.module.canonical_object_definition(
+            hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap(),
+        ).expect("source object definition survives the production collector");
+        assert_eq!(object.diagnostic_name(), "Pair");
+        assert_eq!(object.fields().len(), 2);
+        assert!(object.fields().iter().all(|field|
+            field.declared_type_name.as_deref() == Some("i64") && !field.is_weak));
         assert!(
             result.verification_result.is_ok(),
             "published source must retain valid field contracts: {:?}",
