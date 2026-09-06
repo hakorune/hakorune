@@ -934,17 +934,42 @@ physical mapping; an absent semantic issuer requires a named design stop.
 
 ### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1 — lowering ABI completion
 
-Decision: design-stop.
-Source authority + canonical issuer: the final view's physical program/layout
-projection and runtime-owned ABI headers.
-Non-authority: C type inference, default diagnostic sites, host layout and V2
-row reconstruction.
-Fail-fast boundary: an unowned physical type, site or target ABI keeps C
-lowering and host cutover closed.
-Smallest next slice: one read-only owner audit of the existing physical types,
-diagnostic-site representation and target FaultFrame placement.
-Non-claims: C opcode lowering, Pair EXE/OBJ 30, compatibility retirement or a
-new semantic receipt.
+Decision: design-stop, `NoSafeSlice` after one independent read-only owner
+audit. C lowering must remain closed.
+Source authority + canonical issuer: the activated final view issues program
+membership, layout references and frame mode; `nyrt_fault_v1.h` owns runtime
+frame representation. There is no canonical issuer for all physical value
+types, checked-operation diagnostic sites, or target frame placement.
+Non-authority: C type inference, default/zero diagnostic sites, host `sizeof`,
+V2 reconstruction and optional function metadata.
+Fail-fast boundary: one missing physical type, site or target ABI rejects before
+JSON extension, C lowering, host cutover and artifact output.
+Smallest next slice: source-authority consultation that names one issuer for
+each missing product, or explicitly parks selected C lifecycle execution. It
+may not issue a guessed `Verified*`/`Prepared*` product or add C defaults.
+Non-claims: C opcode lowering, Pair EXE/OBJ 30, compatibility retirement, a
+new semantic receipt or a target portability claim.
+
+Audit boundary: final-view physical program/layout -> ABI JSON -> dedicated C
+parser; includes the selected vocabulary and checked runtime lifecycle calls;
+excludes generic MIR consumers, production host switch, LLVM lowering and
+runtime implementation. The inventory is finite but not Exhausted: all three
+rows below are `CutoverBlockerOpen` within the selected path.
+
+| Required lowerer input | Existing owner/evidence | Missing authority |
+| --- | --- | --- |
+| Physical value representation | constants carry local i64/string/Unit tags; Add/Copy use IDs; `Phi.type_hint` is discarded; `FunctionMetadata.value_types` is optional derived metadata | one final-view-issued type for formal, produced and PHI values; C cannot infer it |
+| Checked-operation diagnostic site | runtime `checked_new`, `field_set`, `home_release` and `reclaim` require `u64 site`; MIR Invoke has no site | coordinate-to-site encoding and its canonical issuer; block/index, names and zero are not substitutes |
+| FaultFrame placement | final MIR carries RootOwned/Borrowed mode; runtime C header owns repr/ABI and initialization contract | selected target's size/alignment/storage placement owner; header assertions only cover the C compilation ABI |
+| Storage profile | final view retains `lifecycle_storage_profile()` and V2 carries it | direct ABI input and JSON omit it; this is a projection gap, but does not cure the three missing authorities |
+
+The audit was run after parser I0 and before any lowerer code. The direct ABI
+has no production caller: its only callers remain focused serializer/parser
+tests. Do not turn the existing `ObjectSiteLocation`, local-fast-path site IDs,
+or V2 frame rows into an authority for this path without an explicit source
+selection. The later serialize-then-reparse deletion remains conditional on a
+closed ABI issuer; it is not a safe standalone cleanup while this input is
+incomplete.
 
 2. **Close the lowering ABI in the existing physical input — BoxShape.**
    Owner: `physical_abi.rs` / direct serializer and the existing final view;

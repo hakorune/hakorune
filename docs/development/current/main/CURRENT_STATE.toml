@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1"
 current_execution_cohort = "constructor_lifecycle_physical_abi_boxshape"
-current_design_stop = "Physical value type, diagnostic-site and target FaultFrame placement owners must be fixed before C lowering."
-current_blocker_token = "Design stop: audit the existing physical type, diagnostic-site and target FaultFrame ABI owners; C lowering, host cutover and EXE30 remain closed."
+current_design_stop = "NoSafeSlice: direct ABI has no issuer for value types, diagnostic sites or target FaultFrame placement."
+current_blocker_token = "Design stop: name source authorities for physical value types, checked-operation sites and target frame placement, or park selected C lifecycle execution."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,8 +34,9 @@ latest_card_summary = """
 Design/task order consolidated at the constructor owner. Birth handoff and
 physical program/layout serialization exist; direct C parser I0 now validates
 the complete ABI-bearing schema and accepts unchanged issued Pair JSON.
-Next is a design stop for physical types, diagnostic sites and target frame
-placement, then C lowering/host connection, EXE30/linked OBJ30 and retirement.
+I1 audit found no issuer for physical value types, checked-operation sites or
+target frame placement, so C lowering remains NoSafeSlice pending authority
+selection or an explicit park; host connection and EXE30/linked OBJ30 are closed.
 Production still uses generic lifecycle JSON plus V2 and stops at
 body-consumer-pending. No checked-runtime or whole-MirBuilder completion claim.
 """
