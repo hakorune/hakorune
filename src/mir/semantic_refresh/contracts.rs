@@ -161,6 +161,13 @@ pub fn refresh_owned_for_boundary(
     })
 }
 
+/// Validate the retained final image without rebuilding or issuing any carrier.
+pub(crate) fn validate_published_contracts(module: &MirModule) -> Result<(), String> {
+    module.validate_object_definition_membership()?;
+    crate::mir::typed_object_plan::validate_canonical_object_layouts(module)?;
+    validate_refreshed_contracts(module)
+}
+
 fn validate_refreshed_contracts(module: &MirModule) -> Result<(), String> {
     crate::mir::extern_call_route_plan::validate_semantic_outcome_routes(module)?;
     crate::mir::type_contracts::weak_field::validate_module_specs(module)?;

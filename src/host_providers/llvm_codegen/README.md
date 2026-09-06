@@ -42,6 +42,14 @@ Thin Rust bridge for backend object emission.
 
 ## Current policy
 
+- `published_mir_object` consumes one borrowed final view for typed rows and
+  CanonicalV1 body projection. Selected OBJ/EXE capability checks validate
+  retained contracts without cloning, refreshing or repairing the module.
+  Nonleading Phi, missing/stale contracts and mixed legacy/Extern ingress
+  reject before C emission; explicit compatibility retains its separate owner.
+  Lifecycle admission remains fenced until its typed control/result consumer
+  lands. Export does not itself authorize Birth execution.
+
 - mainline owner is being cut over shape-by-shape from legacy C `.inc` to `.hako ll emitter`
 - route policy ownership lives in `BackendRecipeBox` and the LLVM boundary-lock SSOT; `llvm_codegen` stays transport-only and must not be read as the daily policy owner
 - compare lane is explicit bridge evidence, not a permanent default route; the proof smoke now runs from `phase29x-derust-archive.txt`

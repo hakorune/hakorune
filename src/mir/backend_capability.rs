@@ -1,5 +1,30 @@
 use crate::mir::MirModule;
 
+/// Selected published callers validate the borrowed final image, never a repair clone.
+pub(crate) fn enforce_published_backend_supported(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+    backend: &str,
+) -> Result<(), String> {
+    let module = view.module();
+    for function in module.functions.values() {
+        if !function.metadata.extern_call_routes.is_empty()
+            || function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .any(|instruction| {
+                    matches!(instruction, crate::mir::MirInstruction::LegacyCallV0 { .. })
+                        || matches!(instruction, crate::mir::MirInstruction::Call(call)
+                        if matches!(call.callee, crate::mir::Callee::Extern(_)))
+                })
+        {
+            return Err("[freeze:contract][published-backend/compatibility-ingress]".into());
+        }
+    }
+    crate::mir::semantic_refresh::validate_published_contracts(module)?;
+    enforce_refreshed_mir_backend_supported(module, backend)
+}
+
 pub(crate) fn enforce_mir_backend_supported(
     module: &MirModule,
     backend: &str,

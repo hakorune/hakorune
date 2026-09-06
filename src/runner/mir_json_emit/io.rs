@@ -1,5 +1,35 @@
 use super::*;
 
+/// Physical body projection of the same final view used for typed C rows.
+pub(crate) fn emit_published_view_body(
+    view: &crate::mir::function::PublishedMirBackendView<'_>,
+) -> Result<String, String> {
+    if view.route() != crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped {
+        return Err("[freeze:contract][published-body/not-canonical-typed]".into());
+    }
+    let module = view.module();
+    crate::mir::semantic_refresh::validate_published_contracts(module)?;
+    for function in module.functions.values() {
+        for block in function.blocks.values() {
+            let mut seen_non_phi = false;
+            for instruction in &block.instructions {
+                if matches!(instruction, crate::mir::MirInstruction::Phi { .. }) {
+                    if seen_non_phi {
+                        return Err("[freeze:contract][published-body/nonleading-phi]".into());
+                    }
+                } else {
+                    seen_non_phi = true;
+                }
+            }
+        }
+    }
+    let root = super::root::build_mir_json_root_with_profile(
+        module,
+        super::root::JsonEgressProfile::CanonicalV1,
+    )?;
+    serialize_mir_json_root(&root)
+}
+
 pub fn emit_mir_json_for_harness(
     module: &nyash_rust::mir::MirModule,
     path: &std::path::Path,
@@ -104,6 +134,182 @@ mod tests {
         MirType, ValueId,
     };
     use crate::runner::modes::common_util::selected_dynamic_identity::validate_selected_dynamic_launch_helper_identity;
+
+    fn published_print_module() -> MirModule {
+        let mut module = MirModule::new("published-print".into());
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "main".into(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::IO,
+            },
+            BasicBlockId::new(0),
+        );
+        let block = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+        block.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(1),
+            value: crate::mir::ConstValue::Integer(42),
+        });
+        block.add_instruction(MirInstruction::call(
+            None,
+            crate::mir::Callee::Global(hakorune_mir_defs::CanonicalGlobalTargetV1::builtin_print()),
+            vec![ValueId::new(1)],
+            EffectMask::IO,
+        ));
+        block.set_terminator(MirInstruction::Return { value: None });
+        module.add_function(function);
+        module
+    }
+
+    #[test]
+    fn published_body_preserves_the_borrowed_image_and_typed_site() {
+        let module = published_print_module();
+        let before = format!("{module:?}");
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&module).unwrap();
+        crate::mir::backend_capability::enforce_published_backend_supported(&view, "ny-llvmc-obj")
+            .unwrap();
+        let frame = crate::mir::function::PublishedStaticMethodCFrameV1::from_view(&view).unwrap();
+        let row = &frame.as_slice()[0];
+        let body: serde_json::Value =
+            serde_json::from_str(&super::emit_published_view_body(&view).unwrap()).unwrap();
+        assert_eq!(row.block_id, 0);
+        assert_eq!(row.instruction_index, 1);
+        assert_eq!(
+            body["functions"][0]["blocks"][0]["instructions"][1]["op"],
+            "mir_call"
+        );
+        assert_eq!(before, format!("{module:?}"));
+    }
+
+    #[test]
+    fn published_body_rejects_nonleading_phi_instead_of_reordering_sites() {
+        let mut module = published_print_module();
+        module
+            .functions
+            .get_mut("main")
+            .unwrap()
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .unwrap()
+            .add_instruction(MirInstruction::Phi {
+                dst: ValueId::new(2),
+                inputs: vec![],
+                type_hint: None,
+            });
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&module).unwrap();
+        assert_eq!(
+            super::emit_published_view_body(&view).unwrap_err(),
+            "[freeze:contract][published-body/nonleading-phi]"
+        );
+    }
+
+    #[test]
+    fn published_body_does_not_rebuild_missing_array_write_witnesses() {
+        let mut module = published_print_module();
+        module
+            .functions
+            .get_mut("main")
+            .unwrap()
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .unwrap()
+            .add_instruction(
+                crate::mir::array_element_write::instruction(
+                    crate::mir::ArrayWriteSiteId::new(1),
+                    None,
+                    crate::mir::ArrayElementWriteKind::Push,
+                    crate::mir::ArrayWriteProducerKind::MethodCall,
+                    ValueId::new(2),
+                    None,
+                    ValueId::new(1),
+                )
+                .unwrap(),
+            );
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&module).unwrap();
+        let error = super::emit_published_view_body(&view).unwrap_err();
+        assert!(error.contains("family=array_write"), "{error}");
+        assert!(module.functions["main"]
+            .metadata
+            .array_element_write_witnesses
+            .is_empty());
+    }
+
+    #[test]
+    fn published_preflight_stops_mixed_compatibility_even_without_route_metadata() {
+        for legacy in [false, true] {
+            let mut module = published_print_module();
+            let callee = crate::mir::Callee::Extern("nyash.env.get".into());
+            let instruction = if legacy {
+                MirInstruction::LegacyCallV0 {
+                    dst: Some(ValueId::new(3)),
+                    func: ValueId::INVALID,
+                    callee: Some(callee),
+                    args: vec![ValueId::new(1)],
+                    effects: EffectMask::IO,
+                }
+            } else {
+                MirInstruction::call(
+                    Some(ValueId::new(3)),
+                    callee,
+                    vec![ValueId::new(1)],
+                    EffectMask::IO,
+                )
+            };
+            module
+                .functions
+                .get_mut("main")
+                .unwrap()
+                .blocks
+                .get_mut(&BasicBlockId::new(0))
+                .unwrap()
+                .add_instruction(instruction);
+            assert!(module.functions["main"]
+                .metadata
+                .extern_call_routes
+                .is_empty());
+            let view = crate::mir::function::PublishedMirBackendView::try_new(&module).unwrap();
+            assert_eq!(
+                crate::mir::backend_capability::enforce_published_backend_supported(
+                    &view,
+                    "ny-llvmc-obj",
+                )
+                .unwrap_err(),
+                "[freeze:contract][published-backend/compatibility-ingress]"
+            );
+        }
+    }
+
+    #[test]
+    fn published_preflight_rejects_residual_extern_route_without_a_call() {
+        use crate::mir::extern_call_route_plan::{
+            ExternCallRoute, ExternCallRouteKind, ExternCallRouteSite,
+        };
+        let mut module = published_print_module();
+        module
+            .functions
+            .get_mut("main")
+            .unwrap()
+            .metadata
+            .extern_call_routes
+            .push(ExternCallRoute::new(
+                ExternCallRouteSite::new(BasicBlockId::new(0), 1),
+                ExternCallRouteKind::EnvGet,
+                "nyash.env.get",
+                ValueId::new(1),
+                None,
+                ValueId::new(3),
+            ));
+        let view = crate::mir::function::PublishedMirBackendView::try_new(&module).unwrap();
+        assert_eq!(
+            crate::mir::backend_capability::enforce_published_backend_supported(
+                &view,
+                "ny-llvmc-obj",
+            )
+            .unwrap_err(),
+            "[freeze:contract][published-backend/compatibility-ingress]"
+        );
+    }
 
     fn production_shaped_dual_function_fixture() -> MirModule {
         let mut module = MirModule::new("selected_dual_identity_fixture".to_owned());

@@ -61,6 +61,12 @@ receiver/Home bindings; finalization validates its emitted operands and field
 identity. Only destination/base participate in ValueId remapping. Generic JSON
 and backend admission remain closed until the selected typed consumer lands.
 String `FieldGet` is compatibility vocabulary, not an alternate target source.
+Selected published C rows and their CanonicalV1 body projection borrow the same
+final module. Export validates retained contracts without clone/refresh/repair;
+Phi instructions must lead their block so typed site coordinates stay exact.
+Selected capability preflight rejects mixed LegacyCallV0, canonical Extern calls
+or residual extern routes before artifact generation; this does not promote
+lifecycle instructions or alter the explicit compatibility profile.
 FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.

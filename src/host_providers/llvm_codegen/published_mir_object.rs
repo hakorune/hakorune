@@ -29,11 +29,10 @@ pub(crate) fn try_compile_published_view_object(
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
 ) -> Result<bool, String> {
-    let module = view.module();
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
-            crate::mir::backend_capability::enforce_mir_backend_supported(
-                module,
+            crate::mir::backend_capability::enforce_published_backend_supported(
+                view,
                 "ny-llvmc-obj",
             )?;
             compile_published_view_object(view, obj_out)?;
@@ -51,11 +50,10 @@ fn compile_published_view_object(
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
 ) -> Result<(), String> {
-    let module = view.module();
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
     let mir_json_path = transport_io::prepare_backend_input_json_file(
-        &crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(module)?,
+        &crate::runner::mir_json_emit::emit_published_view_body(view)?,
     )?;
     let output = PathBuf::from(obj_out);
     transport_io::ensure_backend_output_parent(&output);
@@ -90,11 +88,10 @@ pub(crate) fn emit_published_view_exe(
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
 ) -> Result<bool, String> {
-    let module = view.module();
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
-            crate::mir::backend_capability::enforce_mir_backend_supported(
-                module,
+            crate::mir::backend_capability::enforce_published_backend_supported(
+                view,
                 "ny-llvmc-exe",
             )?;
         }
@@ -108,7 +105,7 @@ pub(crate) fn emit_published_view_exe(
     }
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
-        crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-obj")?;
+        crate::mir::backend_capability::enforce_published_backend_supported(view, "ny-llvmc-obj")?;
         compile_published_view_object(view, &object_path)?;
         let runtime_dir = nyrt_dir
             .map(PathBuf::from)

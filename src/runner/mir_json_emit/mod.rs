@@ -48,6 +48,7 @@ use decls::{
     collect_static_data_plan_values, collect_typed_object_plan_values,
 };
 pub(crate) use io::emit_canonical_v1_value_for_reference;
+pub(crate) use io::emit_published_view_body;
 #[cfg(test)]
 pub(crate) use io::emit_mir_json_string_for_unpublished_candidate;
 pub use io::{

@@ -105,6 +105,7 @@ use super::{
 };
 
 mod contracts;
+pub(crate) use contracts::validate_published_contracts;
 
 pub use contracts::{
     refresh_and_validate_for_boundary, refresh_owned_for_boundary, ContractCarrierSummary,
