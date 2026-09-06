@@ -40,6 +40,7 @@ pub(crate) enum PublishedStaticMethodRouteV1 {
 /// trigger a second resolver or a compatibility retry for a selected module.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum PublishedMirBackendViewErrorV1 {
+    RetainedRootMissing,
     DefinitionMissing {
         key: CanonicalSameModuleCallableKeyV1,
     },
@@ -279,6 +280,7 @@ impl<'module> PublishedArrayElementWriteRef<'module> {
 #[derive(Debug)]
 pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
+    retained_root: Option<&'module MirFunction>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
@@ -287,6 +289,21 @@ pub(crate) struct PublishedMirBackendView<'module> {
 }
 
 impl<'module> PublishedMirBackendView<'module> {
+    /// Identity only, not lifecycle admission. Only the parent pipeline binds
+    /// this after final validation, strict verification and commit preparation.
+    pub(super) fn bind_retained_root(
+        mut self,
+        key: Option<&str>,
+    ) -> Result<Self, PublishedMirBackendViewErrorV1> {
+        self.retained_root = key.map(|key| self.module.functions.get(key)
+            .ok_or(PublishedMirBackendViewErrorV1::RetainedRootMissing)).transpose()?;
+        Ok(self)
+    }
+
+    pub(crate) fn retained_root(&self) -> Option<&'module MirFunction> {
+        self.retained_root
+    }
+
     /// Diagnostic/physical borrow only; cloning this module does not carry
     /// lifecycle admission through the generic constructor.
     pub(crate) fn module(&self) -> &'module MirModule {
@@ -425,6 +442,7 @@ impl<'module> PublishedMirBackendView<'module> {
         if has_unsupported_call {
             return Ok(Self {
                 module,
+                retained_root: None,
                 route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,
                 static_method_calls,
                 free_function_calls,
@@ -439,6 +457,7 @@ impl<'module> PublishedMirBackendView<'module> {
         {
             return Ok(Self {
                 module,
+                retained_root: None,
                 route: PublishedStaticMethodRouteV1::ExplicitCompatibility,
                 static_method_calls,
                 free_function_calls,
@@ -448,6 +467,7 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         Ok(Self {
             module,
+            retained_root: None,
             route: PublishedStaticMethodRouteV1::CanonicalTyped,
             static_method_calls,
             free_function_calls,

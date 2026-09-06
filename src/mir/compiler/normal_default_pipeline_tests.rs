@@ -39,6 +39,10 @@ fn published_consumer_runs_once_and_propagates_failure_without_retry() {
             calls += 1;
             assert!(verification.is_ok());
             assert_eq!(view.static_method_calls().len(), 1);
+            let root = view.retained_root().expect("source validator retained the exact root");
+            assert!(view.module().functions.values().any(|function| std::ptr::eq(root, function)));
+            let generic = published_backend_view::PublishedMirBackendView::try_new(view.module()).unwrap();
+            assert!(generic.retained_root().is_none(), "generic readmission carries no source root");
             super::super::MirVerifier::new_strict().verify_module(view.module()).unwrap();
             Err::<(), _>("selected-consumer-failed".to_owned())
         });
@@ -51,6 +55,28 @@ fn published_consumer_runs_once_and_propagates_failure_without_retry() {
         assert!(matches!(success, NormalPublishedCompileOutcome::Consumed(17)));
         assert_eq!(calls, 2);
     });
+}
+
+#[test]
+fn private_root_binding_preserves_exact_identity_without_changing_admission() {
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
+    let mut module = MirModule::new("retained-root-projection".into());
+    module.add_function(MirFunction::new(FunctionSignature {
+        name: "renamed-root-physical-key".into(), params: vec![],
+        return_type: MirType::Void, effects: EffectMask::PURE,
+    }, BasicBlockId::new(0)));
+    let view = published_backend_view::PublishedMirBackendView::try_new(&module).unwrap();
+    let route = view.route();
+    let bound = view.bind_retained_root(Some("renamed-root-physical-key")).unwrap();
+    assert!(std::ptr::eq(bound.retained_root().unwrap(), &module.functions["renamed-root-physical-key"]));
+    assert_eq!(bound.route(), route, "root identity cannot promote compatibility");
+    let absent = published_backend_view::PublishedMirBackendView::try_new(&module).unwrap()
+        .bind_retained_root(None).unwrap();
+    assert!(absent.retained_root().is_none());
+    assert_eq!(absent.route(), route);
+    let error = published_backend_view::PublishedMirBackendView::try_new(&module).unwrap()
+        .bind_retained_root(Some("missing-root")).unwrap_err();
+    assert_eq!(error, published_backend_view::PublishedMirBackendViewErrorV1::RetainedRootMissing);
 }
 
 #[test]

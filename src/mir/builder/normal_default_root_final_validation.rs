@@ -32,7 +32,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     pub(in crate::mir) fn into_artifact_parts(self) -> (
         ModuleBuilderInvocationSessionV1,
         MirModule,
-        impl FnOnce(&MirModule) -> Result<(), String>,
+        impl FnOnce(&MirModule) -> Result<Option<String>, String>,
     ) {
         let validate = move |module: &MirModule| {
             let mut covered = BTreeSet::new();
@@ -85,7 +85,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
             }
-            Ok(())
+            Ok(retained_root)
         };
         (self.session, self.module, validate)
     }

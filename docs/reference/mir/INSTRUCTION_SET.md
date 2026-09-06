@@ -67,6 +67,10 @@ Phi instructions must lead their block so typed site coordinates stay exact.
 Selected capability preflight rejects mixed LegacyCallV0, canonical Extern calls
 or residual extern routes before artifact generation; this does not promote
 lifecycle instructions or alter the explicit compatibility profile.
+The selected pipeline retains the source-validated root's exact physical key
+through final verification and commit preparation, then binds its borrowed
+function reference on the same view. This identity does not enable lifecycle
+admission; generic view construction carries no retained source-root reference.
 FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.

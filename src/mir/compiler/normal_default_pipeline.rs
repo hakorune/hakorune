@@ -459,7 +459,7 @@ impl NormalCompileRequestV1 {
 struct NormalDefaultPublishedPipelineV1;
 
 impl NormalDefaultPublishedPipelineV1 {
-    fn compile<R, V: FnOnce(&MirModule) -> Result<(), String>>(
+    fn compile<R, S, V: FnOnce(&MirModule) -> Result<S, String>>(
         compiler: &mut MirCompiler,
         request: NormalCompileRequestV1,
         select_validation: impl FnOnce(
@@ -468,6 +468,7 @@ impl NormalDefaultPublishedPipelineV1 {
         consume: impl FnOnce(
             MirCompileResult,
             ModuleBuilderInvocationSessionV1,
+            S,
         ) -> Result<
             (crate::mir::builder::PreparedBuilderExternalCommitV1, R),
             String,
@@ -510,7 +511,7 @@ impl NormalDefaultPublishedPipelineV1 {
         }
         let finish_schedule = finish_schedule_for_normal_module(&module)?;
         let result = compiler.finish_built_module(module, finish_schedule)?;
-        validate_source_bindings(&result.module)?;
+        let source_output = validate_source_bindings(&result.module)?;
         if finish_schedule == super::MirFinishScheduleV1::SelectedDynamic {
             // The selected module must not be published or handed to a
             // backend until the strict post-seal result has been consumed.
@@ -522,7 +523,7 @@ impl NormalDefaultPublishedPipelineV1 {
                     .join("; ")
             })?;
         }
-        let (prepared, output) = consume(result, session)?;
+        let (prepared, output) = consume(result, session, source_output)?;
         let _receipt = prepared.commit(&mut compiler.builder);
         Ok(output)
     }
@@ -535,7 +536,7 @@ impl MirCompiler {
     ) -> Result<MirCompileResult, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_parts(), |result, session| {
+        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_parts(), |result, session, ()| {
             let prepared = session
                 .prepare_external_commit()
                 .map_err(|error| error.to_string())?;
@@ -557,7 +558,7 @@ impl MirCompiler {
     ) -> Result<NormalPublishedCompileOutcome<R>, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_artifact_parts(), |result, session| {
+        NormalDefaultPublishedPipelineV1::compile(self, request, |completed| completed.into_artifact_parts(), |result, session, retained_root| {
             let view = published_backend_view::PublishedMirBackendView::try_new(&result.module)
                 .map_err(|error| error.to_string())?;
             use published_backend_view::PublishedStaticMethodRouteV1;
@@ -578,6 +579,8 @@ impl MirCompiler {
             }
             let prepared = session
                 .prepare_external_commit()
+                .map_err(|error| error.to_string())?;
+            let view = view.bind_retained_root(retained_root.as_deref())
                 .map_err(|error| error.to_string())?;
             let output = consume(&view, &result.verification_result)?;
             Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
