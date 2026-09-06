@@ -199,6 +199,16 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
         )
         .expect("source-backed Pair must lower");
     let (_, module, validate) = completed.into_artifact_parts();
+    let root = module.functions.get("main").expect("main root");
+    let fields = root.blocks.values().flat_map(|block| block.all_instructions()).filter_map(|instruction|
+        match instruction { crate::mir::MirInstruction::ObjectFieldGet { dst, .. } => Some(*dst), _ => None }).collect::<Vec<_>>();
+    let adds = root.blocks.values().flat_map(|block| block.all_instructions()).filter_map(|instruction|
+        match instruction { crate::mir::MirInstruction::BinOp { dst, op: crate::mir::BinaryOp::Add, lhs, rhs } => Some((*dst, *lhs, *rhs)), _ => None }).collect::<Vec<_>>();
+    assert_eq!(fields.len(), 2, "terminal consumer owns two field reads");
+    assert_eq!(adds.len(), 1, "terminal consumer owns one Add");
+    assert_eq!([adds[0].1, adds[0].2], [fields[0], fields[1]]);
+    assert!(root.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction|
+        matches!(instruction, crate::mir::MirInstruction::Return { value: Some(value) } if *value == adds[0].0)));
     let handoff = validate(&module)
         .expect("artifact handoff must validate")
         .expect("Pair root has a handoff");
@@ -207,6 +217,29 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
         handoff.birth_keys(),
         [hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Pair", 2)],
     );
+}
+
+#[test]
+fn artifact_validation_rejects_terminal_add_operand_drift() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        include_str!("../../../apps/typed-object-birth-min/main.hako"),
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source, CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("source-backed Pair must lower");
+    let (_, mut module, validate) = completed.into_artifact_parts();
+    let root = module.functions.get_mut("main").expect("main root");
+    let add = root.blocks.values_mut().flat_map(|block| block.instructions.iter_mut()).find(|instruction|
+        matches!(instruction, crate::mir::MirInstruction::BinOp { op: crate::mir::BinaryOp::Add, .. }))
+        .expect("terminal Add");
+    let crate::mir::MirInstruction::BinOp { lhs, .. } = add else { unreachable!() };
+    *lhs = crate::mir::ValueId(90001);
+    assert!(validate(&module).unwrap_err().contains("ordinary-terminal-result/add-binding-drift"));
 }
 
 #[test]

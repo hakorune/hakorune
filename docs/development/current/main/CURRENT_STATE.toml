@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "BoxShape: preserve recursive scalar Add coverage while issuing TerminalI64AddReturn only for direct ordered FieldRead pairs. Dedicated AST-free terminal consumer remains next; Pair EXE30/OBJ30 open."
+current_blocker_token = "BoxShape landed: TerminalI64AddReturn is consumed AST-free through exact FieldRead ×2, ordered Add and existing Home cleanup/Return. Pair EXE30/OBJ30 and selected C physical program remain open."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -38,9 +38,10 @@ after frame/profile/site validation. The root/Birth identity handoff is landed:
 local commit retains issued Birth target, artifact
 validation co-seals it with Completion/construction, and final view consumes it.
 Pair result BoxCount landed at 181d7f8e92: source Completion preserves exact
-terminal Return/Add/ordered-read relations. The dedicated consumer, EXE30/linked
-OBJ30, Fault/cleanup and selected
-legacy deletion remain open; no source runtime claim is made.
+terminal Return/Add/ordered-read relations. The AST-free terminal consumer now
+uses that relation through exact reads, one ordered Add and the existing cleanup
+Return. EXE30/linked OBJ30 and selected C physical program remain open; no
+source runtime claim is made.
 """
 next_design_card = "none"
 next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"

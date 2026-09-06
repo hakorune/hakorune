@@ -35,6 +35,9 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 mod claim_access;
 #[path = "ordinary_new_field_reads.rs"]
 mod field_reads;
+#[path = "ordinary_new_terminal_result.rs"]
+mod terminal_result;
+pub(crate) use terminal_result::PreparedTerminalI64AddReturnV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 #[path = "ordinary_new_terminal_home.rs"]
@@ -122,6 +125,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     terminal_result: Option<TerminalI64AddReturnV1>,
+    terminal_result_progress: RefCell<terminal_result::Progress>,
     root_completion: Option<
         Result<
             crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
@@ -166,6 +170,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_exit: RefCell::new(local_commit::RootHomeExitProgress::Unprepared),
             field_reads: RefCell::new(BTreeMap::new()),
             terminal_result: None,
+            terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
         }
     }
@@ -235,6 +240,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .all(|row| row.is_complete())
             && self.root_home_exit_is_complete()
             && self.field_reads_complete()
+            && self.terminal_result_complete()
     }
 
     pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {

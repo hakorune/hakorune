@@ -839,7 +839,10 @@ Decision: reuse the existing FieldRead ledger and binding resolver in one AST-fr
 Source authority + canonical issuer: the Completion ownership walk in `home_new_prefix` issues the terminal relation; package co-seal retains its exact FieldRead rows and canonical fields.
 Non-authority: raw receiver AST, class/field spellings, MIR types, JSON and physical ValueIds cannot select the terminal meaning.
 Fail-fast boundary: foreign/missing/duplicate relation or reads, unresolved binding, uninstalled Home, wrong exit phase, residual consumption or emitted operand/result drift rejects before artifact; selected failure never retries raw lowering.
-Smallest next slice: repair and verify scalar-classification preservation, then implement one connected terminal consumer and remove its selected raw descent edge.
+Smallest next slice: landed. The connected terminal consumer reserves its relation,
+consumes two receiver demands and FieldRead rows in order, emits their i64 Add,
+then passes the same result to the existing Home exit owner. Selected raw
+FieldRead re-entry rejects.
 Non-claims: C execution, root/Birth ABI closure, Pair EXE30/OBJ30, whole raw-dispatch retirement or backend parity.
 
 Worker `fieldread_api_audit` confirmed that `take_terminal_field_read(site,
@@ -886,6 +889,15 @@ two earlier relation unit tests are dependency evidence only. Keep changed
 sources below 800 lines (design splitting at 760), update module README and
 the existing lifecycle reference when changing a public contract, and reuse
 the M7-S guard. Do not split this into disconnected API-only tasklets.
+
+Checkpoint: the actual typed-object-birth-min source pipeline reaches artifact
+validation with exactly two owned `ObjectFieldGet` values, one ordered `Add`,
+and the existing cleanup `Return` carrying that Add result. Physical progress is
+owned by `OrdinaryNewClaimLedgerV1`; it retains reservation, exact Add binding
+and completion separately from the immutable source relation. Final, finishing
+and artifact validation reject unconsumed, reversed, drifted or missing physical
+results. This closes only the selected MIRBuilder terminal edge; C physical
+program and Pair EXE30/OBJ30 remain open.
 
 ### Premise audit and authority boundary
 

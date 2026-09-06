@@ -190,8 +190,12 @@ issues `TerminalI64AddReturnV1`: its owner, explicit Return and Add source sites
 and the ordered two already-staged FieldRead sites. It is present only when the
 terminal Home result succeeds and both operands are exact qualifying i64 field
 accesses. It carries no ValueId, MIR, ABI, JSON, recipe key, or raw-dispatch
-authority; a later dedicated consumer must use this relation rather than
-reclassifying the return expression.
+authority. Its dedicated consumer reserves the relation once, consumes the two
+exact receiver demands and FieldRead rows in source order, emits the i64 Add,
+then sends that exact value through the existing Home cleanup/Return owner.
+Physical progress remains in the ledger and final validation rejects absent,
+duplicate or drifted results; selected raw FieldRead re-entry rejects rather
+than retrying AST descent.
 This does not activate generic JSON transport or a lifecycle backend consumer.
 Unavailable cleanup is exercised as a private physical-state test on real
 source-issued read rows, not as an accepted `fini` syntax or executable proof.

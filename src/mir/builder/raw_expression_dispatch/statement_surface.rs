@@ -638,6 +638,9 @@ where
     if port.prepare_root_home_exit(builder)? {
         crate::mir::builder::control_flow::cleanup::ensure_cleanup_exit_allowed_v1(
             &builder.function_state, crate::mir::builder::control_flow::cleanup::CleanupExitKindV1::Return)?;
+        if let Some(value) = port.emit_terminal_i64_add_return(builder)? {
+            return port.emit_root_home_exit(builder, value);
+        }
         let value = match &statement {
             ASTNode::Return { value: Some(_), .. } => {
                 let source = port.prepare_expression_child_source_v1(&statement, ExprChildRoleV1::ReturnValue)?;

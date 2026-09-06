@@ -338,6 +338,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_new_emissions(owner, function)?;
         self.validate_root_home_exit(function)?;
         self.validate_field_reads(owner, function)?;
+        self.validate_terminal_i64_add_return(owner, function)?;
         let observation = self.finalized_root_observation(owner);
         *state = RootNewValidation::Checked(owner);
         Ok(observation)
@@ -362,6 +363,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_new_emissions(owner, function)?;
         self.validate_root_home_exit(function)?;
         self.validate_field_reads(owner, function)?;
+        self.validate_terminal_i64_add_return(owner, function)?;
         if self.finalized_root_observation(owner) != function.root_ordinary_new_observation() {
             return Err(freeze("root-observation-drift"));
         }
@@ -382,6 +384,8 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         self.validate_new_emissions(owner, function)?;
         self.validate_root_home_exit(function)?;
+        self.validate_field_reads(owner, function)?;
+        self.validate_terminal_i64_add_return(owner, function)?;
         if self.finalized_root_observation(owner)
             != RootOrdinaryNewObservation::SourceCompleteAtFinalization
         {

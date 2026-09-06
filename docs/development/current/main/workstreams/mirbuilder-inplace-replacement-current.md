@@ -551,10 +551,10 @@ unrelated helper deletion leaves this boundary.
    but rejects nested I64Add operands previously classified Integer. Preserve
    recursive scalar coverage separately from direct two-field shape issuance.
    Compare parent/current focused evidence; do not widen the terminal cohort.
-5. Connected terminal consumer: reuse exact FieldRead take/record and binding
-   resolution, emit ordered reads/Add, reuse Home cleanup/Return and validate
-   physical correspondence. Remove this selected raw descent edge in the same
-   slice. Expected-but-missing relation rejects; absence is not compatibility
+5. Connected terminal consumer landed: exact FieldRead take/record and binding
+   resolution now emit ordered reads/Add, reuse Home cleanup/Return and validate
+   physical correspondence. The selected raw descent edge rejects re-entry.
+   Expected-but-missing relation rejects; absence is not compatibility
    permission. Owner, acceptance and deletion scope are fixed in the
    [terminal design](../design/constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06).
 6. Consume one physical program: selected C companion places function-local

@@ -341,6 +341,9 @@ where
     fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
         self.child.prepare_root_home_exit(builder)
     }
+    fn emit_terminal_i64_add_return(&mut self, builder: &mut MirBuilder) -> Result<Option<ValueId>, String> {
+        self.child.emit_terminal_i64_add_return(builder)
+    }
 
     fn emit_root_home_exit(&mut self, builder: &mut MirBuilder, value: ValueId) -> Result<ValueId, String> {
         self.child.emit_root_home_exit(builder, value)
