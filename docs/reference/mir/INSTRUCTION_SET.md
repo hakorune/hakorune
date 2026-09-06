@@ -85,6 +85,13 @@ published selected-C view reject these instructions before artifact generation.
 This is control vocabulary, not an additional target resolver or TextScan lease
 protocol. Diagnostic semantics remain in `../language/semantic-kernel.md#cleanup`.
 
+Selected canonical EXE and llvm-boundary OBJ emission consume a final strict-
+verified module through one synchronous borrowed published view, before any
+mutable module can escape to those callers. Callback failure is terminal.
+Only the preselected ExplicitCompatibility branch may return non-admitted MIR;
+this is not a retry. Generic module/clone admission still rejects lifecycle
+instructions, and retained Unavailable state is never executable permission.
+
 Transition Note
 
 - Builder/Rewrite/JIT は既に以下の統合を段階適用中

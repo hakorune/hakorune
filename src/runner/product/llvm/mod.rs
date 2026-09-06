@@ -95,14 +95,50 @@ impl NyashRunner {
 
         let pipeline_plan = LlvmPipelinePlan::current_default();
         let mut pipeline_report = LlvmPipelineReport::new(&pipeline_plan);
+        let object_output = requested_object_output_path();
 
         // Compile to MIR
-        let compile_result = match compile_options::CompileOptionsBox::compile_normal_callable(
-            materialized,
-            Some(filename),
-            prepared.imports,
-            pipeline_plan.compile_options,
-        ) {
+        let compilation = if let Some(out_path) = object_output
+            .as_deref()
+            .filter(|_| cfg!(feature = "llvm-boundary"))
+        {
+            match compile_options::CompileOptionsBox::compile_normal_callable_with_published(
+                materialized,
+                Some(filename),
+                prepared.imports,
+                pipeline_plan.compile_options,
+                |view, _verification| {
+                    if crate::runner::modes::common_util::exec::selected_dynamic_aot_metadata_present(view.module())? {
+                        return Err("selected Dynamic object emission is not a live Boundary artifact route; request --emit-exe".to_owned());
+                    }
+                    if crate::host_providers::llvm_codegen::try_compile_published_view_object(
+                        view, out_path,
+                    )? {
+                        Ok(())
+                    } else {
+                        Err("[freeze:contract][published-mir-backend-object] selected OBJ lost typed route".to_owned())
+                    }
+                },
+            ) {
+                Ok(crate::mir::NormalPublishedCompileOutcome::Consumed(())) => {
+                    pipeline_report.execution_backend = "obj_out";
+                    PipelineReportBox::emit_if_requested(&pipeline_report);
+                    return;
+                }
+                Ok(crate::mir::NormalPublishedCompileOutcome::ExplicitCompatibility(result)) => {
+                    Ok(result)
+                }
+                Err(error) => Err(error),
+            }
+        } else {
+            compile_options::CompileOptionsBox::compile_normal_callable(
+                materialized,
+                Some(filename),
+                prepared.imports,
+                pipeline_plan.compile_options,
+            )
+        };
+        let compile_result = match compilation {
             Ok(result) => result,
             Err(e) => {
                 report::emit_error_and_exit(LlvmRunError::fatal(format!("{}", e)));
@@ -183,7 +219,7 @@ impl NyashRunner {
             }
         }
 
-        if let Some(out_path) = requested_object_output_path() {
+        if let Some(out_path) = object_output {
             pipeline_report.execution_backend = "obj_out";
             PipelineReportBox::emit_if_requested(&pipeline_report);
             emit_requested_object_or_exit(&module, &out_path, selected_dynamic);

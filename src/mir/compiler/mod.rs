@@ -119,11 +119,13 @@ pub use lowering_input::{
     CanonicalLoweringErrorV1, ResolvedModuleLoweringInputV1, VerifiedResolvedSourceUnitV1,
 };
 use module_session::CanonicalModuleLoweringSessionV1;
+pub(in crate::mir) use normal_default_pipeline::published_backend_view;
 pub use normal_default_pipeline::{
     NormalCompileRequestV1, NormalProgramCompileRequestErrorV1,
     RejectedNormalProgramCompileRequestV1,
 };
 pub(crate) use normal_default_pipeline::{
+    NormalPublishedCompileOutcome,
     RejectedPostMacroWholeFileProgramV1, VerifiedPostMacroWholeFileProgramV1,
 };
 use raw_source_binding::{

@@ -300,6 +300,7 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
 pub(crate) use compiler::selected_dynamic_w6_activation::StaticArtifactReceiptConsumedFenceV1;
+pub(crate) use compiler::NormalPublishedCompileOutcome;
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
     NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1,

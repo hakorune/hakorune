@@ -17,6 +17,15 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::{finish_schedule_for_normal_module, MirCompileResult, MirCompiler};
 
+pub(in crate::mir) mod published_backend_view;
+
+/// Only the unselected compatibility branch may return an owned module.
+/// A selected artifact callback returns its output, never admitted mutable MIR.
+pub(crate) enum NormalPublishedCompileOutcome<R> {
+    Consumed(R),
+    ExplicitCompatibility(MirCompileResult),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum NormalPreparedSourceCallerV1 {
     MirMode,
@@ -449,10 +458,17 @@ impl NormalCompileRequestV1 {
 struct NormalDefaultPublishedPipelineV1;
 
 impl NormalDefaultPublishedPipelineV1 {
-    fn compile(
+    fn compile<R>(
         compiler: &mut MirCompiler,
         request: NormalCompileRequestV1,
-    ) -> Result<MirCompileResult, String> {
+        consume: impl FnOnce(
+            MirCompileResult,
+            ModuleBuilderInvocationSessionV1,
+        ) -> Result<
+            (crate::mir::builder::PreparedBuilderExternalCommitV1, R),
+            String,
+        >,
+    ) -> Result<R, String> {
         let (program, source, imports, _admission, result_contract, target_capability) =
             request.into_parts();
         let runtime_inputs = NormalRuntimeInputSnapshotV1::capture_from_normal_ingress();
@@ -502,11 +518,9 @@ impl NormalDefaultPublishedPipelineV1 {
                     .join("; ")
             })?;
         }
-        let prepared = session
-            .prepare_external_commit()
-            .map_err(|error| error.to_string())?;
+        let (prepared, output) = consume(result, session)?;
         let _receipt = prepared.commit(&mut compiler.builder);
-        Ok(result)
+        Ok(output)
     }
 }
 
@@ -517,7 +531,53 @@ impl MirCompiler {
     ) -> Result<MirCompileResult, String> {
         super::validate_builder_operator_call_ingress_once_v1()
             .map_err(|error| error.to_string())?;
-        NormalDefaultPublishedPipelineV1::compile(self, request)
+        NormalDefaultPublishedPipelineV1::compile(self, request, |result, session| {
+            let prepared = session
+                .prepare_external_commit()
+                .map_err(|error| error.to_string())?;
+            Ok((prepared, result))
+        })
+    }
+
+    /// Consume the final module synchronously, without publishing mutable MIR
+    /// to an artifact caller. The generic view still rejects lifecycle rows;
+    /// source eligibility and their physical consumer must land before opening
+    /// that admission. A callback failure aborts instead of retrying compilation.
+    pub(crate) fn compile_normal_with_published<R>(
+        &mut self,
+        request: NormalCompileRequestV1,
+        consume: impl for<'module> FnOnce(
+            &published_backend_view::PublishedMirBackendView<'module>,
+            &Result<(), Vec<crate::mir::VerificationError>>,
+        ) -> Result<R, String>,
+    ) -> Result<NormalPublishedCompileOutcome<R>, String> {
+        super::validate_builder_operator_call_ingress_once_v1()
+            .map_err(|error| error.to_string())?;
+        NormalDefaultPublishedPipelineV1::compile(self, request, |result, session| {
+            let view = published_backend_view::PublishedMirBackendView::try_new(&result.module)
+                .map_err(|error| error.to_string())?;
+            use published_backend_view::PublishedStaticMethodRouteV1;
+            match view.route() {
+                PublishedStaticMethodRouteV1::UnsupportedBeforeObject => return Err(
+                    "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
+                ),
+                PublishedStaticMethodRouteV1::CanonicalTyped => {
+                    super::MirVerifier::new_strict().verify_module(&result.module)
+                        .map_err(|errors| errors.iter().map(ToString::to_string)
+                            .collect::<Vec<_>>().join("; "))?;
+                }
+                PublishedStaticMethodRouteV1::ExplicitCompatibility => {
+                    let prepared = session.prepare_external_commit()
+                        .map_err(|error| error.to_string())?;
+                    return Ok((prepared, NormalPublishedCompileOutcome::ExplicitCompatibility(result)));
+                }
+            }
+            let prepared = session
+                .prepare_external_commit()
+                .map_err(|error| error.to_string())?;
+            let output = consume(&view, &result.verification_result)?;
+            Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
+        })
     }
 }
 

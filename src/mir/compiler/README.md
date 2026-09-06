@@ -3,6 +3,12 @@
 This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
+### Final published artifact consumption
+
+`compile_normal_with_published` shares the ordinary build/finish implementation, then verifies the final selected module and prepares external commit before a synchronous view callback. Callback failure aborts; success returns only its output and commits once. EXE and llvm-boundary OBJ consume this terminal before post-compile mutation/execution.
+Only an exact `ExplicitCompatibility` view returns the existing non-admitted `MirCompileResult`, without cloning or recompilation; it never represents a selected failure. EXE also consumes its historical verification diagnostics. Other backend feature selections remain unchanged.
+The sole view implementation is a child of `normal_default_pipeline`; historical `mir::function` imports and test paths are re-exports. Generic module/clone admission still rejects lifecycle rows. Retained root/Birth eligibility and the typed-C lifecycle consumer remain required before that fence opens.
+
 ### Builder operator-call retirement I0
 
 The three legacy `NYASH_BUILDER_OPERATOR_BOX_*_CALL` selectors are parsed once

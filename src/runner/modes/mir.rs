@@ -83,7 +83,56 @@ impl NyashRunner {
                 ),
         };
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
-        let compile_result = match mir_compiler.compile_normal(request) {
+        let groups = self.config.as_groups();
+        // Preserve JSON's explicit precedence when both artifact options exist.
+        let compilation = if let Some(exe_out) = groups
+            .emit
+            .emit_exe
+            .as_deref()
+            .filter(|_| groups.emit.emit_mir_json.is_none())
+        {
+            let emitted = mir_compiler.compile_normal_with_published(request, |view, verification| {
+                    if let Err(errors) = verification {
+                        let details = errors.iter().map(ToString::to_string).collect::<Vec<_>>();
+                        return Err(crate::runner::modes::common_util::verifier_gate::build_direct_emit_verify_lines(
+                            "mir", "emit-exe/direct-verify", &details,
+                        ).join("\n"));
+                    }
+                    if groups.debug.verify_mir {
+                        println!("🔍 Verifying MIR...");
+                        println!("✅ MIR verification passed!");
+                    }
+                    if groups.debug.dump_mir {
+                        let mut printer = if groups.debug.mir_verbose {
+                            MirPrinter::verbose()
+                        } else { MirPrinter::new() };
+                        printer.set_show_effects_inline(groups.debug.mir_verbose_effects);
+                        println!("🚀 MIR Output for {}:", filename);
+                        println!("{}", printer.print_module(view.module()));
+                    }
+                    if crate::host_providers::llvm_codegen::emit_published_view_exe(
+                        view, exe_out, groups.emit.emit_exe_nyrt.as_deref(),
+                        groups.emit.emit_exe_libs.as_deref(),
+                    )? {
+                        Ok(())
+                    } else {
+                        Err("[freeze:contract][published-mir-backend-object] selected EXE lost typed route".to_owned())
+                    }
+                });
+            match emitted {
+                Ok(crate::mir::NormalPublishedCompileOutcome::Consumed(())) => {
+                    println!("EXE written: {}", exe_out);
+                    process::exit(0);
+                }
+                Ok(crate::mir::NormalPublishedCompileOutcome::ExplicitCompatibility(result)) => {
+                    Ok(result)
+                }
+                Err(error) => Err(error),
+            }
+        } else {
+            mir_compiler.compile_normal(request)
+        };
+        let compile_result = match compilation {
             Ok(result) => result,
             Err(e) => {
                 eprintln!("❌ MIR compilation error: {}", e);
@@ -91,7 +140,6 @@ impl NyashRunner {
             }
         };
 
-        let groups = self.config.as_groups();
         if groups.debug.verify_mir {
             println!("🔍 Verifying MIR...");
             match &compile_result.verification_result {
@@ -132,26 +180,20 @@ impl NyashRunner {
             },
         );
 
+        // Only the preselected, non-admitted compatibility result reaches this
+        // emitter. A selected callback error never comes back through here.
         crate::runner::modes::common_util::emit_direct::maybe_emit_exe_and_exit(
             groups.emit.emit_exe.as_deref(),
             &compile_result.verification_result,
             "mir",
             false,
             |exe_out| {
-                match crate::runner::modes::common_util::published_mir_emit::try_emit_published_static_method_exe(
+                crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_lib(
                     &compile_result.module,
                     exe_out,
                     groups.emit.emit_exe_nyrt.as_deref(),
                     groups.emit.emit_exe_libs.as_deref(),
-                )? {
-                    true => Ok(()),
-                    false => crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_lib(
-                        &compile_result.module,
-                        exe_out,
-                        groups.emit.emit_exe_nyrt.as_deref(),
-                        groups.emit.emit_exe_libs.as_deref(),
-                    ),
-                }
+                )
             },
         );
 

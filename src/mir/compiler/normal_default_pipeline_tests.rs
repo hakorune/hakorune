@@ -17,6 +17,69 @@ fn non_program() -> ASTNode {
     }
 }
 
+fn published_request(source: &str) -> NormalCompileRequestV1 {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        source, crate::parser::ParserBuildConfig::default(),
+    ).expect("exact callable parse");
+    let transformed = crate::r#macro::transform_normal_callable_program_v1(parsed)
+        .expect("exact callable transform");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+    else { panic!("source identity must remain intact") };
+    NormalCompileRequestV1::for_mir_mode_callable_source(source, None, HashMap::new())
+}
+
+#[test]
+fn published_consumer_runs_once_and_propagates_failure_without_retry() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let source = "static box Main { main() { return helper(2) } helper(value: i64): i64 { return value } }";
+        let mut compiler = MirCompiler::with_options(false);
+        let mut calls = 0;
+        let failure = compiler.compile_normal_with_published(published_request(source), |view, verification| {
+            calls += 1;
+            assert!(verification.is_ok());
+            assert_eq!(view.static_method_calls().len(), 1);
+            super::super::MirVerifier::new_strict().verify_module(view.module()).unwrap();
+            Err::<(), _>("selected-consumer-failed".to_owned())
+        });
+        assert!(matches!(failure, Err(ref error) if error == "selected-consumer-failed"));
+        assert_eq!(calls, 1);
+        let success = compiler.compile_normal_with_published(published_request(source), |_, _| {
+            calls += 1;
+            Ok(17)
+        }).expect("same compiler remains usable after aborted consumer");
+        assert!(matches!(success, NormalPublishedCompileOutcome::Consumed(17)));
+        assert_eq!(calls, 2);
+    });
+}
+
+#[test]
+fn published_consumer_does_not_consume_explicit_compatibility() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler.compile_normal_with_published(
+            published_request("static box Main { main() { return 0 } }"),
+            |_, _| -> Result<(), String> { panic!("compatibility must not enter selected consumer") },
+        ).expect("explicit compatibility disposition");
+        assert!(matches!(result, NormalPublishedCompileOutcome::ExplicitCompatibility(_)));
+    });
+}
+
+#[test]
+fn published_consumer_keeps_birth_lifecycle_fenced() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        let result = compiler.compile_normal_with_published(
+            published_request(include_str!("../../../apps/typed-object-birth-min/main.hako")),
+            |_, _| -> Result<(), String> { panic!("unsupported lifecycle must not reach artifact consumer") },
+        );
+        assert!(matches!(result, Err(ref error) if error.contains("UnsupportedBeforeObject")),
+            "Birth must stop at the existing published-view fence");
+    });
+}
+
 #[test]
 fn callable_source_request_retains_atomic_final_program_owner() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

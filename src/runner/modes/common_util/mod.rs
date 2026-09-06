@@ -17,7 +17,6 @@ pub mod legacy;
 pub(crate) mod normal_callable;
 pub mod plugin_guard;
 pub mod provider_registry;
-pub(crate) mod published_mir_emit;
 pub mod resolve;
 pub mod safety_gate;
 pub(crate) mod selected_dynamic_artifact_bundle;

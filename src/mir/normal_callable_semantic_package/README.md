@@ -27,9 +27,12 @@ as Transferred, not absent; a second take or later store/frame use rejects.
 Normal drain moves these states with their exact definition keys into the
 invocation's single-use final validator. Replacement and other drains cannot
 discard retained state. Unavailable construction is still unavailable, not
-execution permission. Final published consumption must be synchronous inside
-the final validation borrow, with no later mutable pass or admitted module
-extraction; that executable admission is not opened by state retention alone.
+execution permission. The normal compiler now consumes selected published
+artifacts synchronously after final validation/strict verification and commit
+preparation, without later mutable passes or admitted module extraction.
+Exact ExplicitCompatibility alone returns the existing non-admitted result.
+Lifecycle admission is still fenced: source eligibility and typed-C lifecycle
+coverage are not opened by state retention or the synchronous terminal alone.
 
 ```text
 VerifiedFinalCallableProgramSourceV1

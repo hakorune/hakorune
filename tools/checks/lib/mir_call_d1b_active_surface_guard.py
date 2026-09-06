@@ -1246,7 +1246,7 @@ def check_selected_c_userbox_compat_quarantine_r0(
         fail("landed selected-C quarantine must select the Hako physical-ingress D0")
     if row.get("implementation_permission") is not False:
         fail("landed selected-C quarantine cannot retain implementation permission")
-    view = (root / "src/mir/function/published_backend_view.rs").read_text(encoding="utf-8")
+    view = (root / "src/mir/compiler/normal_default_pipeline/published_backend_view.rs").read_text(encoding="utf-8")
     object_ingress = (root / "src/host_providers/llvm_codegen/published_mir_object.rs").read_text(
         encoding="utf-8"
     )

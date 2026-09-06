@@ -44,6 +44,37 @@ impl MirCompilerBox {
         imports: HashMap<String, String>,
         options: LlvmCompileOptions,
     ) -> Result<MirCompileResult, String> {
+        let result =
+            Self::compile_with(outcome, filename, imports, options, |compiler, request| {
+                compiler.compile_normal(request)
+            })?;
+        crate::console_println!("📊 MIR Module compiled successfully!");
+        crate::console_println!("📊 Functions: {}", result.module.functions.len());
+        Ok(result)
+    }
+
+    pub(crate) fn compile_normal_callable_with_published<R>(
+        outcome: crate::runner::modes::common_util::normal_callable::NormalCallableMaterializationOutcomeV1,
+        filename: Option<&str>,
+        imports: HashMap<String, String>,
+        options: LlvmCompileOptions,
+        consume: impl for<'m> FnOnce(
+            &crate::mir::function::PublishedMirBackendView<'m>,
+            &Result<(), Vec<crate::mir::VerificationError>>,
+        ) -> Result<R, String>,
+    ) -> Result<crate::mir::NormalPublishedCompileOutcome<R>, String> {
+        Self::compile_with(outcome, filename, imports, options, |compiler, request| {
+            compiler.compile_normal_with_published(request, consume)
+        })
+    }
+
+    fn compile_with<R>(
+        outcome: crate::runner::modes::common_util::normal_callable::NormalCallableMaterializationOutcomeV1,
+        filename: Option<&str>,
+        imports: HashMap<String, String>,
+        options: LlvmCompileOptions,
+        compile: impl FnOnce(&mut MirCompiler, NormalCompileRequestV1) -> Result<R, String>,
+    ) -> Result<R, String> {
         let target_capability = options.issue_pinned_text_target_capability()?;
         let request = match outcome {
             crate::runner::modes::common_util::normal_callable::
@@ -54,16 +85,6 @@ impl MirCompilerBox {
                 NormalCallableMaterializationOutcomeV1::Compatibility(origin) =>
                 NormalCompileRequestV1::for_llvm_compatibility(origin, filename, imports),
         };
-        Self::compile_request(
-            request.with_compile_target_capability(target_capability),
-            options,
-        )
-    }
-
-    fn compile_request(
-        request: NormalCompileRequestV1,
-        options: LlvmCompileOptions,
-    ) -> Result<MirCompileResult, String> {
         let _rw_future = match options.future_rewrite_route {
             FutureRewriteRoute::EnvFutureExterns => {
                 Some(EnvVarRestore::set("NYASH_REWRITE_FUTURE", "1"))
@@ -71,13 +92,10 @@ impl MirCompilerBox {
         };
         let mut mir_compiler = MirCompiler::new();
 
-        let compile_result = mir_compiler
-            .compile_normal(request)
-            .map_err(|e| format!("MIR compilation error: {}", e))?;
-
-        crate::console_println!("📊 MIR Module compiled successfully!");
-        crate::console_println!("📊 Functions: {}", compile_result.module.functions.len());
-
-        Ok(compile_result)
+        compile(
+            &mut mir_compiler,
+            request.with_compile_target_capability(target_capability),
+        )
+        .map_err(|e| format!("MIR compilation error: {}", e))
     }
 }

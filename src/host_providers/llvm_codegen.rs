@@ -66,6 +66,7 @@ pub use defaults::boundary_default_object_opts;
 
 pub(crate) use published_mir_object::{
     emit_published_static_method_exe, try_compile_published_static_method_object,
+    emit_published_view_exe, try_compile_published_view_object,
 };
 /// Compile textual LLVM IR to an object file through the thin Rust tool boundary.
 pub fn ll_text_to_object(ll_text: &str, opts: Opts) -> Result<PathBuf, String> {

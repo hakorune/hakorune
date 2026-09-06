@@ -13,32 +13,6 @@ use crate::mir::MirModule;
 
 use super::{boundary_default_object_opts, capi_transport, transport_io};
 
-pub(crate) fn compile_published_static_method_object(
-    module: &MirModule,
-    obj_out: &str,
-) -> Result<(), String> {
-    let view = PublishedMirBackendView::try_new(module)
-        .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
-    match view.route() {
-        PublishedStaticMethodRouteV1::CanonicalTyped => {
-            crate::mir::backend_capability::enforce_mir_backend_supported(
-                module,
-                "ny-llvmc-obj",
-            )?;
-            compile_published_view_object(module, &view, obj_out)
-        }
-        PublishedStaticMethodRouteV1::ExplicitCompatibility => {
-            Err("published MIR module has no canonical typed call".to_owned())
-        }
-        PublishedStaticMethodRouteV1::UnsupportedBeforeObject => {
-            Err(
-                "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer"
-                    .to_owned(),
-            )
-        }
-    }
-}
-
 /// Compile the published view when it contains a selected typed row.  A
 /// compatibility-only module returns `Ok(false)` so its explicit caller can
 /// remain in control; no semantic fallback is performed here.
@@ -48,13 +22,21 @@ pub(crate) fn try_compile_published_static_method_object(
 ) -> Result<bool, String> {
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
+    try_compile_published_view_object(&view, obj_out)
+}
+
+pub(crate) fn try_compile_published_view_object(
+    view: &PublishedMirBackendView<'_>,
+    obj_out: &str,
+) -> Result<bool, String> {
+    let module = view.module();
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
             crate::mir::backend_capability::enforce_mir_backend_supported(
                 module,
                 "ny-llvmc-obj",
             )?;
-            compile_published_view_object(module, &view, obj_out)?;
+            compile_published_view_object(view, obj_out)?;
             Ok(true)
         }
         PublishedStaticMethodRouteV1::ExplicitCompatibility => Ok(false),
@@ -66,10 +48,10 @@ pub(crate) fn try_compile_published_static_method_object(
 }
 
 fn compile_published_view_object(
-    module: &MirModule,
     view: &PublishedMirBackendView<'_>,
     obj_out: &str,
 ) -> Result<(), String> {
+    let module = view.module();
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
     let mir_json_path = transport_io::prepare_backend_input_json_file(
@@ -99,6 +81,16 @@ pub(crate) fn emit_published_static_method_exe(
 ) -> Result<bool, String> {
     let view = PublishedMirBackendView::try_new(module)
         .map_err(|error| format!("published MIR backend admission failed: {error}"))?;
+    emit_published_view_exe(&view, exe_out, nyrt_dir, extra_libs)
+}
+
+pub(crate) fn emit_published_view_exe(
+    view: &PublishedMirBackendView<'_>,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<bool, String> {
+    let module = view.module();
     match view.route() {
         PublishedStaticMethodRouteV1::CanonicalTyped => {
             crate::mir::backend_capability::enforce_mir_backend_supported(
@@ -116,7 +108,8 @@ pub(crate) fn emit_published_static_method_exe(
     }
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
-        compile_published_static_method_object(module, &object_path)?;
+        crate::mir::backend_capability::enforce_mir_backend_supported(module, "ny-llvmc-obj")?;
+        compile_published_view_object(view, &object_path)?;
         let runtime_dir = nyrt_dir
             .map(PathBuf::from)
             .or_else(|| std::env::var("NYASH_EMIT_EXE_NYRT").ok().map(PathBuf::from))

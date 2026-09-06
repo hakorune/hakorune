@@ -53,6 +53,21 @@ impl LlvmCompileOptions {
 pub struct CompileOptionsBox;
 
 impl CompileOptionsBox {
+    pub(crate) fn compile_normal_callable_with_published<R>(
+        outcome: crate::runner::modes::common_util::normal_callable::NormalCallableMaterializationOutcomeV1,
+        filename: Option<&str>,
+        imports: HashMap<String, String>,
+        options: LlvmCompileOptions,
+        consume: impl for<'m> FnOnce(
+            &crate::mir::function::PublishedMirBackendView<'m>,
+            &Result<(), Vec<crate::mir::VerificationError>>,
+        ) -> Result<R, String>,
+    ) -> Result<crate::mir::NormalPublishedCompileOutcome<R>, String> {
+        MirCompilerBox::compile_normal_callable_with_published(
+            outcome, filename, imports, options, consume,
+        )
+    }
+
     pub(crate) fn compile_normal_callable(
         outcome: crate::runner::modes::common_util::normal_callable::
             NormalCallableMaterializationOutcomeV1,
