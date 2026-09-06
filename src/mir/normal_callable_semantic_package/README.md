@@ -182,6 +182,11 @@ fault-pending suffix; later successful releases cannot restore Normal Return.
 Package completion requires selected exit consumption, and final root validation
 checks actual cleanup/terminal instructions. This does not admit runtime Birth,
 returned Homes, arbitrary suffix expressions, or other source completion forms.
+For root cleanup, `RootHomeExitProgress` retains each installed Home binding,
+the completion's exact exit site, object identity, and bound `ValueId` through
+the selected `HomeRelease` emitter. Final validation checks the ordered source
+origins and the actual emitted release operation; block layout does not issue
+or reconstruct a cleanup origin.
 Terminal field reads join the original Home binding to its selected New and
 same-session object definition through a synchronous borrow. Only successful
 source construction and an exact nonweak i64 field qualify; declaration names

@@ -311,7 +311,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                 }
             }
-            if let RootHomeExitProgress::Emitted(bindings) = &*exit {
+            if let RootHomeExitProgress::Emitted { bindings, .. } = &*exit {
                 for (block, instruction) in bindings {
                     if instruction.requires_lifecycle_validation()
                         && !expected.contains(&(*block, instruction))
@@ -364,7 +364,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Unavailable(NewEmissionUnavailable);
         }
         match &*self.root_exit.borrow() {
-            RootHomeExitProgress::Emitted(_) => SourceCompleteAtFinalization,
+            RootHomeExitProgress::Emitted { .. } => SourceCompleteAtFinalization,
             RootHomeExitProgress::Unavailable => Unavailable(RootExitUnavailable),
             _ => unreachable!("final root validation rejects unconsumed exit"),
         }

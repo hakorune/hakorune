@@ -292,22 +292,62 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     assert!(ledger
         .prepare_root_home_exit(sites[0].owner(), &exit_site)
         .is_err());
+    let origins = ledger.begin_root_home_exit().unwrap();
     assert_eq!(
-        ledger
-            .begin_root_home_exit()
-            .unwrap()
+        origins
             .iter()
-            .map(|(_, value)| *value)
+            .map(|origin| origin.value())
             .collect::<Vec<_>>(),
         vec![ValueId(5), ValueId(3), ValueId(1)]
     );
+    assert!(origins
+        .iter()
+        .all(|origin| origin.exit().node() == &exit_site));
     let exit_id = crate::mir::BasicBlockId::new(50);
     let exit = crate::mir::MirInstruction::Return { value: None };
     let mut exit_block = crate::mir::BasicBlock::new(exit_id);
     exit_block.set_terminator(exit.clone());
     physical.add_block(exit_block);
-    ledger.record_root_home_exit(vec![(exit_id, exit)]).unwrap();
+    let mut origin_bindings = Vec::new();
+    let mut bindings = vec![(exit_id, exit)];
+    for (index, origin) in origins.into_iter().enumerate() {
+        let block_id = crate::mir::BasicBlockId::new(60 + index as u32);
+        let instruction = crate::mir::MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::HomeRelease {
+                object: origin.object(),
+                value: origin.value(),
+            },
+            fault_frame: ValueId(100),
+            normal_landing: exit_id,
+            fault_landing: exit_id,
+        };
+        let mut block = crate::mir::BasicBlock::new(block_id);
+        block.add_instruction(instruction.clone());
+        physical.add_block(block);
+        bindings.push((block_id, instruction.clone()));
+        origin_bindings.push((origin, block_id, instruction));
+    }
+    ledger
+        .record_root_home_exit(origin_bindings, bindings)
+        .unwrap();
     assert!(ledger.is_empty());
+    let mut changed_home = physical.clone();
+    if let Some(crate::mir::MirInstruction::Invoke {
+        operation: crate::mir::instruction::InvokeOperation::HomeRelease { value, .. },
+        ..
+    }) = changed_home
+        .blocks
+        .get_mut(&crate::mir::BasicBlockId::new(60))
+        .unwrap()
+        .terminator
+        .as_mut()
+    {
+        *value = ValueId(999);
+    }
+    assert!(ledger
+        .validate_finalized_new_root(&changed_home)
+        .unwrap_err()
+        .contains("root-exit-operation-drift"));
     let mut changed_frame = physical.clone();
     for instruction in &mut changed_frame
         .blocks
