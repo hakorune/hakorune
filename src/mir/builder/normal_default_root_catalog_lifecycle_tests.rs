@@ -213,6 +213,15 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
         .expect("artifact handoff must validate")
         .expect("Pair root has a handoff");
     assert_eq!(handoff.root_key(), "main");
+    let root_source = handoff
+        .root_source()
+        .expect("Pair root retains its issued source relation");
+    assert!(matches!(
+        handoff.root_result(),
+        Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
+            if root_source.terminal().owner() == owner
+    ));
+    let _identity = root_source.app_main_identity();
     assert_eq!(
         handoff.birth_keys(),
         [hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Pair", 2)],

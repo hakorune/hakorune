@@ -218,6 +218,12 @@ then sends that exact value through the existing Home cleanup/Return owner.
 Physical progress remains in the ledger and final validation rejects absent,
 duplicate or drifted results; selected raw FieldRead re-entry rejects rather
 than retrying AST descent.
+The package issuer passes the validated comparison-only AppMain identity into
+that same ledger, rather than reducing it to a batch slot at the handoff.
+After finishing validation, the final handoff retains that identity with the
+existing terminal relation and its checked physical root. The published view
+only verifies this source-to-result correspondence; it cannot recreate source
+membership from the root key or choose an entry ABI.
 This does not activate generic JSON transport or a lifecycle backend consumer.
 Unavailable cleanup is exercised as a private physical-state test on real
 source-issued read rows, not as an accepted `fini` syntax or executable proof.

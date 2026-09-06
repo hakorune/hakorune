@@ -159,6 +159,15 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                 callbacks.set(callbacks.get() + 1);
                 assert_eq!(view.route(), PublishedStaticMethodRouteV1::CanonicalTyped);
                 assert!(!view.lifecycle_instructions().is_empty());
+                let root_source = view
+                    .retained_root_source()
+                    .expect("final lifecycle view retains its source relation");
+                assert!(matches!(
+                    view.retained_root_result(),
+                    Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
+                        if root_source.terminal().owner() == owner
+                ));
+                let _identity = root_source.app_main_identity();
                 let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
                 assert!(frame.header().definition_count > 0);
                 assert!(frame.header().operation_count > 0);

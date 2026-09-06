@@ -8,11 +8,13 @@ use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
+use crate::mir::resolved_semantics::home_new_prefix::TerminalI64AddReturnV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
 use crate::mir::ValueId;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
+use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::collections::BTreeSet;
@@ -79,14 +81,35 @@ pub(super) struct NewLocalCommitV1 {
 pub(crate) enum FinalizedRootBirthHandoffV1 {
     NoBirth {
         root_key: String,
+        root_source: Option<FinalizedRootSourceHandoffV1>,
         root_result: Option<FinalizedRootResultAbiV1>,
     },
     Births {
         root_key: String,
+        root_source: Option<FinalizedRootSourceHandoffV1>,
         root_result: Option<FinalizedRootResultAbiV1>,
         keys: Box<[CanonicalSameModuleCallableKeyV1]>,
         births: Box<[BirthAbiHandoffV1]>,
     },
+}
+
+/// Exact source relation retained after its matching physical root passed
+/// final validation. This is transport only: it cannot select an entry ABI or
+/// recreate source membership from a physical key.
+#[derive(Debug, Clone)]
+pub(crate) struct FinalizedRootSourceHandoffV1 {
+    app_main_identity: CallableDeclarationIdentityV1,
+    terminal: TerminalI64AddReturnV1,
+}
+
+impl FinalizedRootSourceHandoffV1 {
+    pub(crate) fn app_main_identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.app_main_identity
+    }
+
+    pub(crate) fn terminal(&self) -> &TerminalI64AddReturnV1 {
+        &self.terminal
+    }
 }
 
 /// Final-handoff projection of the already-issued terminal source relation.
@@ -108,6 +131,14 @@ impl FinalizedRootBirthHandoffV1 {
         }
     }
 
+    pub(crate) fn root_source(&self) -> Option<&FinalizedRootSourceHandoffV1> {
+        match self {
+            Self::NoBirth { root_source, .. } | Self::Births { root_source, .. } => {
+                root_source.as_ref()
+            }
+        }
+    }
+
     pub(crate) fn births(&self) -> &[BirthAbiHandoffV1] {
         match self {
             Self::NoBirth { .. } => &[],
@@ -126,20 +157,23 @@ impl FinalizedRootBirthHandoffV1 {
         self,
     ) -> (
         String,
+        Option<FinalizedRootSourceHandoffV1>,
         Option<FinalizedRootResultAbiV1>,
         Box<[BirthAbiHandoffV1]>,
     ) {
         match self {
             Self::NoBirth {
                 root_key,
+                root_source,
                 root_result,
-            } => (root_key, root_result, Box::new([])),
+            } => (root_key, root_source, root_result, Box::new([])),
             Self::Births {
                 root_key,
+                root_source,
                 root_result,
                 keys: _,
                 births,
-            } => (root_key, root_result, births),
+            } => (root_key, root_source, root_result, births),
         }
     }
 }
@@ -219,16 +253,27 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
-        let root_result = self
+        let root_source = self
             .terminal_result
             .as_ref()
             .map(|relation| {
                 if relation.owner() != owner || !self.terminal_result_complete() {
                     return Err(freeze("artifact-root-result-unavailable"));
                 }
-                Ok(FinalizedRootResultAbiV1::I64AddReturn { owner })
+                let app_main_identity = self
+                    .app_main_identity
+                    .as_ref()
+                    .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
+                    .clone();
+                Ok(FinalizedRootSourceHandoffV1 {
+                    app_main_identity,
+                    terminal: relation.clone(),
+                })
             })
             .transpose()?;
+        let root_result = root_source
+            .as_ref()
+            .map(|_| FinalizedRootResultAbiV1::I64AddReturn { owner });
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
         for (_, row) in self
@@ -265,11 +310,13 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(if births.is_empty() {
             FinalizedRootBirthHandoffV1::NoBirth {
                 root_key,
+                root_source,
                 root_result,
             }
         } else {
             FinalizedRootBirthHandoffV1::Births {
                 root_key,
+                root_source,
                 root_result,
                 keys: keys.into_iter().collect(),
                 births: births.into_boxed_slice(),

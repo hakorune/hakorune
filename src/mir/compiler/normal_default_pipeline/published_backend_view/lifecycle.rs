@@ -104,7 +104,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .bind_retained_root(None)
                 .map_err(|error| error.to_string());
         };
-        let (root_key, root_result, births) = handoff.into_parts();
+        let (root_key, root_source, root_result, births) = handoff.into_parts();
         self = self
             .bind_retained_root(Some(&root_key))
             .map_err(|error| error.to_string())?;
@@ -123,13 +123,18 @@ impl<'module> PublishedMirBackendView<'module> {
         }) {
             return Err(fault("retained-birth-missing"));
         }
-        self.retained_birth_keys = Some(
-            births
-                .iter()
-                .map(|birth| birth.target().clone())
-                .collect(),
-        );
+        self.retained_birth_keys =
+            Some(births.iter().map(|birth| birth.target().clone()).collect());
         self.retained_birth_abi = Some(births);
+        if root_source.as_ref().is_some_and(|source| !matches!(
+            root_result,
+            Some(
+                crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner }
+            ) if source.terminal().owner() == owner
+        )) {
+            return Err(fault("retained-root-source-result-drift"));
+        }
+        self.retained_root_source = root_source;
         self.retained_root_result = root_result;
         Ok(self)
     }
@@ -148,6 +153,12 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1> {
         self.retained_root_result
+    }
+
+    pub(crate) fn retained_root_source(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1> {
+        self.retained_root_source.as_ref()
     }
 
     /// Diagnostic/physical borrow only; cloning this module does not carry
@@ -191,6 +202,9 @@ impl<'module> PublishedMirBackendView<'module> {
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. })
         ) {
             return Err(fault("retained-root-result-missing"));
+        }
+        if self.retained_root_source.is_none() {
+            return Err(fault("retained-root-source-missing"));
         }
         self.lifecycle_instructions
             .extend(self.return_instructions.iter().copied().filter(|row| {

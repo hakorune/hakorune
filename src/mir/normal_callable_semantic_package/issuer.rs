@@ -699,12 +699,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     let ordinary_new_claim_ledger = issue_ordinary_new_claims_v1(
         &batch,
         &selected,
-        app_main_identity.as_ref().and_then(|identity| {
-            batch
-                .declarations()
-                .find(|declaration| declaration.identity().same_as(identity))
-                .map(|declaration| declaration.batch_slot())
-        }),
+        app_main_identity.as_ref(),
         dynamic_batch_slot,
         &instance_constructors,
     )

@@ -294,8 +294,12 @@ pub(crate) struct PublishedMirBackendView<'module> {
     module: &'module MirModule,
     retained_root: Option<&'module MirFunction>,
     retained_birth_keys: Option<Box<[CanonicalSameModuleCallableKeyV1]>>,
-    retained_birth_abi: Option<Box<[crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]>>,
-    retained_root_result: Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1>,
+    retained_birth_abi:
+        Option<Box<[crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]>>,
+    retained_root_source:
+        Option<crate::mir::normal_callable_semantic_package::FinalizedRootSourceHandoffV1>,
+    retained_root_result:
+        Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1>,
     route: PublishedStaticMethodRouteV1,
     static_method_calls: Vec<PublishedStaticMethodCallRef<'module>>,
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
@@ -452,6 +456,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 retained_root: None,
                 retained_birth_keys: None,
                 retained_birth_abi: None,
+                retained_root_source: None,
                 retained_root_result: None,
                 route: PublishedStaticMethodRouteV1::UnsupportedBeforeObject,
                 static_method_calls,
@@ -474,6 +479,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 retained_root: None,
                 retained_birth_keys: None,
                 retained_birth_abi: None,
+                retained_root_source: None,
                 retained_root_result: None,
                 route: PublishedStaticMethodRouteV1::ExplicitCompatibility,
                 static_method_calls,
@@ -491,6 +497,7 @@ impl<'module> PublishedMirBackendView<'module> {
             retained_root: None,
             retained_birth_keys: None,
             retained_birth_abi: None,
+            retained_root_source: None,
             retained_root_result: None,
             route: PublishedStaticMethodRouteV1::CanonicalTyped,
             static_method_calls,

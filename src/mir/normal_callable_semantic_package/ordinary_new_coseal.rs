@@ -51,7 +51,9 @@ mod local_commit;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
 
-pub(crate) use local_commit::{FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1};
+pub(crate) use local_commit::{
+    FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -142,6 +144,10 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
             crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1,
         >,
     >,
+    // The parser-issued AppMain anchor travels with the Completion/terminal
+    // source loan. It is comparison-only and never substitutes a key, name,
+    // ABI, or physical root selection.
+    app_main_identity: Option<crate::parser::CallableDeclarationIdentityV1>,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -183,6 +189,7 @@ impl OrdinaryNewClaimLedgerV1 {
             terminal_result: None,
             terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
+            app_main_identity: None,
         }
     }
 
@@ -264,6 +271,20 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {
         self.terminal_result.as_ref()
     }
+
+    pub(crate) fn register_app_main_root(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        identity: &crate::parser::CallableDeclarationIdentityV1,
+    ) -> Result<(), String> {
+        let Some(expected) = self.app_main_identity.as_ref() else {
+            return Err("[freeze:contract][ordinary-new/app-main-identity-missing]".to_owned());
+        };
+        if !expected.same_as(identity) {
+            return Err("[freeze:contract][ordinary-new/app-main-identity-mismatch]".to_owned());
+        }
+        self.register_new_root(owner)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -325,15 +346,31 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     TerminalResultFieldReadMissing {
         site: OwnedExprSiteV1,
     },
+    AppMainIdentityMissing,
+    AppMainIdentityDuplicate,
 }
 
 pub(crate) fn issue_ordinary_new_claims_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    app_main_batch_slot: Option<u32>,
+    app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
     excluded_dynamic_batch_slot: Option<u32>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
 ) -> Result<OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1> {
+    let app_main_batch_slot = app_main_identity
+        .map(|identity| {
+            let mut matches = batch
+                .declarations()
+                .filter(|declaration| declaration.identity().same_as(identity));
+            let declaration = matches
+                .next()
+                .ok_or(OrdinaryNewCoSealIssueV1::AppMainIdentityMissing)?;
+            if matches.next().is_some() {
+                return Err(OrdinaryNewCoSealIssueV1::AppMainIdentityDuplicate);
+            }
+            Ok(declaration.batch_slot())
+        })
+        .transpose()?;
     let mut claims = Vec::new();
     let mut root_completion = None;
     let mut root_field_reads = BTreeMap::new();
@@ -597,6 +634,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     ledger.field_reads = RefCell::new(root_field_reads);
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_result = root_terminal_result;
+    ledger.app_main_identity = app_main_identity.cloned();
     Ok(ledger)
 }
 
