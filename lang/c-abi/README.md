@@ -82,7 +82,9 @@ Each selected slice must retire its own replaced production edge:
 3. Replace compile-global row pointers/count/used marks and temporary environment
    mutation with call-owned physical state/options in transport and C consumer.
    Include all compile ingress that shares those globals; prove the entry/caller
-   inventory before selecting a delete-set. Verify overlapping calls with distinct
+   inventory before selecting a delete-set. The inventory explicitly includes the
+   two C `setenv`/restore helpers in `hako_llvmc_ffi_route.inc`, alongside Rust
+   transport environment mutation. Verify overlapping calls with distinct
    rows/options, failure cleanup and environment preservation. No lock was found
    in the inspected Rust llvm_codegen owner; global serialization and actual races
    are unproven. Do not claim concurrent compilation support before this closes.
