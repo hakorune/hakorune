@@ -534,6 +534,33 @@ unchanged.
 Non-claims: generic literal redesign, source-form widening, raw-AST fallback,
 root SSA, ABI/C, Pair EXE/OBJ30 or production cutover.
 
+## D7: neutral selected-New argument observation
+
+Decision: implementation-ready. `home_new_prefix` owns a neutral observation
+and remains below the package dependency boundary. Its inner source walk emits
+`SelectedNewArgumentObservationV1 { new_site, arguments }`; each child row is
+`(ordinal, site, Integer(i64)|Bool(bool)|Local(binding))`. Unsupported source
+is an explicit per-New unavailable result, separate from Home-prefix cleanup.
+
+Source authority + canonical issuer: the existing resolver source inventory
+and `scan_new_home_flow` are the only fact owner. A new inner walk returns the
+existing tuple plus an observation map; existing public wrappers discard that
+map. Package-only companion wrappers retain it under the same walk and
+`issue_ordinary_new_claims_v1` alone converts it into the existing claim row.
+
+Non-authority: package types in resolved semantics, raw AST, child scope,
+CallerNewHomePrefix, MIR type/ValueId, ABI/C and a standalone receipt.
+
+Fail-fast boundary: absent/foreign/duplicate/ordinal/arity drift rejects at
+claim co-seal. A nontrivial selected argument remains explicit source
+unavailable and reaches the existing pre-effect terminal; no raw retry.
+
+Smallest next slice: add the neutral model/wrappers and co-seal rows in the
+existing claim, with source-only mapping tests in new small test modules.
+
+Non-claims: completion-flow changes, a second source walk, new source forms,
+raw fallback, generic argument representation, ABI/C or Pair EXE/OBJ30.
+
 Step 1's exact source inventory and step 3's final-entry status connection are
 explicit remaining design obligations. Do not mislabel this roadmap as a
 completed all-SSA issuer. Steps 1–4 close contracts but do not independently
