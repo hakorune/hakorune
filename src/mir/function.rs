@@ -14,12 +14,13 @@ mod fastmem;
 mod function_impl;
 mod metadata;
 mod module_impl;
+mod object_metadata;
 mod object_definition;
 mod object_definition_membership;
-mod object_metadata;
 pub(crate) use object_definition::{
-    CanonicalObjectDefinitionV1, CanonicalObjectLayoutUnavailableV1, CanonicalObjectLayoutV1,
-    ObjectDestructionDispositionV1, ObjectDestructionUnavailableV1, ObjectLayoutUnavailableV1,
+    CanonicalObjectDefinitionV1, CanonicalObjectLayoutV1,
+    CanonicalObjectLayoutUnavailableV1, ObjectLayoutUnavailableV1,
+    ObjectDestructionDispositionV1, ObjectDestructionUnavailableV1,
 };
 mod published_backend_view;
 mod typed_array_contract;
@@ -56,9 +57,9 @@ pub use object_metadata::{
     TypedObjectPlan, UserBoxFieldDecl, WeakFieldContractSpec, WeakFieldId, WeakFieldWriteContract,
 };
 pub(crate) use published_backend_view::{
-    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
-    PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
-    PublishedStaticMethodRouteV1,
+    PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2, PublishedMirBackendView,
+    PublishedStaticMethodCFrameV1,
+    PublishedStaticMethodCallCRowV1, PublishedStaticMethodRouteV1,
 };
 pub use typed_array_contract::{
     TypedArrayBoundaryValue, TypedArrayContractBoundary, TypedArrayContractDisposition,
