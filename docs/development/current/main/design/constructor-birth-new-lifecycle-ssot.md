@@ -826,12 +826,12 @@ Typed-C prepass checkpoint: existing same-module call prepass peeks at published
 
 ## Typed C program handoff Decision
 
-Decision: provisional JSON validators remain retired at the no-artifact terminal. `SelectedSourceBackedAppMain` alone is withdrawn: it has neither a final-view consumer nor root-result/Birth-formal authority.
-Source authority + canonical issuer: existing app-main relation/root Completion and `VerifiedInstanceConstructorSemanticBatchV1`; a package-side co-seal must issue their same-session handoff before Atomic Publish.
+Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
+Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
 Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
-Fail-fast boundary: absent/foreign/duplicate root, Birth, cohort, Completion, result or formal relation rejects before bind, lifecycle activation, frame, C or artifact.
-Smallest next slice: D0 finite inventory names that co-seal's final-view consumer and exclusive replaced edge; until then this family is NoSafeSlice/CutoverBlockerOpen.
-Non-claims: a new receipt now, field admission, C implementation, Pair EXE30/OBJ30, ABI projection, Fault cleanup, retry or legacy deletion.
+Fail-fast boundary: absent/foreign/duplicate root, recipe, Birth key, construction draft, Completion or local completion rejects before view, C or artifact; NoBirthZero has an explicit zero-Birth terminal.
+Smallest next slice: BoxShape only—move the existing Birth recipe into `NewLocalCommit`, seal the private finalized handoff at `finish_normal_default_root_after_pre_effect_bind`, and replace the root-name-only artifact handoff.
+Non-claims: field admission, C implementation, Pair EXE30/OBJ30, ABI/formal projection, Fault cleanup, retry or broader legacy deletion.
 
 ### Premise audit and authority boundary
 

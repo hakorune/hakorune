@@ -540,13 +540,13 @@ unrelated helper deletion leaves this boundary.
 
 **Gated remaining tasks — same constructor cutover, no new D0 cards**
 
-2. Handoff D0 audited: the sole seam is `finish_normal_default_root_after_pre_effect_bind`,
-   which retains only the root ledger while the install port holds Birth batch.
-   Root Completion is test-only there; no existing co-seal/consumer exists. Name its
-   package issuer and identity-only root-bind replacement, or retain NoSafeSlice.
-3. Handoff BoxShape: only after task 2 closes, lend that existing co-sealed
-   root-result/Birth-formal relation through Atomic Publish to the final view.
-   Negatives cover each absent/foreign/duplicate relation before C/artifact.
+2. Handoff D0 landed: one seam retains the root ledger while the port is live.
+   Completion is production-owned but not a handoff API; a taken New lost its
+   issued Birth recipe. No symbolic/MIR reconstruction is permitted.
+3. Handoff BoxShape: retain the issued Birth recipe in `NewLocalCommit`; after
+   finalization co-seal root Completion, recipe and exactly one construction
+   draft, then replace root-name-only artifact handoff. Reject zero/missing/
+   foreign/duplicate/incomplete cases before view/C; no formals or C changes.
 4. Source result BoxCount: only after task 3, define exact local New -> i64
    field read -> Add -> return source facts for Pair, or retain NoSafeSlice.
    The existing field facts and profile must co-seal source relations; no
