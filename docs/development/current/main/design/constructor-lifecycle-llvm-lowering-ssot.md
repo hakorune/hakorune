@@ -508,6 +508,32 @@ cutover.
 | --- | --- | --- |
 | `issue_ordinary_new_claims_v1` -> selected claim take -> selected ordinary-New emitter -> root New finalizer | Co-seal ordered argument rows in the existing claim; materialize/consume them at the selected emitter and validate exact emitted Call argument order/value. Delete the selected raw argument loop, selected `CallArgument` child-source creation/queue completion, and selected route's raw argument carriage. The unselected compatibility loop and generic child infrastructure remain. | Positive selected direct-New integer, bool and trivial-local argument cases; source negatives for nontrivial/missing/duplicate/foreign/ordinal drift; finalizer mutations for residual/value/order/call-argument drift; guard confirms selected path has no raw argument descent. |
 
+## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-BOOL-SOURCE-FACT-D6
+
+Decision: return to design stop. `scan_new_home_flow` observes direct-New
+argument sites but exports no row; more importantly its resolver inventory has
+`ResolvedLiteralSourceV1::Bool` without the Bool payload. Recovering that value
+from raw AST would create a second source authority.
+
+Source authority + canonical issuer: the resolver source inventory must retain
+the Bool payload. `issue_ordinary_new_claims_v1` remains the only claim issuer;
+`scan_new_home_flow` is a helper that may export a neutral observation, never a
+package-row issuer.
+
+Non-authority: raw AST, `CallerNewHomePrefixV1`, builder child scope, MIR type,
+ValueId, ABI/C and a standalone semantic receipt.
+
+Fail-fast boundary: until the source inventory has exact Bool payload and the
+single walk can export integer/bool/trivial-local observations, I0 may not
+co-seal or consume rows.
+
+Smallest next slice: decide and audit the resolver-owned Bool payload change
+and a neutral source-walk callback/output that leaves nonselected callers
+unchanged.
+
+Non-claims: generic literal redesign, source-form widening, raw-AST fallback,
+root SSA, ABI/C, Pair EXE/OBJ30 or production cutover.
+
 Step 1's exact source inventory and step 3's final-entry status connection are
 explicit remaining design obligations. Do not mislabel this roadmap as a
 completed all-SSA issuer. Steps 1–4 close contracts but do not independently

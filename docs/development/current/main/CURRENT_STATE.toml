@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-I0"
-current_execution_cohort = "constructor_lifecycle_root_new_trivial_argument_consumer"
-current_design_stop = ""
-current_blocker_token = "I0 boundary: co-seal only the selected direct-New integer/bool/trivial-local argument rows in the existing OrdinaryNewAdmissionClaimV1, consume them in the selected ordinary-New emitter, and delete that route's raw argument queue/descent/carriage. Do not widen source forms, add a receipt/fallback, or activate ABI/C work."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-BOOL-SOURCE-FACT-D6"
+current_execution_cohort = "constructor_lifecycle_root_new_bool_source_fact"
+current_design_stop = "D6: name the resolver-owned Bool payload fact and neutral selected-New child observation before resuming argument-consumer I0."
+current_blocker_token = "NoSafeSlice: ResolvedLiteralSourceV1::Bool has no payload, so scan_new_home_flow cannot issue the selected three-kind argument rows without raw-AST reclassification or a second authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -43,8 +43,8 @@ The field-read focused red reproduces at parent (left 1/right 0), so it is
 known baseline debt. Pair EXE30/linked OBJ30 and selected retirement remain
 required and unproven.
 """
-next_design_card = "none (I0 execution selected)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-NEW-BOOL-SOURCE-FACT-D6"
+next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
