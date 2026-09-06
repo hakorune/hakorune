@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-OWNER-SPLIT-I0"
-current_execution_cohort = "constructor_lifecycle_owner_split"
-current_design_stop = "none for owner split; subsequent source inventory and final-entry status mapping remain design obligations before LLVM activation."
-current_blocker_token = "BoxShape prerequisite only: split constructor tests, brand tests and local-commit responsibilities below 760 lines without changing test paths, APIs or behavior; no issuer implementation or C activation in this row."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-SOURCE-REQUIREMENTS-D0"
+current_execution_cohort = "constructor_lifecycle_source_requirements"
+current_design_stop = "Name the existing source authority and canonical issuer for every retained formal/value requirement and checked operation origin before any retention implementation or LLVM activation."
+current_blocker_token = "Owner split landed. The next row must inventory the finite selected source root/Birth issuer set, its exact consumers and fail-fast conditions; physical values, final-MIR observations, metadata and C defaults cannot stand in for source authority."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -32,15 +32,16 @@ latest_card = "constructor-lifecycle-llvm-lowering-ssot"
 latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
 D2 separates source-owned requirements/origins, existing physical emission
-bindings and backend/runtime target layout. Missing existing issuers are design
-work, not permanent park. The next ready row is the behavior-preserving owner
-split; source retention, final binding, target agreement, direct ABI and LLVM
-cutover follow with explicit prerequisites. Parser/profile checks are landed;
-production still stops at body-consumer-pending. Pair EXE30/linked OBJ30 and
-selected retirement remain required and unproven.
+bindings and backend/runtime target layout. Owner split I0 landed: the three
+parent owners are below 760 lines with test paths and behavior retained. The
+next row is a source-issuer design stop, then source retention, final binding,
+target agreement, direct ABI and LLVM cutover follow with explicit
+prerequisites. The field-read focused red reproduces at parent (left 1/right
+0), so it is known baseline debt. Pair EXE30/linked OBJ30 and selected
+retirement remain required and unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D2 (accepted ownership; remaining source-retention details belong to step 1)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-OWNER-SPLIT-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-SOURCE-REQUIREMENTS-D0"
+next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

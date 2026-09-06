@@ -204,12 +204,16 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
-        let root_result = self.terminal_result.as_ref().map(|relation| {
-            if relation.owner() != owner || !self.terminal_result_complete() {
-                return Err(freeze("artifact-root-result-unavailable"));
-            }
-            Ok(FinalizedRootResultAbiV1::I64AddReturn { owner })
-        }).transpose()?;
+        let root_result = self
+            .terminal_result
+            .as_ref()
+            .map(|relation| {
+                if relation.owner() != owner || !self.terminal_result_complete() {
+                    return Err(freeze("artifact-root-result-unavailable"));
+                }
+                Ok(FinalizedRootResultAbiV1::I64AddReturn { owner })
+            })
+            .transpose()?;
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
         for row in self
@@ -380,57 +384,6 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("root-completion-owner-mismatch"));
         }
         *state = RootNewValidation::Pending(owner);
-        Ok(())
-    }
-
-    /// Called on the exact physical root after all module finalization passes.
-    /// Script-only packages never register a callable root; an empty New set
-    /// does not erase a registered root's validation obligation.
-    pub(crate) fn validate_finalized_new_root(
-        &self,
-        function: &MirFunction,
-    ) -> Result<RootOrdinaryNewObservation, String> {
-        let mut state = self.root_validation.borrow_mut();
-        let owner = match *state {
-            RootNewValidation::Unregistered => return Ok(RootOrdinaryNewObservation::NotIssued),
-            RootNewValidation::Pending(owner) => owner,
-            RootNewValidation::Checked(_) | RootNewValidation::FinishingChecked => {
-                return Err(freeze("duplicate-root-validation"));
-            }
-        };
-        self.validate_new_emissions(owner, function)?;
-        self.validate_root_home_exit(function)?;
-        self.validate_field_reads(owner, function)?;
-        self.validate_terminal_i64_add_return(owner, function)?;
-        let observation = self.finalized_root_observation(owner);
-        *state = RootNewValidation::Checked(owner);
-        Ok(observation)
-    }
-
-    /// Recheck the same retained source obligations after compiler finishing.
-    /// The early observation cannot authorize a modified function. No source
-    /// products are reconstructed from the final CFG or its metadata.
-    pub(crate) fn validate_after_compiler_finishing(
-        &self,
-        function: &MirFunction,
-    ) -> Result<(), String> {
-        let mut state = self.root_validation.borrow_mut();
-        let owner = match *state {
-            RootNewValidation::Unregistered => return Ok(()),
-            RootNewValidation::Checked(owner) => owner,
-            RootNewValidation::Pending(_) => return Err(freeze("root-before-draft-validation")),
-            RootNewValidation::FinishingChecked => {
-                return Err(freeze("duplicate-finishing-validation"));
-            }
-        };
-        self.validate_new_emissions(owner, function)?;
-        self.validate_root_home_exit(function)?;
-        self.validate_field_reads(owner, function)?;
-        self.validate_terminal_i64_add_return(owner, function)?;
-        if self.finalized_root_observation(owner) != function.root_ordinary_new_observation() {
-            return Err(freeze("root-observation-drift"));
-        }
-        *state = RootNewValidation::FinishingChecked;
         Ok(())
     }
 
@@ -788,3 +741,6 @@ impl OrdinaryNewClaimLedgerV1 {
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/local-commit/{reason}]")
 }
+
+#[path = "ordinary_new_local_commit/root_validation.rs"]
+mod root_validation;

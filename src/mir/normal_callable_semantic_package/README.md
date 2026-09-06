@@ -3,6 +3,12 @@
 This module owns the one pre-Builder semantic package for a final parser
 callable source batch.
 
+Constructor semantic issuance stays in `instance_constructor_semantic.rs`; its
+focused tests live in its child module. The brand-catalog test module keeps its
+test paths while including its tail tests, and local-commit's final-root checks
+live beside its emission state in `ordinary_new_local_commit/root_validation.rs`.
+This layout split changes no source contract, public API, or lifecycle route.
+
 The exact ordinary-Box definition issuer also owns the bounded destruction
 disposition, independently of construction and runtime layout. Ordinary-New
 co-seal copies its object ID/disposition before the definition payload moves

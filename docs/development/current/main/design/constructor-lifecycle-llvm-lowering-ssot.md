@@ -14,7 +14,7 @@ Decision: D2 defines the missing producer contracts; absence of an existing issu
 Source authority + canonical issuer: existing constructor semantic issuance and ordinary-New/Home plans own semantic requirements and operation origins; existing emission/finalization binds physical values; runtime ABI plus the selected backend invocation own target layout.
 Non-authority: optional metadata, names, fixture constants, instruction coordinates as source identity, generic C defaults, and another family's target capability.
 Fail-fast boundary: incomplete source coverage stops before physical admission; incomplete physical coverage or target/runtime mismatch stops before LLVM/artifact; no compatibility retry.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-OWNER-SPLIT-I0`, a behavior-preserving source-budget prerequisite, followed by the connected contract tasks below.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-SOURCE-REQUIREMENTS-D0`, an exact source-issuer inventory for the connected retention task below.
 Non-claims: new source acceptance, implementation of these contracts, executable lifecycle LLVM support, EXE30/OBJ30, or complete MirBuilder retirement.
 
 This supersedes D1/D2 wording that treated missing existing issuers as a
@@ -153,7 +153,7 @@ mapping to be recorded before changing `work_mode` to `fast`.
 
 | Order | Owner, caller and terminal | Replacement and acceptance |
 | --- | --- | --- |
-| 0. Owner split (BoxShape) | `instance_constructor_semantic.rs` (915 lines), `brand_catalog_tests.rs` (1080), `ordinary_new_local_commit.rs` (790); existing imports/tests and callers | Move constructor inline tests to a child file; split brand tests by Home versus Birth responsibility while preserving logical test paths using the repository's existing include pattern; split local-commit implementation at its existing progress/handoff responsibility. Every resulting source <760 lines, no new public API, same tests/names/bodies and behavior. |
+| 0. Owner split (BoxShape, landed) | `instance_constructor_semantic.rs`, `brand_catalog_tests.rs`, `ordinary_new_local_commit.rs`; existing imports/tests and callers | Constructor tests now live in the child test module, the brand test tail is included without changing its logical paths, and root validation lives beside local-commit emission state. The parent files are respectively 539, 715 and 746 lines; all child files are below 760. No public API, test name/body, source contract or lifecycle route changed. |
 | 1. Source retention (BoxShape) | existing semantic package issuer -> construction/New/Home plans -> existing selected claim consumer | Retain formal/value requirements and typed operation origins at their existing issue points. Replace source relation loss before claim take and cleanup emission. Acceptance: unchanged Pair and existing renamed/alias/multiple-Home cases, exact unused formal and cleanup origins; foreign/missing/duplicate/source-unavailable negatives before emission. No disconnected source-only receipt. |
 | 2. Physical binding and final handoff (BoxShape) | selected root/Birth emission -> existing completion ledger -> final-view admission | Replace bare value/op binding loss with completed physical relations in the existing handoff. Positive exact source-to-final-view coverage; negative finishing drift, residual sibling, mixed/unseeded PHI, Unit result, wrong Normal result and metadata-independent verdict. Preserve one-way transfer and generic lifecycle fence. |
 | 3. Target/runtime agreement (BoxShape) | runtime ABI owner + selected compile invocation -> same-target lifecycle session | Replace implicit host-layout assumption with explicit target ABI agreement; no semantic target receipt. Target-compiled Rust/C checks, LLVM size/alignment/offset agreement, unsupported target/revision/runtime mismatch and absent session reject without artifact. All session resources released on failure. |
@@ -165,6 +165,18 @@ Step 0 validation uses the existing semantic-package suite, identical test
 discovery before/after, source line counts and pointer guard. No new fixture,
 fallback, source shape or baseline change. If a test fails, classify it using
 the same command at the parent before calling it baseline debt.
+
+Step 0 is landed. The next row is a design stop: name the source authority and
+canonical issuer for each retained formal/value requirement and checked
+operation origin before an implementation slice is opened. It cannot use a
+physical value, final-MIR observation, metadata, or C-side default as a source
+substitute.
+
+The focused field-read command
+`mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
+still fails with `left: 1`, `right: 0` at
+`ordinary_new_field_reads_tests.rs:124`; the identical parent-commit command
+reproduces it. It is known baseline debt and does not reopen this BoxShape row.
 
 Step 1's exact source inventory and step 3's final-entry status connection are
 explicit remaining design obligations. Do not mislabel this roadmap as a
