@@ -540,17 +540,18 @@ unrelated helper deletion leaves this boundary.
 
 **Gated remaining tasks — same constructor cutover, no new D0 cards**
 
-2. App Main profile BoxShape: issue package-side `SelectedSourceBackedAppMain`
-   only after existing app-main relation validation, and make the profile's
-   NormalMain0 policy consume it. Preserve canonical-core modes; no expression
-   vocabulary changes. Acceptance rejects missing/foreign/duplicate catalog,
-   brand, identity, owner, root, input and forest; no view/frame/C, ABI or
-   MIR-signature/position/default inference.
-3. Source result BoxCount: only after task 2, define exact local New -> i64
+2. Handoff D0: name the one package co-seal of existing app-main/root Completion
+   and Birth semantic batch, its final-view consumer and its replaced old edge.
+   Until all exist, retain NoSafeSlice; root name/signature/param position/JSON
+   never fill result or formal relations. No code, fixture, receipt or C frame.
+3. Handoff BoxShape: only after task 2 closes, lend that existing co-sealed
+   root-result/Birth-formal relation through Atomic Publish to the final view.
+   Negatives cover each absent/foreign/duplicate relation before C/artifact.
+4. Source result BoxCount: only after task 3, define exact local New -> i64
    field read -> Add -> return source facts for Pair, or retain NoSafeSlice.
    The existing field facts and profile must co-seal source relations; no
    physical field-read ledger, ObjectFieldGet or inferred type is authority.
-4. Consume one physical program: selected C companion places function-local
+5. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
    Acceptance: Normal-only allocation load, explicit I64 wire mapping, Birth
@@ -558,7 +559,7 @@ unrelated helper deletion leaves this boundary.
    source Fault, primary Fault preserved through cleanup. Missing/duplicate/
    residual/unsupported rows stop before artifact. Source handoff must close root ABI,
    diagnostic site rule and every selected block/operand relation first.
-5. Execute and retire: actual normal-source typed CLI -> shared published host
+6. Execute and retire: actual normal-source typed CLI -> shared published host
    -> C -> EXE; same source -> OBJ -> linked executable. Replace the selected
    proof's legacy JSON caller; identify/delete selected old caller arms in the
    same cutover series. Acceptance: both executions exit 30; profile and Fault
@@ -566,8 +567,8 @@ unrelated helper deletion leaves this boundary.
    source/body/expected value, record commands, source/script hashes and results.
    No retirement closure without exclusive caller proof and the inventory below.
 
-Task 2 is a bounded handoff prerequisite, not a preapproved new semantic owner.
-Task 4 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
+Task 3 is a bounded handoff prerequisite, not a new semantic issuer.
+Task 5 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
 branches, lifecycle continuations and return must preserve the issued program.
 Do not discover source-to-Recipe meaning by iteratively adding C opcode cases.
 These gates are one connected series; do not create a docs/test/commit tasklet
@@ -587,7 +588,7 @@ re-entry, excludes unrelated generic cohorts. Cutover remains CutoverBlockerOpen
 | Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 5, inspect direct/manifest/aggregate/directory discovery before retirement or park |
 | Unused Rust `compile_published_lifecycle_v2` wrappers | Separate caller-zero cleanup candidate; exported C preartifact symbol has a direct test caller and is retained |
 | Shared `same_module_*` / generic NewBox, field and call helpers | Not an exclusive delete-set. Prohibit selected re-entry; remove only arms proven exclusive after typed switch, never the shared files wholesale |
-| Pair source result and root/Birth handoff | App Main profile capability is the first BoxShape; field-read/Add stays a later NoSafeSlice and handoff remains CutoverBlockerOpen |
+| Pair source result and root/Birth handoff | Handoff D0 is NoSafeSlice; field-read/Add stays later and handoff remains CutoverBlockerOpen |
 
 Initial 11-entry fresh llvm_static acceptance was 1 pass / 10 failures: six
 RootPreservation(CompatibilityLoss), four generated birth/0. Existing records

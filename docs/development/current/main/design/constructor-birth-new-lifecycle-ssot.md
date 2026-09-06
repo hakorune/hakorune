@@ -826,12 +826,12 @@ Typed-C prepass checkpoint: existing same-module call prepass peeks at published
 
 ## Typed C program handoff Decision
 
-Decision: the provisional JSON validators are retired at the no-artifact terminal. Before Pair's field-read/Add BoxCount, replace the forbidden canonical-core NormalMain mode role with a package-side source capability selected after `app_main_relation` validation.
-Source authority + canonical issuer: the existing package `app_main_relation` validates exact catalog identity, batch owner/forest/input and source inventory. It issues one non-clone `SelectedSourceBackedAppMain` capability; `resolved_value_profile` is its sole first consumer for NormalMain0 policy.
-Non-authority: canonical-core `VerifiedNormalMainRoleV1`, Pair names, JSON, `MirFunction.signature`, `MirParamDecl`, ObjectFieldGet, metadata/parameter/return contracts, N+1 ABI shape, parameter position and defaults never authorize this selected source session.
-Fail-fast boundary: absent/non-App/foreign/duplicate/mismatched catalog, brand, identity, owner, root, input or forest rejects before profile analysis. The capability changes neither expression vocabulary nor result representation.
-Smallest next slice: BoxShape only—add package-side App Main capability and a profile entry that consumes it; preserve canonical-core modes and existing profile outcomes. The field-read/Add BoxCount remains separate.
-Non-claims: no field access admission, checked execution, Pair EXE30/OBJ30, ABI projection, Fault cleanup, generic retry, source expansion or legacy deletion.
+Decision: provisional JSON validators remain retired at the no-artifact terminal. `SelectedSourceBackedAppMain` alone is withdrawn: it has neither a final-view consumer nor root-result/Birth-formal authority.
+Source authority + canonical issuer: existing app-main relation/root Completion and `VerifiedInstanceConstructorSemanticBatchV1`; a package-side co-seal must issue their same-session handoff before Atomic Publish.
+Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
+Fail-fast boundary: absent/foreign/duplicate root, Birth, cohort, Completion, result or formal relation rejects before bind, lifecycle activation, frame, C or artifact.
+Smallest next slice: D0 finite inventory names that co-seal's final-view consumer and exclusive replaced edge; until then this family is NoSafeSlice/CutoverBlockerOpen.
+Non-claims: a new receipt now, field admission, C implementation, Pair EXE30/OBJ30, ABI projection, Fault cleanup, retry or legacy deletion.
 
 ### Premise audit and authority boundary
 
@@ -851,12 +851,10 @@ The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
   owner/target/result/membership, while final validation returns only an
   `Option<String>` root key to identity bind. The source-backed/compatibility,
   app/script and opaque classifier arms are chosen earlier and cannot be
-  recovered by root name. Same-source/session handoff is `NoIssuer` until a
-  normal-lifecycle source owner is named.
-- `resolved_value_profile` can issue `InlineI64` for admitted expressions, but
-  its NormalMain modes currently carry a canonical-core-only role. Pair's field
-  access remains rejected after this BoxShape; initialized-field and ObjectFieldGet
-  facts are not expression/return authority. Do not use a MIR type or thunk profile.
+  recovered by root name. The root/Birth same-session handoff is NoSafeSlice
+  until one package co-seal and its final-view consumer are named.
+- `resolved_value_profile` cannot repair this missing handoff. Initialized-field
+  and ObjectFieldGet facts are not root-result or Birth-formal authority.
 - Birth definitions in `PublishedStaticMethodCFrameV2::from_view` are cataloged,
   but formal kind/wire tags are positional defaults. They are not evidence of
   source-backed parameter representation. The frame has no explicit root

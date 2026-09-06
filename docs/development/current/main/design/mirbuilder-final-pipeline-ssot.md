@@ -396,10 +396,10 @@ current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
 and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-own the proposed App Main profile capability BoxShape. Design pause: issuance
-must follow the existing app-main relation, with consumption by the NormalMain0
-policy; canonical-core role reuse is forbidden. The later Pair field-read/Add
-BoxCount remains unopened. No view/frame/C extension is permitted. Pair
+own the root/Birth handoff NoSafeSlice. Design pause: only a package co-seal of
+existing root Completion and Birth semantic batch may issue it, and only to a
+named final-view consumer; canonical-core role reuse is forbidden. Pair field
+read/Add remains unopened. No view/frame/C extension is permitted. Pair
 EXE30/linked OBJ30 and selected old-edge retirement remain open.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
