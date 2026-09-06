@@ -33,13 +33,13 @@ int main(void) {
   const char* valid =
       "{\"schema\":\"hako.published-lifecycle-physical-program.v1\","
       "\"fault_abi_version\":1,\"functions\":["
-      "{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]},"
-      "{\"role\":\"birth_unit\",\"params\":[0],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]}],"
+      "{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},"
+      "{\"role\":\"birth_unit\",\"params\":[0],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],"
       "\"layouts\":[{\"field_count\":2,\"fields\":[{},{}]}]}";
   accepts(valid);
   rejects("{}", "schema");
-  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":[{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":0,\"fields\":[]}]}", "function-role");
-  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":[{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":2,\"fields\":[{}]}]}", "layout");
-  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":9,\"functions\":[{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":0,\"fields\":[]}]}", "abi");
+  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":[{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":0,\"fields\":[]}]}", "function-role");
+  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":1,\"functions\":[{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":2,\"fields\":[{}]}]}", "layout");
+  rejects("{\"schema\":\"hako.published-lifecycle-physical-program.v1\",\"fault_abi_version\":9,\"functions\":[{\"role\":\"root_i64\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]},{\"role\":\"birth_unit\",\"params\":[],\"blocks\":[{\"instructions\":[],\"terminator\":{\"index\":0,\"instruction\":{\"op\":\"return\"}},\"edges\":[]}]}],\"layouts\":[{\"field_count\":0,\"fields\":[]}]}", "abi");
   return 0;
 }

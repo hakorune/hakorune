@@ -1,5 +1,6 @@
 /* Call-local parser for hako.published-lifecycle-physical-program.v1.
  * It is deliberately preartifact: no generic reader, LLVM API or V2 row. */
+static int hako_llvmc_published_lifecycle_physical_v1_opcode(yyjson_val* instruction);
 static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(
     yyjson_val* root, char** err_out) {
   yyjson_val *schema, *functions, *layouts, *fault_abi;
@@ -40,13 +41,15 @@ static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(
         yyjson_val *index = row ? yyjson_obj_get(row, "index") : NULL;
         yyjson_val *instruction = row ? yyjson_obj_get(row, "instruction") : NULL;
         if (!(index && yyjson_is_uint(index) && yyjson_get_uint(index) == ii &&
-              instruction && yyjson_is_obj(instruction)))
+              instruction && yyjson_is_obj(instruction) &&
+              hako_llvmc_published_lifecycle_physical_v1_opcode(instruction)))
           return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/instruction-index]");
       }
       { yyjson_val *index = yyjson_obj_get(terminator, "index");
         yyjson_val *instruction = yyjson_obj_get(terminator, "instruction");
         if (!(index && yyjson_is_uint(index) && yyjson_get_uint(index) == yyjson_arr_size(instructions) &&
-              instruction && yyjson_is_obj(instruction)))
+              instruction && yyjson_is_obj(instruction) &&
+              hako_llvmc_published_lifecycle_physical_v1_opcode(instruction)))
           return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/terminator-index]");
       }
     }
@@ -59,5 +62,20 @@ static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(
           yyjson_arr_size(fields) == yyjson_get_uint(count)))
       return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/layout]");
   }
+  return 0;
+}
+
+static int hako_llvmc_published_lifecycle_physical_v1_opcode(yyjson_val* instruction) {
+  yyjson_val* op = yyjson_obj_get(instruction, "op");
+  const char* name = (op && yyjson_is_str(op)) ? yyjson_get_str(op) : NULL;
+  static const char* const allowed[] = {
+    "const_i64", "const_string", "const_unit", "add", "copy", "phi",
+    "object_field_get", "invoke", "invoke_normal_result", "return_fault",
+    "fault_frame_enter", "branch", "jump", "return", "birth_call"
+  };
+  size_t i;
+  if (!name) return 0;
+  for (i = 0; i < sizeof(allowed) / sizeof(allowed[0]); i++)
+    if (strcmp(name, allowed[i]) == 0) return 1;
   return 0;
 }
