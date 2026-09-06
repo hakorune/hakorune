@@ -3,10 +3,11 @@
 //! It joins already-retained source/handoff facts to final-MIR parameter values.
 //! It neither classifies source parameters nor makes C ABI choices.
 
+use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     BirthFormalPhysicalDispositionV1, FinalizedRootResultAbiV1,
 };
-use crate::mir::ValueId;
+use crate::mir::{Callee, MirInstruction, ValueId};
 
 use super::{
     physical_program::{
@@ -61,6 +62,56 @@ pub(crate) struct CompiledEntryBirthV1 {
     formals: Box<[CompiledEntryFormalV1]>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CompiledEntryBirthCallV1 {
+    function_index: u32,
+    receiver: ValueId,
+    arguments: Box<[ValueId]>,
+}
+
+impl CompiledEntryBirthCallV1 {
+    pub(crate) const fn function_index(&self) -> u32 {
+        self.function_index
+    }
+    pub(crate) const fn receiver(&self) -> ValueId {
+        self.receiver
+    }
+    pub(crate) fn arguments(&self) -> &[ValueId] {
+        &self.arguments
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CompiledEntryCleanupKindV1 {
+    HomeRelease,
+    ReclaimUnpublished,
+    FaultFrameEnter,
+    ReturnFault,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CompiledEntryCleanupCoordinateV1 {
+    function_index: u32,
+    block_id: u32,
+    instruction_index: u32,
+    kind: CompiledEntryCleanupKindV1,
+}
+
+impl CompiledEntryCleanupCoordinateV1 {
+    pub(crate) const fn function_index(self) -> u32 {
+        self.function_index
+    }
+    pub(crate) const fn block_id(self) -> u32 {
+        self.block_id
+    }
+    pub(crate) const fn instruction_index(self) -> u32 {
+        self.instruction_index
+    }
+    pub(crate) const fn kind(self) -> CompiledEntryCleanupKindV1 {
+        self.kind
+    }
+}
+
 impl CompiledEntryBirthV1 {
     pub(crate) const fn function_index(&self) -> u32 {
         self.function_index
@@ -75,6 +126,8 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     program: PublishedLifecyclePhysicalProgramV1<'module>,
     root_result: CompiledEntryRootResultV1,
     births: Box<[CompiledEntryBirthV1]>,
+    birth_calls: Box<[CompiledEntryBirthCallV1]>,
+    cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
 }
 
 impl<'module> CompiledEntryContractV1<'module> {
@@ -87,6 +140,12 @@ impl<'module> CompiledEntryContractV1<'module> {
     pub(crate) fn births(&self) -> &[CompiledEntryBirthV1] {
         &self.births
     }
+    pub(crate) fn birth_calls(&self) -> &[CompiledEntryBirthCallV1] {
+        &self.birth_calls
+    }
+    pub(crate) fn cleanup(&self) -> &[CompiledEntryCleanupCoordinateV1] {
+        &self.cleanup
+    }
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -94,7 +153,7 @@ impl<'module> PublishedMirBackendView<'module> {
         &self,
     ) -> Result<CompiledEntryContractV1<'module>, String> {
         let program = self.issue_lifecycle_physical_program()?;
-        let (root_result, contract_births) = {
+        let (root_result, contract_births, birth_calls, cleanup) = {
             let [root, births @ ..] = program.functions() else {
                 return Err(fault("compiled-entry-root-missing"));
             };
@@ -153,14 +212,116 @@ impl<'module> PublishedMirBackendView<'module> {
                     formals: formals.into_boxed_slice(),
                 });
             }
-            (root_result_category(*result), contract_births)
+            let birth_calls = issue_birth_calls(root, births)?;
+            let cleanup = issue_cleanup_coordinates(program.functions())?;
+            (
+                root_result_category(*result),
+                contract_births,
+                birth_calls,
+                cleanup,
+            )
         };
         Ok(CompiledEntryContractV1 {
             program,
             root_result,
             births: contract_births.into_boxed_slice(),
+            birth_calls: birth_calls.into_boxed_slice(),
+            cleanup: cleanup.into_boxed_slice(),
         })
     }
+}
+
+fn issue_birth_calls(
+    root: &super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>,
+    births: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
+) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
+    let mut calls = vec![None; births.len()];
+    for block in root.blocks() {
+        for row in block
+            .instructions()
+            .iter()
+            .copied()
+            .chain(std::iter::once(block.terminator()))
+        {
+            let MirInstruction::Invoke {
+                operation: InvokeOperation::Call(call),
+                ..
+            } = row.instruction()
+            else {
+                continue;
+            };
+            let Callee::BirthConstructor { key, receiver } = &call.callee else {
+                continue;
+            };
+            let index = births.iter().position(|birth| matches!(birth.role(), PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } if abi.target() == key))
+                .ok_or_else(|| fault("compiled-entry-call-target"))?;
+            if calls[index]
+                .replace(CompiledEntryBirthCallV1 {
+                    function_index: u32::try_from(index + 1)
+                        .map_err(|_| fault("compiled-entry-call-index"))?,
+                    receiver: *receiver,
+                    arguments: call.args.to_vec().into_boxed_slice(),
+                })
+                .is_some()
+            {
+                return Err(fault("compiled-entry-call-duplicate"));
+            }
+        }
+    }
+    calls
+        .into_iter()
+        .enumerate()
+        .map(|(index, call)| {
+            let call = call.ok_or_else(|| fault("compiled-entry-call-missing"))?;
+            if call.arguments.len() != births[index].params().len().saturating_sub(1) {
+                return Err(fault("compiled-entry-call-arity"));
+            }
+            Ok(call)
+        })
+        .collect()
+}
+
+fn issue_cleanup_coordinates(
+    functions: &[super::physical_program::PublishedLifecyclePhysicalFunctionV1<'_>],
+) -> Result<Vec<CompiledEntryCleanupCoordinateV1>, String> {
+    let mut rows = Vec::new();
+    for (function_index, function) in functions.iter().enumerate() {
+        for block in function.blocks() {
+            for row in block
+                .instructions()
+                .iter()
+                .copied()
+                .chain(std::iter::once(block.terminator()))
+            {
+                let kind = match row.instruction() {
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::HomeRelease { .. },
+                        ..
+                    } => CompiledEntryCleanupKindV1::HomeRelease,
+                    MirInstruction::Invoke {
+                        operation: InvokeOperation::ReclaimUnpublished { .. },
+                        ..
+                    } => CompiledEntryCleanupKindV1::ReclaimUnpublished,
+                    MirInstruction::FaultFrameEnter { .. } => {
+                        CompiledEntryCleanupKindV1::FaultFrameEnter
+                    }
+                    MirInstruction::ReturnFault { .. } => CompiledEntryCleanupKindV1::ReturnFault,
+                    _ => continue,
+                };
+                rows.push(CompiledEntryCleanupCoordinateV1 {
+                    function_index: u32::try_from(function_index)
+                        .map_err(|_| fault("compiled-entry-cleanup-index"))?,
+                    block_id: block.id().0,
+                    instruction_index: row.index(),
+                    kind,
+                });
+            }
+        }
+    }
+    if rows.is_empty() {
+        return Err(fault("compiled-entry-cleanup-missing"));
+    }
+    Ok(rows)
 }
 
 fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootResultV1 {

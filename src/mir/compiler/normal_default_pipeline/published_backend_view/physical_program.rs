@@ -360,6 +360,12 @@ mod tests {
                     assert!(entry_birth.formals()[0].source_ordinal().is_none());
                     assert_eq!(entry_birth.formals()[1].source_ordinal(), Some(0));
                     assert!(entry_birth.formals()[1].disposition().is_some());
+                    let [birth_call] = contract.birth_calls() else {
+                        panic!("Pair must retain one exact Birth call");
+                    };
+                    assert_eq!(birth_call.function_index(), 1);
+                    assert_eq!(birth_call.arguments().len(), 2);
+                    assert!(!contract.cleanup().is_empty());
                     assert!(matches!(
                         birth.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi }
