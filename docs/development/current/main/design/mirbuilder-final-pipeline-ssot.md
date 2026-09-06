@@ -390,16 +390,17 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
-owns the next Stop/Delete task; the [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-owns the missing source-to-final-view program relation. The provisional JSON
-validators are retired at `body-consumer-pending`; root/Birth result/ABI and
-exact value/CFG handoff now gate checked C execution. Pair EXE30/linked OBJ30
-and selected old-edge retirement remain open.
+and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
+own the `NoIssuer` audit for normal-lifecycle root/Birth result and formal
+relations. The provisional JSON validators are retired at
+`body-consumer-pending`; no view/frame/C extension is permitted before an
+actual same-source/session issuer exists. Pair EXE30/linked OBJ30 and selected
+old-edge retirement remain open.
 
 After the R6 canonical core checkpoint, every compatibility boundary has one
 of exactly three outcomes:

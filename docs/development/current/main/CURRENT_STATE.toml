@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "none"
-current_blocker_token = "The provisional JSON-as-program validators are retired at the body-consumer-pending terminal. Before checked-C execution, establish the existing source root result/ABI and constructor-formal handoff into the final view, then lossless function-local value/CFG projection. Pair typed EXE and linked OBJ exit 30 plus selected old-edge retirement remain open."
+current_design_stop = "MaterializationRelationMissing__SourceResultAndFormalToFinalView"
+current_blocker_token = "Design consultation: the selected normal lifecycle has no named same-source/session root-result and Birth-formal issuer to final view. Audit the actual source-owner path or record NoIssuer; final view identity, MIR signatures, metadata, parameter position and defaults cannot supply ABI. Checked-C execution, Pair EXE/OBJ exit 30 and old-edge retirement remain stopped."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -34,15 +34,15 @@ latest_card_summary = """
 Constructor lifecycle V2 reaches a no-artifact body companion; this does not
 prove checked runtime execution. The speculative JSON program validators are
 retired; an unread nonempty body carrier now reaches only body-consumer-pending
-after frame/profile/site validation. Next, close root result/ABI and lossless
-physical function/value/CFG handoff before implementing checked C. The
-execution brief and gated queue are in the existing workstream; the constructor
-lifecycle SSOT owns the design. Pair EXE30/linked OBJ30, Fault/cleanup and
-selected legacy deletion remain open. The focused C test is dependency evidence
-only; no source runtime, whole-library or acceptance-green claim.
+after frame/profile/site validation. Worker audit found no selected
+normal-lifecycle issuer that co-seals root result/entry and Birth formals into
+the final view. The current source-owner Decision must name it or retain
+NoIssuer; no physical handoff/C implementation follows. Pair EXE30/linked
+OBJ30, Fault/cleanup and selected legacy deletion remain open. The focused C
+test is dependency evidence only; no source runtime or acceptance-green claim.
 """
-next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

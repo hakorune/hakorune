@@ -826,12 +826,12 @@ Typed-C prepass checkpoint: existing same-module call prepass peeks at published
 
 ## Typed C program handoff Decision
 
-Decision: withdraw the speculative fixed-Pair physical-program owner; first Stop/Delete its JSON validation authority at the existing no-artifact terminal, then complete one source-backed program handoff before checked execution.
-Source authority + canonical issuer: constructor semantic rows and ordinary_new_coseal own construction; root result/entry contracts retain their canonical source issuer and publication transaction; the strict-verified, commit-prepared final PublishedMirBackendView only projects their physical realization.
-Non-authority: Pair names, fixture shape, JSON metadata/opcode whitelists, a module-global seen table, MIR signature/effect defaults, positional parameter tags and pending-test success never issue source semantics or ABI.
-Fail-fast boundary: missing/foreign/duplicate/ambiguous source-to-final-function relation, operand representation, control/result/layout relation or unconsumed row stops before runtime effect/artifact, without generic/V1/compatibility retry.
-Smallest next slice: delete the body companion's three private JSON validation helpers and calls while preserving structural ABI/site checks and body-consumer-pending; this is a Stop with changed diagnostic precedence, not a behavior-preserving BoxShape claim.
-Non-claims: no checked execution, Pair EXE30/OBJ30, Fault cleanup, whole-library green, new semantic receipt, source syntax expansion or legacy backend retirement from this consultation.
+Decision: the provisional JSON validators are retired at the no-artifact terminal. The source root result/entry and Birth formal issuers do not yet co-seal into the selected normal final view; keep `MaterializationRelationMissing__SourceResultAndFormalToFinalView`.
+Source authority + canonical issuer: root result/entry is issued by `main_thunk_plan::seal_relation/seal_result` then canonical source-entry publication; Birth target/Unit/construction is issued by `VerifiedInstanceConstructorSemanticRowV1` and `ordinary_new_coseal`. Neither is a selected normal-lifecycle formal-representation issuer today.
+Non-authority: Pair names, JSON, `MirFunction.signature`, `MirParamDecl`, metadata/parameter/return contracts, N+1 ABI shape, parameter position and defaults never issue source semantics or ABI.
+Fail-fast boundary: unless one retained source/session product binds root function, canonical Birth key/function, result representation and every formal value/representation exactly once, reject before frame, egress, C effect or artifact.
+Smallest next slice: source-owner Decision only—name the actual normal-lifecycle result/formal issuer or record `NoIssuer`; do not edit view/frame/C or create a receipt.
+Non-claims: no checked execution, Pair EXE30/OBJ30, ABI projection, Fault cleanup, generic retry, source expansion or legacy deletion.
 
 ### Premise audit and authority boundary
 
@@ -846,13 +846,13 @@ The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
 - Semantic unit: a published root and its exact cataloged Birth dependencies,
   with source-authorized result/Completion and parameter representations.
   `Pair` is the acceptance witness, never a compiler selector.
-- Root authority exists: `main_thunk_plan::seal_relation/seal_result` and
-  `canonical_core_dispatch/publication::project_main_result` project the source
-  result; `PreparedCanonicalSourceEntryPublicationV1::commit` publishes the
-  owner/target/result/membership relation. This does not prove the selected
-  constructor root traverses that transaction. Currently
-  `normal_default_root_final_validation::into_artifact_parts` retains only the root
-  name for the final view's identity bind. Same-source/session handoff is open.
+- Root authority is outside the selected lifecycle path:
+  `main_thunk_plan::seal_relation/seal_result` and canonical publication issue
+  owner/target/result/membership, while final validation returns only an
+  `Option<String>` root key to identity bind. The source-backed/compatibility,
+  app/script and opaque classifier arms are chosen earlier and cannot be
+  recovered by root name. Same-source/session handoff is `NoIssuer` until a
+  normal-lifecycle source owner is named.
 - Birth definitions in `PublishedStaticMethodCFrameV2::from_view` are cataloged,
   but formal kind/wire tags are positional defaults. They are not evidence of
   source-backed parameter representation. The frame has no explicit root
@@ -861,12 +861,9 @@ The downstream execution cutover is **CutoverBlockerOpen**, not Exhausted.
   published egress it skips leading-PHI/readonly contract validation. Generic
   root emission moves PHIs. Therefore original instruction coordinates and
   emitted array positions are not yet proven identical.
-- The C companion's `json_matches`, `program_allowed`, and `values_defined`
-  reparse JSON and confer partial program validity. `seen[1024]` crosses
-  function boundaries, omits parameters and lifecycle/PHI definitions, and
-  treats serialization order as dominance. Counterexample: one function's
-  `const dst=1` can satisfy another function's undefined `ret 1`, while a valid
-  parameter return can reject. An opcode whitelist cannot repair this model.
+- The C companion's former JSON validators are retired: its nonempty body path
+  only reaches `body-consumer-pending` after frame/site validation. This fixes
+  their cross-function value leakage and does not validate a physical program.
 - Opaque/transferred content: generic metadata/plans and unsupported operations
   must not enter a selected body as silent unconsumed siblings. Physical
   params, literals, Copy/Add, PHI, jump/branch, lifecycle normal/fault blocks
