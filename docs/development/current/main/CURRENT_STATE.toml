@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-D1"
-current_execution_cohort = "constructor_lifecycle_final_entry_physical_binding_d1"
-current_design_stop = "Step-2 physical-binding D1 must bind retained root result, Birth formal disposition, root/Birth membership, and cleanup obligation into one final-view compiled-entry contract before target/runtime, direct-input, C execution, or Bool work."
-current_blocker_token = "Runtime agreement D0 selected the lifecycle C body compiler as the future typed entry owner, but final view still lacks a physical function/result/formal contract. Do not use identity-only projections, positional C defaults, raw VM/kernel paths, or C schema inference as its substitute."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-I0"
+current_execution_cohort = "constructor_lifecycle_final_entry_physical_binding_i0"
+current_design_stop = "none"
+current_blocker_token = "I0 must issue one final-view-private physical compiled-entry contract from already retained final handoff and final MIR, replace identity-only/positional formal projection at the C-frame boundary, and reject drift before C pending."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,10 +36,10 @@ constructor/Birth final handoff and transport, deleting key-owner object
 derivation while preserving per-New receiver checks. Formal declaration/use D0
 now selects a constructor-issued BirthFormalContractV1: declaration class and
 complete use coverage are retained without actual-value specialization; I0 is
-landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. Runtime agreement D0 selects the lifecycle C body compiler as future typed entry owner; Step-2 physical-binding D1 is next because final view has no compiled-entry function/result/formal contract. Local/alias, typed integer and general Add remain separate NoIssuer families.
+landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. Runtime agreement selects the lifecycle C body compiler and physical-binding D1 selects final-view co-sealing; I0 now replaces identity-only/positional formal projection with one contract before C pending. Local/alias, typed integer and general Add remain separate NoIssuer families.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-D1"
-next_execution_card = "none (design stop)"
+next_design_card = "none (I0 active)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

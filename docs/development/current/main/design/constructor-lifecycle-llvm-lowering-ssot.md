@@ -1139,6 +1139,32 @@ physical-unavailable. Acceptance is selected Pair source → final handoff →
 one exact final-view function/result/formal contract. This D1 opens no C schema,
 object, EXE, kernel change, or Bool relation.
 
+**Decision (accepted):** after `prepare_external_commit`,
+`bind_finalized_root_birth_handoff`, and lifecycle activation, final-view
+admission is the sole physical issuer. It co-seals only existing handoff and
+final-MIR products into a view-private `CompiledEntryContractV1`; no semantic
+receipt is created. The contract has canonical Root then Birth membership,
+exact root result, each Birth target/object and ordered lanes paired with the
+existing formal disposition, matching Birth-call actual lanes, and normal/fault
+cleanup coordinates. The C body compiler consumes this contract.
+
+### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-I0`
+
+Replace the final-view identity-only root/result/Birth projections and C
+transport's raw `function.params` plus receiver/parameter-position defaults
+with the single physical contract. Bind `DeferredActualBinding` only to its
+exact final-MIR Birth-call operand; it remains a source disposition and never
+specializes from a literal. If no exact binding exists, reject
+physical-unavailable before C.
+
+Acceptance is selected Pair source → final handoff → exact Root/Birth contract
+→ existing C `body-consumer-pending`. Validate canonical membership, root
+result, each lane's ordinal/binding/disposition and paired actual, `HomeRelease`
+normal cleanup, `ReclaimUnpublished` fault cleanup, FaultFrame/ReturnFault
+coordinates. Foreign/duplicate/residual function, result/role drift,
+lane/call-actual/cleanup mismatch, or a missing/deferred unsupported binding
+rejects before C. No target/C schema/object/EXE/Bool claim opens.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
