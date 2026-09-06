@@ -104,25 +104,50 @@ impl<'module> PublishedMirBackendView<'module> {
                 .bind_retained_root(None)
                 .map_err(|error| error.to_string());
         };
-        let (root_key, birth_keys) = handoff.into_parts();
+        let (root_key, root_result, births) = handoff.into_parts();
         self = self
             .bind_retained_root(Some(&root_key))
             .map_err(|error| error.to_string())?;
-        if birth_keys.iter().any(|key| {
+        if births.iter().any(|birth| {
+            let key = birth.target();
             key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
                 || self
                     .module
                     .canonical_callable_definition_symbol(key)
                     .is_none()
+                || self
+                    .module
+                    .canonical_callable_definition_symbol(key)
+                    .and_then(|symbol| self.module.functions.get(symbol))
+                    .is_none_or(|function| birth.abi().physical_arity() != function.params.len())
         }) {
             return Err(fault("retained-birth-missing"));
         }
-        self.retained_birth_keys = Some(birth_keys);
+        self.retained_birth_keys = Some(
+            births
+                .iter()
+                .map(|birth| birth.target().clone())
+                .collect(),
+        );
+        self.retained_birth_abi = Some(births);
+        self.retained_root_result = root_result;
         Ok(self)
     }
 
     pub(crate) fn retained_root(&self) -> Option<&'module crate::mir::MirFunction> {
         self.retained_root
+    }
+
+    pub(crate) fn retained_birth_abi(
+        &self,
+    ) -> Option<&[crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]> {
+        self.retained_birth_abi.as_deref()
+    }
+
+    pub(crate) const fn retained_root_result(
+        &self,
+    ) -> Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1> {
+        self.retained_root_result
     }
 
     /// Diagnostic/physical borrow only; cloning this module does not carry
@@ -161,6 +186,12 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_birth_keys
             .as_deref()
             .ok_or_else(|| fault("retained-birth-handoff-missing"))?;
+        if !matches!(
+            self.retained_root_result,
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. })
+        ) {
+            return Err(fault("retained-root-result-missing"));
+        }
         self.lifecycle_instructions
             .extend(self.return_instructions.iter().copied().filter(|row| {
                 row.function_name == root_name

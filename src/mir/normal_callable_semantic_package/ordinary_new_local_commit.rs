@@ -4,6 +4,7 @@
 //! This retains their exact relation; it does not issue Home availability or
 //! claim that Fault cleanup is implemented.
 
+use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
@@ -53,6 +54,7 @@ pub(super) struct NewLocalCommitV1 {
     object: hakorune_mir_defs::CanonicalObjectIdV1,
     destruction: super::ObjectDestructionDispositionV1,
     birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+    birth_abi: Option<BirthAbiHandoffV1>,
     binding: BindingRefV1,
     declaration: SourceBindingSiteV1,
     initializer: Option<ValueId>,
@@ -67,17 +69,39 @@ pub(super) struct NewLocalCommitV1 {
 pub(crate) enum FinalizedRootBirthHandoffV1 {
     NoBirth {
         root_key: String,
+        root_result: Option<FinalizedRootResultAbiV1>,
     },
     Births {
         root_key: String,
+        root_result: Option<FinalizedRootResultAbiV1>,
         keys: Box<[CanonicalSameModuleCallableKeyV1]>,
+        births: Box<[BirthAbiHandoffV1]>,
     },
+}
+
+/// Final-handoff projection of the already-issued terminal source relation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum FinalizedRootResultAbiV1 {
+    I64AddReturn { owner: FunctionOwnerIdV1 },
 }
 
 impl FinalizedRootBirthHandoffV1 {
     pub(crate) fn root_key(&self) -> &str {
         match self {
-            Self::NoBirth { root_key } | Self::Births { root_key, .. } => root_key,
+            Self::NoBirth { root_key, .. } | Self::Births { root_key, .. } => root_key,
+        }
+    }
+
+    pub(crate) fn root_result(&self) -> Option<FinalizedRootResultAbiV1> {
+        match self {
+            Self::NoBirth { root_result, .. } | Self::Births { root_result, .. } => *root_result,
+        }
+    }
+
+    pub(crate) fn births(&self) -> &[BirthAbiHandoffV1] {
+        match self {
+            Self::NoBirth { .. } => &[],
+            Self::Births { births, .. } => births,
         }
     }
 
@@ -88,10 +112,24 @@ impl FinalizedRootBirthHandoffV1 {
         }
     }
 
-    pub(crate) fn into_parts(self) -> (String, Box<[CanonicalSameModuleCallableKeyV1]>) {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        String,
+        Option<FinalizedRootResultAbiV1>,
+        Box<[BirthAbiHandoffV1]>,
+    ) {
         match self {
-            Self::NoBirth { root_key } => (root_key, Box::new([])),
-            Self::Births { root_key, keys } => (root_key, keys),
+            Self::NoBirth {
+                root_key,
+                root_result,
+            } => (root_key, root_result, Box::new([])),
+            Self::Births {
+                root_key,
+                root_result,
+                keys: _,
+                births,
+            } => (root_key, root_result, births),
         }
     }
 }
@@ -110,6 +148,7 @@ impl NewLocalCommitV1 {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         destruction: super::ObjectDestructionDispositionV1,
         birth_target: Option<CanonicalSameModuleCallableKeyV1>,
+        birth_abi: Option<BirthAbiHandoffV1>,
     ) -> Self {
         Self {
             box_source,
@@ -117,6 +156,7 @@ impl NewLocalCommitV1 {
             object,
             destruction,
             birth_target,
+            birth_abi,
             binding,
             declaration,
             initializer: None,
@@ -164,7 +204,14 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
+        let root_result = self.terminal_result.as_ref().map(|relation| {
+            if relation.owner() != owner || !self.terminal_result_complete() {
+                return Err(freeze("artifact-root-result-unavailable"));
+            }
+            Ok(FinalizedRootResultAbiV1::I64AddReturn { owner })
+        }).transpose()?;
         let mut keys = BTreeSet::new();
+        let mut births = Vec::new();
         for row in self
             .local_commits
             .borrow()
@@ -175,22 +222,38 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("artifact-local-commit-incomplete"));
             }
             let Some(key) = &row.birth_target else {
+                if row.birth_abi.is_some() {
+                    return Err(freeze("artifact-birth-abi-without-target"));
+                }
                 continue;
             };
             let key = key.clone();
+            let relation = row
+                .birth_abi
+                .as_ref()
+                .ok_or_else(|| freeze("artifact-birth-abi-missing"))?;
+            if relation.target() != &key || relation.owner() == owner {
+                return Err(freeze("artifact-birth-abi-drift"));
+            }
             if !construction_keys.contains(&key) {
                 return Err(freeze("artifact-birth-construction-missing"));
             }
             if !keys.insert(key) {
                 return Err(freeze("artifact-birth-recipe-duplicate"));
             }
+            births.push(relation.clone());
         }
-        Ok(if keys.is_empty() {
-            FinalizedRootBirthHandoffV1::NoBirth { root_key }
+        Ok(if births.is_empty() {
+            FinalizedRootBirthHandoffV1::NoBirth {
+                root_key,
+                root_result,
+            }
         } else {
             FinalizedRootBirthHandoffV1::Births {
                 root_key,
+                root_result,
                 keys: keys.into_iter().collect(),
+                births: births.into_boxed_slice(),
             }
         })
     }

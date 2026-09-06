@@ -13,6 +13,7 @@ use std::{cell::RefCell, collections::BTreeMap};
 use super::instance_constructor_semantic::{
     InstanceConstructorBirthLookupErrorV1, VerifiedInstanceConstructorSemanticBatchV1,
 };
+pub(crate) use self::birth_abi_handoff::{BirthAbiHandoffV1, BirthResultAbiV1};
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use crate::ast::ASTNode;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -42,8 +43,10 @@ pub(crate) use terminal_result::PreparedTerminalI64AddReturnV1;
 mod local_commit;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
+#[path = "birth_abi_handoff.rs"]
+mod birth_abi_handoff;
 
-pub(crate) use local_commit::FinalizedRootBirthHandoffV1;
+pub(crate) use local_commit::{FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -124,6 +127,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     root_validation: RefCell<local_commit::RootNewValidation>,
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
     field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
+    birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     terminal_result: Option<TerminalI64AddReturnV1>,
     terminal_result_progress: RefCell<terminal_result::Progress>,
     root_completion: Option<
@@ -169,6 +173,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
             root_exit: RefCell::new(local_commit::RootHomeExitProgress::Unprepared),
             field_reads: RefCell::new(BTreeMap::new()),
+            birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             terminal_result: None,
             terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
@@ -211,6 +216,10 @@ impl OrdinaryNewClaimLedgerV1 {
             OrdinaryNewConstructorDispositionV1::NoBirthZero => None,
             OrdinaryNewConstructorDispositionV1::Birth(recipe) => Some(recipe.target_ref().clone()),
         };
+        let birth_abi = self.birth_abi_handoffs.borrow_mut().remove(site);
+        if birth_abi.as_ref().map(BirthAbiHandoffV1::target) != birth_target.as_ref() {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
         commits.insert(
             site.clone(),
             local_commit::NewLocalCommitV1::pending(
@@ -222,6 +231,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.object,
                 claim.destruction,
                 birth_target,
+                birth_abi,
             ),
         );
         Ok(Some(
@@ -240,6 +250,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .all(|row| row.is_complete())
             && self.root_home_exit_is_complete()
             && self.field_reads_complete()
+            && self.birth_abi_handoffs.borrow().is_empty()
             && self.terminal_result_complete()
     }
 
@@ -320,6 +331,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     let mut root_completion = None;
     let mut root_field_reads = BTreeMap::new();
     let mut root_terminal_result = None;
+    let mut birth_abi_handoffs = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -512,6 +524,17 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                                 site: site.clone(),
                                 class: class.clone(),
                             })?;
+                        let birth_abi = BirthAbiHandoffV1::issue(row, target.clone(), abi)
+                            .map_err(|_| OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
+                                site: site.clone(),
+                                class: class.clone(),
+                                arity,
+                            })?;
+                        if birth_abi_handoffs.insert(site.clone(), birth_abi).is_some() {
+                            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite {
+                                site: site.clone(),
+                            });
+                        }
                         OrdinaryNewConstructorDispositionV1::Birth(
                             VerifiedOrdinaryNewBirthRecipeV1 {
                                 source_id: row.source_id().clone(),
@@ -556,6 +579,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
     ledger.root_completion = root_completion;
     ledger.field_reads = RefCell::new(root_field_reads);
+    ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_result = root_terminal_result;
     Ok(ledger)
 }

@@ -842,11 +842,12 @@ JSON, C defaults, positional lane rules and the Pair fixture.
 Fail-fast boundary: missing/foreign/duplicate/residual root result, Birth
 source/ABI, receiver/formal or one-way transfer rejects before final-view
 lifecycle activation and before C.
-Smallest next slice: implement this BoxShape in the constructor semantic row,
-ordinary-New local commit/final handoff, final-view binder and lifecycle C-frame
-projection. The frame must copy the issued lanes, never synthesize wire/input
-kind from physical ordinal. Test root I64/Birth Unit, receiver lane, ordered
-arguments and missing/foreign/duplicate/drift rejection before C.
+Landed slice: the constructor row now issues the immutable relation; the
+ordinary-New ledger transfers it once through local commit and final sealing;
+the final view retains it and the lifecycle C-frame projects its issued lanes.
+The frame copies the receiver/formal relation and never derives wire input kind
+from a physical ordinal. Focused source-lane and selected final-view/C-frame
+tests pass, together with the unchanged C header and pending-consumer ABI test.
 Non-claims: C opcode lowering, source execution, EXE30/OBJ30, a new semantic
 source interpretation, generic C migration or legacy deletion.
 

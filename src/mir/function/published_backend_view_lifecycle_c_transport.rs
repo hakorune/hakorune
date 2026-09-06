@@ -243,32 +243,90 @@ impl PublishedLifecycleCFrameV2 {
     fn populate(&mut self, view: &PublishedMirBackendView<'_>) -> Result<(), String> {
         let module = view.module();
         module.validate_object_definition_membership()?;
-        let definitions: Vec<_> = module.canonical_callable_definitions.iter()
-            .filter(|(key, _)| key.namespace() == SameModuleCallableNamespaceV1::BirthConstructor)
-            .collect();
-        for (index, (key, symbol)) in definitions.iter().enumerate() {
-            let function = module.functions.get(*symbol).ok_or_else(|| fault("definition-missing"))?;
-            let object_id = module.metadata.canonical_object_membership.as_ref()
+        let birth_abis = view
+            .retained_birth_abi()
+            .ok_or_else(|| fault("birth-abi-handoff-missing"))?;
+        let mut definitions = Vec::with_capacity(birth_abis.len());
+        for (index, birth) in birth_abis.iter().enumerate() {
+            let key = birth.target();
+            if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
+                || birth.result() != crate::mir::normal_callable_semantic_package::BirthResultAbiV1::Unit
+                || birth.receiver().source_ordinal().is_some()
+                || birth.receiver().physical_lane() != 0
+                || birth.parameters().iter().enumerate().any(|(index, formal)| {
+                    formal.source_ordinal() != Some(index as u32)
+                        || formal.physical_lane() != index as u32 + 1
+                })
+            {
+                return Err(fault("birth-abi-relation-invalid"));
+            }
+            let symbol = module
+                .canonical_callable_definition_symbol(key)
+                .ok_or_else(|| fault("definition-missing"))?;
+            let function = module
+                .functions
+                .get(symbol)
+                .ok_or_else(|| fault("definition-missing"))?;
+            if function.params.len() != birth.abi().physical_arity() {
+                return Err(fault("birth-physical-lane-count"));
+            }
+            let object_id = module
+                .metadata
+                .canonical_object_membership
+                .as_ref()
                 .and_then(|membership| membership.get(key.owner()))
                 .ok_or_else(|| fault("definition-object-missing"))?;
+            definitions.push((key, symbol));
             let function_name = self.push_string(symbol)?;
             let target_symbol = self.push_string(&key.mir_symbol_projection())?;
             self.definitions.push(PublishedLifecycleDefinitionCRowV2 {
-                function_name, target_symbol, role: 1, source_arity: key.arity(),
-                receiver_formal: 0, object_id: object_id.declaration_index(), result_kind: 0,
-                frame_mode: definition_frame_mode(function)?, flags: 0,
+                function_name,
+                target_symbol,
+                role: 1,
+                source_arity: as_u32(birth.abi().source_arity(), "source-arity")?,
+                receiver_formal: birth.receiver().physical_lane(),
+                object_id: object_id.declaration_index(),
+                result_kind: 0,
+                frame_mode: definition_frame_mode(function)?,
+                flags: 0,
             });
-            for (physical_ordinal, value) in function.params.iter().enumerate() {
+            for formal in std::iter::once(birth.receiver()).chain(birth.parameters().iter().copied()) {
+                let value = function
+                    .params
+                    .get(formal.physical_lane() as usize)
+                    .ok_or_else(|| fault("birth-physical-lane-missing"))?;
                 self.formals.push(PublishedLifecycleFormalCRowV2 {
                     definition_index: as_u32(index, "definition-index")?,
-                    source_ordinal: if physical_ordinal == 0 { u32::MAX } else { as_u32(physical_ordinal - 1, "source-ordinal")? },
-                    physical_ordinal: as_u32(physical_ordinal, "physical-ordinal")?,
-                    value_id: value.0, wire_revision: 2,
-                    input_kind: if physical_ordinal == 0 { 1 } else { 2 },
+                    source_ordinal: formal.source_ordinal().unwrap_or(u32::MAX),
+                    physical_ordinal: formal.physical_lane(),
+                    value_id: value.0,
+                    wire_revision: 2,
+                    input_kind: if formal.source_ordinal().is_none() { 1 } else { 2 },
                 });
             }
         }
-        if self.definitions.is_empty() { return Err(fault("birth-definition-missing")); }
+        let Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }) = view.retained_root_result() else {
+            return Err(fault("root-result-handoff-missing"));
+        };
+        let root = view
+            .retained_root()
+            .ok_or_else(|| fault("root-result-root-missing"))?;
+        let root_name = self.push_string(&root.signature.name)?;
+        let root_symbol = self.push_string(&root.signature.name)?;
+        self.definitions.push(PublishedLifecycleDefinitionCRowV2 {
+            function_name: root_name,
+            target_symbol: root_symbol,
+            role: 2,
+            source_arity: 0,
+            receiver_formal: u32::MAX,
+            object_id: u32::MAX,
+            result_kind: 1,
+            frame_mode: definition_frame_mode(root)?,
+            flags: 1,
+        });
+        if self.definitions.is_empty() {
+            return Err(fault("birth-definition-missing"));
+        }
 
         let object_definitions = module.canonical_object_definitions()
             .ok_or_else(|| fault("object-definitions-missing"))?;
@@ -392,7 +450,7 @@ impl PublishedLifecycleCFrameV2 {
     }
 }
 
-fn operation_row(operation: &InvokeOperation, definitions: &[(&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, &String)])
+fn operation_row(operation: &InvokeOperation, definitions: &[(&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, &str)])
     -> Result<(u32, u32, u32, u32, u32, u32, u32, Vec<u32>), String> {
     let absent = u32::MAX;
     Ok(match operation {
