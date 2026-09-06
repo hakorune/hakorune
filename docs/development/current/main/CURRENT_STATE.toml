@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-ARM-SELECTION-D1"
-current_execution_cohort = "constructor_lifecycle_root_scalar_terminal_arm_selection"
-current_design_stop = "Select one non-I64Add source terminal arm and its physical terminal/ABI consumer or existing typed physical-unavailable terminal; do not issue a duplicate retention row from Completion alone."
-current_blocker_token = "ROOT-SCALAR-TERMINAL-RELATION-AND-CONSUMER-MISSING: Completion is retained, but Unit/literal/local/field/mixed-Add have no exact relation plus final/view/C consumer beyond I64Add."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-I0"
+current_execution_cohort = "constructor_lifecycle_root_unit_return"
+current_design_stop = "none (explicit bare return D1 accepted)"
+current_blocker_token = "Root UnitReturn I0 must retain only Completion-backed explicit bare return and reach the existing pending C terminal; all value-bearing and implicit terminal arms remain unavailable."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,11 +37,11 @@ derivation while preserving per-New receiver checks. Formal declaration/use D0
 now selects a constructor-issued BirthFormalContractV1: declaration class and
 complete use coverage are retained without actual-value specialization; I0 is
 landed with handoff drift rejection. Root terminal D0 completed its finite
-audit; D1 must choose a non-I64Add arm and real physical consumer before any
-retention implementation. Physical actual binding remains deferred.
+audit; D1 selects explicit bare return and existing C pending as the next
+bounded I0. Physical actual binding remains deferred.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-ARM-SELECTION-D1"
-next_execution_card = "none (design-stop decision required)"
+next_design_card = "none (fast bounded implementation selected)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-I0"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

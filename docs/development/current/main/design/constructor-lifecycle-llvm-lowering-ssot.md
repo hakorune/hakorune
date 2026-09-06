@@ -945,13 +945,45 @@ blocker is `ROOT-SCALAR-TERMINAL-RELATION-AND-CONSUMER-MISSING`.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-ARM-SELECTION-D1`
 
-The next D1 must select exactly one non-I64Add source arm and name its physical
-terminal/ABI consumer, or an existing typed physical-unavailable terminal that
-keeps source acceptance. Only then may a bounded I0 co-seal existing Completion
-with its exact return relation, extend that selected consumer, and delete the
-arm's owner-only/I64Add-only projection. It must prove positive source handling
-and missing/foreign/site/owner drift rejection. It cannot classify results from
-MIR values, function signatures, C tags or process status.
+**Decision (accepted): select explicit bare `return` only.** Source authority
+is the same-session `VerifiedFunctionCompletionV1` already retained by the
+ordinary-New ledger, co-sealed with its exact bare-return statement site. It
+does not include implicit fallthrough, `void`/`null`, literal, local, field,
+Add or Bool. A bare return is `Return(Unit)` by language semantics and therefore
+requires no value class, binding, initializer, field, arithmetic, ABI-value or
+process-status inference.
+
+The selected consumer chain is final root handoff -> lifecycle view -> existing
+typed C ingress. Its physical terminal remains
+`[published-lifecycle/body-consumer-pending]`: the frame already transports a
+value-free `Return`, while artifact/object admission stays unavailable. The
+exclusive old loss edge is `scan_new_home_flow` accepting bare return as a
+boolean scalar-completion result without issuing a terminal relation, followed
+by the final handoff's I64Add-only result projection.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-I0`
+
+- **Bounded change:** co-seal existing root Completion owner and exact explicit
+  bare-return site in the ordinary-New ledger; retain `UnitReturn { owner }`
+  through final handoff and lifecycle view, replacing the selected bare-return
+  true-without-relation loss edge.
+- **Authority / non-authority:** exact root source and Completion are sole
+  authority. `MirInstruction::Return { value: None }`, frame kind/mode tags,
+  signature, process exit and every `i64` value are validation-only or
+  non-authority.
+- **Consumer / terminal:** root finishing validation and the existing lifecycle
+  frame consume the retained relation; C reaches its existing named pending
+  terminal before artifact creation. No LLVM object, EXE, OBJ-linked EXE, C
+  ABI expansion or status-0 execution claim opens.
+- **Fail-fast / acceptance:** missing/foreign Completion, non-Unit or non-bare
+  exit, source-site/owner drift, duplicate or mixed I64Add relation, finishing
+  drift and return-control disagreement reject. A selected New-prefix source
+  with explicit bare return reaches `UnitReturn` then the pending C terminal.
+  Return-with-value and all unselected terminal arms retain their current
+  unavailable disposition. Reuse focused source/final-view/C ingress tests and
+  existing guards; no fixture, generic result receipt or fallback.
+- **Size:** extend existing children before parents reach 760 lines (800 hard
+  stop). This is one arm only; do not widen it under `Unit`.
 
 ### Following tasks and unresolved decisions
 
