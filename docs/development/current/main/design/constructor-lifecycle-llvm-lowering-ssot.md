@@ -351,25 +351,13 @@ families, final-MIR layout and target/runtime/C.
 | New allocation identity/result | ordinary-New claim site/object/destination -> selected New emitter | Identity present; result handle partial and cannot be inferred from `MirType::Box`. |
 | Birth Unit result | `BirthAbiHandoffV1` Unit completion -> final handoff -> lifecycle transport | Present; no new representation row. |
 | Birth receiver handle | Birth receiver lane plus construction object -> claim take -> selected New emitter | Existing products, later co-seal only. |
-| Birth FieldSet literal/parameter RHS | construction plan exact RHS recognition -> raw selected statement path -> construction-store emitter | ExistingIssuerButConsumerMissing / NoSafeSlice. The selected path takes the store then re-lowers target and RHS AST; no AST-free RHS consumer exists. |
+| Birth FieldSet literal/parameter RHS | construction plan exact RHS recognition -> selected construction-state consumer -> FieldSet emitter | Existing issuer and consumer / I0 selected. Retain the descriptor and delete the selected target/RHS raw replay together. |
 | Birth unused/untyped parameter | lane exists but source class/use relation does not | NoIssuer; never default to i64. |
 | Copy/PHI/frame/normal-result/control values | no source issuer | NoIssuer as source product; later physical owner only. |
 
-The proposed FieldSet RHS I0 is **not implementation-ready**. In the current
-selected path, `take_construction_store_v1()` only selects a store; the raw
-statement dispatcher then calls `drive_legacy_expression_v1` on both target
-and RHS before `emit_construction_store_v1`. `TakenConstructionStore` contains
-only site/field/receiver, while its emitter accepts bare physical values. A
-retained RHS would therefore be unconsumed and cannot be promoted.
-
-`CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-D3` must decide one route:
-extend the existing selected statement-store path with an issuer-retained RHS
-descriptor and retire its selected target/RHS raw descent, or name an existing
-source-projected child port that consumes it. `Parameter(BindingRefV1)` can use
-the existing exact-binding primitive; literal i64 needs a named retained payload
-and emitter rule. Neither may be inferred from AST, `MirType` or physical
-values. Until this is decided, no `ConstructionPlanV1` row, receipt, fixture or
-fallback is added.
+The D3 audit found one closed selected consumer route. It is recorded below;
+the prior raw replay is the old edge to delete in the same I0, rather than a
+fallback retained beside the new consumer.
 
 Root trivial-New arguments share the same raw-child re-lowering problem and
 are also NoSafeSlice until their consumer is named. The later Birth receiver
@@ -377,6 +365,58 @@ co-seal remains separately auditable because selected emission already uses the
 allocation result as receiver, but it must prove a final validator before it is
 selected. None of these rows creates a representation for root formals,
 arbitrary values or unused/untyped Birth parameters.
+
+## D3: Birth FieldSet RHS consumer decision
+
+Decision: open `CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-I0` as one
+BoxShape. Extend the existing `ConstructionPlanV1` store row; do not add a
+second source table, semantic receipt, child port, target ABI, or C path.
+
+Source authority + canonical issuer: `instance_construction::issue_construction_plan`
+already owns the parser-declaration loan, the exact resolved assignment/source
+sites, canonical field and accepted RHS relation. Its existing store row issues
+one private RHS descriptor: `LiteralI64(i64)` or `Parameter(BindingRefV1)`.
+
+Non-authority: assignment/field-access AST after issuance, variable names,
+binding/lane ordinals, `MirType`, emitted `ValueId`, raw child sources,
+metadata, target/runtime/C transport and generic assignment lowering.
+
+Fail-fast boundary: source issuance rejects every RHS other than the exact
+integer literal or a resolved local Birth parameter before plan installation.
+Installation/take rejects duplicate, missing or foreign stores; parameter
+materialization uses `value_for_exact_binding(owner, binding)` and rejects its
+owner/binding/value failures. Emission rejects an unavailable selected state
+before `FieldSet`; it never re-enters raw AST lowering.
+
+Smallest next slice: retain that descriptor with the existing store, transfer it
+in `TakenConstructionStore`, and make `emit_construction_store` consume the
+taken store directly. Literal physicalization uses the existing named
+`emission::constant::emit_integer`; parameter physicalization uses the existing
+exact-binding primitive. The selected statement branch becomes
+`take -> emit -> Lowered(value)`, deleting only its assignment destructure,
+target-shape check, prepared target/RHS child sources, structured child scope,
+two `drive_legacy_expression_v1` calls and demand completion.
+
+Non-claims: generic child-port retirement, root trivial-New arguments, Birth
+receiver co-seal, source-shape widening, representation coverage for untyped
+parameters, target ABI/C activation, Pair EXE/OBJ30 and production cutover.
+
+Census boundary: the selected Birth assignment statement after exact
+construction-store take -> its unique selected construction emitter -> retained
+construction final validation. Includes literal and Birth-parameter RHS,
+receiver/field/value/block FieldSet bindings and the selected raw-replay edge.
+Excludes generic assignment consumers, other child-port callers, other
+constructor forms, final-view/LLVM/runtime/C and root New arguments.
+
+| Owner/caller/terminal | I0 change and exclusive delete-set | Acceptance |
+| --- | --- | --- |
+| `issue_construction_plan` -> `install_construction` -> `take_construction_store` -> `statement_surface` -> `emit_construction_store` -> `validate_bindings` | Store the exact RHS descriptor beside the existing resolved assignment and canonical field; carry it in `TakenConstructionStore`; emit the RHS and FieldSet from that taken product. Delete the selected branch's raw target/RHS descent only. `RawStructuredChildScopePortV1`, `RawInvocationChildPortV1` and generic helpers retain their other callers. | Ordinary-New Birth positives for literal and parameter stores, including reversed declaration/store order. Source negatives for unsupported RHS and non-parameter/wrong binding; physical negatives for foreign/missing/duplicate stores and unavailable/foreign binding; final-validation mutations for FieldSet base/value/block drift. |
+
+`statement_surface` is the only direct `take_construction_store_v1` caller;
+the raw invocation/structured ports only forward it. The terminal already checks
+concrete `FieldSet` ownership, base/value/block and completion. I0 extends those
+checks with the retained descriptor relation as needed; no compatibility retry
+or AST re-read is permitted.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
