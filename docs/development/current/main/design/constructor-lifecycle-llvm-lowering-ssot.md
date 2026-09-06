@@ -473,29 +473,40 @@ target/runtime/C.
 
 ## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-ISSUER-D5
 
-Decision: design only; extend no code, fixture, fallback or production switch.
+Decision: implementation-ready BoxShape. Co-seal ordered affine argument rows
+inside the existing `OrdinaryNewAdmissionClaimV1`; add neither an issuer nor a
+standalone receipt.
 
 Source authority + canonical issuer: the exact resolver-batch loan in
-`issue_ordinary_new_claims_v1` is the named existing issuer. The candidate
-relation is an affine, ordered child row co-sealed inside its existing
-`OrdinaryNewAdmissionClaimV1`, at minimum `(owner, New site, CallArgument
-ordinal, trivial source class/site)`.
+`issue_ordinary_new_claims_v1` issues every selected direct-local New claim.
+Its existing child walk already owns exact `CallArgument(i)` source roles. The
+co-sealed row is `(owner, New site, ordinal, argument site, kind)`, where kind
+is `Integer(i64)`, `Bool(bool)`, or `LocalTrivial { binding }`. Ordinals are
+exactly `0..arity`, unique and owner/site-consistent. A Bool value is copied
+from the same resolved literal source expression at issuance; its generic
+literal category alone is insufficient.
 
 Non-authority: `CallerNewHomePrefixV1` as an argument issuer, raw AST/child
 scope, names, `MirType`, `ValueId`, physical ABI/C and a new semantic receipt.
 
-Fail-fast boundary: an absent, duplicate, foreign, ordinal-drifted or
-nontrivial row rejects before child effects. Until a final terminal consumes
-every row exactly once, the selected raw argument loop remains necessary and
-cannot be deleted.
+Fail-fast boundary: missing, duplicate, foreign, ordinal-drifted or nontrivial
+rows reject before child effects. `emit_integer`/`emit_bool` materialize literal
+rows; `observe_variable_site` consumes a trivial-local row with its exact
+binding/current value. The root New finalizer rejects residual rows,
+value/order/call-argument drift before publication.
 
-Smallest next slice: audit existing source-site consumption primitives and the
-final New terminal to name one bounded consumer and its same-series exclusive
-raw-replay delete-set, or retain `NoSafeSlice`.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-NEW-TRIVIAL-ARGUMENT-CONSUMER-I0`.
+Take the selected claim before raw child-demand creation; the existing selected
+New emitter consumes all rows and retains their emitted argument values for the
+existing root New finalizer.
 
 Non-claims: a general root SSA/argument representation, nontrivial arguments,
 Birth receiver co-seal, target ABI/C activation, Pair EXE/OBJ30 and production
 cutover.
+
+| Owner/caller/terminal | I0 change and exclusive delete-set | Acceptance |
+| --- | --- | --- |
+| `issue_ordinary_new_claims_v1` -> selected claim take -> selected ordinary-New emitter -> root New finalizer | Co-seal ordered argument rows in the existing claim; materialize/consume them at the selected emitter and validate exact emitted Call argument order/value. Delete the selected raw argument loop, selected `CallArgument` child-source creation/queue completion, and selected route's raw argument carriage. The unselected compatibility loop and generic child infrastructure remain. | Positive selected direct-New integer, bool and trivial-local argument cases; source negatives for nontrivial/missing/duplicate/foreign/ordinal drift; finalizer mutations for residual/value/order/call-argument drift; guard confirms selected path has no raw argument descent. |
 
 Step 1's exact source inventory and step 3's final-entry status connection are
 explicit remaining design obligations. Do not mislabel this roadmap as a
