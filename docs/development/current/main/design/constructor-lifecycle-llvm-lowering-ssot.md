@@ -747,6 +747,22 @@ its existing production consumer and finalization. No classifier change.
   parents are currently 663/666 lines for co-seal/local-commit: design a child
   at 760 and stop before 800; never compress code to satisfy the limit.
 
+Landed at `482666ef07`: AppMain identity and exact terminal remain one ledger
+relation through final validation and the borrowed view. Alias and multiple-Home
+Pair cases prove exact source retention; several exact New sites retain one
+canonical Birth definition while their local emissions remain independently
+validated. Pair EXE/OBJ30 and C activation remain open.
+
+### `CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-D0`
+
+Decision required before the next implementation row: take the finite remaining
+Step-1 inventory—Birth receiver/formal classes, root terminal arms without the
+direct two-read relation, and cleanup-origin rows—and name the existing source
+issuer, one live consumer, exclusive loss edge, and pre-effect rejection for
+each. The D0 must select one closed BoxShape successor or mark that family
+`NoSafeSlice`; it cannot issue a generic result/formal receipt, infer missing
+types from MIR, add a fixture, or touch the C path.
+
 ### Remaining order
 
 After this I0, resume the existing Ordered tasks in this document. Complete
@@ -779,3 +795,23 @@ Only a chosen successor may delete the C command builders and canonical temp
 `.ll` route. `ll_tool_driver.rs` is a separate Rust seam and is not deleted by
 implication. This task does not claim runtime speed, concurrent compilation,
 or automatic LLVM embedding.
+
+### Feedback reconciliation queue (2026-09-07)
+
+The following audit findings are queued here rather than opened as parallel
+authorities. Their order follows the existing constructor lifecycle: source and
+physical input first, selected host cutover next, then physical cleanup.
+
+| Order / task | Owner and bounded change | Gate and acceptance |
+| --- | --- | --- |
+| 4-pre. `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0` | Step 4's existing Rust/C physical ABI owner names each absent source ordinal currently encoded as `u32::MAX`, replaces only anonymous literals in that frame, and rejects impossible presence combinations. | Wire bytes stay unchanged; Rust/C boundary cases prove absent versus ordinal semantics. It cannot issue receiver/source meaning or permit LLVM execution. |
+| 4. `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0` | Step 4's existing `physical_program_json.rs` owner constructs the final ABI input once and passes it directly to its consumer; delete the intermediate JSON-string `from_str` reparse. | Only after Steps 1–3 and the sentinel contract have issued the complete input. Actual issued Pair input and variant/range/coverage/target negatives pass the same parser. This is parser evidence, never host cutover. |
+| 6a. `PUBLISHED-BACKEND-VIEW-PLACEMENT-R0` | After the selected reader is stable and old wrapper callers are zero, move the two `#[path]`-mounted transport implementation files under their owning published-view module and remove the mounts. | One physical module tree, direct/manifest/aggregate/directory caller census zero for the old paths, and unchanged selected acceptance. This is placement only, not a second view authority. |
+| 6b. `NORMAL-CALLABLE-SEMANTIC-README-R0` | After constructor lifecycle closeout, condense dated journal material in the semantic package README into current authority, boundary and landed-evidence sections. | Preserve every live contract link and current decision; no semantic or production-edge change. |
+| post-6. `C-LLVM-COMPILE-SESSION-INPROCESS-D0` | The parked in-process investigation above owns the C `system()` tool route. | It begins only after Steps 5–6; choice and equivalence acceptance above are required before deleting tool invocations. |
+
+No separate task is opened for a claimed generic JSON hot path: the audited
+reparse is the Step-4 physical-input construction above. The `#[path]` files
+are one implementation mounted from two module locations during migration, not
+two semantic issuers. The README and placement cleanups wait for their live
+consumer/contract to stabilize, so they cannot obscure constructor cutover.
