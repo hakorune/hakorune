@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
-current_design_stop = "none"
-current_blocker_token = "BoxShape: issue one package-side SelectedSourceBackedAppMain capability after app_main_relation validation and make resolved_value_profile consume it for NormalMain0 policy. It replaces no canonical-core role and changes no admitted expression; Pair field-read/Add remains the next BoxCount. Do not infer from MIR or reuse cross-session canonical roles."
+current_design_stop = "constructor prerequisite and backend/runtime task order recorded; user-requested design pause"
+current_blocker_token = "Design pause: constructor source-profile prerequisite must close actual consumer and exclusive old-edge replacement before implementation. Pair field-read/Add and EXE30/OBJ30 remain open. Ordered followups: canonical/compatibility separation, compile-call state, kernel hook single storage, later runtime dependency reduction; see workstream and C ABI README."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -41,8 +41,8 @@ without admitting Pair field access. The next BoxCount remains exact field
 read -> Add -> return. Pair EXE30/linked OBJ30, Fault/cleanup and selected
 legacy deletion remain open; no source runtime claim is made.
 """
-next_design_card = "none"
-next_execution_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_design_card = "MIR-CALL-LEGACY-READER-STOP-R0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

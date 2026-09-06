@@ -550,15 +550,15 @@ unrelated helper deletion leaves this boundary.
    field read -> Add -> return source facts for Pair, or retain NoSafeSlice.
    The existing field facts and profile must co-seal source relations; no
    physical field-read ledger, ObjectFieldGet or inferred type is authority.
-3. Consume one physical program: selected C companion places function-local
+4. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
    Acceptance: Normal-only allocation load, explicit I64 wire mapping, Birth
    Unit/no out, root-owned vs borrowed Fault frame, InvalidContract distinct from
    source Fault, primary Fault preserved through cleanup. Missing/duplicate/
-   residual/unsupported rows stop before artifact. Task 2 must close root ABI,
+   residual/unsupported rows stop before artifact. Source handoff must close root ABI,
    diagnostic site rule and every selected block/operand relation first.
-4. Execute and retire: actual normal-source typed CLI -> shared published host
+5. Execute and retire: actual normal-source typed CLI -> shared published host
    -> C -> EXE; same source -> OBJ -> linked executable. Replace the selected
    proof's legacy JSON caller; identify/delete selected old caller arms in the
    same cutover series. Acceptance: both executions exit 30; profile and Fault
@@ -567,7 +567,7 @@ unrelated helper deletion leaves this boundary.
    No retirement closure without exclusive caller proof and the inventory below.
 
 Task 2 is a bounded handoff prerequisite, not a preapproved new semantic owner.
-Task 3 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
+Task 4 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
 branches, lifecycle continuations and return must preserve the issued program.
 Do not discover source-to-Recipe meaning by iteratively adding C opcode cases.
 These gates are one connected series; do not create a docs/test/commit tasklet
@@ -584,7 +584,7 @@ re-entry, excludes unrelated generic cohorts. Cutover remains CutoverBlockerOpen
 | --- | --- |
 | Three private companion JSON helpers and calls | Exclusive first Stop/Delete set; preserve ABI/site checks and pending export |
 | Source pipeline callback that manually returns pending | Dependency evidence only; cannot certify egress/host/C; exercise actual consumer in task 2 |
-| Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 4, inspect direct/manifest/aggregate/directory discovery before retirement or park |
+| Existing `typed_object_birth_min_exe.sh` | Selfhost JSON -> standalone ny-llvmc with legacy metadata assertions; replace selected acceptance caller in task 5, inspect direct/manifest/aggregate/directory discovery before retirement or park |
 | Unused Rust `compile_published_lifecycle_v2` wrappers | Separate caller-zero cleanup candidate; exported C preartifact symbol has a direct test caller and is retained |
 | Shared `same_module_*` / generic NewBox, field and call helpers | Not an exclusive delete-set. Prohibit selected re-entry; remove only arms proven exclusive after typed switch, never the shared files wholesale |
 | Pair source result and root/Birth handoff | App Main profile capability is the first BoxShape; field-read/Add stays a later NoSafeSlice and handoff remains CutoverBlockerOpen |
@@ -600,21 +600,28 @@ no new baseline names, fallback/retry or partial artifact. Only then continue
 the existing Call/R7 -> Loop -> language/selfhost order. VM/WASM parity and
 unrelated performance remain outside this task.
 
-### Selection without another design-stop loop
+### Backend/runtime feedback and task order (2026-09-06)
 
-Ready task 1 is selected now; remaining rows are dependency-queued, not
-implementation permission for every family. A missing contract within this
-user-authorized planning scope gets one bounded design decision in its existing
-owner: exact unresolved field, alternatives, chosen boundary, consumer and
-next code change. Do not wait for a new caller to appear spontaneously.
-Genuinely new language/product capability decisions still require an explicit
-decision; never manufacture identity or silently reject accepted scope.
+Decision: retain C ABI and the physical C LLVM backend; separate compatibility
+selection and make each runtime/compile state have one owner. Planning stops here.
+Source authority + canonical issuer: source Facts/Recipe -> Atomic Publish;
+backend consumes published relations; runtime hook owner accepts registrations.
+Non-authority: JSON names, C language choice, duplicate registries and local green.
+Fail-fast boundary: missing selected authority stops before effects/artifact;
+no unproved canonical-to-compatibility fallback or concurrency guarantee.
+Smallest next slice: constructor source-profile prerequisite above, after its
+actual consumer and exclusive old-edge replacement are closed; no new receipt now.
+Non-claims: Pair EXE30/OBJ30, legacy retirement, races or compiler binary size.
 
-Park only the affected family and select another ready existing dependency.
-Unclassified verification failures take priority over semantic/cleanup changes.
-Count completed runtime behavior and retired edges separately from explicit
-unsupported dispositions and test/LOC reductions. No new per-row guard,
-receipt, ledger or repeated broad census is required.
+Order: constructor tasks 2–5 -> canonical/compatibility selection separation ->
+compile-call state/options -> kernel hook single storage -> later runtime crate
+dependency reduction. Retire each selected old edge within its own series;
+do not postpone deletion to a final cleanup project. A demonstrated shared-state
+failure on the selected constructor path reopens that dependency immediately.
+The [C boundary owner](../../../../../lang/c-abi/README.md#boundary-ownership-and-queued-cleanup-2026-09-06)
+records current evidence, actual consumers, acceptance and deletion constraints.
+The external review used 93dde7b882; verification here used branch 55f2817a5d.
+No source, fixture, fallback, production switch or semantic receipt is changed.
 
 ## Source and ownership budget
 

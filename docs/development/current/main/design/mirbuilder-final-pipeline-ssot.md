@@ -390,14 +390,14 @@ methods, optional receiver, `args[0]` repair, name lookup, or backend retry is
 allowed. Group A's instruction-shape split and Group B's VM canonical Print
 reader are closed tombstones; they are not reopened.
 #### M7-S — `MIR-CALL-LEGACY-READER-STOP-R0`
-status = fast_open
-implementation permission = true
+status = design_open
+implementation permission = false
 current cohort = `acceptance_source_reconciliation_i0`
 
 The [workstream](../workstreams/mirbuilder-inplace-replacement-current.md#acceptance-incident-and-bounded-repair-order-2026-09-05)
 and [lifecycle Decision](constructor-birth-new-lifecycle-ssot.md#typed-c-program-handoff-decision)
-own the package-side App Main profile capability BoxShape. It is issued only
-after the existing app-main relation and consumed by the profile's NormalMain0
+own the proposed App Main profile capability BoxShape. Design pause: issuance
+must follow the existing app-main relation, with consumption by the NormalMain0
 policy; canonical-core role reuse is forbidden. The later Pair field-read/Add
 BoxCount remains unopened. No view/frame/C extension is permitted. Pair
 EXE30/linked OBJ30 and selected old-edge retirement remain open.

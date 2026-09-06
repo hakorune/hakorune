@@ -1,9 +1,9 @@
-# C ABI Kernel — Minimal Shim for Phase 20.9
+# Compiler C ABI, C LLVM backend, and runtime shims
 
 Responsibility
 - Provide a portable, minimal C ABI surface used by the LLVM line.
 - Read‑only GC externs first (`hako_gc_stats`, `hako_gc_roots_snapshot`), plus memory/console/time/local-env helpers.
-- backend-zero では `.hako` caller から object/exe emission を受ける thin transport boundary の置き場でもある。
+- selected-C compiler transport と、LLVM IR/object を生成する C backend の実装も含む。
 - C ABI 自体は LLVM driver/provider の selector ではない。実際の route は
   `ny-llvmc --driver`、CAPI recipe/replay、または明示 provider が選ぶ。
 - generic `hako_aot` は互換 ingress として残り、daily Boundary と同一視しない。
@@ -25,7 +25,10 @@ Layout
 - `include/` — public headers
   - `hako_hostbridge.h` — broader C ABI surface
   - `hako_aot.h` — canonical AOT compile/link header
-- `shims/` — libc-backed reference implementation for canaries (`hako_kernel.c`)
+- `shims/hako_llvmc_*` — compiler transport and physical LLVM backend
+- `shims/hako_kernel.c` — libc-backed canary; not the production Rust kernel
+- `shims/hako_forward_registry_shared_impl.inc` — callback registry currently
+  included by both the Rust kernel's C translation unit and the separate canary
 - `hako_aot.c` — AOT compile/link helper boundary の first cutover target
   - `hako_diag_mem_shared_impl.inc` — TLS diagnostics / libc memory の shared source truth
   - `hako_aot_shared_impl.inc` — AOT compile/link の shared source truth
@@ -43,6 +46,72 @@ Caller-zero pinned-Text lowering fixture
   foreign, stale, duplicate, or trap Finish carrier data rejects before the
   output file is opened.
 
+Boundary ownership and queued cleanup (2026-09-06)
+
+Source/Facts/Recipe decides meaning; MirBuilder atomically publishes MIR and
+definition relations. The selected C LLVM backend chooses physical instructions,
+ABI placement and object output. Generated code calls the Rust runtime through
+C ABI exports; C ABI does not require an additional C wrapper at runtime.
+JSON may transport already-decided operands; it is not a second source resolver.
+
+| Boundary | Owner / responsibility |
+| --- | --- |
+| Compiler C ABI | `capi_transport.rs` and exported C entry: arguments, borrowing, errors |
+| C LLVM backend | `shims/hako_llvmc_*`: physical lowering and LLVM output |
+| Runtime C ABI | `nyash_kernel` exports: generated code's calling contract |
+| Runtime implementation | Rust value, handle, array, string and OS owners |
+| Compatibility | Explicit ingress and libc canary, with their own selection |
+
+Static verification at branch `55f2817a5d`, superseding the review's `93dde7b882`:
+the published Rust view still reads both Call and LegacyCallV0. The same-module
+C call emitter rejects malformed typed rows, but absent rows continue to legacy
+classification. This is missing-row ambiguity, not retry after typed failure.
+The lifecycle companion remains a pre-artifact pending terminal; this review
+does not establish constructor execution or Pair EXE/linked OBJ exit 30.
+
+Ordered tasks are owned by the current
+[workstream](../../docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#backendruntime-feedback-and-task-order-2026-09-06).
+Each selected slice must retire its own replaced production edge:
+
+1. Close constructor source/result handoff, physical consumer and actual typed
+   EXE/OBJ acceptance before starting runtime reorganization.
+2. Separate canonical selection from explicit compatibility at published view /
+   same-module consumer. A selected canonical site without required data stops
+   before artifact; remove that site's JSON name-dispatch edge. Acceptance covers
+   valid, missing, malformed, duplicate and unconsumed rows plus explicit compat.
+3. Replace compile-global row pointers/count/used marks and temporary environment
+   mutation with call-owned physical state/options in transport and C consumer.
+   Include all compile ingress that shares those globals; prove the entry/caller
+   inventory before selecting a delete-set. Verify overlapping calls with distinct
+   rows/options, failure cleanup and environment preservation. No lock was found
+   in the inspected Rust llvm_codegen owner; global serialization and actual races
+   are unproven. Do not claim concurrent compilation support before this closes.
+4. Unify kernel hook registration in `hako_forward_bridge.rs`. Rust dot-name
+   exports currently write Rust atomics and C globals; underscore C registration
+   writes only C globals, so Rust dispatch does not observe that registration.
+   Preserve both export spellings and C try ABI using one Rust storage owner.
+   Include future dispatch, string dispatch and both raw-accessor consumers.
+   Delete kernel-only C TU/build recipe/cc dependency and double writes together;
+   retain the shared C implementation for the independent canary. Audit the string
+   dispatch cache before deletion so no independent responsibility is removed.
+   Verify cross-entry registration/dispatch, replacement, NULL unregister,
+   null-out/no-call and linked ABI symbols. Define callback lifetime and in-flight
+   unregister behavior before implementation; atomic storage alone is insufficient.
+5. Later, shrink kernel's dependency on root `nyash-rust` along actual config,
+   Box and handle consumers. Measure build dependencies and retained symbols;
+   the Cargo dependency alone does not prove compiler code is in the final EXE.
+
+Runtime inventory boundary: tracked hook declarations/definitions/direct symbol
+references -> callback invocation, including kernel, canary, headers, tests and
+build/guard owners. External consumers and dynamically constructed symbol names
+are excluded and unknown. C try exports have no discovered direct repository
+callers, which does not authorize public ABI deletion. The existing
+`phase29cc_hako_forward_registry_guard.sh`, called by `dev_gate.sh`, still expects
+C try calls in the Rust bridge; update that owner invariant in task 4. This is a
+static contract mismatch, not an observed test failure. No build, runtime or
+concurrency tests were run for this design review. Queue entries are not a closed
+whole-repository census or implementation permission for an unclosed mapping.
+
 Replay admission
 - `hako_aot_compile_json` is the generic AOT entry and rejects inherited
   harness replay before FFI lookup, child spawn, or object creation.
@@ -52,10 +121,11 @@ Replay admission
 
 Guards
 - No Rust modules or cargo manifests under `lang/`.
-- No parsing or codegen here; this is a plain ABI surface.
+- Backend code may decode transport JSON and emit LLVM. It must not reconstruct
+  source targets or receiver meaning from names when published authority is missing.
 - Do not turn this into a third canonical ABI. Runtime/plugin canonical ABI remains Core C ABI / TypeBox ABI v2.
 
-Build (example)
+Build (canary example; not the selected compiler or production Rust kernel)
 ```
 cc -I../../include -shared -fPIC -o libhako_kernel_shim.so shims/hako_kernel.c
 ```
