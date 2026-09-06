@@ -8,7 +8,7 @@ use crate::mir::builder::{
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 use hakorune_mir_defs::CanonicalGlobalTargetV1;
 
-fn callable_source(source: &str, config: ParserBuildConfig) -> PreparedNormalDefaultProgramRootV1 {
+pub(super) fn callable_source(source: &str, config: ParserBuildConfig) -> PreparedNormalDefaultProgramRootV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(source, config)
         .expect("normal callable source");
     let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
@@ -21,7 +21,7 @@ fn callable_source(source: &str, config: ParserBuildConfig) -> PreparedNormalDef
     PreparedNormalDefaultProgramRootV1::from_callable_source(source)
 }
 
-fn session() -> ModuleBuilderInvocationSessionV1 {
+pub(super) fn session() -> ModuleBuilderInvocationSessionV1 {
     let current = MirBuilder::new();
     let config = BuilderInvocationConfigV1::snapshot_for_raw(&current, None);
     ModuleBuilderInvocationSessionV1::open(&current, config)

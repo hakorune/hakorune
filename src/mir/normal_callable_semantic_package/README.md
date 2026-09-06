@@ -224,6 +224,8 @@ After finishing validation, the final handoff retains that identity with the
 existing terminal relation and its checked physical root. The published view
 only verifies this source-to-result correspondence; it cannot recreate source
 membership from the root key or choose an entry ABI.
+Each selected New site remains separately validated; if several sites call the
+same canonical Birth definition, the final handoff retains that definition once.
 This does not activate generic JSON transport or a lifecycle backend consumer.
 Unavailable cleanup is exercised as a private physical-state test on real
 source-issued read rows, not as an accepted `fini` syntax or executable proof.

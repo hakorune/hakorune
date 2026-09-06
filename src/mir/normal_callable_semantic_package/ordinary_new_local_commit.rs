@@ -302,10 +302,12 @@ impl OrdinaryNewClaimLedgerV1 {
             if !construction_keys.contains(&key) {
                 return Err(freeze("artifact-birth-construction-missing"));
             }
-            if !keys.insert(key) {
-                return Err(freeze("artifact-birth-recipe-duplicate"));
+            // Multiple exact New sites may invoke one canonical Birth
+            // definition. Local emission validation above remains per site;
+            // the final handoff retains each definition relation once.
+            if keys.insert(key) {
+                births.push(relation.clone());
             }
-            births.push(relation.clone());
         }
         Ok(if births.is_empty() {
             FinalizedRootBirthHandoffV1::NoBirth {
