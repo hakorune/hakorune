@@ -85,7 +85,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
-    scan_new_home_flow(input, selected, None, &mut |_, _|
+    scan_new_home_flow(input, selected, None, &mut |_, _, _, _, _|
         Ok::<_, std::convert::Infallible>(false))
         .unwrap_or_else(|never| match never {}).0
 }
@@ -100,7 +100,7 @@ fn return_scalar<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &BTreeMap<BindingRefV1, LocalValue>,
-    field_is_integer: &mut impl FnMut(BindingRefV1, &str) -> Result<bool, E>,
+    field_is_integer: &mut impl FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str) -> Result<bool, E>,
 ) -> Result<Option<ReturnScalar>, E> {
     if matches!(input.function().expression_source().literal(site),
         Some(ResolvedLiteralSourceV1::Integer(_))) {
@@ -117,7 +117,10 @@ fn return_scalar<E>(
                 else { return Ok(None); };
             let Some(LocalValue::Handle(home)) = value_class(input, receiver.site(), locals)
                 else { return Ok(None); };
-            Ok(field_is_integer(home, field)?.then_some(ReturnScalar::Integer))
+            let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(receiver.site())
+                else { return Ok(None); };
+            Ok(field_is_integer(&OwnedExprSiteV1::new(input.owner(), site.clone()),
+                receiver.site(), binding, home, field)?.then_some(ReturnScalar::Integer))
         }
         ASTNode::BinaryOp { operator: crate::ast::BinaryOperator::Add, .. } => {
             for role in [ExprChildRoleV1::BinaryLeft, ExprChildRoleV1::BinaryRight] {
@@ -138,7 +141,7 @@ pub(crate) fn scan_new_home_flow<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     terminal: Option<&SourceStmtSiteV1>,
-    field_is_integer: &mut impl FnMut(BindingRefV1, &str) -> Result<bool, E>,
+    field_is_integer: &mut impl FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str) -> Result<bool, E>,
 ) -> Result<(
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,

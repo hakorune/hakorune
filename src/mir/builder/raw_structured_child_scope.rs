@@ -334,6 +334,10 @@ impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RawOrdinaryNewClaimPortV1,
 {
+    fn prepare_terminal_field_read(&mut self, object: ASTNode)
+        -> Result<Option<super::fields::PreparedRawFieldReadV1>, String> {
+        self.child.prepare_terminal_field_read(object)
+    }
     fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
         self.child.prepare_root_home_exit(builder)
     }

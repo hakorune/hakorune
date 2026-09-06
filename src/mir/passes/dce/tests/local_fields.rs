@@ -1,6 +1,45 @@
 use super::*;
 
 #[test]
+fn exact_field_read_preserves_preceding_legacy_store() {
+    let mut module = MirModule::new("exact_read_barrier".to_string());
+    let mut function = MirFunction::new(FunctionSignature {
+        name: "test/0".to_string(), params: vec![],
+        return_type: MirType::Integer, effects: EffectMask::PURE,
+    }, BasicBlockId(0));
+    let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+    let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, 0).unwrap();
+    let block = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    for instruction in [
+        MirInstruction::NewBox { dst: ValueId(1), box_type: "Point".to_string(), args: vec![] },
+        MirInstruction::Const { dst: ValueId(2), value: ConstValue::Integer(7) },
+        MirInstruction::Const { dst: ValueId(3), value: ConstValue::Integer(9) },
+        MirInstruction::FieldSet {
+            base: ValueId(1), field: "value".to_string(), value: ValueId(2),
+            declared_type: Some(MirType::Integer),
+        },
+        MirInstruction::ObjectFieldGet { dst: ValueId(4), base: ValueId(1), field },
+        MirInstruction::FieldSet {
+            base: ValueId(1), field: "value".to_string(), value: ValueId(3),
+            declared_type: Some(MirType::Integer),
+        },
+    ] {
+        block.instructions.push(instruction);
+        block.instruction_spans.push(Span::unknown());
+    }
+    block.set_terminator(MirInstruction::Return { value: Some(ValueId(4)) });
+    module.add_function(function);
+    eliminate_dead_code(&mut module);
+    let block = &module.get_function("test/0").unwrap().blocks[&BasicBlockId(0)];
+    assert!(block.instructions.iter().any(|instruction| matches!(instruction,
+        MirInstruction::FieldSet { value: ValueId(2), .. }
+    )), "an exact read observes the first store even when a later legacy store has the same name");
+    assert!(block.instructions.iter().any(|instruction| matches!(instruction,
+        MirInstruction::ObjectFieldGet { field: actual, .. } if *actual == field
+    )));
+}
+
+#[test]
 fn test_dce_prunes_dead_field_get_from_non_escaping_local_box() {
     let mut module = MirModule::new("dce_test".to_string());
 

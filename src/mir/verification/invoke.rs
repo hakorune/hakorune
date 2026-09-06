@@ -13,6 +13,12 @@ pub(super) fn check_module(module: &crate::mir::MirModule) -> Result<(), Vec<Ver
     for function in module.functions.values() {
         for (id, block) in &function.blocks {
             for instruction in block.all_instructions() {
+                if let MirInstruction::ObjectFieldGet { field, .. } = instruction {
+                    if !module.canonical_field_definition(*field).is_some_and(|definition|
+                        !definition.is_weak && definition.declared_type_name.as_deref() == Some("i64")) {
+                        errors.push(error(*id, "object-field-read-definition-invalid"));
+                    }
+                }
                 if let MirInstruction::Invoke { operation, .. } = instruction {
                     match operation {
                         InvokeOperation::NewBox { object }

@@ -12,6 +12,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::FieldGet { .. } => "FieldGet",
+        MirInstruction::ObjectFieldGet { .. } => "ObjectFieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::WeakFieldWrite { .. } => "WeakFieldWrite",
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
@@ -93,6 +94,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "FutureNew",
     "FutureSet",
     "FieldGet",
+    "ObjectFieldGet",
     "FieldSet",
     "WeakFieldWrite",
     "VariantMake",
@@ -179,6 +181,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::FutureNew { .. }
         | MirInstruction::FutureSet { .. }
         | MirInstruction::FieldGet { .. }
+        | MirInstruction::ObjectFieldGet { .. }
         | MirInstruction::FieldSet { .. }
         | MirInstruction::WeakFieldWrite { .. }
         | MirInstruction::VariantMake { .. }

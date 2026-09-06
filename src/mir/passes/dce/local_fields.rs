@@ -6,6 +6,18 @@ use crate::mir::value_origin::build_value_def_map;
 use crate::mir::{MirFunction, ValueId};
 use std::collections::{BTreeSet, HashMap, HashSet};
 
+// Exact fields never become string keys for legacy overwrite analysis.
+fn clear_exact_read_barrier(
+    instruction: &crate::mir::MirInstruction, reads: &LocalReadInfo,
+    pending: &mut HashSet<(ValueId, String)>,
+) {
+    if let crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction {
+        if let Some(root) = reads.resolve_local_root(*base) {
+            pending.retain(|(candidate, _)| *candidate != root);
+        }
+    }
+}
+
 #[derive(Default)]
 struct DenseParentMap {
     parents: Vec<Option<ValueId>>,
@@ -140,7 +152,8 @@ pub(crate) fn analyze_local_reads(
                     }
                 }
             }
-            if let crate::mir::MirInstruction::FieldGet { base, .. } = instruction {
+            if let crate::mir::MirInstruction::FieldGet { base, .. }
+                | crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction {
                 if let Some(root) = info.resolve_local_root(*base) {
                     info.field_read_roots.insert(root);
                 }
@@ -229,6 +242,7 @@ pub(super) fn collect_overwritten_local_field_sets(
                 .unwrap_or_default();
 
             for instruction in block.instructions.iter().rev() {
+                clear_exact_read_barrier(instruction, local_reads, &mut pending_writes);
                 match instruction {
                     crate::mir::MirInstruction::FieldSet { base, field, .. } => {
                         let Some(root) = local_reads.resolve_local_root(*base) else {
@@ -269,6 +283,7 @@ pub(super) fn collect_overwritten_local_field_sets(
             .and_then(|succ| pending_entry_writes.get(succ).cloned())
             .unwrap_or_default();
         for (idx, instruction) in block.instructions.iter().enumerate().rev() {
+            clear_exact_read_barrier(instruction, local_reads, &mut pending_writes);
             match instruction {
                 crate::mir::MirInstruction::FieldSet { base, field, .. } => {
                     let Some(root) = local_reads.resolve_local_root(*base) else {
@@ -342,6 +357,9 @@ fn collect_loop_header_entry_overwrites(
     let mut blocked_keys = HashSet::new();
 
     for instruction in &header.instructions {
+        if let crate::mir::MirInstruction::ObjectFieldGet { base, .. } = instruction {
+            if let Some(root) = local_reads.resolve_local_root(*base) { blocked_roots.insert(root); }
+        }
         match instruction {
             crate::mir::MirInstruction::FieldGet { base, field, .. } => {
                 if let Some(root) = local_reads.resolve_local_root(*base) {
@@ -426,6 +444,7 @@ fn collect_loop_roundtrip_overwritten_local_field_sets(
             }
 
             for (idx, instruction) in pred_block.instructions.iter().enumerate().rev() {
+                clear_exact_read_barrier(instruction, local_reads, &mut pending_writes);
                 match instruction {
                     crate::mir::MirInstruction::FieldSet { base, field, .. } => {
                         let Some(root) = local_reads.resolve_local_root(*base) else {

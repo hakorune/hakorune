@@ -318,6 +318,7 @@ impl<'module> PublishedMirBackendView<'module> {
                             | MirInstruction::InvokeNormalResult { .. }
                             | MirInstruction::ReturnFault { .. }
                             | MirInstruction::FaultFrameEnter { .. }
+                            | MirInstruction::ObjectFieldGet { .. }
                     ) {
                         has_unsupported_call = true;
                         continue;

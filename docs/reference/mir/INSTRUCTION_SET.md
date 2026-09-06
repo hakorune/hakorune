@@ -55,6 +55,12 @@ The bounded root Return evaluates declared, initialized i64 field reads and
 integer Add before HomeRelease; the final Return uses the saved scalar operand.
 The same source loan must establish live Home/alias and constructor initialization
 before this projection. A field's physical type alone cannot authorize it.
+Decision: `ObjectFieldGet { dst, base, field: CanonicalFieldRefV1 }` is the
+exact initialized-field read. The source owner retains read/receiver sites and
+receiver/Home bindings; finalization validates its emitted operands and field
+identity. Only destination/base participate in ValueId remapping. Generic JSON
+and backend admission remain closed until the selected typed consumer lands.
+String `FieldGet` is compatibility vocabulary, not an alternate target source.
 FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.
@@ -197,6 +203,7 @@ allowlists are being updated.
 - NewBox
 - NewClosure
 - FieldGet
+- ObjectFieldGet
 - FieldSet
 - RefNew
 

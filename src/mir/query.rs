@@ -85,7 +85,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 vec![*lhs, *rhs]
             }
             TypeOp { value, .. } => vec![*value],
-            FieldGet { base, .. } => vec![*base],
+            FieldGet { base, .. } | ObjectFieldGet { base, .. } => vec![*base],
             FieldSet { base, value, .. } => vec![*base, *value],
             WeakFieldWrite { base, value, .. } => vec![*base, *value],
             VariantMake { payload, .. } => payload.iter().copied().collect(),
@@ -165,6 +165,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Compare { dst, .. }
             | TypeOp { dst, .. }
             | FieldGet { dst, .. }
+            | ObjectFieldGet { dst, .. }
             | VariantMake { dst, .. }
             | VariantTag { dst, .. }
             | VariantProject { dst, .. }

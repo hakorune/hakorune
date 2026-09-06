@@ -1,6 +1,9 @@
 //! Affine Raw ordinary-`New` claim capability.
+use crate::mir::builder::fields::PreparedRawFieldReadV1;
 
 pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
+    fn prepare_terminal_field_read(&mut self, _object: crate::ast::ASTNode)
+        -> Result<Option<PreparedRawFieldReadV1>, String> { Ok(None) }
     fn prepare_root_home_exit(&mut self, _builder: &crate::mir::MirBuilder) -> Result<bool, String> {
         Ok(false)
     }
@@ -61,6 +64,20 @@ impl RawOrdinaryNewClaimPortV1 for super::RawLegacyChildLoweringPortV1 {
 }
 
 impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
+    fn prepare_terminal_field_read(&mut self, object: crate::ast::ASTNode)
+        -> Result<Option<PreparedRawFieldReadV1>, String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(None); };
+        let owner = self.callable_owner_v1().ok_or("[ordinary-field-read/owner-missing]")?;
+        let node = self.current_source_site_v1().ok_or("[ordinary-field-read/site-missing]")?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        let state = self.callable_ledger.as_ref().ok_or("[ordinary-field-read/state-missing]")?;
+        let Some((base, field)) = ledger.take_terminal_field_read(&site, |binding|
+            state.borrow().value_for_exact_binding(owner, binding)
+                .map_err(|error| format!("[freeze:contract][ordinary-field-read/receiver-binding] {error:?}")))?
+            else { return Ok(None); };
+        Ok(Some(PreparedRawFieldReadV1::exact_object(object, base, field, site, ledger.clone())))
+    }
     fn prepare_root_home_exit(&mut self, builder: &crate::mir::MirBuilder) -> Result<bool, String> {
         let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(false); };
         let owner = self.callable_owner_v1().ok_or("[root-home-exit/owner-missing]")?;

@@ -178,6 +178,15 @@ source construction and an exact nonweak i64 field qualify; declaration names
 outside that definition, runtime slots and physical types are not authority.
 Integer Add is terminal-only. Missing/foreign source products propagate their
 existing error rather than being relabeled as an unsupported field.
+The existing New ledger stages exact read-site/receiver-site, actual receiver
+BindingRef, Home BindingRef and canonical field rows until the whole terminal
+succeeds. The existing field port lowers the receiver once and compares its
+ValueId to the retained binding before emitting `ObjectFieldGet`. Final root
+and compiler-finishing validation reject missing, duplicate or drifted reads.
+This does not activate generic JSON transport or a lifecycle backend consumer.
+Unavailable cleanup is exercised as a private physical-state test on real
+source-issued read rows, not as an accepted `fini` syntax or executable proof.
+The selected read remains exact; artifact eligibility remains unavailable.
 
 `instance_construction` issues the AST-free construction plan inside the exact
 constructor/Box source loan. It joins direct Plain stores and lexical receiver
@@ -448,7 +457,7 @@ constructor kinds keep their existing compatibility disposition. Definition
 retention alone does not establish backend execution or source-to-EXE acceptance.
 
 The selected Pair source explicitly uses `i64` fields, not an IntegerBox
-unboxing exception. Its normal-publication test checks Integer FieldGet/Add/main
+unboxing exception. Its normal-publication test checks exact ObjectFieldGet/Add/main
 results after final refresh and retains both dynamic FieldSet check contracts
 at their exact instruction/value sites. Birth parameters remain unannotated;
 an integer-width ABI is not permission to elide those checks. The original

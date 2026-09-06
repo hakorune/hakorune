@@ -704,13 +704,17 @@ fn birth_fixed_source_retains_definition_through_normal_publication() {
                 }
             }
             let dst = match instruction {
-                crate::mir::MirInstruction::FieldGet {
-                    dst, declared_type, ..
-                } => {
-                    assert_eq!(declared_type, &Some(crate::mir::MirType::Integer));
+                crate::mir::MirInstruction::ObjectFieldGet { dst, field, .. } => {
+                    assert_eq!(field.object().declaration_index(), 0);
+                    assert_eq!(field.declaration_ordinal() as usize, read_count);
+                    let definition = result.module.canonical_field_definition(*field).unwrap();
+                    assert_eq!(definition.declared_type_name.as_deref(), Some("i64"));
+                    assert!(!definition.is_weak);
                     read_count += 1;
                     dst
                 }
+                crate::mir::MirInstruction::FieldGet { .. } =>
+                    panic!("selected terminal must not recover a field by name"),
                 crate::mir::MirInstruction::BinOp {
                     dst,
                     op: crate::mir::BinaryOp::Add,

@@ -72,7 +72,8 @@ impl MirInstruction {
             // Memory operations
             MirInstruction::Load { .. }
             | MirInstruction::StaticDataLoad { .. }
-            | MirInstruction::FieldGet { .. } => EffectMask::READ,
+            | MirInstruction::FieldGet { .. }
+            | MirInstruction::ObjectFieldGet { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
@@ -162,6 +163,7 @@ impl MirInstruction {
             | MirInstruction::Load { dst, .. }
             | MirInstruction::StaticDataLoad { dst, .. }
             | MirInstruction::FieldGet { dst, .. }
+            | MirInstruction::ObjectFieldGet { dst, .. }
             | MirInstruction::VariantMake { dst, .. }
             | MirInstruction::VariantTag { dst, .. }
             | MirInstruction::VariantProject { dst, .. }
@@ -337,7 +339,8 @@ impl MirInstruction {
                 ..
             } => vec![*lhs, *rhs],
 
-            MirInstruction::FieldGet { base, .. } => vec![*base],
+            MirInstruction::FieldGet { base, .. }
+            | MirInstruction::ObjectFieldGet { base, .. } => vec![*base],
             MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
             MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
             MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),

@@ -249,6 +249,8 @@ pub fn format_instruction(
             format!("pinned_text.residence.finish {:?}", residence)
         }
 
+        MirInstruction::ObjectFieldGet { dst, base, field } =>
+            format!("{} = object.field.get {} {:?}", dst, base, field),
         MirInstruction::FieldGet {
             dst,
             base,

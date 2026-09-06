@@ -159,6 +159,7 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::ArrayElementWrite { .. } => &["array_element_write"],
         MirInstruction::ArrayStateContractClaim { .. } => &[],
         MirInstruction::FieldGet { .. } => &["field_get"],
+        MirInstruction::ObjectFieldGet { .. } => &[],
         MirInstruction::FieldSet { .. } => &["field_set"],
         MirInstruction::WeakFieldWrite { .. } => &["weak_field_write"],
         MirInstruction::VariantMake { .. } => &["variant_make"],

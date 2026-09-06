@@ -49,6 +49,9 @@ impl fmt::Display for MirInstruction {
             MirInstruction::Store { value, ptr } => {
                 write!(f, "store {} -> {}", value, ptr)
             }
+            MirInstruction::ObjectFieldGet { dst, base, field } => {
+                write!(f, "{} = object.field.get {} {:?}", dst, base, field)
+            }
             MirInstruction::FieldGet {
                 dst, base, field, ..
             } => {

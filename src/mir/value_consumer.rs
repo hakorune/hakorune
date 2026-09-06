@@ -101,7 +101,8 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::PinnedTextResidenceFinish { .. }
         | MirInstruction::PinnedTextResidenceEnter { .. }
         | MirInstruction::PinnedTextResidenceTrap { .. } => Vec::new(),
-        MirInstruction::FieldGet { base, .. } => vec![*base],
+        MirInstruction::FieldGet { base, .. }
+        | MirInstruction::ObjectFieldGet { base, .. } => vec![*base],
         MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
         MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
         MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),

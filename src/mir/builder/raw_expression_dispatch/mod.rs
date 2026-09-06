@@ -538,8 +538,10 @@ impl super::MirBuilder {
                 ref field,
                 ..
             } => {
-                let prepared =
-                    PreparedRawFieldReadV1::prepare(self, object.as_ref().clone(), field.clone());
+                let prepared = match port.prepare_terminal_field_read(object.as_ref().clone())? {
+                    Some(prepared) => prepared,
+                    None => PreparedRawFieldReadV1::prepare(self, object.as_ref().clone(), field.clone()),
+                };
                 if !prepared.requires_receiver_source_v1() {
                     return port.lower_prepared_field_read_v1(self, prepared);
                 }

@@ -5,7 +5,9 @@
 //! - JoinIR fragment → host MIR への ID変換
 //! - 決定性を重視した実装
 
-use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, MirInstruction, ValueId};
+#[path = "joinir_id_remapper_values.rs"]
+mod values;
 use std::collections::BTreeMap; // Phase 222.5-E: HashMap → BTreeMap for determinism
 
 /// JoinIR ID space を host MIR ID space に変換する
@@ -49,189 +51,6 @@ impl JoinIrIdRemapper {
         self.value_map.insert(old_id, new_id);
     }
 
-    /// Block 内の ValueId を収集
-    pub fn collect_values_in_block(&self, block: &BasicBlock) -> Vec<ValueId> {
-        let mut values = Vec::new();
-        for inst in &block.instructions {
-            values.extend(self.collect_values_in_instruction(inst));
-        }
-        if let Some(ref term) = block.terminator {
-            values.extend(self.collect_values_in_instruction(term));
-        }
-        values
-    }
-
-    /// 命令内の ValueId を収集
-    pub fn collect_values_in_instruction(&self, inst: &MirInstruction) -> Vec<ValueId> {
-        use crate::mir::MirInstruction::*;
-
-        match inst {
-            Const { dst, .. } => vec![*dst],
-            UnaryOp { dst, operand, .. } => vec![*dst, *operand],
-            BinOp { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
-            Compare { dst, lhs, rhs, .. } => vec![*dst, *lhs, *rhs],
-            Load { dst, ptr } => vec![*dst, *ptr],
-            StaticDataLoad { dst, index, .. } => vec![*dst, *index],
-            Store { value, ptr } => vec![*value, *ptr],
-            ArrayElementWrite {
-                dst,
-                receiver,
-                index,
-                value,
-                ..
-            } => {
-                let mut vals = Vec::new();
-                vals.extend(dst.iter().copied());
-                vals.push(*receiver);
-                vals.extend(index.iter().copied());
-                vals.push(*value);
-                vals
-            }
-            ArrayStateContractClaim { array, .. } => vec![*array],
-            MemOp { dst, operands, .. } => {
-                let mut vals = Vec::new();
-                vals.extend(dst.iter().copied());
-                vals.extend(operands.iter().copied());
-                vals
-            }
-            PinnedTextOp { dst, kind, .. } => {
-                let mut vals = vec![*dst];
-                vals.extend(kind.used_values());
-                vals
-            }
-            FieldGet { dst, base, .. } => vec![*dst, *base],
-            FieldSet { base, value, .. } => vec![*base, *value],
-            WeakFieldWrite { base, value, .. } => vec![*base, *value],
-            VariantMake { dst, payload, .. } => {
-                let mut vals = vec![*dst];
-                vals.extend(payload.iter().copied());
-                vals
-            }
-            VariantTag { dst, value, .. } | VariantProject { dst, value, .. } => vec![*dst, *value],
-            Call(call) => {
-                let mut vals = Vec::new();
-                call.callee.for_each_value_operand(|value| vals.push(value));
-                vals.extend(call.dst.iter().copied());
-                vals.extend(call.args.iter().copied());
-                vals
-            }
-            LegacyCallV0 {
-                dst,
-                func,
-                callee,
-                args,
-                ..
-            } => {
-                let mut vals = Vec::new();
-                if let Some(crate::mir::Callee::Method {
-                    receiver: Some(r), ..
-                }) = callee
-                {
-                    vals.push(*r);
-                } else if *func != ValueId::INVALID {
-                    vals.push(*func);
-                }
-                if let Some(d) = dst {
-                    vals.push(*d);
-                }
-                vals.extend(args.iter().copied());
-                vals
-            }
-            Branch {
-                condition,
-                then_edge_args,
-                else_edge_args,
-                ..
-            } => {
-                let mut vals = vec![*condition];
-                if let Some(args) = then_edge_args {
-                    vals.extend(args.values.iter().copied());
-                }
-                if let Some(args) = else_edge_args {
-                    vals.extend(args.values.iter().copied());
-                }
-                vals
-            }
-            Jump { edge_args, .. } => edge_args
-                .as_ref()
-                .map(|args| args.values.clone())
-                .unwrap_or_default(),
-            Return { value } => value.iter().copied().collect(),
-            Invoke { .. } | ReturnFault { .. } => inst.used_values(),
-            InvokeNormalResult { dst, .. } | FaultFrameEnter { dst, .. } => vec![*dst],
-            CheckedCallOut {
-                receiver,
-                arguments,
-                ..
-            } => {
-                let mut vals = vec![*receiver];
-                vals.extend(arguments.iter().copied());
-                vals
-            }
-            CheckedCallOutNormalResult { dst, .. } => vec![*dst],
-            CheckedCallOutEnd { .. }
-            | CheckedCallOutFault { .. }
-            | PinnedTextResidenceFinish { .. }
-            | PinnedTextResidenceEnter { .. }
-            | PinnedTextResidenceTrap { .. } => Vec::new(),
-            Phi { dst, inputs, .. } => {
-                let mut vals = vec![*dst];
-                vals.extend(inputs.iter().map(|(_, v)| *v));
-                vals
-            }
-            Copy { dst, src } | CopyOwned { dst, src } | LocalContractWrite { dst, src, .. } => {
-                vec![*dst, *src]
-            }
-            RecordFieldContractCheck { value, .. } => vec![*value],
-            RecordValuePublish {
-                dst, base, fields, ..
-            } => {
-                let mut values = vec![*dst];
-                values.extend(base.iter().copied());
-                values.extend(fields.iter().copied());
-                values
-            }
-            NewBox { dst, args, .. } => {
-                let mut vals = vec![*dst];
-                vals.extend(args.iter().copied());
-                vals
-            }
-            NewClosure {
-                dst, captures, me, ..
-            } => {
-                let mut vals = vec![*dst];
-                vals.extend(captures.iter().map(|(_, v)| *v));
-                if let Some(m) = me {
-                    vals.push(*m);
-                }
-                vals
-            }
-            Debug { value, .. } => vec![*value],
-            // Phase 287: Lifecycle management collects all values
-            KeepAlive { values } => values.clone(),
-            DestroyOwned { value } => vec![*value],
-            ReleaseStrong { values } => values.clone(),
-            Throw { exception, .. } => vec![*exception],
-            Catch {
-                exception_value, ..
-            } => vec![*exception_value],
-            RefNew { dst, box_val } => vec![*dst, *box_val],
-            WeakRef { dst, value, .. } => vec![*dst, *value],
-            Barrier { ptr, .. } => vec![*ptr],
-            FutureNew { dst, value } => vec![*dst, *value],
-            FutureSet { future, value } => vec![*future, *value],
-            Await { dst, future } => vec![*dst, *future],
-            TypeOp { dst, value, .. } => vec![*dst, *value],
-            // Phase 256 P1.5: Collect Select ValueIds (dst, cond, then_val, else_val)
-            Select {
-                dst,
-                cond,
-                then_val,
-                else_val,
-            } => vec![*dst, *cond, *then_val, *else_val],
-            Safepoint => vec![],
-        }
-    }
 
     /// 命令を新しい ID空間にリマップ
     pub fn remap_instruction(&self, inst: &MirInstruction) -> MirInstruction {
@@ -380,6 +199,9 @@ impl JoinIrIdRemapper {
                 dst: remap(*dst),
                 plan: *plan,
                 kind: kind.remap_values(remap),
+            },
+            ObjectFieldGet { dst, base, field } => ObjectFieldGet {
+                dst: remap(*dst), base: remap(*base), field: *field,
             },
             FieldGet {
                 dst,
@@ -759,5 +581,21 @@ mod tests {
         };
         let values = remapper.collect_values_in_instruction(&inst);
         assert_eq!(values, vec![ValueId(1), ValueId(2), ValueId(3)]);
+    }
+
+    #[test]
+    fn exact_field_read_remaps_values_without_changing_definition() {
+        let mut remapper = JoinIrIdRemapper::new();
+        remapper.set_value(ValueId(1), ValueId(11));
+        remapper.set_value(ValueId(2), ValueId(22));
+        let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(3).unwrap();
+        let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, 4).unwrap();
+        let instruction = MirInstruction::ObjectFieldGet {
+            dst: ValueId(1), base: ValueId(2), field,
+        };
+        assert_eq!(remapper.collect_values_in_instruction(&instruction), vec![ValueId(1), ValueId(2)]);
+        assert_eq!(remapper.remap_instruction(&instruction), MirInstruction::ObjectFieldGet {
+            dst: ValueId(11), base: ValueId(22), field,
+        });
     }
 }

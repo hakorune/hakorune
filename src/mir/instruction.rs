@@ -365,7 +365,14 @@ pub enum MirInstruction {
     /// runtime frame, token, pointer, or status value.
     PinnedTextResidenceFinish { residence: TextFormalResidenceIdV1 },
 
-    /// Canonical object field read.
+    /// Exact source-declared object field read; never resolved by field name.
+    ObjectFieldGet {
+        dst: ValueId,
+        base: ValueId,
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+    },
+
+    /// Compatibility object field read.
     /// `%dst = field.get %base .field`
     FieldGet {
         dst: ValueId,

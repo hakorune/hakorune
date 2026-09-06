@@ -13,7 +13,7 @@ use crate::mir::ValueId;
 use super::CallableSemanticLoweringState;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum ExactBindingValueErrorV1 {
+pub(in crate::mir::builder) enum ExactBindingValueErrorV1 {
     OwnerMismatch,
     ForeignBinding,
     EntryNotInstalled,
@@ -70,7 +70,7 @@ impl CallableSemanticLoweringState {
     /// The operation is observational and deliberately reusable.  The caller
     /// must supply the exact owner and binding relation; no name, position,
     /// AST, or receiver inference is performed here.
-    pub(super) fn value_for_exact_binding(
+    pub(in crate::mir::builder) fn value_for_exact_binding(
         &self,
         expected_owner: FunctionOwnerIdV1,
         expected_binding: BindingRefV1,

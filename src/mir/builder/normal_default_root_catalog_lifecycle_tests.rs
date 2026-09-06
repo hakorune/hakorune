@@ -32,7 +32,7 @@ fn artifact_validation_rejects_uncovered_sibling_and_empty_birth() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     use crate::mir::{BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirFunction,
         MirInstruction, MirType, ValueId};
-    for empty_birth in [false, true] {
+    for (empty_birth, exact_read) in [(false, false), (true, false), (false, true)] {
         let source = callable_source("print(42)", ParserBuildConfig::default());
         let completed = session().complete_normal_default_program_root_catalog_lifecycle(
             source, CallableMainMaterializationPolicyV1::Omitted,
@@ -46,14 +46,69 @@ fn artifact_validation_rejects_uncovered_sibling_and_empty_birth() {
             effects: EffectMask::PURE,
         }, entry);
         let mut block = BasicBlock::new(entry);
+        if exact_read {
+            let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+            let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, 0).unwrap();
+            block.instructions.push(MirInstruction::ObjectFieldGet {
+                dst: ValueId(1), base: ValueId(0), field,
+            });
+            block.instruction_spans.push(Span::unknown());
+        }
         block.set_terminator(if empty_birth { MirInstruction::Return { value: None } }
+            else if exact_read { MirInstruction::Return { value: Some(ValueId(1)) } }
             else { MirInstruction::ReturnFault { fault_frame: ValueId::new(0) } });
         function.add_block(block);
         module.add_function(function);
         if empty_birth { module.canonical_callable_definitions.insert(key, name); }
         let error = validate(&module).unwrap_err();
-        assert!(error.contains(if empty_birth { "uncovered-birth-definition" }
+        assert!(error.contains(if exact_read { "unowned-exact-field-read" }
+            else if empty_birth { "uncovered-birth-definition" }
             else { "uncovered-lifecycle-function" }), "{error}");
+    }
+}
+
+#[test]
+fn artifact_validation_rejects_exact_read_drift_and_birth_reentry() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    use crate::mir::{MirInstruction, ValueId};
+    for mutation in ["base", "dst", "field", "missing", "duplicate", "birth"] {
+        let source = callable_source(include_str!("../../../apps/typed-object-birth-min/main.hako"),
+            ParserBuildConfig::default());
+        let completed = session().complete_normal_default_program_root_catalog_lifecycle(
+            source, CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty()).unwrap();
+        let (_, mut module, validate) = completed.into_artifact_parts();
+        let root = module.functions.get_mut("main").unwrap();
+        let block = root.blocks.values_mut().find(|block| block.instructions.iter()
+            .any(|instruction| matches!(instruction, MirInstruction::ObjectFieldGet { .. }))).unwrap();
+        let index = block.instructions.iter().position(|instruction|
+            matches!(instruction, MirInstruction::ObjectFieldGet { .. })).unwrap();
+        let original = block.instructions[index].clone();
+        match mutation {
+            "missing" => { block.instructions.remove(index); block.instruction_spans.remove(index); }
+            "duplicate" => { block.instructions.push(original.clone()); block.instruction_spans.push(Span::unknown()); }
+            "birth" => {}
+            _ => {
+                let MirInstruction::ObjectFieldGet { dst, base, field } = &mut block.instructions[index]
+                    else { unreachable!() };
+                match mutation {
+                    "base" => *base = ValueId(90001),
+                    "dst" => *dst = ValueId(90002),
+                    "field" => *field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                        field.object(), 999).unwrap(),
+                    _ => unreachable!(),
+                }
+            }
+        }
+        if mutation == "birth" {
+            let birth = module.functions.get_mut("Pair.birth/2").unwrap();
+            let block = birth.blocks.get_mut(&birth.entry_block).unwrap();
+            block.instructions.push(original);
+            block.instruction_spans.push(Span::unknown());
+        }
+        let error = validate(&module).unwrap_err();
+        assert!(error.contains(if mutation == "birth" { "unowned-exact-field-read" }
+            else { "ordinary-field-read/" }), "{mutation}: {error}");
     }
 }
 

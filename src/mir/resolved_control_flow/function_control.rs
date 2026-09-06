@@ -365,7 +365,12 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         crate::mir::resolved_semantics::OwnedExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,
     >,
-    field_is_integer: &mut impl FnMut(crate::mir::resolved_semantics::BindingRefV1, &str) -> Result<bool, E>,
+    field_is_integer: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        crate::mir::resolved_semantics::BindingRefV1, &str,
+    ) -> Result<bool, E>,
 ) -> Result<Result<(VerifiedFunctionCompletionV1, std::collections::BTreeMap<
     crate::mir::resolved_semantics::OwnedExprSiteV1,
     Result<crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1,

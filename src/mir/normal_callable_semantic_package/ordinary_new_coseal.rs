@@ -34,6 +34,10 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 mod local_commit;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
+#[path = "ordinary_new_field_reads.rs"]
+mod field_reads;
+#[path = "ordinary_new_claim_access.rs"]
+mod claim_access;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct VerifiedOrdinaryNewBirthRecipeV1 {
@@ -101,6 +105,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::NewLocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
     root_exit: RefCell<local_commit::RootHomeExitProgress>,
+    field_reads: RefCell<BTreeMap<OwnedExprSiteV1, field_reads::FieldRead>>,
     root_completion: Option<Result<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
         crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1>>,
 }
@@ -131,6 +136,7 @@ impl OrdinaryNewClaimLedgerV1 {
             local_commits: RefCell::new(BTreeMap::new()),
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
             root_exit: RefCell::new(local_commit::RootHomeExitProgress::Unprepared),
+            field_reads: RefCell::new(BTreeMap::new()),
             root_completion: None,
         }
     }
@@ -181,40 +187,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.claims.borrow().is_empty()
             && self.local_commits.borrow().values().all(|row| row.is_complete())
             && self.root_home_exit_is_complete()
-    }
-}
-
-impl OrdinaryNewAdmissionClaimV1 {
-    pub(crate) fn object(&self) -> CanonicalObjectIdV1 { self.object }
-
-    pub(crate) fn destruction(&self) -> ObjectDestructionDispositionV1 { self.destruction }
-
-    pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
-        &self.construction
-    }
-
-    pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
-        &self.box_source
-    }
-
-    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
-        &self.site
-    }
-
-    pub(crate) fn class(&self) -> &str {
-        &self.class
-    }
-
-    pub(crate) const fn arity(&self) -> usize {
-        self.arity
-    }
-
-    pub(crate) fn constructor(self) -> OrdinaryNewConstructorDispositionV1 {
-        self.constructor
-    }
-
-    pub(crate) fn home_prefix(&self) -> Result<&CallerNewHomePrefixV1, &HomePrefixUnavailableV1> {
-        self.home_prefix.as_ref()
+            && self.field_reads_complete()
     }
 }
 
@@ -279,6 +252,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
 ) -> Result<OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1> {
     let mut claims = Vec::new();
     let mut root_completion = None;
+    let mut root_field_reads = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -328,12 +302,23 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
                     .map(|(site, _, _, binding, _, _)| (site.clone(), *binding)).collect();
                 let home_prefixes = if is_app_main && !selected.is_empty() {
-                    let mut field_is_integer = |home, field: &str|
-                        terminal_home::field_is_initialized_integer(
-                            batch, instance_constructors, &candidates, &selected, home, field);
+                    let mut staged_reads = BTreeMap::new();
+                    let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
+                        let field = terminal_home::initialized_integer_field(
+                            batch, instance_constructors, &candidates, &selected, home, name)?;
+                        let Some(field) = field else { return Ok(false); };
+                        if staged_reads.insert(site.clone(), field_reads::FieldRead {
+                            receiver_site: receiver_site.clone(), receiver, home, field,
+                            progress: field_reads::Progress::Pending,
+                        }).is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() }); }
+                        Ok(true)
+                    };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_v1(
                         input, &selected, &mut field_is_integer)? {
                         Ok((completion, prefixes)) => {
+                            if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
+                                root_field_reads = staged_reads;
+                            }
                             root_completion = Some(Ok(completion));
                             prefixes
                         }
@@ -461,6 +446,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
         .map(|row| row.name().to_owned().into_boxed_str()).collect();
     let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
     ledger.root_completion = root_completion;
+    ledger.field_reads = RefCell::new(root_field_reads);
     Ok(ledger)
 }
 

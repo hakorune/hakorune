@@ -36,10 +36,11 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
     ) {
         let validate = move |module: &MirModule| {
             let mut covered = BTreeSet::new();
+            let retained_root = self.root_new_validation.as_ref().map(|(key, _)| key.clone());
             if let Some((root_key, ledger)) = self.root_new_validation {
                 let root = module.functions.get(&root_key)
                     .ok_or_else(|| fault("root-missing"))?;
-                if has_lifecycle(root) {
+                if has_lifecycle(root) || has_exact_field_read(root) {
                     ledger.validate_artifact_after_compiler_finishing(root)?;
                 } else {
                     ledger.validate_after_compiler_finishing(root)?;
@@ -65,6 +66,9 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 if definition.signature.name != symbol {
                     return Err(fault("birth-function-symbol-drift"));
                 }
+                if has_exact_field_read(definition) {
+                    return Err(fault("unowned-exact-field-read"));
+                }
                 validation.validate_artifact_after_compiler_finishing(definition)?;
             }
             for key in module.canonical_callable_definitions.keys() {
@@ -74,6 +78,9 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 }
             }
             for (symbol, function) in &module.functions {
+                if has_exact_field_read(function) && retained_root.as_ref() != Some(symbol) {
+                    return Err(fault("unowned-exact-field-read"));
+                }
                 if has_lifecycle(function) && !covered.contains(symbol) {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
@@ -87,6 +94,11 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
 fn has_lifecycle(function: &crate::mir::MirFunction) -> bool {
     function.blocks.values().flat_map(|block| block.all_instructions())
         .any(|instruction| instruction.requires_lifecycle_validation())
+}
+
+fn has_exact_field_read(function: &crate::mir::MirFunction) -> bool {
+    function.blocks.values().flat_map(|block| block.all_instructions())
+        .any(|instruction| matches!(instruction, crate::mir::MirInstruction::ObjectFieldGet { .. }))
 }
 
 fn fault(reason: &str) -> String {

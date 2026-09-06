@@ -64,6 +64,7 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::RecordFieldContractCheck { .. } => "RecordFieldContractCheck",
         MirInstruction::RecordValuePublish { .. } => "RecordValuePublish",
         MirInstruction::FieldGet { .. } => "FieldGet",
+        MirInstruction::ObjectFieldGet { .. } => "ObjectFieldGet",
         MirInstruction::FieldSet { .. } => "FieldSet",
         MirInstruction::WeakFieldWrite { .. } => "WeakFieldWrite",
         MirInstruction::VariantMake { .. } => "VariantMake",
