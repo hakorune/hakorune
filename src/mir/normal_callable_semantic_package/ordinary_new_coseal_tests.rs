@@ -43,6 +43,9 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
         ),
         ordinal: 0,
     };
+    let argument_rows = Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
+        new_site: site.clone(),
+    });
     OrdinaryNewAdmissionClaimV1 {
         site,
         box_source,
@@ -55,6 +58,7 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
         construction,
         object,
         destruction,
+        argument_rows,
     }
 }
 
