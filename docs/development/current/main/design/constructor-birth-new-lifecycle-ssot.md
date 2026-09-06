@@ -1034,6 +1034,25 @@ residual or C-side semantic recovery stays `NoSafeSlice` before object output.
 Smallest next slice: read-only C owner/reuse audit, then parser validation.
 Non-claims: object emission, Pair OBJ/EXE exit 30 and legacy deletion.
 
+Audit result: accepted parser-only I0. A dedicated call-local yyjson parser
+will validate only the direct I0 schema by function ordinal and numeric
+coordinates, then dispose it and return a named preartifact terminal. It does
+not read V2 rows, generic JSON, names, metadata, plans or LLVM APIs.
+
+### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-PARSER-I0 — preartifact schema validation
+
+Decision: accepted BoxShape. Add one dedicated C validation endpoint for the
+issued physical schema. Valid input returns success without object output.
+Source authority + canonical issuer: I0 direct JSON is the sole input.
+Non-authority: host path, V2 frame/body sites, generic readers/lowerers,
+function lookup, metadata, process-global state and LLVM APIs.
+Fail-fast boundary: malformed schema, function/block/value/edge/layout/frame
+ABI residual or unsupported opcode rejects before output and before LLVM.
+Smallest next slice: parser include, validation export, preartifact C fixture
+and focused negatives. C lowering is separately taskized afterwards.
+Non-claims: host switch, object emission, Pair OBJ/EXE exit 30 and old-edge
+deletion.
+
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.
 Non-authority: root symbol, `FunctionSignature`, `MirParamDecl`, instruction position, JSON, C frame, Pair names, canonical-core role, ObjectFieldGet, metadata and positional/default ABI rules.
