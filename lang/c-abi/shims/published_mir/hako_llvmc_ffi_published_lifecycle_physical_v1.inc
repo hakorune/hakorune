@@ -52,6 +52,12 @@ static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(
               hako_llvmc_published_lifecycle_physical_v1_opcode(instruction)))
           return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/terminator-index]");
       }
+      for (size_t ei = 0; ei < yyjson_arr_size(edges); ei++) {
+        yyjson_val *edge = yyjson_arr_get(edges, ei);
+        yyjson_val *target = edge ? yyjson_obj_get(edge, "target") : NULL;
+        if (!(target && yyjson_is_uint(target)))
+          return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/edge-target]");
+      }
     }
   }
   for (i = 0; i < yyjson_arr_size(layouts); i++) {
