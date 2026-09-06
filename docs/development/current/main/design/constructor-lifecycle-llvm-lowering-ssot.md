@@ -165,6 +165,36 @@ later rows require their concrete mapping before changing `work_mode` to
 | 5. LLVM + production cutover (BoxCount) | `published_mir_object.rs` lifecycle caller -> dedicated call-local consumer -> object/EXE | Emit the complete selected function/control/runtime ABI; switch the real host caller and delete its generic lifecycle JSON + V2 pending companion edge in the same series. Fixed source EXE30 and OBJ->linked EXE30, Fault ordering/cleanup, Normal-only out loads, frame lifetime and no partial artifact are mandatory. |
 | 6. Caller-zero retirement (Delete) | selected transport/proof owners -> required production acceptance | Audit direct, manifest, aggregate and directory discovery; delete unused V2 wrappers/pending helpers/private probes and the legacy proof route. Retain shared helpers only with named live callers. No selected old retry/re-entry remains. |
 
+### Step 4 prerequisite: `CONSTRUCTOR-LIFECYCLE-C-FRAME-SENTINEL-CONTRACT-D0`
+
+Before Step 4 can expose one direct physical input, document and validate the
+existing absence encoding in
+`src/mir/function/published_backend_view_lifecycle_c_transport.rs`. The owner
+is that Rust C-frame projection and its paired C lifecycle parser; it does not
+issue source meaning. In scope are the source-ordinal absence on a receiver,
+the root's absent receiver/object fields, and absent operation/control fields.
+Each field must name whether `u32::MAX` means absent, and the parser must reject
+an impossible combination instead of treating it as an ordinary ordinal.
+
+Acceptance: a receiver has no source ordinal, source formals retain theirs,
+and malformed absent/present combinations reject before object emission. The
+exclusive cleanup set is only the anonymous raw sentinel literals in this
+frame, replaced by named shared Rust/C ABI constants where that does not alter
+the wire. It does not change receiver/source semantics, other `u32::MAX` uses,
+or enable LLVM execution.
+
+### Step 4 direct-input task: `CONSTRUCTOR-LIFECYCLE-DIRECT-PHYSICAL-INPUT-I0`
+
+This is the concrete Step 4 owner/caller row: final view physical program and
+ABI projection -> one C-parser input. Its successor constructs the final issued
+input once; it must not serialize a program String, parse it into a JSON Value,
+then serialize it again. The intermediate program-string path and its
+`program-parse` branch are the exclusive delete set, but only after the real
+selected consumer uses the successor. Acceptance is issued Pair input with
+exact function/order/layout plus malformed, range, coverage and target
+negatives. Parser-only success remains parser-only evidence; it does not claim
+an object, EXE, `llc` behavior or a C execution cutover.
+
 `CONSTRUCTOR-LIFECYCLE-HOME-ORIGIN-OWNER-SPLIT-I0` is landed (BoxShape): root
 Home progress/validation now lives in `ordinary_new_local_commit/root_home.rs`.
 The parent is 633 lines and the child is 125; public API, tests, behavior and
@@ -733,3 +763,19 @@ route, with unchanged Pair EXE30 and OBJ-linked EXE30 plus Fault/frame/cleanup
 acceptance. Caller-zero retirement follows within the same series. Only then
 resume canonical/compatibility separation, compile-call state and runtime-hook
 single storage. No new second MirBuilder or cross-session main-thunk adapter.
+
+### Post-cutover physical backend investigation
+
+`C-LLVM-COMPILE-SESSION-INPROCESS-D0` is parked after Steps 5 and 6. The C
+selected compile terminal currently writes textual LLVM and invokes external
+tools (`opt` and `llc`) through `system()`. This is compile-time physical work,
+not runtime hot-path dispatch. Before changing it, choose the sole execution
+owner between an embedded LLVM API/static distribution and the retained tool
+driver, with target/toolchain/link-distribution evidence.
+
+Acceptance is a finite tool-invocation census, an explicit selected C-path
+choice, object/diagnostic/temp-cleanup equivalence, and named failure behavior.
+Only a chosen successor may delete the C command builders and canonical temp
+`.ll` route. `ll_tool_driver.rs` is a separate Rust seam and is not deleted by
+implication. This task does not claim runtime speed, concurrent compilation,
+or automatic LLVM embedding.
