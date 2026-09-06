@@ -874,12 +874,14 @@ ordinal, C defaults and Pair fixture values cannot fill missing values, CFG or
 cleanup meaning.
 Fail-fast boundary: absent, foreign, duplicate, residual or unsupported
 function/block/instruction/value/edge relation rejects before C opens an object.
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-PHYSICAL-PROGRAM-I0` implements
-only that one final-view BoxShape. Its payload must retain complete selected
-function membership, params, blocks, opcode/value rows, signed I64 constants,
-Copy/Add, PHI predecessor/value pairs, control successors, lifecycle rows and
+Landed I0: the final view issues `PublishedLifecyclePhysicalProgramV1`, retaining
+root then Birth function membership, params, sorted blocks, stored instruction
+order, terminators and exact outgoing edges. The selected vocabulary includes
+I64/string/Unit constants, Copy/Add, PHI, control, lifecycle rows and
 Return/Fault terminals. Missing/foreign/duplicate/residual/unsupported rows
-reject before any C entry. This is physical projection, never a semantic receipt.
+reject before any C entry. Real `typed-object-birth-min` reaches the final
+consumer and proves root/Birth order, N+1 formal count, Add and both field reads.
+This is physical projection, never a semantic receipt.
 Non-claims: C execution, OBJ/EXE, exit 30, generic JSON lowering or legacy
 deletion.
 
@@ -890,6 +892,24 @@ and linked EXE exit 30, then retire only the selected old caller edge. JSON is
 never the consumer's source of target, value, CFG or cleanup meaning. The
 current frame's partial lifecycle rows are dependency evidence, never
 permission to add C opcode cases one by one.
+
+### CONSTRUCTOR-LIFECYCLE-C-PHYSICAL-CONSUMER-D0 — C consumer authority
+
+Decision: design-stop. Select one selected-C body consumer and prove that any
+JSON it decodes is exactly the final-view physical program serialization before
+replacing `consumer-pending`.
+Source authority + canonical issuer: the activated final view issues
+`PublishedLifecyclePhysicalProgramV1`; its checked serialization is the only
+transport product a selected C consumer may read.
+Non-authority: V2 rows, JSON names/defaults, C process-global state and generic
+JSON dispatch cannot recover function membership, operands, CFG or cleanup.
+Fail-fast boundary: absent consumer owner, incomplete serialization equality or
+an attempted C-side semantic classification remains `NoSafeSlice`; no object
+opens and no opcode case is added.
+Smallest next slice: read-only owner/caller/serialization audit, followed only
+by one bounded consumer implementation if that audit names its exact owner.
+Non-claims: C execution, Pair OBJ/EXE exit 30, old-edge deletion, runtime hook
+state unification and generic compatibility retirement.
 
 Decision: provisional JSON validators remain retired at the no-artifact terminal. Preserve each already-issued Birth recipe's canonical target when a root New claim becomes a local commit, then co-seal it with root Completion and the canonical construction draft after finalization.
 Source authority + canonical issuer: `OrdinaryNewClaimLedgerV1` owns root Completion and issued Birth recipes; its private finalizer validates one exact retained construction draft and issues the opaque final root/Birth handoff before Atomic Publish.

@@ -16,6 +16,7 @@ mod c_transport;
 mod lifecycle;
 #[path = "../../function/published_backend_view_lifecycle_c_transport.rs"]
 mod lifecycle_c_transport;
+mod physical_program;
 
 use lifecycle::PublishedLifecycleInstructionRef;
 
