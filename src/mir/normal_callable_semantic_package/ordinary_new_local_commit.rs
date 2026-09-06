@@ -36,11 +36,21 @@ enum NewEmissionProgress {
     Emitting,
     Emitted {
         result: ValueId,
-        arguments: Vec<ValueId>,
+        arguments: Box<[EmittedNewArgumentV1]>,
         reclaim: Option<ReclaimUnpublishedEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         checked: bool,
     },
+}
+
+/// Physical consumption of one already-issued selected-New argument row.
+///
+/// This is a finalizer-owned snapshot of an emitted MIR value.  It neither
+/// issues source meaning nor selects an ABI lane.
+#[derive(Debug)]
+struct EmittedNewArgumentV1 {
+    source: super::OrdinaryNewTrivialArgumentV1,
+    value: ValueId,
 }
 
 #[derive(Debug)]
@@ -504,6 +514,19 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(row.emission, NewEmissionProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("record-without-emission-or-duplicate"));
         }
+        let source_arguments = row
+            .argument_rows
+            .as_ref()
+            .map_err(|_| freeze("argument-source-unavailable"))?;
+        if source_arguments.len() != arguments.len() {
+            return Err(freeze("argument-count-drift"));
+        }
+        let arguments = source_arguments
+            .iter()
+            .cloned()
+            .zip(arguments)
+            .map(|(source, value)| EmittedNewArgumentV1 { source, value })
+            .collect();
         row.emission = NewEmissionProgress::Emitted {
             result,
             arguments,

@@ -33,7 +33,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     if source_arguments.len() != arguments.len() {
                         return Err(freeze("argument-count-drift"));
                     }
-                    for (index, source) in source_arguments.iter().enumerate() {
+                    for (index, emitted) in arguments.iter().enumerate() {
+                        let source = &emitted.source;
                         if source.owner() != owner
                             || source.new_site() != site
                             || source.ordinal()
@@ -42,6 +43,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         {
                             return Err(freeze("argument-source-drift"));
                         }
+                        self.validate_argument_definition(function, source, emitted.value)?;
                     }
                     let local = row.local.expect("checked local installation");
                     let mut copies = function
@@ -139,7 +141,11 @@ impl OrdinaryNewClaimLedgerV1 {
                                 ..
                             } if matches!(&call.callee,
                                 crate::mir::Callee::BirthConstructor { receiver, .. } if receiver == result)
-                                && call.args == *arguments
+                                && call.args
+                                    == arguments
+                                        .iter()
+                                        .map(|argument| argument.value)
+                                        .collect::<Vec<_>>()
                         ))
                         .count();
                     let expected_birth_calls = usize::from(row.birth_target.is_some());
@@ -156,6 +162,45 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 _ => return Err(freeze("emission-residual")),
             }
+        }
+        Ok(())
+    }
+
+    fn validate_argument_definition(
+        &self,
+        function: &MirFunction,
+        source: &super::super::OrdinaryNewTrivialArgumentV1,
+        value: crate::mir::ValueId,
+    ) -> Result<(), String> {
+        use super::super::OrdinaryNewTrivialArgumentKindV1;
+
+        let matching = match source.kind() {
+            OrdinaryNewTrivialArgumentKindV1::Integer(expected) => function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter(|instruction| {
+                    matches!(instruction, MirInstruction::Const {
+                        dst,
+                        value: crate::mir::ConstValue::Integer(actual),
+                    } if *dst == value && actual == expected)
+                })
+                .count(),
+            OrdinaryNewTrivialArgumentKindV1::Bool(expected) => function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter(|instruction| {
+                    matches!(instruction, MirInstruction::Const {
+                        dst,
+                        value: crate::mir::ConstValue::Bool(actual),
+                    } if *dst == value && actual == expected)
+                })
+                .count(),
+            OrdinaryNewTrivialArgumentKindV1::Local { .. } => return Ok(()),
+        };
+        if matching != 1 {
+            return Err(freeze("argument-literal-drift"));
         }
         Ok(())
     }
