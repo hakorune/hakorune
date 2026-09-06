@@ -35,6 +35,29 @@ Related:
 
 ## Goal
 
+### Constructor review reconciliation (2026-09-06)
+
+Review base: `93dde7b882`; current checkpoint: `0cd11d8591`, with
+same-borrow export work uncommitted. This is a bounded follow-up queue, not
+permission to interrupt the active Birth source-to-EXE/OBJ cutover.
+
+| Order / existing owner | Current evidence and task | Acceptance / deletion boundary |
+| --- | --- | --- |
+| Active Birth card | Selected constructor key now enters `CatalogedConstructor`; EXE already reuses its borrowed view. Do not reopen these fixed seams. Finish same-borrow body export, typed lifecycle C ABI, and unchanged Pair. | Pair EXE30/OBJ30 plus selected old projection deletion; package tests alone do not close it. |
+| Published view / backend capability | Integer-only admission and compatibility routing still share `normal_default_pipeline/published_backend_view.rs`. Keep relation/arity/identity validation distinct from backend capability when extending the selected lifecycle ingress. | Missing definition remains invalid; valid unsupported family remains unsupported before artifact; no duplicate view, new receipt or widened acceptance by moving checks. |
+| Recursive child port | `lower_me_expression_v1` still defaults to legacy `build_me_expression`. At its selected cutover, require explicit implementations and leave legacy behavior only in named compatibility implementors. | Finite implementor inventory, canonical exact-site tests and explicit compatibility tests; forgotten override becomes a compile error, not fallback. |
+| Callable loan scope | `normal_callable_semantic_loan_port` owns state setup/restoration/finish despite its thin-adapter label. Reuse that single scope; remove obsolete family branches after cutover rather than adding Context boxes. | Success/error restoration and finish-once preserved; no duplicate `Rc` lifecycle or weakened affine loans. |
+| Unified emitter | Replay/default-argument relays still exist. Fold only relays whose outside compatibility callers have retired. | Same errors/depth/lifetime boundaries; named forwarding edges decrease, accepted calls unchanged. |
+| Compilation context / collector / barrel | `field_origin_class`, `method_tail_index` and slot state still exist. Retire caller-zero fields with initialization/restoration/re-export/test users; correct stale collector comments when touching their owner. | Compiler plus finite feature/test caller checks; comments or `allow(dead_code)` are not deletion authority. |
+| C physical split | Existing `.inc` extraction is a line-limit split, not proven coupling reduction. Change interfaces only for the active consumer replacement. | Expanded behavior and selected execution preserved; report moved lines separately from removed edges. |
+
+Keep sealed bundles, affine scope boundaries and collector prepare/seal/commit.
+A new type is justified by distinct semantics, ownership or state transition,
+not by rewrapping the same data. Stop/Delete applies only to explicitly retired
+compatibility, never as a substitute for required product acceptance. Track
+local tests, source-to-MIR, source-to-execution and physical deletion separately.
+These tasks reuse existing owners/cards/guards; no new framework or dispatcher.
+
 - 設計文書の美しさを、repo の物理構造でも読める形へ寄せる。
 - root / `CURRENT_TASK.md` / `src/mir` の認知負荷を下げる。
 - cleanup を `BoxShape` として進め、受理形追加や broad rename と混ぜない。
