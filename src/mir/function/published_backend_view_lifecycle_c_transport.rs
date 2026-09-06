@@ -16,9 +16,8 @@ use crate::mir::{Callee, MirInstruction};
 
 use super::{
     lifecycle_schema::{
-        ABSENT_U32, CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT,
-        DEFINITION_ROLE_ROOT_I64, DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_I64,
-        RESULT_KIND_UNIT,
+        ABSENT_U32, CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT, DEFINITION_ROLE_ROOT_I64,
+        DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_I64, RESULT_KIND_UNIT,
     },
     PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
@@ -260,13 +259,18 @@ impl PublishedLifecycleCFrameV2 {
         for (index, birth) in birth_abis.iter().enumerate() {
             let key = birth.target();
             if key.namespace() != SameModuleCallableNamespaceV1::BirthConstructor
-                || birth.result() != crate::mir::normal_callable_semantic_package::BirthResultAbiV1::Unit
+                || birth.result()
+                    != crate::mir::normal_callable_semantic_package::BirthResultAbiV1::Unit
                 || birth.receiver().source_ordinal().is_some()
                 || birth.receiver().physical_lane() != 0
-                || birth.parameters().iter().enumerate().any(|(index, formal)| {
-                    formal.source_ordinal() != Some(index as u32)
-                        || formal.physical_lane() != index as u32 + 1
-                })
+                || birth
+                    .parameters()
+                    .iter()
+                    .enumerate()
+                    .any(|(index, formal)| {
+                        formal.source_ordinal() != Some(index as u32)
+                            || formal.physical_lane() != index as u32 + 1
+                    })
             {
                 return Err(fault("birth-abi-relation-invalid"));
             }
@@ -303,7 +307,9 @@ impl PublishedLifecycleCFrameV2 {
                 frame_mode: definition_frame_mode(function)?,
                 flags: 0,
             });
-            for formal in std::iter::once(birth.receiver()).chain(birth.parameters().iter().copied()) {
+            for formal in
+                std::iter::once(birth.receiver()).chain(birth.parameters().iter().copied())
+            {
                 let value = function
                     .params
                     .get(formal.physical_lane() as usize)
@@ -314,7 +320,11 @@ impl PublishedLifecycleCFrameV2 {
                     physical_ordinal: formal.physical_lane(),
                     value_id: value.0,
                     wire_revision: 2,
-                    input_kind: if formal.source_ordinal().is_none() { 1 } else { 2 },
+                    input_kind: if formal.source_ordinal().is_none() {
+                        1
+                    } else {
+                        2
+                    },
                 });
             }
         }
@@ -324,6 +334,8 @@ impl PublishedLifecycleCFrameV2 {
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }) =>
                 (DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_UNIT),
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }) =>
+                (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { .. }) =>
                 (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
             None => return Err(fault("root-result-handoff-missing")),
         };

@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-I64-FIELD-RETURN-I0"
-current_execution_cohort = "constructor_lifecycle_root_i64_field_return_i0"
-current_design_stop = "none"
-current_blocker_token = "I0 must retain one selected direct initialized i64 field relation through final handoff and consume it without raw return-value descent; Bool, local, typed integer and Add remain distinct."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D2"
+current_execution_cohort = "constructor_lifecycle_root_scalar_terminal_d2"
+current_design_stop = "D2 must select one remaining scalar terminal family with a named source authority, canonical issuer, selected consumer, exclusive old edge, and fail-fast boundary; Bool, local/alias, typed integer, and general Add are distinct candidates."
+current_blocker_token = "I64 field I0 is landed. Do not extend scalar coverage until D2 chooses one bounded family; no raw fallback, C schema revision, object, or EXE claim may be inferred from the existing ROOT_I64 / I64 pending path."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,10 +36,10 @@ constructor/Birth final handoff and transport, deleting key-owner object
 derivation while preserving per-New receiver checks. Formal declaration/use D0
 now selects a constructor-issued BirthFormalContractV1: declaration class and
 complete use coverage are retained without actual-value specialization; I0 is
-landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar D1 selects one direct initialized i64-field return I0: the existing Home scan's canonical field staging issues the relation and the selected field-read consumer replaces its one raw return-value descent. Bool, local, typed integer and Add remain separate design work.
+landed with handoff drift rejection. Root Unit physical I0 is complete: Completion-backed bare return reaches exact Return(None), final handoff retains Unit, and i64-only C ingress rejects it. Root Unit C schema I0 is landed: typed ROOT_UNIT / UNIT rows and Return(None) controls reach C pending while ROOT_I64 / I64 remains stable; no object is emitted. Root scalar direct untyped Integer literal I0 is landed. Scalar I64-field I0 is landed: the existing Home scan issues the direct-field relation, the selected field-read consumer replaces its one raw return-value descent, and the final handoff/C pending frame retain the distinct I64 result. Bool, local, typed integer and Add remain separate design work.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D2 (after I0)"
-next_execution_card = "CONSTRUCTOR-LIFECYCLE-ROOT-I64-FIELD-RETURN-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D2"
+next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

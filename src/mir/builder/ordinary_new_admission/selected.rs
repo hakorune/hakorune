@@ -4,6 +4,7 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1,
+    PreparedTerminalI64FieldReturnV1,
 };
 use crate::mir::{BasicBlock, BasicBlockId, Callee, MirBuilder, MirInstruction, MirType, ValueId};
 
@@ -313,7 +314,9 @@ fn emit_root_home_exit_payload(
     append_block(
         builder,
         clean,
-        MirInstruction::Return { value: return_value },
+        MirInstruction::Return {
+            value: return_value,
+        },
         &mut bindings,
     )?;
     append_block(
@@ -407,6 +410,37 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
         .insert(result, MirType::Integer);
     ledger.record_terminal_i64_add(block, result, values[0], values[1])?;
     ledger.complete_terminal_i64_add_return(result)?;
+    Ok(result)
+}
+
+pub(in crate::mir::builder) fn emit_terminal_i64_field_return(
+    builder: &mut MirBuilder,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    prepared: PreparedTerminalI64FieldReturnV1,
+) -> Result<ValueId, String> {
+    let block = builder
+        .function_state
+        .current_block
+        .ok_or_else(|| freeze("no-block"))?;
+    let result = builder.next_value_id();
+    builder.emit_instruction(MirInstruction::ObjectFieldGet {
+        dst: result,
+        base: prepared.base,
+        field: prepared.field.clone(),
+    })?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result, MirType::Integer);
+    ledger.record_terminal_field_read(
+        &prepared.site,
+        block,
+        result,
+        prepared.base,
+        prepared.field,
+    )?;
+    ledger.record_terminal_i64_field_return(result)?;
     Ok(result)
 }
 

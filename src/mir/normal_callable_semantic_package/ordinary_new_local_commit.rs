@@ -8,7 +8,10 @@ use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
-use crate::mir::resolved_semantics::home_new_prefix::{TerminalI64AddReturnV1, TerminalIntegerLiteralReturnV1, TerminalUnitReturnV1};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    TerminalI64AddReturnV1, TerminalI64FieldReturnV1, TerminalIntegerLiteralReturnV1,
+    TerminalUnitReturnV1,
+};
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
@@ -17,7 +20,6 @@ use crate::mir::{BasicBlockId, MirFunction, MirInstruction};
 use crate::parser::CallableDeclarationIdentityV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
-use std::collections::BTreeSet;
 
 #[derive(Debug)]
 pub(super) enum RootNewValidation {
@@ -102,6 +104,7 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     terminal_i64_add: Option<TerminalI64AddReturnV1>,
     terminal_unit_return: Option<TerminalUnitReturnV1>,
     terminal_integer_literal: Option<TerminalIntegerLiteralReturnV1>,
+    terminal_i64_field_return: Option<TerminalI64FieldReturnV1>,
 }
 
 impl FinalizedRootSourceHandoffV1 {
@@ -112,8 +115,15 @@ impl FinalizedRootSourceHandoffV1 {
     pub(crate) fn terminal_i64_add(&self) -> Option<&TerminalI64AddReturnV1> {
         self.terminal_i64_add.as_ref()
     }
-    pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> { self.terminal_unit_return.as_ref() }
-    pub(crate) fn terminal_integer_literal(&self) -> Option<&TerminalIntegerLiteralReturnV1> { self.terminal_integer_literal.as_ref() }
+    pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
+        self.terminal_unit_return.as_ref()
+    }
+    pub(crate) fn terminal_integer_literal(&self) -> Option<&TerminalIntegerLiteralReturnV1> {
+        self.terminal_integer_literal.as_ref()
+    }
+    pub(crate) fn terminal_i64_field_return(&self) -> Option<&TerminalI64FieldReturnV1> {
+        self.terminal_i64_field_return.as_ref()
+    }
 }
 
 /// Final-handoff projection of the already-issued terminal source relation.
@@ -122,6 +132,7 @@ pub(crate) enum FinalizedRootResultAbiV1 {
     I64AddReturn { owner: FunctionOwnerIdV1 },
     UnitReturn { owner: FunctionOwnerIdV1 },
     IntegerLiteralReturn { owner: FunctionOwnerIdV1 },
+    I64FieldReturn { owner: FunctionOwnerIdV1 },
 }
 
 impl FinalizedRootBirthHandoffV1 {
@@ -246,123 +257,6 @@ impl NewLocalCommitV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(crate) fn seal_finalized_root_birth_handoff(
-        &self,
-        root_key: String,
-        construction_keys: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
-    ) -> Result<FinalizedRootBirthHandoffV1, String> {
-        match *self.root_validation.borrow() {
-            RootNewValidation::FinishingChecked => {}
-            _ => return Err(freeze("artifact-root-not-finished")),
-        }
-        let owner = match self.root_completion.as_ref() {
-            Some(Ok(completion)) => completion.owner(),
-            _ => return Err(freeze("artifact-root-completion-unavailable")),
-        };
-        let root_source = match (&self.terminal_result, &self.terminal_unit_return, &self.terminal_integer_literal) {
-            (Some(_), Some(_), _) | (Some(_), _, Some(_)) | (_, Some(_), Some(_)) => return Err(freeze("artifact-root-result-conflict")),
-            (Some(relation), None, None) => Some({
-                if relation.owner() != owner || !self.terminal_result_complete() {
-                    return Err(freeze("artifact-root-result-unavailable"));
-                }
-                let app_main_identity = self
-                    .app_main_identity
-                    .as_ref()
-                    .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
-                    .clone();
-                FinalizedRootSourceHandoffV1 {
-                    app_main_identity,
-                    terminal_i64_add: Some(relation.clone()),
-                    terminal_unit_return: None,
-                    terminal_integer_literal: None,
-                }
-            }),
-            (None, Some(relation), None) => Some({
-                if relation.owner() != owner { return Err(freeze("artifact-root-unit-owner-drift")); }
-                let completion = self.root_completion.as_ref().and_then(|row| row.as_ref().ok())
-                    .ok_or_else(|| freeze("artifact-root-completion-unavailable"))?;
-                if completion.explicit_site() != Some(relation.return_site()) {
-                    return Err(freeze("artifact-root-unit-site-drift"));
-                }
-                let app_main_identity = self.app_main_identity.as_ref()
-                    .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?.clone();
-                FinalizedRootSourceHandoffV1 {
-                    app_main_identity,
-                    terminal_i64_add: None,
-                    terminal_unit_return: Some(relation.clone()),
-                    terminal_integer_literal: None,
-                }
-            }),
-            (None, None, Some(relation)) => Some({
-                if relation.owner() != owner || self.terminal_integer_literal_value.borrow().is_none() { return Err(freeze("artifact-root-literal-unavailable")); }
-                FinalizedRootSourceHandoffV1 { app_main_identity: self.app_main_identity.as_ref().ok_or_else(|| freeze("artifact-root-identity-unavailable"))?.clone(), terminal_i64_add: None, terminal_unit_return: None, terminal_integer_literal: Some(relation.clone()) }
-            }),
-            (None, None, None) => None,
-        };
-        let root_result = root_source.as_ref().map(|source| {
-            if source.terminal_i64_add().is_some() {
-                FinalizedRootResultAbiV1::I64AddReturn { owner }
-            } else if source.terminal_unit_return().is_some() {
-                FinalizedRootResultAbiV1::UnitReturn { owner }
-            } else { FinalizedRootResultAbiV1::IntegerLiteralReturn { owner } }
-        });
-        let mut keys = BTreeSet::new();
-        let mut births = Vec::new();
-        for (_, row) in self
-            .local_commits
-            .borrow()
-            .iter()
-            .filter(|(_, row)| row.binding.owner() == owner)
-        {
-            if !row.is_complete() {
-                return Err(freeze("artifact-local-commit-incomplete"));
-            }
-            let Some(key) = &row.birth_target else {
-                if row.birth_abi.is_some() {
-                    return Err(freeze("artifact-birth-abi-without-target"));
-                }
-                continue;
-            };
-            let key = key.clone();
-            let relation = row
-                .birth_abi
-                .as_ref()
-                .ok_or_else(|| freeze("artifact-birth-abi-missing"))?;
-            if relation.target() != &key || relation.owner() == owner {
-                return Err(freeze("artifact-birth-abi-drift"));
-            }
-            if relation.object() != row.object {
-                return Err(freeze("artifact-birth-object-drift"));
-            }
-            if !construction_keys.contains(&key) {
-                return Err(freeze("artifact-birth-construction-missing"));
-            }
-            // Multiple exact New sites may invoke one canonical Birth
-            // definition. Local emission validation above remains per site;
-            // the final handoff retains each definition relation once.
-            if keys.insert(key.clone()) {
-                births.push(relation.clone());
-            } else if !births.iter().any(|existing| existing == relation) {
-                return Err(freeze("artifact-birth-abi-duplicate-drift"));
-            }
-        }
-        Ok(if births.is_empty() {
-            FinalizedRootBirthHandoffV1::NoBirth {
-                root_key,
-                root_source,
-                root_result,
-            }
-        } else {
-            FinalizedRootBirthHandoffV1::Births {
-                root_key,
-                root_source,
-                root_result,
-                keys: keys.into_iter().collect(),
-                births: births.into_boxed_slice(),
-            }
-        })
-    }
-
     pub(crate) fn register_new_root(&self, owner: FunctionOwnerIdV1) -> Result<(), String> {
         let mut state = self.root_validation.borrow_mut();
         if !matches!(*state, RootNewValidation::Unregistered) {
@@ -396,6 +290,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_root_home_exit(function)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
+        self.validate_terminal_i64_field_return(owner, function)?;
         if self.finalized_root_observation(owner)
             != RootOrdinaryNewObservation::SourceCompleteAtFinalization
         {
@@ -751,3 +646,6 @@ mod root_validation;
 use reclaim::ReclaimUnpublishedEmissionV1;
 pub(crate) use reclaim::ReclaimUnpublishedOriginV1;
 pub(super) use root_home::RootHomeExitProgress;
+
+#[path = "ordinary_new_local_commit/finalized_root_handoff.rs"]
+mod finalized_root_handoff;

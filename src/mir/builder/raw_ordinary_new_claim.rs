@@ -20,7 +20,19 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     ) -> Result<Option<crate::mir::ValueId>, String> {
         Ok(None)
     }
-    fn emit_terminal_integer_literal_return(&mut self, _builder: &mut crate::mir::MirBuilder) -> Result<Option<crate::mir::ValueId>, String> { Ok(None) }
+    fn emit_terminal_integer_literal_return(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        Ok(None)
+    }
+
+    fn emit_terminal_i64_field_return(
+        &mut self,
+        _builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        Ok(None)
+    }
 
     fn emit_root_home_exit(
         &mut self,
@@ -186,14 +198,69 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         .map(Some)
     }
 
-    fn emit_terminal_integer_literal_return(&mut self, builder: &mut crate::mir::MirBuilder) -> Result<Option<crate::mir::ValueId>, String> {
-        let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(None); };
-        let owner = self.callable_owner_v1().ok_or("[ordinary-literal/owner-missing]")?;
-        let site = self.current_source_site_v1().ok_or("[ordinary-literal/site-missing]")?;
-        let Some(value) = ledger.prepare_terminal_integer_literal_return(owner, &site)? else { return Ok(None); };
+    fn emit_terminal_integer_literal_return(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else {
+            return Ok(None);
+        };
+        let owner = self
+            .callable_owner_v1()
+            .ok_or("[ordinary-literal/owner-missing]")?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[ordinary-literal/site-missing]")?;
+        let Some(value) = ledger.prepare_terminal_integer_literal_return(owner, &site)? else {
+            return Ok(None);
+        };
         let emitted = crate::mir::builder::emission::constant::emit_integer(builder, value)?;
         ledger.record_terminal_integer_literal_return(emitted)?;
         Ok(Some(emitted))
+    }
+
+    fn emit_terminal_i64_field_return(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else {
+            return Ok(None);
+        };
+        let owner = self
+            .callable_owner_v1()
+            .ok_or("[ordinary-field-return/owner-missing]")?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[ordinary-field-return/site-missing]")?;
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or("[ordinary-field-return/state-missing]")?;
+        let Some(prepared) =
+            ledger.prepare_terminal_i64_field_return(owner, &site, |binding, source_site| {
+                let value = state.borrow_mut().read_variable(source_site)?;
+                let expected = state
+                    .borrow()
+                    .value_for_exact_binding(owner, binding)
+                    .map_err(|error| {
+                        format!(
+                            "[freeze:contract][ordinary-field-return/receiver-binding] {error:?}"
+                        )
+                    })?;
+                if value != expected {
+                    return Err(
+                        "[freeze:contract][ordinary-field-return/receiver-binding-drift]".into(),
+                    );
+                }
+                Ok(value)
+            })?
+        else {
+            return Ok(None);
+        };
+        crate::mir::builder::ordinary_new_admission::selected::emit_terminal_i64_field_return(
+            builder, ledger, prepared,
+        )
+        .map(Some)
     }
 
     fn emit_root_home_exit(
@@ -220,15 +287,27 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         &mut self,
         builder: &mut crate::mir::MirBuilder,
     ) -> Result<crate::mir::ValueId, String> {
-        let owner = self.callable_owner_v1().ok_or("[root-home-unit-exit/owner-missing]")?;
-        let site = self.current_source_site_v1().ok_or("[root-home-unit-exit/site-missing]")?;
-        let state = self.callable_ledger.as_ref().ok_or("[root-home-unit-exit/state-missing]")?;
-        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[root-home-unit-exit/ledger-missing]")?;
+        let owner = self
+            .callable_owner_v1()
+            .ok_or("[root-home-unit-exit/owner-missing]")?;
+        let site = self
+            .current_source_site_v1()
+            .ok_or("[root-home-unit-exit/site-missing]")?;
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or("[root-home-unit-exit/state-missing]")?;
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .ok_or("[root-home-unit-exit/ledger-missing]")?;
         if !ledger.prepare_terminal_unit_return(owner, &site)? {
             return Err("[freeze:contract][root-home-unit-exit/source-unavailable]".into());
         }
         crate::mir::builder::ordinary_new_admission::selected::emit_root_home_unit_exit(
-            builder, &mut state.borrow_mut(), ledger,
+            builder,
+            &mut state.borrow_mut(),
+            ledger,
         )
     }
     fn prepare_ordinary_new_emission(

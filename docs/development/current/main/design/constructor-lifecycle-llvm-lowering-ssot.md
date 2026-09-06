@@ -999,6 +999,23 @@ before effects. Split terminal retention/validation into children as needed:
 line target. This I0 adds no semantic `Verified*`/`Prepared*` receipt, raw AST
 consumer, fallback, C schema revision, object or EXE claim.
 
+Landed: `scan_new_home_flow` now issues `TerminalI64FieldReturnV1` only for
+the exact initialized canonical i64 field. The selected terminal consumer
+emits one `ObjectFieldGet` without raw return-value descent, then reuses root
+Home cleanup. The final handoff retains `I64FieldReturn`, and the lifecycle C
+frame maps it to the existing `ROOT_I64 / I64` pending row. Focused positive,
+Bool negative, Unit, literal, and I64Add regressions pass. No object or EXE is
+created.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D2`
+
+Design stop. Choose exactly one remaining scalar terminal family only after a
+finite source/consumer census names its source authority, canonical issuer,
+exclusive raw descent, and pre-publication fail-fast boundary. Direct Bool,
+local/alias, typed integer, and recursive/general Add remain separate
+candidates; the I64-field relation and `ROOT_I64 / I64` C row are not an
+authority for any of them.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source

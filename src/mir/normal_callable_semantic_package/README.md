@@ -225,6 +225,14 @@ then sends that exact value through the existing Home cleanup/Return owner.
 Physical progress remains in the ledger and final validation rejects absent,
 duplicate or drifted results; selected raw FieldRead re-entry rejects rather
 than retrying AST descent.
+For the separately accepted direct-field shape, the same Completion walk issues
+`TerminalI64FieldReturnV1` with the exact Return/value sites and one existing
+staged FieldRead site. Its consumer reserves that read, emits exactly one
+`ObjectFieldGet`, and routes its value through the existing Home cleanup and
+Return owner. The final handoff retains `I64FieldReturn` separately from Add,
+Unit, and integer-literal results; the lifecycle transport projects it through
+the existing `ROOT_I64 / I64` pair. Bool, local aliases, typed integers and
+all Add extensions do not borrow this relation.
 The package issuer passes the validated comparison-only AppMain identity into
 that same ledger, rather than reducing it to a batch slot at the handoff.
 After finishing validation, the final handoff retains that identity with the

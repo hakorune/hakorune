@@ -68,10 +68,15 @@ fn explicit_bare_return_issues_unit_relation_without_i64_specialization() {
         "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }",
     ).expect("source package");
     let ledger = &package.ordinary_new_claim_ledger;
-    let relation = ledger.terminal_unit_return().expect("explicit bare return relation");
+    let relation = ledger
+        .terminal_unit_return()
+        .expect("explicit bare return relation");
     let completion = ledger.root_completion_for_test();
     assert_eq!(relation.owner(), completion.owner());
-    assert_eq!(relation.return_site(), completion.explicit_site().expect("return site"));
+    assert_eq!(
+        relation.return_site(),
+        completion.explicit_site().expect("return site")
+    );
     assert!(ledger.terminal_i64_add_return().is_none());
 }
 
@@ -80,12 +85,61 @@ fn direct_integer_literal_issues_exact_terminal_relation() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return 30 } }",
     ).expect("source package");
-    let relation = package.ordinary_new_claim_ledger
-        .terminal_integer_literal_return().expect("literal relation");
+    let relation = package
+        .ordinary_new_claim_ledger
+        .terminal_integer_literal_return()
+        .expect("literal relation");
     let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
     assert_eq!(relation.owner(), completion.owner());
-    assert_eq!(relation.return_site(), completion.explicit_site().expect("return site"));
+    assert_eq!(
+        relation.return_site(),
+        completion.explicit_site().expect("return site")
+    );
     assert_eq!(relation.value(), 30);
-    assert!(package.ordinary_new_claim_ledger.terminal_i64_add_return().is_none());
-    assert!(package.ordinary_new_claim_ledger.terminal_unit_return().is_none());
+    assert!(package
+        .ordinary_new_claim_ledger
+        .terminal_i64_add_return()
+        .is_none());
+    assert!(package
+        .ordinary_new_claim_ledger
+        .terminal_unit_return()
+        .is_none());
+}
+
+#[test]
+fn direct_i64_field_issues_exact_terminal_relation() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return pair.left } }",
+    )
+    .expect("source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let relation = ledger
+        .terminal_i64_field_return()
+        .expect("direct field terminal relation");
+    let completion = ledger.root_completion_for_test();
+    assert_eq!(relation.owner(), completion.owner());
+    assert_eq!(
+        relation.return_site(),
+        completion.explicit_site().expect("return site")
+    );
+    assert_eq!(relation.field_read_site().owner(), relation.owner());
+    assert!(ledger
+        .field_reads
+        .borrow()
+        .contains_key(relation.field_read_site()));
+    assert!(ledger.terminal_i64_add_return().is_none());
+    assert!(ledger.terminal_integer_literal_return().is_none());
+    assert!(ledger.terminal_unit_return().is_none());
+}
+
+#[test]
+fn direct_bool_does_not_issue_i64_field_terminal_relation() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return true } }",
+    )
+    .expect("source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(ledger.terminal_i64_field_return().is_none());
+    assert!(ledger.terminal_i64_add_return().is_none());
+    assert!(ledger.terminal_integer_literal_return().is_none());
 }

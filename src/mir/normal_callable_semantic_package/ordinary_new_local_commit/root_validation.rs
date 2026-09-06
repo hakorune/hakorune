@@ -24,6 +24,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
+        self.validate_terminal_i64_field_return(owner, function)?;
         let observation = self.finalized_root_observation(owner);
         *state = RootNewValidation::Checked(owner);
         Ok(observation)
@@ -51,6 +52,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
+        self.validate_terminal_i64_field_return(owner, function)?;
         if self.finalized_root_observation(owner) != function.root_ordinary_new_observation() {
             return Err(freeze("root-observation-drift"));
         }
@@ -60,24 +62,49 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn validate_terminal_unit_return(&self, owner: FunctionOwnerIdV1, function: &MirFunction) -> Result<(), String> {
-        let Some(relation) = self.terminal_unit_return.as_ref() else { return Ok(()); };
-        if relation.owner() != owner { return Err(freeze("unit-return-owner-drift")); }
-        let count = function.blocks.values().flat_map(|block| block.all_instructions())
+    pub(super) fn validate_terminal_unit_return(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let Some(relation) = self.terminal_unit_return.as_ref() else {
+            return Ok(());
+        };
+        if relation.owner() != owner {
+            return Err(freeze("unit-return-owner-drift"));
+        }
+        let count = function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
             .filter(|instruction| matches!(instruction, MirInstruction::Return { value: None }))
             .count();
-        if count != 1 { return Err(freeze("unit-return-control-drift")); }
+        if count != 1 {
+            return Err(freeze("unit-return-control-drift"));
+        }
         Ok(())
     }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn validate_terminal_integer_literal_return(&self, owner: FunctionOwnerIdV1, function: &MirFunction) -> Result<(), String> {
-        let Some(relation) = self.terminal_integer_literal.as_ref() else { return Ok(()); };
-        if relation.owner() != owner { return Err(freeze("literal-owner-drift")); }
-        let Some(value) = *self.terminal_integer_literal_value.borrow() else { return Err(freeze("literal-unconsumed")); };
+    pub(super) fn validate_terminal_integer_literal_return(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let Some(relation) = self.terminal_integer_literal.as_ref() else {
+            return Ok(());
+        };
+        if relation.owner() != owner {
+            return Err(freeze("literal-owner-drift"));
+        }
+        let Some(value) = *self.terminal_integer_literal_value.borrow() else {
+            return Err(freeze("literal-unconsumed"));
+        };
         let exact = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(actual) } if *dst == value && *actual == relation.value()));
         let returned = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value));
-        (exact && returned).then_some(()).ok_or_else(|| freeze("literal-physical-drift"))
+        (exact && returned)
+            .then_some(())
+            .ok_or_else(|| freeze("literal-physical-drift"))
     }
 }

@@ -87,7 +87,7 @@ pub(crate) use ordinary_new_coseal::{
     BirthAbiHandoffV1, BirthResultAbiV1, FinalizedRootBirthHandoffV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
     OrdinaryNewConstructorDispositionV1, OrdinaryNewTrivialArgumentKindV1,
-    OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1,
+    OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{

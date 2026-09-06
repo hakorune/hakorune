@@ -38,38 +38,64 @@ pub(crate) fn issue_new_fault_continuation_v1(
 ) -> Result<NewFaultContinuationV1, &'static str> {
     use crate::mir::resolved_semantics::{SourceBindingSiteV1, SourcePathSegmentV1};
     let function = input.function();
-    if input.owner() != function.owner() || site.owner() != input.owner()
-        || !input.forest().owner(input.owner()).is_some_and(|owner| std::ptr::eq(owner, function))
+    if input.owner() != function.owner()
+        || site.owner() != input.owner()
+        || !input
+            .forest()
+            .owner(input.owner())
+            .is_some_and(|owner| std::ptr::eq(owner, function))
     {
         return Err("foreign-source-owner");
     }
-    if !matches!(site.site().node().segments(),
-        [SourcePathSegmentV1::Body(_), SourcePathSegmentV1::Initializer(_)])
-    {
+    if !matches!(
+        site.site().node().segments(),
+        [
+            SourcePathSegmentV1::Body(_),
+            SourcePathSegmentV1::Initializer(_)
+        ]
+    ) {
         return Err("not-direct-local-new");
     }
-    let located = input.source().expr_at(site).map_err(|_| "source-site-missing")?;
+    let located = input
+        .source()
+        .expr_at(site)
+        .map_err(|_| "source-site-missing")?;
     if !matches!(located.node(), ASTNode::New { .. }) {
         return Err("source-not-new");
     }
-    let mut relations = function.expression_source().initializers()
+    let mut relations = function
+        .expression_source()
+        .initializers()
         .filter(|row| row.initializer_site() == Some(site.site()));
     let relation = relations.next().ok_or("initializer-missing")?;
     if relations.next().is_some()
-        || !matches!(relation.declaration_site(), SourceBindingSiteV1::Local { .. })
+        || !matches!(
+            relation.declaration_site(),
+            SourceBindingSiteV1::Local { .. }
+        )
         || function.declaration_binding(relation.declaration_site()) != Some(relation.binding())
     {
         return Err("initializer-relation-mismatch");
     }
-    let scope = function.exact_scope_containing(site.site().node()).ok_or("source-scope-missing")?;
+    let scope = function
+        .exact_scope_containing(site.site().node())
+        .ok_or("source-scope-missing")?;
     let roots = function.lowering_roots();
     let target = roots.function_pair().region();
-    if scope != roots.body_pair().scope() || target != function.function_region()
-        || function.region(roots.body_pair().region()).and_then(|row| row.parent()) != Some(target)
+    if scope != roots.body_pair().scope()
+        || target != function.function_region()
+        || function
+            .region(roots.body_pair().region())
+            .and_then(|row| row.parent())
+            != Some(target)
     {
         return Err("outward-function-target-mismatch");
     }
-    Ok(NewFaultContinuationV1 { site: site.clone(), source_scope: scope, target_function: target })
+    Ok(NewFaultContinuationV1 {
+        site: site.clone(),
+        source_scope: scope,
+        target_function: target,
+    })
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -369,37 +395,104 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         &crate::mir::resolved_semantics::SourceExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,
-        crate::mir::resolved_semantics::BindingRefV1, &str,
+        crate::mir::resolved_semantics::BindingRefV1,
+        &str,
     ) -> Result<bool, E>,
-) -> Result<Result<(VerifiedFunctionCompletionV1, std::collections::BTreeMap<
-    crate::mir::resolved_semantics::OwnedExprSiteV1,
-    Result<crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1,
-        crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1>,
->, Option<crate::mir::resolved_semantics::home_new_prefix::TerminalI64AddReturnV1>), FunctionCompletionVerificationErrorV1>, E> {
+) -> Result<
+    Result<
+        (
+            VerifiedFunctionCompletionV1,
+            std::collections::BTreeMap<
+                crate::mir::resolved_semantics::OwnedExprSiteV1,
+                Result<
+                    crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1,
+                    crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1,
+                >,
+            >,
+            Option<crate::mir::resolved_semantics::home_new_prefix::TerminalI64AddReturnV1>,
+        ),
+        FunctionCompletionVerificationErrorV1,
+    >,
+    E,
+> {
     let result = verify_function_completion_with_new_homes_and_argument_observations_v1(
-        input, selected, field_is_integer,
+        input,
+        selected,
+        field_is_integer,
     )?;
-    Ok(result.map(|(completion, prefixes, terminal, _, _, _)| (completion, prefixes, terminal)))
+    Ok(result.map(|(completion, prefixes, terminal, _, _, _, _)| (completion, prefixes, terminal)))
 }
 
 pub(crate) fn verify_function_completion_with_new_homes_and_argument_observations_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
-    selected: &std::collections::BTreeMap<crate::mir::resolved_semantics::OwnedExprSiteV1, crate::mir::resolved_semantics::BindingRefV1>,
-    field_is_integer: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1, &crate::mir::resolved_semantics::SourceExprSiteV1, crate::mir::resolved_semantics::BindingRefV1, crate::mir::resolved_semantics::BindingRefV1, &str) -> Result<bool, E>,
-) -> Result<Result<(VerifiedFunctionCompletionV1, std::collections::BTreeMap<crate::mir::resolved_semantics::OwnedExprSiteV1, Result<crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1, crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1>>, Option<crate::mir::resolved_semantics::home_new_prefix::TerminalI64AddReturnV1>, Option<crate::mir::resolved_semantics::home_new_prefix::TerminalUnitReturnV1>, Option<crate::mir::resolved_semantics::home_new_prefix::TerminalIntegerLiteralReturnV1>, std::collections::BTreeMap<crate::mir::resolved_semantics::OwnedExprSiteV1, crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1>), FunctionCompletionVerificationErrorV1>, E> {
+    selected: &std::collections::BTreeMap<
+        crate::mir::resolved_semantics::OwnedExprSiteV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+    >,
+    field_is_integer: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+) -> Result<
+    Result<
+        (
+            VerifiedFunctionCompletionV1,
+            std::collections::BTreeMap<
+                crate::mir::resolved_semantics::OwnedExprSiteV1,
+                Result<
+                    crate::mir::resolved_semantics::home_new_prefix::CallerNewHomePrefixV1,
+                    crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1,
+                >,
+            >,
+            Option<crate::mir::resolved_semantics::home_new_prefix::TerminalI64AddReturnV1>,
+            Option<crate::mir::resolved_semantics::home_new_prefix::TerminalUnitReturnV1>,
+            Option<crate::mir::resolved_semantics::home_new_prefix::TerminalIntegerLiteralReturnV1>,
+            Option<crate::mir::resolved_semantics::home_new_prefix::TerminalI64FieldReturnV1>,
+            std::collections::BTreeMap<
+                crate::mir::resolved_semantics::OwnedExprSiteV1,
+                crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentObservationV1,
+            >,
+        ),
+        FunctionCompletionVerificationErrorV1,
+    >,
+    E,
+> {
     let mut completion = match verify_function_completion_v1(input) {
         Ok(completion) => completion,
         Err(error) => return Ok(Err(error)),
     };
-    let (prefixes, homes, terminal_result, terminal_unit_return, terminal_integer_literal, _argument_observations) = crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
-        input, selected, completion.explicit_site(), field_is_integer)?;
+    let (
+        prefixes,
+        homes,
+        terminal_result,
+        terminal_unit_return,
+        terminal_integer_literal,
+        terminal_i64_field_return,
+        _argument_observations,
+    ) = crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
+        input,
+        selected,
+        completion.explicit_site(),
+        field_is_integer,
+    )?;
     let cleanup = ResolvedCleanupObligationsV1::explicit_empty().with_terminal_homes(homes);
     match &mut completion {
         VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup = cleanup,
         VerifiedFunctionCompletionV1::ExplicitReturns(row) => row.cleanup = cleanup,
         VerifiedFunctionCompletionV1::ImplicitVoid(row) => row.cleanup = cleanup,
     }
-    Ok(Ok((completion, prefixes, terminal_result, terminal_unit_return, terminal_integer_literal, _argument_observations)))
+    Ok(Ok((
+        completion,
+        prefixes,
+        terminal_result,
+        terminal_unit_return,
+        terminal_integer_literal,
+        terminal_i64_field_return,
+        _argument_observations,
+    )))
 }
 
 pub(crate) fn verify_function_completion_v1(
