@@ -1,5 +1,50 @@
 use super::*;
 
+#[test]
+fn exact_field_read_distinguishes_zero_and_preserves_output_on_contract_failure() {
+    use super::checked_object as api;
+    use crate::exports::typed_object_store_backend::{selected_backend, TypedObjectStoreBackend};
+    let profile = match selected_backend() {
+        TypedObjectStoreBackend::SafeMutex => 1,
+        TypedObjectStoreBackend::SingleThreadExact => 2,
+        _ => {
+            let mut output = 777;
+            assert_eq!(unsafe { api::field_get(1, -1, 10, 0, &mut output) }, 2);
+            assert_eq!(output, 777);
+            return;
+        }
+    };
+    let mut frame = FaultFrame::new();
+    let pointer = (&mut frame as *mut FaultFrame).cast();
+    let mut handle = 0;
+    unsafe {
+        assert_eq!(api::allocate(pointer, profile, 1, 10, [1].as_ptr(), 1, &mut handle), 0);
+        for value in [0, i64::MIN, i64::MAX] {
+            assert_eq!(api::field_set(pointer, profile, 2, handle, 10, 0, value), 0);
+            let mut output = 777;
+            assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 0);
+            assert_eq!(output, value);
+        }
+        for (p, h, ty, slot) in [
+            (99, handle, 10, 0), (3 - profile, handle, 10, 0),
+            (profile, handle, 11, 0), (profile, handle, 10, 1),
+            (profile, 0, 10, 0), (profile, i64::MIN, 10, 0),
+        ] {
+            let mut output = 777;
+            assert_eq!(api::field_get(p, h, ty, slot, &mut output), 2);
+            assert_eq!(output, 777);
+        }
+        assert_eq!(api::field_get(profile, handle, 10, 0, std::ptr::null_mut()), 2);
+        let mut output = 777;
+        assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 0);
+        assert_eq!(output, i64::MAX, "failed reads leave storage unchanged");
+        assert!(frame.diagnostics().unwrap().0.is_none());
+        assert_eq!(api::home_release(pointer, profile, 3, handle, 10), 0);
+        assert_eq!(api::field_get(profile, handle, 10, 0, &mut output), 2);
+        assert_eq!(output, i64::MAX);
+    }
+}
+
 // Test-thread-local accounting: no environment mutation, production allocator
 // replacement or counts from concurrently running tests.
 struct CountingAllocator;

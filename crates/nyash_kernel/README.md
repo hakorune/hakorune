@@ -7,6 +7,16 @@ Architecture: Phase 2.4 NyRT→NyKernel Revolution Complete
 
 ## Overview
 
+### Typed lifecycle read boundary
+
+`nyash.object.checked_field_get_i64_v1` reads an exact indexed i64 field using
+the caller's admitted storage profile, object type and slot. The same storage
+owner validates identity and reads under one guard. Normal writes the out-slot;
+InvalidContract leaves it unchanged, with no zero substitution, storage fallback
+or source Fault. Supported profiles are SafeMutex and SingleThreadExact.
+The trusted pointer contract is in `include/nyrt_fault_v1.h`; the ABI alone does
+not activate a compiler/backend lifecycle consumer.
+
 The Nyash Kernel (`nyash_kernel`) is the minimal native/product runtime core that replaced the legacy NyRT system. This represents a **42% reduction** in runtime complexity by moving from VM-dependent architecture to a unified Plugin-First system.
 
 Scope note:

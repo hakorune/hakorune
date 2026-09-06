@@ -75,6 +75,10 @@ uint32_t nyrt_object_checked_new_v1(void *, uint32_t, uint64_t, int64_t,
     const uint32_t *, size_t, int64_t *) __asm__("nyash.object.checked_new_v1");
 uint32_t nyrt_object_checked_field_set_v1(void *, uint32_t, uint64_t, int64_t,
     int64_t, size_t, int64_t) __asm__("nyash.object.checked_field_set_v1");
+/* Exact source read: Normal writes out; InvalidContract leaves it unchanged.
+ * Never returns source Fault, records a diagnostic or substitutes zero. */
+uint32_t nyrt_object_checked_field_get_i64_v1(uint32_t, int64_t, int64_t,
+    size_t, int64_t *) __asm__("nyash.object.checked_field_get_i64_v1");
 uint32_t nyrt_object_reclaim_unpublished_v1(void *, uint32_t, uint64_t, int64_t,
     int64_t) __asm__("nyash.object.reclaim_unpublished_v1");
 uint32_t nyrt_object_home_release_plain_i64_v1(void *, uint32_t, uint64_t, int64_t,

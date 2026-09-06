@@ -307,6 +307,20 @@ fn allocate_i64_indexed(type_id: i64, count: usize) -> Result<i64, CheckedStorag
 
 /// Expected definition type and slot are checked under the same storage guard.
 /// A failed check leaves the object untouched; there is no numeric-handle repair.
+pub(super) fn get_checked_indexed(
+    expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize,
+) -> Result<i64, CheckedStorageError> {
+    check_indexed_profile(expected)?;
+    with_objects(|objects| {
+        let object = objects.get(handle_to_index(handle)?)?.as_ref()?;
+        if object.type_id != type_id { return None; }
+        let field = object.fields.get(slot)?;
+        if field.storage != TypedSlotStorage::I64 { return None; }
+        field.as_exact_signed_i64()
+    }).flatten().ok_or(CheckedStorageError::ObjectOrFieldMismatch)
+}
+
+/// Store under the same identity/profile checks as the exact read.
 pub(super) fn set_checked_indexed(
     expected: TypedObjectStoreBackend, handle: i64, type_id: i64, slot: usize, value: i64,
 ) -> Result<(), CheckedStorageError> {

@@ -71,6 +71,9 @@ The selected pipeline retains the source-validated root's exact physical key
 through final verification and commit preparation, then binds its borrowed
 function reference on the same view. This identity does not enable lifecycle
 admission; generic view construction carries no retained source-root reference.
+The exact i64 runtime read ABI checks admitted profile/type/slot and writes its
+out-slot only on Normal. InvalidContract is a physical failure, not source Fault
+or a zero value; legacy zero-default/storage-retry getters are not its lowering.
 FieldSet carries a canonical field reference,
 an explicit base and one value; the published definition must contain that field.
 Normal denotes a committed write; Fault denotes no mutation by that write.

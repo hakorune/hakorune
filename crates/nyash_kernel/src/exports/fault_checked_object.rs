@@ -4,18 +4,39 @@ use super::{Diagnostic, FaultFrame, Status};
 use crate::exports::typed_object_store_backend::{self as store, CheckedStorageError, TypedObjectStoreBackend};
 use std::ffi::c_void;
 
+fn indexed_profile(profile: u32) -> Result<TypedObjectStoreBackend, Status> {
+    match profile {
+        1 => Ok(TypedObjectStoreBackend::SafeMutex),
+        2 => Ok(TypedObjectStoreBackend::SingleThreadExact),
+        _ => Err(Status::InvalidContract),
+    }
+}
+
 unsafe fn admit<'a>(storage: *mut c_void, profile: u32) -> Result<(&'a mut FaultFrame, TypedObjectStoreBackend), Status> {
     if storage.is_null() { return Err(Status::InvalidContract); }
     // Caller guarantees a live aligned frame and unique synchronous borrow.
     let frame = unsafe { &mut *storage.cast::<FaultFrame>() };
     if !frame.valid() { return Err(Status::InvalidContract); }
-    let profile = match profile {
-        1 => TypedObjectStoreBackend::SafeMutex,
-        2 => TypedObjectStoreBackend::SingleThreadExact,
-        _ => return Err(Status::InvalidContract),
-    };
+    let profile = indexed_profile(profile)?;
     store::check_indexed_profile(profile).map_err(|_| Status::InvalidContract)?;
     Ok((frame, profile))
+}
+
+/// Exact nonfallible source read: failure is a broken physical contract, not
+/// a source Fault. The caller supplies a valid aligned nonoverlapping out-slot.
+/// It is written only on Normal; zero is a value, never failure substitution.
+#[export_name = "nyash.object.checked_field_get_i64_v1"]
+pub unsafe extern "C" fn field_get(
+    profile: u32, handle: i64, type_id: i64, slot: usize, out: *mut i64,
+) -> u32 {
+    if out.is_null() { return Status::InvalidContract as u32; }
+    let profile = match indexed_profile(profile) {
+        Ok(profile) => profile, Err(status) => return status as u32,
+    };
+    match store::get_checked_indexed(profile, handle, type_id, slot) {
+        Ok(value) => { unsafe { out.write(value); } Status::Normal as u32 }
+        Err(_) => Status::InvalidContract as u32,
+    }
 }
 
 fn failed(frame: &mut FaultFrame, error: CheckedStorageError, site: u64) -> u32 {
