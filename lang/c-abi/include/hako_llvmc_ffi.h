@@ -48,6 +48,13 @@ typedef struct hako_llvmc_published_static_method_call_v1 {
 #define HAKO_LLVMC_OBJECT_STORAGE_SAFE_MUTEX_V1 1u
 #define HAKO_LLVMC_OBJECT_STORAGE_SINGLE_THREAD_EXACT_V1 2u
 
+#define HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_BIRTH_UNIT_V2 1u
+#define HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_I64_V2 2u
+#define HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_UNIT_V2 3u
+#define HAKO_LLVMC_LIFECYCLE_RESULT_KIND_UNIT_V2 0u
+#define HAKO_LLVMC_LIFECYCLE_RESULT_KIND_I64_V2 1u
+#define HAKO_LLVMC_LIFECYCLE_CONTROL_KIND_RETURN_V2 4u
+
 typedef struct hako_llvmc_published_lifecycle_definition_v2 {
   const char* function_name;
   const char* target_symbol;

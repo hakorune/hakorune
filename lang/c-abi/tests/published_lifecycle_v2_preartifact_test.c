@@ -31,17 +31,35 @@ static void rejects_body(
 }
 
 int main(void) {
-  hako_llvmc_published_lifecycle_definition_v2 definition = {0};
+  hako_llvmc_published_lifecycle_definition_v2 definitions[3] = {
+    { .function_name = "Pair.birth", .target_symbol = "Pair.birth/2",
+      .role = HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_BIRTH_UNIT_V2,
+      .result_kind = HAKO_LLVMC_LIFECYCLE_RESULT_KIND_UNIT_V2 },
+    { .function_name = "main", .target_symbol = "main",
+      .role = HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_UNIT_V2,
+      .source_arity = 0, .receiver_formal = UINT32_MAX, .object_id = UINT32_MAX,
+      .result_kind = HAKO_LLVMC_LIFECYCLE_RESULT_KIND_UNIT_V2, .flags = 1 },
+    { .function_name = "other", .target_symbol = "other",
+      .role = HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_UNIT_V2,
+      .source_arity = 0, .receiver_formal = UINT32_MAX, .object_id = UINT32_MAX,
+      .result_kind = HAKO_LLVMC_LIFECYCLE_RESULT_KIND_UNIT_V2, .flags = 1 },
+  };
   hako_llvmc_published_lifecycle_formal_v2 formal = {0};
-  hako_llvmc_published_lifecycle_operation_v2 operation = {0};
+  hako_llvmc_published_lifecycle_operation_v2 operation = {
+    .function_name = "main", .block_id = 7, .instruction_index = 3, .kind = 2,
+    .fault_frame = 4, .normal_landing = 8, .fault_landing = 9, .object_id = 11,
+  };
   hako_llvmc_published_lifecycle_operand_v2 operand = {0};
-  hako_llvmc_published_lifecycle_control_v2 control = {0};
+  hako_llvmc_published_lifecycle_control_v2 control = {
+    .function_name = "main", .kind = HAKO_LLVMC_LIFECYCLE_CONTROL_KIND_RETURN_V2,
+    .operand = UINT32_MAX, .mode = 0,
+  };
   hako_llvmc_published_lifecycle_layout_v2 layout = {0};
   hako_llvmc_published_lifecycle_field_v2 field = {0};
   hako_llvmc_published_lifecycle_frame_v2 frame = {
     .abi_revision = HAKO_LLVMC_PUBLISHED_LIFECYCLE_ABI_REVISION_V2,
     .storage_profile = HAKO_LLVMC_OBJECT_STORAGE_SAFE_MUTEX_V1,
-    .definitions = &definition, .definition_count = 1,
+    .definitions = definitions, .definition_count = 2,
     .formals = &formal, .formal_count = 1,
     .operations = &operation, .operation_count = 1,
     .operands = &operand, .operand_count = 1,
@@ -50,20 +68,32 @@ int main(void) {
     .fields = &field, .field_count = 1,
   };
   rejects(&frame, "consumer-pending");
+  definitions[1].role = HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_I64_V2;
+  rejects(&frame, "root-definition");
+  definitions[1].result_kind = HAKO_LLVMC_LIFECYCLE_RESULT_KIND_I64_V2;
+  control.mode = 1;
+  control.operand = 12;
+  rejects(&frame, "consumer-pending");
+  definitions[1].role = HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_ROOT_UNIT_V2;
+  definitions[1].result_kind = HAKO_LLVMC_LIFECYCLE_RESULT_KIND_UNIT_V2;
+  control.mode = 1;
+  rejects(&frame, "root-return");
+  control.mode = 0;
+  control.operand = 12;
+  rejects(&frame, "root-return");
+  control.operand = UINT32_MAX;
+  frame.definition_count = 3;
+  rejects(&frame, "root-definition");
+  frame.definition_count = 2;
+  definitions[0].role = 99;
+  rejects(&frame, "definition-role");
+  definitions[0].role = HAKO_LLVMC_LIFECYCLE_DEFINITION_ROLE_BIRTH_UNIT_V2;
   frame.storage_profile = 99;
   rejects(&frame, "storage-profile");
   frame.storage_profile = HAKO_LLVMC_OBJECT_STORAGE_SINGLE_THREAD_EXACT_V1;
   frame.operations = NULL;
   rejects(&frame, "operation-rows");
   frame.operations = &operation;
-  operation.function_name = "main";
-  operation.block_id = 7;
-  operation.instruction_index = 3;
-  operation.kind = 2;
-  operation.fault_frame = 4;
-  operation.normal_landing = 8;
-  operation.fault_landing = 9;
-  operation.object_id = 11;
   hako_llvmc_published_lifecycle_body_site_v1 site = {
     .function_name = "main", .block_id = 7, .instruction_index = 3,
     .normal_result = 12, .fault_frame = 4, .normal_landing = 8,

@@ -990,6 +990,13 @@ Pair Unit/I64 cases reach pending with no object; role/result, return-mode,
 operand, root-count and body-site mutations reject before pending. Keep the
 745-line transport below its limit by adding a small schema child.
 
+Landed in this implementation row: Rust issues `ROOT_UNIT / UNIT` from the
+retained final result, the C header shares the finite vocabulary, and the C
+validator requires its exact value-free return control before the pending
+consumer. The existing I64 pair remains `ROOT_I64 / I64`; focused Rust and C
+preartifact tests cover both pairs and malformed row/control rejection. No
+object is created.
+
 
 ### Following tasks and unresolved decisions
 

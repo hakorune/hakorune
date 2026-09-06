@@ -14,6 +14,8 @@ use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, Mir
 #[path = "../../function/published_backend_view_c_transport.rs"]
 mod c_transport;
 mod lifecycle;
+#[path = "../../function/published_backend_view_lifecycle_schema.rs"]
+mod lifecycle_schema;
 #[path = "../../function/published_backend_view_lifecycle_c_transport.rs"]
 mod lifecycle_c_transport;
 mod physical_program;

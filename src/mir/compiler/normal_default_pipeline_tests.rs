@@ -169,6 +169,9 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                 ));
                 let _identity = root_source.app_main_identity();
                 let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
+                let root = frame.definition_rows().iter().find(|row| row.flags == 1)
+                    .ok_or_else(|| "root definition missing".to_owned())?;
+                assert_eq!((root.role, root.result_kind), (2, 1));
                 assert!(frame.header().definition_count > 0);
                 assert!(frame.header().operation_count > 0);
                 assert!(frame.header().control_count > 0);
@@ -689,14 +692,22 @@ fn vm_keep_post_macro_preserves_named_source_and_exact_imports() {
 }
 
 #[test]
-fn explicit_bare_return_stops_before_i64_only_c_lifecycle_role() {
+fn explicit_bare_return_issues_root_unit_c_row_before_pending_consumer() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let source = "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return } }";
         let mut compiler = MirCompiler::with_options(false);
-        match compiler.compile_normal_with_published(published_request(source), |_, _| Ok(())) {
-            Err(error) => assert!(error.contains("unit-c-role-unavailable"), "{error}"),
-            Ok(_) => panic!("Unit must not enter the i64-only C role"),
-        }
+        let result = compiler.compile_normal_with_published(published_request(source), |view, _| {
+            let frame = published_backend_view::PublishedLifecycleCFrameV2::from_view(view)?;
+            let root = frame.definition_rows().iter().find(|row| row.flags == 1)
+                .ok_or_else(|| "root definition missing".to_owned())?;
+            assert_eq!(root.role, 3);
+            assert_eq!(root.result_kind, 0);
+            assert_eq!(root.source_arity, 0);
+            assert_eq!(root.receiver_formal, u32::MAX);
+            assert_eq!(root.object_id, u32::MAX);
+            Err::<(), _>("[freeze:contract][published-lifecycle/body-consumer-pending]".into())
+        });
+        assert!(matches!(result, Err(ref error) if error.contains("body-consumer-pending")));
     });
 }

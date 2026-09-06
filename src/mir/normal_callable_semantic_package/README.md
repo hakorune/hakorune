@@ -200,8 +200,9 @@ separate Unit terminal relation. Only the selected root-home emitter may consume
 it; it emits `Return { value: None }` after the same cleanup graph. The void
 constant used as the statement-lowering result is never the return payload.
 Final handoff retains Unit separately from the I64 Add relation. The lifecycle
-view rejects Unit at its named `unit-c-role-unavailable` boundary until a later
-typed `root_unit` C schema exists.
+frame is its sole physical schema issuer: `root_unit` is the finite
+`ROOT_UNIT / UNIT / Return(None)` row/control relation, validated by the C
+pending consumer without deriving Unit from a value-bearing return.
 Terminal field reads join the original Home binding to its selected New and
 same-session object definition through a synchronous borrow. Only successful
 source construction and an exact nonweak i64 field qualify; declaration names

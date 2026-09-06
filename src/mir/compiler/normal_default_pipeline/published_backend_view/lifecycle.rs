@@ -193,17 +193,14 @@ impl<'module> PublishedMirBackendView<'module> {
             .retained_root
             .ok_or_else(|| fault("retained-root-missing"))?;
         let root_name = root.signature.name.as_str();
-        if matches!(self.retained_root_result,
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. })) {
-            return Err(fault("unit-c-role-unavailable"));
-        }
         let retained_birth_keys = self
             .retained_birth_keys
             .as_deref()
             .ok_or_else(|| fault("retained-birth-handoff-missing"))?;
         if !matches!(
             self.retained_root_result,
-            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. })
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }
+                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. })
         ) {
             return Err(fault("retained-root-result-missing"));
         }

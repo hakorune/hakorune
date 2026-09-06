@@ -15,6 +15,11 @@ use crate::mir::instruction::{FaultFrameMode, InvokeOperation};
 use crate::mir::{Callee, MirInstruction};
 
 use super::{
+    lifecycle_schema::{
+        ABSENT_U32, CONTROL_KIND_RETURN, DEFINITION_ROLE_BIRTH_UNIT,
+        DEFINITION_ROLE_ROOT_I64, DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_I64,
+        RESULT_KIND_UNIT,
+    },
     PublishedMirBackendView, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
 
@@ -241,6 +246,10 @@ impl PublishedLifecycleCFrameV2 {
         &self.body_sites
     }
 
+    pub(crate) fn definition_rows(&self) -> &[PublishedLifecycleDefinitionCRowV2] {
+        &self.definitions
+    }
+
     fn populate(&mut self, view: &PublishedMirBackendView<'_>) -> Result<(), String> {
         let module = view.module();
         module.validate_object_definition_membership()?;
@@ -286,11 +295,11 @@ impl PublishedLifecycleCFrameV2 {
             self.definitions.push(PublishedLifecycleDefinitionCRowV2 {
                 function_name,
                 target_symbol,
-                role: 1,
+                role: DEFINITION_ROLE_BIRTH_UNIT,
                 source_arity: as_u32(birth.abi().source_arity(), "source-arity")?,
                 receiver_formal: birth.receiver().physical_lane(),
                 object_id: birth.object().declaration_index(),
-                result_kind: 0,
+                result_kind: RESULT_KIND_UNIT,
                 frame_mode: definition_frame_mode(function)?,
                 flags: 0,
             });
@@ -309,8 +318,12 @@ impl PublishedLifecycleCFrameV2 {
                 });
             }
         }
-        let Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }) = view.retained_root_result() else {
-            return Err(fault("root-result-handoff-missing"));
+        let (root_role, root_result_kind) = match view.retained_root_result() {
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }) =>
+                (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }) =>
+                (DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_UNIT),
+            None => return Err(fault("root-result-handoff-missing")),
         };
         let root = view
             .retained_root()
@@ -320,11 +333,11 @@ impl PublishedLifecycleCFrameV2 {
         self.definitions.push(PublishedLifecycleDefinitionCRowV2 {
             function_name: root_name,
             target_symbol: root_symbol,
-            role: 2,
+            role: root_role,
             source_arity: 0,
-            receiver_formal: u32::MAX,
-            object_id: u32::MAX,
-            result_kind: 1,
+            receiver_formal: ABSENT_U32,
+            object_id: ABSENT_U32,
+            result_kind: root_result_kind,
             frame_mode: definition_frame_mode(root)?,
             flags: 1,
         });
@@ -456,9 +469,9 @@ impl PublishedLifecycleCFrameV2 {
                 MirInstruction::Return { value } => self.controls.push(control_row(
                     name,
                     *row,
-                    4,
-                    value.map_or(u32::MAX, |value| value.0),
-                    u32::MAX,
+                    CONTROL_KIND_RETURN,
+                    value.map_or(ABSENT_U32, |value| value.0),
+                    ABSENT_U32,
                     u32::from(value.is_some()),
                 )),
                 MirInstruction::Call(call) => {
