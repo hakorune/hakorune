@@ -557,7 +557,10 @@ unrelated helper deletion leaves this boundary.
    Expected-but-missing relation rejects; absence is not compatibility
    permission. Owner, acceptance and deletion scope are fixed in the
    [terminal design](../design/constructor-birth-new-lifecycle-ssot.md#terminal-consumer-design-2026-09-06).
-6. Consume one physical program: selected C companion places function-local
+6. Design-stop prerequisite: no retained source-issued root/Birth ABI final-handoff
+   projection exists; fix its issuer and one-way transfer before C. MIR, JSON,
+   function signature and positional defaults cannot repair it.
+7. Consume one physical program: selected C companion places function-local
    params/values/blocks, binds PHIs and consumes exact lifecycle rows. Reuse
    checked runtime and isolated LLVM/artifact mechanics, not whole-body lowering.
    Acceptance: Normal-only allocation load, explicit I64 wire mapping, Birth
@@ -565,7 +568,7 @@ unrelated helper deletion leaves this boundary.
    source Fault, primary Fault preserved through cleanup. Missing/duplicate/
    residual/unsupported rows stop before artifact. Source handoff must close root ABI,
    diagnostic site rule and every selected block/operand relation first.
-7. Execute and retire: actual normal-source typed CLI -> shared published host
+8. Execute and retire: actual normal-source typed CLI -> shared published host
    -> C -> EXE; same source -> OBJ -> linked executable. Replace the selected
    proof's legacy JSON caller; identify/delete selected old caller arms in the
    same cutover series. Acceptance: both executions exit 30; profile and Fault
@@ -574,13 +577,12 @@ unrelated helper deletion leaves this boundary.
    No retirement closure without exclusive caller proof and the inventory below.
 
 Task 3 is a bounded handoff prerequisite, not a new semantic issuer.
-Task 6 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
+Task 7 is not allocation-only codegen: constants/Copy/Add, params, PHI, jumps,
 branches, lifecycle continuations and return must preserve the issued program.
 Do not discover source-to-Recipe meaning by iteratively adding C opcode cases.
 These gates are one connected series; do not create a docs/test/commit tasklet
 for each opcode. Select BoxShape or BoxCount explicitly for each implementation
 boundary once its mapping is closed; do not mix acceptance expansion with refactor.
-
 **Finite retirement and evidence inventory**
 
 This inventory covers selected final-view host -> companion and its proof caller;
