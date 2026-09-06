@@ -27,6 +27,29 @@ static int hako_llvmc_validate_published_lifecycle_physical_v1_doc(
     if ((i == 0u && strcmp(yyjson_get_str(role), "root_i64") != 0) ||
         (i > 0u && strcmp(yyjson_get_str(role), "birth_unit") != 0))
       return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/function-role]");
+    for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+      yyjson_val *block = yyjson_arr_get(blocks, bi);
+      yyjson_val *instructions = block ? yyjson_obj_get(block, "instructions") : NULL;
+      yyjson_val *terminator = block ? yyjson_obj_get(block, "terminator") : NULL;
+      yyjson_val *edges = block ? yyjson_obj_get(block, "edges") : NULL;
+      if (!(instructions && yyjson_is_arr(instructions) && terminator && yyjson_is_obj(terminator) &&
+            edges && yyjson_is_arr(edges)))
+        return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/block]");
+      for (size_t ii = 0; ii < yyjson_arr_size(instructions); ii++) {
+        yyjson_val *row = yyjson_arr_get(instructions, ii);
+        yyjson_val *index = row ? yyjson_obj_get(row, "index") : NULL;
+        yyjson_val *instruction = row ? yyjson_obj_get(row, "instruction") : NULL;
+        if (!(index && yyjson_is_uint(index) && yyjson_get_uint(index) == ii &&
+              instruction && yyjson_is_obj(instruction)))
+          return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/instruction-index]");
+      }
+      { yyjson_val *index = yyjson_obj_get(terminator, "index");
+        yyjson_val *instruction = yyjson_obj_get(terminator, "instruction");
+        if (!(index && yyjson_is_uint(index) && yyjson_get_uint(index) == yyjson_arr_size(instructions) &&
+              instruction && yyjson_is_obj(instruction)))
+          return set_err_owned(err_out, "[freeze:contract][published-lifecycle-physical-parser/terminator-index]");
+      }
+    }
   }
   for (i = 0; i < yyjson_arr_size(layouts); i++) {
     yyjson_val *layout = yyjson_arr_get(layouts, i);
