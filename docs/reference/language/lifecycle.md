@@ -22,6 +22,13 @@ Home Flow support. Unavailable completion/ownership analysis does not authorize
 execution; backend admission remains fenced until the lifecycle consumers and
 required source-to-artifact proofs are complete.
 
+The selected LLVM lowering design keeps source requirements and cleanup
+origins in their existing semantic owners, physical value binding in emission,
+and FaultFrame placement at the runtime/backend ABI boundary. Its task and
+activation contract is [Constructor lifecycle LLVM lowering](../../development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md).
+This specifies the implementation boundary and adds no source syntax or
+lifecycle execution claim.
+
 Related authorities:
 
 - source Home/handle/transfer/share/release: [ownership.md](ownership.md)

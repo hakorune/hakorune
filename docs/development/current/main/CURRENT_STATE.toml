@@ -1,10 +1,10 @@
-date = "2026-09-06"
+date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D2"
-current_execution_cohort = "constructor_lifecycle_physical_authority_design"
-current_design_stop = "NoSafeSlice: all-SSA physical representations, checked-operation sites and target FaultFrame placement require new canonical issuers; C execution remains ParkedSealed."
-current_blocker_token = "Design stop: define the finite source-bound value/site issuer and lifecycle target capability, or retain the selected C execution park; no metadata promotion, coordinate encoding or C default is permitted."
+work_mode = "fast"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-OWNER-SPLIT-I0"
+current_execution_cohort = "constructor_lifecycle_owner_split"
+current_design_stop = "none for owner split; subsequent source inventory and final-entry status mapping remain design obligations before LLVM activation."
+current_blocker_token = "BoxShape prerequisite only: split constructor tests, brand tests and local-commit responsibilities below 760 lines without changing test paths, APIs or behavior; no issuer implementation or C activation in this row."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -27,24 +27,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
-latest_card = "constructor-birth-new-lifecycle-ssot"
-latest_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
+current_execution_design = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
+latest_card = "constructor-lifecycle-llvm-lowering-ssot"
+latest_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 latest_card_summary = """
-Design/task order consolidated at the constructor owner. Birth handoff and
-physical program/layout serialization exist; direct C parser I0 now validates
-the complete ABI-bearing schema and accepts unchanged issued Pair JSON.
-I1/D1/profile-I0 closed the finite ABI audit and existing profile projection:
-root/Birth/layout/frame-mode/profile projections are safe, but all SSA
-representations, checked-operation sites and target frame placement require new
-issuers. C execution is ParkedSealed at D2; host connection and EXE30/linked
-OBJ30 remain closed.
-Production still uses generic lifecycle JSON plus V2 and stops at
-body-consumer-pending. No checked-runtime or whole-MirBuilder completion claim.
+D2 separates source-owned requirements/origins, existing physical emission
+bindings and backend/runtime target layout. Missing existing issuers are design
+work, not permanent park. The next ready row is the behavior-preserving owner
+split; source retention, final binding, target agreement, direct ABI and LLVM
+cutover follow with explicit prerequisites. Parser/profile checks are landed;
+production still stops at body-consumer-pending. Pair EXE30/linked OBJ30 and
+selected retirement remain required and unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D2"
-next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D2 (accepted ownership; remaining source-retention details belong to step 1)"
+next_execution_card = "CONSTRUCTOR-LIFECYCLE-OWNER-SPLIT-I0"
+next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

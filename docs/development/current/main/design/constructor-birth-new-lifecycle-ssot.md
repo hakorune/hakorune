@@ -22,8 +22,8 @@ Decision: accepted.
   Fault retention is independent of bounded suppressed-diagnostic storage.
 - **Current implementation status:** the final-view V2 host route reaches a
   body companion that stops before artifact; checked execution is unproven.
-- **Next ordered task:** complete the current direct physical parser contract,
-  then close lowering ABI, actual C execution and selected retirement below.
+- **Next ordered task:** follow the D2 lowering design and source-budget
+  prerequisite in `constructor-lifecycle-llvm-lowering-ssot.md`.
 - **Production stop line:** no root ABI, parameter representation, value/CFG or
   cleanup meaning may be inferred by the C consumer; see the Decision below.
 - **Retirement finish line:** selected New/Birth execution and cleanup use one
@@ -895,7 +895,7 @@ parser tests remain evidence only for the checks they actually execute.
 #### Ordered tasks and dependencies
 
 These are checkpoints in this existing family, not new card/receipt/guard
-families. Only task 1 is the next executable slice. Later tasks open when their
+families. Task 1 below is historical and landed; D2 owns the next executable slice. Later tasks open when their
 stated inputs and acceptance are closed; do not implement them by guessing a
 missing ABI. No additional user design consultation is needed for routine
 physical mapping; an absent semantic issuer requires a named design stop.
@@ -934,77 +934,15 @@ physical mapping; an absent semantic issuer requires a named design stop.
 
 ### CONSTRUCTOR-LIFECYCLE-PHYSICAL-ABI-I1 — lowering ABI completion
 
-Decision: design-stop, `NoSafeSlice` after independent owner audits. Selected
-C lifecycle execution is `ParkedSealed`; C lowering must remain closed.
-Source authority + canonical issuer: the activated final view issues program
-membership, layout references and frame mode; `nyrt_fault_v1.h` owns runtime
-frame representation. There is no canonical issuer for all physical value
-types, checked-operation diagnostic sites, or target frame placement.
-Non-authority: C type inference, default/zero diagnostic sites, host `sizeof`,
-V2 reconstruction and optional function metadata.
-Fail-fast boundary: one missing physical type, site or target ABI rejects before
-JSON extension, C lowering, host cutover and artifact output.
-Smallest next slice: source-authority consultation that names one issuer for
-each missing product, or explicitly parks selected C lifecycle execution. It
-may not issue a guessed `Verified*`/`Prepared*` product or add C defaults.
-Non-claims: C opcode lowering, Pair EXE/OBJ 30, compatibility retirement, a
-new semantic receipt or a target portability claim.
-
-Audit boundary: final-view physical program/layout -> ABI JSON -> dedicated C
-parser; includes the selected vocabulary and checked runtime lifecycle calls;
-excludes generic MIR consumers, production host switch, LLVM lowering and
-runtime implementation. The inventory is finite but not Exhausted: all three
-rows below are `CutoverBlockerOpen` within the selected path.
-
-| Required lowerer input | Existing owner/evidence | Missing authority |
-| --- | --- | --- |
-| Physical value representation | constants carry local i64/string/Unit tags; Add/Copy use IDs; `Phi.type_hint` is discarded; `FunctionMetadata.value_types` is optional derived metadata | one final-view-issued type for formal, produced and PHI values; C cannot infer it |
-| Checked-operation diagnostic site | runtime `checked_new`, `field_set`, `home_release` and `reclaim` require `u64 site`; MIR Invoke has no site | coordinate-to-site encoding and its canonical issuer; block/index, names and zero are not substitutes |
-| FaultFrame placement | final MIR carries RootOwned/Borrowed mode; runtime C header owns repr/ABI and initialization contract | selected target's size/alignment/storage placement owner; header assertions only cover the C compilation ABI |
-| Storage profile | final view retains `lifecycle_storage_profile()` and V2 carries it | direct ABI input and JSON omit it; this is a projection gap, but does not cure the three missing authorities |
-
-The audit was run after parser I0 and before any lowerer code. The direct ABI
-has no production caller: its only callers remain focused serializer/parser
-tests. Do not turn the existing `ObjectSiteLocation`, local-fast-path site IDs,
-or V2 frame rows into an authority for this path without an explicit source
-selection. The later serialize-then-reparse deletion remains conditional on a
-closed ABI issuer; it is not a safe standalone cleanup while this input is
-incomplete.
-
-The finite reconciliation separates usable projections from missing issuance:
-
-| Product | Existing canonical issuer | D1 disposition |
-| --- | --- | --- |
-| lifecycle storage profile | final lifecycle activation (`lifecycle_storage_profile()`) | safe BoxShape projection; it is currently omitted only by direct ABI input |
-| root result and Birth lanes | `FinalizedRootResultAbiV1::I64AddReturn` and `BirthAbiHandoffV1` | retain their exact result/Unit and receiver/formal order; they do not type every local value |
-| I64 object layout | canonical object definition runtime layout | retain type ID, slot and I64 storage rows; no source/layout reconstruction |
-| frame identity and ownership mode | `CallableFaultFrame` plus invoke verification | retain one entry frame ValueId and RootOwned/Borrowed mode; this is not storage placement |
-| local/formal/PHI physical representations | none; `FunctionMetadata.value_types` is optional derived metadata | `ParkedSealed`; D1 must name a complete source-bound issuer before direct ABI adds types |
-| checked-operation `u64` sites | none; source plan locations are entry-level and Invoke has no site | `ParkedSealed`; D1 must issue exact operation sites, never coordinates/name/hash/zero |
-| target FaultFrame storage | runtime header owns repr only; pinned-Text target capability is another family | `ParkedSealed`; D1 must define a lifecycle-owned target capability and matching runtime-layout contract |
-
-`CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D1` is closed. It found no existing
-single issuer for the three parked rows. A later
-`CONSTRUCTOR-LIFECYCLE-PHYSICAL-AUTHORITY-D2` must design the required new
-source/target contracts as one finite source-to-final-view mapping. It is not
-an implementation permission for C lowering.
-
-```text
-Decision: establish, or explicitly decline, one source-bound issuer for complete selected SSA representations and checked-operation sites, plus one lifecycle target capability that co-seals the runtime FaultFrame placement.
-Source authority + canonical issuer: the existing normal-callable semantic issuance/final source validation for source meaning; a new lifecycle-specific compile target capability only if it is issued at compile invocation and co-sealed with the selected runtime ABI. Existing final view projects those products; it does not infer them.
-Non-authority: FunctionMetadata value maps, opcode guesses, coordinate/name/hash/zero sites, V2 rows, generic-C defaults, host sizeof, and pinned-Text target capability.
-Fail-fast boundary: absent/partial source type/site coverage or an unmatched target/runtime layout prevents direct ABI extension and C lowering before host/artifact.
-Smallest next slice: read-only source-to-final-view issuer design with a finite selected Pair inventory; it must distinguish existing issuer projection from a necessary source/target contract and return one bounded implementation row or an explicit permanent park.
-Non-claims: implementation of types/sites/target capability, JSON changes, C lowering, host cutover, Pair EXE/OBJ30 or retirement.
-```
-
-Because D1 did not find one, selected C execution remains parked. It does not
-block the independent profile projection below. Task order is: (1) project the
-already-issued storage profile alone through direct ABI JSON/parser as
-`BoxShape`; (2) D2 designs and then implements the one accepted source/target
-issuance contract; (3) complete ABI validation; (4) C lowering and host
-cutover; (5) Pair EXE/linked-OBJ exit 30 and atomic legacy retirement. No step
-may create a compatibility path.
+D1 established missing complete value representations, checked-operation
+origins and target/runtime frame agreement. Profile projection subsequently
+landed. D2 now defines the new ownership contracts and ordered implementation
+in [Constructor lifecycle LLVM lowering](constructor-lifecycle-llvm-lowering-ssot.md).
+That document owns the source/physical/target split, finite inventory,
+fail-fast rules, next source-budget slice and LLVM/EXE/OBJ retirement tasks.
+Missing existing issuers do not imply permanent abandonment. Execution is
+still fenced until connected acceptance passes; the open in-boundary
+obligations remain `CutoverBlockerOpen`.
 
 ### CONSTRUCTOR-LIFECYCLE-PROFILE-PROJECTION-I0 — direct ABI profile projection
 
@@ -1043,75 +981,10 @@ source reaches that parser; missing and unknown-profile mutations reject before
 output. This closes only the prior direct-input omission. It does not make the
 profile a source for any parked type, site or target-layout product.
 
-2. **Close the lowering ABI in the existing physical input — BoxShape.**
-   Owner: `physical_abi.rs` / direct serializer and the existing final view;
-   consumer: the same dedicated parser, then task 3 lowerer. Retain the
-   already-selected `lifecycle_storage_profile()` explicitly, exact installed
-   type/slot/storage rows, source-issued root/Birth lanes and runtime revision.
-   Do not create a parallel V2 table to synchronize. Slot projection follows
-   installed layout authority; any cohort restriction must be explicit.
-   Before lowering, record one finite opcode-to-LLVM/runtime mapping including
-   physical value types (including PHI/Unit/string), invoke result availability,
-   hidden borrowed frame argument, root frame allocation/init/report/dispose,
-   Normal/Fault/InvalidContract behavior and diagnostic-site encoding. The
-   diagnostic-site rule and target layout support are still open: name their
-   physical owners and verify existing contracts instead of silently using 0,
-   function names or host-sized storage for a different target.
-   The external input is ABI-bearing JSON only; program-only JSON is an
-   internal serialization component, not a second accepted entry. PHI
-   `type_hint` is currently dropped: prove a sufficient existing physical type
-   contract or retain its authoritative type before opening lowering.
-   Acceptance: serializer/parser agree on every required physical input;
-   profile/ABI/layout/formal/frame mismatch rejects before LLVM. Check selected
-   native target against runtime-owned frame size/alignment. A missing source
-   relation stops this task; adding semantic receipts is outside its scope.
-   Exclusive replacement set: omitted/default physical inputs and the
-   serializer's serialize-then-reparse path; the old V2 host stays pending until
-   task 3. This checkpoint does not claim checked-runtime execution.
-
-3. **Connect one complete selected consumer — BoxCount.**
-   Owner: dedicated call-local C LLVM lowering, `published_mir_object.rs` and
-   `capi_transport.rs`. Actual caller: normal-source typed CLI through the
-   shared published host. Terminal: verified object or preartifact rejection.
-   Lower the closed selected vocabulary as one program: formals, constants,
-   Copy/Add/PHI, control edges, exact field operations, Birth and cleanup.
-   Runtime calls use `nyrt_fault_v1.h`: root owns the frame, Birth borrows it,
-   outputs are loaded only on Normal, InvalidContract is not source Fault,
-   and cleanup preserves the primary Fault. Use call-owned options and state
-   for this consumer; broader existing global-state migration remains separate.
-   Validate before artifact creation and remove a partial output on emission
-   failure. No generic reader, same-module name dispatch or fallback re-entry.
-   Acceptance: unchanged Pair source -> EXE exits 30 and source -> OBJ ->
-   linked EXE exits 30, plus selected Fault/cleanup/profile rejection with
-   diagnostic/side-effect order and no partial output. A callback that manually
-   returns pending and direct runtime unit tests are dependency evidence only.
-   Preserve required source hashes and source bodies; do not relax the existing
-   fixed acceptance suite or relabel its incidents as baseline debt. The earlier
-   nested-I64Add classifier concern and 11-case suite retain their source owner
-   until exact current evidence closes them; this static audit does not do so.
-   `typed_object_birth_min_exe.sh` is the named legacy proof caller to replace;
-   its current selfhost-JSON/standalone route cannot certify the typed host.
-   Atomic delete-set: selected lifecycle branch's generic body serialization
-   and pending companion call, and the proof's selected legacy JSON route.
-   Shared generic helpers and external ABI exports require caller evidence
-   before deletion. Acceptance and retirement belong to the same series.
-
-4. **Close the selected retirement inventory — BoxShape/Delete.**
-   Owner: selected transport/C route and proof owners. Inventory direct,
-   manifest, aggregate and directory-discovered callers, including exported C
-   ABI tests, before removing unused V2 Rust wrappers, pending-only helpers and
-   family-private fixtures/docs. Keep shared assets with named live callers;
-   the validation export is not automatically public API to preserve forever.
-   Terminal: no selected old re-entry, and retained required tests call the
-   actual selected consumer. Acceptance records commands, hashes, terminal
-   results and exclusive deletions. Do not claim caller-zero from `rg` alone
-   or preserve a disconnected probe as permanent completion evidence.
-
-Task 1 replaces the current parser in one bounded change, not successive
-commits for individual fields. Task 3 changes selected execution support and
-must not be presented as behavior-neutral refactoring. Required module README
-and `docs/reference/**` contract updates accompany their implementation slice;
-this planning change does not alter the language or runtime ABI.
+The remaining lowering ABI, target/runtime agreement, selected LLVM consumer
+and atomic retirement order is owned by the
+[D2 design and task table](constructor-lifecycle-llvm-lowering-ssot.md#ordered-tasks).
+Parser/profile completion does not activate that consumer.
 
 #### After this family
 
