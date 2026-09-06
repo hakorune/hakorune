@@ -3,7 +3,7 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
-    OrdinaryNewTrivialArgumentKindV1, PreparedTerminalI64AddReturnV1,
+    OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1,
 };
 use crate::mir::{BasicBlock, BasicBlockId, Callee, MirBuilder, MirInstruction, MirType, ValueId};
 
@@ -151,40 +151,133 @@ fn materialize_arguments(
     let rows = claim
         .argument_rows()
         .map_err(|_| freeze("argument-source-unavailable"))?;
-    if rows.len() != claim.arity() {
-        return Err(freeze("argument-row-count"));
-    }
-    let mut sites = std::collections::BTreeSet::new();
+    validate_argument_rows_v1(claim.site().owner(), claim.site(), claim.arity(), rows)?;
     rows.iter()
-        .enumerate()
-        .map(|(index, row)| {
-            let ordinal = u32::try_from(index).map_err(|_| freeze("argument-ordinal-overflow"))?;
-            if row.owner() != claim.site().owner()
-                || row.new_site() != claim.site()
-                || row.ordinal() != ordinal
-                || !sites.insert(row.site().clone())
-            {
-                return Err(freeze("argument-row-drift"));
+        .map(|row| match row.kind() {
+            OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
+                crate::mir::builder::emission::constant::emit_integer(builder, *value)
             }
-            match row.kind() {
-                OrdinaryNewTrivialArgumentKindV1::Integer(value) => {
-                    crate::mir::builder::emission::constant::emit_integer(builder, *value)
-                }
-                OrdinaryNewTrivialArgumentKindV1::Bool(value) => {
-                    crate::mir::builder::emission::constant::emit_bool(builder, *value)
-                }
-                OrdinaryNewTrivialArgumentKindV1::Local { binding } => {
-                    let value = state
-                        .value_for_exact_binding(claim.site().owner(), *binding)
-                        .map_err(|_| freeze("argument-binding-unavailable"))?;
-                    state
-                        .observe_variable_site(row.site().node(), *binding, value)
-                        .map_err(|_| freeze("argument-local-observation"))?;
-                    Ok(value)
-                }
+            OrdinaryNewTrivialArgumentKindV1::Bool(value) => {
+                crate::mir::builder::emission::constant::emit_bool(builder, *value)
+            }
+            OrdinaryNewTrivialArgumentKindV1::Local { binding } => {
+                let value = state
+                    .value_for_exact_binding(claim.site().owner(), *binding)
+                    .map_err(|_| freeze("argument-binding-unavailable"))?;
+                state
+                    .observe_variable_site(row.site().node(), *binding, value)
+                    .map_err(|_| freeze("argument-local-observation"))?;
+                Ok(value)
             }
         })
         .collect()
+}
+
+fn validate_argument_rows_v1(
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    new_site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    arity: usize,
+    rows: &[OrdinaryNewTrivialArgumentV1],
+) -> Result<(), String> {
+    if rows.len() != arity {
+        return Err(freeze("argument-row-count"));
+    }
+    let mut sites = std::collections::BTreeSet::new();
+    for (index, row) in rows.iter().enumerate() {
+        let ordinal = u32::try_from(index).map_err(|_| freeze("argument-ordinal-overflow"))?;
+        if row.owner() != owner
+            || row.new_site() != new_site
+            || row.ordinal() != ordinal
+            || !sites.insert(row.site().clone())
+        {
+            return Err(freeze("argument-row-drift"));
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    };
+
+    fn site(segments: Vec<SourcePathSegmentV1>) -> crate::mir::resolved_semantics::OwnedExprSiteV1 {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().expect("owner issuer");
+        crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            issuer.issue().expect("owner"),
+            SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(segments)),
+        )
+    }
+
+    fn integer_row(
+        new_site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        ordinal: u32,
+        argument: SourceExprSiteV1,
+    ) -> OrdinaryNewTrivialArgumentV1 {
+        OrdinaryNewTrivialArgumentV1::new(
+            owner,
+            new_site.clone(),
+            ordinal,
+            argument,
+            OrdinaryNewTrivialArgumentKindV1::Integer(1),
+        )
+    }
+
+    #[test]
+    fn selected_new_argument_rows_reject_malformed_source_relations() {
+        let new_site = site(vec![SourcePathSegmentV1::Body(0)]);
+        let argument = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::Argument(0),
+        ]));
+        let valid = integer_row(&new_site, new_site.owner(), 0, argument.clone());
+        assert!(
+            validate_argument_rows_v1(new_site.owner(), &new_site, 1, &[])
+                .unwrap_err()
+                .contains("argument-row-count")
+        );
+        assert!(validate_argument_rows_v1(
+            new_site.owner(),
+            &new_site,
+            2,
+            &[
+                valid.clone(),
+                integer_row(&new_site, new_site.owner(), 1, argument)
+            ],
+        )
+        .unwrap_err()
+        .contains("argument-row-drift"));
+        let foreign_site = site(vec![SourcePathSegmentV1::Body(1)]);
+        assert!(validate_argument_rows_v1(
+            new_site.owner(),
+            &new_site,
+            1,
+            &[integer_row(
+                &new_site,
+                foreign_site.owner(),
+                0,
+                valid.site().clone()
+            )],
+        )
+        .unwrap_err()
+        .contains("argument-row-drift"));
+        assert!(validate_argument_rows_v1(
+            new_site.owner(),
+            &new_site,
+            1,
+            &[integer_row(
+                &new_site,
+                new_site.owner(),
+                1,
+                valid.site().clone()
+            )],
+        )
+        .unwrap_err()
+        .contains("argument-row-drift"));
+    }
 }
 
 pub(in crate::mir::builder) fn emit_root_home_exit(
