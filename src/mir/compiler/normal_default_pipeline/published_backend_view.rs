@@ -28,7 +28,10 @@ use lifecycle::PublishedLifecycleInstructionRef;
 pub(crate) use c_transport::{
     PublishedCallKindV1, PublishedStaticMethodCFrameV1, PublishedStaticMethodCallCRowV1,
 };
-pub(crate) use compiled_entry_contract::{CompiledEntryFormalKindV1, CompiledEntryRootResultV1};
+pub(crate) use compiled_entry_contract::{
+    CompiledEntryCleanupKindV1, CompiledEntryContractV1, CompiledEntryFormalKindV1,
+    CompiledEntryRootResultV1,
+};
 pub(crate) use lifecycle_c_transport::{
     PublishedLifecycleBodySiteCRowV1, PublishedLifecycleCFrameHeaderV2, PublishedLifecycleCFrameV2,
     PublishedObjectStorageProfileV1,

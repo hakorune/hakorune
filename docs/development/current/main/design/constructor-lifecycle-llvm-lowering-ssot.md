@@ -1165,6 +1165,28 @@ coordinates. Foreign/duplicate/residual function, result/role drift,
 lane/call-actual/cleanup mismatch, or a missing/deferred unsupported binding
 rejects before C. No target/C schema/object/EXE/Bool claim opens.
 
+**I0 landed:** final-view admission issues the contract once. The V2 C frame
+now derives Birth definitions/formals, root ABI category, lifecycle operations,
+controls and New body-sites from its physical program, rather than
+`lifecycle_instructions` or raw `MirFunction::params`. It checks every Birth
+receiver/actual tuple and every `HomeRelease`, `ReclaimUnpublished`,
+`FaultFrameEnter` and `ReturnFault` coordinate against the contract before the
+existing C pending boundary. Scalar and CFG rows remain in the existing
+physical-program JSON companion; this typed frame does not recreate them.
+The transport was split into a 298-line owner and a 637-line projection child.
+Focused Pair field-return evidence reaches `body-consumer-pending`; this row
+still emits no object or executable.
+
+### `CONSTRUCTOR-LIFECYCLE-C-BODY-CONSUMER-D0`
+
+Decision: name the first executable typed lifecycle C-body slice from the
+issued compiled-entry contract through object/link and the selected `ny_main()
+-> i64` status-30 Pair evidence. The contract issuer, C body consumer,
+physical-program JSON companion, object/link owner and kernel process terminal
+must each be named. This D0 decides scope and failure boundaries only: it does
+not add source forms, execute C, change the ABI schema, or treat parser pending
+as execution.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
