@@ -1,10 +1,10 @@
 date = "2026-09-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "CONSTRUCTOR-BIRTH-ABI-HANDOFF-I0"
-current_execution_cohort = "constructor_birth_abi_handoff_boxshape"
-current_design_stop = "none"
-current_blocker_token = "Selected C physical program and Pair EXE30/OBJ30: consume the retained source-issued Birth lanes and root I64 result without C reclassification."
+work_mode = "design_stop"
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-PROGRAM-D0"
+current_execution_cohort = "constructor_lifecycle_physical_program_authority"
+current_design_stop = "NoSafeSlice__PhysicalProgramIssuerAndExactFunctionCFGValueRelationMissing"
+current_blocker_token = "Design stop: name the sole final-view issuer and exact physical-program relation before C consumes Pair; V2 lacks constants, copies, Add, PHI, edges and complete function membership."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -37,15 +37,17 @@ retired; an unread nonempty body carrier now reaches only body-consumer-pending
 after frame/profile/site validation. Birth ABI handoff is landed: the exact
 constructor semantic row issues receiver/formal lanes and Unit result, local
 commit transfers them once, final sealing retains root I64, and final view/C
-frame project those relations without physical-ordinal reclassification.
+frame project those relations without physical-ordinal reclassification. The
+next physical-program relation is not issued: V2 omits Const/Copy/Add/PHI and
+CFG-edge rows, so C execution is paused rather than inferred from JSON.
 Pair result BoxCount landed at 181d7f8e92: source Completion preserves exact
 terminal Return/Add/ordered-read relations. The AST-free terminal consumer now
 uses that relation through exact reads, one ordered Add and the existing cleanup
 Return. EXE30/linked OBJ30 and selected C physical program remain open; no
 source runtime claim is made.
 """
-next_design_card = "none"
-next_execution_card = "CONSTRUCTOR-BIRTH-ABI-HANDOFF-I0"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-PROGRAM-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
