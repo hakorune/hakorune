@@ -651,9 +651,9 @@ If D0 closes the existing transfer, implementation proceeds in this order:
 1. Retain the issued root entry/result and Birth receiver/formal relations in
    the final view and direct C frame, with exact function membership and no
    positional defaults.
-2. Make the direct parser consume one complete call-local physical input; its
-   complete serializer-derived positive and finite malformed mutations are the
-   acceptance, replacing any permissive or partial-fixture claim.
+2. Connect the already-structured direct parser only after it receives that
+   completed handoff. Its serializer-derived Pair input and finite malformed
+   mutations remain transport evidence; they do not select the production host.
 3. Give one selected C physical owner function-local values, parameters,
    blocks, PHIs, explicit operations/control and layout/profile relations.
    It lowers only those supplied relations and rejects unsupported/residual
@@ -663,3 +663,43 @@ If D0 closes the existing transfer, implementation proceeds in this order:
 5. After caller-zero evidence, delete only the replaced selected lifecycle
    edge and its dedicated tests/docs. Compatibility and shared generic C
    helpers remain until their own consumer/caller inventory is closed.
+
+### D0 outcome: root relation is absent from the selected lifecycle flow
+
+Decision: `CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0` ends in
+`NoSafeSlice` for C/LLVM work. The existing root source relation and the
+selected lifecycle finalization are separate flows; no physical projection may
+join them by name, signature, arity, lane, JSON, or fixture value.
+
+Source authority + canonical issuer: `VerifiedNormalMainThunkPlanV1` seals
+the root source header, result, and physical entry relation. `BirthAbiHandoffV1`
+seals each Birth owner, receiver and parameter `BindingRefV1` relation. Both
+are existing issuers; D0 found no same-flow transfer of the root relation into
+`FinalizedRootBirthHandoffV1`.
+
+Non-authority: `root_key: String`, `MirFunction.signature`, root `params`,
+V2's fixed zero arity, formal `ValueId`/ordinal rows, JSON, direct-parser
+success, Pair constants, and C defaults.
+
+Fail-fast boundary: missing root entry/result or Birth owner/binding relation
+rejects before final-view/C-frame projection. The direct parser rejects malformed
+physical transport separately; it cannot certify or repair the selected host
+ingress, which still uses the V2 pending companion.
+
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1`
+is a read-only authority census. Within the normal-default lifecycle pipeline,
+it must identify one existing same-session producer that carries root owner,
+entry and full source result together with Birth owner/receiver/formal bindings
+to the finalization closure. If none exists, preserve `NoSafeSlice`; do not
+create a receipt or adapter.
+
+Non-claims: C parser promotion, C/LLVM execution, ABI inference, production
+host switch, Pair EXE30/linked OBJ30, V2 deletion, compatibility retirement,
+compile-state migration, or kernel work.
+
+The direct physical parser itself is not the immediate missing implementation:
+it already decodes a complete call-local input and rejects structural mutation,
+but its issued-Pair C check is ignored and no selected host caller invokes it.
+The live V2 companion instead accepts typed frame/site rows plus a nonempty
+generic JSON carrier to reach `body-consumer-pending`. These are separate
+ingresses, not evidence of a completed root/Birth authority handoff.

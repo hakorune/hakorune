@@ -1,10 +1,10 @@
 date = "2026-09-07"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0"
-current_execution_cohort = "constructor_lifecycle_physical_consumer_premise"
-current_design_stop = "Root entry/result and Birth receiver/formal source relations are not yet demonstrated through one final-view/C-frame handoff. Do not infer them from MIR signatures, JSON, names, positional lanes, or C defaults."
-current_blocker_token = "D0 boundary: census the existing main-thunk result/entry and constructor-formal issuers through final-view and C-frame consumers; reconcile the direct physical-parser contract with its actual serializer/test coverage. End at one bounded implementation slice or NoSafeSlice, before C/LLVM effects."
+current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1"
+current_execution_cohort = "constructor_lifecycle_root_birth_final_view_relation"
+current_design_stop = "The canonical main-thunk root entry/result relation has no demonstrated transfer into selected lifecycle finalization. Do not bridge that gap from root_key strings, MIR signatures/params, lanes, JSON, Pair values, or C defaults."
+current_blocker_token = "D1 boundary: within the normal-default lifecycle pipeline, find an existing same-session producer for root owner/entry/full result plus Birth owner/receiver/formal bindings through finalization. If absent, retain NoSafeSlice before final view/C/LLVM effects."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,13 +36,14 @@ integer/bool/trivial-local rows are consumed without selected raw argument
 descent; physical row/ValueId snapshots let the existing finalizer reject
 residual, literal, order and Birth-Call drift. Focused source/consumer/mutation
 tests and the canonical corridor guard pass.
-Next is design-stop D0: trace the existing main-thunk root result/entry and
-constructor Birth receiver/formal issuers through final view and C frame; do
-not infer ABI from MIR, JSON, names, positional defaults or C. Pair EXE30,
+D0 found that the canonical main-thunk root relation is not transferred into
+selected lifecycle finalization; Birth lanes are only a partial handoff and the
+direct parser is isolated from the live host. D1 therefore remains design-stop:
+find a same-session root/Birth producer or retain NoSafeSlice. Pair EXE30,
 linked OBJ30 and selected old-edge retirement remain required and unproven.
 """
-next_design_card = "CONSTRUCTOR-LIFECYCLE-PHYSICAL-CONSUMER-PREMISE-D0"
-next_execution_card = "none (D0 design stop selected)"
+next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1"
+next_execution_card = "none (D1 design stop selected)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
