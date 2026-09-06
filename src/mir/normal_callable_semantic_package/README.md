@@ -501,9 +501,10 @@ activate Brand unwrap, or remove the legacy `is_brand_declared` probe.
 ## Birth definition publication
 
 Birth definition publication uses the existing constructor semantic row:
-its exact source ID and typed Birth kind issue one `BirthConstructor` callable
-key. Admission carries that key into `CatalogedConstructor` and the existing
-Atomic Publish definition table; physical symbol text never reissues it.
+its exact source ID, declaration object and typed Birth kind issue one
+`BirthConstructor` callable key. Admission carries that relation into
+`CatalogedConstructor` and the existing Atomic Publish definition table;
+physical symbol text and object membership only validate it, never reissue it.
 Source arity N requires physical N+1. Duplicate key, symbol/arity drift, and
 ordinary-method admission of a birth key reject before publication. Non-birth
 constructor kinds keep their existing compatibility disposition. Definition

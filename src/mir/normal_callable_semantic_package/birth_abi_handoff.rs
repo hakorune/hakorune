@@ -9,7 +9,7 @@ use crate::mir::instance_constructor_abi::InstanceConstructorAbiV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ReceiverPolicyV1, SemanticOwnerRootProfileV1,
 };
-use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+use hakorune_mir_defs::{CanonicalObjectIdV1, CanonicalSameModuleCallableKeyV1};
 use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,6 +42,7 @@ impl BirthFormalLaneV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct BirthAbiHandoffV1 {
     source_id: crate::parser::ConstructorSourceIdV1,
+    object: CanonicalObjectIdV1,
     target: CanonicalSameModuleCallableKeyV1,
     owner: FunctionOwnerIdV1,
     abi: InstanceConstructorAbiV1,
@@ -76,6 +77,13 @@ impl BirthAbiHandoffV1 {
             }
         ) {
             return Err("root-profile");
+        }
+        if matches!(row.construction(), Ok(plan)
+            if plan.object() != row.object()
+                || !matches!(plan.constructor(), Some((source, plan_owner))
+                    if source.same_as(row.source_id()) && *plan_owner == owner.owner()))
+        {
+            return Err("construction-object");
         }
         let mut receiver = None;
         let mut parameters = BTreeMap::new();
@@ -120,6 +128,7 @@ impl BirthAbiHandoffV1 {
             .into_boxed_slice();
         Ok(Self {
             source_id: row.source_id().clone(),
+            object: row.object(),
             target,
             owner: owner.owner(),
             abi,
@@ -131,6 +140,10 @@ impl BirthAbiHandoffV1 {
 
     pub(crate) fn source_id(&self) -> &crate::parser::ConstructorSourceIdV1 {
         &self.source_id
+    }
+
+    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
     }
 
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
@@ -185,6 +198,7 @@ mod tests {
         )
         .expect("source-issued ABI relation");
         assert_eq!(handoff.target(), &target);
+        assert_eq!(handoff.object(), row.object());
         assert_eq!(handoff.receiver().source_ordinal(), None);
         assert_eq!(handoff.receiver().physical_lane(), 0);
         assert_eq!(

@@ -39,6 +39,8 @@ fn final_handoff_retains_exact_source_for_alias_and_multiple_homes() {
             [hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Pair", 2)],
             "several New sites retain one canonical Birth definition"
         );
+        assert_eq!(handoff.births().len(), 1);
+        assert_eq!(handoff.births()[0].object().declaration_index(), 0);
         let _identity = source.app_main_identity();
     }
 }

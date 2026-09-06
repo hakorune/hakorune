@@ -132,7 +132,10 @@ Implementation boundary: selected source-backed local `new` now distinguishes
 constructor-target consumption, expression completion after overrides, and
 exact local installation. Its claim retains the parser-issued enclosing Box
 identity (also when there is no Birth); final-source validation preserves the
-enclosing fields. This identity transport does not prove field/native cleanup.
+enclosing fields. Birth definition handoff retains that same declaration
+identity with its exact Birth source relation; it does not reconstruct the
+declaration by name in a backend transport. This identity transport does not
+prove field/native cleanup.
 The first construction-plan profile separately admits empty no-Birth objects
 and straight-line Birth bodies that initialize every explicit i64 field through
 verified own-field stores. Successful allocation creates an outer-storage reclaim

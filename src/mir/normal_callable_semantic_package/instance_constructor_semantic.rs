@@ -53,6 +53,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
 pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     source_id: ConstructorSourceIdV1,
     box_source: ParserOrdinaryBoxSourceRowV1,
+    object: CanonicalObjectIdV1,
     published_birth_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
     final_box_ordinal: u32,
     box_name: Box<str>,
@@ -201,6 +202,10 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticRowV1 {
+    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
+    }
+
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         &self.construction
     }
@@ -477,13 +482,13 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     _error: format!("{error:?}"),
                 })?.with_body_shape(constructor_shapes.get(root)
                     .ok_or(InstanceConstructorSemanticBatchIssueV1::BodyShapeMissing)?);
-                let construction = if kind == ConstructorSourceKindV1::Birth {
-                    let object_id = object_sources.iter()
+                let object = object_sources.iter()
                         .find(|(own, _)| own.same_source_as(&box_source))
                         .map(|(_, id)| *id)
                         .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+                let construction = if kind == ConstructorSourceKindV1::Birth {
                     source.with_ordinary_box_syntax(&box_source, |parent| {
-                        issue_construction_plan(object_id, &box_source, parent, Some((&source_id, input)))
+                        issue_construction_plan(object, &box_source, parent, Some((&source_id, input)))
                     }).map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
                 } else {
                     Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
@@ -510,6 +515,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     }),
                     source_id,
                     box_source,
+                    object,
                     final_box_ordinal,
                     box_name,
                     key,

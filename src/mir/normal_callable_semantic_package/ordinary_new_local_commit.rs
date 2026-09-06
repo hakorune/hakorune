@@ -299,14 +299,19 @@ impl OrdinaryNewClaimLedgerV1 {
             if relation.target() != &key || relation.owner() == owner {
                 return Err(freeze("artifact-birth-abi-drift"));
             }
+            if relation.object() != row.object {
+                return Err(freeze("artifact-birth-object-drift"));
+            }
             if !construction_keys.contains(&key) {
                 return Err(freeze("artifact-birth-construction-missing"));
             }
             // Multiple exact New sites may invoke one canonical Birth
             // definition. Local emission validation above remains per site;
             // the final handoff retains each definition relation once.
-            if keys.insert(key) {
+            if keys.insert(key.clone()) {
                 births.push(relation.clone());
+            } else if !births.iter().any(|existing| existing == relation) {
+                return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
         }
         Ok(if births.is_empty() {

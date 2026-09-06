@@ -277,6 +277,9 @@ impl PublishedLifecycleCFrameV2 {
                 .as_ref()
                 .and_then(|membership| membership.get(key.owner()))
                 .ok_or_else(|| fault("definition-object-missing"))?;
+            if *object_id != birth.object() {
+                return Err(fault("definition-object-membership-drift"));
+            }
             definitions.push((key, symbol));
             let function_name = self.push_string(symbol)?;
             let target_symbol = self.push_string(&key.mir_symbol_projection())?;
@@ -286,7 +289,7 @@ impl PublishedLifecycleCFrameV2 {
                 role: 1,
                 source_arity: as_u32(birth.abi().source_arity(), "source-arity")?,
                 receiver_formal: birth.receiver().physical_lane(),
-                object_id: object_id.declaration_index(),
+                object_id: birth.object().declaration_index(),
                 result_kind: 0,
                 frame_mode: definition_frame_mode(function)?,
                 flags: 0,
@@ -573,10 +576,7 @@ impl PublishedLifecycleCFrameV2 {
 
 fn operation_row(
     operation: &InvokeOperation,
-    definitions: &[(
-        &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-        &str,
-    )],
+    definitions: &[(&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1, &str)],
 ) -> Result<(u32, u32, u32, u32, u32, u32, u32, Vec<u32>), String> {
     let absent = u32::MAX;
     Ok(match operation {
