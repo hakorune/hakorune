@@ -329,7 +329,9 @@ witness.
 Fail-fast boundary: an accepted source row without exact binding/class rejects
 before claim take; a selected emitter never defaults it to i64 or handle.
 
-Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-REPRESENTATION-I0`.
+Smallest next slice: `CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-D3`,
+which must name an AST-free selected consumer before a retained RHS can be
+implemented.
 
 Non-claims: root formals/arbitrary root SSA, unused or untyped Birth formals,
 New-result handles, target ABI/C execution, Pair EXE/OBJ30 or complete
@@ -349,26 +351,32 @@ families, final-MIR layout and target/runtime/C.
 | New allocation identity/result | ordinary-New claim site/object/destination -> selected New emitter | Identity present; result handle partial and cannot be inferred from `MirType::Box`. |
 | Birth Unit result | `BirthAbiHandoffV1` Unit completion -> final handoff -> lifecycle transport | Present; no new representation row. |
 | Birth receiver handle | Birth receiver lane plus construction object -> claim take -> selected New emitter | Existing products, later co-seal only. |
-| Birth FieldSet literal/parameter RHS | construction plan exact RHS recognition -> selected construction-store emitter | Ready first slice; current plan loses RHS binding/class after validation. |
+| Birth FieldSet literal/parameter RHS | construction plan exact RHS recognition -> raw selected statement path -> construction-store emitter | ExistingIssuerButConsumerMissing / NoSafeSlice. The selected path takes the store then re-lowers target and RHS AST; no AST-free RHS consumer exists. |
 | Birth unused/untyped parameter | lane exists but source class/use relation does not | NoIssuer; never default to i64. |
 | Copy/PHI/frame/normal-result/control values | no source issuer | NoIssuer as source product; later physical owner only. |
 
-The first I0 extends only `ConstructionPlanV1`: retain each already-accepted
-store's exact RHS as `IntegerLiteral` or `Parameter(BindingRefV1)` alongside
-its existing statement site and canonical field. The existing construction
-state takes that same row to selected FieldSet emission, and final validation
-checks receiver, field, RHS binding/class and concrete value once. Its
-exclusive old loss edge is `issue_construction_plan` validating `rhs_supported`
-then storing only `(ResolvedAssignmentSourceV1, CanonicalFieldRefV1)`.
-Acceptance is literal and parameter stores, distinct bindings across Births,
-foreign/missing/duplicate RHS and FieldSet value-drift negatives. No fixture,
-fallback, source widening or new semantic receipt is permitted.
+The proposed FieldSet RHS I0 is **not implementation-ready**. In the current
+selected path, `take_construction_store_v1()` only selects a store; the raw
+statement dispatcher then calls `drive_legacy_expression_v1` on both target
+and RHS before `emit_construction_store_v1`. `TakenConstructionStore` contains
+only site/field/receiver, while its emitter accepts bare physical values. A
+retained RHS would therefore be unconsumed and cannot be promoted.
 
-Task order after that I0: retain ordered root trivial New arguments through
-`CallerNewHomePrefixV1`; then co-seal the existing Birth receiver lane/object
-with the exact New site. Those rows remain separate because neither creates a
-source representation for root formals, arbitrary values or unused/untyped
-Birth parameters.
+`CONSTRUCTOR-LIFECYCLE-BIRTH-FIELDSET-RHS-CONSUMER-D3` must decide one route:
+extend the existing selected statement-store path with an issuer-retained RHS
+descriptor and retire its selected target/RHS raw descent, or name an existing
+source-projected child port that consumes it. `Parameter(BindingRefV1)` can use
+the existing exact-binding primitive; literal i64 needs a named retained payload
+and emitter rule. Neither may be inferred from AST, `MirType` or physical
+values. Until this is decided, no `ConstructionPlanV1` row, receipt, fixture or
+fallback is added.
+
+Root trivial-New arguments share the same raw-child re-lowering problem and
+are also NoSafeSlice until their consumer is named. The later Birth receiver
+co-seal remains separately auditable because selected emission already uses the
+allocation result as receiver, but it must prove a final validator before it is
+selected. None of these rows creates a representation for root formals,
+arbitrary values or unused/untyped Birth parameters.
 
 The focused field-read command
 `mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::tests::terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression`
