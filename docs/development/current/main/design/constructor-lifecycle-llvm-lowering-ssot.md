@@ -1101,20 +1101,43 @@ kernel `ny_main() -> i64` normalization, which handle-decodes and casts to
 
 ### `FINAL-ENTRY-RUNTIME-AGREEMENT-D0`
 
-Decision needed before lifecycle Bool or C execution work. Select either one
-dedicated typed compiled-entry/runtime owner or an explicit pre-artifact
-terminal. The chosen owner must carry the exact finalized root result through
-the selected C body, object/link handoff, and a single process terminal; name
-its result/status/Fault and cleanup/disposal contracts, and the one raw entry
-normalization or competing process edge to retire in the future implementation
-series.
+**Decision (accepted):** the selected lifecycle C body compiler is the sole
+future typed compiled-entry owner. It consumes the physical contract issued
+from the final view, generates `ny_main() -> i64` only after root cleanup, and
+returns a normalized process status: Unit→0, in-range I64→that value, and a
+typed unsupported/out-of-range Fault→70. Kernel startup/flush and OS return
+remain in kernel, but kernel cannot decode a handle or decide root-result
+status. Host transport remains path/object/link transport only.
 
 Acceptance for a future I0 is source-issued typed root result → selected C
 body → object/link with an exact entry signature → runtime report/status
 projection and exactly-once disposal → EXE observation. Missing mapping,
 signature drift, ambiguous cleanup, a raw i64/handle/i32 decision, or a
-fallback process consumer rejects before effects. This D0 opens no source
-relation, C schema, object, EXE, or kernel-only modification.
+fallback process consumer rejects before effects. The future execution series
+deletes the kernel raw `ny_main` handle-decode/fallback/`i32` path; no
+kernel-only change opens before C body execution is selected.
+
+The decision does not overtake Step 2 physical binding. C has no complete
+function/result/formal input yet, so it still stops at `body-consumer-pending`.
+Target/runtime agreement is Step 3 and direct input is Step 4; neither may
+infer this missing contract.
+
+### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-PHYSICAL-BINDING-D1`
+
+Step-2 design stop. Bind already retained root result, ordered Birth formal
+dispositions, root/Birth function membership, and required normal/fault/cleanup
+obligations into one final-view physical compiled-entry function contract. The
+canonical issuer is existing final-view admission, co-sealing existing source
+and handoff products without reissuing source meaning; the named downstream
+consumer is the selected lifecycle C body compiler.
+
+The future delete-set is the final view's identity-only/root-result projection
+and C transport's positional formal/input-kind defaults. Missing, foreign,
+duplicate, unbound, deferred/unsupported actual, role/result/cleanup drift, or
+residual sibling rejects before artifact effects while source remains valid but
+physical-unavailable. Acceptance is selected Pair source → final handoff →
+one exact final-view function/result/formal contract. This D1 opens no C schema,
+object, EXE, kernel change, or Bool relation.
 
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
