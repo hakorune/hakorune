@@ -54,9 +54,16 @@ fn compile_published_view_object(
     if !view.lifecycle_instructions().is_empty() {
         let frame = PublishedLifecycleCFrameV2::from_view(view)
             .map_err(|error| format!("published lifecycle C frame rejected: {error}"))?;
+        let mir_json_path = transport_io::prepare_backend_input_json_file(
+            &crate::runner::mir_json_emit::emit_published_lifecycle_body(view)?,
+        )?;
         let output = PathBuf::from(obj_out);
         transport_io::ensure_backend_output_parent(&output);
-        return capi_transport::compile_published_lifecycle_v2(frame.header(), &output);
+        let result = capi_transport::compile_published_lifecycle_body_v2(
+            &mir_json_path, frame.header(), frame.body_sites(), &output,
+        );
+        transport_io::remove_backend_temp_file(&mir_json_path);
+        return result;
     }
     let frame = PublishedStaticMethodCFrameV1::from_view(view)
         .map_err(|error| format!("published MIR C frame rejected: {error}"))?;
