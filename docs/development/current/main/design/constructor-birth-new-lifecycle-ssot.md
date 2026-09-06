@@ -763,33 +763,33 @@ object. Birth Fault also reclaims the incomplete allocated object. Both outcomes
 of each cleanup continue to the next required cleanup. Admission stays closed
 until these consumers exist; the control checkpoint alone is not runtime proof.
 
-The existing task-4 acceptance must exercise primary preservation under injected
-allocation failure, cleanup success with an already-pending primary, later-Fault
-ordering, full-buffer omission, propagation without duplicate recording, message
-lifetime after source-frame release and no leaked omitted payload. Capacity
-exhaustion must still reach the last required cleanup and final entry report.
-The same connected series must reach the selected typed-C Birth consumer and
-fixed production proof; ABI-only unit tests do not close it. Runtime release,
-construction reclaim and tasks 2–4 remain required, not silently scoped away.
+Task-4 acceptance retains injected allocation failure, cleanup Normal with pending primary, later-Fault ordering, overflow/last cleanup, propagation without rerecording, message lifetime after source-frame release and no leaked omitted payload. ABI unit tests never replace fixed production EXE30/OBJ proof or runtime release/reclaim.
+Source/control checkpoint is landed: exact source arguments lower once, cleanup uses real operands, Invoke results are Normal-only and Unit Birth has no result. Aliases add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides remain unavailable, not empty cleanup. Existing package/frame/CFG/rewriter tests own these invariants; tasks 2–4 remain required.
 
-Source-prefix checkpoint: package83/83 and control33/33 covered outward target/foreign owner/reverse order/prior install. Aliases add no Home; rebind/unknown acquisition/entry gaps/Handle arguments/overrides remain unavailable, not empty cleanup. No whole-lib/runtime claim.
+**Change (tasks 2–3):** replace escaped mutable-MIR artifact emission with one synchronous consumer terminal in `NormalDefaultPublishedPipelineV1`; reuse its build/finish path.
+**Contract:** worker premise review was required because EXE and OBJ have different post-compile owners and Rust privacy must prevent raw-module lifecycle admission. Source authority remains retained root/Birth products, never observation metadata or successful bookkeeping validation.
+**Done:** both named artifact callers consume the same final borrowed view; strict verification and fallible commit preparation precede the callback. Fixed Pair EXE30/OBJ, final-binding/eligibility rejection, callback-count-zero before admission, no retry and generic-clone rejection remain acceptance.
+**Stop:** no source eligibility, uncovered lifecycle function, final verifier failure or commit-preparation failure terminates before callback/artifact. No second pipeline, permission receipt, fixture workaround or source expansion.
+Census boundary: MIR-mode EXE / LLVM-mode OBJ -> normal compiler -> published host object -> C API; includes post-compile mutation and view reconstruction; excludes already-closed collector transport and nonselected compatibility callers.
 
-**Change:** replace the selected New path's physical-control drop with exact
-emission binding through its existing claim port and caller completion boundaries.
-Reuse MirCall/Callee; introduce no target reissuer.
-**Contract:** source arguments lower once; cleanup references are real operands.
-Invoke separates normal/fault control; Unit Birth has no source result. Allocation
-still needs its normal-only handle, and selected non-Unit calls need normal-only
-SSA result definition/projection. Unit-first is not permission to omit either.
-**Done:** existing package/local tests reject missing/foreign/duplicate emission
-binding and residual consumption; entry tests reject missing/foreign/wrong-type
-frames and preserve source parameter counts; ordinary verifier/CFG/rewriter/optimization
-tests preserve cleanup operands and reject Fault-edge normal-result use. Keep
-the package evidence and fixed Pair publication, plus the existing M7-S guard.
-This is the task-1 control checkpoint only; tasks 2–4 remain the series terminal.
-**Stop:** missing allocation/result mapping or release capability keeps the
-selected executable admission closed. Fix the same owner; no empty cleanup,
-name/order recovery, detached source proof or wider grammar.
+| Existing retained state | Diagnostic validation | Selected lifecycle artifact |
+| --- | --- | --- |
+| Root payload absent | Preserve absence; no source root validation claimed | No root lifecycle permission; reject uncovered root lifecycle sites |
+| Root Unregistered | Preserve NotIssued; bookkeeping is not root validation | No root lifecycle permission; reject uncovered root lifecycle sites |
+| Root NoSelectedLocalNew | Validate registered root despite empty selected-New set | No root lifecycle permission; reject uncovered root lifecycle sites |
+| Root source Unavailable(reason) | Preserve reason and validate existing bindings | Reject; historical SourceComplete observation cannot upgrade it |
+| Root source complete, exact final bindings | Recheck the same source obligations | Eligible only inside final verified borrow |
+| Birth NotConstruction / absent payload | No construction claim | No Birth permission; reject uncovered Birth lifecycle sites |
+| Birth RetainedUnavailable(reason) | Bookkeeping may succeed | Reject; Ok(()) is not admission |
+| Birth Selected, completed, exact final bindings | Recheck same owner/key/frame/stores | Eligible only inside final verified borrow |
+| Pending / duplicate / foreign / residual / drift | Existing exact failure | Callback zero, artifact zero |
+
+Owner sequence: compiler finishing -> retained eligibility/binding checks covering each lifecycle function by exact root/Birth key -> strict final verifier -> external-commit preparation -> view/callback -> infallible builder commit. Callback failure propagates; no later mutable finishing or admitted module return.
+Privacy Decision: rehome the existing view implementation under `normal_default_pipeline`; the lifecycle constructor is `pub(super)`, generic `try_new` stays fenced. Preserve old import paths with thin re-exports, not another view/token/trait. Preserve existing logical test paths and bodies; baseline manifests are not rewritten for this move.
+EXE switch: `runner/modes/mir.rs` snapshots artifact intent before compile and invokes the consumer instead of emitting from returned `result.module`.
+OBJ switch: `runner/product/llvm/mod.rs` snapshots OBJ intent before compile; existing CompileOptionsBox/MirCompilerBox forward the same terminal. Selected OBJ exits before MethodIdInjector/PyVM/harness processing, not after a new post-validation mutation.
+Host switch: `published_mir_emit` / `published_mir_object` consume the supplied view once; EXE linking reuses its object result instead of calling module-based admission again.
+Selected delete-set: escaped-MIR EXE emission; post-mutation OBJ emission; duplicate host view construction; selected compatibility continuation/retry. Nonselected routes remain explicit and lifecycle-fenced.
 
 Root post-finishing checkpoint: retained ledger/exact root key now revalidate New/frame/local/exit bindings after `finish_built_module`, before external commit; observation remains non-authorizing. Package97/97, raw compatibility2/2 and Invoke7/7 pass. Same locked quick lib `normal_default_root_catalog_lifecycle_tests -- --test-threads=1` at parent ed10ce1ad6 and current gives9/4 with identical failure locations/reasons below: known parent debt, no baseline/test weakening.
 
