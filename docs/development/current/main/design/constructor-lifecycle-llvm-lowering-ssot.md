@@ -508,6 +508,43 @@ cutover.
 | --- | --- | --- |
 | `issue_ordinary_new_claims_v1` -> selected claim take -> selected ordinary-New emitter -> root New finalizer | Co-seal ordered argument rows in the existing claim; materialize/consume them at the selected emitter and validate exact emitted Call argument order/value. Delete the selected raw argument loop, selected `CallArgument` child-source creation/queue completion, and selected route's raw argument carriage. The unselected compatibility loop and generic child infrastructure remain. | Positive selected direct-New integer, bool and trivial-local argument cases; source negatives for nontrivial/missing/duplicate/foreign/ordinal drift; finalizer mutations for residual/value/order/call-argument drift; guard confirms selected path has no raw argument descent. |
 
+### I0 execution order (2026-09-07 acceptance audit)
+
+The selected claim take and raw-child deletion are landed, but I0 is not closed:
+the finalizer currently compares a retained `Vec<ValueId>` with the Birth Call.
+That catches a Call-only mutation, but cannot prove that literal values still
+denote their issued source rows.  Do not create a second semantic receipt or
+recover an argument from AST to close this gap.
+
+1. **Physical-row validation (BoxShape).** `NewEmissionProgress::Emitted` is
+   the sole owner of a non-semantic physical snapshot for each already-issued
+   row: source row plus emitted `ValueId`.  The selected emitter records it;
+   `validate_new_emissions` checks cardinality, owner/site/ordinal, Birth Call
+   order, and the matching `ConstValue::{Integer,Bool}` definition for literal
+   rows.  A local row is checked at consumption by
+   `value_for_exact_binding` plus `observe_variable_site`; the finalizer
+   preserves that emitted identity and Call order.  This replaces the bare
+   `Vec<ValueId>` snapshot.  It does not add a source fact, selector, ABI, or
+   C state.
+2. **Terminal evidence.** Add one selected App Main compile case with
+   `new Page(11, true, local_value)`.  Inspect its single Birth Call and prove
+   its arguments are, in order, the integer constant, bool constant, and the
+   exact current local `ValueId`; retain the existing source-complete/final
+   publication assertions.  Add compact finalizer mutations for residual,
+   literal value, order, and Call drift.
+3. **Boundary evidence and retirement guard.** Cover nontrivial, missing,
+   duplicate, foreign, and ordinal source-row rejection at their existing
+   issuer/consumer boundary.  Extend the existing
+   `mir_call_canonical_corridor_guard.sh`: the selected New branch prepares
+   before child-demand creation and has no raw argument descent; its
+   compatibility branch and generic child infrastructure are explicitly
+   outside this assertion.
+4. **I0 closeout.** Update the owning builder/package README only with the
+   issued-row -> physical-snapshot -> finalizer contract, run the focused
+   positive/negative/mutation tests and the reused guard, then update the
+   current-state summary.  Pair EXE/OBJ30, typed C ingress, and compatibility
+   retirement remain separate rows.
+
 ## CONSTRUCTOR-LIFECYCLE-ROOT-NEW-BOOL-SOURCE-FACT-D6
 
 Decision: return to design stop. `scan_new_home_flow` observes direct-New
