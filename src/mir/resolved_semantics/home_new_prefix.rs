@@ -13,6 +13,13 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_control_flow::{issue_new_fault_continuation_v1, NewFaultContinuationV1};
 use std::collections::BTreeMap;
 
+#[path = "selected_new_arguments.rs"]
+mod selected_new_arguments;
+pub(crate) use selected_new_arguments::{
+    SelectedNewArgumentKindV1, SelectedNewArgumentObservationV1,
+    SelectedNewArgumentUnavailableV1, SelectedNewArgumentV1,
+};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum HomePrefixUnavailableV1 {
     EntryDemandMissing,
