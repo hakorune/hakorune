@@ -763,6 +763,26 @@ each. The D0 must select one closed BoxShape successor or mark that family
 `NoSafeSlice`; it cannot issue a generic result/formal receipt, infer missing
 types from MIR, add a fixture, or touch the C path.
 
+### `CONSTRUCTOR-LIFECYCLE-SOURCE-REPRESENTATION-ORIGIN-NOSAFE`
+
+**Decision (2026-09-07): `NoSafeSlice`.** The finite inventory is exhausted;
+there is no unimplemented row with an existing source class, selected semantic
+consumer and exclusive loss edge. Do not promote physical lanes, `ValueId`, or
+the C frame's `input_kind` into missing source authority.
+
+| Finite row | Disposition and reopen condition |
+| --- | --- |
+| FieldSet receiver and parameter RHS; HomeRelease; Reclaim; direct two-read i64 result | Closed/landed. Their selected consumers and prior raw/positional loss edges are already retired. |
+| Birth call-ABI receiver handle | `NoSafeSlice`: current binding/lane and construction object are separate existing products; reopen only with a source-issued handle class, one selected semantic consumer and final validator. |
+| Unused, untyped or non-FieldSet Birth parameter | `NoIssuer`: lane/ordinal is not a value class. Reopen only with an exact source-use relation and consumer. |
+| Root literal, trivial-local, one-field or non-direct-two-read Add result | `NoIssuer` for retained terminal product: the classifier supports completion but issues no selected terminal relation. Reopen only with an existing canonical result issuer and consumer. |
+| Root formals and arbitrary root SSA | `NoIssuer`: `EntryDemandMissing` rejects the domain before claim take. |
+
+This census covers selected AppMain/Birth source issuance through selected
+semantic consumers and final source handoff. It excludes physical binding,
+target/runtime agreement and C transport; those remain their ordered tasks and
+cannot close these semantic gaps.
+
 ### Remaining order
 
 After this I0, resume the existing Ordered tasks in this document. Complete
