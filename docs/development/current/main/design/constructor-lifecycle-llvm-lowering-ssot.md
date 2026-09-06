@@ -1069,6 +1069,29 @@ artifact effects. The bounded next D0 must either identify an existing owner
 and its exclusive old edge or park Bool explicitly; it opens no source
 relation, C schema, object, or EXE work.
 
+**D0 result:** the census is exhausted and finds no selected final-entry
+consumer. The lifecycle C ingress always terminates before object emission;
+the generic linker and kernel `ny_main() -> i64` entry are not consumers of a
+typed finalized root result. Raw VM reference is a semantic-policy consumer
+only. Bool therefore remains unavailable and this D0 cannot select an I0.
+
+### `CONSTRUCTOR-LIFECYCLE-FINAL-ENTRY-ABI-D1`
+
+Decide the sole compiled-entry result/status ABI authority and exactly one
+selected process-terminal consumer before reopening lifecycle Bool or C
+execution. The finite boundary is finalized root result/view → selected C
+body owner → object/link handoff → compiled entry/runtime terminal. The D1
+must identify the source of result kind, Fault reporting/status mapping,
+ownership of cleanup/disposal, and the old process edge to retire. Existing
+semantic-reference Bool→unsupported Fault(70) is policy evidence only; it
+cannot select a C ABI or runtime consumer.
+
+Non-authority: generic `ny_main() -> i64` normalization, raw VM reference,
+compatibility LLVM emitters, and I64/Unit frame rows. Missing selected owner,
+ambiguous ABI producer, untyped status conversion, or artifact process
+projection inferred from a linker symbol must remain a pre-effect failure.
+This D1 opens no Bool relation, C schema, object, EXE, or kernel-only change.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
