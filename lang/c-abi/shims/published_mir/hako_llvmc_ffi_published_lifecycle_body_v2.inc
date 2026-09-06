@@ -24,15 +24,23 @@ static int hako_llvmc_published_lifecycle_body_v2_json_matches(
       yyjson_val* instruction;
       yyjson_val* op;
       yyjson_val* kind;
+      yyjson_val* fault_frame;
+      yyjson_val* normal;
+      yyjson_val* fault;
       if (!(id && yyjson_is_uint(id) && yyjson_get_uint(id) == site->block_id &&
             instructions && yyjson_is_arr(instructions) &&
             site->instruction_index < yyjson_arr_size(instructions))) continue;
       instruction = yyjson_arr_get(instructions, site->instruction_index);
       op = instruction ? yyjson_obj_get(instruction, "op") : NULL;
       kind = instruction ? yyjson_obj_get(instruction, "kind") : NULL;
-      if (op && kind && yyjson_is_str(op) && yyjson_is_uint(kind) &&
+      fault_frame = instruction ? yyjson_obj_get(instruction, "fault_frame") : NULL;
+      normal = instruction ? yyjson_obj_get(instruction, "normal") : NULL;
+      fault = instruction ? yyjson_obj_get(instruction, "fault") : NULL;
+      if (op && kind && fault_frame && normal && fault && yyjson_is_str(op) &&
+          yyjson_is_uint(kind) && yyjson_is_uint(fault_frame) && yyjson_is_uint(normal) && yyjson_is_uint(fault) &&
           strcmp(yyjson_get_str(op), "published_lifecycle_invoke") == 0 &&
-          yyjson_get_uint(kind) == 2u) matched++;
+          yyjson_get_uint(kind) == 2u && yyjson_get_uint(fault_frame) == site->fault_frame &&
+          yyjson_get_uint(normal) == site->normal_landing && yyjson_get_uint(fault) == site->fault_landing) matched++;
     }
   }
 done:
