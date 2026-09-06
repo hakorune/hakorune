@@ -88,6 +88,30 @@ fn value_class(
     }
 }
 
+/// Exact source classification for the selected direct-New argument profile.
+/// The scanner owns this decision; package code must consume its observation
+/// instead of replaying source syntax.
+fn selected_new_argument_kind(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    locals: &BTreeMap<BindingRefV1, LocalValue>,
+) -> Option<SelectedNewArgumentKindV1> {
+    match input.function().expression_source().literal(site) {
+        Some(ResolvedLiteralSourceV1::Integer(value)) => {
+            return Some(SelectedNewArgumentKindV1::Integer(*value));
+        }
+        Some(ResolvedLiteralSourceV1::Bool(value)) => {
+            return Some(SelectedNewArgumentKindV1::Bool(*value));
+        }
+        _ => {}
+    }
+    let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(site)? else {
+        return None;
+    };
+    matches!(locals.get(&binding), Some(LocalValue::Trivial))
+        .then_some(SelectedNewArgumentKindV1::Local { binding })
+}
+
 pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
@@ -338,10 +362,9 @@ pub(crate) fn scan_new_home_flow<E>(
                                     // Handle arguments require the selected parameter's
                                     // source demand, not merely a physical borrow ABI.
                                     Ok(arg)
-                                        if matches!(
-                                            value_class(input, arg.site(), &locals),
-                                            Some(LocalValue::Trivial)
-                                        ) => {}
+                                        if selected_new_argument_kind(
+                                            input, arg.site(), &locals,
+                                        ).is_some() => {}
                                     Ok(arg) => {
                                         unavailable.get_or_insert_with(|| {
                                             HomePrefixUnavailableV1::ArgumentNotCovered(
