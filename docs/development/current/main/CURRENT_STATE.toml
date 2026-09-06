@@ -4,7 +4,7 @@ work_mode = "fast"
 current_execution_row = "MIR-CALL-LEGACY-READER-STOP-R0"
 current_execution_cohort = "acceptance_source_reconciliation_i0"
 current_design_stop = "none"
-current_blocker_token = "The connected V2 lifecycle ingress is implemented: the one published-view scan retains lifecycle/Return coordinates; only the final strict-verified, commit-prepared, root-bound artifact view receives the finite SafeMutex/SingleThreadExact profile and reaches the V2 C terminal. Generic views remain fenced; V1 is unchanged and never retried. V2 currently validates all rows then stops before artifact. Continue the same 2-5 commit series with typed operation emission, fixed Pair EXE30/OBJ30, and selected legacy allocation/field/return edge deletion."
+current_blocker_token = "The connected V2 lifecycle ingress is implemented: the one published-view scan retains lifecycle/Return coordinates; only the final strict-verified, commit-prepared, root-bound artifact view receives the finite SafeMutex/SingleThreadExact profile and reaches the V2 C terminal. Generic views remain fenced; V1 is unchanged and never retried. V2 remains the fixed preartifact terminal. Continue the same 2-5 commit series with its same-borrow BodySiteV1 companion ingress, typed operation emission, fixed Pair EXE30/OBJ30, and selected legacy allocation/field/return edge deletion."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
