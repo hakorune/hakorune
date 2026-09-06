@@ -952,6 +952,12 @@ Add counterexamples must stop before effects. Keep the near-limit local-commit
 owner split before adding retention fields; no new semantic receipt, C schema,
 object or EXE claim opens.
 
+Landed: the scanner issues the exact literal site/value relation, selected physical lowering consumes it once without raw return-value descent, final handoff retains a distinct result arm, and V2 reuses the existing I64 pair. Focused literal, Unit and I64 regressions pass; no object is created.
+
+### `CONSTRUCTOR-LIFECYCLE-ROOT-SCALAR-TERMINAL-D1`
+
+Design stop: audit the next scalar arm as a separate finite source relation. Do not promote Bool, local, field, typed integer or general Add through the literal I64 consumer. Name its source issuer, selected physical consumer, exclusive raw edge and fail-fast boundary before implementation.
+
 ### `CONSTRUCTOR-LIFECYCLE-ROOT-UNIT-RETURN-D1`
 
 **Prior decision withdrawn by physical-owner audit (2026-09-07).** The source
