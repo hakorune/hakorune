@@ -74,3 +74,18 @@ fn explicit_bare_return_issues_unit_relation_without_i64_specialization() {
     assert_eq!(relation.return_site(), completion.explicit_site().expect("return site"));
     assert!(ledger.terminal_i64_add_return().is_none());
 }
+
+#[test]
+fn direct_integer_literal_issues_exact_terminal_relation() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Pair { left: i64 right: i64 birth(left, right) { me.left = left me.right = right } } static box Main { main() { local pair = new Pair(10, 20) return 30 } }",
+    ).expect("source package");
+    let relation = package.ordinary_new_claim_ledger
+        .terminal_integer_literal_return().expect("literal relation");
+    let completion = package.ordinary_new_claim_ledger.root_completion_for_test();
+    assert_eq!(relation.owner(), completion.owner());
+    assert_eq!(relation.return_site(), completion.explicit_site().expect("return site"));
+    assert_eq!(relation.value(), 30);
+    assert!(package.ordinary_new_claim_ledger.terminal_i64_add_return().is_none());
+    assert!(package.ordinary_new_claim_ledger.terminal_unit_return().is_none());
+}

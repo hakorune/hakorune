@@ -127,9 +127,10 @@ impl<'module> PublishedMirBackendView<'module> {
             Some(births.iter().map(|birth| birth.target().clone()).collect());
         self.retained_birth_abi = Some(births);
         if let Some(source) = root_source.as_ref() {
-            let valid = match (source.terminal_i64_add(), source.terminal_unit_return(), root_result) {
-                (Some(terminal), None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })) => terminal.owner() == owner,
-                (None, Some(terminal), Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })) => terminal.owner() == owner,
+            let valid = match (source.terminal_i64_add(), source.terminal_unit_return(), source.terminal_integer_literal(), root_result) {
+                (Some(terminal), None, None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })) => terminal.owner() == owner,
+                (None, Some(terminal), None, Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })) => terminal.owner() == owner,
+                (None, None, Some(terminal), Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { owner })) => terminal.owner() == owner,
                 _ => false,
             };
             if !valid { return Err(fault("retained-root-source-result-drift")); }
@@ -200,7 +201,8 @@ impl<'module> PublishedMirBackendView<'module> {
         if !matches!(
             self.retained_root_result,
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { .. }
-                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. })
+                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }
+                | crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. })
         ) {
             return Err(fault("retained-root-result-missing"));
         }

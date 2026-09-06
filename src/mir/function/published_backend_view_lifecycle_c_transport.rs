@@ -323,6 +323,8 @@ impl PublishedLifecycleCFrameV2 {
                 (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { .. }) =>
                 (DEFINITION_ROLE_ROOT_UNIT, RESULT_KIND_UNIT),
+            Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }) =>
+                (DEFINITION_ROLE_ROOT_I64, RESULT_KIND_I64),
             None => return Err(fault("root-result-handoff-missing")),
         };
         let root = view

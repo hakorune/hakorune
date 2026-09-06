@@ -22,7 +22,7 @@ use crate::mir::instance_constructor_abi::{
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
     issue_new_home_prefixes_v1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
-    SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalUnitReturnV1,
+    SelectedNewArgumentUnavailableV1, TerminalI64AddReturnV1, TerminalIntegerLiteralReturnV1, TerminalUnitReturnV1,
 };
 use crate::mir::resolved_semantics::DeclaredInstanceCallSemanticEffectV1;
 use crate::mir::resolved_semantics::{
@@ -138,6 +138,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     birth_abi_handoffs: RefCell<BTreeMap<OwnedExprSiteV1, BirthAbiHandoffV1>>,
     terminal_result: Option<TerminalI64AddReturnV1>,
     terminal_unit_return: Option<TerminalUnitReturnV1>,
+    terminal_integer_literal: Option<TerminalIntegerLiteralReturnV1>,
+    terminal_integer_literal_value: RefCell<Option<crate::mir::ValueId>>,
     terminal_result_progress: RefCell<terminal_result::Progress>,
     root_completion: Option<
         Result<
@@ -189,6 +191,8 @@ impl OrdinaryNewClaimLedgerV1 {
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             terminal_result: None,
             terminal_unit_return: None,
+            terminal_integer_literal: None,
+            terminal_integer_literal_value: RefCell::new(None),
             terminal_result_progress: RefCell::new(terminal_result::Progress::Pending),
             root_completion: None,
             app_main_identity: None,
@@ -268,6 +272,7 @@ impl OrdinaryNewClaimLedgerV1 {
             && self.field_reads_complete()
             && self.birth_abi_handoffs.borrow().is_empty()
             && self.terminal_result_complete()
+            && (self.terminal_integer_literal.is_none() || self.terminal_integer_literal_value.borrow().is_some())
     }
 
     pub(crate) fn terminal_i64_add_return(&self) -> Option<&TerminalI64AddReturnV1> {
@@ -275,6 +280,17 @@ impl OrdinaryNewClaimLedgerV1 {
     }
     pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
         self.terminal_unit_return.as_ref()
+    }
+    pub(crate) fn terminal_integer_literal_return(&self) -> Option<&TerminalIntegerLiteralReturnV1> { self.terminal_integer_literal.as_ref() }
+    pub(crate) fn prepare_terminal_integer_literal_return(&self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1, site: &SourceNodeSiteV1) -> Result<Option<i64>, String> {
+        let Some(relation) = self.terminal_integer_literal.as_ref() else { return Ok(None); };
+        let Some(Ok(completion)) = self.root_completion.as_ref() else { return Err("[freeze:contract][ordinary-new/literal-completion-missing]".into()); };
+        if self.terminal_result.is_some() || self.terminal_unit_return.is_some() || relation.owner() != owner || completion.owner() != owner || completion.explicit_site() != Some(relation.return_site()) || relation.return_site().node() != site || self.terminal_integer_literal_value.borrow().is_some() { return Err("[freeze:contract][ordinary-new/literal-source-drift]".into()); }
+        Ok(Some(relation.value()))
+    }
+    pub(crate) fn record_terminal_integer_literal_return(&self, value: crate::mir::ValueId) -> Result<(), String> {
+        if self.terminal_integer_literal.is_none() || self.terminal_integer_literal_value.replace(Some(value)).is_some() { return Err("[freeze:contract][ordinary-new/literal-duplicate]".into()); }
+        Ok(())
     }
 
     /// Consumes no source product: it only checks that the selected emitter is
@@ -403,6 +419,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     let mut root_field_reads = BTreeMap::new();
     let mut root_terminal_result = None;
     let mut root_terminal_unit_return = None;
+    let mut root_terminal_integer_literal = None;
     let mut birth_abi_handoffs = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
@@ -466,7 +483,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                     };
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
                         input, &selected, &mut field_is_integer)? {
-                        Ok((completion, prefixes, terminal_result, terminal_unit_return, observations)) => {
+                        Ok((completion, prefixes, terminal_result, terminal_unit_return, terminal_integer_literal, observations)) => {
                             if matches!(completion.cleanup().terminal_homes(), Some(Ok(_))) {
                                 if let Some(result) = &terminal_result {
                                     if result.owner() != input.owner()
@@ -483,6 +500,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                                 root_field_reads = staged_reads;
                                 root_terminal_result = terminal_result;
                                 root_terminal_unit_return = terminal_unit_return;
+                                root_terminal_integer_literal = terminal_integer_literal;
                             }
                             root_completion = Some(Ok(completion));
                             (prefixes, observations)
@@ -664,6 +682,7 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     ledger.birth_abi_handoffs = RefCell::new(birth_abi_handoffs);
     ledger.terminal_result = root_terminal_result;
     ledger.terminal_unit_return = root_terminal_unit_return;
+    ledger.terminal_integer_literal = root_terminal_integer_literal;
     ledger.app_main_identity = app_main_identity.cloned();
     Ok(ledger)
 }

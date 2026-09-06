@@ -625,6 +625,9 @@ where
         if let Some(value) = port.emit_terminal_i64_add_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }
+        if let Some(value) = port.emit_terminal_integer_literal_return(builder)? {
+            return port.emit_root_home_exit(builder, value);
+        }
         let value = match &statement {
             ASTNode::Return { value: Some(_), .. } => {
                 let source = port

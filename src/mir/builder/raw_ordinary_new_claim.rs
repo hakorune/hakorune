@@ -20,6 +20,7 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     ) -> Result<Option<crate::mir::ValueId>, String> {
         Ok(None)
     }
+    fn emit_terminal_integer_literal_return(&mut self, _builder: &mut crate::mir::MirBuilder) -> Result<Option<crate::mir::ValueId>, String> { Ok(None) }
 
     fn emit_root_home_exit(
         &mut self,
@@ -183,6 +184,16 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             builder, ledger, prepared,
         )
         .map(Some)
+    }
+
+    fn emit_terminal_integer_literal_return(&mut self, builder: &mut crate::mir::MirBuilder) -> Result<Option<crate::mir::ValueId>, String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(None); };
+        let owner = self.callable_owner_v1().ok_or("[ordinary-literal/owner-missing]")?;
+        let site = self.current_source_site_v1().ok_or("[ordinary-literal/site-missing]")?;
+        let Some(value) = ledger.prepare_terminal_integer_literal_return(owner, &site)? else { return Ok(None); };
+        let emitted = crate::mir::builder::emission::constant::emit_integer(builder, value)?;
+        ledger.record_terminal_integer_literal_return(emitted)?;
+        Ok(Some(emitted))
     }
 
     fn emit_root_home_exit(

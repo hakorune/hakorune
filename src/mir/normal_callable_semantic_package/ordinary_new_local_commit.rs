@@ -8,7 +8,7 @@ use super::birth_abi_handoff::BirthAbiHandoffV1;
 use super::OrdinaryNewClaimLedgerV1;
 use super::{CallerNewHomePrefixV1, HomePrefixUnavailableV1};
 use crate::mir::function::{RootOrdinaryNewObservation, RootOrdinaryNewUnavailable};
-use crate::mir::resolved_semantics::home_new_prefix::{TerminalI64AddReturnV1, TerminalUnitReturnV1};
+use crate::mir::resolved_semantics::home_new_prefix::{TerminalI64AddReturnV1, TerminalIntegerLiteralReturnV1, TerminalUnitReturnV1};
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceNodeSiteV1,
 };
@@ -101,6 +101,7 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     app_main_identity: CallableDeclarationIdentityV1,
     terminal_i64_add: Option<TerminalI64AddReturnV1>,
     terminal_unit_return: Option<TerminalUnitReturnV1>,
+    terminal_integer_literal: Option<TerminalIntegerLiteralReturnV1>,
 }
 
 impl FinalizedRootSourceHandoffV1 {
@@ -111,9 +112,8 @@ impl FinalizedRootSourceHandoffV1 {
     pub(crate) fn terminal_i64_add(&self) -> Option<&TerminalI64AddReturnV1> {
         self.terminal_i64_add.as_ref()
     }
-    pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> {
-        self.terminal_unit_return.as_ref()
-    }
+    pub(crate) fn terminal_unit_return(&self) -> Option<&TerminalUnitReturnV1> { self.terminal_unit_return.as_ref() }
+    pub(crate) fn terminal_integer_literal(&self) -> Option<&TerminalIntegerLiteralReturnV1> { self.terminal_integer_literal.as_ref() }
 }
 
 /// Final-handoff projection of the already-issued terminal source relation.
@@ -121,6 +121,7 @@ impl FinalizedRootSourceHandoffV1 {
 pub(crate) enum FinalizedRootResultAbiV1 {
     I64AddReturn { owner: FunctionOwnerIdV1 },
     UnitReturn { owner: FunctionOwnerIdV1 },
+    IntegerLiteralReturn { owner: FunctionOwnerIdV1 },
 }
 
 impl FinalizedRootBirthHandoffV1 {
@@ -258,9 +259,9 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Ok(completion)) => completion.owner(),
             _ => return Err(freeze("artifact-root-completion-unavailable")),
         };
-        let root_source = match (&self.terminal_result, &self.terminal_unit_return) {
-            (Some(_), Some(_)) => return Err(freeze("artifact-root-result-conflict")),
-            (Some(relation), None) => Some({
+        let root_source = match (&self.terminal_result, &self.terminal_unit_return, &self.terminal_integer_literal) {
+            (Some(_), Some(_), _) | (Some(_), _, Some(_)) | (_, Some(_), Some(_)) => return Err(freeze("artifact-root-result-conflict")),
+            (Some(relation), None, None) => Some({
                 if relation.owner() != owner || !self.terminal_result_complete() {
                     return Err(freeze("artifact-root-result-unavailable"));
                 }
@@ -273,9 +274,10 @@ impl OrdinaryNewClaimLedgerV1 {
                     app_main_identity,
                     terminal_i64_add: Some(relation.clone()),
                     terminal_unit_return: None,
+                    terminal_integer_literal: None,
                 }
             }),
-            (None, Some(relation)) => Some({
+            (None, Some(relation), None) => Some({
                 if relation.owner() != owner { return Err(freeze("artifact-root-unit-owner-drift")); }
                 let completion = self.root_completion.as_ref().and_then(|row| row.as_ref().ok())
                     .ok_or_else(|| freeze("artifact-root-completion-unavailable"))?;
@@ -288,16 +290,21 @@ impl OrdinaryNewClaimLedgerV1 {
                     app_main_identity,
                     terminal_i64_add: None,
                     terminal_unit_return: Some(relation.clone()),
+                    terminal_integer_literal: None,
                 }
             }),
-            (None, None) => None,
+            (None, None, Some(relation)) => Some({
+                if relation.owner() != owner || self.terminal_integer_literal_value.borrow().is_none() { return Err(freeze("artifact-root-literal-unavailable")); }
+                FinalizedRootSourceHandoffV1 { app_main_identity: self.app_main_identity.as_ref().ok_or_else(|| freeze("artifact-root-identity-unavailable"))?.clone(), terminal_i64_add: None, terminal_unit_return: None, terminal_integer_literal: Some(relation.clone()) }
+            }),
+            (None, None, None) => None,
         };
         let root_result = root_source.as_ref().map(|source| {
             if source.terminal_i64_add().is_some() {
                 FinalizedRootResultAbiV1::I64AddReturn { owner }
-            } else {
+            } else if source.terminal_unit_return().is_some() {
                 FinalizedRootResultAbiV1::UnitReturn { owner }
-            }
+            } else { FinalizedRootResultAbiV1::IntegerLiteralReturn { owner } }
         });
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();

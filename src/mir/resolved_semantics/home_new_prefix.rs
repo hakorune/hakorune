@@ -160,6 +160,25 @@ impl TerminalI64AddReturnV1 {
     }
 }
 
+/// Exact source relation for a Completion-backed untyped integer literal return.
+/// It records source identity and value only; it owns no physical representation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct TerminalIntegerLiteralReturnV1 {
+    owner: FunctionOwnerIdV1,
+    return_site: SourceStmtSiteV1,
+    value_site: SourceExprSiteV1,
+    value: i64,
+}
+impl TerminalIntegerLiteralReturnV1 {
+    fn issue(owner: FunctionOwnerIdV1, return_site: SourceStmtSiteV1, value_site: SourceExprSiteV1, value: i64) -> Self {
+        Self { owner, return_site, value_site, value }
+    }
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
+    pub(crate) fn return_site(&self) -> &SourceStmtSiteV1 { &self.return_site }
+    pub(crate) fn value_site(&self) -> &SourceExprSiteV1 { &self.value_site }
+    pub(crate) const fn value(&self) -> i64 { self.value }
+}
+
 /// Exact source relation for a Completion-backed explicit bare return.
 /// This contains no physical value or ABI category.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -246,15 +265,17 @@ pub(crate) fn scan_new_home_flow<E>(
     Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
     Option<TerminalI64AddReturnV1>,
     Option<TerminalUnitReturnV1>,
+    Option<TerminalIntegerLiteralReturnV1>,
     BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
 ), E> {
     let mut results = BTreeMap::new();
     let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
     let mut terminal_result = None;
     let mut terminal_unit_return = None;
+    let mut terminal_integer_literal = None;
     let mut argument_observations = BTreeMap::new();
     if selected.is_empty() && terminal.is_none() {
-        return Ok((results, terminal_homes, terminal_result, terminal_unit_return, argument_observations));
+        return Ok((results, terminal_homes, terminal_result, terminal_unit_return, terminal_integer_literal, argument_observations));
     }
     let function = input.function();
     let mut unavailable = (function.declaration_sites().any(|site| {
@@ -272,7 +293,7 @@ pub(crate) fn scan_new_home_flow<E>(
             .keys()
             .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
             .collect(), Err(HomePrefixUnavailableV1::SourceMismatch), terminal_result, terminal_unit_return,
-            argument_observations));
+            terminal_integer_literal, argument_observations));
     };
     let mut locals = BTreeMap::new();
     let mut homes = Vec::new();
@@ -295,14 +316,21 @@ pub(crate) fn scan_new_home_flow<E>(
                 }
                 ASTNode::Return { value: Some(_), .. } => match input.source()
                     .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue) {
-                    Ok(value) => match return_scalar(input, value.site(), &locals, field_is_integer)? {
-                        Some(ReturnScalar::I64Add { site, field_reads }) => {
-                            terminal_result = Some(TerminalI64AddReturnV1::issue(
-                                input.owner(), statement.site().clone(), site, field_reads));
+                    Ok(value) => match input.function().expression_source().literal(value.site()) {
+                        Some(ResolvedLiteralSourceV1::Integer(number)) => {
+                            terminal_integer_literal = Some(TerminalIntegerLiteralReturnV1::issue(
+                                input.owner(), statement.site().clone(), value.site().clone(), *number));
                             true
                         }
-                        Some(_) => true,
-                        None => false,
+                        _ => match return_scalar(input, value.site(), &locals, field_is_integer)? {
+                            Some(ReturnScalar::I64Add { site, field_reads }) => {
+                                terminal_result = Some(TerminalI64AddReturnV1::issue(
+                                    input.owner(), statement.site().clone(), site, field_reads));
+                                true
+                            }
+                            Some(_) => true,
+                            None => false,
+                        },
                     },
                     Err(_) => false,
                 },
@@ -317,6 +345,7 @@ pub(crate) fn scan_new_home_flow<E>(
             if terminal_homes.is_err() {
                 terminal_result = None;
                 terminal_unit_return = None;
+                terminal_integer_literal = None;
             }
             break;
         }
@@ -457,5 +486,5 @@ pub(crate) fn scan_new_home_flow<E>(
                 .unwrap_or(HomePrefixUnavailableV1::SourceMismatch))
         });
     }
-    Ok((results, terminal_homes, terminal_result, terminal_unit_return, argument_observations))
+    Ok((results, terminal_homes, terminal_result, terminal_unit_return, terminal_integer_literal, argument_observations))
 }
