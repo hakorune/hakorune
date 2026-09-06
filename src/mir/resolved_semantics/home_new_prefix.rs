@@ -20,6 +20,8 @@ pub(crate) enum HomePrefixUnavailableV1 {
     PrefixNotCovered(SourceStmtSiteV1),
     ArgumentNotCovered(SourceExprSiteV1),
     OverridesNotCovered(SourceExprSiteV1),
+    TerminalNotCovered,
+    ReturnValueNotCovered(SourceStmtSiteV1),
 }
 
 /// Immutable source facts. Cloning preserves the same owner/site identities;
@@ -83,9 +85,23 @@ pub(crate) fn issue_new_home_prefixes_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
 ) -> BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>> {
+    scan_new_home_flow(input, selected, None).0
+}
+
+/// One source walk supplies both New-failure prefixes and terminal ownership.
+/// The caller must take the terminal from the Completion verified on this input.
+pub(crate) fn scan_new_home_flow(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    selected: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
+    terminal: Option<&SourceStmtSiteV1>,
+) -> (
+    BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
+    Result<Box<[BindingRefV1]>, HomePrefixUnavailableV1>,
+) {
     let mut results = BTreeMap::new();
-    if selected.is_empty() {
-        return results;
+    let mut terminal_homes = Err(HomePrefixUnavailableV1::TerminalNotCovered);
+    if selected.is_empty() && terminal.is_none() {
+        return (results, terminal_homes);
     }
     let function = input.function();
     let mut unavailable = (function.declaration_sites().any(|site| {
@@ -99,16 +115,16 @@ pub(crate) fn issue_new_home_prefixes_v1(
         .is_empty())
     .then_some(HomePrefixUnavailableV1::EntryDemandMissing);
     let Ok(body) = input.source().root_body() else {
-        return selected
+        return (selected
             .keys()
             .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
-            .collect();
+            .collect(), Err(HomePrefixUnavailableV1::SourceMismatch));
     };
     let mut locals = BTreeMap::new();
     let mut homes = Vec::new();
     let mut covered_statements = Vec::new();
     for index in 0..body.statements().len() {
-        if results.len() == selected.len() {
+        if terminal.is_none() && results.len() == selected.len() {
             break;
         }
         let Ok(statement) = input.source().body_stmt(&body, index) else {
@@ -116,6 +132,23 @@ pub(crate) fn issue_new_home_prefixes_v1(
             break;
         };
         covered_statements.push(statement.site().clone());
+        if terminal == Some(statement.site()) {
+            let scalar_return = match statement.node() {
+                ASTNode::Return { value: None, .. } => true,
+                ASTNode::Return { value: Some(_), .. } => input.source()
+                    .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue)
+                    .is_ok_and(|value| matches!(value_class(input, value.site(), &locals),
+                        Some(LocalValue::Trivial))),
+                _ => false,
+            };
+            terminal_homes = match &unavailable {
+                Some(issue) => Err(issue.clone()),
+                None if !scalar_return => Err(HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone())),
+                None if results.len() != selected.len() => Err(HomePrefixUnavailableV1::SourceMismatch),
+                None => Ok(homes.iter().rev().copied().collect()),
+            };
+            break;
+        }
         let ASTNode::Local {
             variables,
             initial_values,
@@ -241,5 +274,5 @@ pub(crate) fn issue_new_home_prefixes_v1(
                 .unwrap_or(HomePrefixUnavailableV1::SourceMismatch))
         });
     }
-    results
+    (results, terminal_homes)
 }

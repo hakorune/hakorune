@@ -1,6 +1,14 @@
 //! Affine Raw ordinary-`New` claim capability.
 
 pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
+    fn prepare_root_home_exit(&mut self, _builder: &crate::mir::MirBuilder) -> Result<bool, String> {
+        Ok(false)
+    }
+
+    fn emit_root_home_exit(&mut self, _builder: &mut crate::mir::MirBuilder,
+        _value: crate::mir::ValueId) -> Result<crate::mir::ValueId, String> {
+        Err("[freeze:contract][root-home-exit/no-physical-owner]".into())
+    }
     fn prepare_ordinary_new_emission(
         &mut self, _builder: &crate::mir::MirBuilder,
         _claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
@@ -53,6 +61,23 @@ impl RawOrdinaryNewClaimPortV1 for super::RawLegacyChildLoweringPortV1 {
 }
 
 impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
+    fn prepare_root_home_exit(&mut self, builder: &crate::mir::MirBuilder) -> Result<bool, String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(false); };
+        let owner = self.callable_owner_v1().ok_or("[root-home-exit/owner-missing]")?;
+        let site = self.current_source_site_v1().ok_or("[root-home-exit/site-missing]")?;
+        let selected = ledger.prepare_root_home_exit(owner, &site)?;
+        if selected && builder.function_state.protected_region.return_defer.is_active() {
+            return Err("[freeze:contract][root-home-exit/protected-region]".into());
+        }
+        Ok(selected)
+    }
+
+    fn emit_root_home_exit(&mut self, builder: &mut crate::mir::MirBuilder,
+        value: crate::mir::ValueId) -> Result<crate::mir::ValueId, String> {
+        let state = self.callable_ledger.as_ref().ok_or("[root-home-exit/state-missing]")?;
+        let ledger = self.ordinary_new_claim_ledger.as_ref().ok_or("[root-home-exit/ledger-missing]")?;
+        crate::mir::builder::ordinary_new_admission::selected::emit_root_home_exit(builder, &mut state.borrow_mut(), ledger, value)
+    }
     fn prepare_ordinary_new_emission(
         &mut self, _builder: &crate::mir::MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,

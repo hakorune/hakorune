@@ -62,9 +62,12 @@ Builder effects:
 
 The explicit form carries its exact statement site, exact function-region
 target, zero unreachable suffix, and an explicit ordered cleanup contract.
-The E0 cleanup set is empty by design; nested exits remain rejected by the
-existing capability boundary. `cleanup.rs` owns only the ordered crossed-scope
-vocabulary and no runtime cleanup or value state.
+The E0 crossed-scope set stays empty; nested exits remain separately bounded.
+For the App Main New loan, the same Home walk can additionally observe the exact
+terminal Return and co-seal ordered BindingRefs into Completion. Unsupported
+suffixes and escaping Home returns remain explicit unavailable outcomes, never
+empty cleanup. `cleanup.rs` owns no physical ValueIds or runtime cleanup state.
+This source product alone does not prove Return consumer or runtime connection.
 
 The multiple-exit form seals exact source membership, common function target,
 declared-result compatibility, and uniform value/unit disposition. Canonical

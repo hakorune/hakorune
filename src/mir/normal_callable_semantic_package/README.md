@@ -137,6 +137,18 @@ remove the Birth backend rejection. Non-cohort and compatibility rows remain
 outside this claim surface and retain their explicitly parked compatibility
 behavior; they cannot issue or retry a source-backed claim.
 
+For App Main, this same source loan issues its first Completion and extends the
+Home walk through the exact terminal Return. The package creates the existing
+New ledger once; install shares it rather than rebuilding a second claim owner.
+Terminal cleanup retains ordered BindingRefs or an explicit unavailable outcome.
+It is not inferred from the last New prefix. Return selects before Match/value
+descent, joins completed locals and definition-owned destruction, and emits
+HomeRelease in reverse acquisition order. A cleanup Fault switches to the
+fault-pending suffix; later successful releases cannot restore Normal Return.
+Package completion requires selected exit consumption, and final root validation
+checks actual cleanup/terminal instructions. This does not admit runtime Birth,
+returned Homes, arbitrary suffix expressions, or other source completion forms.
+
 `instance_construction` issues the AST-free construction plan inside the exact
 constructor/Box source loan. It joins direct Plain stores and lexical receiver
 relations to declaration-ordered explicit i64 fields. Each source store has a

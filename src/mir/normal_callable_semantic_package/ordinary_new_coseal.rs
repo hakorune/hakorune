@@ -98,9 +98,21 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     ordinary_box_names: Box<[Box<str>]>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::NewLocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
+    root_exit: RefCell<local_commit::RootHomeExitProgress>,
+    root_completion: Option<Result<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+        crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1>>,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    #[cfg(test)]
+    pub(super) fn root_completion_for_test(&self) -> &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
+        self.root_completion.as_ref().expect("selected root").as_ref().expect("verified completion")
+    }
+    #[cfg(test)]
+    pub(super) fn pending_claims_for_test(&self) -> std::cell::Ref<'_, BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>> {
+        self.claims.borrow()
+    }
+
     pub(crate) fn issue(
         claims: Box<[OrdinaryNewAdmissionClaimV1]>,
         ordinary_box_names: Box<[Box<str>]>,
@@ -116,6 +128,8 @@ impl OrdinaryNewClaimLedgerV1 {
             ordinary_box_names,
             local_commits: RefCell::new(BTreeMap::new()),
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
+            root_exit: RefCell::new(local_commit::RootHomeExitProgress::Unprepared),
+            root_completion: None,
         }
     }
 
@@ -164,6 +178,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn is_empty(&self) -> bool {
         self.claims.borrow().is_empty()
             && self.local_commits.borrow().values().all(|row| row.is_complete())
+            && self.root_home_exit_is_complete()
     }
 }
 
@@ -259,8 +274,9 @@ pub(crate) fn issue_ordinary_new_claims_v1(
     app_main_batch_slot: Option<u32>,
     excluded_dynamic_batch_slot: Option<u32>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-) -> Result<Box<[OrdinaryNewAdmissionClaimV1]>, OrdinaryNewCoSealIssueV1> {
+) -> Result<OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1> {
     let mut claims = Vec::new();
+    let mut root_completion = None;
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -306,10 +322,21 @@ pub(crate) fn issue_ordinary_new_claims_v1(
                         initializer.binding(), initializer.declaration_site().clone(),
                         !field_initializers.is_empty()));
                 }
-                let selected = candidates.iter().filter(|(_, class, _, _, _, _)|
+                let selected: BTreeMap<_, _> = candidates.iter().filter(|(_, class, _, _, _, _)|
                     matches!(batch.ordinary_box_coverage().row_for(class.as_ref()), Ok(Some(_))))
                     .map(|(site, _, _, binding, _, _)| (site.clone(), *binding)).collect();
-                let home_prefixes = issue_new_home_prefixes_v1(input, &selected);
+                let home_prefixes = if is_app_main && !selected.is_empty() {
+                    match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_v1(input, &selected) {
+                        Ok((completion, prefixes)) => {
+                            root_completion = Some(Ok(completion));
+                            prefixes
+                        }
+                        Err(error) => {
+                            root_completion = Some(Err(error));
+                            issue_new_home_prefixes_v1(input, &selected)
+                        }
+                    }
+                } else { issue_new_home_prefixes_v1(input, &selected) };
                 Ok((candidates, home_prefixes))
             })
             .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
@@ -424,7 +451,11 @@ pub(crate) fn issue_ordinary_new_claims_v1(
             });
         }
     }
-    Ok(claims.into_boxed_slice())
+    let names = batch.ordinary_box_coverage().rows().iter()
+        .map(|row| row.name().to_owned().into_boxed_str()).collect();
+    let mut ledger = OrdinaryNewClaimLedgerV1::issue(claims.into_boxed_slice(), names);
+    ledger.root_completion = root_completion;
+    Ok(ledger)
 }
 
 fn is_direct_local_initializer(segments: &[SourcePathSegmentV1]) -> bool {
@@ -536,10 +567,13 @@ mod tests {
             "box Page { value: i64\nbirth(value) { me.value = value } }
              static box Main { main() { local page = new Page(7)\nreturn 0 } }",
         ).unwrap();
-        let [claim] = package.ordinary_new_claims.as_ref() else { panic!("one New"); };
+        let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        assert_eq!(claims.len(), 1);
+        let claim = claims.values().next().unwrap();
         let site = claim.site().clone();
         let expected = claim.construction().as_ref().unwrap().constructor().unwrap().clone();
-        let ledger = OrdinaryNewClaimLedgerV1::issue(package.ordinary_new_claims, vec!["Page".into()].into());
+        drop(claims);
+        let ledger = package.ordinary_new_claim_ledger;
         drop(ledger.try_take(&site, "Page", 1).unwrap().unwrap().constructor());
         let rows = ledger.local_commits.borrow();
         let plan = rows.get(&site).unwrap().construction().as_ref().unwrap();

@@ -20,6 +20,7 @@ mod source_coverage_tests;
 pub(crate) use function_control::{
     issue_new_fault_continuation_v1, NewFaultContinuationV1,
     verify_function_completion_v1, DeclaredFunctionResultContractV1,
+    verify_function_completion_with_new_homes_v1,
     FunctionCompletionVerificationErrorV1, FunctionExitCoverageV1, FunctionUnitOriginV1,
     ReturnExitRelationV1, SealedFunctionExitContractV1, SealedFunctionExitDispositionV1,
     VerifiedFunctionCompletionV1,

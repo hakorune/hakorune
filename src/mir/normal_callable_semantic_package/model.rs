@@ -38,7 +38,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) app_main_direct_call_loan:
         Option<super::direct_call_loan::AppMainDirectCallDispositionLoanV1>,
-    pub(super) ordinary_new_claims: Box<[super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1]>,
+    pub(super) ordinary_new_claim_ledger: std::rc::Rc<super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1>,
     pub(super) instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,

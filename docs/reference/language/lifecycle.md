@@ -13,6 +13,15 @@ global finalizer tracking, plugin finalization, `DestroyOwned`, parsers, and
 backends do not yet implement the complete C′ contract. They are migration
 evidence, not language authority.
 
+The selected plain-i64/no-hook construction path now carries source-issued
+root Home order through an explicit scalar App Main return into MIR cleanup.
+Clean cleanup returns the computed value; a cleanup Fault proceeds through
+the remaining reverse-order releases and propagates the pending Fault without
+retry. This is a compiler control connection, not runtime activation or full
+Home Flow support. Unavailable completion/ownership analysis does not authorize
+execution; backend admission remains fenced until the lifecycle consumers and
+required source-to-artifact proofs are complete.
+
 Related authorities:
 
 - source Home/handle/transfer/share/release: [ownership.md](ownership.md)

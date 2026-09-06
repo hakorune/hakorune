@@ -365,7 +365,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             catalog,
             batch,
             app_main_direct_call_loan,
-            ordinary_new_claims,
+            ordinary_new_claim_ledger,
             instance_constructors,
             selected,
             parameter_contracts,
@@ -383,22 +383,13 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             NormalRootExecutionPackageStateV1::MovedToLowering => {}
         }
         let catalog_brand = catalog.catalog().brand().clone();
-        let ordinary_box_names = batch
-            .ordinary_box_coverage()
-            .rows()
-            .iter()
-            .map(|row| row.name().to_owned().into_boxed_str())
-            .collect();
         self.context
             .install_callable_declaration_catalog_preflighted(catalog.into_catalog());
         InstalledNormalCallableSemanticPackageV1 {
             catalog_brand,
             batch,
             app_main_direct_call_loan,
-            ordinary_new_claim_ledger: Rc::new(OrdinaryNewClaimLedgerV1::issue(
-                ordinary_new_claims,
-                ordinary_box_names,
-            )),
+            ordinary_new_claim_ledger,
             instance_constructors,
             selected,
             parameter_contracts,

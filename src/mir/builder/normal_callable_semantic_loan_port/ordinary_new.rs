@@ -2,6 +2,15 @@
 use super::*;
 
 impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
+    fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.prepare_root_home_exit(builder)
+    }
+
+    fn emit_root_home_exit(&mut self, builder: &mut MirBuilder, value: ValueId) -> Result<ValueId, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.emit_root_home_exit(builder, value)
+    }
     fn prepare_ordinary_new_emission(
         &mut self, builder: &MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,

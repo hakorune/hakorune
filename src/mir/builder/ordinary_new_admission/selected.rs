@@ -79,6 +79,38 @@ pub(in crate::mir::builder) fn emit(
     Ok(result)
 }
 
+pub(in crate::mir::builder) fn emit_root_home_exit(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    value: ValueId,
+) -> Result<ValueId, String> {
+    let operations = ledger.begin_root_home_exit()?;
+    let frame = state.borrow_fault_frame(builder)?;
+    let mut bindings = Vec::new();
+    let mut clean = builder.next_block_id();
+    let mut fault = builder.next_block_id();
+    append_block(builder, clean, MirInstruction::Return { value: Some(value) }, &mut bindings)?;
+    append_block(builder, fault, MirInstruction::ReturnFault { fault_frame: frame }, &mut bindings)?;
+    let count = operations.len();
+    for (index, (object, home)) in operations.into_iter().rev().enumerate() {
+        let operation = InvokeOperation::HomeRelease { object, value: home };
+        // A clean call's Fault skips its own retry and joins the remaining
+        // fault-pending suffix. Later Normal outcomes cannot clear that Fault.
+        let next_clean = cleanup_step(builder, frame, operation.clone(), clean, fault, &mut bindings)?;
+        if index + 1 < count {
+            fault = cleanup_step(builder, frame, operation, fault, fault, &mut bindings)?;
+        }
+        clean = next_clean;
+    }
+    let origin = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let jump = MirInstruction::Jump { target: clean, edge_args: None };
+    builder.emit_instruction(jump.clone())?;
+    bindings.push((origin, jump));
+    ledger.record_root_home_exit(bindings)?;
+    Ok(value)
+}
+
 fn cleanup_chain(
     builder: &mut MirBuilder, frame: ValueId, operations: Vec<InvokeOperation>,
     tail: BasicBlockId, bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
@@ -86,19 +118,26 @@ fn cleanup_chain(
     let mut next = tail;
     // Build links backwards; execution preserves the source-issued order.
     for operation in operations.into_iter().rev() {
-        let origin = builder.next_block_id();
-        let normal = builder.next_block_id();
-        let fault = builder.next_block_id();
-        for landing in [normal, fault] {
-            append_block(builder, landing,
-                MirInstruction::Jump { target: next, edge_args: None }, bindings)?;
-        }
-        append_block(builder, origin, MirInstruction::Invoke {
-            operation, fault_frame: frame, normal_landing: normal, fault_landing: fault,
-        }, bindings)?;
-        next = origin;
+        next = cleanup_step(builder, frame, operation, next, next, bindings)?;
     }
     Ok(next)
+}
+
+fn cleanup_step(
+    builder: &mut MirBuilder, frame: ValueId, operation: InvokeOperation,
+    normal_next: BasicBlockId, fault_next: BasicBlockId,
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<BasicBlockId, String> {
+    let origin = builder.next_block_id();
+    let normal = builder.next_block_id();
+    let fault = builder.next_block_id();
+    for (landing, target) in [(normal, normal_next), (fault, fault_next)] {
+        append_block(builder, landing, MirInstruction::Jump { target, edge_args: None }, bindings)?;
+    }
+    append_block(builder, origin, MirInstruction::Invoke {
+        operation, fault_frame: frame, normal_landing: normal, fault_landing: fault,
+    }, bindings)?;
+    Ok(origin)
 }
 
 fn append_block(

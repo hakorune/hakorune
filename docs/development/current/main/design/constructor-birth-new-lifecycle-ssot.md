@@ -656,10 +656,10 @@ owner/site. Missing/foreign scope or duplicate prepare/emit rejects, never retri
 `ordinary_new_admission` must consume the retained claim, not reduce it to the
 constructor alone. Bind allocation, Birth, outer reclaim and prior Home cleanup
 to actual Invoke operands before local installation and physical finalization.
-Prior Homes join issued BindingRefs to completed New/locals and exact declarations;
-preserve the prefix's reverse acquisition order. It stops at the last New and
-cannot prove Normal return. Next within task 1: extend source Home observation
-through exact Completion; co-seal ordered bindings into its existing cleanup owner.
+Prior Homes join issued BindingRefs to completed New/locals and exact declarations; preserve reverse acquisition order. The last New prefix cannot prove Return.
+Normal-exit Decision: raw App Main has no retained Completion; issue its first existing verify_function_completion_v1 inside the exact AppMain ordinary_new_coseal loan after initializer membership/selected New mapping. Do not widen generic selected roles or reuse the optional direct-call loan.
+Extend the same Home source scan through that exact Completion, check scalar return versus escaping Home, and co-seal terminal bindings into existing cleanup obligations; unsupported suffixes stay unavailable. Completion errors/unavailable exits are unselected bookkeeping, never runtime admission: retain the backend execution fence. Generic/S6C issuance is unchanged.
+The existing New ledger is created at package issuance instead of retaining a second preinstall claim-array carrier; install shares it with root Completion. Return selection precedes Match/value descent; final validation requires exit consumption and actual bindings. Connected checkpoint: package 97/97, Invoke 7/7, raw dispatch 20/20, New route 2/2; vm-reference/pointer/M7-S green. No new receipt/table/port axis; no full Home Flow or Pair EXE30 claim.
 Construction eligibility is not destruction eligibility. The exact whole-Box issuer
 classifies the closed plain-i64/no-hook declaration profile: all fields explicit i64,
 no weak/inherited/delegated/native storage, and ordinary member roles only; legacy
@@ -668,7 +668,7 @@ No Arc/Trivial/layout inference or missing-hook-slot default. The existing New
 co-seal copies definition-owned disposition plus object ID before collector transfer;
 construction Err never erases either. Foreign/missing/transferred lookup rejects;
 retained claims work after transfer. No second table. Connect the actual New/Fault
-consumer in this series. Normal exit consumes at existing Return descent: clean suffix -> Return, any cleanup Fault -> fault-pending suffix -> ReturnFault; no new status opcode. Prove second/first order, one release per path, no Reclaim, unavailable suffix/foreign exit/duplicate consume rejection. Tasks 2–4 remain.
+consumer in this series. Normal exit consumes at existing Return descent: clean suffix -> Return, any cleanup Fault -> fault-pending suffix -> ReturnFault; no new status opcode. Production CFG paths prove second/first order, one release per path and no Reclaim; direct ledger witnesses prove bookkeeping only. Unavailable suffix/foreign exit/duplicate consume must reject selection or consumption. Tasks 2–4 remain.
 One frame is owned by `CallableSemanticLoweringState`: the exact App Main source
 entry installs RootOwned, ordinary callable entries Borrowed. Direct-call-loan
 presence is not a root witness (New-only Main has none). Construction stores

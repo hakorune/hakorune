@@ -334,6 +334,13 @@ impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
 where
     Port: RawOrdinaryNewClaimPortV1,
 {
+    fn prepare_root_home_exit(&mut self, builder: &MirBuilder) -> Result<bool, String> {
+        self.child.prepare_root_home_exit(builder)
+    }
+
+    fn emit_root_home_exit(&mut self, builder: &mut MirBuilder, value: ValueId) -> Result<ValueId, String> {
+        self.child.emit_root_home_exit(builder, value)
+    }
     fn prepare_ordinary_new_emission(
         &mut self, builder: &MirBuilder,
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1,
