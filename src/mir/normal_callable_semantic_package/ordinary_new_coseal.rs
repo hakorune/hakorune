@@ -34,6 +34,11 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 
 #[path = "ordinary_new_claim_access.rs"]
 mod claim_access;
+#[path = "ordinary_new_arguments.rs"]
+mod ordinary_new_arguments;
+pub(crate) use ordinary_new_arguments::{
+    OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+};
 #[path = "ordinary_new_field_reads.rs"]
 mod field_reads;
 #[path = "ordinary_new_terminal_result.rs"]
