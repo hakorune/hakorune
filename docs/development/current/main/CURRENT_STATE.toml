@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1"
 current_execution_cohort = "constructor_lifecycle_root_birth_final_view_relation"
-current_design_stop = "The canonical main-thunk root entry/result relation has no demonstrated transfer into selected lifecycle finalization. Do not bridge that gap from root_key strings, MIR signatures/params, lanes, JSON, Pair values, or C defaults."
-current_blocker_token = "D1 boundary: within the normal-default lifecycle pipeline, find an existing same-session producer for root owner/entry/full result plus Birth owner/receiver/formal bindings through finalization. If absent, retain NoSafeSlice before final view/C/LLVM effects."
+current_design_stop = "No same-session normal-default issuer/transfer carries root owner, exact entry and full result to lifecycle finalization. Do not bridge from canonical-core, root_key strings, MIR signatures/params, lanes, JSON, Pair values, or C defaults."
+current_blocker_token = "D1 result: NoSafeSlice__RootEntryAndFullResultNoSameSessionIssuerTransfer. This constructor physical-consumer family is parked before final-view/C/LLVM effects until a source-level decision names a normal-default issuer and finalization consumer."
 previous_parent_blocker_context = """
 MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0:
 the ordinary unissued static compatibility retirement landed at 685aaeab49,
@@ -36,14 +36,14 @@ integer/bool/trivial-local rows are consumed without selected raw argument
 descent; physical row/ValueId snapshots let the existing finalizer reject
 residual, literal, order and Birth-Call drift. Focused source/consumer/mutation
 tests and the canonical corridor guard pass.
-D0 found that the canonical main-thunk root relation is not transferred into
-selected lifecycle finalization; Birth lanes are only a partial handoff and the
-direct parser is isolated from the live host. D1 therefore remains design-stop:
-find a same-session root/Birth producer or retain NoSafeSlice. Pair EXE30,
-linked OBJ30 and selected old-edge retirement remain required and unproven.
+D0/D1 found no same-session normal-default root entry/full-result issuer or
+transfer to lifecycle finalization. Birth lanes are only a partial handoff and
+the direct parser is isolated from the live host; this family is parked as
+NoSafeSlice before C/LLVM work. Pair EXE30, linked OBJ30 and selected old-edge
+retirement remain required and unproven.
 """
 next_design_card = "CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1"
-next_execution_card = "none (D1 design stop selected)"
+next_execution_card = "none (D1 NoSafeSlice parked)"
 next_execution_card_path = "docs/development/current/main/design/constructor-lifecycle-llvm-lowering-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -703,3 +703,37 @@ but its issued-Pair C check is ignored and no selected host caller invokes it.
 The live V2 companion instead accepts typed frame/site rows plus a nonempty
 generic JSON carrier to reach `body-consumer-pending`. These are separate
 ingresses, not evidence of a completed root/Birth authority handoff.
+
+### D1 outcome: NoSafeSlice for root entry/full result
+
+Decision: `CONSTRUCTOR-LIFECYCLE-ROOT-BIRTH-FINAL-VIEW-RELATION-D1` is
+`NoSafeSlice__RootEntryAndFullResultNoSameSessionIssuerTransfer`. Do not open
+an I0 for C, final-view retention, parser promotion, or a cross-pipeline
+adapter from this evidence.
+
+Source authority + canonical issuer: the normal-default source package carries
+the exact root owner into its ordinary-New ledger; `BirthAbiHandoffV1` carries
+Birth owner and receiver/parameter `BindingRefV1`s to final sealing. The
+separate canonical-core main-thunk plan owns the only observed root entry/full
+result relation, but it is not produced or consumed by this normal-default
+session.
+
+Non-authority: the post-finalization root function name, `root_key` string,
+terminal i64 Add relation, `MirFunction.signature`/params, same-symbol or
+same-owner matching, physical lanes/ValueIds, JSON, C frame defaults, and
+Pair fixture values.
+
+Fail-fast boundary: before final-view binding, reject the selected physical
+consumer as unavailable when a normal-default root entry/full-result relation
+is absent. No retry through canonical-core, V2, direct JSON, or compatibility
+is permitted.
+
+Smallest next slice: none. A later source-level design must first name a
+normal-default source authority that can issue root owner, exact entry, and
+full result together before root lowering, plus its existing finalization
+consumer. Until then this family is parked as `NoSafeSlice`, not relabeled as
+an unsupported source disposition.
+
+Non-claims: missing Birth-formal issuer, C/LLVM execution, parser promotion,
+ABI layout, Pair EXE30/linked OBJ30, V2 deletion, compatibility retirement,
+or kernel/runtime work.
