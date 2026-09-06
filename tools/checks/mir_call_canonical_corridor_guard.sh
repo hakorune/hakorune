@@ -12,6 +12,7 @@ REJECT="$ROOT_DIR/src/mir/contracts/backend_core_ops/allowlists.rs"
 JSON="$ROOT_DIR/src/runner/json_v0_bridge/core.rs"
 PROGRAM_LOWERING="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program.rs"
 EXEC="$ROOT_DIR/src/runner/modes/common_util/exec.rs"
+ARRAY_WRITE_BACKEND="$ROOT_DIR/src/runner/modes/common_util/array_write_backend.rs"
 CALL_OPS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/call_ops.rs"
 CANONICAL_DIRECT_CALL="$ROOT_DIR/src/mir/canonical_direct_call.rs"
 EXTERN_CALL="$ROOT_DIR/src/mir/ssot/extern_call.rs"
@@ -29,14 +30,13 @@ RAW_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
 RAW_CLAIM="$ROOT_DIR/src/mir/builder/raw_ordinary_new_claim.rs"
 RAW_LOAN_PORT="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 ORDINARY_NEW_COSEAL="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs"
+ORDINARY_NEW_COSEAL_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_tests.rs"
 ORDINARY_NEW_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 ORDINARY_SOURCE_MODEL="$ROOT_DIR/src/parser/normal_callable_program_source/model.rs"
 ORDINARY_SOURCE_COVERAGE="$ROOT_DIR/src/parser/normal_callable_program_source/ordinary_new_source.rs"
 BUILDER_README="$ROOT_DIR/src/mir/builder/README.md"
 PACKAGE_README="$ROOT_DIR/src/mir/normal_callable_semantic_package/README.md"
 METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
-MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
-MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
 MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
 MIR_V0_TESTS="$ROOT_DIR/src/runner/mir_json_v0/tests.rs"
 MIR_V1_CALL="$ROOT_DIR/src/runner/json_v1_bridge/parse/mir_call.rs"
@@ -64,6 +64,8 @@ LLVM_MIR_CALL_SURFACE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_surfac
 LLVM_MIR_CALL_EXTERN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc"
 LLVM_MIR_CALL_EXTERN_RULES="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_rules.inc"
 LLVM_MIR_CALL_EXTERN_BODY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc"
+NEW_EXPRESSION="$ROOT_DIR/src/mir/builder/new_expression.rs"
+RAW_DISPATCH="$ROOT_DIR/src/mir/builder/raw_expression_dispatch/mod.rs"
 fail() {
   echo "[$TAG] $*" >&2
   exit 1
@@ -73,7 +75,7 @@ require() {
   local token="$2"
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$ARRAY_WRITE_BACKEND" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_COSEAL_TESTS" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY" "$NEW_EXPRESSION" "$RAW_DISPATCH"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 if rg -F -q "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline" "$OPTIMIZER" || rg -F -q "MirOptimizerLateCallAndInline" "$SCHEDULE"; then
@@ -100,21 +102,24 @@ require "$PROGRAM_LOWERING" "lower_defs_into_module"
 if rg -F -q "maybe_resolve_calls" "$PROGRAM_LOWERING" || rg -F -q "func_map" "$PROGRAM_LOWERING"; then
   fail "Program lowering retained a late func_map/maybe_resolve_calls authority"
 fi
-require "$EXEC" "project_module_to_legacy_calls"
+require "$ARRAY_WRITE_BACKEND" "project_for_legacy_backend"
 require "$METHODS" "pub(crate) fn call("
 require "$CANONICAL_DIRECT_CALL" "MirInstruction::call("
-require "$CANONICAL_DIRECT_CALL" "Callee::Global(self.target.symbol().as_mir_name().to_string())"
+require "$CANONICAL_DIRECT_CALL" "canonical_global_target_v1()"
+require "$CANONICAL_DIRECT_CALL" "CanonicalGlobalTargetV1::new_free_function"
+require "$CANONICAL_DIRECT_CALL" "Callee::Global(target)"
 require "$EXTERN_CALL" "MirInstruction::call("
 require "$EXTERN_CALL" "Callee::Extern(extern_name)"
 require "$NORMAL_MAIN_THUNK" "MirInstruction::call("
-require "$NORMAL_MAIN_THUNK" "Callee::Global(source.symbol().as_mir_name().to_owned())"
+require "$NORMAL_MAIN_THUNK" "typed_global_target_from_selected_symbol"
+require "$NORMAL_MAIN_THUNK" "Callee::Global("
 require "$METHOD_CALL" "MirInstruction::call("
 require "$METHOD_CALL" "Callee::Method {"
 require "$METHOD_CALL" "receiver: Some(receiver)"
 require "$PROGRAM_CALL_TARGETS" "ProgramCallTargetCatalog"
 require "$PROGRAM_CALL_TARGETS" "ambiguous-name"
-require "$ORDINARY_NEW_ADMISSION" "let claim = port.try_take_ordinary_new_claim(class, arguments.len())?;"
-require "$ORDINARY_NEW_ADMISSION" "if let Some(birth) = claim.birth()"
+require "$ORDINARY_NEW_ADMISSION" "claim.map(|claim| claim.constructor())"
+require "$ORDINARY_NEW_ADMISSION" "OrdinaryNewConstructorDispositionV1::Birth(recipe)"
 require "$RAW_CHILD_LOWERING" "raw_ordinary_new_claim"
 require "$RAW_CLAIM" "trait RawOrdinaryNewClaimPortV1"
 require "$RAW_CLAIM" "try_take_ordinary_new_claim"
@@ -122,9 +127,10 @@ require "$RAW_LOAN_PORT" "ordinary_new_claim_ledger"
 require "$ORDINARY_NEW_COSEAL" "issue_ordinary_new_claims_v1"
 require "$ORDINARY_NEW_COSEAL" "OrdinaryNewClaimLedgerV1"
 require "$ORDINARY_NEW_COSEAL" "SourcePathSegmentV1::Initializer"
-require "$ORDINARY_NEW_COSEAL" "exact_claim_is_consumed_once"
-require "$ORDINARY_NEW_COSEAL" "mismatched_shape_preserves_claim_for_the_correct_consumer"
-require "$ORDINARY_NEW_COSEAL" "source_birth_projection_is_exact_and_missing_arity_rejects"
+require "$ORDINARY_NEW_COSEAL_TESTS" "exact_claim_is_consumed_once"
+require "$ORDINARY_NEW_COSEAL_TESTS" "mismatched_shape_preserves_claim_for_the_correct_consumer"
+require "$ORDINARY_NEW_COSEAL_TESTS" "ordinary_new_recipe_preserves_exact_birth_source"
+require "$ORDINARY_NEW_COSEAL_TESTS" "ordinary_new_constructor_disposition_rejects_nonzero_without_birth"
 require "$ORDINARY_NEW_INSTALL" "IncompleteOrdinaryNewCoverage"
 require "$ORDINARY_SOURCE_MODEL" "ordinary_box_coverage"
 require "$ORDINARY_SOURCE_COVERAGE" "ParserOrdinaryBoxSourceCoverageV1"
@@ -132,14 +138,10 @@ require "$BUILDER_README" "Raw ordinary-\`New\` source claim consumer (D2c)"
 require "$PACKAGE_README" "Raw ordinary-\`New\` claim co-seal (D2c)"
 require "$SCHEDULE" "canonicalize_callsites_for_site(module)"
 require "$SCHEDULE" "ProgramJsonV0Bridge"
-require "$MIR_V0_CALL" "enum JsonV0CallInput"
-require "$MIR_V0_CALL" "struct JsonV0CallInputError"
-require "$MIR_V0_CALL" "mir-json-v0/constructor-call-requires-newbox"
-require "$MIR_V0_CALL" "MirInstruction::call("
-require "$MIR_V0_CATALOG" "JsonV0FunctionCatalog"
-require "$MIR_V0_CATALOG" "ConstValue::String"
-require "$MIR_V0_MODULE" "JsonV0FunctionCatalog::from_function"
-require "$MIR_V0_TESTS" "parse_typed_constructor_call_rejects_before_call_publication"
+require "$MIR_V0_MODULE" '"call" | "mir_call"'
+require "$MIR_V0_MODULE" "mir-json-v0/legacy-call-stopped"
+require "$MIR_V0_TESTS" "parse_call_stops_before_legacy_carrier_construction"
+require "$MIR_V0_TESTS" "parse_mir_call_stops_before_legacy_carrier_construction"
 require "$MIR_V0_TESTS" "parse_direct_newbox_remains_positive"
 require "$MIR_V1_CALL" "mir-json-v1/constructor-args-ambiguous"
 require "$MIR_V1_CALL" "mir-json-v1/constructor-args-required"
@@ -159,7 +161,7 @@ require "$METHODS" "callee.for_each_value_operand"
 require "$ROOT_DIR/src/mir/instruction/tests.rs" "typed_call_used_values_project_callee_operands_before_args"
 require "$CALLEE_DEFS" "callee_for_each_value_operand_preserves_occurrence_order_and_duplicates"
 require "$CALLEE_DEFS" "callee_for_each_value_operand_is_empty_for_targetless_and_missing_receiver_shapes"
-require "$VALUE_CONSUMER" "MirInstruction::Call { .. } => inst.used_values()"
+require "$VALUE_CONSUMER" "MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => inst.used_values()"
 require "$VALUE_CONSUMER" "refresh_value_consumer_facts_counts_typed_callee_targets_as_other_uses"
 require "$VALUE_CONSUMER" "refresh_value_consumer_facts_ignores_typed_func_and_dst_decoration"
 require "$VALUE_CONSUMER" "refresh_value_consumer_facts_preserves_legacy_func_use"
@@ -183,7 +185,7 @@ require "$OWNERSHIP_TESTS" "typed_managed_target_fails_before_generic_liveness"
 require "$OWNERSHIP_TESTS" "typed_closure_operands_use_generic_liveness_not_managed_call_policy"
 require "$OWNERSHIP_TESTS" "legacy_call_still_requires_a_known_trivial_func"
 require "$ROOT_DIR/src/mir/instruction/tests.rs" "call_kind_metadata_delegates_to_canonical_call_methods"
-require "$QUERY" "Call { .. } => inst.used_values()"
+require "$QUERY" "Call(_) | LegacyCallV0 { .. } => inst.used_values()"
 require "$QUERY" "return inst.dst_value().into_iter().collect()"
 require "$QUERY" "query_call_reads_match_canonical_used_values_for_every_shape"
 require "$QUERY" "query_call_writes_match_canonical_dst_value_and_ignore_target_shape"
@@ -222,9 +224,7 @@ fi
 if rg -F -q 'strcmp(op, "externcall")' "$LLVM_GENERIC_CALLS"; then
   fail "selected structured ny-llvmc dispatcher gained a raw externcall terminal"
 fi
-if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
-  fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
-fi
+python3 "$ROOT_DIR/tools/checks/mir_call_canonical_corridor_selected_new.py" "$ROOT_DIR"
 python3 - "$LLVM" "$ROOT_DIR" <<'PY'
 from pathlib import Path
 import sys
@@ -239,7 +239,7 @@ schedule_callers = [
 ]
 if sum((root / path).read_text().count("canonicalize_for_site(") for path in schedule_callers) != 5: raise SystemExit("callsite canonicalizer schedule caller inventory drifted from five")
 array_writer = (root / "src/mir/array_element_write.rs").read_text()
-if array_writer.count("*instruction = MirInstruction::Call {") != 1: raise SystemExit("ArrayElementWrite legacy projection writer count drifted from one")
+if array_writer.count("*instruction = MirInstruction::LegacyCallV0 {") != 1: raise SystemExit("ArrayElementWrite legacy projection writer count drifted from one")
 direct_call = (root / "src/mir/canonical_direct_call.rs").read_text()
 if direct_call.count("MirInstruction::call(") != 1:
     raise SystemExit("direct-call issuer does not delegate exactly once to the canonical helper")
@@ -263,8 +263,8 @@ if (
     or "callee: Some(" in normal_main_thunk
 ):
     raise SystemExit("normal-main thunk retained legacy Call literal or decoration")
-if "Callee::Global(source.symbol().as_mir_name().to_owned())" not in normal_main_thunk:
-    raise SystemExit("normal-main thunk lost exact Global target")
+if "typed_global_target_from_selected_symbol" not in normal_main_thunk or "Callee::Global(" not in normal_main_thunk:
+    raise SystemExit("normal-main thunk lost typed Global target projection")
 method_call = (root / "src/mir/ssot/method_call.rs").read_text()
 if method_call.count("MirInstruction::call(") != 1:
     raise SystemExit("typed Method SSOT helper does not delegate exactly once to canonical helper")
@@ -277,7 +277,7 @@ if (
 if "Callee::Method {" not in method_call or "receiver: Some(receiver)" not in method_call:
     raise SystemExit("typed Method SSOT helper lost its explicit receiver target")
 phi = (root / "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs").read_text()
-phi_start = phi.index("        MirInstruction::Call {\n            dst: Some(_),\n            callee: Some(callee),")
+phi_start = phi.index("        MirInstruction::LegacyCallV0 {\n            dst: Some(_),\n            callee: Some(callee),")
 phi_end = phi.index("        other =>", phi_start)
 phi_window = phi[phi_start:phi_end]
 for token in (
@@ -520,14 +520,14 @@ for name, next_name in (
     for forbidden in ("callee: None", "fun_val", "func:", "ConstValue::String(qualified)"):
         if forbidden in window:
             raise SystemExit(f"{name} retained legacy target edge: {forbidden}")
-    for required in ("MirInstruction::call(", "Callee::Global(qualified)", "EffectMask::READ"):
+    for required in ("MirInstruction::call(", "CanonicalGlobalTargetV1::new_static_box_method(", "Callee::Global(", "EffectMask::READ"):
         if required not in window:
             raise SystemExit(f"{name} lost canonical qualified Call evidence: {required}")
 constructor = (root / "src/mir/instruction/methods.rs").read_text()
 start = constructor.index("pub(crate) fn call(")
 end = constructor.index("pub fn extern_name", start)
 window = constructor[start:end]
-for required in ("func: ValueId::INVALID", "callee: Some(callee)"):
+for required in ("MirCall::new(dst, callee, args)", "call.effects = effects", "Self::Call(call)"):
     if required not in window:
         raise SystemExit(f"canonical Call constructor drifted: {required}")
 callee = (root / "crates/hakorune_mir_defs/src/call_unified.rs").read_text()
@@ -550,8 +550,8 @@ if "pub fn rewrite_value_operands" not in projection:
     raise SystemExit("Callee projection lost mutable rewrite facet")
 flow = (root / "src/mir/passes/simplify_cfg/flow.rs").read_text()
 rewrite_start = flow.index("fn rewrite_value_uses_in_instruction")
-call_start = flow.index("MirInstruction::Call {", rewrite_start)
-call_end = flow.index("MirInstruction::NewClosure", call_start)
+call_start = flow.index("MirInstruction::Call(call) =>", rewrite_start)
+call_end = flow.index("MirInstruction::LegacyCallV0", call_start)
 call_window = flow[call_start:call_end]
 if "Callee::" in call_window:
     raise SystemExit("SimplifyCFG retained a pass-local Callee match")
@@ -559,10 +559,12 @@ if call_window.count("rewrite_value_operands") != 1:
     raise SystemExit("SimplifyCFG Call arm does not delegate exactly once")
 methods = (root / "src/mir/instruction/methods.rs").read_text()
 used_start = methods.index("pub fn used_values")
-used_window = methods[used_start:]
+used_call_start = methods.index("MirInstruction::Call(call) =>", used_start)
+used_call_end = methods.index("MirInstruction::LegacyCallV0", used_call_start)
+used_window = methods[used_call_start:used_call_end]
 if used_window.count("callee.for_each_value_operand") != 1:
     raise SystemExit("used_values Call arm does not delegate exactly once")
-if used_window.index("callee.for_each_value_operand") > used_window.index("used.extend(args"):
+if used_window.index("callee.for_each_value_operand") > used_window.index("used.extend(call.args"):
     raise SystemExit("used_values emits args before typed Callee operands")
 if "match callee" in used_window:
     raise SystemExit("used_values retained a consumer-local Callee match")
@@ -570,7 +572,7 @@ value_consumer = (root / "src/mir/value_consumer.rs").read_text()
 consumer_start = value_consumer.index("fn value_consumer_used_values")
 consumer_end = value_consumer.index("pub fn refresh_function_value_consumer_facts", consumer_start)
 consumer_window = value_consumer[consumer_start:consumer_end]
-if consumer_window.count("MirInstruction::Call { .. } => inst.used_values()") != 1:
+if consumer_window.count("MirInstruction::Call(_) | MirInstruction::LegacyCallV0 { .. } => inst.used_values()") != 1:
     raise SystemExit("value_consumer Call arm does not delegate exactly once")
 if "MirInstruction::Call { func" in consumer_window:
     raise SystemExit("value_consumer retained a direct legacy func carrier in the Call arm")
@@ -581,8 +583,8 @@ publication = (root / "src/mir/user_box_method_publication.rs").read_text()
 publication_start = publication.index("fn instruction_publishes_any_alias")
 publication_end = publication.index("#[cfg(test)]", publication_start)
 publication_window = " ".join(publication[publication_start:publication_end].split())
-if (publication_window.count("MirInstruction::Call { .. } => inst") != 1 or publication_window.count("used_values()") != 1 or "method_receiver_is_alias" in publication_window or "callee" in publication_window):
-    raise SystemExit("user-box publication retained a local Callee/receiver matcher")
+if (publication_window.count("MirInstruction::LegacyCallV0 { .. } => inst") != 1 or publication_window.count("used_values()") != 1 or "method_receiver_is_alias" in publication_window or "Callee::" in publication_window):
+    raise SystemExit("user-box publication lost its compatibility-only generic operand observer")
 host_writer = (root / "src/mir/passes/string_corridor_sink/publication.rs").read_text()
 for label, marker, rewrite in (("host", "apply_publication_host_boundary_plans", "rewrite_method_set_value"), ("write", "apply_publication_write_boundary_plans", "rewrite_publication_write_boundary_value")):
     start = host_writer.index(marker)
@@ -613,14 +615,14 @@ insert_start = concat.index("ResolvedConcatCorridorPlan::InsertMidSubstring {", 
 if (window.count("MirInstruction::call(") != 2 or any(token not in window for token in ("Some(*insert_value)", "Callee::Extern(INSERT_HSI_EXTERN.to_string())", "vec![*source, *middle, *split]", "Some(*outer_dst)", "Callee::Extern(\"nyash.string.substring_hii\".to_string())", "vec![*insert_value, *start, *end]", "*effects"))): raise SystemExit("InsertMid family lost its ordered plan-owned canonical Calls")
 if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("InsertMid family retained a legacy or inferred Call field")
 store_start = concat.index("fn rewrite_substring_receiver"); store_window = " ".join(concat[store_start:].split())
-if (store_window.count("MirInstruction::call(") != 2 or any(token not in store_window for token in ("*receiver = Some(new_receiver)", "args[0] = new_receiver", "nyash.string.substring_hii"))): raise SystemExit("StoreSharedReceiverSubstring lost its paired typed reconstruction issuers")
+if (store_window.count("MirInstruction::call(") != 4 or any(token not in store_window for token in ("*receiver = Some(new_receiver)", "args[0] = new_receiver", "nyash.string.substring_hii"))): raise SystemExit("StoreSharedReceiverSubstring lost typed and compatibility reconstruction issuers")
 if "Some(MirInstruction::Call" in store_window or "func" in store_window: raise SystemExit("StoreSharedReceiverSubstring retained a direct literal or legacy func carrier")
 terminal = (root / "src/mir/builder/calls/unified_emitter/physical_terminal.rs").read_text(); terminal_start = terminal.index("pub(super) fn emit_finalized_generic_call_v1"); terminal_window = " ".join(terminal[terminal_start:].split())
 if terminal_window.count("MirInstruction::call(") != 1 or any(token in terminal_window for token in ("MirInstruction::Call {", "func:", "callee: Some(")): raise SystemExit("unified physical terminal retained a direct or legacy Call issuer")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
-role_start = escape.index("MirInstruction::Call { callee, args, .. }")
+role_start = escape.index("MirInstruction::LegacyCallV0 { callee, args, .. }")
 role_end = escape.index("MirInstruction::Store", role_start)
 role_window = escape[role_start:role_end]
 if role_window.count("callee.for_each_value_operand") != 1:
@@ -688,14 +690,14 @@ if "reg_load(func)" in interpreter_owner or "functions.get(s)" in interpreter_ow
     raise SystemExit("Rust interpreter retained the missing-Callee by-name execution edge")
 if "call-missing-callee: typed Callee required" not in interpreter_owner:
     raise SystemExit("Rust interpreter lost the typed missing-Callee terminal reject")
-if "self.execute_callee_call(callee_type, args)?" not in interpreter_owner:
-    raise SystemExit("Rust interpreter lost the typed Callee execution path")
+if "fn reject_legacy_call" not in interpreter_owner:
+    raise SystemExit("Rust interpreter lost the legacy-call terminal reject owner")
 query = (root / "src/mir/query.rs").read_text()
 query_impl = query.index("impl<'m> MirQuery for MirQueryBox")
 reads_start = query.index("fn reads_of", query_impl)
 writes_start = query.index("fn writes_of", reads_start)
 reads_window = query[reads_start:writes_start]
-if "Call { .. } => inst.used_values()" not in reads_window:
+if "Call(_) | LegacyCallV0 { .. } => inst.used_values()" not in reads_window:
     raise SystemExit("MirQuery reads_of lost canonical Call delegation")
 if "callee" in reads_window or "func" in reads_window:
     raise SystemExit("MirQuery reads_of retained local target/func reconstruction")
@@ -721,12 +723,12 @@ for token in (
 if "resolve" in helper_window or "retry" in helper_window or "ConstValue" in helper_window:
     raise SystemExit("printer target projection retained semantic target reconstruction")
 display = (root / "src/mir/instruction/display.rs").read_text()
-call_start = display.index("MirInstruction::Call {")
-call_end = display.index("MirInstruction::Return", call_start)
+call_start = display.index("MirInstruction::Call(call) =>")
+call_end = display.index("MirInstruction::LegacyCallV0", call_start)
 display_call = display[call_start:call_end]
 if "callee: _" in display_call or "TODO: Use callee" in display_call:
     raise SystemExit("MIR Display retained the stale func-only Call observer")
-if display_call.count("format_call_target(callee.as_ref(), *func, args)") != 1:
+if display_call.count("format_call_target(Some(&call.callee), ValueId::INVALID, &call.args)") != 1:
     raise SystemExit("MIR Display does not delegate Call rendering exactly once")
 printer_tests = (root / "src/mir/printer/tests.rs").read_text()
 for token in (
